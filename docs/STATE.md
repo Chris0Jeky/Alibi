@@ -2,6 +2,116 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Release candidate 0.6.0
+
+Build `f7c4ef0b6961` includes the source-integrated Quiet Wing, modular seeded city, animated
+companions, four additional relaxing boards, expanded idle garden and three newly curated
+museum artworks across Club, collection and conservatory. No published puzzle definitions,
+public origins or database identities changed. Source work is on PR #14 in incremental commits.
+`npm run verify` passes; the visual-refresh suite passes 43 real-image/navigation/viewport checks.
+Earlier changed seams have their direct evidence below. Final CI and hosted deployment/upgrade
+acceptance are the remaining release work. Physical-device gates remain in HUMAN_TODO.md.
+The exact live production origin still reports Sites version 3 from main `1f049a7`; this candidate
+has not yet been deployed. Do not confuse the prepared source with a hosted release.
+
+Measured sizes: initial JavaScript 125,138 bytes gzip, core offline pack 1,329,465 bytes,
+optional wing 1,977,944 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
+includes the renderer, models, three animated animals and museum assets. No runtime asset CDN.
+Three Met originals and their public-domain records are retained under assets-source/atmosphere.
+Adobe returned HTTP403, image generation failed connection, and AIC images challenged requests;
+verified Met downloads supplied the final art without bypassing those services.
+
+Residual review finding: [#15](https://github.com/Chris0Jeky/Alibi/issues/15), MEDIUM malformed
+crop identifiers in hand-edited imports. Ordinary controls/saves do not create them. Physical
+Android recovery, assistive technology and editor interoperability remain explicitly open.
+
+Late review: combined backup parsing and all three section validators now run in the existing
+25-second worker. Cabinet and Club validation share the same pure functions as normal reads;
+the UI does not execute the optional activity merely to stage a backup. The browser regression
+exercises successful staging, malformed input and a deliberately stalled worker with no writes.
+The original real-origin recovery/update suite remains green. CI exposed an artwork test matching
+the departing route's shared selector; destination-document visual checks now pass locally.
+Additional MEDIUM preference, standalone-credit, slow-cache exit and unprimed offline combined
+export findings are tracked in [#16](https://github.com/Chris0Jeky/Alibi/issues/16), with workarounds.
+Ambiguous IndexedDB open failures, including timeouts, now remain protected instead of starting
+a competing writable fallback. Only explicitly unavailable or denied IndexedDB can use the
+existing fallback. Regression coverage verifies refusal, no fallback creation and exact recovery
+of the original committed save after a successful retry.
+CI reproduced a deferred garden image that never decoded on one Linux runner while the parallel
+run passed. The single garden image now loads eagerly inside the already-lazy activity; its
+browser decode assertion has a ten-second deadline and failure diagnostics. No optional activity
+code or models are loaded on the cabinet by this change.
+
+## Quiet Wing expansion in progress
+
+The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
+See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding scope.
+First layer: reproducible harbour/river/hillfort/woodland worlds up to 28 × 28 plots, preview before
+replacement, castle/village/farm plans, routed roads and bridges, move/copy, area brushes and town
+feedback. Existing 14 × 14 saves remain valid without migration. Whole edits undo together.
+The next layer imports 24 CC0 models, adds six castle modules and assembles houses from separate
+walls, windows, doors and roofs. Locally bundled WebGL adds lighting, cached soft shadows and
+bounded water animation, with usable Canvas fallback during graphics-context loss. Source credits
+are now versioned across release updates. Local build `5f6c84697208` passes `npm run verify`, ten
+city/model tests, 28 actual city controls, 14 GPU lifecycle checks, all 156 Quiet Wing controls and
+36 origin/restart/recovery checks. Phone, desktop and fallback screenshots were inspected.
+Independent Terra high review found no defects. Physical performance remains unverified; local
+headless rendering was slow enough to justify automatic ambient-motion pausing. Companions,
+additional games, wider visual refresh and deployment remain active work; no expansion release
+or physical test is claimed. The earlier source-candidate evidence below is historical.
+
+Companion slice at build `26a3c7354c8b`: cat, fox and owl use locally bundled animated GLBs;
+Nimbus is an original articulated model. All saved identities, nicknames, affection and strolls
+use the existing state. Live affection labels now refresh immediately. The view falls back to
+the existing illustration on download/WebGL failure or context loss, and disposes on navigation.
+Local browser checks cover all four models/actions, reduced motion, hidden-page pause, offline
+reload with names retained, route disposal and narrow viewport. All 156 existing Quiet Wing
+controls and 36 origin/update/recovery checks pass with these changes. Desktop/phone portraits
+were inspected. Independent Terra high review found no confirmed blockers. Optional offline pack
+is 1,952,850 bytes; the initial script is 124,033 bytes gzip and core offline pack 1,159,001 bytes.
+No external image requests, CSP relaxation or new database identity. Hosted/physical evidence
+remains outstanding. Broader games, artwork and release work remain in the expansion plan.
+
+Relaxing-games slice at `d778361bf3c9`: Tideglass has two finite colour-pouring boards with
+symbol alternatives and bounded current-board search; Pressed Meadow and Beachcomber have
+two illustrated pair boards with persistent reveals. Every new board completes through real
+controls, undo/reload work, and all four completion records survive an offline reload. Four
+focused reducer tests and `npm run verify` pass. Existing games retain their IDs and records.
+New original botanical/coastal motifs are included locally. Phone/desktop captures inspected;
+physical interaction and the final hosted release remain separate gates.
+
+Garden slice at `4c2c4aabc558`: six seeds, a species collection, three reusable pressed-flower
+slots, title and setting, batch sow/gather and a valid SVG postcard export. Original three growth
+durations, planted timestamps and historical keepsake totals stay intact; historic species are
+not invented. Node tests cover rollback clocks, bounded growth, one-time harvests, old saves and
+arrangement validation. Sixteen actual browser checks cover controls, safe batch operations,
+undo, SVG parsing, offline save/reload and narrow layout. Growth time is advanced only through
+an explicitly labelled test fixture. `npm run verify` passes. No hosted/physical claim.
+
+Road polish at `33ef49b1ea88`: shared paving follows neighbouring roads, gates and bridges,
+with raised transitions to adjacent higher plots. Cliffs and row boundaries do not connect.
+The new geometry regression, full verify, 28 city controls and 14 GPU/fallback checks pass.
+Postcard inputs now have the same readable sizing and 44-pixel minimum as other touch controls.
+
+## Quiet Wing source candidate
+
+- **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
+  commits precede the handoff commit. See [QUIET-WING.md](QUIET-WING.md) for source disposition,
+  actual evidence, asset receipts and recovery. No Quiet Wing hosted release is claimed.
+- Native `#/quiet/…` activity boundary, Shadow DOM isolation and disposal, root-owned updates,
+  optional offline pack, future-save raw recovery and combined backup discovery with staged
+  per-section restore. All existing puzzle/Club identities and both hosting configurations remain.
+- All 209 delivered input hashes match. Four museum images fetched from official endpoints,
+  public-domain flags verified, originals/receipts retained, optimized WebPs decoded and inspected.
+  The downloaded Kenney 2.0 pack remains reference; only the supplied verified keeper sprite renders.
+- Local checks pass: existing Node gate plus 95,459 parameterized Quiet Wing checks and 20 storage
+  checks; 156 real-origin controls; 34 origin/restart/offline/update/recovery checks. Existing browser
+  UI/Club/origin/expedition/restart/boot/update and local two-browser rooms all pass. Independent
+  Terra high review found no blockers. Hosted CI state belongs to the PR, not a presumed success.
+- Remaining gates: [#13](https://github.com/Chris0Jeky/Alibi/issues/13), affected Android freeze [#11](https://github.com/Chris0Jeky/Alibi/issues/11),
+  physical TalkBack/gestures/performance, actual hosted preview/update/rollback, OBJ editor import,
+  and human curation. [HUMAN_TODO.md](../HUMAN_TODO.md). Do not clear site data to recover.
+
 ## After Hours candidate
 
 - Source milestone: **0.5.0-preview.1**, 116 preserved puzzles, thirteen original engines,

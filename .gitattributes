@@ -2,3 +2,6 @@
 *.png binary
 *.webp binary
 *.woff2 binary
+*.glb binary
+# Rights receipts fingerprint the original downloaded bytes, including their line endings.
+assets-source/quiet-wing/city/** -text

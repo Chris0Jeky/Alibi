@@ -1,0 +1,65 @@
+"""Actual city controls and persistent larger realms. Local browser evidence only."""
+from pathlib import Path
+import json, os, shutil
+from playwright.sync_api import sync_playwright
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT/'test-results/quiet-wing'; OUT.mkdir(parents=True,exist_ok=True)
+checks=[]; errors=[]
+def check(value, label):
+    assert value, label
+    checks.append(label); print('PASS',label,flush=True)
+def scene(page): return page.evaluate('QWApp.state.scene')
+def plot(page,x,y):
+    page.locator('#plot-x').select_option(index=x); page.locator('#plot-y').select_option(index=y); page.locator('#plot-apply').click()
+def tool(page,name):
+    page.locator('[data-category="Tools"]').click();page.locator(f'[data-tool="{name}"]').click()
+with sync_playwright() as pw:
+    browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True)
+    ctx=browser.new_context(viewport={'width':1440,'height':1000},accept_downloads=True)
+    page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
+    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
+    page.goto(base+'#/quiet/realm');page.wait_for_function('()=>window.QWApp?.renderer')
+    original=scene(page)
+    page.locator('[data-ract="generate"]').click()
+    page.locator('#world-size').select_option('28');page.locator('#world-layout').select_option('hillfort');page.locator('#world-seed').fill('Miso by the sea')
+    check(page.locator('#world-use').is_disabled(),'Changed generation settings require a matching preview')
+    page.locator('#world-preview').click();check(scene(page)==original,'Preview leaves current saved town untouched')
+    page.locator('#world-use').click();check(scene(page)['size']==28,'Apply creates a 28 by 28 world')
+    generated=scene(page)
+    check(len(page.locator('#plot-x option').all())==28,'Accessible plot picker covers the whole map')
+    page.locator('[data-ract="undo"]').click();check(scene(page)==original,'Undo restores original map including its size')
+    page.locator('[data-ract="redo"]').click();check(scene(page)==generated,'Redo restores generated town exactly')
+    page.evaluate('()=>QWApp.flush()');page.reload();page.wait_for_function('()=>window.QWApp?.renderer')
+    check(scene(page)==generated,'Large generated town survives committed save and reload')
+    page.screenshot(path=str(OUT/'city-hillfort-desktop.png'),full_page=True)
+    page.locator('#preset').select_option('empty');page.locator('#new-confirm').click()
+    page.locator('.plot-controls summary').click()
+    page.locator('[data-category="Plans"]').click();page.locator('[data-blueprint="courtyard"]').click();plot(page,2,2)
+    castle=scene(page);check(sum(i['type']=='tower' for t in castle['tiles'] for i in t['items'])==4,'Castle plan places four towers and modular walls')
+    plot(page,2,2);check(scene(page)==castle,'Occupied plan refuses destructive overwrite')
+    page.locator('[data-ract="undo"]').click();check(not any(t['items'] for t in scene(page)['tiles']),'Neighbourhood undo removes the entire plan')
+    page.locator('.plot-controls summary').click()
+    page.locator('[data-category="Homes"]').click();page.locator('[data-type="cottage"]').click();plot(page,3,3)
+    tool(page,'copy');plot(page,3,3);plot(page,5,3)
+    check(len(scene(page)['tiles'][3*14+3]['items'])==1 and len(scene(page)['tiles'][3*14+5]['items'])==1,'Copy leaves original building and places a matching copy')
+    tool(page,'move');plot(page,5,3);plot(page,6,3)
+    check(not scene(page)['tiles'][3*14+5]['items'] and scene(page)['tiles'][3*14+6]['items'],'Move transfers only the selected building')
+    tool(page,'road');plot(page,3,4);check(page.locator('#cancel-tool').is_visible(),'Two-point tool exposes cancellation')
+    page.locator('#cancel-tool').click();check(page.evaluate('QWApp.anchor')==-1,'Cancel clears road start without editing')
+    plot(page,3,4);plot(page,9,4);check(all(scene(page)['tiles'][4*14+x]['ground']=='path' for x in range(3,10)),'Road connects chosen endpoints through actual controls')
+    tool(page,'raise');page.locator('#brush-size').select_option('3');plot(page,10,10)
+    check(sum(t['height']==1 for t in scene(page)['tiles'])==9,'Area brush raises nine plots in one edit')
+    page.locator('[data-ract="undo"]').click();check(not any(t['height'] for t in scene(page)['tiles']),'Area brush undo restores every plot')
+    page.locator('#preset').select_option('harbour');page.locator('#new-confirm').click()
+    check(scene(page)['name']=='Little Bellweather','Harbour starting-place option is usable')
+    for width in [390,768,1440]:
+        page.set_viewport_size({'width':width,'height':900})
+        page.locator('[data-ract="generate"]').click()
+        check(page.locator('#world-preview').is_visible(),f'Generator controls visible at {width}px')
+        page.locator('#world-layout').select_option('river');page.locator('#world-preview').click();page.locator('#world-use').click()
+        check(scene(page)['size']==20,f'Generator applies on {width}px layout')
+        check(page.evaluate('document.documentElement.scrollWidth <= innerWidth+1'),f'No page overflow at {width}px')
+        page.screenshot(path=str(OUT/f'city-river-{width}.png'),full_page=True)
+    check(not errors,'No uncaught browser errors')
+    (OUT/'city-results.json').write_text(json.dumps({'checks':checks,'errors':errors,'build':json.loads((ROOT/'build-info.json').read_text())['build']},indent=2))
+    browser.close()

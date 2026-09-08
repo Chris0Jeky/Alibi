@@ -1,0 +1,134 @@
+.museum-atmosphere {
+  margin: 0;
+  min-width: 0;
+}
+.museum-atmosphere img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+}
+.museum-atmosphere figcaption {
+  padding: 10px 14px;
+  font-size: 10px;
+  line-height: 1.5;
+  background: #f3ede1;
+  color: #5c7066;
+}
+.museum-atmosphere a {
+  text-underline-offset: 3px;
+}
+.quiet-invitation {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  margin: 32px 0;
+  background: #ecefdf;
+  border: 1px solid #d6ddc7;
+  border-radius: 22px;
+  overflow: hidden;
+}
+.quiet-invitation > figure {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.quiet-invitation-copy {
+  padding: 40px;
+}
+.quiet-invitation-copy h2 {
+  font-size: clamp(30px, 3vw, 44px);
+  margin: 15px 0;
+}
+.quiet-invitation-copy p {
+  max-width: 46ch;
+}
+.quiet-destinations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 25px;
+}
+.quiet-destinations a {
+  padding: 18px;
+  min-height: 88px;
+  background: #faf6eb;
+  border: 1px solid #d5dacb;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.quiet-destinations a:hover {
+  background: #fffdf6;
+}
+.quiet-destinations strong {
+  display: block;
+  font:
+    21px Georgia,
+    serif;
+  margin-bottom: 8px;
+}
+.quiet-destinations span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.collection-atmosphere {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border: 1px solid #dce1d1;
+  background: #f4f1e7;
+  margin: 0 0 24px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.collection-atmosphere figure {
+  display: grid;
+  grid-template-rows: 210px auto;
+}
+.collection-atmosphere > div {
+  padding: 28px;
+  align-self: center;
+}
+.collection-atmosphere p {
+  font:
+    29px/1.25 Georgia,
+    serif;
+  max-width: 25ch;
+}
+.collection-atmosphere small {
+  font-size: 12px;
+  color: #65776f;
+}
+@media (max-width: 650px) {
+  .quiet-invitation {
+    grid-template-columns: 1fr;
+  }
+  .quiet-invitation > figure {
+    grid-template-rows: 240px auto;
+  }
+  .quiet-invitation-copy {
+    padding: 24px;
+  }
+  .quiet-destinations {
+    gap: 8px;
+  }
+  .quiet-destinations a {
+    padding: 14px;
+  }
+  .quiet-destinations strong {
+    font-size: 18px;
+  }
+  .collection-atmosphere {
+    grid-template-columns: 1fr;
+  }
+  .collection-atmosphere figure {
+    grid-template-rows: 165px auto;
+  }
+  .collection-atmosphere > div {
+    padding: 20px;
+  }
+  .collection-atmosphere p {
+    font-size: 24px;
+    margin: 10px 0;
+  }
+}

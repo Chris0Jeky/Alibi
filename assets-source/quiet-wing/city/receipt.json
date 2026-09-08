@@ -1,0 +1,270 @@
+{
+  "recipe": "OBJ Y-up to Z-up; five-decimal positions; face-centre atlas colour approximation. Original UVs and atlases retained in source OBJ files.",
+  "assetSHA256": "16fc1519764cb238bfb598847caba5e2bde016d8a786e3af79d4d2a9515ab658",
+  "models": [
+    {
+      "pack": "castle",
+      "model": "tower-square-base",
+      "objSHA256": "1e6d15583ac1f03ddca097e745e4a0e6511944eb1e557152b106292945ee50a8",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 16,
+      "faces": 56,
+      "texturedFaces": 48,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-square-mid",
+      "objSHA256": "e08871f6e305f613fe1de682ace475acfdafa15a6537c9314fe00fb1616cd0ff",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 40,
+      "faces": 152,
+      "texturedFaces": 80,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-square-top",
+      "objSHA256": "25e265b91f73be81252ef8818e17701b909e5835753a8beecf938cecc9d8d127",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 76,
+      "faces": 296,
+      "texturedFaces": 192,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-square-roof",
+      "objSHA256": "ffd5aed85a79abe5dbea96d8614ee6d9e8515dbdab38f181cae088308ed039cd",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 72,
+      "faces": 288,
+      "texturedFaces": 184,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-hexagon-base",
+      "objSHA256": "683e9b3c02783816a97dc543feb51990132f14e4f4919a901d6f176546b3882a",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 36,
+      "faces": 136,
+      "texturedFaces": 120,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-hexagon-mid",
+      "objSHA256": "82f5548afd3e252fdacbadceeccd1cd33f14d0208003fafb7d7db02214cb3d0f",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 204,
+      "faces": 808,
+      "texturedFaces": 636,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "tower-hexagon-roof",
+      "objSHA256": "97f9000f7ccbee42b3bb61d6c59c3eaac326dade777a4301d7cbed4902115e9d",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 36,
+      "faces": 136,
+      "texturedFaces": 120,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "wall",
+      "objSHA256": "94c1939db13317c436f405b9a7a36d32d79356958e60f98036a9ad4740c57dec",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 100,
+      "faces": 356,
+      "texturedFaces": 208,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "wall-corner",
+      "objSHA256": "dfd8051035327b4b1ac8bdaa13dcfdaa6ad6e6db7ffc863d9791cdc5f00dea97",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 86,
+      "faces": 336,
+      "texturedFaces": 226,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "wall-doorway",
+      "objSHA256": "ba57b78fca1b3cd676e899dd4432339466fb97ca7cf7263556f1174eaa3c8e4c",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 228,
+      "faces": 1000,
+      "texturedFaces": 672,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "stairs-stone",
+      "objSHA256": "1de3c8730d59f544e87eb092fe848a4c8ba5df03c6882e94567b53c170657379",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 54,
+      "faces": 208,
+      "texturedFaces": 156,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "castle",
+      "model": "bridge-straight",
+      "objSHA256": "961a8342b0cc4181f98f09df2fd2863786afdac5b07bd560c20f35105f4107a5",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "66fd49be148f32e88f6c8cace67120250d1943a7856601158ad0ff24651db0b0",
+      "vertices": 98,
+      "faces": 384,
+      "texturedFaces": 258,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "wall-window-shutters",
+      "objSHA256": "1a772f3ad28c6caa4f37bac11b45d77ffa36d25e41f80655cd59c995215d02df",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 178,
+      "faces": 572,
+      "texturedFaces": 438,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "wall-wood-window-shutters",
+      "objSHA256": "9f84a0e885fbd29974ea30d65e30878b13cc14e08f3b9de082eacfd5e38cc4f5",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 72,
+      "faces": 244,
+      "texturedFaces": 144,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "wall-door",
+      "objSHA256": "9c1bbb544062e39dbeaa10520e1b22b66312bbd452df26691a2b21274a526153",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 238,
+      "faces": 556,
+      "texturedFaces": 490,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "wall-wood-door",
+      "objSHA256": "1271c6e653fcd358a473a88087c84c7db4639b5c84e890411a2d3bfee1073696",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 236,
+      "faces": 556,
+      "texturedFaces": 476,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "roof-gable",
+      "objSHA256": "ddebb8c724d6423ed9c852d5174c1887d9c197012b95d246b892d3933aa571f8",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 42,
+      "faces": 144,
+      "texturedFaces": 124,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "roof-point",
+      "objSHA256": "85e9b0281a054e9cd3a2a69c2377d78307785d04702041bb29d05185ce4a05d0",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 24,
+      "faces": 88,
+      "texturedFaces": 72,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "tree",
+      "objSHA256": "858aa4138245b4d487d93e57010ae4fab41ff3ff8aeeda1ce0850d443910656a",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 101,
+      "faces": 336,
+      "texturedFaces": 272,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "tree-high",
+      "objSHA256": "37025d472e025c8359ca09b198afbfe0e782596d418b417378521c0e4eaf637b",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 121,
+      "faces": 400,
+      "texturedFaces": 328,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "lantern",
+      "objSHA256": "16c1e904fee1868757c2c80938fea161cc8904240f5f68dde988e17ddd9a033c",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 88,
+      "faces": 316,
+      "texturedFaces": 232,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "stall-red",
+      "objSHA256": "eea00988cc374085a1e940d4619f5ad96902155530b3806d7b47c3dd403b6c2f",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 182,
+      "faces": 540,
+      "texturedFaces": 440,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "road",
+      "objSHA256": "f482cc35d699a650092f1dc379019ea830c408e6475982ac9a765a9f723d41a2",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 8,
+      "faces": 24,
+      "texturedFaces": 0,
+      "licence": "CC0-1.0"
+    },
+    {
+      "pack": "town",
+      "model": "road-bend",
+      "objSHA256": "ec83c0dbb78a31aa9abfe1f399d5822e98743ca482a6d97a7135b0b87896ba82",
+      "materialSHA256": "45a6736aa344a0c7e286b9c43c6a48f25b6a2f78d8c5949e430c3b4a93b4e060",
+      "atlasSHA256": "4aac939dc33195e35caf8c382ee3cb170054da763577f22d3c22692ec6afccdf",
+      "vertices": 146,
+      "faces": 560,
+      "texturedFaces": 0,
+      "licence": "CC0-1.0"
+    }
+  ]
+}

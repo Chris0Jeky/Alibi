@@ -102,3 +102,11 @@ or enter Zen. The original 116 puzzles and four casebooks remain available with 
 [Owner/device follow-up](HUMAN_TODO.md). Cabinet and Club backups are separate; export both before
 moving to another website address. Optional private-room server source is included and tested
 locally, but a static deployment does not enable public online play.
+
+## Quiet Wing source candidate
+
+The 0.6.0-lab.1 source adds an optional realm builder, four companions, a timestamp garden,
+13 classic configurations and four rights-verified museum images. Enter from the home desk or
+main navigation. It loads separately; Settings & saves can export all three save sections together.
+This candidate has local browser evidence and has not been promoted to the public sites.
+See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).

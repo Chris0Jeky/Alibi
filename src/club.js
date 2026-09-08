@@ -125,77 +125,8 @@
   function render() {
     bridge?.render();
   }
-  function validateSave(v) {
-    if (
-      !v ||
-      v.schema !== 1 ||
-      !v.settings ||
-      !v.runs ||
-      !Array.isArray(v.records) ||
-      v.records.length > 120 ||
-      JSON.stringify(v).length > 400000
-    )
-      throw Error('This is not a supported Club save.');
-    if (
-      !['off', 'candidates', 'tidy'].includes(v.settings.assist) ||
-      typeof v.settings.zen !== 'boolean' ||
-      !(
-        v.settings.pinned === null ||
-        (Number.isInteger(v.settings.pinned) &&
-          v.settings.pinned >= 0 &&
-          v.settings.pinned < stories.length)
-      ) ||
-      !Number.isInteger(v.visit) ||
-      !Number.isInteger(v.lastHero)
-    )
-      throw Error('Invalid Club preferences.');
-    for (const [key, r] of Object.entries(v.runs)) {
-      if (
-        !['duel', 'borough', 'archive'].includes(key) ||
-        !r ||
-        (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
-        !Array.isArray(r.log) ||
-        r.log.length > 3000 ||
-        !Array.isArray(r.redo) ||
-        r.redo.length > 3000
-      )
-        throw Error('Invalid game history.');
-      if (key === 'duel') {
-        if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
-        let s = E().reversi.initial();
-        for (const i of [...r.log, ...r.redo.slice().reverse()]) s = E().reversi.move(s, i);
-      }
-      if (key === 'borough') E().borough.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
-      if (key === 'archive') {
-        let s = E().warehouse.initial(r.level);
-        for (const d of [...r.log, ...r.redo.slice().reverse()]) {
-          const next = E().warehouse.move(s, d);
-          if (next === s) throw Error('Invalid archive history.');
-          s = next;
-        }
-      }
-    }
-    for (const r of v.records)
-      if (
-        !r ||
-        typeof r.id !== 'string' ||
-        r.id.length > 100 ||
-        !['duel', 'borough', 'archive'].includes(r.type) ||
-        typeof r.label !== 'string' ||
-        r.label.length > 100 ||
-        !Number.isFinite(r.score) ||
-        typeof r.date !== 'string' ||
-        r.date.length > 40
-      )
-        throw Error('Invalid record.');
-    if (
-      v.settings.api !== undefined &&
-      (typeof v.settings.api !== 'string' || v.settings.api.length > 2048)
-    )
-      throw Error('Invalid API setting.');
-    if (!Array.isArray(v.stamps) || v.stamps.length > 100 || v.stamps.some((x) => x !== 'zen'))
-      throw Error('Invalid stamp book.');
-    return clone(v);
+  function validateSave(value) {
+    return root.AlibiBackupValidation(root.AlibiCore, null, E, stories.length).validateSave(value);
   }
   async function init(api) {
     bridge = api;
@@ -293,7 +224,10 @@
         if (!input.files?.[0]) return;
         if (input.files[0].size > 400000) throw Error('Club save is too large.');
         await engine();
-        const next = validateSave(JSON.parse(await input.files[0].text()));
+        const next = await root.AlibiValidateImport({
+          type: 'club-backup',
+          text: await input.files[0].text(),
+        });
         bridge.dialog(
           'Replace the Club save?',
           `<p>This replaces games-room progress and records, not your original puzzle cabinet saves. Export a copy first if needed.</p>`,
@@ -309,6 +243,19 @@
         input.value = '';
       }
     };
+  }
+  async function reviewBackup(value) {
+    await engine();
+    const next = await root.AlibiValidateImport({ type: 'club-backup', value });
+    bridge.dialog(
+      'Replace the Club save?',
+      '<p>This replaces only Club progress. The previous committed Club save becomes its recovery copy.</p>',
+      [
+        { label: 'Replace Club save', action: 'club-restore-confirm' },
+        { label: 'Cancel', action: 'close-dialog', secondary: true },
+      ],
+    );
+    root.__alibiPendingClub = next;
   }
   function watch(tx, reject) {
     const timer = setTimeout(() => {
@@ -465,7 +412,7 @@
     let target = t.target;
     if (t.id === 'glasshouse' || t.id === 'night-train')
       target = root.ALIBI_CASEBOOKS.find((b) => b.artwork === t.id)?.id || target;
-    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}"><img src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div><div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
+    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}"><img src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
   }
   function gameCard(id, title, description, tag) {
     return `<button class="club-gamecard" data-action="navigate" data-page="${id === 'lab' ? 'lab' : 'salon'}" data-id="${id === 'lab' ? '' : id}">${portrait(id)}<div class="gamecard-copy"><small>${tag}</small><h3>${title} <span>↗</span></h3><p>${description}</p></div></button>`;
@@ -678,7 +625,7 @@
       ],
       ['A quiet practice', 'Enter Zen mode.', state.stamps.includes('zen'), 'garden'],
     ];
-    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list.')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon]) => `<div class="club-stamp ${earned ? 'earned' : ''}">${emblem(icon)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${r.score} points</span><small>${r.date.slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
+    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list.')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon]) => `<div class="club-stamp ${earned ? 'earned' : ''}">${emblem(icon)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${r.score} points</span><small>${r.date.slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}${go('Quiet Wing journal', 'quiet', 'journal', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
   }
   function exportSave(value = state, label = 'club') {
     const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
@@ -1500,6 +1447,11 @@
   });
   root.AlibiClub = {
     init,
+    reviewBackup,
+    validateBackup: async (value) => {
+      await engine();
+      return validateSave(value);
+    },
     home,
     roomPage,
     profile,

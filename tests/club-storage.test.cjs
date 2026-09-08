@@ -43,7 +43,7 @@ async function tab(storage) {
   };
   c.globalThis = c;
   vm.createContext(c);
-  for (const f of ['club-engines', 'club'])
+  for (const f of ['core', 'backup-validation', 'club-engines', 'club'])
     vm.runInContext(fs.readFileSync(path.join(root, 'src/' + f + '.js'), 'utf8'), c);
   await c.AlibiClub.init({ toast() {}, render() {}, settings: () => ({}) });
   return c;

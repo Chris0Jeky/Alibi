@@ -2,7 +2,47 @@ self.onmessage = (e) => {
   try {
     let value;
     const m = e.data;
-    if (m.type === 'pack') value = AlibiCore.validatePack(m.pack, true);
+    if (m.type === 'combined-backup') {
+      const data = JSON.parse(m.text);
+      if (
+        !data ||
+        data.format !== 'alibi-all-saves' ||
+        data.schema !== 1 ||
+        JSON.stringify(data.manifest) !== JSON.stringify(['cabinet', 'club', 'quiet']) ||
+        !data.sections ||
+        Object.keys(data.sections).some((k) => !data.manifest.includes(k))
+      )
+        throw Error('Unknown combined backup. The file and all device saves are unchanged.');
+      const validators = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG, () => AlibiClubEngines, 4);
+      validators.validateBackup(data.sections.cabinet);
+      validators.validateSave(data.sections.club);
+      if (data.sections.quiet) {
+        if (
+          data.sections.quiet.kind !== 'alibi-quiet-wing-backup' ||
+          data.sections.quiet.schema !== 1
+        )
+          throw Error('Unknown Quiet Wing backup. Nothing was restored.');
+        QWStore.validate(data.sections.quiet.state);
+      }
+      value = data;
+    } else if (m.type === 'cabinet-backup') {
+      value = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG).validateBackup(
+        m.text ? JSON.parse(m.text) : m.value,
+      );
+    } else if (m.type === 'club-backup') {
+      value = AlibiBackupValidation(AlibiCore, null, () => AlibiClubEngines, 4).validateSave(
+        m.text ? JSON.parse(m.text) : m.value,
+      );
+    } else if (m.type === 'quiet-state') {
+      value = QWStore.validate(m.value);
+    } else if (m.type === 'quiet-import') {
+      const data = JSON.parse(m.text);
+      if (data.kind === 'alibi-realm')
+        value = { isRealm: true, next: QWEngine.validateScene(data) };
+      else if (data.kind === 'alibi-quiet-wing-backup' && data.schema === 1)
+        value = { isRealm: false, next: QWStore.validate(data.state) };
+      else throw Error('This is not an Alibi Quiet Wing backup or realm.');
+    } else if (m.type === 'pack') value = AlibiCore.validatePack(m.pack, true);
     else if (m.type === 'generate') value = AlibiCore.createSceneDraft(m.options);
     else if (m.type === 'draft') {
       const p = AlibiCore.clone(m.puzzle);

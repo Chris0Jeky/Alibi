@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-08",
+  "models": [
+    {
+      "id": "owl",
+      "url": "https://gobkit.com/freebies/animalB/Owl.glb",
+      "sha256": "f3e48f5006760a50a8a6269b2f9796849c4b595243078ac59c93a3cbc05b7996",
+      "bytes": 109256,
+      "animations": [
+        "clip"
+      ],
+      "skins": 1,
+      "meshes": 1
+    },
+    {
+      "id": "fox",
+      "url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+      "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7",
+      "bytes": 162852,
+      "animations": [
+        "Survey",
+        "Walk",
+        "Run"
+      ],
+      "skins": 1,
+      "meshes": 1
+    },
+    {
+      "id": "cat",
+      "url": "https://static.poly.pizza/8b3fc8b2-7eae-4b19-8084-d2fbd725bc58.glb",
+      "sha256": "2ed030946f552f2b46433294391628a37583ae74a496d3164c003e1f95b24e4e",
+      "bytes": 280840,
+      "animations": [
+        "Cat.001|IdleCat"
+      ],
+      "skins": 1,
+      "meshes": 1
+    }
+  ]
+}
