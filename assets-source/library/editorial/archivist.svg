@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-label="Archivist club portrait">
+  <title>Archivist club portrait</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="480" height="600" fill="#f4ead4"/>
+  <rect width="480" height="600" fill="url(#grain)" opacity=".24"/>
+  <path d="M45 559 V220 Q45 83 240 83 Q435 83 435 220 V559Z" fill="#b88847" class="line"/>
+  <path d="M71 558 V225 Q71 111 240 111 Q409 111 409 225 V558Z" fill="#fff7e4" opacity=".22"/>
+  <path d="M44 559 H436" class="line" opacity=".6"/>
+  
+    <path d="M88 559 Q106 446 177 418 Q240 398 303 418 Q374 446 392 559Z" fill="#b76d52" class="line"/>
+    <path d="M155 464 Q201 493 240 464 Q279 493 326 464" fill="none" class="paper-line" opacity=".75"/>
+    <path d="M211 394 V438 Q240 459 269 438 V394" fill="#e0a27a" class="line"/>
+    <ellipse cx="240" cy="290" rx="83" ry="110" fill="#d08d68" class="line"/>
+    <path d="M161 275 Q158 177 240 157 Q322 177 319 275 Q285 219 240 222 Q193 220 161 275Z" fill="#252f35" class="line"/>
+    <path d="M169 210 Q194 164 239 155 Q286 163 312 210" fill="none" class="fine"/>
+    <path d="M168 302 Q179 229 240 225 Q301 229 312 302 V345 Q306 404 240 426 Q174 404 168 345Z" fill="#d79670" class="line"/>
+    <path d="M198 307 Q216 294 234 307 M247 307 Q264 294 282 307" fill="none" class="line"/>
+    <circle cx="218" cy="314" r="6" fill="#172d38"/><circle cx="262" cy="314" r="6" fill="#172d38"/>
+    <path d="M240 319 Q230 349 245 359" fill="none" class="fine"/>
+    <path d="M211 378 Q241 390 270 375" fill="none" class="line"/>
+    <path d="M119 460 H196 L185 505 H109Z" fill="#fff7e4" class="line"/>
+    <path d="M284 460 H361 L371 505 H295Z" fill="#fff7e4" class="line"/>
+    <path d="M128 477 H180 M301 477 H352 M120 493 H176 M305 493 H361" class="fine" opacity=".7"/>
+    <path d="M240 446 V531" class="fine" opacity=".55"/>
+    <path d="M103 531 Q240 493 377 531" fill="none" class="paper-line" opacity=".42"/>
+  
+  <path d="M84 520 Q240 489 396 520" fill="none" class="fine" opacity=".35"/>
+
+</svg>
