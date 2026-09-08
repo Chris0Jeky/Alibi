@@ -24,24 +24,24 @@
       ],
       "metadata": {
         "min": [
-          -0.9901,
+          -1.0,
           -1.0,
           0.0
         ],
         "max": [
-          0.9901,
           1.0,
-          1.9802
+          1.0,
+          2.02
         ],
         "size": [
-          1.9802,
           2.0,
-          1.9802
+          2.0,
+          2.02
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.9901
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -58,24 +58,24 @@
       ],
       "metadata": {
         "min": [
-          -0.9208,
-          -1.0,
+          -0.93,
+          -0.93,
           0.0
         ],
         "max": [
-          0.9208,
-          1.0,
-          1.8416
+          0.93,
+          0.93,
+          2.02
         ],
         "size": [
-          1.8416,
-          2.0,
-          1.8416
+          1.86,
+          1.86,
+          2.02
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.9208
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -93,23 +93,23 @@
       "metadata": {
         "min": [
           -1.0,
-          -0.3,
+          -1.0,
           0.0
         ],
         "max": [
           1.0,
-          0.3,
-          2.0
+          1.0,
+          0.6
         ],
         "size": [
           2.0,
-          0.6,
-          2.0
+          2.0,
+          0.6
         ],
         "pivot": [
           0.0,
-          -0.3,
-          1.0
+          0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -126,24 +126,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4975,
+          -1.0,
           -1.0,
           0.0
         ],
         "max": [
-          0.4975,
           1.0,
-          0.995
+          1.0,
+          4.02
         ],
         "size": [
-          0.995,
           2.0,
-          0.995
+          2.0,
+          4.02
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.4975
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -160,24 +160,24 @@
       ],
       "metadata": {
         "min": [
-          -0.687,
-          -1.0,
+          -0.9,
+          -0.7794,
           0.0
         ],
         "max": [
-          0.687,
-          1.0,
-          1.19
+          0.9,
+          0.7794,
+          2.62
         ],
         "size": [
-          1.374,
-          2.0,
-          1.19
+          1.8,
+          1.5588,
+          2.62
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.595
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -194,24 +194,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.483,
+          -0.9524,
+          -0.8248,
           0.0
         ],
         "max": [
-          1.0,
-          0.483,
-          1.7321
+          0.9524,
+          0.8248,
+          0.92
         ],
         "size": [
-          2.0,
-          0.9659,
-          1.7321
+          1.9049,
+          1.6497,
+          0.92
         ],
         "pivot": [
           0.0,
-          -0.483,
-          0.866
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -228,24 +228,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.8501,
+          -0.9763,
+          -0.8455,
           0.0
         ],
         "max": [
-          1.0,
-          0.8501,
-          1.7321
+          0.9763,
+          0.8455,
+          1.66
         ],
         "size": [
-          2.0,
-          1.7003,
-          1.7321
+          1.9526,
+          1.691,
+          1.66
         ],
         "pivot": [
           0.0,
-          -0.8501,
-          0.866
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -262,24 +262,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7634,
+          -1.0,
           -1.0,
           0.0
         ],
         "max": [
-          0.7634,
           1.0,
-          1.5267
+          1.0,
+          2.62
         ],
         "size": [
-          1.5267,
           2.0,
-          1.5267
+          2.0,
+          2.62
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.7634
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -296,24 +296,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7634,
+          -1.0,
           -1.0,
           0.0
         ],
         "max": [
-          0.7634,
           1.0,
-          1.5267
+          1.0,
+          2.62
         ],
         "size": [
-          1.5267,
           2.0,
-          1.5267
+          2.0,
+          2.62
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.7634
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -330,24 +330,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3817,
+          -0.5,
           -1.0,
-          0.0
+          -0.0
         ],
         "max": [
-          0.3817,
+          0.5,
           1.0,
-          1.5267
+          2.62
         ],
         "size": [
-          0.7634,
+          1.0,
           2.0,
-          1.5267
+          2.62
         ],
         "pivot": [
-          0.3817,
-          -1.0,
-          0.7634
+          0.5,
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -364,24 +364,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3444,
-          -1.0,
+          -0.2325,
+          -0.819,
           0.0
         ],
         "max": [
-          0.3444,
-          1.0,
-          2.4267
+          0.2325,
+          0.819,
+          1.35
         ],
         "size": [
-          0.6889,
-          2.0,
-          2.4267
+          0.465,
+          1.638,
+          1.35
         ],
         "pivot": [
           0.0,
-          -1.0,
-          1.2133
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -398,24 +398,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7908,
-          -1.0,
+          -0.93,
+          -0.93,
           0.0
         ],
         "max": [
-          0.7908,
-          1.0,
-          1.5816
+          0.93,
+          0.93,
+          2.352
         ],
         "size": [
-          1.5816,
-          2.0,
-          1.5816
+          1.86,
+          1.86,
+          2.352
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.7908
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -448,8 +448,8 @@
         ],
         "pivot": [
           -0.825,
-          -1.0,
-          1.0
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -482,8 +482,8 @@
         ],
         "pivot": [
           -0.9,
-          -1.0,
-          1.0
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -516,8 +516,8 @@
         ],
         "pivot": [
           -0.9,
-          -1.0,
-          1.0
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -550,8 +550,8 @@
         ],
         "pivot": [
           -0.9,
-          -1.0,
-          1.0
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -568,24 +568,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.5188,
-          0.0
+          -1.1,
+          -1.0707,
+          -0.0
         ],
         "max": [
-          1.0,
-          0.5188,
-          1.9467
+          1.1,
+          1.0707,
+          1.1414
         ],
         "size": [
-          2.0,
-          1.0377,
-          1.9467
+          2.2,
+          2.1414,
+          1.1414
         ],
         "pivot": [
           0.0,
-          -0.5188,
-          0.9734
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -602,24 +602,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.4545,
+          -1.1,
+          -1.1,
           0.0
         ],
         "max": [
-          1.0,
-          0.4545,
-          2.0
+          1.1,
+          1.1,
+          1.0
         ],
         "size": [
-          2.0,
-          0.9091,
-          2.0
+          2.2,
+          2.2,
+          1.0
         ],
         "pivot": [
           0.0,
-          -0.4545,
-          1.0
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -636,24 +636,24 @@
       ],
       "metadata": {
         "min": [
-          -0.424,
-          -1.0,
+          -1.023,
+          -1.023,
           0.0
         ],
         "max": [
-          0.424,
-          1.0,
-          0.848
+          1.023,
+          1.023,
+          4.8255
         ],
         "size": [
-          0.848,
-          2.0,
-          0.848
+          2.046,
+          2.046,
+          4.8255
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.424
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -670,24 +670,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3441,
-          -1.0,
+          -1.023,
+          -1.023,
           0.0
         ],
         "max": [
-          0.3441,
-          1.0,
-          0.6882
+          1.023,
+          1.023,
+          5.9455
         ],
         "size": [
-          0.6882,
-          2.0,
-          0.6882
+          2.046,
+          2.046,
+          5.9455
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.3441
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -704,24 +704,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1391,
-          -1.0,
+          -0.2164,
+          -0.2243,
           0.0
         ],
         "max": [
-          0.1391,
-          1.0,
-          0.2883
+          0.2164,
+          0.2243,
+          3.112
         ],
         "size": [
-          0.2782,
-          2.0,
-          0.2883
+          0.4329,
+          0.4486,
+          3.112
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.1442
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -738,24 +738,24 @@
       ],
       "metadata": {
         "min": [
-          -0.8084,
+          -1.0,
           -1.0,
           0.0
         ],
         "max": [
-          0.8084,
           1.0,
-          1.6168
+          1.0,
+          2.474
         ],
         "size": [
-          1.6168,
           2.0,
-          1.6168
+          2.0,
+          2.474
         ],
         "pivot": [
           0.0,
-          -1.0,
-          0.8084
+          -0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -773,23 +773,23 @@
       "metadata": {
         "min": [
           -1.0,
-          -0.025,
+          -1.0,
           0.0
         ],
         "max": [
           1.0,
-          0.025,
-          2.0
+          1.0,
+          0.05
         ],
         "size": [
           2.0,
-          0.05,
-          2.0
+          2.0,
+          0.05
         ],
         "pivot": [
           0.0,
-          -0.025,
-          1.0
+          0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -806,24 +806,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.0167,
+          -3.0,
+          -3.0,
           0.0
         ],
         "max": [
-          1.0,
-          0.0167,
-          2.0
+          3.0,
+          3.0,
+          0.1
         ],
         "size": [
-          2.0,
-          0.0333,
-          2.0
+          6.0,
+          6.0,
+          0.1
         ],
         "pivot": [
           0.0,
-          -0.0167,
-          1.0
+          0.0,
+          0.0
         ]
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
@@ -840,24 +840,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.1
+          2.0,
+          2.0,
+          0.2
         ],
         "size": [
-          2.0,
-          2.0,
-          0.1
+          4.0,
+          4.0,
+          0.2
         ],
         "pivot": [
           0.0,
           0.0,
-          0.05
+          0.1
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -874,24 +874,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.13
+          2.0,
+          2.0,
+          0.26
         ],
         "size": [
-          2.0,
-          2.0,
-          0.13
+          4.0,
+          4.0,
+          0.26
         ],
         "pivot": [
           0.0,
           0.0,
-          0.05
+          0.1
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -908,24 +908,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.13
+          2.0,
+          2.0,
+          0.26
         ],
         "size": [
-          2.0,
-          2.0,
-          0.13
+          4.0,
+          4.0,
+          0.26
         ],
         "pivot": [
           0.0,
           0.0,
-          0.05
+          0.1
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -942,24 +942,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.06
+          2.0,
+          2.0,
+          0.12
         ],
         "size": [
-          2.0,
-          2.0,
-          0.06
+          4.0,
+          4.0,
+          0.12
         ],
         "pivot": [
           0.0,
           0.0,
-          0.03
+          0.06
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -976,24 +976,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.12
+          2.0,
+          2.0,
+          0.24
         ],
         "size": [
-          2.0,
-          2.0,
-          0.12
+          4.0,
+          4.0,
+          0.24
         ],
         "pivot": [
           0.0,
           0.0,
-          0.03
+          0.06
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1010,24 +1010,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.12
+          2.0,
+          2.0,
+          0.24
         ],
         "size": [
-          2.0,
-          2.0,
-          0.12
+          4.0,
+          4.0,
+          0.24
         ],
         "pivot": [
           0.0,
           0.0,
-          0.03
+          0.06
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1044,24 +1044,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.25,
+          -2.0,
+          -0.5,
           0.0
         ],
         "max": [
-          1.0,
-          0.25,
-          1.4
-        ],
-        "size": [
           2.0,
           0.5,
-          1.4
+          2.8
+        ],
+        "size": [
+          4.0,
+          1.0,
+          2.8
         ],
         "pivot": [
-          -0.75,
-          0.03,
-          0.7
+          -1.5,
+          0.06,
+          1.4
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1078,24 +1078,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.2222,
+          -2.25,
+          -0.5,
           0.0
         ],
         "max": [
-          1.0,
-          0.2222,
-          1.2444
+          2.25,
+          0.5,
+          2.8
         ],
         "size": [
-          2.0,
-          0.4444,
-          1.2444
+          4.5,
+          1.0,
+          2.8
         ],
         "pivot": [
-          -0.1111,
+          -0.25,
           0.0,
-          0.4889
+          1.1
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1112,24 +1112,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.4074,
+          -2.7,
+          -1.1,
           0.0
         ],
         "max": [
-          1.0,
-          0.4074,
-          0.4926
+          2.7,
+          1.1,
+          1.33
         ],
         "size": [
-          2.0,
-          0.8148,
-          0.4926
+          5.4,
+          2.2,
+          1.33
         ],
         "pivot": [
           0.0,
           0.0,
-          0.4037
+          1.09
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1146,24 +1146,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -1.7,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          1.6598
+          2.0,
+          1.7,
+          3.9
         ],
         "size": [
-          2.0,
-          2.0,
-          1.6598
+          4.0,
+          3.4,
+          3.9
         ],
         "pivot": [
           0.0,
           0.0,
-          0.4918
+          1.2
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1180,24 +1180,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.5,
+          -2.125,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          1.3279
+          2.5,
+          2.125,
+          3.9
         ],
         "size": [
-          2.0,
-          2.0,
-          1.3279
+          5.0,
+          4.25,
+          3.9
         ],
         "pivot": [
           0.0,
           0.0,
-          0.3934
+          1.2
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1214,24 +1214,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -0.8746,
+          -2.57,
+          -1.7,
           0.0
         ],
         "max": [
-          1.0,
-          0.8746,
-          1.4516
+          2.57,
+          1.7,
+          3.9
         ],
         "size": [
-          2.0,
-          1.7491,
-          1.4516
+          5.14,
+          3.4,
+          3.9
         ],
         "pivot": [
-          -0.1254,
+          -0.57,
           0.0,
-          0.4301
+          1.2
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1248,24 +1248,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.495
+          2.0,
+          2.0,
+          0.99
         ],
         "size": [
-          2.0,
-          2.0,
-          0.495
+          4.0,
+          4.0,
+          0.99
         ],
         "pivot": [
           0.0,
           0.0,
-          0.04
+          0.08
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1282,24 +1282,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          0.24
+          2.0,
+          2.0,
+          0.48
         ],
         "size": [
-          2.0,
-          2.0,
-          0.24
+          4.0,
+          4.0,
+          0.48
         ],
         "pivot": [
           0.0,
           0.0,
-          0.04
+          0.08
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1316,24 +1316,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -2.0,
+          -2.0,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          1.275
+          2.0,
+          2.0,
+          2.55
         ],
         "size": [
-          2.0,
-          2.0,
-          1.275
+          4.0,
+          4.0,
+          2.55
         ],
         "pivot": [
           0.0,
           0.0,
-          0.04
+          0.08
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
@@ -1350,24 +1350,24 @@
       ],
       "metadata": {
         "min": [
-          -1.0,
-          -1.0,
+          -1.56,
+          -1.56,
           0.0
         ],
         "max": [
-          1.0,
-          1.0,
-          2.6923
+          1.56,
+          1.56,
+          4.2
         ],
         "size": [
-          2.0,
-          2.0,
-          2.6923
+          3.12,
+          3.12,
+          4.2
         ],
         "pivot": [
           0.0,
           0.0,
-          0.7051
+          1.1
         ]
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",

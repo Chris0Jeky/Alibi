@@ -23,7 +23,9 @@ def box(items):
 def data(o):
  lo,hi,size=box([o]);return {'min':[round(v,4)for v in lo],'max':[round(v,4)for v in hi],'size':[round(v,4)for v in size],'pivot':[round(v,4)for v in o.location]}
 def normalize(o):
- lo,hi,size=box([o]);o.scale*=2/max(size.x,size.y,.01);bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);lo,hi,size=box([o]);o.location.x-=(lo.x+hi.x)/2;o.location.y-=(lo.y+hi.y)/2;o.location.z-=lo.z;return o
+ # Retained sources share Kenney world units; apply one common conversion rather than
+ # inflating narrow details such as lanterns to a two-unit footprint.
+ o.scale*=2;bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);lo,hi,size=box([o]);o.location.x-=(lo.x+hi.x)/2;o.location.y-=(lo.y+hi.y)/2;o.location.z-=lo.z;return o
 def proc(n):
  p=[]
  if n.startswith('ground'):p=[cube(n,0,0,.05,1,1,.05,'sage'if n=='ground-grass'else'stone')];p+=[]if n=='ground-grass'else[cube('path',0,0,.11,.42,1,.02,'cream')]if n=='ground-path'else[cube('cobble',x,y,.11,.22,.22,.02,'cream')for x in(-.5,0,.5)for y in(-.5,0,.5)]
@@ -34,7 +36,7 @@ def proc(n):
   if n=='wall-end':p+=[cyl('cap',1,0,.7,.25,1.4,'stone')]
  elif n.startswith('bridge'):p=[cube('deck',0,0,.55,1.35,.55,.12,'timber')]+[cyl('pier',x,0,.28,.18,.55,'stone')for x in(-1.1,1.1)]
  elif n.startswith('cottage')or n=='farm-barn':
-  w=1.25 if n=='cottage-long'else 1;p=[cube('body',0,0,.6,w,.75,.6,'cream'),cube('door',0,-.77,.38,.22,.03,.38,'timber')];r=cone('roof',0,0,1.5,1.22*w,0,1.05,'terracotta');r.rotation_euler[2]=math.pi/4;p+=[r];p+=[]if n!='farm-barn'else[cube('hay',w+.35,0,.28,.22,.22,.28,'crop')]
+  w=1.25 if n=='cottage-long'else 1;p=[cube('body',0,0,.6,w,.75,.6,'cream'),cube('door',0,-.77,.38,.22,.03,.38,'timber')];r=cone('roof',0,0,1.575,.85*w,0,.75,'terracotta');r.rotation_euler[2]=math.pi/4;p+=[r];p+=[]if n!='farm-barn'else[cube('hay',w+.35,0,.28,.22,.22,.28,'crop')]
  elif n.startswith('crop'):
   p=[cube('soil',0,0,.04,1,1,.04,'timber')]
   for x in(-.65,-.22,.22,.65):p+=[cube('row',x,0,.14,.08,.9,.1,'crop')]+([]if n=='crop-rows'else[cone('wheat',x,y,.32,.08,.02,.35,'crop')for y in(-.55,0,.55)])
@@ -42,31 +44,33 @@ def proc(n):
  elif n=='tree-oak':p=[cyl('trunk',0,0,.55,.14,1.1,'timber'),cone('canopy',0,0,1.45,.78,.22,1.3,'sage')]
  return normalize(join(n,p))
 def source(n,pack):
- bpy.ops.wm.obj_import(filepath=os.path.join(SRC,pack,n+'.obj'),forward_axis='Y',up_axis='Z');return normalize(join(n,list(bpy.context.selected_objects)))
+ # Kenney OBJ coordinates are Y-up.  Blender's default OBJ conversion maps that height into Z;
+ # the previous Y-forward override kept retained city geometry on its side.
+ bpy.ops.wm.obj_import(filepath=os.path.join(SRC,pack,n+'.obj'),forward_axis='NEGATIVE_Z',up_axis='Y');return normalize(join(n,list(bpy.context.selected_objects)))
 def make(n):return source(n,dict(EXISTING)[n])if n in dict(EXISTING)else proc(n)
 def select(items):bpy.ops.object.select_all(action='DESELECT');[o.select_set(True)for o in items];bpy.context.view_layer.objects.active=items[0]
 def glb(items,path):select(items);bpy.ops.export_scene.gltf(filepath=path,export_format='GLB',use_selection=True,export_materials='EXPORT')
 def render(items,path,alt=False,large=False):
- lo,hi,size=box(items);s=max(size.x,size.y,size.z,1);target=Vector((0,0,size.z*.3));bpy.ops.object.camera_add(location=((-1.25 if alt else 1.25)*s,-(1.2 if alt else 1.4)*s,1.2*s));cam=bpy.context.object;cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();bpy.ops.object.light_add(type='AREA',location=(-s,-s,2*s));light=bpy.context.object;light.data.energy=1450;light.data.shape='DISK';light.data.size=3.5*s;bpy.ops.mesh.primitive_plane_add(size=12*s,location=(0,0,-.02));floor=bpy.context.object;floor.data.materials.append(mat('cream'));sc=bpy.context.scene;sc.camera=cam;sc.render.engine='BLENDER_EEVEE';sc.world.use_nodes=True;sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=col('cream');sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=1;res=640 if large else 320;sc.render.resolution_x=res;sc.render.resolution_y=res*3//4;sc.render.resolution_percentage=100;sc.render.filepath=path;bpy.ops.render.render(write_still=True);[bpy.data.objects.remove(x,do_unlink=True)for x in(cam,light,floor)]
+ lo,hi,size=box(items);s=max(size.x,size.y,size.z,1);target=Vector((0,0,size.z*.3));bpy.ops.object.camera_add(location=((-1.25 if alt else 1.25)*s,-(1.2 if alt else 1.4)*s,1.2*s));cam=bpy.context.object;cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();bpy.ops.object.light_add(type='AREA',location=(-s,-s,2*s));light=bpy.context.object;light.data.energy=1450;light.data.shape='DISK';light.data.size=3.5*s;bpy.ops.mesh.primitive_plane_add(size=12*s,location=(0,0,-.02));floor=bpy.context.object;floor.data.materials.append(mat('cream'));sc=bpy.context.scene;sc.camera=cam;sc.render.engine='BLENDER_EEVEE';sc.world.use_nodes=True;sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=col('cream');sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.3;sc.view_settings.view_transform='Standard';res=640 if large else 320;sc.render.resolution_x=res;sc.render.resolution_y=res*3//4;sc.render.resolution_percentage=100;sc.render.filepath=path;bpy.ops.render.render(write_still=True);[bpy.data.objects.remove(x,do_unlink=True)for x in(cam,light,floor)]
 def move(o,c):[q.objects.unlink(o)for q in list(o.users_collection)];c.objects.link(o)
 def scene(sid):
  c=bpy.data.collections.new(sid);bpy.context.scene.collection.children.link(c);items=[]
- def add(n,x,y,z=0,r=0):o=make(n);o.location=(x,y,z);o.rotation_euler[2]=r;move(o,c);items.append(o)
+ def add(n,x,y,z=0,r=0,k=1):o=make(n);o.scale*=k;o.location=(x,y,z);o.rotation_euler[2]=r;move(o,c);items.append(o)
  if sid=='harbour':
   for x in(-3,-1,1,3):
-   for y in(0,2):add('water-tile',x,y)
-  for x in(-3,-1,1,3):add('ground-cobble',x,-2)
-  add('bridge-straight',0,1,0,math.pi/2);add('stall-red',-2,-2);add('lantern',0,-2);add('cottage-small',2,-2);add('tree',3,-2)
+   for y in(1,3):add('water-tile',x,y)
+  for x in(-3,-1,1,3):add('ground-cobble',x,-1)
+  add('bridge-straight',0,1,0,math.pi/2);add('stall-red',-2,-1);add('lantern',0,-1);add('cottage-small',2,-1,0,0,.65);add('tree',3,-.5,0,0,.42)
  elif sid=='hillfort':
   for x in(-2,0,2):
    for y in(-2,0,2):add('ground-grass',x,y)
   for x,y,r in((-3,0,0),(3,0,0),(0,3,math.pi/2),(0,-3,math.pi/2)):add('wall',x,y,0,r)
   for x,y in((-3,-3),(3,-3),(3,3),(-3,3)):add('tower-square-base',x,y)
-  add('wall-gate',0,-3,0,math.pi/2);add('tower-square-mid',-3,-3,1.25);add('tower-square-roof',-3,-3,2.5);add('tree-oak',0,0)
+  add('wall-gate',0,-3,0,math.pi/2);add('tower-square-mid',-3,-3,1.25);add('tower-square-roof',-3,-3,2.5);add('tree-oak',1,1,0,0,.45)
  else:
   for x in(-3,-1,1,3):
    for y in(-1,1):add('ground-grass',x,y)
-  add('farm-barn',-2,0);add('cottage-long',1,0);add('crop-wheat',3,1);add('crop-rows',3,-1);add('orchard',-3,1);add('ground-path',0,-1);add('lantern',0,1)
+  add('farm-barn',-2,0,0,0,.65);add('cottage-long',1,0,0,0,.7);add('crop-wheat',3,1);add('crop-rows',3,-1);add('orchard',-3,1,0,0,.6);add('ground-path',0,-1);add('lantern',0,1)
  return items
 def main():
  for d in('glb','thumbnails','scenes'):os.makedirs(os.path.join(OUT,d),exist_ok=True)
