@@ -1,0 +1,132 @@
+bundle_source_path,bytes,sha256,disposition,repository_destination
+.gitignore,73,ae6cd47d076cff5482d3e7144ce261a5f75d0382d9cc9b1b1cfd7ca83eab2d06,Retained input; not published,
+alibi-after-hours-play.html,1235197,76799448101a8e95df388901e4f7dc6ae766269e36e551d7ca28018aa001b84f,Retained input; not published,
+artifacts/README.md,134,b124a60da6714eb32bf89ae4fa8319fcd6633ffe1e5d1b1c296b5e895bfad6b7,Retained input; not published,
+build-info.json,3504,00bb53dc44038a0e5f203406db61b05b82f6569c649c006107e25c9372bff7df,Retained input; not published,
+classic/404.html,320,12a8b58590ea4b11cb2f3b3b48d078b02e6561b67449de48e5368ae0afdd556e,Retained input; not published,
+classic/_headers,587,8cd9b56bf312a740c628fe8c32de8eda093d81041a5480b51cc886fdfdee25e5,Retained input; not published,
+classic/assets/alibi.2e96615fb56e.js,450725,2e96615fb56e2e5627f0e2440361894ac3987919634e4e8ac30755f5131d21f8,Retained input; not published,
+classic/assets/alibi.4194d624d952.css,107503,4194d624d952fb9d8fa6388d4518039730dbad11160477299ab0b9b106e82a88,Retained input; not published,
+classic/assets/bellweather.b17d2dccb6f9.webp,152190,b17d2dccb6f984c59c7a16741198395dc98e1b95a1fe8de74edf3f464a8a5e4a,Retained input; not published,
+classic/assets/briar-house.f2c1c5c9afc5.webp,101738,f2c1c5c9afc5c09810c1eb3b93b54a030d9e12e8c61c68baa0815ecd9ee8622e,Retained input; not published,
+classic/assets/cartographer.49e36b374b1b.webp,223624,49e36b374b1bfb198efbc3cde205e5d307ae9b36b4e6b17de1fc8e571f3d4a41,Retained input; not published,
+classic/assets/evidence.641089132374.webp,151916,641089132374a1095078ca63f90045336aee1c187b0bf1cc6c549e1da02567eb,Retained input; not published,
+classic/assets/glasshouse.9cff00f55ad1.webp,230770,9cff00f55ad18001daae9f0cd4cd25410a461199d8738cc85bdcd02d1be43ce9,Retained input; not published,
+classic/assets/night-train.75e98fde460b.webp,127462,75e98fde460b71b269bb5ce8838f371eb8a4e44cbd927fcb96f99026b1de2b97,Retained input; not published,
+classic/assets/quiet-town.2aedce9224f2.webp,243540,2aedce9224f26a1e403c316f113144d634bc445a7313e6da99174ba2028110b4,Retained input; not published,
+classic/icons/icon-192.png,1010,7c2bc137ea31f3cc6532532eb4017c1b8897b74a726e919576fa20d15aedeac4,Retained input; not published,
+classic/icons/icon-512.png,2648,f13e746f4fb06a68e953d4f0e7a9f4997f326616c981eb89a891be3a7408b862,Retained input; not published,
+classic/icons/icon-maskable.png,2648,f13e746f4fb06a68e953d4f0e7a9f4997f326616c981eb89a891be3a7408b862,Retained input; not published,
+classic/index.html,1838,7c33d8ee1d4b3216b18b3e51af85dca4d6143a7e3f2aec1c259da43e96cea1d9,Retained input; not published,
+classic/manifest.webmanifest,1046,aceea39bcff3b324104ffb561008d29d7bac47f857071ff49fb27b17653da383,Retained input; not published,
+classic/sw.js,1750,bbe622a74e392a90bab2a74a6aedd22ca431efaed79c976122c53be4d8f83892,Retained input; not published,
+content/casebooks.json,7468,f3e3417c2135f1dc1d3c34f9ea050188816147b44eb8bf1714caa8adfa1efbf8,Verified equal; existing identities preserved,content/casebooks.json
+content/catalog.json,169946,08a8d99cc6270b6d54d916b121fa13f2040baf1822e7f2fbde9c8d4b2578e729,Verified equal; existing identities preserved,content/catalog.json
+content/legacy.json,70515,1c9177aa3b4f20a90ab29e733668aa77ae88ae8eaf4ee3e1aca892cf11e029ba,Verified equal; existing identities preserved,content/legacy.json
+dist/404.html,1815,da2052f2625dc929800447e8bf392ff29e2d66f8115aee75ca32f4e9f74f52eb,Retained input; not published,
+dist/_headers,552,fc14afc003b637f73639261f832b00d4442ac68e6b5498c92f200a80d161ae9f,Retained input; not published,
+dist/assets/alibi.9243832b6330.css,141208,9243832b633084b2247fae61011f6d2b2b831299ac6abffad3f9f2524373c4fe,Retained input; not published,
+dist/assets/alibi.fe368babd26d.js,438912,fe368babd26d89742b312a21ac8587b46bf4d39a840ed02acd079683ae84b3c3,Retained input; not published,
+dist/assets/bellweather.478184366161.webp,43862,47818436616179f3fc73eb6a281265b3a94daf8b5eae2b3b124d51201a798b0c,Retained input; not published,
+dist/assets/briar-house.a95e932cb296.webp,36424,a95e932cb2967437a6597c80c774f7e5e71914878c33817f7d9ec709c86c6f13,Retained input; not published,
+dist/assets/cartographer.969ef632f64d.webp,68978,969ef632f64d80bd0e98cd0aef6f8485bb904f21f17a872bc966e6f8c1084ebb,Retained input; not published,
+dist/assets/club-engines.b588200e4d50.js,8071,b588200e4d500b46142501983dab83407d0a5809ad0ca43f6d5b7d93bfba6e2e,Retained input; not published,
+dist/assets/evidence.8feeb9a6e740.webp,48184,8feeb9a6e74075298dc5abbdab8a0a77846cf2b4a756c183ad33acefa9aa34bf,Retained input; not published,
+dist/assets/glasshouse.bd172289bf17.webp,92032,bd172289bf17430bf3d27eb6c5623acc122e3f1689e1d9006345c397bdf7baac,Retained input; not published,
+dist/assets/night-train.5bbfba871dc8.webp,42040,5bbfba871dc8c7508679551fd3bca2904bcc0c5ecd46dd15d293c43def8e0a22,Retained input; not published,
+dist/assets/quiet-town.b672c8a82e11.webp,86856,b672c8a82e11a5c98af8817166bfb02521783cf169baf677ea636d1e0a3dc5e6,Retained input; not published,
+dist/assets/validator.0a8af249f360.js,85250,0a8af249f3603e172446d819e88c6c18155c1842c04e4a900b96261160ba8f02,Retained input; not published,
+dist/icons/icon-192.png,1010,7c2bc137ea31f3cc6532532eb4017c1b8897b74a726e919576fa20d15aedeac4,Retained input; not published,
+dist/icons/icon-512.png,2648,f13e746f4fb06a68e953d4f0e7a9f4997f326616c981eb89a891be3a7408b862,Retained input; not published,
+dist/icons/icon-maskable.png,2648,f13e746f4fb06a68e953d4f0e7a9f4997f326616c981eb89a891be3a7408b862,Retained input; not published,
+dist/index.html,1815,da2052f2625dc929800447e8bf392ff29e2d66f8115aee75ca32f4e9f74f52eb,Retained input; not published,
+dist/manifest.webmanifest,1039,c84c038d379cce7fb632292f8f1ef8cd7a9b1dae24b6ef168ad6a2fb1a84146a,Retained input; not published,
+dist/sw.js,1857,83fce073ca6298d77e3b44e9bf213a25ab0d955e896b06d51e388eea15934065,Retained input; not published,
+docs/AGENT-HANDOFF.md,2257,50773e3c426ea0bede9344c8cb95a99fc2d6071f729a21a5f36c1264c9483184,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/ARCHITECTURE.md,6467,0d21b5685c653d82c293181547596252918bcd01487f5765110fd6fa599497a4,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/ASSETS-AND-NOTICE.md,1271,0b3a3cf7cd9b3d04072187e32aa0fed6a35d9f136b23c56cbf77e9a3028a41df,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/DEPLOYMENT.md,4299,d573e9ca94e283eeb7e9a6e83cfaeebfc8e486856a3229ad1d182408dda09ebd,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/EXPERIMENTS.md,4111,98b3bb014be86f423aa69c0a83706d06f3adef7371ac065f5dcf69d1cd7f2e28,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/FEATURES.md,6091,41641128ec097ecee68c47f67b8bc29d95d3c3542b970ab39a960f2b478db0f9,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/INTEGRATION.md,2871,ca152aed97a32dd78f12f16e4b7c5b224ac5580437745feaeb28c28ca23ade73,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/ONLINE.md,6220,70781d28fa4d90077f7d21de208c2fd9b5fa661fce25636c60fa7fb86fdf255d,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/PERFORMANCE.md,3379,cbc703d262c9adc54d0cbfb55783c6d2b008522bd0ad69457a4df969186ca5cf,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+docs/TEST-REPORT.md,5298,5d47cc8086a194498a73f204a3f9f34174d34cce54e3160953fd093db68bf878,Proposal reconciled into repository docs,docs/AFTER-HOURS-MAP.md
+optional-online/room.mjs,6367,4749626cf2e54083ef8aabf4320d671515a74198b7071680c783c8adc50984ed,Separate optional service; runtime activation pending,optional-online/room.mjs
+optional-online/worker.mjs,3463,c67512afcd52f1b82a277196ae6af0d9db276c2f0af9173556c6d47026919689,Separate optional service; runtime activation pending,optional-online/worker.mjs
+optional-online/wrangler.jsonc,608,a2e938579629afbb6db50bd87239a57d0d933fd5988abb53d597e37234f8e252,Separate optional service; runtime activation pending,optional-online/wrangler.jsonc
+original-svg-assets/aquarium.svg,1343,d84f409db37c47aed1fc308fe89d68b335decce9e0c89fd2cd1fdf789c2e2506,Editable vector source imported,src/illustrations/aquarium.svg
+original-svg-assets/archive.svg,442,aa2314ddead415edc47e1fbdeb7ec92d195fedce7768a17ca5d96dfec966b854,Editable vector source imported,src/illustrations/archive.svg
+original-svg-assets/binary.svg,5208,91993c5ac4d414b39a0b949932e51af7fe2efcbe7395c3d858967a387e16e222,Editable vector source imported,src/illustrations/binary.svg
+original-svg-assets/borough.svg,889,eae826cd86f0a1120be4eee8ed10ef4a41ee1356477173fe8bfa5985fdfc2277,Editable vector source imported,src/illustrations/borough.svg
+original-svg-assets/bridges.svg,637,f95fbcaf1c85544eb154256cf22d812ea853bfd10148caff9c41337325a5ece6,Editable vector source imported,src/illustrations/bridges.svg
+original-svg-assets/cafe.svg,515,2b83c80513fc42d5208f5c9aed2b5fdd8e214c276712f0c3a1890eafb60d63bc,Editable vector source imported,src/illustrations/cafe.svg
+original-svg-assets/dossier.svg,2127,fb0bcd98c2ed9287c137f4315e0dfd31153ff3f8cf79d363db8da4ccc709cf9f,Editable vector source imported,src/illustrations/dossier.svg
+original-svg-assets/duel.svg,515,1dd59eb66acdebd6d2f564f8468a0c938dd919ad0ce652275457bd1e361e69ac,Editable vector source imported,src/illustrations/duel.svg
+original-svg-assets/futoshiki.svg,5309,dfa8f02709b13d03973d24327f74d093660f0ff8fdf90ae7f37436c759520a86,Editable vector source imported,src/illustrations/futoshiki.svg
+original-svg-assets/garden.svg,447,a8f3d6cf38bd8a49e0b5d40f7ecca1db96d2ab6f5d2175434a60f3527cc17b95,Editable vector source imported,src/illustrations/garden.svg
+original-svg-assets/home.svg,385,4b6756a29431efa4f4a7988c2597aa1332c14bd727ae0f65effc68174587d3ff,Editable vector source imported,src/illustrations/home.svg
+original-svg-assets/lab.svg,452,d13512e75008f0451e51c6ec87ee91c58116131dc1cae1bb898ea099fd87c17c,Editable vector source imported,src/illustrations/lab.svg
+original-svg-assets/library.svg,431,93bd218e6b64d882d79b85c3e81330d3838eb1932d818a3eb5b7d7439cfed58d,Editable vector source imported,src/illustrations/library.svg
+original-svg-assets/lightup.svg,3585,10be0244e1a4ee726a56fe3e7ebbd4e8ffe057e97b75d8d8cd1e4615658601b5,Editable vector source imported,src/illustrations/lightup.svg
+original-svg-assets/network.svg,4610,8e964e99b2a481b0552f14cf5fab1f7a7e694c2a97f81518f1a913a4d26c42ff,Editable vector source imported,src/illustrations/network.svg
+original-svg-assets/nonogram.svg,2923,f6194464e906ccb02a2992fbe754513541901ac4e5131f5c714335031f19273d,Editable vector source imported,src/illustrations/nonogram.svg
+original-svg-assets/scene.svg,3357,586659291fb80cc011d15255d12b070f53725eb2d874eb0130ac4cc386c89381,Editable vector source imported,src/illustrations/scene.svg
+original-svg-assets/sudoku.svg,5174,d3c01642c966f488f7a656414771ff12de72a45eded0b4fef069b3dbb1b2738b,Editable vector source imported,src/illustrations/sudoku.svg
+original-svg-assets/tents.svg,3863,f81f3eb81908ee97b8c1620f38eb5e37f1cc233cd12cd769cc6ffb496c60aea2,Editable vector source imported,src/illustrations/tents.svg
+original-svg-assets/trail.svg,4245,285137ac52c30c224b2a0c18116cd18b7932d94319f3d1751a66e270b69c39af,Editable vector source imported,src/illustrations/trail.svg
+original-svg-assets/water.svg,345,063135f02eb57405784471654363630d8995a56816d1439fd6a65ae58a025dd3,Editable vector source imported,src/illustrations/water.svg
+original-svg-assets/witness.svg,2027,f2e8fd8aa25c64549fe0fe82c4fa1d591ef57dcbc251e678d0a058545b4d0744,Editable vector source imported,src/illustrations/witness.svg
+package-lock.json,284,5c9a18ca017942f407aedf74a10f88ec788be684012425f091c0ee9a6acf5659,Retained input; not published,
+package.json,363,b25589866956da085af0810314eb108cbb3a1778f81f9e8d14d1986cdf451fa4,Retained input; not published,
+patches/app.patch,36870,fd41ccbbdfa10f6533d2ca6b73fe9d1e35a2916c039c61d4611ac63fb40c6cbc,Retained input; not published,
+patches/README.md,163,23748d8d5e96a367e3566be6385735efd9ca04a637bda20b5485a9ab5a4e3cc4,Retained input; not published,
+performance-report.json,570,b867adbf25c7eb92d1b3391406548f0b8e791a9e3f10e8c4163ce1cdec53b701,Retained input; not published,
+provenance.json,1091,8048b8511a03693163f6b05270afb5d5e761b8def9dd7117a033ffe0e2ffc99e,Retained input; not published,
+README.md,3338,544a05edd65a6c910f7b76879af88bb1416ec171de5a7b105daa124e5c645ba1,Retained input; not published,
+requirements-dev.txt,19,df7696acf1e200684a962c8b7cb25363273b8239093235e68bb3f60231a9799f,Retained input; not published,
+src/app.baseline.js,157659,91eee0ad6e965967acf4e054314094163e72adda848966e800d74c7cc73f7867,Retained input; not published,
+src/app.js,161224,883c17609354f228327f40e73059ba6a99f05c9993467fa656c1fecaec70b43e,Ported reference patch against exact baseline,src/app.js
+src/artwork/bellweather.webp,43862,47818436616179f3fc73eb6a281265b3a94daf8b5eae2b3b124d51201a798b0c,Integrated; repository fixes apply,src/artwork/bellweather.webp
+src/artwork/briar-house.webp,36424,a95e932cb2967437a6597c80c774f7e5e71914878c33817f7d9ec709c86c6f13,Integrated; repository fixes apply,src/artwork/briar-house.webp
+src/artwork/cartographer.webp,68978,969ef632f64d80bd0e98cd0aef6f8485bb904f21f17a872bc966e6f8c1084ebb,Integrated; repository fixes apply,src/artwork/cartographer.webp
+src/artwork/evidence.webp,48184,8feeb9a6e74075298dc5abbdab8a0a77846cf2b4a756c183ad33acefa9aa34bf,Integrated; repository fixes apply,src/artwork/evidence.webp
+src/artwork/glasshouse.webp,92032,bd172289bf17430bf3d27eb6c5623acc122e3f1689e1d9006345c397bdf7baac,Integrated; repository fixes apply,src/artwork/glasshouse.webp
+src/artwork/night-train.webp,42040,5bbfba871dc8c7508679551fd3bca2904bcc0c5ecd46dd15d293c43def8e0a22,Integrated; repository fixes apply,src/artwork/night-train.webp
+src/artwork/quiet-town.webp,86856,b672c8a82e11a5c98af8817166bfb02521783cf169baf677ea636d1e0a3dc5e6,Integrated; repository fixes apply,src/artwork/quiet-town.webp
+src/assist.js,5108,36bed05f4b3ace234153cbc65674b1569706654b207a50cfb013e10b81e9ae37,Integrated; repository fixes apply,src/assist.js
+src/atlas.js,6238,0934d8500d3dfc5ffd57a756bc63f828ec366b0a852d7f5d5662e25ee17836f6,Integrated; repository fixes apply,src/atlas.js
+src/base.css,107503,4194d624d952fb9d8fa6388d4518039730dbad11160477299ab0b9b106e82a88,Retained input; not published,
+src/bridges.js,10455,689ddbbade34a202383409a6378e5b398a1f0933feff9c18773be138ca33c512,Existing repository source retained,src/bridges.js
+src/club-engines.js,8071,b588200e4d500b46142501983dab83407d0a5809ad0ca43f6d5b7d93bfba6e2e,Integrated; repository fixes apply,src/club-engines.js
+src/club.css,33704,4b8f93fdd259febd3886f79b65b81c08c807faf53552ead2dc044b0ca4e5fda8,Integrated; repository fixes apply,src/club.css
+src/club.js,60721,09001aecdf687fb2c5c8ce10f20c7d464e781efb31bcb6e2d6dc0056d1fe3acd,Integrated; repository fixes apply,src/club.js
+src/core.js,34428,a2059b9beb9cde3d7509c721c3f03efbfafa4255a77c5a86499f08359bcd94a2,Existing repository source retained,src/core.js
+src/engines.js,38474,b7c43c827ed121dfb521634fd03ca8610fbacd4a3c7c2a9815991448eb596aaf,Existing repository source retained,src/engines.js
+src/insights.js,7653,87b3ec4de379bb6898f6f867e2923544fb44c286576cff2e596a577ddbf5cdc8,Existing repository source retained,src/insights.js
+src/presentation.js,27888,75049f4d382c50069bb4513d536997b2d489ecee4a4192125cd9a6fd80e555a5,Existing repository source retained,src/presentation.js
+src/storage.js,7506,b3476a3741cb9ed28d1dd76fe505220127ce936e5587538d82e55a74ace8088d,Existing repository source retained,src/storage.js
+src/validator-worker.js,85250,0a8af249f3603e172446d819e88c6c18155c1842c04e4a900b96261160ba8f02,Existing repository source retained,src/validator-worker.js
+test-summary.json,2145,c0283491df80cdb76534e0196b11208e581a50faec28236035aaf23a76996a24,Retained input; not published,
+tests/browser-club-results.json,5280,9b5d35c9c0914e901ffee14f1539f0c2acd206708fc82b53efb3fb46fa15f05c,Retained input; not published,
+tests/browser-results.json,7723,ac0b2c9641fff84c307e4c00bd2567985d982bca3a784ff1012fd433ab581ae9,Retained input; not published,
+tests/browser_club.py,11754,c65428f5a7dd2e170a93fdeb60507a38988a9ef7e81eba5f89ea8be015f4cd71,New Club/room tests imported; original repository suites retained,tests/browser_club.py
+tests/browser_legacy.py,13219,c94fff98a506c803e28a28bbdf167f83747730eb4ba61826bdfbe9ce2348809e,New Club/room tests imported; original repository suites retained,tests/browser_legacy.py
+tests/club-results.json,775,23df90fcaf740a4ac73a061c43dd4cc754e59dde1c1a95422847f6795dd243d9,Retained input; not published,
+tests/club-storage-results.json,997,f2b33032011a002f6150c3e8276813202f327ab712a009f30339bfbf0c1047ec,Retained input; not published,
+tests/club-storage.test.cjs,3731,fc8927329c0ef1c33205289554ffaa2406c0369f6137547ef02624823dfb9218,New Club/room tests imported; original repository suites retained,tests/club-storage.test.cjs
+tests/club.test.cjs,6371,25f3205b1f98dbbc8e14e55592f9047412ee88ed11e890458d26a71171ee8fd7,New Club/room tests imported; original repository suites retained,tests/club.test.cjs
+tests/core-results.json,12950,bb2a655107daa43e96efdb3f3bddc6618f32fe998602d3ff88e753ccd80f6cd0,Retained input; not published,
+tests/core.test.cjs,5858,cd6273a99ecc34e589f1c0eab57991c8c7ee61f1514a9471cd277aa6ad02d75c,New Club/room tests imported; original repository suites retained,tests/core.test.cjs
+tests/rooms-results.json,190,f3754efb2c204386708ef678adf13f87e47e6b5d682aba4968e6fc267d1634e2,Retained input; not published,
+tests/rooms.test.mjs,6788,397cfbf6e7f50f0ff4068d8991b6376a802482648c37db45235923205b6acee8,New Club/room tests imported; original repository suites retained,tests/rooms.test.mjs
+tests/storage-results.json,251,d12da6af9293cef7c914e712d780a5543d2f301306082286064949d68b770dfe,Retained input; not published,
+tests/storage.test.cjs,3150,2b1f5dcb170706db98f09c3fcb0232d4c5b0b3cf0fad56b33258c600db699014,New Club/room tests imported; original repository suites retained,tests/storage.test.cjs
+tests/sw-results.json,104,1cfed66ebbc171ab5763fc12af4902b7ab460f03d048a69652a65107766cc1ac,Retained input; not published,
+tests/sw.test.cjs,5065,dbcf363807fc5915df01bad5c987ac5fab60414d91dc06b78795376e5e42da73,New Club/room tests imported; original repository suites retained,tests/sw.test.cjs
+tools/budget.cjs,491,5ffcb6858e2a5728d133134fa557cc320e38ad05e4b09d726d3b9367ad7d725f,Existing tooling extended; prototype tools not copied,tools/budget.cjs
+tools/build.cjs,7027,6f9f05cdf42e4064b05e9ff0844cd58d1642db6f31e3a097a2573c513ac3689f,Existing tooling extended; prototype tools not copied,tools/build.cjs
+tools/integrate-local.py,7410,0e45bb3053d49bf34d8c35865bb298ed7d6c4129c9ae752b736d759d53357bca,Existing tooling extended; prototype tools not copied,tools/integrate-local.py
+tools/serve.cjs,1046,e00bd16cf893207902214f5903c396b1e62a2d1f7fb797f7028f701cc4d11205,Existing tooling extended; prototype tools not copied,tools/serve.cjs
+tools/verify.cjs,658,0e169a0ccded2e3d97076487cefdfa016e2394a90281f7881798cce30984132a,Existing tooling extended; prototype tools not copied,tools/verify.cjs
+wrangler-static.jsonc,182,accf480171ce2b1664e66c1545fb5a9a05827ea7f8ebdf331b8345ea76b2d279,Retained input; not published,

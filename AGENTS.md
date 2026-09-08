@@ -1,8 +1,8 @@
 # Alibi development
 
 Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 116 puzzles, four
-casebooks, a workshop and offline saves. It builds to static files with no runtime dependency.
-The root is the working source. `alibi-deluxe-publish-bundle/` is untouched, ignored input.
+casebooks, three After Hours games, a workshop and offline saves. It builds to static files with no runtime dependency.
+The root is the working source. `alibi-deluxe-publish-bundle/` and `alibi-after-hours-bundle/` are ignored input.
 
 Start with `docs/STATE.md` and `docs/PROJECT-MAP.md`. The global agreements apply. Authority
 is `.agent-harness/tier.json`; owner decisions are in `HUMAN_TODO.md`.
@@ -46,8 +46,7 @@ uses real IndexedDB and service workers in disposable profiles. Neither proves a
 - Drafts may be unsolvable while being edited. Validate their shape without erasing unfinished work.
 - No credentials, private saves or generated test profiles in Git or client assets.
 - Host identity is pinned in `.openai/hosting.json` and `docs/DEPLOYMENT.md`.
-- One writer per checkout; coordinator integrates research and reviews. Use Luna for bounded tasks and lower reasoning effort for routine checks. The owner asked
-  to dial back costly subagents; avoid Terra/Sol in this pass and never spawn Astra children.
+- One writer per checkout; coordinator integrates research and reviews. Use Luna xhigh for bounded tasks and Terra high when debugging or architecture needs it, following the owner’s After Hours request. Keep routine checks inline; never spawn Astra children.
 - Keep tooling small: no speculative MCP servers, command-deny hooks, accounts or native wrappers.
 
 For a new worktree, first verify its resolved root and Git identity and read these instructions.
