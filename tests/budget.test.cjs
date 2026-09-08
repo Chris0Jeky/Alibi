@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
 assert.ok(info.javascriptGzipBytes < 125 * 1024, 'Initial JavaScript stays under 125 KiB gzip');
-assert.ok(info.uncompressedBytes < 1.3 * 1024 * 1024, 'Complete offline shell stays under 1.3 MiB');
+assert.ok(info.coreOfflineBytes < 1.3 * 1024 * 1024, 'Core offline shell stays under 1.3 MiB');
 for (const [prefix, limit] of [
   ['club-engines.', 8 * 1024],
   ['alibi.', 32 * 1024],
@@ -20,3 +20,5 @@ for (const [prefix, limit] of [
     prefix + ' fits its download budget',
   );
 }
+
+assert.ok(info.quietWingBytes < 750 * 1024, 'Optional Quiet Wing pack stays below 750 KiB');

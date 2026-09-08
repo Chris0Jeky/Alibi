@@ -100,10 +100,26 @@ function setup(failInstall = false) {
   const x = setup();
   await x.lifecycle('install');
   check(
-    x.data.get(name).size === 6 + fs.readdirSync(path.join(ROOT, 'dist/assets')).length,
-    'Release installs the shell and all emitted assets',
+    x.data.get(name).size ===
+      6 +
+        fs
+          .readdirSync(path.join(ROOT, 'dist/assets'))
+          .filter(
+            (n) =>
+              !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license)\./.test(
+                n,
+              ),
+          ).length,
+    'Release installs the core shell without optional activity assets',
   );
-  for (const asset of fs.readdirSync(path.join(__dirname, '../dist/assets'))) {
+  for (const asset of fs
+    .readdirSync(path.join(__dirname, '../dist/assets'))
+    .filter(
+      (n) =>
+        !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license)\./.test(
+          n,
+        ),
+    )) {
     check(
       [...x.data.get(name).keys()].some((url) => url.endsWith('/assets/' + asset)),
       'Offline release includes ' + asset,
