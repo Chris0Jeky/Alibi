@@ -2,6 +2,13 @@
 (function (G) {
   'use strict';
   const copy = (x) => JSON.parse(JSON.stringify(x));
+  const freeze = (x) => {
+    if (x && typeof x === 'object' && !Object.isFrozen(x)) {
+      Object.values(x).forEach(freeze);
+      Object.freeze(x);
+    }
+    return x;
+  };
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const stable = (x) => {
     if (Array.isArray(x)) return '[' + x.map(stable).join(',') + ']';
@@ -49,7 +56,7 @@
       challenge.mechanismId = source.family;
       validateDefinition(challenge, Q, E);
       challenge.startingStateHash = hash(startDescriptor(challenge));
-      byId.set(challenge.id, Object.freeze(challenge));
+      byId.set(challenge.id, freeze(challenge));
     }
 
     function get(id) {
@@ -75,7 +82,7 @@
       const c = get(run.challengeId);
       let state = start(c, Q, E);
       for (const action of run.log) state = apply(c, state, action, Q, E);
-      return { challenge: c, run, state, complete: complete(c, state, E) };
+      return { challenge: c, run, state, complete: complete(c, state, Q, E) };
     }
     function validateRun(value) {
       if (
@@ -134,7 +141,7 @@
     const solution = typeof supplied === 'string' ? [...supplied] : supplied;
     if (!Array.isArray(solution) || !solution.length) fail('Trusted challenge lacks a replay.');
     for (const action of solution) state = apply(c, state, action, Q, E);
-    if (!complete(c, state, E)) fail('Trusted challenge replay does not meet its objective.');
+    if (!complete(c, state, Q, E)) fail('Trusted challenge replay does not meet its objective.');
   }
   function startDescriptor(c) {
     if (c.family === 'warehouse') return { map: c.map };
@@ -249,17 +256,13 @@
     if (c.family === 'reversi') return { type: 'terminal-win', player: c.startState.turn };
     return { type: 'complete' };
   }
-  function complete(c, state, E) {
+  function complete(c, state, Q, E) {
     if (c.family === 'borough') return state.done && E.borough.score(state) >= c.targetScore;
     if (c.family === 'reversi') {
       const score = E.reversi.score(state);
       return state.done && (score.gold - score.ink) * c.startState.turn > 0;
     }
-    return c.family === 'warehouse'
-      ? state.done
-      : G.QWEngine
-        ? G.QWEngine.classicWon(state)
-        : false;
+    return c.family === 'warehouse' ? state.done : Q.classicWon(state);
   }
   G.AlibiChallenges = { create };
   if (typeof module !== 'undefined') module.exports = G.AlibiChallenges;
