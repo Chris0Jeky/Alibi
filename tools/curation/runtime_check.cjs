@@ -7,7 +7,7 @@ const repo=path.resolve(process.argv[2]||'.');
 let C;
 if(process.env.ALIBI_ENGINE_BUNDLE) C=require(path.resolve(process.env.ALIBI_ENGINE_BUNDLE));
 else {C=require(path.join(repo,'src/core.js'));globalThis.AlibiCore=C;require(path.join(repo,'src/engines.js'));require(path.join(repo,'src/bridges.js'));}
-globalThis.AlibiCore=C;require(process.env.ALIBI_INSIGHTS||path.join(repo,'src/insights.js'));
+globalThis.AlibiCore=C;if(fs.existsSync(path.join(repo,'src/network-hints.js'))) require(path.join(repo,'src/network-hints.js'));require(process.env.ALIBI_INSIGHTS||path.join(repo,'src/insights.js'));
 const files=process.argv.slice(3),results=[];
 function actions(p){let a=[];switch(p.type){
  case 'scene':a=Object.entries(p.solution).map(([who,cell])=>({type:'place',who,cell}));a.push({type:'accuse',who:C.murderer(p,{placements:p.solution,notes:{},clueMarks:[]})});break;

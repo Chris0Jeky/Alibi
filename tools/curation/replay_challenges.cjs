@@ -5,7 +5,7 @@
    This verifier never writes to the repository or accepts an untrusted saved state. */
 'use strict';const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 if(!process.argv[2]||!process.argv[3]){console.error('Usage: node replay_challenges.cjs <quiet-engine-module> <club-engine-module> [report.json]');process.exit(2);}
-const Q=require(path.resolve(process.argv[2])),E=require(path.resolve(process.argv[3])),B=path.resolve(__dirname,'..');
+const Q=require(path.resolve(process.argv[2])),E=require(path.resolve(process.argv[3])),B=path.resolve(__dirname,'../../content');
 assert.equal(typeof Q.classicMove,'function','Need pure classic engine exports');assert(E.warehouse&&E.reversi&&E.borough,'Need club engine exports');
 const load=name=>JSON.parse(fs.readFileSync(path.join(B,'challenges',name+'.json'),'utf8')).challenges;const report={classic:[],warehouse:[],reversi:[],borough:[]};
 for(const c of load('classics')){let s=structuredClone(c.startState);for(const a of c.solutionActions){const before=structuredClone(s),r=Q.classicMove(s,a);assert(!r.error,c.id);assert.deepEqual(s,before,c.id+' mutated prior state');s=r.state;}assert(Q.classicWon(s),c.id);if(c.startActions){let t=Q.classicInitial(c.startState.id);for(const a of c.startActions){const r=Q.classicMove(t,a);assert(!r.error);t=r.state;}t.moves=0;assert.deepEqual(t,c.startState);}report.classic.push({id:c.id,winningReplay:true,immutable:true});}
