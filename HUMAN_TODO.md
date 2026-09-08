@@ -18,7 +18,8 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
 - [ ] q-4 — Before Quiet Wing preview promotion, run the affected-device script in
   [QUIET-WING.md](docs/QUIET-WING.md), then verify TalkBack plot selection, pinch/pan/place,
   large system text, sound/haptics and sustained full-scene performance. Local Chromium checks
-  do not close this item. Hosted new-release persistence/update/rollback also remains pending.
+  do not close this item. Hosted 0.6.0 persistence, offline and old-to-new update checks passed;
+  the prior release is retained as a file rollback candidate, but a production rollback was not executed.
   Track [issue #13](https://github.com/Chris0Jeky/Alibi/issues/13).
 - [ ] q-5 — Human-review classic difficulty and idle reward pace; import a real exported OBJ/MTL
   into a 3D editor. Current finite geometry/ZIP checks do not prove editor interoperability.
