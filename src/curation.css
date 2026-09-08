@@ -1,0 +1,39 @@
+.curation-collections {
+  margin: 0 0 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.curation-collections summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: list-item;
+  padding: 10px 0;
+}
+.curation-collections .row {
+  flex-wrap: wrap;
+}
+.curation-collections [aria-pressed='true'] {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.curation-gallery {
+  margin-top: 16px;
+}
+.curation-gallery > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 24px;
+}
+.curation-gallery figure {
+  margin: 0;
+}
+.curation-gallery img {
+  width: 100%;
+  height: 260px;
+  object-fit: contain;
+  background: #efece4;
+}
+.curation-gallery figcaption {
+  padding: 12px 0;
+}

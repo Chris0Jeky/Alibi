@@ -100,7 +100,9 @@ function build() {
       '\n' +
       read(path.join(SRC, 'club.css')) +
       '\n' +
-      read(path.join(SRC, 'atmosphere.css')),
+      read(path.join(SRC, 'atmosphere.css')) +
+      '\n' +
+      read(path.join(SRC, 'curation.css')),
     template = read(path.join(SRC, 'index.html'));
   const media = {},
     inlineMedia = {};
@@ -112,6 +114,7 @@ function build() {
     write(path.join(DIST, media[name]), data);
   }
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia);
+  const curation = require('./build-curation.cjs')(ROOT, DIST);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
@@ -121,6 +124,7 @@ function build() {
   write(path.join(DIST, engineURL), clubEngine);
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
+  editorial.artwork = curation.assets;
   const contentSource = `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\n`;
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
@@ -157,10 +161,11 @@ function build() {
         read(__filename) +
         fingerprint +
         JSON.stringify(media) +
-        JSON.stringify(quiet.config),
+        JSON.stringify(quiet.config) +
+        JSON.stringify(curation.media),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
+  const js = `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\n globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -214,6 +219,7 @@ function build() {
     bootURL,
     workerURL,
     contentURL,
+    ...Object.values(curation.media),
     ...Object.values(media),
   ];
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
@@ -247,7 +253,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
+  const standalone = `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
@@ -276,7 +282,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
     coreOfflineBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes,
-    officialContentBytes: Buffer.byteLength(contentSource),
+    officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
+    curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
     initialCodeAndContentGzipBytes: zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,

@@ -10,6 +10,7 @@ const root = path.resolve(__dirname, '../dist'),
     '.css': 'text/css; charset=utf-8',
     '.png': 'image/png',
     '.webp': 'image/webp',
+    '.svg': 'image/svg+xml',
     '.webmanifest': 'application/manifest+json',
     '.json': 'application/json',
   };
