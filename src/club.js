@@ -202,9 +202,34 @@
     try {
       db = await new Promise((resolve, reject) => {
         const r = indexedDB.open('alibi-afterhours-v1', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('club');
-        r.onsuccess = () => resolve(r.result);
-        r.onerror = () => reject(r.error);
+        let abandoned = false;
+        const fail = () => {
+          abandoned = true;
+          clearTimeout(timer);
+          reject(
+            Object.assign(
+              Error(
+                'Club storage did not open. Close other Alibi windows and reload; existing saves are untouched.',
+              ),
+              { name: 'BlockedError' },
+            ),
+          );
+        };
+        const timer = setTimeout(fail, 8000);
+        r.onupgradeneeded = () => {
+          if (abandoned) r.transaction.abort();
+          else r.result.createObjectStore('club');
+        };
+        r.onsuccess = () => {
+          clearTimeout(timer);
+          if (abandoned) r.result.close();
+          else resolve(r.result);
+        };
+        r.onerror = () => {
+          clearTimeout(timer);
+          reject(r.error);
+        };
+        r.onblocked = fail;
       });
       const v = await new Promise((resolve, reject) => {
         const tx = db.transaction('club', 'readonly'),
@@ -227,7 +252,7 @@
         notify(saveError, true);
       };
     } catch (e) {
-      if (foundSave) {
+      if (foundSave || e.name === 'BlockedError' || e.name === 'VersionError') {
         saveError =
           'The existing Club save could not be opened and was left untouched. This session is temporary; export before closing.';
         db?.close();
@@ -333,7 +358,7 @@
       : '';
   }
   function save() {
-    persist();
+    return persist();
   }
   function svg(body, label = '', view = '0 0 160 130') {
     return `<svg viewBox="${view}" ${label ? `role="img" aria-label="${esc(label)}"` : 'aria-hidden="true"'} xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
