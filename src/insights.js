@@ -19,6 +19,11 @@
   }
   function deduction(p, s) {
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
+    const networkHint = root.AlibiCuratedNetworkHints?.hint;
+    if (p.type === 'network' && networkHint) {
+      const guidance = networkHint(p, s);
+      if (guidance) return guidance;
+    }
     const n = p.size,
       issues = C.registry[p.type].validate(p, s);
     if (issues.length)
