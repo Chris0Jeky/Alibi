@@ -24,15 +24,30 @@
         if (!root.indexedDB) throw new Error('IndexedDB is unavailable.');
         this.db = await new Promise((resolve, reject) => {
           const request = indexedDB.open(DB, VERSION);
+          let abandoned = false;
           request.onupgradeneeded = () => {
+            if (abandoned) {
+              request.transaction.abort();
+              return;
+            }
             for (const n of ['runs', 'packs', 'meta'])
               if (!request.result.objectStoreNames.contains(n))
                 request.result.createObjectStore(n, { keyPath: 'key' });
           };
-          request.onsuccess = () => resolve(request.result);
+          request.onsuccess = () => {
+            if (abandoned) request.result.close();
+            else resolve(request.result);
+          };
           request.onerror = () => reject(request.error);
-          request.onblocked = () =>
-            reject(new Error('Close another Alibi tab to finish opening storage.'));
+          request.onblocked = () => {
+            abandoned = true;
+            reject(
+              Object.assign(
+                new Error('Close another Alibi tab to finish opening storage, then reload.'),
+                { name: 'BlockedError' },
+              ),
+            );
+          };
         });
         this.db.onversionchange = () => {
           this.db.close();
@@ -43,10 +58,11 @@
         return this;
       } catch (error) {
         this.problem = error.message;
-        if (error.name === 'VersionError') {
+        if (error.name === 'VersionError' || error.name === 'BlockedError') {
           this.fatal = true;
-          this.problem =
-            'These saves were created by a newer version of Alibi. Reopen the latest app. The existing database has not been modified.';
+          if (error.name === 'VersionError')
+            this.problem =
+              'These saves were created by a newer version of Alibi. Reopen the latest app. The existing database has not been modified.';
           return this;
         }
       }

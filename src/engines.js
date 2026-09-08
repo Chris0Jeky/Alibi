@@ -943,7 +943,7 @@
       !s.notes ||
       typeof s.notes !== 'object' ||
       Array.isArray(s.notes) ||
-      Object.keys(s.notes).length > p.size ** 2
+      Object.keys(s.notes).length !== 0
     )
       throw new Error('Invalid puzzle state.');
     const n = p.size,
