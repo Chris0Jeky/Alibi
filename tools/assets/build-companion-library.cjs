@@ -12,7 +12,7 @@ const source = fs.readFileSync(path.join(root, 'src/quiet-wing/pets.js'), 'utf8'
 vm.runInNewContext(source, sandbox);
 const pets = sandbox.window.QWPets;
 const style = `<style>
-svg{background:#f4ead4}.pet-tail{transform-origin:180px 215px}.pet-head{transform-origin:150px 155px}.pet-arm{transform-origin:105px 205px}.pet-hearts,.pet-zzz{opacity:0}.state-look .pet-head{transform:rotate(-7deg)}.state-attention .pet-ears{transform:translateY(-5px)}.state-happy .pet-hearts,.state-celebrate .pet-hearts,.state-sleepy .pet-zzz{opacity:1}.state-sleepy .pet-eyes{opacity:0}.state-pet .pet-head{transform:rotate(9deg)}.state-feed .pet-arm{transform:rotate(-18deg)}.state-celebrate .pet-body{transform:translateY(-15px)}@media(prefers-reduced-motion:reduce){*{animation:none!important}}</style>`;
+svg{background:#f4ead4}.pet-tail{transform-origin:180px 215px}.pet-head{transform-origin:150px 155px}.pet-arm{transform-origin:105px 205px}.pet-hearts,.pet-zzz{opacity:0}.state-look .pet-head{transform:rotate(-7deg)}.state-attention .pet-head{transform:translateY(-5px)}.state-happy .pet-hearts,.state-celebrate .pet-hearts,.state-sleepy .pet-zzz{opacity:1}.state-sleepy .pet-eyes{opacity:0}.state-pet .pet-head{transform:rotate(9deg)}.state-feed .pet-arm{transform:rotate(-18deg)}.state-celebrate .pet-body{transform:translateY(-15px)}.hit-area{fill:transparent;pointer-events:all}@media(prefers-reduced-motion:reduce){*{animation:none!important}}</style>`;
 function rig(species, state) {
   let svg = pets.svg(species, state, `${pets.INFO[species].name} · ${state}`);
   svg = svg
@@ -25,6 +25,10 @@ function rig(species, state) {
     .replace('class="pet-eyes"', 'id="eyes" class="pet-eyes"')
     .replace('class="pet-hearts"', 'id="hearts" class="pet-hearts"')
     .replace('class="pet-zzz"', 'id="sleep" class="pet-zzz"');
+  svg = svg.replace(
+    '</svg>',
+    '<g aria-label="Rig anchors"><circle class="hit-area" data-anchor="head" cx="151" cy="136" r="62"/><ellipse class="hit-area" data-anchor="body" cx="151" cy="220" rx="62" ry="50"/><path class="hit-area" data-anchor="tail" d="M178 190 H260 V260 H178Z"/></g></svg>',
+  );
   return svg;
 }
 async function main() {
@@ -53,6 +57,12 @@ async function main() {
         viewBox: '0 0 300 300',
         layers: ['tail', 'body', 'arm', 'head', 'eyes', 'hearts', 'sleep'],
         states,
+        timing: {
+          transitionMs: 280,
+          loopMs: 1200,
+          autoplay: 'only when gentle motion is enabled and reduced motion is off',
+        },
+        stateStatus: { current: ['idle'], proposed: states.filter((state) => state !== 'idle') },
       },
       provenance:
         'Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.',

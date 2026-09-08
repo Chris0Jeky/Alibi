@@ -6,7 +6,7 @@
       "title": "Miso",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/cat-idle.svg",
@@ -46,11 +46,29 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -58,7 +76,7 @@
       "title": "Fern",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/fox-idle.svg",
@@ -98,11 +116,29 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -110,7 +146,7 @@
       "title": "Pip",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/owl-idle.svg",
@@ -150,11 +186,29 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -162,7 +216,7 @@
       "title": "Nimbus",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/dragon-idle.svg",
@@ -202,11 +256,29 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     }
   ]

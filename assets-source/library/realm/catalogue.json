@@ -1,5 +1,32 @@
 {
   "schemaVersion": 2,
+  "master": {
+    "id": "realm-kit-master",
+    "title": "Realm kit Blender master",
+    "category": "realm",
+    "status": "proposed",
+    "design": "original",
+    "source": "tools/assets/build-realm-library.py",
+    "derivatives": [
+      "assets-source/library/realm/realm-kit.blend",
+      "assets-source/library/realm/scenes/harbour.glb",
+      "assets-source/library/realm/thumbnails/scene-harbour.png"
+    ],
+    "metadata": {
+      "coordinateSystem": "Blender Z-up; standard glTF Y-up export",
+      "gridUnits": 2,
+      "collections": [
+        "harbour",
+        "hillfort",
+        "farmstead"
+      ],
+      "objects": 53
+    },
+    "provenance": "Original Alibi editable master containing the three composed reference collections.",
+    "accessibility": "Harbour GLB and static thumbnail accompany the editable Blender master.",
+    "integration": "Candidate library only; no runtime import.",
+    "qa": "Master opens with populated scene collections; the companion GLB is structure-checked."
+  },
   "assets": [
     {
       "id": "tower-square-base",
@@ -14,24 +41,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.9901,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.01,
-          0.5
+          0.9901,
+          1,
+          1.9802
         ],
         "size": [
-          1,
-          1.01,
-          1
+          1.9802,
+          2,
+          1.9802
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.9901
         ],
         "palette": {
           "petrol": "#173e49",
@@ -44,9 +71,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -64,24 +97,24 @@
       ],
       "metadata": {
         "min": [
-          -0.465,
-          0,
-          -0.465
+          -0.9208,
+          -1,
+          0
         ],
         "max": [
-          0.465,
-          1.01,
-          0.465
+          0.9208,
+          1,
+          1.8416
         ],
         "size": [
-          0.93,
-          1.01,
-          0.93
+          1.8416,
+          2,
+          1.8416
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.9208
         ],
         "palette": {
           "petrol": "#173e49",
@@ -94,9 +127,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -114,24 +153,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -1,
+          -0.3,
+          0
         ],
         "max": [
-          0.5,
-          0.3,
-          0.5
-        ],
-        "size": [
           1,
           0.3,
-          1
+          2
+        ],
+        "size": [
+          2,
+          0.6,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.3,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -144,9 +183,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -164,24 +209,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.4975,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          2.01,
-          0.5
+          0.4975,
+          1,
+          0.995
         ],
         "size": [
-          1,
-          2.01,
-          1
+          0.995,
+          2,
+          0.995
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.4975
         ],
         "palette": {
           "petrol": "#173e49",
@@ -194,9 +239,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -214,24 +265,24 @@
       ],
       "metadata": {
         "min": [
-          -0.45,
-          0,
-          -0.3897
+          -0.687,
+          -1,
+          0
         ],
         "max": [
-          0.45,
-          1.31,
-          0.3897
+          0.687,
+          1,
+          1.19
         ],
         "size": [
-          0.9,
-          1.31,
-          0.7794
+          1.374,
+          2,
+          1.19
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.595
         ],
         "palette": {
           "petrol": "#173e49",
@@ -244,9 +295,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -264,24 +321,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4762,
-          0,
-          -0.4124
+          -1,
+          -0.483,
+          0
         ],
         "max": [
-          0.4762,
-          0.46,
-          0.4124
+          1,
+          0.483,
+          1.7321
         ],
         "size": [
-          0.9524,
-          0.46,
-          0.8248
+          2,
+          0.9659,
+          1.7321
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.483,
+          0.866
         ],
         "palette": {
           "petrol": "#173e49",
@@ -294,9 +351,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -314,24 +377,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4882,
-          0,
-          -0.4228
+          -1,
+          -0.8501,
+          0
         ],
         "max": [
-          0.4882,
-          0.83,
-          0.4228
+          1,
+          0.8501,
+          1.7321
         ],
         "size": [
-          0.9763,
-          0.83,
-          0.8455
+          2,
+          1.7003,
+          1.7321
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.8501,
+          0.866
         ],
         "palette": {
           "petrol": "#173e49",
@@ -344,9 +407,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -364,24 +433,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.7634,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.31,
-          0.5
+          0.7634,
+          1,
+          1.5267
         ],
         "size": [
-          1,
-          1.31,
-          1
+          1.5267,
+          2,
+          1.5267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -394,9 +463,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -414,24 +489,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.7634,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.31,
-          0.5
+          0.7634,
+          1,
+          1.5267
         ],
         "size": [
-          1,
-          1.31,
-          1
+          1.5267,
+          2,
+          1.5267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -444,9 +519,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -464,24 +545,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.3817,
+          -1,
+          0
         ],
         "max": [
-          0,
-          1.31,
-          0.5
+          0.3817,
+          1,
+          1.5267
         ],
         "size": [
-          0.5,
-          1.31,
-          1
+          0.7634,
+          2,
+          1.5267
         ],
         "pivot": [
-          0,
-          0,
-          0
+          0.3817,
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -494,9 +575,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -514,24 +601,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1163,
-          0,
-          -0.4095
+          -0.3444,
+          -1,
+          0
         ],
         "max": [
-          0.1163,
-          0.675,
-          0.4095
+          0.3444,
+          1,
+          2.4267
         ],
         "size": [
-          0.2325,
-          0.675,
-          0.819
+          0.6889,
+          2,
+          2.4267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          1.2133
         ],
         "palette": {
           "petrol": "#173e49",
@@ -544,9 +631,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -564,24 +657,24 @@
       ],
       "metadata": {
         "min": [
-          -0.465,
-          0,
-          -0.465
+          -0.7908,
+          -1,
+          0
         ],
         "max": [
-          0.465,
-          1.176,
-          0.465
+          0.7908,
+          1,
+          1.5816
         ],
         "size": [
-          0.93,
-          1.176,
-          0.93
+          1.5816,
+          2,
+          1.5816
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7908
         ],
         "palette": {
           "petrol": "#173e49",
@@ -594,9 +687,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -614,24 +713,24 @@
       ],
       "metadata": {
         "min": [
-          0.325,
-          0,
-          -0.5
+          -0.175,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.175,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.35,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.825,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -644,9 +743,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -664,24 +769,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -694,9 +799,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -714,24 +825,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -744,9 +855,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -764,24 +881,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -794,9 +911,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -814,24 +937,24 @@
       ],
       "metadata": {
         "min": [
-          -0.55,
-          0,
-          -0.5354
+          -1,
+          -0.5188,
+          0
         ],
         "max": [
-          0.55,
-          0.5707,
-          0.5354
+          1,
+          0.5188,
+          1.9467
         ],
         "size": [
-          1.1,
-          0.5707,
-          1.0707
+          2,
+          1.0377,
+          1.9467
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.5188,
+          0.9734
         ],
         "palette": {
           "petrol": "#173e49",
@@ -844,9 +967,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -864,24 +993,24 @@
       ],
       "metadata": {
         "min": [
-          -0.55,
-          0,
-          -0.55
+          -1,
+          -0.4545,
+          0
         ],
         "max": [
-          0.55,
-          0.5,
-          0.55
+          1,
+          0.4545,
+          2
         ],
         "size": [
-          1.1,
-          0.5,
-          1.1
+          2,
+          0.9091,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.4545,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -894,9 +1023,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -914,24 +1049,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5115,
-          0,
-          -0.5115
+          -0.424,
+          -1,
+          0
         ],
         "max": [
-          0.5115,
-          2.4128,
-          0.5115
+          0.424,
+          1,
+          0.848
         ],
         "size": [
-          1.023,
-          2.4128,
-          1.023
+          0.848,
+          2,
+          0.848
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.424
         ],
         "palette": {
           "petrol": "#173e49",
@@ -944,9 +1079,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -964,24 +1105,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5115,
-          0,
-          -0.5115
+          -0.3441,
+          -1,
+          0
         ],
         "max": [
-          0.5115,
-          2.9728,
-          0.5115
+          0.3441,
+          1,
+          0.6882
         ],
         "size": [
-          1.023,
-          2.9728,
-          1.023
+          0.6882,
+          2,
+          0.6882
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.3441
         ],
         "palette": {
           "petrol": "#173e49",
@@ -994,9 +1135,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1014,24 +1161,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1082,
-          0,
-          -0.1122
+          -0.1391,
+          -1,
+          0
         ],
         "max": [
-          0.1082,
-          1.556,
-          0.1122
+          0.1391,
+          1,
+          0.2883
         ],
         "size": [
-          0.2164,
-          1.556,
-          0.2243
+          0.2782,
+          2,
+          0.2883
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.1442
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1044,9 +1191,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1064,24 +1217,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.8084,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.237,
-          0.5
+          0.8084,
+          1,
+          1.6168
         ],
         "size": [
-          1,
-          1.237,
-          1
+          1.6168,
+          2,
+          1.6168
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.8084
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1094,9 +1247,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1114,24 +1273,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -1,
+          -0.025,
+          0
         ],
         "max": [
-          0.5,
-          0.025,
-          0.5
-        ],
-        "size": [
           1,
           0.025,
-          1
+          2
+        ],
+        "size": [
+          2,
+          0.05,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.025,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1144,9 +1303,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1164,24 +1329,24 @@
       ],
       "metadata": {
         "min": [
-          -1.5,
-          0,
-          -1.5
+          -1,
+          -0.0167,
+          0
         ],
         "max": [
-          1.5,
-          0.05,
-          1.5
+          1,
+          0.0167,
+          2
         ],
         "size": [
-          3,
-          0.05,
-          3
+          2,
+          0.0333,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.0167,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1194,9 +1359,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1215,23 +1386,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.1,
-          1
+          1,
+          0.1
         ],
         "size": [
           2,
-          0.1,
-          2
+          2,
+          0.1
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1244,9 +1415,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1265,23 +1440,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.13,
-          1
+          1,
+          0.13
         ],
         "size": [
           2,
-          0.13,
-          2
+          2,
+          0.13
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1294,9 +1469,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1315,23 +1494,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.13,
-          1
+          1,
+          0.13
         ],
         "size": [
           2,
-          0.13,
-          2
+          2,
+          0.13
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1344,9 +1523,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1365,23 +1548,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.06,
-          1
+          1,
+          0.06
         ],
         "size": [
           2,
-          0.06,
-          2
+          2,
+          0.06
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1394,9 +1577,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1415,23 +1602,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.12,
-          1
+          1,
+          0.12
         ],
         "size": [
           2,
-          0.12,
-          2
+          2,
+          0.12
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1444,9 +1631,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1465,23 +1656,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.12,
-          1
+          1,
+          0.12
         ],
         "size": [
           2,
-          0.12,
-          2
+          2,
+          0.12
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1494,9 +1685,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1515,23 +1710,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -0.22
+          -0.25,
+          0
         ],
         "max": [
           1,
-          1.4,
-          0.28
+          0.25,
+          1.4
         ],
         "size": [
           2,
-          1.4,
-          0.5
+          0.5,
+          1.4
         ],
         "pivot": [
           -0.75,
-          0.7,
-          0
+          0.03,
+          0.7
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1544,9 +1739,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1565,23 +1764,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -0.7
+          -0.2222,
+          0
         ],
         "max": [
-          1.25,
-          1.1,
-          0.7
+          1,
+          0.2222,
+          1.2444
         ],
         "size": [
-          2.25,
-          1.1,
-          1.4
+          2,
+          0.4444,
+          1.2444
         ],
         "pivot": [
+          -0.1111,
           0,
-          0.55,
-          0
+          0.4889
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1594,9 +1793,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1614,24 +1817,24 @@
       ],
       "metadata": {
         "min": [
-          -1.35,
-          0.1,
-          -0.55
+          -1,
+          -0.4074,
+          0
         ],
         "max": [
-          1.35,
-          0.67,
-          0.55
+          1,
+          0.4074,
+          0.4926
         ],
         "size": [
-          2.7,
-          0.57,
-          1.1
+          2,
+          0.8148,
+          0.4926
         ],
         "pivot": [
           0,
-          0.55,
-          0
+          0,
+          0.4037
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1644,9 +1847,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1664,24 +1871,24 @@
       ],
       "metadata": {
         "min": [
-          -1.2339,
-          0,
-          -1.2339
+          -1,
+          -1,
+          0
         ],
         "max": [
           1,
-          2.72,
-          0.8
+          1,
+          1.6598
         ],
         "size": [
-          2.2339,
-          2.72,
-          2.0339
+          2,
+          2,
+          1.6598
         ],
         "pivot": [
           0,
-          0.6,
-          0
+          0,
+          0.4918
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1694,9 +1901,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1714,24 +1925,24 @@
       ],
       "metadata": {
         "min": [
-          -1.4496,
-          -0.025,
-          -1.4496
+          -1,
+          -1,
+          0
         ],
         "max": [
-          1.25,
-          3.025,
-          0.8
+          1,
+          1,
+          1.3279
         ],
         "size": [
-          2.6996,
-          3.05,
-          2.2496
+          2,
+          2,
+          1.3279
         ],
         "pivot": [
           0,
-          0.6,
-          0
+          0,
+          0.3934
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1744,9 +1955,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1764,24 +1979,24 @@
       ],
       "metadata": {
         "min": [
-          -1.2339,
-          0,
-          -1.2339
+          -1,
+          -0.8746,
+          0
         ],
         "max": [
-          1.57,
-          2.72,
-          0.8
+          1,
+          0.8746,
+          1.4516
         ],
         "size": [
-          2.8039,
-          2.72,
-          2.0339
+          2,
+          1.7491,
+          1.4516
         ],
         "pivot": [
+          -0.1254,
           0,
-          0.6,
-          0
+          0.4301
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1794,9 +2009,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1815,23 +2034,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.4,
-          1
+          1,
+          0.495
         ],
         "size": [
           2,
-          0.4,
-          2
+          2,
+          0.495
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1844,9 +2063,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1865,23 +2088,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.24,
-          1
+          1,
+          0.24
         ],
         "size": [
           2,
-          0.24,
-          2
+          2,
+          0.24
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1894,9 +2117,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1915,23 +2142,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          1.37,
-          1
+          1,
+          1.275
         ],
         "size": [
           2,
-          1.37,
-          2
+          2,
+          1.275
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1944,9 +2171,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -1964,24 +2195,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7604,
-          0.41,
-          -0.65
+          -1,
+          -1,
+          0
         ],
         "max": [
-          0.7604,
-          2.23,
-          0.65
+          1,
+          1,
+          2.6923
         ],
         "size": [
-          1.5209,
-          1.82,
-          1.3
+          2,
+          2,
+          2.6923
         ],
         "pivot": [
           0,
-          0.55,
-          0
+          0,
+          0.7051
         ],
         "palette": {
           "petrol": "#173e49",
@@ -1994,9 +2225,13 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
@@ -2019,7 +2254,11 @@
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
@@ -2042,7 +2281,11 @@
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
@@ -2065,7 +2308,11 @@
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",

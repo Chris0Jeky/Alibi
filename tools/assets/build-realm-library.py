@@ -1,167 +1,85 @@
-"""Export the retained Quiet Wing city sources and compatible original modules.
-
-Run through the pinned local Blender executable.  The source OBJ files remain unmodified;
-this creates an editable .blend master, self-contained GLBs and measured thumbnails.
-"""
-import bpy, json, math, os, sys
+"""Z-up Blender source master and portable GLB export for the Quiet Wing asset library."""
+import bpy, json, math, os
 from mathutils import Vector
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-OUT = os.path.join(ROOT, 'assets-source', 'library', 'realm')
-SRC = os.path.join(ROOT, 'assets-source', 'quiet-wing', 'city')
-PALETTE = {
-    'petrol': '#173e49', 'ink': '#172d38', 'cream': '#f4ead4', 'amber': '#dbac60',
-    'sage': '#87a997', 'terracotta': '#b76d52', 'stone': '#77807a', 'water': '#5d9ca5',
-    'timber': '#765443', 'crop': '#b9b75d',
-}
-EXISTING = [
-    (m, 'castle') for m in ('tower-square-base','tower-square-mid','tower-square-top','tower-square-roof','tower-hexagon-base','tower-hexagon-mid','tower-hexagon-roof','wall','wall-corner','wall-doorway','stairs-stone','bridge-straight')
-] + [(m, 'town') for m in ('wall-window-shutters','wall-wood-window-shutters','wall-door','wall-wood-door','roof-gable','roof-point','tree','tree-high','lantern','stall-red','road','road-bend')]
-ORIGINAL = [
-    'ground-grass','ground-path','ground-cobble','water-tile','water-edge','water-corner',
-    'wall-gate','wall-end','bridge-arched','cottage-small','cottage-long','farm-barn',
-    'crop-wheat','crop-rows','orchard','tree-oak',
-]
-
-def rgb(hexcode):
-    h = hexcode.lstrip('#'); return tuple(int(h[i:i+2],16)/255 for i in (0,2,4)) + (1,)
-def mat(name):
-    m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
-    m.diffuse_color = rgb(PALETTE.get(name, '#f4ead4'))
-    m.metallic = 0; m.roughness = .84
-    m.use_nodes = True
-    principled = m.node_tree.nodes.get('Principled BSDF')
-    if principled:
-        principled.inputs['Base Color'].default_value = rgb(PALETTE.get(name, '#f4ead4'))
-        principled.inputs['Roughness'].default_value = .84
-    return m
-def clean():
-    bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
-    for d in (bpy.data.meshes, bpy.data.curves, bpy.data.materials, bpy.data.cameras, bpy.data.lights):
-        pass
-def mesh_box(name, location, scale, material):
-    bpy.ops.mesh.primitive_cube_add(location=location)
-    o=bpy.context.object; o.name=name; o.scale=scale; bpy.ops.object.transform_apply(location=False,rotation=False,scale=True); o.data.materials.append(mat(material)); return o
-def cyl(name, location, radius, depth, material, vertices=8):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=depth, location=location)
-    o=bpy.context.object; o.name=name; o.data.materials.append(mat(material)); return o
-def cone(name, location, r1, r2, depth, material, vertices=8):
-    bpy.ops.mesh.primitive_cone_add(vertices=vertices, radius1=r1, radius2=r2, depth=depth, location=location)
-    o=bpy.context.object; o.name=name; o.data.materials.append(mat(material)); return o
-def join_as(name, parts):
-    bpy.ops.object.select_all(action='DESELECT')
-    for x in parts: x.select_set(True)
-    bpy.context.view_layer.objects.active=parts[0]; bpy.ops.object.join(); parts[0].name=name; return parts[0]
-def procedural(name):
-    p=[]
-    if name.startswith('ground'):
-        p=[mesh_box(name,(0,0.05,0),(1,.05,1),'sage' if name=='ground-grass' else 'stone')]
-        if name=='ground-path': p.append(mesh_box('path',(0,.11,0),(.42,.02,1),'cream'))
-        if name=='ground-cobble':
-            for x in (-.5,0,.5):
-                for z in (-.5,0,.5): p.append(mesh_box('cobble',(x,.11,z),(.22,.02,.22),'cream'))
-    elif name.startswith('water'):
-        p=[mesh_box(name,(0,.03,0),(1,.03,1),'water')]
-        if name=='water-edge': p.append(mesh_box('shore',(0,.08,-.88),(1,.04,.12),'cream'))
-        if name=='water-corner':
-            p += [mesh_box('shoreA',(0,.08,-.88),(1,.04,.12),'cream'),mesh_box('shoreB',(-.88,.08,0),(.12,.04,1),'cream')]
-    elif name.startswith('wall'):
-        p=[mesh_box('wall',(0,.55,0),(1,.55,.18),'stone')]
-        if name=='wall-gate':
-            p=[mesh_box('postA',(-.75,.7,0),(.25,.7,.22),'stone'),mesh_box('postB',(.75,.7,0),(.25,.7,.22),'stone'),mesh_box('lintel',(0,1.2,0),(1,.2,.22),'stone'),mesh_box('door',(0,.48,.24),(.45,.48,.04),'timber')]
-        elif name=='wall-end': p.append(cyl('cap',(1,.7,0),.25,1.4,'stone'))
-    elif name.startswith('bridge'):
-        p=[mesh_box('deck',(0,.55,0),(1.35,.12,.55),'timber')]
-        for x in (-1.1,1.1): p.append(cyl('pier',(x,.28,0),.18,.55,'stone'))
-        if name=='bridge-arched':
-            for x in (-.7,0,.7): p.append(cyl('arch',(x,.22,0),.12,.45,'stone'))
-    elif name.startswith('cottage') or name=='farm-barn':
-        wide=1.25 if name=='cottage-long' else 1
-        p=[mesh_box('body',(0,.6,0),(wide,.6,.75),'cream'),mesh_box('door',(0,.38,.77),(.22,.38,.03),'timber')]
-        cone('roof',(0,1.5,0),1.22*wide,0,1.05,'terracotta',4); p.append(bpy.context.object); bpy.context.object.rotation_euler[1]=math.pi/4
-        if name=='farm-barn': p.append(mesh_box('hay',(wide+.35,.28,0),(.22,.28,.22),'crop'))
-    elif name.startswith('crop'):
-        p=[mesh_box('soil',(0,.04,0),(1,.04,1),'timber')]
-        for x in (-.65,-.22,.22,.65):
-            p.append(mesh_box('row',(x,.14,0),(.08,.1,.9),'crop'))
-            if name=='crop-wheat':
-                for z in (-.55,0,.55): p.append(cone('wheat',(x,.32,z),.08,.02,.35,'crop',5))
-    elif name=='orchard':
-        p=[mesh_box('soil',(0,.04,0),(1,.04,1),'sage')]
-        for x,z in ((-.5,-.4),(.45,.25)):
-            p += [cyl('trunk',(x,.38,z),.09,.7,'timber'),cone('crown',(x,.95,z),.42,.12,.65,'sage')]
-    elif name=='tree-oak':
-        p=[cyl('trunk',(0,.55,0),.14,1.1,'timber'), cone('canopy',(0,1.45,0),.78,.22,1.3,'sage',7)]
-    return join_as(name,p)
-def source_obj(name, pack):
-    path=os.path.join(SRC,pack,name+'.obj'); bpy.ops.wm.obj_import(filepath=path, forward_axis='Y', up_axis='Z')
-    items=list(bpy.context.selected_objects)
-    if len(items)>1: return join_as(name,items)
-    o=items[0]; o.name=name; return o
-def bounds(o):
-    corners=[o.matrix_world @ Vector(c) for c in o.bound_box]
-    mn=Vector((min(p.x for p in corners),min(p.y for p in corners),min(p.z for p in corners)))
-    mx=Vector((max(p.x for p in corners),max(p.y for p in corners),max(p.z for p in corners)))
-    return {'min':[round(x,4) for x in mn],'max':[round(x,4) for x in mx],'size':[round(x,4) for x in mx-mn],'pivot':[round(x,4) for x in o.location]}
-def export_one(o, asset_id, provenance):
-    o['alibi_asset_id']=asset_id; o['alibi_provenance']=provenance; o['alibi_palette']='deep petrol, ink, cream, amber, sage, terracotta'
-    bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active=o
-    bpy.ops.export_scene.gltf(filepath=os.path.join(OUT,'glb',asset_id+'.glb'), export_format='GLB', use_selection=True, export_materials='EXPORT')
-def thumbnail(o, asset_id):
-    clean_camera_lights()
-    bpy.context.scene.render.engine='BLENDER_EEVEE'; bpy.context.scene.render.resolution_x=320; bpy.context.scene.render.resolution_y=240; bpy.context.scene.render.resolution_percentage=100
-    bpy.context.scene.world.color=rgb('#f4ead4')[:3]
-    bpy.context.scene.world.use_nodes=True
-    background=bpy.context.scene.world.node_tree.nodes.get('Background')
-    if background: background.inputs['Color'].default_value=rgb('#f4ead4'); background.inputs['Strength'].default_value=.45
-    b=bounds(o); size=max(b['size']);
-    scene_view=asset_id.startswith('scene-')
-    bpy.ops.object.camera_add(location=((size*.9 if scene_view else size*1.8),(-size*1.1 if scene_view else -size*2.2),(size*.8 if scene_view else size*1.6))); camera=bpy.context.object; bpy.context.scene.camera=camera
-    target=Vector((0, max(.2,b['size'][1]/2),0)); direction=target-camera.location; camera.rotation_euler=direction.to_track_quat('-Z','Y').to_euler(); camera.data.lens=52
-    bpy.ops.object.light_add(type='AREA', location=(size,-size,size*2)); bpy.context.object.data.energy=1600; bpy.context.object.data.shape='DISK'; bpy.context.object.data.size=size*3
-    bpy.ops.mesh.primitive_plane_add(size=size*5, location=(0,-.02,0)); bpy.context.object.data.materials.append(mat('cream'))
-    bpy.context.scene.render.filepath=os.path.join(OUT,'thumbnails',asset_id+'.png'); bpy.ops.render.render(write_still=True)
-    if scene_view:
-        camera.location=Vector((-size*.9,-size*.9,size*.95)); direction=target-camera.location; camera.rotation_euler=direction.to_track_quat('-Z','Y').to_euler()
-        bpy.context.scene.render.filepath=os.path.join(OUT,'thumbnails',asset_id+'-alt.png'); bpy.ops.render.render(write_still=True)
-    bpy.data.objects.remove(camera, do_unlink=True)
-def clean_camera_lights():
-    for o in list(bpy.data.objects):
-        if o.type in {'CAMERA','LIGHT'} or o.name.startswith('Plane'): bpy.data.objects.remove(o, do_unlink=True)
-def ground_center(o):
-    b=bounds(o); o.location.x-=(b['min'][0]+b['max'][0])/2; o.location.z-=(b['min'][2]+b['max'][2])/2; o.location.y-=b['min'][1]
-def scene_scale(o):
-    extent=max(bounds(o)['size']) or 1
-    o.scale *= 1.65 / extent
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'));OUT=os.path.join(ROOT,'assets-source','library','realm');SRC=os.path.join(ROOT,'assets-source','quiet-wing','city')
+PALETTE={'petrol':'#173e49','ink':'#172d38','cream':'#f4ead4','amber':'#dbac60','sage':'#87a997','terracotta':'#b76d52','stone':'#77807a','water':'#5d9ca5','timber':'#765443','crop':'#b9b75d'}
+EXISTING=[(n,'castle') for n in ('tower-square-base','tower-square-mid','tower-square-top','tower-square-roof','tower-hexagon-base','tower-hexagon-mid','tower-hexagon-roof','wall','wall-corner','wall-doorway','stairs-stone','bridge-straight')]+[(n,'town') for n in ('wall-window-shutters','wall-wood-window-shutters','wall-door','wall-wood-door','roof-gable','roof-point','tree','tree-high','lantern','stall-red','road','road-bend')]
+ORIGINAL=['ground-grass','ground-path','ground-cobble','water-tile','water-edge','water-corner','wall-gate','wall-end','bridge-arched','cottage-small','cottage-long','farm-barn','crop-wheat','crop-rows','orchard','tree-oak']
+def col(k):h=PALETTE[k][1:];return tuple(int(h[i:i+2],16)/255 for i in(0,2,4))+(1,)
+def mat(k):
+ m=bpy.data.materials.get(k)or bpy.data.materials.new(k);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=col(k);p.inputs['Roughness'].default_value=.84;return m
+def cube(n,x,y,z,a,b,c,k):
+ bpy.ops.mesh.primitive_cube_add(location=(x,y,z));o=bpy.context.object;o.name=n;o.scale=(a,b,c);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);o.data.materials.append(mat(k));return o
+def cyl(n,x,y,z,r,h,k):
+ bpy.ops.mesh.primitive_cylinder_add(vertices=8,radius=r,depth=h,location=(x,y,z));o=bpy.context.object;o.name=n;o.data.materials.append(mat(k));return o
+def cone(n,x,y,z,a,b,h,k):
+ bpy.ops.mesh.primitive_cone_add(vertices=8,radius1=a,radius2=b,depth=h,location=(x,y,z));o=bpy.context.object;o.name=n;o.data.materials.append(mat(k));return o
+def join(n,items):
+ if len(items)==1:items[0].name=n;return items[0]
+ bpy.ops.object.select_all(action='DESELECT');[o.select_set(True)for o in items];bpy.context.view_layer.objects.active=items[0];bpy.ops.object.join();items[0].name=n;return items[0]
+def box(items):
+ p=[o.matrix_world@Vector(c)for o in items for c in o.bound_box];lo=Vector((min(v.x for v in p),min(v.y for v in p),min(v.z for v in p)));hi=Vector((max(v.x for v in p),max(v.y for v in p),max(v.z for v in p)));return lo,hi,hi-lo
+def data(o):
+ lo,hi,size=box([o]);return {'min':[round(v,4)for v in lo],'max':[round(v,4)for v in hi],'size':[round(v,4)for v in size],'pivot':[round(v,4)for v in o.location]}
+def normalize(o):
+ lo,hi,size=box([o]);o.scale*=2/max(size.x,size.y,.01);bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);lo,hi,size=box([o]);o.location.x-=(lo.x+hi.x)/2;o.location.y-=(lo.y+hi.y)/2;o.location.z-=lo.z;return o
+def proc(n):
+ p=[]
+ if n.startswith('ground'):p=[cube(n,0,0,.05,1,1,.05,'sage'if n=='ground-grass'else'stone')];p+=[]if n=='ground-grass'else[cube('path',0,0,.11,.42,1,.02,'cream')]if n=='ground-path'else[cube('cobble',x,y,.11,.22,.22,.02,'cream')for x in(-.5,0,.5)for y in(-.5,0,.5)]
+ elif n.startswith('water'):p=[cube(n,0,0,.03,1,1,.03,'water')];p+=[]if n=='water-tile'else[cube('shore',0,-.88,.08,1,.12,.04,'cream')]if n=='water-edge'else[cube('shore-a',0,-.88,.08,1,.12,.04,'cream'),cube('shore-b',-.88,0,.08,.12,1,.04,'cream')]
+ elif n.startswith('wall'):
+  p=[cube('wall',0,0,.55,1,.18,.55,'stone')]
+  if n=='wall-gate':p=[cube('post-a',-.75,0,.7,.25,.22,.7,'stone'),cube('post-b',.75,0,.7,.25,.22,.7,'stone'),cube('lintel',0,0,1.2,1,.22,.2,'stone'),cube('door',0,-.24,.48,.45,.04,.48,'timber')]
+  if n=='wall-end':p+=[cyl('cap',1,0,.7,.25,1.4,'stone')]
+ elif n.startswith('bridge'):p=[cube('deck',0,0,.55,1.35,.55,.12,'timber')]+[cyl('pier',x,0,.28,.18,.55,'stone')for x in(-1.1,1.1)]
+ elif n.startswith('cottage')or n=='farm-barn':
+  w=1.25 if n=='cottage-long'else 1;p=[cube('body',0,0,.6,w,.75,.6,'cream'),cube('door',0,-.77,.38,.22,.03,.38,'timber')];r=cone('roof',0,0,1.5,1.22*w,0,1.05,'terracotta');r.rotation_euler[2]=math.pi/4;p+=[r];p+=[]if n!='farm-barn'else[cube('hay',w+.35,0,.28,.22,.22,.28,'crop')]
+ elif n.startswith('crop'):
+  p=[cube('soil',0,0,.04,1,1,.04,'timber')]
+  for x in(-.65,-.22,.22,.65):p+=[cube('row',x,0,.14,.08,.9,.1,'crop')]+([]if n=='crop-rows'else[cone('wheat',x,y,.32,.08,.02,.35,'crop')for y in(-.55,0,.55)])
+ elif n=='orchard':p=[cube('ground',0,0,.04,1,1,.04,'sage')]+[x for a,b in((-.5,-.4),(.45,.25))for x in(cyl('trunk',a,b,.38,.09,.7,'timber'),cone('crown',a,b,.95,.42,.12,.65,'sage'))]
+ elif n=='tree-oak':p=[cyl('trunk',0,0,.55,.14,1.1,'timber'),cone('canopy',0,0,1.45,.78,.22,1.3,'sage')]
+ return normalize(join(n,p))
+def source(n,pack):
+ bpy.ops.wm.obj_import(filepath=os.path.join(SRC,pack,n+'.obj'),forward_axis='Y',up_axis='Z');return normalize(join(n,list(bpy.context.selected_objects)))
+def make(n):return source(n,dict(EXISTING)[n])if n in dict(EXISTING)else proc(n)
+def select(items):bpy.ops.object.select_all(action='DESELECT');[o.select_set(True)for o in items];bpy.context.view_layer.objects.active=items[0]
+def glb(items,path):select(items);bpy.ops.export_scene.gltf(filepath=path,export_format='GLB',use_selection=True,export_materials='EXPORT')
+def render(items,path,alt=False,large=False):
+ lo,hi,size=box(items);s=max(size.x,size.y,size.z,1);target=Vector((0,0,size.z*.3));bpy.ops.object.camera_add(location=((-1.25 if alt else 1.25)*s,-(1.2 if alt else 1.4)*s,1.2*s));cam=bpy.context.object;cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();bpy.ops.object.light_add(type='AREA',location=(-s,-s,2*s));light=bpy.context.object;light.data.energy=1450;light.data.shape='DISK';light.data.size=3.5*s;bpy.ops.mesh.primitive_plane_add(size=12*s,location=(0,0,-.02));floor=bpy.context.object;floor.data.materials.append(mat('cream'));sc=bpy.context.scene;sc.camera=cam;sc.render.engine='BLENDER_EEVEE';sc.world.use_nodes=True;sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=col('cream');sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=1;res=640 if large else 320;sc.render.resolution_x=res;sc.render.resolution_y=res*3//4;sc.render.resolution_percentage=100;sc.render.filepath=path;bpy.ops.render.render(write_still=True);[bpy.data.objects.remove(x,do_unlink=True)for x in(cam,light,floor)]
+def move(o,c):[q.objects.unlink(o)for q in list(o.users_collection)];c.objects.link(o)
+def scene(sid):
+ c=bpy.data.collections.new(sid);bpy.context.scene.collection.children.link(c);items=[]
+ def add(n,x,y,z=0,r=0):o=make(n);o.location=(x,y,z);o.rotation_euler[2]=r;move(o,c);items.append(o)
+ if sid=='harbour':
+  for x in(-3,-1,1,3):
+   for y in(0,2):add('water-tile',x,y)
+  for x in(-3,-1,1,3):add('ground-cobble',x,-2)
+  add('bridge-straight',0,1,0,math.pi/2);add('stall-red',-2,-2);add('lantern',0,-2);add('cottage-small',2,-2);add('tree',3,-2)
+ elif sid=='hillfort':
+  for x in(-2,0,2):
+   for y in(-2,0,2):add('ground-grass',x,y)
+  for x,y,r in((-3,0,0),(3,0,0),(0,3,math.pi/2),(0,-3,math.pi/2)):add('wall',x,y,0,r)
+  for x,y in((-3,-3),(3,-3),(3,3),(-3,3)):add('tower-square-base',x,y)
+  add('wall-gate',0,-3,0,math.pi/2);add('tower-square-mid',-3,-3,1.25);add('tower-square-roof',-3,-3,2.5);add('tree-oak',0,0)
+ else:
+  for x in(-3,-1,1,3):
+   for y in(-1,1):add('ground-grass',x,y)
+  add('farm-barn',-2,0);add('cottage-long',1,0);add('crop-wheat',3,1);add('crop-rows',3,-1);add('orchard',-3,1);add('ground-path',0,-1);add('lantern',0,1)
+ return items
 def main():
-    for d in ('glb','thumbnails','scenes'): os.makedirs(os.path.join(OUT,d),exist_ok=True)
-    mode = '--originals-only' if '--originals-only' in sys.argv else '--scenes-only' if '--scenes-only' in sys.argv else 'full'
-    clean(); collection=bpy.context.collection
-    metadata=[]; objects={}
-    if mode == 'full':
-        for name,pack in EXISTING:
-            o=source_obj(name,pack); objects[name]=o; export_one(o,name,'quiet-wing-city/'+pack+'/'+name+'.obj (CC0-1.0)'); metadata.append({'id':name,'category':'retained-city','status':'current','source':'assets-source/quiet-wing/city/'+pack+'/'+name+'.obj','derivatives':['glb/'+name+'.glb','thumbnails/'+name+'.png'],'metadata':bounds(o),'provenance':'CC0-1.0 retained city source','integrationReference':'src/quiet-wing/assets/city-models.json'}); thumbnail(o,name)
-    if mode in ('full','--originals-only'):
-        for name in ORIGINAL:
-            clean(); o=procedural(name); objects[name]=o; export_one(o,name,'original Alibi library module'); thumbnail(o,name)
-    # compose three fully self-contained scenes from GLB modules, each deliberately different.
-    scene_sets={'harbour':['ground-cobble','water-tile','water-edge','bridge-arched','stall-red','lantern','cottage-small','tree'], 'hillfort':['ground-grass','wall-gate','wall-end','tower-square-base','tower-square-top','tower-square-roof','road','tree-oak'], 'farmstead':['ground-grass','farm-barn','crop-wheat','crop-rows','orchard','cottage-long','road-bend','lantern']}
-    for scene_id,names in scene_sets.items():
-        clean(); made=[]
-        for i,name in enumerate(names):
-            if name in dict(EXISTING): o=source_obj(name,dict(EXISTING)[name])
-            else: o=procedural(name)
-            ground_center(o)
-            scene_scale(o)
-            o.location.x=(i%4)*2.6-3.9; o.location.z=(i//4)*2.7-1.4; made.append(o)
-        bpy.ops.object.select_all(action='DESELECT')
-        for o in made:o.select_set(True)
-        bpy.context.view_layer.objects.active=made[0]
-        bpy.ops.export_scene.gltf(filepath=os.path.join(OUT,'scenes',scene_id+'.glb'),export_format='GLB',use_selection=True,export_materials='EXPORT')
-        joined=join_as(scene_id,made); thumbnail(joined,'scene-'+scene_id)
-    clean(); bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT,'realm-kit.blend'))
-    if mode != 'full': return
-    catalogue={'schemaVersion':1,'palette':PALETTE,'assets':metadata,'scenes':list(scene_sets),'generator':'Blender 5.2.1'}
-    for filename in ('export-metadata.json','catalogue.json'):
-        with open(os.path.join(OUT,filename),'w',encoding='utf8') as f: json.dump(catalogue,f,indent=2)
-if __name__=='__main__': main()
+ for d in('glb','thumbnails','scenes'):os.makedirs(os.path.join(OUT,d),exist_ok=True)
+ bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False);meta=[]
+ for n,p in EXISTING:
+  o=source(n,p);glb([o],os.path.join(OUT,'glb',n+'.glb'));render([o],os.path.join(OUT,'thumbnails',n+'.png'));meta.append({'id':n,'category':'retained-city','status':'current','source':'assets-source/quiet-wing/city/'+p+'/'+n+'.obj','derivatives':['glb/'+n+'.glb','thumbnails/'+n+'.png'],'metadata':data(o),'provenance':'CC0 retained source normalized to two-unit Z-up footprint.','integrationReference':'src/quiet-wing/assets/city-models.json'});bpy.data.objects.remove(o,do_unlink=True)
+ for n in ORIGINAL:
+  o=proc(n);glb([o],os.path.join(OUT,'glb',n+'.glb'));render([o],os.path.join(OUT,'thumbnails',n+'.png'));meta.append({'id':n,'category':'compatible-module','status':'proposed','source':'tools/assets/build-realm-library.py','derivatives':['glb/'+n+'.glb','thumbnails/'+n+'.png'],'metadata':data(o),'provenance':'Original Alibi two-unit Z-up modular geometry.','integrationReference':'candidate library only; no runtime import'});bpy.data.objects.remove(o,do_unlink=True)
+ total=0
+ for sid in('harbour','hillfort','farmstead'):
+  items=scene(sid);total+=len(items);glb(items,os.path.join(OUT,'scenes',sid+'.glb'));render(items,os.path.join(OUT,'thumbnails','scene-'+sid+'.png'),large=True);render(items,os.path.join(OUT,'thumbnails','scene-'+sid+'-alt.png'),True,large=True)
+ bpy.ops.file.pack_all()
+ bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT,'realm-kit.blend'))
+ catalog={'schemaVersion':1,'palette':PALETTE,'assets':meta,'scenes':['harbour','hillfort','farmstead'],'master':{'coordinateSystem':'Blender Z-up; standard glTF Y-up export','gridUnits':2,'collections':['harbour','hillfort','farmstead'],'objects':total},'generator':'Blender 5.2.1'}
+ for f in('export-metadata.json','catalogue.json'):json.dump(catalog,open(os.path.join(OUT,f),'w',encoding='utf8'),indent=2)
+if __name__=='__main__':main()

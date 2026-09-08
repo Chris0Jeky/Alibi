@@ -55,11 +55,45 @@ main {
   border: 1px solid #87a997;
 }
 .stage canvas,
-.stage img {
+.stage img,
+#companion {
   display: block;
   width: 100%;
   height: 440px;
   object-fit: contain;
+}
+#companion .inline-rig {
+  width: 100%;
+  height: 100%;
+}
+:root[data-treatment='selected'] .stage {
+  box-shadow: inset 0 0 0 4px #dbac60;
+}
+:root[data-treatment='invalid'] .stage {
+  box-shadow: inset 0 0 0 4px #b76d52;
+  background: linear-gradient(140deg, #f0d7cf, #f4ead4 65%);
+}
+#companion .inline-rig .pet-tail,
+#companion .inline-rig .pet-head,
+#companion .inline-rig .pet-arm,
+#companion .inline-rig .pet-body {
+  transition: transform 280ms ease;
+}
+#companion .inline-rig.animate .pet-tail {
+  animation: tail-sway 1200ms ease-in-out infinite;
+}
+#companion .inline-rig.animate.state-celebrate .pet-body {
+  animation: celebrate-hop 680ms ease-in-out infinite;
+}
+@keyframes tail-sway {
+  50% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes celebrate-hop {
+  50% {
+    transform: translateY(-12px);
+  }
 }
 aside {
   background: #fff8e9;
@@ -89,7 +123,8 @@ dd {
     min-height: 320px;
   }
   .stage canvas,
-  .stage img {
+  .stage img,
+  #companion {
     height: 320px;
   }
 }
