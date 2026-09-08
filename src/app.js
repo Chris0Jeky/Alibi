@@ -196,9 +196,13 @@
         quarantined++;
       }
     const d = await store.get('meta', 'workshop-draft');
-    if (d && d.puzzle?.type === 'scene') {
-      draft = d.puzzle;
-      draftVerified = false;
+    if (d) {
+      try {
+        draft = C.validateSceneDraft(d.puzzle);
+        draftVerified = false;
+      } catch {
+        quarantined++;
+      }
     }
   } catch (e) {
     storageFatal = e.message;
@@ -418,7 +422,13 @@
   }
   function bookCard(b, i) {
     const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length;
-    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${art(b.icon)}<span class="book-number">CASEBOOK 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} chapters</span></div></div></button>`;
+    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${caseArt(b.id)}<span class="book-number">CASE FILE / 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} chapters</span></div></div></button>`;
+  }
+  function caseArt(id, eager = false) {
+    const source = globalThis.ALIBI_MEDIA?.[id];
+    return source
+      ? `<img class="case-art" src="${esc(source)}" width="1536" height="1024" alt="" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`
+      : art(books.find((b) => b.id === id)?.icon || 'scene');
   }
   function familyCard(t) {
     const m = M[t],
@@ -437,20 +447,24 @@
   }
   function home() {
     const r = activeRecords()[0],
-      p = r?.puzzle || find('scene-01'),
-      date = new Date().toLocaleDateString('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'short',
-      });
-    return `<div class="welcome"><h1>Your desk.</h1><span class="date">${esc(date)}</span></div><section class="hero-row"><div class="hero"><div><div class="eyebrow"><span class="dot"></span> Welcome to your puzzle club</div><h2>A little mystery.<br>A <em>clearer</em> mind.</h2><p>Follow a clue. Find a pattern. Make a connection. There’s always another little discovery waiting.</p>${B('Explore the casebooks', 'navigate', 'arrow', 'cream', 'data-page="casebooks"')}</div><div class="hero-illustration">${art('scene')}</div><div class="hero-label">The Briar House papers · Casebook 01</div></div><div class="resume-card"><div class="eyebrow">${r ? 'Right where you left off' : 'A good place to begin'}</div><div class="resume-icon">${icon(r ? M[p.type].icon : 'compass')}</div><h3>${r ? esc(p.title) : 'Your first<br>little mystery.'}</h3><p>${r ? `${esc(M[p.type].title)}. Your board and notes are waiting.` : 'Five people. Four rooms. One story to piece together.'}</p><div class="resume-meta">${r ? `${r.moves} moves · ${r.hints} reveals` : 'Gentle · A short, guided start'}</div>${B(r ? 'Continue puzzle' : 'Start a case', 'open', 'arrow', '', openAttrs(p))}</div></section><div class="home-facts"><span>${icon('library')}<strong>${all().length}</strong> puzzles to explore</span><span>${icon('compass')}<strong>${C.TYPES.length}</strong> ways to think</span><span>${icon('device')}Made for offline play</span></div><div class="section-head"><div><h2>Your daily three.</h2><p>A fresh selection from the collection. No streaks to keep.</p></div>${B('All puzzles', 'navigate', 'arrow', 'ghost', 'data-page="library"')}</div><div class="daily-grid">${daily()
+      p = r?.puzzle || find('scene-01');
+    const featured = books[0],
+      chapter = featured.chapters.find((c) => !solved(rec(find(c.id)))) || featured.chapters[0];
+    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+    const completed = [...records.values()].filter(solved).length;
+    return `<div class="welcome"><div><div class="eyebrow">THE PUZZLE CABINET</div><h1>${r ? 'A thread to pick up.' : 'What will you uncover?'}</h1></div><span class="date">${esc(date)}<small>${completed ? completed + ' puzzles solved' : 'Take your time. Find your way.'}</small></span></div>
+    <section class="hero-row"><div class="hero case-feature"><div class="feature-image">${caseArt(featured.id, true)}</div><div class="feature-copy"><div class="eyebrow"><span class="dot"></span> CASE FILE / 01</div><h2>The Briar<br>House papers.</h2><p>A stolen key. Conflicting accounts.<br>Four puzzles to put the evidence in order.</p><div class="feature-actions">${B('Start investigating', 'open', 'arrow', 'cream', openAttrs(find(chapter.id), featured.id))}<span>4 chapters · Mystery & deduction</span></div></div></div>
+    <div class="resume-card"><div class="eyebrow">${r ? 'YOUR OPEN CASE' : 'YOUR FIRST CASE'}</div><div class="resume-icon">${icon(r ? M[p.type].icon : 'compass')}</div><h3>${r ? esc(p.title) : 'Five people.<br> One missing alibi.'}</h3><p>${r ? 'Your board and notes are right where you left them.' : 'Place the guests. Follow the evidence. Find who was in the wrong room.'}</p><div class="resume-meta">${r ? r.moves + ' moves · ' + esc(M[p.type].title) : 'A gentle introduction · Guided lesson'}</div>${B(r ? 'Continue puzzle' : 'Start a case', 'open', 'arrow', '', openAttrs(p))}</div></section>
+    <div class="home-facts"><span>${icon('library')}<strong>${all().length}</strong> puzzles</span><span>${icon('compass')}<strong>${C.TYPES.length}</strong> ways to think</span><span>${icon('device')}Play offline</span></div>
+    <div class="section-head"><div><div class="eyebrow">A LITTLE DISCOVERY, EVERY DAY</div><h2>Your daily three.</h2></div>${B('All puzzles', 'navigate', 'arrow', 'ghost', 'data-page="library"')}</div><div class="daily-grid">${daily()
       .map(
         (p, i) =>
-          `<button class="daily-card" data-action="open" ${openAttrs(p)}><div class="daily-art">${art(p.type, p)}</div><div><div class="tag">${['A little mystery', 'Think in pictures', 'Find some order'][i]}</div><h3>${esc(p.title)}</h3><small>${esc(M[p.type].title)} · ${p.minutes || 8} min</small></div>${icon('chevron')}</button>`,
+          `<button class="daily-card" data-action="open" ${openAttrs(p)}><div class="daily-art">${art(p.type, p)}</div><div><div class="tag">${['The deduction', 'The picture', 'The pattern'][i]}</div><h3>${esc(p.title)}</h3><small>${esc(M[p.type].title)} · ${p.minutes || 8} min${solved(rec(p)) ? ' · Solved' : ''}</small></div>${icon('chevron')}</button>`,
       )
-      .join(
-        '',
-      )}</div><div class="section-head"><div><h2>A mystery worth settling into.</h2><p>Four chapters. Different puzzles. One evening well spent.</p></div>${B('View all', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div><div class="book-grid">${books.map(bookCard).join('')}</div><div class="section-head"><div><h2>Find your kind of “aha”.</h2><p>Familiar favourites and something a little different.</p></div></div><div class="family-grid">${['scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map(familyCard).join('')}</div><div class="club-note">${icon('workshop')}<div><h3>The cabinet has room for your ideas.</h3><p>Make a scene, shape a floor plan, or bring a puzzle pack of your own.</p></div>${B('Visit the workshop', 'navigate', 'arrow', 'ghost', 'data-page="workshop"')}</div>`;
+      .join('')}</div>
+    <div class="section-head"><div><div class="eyebrow">SETTLE INTO A CASE FILE</div><h2>Every detail tells a story.</h2><p>Three collections. Four chapters each. Follow the clues at your pace.</p></div>${B('All casebooks', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div><div class="book-grid">${books.map(bookCard).join('')}</div>
+    <div class="section-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h2>Twelve ways to think.</h2></div></div><div class="family-grid">${['scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map(familyCard).join('')}</div>
+    <div class="club-note">${icon('workshop')}<div><h3>A case of your own.</h3><p>Build a floor plan, write the clues, and test your mystery in the workshop.</p></div>${B('Open workshop', 'navigate', 'arrow', 'ghost', 'data-page="workshop"')}</div>`;
   }
   function libraryPage() {
     const type = route.id,
@@ -517,7 +531,7 @@
       return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Small anthology investigations told through different puzzle types. Play in order, or jump to any chapter.</p></div></div><div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>One casebook, several ways to think.</h3><p>Your chapter progress comes from the same saved puzzles as the collection. Start here and continue anywhere in the app.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
       next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0];
-    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header"><div><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', '', openAttrs(find(next.id), b.id))}</div><div class="case-illustration">${art(b.icon)}</div></div><div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
+    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header"><div><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', '', openAttrs(find(next.id), b.id))}</div><div class="case-illustration">${caseArt(b.id, true)}</div></div><div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
       .map((c, i) => {
         const p = find(c.id),
           r = rec(p),
@@ -558,7 +572,7 @@
     return `<div class="page-head"><div><div class="eyebrow">Make yourself comfortable</div><h1>Your space.</h1><p>How it looks, how it feels, and how your progress stays with you.</p></div>${B('The workshop', 'navigate', 'workshop', 'secondary', 'data-page="workshop"')}</div><div class="settings-grid"><section class="panel"><h2>A comfortable desk.</h2><div class="setting-row"><label for="theme-select">Appearance<small>Choose paper, evening, or your device preference.</small></label><select id="theme-select"><option value="light" ${settings.theme === 'light' ? 'selected' : ''}>Paper</option><option value="night" ${settings.theme === 'night' ? 'selected' : ''}>Evening</option><option value="system" ${settings.theme === 'system' ? 'selected' : ''}>System</option></select></div>${toggle('contrast', 'Stronger contrast', 'Darker borders and more distinct text.')}${toggle('largeText', 'Larger clue text', 'More readable evidence and instructions.')}${toggle('reducedMotion', 'Reduce motion', 'Remove decorative transitions and animation.')}${toggle('timer', 'Show the timer', 'Optional. Time never affects a result.')}${toggle('sound', 'Soft interaction sounds', 'Synthesised locally. No audio downloads.')}${toggle('haptics', 'Light haptics', 'A small tap on supported devices.')}${toggle('autoCross', 'Automatic logic-grid exclusions', 'A ✓ crosses the rest of its row and column.')}</section><section class="panel"><h2>Your progress is yours.</h2><p>Boards and notes stay in this browser on this device. There is no cloud account or automatic cross-device backup.</p><div class="data-list"><div><span>Save storage</span><strong>${store.mode === 'indexeddb' ? 'IndexedDB · device-local' : store.mode === 'local' ? 'localStorage fallback' : 'This session only'}</strong></div><div><span>Saved puzzles</span><strong>${records.size}</strong></div><div><span>Favorite puzzles</span><strong>${prefs.favorites.length}</strong></div><div><span>Custom packs</span><strong>${packs.length - 1}</strong></div></div><div class="row actions">${B('Export backup', 'export', 'download')}${B('Restore backup', 'import-backup', 'upload', 'secondary')}</div><div class="row actions">${B('Protect local storage', 'persist', 'lock', 'ghost small')}${B('Recovery copy', 'recovery', 'refresh', 'ghost small')}</div><p class="fine" style="margin:16px 0 0">Clearing site data, changing browser profiles, changing the website address or losing the device can make local progress unavailable. Keep an exported backup elsewhere. A persistence request is not a cloud backup.</p></section><section class="panel"><h2>Make it feel like an app.</h2><p>Open the deployed HTTPS address on Android. Install from your browser’s menu to put Alibi on your home screen.</p><div class="data-list"><div><span>Offline files</span><strong>${offlineReady ? 'Ready' : cfg.standalone ? 'Local preview only' : 'Preparing / not ready'}</strong></div><div><span>Display</span><strong>${matchMedia('(display-mode: standalone)').matches ? 'Installed app' : 'Browser tab'}</strong></div><div><span>Version</span><strong>${esc(cfg.version)} · ${esc(cfg.build.slice(0, 8))}</strong></div><div><span>Updates</span><strong>${waitingUpdate ? 'Ready to install' : 'None waiting'}</strong></div></div><div class="row actions">${B('Install Alibi', 'install', 'download')}${B('Check for updates', 'check-update', 'refresh', 'secondary')}</div><p class="fine" style="margin-top:16px">${cfg.standalone ? 'This self-contained file is for trying the game. The Cloudflare build provides the install manifest, service worker and coherent offline updates.' : 'Load the app online once, wait for “Offline ready”, then test reopening it in airplane mode. Your browser still controls storage availability.'}</p></section><section class="panel"><h2>A cabinet that can grow.</h2><p>${starter.puzzles.length} starter puzzles, ${C.TYPES.length} game families and ${books.length} anthology casebooks. Use the workshop to make original scene drafts, edit rooms and clues, verify the solution, and share JSON packs.</p><div class="row actions">${B('Open the workshop', 'navigate', 'workshop', '', 'data-page="workshop"')}${B('Replay a lesson', 'choose-lesson', 'book', 'secondary')}</div><div class="divider"></div><h3>Something not behaving as expected?</h3><p style="font-size:11px;margin-top:9px">Export a small issue report with the puzzle ID, app version and current board. Review it before sharing; it is not sent anywhere automatically.</p><div class="row actions">${B('Create issue report', 'feedback-report', 'flag', 'ghost small')}${B('Privacy & credits', 'navigate', 'arrow', 'ghost small', 'data-page="privacy"')}</div></section></div>`;
   }
   function privacyPage() {
-    return `<div class="privacy-copy"><div class="eyebrow">The small print, in plain language</div><h1>Privacy & credits.</h1><h2>Your device is the save file.</h2><p>Alibi stores game progress, notes, settings and custom puzzle packs in your browser. It does not create an account, send gameplay to an analytics service, load advertising or make AI calls. Backup and issue-report exports are files you choose to save and share.</p><p>The hosting provider still receives ordinary web requests, including your IP address and request metadata, when you load the site or check for updates. Its logging and retention depend on the operator’s hosting configuration. This page describes this static build, not every possible future deployment.</p><h2>Offline, not indestructible.</h2><p>The installed version caches its application files for offline play. Browser storage can be cleared or become unavailable. An installed icon is not a guarantee of permanent storage. Export backups, and keep the same production address when publishing updates.</p><h2>Original content, familiar rules.</h2><p>The scene-deduction format is inspired by Murdoku by Manuel Garand. These are original scenarios and original interface illustrations, not copied Murdoku puzzles, artwork or an affiliated product. Other games use familiar logic-puzzle rules. The puzzle previews are decorative illustrations, not a promise that the pictured arrangement is playable.</p><p>“Alibi” is a working product name. This bundle does not establish trademark clearance or grant rights to third-party names. The source has no runtime dependencies and bundles no third-party fonts, music, photos or icon libraries. Its SVG illustrations, icons and synthesised interface sounds are created for this prototype.</p><h2>What the quality checks mean.</h2><p>The starter catalogue is solver-checked for exactly one solution under the implemented rules. Difficulty and time estimates have not been calibrated through a formal player study. The casebooks are linked anthologies of standalone puzzles, not branching detective simulations. Optional reveals use the stored solution and are counted.</p><h2>Accessibility.</h2><p>The app includes keyboard controls, visible focus, reduced motion, stronger contrast, larger clue text and non-colour labels. Spatial grids are not a fully nonvisual puzzle experience. Physical-device and assistive-technology testing are still part of a public release checklist.</p><h2>Data removal.</h2><p>Export anything you need first. Your browser’s site-data controls can remove the app’s local storage and offline cache. That removal is not reversible unless you have a backup.</p>${B('Back to your space', 'navigate', 'back', 'secondary', 'data-page="settings"')}</div>`;
+    return `<div class="privacy-copy"><div class="eyebrow">The small print, in plain language</div><h1>Privacy & credits.</h1><h2>Your device is the save file.</h2><p>Alibi stores game progress, notes, settings and custom puzzle packs in your browser. It does not create an account, send gameplay to an analytics service, load advertising or make AI calls. Backup and issue-report exports are files you choose to save and share.</p><p>The hosting provider still receives ordinary web requests, including your IP address and request metadata, when you load the site or check for updates. Its logging and retention depend on the operator’s hosting configuration. This page describes this static build, not every possible future deployment.</p><h2>Offline, not indestructible.</h2><p>The installed version caches its application files for offline play. Browser storage can be cleared or become unavailable. An installed icon is not a guarantee of permanent storage. Export backups, and keep the same production address when publishing updates.</p><h2>Original content, familiar rules.</h2><p>The scene-deduction format is inspired by Murdoku by Manuel Garand. These are original scenarios and original interface illustrations, not copied Murdoku puzzles, artwork or an affiliated product. Other games use familiar logic-puzzle rules. The puzzle previews are decorative illustrations, not a promise that the pictured arrangement is playable.</p><p>“Alibi” is a working product name. This bundle does not establish trademark clearance or grant rights to third-party names. The source has no runtime dependencies and bundles no third-party fonts, music, photos or icon libraries. The original casebook covers were made with AI image generation. SVG puzzle previews, install icons and synthesised interface sounds are bundled locally.</p><h2>What the quality checks mean.</h2><p>The starter catalogue is solver-checked for exactly one solution under the implemented rules. Difficulty and time estimates have not been calibrated through a formal player study. The casebooks are linked anthologies of standalone puzzles, not branching detective simulations. Optional reveals use the stored solution and are counted.</p><h2>Accessibility.</h2><p>The app includes keyboard controls, visible focus, reduced motion, stronger contrast, larger clue text and non-colour labels. Spatial grids are not a fully nonvisual puzzle experience. Physical-device and assistive-technology testing are still part of a public release checklist.</p><h2>Project and support.</h2><p>Alibi is maintained by <a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky</a>. Report a problem through <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>; keep personal notes and full progress backups private. The public source currently has no reuse license.</p><h2>Data removal.</h2><p>Export anything you need first. Your browser’s site-data controls can remove the app’s local storage and offline cache. That removal is not reversible unless you have a backup.</p>${B('Back to your space', 'navigate', 'back', 'secondary', 'data-page="settings"')}</div>`;
   }
   function token(person, p, small = false) {
     return `<span class="person-token person-${person.color} ${person.id === p.victim ? 'victim' : ''}" aria-hidden="true">${person.id === p.victim ? icon('close') : esc(person.name.slice(0, 1))}</span>`;
@@ -725,6 +739,13 @@
         )}, ${live ? 'connected to source' : 'not connected'}${i === p.source ? ', source' : ''}`;
     }
     return `<button id="cell-${i}" class="${cls}" data-action="cell" data-cell="${i}" aria-label="${esc(label)}" ${disabled ? 'disabled' : ''} ${extra} style="${style}" tabindex="${i === selectedCell ? '0' : '-1'}">${content}</button>`;
+  }
+  function enabledCell(p, i) {
+    if (p.type === 'scene') return !p.objects.some((o) => o.cell === i);
+    if (p.type === 'lightup') return p.walls[i] === -2;
+    if (p.type === 'tents') return !p.trees.includes(i);
+    if (p.type === 'network') return !p.locked.includes(i);
+    return true;
   }
   function board(p, s) {
     if (p.type === 'witness') return witnessBoard(p, s);
@@ -931,7 +952,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'help', 'How to play', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'help', 'How to play', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1135,7 +1156,7 @@
         `<div class="success-icon">${icon('check')}</div><p>${esc(explanation)}</p><div class="success-facts"><div><strong>${current.moves}</strong><small>Moves made</small></div><div><strong>${current.hints}</strong><small>Reveals used</small></div><div><strong>${solved(current) ? '✓' : ''}</strong><small>${store.mode === 'session' ? 'In this session’s journal' : 'Saved in your journal'}</small></div></div>${route.book ? '<p>You have completed another chapter. Continue the casebook whenever you are ready.</p>' : ''}`,
         [
           { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
-          { label: 'Review my solution', action: 'close-dialog', secondary: true },
+          { label: 'Review the record', action: 'review-record', secondary: true },
         ],
       );
     }
@@ -1275,9 +1296,10 @@
   }
   function showHint() {
     if (!current) return;
+    const hint = C.insights.deduction(current.puzzle, current.state);
     dialog(
-      'A small nudge.',
-      `<div class="hint-box">${esc(M[current.puzzle.type].tip)}</div><p>This is a general strategy, not a check against the hidden answer.</p><p class="fine">For more help, an optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      hint ? 'Follow the reasoning.' : 'A small nudge.',
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${hint ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.' : 'This is a general strategy, not a check against the hidden answer.'}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
@@ -1294,6 +1316,18 @@
       [
         { label: 'Not yet', action: 'close-dialog', secondary: true },
         ...(h.action ? [{ label: 'Place this step', action: 'reveal-apply', icon: 'eye' }] : []),
+      ],
+    );
+  }
+  function reviewRecord() {
+    if (!current?.completedAt) return;
+    const rows = C.insights.recap(current.puzzle, current.state);
+    dialog(
+      'The completed record.',
+      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
+      [
+        { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
+        { label: 'Back to my board', action: 'close-dialog', secondary: true },
       ],
     );
   }
@@ -1790,12 +1824,10 @@
       draftShowSolution = false;
       await saveDraft();
       render();
-      document
-        .querySelector('.draft-editor')
-        ?.scrollIntoView({
-          behavior: settings.reducedMotion ? 'instant' : 'smooth',
-          block: 'start',
-        });
+      document.querySelector('.draft-editor')?.scrollIntoView({
+        behavior: settings.reducedMotion ? 'instant' : 'smooth',
+        block: 'start',
+      });
     } finally {
       draftBusy = false;
       render();
@@ -1892,7 +1924,7 @@
     const p = current?.puzzle;
     dialog(
       'Create a puzzle issue report.',
-      `<p>Export the app version, browser information, puzzle definition and board state${p ? ' for <strong>' + esc(p.title) + '</strong>' : ''}. Personal puzzle notes are excluded.</p><p>Nothing is sent automatically. Review the file, then share it with the site operator through your usual channel.</p><p class="fine">The report includes the puzzle’s stored solution. Avoid opening it while still solving that puzzle.</p>`,
+      `<p>Export the app version, browser information, puzzle definition and board state${p ? ' for <strong>' + esc(p.title) + '</strong>' : ''}. Personal puzzle notes are excluded.</p><p>Nothing is sent automatically. Review the file, then attach a small reproduction to <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>. Keep any personal information private.</p><p class="fine">The report includes the puzzle’s stored solution. Avoid opening it while still solving that puzzle.</p>`,
       [
         { label: 'Export report', action: 'export-issue', icon: 'download' },
         { label: 'Cancel', action: 'close-dialog', secondary: true },
@@ -2036,6 +2068,9 @@
         break;
       case 'hint':
         showHint();
+        break;
+      case 'review-record':
+        reviewRecord();
         break;
       case 'reveal-confirm':
         revealConfirm();
@@ -2531,7 +2566,9 @@
     const d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -p.size, ArrowDown: p.size }[e.key];
     if (d && !['dossier', 'witness'].includes(p.type)) {
       e.preventDefault();
-      selectedCell = Math.max(0, Math.min(p.size ** 2 - 1, selectedCell + d));
+      let next = selectedCell + d;
+      while (next >= 0 && next < p.size ** 2 && !enabledCell(p, next)) next += d;
+      if (next >= 0 && next < p.size ** 2) selectedCell = next;
       render();
       document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
       return;
@@ -2613,7 +2650,7 @@
       if (p) {
         current = getRun(p);
         sessionSeconds = current.elapsed;
-        selectedCell = 0;
+        selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
         pencil = false;
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;

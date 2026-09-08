@@ -1,0 +1,801 @@
+/* The public cabinet: readable on a phone, room to explore on a larger screen. */
+:root {
+  --bg: #f2f3ef;
+  --paper: #ffffff;
+  --ink: #203c3b;
+  --muted: #596e6a;
+  --green: #23594f;
+  --green-dark: #17443d;
+  --green-soft: #e3eee8;
+  --sidebar: #163837;
+  --line: #d7e1db;
+  --accent: #c29350;
+  --radius: 16px;
+}
+body {
+  font-size: 16px;
+}
+.main {
+  max-width: 1460px;
+  padding: 34px 40px 60px;
+}
+.shell {
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+.sidebar {
+  padding-top: 32px;
+}
+.brand {
+  padding-bottom: 26px;
+}
+.brand .wordmark {
+  font-size: 58px;
+}
+.brand small {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}
+.nav-item {
+  min-height: 44px;
+  font-size: 14px;
+}
+.nav-types .nav-item {
+  min-height: 38px;
+  font-size: 13px;
+}
+.nav-section {
+  font-size: 11px;
+}
+.sidebar-foot {
+  font-size: 12px;
+}
+.topbar {
+  height: 70px;
+  padding-inline: 40px;
+}
+.breadcrumb {
+  font-size: 13px;
+}
+.device-status {
+  font-size: 12px;
+}
+.round {
+  width: 44px;
+  height: 44px;
+}
+.btn,
+.btn.small,
+.hero .btn,
+.section-head .btn {
+  font-size: 14px;
+  min-height: 44px;
+}
+.btn {
+  border-radius: 8px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+}
+.welcome {
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+.welcome h1 {
+  font-size: clamp(30px, 3vw, 42px);
+}
+.welcome .eyebrow {
+  margin-bottom: 7px;
+}
+.welcome .date {
+  font-size: 13px;
+  text-align: right;
+}
+.welcome .date small {
+  display: block;
+  margin-top: 4px;
+}
+.hero-row {
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 20px;
+}
+.hero.case-feature {
+  display: block;
+  padding: 34px;
+  min-height: 344px;
+  background: #142e35;
+}
+.feature-image {
+  position: absolute;
+  inset: 0;
+}
+.case-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.feature-image .case-art {
+  object-position: center 56%;
+}
+.feature-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #102b32f2 0%, #102b32d9 35%, #102b3255 68%, #102b3210 100%);
+}
+.feature-copy {
+  position: relative;
+  max-width: 480px;
+}
+.case-feature .eyebrow {
+  color: #e2c18d;
+  font-size: 11px;
+}
+.case-feature h2 {
+  font-size: clamp(38px, 3.6vw, 58px);
+  color: #fff8e9;
+  line-height: 1.04;
+}
+.case-feature p {
+  color: #d1ded9;
+  font-size: 15px;
+  max-width: 370px;
+  line-height: 1.55;
+  margin: 18px 0 24px;
+}
+.feature-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.feature-actions > span {
+  font-size: 12px;
+  color: #c1cfc8;
+}
+.resume-card {
+  background: var(--paper);
+  border-color: var(--line);
+  padding: 26px;
+}
+.resume-card .eyebrow {
+  color: var(--muted);
+  font-size: 11px;
+}
+.resume-card .resume-icon {
+  background: var(--green-soft);
+  color: var(--green);
+  margin: 14px 0;
+}
+.resume-card h3 {
+  color: var(--ink);
+  font-size: 26px;
+}
+.resume-card p {
+  font-size: 14px;
+  color: var(--muted);
+}
+.resume-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-block: 16px;
+}
+.resume-card .btn {
+  margin-top: auto;
+  background: var(--green);
+  color: white;
+  border-color: transparent;
+}
+.home-facts {
+  font-size: 12px;
+  gap: 22px;
+  padding-block: 14px;
+}
+.section-head {
+  margin-top: 34px;
+}
+.section-head h2 {
+  font-size: 29px;
+}
+.section-head p,
+.page-head p {
+  font-size: 15px;
+}
+.section-head .eyebrow {
+  margin-bottom: 6px;
+}
+.daily-card {
+  min-height: 122px;
+  padding: 15px;
+  border-radius: 12px;
+}
+.daily-card h3 {
+  font-size: 16px;
+}
+.daily-card small,
+.tag {
+  font-size: 12px;
+}
+.daily-art {
+  width: 76px;
+  min-width: 60px;
+}
+.daily-art .puzzle-art {
+  width: 88px;
+  height: 88px;
+}
+.book-card {
+  border-radius: 13px;
+  overflow: hidden;
+}
+.book-cover {
+  height: 172px;
+  padding: 0;
+  position: relative;
+  background: #122d35;
+}
+.book-cover .case-art {
+  transition: transform 0.35s;
+}
+.book-card:hover .case-art {
+  transform: scale(1.04);
+}
+.book-number {
+  position: absolute;
+  top: 14px;
+  left: 15px;
+  bottom: auto;
+  color: #fff4d9;
+  background: #102b35c9;
+  font-size: 11px;
+  padding: 5px 9px;
+  border: 1px solid #d9c5a050;
+  border-radius: 3px;
+}
+.book-info {
+  padding: 20px;
+}
+.book-info h3 {
+  font-size: 22px;
+}
+.book-info p {
+  font-size: 14px;
+}
+.book-progress span {
+  font-size: 12px;
+}
+.family-card {
+  padding: 19px;
+  border-radius: 12px;
+}
+.family-card h3 {
+  font-size: 17px;
+}
+.family-card p,
+.family-count {
+  font-size: 12px;
+}
+.family-icon {
+  width: 42px;
+  height: 42px;
+}
+.family-icon .icon {
+  width: 24px;
+  height: 24px;
+}
+.case-header {
+  gap: 28px;
+}
+.case-illustration {
+  overflow: hidden;
+  border-radius: 14px;
+  min-height: 230px;
+}
+.case-header p,
+.chapter p {
+  font-size: 15px;
+}
+.chapter h3 {
+  font-size: 18px;
+}
+.case-ending p {
+  font-size: 16px;
+}
+.page-head h1 {
+  font-size: 38px;
+}
+.chip,
+.filter-row select,
+.filter-row input {
+  font-size: 14px;
+  min-height: 44px;
+}
+.card-family,
+.card-meta,
+.filter-meta,
+.cover-note {
+  font-size: 12px;
+}
+.card-body h3 {
+  font-size: 18px;
+}
+.fav {
+  width: 44px;
+  height: 44px;
+}
+.badge {
+  font-size: 12px;
+}
+.board-instruction,
+.case-intro,
+.evidence-list,
+.clue-item,
+.play-subtitle,
+.tool-help {
+  font-size: 14px;
+}
+.main-tools .tool,
+.tool,
+.tab-btn {
+  min-height: 44px;
+  font-size: 13px;
+}
+.person-btn .person-name {
+  font-size: 13px;
+}
+.person-btn small {
+  font-size: 11px;
+}
+.room-label {
+  font-size: 12px;
+}
+.evidence-tabs button {
+  font-size: 14px;
+  min-height: 44px;
+}
+.evidence-panel p,
+.evidence-content p,
+.witness-statement,
+.clue-text {
+  font-size: 15px;
+}
+.number-key {
+  min-width: 36px;
+  min-height: 44px;
+  font-size: 20px;
+}
+.panel p,
+.setting-row label,
+.privacy-copy p,
+.lesson-copy p {
+  font-size: 16px;
+}
+.setting-row small,
+.data-list,
+.panel .fine {
+  font-size: 13px;
+}
+.club-note p {
+  font-size: 14px;
+}
+.footer,
+.footer button {
+  font-size: 12px;
+}
+.footer button {
+  min-height: 36px;
+}
+dialog {
+  border-radius: 18px;
+}
+.dialog-body p {
+  font-size: 16px;
+}
+.debrief-list {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+.debrief-list li {
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+  background: var(--green-soft);
+  font-size: 15px;
+}
+.deduction-title {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.hint-box p {
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+html[data-large='true'] .clue-text,
+html[data-large='true'] .board-instruction,
+html[data-large='true'] .case-intro,
+html[data-large='true'] .evidence-list {
+  font-size: 18px;
+}
+html[data-theme='night'] .resume-card {
+  background: var(--paper);
+}
+html[data-theme='night'] .resume-card h3 {
+  color: var(--ink);
+}
+html[data-theme='night'] .resume-card .btn {
+  background: var(--green);
+  color: #152922;
+}
+html[data-theme='night'] .book-number {
+  color: #fff4d9;
+}
+@media (max-width: 1250px) {
+  .shell {
+    grid-template-columns: 215px minmax(0, 1fr);
+  }
+  .main {
+    padding-inline: 28px;
+  }
+  .hero-row {
+    grid-template-columns: minmax(0, 1fr) 245px;
+  }
+  .hero.case-feature {
+    padding: 28px;
+  }
+  .feature-actions > span {
+    display: none;
+  }
+  .daily-card {
+    padding: 12px;
+  }
+  .daily-art {
+    width: 60px;
+  }
+}
+@media (max-width: 1000px) {
+  .shell {
+    display: block;
+  }
+  .main {
+    padding: 24px 24px 110px;
+  }
+  .topbar {
+    padding-inline: 24px;
+  }
+  .hero-row {
+    grid-template-columns: minmax(0, 1fr) 250px;
+  }
+  .hero.case-feature {
+    min-height: 330px;
+  }
+  .mobile-nav button {
+    min-height: 56px;
+    font-size: 12px;
+  }
+  .mobile-nav .icon {
+    width: 23px;
+    height: 23px;
+  }
+}
+@media (max-width: 650px) {
+  html {
+    scroll-padding-top: 75px;
+  }
+  .main {
+    padding: 22px 18px 105px;
+  }
+  .topbar {
+    padding-inline: 18px;
+    height: 64px;
+  }
+  .device-status {
+    font-size: 11px;
+  }
+  .top-actions {
+    gap: 9px;
+  }
+  .welcome {
+    margin-bottom: 18px;
+  }
+  .welcome h1 {
+    font-size: 31px;
+    max-width: 285px;
+  }
+  .welcome .date {
+    display: none;
+  }
+  .hero-row {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .hero.case-feature {
+    min-height: 294px;
+    padding: 25px 22px;
+    border-radius: 13px;
+  }
+  .case-feature h2 {
+    font-size: 42px;
+  }
+  .case-feature p {
+    font-size: 14px;
+    margin: 14px 0 20px;
+  }
+  .case-feature .eyebrow {
+    font-size: 11px;
+  }
+  .feature-image .case-art {
+    object-position: 65% center;
+  }
+  .feature-image::after {
+    background: linear-gradient(90deg, #102b32eb, #102b3299 62%, #102b3233);
+  }
+  .resume-card {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 12px;
+  }
+  .resume-card .eyebrow {
+    grid-column: 1;
+    margin-bottom: 6px;
+  }
+  .resume-card h3 {
+    grid-column: 1;
+    font-family: Georgia, serif;
+    font-size: 23px;
+  }
+  .resume-card h3 br {
+    display: none;
+  }
+  .resume-card h3 br::after {
+    content: ' ';
+  }
+  .resume-card .resume-icon,
+  .resume-card p,
+  .resume-card .resume-meta {
+    display: none;
+  }
+  .resume-card .btn {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    margin: 0;
+    font-size: 13px;
+    max-width: 132px;
+    padding: 12px;
+  }
+  .resume-card .btn .icon {
+    display: none;
+  }
+  .home-facts {
+    gap: 14px;
+    justify-content: space-between;
+    font-size: 11px;
+    padding-block: 12px;
+  }
+  .home-facts .icon {
+    width: 16px;
+  }
+  .section-head {
+    margin: 26px 0 14px;
+    align-items: center;
+  }
+  .section-head h2 {
+    font-size: 27px;
+  }
+  .section-head .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.11em;
+  }
+  .section-head p {
+    font-size: 14px;
+  }
+  .section-head > .btn {
+    font-size: 12px;
+    padding-inline: 4px;
+    max-width: 100px;
+  }
+  .daily-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .daily-card {
+    min-height: 96px;
+    padding: 12px 16px;
+  }
+  .daily-art {
+    width: 65px;
+  }
+  .daily-art .puzzle-art {
+    width: 74px;
+    height: 74px;
+  }
+  .daily-card h3 {
+    font-size: 17px;
+  }
+  .book-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .book-card {
+    display: grid;
+    grid-template-columns: 114px minmax(0, 1fr);
+    text-align: left;
+  }
+  .book-cover {
+    height: 100%;
+    min-height: 158px;
+  }
+  .book-number {
+    top: 10px;
+    left: 8px;
+    font-size: 9px;
+    padding: 4px 6px;
+  }
+  .book-cover .case-art {
+    object-position: 60% center;
+  }
+  .book-info {
+    padding: 17px;
+  }
+  .book-info h3 {
+    font-size: 23px;
+  }
+  .book-info p {
+    font-size: 13px;
+    margin-top: 7px;
+  }
+  .book-progress {
+    margin-top: 13px;
+  }
+  .book-progress span {
+    font-size: 11px;
+  }
+  .family-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .family-card {
+    padding: 15px;
+  }
+  .family-card h3 {
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  .family-card p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .family-count {
+    font-size: 10px;
+  }
+  .page-head h1 {
+    font-size: 32px;
+  }
+  .page-head p {
+    font-size: 15px;
+  }
+  .case-header {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 20px;
+  }
+  .case-illustration {
+    display: block;
+    width: 100%;
+    height: 175px;
+    min-height: 0;
+  }
+  .case-header h1 {
+    font-size: 34px;
+  }
+  .chapter {
+    gap: 12px;
+    padding: 18px 14px;
+  }
+  .chapter p {
+    font-size: 14px;
+  }
+  .chapter h3 {
+    font-size: 17px;
+  }
+  .chapter-number {
+    width: 32px;
+    height: 32px;
+  }
+  .playing .main {
+    padding: 16px 12px 108px;
+  }
+  .play-title h1 {
+    font-size: 28px;
+  }
+  .board-card {
+    padding: 12px;
+  }
+  .case-intro,
+  .board-instruction {
+    font-size: 14px;
+  }
+  .board-instruction {
+    line-height: 1.5;
+  }
+  .main-tools {
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .main-tools .tool {
+    font-size: 12px;
+    padding: 9px;
+    min-height: 44px;
+  }
+  .main-tools .tool .icon {
+    width: 17px;
+    height: 17px;
+  }
+  .person-btn .person-name {
+    font-size: 12px;
+  }
+  .person-btn small {
+    font-size: 10px;
+  }
+  .people-palette {
+    gap: 5px;
+  }
+  .room-label {
+    font-size: 11px;
+  }
+  .evidence-tabs button {
+    font-size: 14px;
+  }
+  .puzzle-grid {
+    gap: 12px;
+  }
+  .card-body {
+    padding: 13px;
+  }
+  .card-body h3 {
+    font-size: 17px;
+  }
+  .card-family,
+  .card-meta {
+    font-size: 11px;
+  }
+  .chip {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+  .panel {
+    padding: 21px;
+  }
+  .setting-row label {
+    font-size: 15px;
+  }
+  .setting-row small {
+    font-size: 12px;
+  }
+  .footer {
+    display: block;
+  }
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 7px;
+  }
+  .footer,
+  .footer button {
+    font-size: 11px;
+  }
+  .mobile-nav button {
+    font-size: 11px;
+  }
+  .club-note p {
+    font-size: 14px;
+  }
+}

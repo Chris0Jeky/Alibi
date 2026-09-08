@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "A local-first puzzle PWA with twelve engines, original mystery casebooks and a visual workshop.",
   "engines": {
@@ -10,10 +10,14 @@
     "build": "node tools/build.cjs",
     "start": "node tools/serve.cjs",
     "test": "node --test tests/*.test.cjs",
+    "format": "prettier --write \"src/**/*.{js,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" package.json",
+    "format:check": "prettier --check \"src/**/*.{js,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" package.json",
+    "verify": "npm run format:check && npm run build && npm test",
     "generate": "node tools/generate-content.cjs",
     "bundle": "node tools/package.cjs"
   },
   "devDependencies": {
-    "prettier": "3.9.6"
+    "prettier": "3.9.6",
+    "sharp": "0.35.4"
   }
 }
