@@ -1,0 +1,546 @@
+/* Bellweather: ink, lamplight and open water. Boards keep their quiet paper surface. */
+:root {
+  --bg: #f1eee7;
+  --paper: #fffcf5;
+  --ink: #213c43;
+  --muted: #55666a;
+  --green: #235861;
+  --green-dark: #173f49;
+  --green-soft: #e2ece8;
+  --sidebar: #132f3a;
+  --line: #d9ddd6;
+}
+.sidebar {
+  background: linear-gradient(165deg, #183c48, #102730);
+}
+.topbar {
+  background: color-mix(in srgb, var(--paper) 93%, transparent);
+}
+.welcome h1,
+.section-head h2,
+.case-opening h1 {
+  letter-spacing: -0.035em;
+}
+.hero.case-feature {
+  min-height: 405px;
+  border-radius: 6px 22px 22px 22px;
+}
+.feature-image .case-art {
+  object-position: 65% 55%;
+}
+.feature-image::after {
+  background: linear-gradient(90deg, #102832f2, #10283294 49%, #10283212 90%);
+}
+.feature-copy {
+  max-width: 400px;
+}
+.case-feature h2 {
+  font-size: clamp(40px, 4vw, 64px);
+}
+.resume-card {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 5px 6px 0 #dcd6c73d;
+  border-radius: 6px;
+}
+.destination-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.destination {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 290px;
+  padding: 28px;
+  border: 0;
+  border-radius: 14px;
+  text-align: left;
+  color: #fff9e8;
+  display: flex;
+  align-items: flex-end;
+  background: #18343c;
+}
+.destination img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+.destination::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, #102a34f7, #102a3440 80%);
+}
+.destination:hover img {
+  transform: scale(1.035);
+}
+.destination .eyebrow {
+  color: #ebce99;
+}
+.destination h3 {
+  font-size: 29px;
+  margin: 9px 0 3px;
+  line-height: 1.15;
+}
+.destination p {
+  font-size: 14px;
+  margin: 7px 0 14px;
+  color: #efe7d8;
+}
+.destination-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.puzzle-illustration {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.book-card {
+  border-radius: 5px 14px 14px 5px;
+}
+.book-cover {
+  border-left: 7px solid #153740;
+}
+.book-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.book-cover {
+  height: 230px;
+}
+.cinematic-case {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  overflow: hidden;
+  background: #163540;
+  border-radius: 16px;
+  margin: 22px 0 32px;
+  padding: 46px;
+  min-height: 440px;
+  color: #fff5e1;
+}
+.cinematic-case .case-illustration {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  border-radius: 0;
+}
+.cinematic-case::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #102832f7, #102832d9 44%, #10283220);
+}
+.case-opening {
+  max-width: 600px;
+}
+.case-opening .eyebrow {
+  color: #e4c995;
+}
+.case-opening h1 {
+  font-size: clamp(35px, 4vw, 57px);
+  line-height: 1.07;
+  color: #fff5e1;
+  margin: 16px 0;
+}
+.case-opening p {
+  color: #efe5d5;
+  font-size: 15px;
+  line-height: 1.8;
+  max-width: 540px;
+}
+.case-duration {
+  display: block;
+  margin-top: 15px;
+  font-size: 12px;
+  color: #e4d6c0;
+}
+.cast-file {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 24px;
+  padding: 24px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.cast-file h2 {
+  font-size: 26px;
+  margin: 6px 0;
+}
+.cast-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.cast-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cast-initial {
+  width: 37px;
+  height: 42px;
+  flex: 0 0 37px;
+  border: 1px solid var(--line);
+  background: var(--green-soft);
+  display: grid;
+  place-items: center;
+  font:
+    25px Georgia,
+    serif;
+}
+.cast-person strong {
+  font-size: 13px;
+  display: block;
+}
+.cast-person small {
+  font-size: 11px;
+  display: block;
+  color: var(--muted);
+}
+.chapter-entry {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.chapter-entry .chapter {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.chapter-copy {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.chapter-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.chapter-copy strong {
+  font:
+    24px Georgia,
+    serif;
+}
+.chapter-copy > span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.chapter-revelation {
+  border-top: 1px dashed var(--line);
+  padding: 16px 24px;
+  background: var(--green-soft);
+}
+.chapter-revelation p {
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+.chapter-atmosphere {
+  display: flex;
+  align-items: center;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 116px;
+  padding: 22px 28px;
+  border-radius: 12px;
+  background: #17343e;
+  color: #fff4df;
+  margin-bottom: 25px;
+}
+.chapter-atmosphere img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  z-index: -2;
+}
+.chapter-atmosphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #112e39f5, #112e39ce 65%, #112e3940);
+}
+.chapter-atmosphere .eyebrow {
+  color: #ecd1a3;
+  font-size: 10px;
+}
+.chapter-atmosphere p {
+  color: #f8eddb;
+  margin: 7px 0 0;
+  font:
+    20px/1.4 Georgia,
+    serif;
+  max-width: 690px;
+}
+.chapter-reveal {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 17px;
+  text-align: left;
+  background: var(--green-soft);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+.chapter-reveal img {
+  width: 110px;
+  height: 100%;
+  min-height: 110px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.chapter-reveal p {
+  font-size: 14px;
+  margin: 8px 0;
+}
+.bridge-map {
+  position: relative;
+  width: max(100%, calc(var(--islands-size) * 29px));
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle, #9eafb04a 1px, transparent 1.5px) 0 0 / calc(100% / var(--islands-size))
+      calc(100% / var(--islands-size)),
+    var(--green-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.bridge-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: var(--green);
+  stroke-width: 3;
+}
+.bridge-lines line {
+  vector-effect: non-scaling-stroke;
+}
+.bridge-map .island {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 2px;
+  border: 2px solid var(--green);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.island strong {
+  font-size: 21px;
+}
+.island small {
+  font:
+    9px/1.2 ui-monospace,
+    monospace;
+  margin-top: 1px;
+}
+.bridge-map .island.satisfied {
+  background: var(--green);
+  color: var(--paper);
+}
+.bridge-map .island.anchored {
+  outline: 4px solid var(--accent);
+  outline-offset: 2px;
+}
+.bridge-map .island.reachable {
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--green);
+}
+.bridge-map .island.over {
+  background: var(--red-bg);
+  color: var(--red);
+  border-color: var(--red);
+}
+.island-check {
+  position: absolute;
+  top: -6px;
+  right: -5px;
+  background: var(--paper);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-size: 11px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  line-height: 15px;
+}
+.bridge-prompt {
+  min-height: 25px;
+  text-align: center;
+  color: var(--green);
+  font-size: 13px;
+}
+.bridge-lesson {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 26px 0;
+  font-size: 32px;
+}
+.bridge-lesson span {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--green);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+@media (max-width: 1100px) {
+  .hero-row {
+    grid-template-columns: minmax(0, 1fr) 230px;
+  }
+  .cast-file {
+    grid-template-columns: 1fr;
+  }
+  .cast-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .hero-row {
+    grid-template-columns: 1fr;
+  }
+  .hero.case-feature {
+    min-height: 410px;
+    padding: 28px 24px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .feature-image .case-art {
+    object-position: 72% center;
+  }
+  .feature-image::after {
+    background: linear-gradient(0deg, #102832f7, #102832a3 58%, #10283212);
+  }
+  .feature-copy {
+    max-width: 100%;
+  }
+  .case-feature h2 {
+    font-size: 44px;
+  }
+  .resume-card {
+    min-height: auto;
+  }
+  .destination-grid {
+    gap: 14px;
+  }
+  .destination {
+    min-height: 250px;
+    padding: 18px 14px;
+  }
+  .destination h3 {
+    font-size: 23px;
+  }
+  .destination .eyebrow {
+    font-size: 9px;
+  }
+  .destination p {
+    font-size: 12px;
+  }
+  .destination-link {
+    font-size: 12px;
+  }
+  .book-grid {
+    grid-template-columns: 1fr;
+  }
+  .book-cover {
+    height: 220px;
+  }
+  .cinematic-case {
+    min-height: 470px;
+    padding: 25px 22px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .cinematic-case .case-art {
+    object-position: 70% center;
+  }
+  .cinematic-case::after {
+    background: linear-gradient(0deg, #102832fc, #102832d0 67%, #10283240);
+  }
+  .case-opening h1 {
+    font-size: 38px;
+  }
+  .case-opening p {
+    font-size: 14px;
+  }
+  .cast-file {
+    padding: 20px;
+  }
+  .cast-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 9px;
+  }
+  .chapter-copy strong {
+    font-size: 21px;
+  }
+  .chapter-copy > span {
+    font-size: 13px;
+  }
+  .chapter-atmosphere {
+    padding: 17px 20px;
+    min-height: 105px;
+  }
+  .chapter-atmosphere p {
+    color: #f8eddb;
+    font-size: 18px;
+  }
+  .chapter-reveal {
+    grid-template-columns: 80px 1fr;
+  }
+  .chapter-reveal img {
+    width: 80px;
+  }
+}
+@media (max-width: 370px) {
+  .destination-grid {
+    grid-template-columns: 1fr;
+  }
+  .destination {
+    min-height: 230px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .destination img {
+    transition: none;
+  }
+}
+body.reduced-motion .destination img {
+  transition: none;
+}

@@ -118,8 +118,8 @@ def boot(page: Page, require_indexeddb: bool = True) -> None:
     )
     check(page.title().startswith("Alibi"), "application boots on real origin")
     counts = page.evaluate("AlibiDiagnostics.getCounts()")
-    check(counts["puzzles"] == 102, "real-origin catalogue has 102 puzzles")
-    check(counts["types"] == 12, "real-origin catalogue has twelve engines")
+    check(counts["puzzles"] == 116, "real-origin catalogue has 116 puzzles")
+    check(counts["types"] == 13, "real-origin catalogue has thirteen engines")
     if require_indexeddb:
         check(
             page.evaluate("AlibiDiagnostics.storage") == "indexeddb",

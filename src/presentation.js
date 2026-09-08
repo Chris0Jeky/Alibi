@@ -2,6 +2,28 @@
 (function (root) {
   'use strict';
   const data = {
+    bridges: {
+      title: 'Tidal bridges',
+      line: 'Bring every island into one connected world.',
+      group: 'visual',
+      tag: 'Hashi / Bridges',
+      color: 'blue',
+      icon: 'network',
+      goal: 'Connect the islands with bridges so every number is satisfied and the whole archipelago is connected.',
+      gesture:
+        'Tap an island, then its nearest neighbour in the same row or column. Repeat the pair for two bridges, then none.',
+      rules: [
+        'An island’s number is the total number of bridges touching it.',
+        'Connect only the nearest island in a straight horizontal or vertical line. A pair can share one or two bridges.',
+        'Bridges cannot cross, pass through an island, or run diagonally.',
+        'Every island must join the same network. Separate groups do not count, even when their numbers fit.',
+      ],
+      tip: 'Count the available neighbours. A corner island with a 4 needs two bridges in both directions.',
+      lesson:
+        'These two islands each need 2 bridges and have no other neighbours. How many bridges must join them?',
+      lessonNote:
+        'Two bridges satisfy both islands. In a full puzzle, every island must also join the same network.',
+    },
     scene: {
       title: 'Crime scenes',
       line: 'Place the people. Find the murderer.',
@@ -326,6 +348,8 @@
     amber: ['#f2e8d0', '#e4d4af', '#80693c', '#d99756'],
   };
   function art(type, p = null, variant = 0) {
+    if (type === 'bridges' && root.ALIBI_MEDIA?.cartographer)
+      return `<img class="puzzle-illustration" src="${root.ALIBI_MEDIA.cartographer}" width="1536" height="1024" alt="" loading="lazy" decoding="async">`;
     const d = data[type] || data.scene,
       col = palettes[d.color],
       fg = col[2];

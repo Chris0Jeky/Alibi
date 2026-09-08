@@ -3,7 +3,8 @@ const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path');
 require('../src/core.js');
-const C = require('../src/engines.js');
+require('../src/engines.js');
+const C = require('../src/bridges.js');
 const pack = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/catalog.json'))),
   old = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/legacy.json')));
 let assertions = 0;
@@ -49,8 +50,8 @@ function solvedState(p) {
   else p.solution.forEach((value, cell) => apply({ type: 'set', cell, value }));
   return s;
 }
-ok(pack.puzzles.length === 102, '102 puzzles');
-ok(C.TYPES.length === 12, '12 types');
+ok(pack.puzzles.length === 116, '116 puzzles');
+ok(C.TYPES.length === 13, '13 types');
 for (const p of pack.puzzles) {
   const start = performance.now();
   C.validateDefinition(p);
@@ -165,7 +166,7 @@ for (const type of ['lightup', 'tents']) {
   );
 }
 const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
-ok(books.length === 3, 'three casebooks');
+ok(books.length === 4, 'four casebooks');
 for (const b of books)
   for (const ch of b.chapters)
     ok(
@@ -175,8 +176,8 @@ for (const b of books)
 const output = {
   passed: true,
   assertions,
-  puzzles: 102,
-  types: 12,
+  puzzles: 116,
+  types: 13,
   legacyPuzzles: 40,
   generatedScenes: 25,
   scope: 'Pure engine, bounded solver, reducer and data-contract checks',

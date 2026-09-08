@@ -1,5 +1,83 @@
 [
   {
+    "id": "last-light-at-bellweather",
+    "title": "The Last Light at Bellweather",
+    "tagline": "A dark lantern, a missing logbook, and a tide that keeps its own time.",
+    "setting": "An isolated tidal lighthouse and its signal house",
+    "color": "blue",
+    "icon": "lightup",
+    "cast": [
+      {
+        "name": "Maren Vale",
+        "role": "lighthouse keeper",
+        "status": "victim"
+      },
+      {
+        "name": "Theo Finch",
+        "role": "signalman"
+      },
+      {
+        "name": "Iris Bell",
+        "role": "weather reader"
+      },
+      {
+        "name": "Elias Quill",
+        "role": "archivist"
+      },
+      {
+        "name": "Rosa Hart",
+        "role": "boatwright"
+      }
+    ],
+    "intro": "The causeway will be underwater by morning. At Bellweather, the porch bell falls silent, a logbook disappears, and the lighthouse goes dark. Keeper Maren Vale is found dead. Six timed records lead from the first missing object to the final inventory. Reconstruct the evening before the tide erases the way back.",
+    "chapters": [
+      {
+        "id": "bellweather-witness-03",
+        "name": "Before the fog bell",
+        "time": "19:10",
+        "brief": "The porch bell has fallen silent. Compare the first accounts of the evening.",
+        "revelation": "Rosa Hart is the only person who makes exactly four of these five accounts true. She took the brass clapper before the squall."
+      },
+      {
+        "id": "bellweather-witness-01",
+        "name": "Accounts before the squall",
+        "time": "19:20",
+        "brief": "19:20 · Count four account cards about the missing black logbook.",
+        "revelation": "Iris Bell is the only candidate who makes exactly two of the four accounts true, placing her with the logbook's removal before the blackout."
+      },
+      {
+        "id": "bellweather-dossier-01",
+        "name": "The logbook trail",
+        "time": "19:30",
+        "brief": "19:30 · Match stations and evidence in the pre-squall inventory.",
+        "revelation": "The completed grid pairs Iris Bell with the black logbook at 19:30."
+      },
+      {
+        "id": "bellweather-scene-01",
+        "name": "The dark lantern",
+        "time": "19:40",
+        "brief": "19:40 · Reconstruct the blackout and the last positions in the lantern room.",
+        "revelation": "Theo Finch is the only suspect sharing Maren's lantern-room space at the blackout; the floor plan establishes opportunity."
+      },
+      {
+        "id": "bellweather-witness-02",
+        "name": "The moved lens key",
+        "time": "20:10",
+        "brief": "20:10 · Count the accounts about movement of the brass lens key.",
+        "revelation": "Theo Finch is the only candidate that makes exactly two of the five accounts true in the 20:10 movement record."
+      },
+      {
+        "id": "bellweather-dossier-02",
+        "name": "The later inventory",
+        "time": "20:30",
+        "brief": "20:30 · Match the later inventory after the key has changed hands.",
+        "revelation": "At 20:30, Elias Quill carries the brass lens key. This later inventory does not change the earlier account that Theo removed it."
+      }
+    ],
+    "ending": "The fog bell and the logbook explain two earlier disappearances: Rosa took the clapper, and Iris removed the logbook. The fatal floor plan tells a different story. Theo was the only suspect alone with Maren when the lantern went dark. He also removed the lens key, which Elias carried by the final inventory. With each event in its proper place, the Bellweather file can finally close.",
+    "artwork": "bellweather"
+  },
+  {
     "id": "briar-house",
     "title": "The Briar House papers",
     "tagline": "A stolen key. A silent house. Four pieces of evidence.",
