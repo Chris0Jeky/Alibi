@@ -17,7 +17,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
   }).outputFiles[0].text;
   const source =
     `globalThis.QWCityModels=${modelData};\n` +
-    ['engine.js', 'city.js', 'realm.js', 'gpu.js', 'pets.js', 'storage.js', 'app.js']
+    ['calm.js', 'engine.js', 'city.js', 'realm.js', 'gpu.js', 'pets.js', 'storage.js', 'app.js']
       .map((f) => (f === 'gpu.js' ? gpu : read(f)))
       .join('\n');
   const cssSource = read('style.css'),
