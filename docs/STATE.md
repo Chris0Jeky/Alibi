@@ -9,10 +9,16 @@ See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding 
 First layer: reproducible harbour/river/hillfort/woodland worlds up to 28 × 28 plots, preview before
 replacement, castle/village/farm plans, routed roads and bridges, move/copy, area brushes and town
 feedback. Existing 14 × 14 saves remain valid without migration. Whole edits undo together.
-Local build `36bc52304bfc` passes `npm run verify`, seven city rule tests, 28 actual city control
-checks across 390/768/1440px, all 156 Quiet Wing controls and 34 origin/restart/recovery checks.
-Phone and desktop screenshots were inspected. Richer rendering/assets, companions, games, visual
-refresh and deployment remain active work; no expanded hosted release or physical test is claimed.
+The next layer imports 24 CC0 models, adds six castle modules and assembles houses from separate
+walls, windows, doors and roofs. Locally bundled WebGL adds lighting, cached soft shadows and
+bounded water animation, with usable Canvas fallback during graphics-context loss. Source credits
+are now versioned across release updates. Local build `5f6c84697208` passes `npm run verify`, ten
+city/model tests, 28 actual city controls, 14 GPU lifecycle checks, all 156 Quiet Wing controls and
+36 origin/restart/recovery checks. Phone, desktop and fallback screenshots were inspected.
+Independent Terra high review found no defects. Physical performance remains unverified; local
+headless rendering was slow enough to justify automatic ambient-motion pausing. Companions,
+additional games, wider visual refresh and deployment remain active work; no expansion release
+or physical test is claimed. The earlier source-candidate evidence below is historical.
 
 ## Quiet Wing source candidate
 

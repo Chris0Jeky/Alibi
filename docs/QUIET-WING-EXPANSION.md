@@ -29,10 +29,39 @@ turn those unperformed checks into claims of certification or abandon the author
 - Automated feedback: the harbour starting-place option is malformed (confirmed medium); the
   unversioned credits page can remain stale after an update (confirmed medium). Both overlap the
   requested city controls/asset-pipeline expansion and will be addressed in those slices.
-- First implementation slice: seeded larger worlds and reversible city planning tools. Follow
-  with imported modular models and accelerated presentation, companions, additional games,
-  cross-app art direction, then complete release verification. This list remains open until the
-  corresponding user-visible work and evidence exist.
+- Implemented: seeded larger worlds and reversible city planning tools, 24 curated CC0 models,
+  houses assembled from walls/doors/windows/roofs, six additional castle modules, a locally bundled
+  Three.js renderer with directional lighting, cached soft shadows and subtle water motion.
+- Rendering uses two geometry batches. Motion pauses for reduced motion, hidden documents, or
+  eight consecutive frames taking over 50 ms to submit. Actual context loss switches to Canvas;
+  editing remains available, and restored WebGL retains those edits. Both paths share export geometry.
+- Portable model colours sample atlas face centres; the original UVs/atlases are retained in
+  `assets-source/quiet-wing/city`. This approximates texture details rather than claiming a full
+  textured material conversion. The downloaded Fantasy Town archive receipt is retained there.
+- Credits now have content-versioned URLs. An A/B browser test proves changed credits are cached
+  for the new release and the older page remains available for older tabs.
+- At source build `5f6c84697208`: `npm run verify` passes, ten focused city/model tests pass,
+  28 city controls, 14 GPU/fallback/lifecycle checks, all 156 earlier Quiet Wing controls and
+  36 origin/restart/update/recovery checks pass. Mobile, desktop and fallback captures inspected.
+  Independent Terra high review found no confirmed blocking or non-blocking defects.
+- Local headless rendering measured about 64 ms submission for the default scene (51,258 triangles,
+  two draw calls after shadow caching). This is not a physical-phone FPS claim; ambient motion's
+  automatic pause is deliberate. Sustained real-device GPU/memory/thermal checks remain open.
+- Optional pack: 1,263,766 bytes. Core offline pack: 1,158,719 bytes. Initial JavaScript gzip:
+  123,961 bytes. The optional budget is now 1,500 KiB for the renderer and models; the existing
+  initial-script and core budgets remain. No CDN scripts, account or remote player data added.
+
+## Next work toward the full request
+
+1. Refine town presentation and composition further: road appearance/adjacency, building assembly
+   choices, camera feel and town life. Check picking and export for each added presentation seam.
+2. Integrate quality animated companions, preserving all four identities, names, bonds and walks.
+   Research candidates are in `docs/quiet-wing/ASSET-RESEARCH.md`; they are not yet downloaded/used.
+3. Additional relaxing games and deeper garden interactions with actual-control proofs.
+4. Cross-app art direction and better case/puzzle imagery; Adobe currently fails initialization
+   with HTTP 403. Use other available tools/direct licensed assets without blocking the work.
+5. Run the complete suite, reconcile CI/review, merge reviewed source and deploy to the existing
+   website. Verify hosted saves, offline, update and rollback. No expansion deployment is claimed.
 
 Recovery: export all saves before release testing. Never clear site data. Roll back application
 files while preserving the cabinet, Club and Quiet Wing databases and raw recovery exports.
