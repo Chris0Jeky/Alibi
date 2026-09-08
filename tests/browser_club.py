@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,os,time
 from playwright.sync_api import sync_playwright
-r=Path(__file__).resolve().parents[1];checks=[];errors=[];shots=r/'artifacts';shots.mkdir(exist_ok=True)
+r=Path(__file__).resolve().parents[1];checks=[];errors=[];shots=r/'test-results'/'afterhours-club';shots.mkdir(parents=True,exist_ok=True)
 def check(v,label):
  assert v,label
  checks.append(label);print('PASS',label,flush=True)
@@ -11,7 +11,7 @@ with sync_playwright() as p:
  if os.environ.get('CHROMIUM_PATH'):launch['executable_path']=os.environ['CHROMIUM_PATH']
  elif Path('/usr/bin/chromium').exists():launch['executable_path']='/usr/bin/chromium'
  browser=p.chromium.launch(**launch);ctx=browser.new_context(viewport={'width':1440,'height':1000},accept_downloads=True,reduced_motion='no-preference');page=ctx.new_page();page.set_default_timeout(7000)
- page.on('pageerror',lambda e:errors.append(str(e)));page.set_content((r/'alibi-after-hours-play.html').read_text(),wait_until='load');page.wait_for_function('globalThis.AlibiDiagnostics')
+ page.on('pageerror',lambda e:errors.append(str(e)));page.set_content((r/'alibi-deluxe-play.html').read_text(encoding='utf-8'),wait_until='load');page.wait_for_function('globalThis.AlibiDiagnostics')
  def action(a,extra=''):page.locator('[data-action="'+a+'"]'+extra+':visible').first.click()
  def dismiss():
   if page.locator('dialog[open]').count():
