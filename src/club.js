@@ -1514,7 +1514,7 @@
     portrait,
     emblem,
     engine,
-    save: () => persist(),
+    save: () => saveQueue,
     diagnostics: () => ({
       storageMode,
       saveError,

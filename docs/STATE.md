@@ -15,7 +15,8 @@ Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 - Local verification: full Node gate passes, 182 original UI checks, 106 Club checks, 92 origin
   checks, 247 expedition checks. All 19 scenes survive real-control completion and reload; the
   restart suite also repeats The last service three times, restores Club data with a recovery copy,
-  restarts the browser process and reloads offline. CI re-runs these against the final candidate.
+  restarts the browser process and reloads offline. Six startup recovery checks verify that app-file refresh preserves IndexedDB, localStorage
+  and unrelated caches; 18 two-tab update checks pass. CI re-runs these against the final candidate.
 - Optional rooms: 89 serial protocol assertions plus two-browser local Wrangler acceptance,
   including a deliberately lost join response. Source is integrated; hosted service is not enabled.
 - Cloudflare: authenticated existing account confirmed; static and room dry-runs pass.
@@ -77,3 +78,5 @@ Prefer bounded Luna work and lower effort for routine checks; the owner asked to
 subagents. No Astra children.
 
 Owner decisions: [HUMAN_TODO.md](../HUMAN_TODO.md). No browser-publication input is outstanding.
+
+Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues/11).

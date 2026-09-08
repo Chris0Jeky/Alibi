@@ -12,3 +12,5 @@ No owner input is needed to continue the authorized browser-game launch.
   publisher identity. Store accounts, signing-key ownership and disclosures belong here.
 
 A custom domain, monetization and account sync are optional future decisions, not launch gates.
+
+Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues/11).
