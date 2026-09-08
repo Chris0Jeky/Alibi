@@ -1,0 +1,3011 @@
+{
+  "schema": "alibi-curation-challenges/v1",
+  "adapterRequired": true,
+  "notASchema1ImportPack": true,
+  "challenges": [
+    {
+      "id": "curated-classic-hanoi-01",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "3 discs: the interrupted transfer (4)",
+      "startState": {
+        "id": "hanoi3",
+        "n": 3,
+        "pegs": [
+          [
+            2,
+            1
+          ],
+          [
+            3
+          ],
+          []
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-hanoi-02",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "3 discs: the interrupted transfer (6)",
+      "startState": {
+        "id": "hanoi3",
+        "n": 3,
+        "pegs": [
+          [],
+          [
+            3,
+            2
+          ],
+          [
+            1
+          ]
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 6,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-hanoi-03",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "4 discs: the interrupted transfer (9)",
+      "startState": {
+        "id": "hanoi4",
+        "n": 4,
+        "pegs": [
+          [
+            4
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            1
+          ]
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 9,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-hanoi-04",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "4 discs: the interrupted transfer (13)",
+      "startState": {
+        "id": "hanoi4",
+        "n": 4,
+        "pegs": [
+          [
+            4,
+            3
+          ],
+          [
+            1
+          ],
+          [
+            2
+          ]
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 13,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-hanoi-05",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "5 discs: the interrupted transfer (17)",
+      "startState": {
+        "id": "hanoi5",
+        "n": 5,
+        "pegs": [
+          [
+            4,
+            3,
+            2
+          ],
+          [
+            5,
+            1
+          ],
+          []
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 17,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-hanoi-06",
+      "revision": 1,
+      "family": "hanoi",
+      "title": "5 discs: the interrupted transfer (27)",
+      "startState": {
+        "id": "hanoi5",
+        "n": 5,
+        "pegs": [
+          [],
+          [
+            5,
+            3
+          ],
+          [
+            4,
+            2,
+            1
+          ]
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "instruction": "Move every disc to the right peg. Move only a top disc, never onto a smaller disc. The shown arrangement is the starting position, not an error.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 27,
+        "method": "Breadth-first search over all legal peg assignments"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 2,
+          "to": 0
+        },
+        {
+          "from": 1,
+          "to": 0
+        },
+        {
+          "from": 2,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 0,
+          "to": 2
+        },
+        {
+          "from": 1,
+          "to": 2
+        }
+      ],
+      "hint": "Before moving the largest disc that still needs transferring, make room for it on the destination peg."
+    },
+    {
+      "id": "curated-classic-sliding-01",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 4 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          0,
+          2,
+          3,
+          1,
+          4,
+          6,
+          7,
+          5,
+          8
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 3
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-02",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 8 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          4,
+          1,
+          0,
+          2,
+          6,
+          3,
+          7,
+          5,
+          8
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 8,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-03",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 12 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          5,
+          2,
+          3,
+          1,
+          4,
+          6,
+          0,
+          7,
+          8
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 12,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-04",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 16 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          1,
+          5,
+          8,
+          4,
+          0,
+          3,
+          2,
+          7,
+          6
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 16,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-05",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 20 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          4,
+          1,
+          2,
+          3,
+          0,
+          7,
+          8,
+          6,
+          5
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 20,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-06",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 24 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          8,
+          4,
+          0,
+          2,
+          6,
+          5,
+          1,
+          3,
+          7
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 24,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-07",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 28 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          6,
+          5,
+          0,
+          7,
+          8,
+          1,
+          2,
+          4,
+          3
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 28,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-sliding-08",
+      "revision": 1,
+      "family": "sliding",
+      "title": "The eight-tile cabinet: 31 moves away",
+      "startState": {
+        "id": "slide-town",
+        "tiles": [
+          6,
+          4,
+          7,
+          8,
+          5,
+          0,
+          3,
+          2,
+          1
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 8
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Slide a tile that shares an edge with the blank. Restore 1\u20138 in reading order with the blank at bottom right. Picture mode must retain the same logical tile labels.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 31,
+        "reachableStatesEnumerated": 181440,
+        "method": "Complete reverse breadth-first search from the goal"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "hint": "Place the top row without dislodging finished tiles; judge positions by distance, not by how many tiles look nearly correct.",
+      "setupNote": "The current classicInitial hard-codes its scramble. Add a trusted challenge definition and replay-validated challenge-specific initial state. Do not add this as an untrusted arbitrary saved state."
+    },
+    {
+      "id": "curated-classic-river-01",
+      "revision": 1,
+      "family": "river",
+      "title": "The ferryman\u2019s unfinished crossing: 2 trips",
+      "startState": {
+        "id": "river",
+        "side": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "item": 0
+        },
+        {
+          "item": 2
+        }
+      ],
+      "instruction": "Move everyone to the right bank. The ferryman may travel alone or carry one passenger. Never leave wolf with goat, or goat with cabbage, on a bank without the ferryman.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 2,
+        "method": "Exhaustive BFS of safe four-bit states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "item": 2
+        },
+        {
+          "item": 0
+        },
+        {
+          "item": 1
+        },
+        {
+          "item": 2
+        },
+        {
+          "item": 3
+        }
+      ],
+      "hint": "A return journey can be useful. Protect the bank the ferryman is leaving, not only the bank being reached."
+    },
+    {
+      "id": "curated-classic-river-02",
+      "revision": 1,
+      "family": "river",
+      "title": "The ferryman\u2019s unfinished crossing: 4 trips",
+      "startState": {
+        "id": "river",
+        "side": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "item": 2
+        },
+        {
+          "item": 1
+        },
+        {
+          "item": 0
+        },
+        {
+          "item": 2
+        }
+      ],
+      "instruction": "Move everyone to the right bank. The ferryman may travel alone or carry one passenger. Never leave wolf with goat, or goat with cabbage, on a bank without the ferryman.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "method": "Exhaustive BFS of safe four-bit states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "item": 2
+        },
+        {
+          "item": 0
+        },
+        {
+          "item": 3
+        }
+      ],
+      "hint": "A return journey can be useful. Protect the bank the ferryman is leaving, not only the bank being reached."
+    },
+    {
+      "id": "curated-classic-river-03",
+      "revision": 1,
+      "family": "river",
+      "title": "The ferryman\u2019s unfinished crossing: 6 trips",
+      "startState": {
+        "id": "river",
+        "side": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "item": 0
+        },
+        {
+          "item": 1
+        },
+        {
+          "item": 2
+        },
+        {
+          "item": 3
+        },
+        {
+          "item": 0
+        },
+        {
+          "item": 2
+        }
+      ],
+      "instruction": "Move everyone to the right bank. The ferryman may travel alone or carry one passenger. Never leave wolf with goat, or goat with cabbage, on a bank without the ferryman.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 6,
+        "method": "Exhaustive BFS of safe four-bit states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "item": 2
+        }
+      ],
+      "hint": "A return journey can be useful. Protect the bank the ferryman is leaving, not only the bank being reached."
+    },
+    {
+      "id": "curated-classic-jugs-01",
+      "revision": 1,
+      "family": "jugs",
+      "title": "The interrupted measurement: 0 L / 2 L",
+      "startState": {
+        "id": "jugs",
+        "v": [
+          0,
+          2
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "i": 1,
+          "kind": "pour"
+        },
+        {
+          "i": 1,
+          "kind": "fill"
+        },
+        {
+          "i": 1,
+          "kind": "pour"
+        }
+      ],
+      "instruction": "The jugs hold 3 L and 5 L. Starting with the shown amounts, obtain exactly 4 L in either jug. Fill fully, empty fully, or pour until one jug empties or the other fills. No measuring marks or partial pours.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 3,
+        "method": "Breadth-first search on reachable integer volume states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "i": 1,
+          "kind": "fill"
+        },
+        {
+          "i": 1,
+          "kind": "pour"
+        },
+        {
+          "i": 0,
+          "kind": "empty"
+        }
+      ],
+      "hint": "The difference between the capacities is useful. Emptying a jug is a legal move, not a failure."
+    },
+    {
+      "id": "curated-classic-jugs-02",
+      "revision": 1,
+      "family": "jugs",
+      "title": "The interrupted measurement: 1 L / 0 L",
+      "startState": {
+        "id": "jugs",
+        "v": [
+          1,
+          0
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "i": 0,
+          "kind": "pour"
+        },
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        }
+      ],
+      "instruction": "The jugs hold 3 L and 5 L. Starting with the shown amounts, obtain exactly 4 L in either jug. Fill fully, empty fully, or pour until one jug empties or the other fills. No measuring marks or partial pours.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 3,
+        "method": "Breadth-first search on reachable integer volume states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        },
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        },
+        {
+          "i": 1,
+          "kind": "empty"
+        }
+      ],
+      "hint": "The difference between the capacities is useful. Emptying a jug is a legal move, not a failure."
+    },
+    {
+      "id": "curated-classic-jugs-03",
+      "revision": 1,
+      "family": "jugs",
+      "title": "The interrupted measurement: 1 L / 5 L",
+      "startState": {
+        "id": "jugs",
+        "v": [
+          1,
+          5
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "i": 1,
+          "kind": "empty"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        },
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        }
+      ],
+      "instruction": "The jugs hold 3 L and 5 L. Starting with the shown amounts, obtain exactly 4 L in either jug. Fill fully, empty fully, or pour until one jug empties or the other fills. No measuring marks or partial pours.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "method": "Breadth-first search on reachable integer volume states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        },
+        {
+          "i": 0,
+          "kind": "fill"
+        },
+        {
+          "i": 0,
+          "kind": "pour"
+        }
+      ],
+      "hint": "The difference between the capacities is useful. Emptying a jug is a legal move, not a failure."
+    },
+    {
+      "id": "curated-classic-jugs-04",
+      "revision": 1,
+      "family": "jugs",
+      "title": "The interrupted measurement: 3 L / 2 L",
+      "startState": {
+        "id": "jugs",
+        "v": [
+          3,
+          2
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "i": 0,
+          "kind": "empty"
+        },
+        {
+          "i": 1,
+          "kind": "pour"
+        },
+        {
+          "i": 1,
+          "kind": "fill"
+        },
+        {
+          "i": 1,
+          "kind": "pour"
+        }
+      ],
+      "instruction": "The jugs hold 3 L and 5 L. Starting with the shown amounts, obtain exactly 4 L in either jug. Fill fully, empty fully, or pour until one jug empties or the other fills. No measuring marks or partial pours.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "method": "Breadth-first search on reachable integer volume states"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "i": 1,
+          "kind": "fill"
+        },
+        {
+          "i": 1,
+          "kind": "pour"
+        }
+      ],
+      "hint": "The difference between the capacities is useful. Emptying a jug is a legal move, not a failure."
+    },
+    {
+      "id": "curated-classic-queens-01",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 1",
+      "startState": {
+        "id": "queens",
+        "q": [
+          8,
+          34,
+          46
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 4
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 29
+        },
+        {
+          "cell": 49
+        },
+        {
+          "cell": 59
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        8,
+        34,
+        46
+      ],
+      "startActions": [
+        {
+          "cell": 8
+        },
+        {
+          "cell": 34
+        },
+        {
+          "cell": 46
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-queens-02",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 2",
+      "startState": {
+        "id": "queens",
+        "q": [
+          16,
+          30,
+          53
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 4
+        },
+        {
+          "cell": 10
+        },
+        {
+          "cell": 33
+        },
+        {
+          "cell": 47
+        },
+        {
+          "cell": 59
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        16,
+        30,
+        53
+      ],
+      "startActions": [
+        {
+          "cell": 16
+        },
+        {
+          "cell": 30
+        },
+        {
+          "cell": 53
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-queens-03",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 3",
+      "startState": {
+        "id": "queens",
+        "q": [
+          2,
+          23,
+          27
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 12
+        },
+        {
+          "cell": 32
+        },
+        {
+          "cell": 46
+        },
+        {
+          "cell": 49
+        },
+        {
+          "cell": 61
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        2,
+        23,
+        27
+      ],
+      "startActions": [
+        {
+          "cell": 2
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 27
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-queens-04",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 4",
+      "startState": {
+        "id": "queens",
+        "q": [
+          3,
+          42,
+          62
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 9
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 29
+        },
+        {
+          "cell": 32
+        },
+        {
+          "cell": 52
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        3,
+        42,
+        62
+      ],
+      "startActions": [
+        {
+          "cell": 3
+        },
+        {
+          "cell": 42
+        },
+        {
+          "cell": 62
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-queens-05",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 5",
+      "startState": {
+        "id": "queens",
+        "q": [
+          15,
+          19,
+          60
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 2
+        },
+        {
+          "cell": 30
+        },
+        {
+          "cell": 32
+        },
+        {
+          "cell": 45
+        },
+        {
+          "cell": 49
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        15,
+        19,
+        60
+      ],
+      "startActions": [
+        {
+          "cell": 15
+        },
+        {
+          "cell": 19
+        },
+        {
+          "cell": 60
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-queens-06",
+      "revision": 1,
+      "family": "queens",
+      "title": "Three queens already at court: study 6",
+      "startState": {
+        "id": "queens",
+        "q": [
+          23,
+          28,
+          38
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 3
+        },
+        {
+          "cell": 9
+        },
+        {
+          "cell": 40
+        },
+        {
+          "cell": 50
+        },
+        {
+          "cell": 61
+        }
+      ],
+      "instruction": "Add five queens so no two share a row, column or diagonal. The three engraved queens are fixed and cannot be removed.",
+      "verification": {
+        "winningReplay": true,
+        "completionCount": 1,
+        "allEightQueenSolutionsEnumerated": 92,
+        "method": "Enumerate every eight-queen arrangement and filter by fixed givens"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedCells": [
+        23,
+        28,
+        38
+      ],
+      "startActions": [
+        {
+          "cell": 23
+        },
+        {
+          "cell": 28
+        },
+        {
+          "cell": 38
+        }
+      ],
+      "hint": "Mark the diagonals of the fixed queens. Find the row with the fewest unattacked squares.",
+      "setupNote": "The current queens reducer lets players remove existing queens. The challenge adapter must block removal of fixedCells, including on restore and undo."
+    },
+    {
+      "id": "curated-classic-magic-01",
+      "revision": 1,
+      "family": "magic",
+      "title": "Fifteen in every direction: 2 swaps",
+      "startState": {
+        "id": "magic",
+        "values": [
+          4,
+          9,
+          2,
+          3,
+          8,
+          5,
+          7,
+          1,
+          6
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 4,
+          "to": 5
+        },
+        {
+          "from": 5,
+          "to": 6
+        }
+      ],
+      "instruction": "Swap any two numbers. Use 1\u20139 once each so every row, column and both long diagonals total 15. Any rotation or reflection of a valid square counts.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 2,
+        "method": "Exact permutation-cycle swap distance to every one of the eight valid Lo Shu squares"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 3
+        },
+        {
+          "from": 1,
+          "to": 8
+        },
+        {
+          "from": 2,
+          "to": 8
+        },
+        {
+          "from": 3,
+          "to": 8
+        },
+        {
+          "from": 4,
+          "to": 7
+        },
+        {
+          "from": 5,
+          "to": 7
+        },
+        {
+          "from": 7,
+          "to": 8
+        }
+      ],
+      "hint": "The centre is 5. Opposite cells around the centre total 10. Build the square from those pairs, rather than chasing one row at a time."
+    },
+    {
+      "id": "curated-classic-magic-02",
+      "revision": 1,
+      "family": "magic",
+      "title": "Fifteen in every direction: 3 swaps",
+      "startState": {
+        "id": "magic",
+        "values": [
+          2,
+          8,
+          3,
+          9,
+          5,
+          4,
+          1,
+          6,
+          7
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 1,
+          "to": 8
+        },
+        {
+          "from": 2,
+          "to": 7
+        },
+        {
+          "from": 5,
+          "to": 6
+        }
+      ],
+      "instruction": "Swap any two numbers. Use 1\u20139 once each so every row, column and both long diagonals total 15. Any rotation or reflection of a valid square counts.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 3,
+        "method": "Exact permutation-cycle swap distance to every one of the eight valid Lo Shu squares"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 1
+        },
+        {
+          "from": 1,
+          "to": 7
+        },
+        {
+          "from": 3,
+          "to": 8
+        },
+        {
+          "from": 5,
+          "to": 8
+        },
+        {
+          "from": 6,
+          "to": 7
+        },
+        {
+          "from": 7,
+          "to": 8
+        }
+      ],
+      "hint": "The centre is 5. Opposite cells around the centre total 10. Build the square from those pairs, rather than chasing one row at a time."
+    },
+    {
+      "id": "curated-classic-magic-03",
+      "revision": 1,
+      "family": "magic",
+      "title": "Fifteen in every direction: 4 swaps",
+      "startState": {
+        "id": "magic",
+        "values": [
+          5,
+          1,
+          8,
+          9,
+          6,
+          4,
+          7,
+          2,
+          3
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 0,
+          "to": 4
+        },
+        {
+          "from": 3,
+          "to": 6
+        },
+        {
+          "from": 5,
+          "to": 8
+        },
+        {
+          "from": 6,
+          "to": 7
+        }
+      ],
+      "instruction": "Swap any two numbers. Use 1\u20139 once each so every row, column and both long diagonals total 15. Any rotation or reflection of a valid square counts.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 4,
+        "method": "Exact permutation-cycle swap distance to every one of the eight valid Lo Shu squares"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 4
+        },
+        {
+          "from": 1,
+          "to": 4
+        },
+        {
+          "from": 2,
+          "to": 7
+        },
+        {
+          "from": 3,
+          "to": 8
+        },
+        {
+          "from": 4,
+          "to": 5
+        },
+        {
+          "from": 5,
+          "to": 8
+        },
+        {
+          "from": 7,
+          "to": 8
+        }
+      ],
+      "hint": "The centre is 5. Opposite cells around the centre total 10. Build the square from those pairs, rather than chasing one row at a time."
+    },
+    {
+      "id": "curated-classic-magic-04",
+      "revision": 1,
+      "family": "magic",
+      "title": "Fifteen in every direction: 5 swaps",
+      "startState": {
+        "id": "magic",
+        "values": [
+          5,
+          2,
+          4,
+          6,
+          1,
+          3,
+          8,
+          7,
+          9
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "from": 0,
+          "to": 6
+        },
+        {
+          "from": 1,
+          "to": 5
+        },
+        {
+          "from": 3,
+          "to": 4
+        },
+        {
+          "from": 4,
+          "to": 6
+        },
+        {
+          "from": 5,
+          "to": 8
+        }
+      ],
+      "instruction": "Swap any two numbers. Use 1\u20139 once each so every row, column and both long diagonals total 15. Any rotation or reflection of a valid square counts.",
+      "verification": {
+        "winningReplay": true,
+        "minimumMoves": 5,
+        "method": "Exact permutation-cycle swap distance to every one of the eight valid Lo Shu squares"
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "startActions": [
+        {
+          "from": 0,
+          "to": 4
+        },
+        {
+          "from": 2,
+          "to": 3
+        },
+        {
+          "from": 3,
+          "to": 5
+        },
+        {
+          "from": 6,
+          "to": 7
+        }
+      ],
+      "hint": "The centre is 5. Opposite cells around the centre total 10. Build the square from those pairs, rather than chasing one row at a time."
+    },
+    {
+      "id": "curated-classic-knight-01",
+      "revision": 1,
+      "family": "knight",
+      "title": "The unfinished knight\u2019s route: 3 visited",
+      "startState": {
+        "id": "knight",
+        "path": [
+          0,
+          11,
+          20
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 17
+        },
+        {
+          "cell": 24
+        },
+        {
+          "cell": 13
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 18
+        },
+        {
+          "cell": 9
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 16
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 14
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 15
+        },
+        {
+          "cell": 22
+        },
+        {
+          "cell": 19
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 12
+        },
+        {
+          "cell": 21
+        },
+        {
+          "cell": 10
+        }
+      ],
+      "instruction": "Continue the engraved route. Visit each of the 25 squares once with chess-knight moves. This is an open tour: the final square does not have to reach the first. The starting prefix is fixed.",
+      "verification": {
+        "winningReplay": true,
+        "method": "Explicit complete tour, independent knight-edge and distinct-square checks",
+        "uniquenessClaim": false,
+        "minimumMoves": 22
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedPrefixLength": 3,
+      "startActions": [
+        {
+          "cell": 0
+        },
+        {
+          "cell": 11
+        },
+        {
+          "cell": 20
+        }
+      ],
+      "hint": "Look ahead at squares with only one or two possible onward moves; leaving one isolated at the end makes the tour impossible.",
+      "setupNote": "Undo must stop at fixedPrefixLength. Do not claim a unique tour or a closed tour."
+    },
+    {
+      "id": "curated-classic-knight-02",
+      "revision": 1,
+      "family": "knight",
+      "title": "The unfinished knight\u2019s route: 5 visited",
+      "startState": {
+        "id": "knight",
+        "path": [
+          4,
+          7,
+          0,
+          11,
+          20
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 17
+        },
+        {
+          "cell": 24
+        },
+        {
+          "cell": 13
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 14
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 16
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 9
+        },
+        {
+          "cell": 18
+        },
+        {
+          "cell": 21
+        },
+        {
+          "cell": 10
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 19
+        },
+        {
+          "cell": 12
+        },
+        {
+          "cell": 15
+        },
+        {
+          "cell": 22
+        }
+      ],
+      "instruction": "Continue the engraved route. Visit each of the 25 squares once with chess-knight moves. This is an open tour: the final square does not have to reach the first. The starting prefix is fixed.",
+      "verification": {
+        "winningReplay": true,
+        "method": "Explicit complete tour, independent knight-edge and distinct-square checks",
+        "uniquenessClaim": false,
+        "minimumMoves": 20
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedPrefixLength": 5,
+      "startActions": [
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 11
+        },
+        {
+          "cell": 20
+        }
+      ],
+      "hint": "Look ahead at squares with only one or two possible onward moves; leaving one isolated at the end makes the tour impossible.",
+      "setupNote": "Undo must stop at fixedPrefixLength. Do not claim a unique tour or a closed tour."
+    },
+    {
+      "id": "curated-classic-knight-03",
+      "revision": 1,
+      "family": "knight",
+      "title": "The unfinished knight\u2019s route: 7 visited",
+      "startState": {
+        "id": "knight",
+        "path": [
+          12,
+          23,
+          14,
+          3,
+          6,
+          15,
+          22
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 19
+        },
+        {
+          "cell": 8
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 10
+        },
+        {
+          "cell": 21
+        },
+        {
+          "cell": 18
+        },
+        {
+          "cell": 9
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 16
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 13
+        },
+        {
+          "cell": 24
+        },
+        {
+          "cell": 17
+        },
+        {
+          "cell": 20
+        },
+        {
+          "cell": 11
+        },
+        {
+          "cell": 0
+        }
+      ],
+      "instruction": "Continue the engraved route. Visit each of the 25 squares once with chess-knight moves. This is an open tour: the final square does not have to reach the first. The starting prefix is fixed.",
+      "verification": {
+        "winningReplay": true,
+        "method": "Explicit complete tour, independent knight-edge and distinct-square checks",
+        "uniquenessClaim": false,
+        "minimumMoves": 18
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedPrefixLength": 7,
+      "startActions": [
+        {
+          "cell": 12
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 14
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 15
+        },
+        {
+          "cell": 22
+        }
+      ],
+      "hint": "Look ahead at squares with only one or two possible onward moves; leaving one isolated at the end makes the tour impossible.",
+      "setupNote": "Undo must stop at fixedPrefixLength. Do not claim a unique tour or a closed tour."
+    },
+    {
+      "id": "curated-classic-knight-04",
+      "revision": 1,
+      "family": "knight",
+      "title": "The unfinished knight\u2019s route: 9 visited",
+      "startState": {
+        "id": "knight",
+        "path": [
+          20,
+          17,
+          24,
+          13,
+          4,
+          7,
+          0,
+          11,
+          22
+        ],
+        "moves": 0
+      },
+      "solutionActions": [
+        {
+          "cell": 15
+        },
+        {
+          "cell": 6
+        },
+        {
+          "cell": 3
+        },
+        {
+          "cell": 14
+        },
+        {
+          "cell": 23
+        },
+        {
+          "cell": 16
+        },
+        {
+          "cell": 5
+        },
+        {
+          "cell": 2
+        },
+        {
+          "cell": 9
+        },
+        {
+          "cell": 18
+        },
+        {
+          "cell": 21
+        },
+        {
+          "cell": 10
+        },
+        {
+          "cell": 1
+        },
+        {
+          "cell": 12
+        },
+        {
+          "cell": 19
+        },
+        {
+          "cell": 8
+        }
+      ],
+      "instruction": "Continue the engraved route. Visit each of the 25 squares once with chess-knight moves. This is an open tour: the final square does not have to reach the first. The starting prefix is fixed.",
+      "verification": {
+        "winningReplay": true,
+        "method": "Explicit complete tour, independent knight-edge and distinct-square checks",
+        "uniquenessClaim": false,
+        "minimumMoves": 16
+      },
+      "status": "engine-verified; challenge launcher/save adapter required",
+      "sourceKind": "Original challenge position using a classical mechanism, not a copied modern puzzle",
+      "humanPlaytested": false,
+      "fixedPrefixLength": 9,
+      "startActions": [
+        {
+          "cell": 20
+        },
+        {
+          "cell": 17
+        },
+        {
+          "cell": 24
+        },
+        {
+          "cell": 13
+        },
+        {
+          "cell": 4
+        },
+        {
+          "cell": 7
+        },
+        {
+          "cell": 0
+        },
+        {
+          "cell": 11
+        },
+        {
+          "cell": 22
+        }
+      ],
+      "hint": "Look ahead at squares with only one or two possible onward moves; leaving one isolated at the end makes the tour impossible.",
+      "setupNote": "Undo must stop at fixedPrefixLength. Do not claim a unique tour or a closed tour."
+    }
+  ]
+}

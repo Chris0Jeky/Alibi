@@ -1,0 +1,378 @@
+{
+  "schema": "alibi-curation-challenges/v1",
+  "notASchema1ImportPack": true,
+  "challenges": [
+    {
+      "id": "curated-borough-01",
+      "revision": 1,
+      "family": "borough",
+      "title": "The canal observatory",
+      "seed": "SALT-GLASS",
+      "instruction": "Use seed SALT-GLASS and make eighteen placements. Reach at least 95 points. Four plots remain empty; you are not required to fill the board. This target is verified achievable, not a claim of the best possible town.",
+      "targetScore": 95,
+      "referenceScore": 99,
+      "solutionActions": [
+        {
+          "slot": 2,
+          "cell": 17
+        },
+        {
+          "slot": 0,
+          "cell": 16
+        },
+        {
+          "slot": 2,
+          "cell": 11
+        },
+        {
+          "slot": 2,
+          "cell": 10
+        },
+        {
+          "slot": 2,
+          "cell": 15
+        },
+        {
+          "slot": 1,
+          "cell": 5
+        },
+        {
+          "slot": 1,
+          "cell": 21
+        },
+        {
+          "slot": 1,
+          "cell": 6
+        },
+        {
+          "slot": 1,
+          "cell": 20
+        },
+        {
+          "slot": 2,
+          "cell": 18
+        },
+        {
+          "slot": 2,
+          "cell": 13
+        },
+        {
+          "slot": 2,
+          "cell": 23
+        },
+        {
+          "slot": 0,
+          "cell": 7
+        },
+        {
+          "slot": 0,
+          "cell": 19
+        },
+        {
+          "slot": 0,
+          "cell": 14
+        },
+        {
+          "slot": 0,
+          "cell": 24
+        },
+        {
+          "slot": 1,
+          "cell": 8
+        },
+        {
+          "slot": 0,
+          "cell": 1
+        }
+      ],
+      "verification": {
+        "reducerReplayComplete": true,
+        "method": "Legal deterministic replay from this seed; all building contributions recomputed",
+        "optimumClaim": false
+      },
+      "hint": "A garden can score for itself and improve several neighbouring buildings. Check the previewed score change before committing.",
+      "status": "Playable by entering this seed now; challenge card / target badge needs integration",
+      "sourceKind": "Original seed and reference plan using the existing scoring rules",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-borough-02",
+      "revision": 1,
+      "family": "borough",
+      "title": "A neighbourhood under glass",
+      "seed": "COPPER-LEAF",
+      "instruction": "Use seed COPPER-LEAF and make eighteen placements. Reach at least 80 points. Four plots remain empty; you are not required to fill the board. This target is verified achievable, not a claim of the best possible town.",
+      "targetScore": 80,
+      "referenceScore": 84,
+      "solutionActions": [
+        {
+          "slot": 0,
+          "cell": 7
+        },
+        {
+          "slot": 0,
+          "cell": 6
+        },
+        {
+          "slot": 0,
+          "cell": 11
+        },
+        {
+          "slot": 0,
+          "cell": 10
+        },
+        {
+          "slot": 2,
+          "cell": 5
+        },
+        {
+          "slot": 1,
+          "cell": 0
+        },
+        {
+          "slot": 1,
+          "cell": 1
+        },
+        {
+          "slot": 1,
+          "cell": 16
+        },
+        {
+          "slot": 2,
+          "cell": 15
+        },
+        {
+          "slot": 0,
+          "cell": 17
+        },
+        {
+          "slot": 1,
+          "cell": 22
+        },
+        {
+          "slot": 0,
+          "cell": 8
+        },
+        {
+          "slot": 0,
+          "cell": 20
+        },
+        {
+          "slot": 0,
+          "cell": 3
+        },
+        {
+          "slot": 0,
+          "cell": 4
+        },
+        {
+          "slot": 0,
+          "cell": 13
+        },
+        {
+          "slot": 0,
+          "cell": 14
+        },
+        {
+          "slot": 0,
+          "cell": 9
+        }
+      ],
+      "verification": {
+        "reducerReplayComplete": true,
+        "method": "Legal deterministic replay from this seed; all building contributions recomputed",
+        "optimumClaim": false
+      },
+      "hint": "A garden can score for itself and improve several neighbouring buildings. Check the previewed score change before committing.",
+      "status": "Playable by entering this seed now; challenge card / target badge needs integration",
+      "sourceKind": "Original seed and reference plan using the existing scoring rules",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-borough-03",
+      "revision": 1,
+      "family": "borough",
+      "title": "Cafés beside the gallery",
+      "seed": "NOCTURNE",
+      "instruction": "Use seed NOCTURNE and make eighteen placements. Reach at least 90 points. Four plots remain empty; you are not required to fill the board. This target is verified achievable, not a claim of the best possible town.",
+      "targetScore": 90,
+      "referenceScore": 92,
+      "solutionActions": [
+        {
+          "slot": 1,
+          "cell": 16
+        },
+        {
+          "slot": 1,
+          "cell": 1
+        },
+        {
+          "slot": 2,
+          "cell": 6
+        },
+        {
+          "slot": 2,
+          "cell": 5
+        },
+        {
+          "slot": 0,
+          "cell": 8
+        },
+        {
+          "slot": 0,
+          "cell": 7
+        },
+        {
+          "slot": 2,
+          "cell": 13
+        },
+        {
+          "slot": 2,
+          "cell": 12
+        },
+        {
+          "slot": 0,
+          "cell": 17
+        },
+        {
+          "slot": 2,
+          "cell": 22
+        },
+        {
+          "slot": 2,
+          "cell": 14
+        },
+        {
+          "slot": 2,
+          "cell": 9
+        },
+        {
+          "slot": 0,
+          "cell": 4
+        },
+        {
+          "slot": 0,
+          "cell": 3
+        },
+        {
+          "slot": 0,
+          "cell": 19
+        },
+        {
+          "slot": 0,
+          "cell": 18
+        },
+        {
+          "slot": 1,
+          "cell": 24
+        },
+        {
+          "slot": 1,
+          "cell": 23
+        }
+      ],
+      "verification": {
+        "reducerReplayComplete": true,
+        "method": "Legal deterministic replay from this seed; all building contributions recomputed",
+        "optimumClaim": false
+      },
+      "hint": "A garden can score for itself and improve several neighbouring buildings. Check the previewed score change before committing.",
+      "status": "Playable by entering this seed now; challenge card / target badge needs integration",
+      "sourceKind": "Original seed and reference plan using the existing scoring rules",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-borough-04",
+      "revision": 1,
+      "family": "borough",
+      "title": "The winter sorting district",
+      "seed": "WINTER-POST",
+      "instruction": "Use seed WINTER-POST and make eighteen placements. Reach at least 75 points. Four plots remain empty; you are not required to fill the board. This target is verified achievable, not a claim of the best possible town.",
+      "targetScore": 75,
+      "referenceScore": 78,
+      "solutionActions": [
+        {
+          "slot": 1,
+          "cell": 0
+        },
+        {
+          "slot": 0,
+          "cell": 5
+        },
+        {
+          "slot": 2,
+          "cell": 6
+        },
+        {
+          "slot": 2,
+          "cell": 7
+        },
+        {
+          "slot": 2,
+          "cell": 2
+        },
+        {
+          "slot": 2,
+          "cell": 11
+        },
+        {
+          "slot": 0,
+          "cell": 15
+        },
+        {
+          "slot": 0,
+          "cell": 10
+        },
+        {
+          "slot": 2,
+          "cell": 3
+        },
+        {
+          "slot": 0,
+          "cell": 8
+        },
+        {
+          "slot": 0,
+          "cell": 16
+        },
+        {
+          "slot": 0,
+          "cell": 4
+        },
+        {
+          "slot": 0,
+          "cell": 14
+        },
+        {
+          "slot": 0,
+          "cell": 9
+        },
+        {
+          "slot": 0,
+          "cell": 13
+        },
+        {
+          "slot": 0,
+          "cell": 18
+        },
+        {
+          "slot": 0,
+          "cell": 17
+        },
+        {
+          "slot": 0,
+          "cell": 22
+        }
+      ],
+      "verification": {
+        "reducerReplayComplete": true,
+        "method": "Legal deterministic replay from this seed; all building contributions recomputed",
+        "optimumClaim": false
+      },
+      "hint": "A garden can score for itself and improve several neighbouring buildings. Check the previewed score change before committing.",
+      "status": "Playable by entering this seed now; challenge card / target badge needs integration",
+      "sourceKind": "Original seed and reference plan using the existing scoring rules",
+      "humanPlaytested": false
+    }
+  ]
+}
