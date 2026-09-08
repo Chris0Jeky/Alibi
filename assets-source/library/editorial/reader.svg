@@ -24,24 +24,21 @@
   <path d="M71 558 V225 Q71 111 240 111 Q409 111 409 225 V558Z" fill="#fff7e4" opacity=".22"/>
   <path d="M44 559 H436" class="line" opacity=".6"/>
   
-    <path d="M110 559 Q112 447 183 421 Q240 400 297 421 Q368 447 370 559Z" fill="#dbac60" class="line"/>
-    <path d="M160 462 Q205 492 240 462 Q275 492 320 462" fill="none" class="paper-line" opacity=".75"/>
-    <path d="M211 394 V438 Q240 463 269 438 V394" fill="#b76d52" class="line"/>
-    <ellipse cx="240" cy="292" rx="84" ry="109" fill="#5d3d35" class="line"/>
-    <path d="M160 278 Q161 159 239 161 Q318 162 321 278 Q291 220 242 223 Q191 224 160 278Z" fill="#d2d1bc" class="line"/>
-    <path d="M169 225 Q180 169 219 152 M208 183 Q240 141 274 157 M254 157 Q300 151 318 204" fill="none" class="fine" opacity=".9"/>
-    <ellipse cx="157" cy="296" rx="19" ry="28" fill="#5d3d35" class="fine"/>
-    <ellipse cx="323" cy="296" rx="19" ry="28" fill="#5d3d35" class="fine"/>
-    <path d="M167 303 Q181 229 240 226 Q299 229 313 303 V345 Q310 404 240 430 Q170 404 167 345Z" fill="#814e41" class="line"/>
-    <path d="M204 309 Q220 297 236 309 M250 309 Q266 297 282 309" fill="none" class="line"/>
-    <circle cx="221" cy="315" r="6" fill="#172d38"/><circle cx="259" cy="315" r="6" fill="#172d38"/>
-    <path d="M240 318 Q230 350 242 360" fill="none" class="fine"/>
-    <path d="M213 377 Q241 389 270 375" fill="none" class="line"/>
-    <path d="M186 301 H236 M244 301 H294" class="fine"/><circle cx="240" cy="301" r="7" fill="#dbac60"/>
-    <path d="M129 478 L241 503 L351 478" fill="none" class="paper-line" opacity=".45"/>
-    <path d="M139 463 Q179 446 208 465 L198 492 Q164 496 135 478Z" fill="#fff7e4" class="line"/>
-    <path d="M342 463 Q301 446 272 465 L282 492 Q316 496 346 478Z" fill="#fff7e4" class="line"/>
-    <path d="M152 466 L194 476 M328 466 L286 476" class="fine"/>
+    <path d="M105 559 Q110 449 180 417 Q240 393 300 417 Q370 449 375 559Z" fill="#dbac60" class="line"/>
+    <path d="M145 457 Q185 429 213 456 L240 481 L267 456 Q295 429 335 457" fill="none" class="paper-line" opacity=".82"/>
+    <path d="M207 387 V438 Q240 467 273 438 V387" fill="#8d5b4b" class="line"/>
+    <path d="M153 284 Q156 178 240 159 Q324 178 327 284 Q322 387 240 424 Q158 387 153 284Z" fill="#8a5947" class="line"/>
+    <path d="M150 268 Q151 171 203 148 Q240 126 280 145 Q326 168 330 249 L314 278 Q296 217 240 221 Q184 218 166 278Z" fill="#d2d1bc" class="line"/>
+    <path d="M158 217 Q174 168 215 147 M199 176 Q240 132 281 150 M259 148 Q302 162 322 215" fill="none" class="fine" opacity=".86"/>
+    <path d="M161 246 Q149 257 151 286 M319 246 Q331 257 329 286" fill="none" class="fine"/>
+    <path d="M177 287 Q195 223 240 223 Q285 223 303 287 V345 Q297 394 240 422 Q183 394 177 345Z" fill="#96634f" class="line"/>
+    <path d="M183 289 Q204 268 225 288 M255 288 Q276 268 297 289" fill="none" class="line"/>
+    <circle cx="207" cy="300" r="19" fill="none" class="line"/><circle cx="273" cy="300" r="19" fill="none" class="line"/>
+    <path d="M226 300 H254" class="line"/><circle cx="207" cy="300" r="5" fill="#172d38"/><circle cx="273" cy="300" r="5" fill="#172d38"/>
+    <path d="M240 309 Q231 346 242 357" fill="none" class="fine"/>
+    <path d="M212 377 Q240 389 269 374" fill="none" class="line"/>
+    <path d="M155 457 L198 443 L217 476 L171 493Z M325 457 L282 443 L263 476 L309 493Z" fill="#fff7e4" class="line"/>
+    <path d="M125 505 Q170 483 208 501 M272 501 Q310 483 355 505" fill="none" class="fine" opacity=".6"/>
   
   <path d="M84 520 Q240 489 396 520" fill="none" class="fine" opacity=".35"/>
 
