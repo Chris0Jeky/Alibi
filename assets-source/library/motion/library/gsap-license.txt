@@ -1,0 +1,14 @@
+GSAP local receipt
+
+Dependency: GSAP 3.14.2
+File: gsap.min.js
+Source: copied from the tested local creative-toolchain sample library on 2026-09-08.
+Network CDN: none.
+
+GSAP is distributed under GreenSock's standard no-charge license, recorded in
+the local creative-toolchain package lock as:
+https://gsap.com/standard-license/
+
+This copy is used only by the authored HyperFrames sources in this directory
+and is not modified. The receipt deliberately records the package license
+instead of substituting an MIT notice.

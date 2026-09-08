@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=1080,height=1920"/><title>Alibi — The quiet wing</title><link rel="stylesheet" href="motion.css"/><script src="library/gsap.min.js"></script></head><body class="portrait"><main id="root" data-composition-id="alibi-quiet-wing-portrait" data-start="0" data-duration="12" data-width="1080" data-height="1920" data-fps="30">
+<section id="scene-feature-1" class="scene clip feature-scene" data-start="0" data-duration="4" data-track-index="0"><div class="grain" data-layout-ignore></div><div class="brand" data-enter="left" data-at="0.2">alibi<i>:</i></div><div class="micro" data-enter="right" data-at="0.3">The quiet wing</div><div class="feature-copy"><div class="kicker" data-enter="up" data-at="0.45">A room to wander</div><h1 class="headline" data-enter="up" data-at="0.7">Build a harbour.<br/>Keep a friend.</h1><p class="copy" data-enter="up" data-at="1.1">A slower corner of Alibi, made for collecting small moments.</p></div><div class="capture" data-enter="up" data-at="0.65" data-drift data-drift-end="3.75"><img src="captures/quiet-realm-mobile.png" alt="Current Alibi mobile realm studio screen"/><div class="matte"></div><span class="tag">Current product capture</span></div><div class="feature-index" data-enter="left" data-at="1.45"><strong>01</strong>Quiet Wing</div></section>
+<section id="scene-feature-2" class="scene clip feature-scene light" data-start="4" data-duration="4" data-track-index="1"><div class="grain" data-layout-ignore></div><div class="brand" data-enter="left" data-at="4.15">alibi<i>:</i></div><div class="micro" data-enter="right" data-at="4.25">A calm companion</div><div class="feature-copy"><div class="kicker" data-enter="up" data-at="4.35">A little more life</div><h2 class="headline" data-enter="up" data-at="4.6">Town, garden,<br/>companions.</h2><p class="copy" data-enter="up" data-at="5.05">Wander, grow, meet your companions, and keep your own pace.</p></div><div class="capture" data-enter="up" data-at="4.55" data-drift data-drift-end="7.75"><img src="captures/quiet-pets-mobile.png" alt="Current Alibi mobile companion nook with Miso"/><div class="matte"></div><span class="tag">Current product capture</span></div><div class="feature-index" data-enter="left" data-at="5.45"><strong>02</strong>Companions and garden</div></section>
+<section id="scene-feature-3" class="scene clip feature-scene" data-start="8" data-duration="4" data-track-index="2"><div class="grain" data-layout-ignore></div><div class="capture" data-enter="up" data-at="8.2" data-drift data-drift-end="11.8" data-dx="-12" data-dy="-10"><img src="captures/quiet-garden-mobile.png" alt="Current Alibi mobile conservatory garden screen"/><div class="matte"></div><span class="tag">Current product capture · garden</span></div><div class="feature-copy"><div class="kicker" data-enter="up" data-at="8.25">Yours to keep</div><h2 class="headline" data-enter="up" data-at="8.55">Export the<br/>moments.</h2><p class="copy" data-enter="up" data-at="9.05">Device local, offline ready, and yours to take with you.</p><div class="cta" data-enter="up" data-at="9.55">Stay a little longer</div></div><div class="feature-index" data-enter="left" data-at="9.3"><strong>03</strong>A quiet wing of your own</div></section>
+</main><script>(() => {
+  const root = document.querySelector('#root');
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  window.__timelines = window.__timelines || {};
+  const scenes = [...root.querySelectorAll('.scene')];
+  scenes.forEach((scene) => {
+    const start = Number(scene.dataset.start || 0);
+    const duration = Number(scene.dataset.duration || 1);
+    const fadeInAt = start === 0 ? 0 : Math.max(0, start - 0.42);
+    if (start === 0) tl.set(scene, { autoAlpha: 1 }, 0);
+    else tl.fromTo(scene, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.42 }, fadeInAt);
+    tl.to(scene, { autoAlpha: 0, duration: 0.38, ease: 'power2.in' }, Math.max(start + duration - 0.42, start + 0.1));
+  });
+  root.querySelectorAll('[data-enter]').forEach((el) => {
+    const at = Number(el.dataset.at || 0);
+    const from = el.dataset.enter === 'left' ? { x: -70, y: 10, autoAlpha: 0 } : el.dataset.enter === 'right' ? { x: 70, y: 10, autoAlpha: 0 } : el.dataset.enter === 'up' ? { y: 65, autoAlpha: 0 } : { y: 38, autoAlpha: 0 };
+    tl.fromTo(el, from, { x: 0, y: 0, autoAlpha: 1, duration: 0.72, ease: el.dataset.ease || 'power3.out' }, at);
+  });
+  root.querySelectorAll('[data-drift]').forEach((el) => {
+    const at = Number(el.dataset.at || 0);
+    const end = Number(el.dataset.driftEnd || root.dataset.duration || 1);
+    tl.fromTo(el, { x: 0, y: 0, rotation: -2, scale: 1 }, { x: Number(el.dataset.dx || 20), y: Number(el.dataset.dy || -12), rotation: Number(el.dataset.rotate || 2), scale: Number(el.dataset.scale || 1.03), duration: Math.max(.8, end - at), ease: 'sine.inOut' }, at);
+  });
+  root.querySelectorAll('[data-grow]').forEach((el) => {
+    const at = Number(el.dataset.at || 0);
+    tl.fromTo(el, { scaleX: 0, transformOrigin: 'left center' }, { scaleX: 1, duration: 0.75, ease: 'power2.out' }, at);
+  });
+  scenes.forEach((scene) => {
+    const start = Number(scene.dataset.start || 0);
+    tl.set(scene.querySelectorAll('[data-enter]'), { autoAlpha: 1, x: 0, y: 0 }, start);
+  });
+  window.__timelines[root.dataset.compositionId] = tl;
+})();
+
+</script></body></html>
+
+
+
+
+
+

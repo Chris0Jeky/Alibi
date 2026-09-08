@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Alibi — Earned stamp</title>
+    <link rel="stylesheet" href="motion.css" />
+    <script src="library/gsap.min.js"></script>
+    <style>
+      .ambient-stamp { background:var(--cream); color:var(--ink); }
+      .ambient-stamp::before { background:radial-gradient(circle at 78% 25%,rgba(219,172,96,.32),transparent 32%),radial-gradient(circle at 10% 80%,rgba(74,128,126,.13),transparent 40%); }
+      .ambient-stamp .ambient-copy { position:absolute; left:150px; top:250px; width:720px; }
+      .ambient-stamp .brand i { color:#75531a; }
+      .ambient-stamp .micro { color:#2a5259; }
+      .ambient-stamp .ambient-copy .kicker { color:#75531a; }
+      .ambient-stamp .ambient-copy .copy { color:#2d5960; }
+      .ambient-stamp .stamp-card { position:absolute; right:250px; top:170px; width:610px; height:610px; border:7px solid #75531a; border-radius:50%; display:grid; place-items:center; transform:rotate(-9deg); background:rgba(244,234,212,.35); box-shadow:0 24px 70px rgba(23,62,73,.18); }
+      .ambient-stamp .stamp-card::before { content:""; position:absolute; inset:26px; border:2px solid rgba(117,83,26,.62); border-radius:50%; }
+      .ambient-stamp .stamp-card strong { display:block; text-align:center; width:350px; font:600 72px/1 Georgia,serif; color:var(--ink); }
+      .ambient-stamp .stamp-card span { display:block; margin-top:18px; text-align:center; text-transform:uppercase; letter-spacing:.2em; color:#6b4c18; font-size:17px; }
+      .ambient-stamp .stamp-star { position:absolute; right:150px; bottom:130px; color:#75531a; font-size:54px; }
+      .ambient-stamp .footer-note { color:var(--ink); }
+    </style>
+  </head>
+  <body>
+    <main id="root" data-composition-id="alibi-ambient-earned-stamp" data-start="0" data-duration="5" data-width="1920" data-height="1080" data-fps="30">
+      <section id="scene-stamp" class="scene clip ambient-stamp" data-start="0" data-duration="5" data-track-index="0">
+        <div class="grain" data-layout-ignore></div><div class="brand" data-enter="left" data-at="0.1">alibi<i>:</i></div><div class="micro" data-enter="right" data-at="0.15">A small thing, kept</div>
+        <div class="ambient-copy"><div class="kicker" data-enter="up" data-at="0.2">An earned moment</div><h1 class="headline" data-enter="up" data-at="0.35">Keep the<br/>thread going.</h1><p class="copy" data-enter="up" data-at="0.65">A decorative reward card for progress made at your own pace.</p></div>
+        <div class="stamp-card" data-enter="right" data-at="0.4" data-stamp><div><strong>116</strong><span>puzzles in the club</span></div></div><div class="stamp-star" data-enter="up" data-at="1.15">✦</div>
+        <div class="footer-note" data-enter="left" data-at="1.05">Decorative preview · current product count</div>
+      </section>
+    </main>
+    <script>(() => {
+  const root = document.querySelector('#root');
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  const scenes = [...root.querySelectorAll('.scene')];
+  scenes.forEach((scene) => { const start = Number(scene.dataset.start || 0); const duration = Number(scene.dataset.duration || 1); if (start === 0) tl.set(scene, { autoAlpha: 1 }, 0); else tl.fromTo(scene, { autoAlpha: 0 }, { autoAlpha: 1, duration: .42 }, Math.max(0, start - .42)); tl.to(scene, { autoAlpha: 0, duration: .38, ease: 'power2.in' }, Math.max(start + duration - .42, start + .1)); });
+  root.querySelectorAll('[data-enter]').forEach((el) => { const at = Number(el.dataset.at || 0); const from = el.dataset.enter === 'left' ? { x: -70, y: 10, autoAlpha: 0 } : el.dataset.enter === 'right' ? { x: 70, y: 10, autoAlpha: 0 } : { y: 65, autoAlpha: 0 }; tl.fromTo(el, from, { x: 0, y: 0, autoAlpha: 1, duration: .72 }, at); });
+  root.querySelectorAll('[data-stamp]').forEach((el) => tl.fromTo(el, { scale: .8, rotation: -18, autoAlpha: 0 }, { scale: 1, rotation: -9, autoAlpha: 1, duration: 1.1, ease: 'back.out(1.4)' }, .25));
+  scenes.forEach((scene) => { const start = Number(scene.dataset.start || 0); tl.set(scene.querySelectorAll('[data-enter]'), { autoAlpha: 1, x: 0, y: 0 }, start); });
+  window.__timelines = window.__timelines || {};
+  window.__timelines[root.dataset.compositionId] = tl;
+})();</script>
+  </body>
+</html>

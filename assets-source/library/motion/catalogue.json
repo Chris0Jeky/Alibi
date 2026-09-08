@@ -1,0 +1,537 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-08",
+  "items": [
+    {
+      "id": "alibi-intro-landscape",
+      "title": "Alibi — A little room to think (landscape)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "intro-landscape/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-intro-landscape.mp4",
+          "durationSec": 36.0,
+          "width": 1280,
+          "height": 720,
+          "sizeBytes": 5049364
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-intro-landscape.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 36.0,
+        "fps": "30/1",
+        "width": 1280,
+        "height": 720,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "116 puzzles",
+          "13 families",
+          "four casebooks",
+          "Quiet Wing",
+          "companions",
+          "exportable saves",
+          "offline ready"
+        ],
+        "format": "landscape"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/home-landscape.png",
+          "captures/bellweather-landscape.png",
+          "captures/library-bridges-landscape.png",
+          "captures/home-mobile.png"
+        ],
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/cartographer.webp",
+          "covers/coastal-light.webp",
+          "covers/conservatory-study.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-intro-portrait",
+      "title": "Alibi — A little room to think (portrait)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "intro-portrait/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-intro-portrait.mp4",
+          "durationSec": 36.0,
+          "width": 720,
+          "height": 1280,
+          "sizeBytes": 4395466
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-intro-portrait.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 36.0,
+        "fps": "30/1",
+        "width": 720,
+        "height": 1280,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "116 puzzles",
+          "13 families",
+          "four casebooks",
+          "Quiet Wing",
+          "companions",
+          "exportable saves",
+          "offline ready"
+        ],
+        "format": "portrait"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/home-mobile.png",
+          "captures/bellweather-mobile.png",
+          "captures/library-bridges-mobile.png",
+          "captures/home-mobile-alt.png"
+        ],
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/cartographer.webp",
+          "covers/coastal-light.webp",
+          "covers/conservatory-study.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-quiet-wing-landscape",
+      "title": "Alibi — Quiet Wing (landscape)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "quiet-wing-landscape/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-quiet-wing-landscape.mp4",
+          "durationSec": 12.0,
+          "width": 1280,
+          "height": 720,
+          "sizeBytes": 2024129
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-quiet-wing-landscape.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 12.0,
+        "fps": "30/1",
+        "width": 1280,
+        "height": 720,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "Quiet Wing",
+          "companions",
+          "garden",
+          "exportable saves",
+          "offline ready"
+        ],
+        "format": "landscape"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/quiet-realm-landscape.png",
+          "captures/quiet-pets-landscape.png",
+          "captures/quiet-garden-landscape.png"
+        ],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size",
+        "captureUse": "Current local Quiet Wing destination captures: Realm Studio, Companion Nook, and Conservatory Garden; no interaction filming implied"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-quiet-wing-portrait",
+      "title": "Alibi — Quiet Wing (portrait)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "quiet-wing-portrait/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-quiet-wing-portrait.mp4",
+          "durationSec": 12.0,
+          "width": 720,
+          "height": 1280,
+          "sizeBytes": 1398595
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-quiet-wing-portrait.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 12.0,
+        "fps": "30/1",
+        "width": 720,
+        "height": 1280,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "Quiet Wing",
+          "companions",
+          "garden",
+          "exportable saves",
+          "offline ready"
+        ],
+        "format": "portrait"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/quiet-realm-mobile.png",
+          "captures/quiet-pets-mobile.png",
+          "captures/quiet-garden-mobile.png"
+        ],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size",
+        "captureUse": "Current local Quiet Wing destination captures: Realm Studio, Companion Nook, and Conservatory Garden; no interaction filming implied"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-bridges-landscape",
+      "title": "Alibi — Tidal bridges (landscape)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "bridges-landscape/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-bridges-landscape.mp4",
+          "durationSec": 12.0,
+          "width": 1280,
+          "height": 720,
+          "sizeBytes": 1806306
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-bridges-landscape.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 12.0,
+        "fps": "30/1",
+        "width": 1280,
+        "height": 720,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "Tidal bridges",
+          "8 puzzles",
+          "touch friendly"
+        ],
+        "format": "landscape"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": "captures/library-bridges-landscape.png",
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/glasshouse.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-bridges-portrait",
+      "title": "Alibi — Tidal bridges (portrait)",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "bridges-portrait/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-bridges-portrait.mp4",
+          "durationSec": 12.0,
+          "width": 720,
+          "height": 1280,
+          "sizeBytes": 1585103
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-bridges-portrait.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 12.0,
+        "fps": "30/1",
+        "width": 720,
+        "height": 1280,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "Tidal bridges",
+          "8 puzzles",
+          "touch friendly"
+        ],
+        "format": "portrait"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": "captures/library-bridges-mobile.png",
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/glasshouse.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-ambient-lamplight",
+      "title": "Alibi — Lamplight settle",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "ambient-lamplight/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-ambient-lamplight.mp4",
+          "durationSec": 5.0,
+          "width": 1280,
+          "height": 720,
+          "sizeBytes": 378707
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-ambient-lamplight.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 5.0,
+        "fps": "30/1",
+        "width": 1280,
+        "height": 720,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "Quiet Wing",
+          "device local",
+          "offline ready"
+        ],
+        "format": "landscape"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    },
+    {
+      "id": "alibi-ambient-earned-stamp",
+      "title": "Alibi — Earned stamp",
+      "category": "motion",
+      "status": "current",
+      "design": "original",
+      "source": "ambient-earned-stamp/index.html",
+      "derivatives": [
+        {
+          "type": "mp4",
+          "path": "renders/alibi-ambient-earned-stamp.mp4",
+          "durationSec": 5.0,
+          "width": 1280,
+          "height": 720,
+          "sizeBytes": 272007
+        },
+        {
+          "type": "poster",
+          "path": "posters/alibi-ambient-earned-stamp.jpg"
+        }
+      ],
+      "metadata": {
+        "durationSec": 5.0,
+        "fps": "30/1",
+        "width": 1280,
+        "height": 720,
+        "codec": "h264",
+        "pixelFormat": "yuv420p",
+        "audio": false,
+        "claims": [
+          "116 puzzles",
+          "decorative progress card"
+        ],
+        "format": "landscape"
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "integration": {
+        "runtime": "Independent HyperFrames source; not imported into Alibi app runtime",
+        "galleryReady": true,
+        "onlinePlay": "Not enabled and not claimed",
+        "captureUse": "Product captures are current local UI evidence; no interaction filming implied"
+      },
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      }
+    }
+  ]
+}

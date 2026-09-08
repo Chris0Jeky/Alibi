@@ -1,0 +1,209 @@
+[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
+[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
+[INFO] [Compiler] Injected deterministic @font-face rules for 2 requested font families
+[hyperframes] browserGpuMode probe → hardware (WebGL renderer vendor="Google Inc. (Intel)" renderer="ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)")
+{
+  "ok": true,
+  "strict": true,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 4,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 4.5,
+        "selector": "#scene-feature > div:nth-of-type(4) > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 245.53,
+          "right": 464.27,
+          "bottom": 268.53,
+          "width": 354.27,
+          "height": 23
+        },
+        "containerSelector": "#scene-feature > div:nth-of-type(4) > h2:nth-of-type(1)",
+        "text": "THE COLLECTION IS OPEN",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "4.35"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 110,
+          "y": 245.53,
+          "width": 354.27,
+          "height": 23
+        },
+        "firstSeen": 4.5,
+        "lastSeen": 4.5,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 4.75,
+        "selector": "#scene-feature > div:nth-of-type(4) > h2:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 287.65,
+          "right": 721.75,
+          "bottom": 507.68,
+          "width": 611.75,
+          "height": 220.03
+        },
+        "containerSelector": "#scene-feature > div:nth-of-type(4) > p:nth-of-type(1)",
+        "text": "Find the rule that fits you.",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "4.6"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 110,
+          "y": 287.65,
+          "width": 611.75,
+          "height": 220.03
+        },
+        "firstSeen": 4.75,
+        "lastSeen": 4.75,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 8.375,
+        "selector": "#scene-feature-3 > div:nth-of-type(3) > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 252.05,
+          "right": 279.28,
+          "bottom": 275.05,
+          "width": 169.28,
+          "height": 23
+        },
+        "containerSelector": "#scene-feature-3 > div:nth-of-type(3) > h2:nth-of-type(1)",
+        "text": "OPEN A FILE",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "8.25"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 110,
+          "y": 252.05,
+          "width": 169.28,
+          "height": 23
+        },
+        "firstSeen": 8.375,
+        "lastSeen": 8.375,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 8.625,
+        "selector": "#scene-feature-3 > div:nth-of-type(3) > h2:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 110,
+          "top": 307.74,
+          "right": 587.56,
+          "bottom": 527.77,
+          "width": 477.56,
+          "height": 220.03
+        },
+        "containerSelector": "#scene-feature-3 > div:nth-of-type(3) > p:nth-of-type(1)",
+        "text": "Take your time.",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "8.55"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 110,
+          "y": 307.74,
+          "width": 477.56,
+          "height": 220.03
+        },
+        "firstSeen": 8.625,
+        "lastSeen": 8.625,
+        "occurrences": 1,
+        "heldMs": 0
+      }
+    ],
+    "duration": 12,
+    "samples": [
+      0,
+      6,
+      11.8
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 4,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      0,
+      6,
+      11.8
+    ],
+    "checked": 24,
+    "passed": 24
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "_meta": {
+    "version": "0.8.31",
+    "latestVersion": "0.8.31",
+    "updateAvailable": false
+  }
+}
