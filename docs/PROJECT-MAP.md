@@ -76,3 +76,12 @@ from their chapter's standalone puzzle. Do not silently rewrite published defini
 marketing copy fit. Curate revised definitions with explicit revision changes and retained saves.
 Bellweather and Bridges curation decisions are in [BELLWEATHER-CURATION.md](BELLWEATHER-CURATION.md).
 Human playtesting remains the next content milestone.
+
+## After Hours
+
+See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md) and its per-file inventory for the full second bundle.
+`src/club-engines.js` adds three separately versioned games; `assist.js` adds reversible rules,
+`club.js` and `club.css` implement the new desk/games/journal/Zen, and `atlas.js` draws the harbour.
+`boot.js` supplies independent startup recovery. `optional-online/` is a separate, disabled-by-default
+room service. The original 116-puzzle count is unchanged; six Archive rooms are additional games-room
+content, and Borough/Duel are procedural/adversarial games rather than fabricated puzzle counts.

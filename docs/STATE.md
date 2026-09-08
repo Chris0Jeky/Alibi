@@ -2,7 +2,32 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
-## Bellweather expedition
+## After Hours candidate
+
+- Source milestone: **0.5.0-preview.1**, 116 preserved puzzles, thirteen original engines,
+  four casebooks, three additional games and six Archive rooms. See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md).
+- All 74 bundle delivery checksums match. Full source-file disposition is in the linked inventory.
+- New: four desk editions, opt-in reversible assistance, game journal, Zen, Canvas harbour,
+  separate Club storage with atomic recovery, lazy precached assets and optimized original art.
+- Phone incident: owner confirms Android installation and initial play, then repeated freezes
+  after The last service and other scenes. Indefinite storage open/transaction waits are fixed;
+  exact device cause is unconfirmed. Recovery preserves progress. The physical retest remains open.
+- Local verification: full Node gate passes, 182 original UI checks, 106 Club checks, 92 origin
+  checks, 247 expedition checks. All 19 scenes survive real-control completion and reload; the
+  restart suite also repeats The last service three times, restores Club data with a recovery copy,
+  restarts the browser process and reloads offline. Six startup recovery checks verify that app-file refresh preserves IndexedDB, localStorage
+  and unrelated caches; 18 two-tab update checks pass. CI re-runs these against the final candidate.
+- Optional rooms: 89 serial protocol assertions plus two-browser local Wrangler acceptance,
+  including a deliberately lost join response. Source is integrated; hosted service is not enabled.
+- Cloudflare: authenticated existing account confirmed; static and room dry-runs pass.
+  `wrangler.jsonc` selects a separate `alibi-after-hours-preview`; the original Sites origin remains.
+  Publication and exact hosted evidence are recorded in the 0.5.0-preview.1 release receipt.
+- Workflow: smaller present-tense commits on `codex/after-hours`, one independent review, green CI
+  and merge with preserved history. Owner requested Luna xhigh / Terra high selection for this wave.
+- Not verified: physical Android freeze resolution, TalkBack, physical two-device online rooms,
+  Android/iOS native stores, human difficulty calibration. [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Previous Bellweather expedition
 
 - Source milestone: **0.4.0**, build `75e0b6c45a12`, 116 puzzles, thirteen engines, four casebooks.
 - Public repository: https://github.com/Chris0Jeky/Alibi
@@ -53,3 +78,5 @@ Prefer bounded Luna work and lower effort for routine checks; the owner asked to
 subagents. No Astra children.
 
 Owner decisions: [HUMAN_TODO.md](../HUMAN_TODO.md). No browser-publication input is outstanding.
+
+Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues/11).

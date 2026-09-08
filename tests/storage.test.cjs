@@ -31,6 +31,7 @@ function setup(local = true, newer = false) {
     console,
     localStorage: ls,
     setTimeout,
+    clearTimeout,
     Event: class Event {},
     dispatchEvent() {},
   };

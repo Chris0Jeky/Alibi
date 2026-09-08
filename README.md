@@ -90,3 +90,15 @@ Solutions ship with the app for offline checking and explicit reveals. Scores ar
 or tamper-resistant. Difficulty/time estimates need human calibration. See [security and privacy](docs/SECURITY-AND-PRIVACY.md),
 [asset provenance](docs/ASSETS.md), [NOTICE.md](NOTICE.md), and [owner decisions](HUMAN_TODO.md).
 The source currently has no reuse license; the owner decision is pending.
+
+
+## After Hours preview
+
+The new games room adds **Lantern Duel**, **Pocket Borough**, and six **Archive Heist** rooms.
+Choose reversible assistance, rotate or pin the illustrated desk, explore the living harbour,
+or enter Zen. The original 116 puzzles and four casebooks remain available with their saves.
+
+[Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
+[Owner/device follow-up](HUMAN_TODO.md). Cabinet and Club backups are separate; export both before
+moving to another website address. Optional private-room server source is included and tested
+locally, but a static deployment does not enable public online play.

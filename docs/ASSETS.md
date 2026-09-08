@@ -5,21 +5,21 @@ the project owner in `alibi-deluxe-publish-bundle/`. The original build `04628f8
 before changes. This is provenance, not a third-party rights audit.
 
 The following original illustrations were generated for this project on 2026-09-08 using OpenAI
-image generation, then encoded as WebP without changing their composition or dimensions:
+image generation, then encoded as WebP without changing their composition:
 
 | File | Subject | Size |
 | --- | --- | --- |
-| `src/artwork/briar-house.webp` | Country-house study, envelope, lamplight | 1536 x 1024 |
-| `src/artwork/night-train.webp` | Coastal night train and railway signal | 1536 x 1024 |
-| `src/artwork/glasshouse.webp` | Lanterns inside a glass conservatory | 1536 x 1024 |
-| `src/artwork/bellweather.webp` | Storm, tidal causeway and lighthouse beam | 1536 x 1024 |
-| `src/artwork/evidence.webp` | Blank logbook, tide map, key and blue cord | 1536 x 1024 |
-| `src/artwork/cartographer.webp` | Model island crossings on a lamplit chart | 1536 x 1024 |
-| `src/artwork/quiet-town.webp` | Layered coastal street and warm windows | 1536 x 1024 |
+| `src/artwork/briar-house.webp` | Country-house study, envelope, lamplight | 1024 x 683 |
+| `src/artwork/night-train.webp` | Coastal night train and railway signal | 1024 x 683 |
+| `src/artwork/glasshouse.webp` | Lanterns inside a glass conservatory | 1024 x 683 |
+| `src/artwork/bellweather.webp` | Storm, tidal causeway and lighthouse beam | 1024 x 683 |
+| `src/artwork/evidence.webp` | Blank logbook, tide map, key and blue cord | 1024 x 683 |
+| `src/artwork/cartographer.webp` | Model island crossings on a lamplit chart | 1024 x 683 |
+| `src/artwork/quiet-town.webp` | Layered coastal street and warm windows | 1024 x 683 |
 
 Direction: textured gouache, deep ink/petrol blue, warm amber light; no people, lettering or logos.
-The four expedition illustrations add 753 KiB; all seven images total approximately 1.18 MiB.
-They were visually inspected as full-size PNGs before conversion (Sharp WebP, quality 81,
+The After Hours bundle re-encodes all seven images to 1024 x 683; together they now total 418,376 bytes (about 409 KiB), down from 1,231,240 bytes.
+The originals were visually inspected as full-size PNGs before conversion (Sharp WebP, quality 81,
 effort 6 for the expedition images). Build fingerprints cover the exact bytes. All seven images
 ship in the offline shell and single-file preview. No original PNG or private machine path ships.
 
@@ -30,3 +30,7 @@ collection and its playing surface. The coastal street leads to the existing Lan
 No stock photography, remote fonts, external music or third-party runtime code is fetched by the
 game. Node developer tools and Python Playwright carry their own upstream licenses. See NOTICE.md
 for the source-license decision and HUMAN_TODO.md for publisher/name decisions.
+
+After Hours also supplies 22 editable SVG motifs in `src/illustrations/`. Ten motifs are new;
+the others reuse existing family previews. The player generates these vectors in `club.js`.
+The harbour uses local Canvas drawing instructions; no image or video stream is fetched.

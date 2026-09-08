@@ -88,7 +88,9 @@ function build() {
       '\n' +
       read(path.join(SRC, 'cabinet.css')) +
       '\n' +
-      read(path.join(SRC, 'expedition.css')),
+      read(path.join(SRC, 'expedition.css')) +
+      '\n' +
+      read(path.join(SRC, 'club.css')),
     template = read(path.join(SRC, 'index.html'));
   const media = {},
     inlineMedia = {};
@@ -99,8 +101,16 @@ function build() {
     inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
+  const clubEngine = read(path.join(SRC, 'club-engines.js')),
+    engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
+    workerURL = `./assets/validator.${hash(worker)}.js`,
+    boot = read(path.join(SRC, 'boot.js')),
+    bootURL = `./assets/boot.${hash(boot)}.js`;
+  write(path.join(DIST, bootURL), boot);
+  write(path.join(DIST, engineURL), clubEngine);
+  write(path.join(DIST, workerURL), worker);
   const base =
-    `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\n` +
+    `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\n` +
     [
       core,
       engines,
@@ -108,16 +118,28 @@ function build() {
       read(path.join(SRC, 'storage.js')),
       read(path.join(SRC, 'presentation.js')),
       read(path.join(SRC, 'insights.js')),
+      read(path.join(SRC, 'assist.js')),
+      read(path.join(SRC, 'atlas.js')),
+      read(path.join(SRC, 'club.js')),
       read(path.join(SRC, 'app.js')),
     ].join('\n');
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
     release = hash(
-      base + css + VERSION + template + read(__filename) + fingerprint + JSON.stringify(media),
+      base +
+        boot +
+        worker +
+        clubEngine +
+        css +
+        VERSION +
+        template +
+        read(__filename) +
+        fingerprint +
+        JSON.stringify(media),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\n${base}`,
+  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -153,7 +175,10 @@ function build() {
     path.join(DIST, 'index.html'),
     template
       .replace('<!-- HEAD -->', head)
-      .replace('<!-- SCRIPTS -->', `<script src="./${jsName}" defer></script>`),
+      .replace(
+        '<!-- SCRIPTS -->',
+        `<script src="${bootURL}" defer></script><script src="./${jsName}" defer></script>`,
+      ),
   );
   const assets = [
     './',
@@ -164,6 +189,9 @@ function build() {
     './icons/icon-maskable.png',
     './' + jsName,
     './' + cssName,
+    engineURL,
+    bootURL,
+    workerURL,
     ...Object.values(media),
   ];
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
@@ -171,7 +199,7 @@ const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(await caches.keys()).filter(k=>k.startsWith(PREFIX)),keep=new Set([CACHE,...keys.filter(k=>k!==CACHE).slice(-1)]);await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||u.pathname.endsWith('/sw.js'))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(r.mode==='navigate')return await c.match(new URL('./',self.registration.scope).href)||fetch(r);const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await caches.match(r);if(prior)return prior;}return fetch(r);})());});
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(r.mode==='navigate')return await c.match(new URL('./',self.registration.scope).href)||fetch(r);const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await caches.match(r);if(prior)return prior;}return fetch(r);})());});
 `;
   write(path.join(DIST, 'sw.js'), sw);
   write(
@@ -197,14 +225,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\n${base}`;
+  const standalone = `globalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
-      .replace('<!-- HEAD -->', '<style>' + css + '</style>')
+      .replace('<!-- HEAD -->', () => '<style>' + css + '</style>')
       .replace(
         '<!-- SCRIPTS -->',
-        '<script>' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
+        () =>
+          '<script>' + boot + '\n' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
       ),
   );
   zip(
