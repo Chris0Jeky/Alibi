@@ -28,6 +28,18 @@
     },
   };
   function svg(species = 'cat', action = 'idle', label = 'Companion') {
+    if (G.QWCompanionArt?.[species]) {
+      const state =
+        { groom: 'happy', treat: 'feed', nap: 'sleepy', play: 'celebrate' }[action] || action;
+      const safe = String(label).replace(
+        /[<>&"']/g,
+        (x) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[x],
+      );
+      return G.QWCompanionArt[species]
+        .replace('state-idle', 'state-' + state)
+        .replace('action-idle', 'action-' + action)
+        .replace(/aria-label="[^"]*"/, 'aria-label="' + safe + '"');
+    }
     const q = INFO[species] || INFO.cat,
       c = q.colour,
       esc = (s) =>

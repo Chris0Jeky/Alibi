@@ -106,6 +106,7 @@ function setup(failInstall = false) {
           .readdirSync(path.join(ROOT, 'dist/assets'))
           .filter(
             (n) =>
+              !n.startsWith('folio-') &&
               !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
                 n,
               ),
@@ -116,6 +117,7 @@ function setup(failInstall = false) {
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
       (n) =>
+        !n.startsWith('folio-') &&
         !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
           n,
         ),

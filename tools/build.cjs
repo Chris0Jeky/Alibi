@@ -111,7 +111,8 @@ function build() {
     inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
-  const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia);
+  const experience = require('./build-experience.cjs')(ROOT, DIST);
+  const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
@@ -155,7 +156,10 @@ function build() {
         JSON.stringify(quiet.config),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
+  const js = require('esbuild').transformSync(
+      `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
+      { minify: true, target: 'es2022' },
+    ).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -265,7 +269,10 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     files: files(DIST).length,
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
-    coreOfflineBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes,
+    experienceBytes: experience.bytes,
+    experienceOfflineBytes: experience.manifest.bytes,
+    coreOfflineBytes:
+      files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes - experience.bytes,
     javascriptGzipBytes: zlib.gzipSync(js).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,
   };

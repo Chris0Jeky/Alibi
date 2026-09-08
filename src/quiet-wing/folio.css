@@ -1,0 +1,322 @@
+/* A paper folio within the existing quiet-wing surface. */
+.folio-intro {
+  max-width: 760px;
+  padding: 18px 0 26px;
+}
+.folio-intro h1 {
+  font:
+    400 clamp(36px, 5vw, 64px)/1.03 Georgia,
+    serif;
+  letter-spacing: -0.045em;
+  margin: 16px 0;
+}
+.folio-intro p,
+.folio-lede {
+  max-width: 660px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+.folio-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+  margin-bottom: 26px;
+}
+.folio-tabs button[aria-pressed='true'],
+.folio-piece-grid button[aria-pressed='true'] {
+  color: var(--ink);
+  background: #d6dfcb;
+  box-shadow: inset 0 0 0 1px #748575;
+}
+.folio-model-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(230px, 1fr);
+  gap: 28px;
+}
+.folio-view {
+  min-width: 0;
+}
+.folio-stage {
+  position: relative;
+  height: clamp(280px, 35vw, 500px);
+  background: #e3e5d8;
+  border-radius: 120px 120px 8px 8px;
+  overflow: hidden;
+}
+.folio-stage > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.folio-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.folio-3d > img {
+  visibility: hidden;
+}
+.folio-view-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 0 10px;
+}
+.folio-view-caption h2 {
+  margin: 0 0 6px;
+  font:
+    28px Georgia,
+    serif;
+}
+.folio-turn {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0;
+}
+.folio-pieces p {
+  line-height: 1.7;
+  margin-top: 0;
+}
+.folio-pieces label,
+.folio-companions label,
+.folio-film-grid label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.folio-pieces input,
+.folio-companions select,
+.folio-film-grid select {
+  width: 100%;
+  max-width: 100%;
+}
+.folio-piece-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 3px;
+}
+.folio-piece-grid button {
+  padding: 7px;
+  display: grid;
+  gap: 7px;
+  text-align: left;
+  font-size: 12px;
+  border: 1px solid var(--line);
+}
+.folio-piece-grid img {
+  width: 100%;
+  height: 90px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.folio-piece-grid [hidden] {
+  display: none !important;
+}
+.folio-portraits,
+.folio-companions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.folio-portraits figure {
+  margin: 12px 0;
+}
+.folio-portraits img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 48% 48% 2px 2px;
+}
+.folio-portraits figcaption {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.folio-portraits h2,
+.folio-companions h2 {
+  margin: 8px 0;
+  font:
+    26px Georgia,
+    serif;
+}
+.folio-companions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.folio-companions img {
+  width: 100%;
+  height: auto;
+  border-radius: 50%;
+}
+.folio-audio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.folio-audio-grid article {
+  border-top: 1px solid var(--line);
+  padding: 25px 0 15px;
+}
+.folio-audio-grid h2 {
+  font:
+    25px Georgia,
+    serif;
+  text-transform: capitalize;
+}
+.folio-audio-grid p {
+  min-height: 38px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.folio-audio-grid audio {
+  width: 100%;
+  height: 42px;
+}
+.folio-film-grid {
+  display: grid;
+  gap: 36px;
+}
+.folio-film-grid article {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(170px, 1fr);
+  gap: 24px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 32px;
+}
+.folio-film-grid video {
+  width: 100%;
+  max-height: 560px;
+  background: #173e49;
+  border-radius: 8px;
+}
+.folio-film-grid h2 {
+  font:
+    30px/1.2 Georgia,
+    serif;
+}
+.folio-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 42px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.folio-footer p {
+  flex-basis: 100%;
+}
+.folio-footer span {
+  max-width: 450px;
+}
+.room-illustration {
+  width: min(300px, 34%);
+  height: 145px;
+  object-fit: cover;
+  border-radius: 90px 90px 3px 3px;
+  flex-shrink: 0;
+}
+.room-visit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 0;
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  gap: 15px;
+}
+.ambient-choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  margin: 8px 0 20px;
+}
+.ambient-choice select {
+  max-width: 220px;
+  font-size: 12px;
+  min-height: 36px;
+}
+.pet-svg .hit-area {
+  fill: transparent;
+  pointer-events: none;
+}
+.pet-svg.state-look .pet-head {
+  transform: rotate(-7deg);
+}
+.pet-svg.state-attention .pet-head {
+  transform: translateY(-5px);
+}
+.pet-svg.state-happy .pet-hearts,
+.pet-svg.state-celebrate .pet-hearts,
+.pet-svg.state-sleepy .pet-zzz {
+  opacity: 1;
+}
+.pet-svg.state-sleepy .pet-eyes {
+  opacity: 0;
+}
+.pet-svg.state-pet .pet-head {
+  transform: rotate(9deg);
+}
+.pet-svg.state-feed .pet-arm {
+  transform: rotate(-18deg);
+}
+.pet-svg.state-celebrate .pet-body {
+  transform: translateY(-15px);
+}
+.zen .room-illustration,
+.zen .room-visit,
+.zen .ambient-choice {
+  display: none;
+}
+@media (max-width: 760px) {
+  .folio-model-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .folio-piece-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 300px;
+  }
+  .folio-portraits,
+  .folio-companions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .folio-film-grid article {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .folio-audio-grid {
+    grid-template-columns: 1fr;
+  }
+  .folio-tabs button {
+    flex: 1 1 130px;
+  }
+  .room-illustration {
+    width: 100%;
+    height: 155px;
+    margin-top: 15px;
+    border-radius: 60px 60px 3px 3px;
+  }
+  .pagehead:has(.room-illustration) {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .folio-stage,
+  .folio-tabs button {
+    transition: none;
+  }
+}

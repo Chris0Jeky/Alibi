@@ -105,11 +105,27 @@
         );
         return d;
       }
+      const soundscape = new G.QWSound();
       let audio;
       function feedback(kind = 'place') {
         if (A.state.settings.haptic && navigator.vibrate)
           navigator.vibrate(kind === 'win' ? [15, 40, 15] : 10);
         if (!A.state.settings.sound) return;
+        if (G.QWExperience) {
+          soundscape.play(
+            {
+              erase: 'ui-remove-low',
+              win: 'ui-complete-calm',
+              treat: 'pet-treat',
+              play: 'pet-play',
+              nap: 'pet-rest',
+              pet: 'pet-greeting',
+              undo: 'ui-undo',
+              redo: 'ui-redo',
+            }[kind] || 'ui-place-wood',
+          );
+          return;
+        }
         try {
           audio = audio || new (G.AudioContext || G.webkitAudioContext)();
           audio.resume().catch(() => {});
@@ -175,6 +191,7 @@
             ['classics', 'Classics'],
             ['gallery', 'Art room'],
             ['journal', 'Journal'],
+            ['folio', 'Field notes'],
           ]
             .map(
               ([id, name]) =>
@@ -199,6 +216,12 @@
           }
           if (b.dataset.act === 'sound') {
             A.state.settings.sound = !A.state.settings.sound;
+            if (!A.state.settings.sound) {
+              soundscape.stop();
+              A.ambience = '';
+              const select = $('#room-ambience');
+              if (select) select.value = '';
+            }
             toast('Sound ' + (A.state.settings.sound ? 'on' : 'off'));
             b.setAttribute('aria-label', A.state.settings.sound ? 'Mute sound' : 'Enable sound');
             save();
@@ -216,9 +239,15 @@
         });
       }
       function header(eyebrow, title, text, extra = '') {
-        return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}</section>`;
+        const room = { pets: 'companion-room', garden: 'glasshouse-room', gallery: 'reading-room' }[
+          A.route
+        ];
+        const art = G.QWExperience?.editorial.find((a) => a.id === room);
+        return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}${art ? `<img class="room-illustration" src="${art.image}" alt="" width="1200" height="600">` : ''}</section>`;
       }
       function disposeActivity() {
+        A.folio?.dispose();
+        A.folio = null;
         clearInterval(A.gardenTimer);
         A.gardenTimer = null;
         clearTimeout(A.petTimer);
@@ -237,7 +266,9 @@
       function go() {
         if (disposed) return;
         const route = routePath().split('/')[0];
-        A.route = ['realm', 'pets', 'garden', 'classics', 'gallery', 'journal'].includes(route)
+        A.route = ['realm', 'pets', 'garden', 'classics', 'gallery', 'journal', 'folio'].includes(
+          route,
+        )
           ? route
           : 'realm';
         disposeActivity();
@@ -250,7 +281,41 @@
           classics: classicsPage,
           gallery: galleryPage,
           journal: journalPage,
+          folio: () => {
+            soundscape.stop();
+            A.ambience = '';
+            A.folio = G.QWFolio.mount($('#main'));
+          },
         })[A.route]();
+        if (A.route !== 'folio') {
+          const atmosphere = document.createElement('label');
+          atmosphere.className = 'ambient-choice';
+          atmosphere.innerHTML = `Listen here <select id="room-ambience" aria-label="Background atmosphere"><option value="">Quiet</option>${[
+            ['lamplight-library', 'Lamplit library'],
+            ['coastal-window', 'Coastal window'],
+            ['glasshouse-garden', 'Glasshouse'],
+            ['evening-club', 'Evening club'],
+          ]
+            .map(([id, label]) => `<option value="ambience-${id}">${label}</option>`)
+            .join('')}</select>`;
+          $('#main').append(atmosphere);
+          $('#room-ambience').value = A.ambience || '';
+          $('#room-ambience').onchange = (event) => {
+            A.ambience = event.target.value;
+            if (A.ambience) {
+              A.state.settings.sound = true;
+              save();
+              const button = $('[data-act="sound"]');
+              button.setAttribute('aria-label', 'Mute sound');
+            }
+            soundscape.ambience(A.ambience);
+          };
+          const visit = document.createElement('aside');
+          visit.className = 'room-visit';
+          visit.innerHTML =
+            '<span>A little more to discover: scenes, portraits, sound and short films.</span><a href="#/quiet/folio">Open field notes ↗</a>';
+          $('#main').append(visit);
+        }
       }
       function realmPage() {
         if (A.resizeObs) A.resizeObs.disconnect();
@@ -931,7 +996,7 @@
         $('#pet-portrait .pet-svg').outerHTML = P.svg(s, id, A.state.pets.names[s]);
         A.petView?.setAction(id);
         $('#pet-stage').dataset.action = id;
-        feedback(id === 'play' ? 'win' : 'place');
+        feedback(id);
         save();
         clearTimeout(A.petTimer);
         if (id !== 'nap')
@@ -2112,6 +2177,7 @@
         state: () => A.state,
         dispose() {
           disposed = true;
+          soundscape.dispose();
           G.QWRetainedState =
             A.dirty || S.info().mode === 'session' || S.info().blocked ? A.state : null;
           G.QWRetainedDirty = A.dirty;
