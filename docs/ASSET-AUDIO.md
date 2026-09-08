@@ -13,7 +13,8 @@ credentials.
 - `assets-source/library/audio/masters/` contains 24 48 kHz PCM WAV masters.
 - `assets-source/library/audio/production/` contains matching Opus and Ogg derivatives.
 - `assets-source/library/audio/catalogue.json` records relative paths, recipe hash, derivative
-  hashes, measured duration, channels, peak/RMS levels and ffprobe receipts for every file.
+  hashes, measured duration, channels, peak/RMS levels, subsonic/DC measurements and ffprobe
+  receipts for every file.
 - `assets-source/library/audio/evidence/waveform-contact.png` is the waveform/contact evidence;
   `evidence/receipt.json` records the generation counts and evidence path.
 - `assets-source/library/audio/preview.html` is a local preview with explicit `controls` and
@@ -23,18 +24,30 @@ The library has 20 short cues and four ambient loops. Cue masters are 260–900 
 16, 18, 20 and 22 seconds. Cues target approximately -24 to -31 dBFS RMS; loops target -33 to
 -35 dBFS RMS. The catalogue is the authoritative measured result. All four loops have a zero
 endpoint sample delta after a deterministic boundary crossfade, and the generation receipt probes
-both Opus and Ogg derivatives with ffprobe.
+both Opus and Ogg derivatives with ffprobe. The generator records spectral guardrails for every
+asset; this pass measured 100% of FFT energy above 20 Hz, 0% subsonic energy and DC below -160 dBFS
+in the quantised WAV masters.
 
-Regenerate only with an explicit overwrite choice:
+Create a dedicated environment for the generator; the repository's normal development
+environments are not assumed to contain NumPy or Pillow. The pinned route used for this asset
+pass was Python 3.13 with `tools/assets/audio/requirements.txt`:
 
 ```powershell
-python tools/assets/audio/generate_audio.py
-python tools/assets/audio/generate_audio.py --force
+py -3.13 -m venv .asset-audio-venv
+.\.asset-audio-venv\Scripts\python.exe -m pip install -r tools/assets/audio/requirements.txt
+```
+
+An existing Python installation with the same pinned packages is also acceptable. Do not install
+these dependencies globally. Regenerate only with an explicit overwrite choice:
+
+```powershell
+.\.asset-audio-venv\Scripts\python.exe tools/assets/audio/generate_audio.py
+.\.asset-audio-venv\Scripts\python.exe tools/assets/audio/generate_audio.py --force
 ```
 
 The first command refuses every existing output, including a byte-identical deterministic output.
-The second command is the deliberate replacement operation. Generation is local and uses NumPy,
-Python `wave`, Pillow for the contact image, FFmpeg `libopus` and `libvorbis`, and ffprobe.
+The second command is the deliberate replacement operation. Generation is local and uses the
+pinned NumPy/Pillow environment, Python `wave`, FFmpeg `libopus` and `libvorbis`, and ffprobe.
 
 ## Existing sound audit and mapping
 
@@ -49,21 +62,21 @@ Every new recording is `proposed` because it is playable in the production galle
 the shipped game. `existing_event_status` separately records whether a generic runtime event already
 exists. The table below describes those existing event hooks, not integration of these new recordings.
 
-| Event | Catalogue cue | Current or proposed | Existing source seam |
+| Event | Catalogue cue | Library status | Existing event path |
 | --- | --- | --- | --- |
-| Place / build / plant | `ui-place-wood` | current | `applyAt`, garden plant, `feedback('place')` |
-| Remove / erase | `ui-remove-low` | current | `applyAt` erase, `feedback('erase')` |
-| Invalid move | `ui-invalid-gentle` | current | classic move error, `feedback('erase')` |
-| Completion / harvest / return | `ui-complete-calm` | current | classic, garden, pet trip, export, `feedback('win')` |
-| Pet greeting | `pet-greeting` | current | `petAction('pet')`, generic `place` feedback |
-| Pet play | `pet-play` | current | `petAction('play')`, generic `win` feedback |
+| Place / build / plant | `ui-place-wood` | proposed | current generic path: `applyAt`, garden plant, `feedback('place')` |
+| Remove / erase | `ui-remove-low` | proposed | current generic path: `applyAt` erase, `feedback('erase')` |
+| Invalid move | `ui-invalid-gentle` | proposed | current generic path: classic move error, `feedback('erase')` |
+| Completion / harvest / return | `ui-complete-calm` | proposed | current generic path: classic, garden, pet trip, export, `feedback('win')` |
+| Pet greeting | `pet-greeting` | proposed | current generic path: `petAction('pet')`, generic `place` feedback |
+| Pet play | `pet-play` | proposed | current generic path: `petAction('play')`, generic `win` feedback |
 | Pet treat and rest | `pet-treat`, `pet-rest` | proposed | `petAction('treat'|'nap')` |
 | Undo / redo | `ui-undo`, `ui-redo` | proposed | `realmAction('undo'|'redo')`, classic and bouquet undo |
 | Navigation / open / close | `ui-navigation-page`, `ui-open-desk`, `ui-close-desk` | proposed | `navigate(path)`, route disposal, `modal()` |
 | Focus / selection / tabs | `ui-focus-soft`, `ui-select-paper`, `ui-tab-switch` | proposed | tray, activity and gallery controls |
 | Discover artwork / species / specimen | `ui-discover-glint` | proposed | `artSeen`, first companion species, garden collection |
 | Settings toggles | `ui-toggle-on`, `ui-toggle-off` | proposed | `settings()` `data-setting` changes |
-| Cancel / unavailable | `ui-cancel` | proposed; generic error is current | `cancel-tool`, modal close and unavailable actions |
+| Cancel / unavailable | `ui-cancel` | proposed | `cancel-tool`, modal close and unavailable actions; generic error is the current path |
 
 ## Integration contract
 

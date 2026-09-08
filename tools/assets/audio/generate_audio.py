@@ -28,7 +28,7 @@ AUDIO_ROOT = ROOT / "assets-source/library/audio"
 MASTER_DIR = AUDIO_ROOT / "masters"
 PROD_DIR = AUDIO_ROOT / "production"
 EVIDENCE_DIR = AUDIO_ROOT / "evidence"
-GENERATOR_VERSION = "alibi-local-audio/v1"
+GENERATOR_VERSION = "alibi-local-audio/v2"
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -69,6 +69,19 @@ def target_level(samples: np.ndarray, requested_dbfs: float) -> np.ndarray:
     if peak > 0.92:
         scale *= 0.92 / peak
     return np.asarray(samples * scale, dtype=np.float64)
+
+
+def remove_subsonic(samples: np.ndarray, cutoff_hz: float = 20.0) -> np.ndarray:
+    """Remove DC and subsonic bins before measuring or normalising a track."""
+
+    if samples.ndim == 2:
+        return np.column_stack(
+            [remove_subsonic(samples[:, channel], cutoff_hz) for channel in range(samples.shape[1])]
+        )
+    spectrum = np.fft.rfft(samples)
+    frequencies = np.fft.rfftfreq(len(samples), 1.0 / SR)
+    spectrum[frequencies < cutoff_hz] = 0.0
+    return np.asarray(np.fft.irfft(spectrum, n=len(samples)), dtype=np.float64)
 
 
 def wav_bytes(samples: np.ndarray) -> bytes:
@@ -128,12 +141,62 @@ def voice(freq: float, t: np.ndarray, start: float, length: float, shape: str, s
     return sound
 
 
-def soft_noise(rng: np.random.Generator, n: int, window: int = 1200) -> np.ndarray:
+def band_limited_noise(
+    rng: np.random.Generator,
+    n: int,
+    low_hz: float = 150.0,
+    high_hz: float = 4200.0,
+) -> np.ndarray:
+    """Create deterministic, audible noise without DC or sub-20 Hz energy."""
+
     raw = rng.normal(0.0, 1.0, n)
-    if window <= 1:
-        return raw
-    kernel = np.ones(window, dtype=np.float64) / window
-    return np.convolve(raw, kernel, mode="same")
+    spectrum = np.fft.rfft(raw)
+    frequencies = np.fft.rfftfreq(n, 1.0 / SR)
+    keep = (frequencies >= low_hz) & (frequencies <= high_hz)
+    spectrum[~keep] = 0.0
+    filtered = np.asarray(np.fft.irfft(spectrum, n=n), dtype=np.float64)
+    filtered -= float(np.mean(filtered))
+    rms = float(np.sqrt(np.mean(np.square(filtered), dtype=np.float64)))
+    return filtered / max(rms, 1e-12)
+
+
+def soft_noise(rng: np.random.Generator, n: int, window: int = 1200) -> np.ndarray:
+    """Compatibility wrapper for cue textures; window now selects audible bandwidth."""
+
+    high_hz = float(np.clip(3_000_000.0 / max(window, 1), 1800.0, 4200.0))
+    return band_limited_noise(rng, n, 150.0, high_hz)
+
+
+def modulated_noise(
+    rng: np.random.Generator,
+    n: int,
+    low_hz: float,
+    high_hz: float,
+    period_s: float,
+    depth: float,
+    phase: float = 0.0,
+) -> np.ndarray:
+    """Put a slow, calm amplitude movement around an audible filtered-noise bed."""
+
+    t = np.arange(n, dtype=np.float64) / SR
+    movement = 1.0 - depth + depth * (0.5 + 0.5 * np.sin(TAU * t / period_s + phase))
+    return band_limited_noise(rng, n, low_hz, high_hz) * movement
+
+
+def spectral_stats(samples: np.ndarray) -> dict[str, float]:
+    """Record the low-frequency guardrails from the exact generated samples."""
+
+    mono = samples.mean(axis=1) if samples.ndim == 2 else samples
+    spectrum = np.fft.rfft(mono)
+    power = np.square(np.abs(spectrum))
+    frequencies = np.fft.rfftfreq(len(mono), 1.0 / SR)
+    total = max(float(np.sum(power)), 1e-30)
+    sub20 = float(np.sum(power[frequencies < 20.0]))
+    return {
+        "energy_above_20_hz_pct": round((1.0 - sub20 / total) * 100.0, 5),
+        "sub20_energy_pct": round(sub20 / total * 100.0, 5),
+        "dc_dbfs": round(dbfs(abs(float(np.mean(mono)))), 3),
+    }
 
 
 def cue_samples(recipe: dict) -> np.ndarray:
@@ -179,7 +242,7 @@ def cue_samples(recipe: dict) -> np.ndarray:
         out += texture * tex_env
 
     out *= envelope(n, 0.008, min(0.25, recipe["duration_ms"] / 1000 * 0.33))
-    return target_level(out, recipe["level_dbfs"])
+    return target_level(remove_subsonic(out), recipe["level_dbfs"])
 
 
 def make_loop(recipe: dict) -> np.ndarray:
@@ -189,27 +252,28 @@ def make_loop(recipe: dict) -> np.ndarray:
     rng = np.random.default_rng(int(recipe["seed"]))
 
     if shape == "library":
-        out = 0.22 * np.sin(TAU * 0.17 * t) + 0.07 * np.sin(TAU * 0.41 * t)
-        out += 0.10 * soft_noise(rng, n, 1800)
+        room = modulated_noise(rng, n, 160.0, 1800.0, 8.7, 0.35)
+        air = modulated_noise(rng, n, 1400.0, 4200.0, 3.4, 0.28, 0.7)
+        out = 0.09 * room + 0.035 * air
         # Page and clock textures are periodic, sparse and deliberately quiet.
         for start, freq in [(1.7, 740), (6.4, 620), (12.6, 810), (16.4, 540)]:
             out += voice(freq, t, start, 0.22, "hush", int(recipe["seed"])) * 0.028
     elif shape == "coast":
-        swell = 0.24 * np.sin(TAU * t / 8.7) + 0.08 * np.sin(TAU * t / 3.4 + 0.7)
-        water = soft_noise(rng, n, 560)
-        wind = soft_noise(rng, n, 7800)
-        out = swell + 0.22 * water + 0.032 * wind
+        water = modulated_noise(rng, n, 140.0, 1400.0, 8.7, 0.6)
+        wind = modulated_noise(rng, n, 1200.0, 4200.0, 3.4, 0.42, 0.7)
+        out = 0.13 * water + 0.045 * wind
         for start in [2.4, 7.2, 12.1, 17.6]:
             out += voice(520, t, start, 0.52, "bell", int(recipe["seed"])) * 0.035
     elif shape == "garden":
-        air = soft_noise(rng, n, 4200)
-        leaves = soft_noise(rng, n, 950)
-        out = 0.18 * air + 0.12 * leaves + 0.04 * np.sin(TAU * t / 11.0)
+        air = modulated_noise(rng, n, 500.0, 3600.0, 11.0, 0.45)
+        leaves = modulated_noise(rng, n, 160.0, 1200.0, 4.2, 0.55, 0.4)
+        out = 0.10 * air + 0.07 * leaves
         for start, freq in [(1.6, 880), (4.5, 710), (9.0, 960), (13.2, 760)]:
             out += voice(freq, t, start, 0.18, "hush", int(recipe["seed"])) * 0.027
     elif shape == "club":
-        room = soft_noise(rng, n, 2100)
-        out = 0.16 * room + 0.05 * np.sin(TAU * t / 13.0) + 0.03 * np.sin(TAU * t / 5.3)
+        room = modulated_noise(rng, n, 150.0, 1500.0, 13.0, 0.38)
+        air = modulated_noise(rng, n, 700.0, 2600.0, 5.3, 0.25, 0.5)
+        out = 0.11 * room + 0.028 * air
         for start, freq in [(3.4, 196), (11.2, 247), (19.0, 220)]:
             out += voice(freq, t, start, 0.9, "rest", int(recipe["seed"])) * 0.035
     else:
@@ -222,7 +286,7 @@ def make_loop(recipe: dict) -> np.ndarray:
     blend = (np.sin(phase) ** 2)[:, None] if out.ndim == 2 else np.sin(phase) ** 2
     out[-fade:] = out[-fade:] * (1.0 - blend) + out[:fade] * blend
     out[-1] = out[0]
-    out = target_level(out, recipe["level_dbfs"])
+    out = target_level(remove_subsonic(out), recipe["level_dbfs"])
     if out.ndim == 1:
         # Production loops are stereo, with a tiny phase offset that remains mono-safe.
         left = out
@@ -331,6 +395,7 @@ def main() -> int:
             "sample_rate_hz": SR,
             "channels": int(samples.shape[1] if samples.ndim == 2 else 1),
             **stats(samples),
+            "spectral": spectral_stats(samples),
             "master_sha256": sha256_file(master_path),
             "opus_sha256": sha256_file(ROOT / opus_rel),
             "ogg_sha256": sha256_file(ROOT / ogg_rel),
@@ -400,6 +465,15 @@ def main() -> int:
         "waveform_contact": "assets-source/library/audio/evidence/waveform-contact.png",
         "all_encoded_with": "ffmpeg libopus/libvorbis; all files probed with ffprobe",
         "all_hashes_in": "assets-source/library/audio/catalogue.json",
+        "spectral_guardrails": {
+            "minimum_energy_above_20_hz_pct": min(
+                item["metadata"]["spectral"]["energy_above_20_hz_pct"] for item in catalogue_items
+            ),
+            "maximum_sub20_energy_pct": max(
+                item["metadata"]["spectral"]["sub20_energy_pct"] for item in catalogue_items
+            ),
+            "maximum_dc_dbfs": max(item["metadata"]["spectral"]["dc_dbfs"] for item in catalogue_items),
+        },
     }
     safe_write(AUDIO_ROOT / "evidence" / "receipt.json", (json.dumps(receipt, indent=2) + "\n").encode("utf-8"), args.force)
     print(f"Generated {len(recipes['cues'])} cues and {len(recipes['loops'])} loops")
