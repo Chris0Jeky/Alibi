@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-label="Harbour room editorial vignette">
+  <title>Harbour room editorial vignette</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="1200" height="600" fill="#f4ead4"/>
+  <rect width="1200" height="600" fill="url(#grain)" opacity=".22"/>
+  <path d="M0 458 C180 424 325 478 510 448 C712 417 926 466 1200 428 V600 H0Z" fill="#b76d52" opacity=".72"/>
+  <path d="M0 498 C190 470 335 514 526 481 C730 446 1000 499 1200 456 V600 H0Z" fill="#8d5145" opacity=".36"/>
+  <path d="M48 52 H1152" class="fine" opacity=".34"/>
+  <path d="M48 548 H1152" class="line" opacity=".52"/>
+  
+    <path d="M86 114 H502 V430 H86Z" fill="#173e49" class="line"/>
+    <path d="M114 144 H474 V402 H114Z" fill="#4f8190"/>
+    <path d="M125 330 Q204 278 280 332 T457 328 V402 H114Z" fill="#87a997" opacity=".62"/>
+    <path d="M121 350 Q185 313 242 345 T366 348 T469 337" fill="none" class="paper-line" opacity=".7"/>
+    <path d="M274 144 V403 M114 256 H474" class="paper-line" opacity=".86"/>
+    <path d="M161 311 L185 220 L193 220 L213 311 M196 219 V166" fill="none" class="line" opacity=".8"/>
+    <path d="M187 170 Q231 189 272 171" fill="none" class="fine"/>
+    <path d="M815 150 Q850 113 890 150 L890 395 H815Z" fill="#87a997" class="line"/>
+    <path d="M839 167 Q856 144 875 167 V377 H839Z" fill="#dbac60"/>
+    <path d="M857 150 V391" class="paper-line" opacity=".75"/>
+    <path d="M741 400 H1106 L1060 440 H692Z" fill="#172d38"/>
+    <path d="M734 436 L704 493 M1058 436 L1096 493" class="line"/>
+    <path d="M734 471 Q800 448 872 471 T1020 469" fill="none" class="paper-line" opacity=".42"/>
+    <path d="M914 386 Q945 358 983 383 L973 415 H913Z" fill="#b76d52" class="line"/>
+    <path d="M940 358 V335" class="line"/>
+    <path d="M912 336 Q940 310 967 336" fill="none" class="line"/>
+    <path d="M777 393 Q804 361 835 393 L824 421 H768Z" fill="#dbac60" class="fine"/>
+    <path d="M784 370 Q804 343 823 370" fill="none" class="fine"/>
+    <path d="M552 160 Q614 118 672 157 L694 212 Q626 241 551 207Z" fill="#b76d52" class="line"/>
+    <path d="M566 175 Q620 146 681 174" fill="none" class="paper-line" opacity=".7"/>
+    <path d="M598 214 V363 M654 216 V359" class="line"/>
+    <path d="M549 359 H701" class="line"/>
+    <path d="M551 268 Q609 228 676 258" fill="none" class="fine"/>
+    <path d="M554 300 Q626 274 692 300" fill="none" class="fine"/>
+    <path d="M1052 183 Q1080 151 1111 183 V298 H1052Z" fill="#dbac60" class="line"/>
+    <path d="M1078 147 V327" class="line"/>
+    <path d="M1053 328 H1112" class="line"/>
+    <path d="M1022 307 Q1082 278 1144 310" fill="none" class="fine"/>
+    <circle cx="1110" cy="352" r="38" fill="none" class="line"/>
+    <circle cx="1110" cy="352" r="22" fill="none" class="fine"/>
+    <path d="M1090 370 Q1115 386 1131 363" fill="none" class="fine"/>
+    <path d="M1105 316 V387" class="fine"/>
+    <path d="M512 424 Q555 397 603 423" fill="none" class="line" opacity=".7"/>
+    <circle cx="535" cy="405" r="13" fill="#dbac60"/>
+  
+  <path d="M35 35 H1165 V565 H35Z" fill="none" class="fine" opacity=".55"/>
+
+</svg>

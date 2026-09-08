@@ -3,10 +3,23 @@
   'use strict';
   const E = G.QWEngine;
   const importedCache = new Map();
+  const LIBRARY_PIECES = {
+    cottage: 'cottage-small',
+    barn: 'farm-barn',
+    farm: 'crop-rows',
+    orchard: 'orchard',
+    tree: 'tree-oak',
+    boat: 'boat',
+    bench: 'bench',
+    well: 'well-fountain',
+  };
   function imported(type, palette, rotation) {
-    const pack = G.QWCityModels;
+    const libraryPiece = LIBRARY_PIECES[type],
+      library = G.QWLibraryModels,
+      libraryReady = libraryPiece && library?.[libraryPiece],
+      pack = libraryReady ? library : G.QWCityModels;
     if (!pack) return null;
-    const key = `${type}:${palette}:${rotation}`;
+    const key = `${libraryReady ? 'library' : 'city'}:${type}:${palette}:${rotation}`;
     if (importedCache.has(key)) return importedCache.get(key);
     const faces = [];
     function add(id, turn = 0, up = 0, scale = 1) {
@@ -15,7 +28,10 @@
       for (const [colour, ...indices] of m.f) {
         let color = m.c[colour];
         const [r, g, b] = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
-        if (id.includes('roof') && (g > r * 1.1 || b > r * 1.2)) color = E.PALETTES[palette][1];
+        if (libraryReady && color === '#b76d52') color = E.PALETTES[palette][1];
+        else if (libraryReady && color === '#173e49') color = E.PALETTES[palette][2];
+        else if (id.includes('roof') && (g > r * 1.1 || b > r * 1.2))
+          color = E.PALETTES[palette][1];
         faces.push({
           c: color,
           v: indices.map((i) => {
@@ -40,7 +56,8 @@
       gate: 'wall-doorway',
       bridge: 'bridge-straight',
     };
-    if (pieces[type]) add('castle/' + pieces[type]);
+    if (libraryReady) add(libraryPiece);
+    else if (pieces[type]) add('castle/' + pieces[type]);
     else if (type === 'tower') {
       add('castle/tower-hexagon-base');
       add('castle/tower-hexagon-mid', 0, 1.31);

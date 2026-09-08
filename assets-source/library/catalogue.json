@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "baselineCommit": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
   "counts": {
-    "original": 91,
+    "original": 104,
     "reused": 80,
-    "derivatives": 314,
-    "uniqueFiles": 429
+    "derivatives": 331,
+    "uniqueFiles": 457
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -2538,10 +2538,591 @@
       ]
     },
     {
+      "id": "reading-room",
+      "title": "Reading room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/reading-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/reading-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/reading-room.svg",
+          "bytes": 4778,
+          "sha256": "629d3065a8d95eb4a05dce860db844e13dbc1991ced6eed4d66f27f516ec07e3"
+        },
+        {
+          "path": "assets-source/library/editorial/reading-room.webp",
+          "bytes": 28502,
+          "sha256": "4ff3720551088f07657dc9cb5993cdb824d271c237a14de4e52b3a59442a889d"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "harbour-room",
+      "title": "Harbour room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/harbour-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/harbour-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/harbour-room.svg",
+          "bytes": 3927,
+          "sha256": "8f56a35cfef45193ae4d6083740c64057b48b2803e21e29d360019acec91a3c2"
+        },
+        {
+          "path": "assets-source/library/editorial/harbour-room.webp",
+          "bytes": 30418,
+          "sha256": "9656fe65a7b2b8a699f50b2077732cc00ca4e2acf4457aed381fb5b5dc416965"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "companion-room",
+      "title": "Companion room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/companion-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/companion-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/companion-room.svg",
+          "bytes": 3640,
+          "sha256": "fb2b3f76b4577aa171ee3e0aabfc929da4bcf5253adde031aabb7cd5004c2f9f"
+        },
+        {
+          "path": "assets-source/library/editorial/companion-room.webp",
+          "bytes": 26254,
+          "sha256": "b3eaa5ed4e1ae590b9177531c6970bb7b73d9d0d980cf1f38d3e45f84b49652d"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "glasshouse-room",
+      "title": "Glasshouse room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/glasshouse-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/glasshouse-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/glasshouse-room.svg",
+          "bytes": 3741,
+          "sha256": "933493926f138eb102c50072eb777a759a19cf100728f6bf310beb56db423b6c"
+        },
+        {
+          "path": "assets-source/library/editorial/glasshouse-room.webp",
+          "bytes": 31664,
+          "sha256": "2ab4eae1c565c5dd3d0ec76314c09ee178bc7c80e65f82b8797ebaa619e8b25c"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "reader",
+      "title": "The Reader",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/reader.svg",
+      "derivatives": [
+        "assets-source/library/editorial/reader.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/reader.svg",
+          "bytes": 3061,
+          "sha256": "13bd1ca5811489effcb42f1ce31fa4126f45515494846cbda4aecd94c8b187b3"
+        },
+        {
+          "path": "assets-source/library/editorial/reader.webp",
+          "bytes": 22228,
+          "sha256": "d4ca979d91c0761a37cbde37918fcd787ff5494d4b993f9367a6fa1de040a10a"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "cartographer",
+      "title": "The Cartographer",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/cartographer.svg",
+      "derivatives": [
+        "assets-source/library/editorial/cartographer.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/cartographer.svg",
+          "bytes": 3207,
+          "sha256": "babff8c71847d37dc809919bb2dac410e52b03a32056da33dfc42d62364fa7c8"
+        },
+        {
+          "path": "assets-source/library/editorial/cartographer.webp",
+          "bytes": 22120,
+          "sha256": "9926b73b47d2944b546f3884a9b00d30b8e332b6fce0649be14c2928fad0f5e2"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "botanist",
+      "title": "The Botanist",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/botanist.svg",
+      "derivatives": [
+        "assets-source/library/editorial/botanist.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/botanist.svg",
+          "bytes": 3582,
+          "sha256": "8977b2357fbddb5688c30c17c3dfbc7155cef3d1cb685e5b46ecafc5dbe37f78"
+        },
+        {
+          "path": "assets-source/library/editorial/botanist.webp",
+          "bytes": 20718,
+          "sha256": "52325d8f907d1cc4ce1892ee5d3fd49efc537c614c9e589654aa1df1e3f2ae94"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "astronomer",
+      "title": "The Astronomer",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/astronomer.svg",
+      "derivatives": [
+        "assets-source/library/editorial/astronomer.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/astronomer.svg",
+          "bytes": 3027,
+          "sha256": "8a5954269b6782abf6c2cd51933e625c59a55615ec1bd8fabd875c5047ee2341"
+        },
+        {
+          "path": "assets-source/library/editorial/astronomer.webp",
+          "bytes": 16022,
+          "sha256": "8428693f00f8df534186b5d9bd66302afccaba4e82df87cf5c85ebea944ed992"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "archivist",
+      "title": "The Archivist",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/archivist.svg",
+      "derivatives": [
+        "assets-source/library/editorial/archivist.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/archivist.svg",
+          "bytes": 3131,
+          "sha256": "2d084ba9c9d3a6f0506f280dba4283e8c2577925dc60f8ff41ed39cbee161066"
+        },
+        {
+          "path": "assets-source/library/editorial/archivist.webp",
+          "bytes": 20992,
+          "sha256": "4e9986685e81f612b20d41310480d4bd2c38a85965a78d02f1a514513bfccad6"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "maker",
+      "title": "The Maker",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/maker.svg",
+      "derivatives": [
+        "assets-source/library/editorial/maker.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Live Quiet Wing room headers and Field notes portraits.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/maker.svg",
+          "bytes": 3356,
+          "sha256": "5e31318bc3a09f1588c0a3c18331a2331b58c4ed07235782a9ff3106eb9c4cdf"
+        },
+        {
+          "path": "assets-source/library/editorial/maker.webp",
+          "bytes": 21496,
+          "sha256": "ee8b9393a2f54e154ccaac9e6652be8575c36fee1e2b56a559ec65327bea0d6b"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      },
+      "design": "original",
+      "status": "current"
+    },
+    {
+      "id": "boat",
+      "type": "boat",
+      "title": "Little boat",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/boat.glb",
+        "assets-source/library/realm/details/boat.png",
+        "assets-source/library/realm/details/realm-details.blend"
+      ],
+      "metadata": {
+        "min": [
+          -0.78,
+          -0.37,
+          0.08
+        ],
+        "max": [
+          0.9,
+          0.37,
+          1.06
+        ],
+        "size": [
+          1.68,
+          0.74,
+          0.98
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "triangleCount": 103,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Live Realm geometry and Field notes 3D cabinet.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation.",
+      "files": [
+        {
+          "path": "tools/assets/build-realm-details.py",
+          "bytes": 10545,
+          "sha256": "1cefdb46a653d9351d1b8e3c3e1f2b6c18356487fefe9a52c94fc81512a9713f"
+        },
+        {
+          "path": "assets-source/library/realm/details/boat.glb",
+          "bytes": 11108,
+          "sha256": "c7616373e4b3d457778cadb0f8303bc3f3c692fc03b6df463eeef4093596d676"
+        },
+        {
+          "path": "assets-source/library/realm/details/boat.png",
+          "bytes": 89628,
+          "sha256": "98a0757c6759a65e025130c9a39aeb222b4eefe8f99c90d1313bb904874bb51a"
+        },
+        {
+          "path": "assets-source/library/realm/details/realm-details.blend",
+          "bytes": 107442,
+          "sha256": "a39bb81acc332052677400e00ad4bf47ffe2184c801aaa36babaef0e8c43e979"
+        }
+      ]
+    },
+    {
+      "id": "bench",
+      "type": "bench",
+      "title": "Garden bench",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/bench.glb",
+        "assets-source/library/realm/details/bench.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.64,
+          -0.28,
+          0
+        ],
+        "max": [
+          0.64,
+          0.28,
+          0.9484
+        ],
+        "size": [
+          1.28,
+          0.56,
+          0.9484
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "triangleCount": 144,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Live Realm geometry and Field notes 3D cabinet.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation.",
+      "files": [
+        {
+          "path": "tools/assets/build-realm-details.py",
+          "bytes": 10545,
+          "sha256": "1cefdb46a653d9351d1b8e3c3e1f2b6c18356487fefe9a52c94fc81512a9713f"
+        },
+        {
+          "path": "assets-source/library/realm/details/bench.glb",
+          "bytes": 13728,
+          "sha256": "e83ba53b43dd217a2d02b3980035ab6f16d2e8fa7f6df0b7aeee23a59af429ab"
+        },
+        {
+          "path": "assets-source/library/realm/details/bench.png",
+          "bytes": 102766,
+          "sha256": "21c8bc9d0397610a5373e6f8d7f65c6d304fce3b7d617cdd976158ec5f0e4fa1"
+        }
+      ]
+    },
+    {
+      "id": "well-fountain",
+      "type": "well",
+      "title": "Village fountain",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/well-fountain.glb",
+        "assets-source/library/realm/details/well-fountain.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5421,
+          -0.57,
+          0
+        ],
+        "max": [
+          0.5421,
+          0.57,
+          0.725
+        ],
+        "size": [
+          1.0842,
+          1.14,
+          0.725
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "triangleCount": 178,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Live Realm geometry and Field notes 3D cabinet.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation.",
+      "files": [
+        {
+          "path": "tools/assets/build-realm-details.py",
+          "bytes": 10545,
+          "sha256": "1cefdb46a653d9351d1b8e3c3e1f2b6c18356487fefe9a52c94fc81512a9713f"
+        },
+        {
+          "path": "assets-source/library/realm/details/well-fountain.glb",
+          "bytes": 15192,
+          "sha256": "80959105530cd5c9cbe6135d0986c13be01f28c5987d4ec8f84c616214b53e51"
+        },
+        {
+          "path": "assets-source/library/realm/details/well-fountain.png",
+          "bytes": 90780,
+          "sha256": "bb044ec7d7f2c39a3892f6e5072ba965ebefd4d989503b89e4120a2546dee6de"
+        }
+      ]
+    },
+    {
       "id": "ui-focus-soft",
       "title": "focus soft",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -2601,7 +3182,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:navigation and focusable controls",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -2633,7 +3214,7 @@
       "id": "ui-select-paper",
       "title": "select paper",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -2693,7 +3274,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:tool tray and activity tabs",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -2725,7 +3306,7 @@
       "id": "ui-open-desk",
       "title": "open desk",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -2785,7 +3366,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:navigate(path) and modal()",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -2817,7 +3398,7 @@
       "id": "ui-close-desk",
       "title": "close desk",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -2877,7 +3458,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:route disposal and dialog close",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -2909,7 +3490,7 @@
       "id": "ui-navigation-page",
       "title": "navigation page",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -2969,7 +3550,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:navigate(path)",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3001,7 +3582,7 @@
       "id": "ui-tab-switch",
       "title": "tab switch",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3061,7 +3642,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realmPage tray tabs and gallery tabs",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3093,7 +3674,7 @@
       "id": "ui-toggle-on",
       "title": "toggle on",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3153,7 +3734,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:settings() data-setting onchange",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3185,7 +3766,7 @@
       "id": "ui-toggle-off",
       "title": "toggle off",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3245,7 +3826,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:settings() data-setting onchange",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3277,7 +3858,7 @@
       "id": "ui-undo",
       "title": "undo",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3337,7 +3918,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realmAction('undo'), #classic-undo, #bouquet-undo",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3369,7 +3950,7 @@
       "id": "ui-redo",
       "title": "redo",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3429,7 +4010,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realmAction('redo')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3461,7 +4042,7 @@
       "id": "ui-cancel",
       "title": "cancel",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3521,7 +4102,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realmAction('cancel-tool'), modal close",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3553,7 +4134,7 @@
       "id": "ui-invalid-gentle",
       "title": "invalid gentle",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3613,7 +4194,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:feedback('erase') via playMove error",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3645,7 +4226,7 @@
       "id": "ui-place-wood",
       "title": "place wood",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3705,7 +4286,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:applyAt, garden plant, feedback('place')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3737,7 +4318,7 @@
       "id": "ui-remove-low",
       "title": "remove low",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3797,7 +4378,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:applyAt erase, feedback('erase')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3829,7 +4410,7 @@
       "id": "ui-discover-glint",
       "title": "discover glint",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3889,7 +4470,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:gallery artSeen, pets species, garden collection",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -3921,7 +4502,7 @@
       "id": "ui-complete-calm",
       "title": "complete calm",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -3981,7 +4562,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:feedback('win') in classics, garden, pets, export",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4013,7 +4594,7 @@
       "id": "pet-greeting",
       "title": "greeting",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4073,7 +4654,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:petAction('pet') -> feedback('place')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4105,7 +4686,7 @@
       "id": "pet-treat",
       "title": "treat",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4165,7 +4746,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:petAction('treat')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4197,7 +4778,7 @@
       "id": "pet-play",
       "title": "play",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4257,7 +4838,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:petAction('play') -> feedback('win')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4289,7 +4870,7 @@
       "id": "pet-rest",
       "title": "rest",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4349,7 +4930,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:petAction('nap')",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4381,7 +4962,7 @@
       "id": "ambience-lamplight-library",
       "title": "ambience lamplight library",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4447,7 +5028,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realm, journal routes; opt-in only",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4479,7 +5060,7 @@
       "id": "ambience-coastal-window",
       "title": "ambience coastal window",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4545,7 +5126,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:realm, gallery routes; opt-in only",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4577,7 +5158,7 @@
       "id": "ambience-glasshouse-garden",
       "title": "ambience glasshouse garden",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4643,7 +5224,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:gardenPage; pauses when hidden",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4675,7 +5256,7 @@
       "id": "ambience-evening-club",
       "title": "ambience evening club",
       "category": "audio",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/audio/source/recipes.json",
       "derivatives": [
@@ -4741,7 +5322,7 @@
         "generator": "tools/assets/audio/generate_audio.py"
       },
       "accessibility": "Explicit playback only; auditory/device-volume review pending.",
-      "integration": "src/quiet-wing/app.js:classicsPage; opt-in only",
+      "integration": "Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.",
       "qa": {
         "machine": "Decoded and level/seam tested",
         "auditory": "pending"
@@ -4822,7 +5403,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -4895,7 +5476,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -4968,7 +5549,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5041,7 +5622,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5114,7 +5695,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5187,7 +5768,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5260,7 +5841,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5333,7 +5914,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5406,7 +5987,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5479,7 +6060,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5552,7 +6133,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5625,7 +6206,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5698,7 +6279,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5771,7 +6352,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5844,7 +6425,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5917,7 +6498,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -5990,7 +6571,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6063,7 +6644,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6136,7 +6717,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6209,7 +6790,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6282,7 +6863,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6355,7 +6936,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6428,7 +7009,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6501,7 +7082,7 @@
       },
       "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "src/quiet-wing/assets/city-models.json",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6525,7 +7106,7 @@
       "id": "ground-grass",
       "title": "Ground Grass",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6572,7 +7153,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6596,7 +7177,7 @@
       "id": "ground-path",
       "title": "Ground Path",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6643,7 +7224,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6667,7 +7248,7 @@
       "id": "ground-cobble",
       "title": "Ground Cobble",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6714,7 +7295,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6738,7 +7319,7 @@
       "id": "water-tile",
       "title": "Water Tile",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6785,7 +7366,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6809,7 +7390,7 @@
       "id": "water-edge",
       "title": "Water Edge",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6856,7 +7437,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6880,7 +7461,7 @@
       "id": "water-corner",
       "title": "Water Corner",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6927,7 +7508,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -6951,7 +7532,7 @@
       "id": "wall-gate",
       "title": "Wall Gate",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -6998,7 +7579,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7022,7 +7603,7 @@
       "id": "wall-end",
       "title": "Wall End",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7069,7 +7650,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7093,7 +7674,7 @@
       "id": "bridge-arched",
       "title": "Bridge Arched",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7140,7 +7721,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7164,7 +7745,7 @@
       "id": "cottage-small",
       "title": "Cottage Small",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7211,7 +7792,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7235,7 +7816,7 @@
       "id": "cottage-long",
       "title": "Cottage Long",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7282,7 +7863,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7306,7 +7887,7 @@
       "id": "farm-barn",
       "title": "Farm Barn",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7353,7 +7934,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7377,7 +7958,7 @@
       "id": "crop-wheat",
       "title": "Crop Wheat",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7424,7 +8005,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7448,7 +8029,7 @@
       "id": "crop-rows",
       "title": "Crop Rows",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7495,7 +8076,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7519,7 +8100,7 @@
       "id": "orchard",
       "title": "Orchard",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7566,7 +8147,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7590,7 +8171,7 @@
       "id": "tree-oak",
       "title": "Tree Oak",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7637,7 +8218,7 @@
       },
       "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
-      "integration": "candidate library only; no runtime import",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
@@ -7661,7 +8242,7 @@
       "id": "harbour",
       "title": "Harbour",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7682,7 +8263,7 @@
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
-      "integration": "Candidate library only; no runtime import.",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs.",
       "files": [
         {
@@ -7716,7 +8297,7 @@
       "id": "hillfort",
       "title": "Hillfort",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7736,7 +8317,7 @@
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
-      "integration": "Candidate library only; no runtime import.",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs.",
       "files": [
         {
@@ -7765,7 +8346,7 @@
       "id": "farmstead",
       "title": "Farmstead",
       "category": "realm",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "tools/assets/build-realm-library.py",
       "derivatives": [
@@ -7785,7 +8366,7 @@
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
-      "integration": "Candidate library only; no runtime import.",
+      "integration": "Field notes 3D cabinet; selected types also use compact live Realm geometry.",
       "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs.",
       "files": [
         {
@@ -7878,13 +8459,13 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "integration": "Live action illustrations and Field notes expression cabinet.",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.",
       "files": [
         {
           "path": "src/quiet-wing/pets.js",
-          "bytes": 6076,
-          "sha256": "5833243e6f353b4d2ef1b26cbb3988c10c4713ac8bd77feb0902b1f2aca346be"
+          "bytes": 6610,
+          "sha256": "801db2681150d910e80b1b6e906199274ef75955cc2e8ecac72b1f6f38b13c59"
         },
         {
           "path": "assets-source/library/companions/rigs/cat-idle.svg",
@@ -8036,13 +8617,13 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "integration": "Live action illustrations and Field notes expression cabinet.",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.",
       "files": [
         {
           "path": "src/quiet-wing/pets.js",
-          "bytes": 6076,
-          "sha256": "5833243e6f353b4d2ef1b26cbb3988c10c4713ac8bd77feb0902b1f2aca346be"
+          "bytes": 6610,
+          "sha256": "801db2681150d910e80b1b6e906199274ef75955cc2e8ecac72b1f6f38b13c59"
         },
         {
           "path": "assets-source/library/companions/rigs/fox-idle.svg",
@@ -8194,13 +8775,13 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "integration": "Live action illustrations and Field notes expression cabinet.",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.",
       "files": [
         {
           "path": "src/quiet-wing/pets.js",
-          "bytes": 6076,
-          "sha256": "5833243e6f353b4d2ef1b26cbb3988c10c4713ac8bd77feb0902b1f2aca346be"
+          "bytes": 6610,
+          "sha256": "801db2681150d910e80b1b6e906199274ef75955cc2e8ecac72b1f6f38b13c59"
         },
         {
           "path": "assets-source/library/companions/rigs/owl-idle.svg",
@@ -8352,13 +8933,13 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
-      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "integration": "Live action illustrations and Field notes expression cabinet.",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.",
       "files": [
         {
           "path": "src/quiet-wing/pets.js",
-          "bytes": 6076,
-          "sha256": "5833243e6f353b4d2ef1b26cbb3988c10c4713ac8bd77feb0902b1f2aca346be"
+          "bytes": 6610,
+          "sha256": "801db2681150d910e80b1b6e906199274ef75955cc2e8ecac72b1f6f38b13c59"
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-idle.svg",
@@ -8446,7 +9027,7 @@
       "id": "alibi-intro",
       "title": "Alibi — A little room to think",
       "category": "motion",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/motion/intro-landscape/index.html",
       "derivatives": [
@@ -8521,7 +9102,7 @@
         "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
       },
       "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
-      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "integration": "Field notes screening room, explicit streaming playback; excluded from offline packs.",
       "qa": {
         "sourceCheck": "pass",
         "strictCheck": "pass",
@@ -8567,7 +9148,7 @@
       "id": "alibi-quiet-wing",
       "title": "Alibi — Quiet Wing",
       "category": "motion",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/motion/quiet-wing-landscape/index.html",
       "derivatives": [
@@ -8632,7 +9213,7 @@
         "captureUse": "Current local Quiet Wing destination captures: Realm Studio, Companion Nook, and Conservatory Garden; no interaction filming implied"
       },
       "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
-      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "integration": "Field notes screening room, explicit streaming playback; excluded from offline packs.",
       "qa": {
         "sourceCheck": "pass",
         "strictCheck": "pass",
@@ -8678,7 +9259,7 @@
       "id": "alibi-bridges",
       "title": "Alibi — Tidal bridges",
       "category": "motion",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/motion/bridges-landscape/index.html",
       "derivatives": [
@@ -8738,7 +9319,7 @@
         "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
       },
       "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
-      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "integration": "Field notes screening room, explicit streaming playback; excluded from offline packs.",
       "qa": {
         "sourceCheck": "pass",
         "strictCheck": "pass",
@@ -8784,7 +9365,7 @@
       "id": "alibi-ambient-lamplight",
       "title": "Alibi — Lamplight settle",
       "category": "motion",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/motion/ambient-lamplight/index.html",
       "derivatives": [
@@ -8821,7 +9402,7 @@
         "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
       },
       "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
-      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "integration": "Field notes screening room, explicit streaming playback; excluded from offline packs.",
       "qa": {
         "sourceCheck": "pass",
         "strictCheck": "pass",
@@ -8852,7 +9433,7 @@
       "id": "alibi-ambient-earned-stamp",
       "title": "Alibi — Earned stamp",
       "category": "motion",
-      "status": "proposed",
+      "status": "current",
       "design": "original",
       "source": "assets-source/library/motion/ambient-earned-stamp/index.html",
       "derivatives": [
@@ -8888,7 +9469,7 @@
         "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
       },
       "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
-      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "integration": "Field notes screening room, explicit streaming playback; excluded from offline packs.",
       "qa": {
         "sourceCheck": "pass",
         "strictCheck": "pass",

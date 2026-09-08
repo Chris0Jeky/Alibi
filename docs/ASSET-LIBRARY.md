@@ -20,11 +20,12 @@ from the game build and its service worker.
 | Categories | 13 existing exact icons and card treatments | Retained unchanged; exported for inspection |
 | Teaching | 13 actual interactive lesson screenshots | Existing lesson controls remain editable and tested |
 | Museum and casebook art | Seven original gouache images + seven credited museum images | Reused unchanged in their existing contexts |
-| Realm kit | 40 GLBs: 24 retained CC0 modules + 16 new compatible modules | Retained pieces are current; new pieces are preview-only |
-| Realm scenes | Harbour, hillfort and farmstead; editable master and alternate views | Production demonstrations |
-| Companions | Four existing vector identities; eight named layered states per species | Current designs retained; extra state treatments staged in preview |
-| Audio | 20 cues + four 16–22 second loops; WAV/Opus/Ogg and editable recipes | Gallery preview; recordings are not bound to game events |
-| Motion | Authored HyperFrames compositions, captures, posters and rendered cuts | Production only; never included in the game runtime |
+| Realm kit | Retained CC0 modules and original compatible modules | All in Field notes; selected original geometry now renders existing live building types |
+| Realm scenes | Harbour, hillfort and farmstead; editable master and alternate views | Interactive Field notes scenes with static fallback |
+| Companions | Four existing vector identities; eight named layered states per species | Actual action illustrations plus the complete expression cabinet |
+| Audio | 20 cues + four 16–22 second loops; WAV/Opus/Ogg and editable recipes | Deliberate listening controls, live action cues and optional background atmosphere |
+| Motion | Five authored HyperFrames compositions in eight cuts | Field notes screening room; explicit playback, never offline precached |
+| Editorial art | Four illustrated rooms and six distinct fictional adult portraits | Home invitation, Quiet Wing headers and Field notes portrait collection |
 
 The exact counts, byte hashes and source paths are in
 [catalogue.json](../assets-source/library/catalogue.json). Counts distinguish original designs,
@@ -34,8 +35,8 @@ and their meaningful states to existing work, priorities, deliveries and outstan
 [STYLE.md](../assets-source/library/STYLE.md) records the shared design rules.
 
 The new vignette language is exact editorial vector art, complementing the retained gouache;
-it is not described as a newly generated painting. No new historical art or fictional portrait
-canon was needed. Existing cast names, story text, published definitions and all puzzle revisions
+it is not described as a newly generated painting. The six new club portraits are decorative
+fictional archetypes, separate from casebook cast and museum works. Existing cast names, story text, published definitions and all puzzle revisions
 remain intact. The images contain no lettering, clue grids, suspect placements or answer data.
 
 ## Regeneration and checks
@@ -63,19 +64,19 @@ and [ASSET-MOTION.md](ASSET-MOTION.md) for the production-specific commands.
 
 ## Boundaries and acceptance
 
-Only the highlight derivatives and compact stamp renderer enter the game. Large masters,
-GLB staging exports, WAVs and films remain outside `dist/`; no broad precaching or storage
-migration is added. Core JS/pack budgets remain unchanged. Baseline core pack: 1,329,465 bytes;
-baseline initial JS gzip: 125,138 bytes. Final values and direct test evidence are recorded in
-the production ledger. The remaining core-pack headroom is small and must be measured before
-adding another in-game asset.
+The second asset pass integrates the production derivatives into the actual app. The core
+includes one small illustrated invitation; the lazy Quiet Wing includes its four room headers
+and compact live geometry. Field notes models, portrait images and audio have a separate,
+explicit offline download. Films load on playback. Editable masters and WAV originals stay
+outside `dist/`. No save migration is added and existing payload limits are unchanged.
+Minifying the core JavaScript recovered space for this integration.
 
-The [production ledger](../assets-source/library/production-ledger.json) gives final counts and
-check totals. [Evidence](../assets-source/library/evidence/) retains compact local browser results,
-inspected screenshots and before/after payload measurements. The current game build is
-`fac4d1d1ad6c`: core 1,362,809 bytes (+33,344), initial JS gzip 127,264 (+2,126), optional wing
-1,977,995 (+51). The local startup sample is explicitly unthrottled and has no baseline latency
-comparison; it is not a phone-performance claim.
+The [initial production ledger](../assets-source/library/production-ledger.json) retains the
+first pass at `fac4d1d1ad6c`. [EXPERIENCE-INTEGRATION.md](EXPERIENCE-INTEGRATION.md) and the
+[integration ledger](../assets-source/library/integration-ledger.json) describe the current
+app binding, final measurements and direct checks. [Evidence](../assets-source/library/evidence/)
+retains inspected screenshots and browser reports. These are local results, not phone or hosted
+performance claims.
 
 All work uses local synthesis/geometry and unchanged existing art. No purchases, credits,
 paid submissions, accounts or overages were used. Existing Kenney CC0 receipts remain attached

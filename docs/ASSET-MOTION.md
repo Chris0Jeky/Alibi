@@ -1,8 +1,14 @@
 # Alibi motion library
 
+Current integration: all eight rendered cuts appear in the actual app at `#/quiet/folio` under
+Screening room. Playback and orientation are deliberate; leaving disposes playback. The files
+are included in the static distribution but excluded from both automatic and explicit offline
+packs. HyperFrames source and masters remain development-only. The production-only boundary
+described below belongs to the initial asset pass.
+
 This directory contains the authored HyperFrames source and delivery derivatives for the Alibi
-promotional films. The compositions are independent media sources; they are not imported into the
-Alibi runtime or the application build.
+promotional films. Editable compositions remain development sources; the runtime uses their
+rendered derivatives.
 
 The films use the current local Alibi app at `http://127.0.0.1:8787` as their capture source. The
 captures were made on 2026-09-08. They show the current product surfaces and existing artwork:

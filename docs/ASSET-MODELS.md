@@ -1,6 +1,10 @@
 # Quiet Wing realm and companion asset library
 
-`assets-source/library/` is a source-backed staging library. It is not a runtime dependency and no asset is imported into the game by this slice.
+`assets-source/library/` retains editable production masters. The subsequent integration pass
+ships selected original geometry in the live realm builder and all model derivatives in the
+optional Field notes cabinet. See [REALM-LIVE.md](REALM-LIVE.md) and
+[EXPERIENCE-INTEGRATION.md](EXPERIENCE-INTEGRATION.md). Production notes below describe the
+original generation workflow; its staging-only boundary has been superseded by that integration.
 
 The realm kit has 40 genuine GLB 2.0 pieces with embedded buffers and material definitions: 24 retained CC0 city modules exported from `assets-source/quiet-wing/city/`, plus 16 original compatible terrain, water, gate, bridge, cottage, farm, crop and tree modules. Each piece has a 320 × 240 rendered thumbnail, measured bounds and pivot metadata in `realm/catalogue.json`. `realm-kit.blend` is the editable Blender master; `harbour.glb`, `hillfort.glb` and `farmstead.glb` are composed references, with alternate rendered views.
 

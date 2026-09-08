@@ -2,9 +2,38 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
-## Local asset library candidate
+## Local integrated asset experience
 
-`codex/asset-library` builds `fac4d1d1ad6c` from the recorded 0.6.0 baseline. Twelve original
+`codex/asset-library` builds `a08ee0dba82d`, preserving the 116-puzzle definitions, engine and
+save contracts. The produced asset families now have app bindings: Field notes at `#/quiet/folio`
+offers 43 modules, three scenes, 32 companion expressions, 24 audio assets and eight film cuts.
+Eight existing realm building types now use original library geometry. This pass also produces
+four illustrated rooms, six distinct fictional club portraits, and three additional detail models.
+The home invitation and Quiet Wing headers use the new imagery; actual companion actions use
+the expression artwork while retaining animated 3D. Sounds are deliberate and stop on mute,
+backgrounding and disposal. Single-file previews omit unavailable optional media explicitly.
+
+Core offline pack: 1,259,087 bytes (103,722 fewer than the first asset pass); initial JS gzip:
+111,373 bytes (15,891 fewer). The automatic optional wing is 2,189,871 bytes. Field notes has a
+separate explicit 7,393,439-byte offline copy; films remain streaming-only. Existing budgets pass.
+Source masters remain outside the distribution. Catalogue: 104 original designs/compositions,
+80 reused designs and 331 derivatives. No push, deployment or new charges in this pass.
+
+Verified: `npm run verify` (52 Node entries plus existing engine/storage contracts), 182 puzzle
+controls, 106 Club controls, 156 Quiet Wing controls, 92 real-origin checks, 18 two-release update
+checks, 40 Quiet Wing origin checks, 28 realm controls, 14 GPU/lifecycle checks, and 45 integrated
+experience checks. Final desktop/phone-sized screenshots were inspected. Independent review's
+single-file optional-media finding is fixed and regression-tested; its focused follow-up is clear.
+Physical phones/TalkBack, auditory acceptance and external editor interoperability remain open.
+
+See [EXPERIENCE-INTEGRATION.md](EXPERIENCE-INTEGRATION.md), the
+[integration ledger](../assets-source/library/integration-ledger.json), and
+[HUMAN_TODO.md](../HUMAN_TODO.md). The separate curation task owns `alibi-curation/` and
+`.curation-worktrees/`; those inputs are preserved and are not part of this asset pass.
+
+## First asset library pass (historical)
+
+The first asset pass built `fac4d1d1ad6c` from the recorded 0.6.0 baseline. Twelve original
 editorial vignette derivatives now illustrate selected puzzle cards; 31 distinct stamp silhouettes
 retain the existing six Club and 25 Quiet Wing unlock predicates. Puzzle definitions, IDs, revisions,
 engines and saves are unchanged. Zen hides decorative highlights; keyboard focus remains visible.

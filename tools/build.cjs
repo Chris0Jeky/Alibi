@@ -113,7 +113,15 @@ function build() {
     inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
-  const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia);
+  // A single small editorial invitation belongs to the core; the full folio remains optional.
+  const readingRoom = fs.readFileSync(
+    path.join(ROOT, 'assets-source/library/editorial/reading-room.webp'),
+  );
+  media['club-reading-room'] = `./assets/club-reading-room.${hash(readingRoom)}.webp`;
+  inlineMedia['club-reading-room'] = 'data:image/webp;base64,' + readingRoom.toString('base64');
+  write(path.join(DIST, media['club-reading-room']), readingRoom);
+  const experience = require('./build-experience.cjs')(ROOT, DIST);
+  const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const curation = require('./build-curation.cjs')(ROOT, DIST);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
@@ -165,7 +173,9 @@ function build() {
         JSON.stringify(curation.media),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\n globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
+  const js =
+      `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -281,7 +291,10 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     files: files(DIST).length,
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
-    coreOfflineBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes,
+    experienceBytes: experience.bytes,
+    experienceOfflineBytes: experience.manifest.bytes,
+    coreOfflineBytes:
+      files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes - experience.bytes,
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,

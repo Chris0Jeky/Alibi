@@ -1,7 +1,14 @@
 # Alibi audio asset library
 
+Current integration: all 24 Ogg derivatives are available in Field notes. Quiet Wing uses selected
+recordings for actual place/remove/complete/companion/undo/redo feedback under the existing sound
+preference, and offers four deliberate session-only atmospheres. Mute, background and disposal
+stop playback. Auditory acceptance remains pending; it is not implied by browser playback tests.
+See [EXPERIENCE-INTEGRATION.md](EXPERIENCE-INTEGRATION.md). The staged proposals and event map
+below document the original production pass, before this runtime integration.
+
 This fragment contains an original, deterministic local sound library for the Quiet Wing and
-related calm game surfaces. It is staged separately from the runtime for auditory QA and a deliberate
+related calm game surfaces. It was initially staged separately from the runtime for auditory QA and a deliberate
 optional-pack policy. The style is paper lamplight at a coastal club: felted wood, restrained
 plucks, rounded bells, air and water. There are no external samples, remote generation jobs or
 credentials.

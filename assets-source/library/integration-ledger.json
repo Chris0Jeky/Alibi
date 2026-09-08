@@ -1,0 +1,86 @@
+{
+  "date": "2026-09-08",
+  "baseline": "8545db9",
+  "branch": "codex/asset-library",
+  "build": {
+    "version": "0.6.0",
+    "build": "a08ee0dba82d",
+    "puzzles": 116,
+    "types": 13,
+    "casebooks": 4,
+    "files": 224,
+    "uncompressedBytes": 27635236,
+    "quietWingBytes": 2189871,
+    "experienceBytes": 24186278,
+    "experienceOfflineBytes": 7393439,
+    "coreOfflineBytes": 1259087,
+    "javascriptGzipBytes": 111373,
+    "uploadZipBytes": 25301994
+  },
+  "counts": {
+    "original": 104,
+    "reused": 80,
+    "derivatives": 331,
+    "uniqueFiles": 457
+  },
+  "newDesigns": {
+    "rooms": 4,
+    "portraits": 6,
+    "realmDetails": 3
+  },
+  "runtime": {
+    "modules": 43,
+    "composedScenes": 3,
+    "liveGeometryTypes": [
+      "cottage",
+      "barn",
+      "farm",
+      "orchard",
+      "tree",
+      "boat",
+      "bench",
+      "well"
+    ],
+    "companionStates": 32,
+    "audioCues": 20,
+    "atmospheres": 4,
+    "filmCuts": 8,
+    "corePackDelta": -103722,
+    "javascriptGzipDelta": -15891
+  },
+  "verification": {
+    "verify": "pass; 52 Node test entries and existing parameterized engine/storage contracts",
+    "puzzleUI": 182,
+    "clubUI": 106,
+    "quietUI": 156,
+    "origin": 92,
+    "twoReleaseUpdate": 18,
+    "quietOrigin": 40,
+    "realmControls": 28,
+    "realmGPU": 14,
+    "experienceChecks": 45,
+    "experienceEvidence": "evidence/integration/results.json",
+    "finalScope": "Behaviour tested against the completed runtime and revised portraits/models; final rebuild changes only credits wording and includes the independent-pack contract test. Desktop and phone-sized screenshots inspected on final build."
+  },
+  "review": {
+    "method": "Independent Luna xhigh read-only review, one narrow fix follow-up",
+    "resolved": "Single-file preview no longer requests absent folio room/audio files; browser regression passes.",
+    "remaining": "Unused generation counter is non-blocking and has no executable effect."
+  },
+  "preservation": {
+    "contentEnginesStorage": "Unchanged by this pass; definitions, IDs, revisions and namespaces preserved",
+    "unrelatedInputs": [
+      "alibi-curation/",
+      ".curation-worktrees/"
+    ],
+    "publication": "No push, PR or deployment in this pass",
+    "charges": 0
+  },
+  "limits": [
+    "Physical phones/TalkBack and sustained device performance not tested",
+    "Auditory acceptance remains open; playback/levels are not listening approval",
+    "External OBJ editor interoperability not tested",
+    "Films are connection-dependent; field-notes offline copy is explicit",
+    "Source and name decisions remain in HUMAN_TODO.md"
+  ]
+}

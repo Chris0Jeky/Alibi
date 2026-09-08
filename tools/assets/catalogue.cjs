@@ -22,6 +22,15 @@ function checked(p) {
 }
 function main() {
   const assets = read(BASE + 'visuals/catalogue.json');
+  const editorial = BASE + 'editorial/catalogue.json';
+  if (fs.existsSync(path.join(ROOT, editorial)))
+    assets.push(...read(editorial).assets.map((a) => ({ ...a, design: 'original', status: 'current', integration: 'Live Quiet Wing room headers and Field notes portraits.' })));
+  const details = BASE + 'realm/details/catalogue.json';
+  if (fs.existsSync(path.join(ROOT, details))) {
+    const detail = read(details);
+    detail.assets[0].derivatives.push(...detail.master.derivatives);
+    assets.push(...detail.assets);
+  }
   const ap = BASE + 'audio/catalogue.json';
   if (fs.existsSync(path.join(ROOT, ap)))
     for (const a of read(ap).assets)
@@ -152,6 +161,10 @@ function main() {
   if (fs.existsSync(path.join(ROOT, tutorials))) assets.push(...read(tutorials));
   const ids = new Set();
   for (const a of assets) {
+    if (['realm', 'realm-detail', 'companions', 'audio', 'motion'].includes(a.category)) {
+      a.status = 'current';
+      a.integration = ({ realm: 'Field notes 3D cabinet; selected types also use compact live Realm geometry.', 'realm-detail': 'Live Realm geometry and Field notes 3D cabinet.', companions: 'Live action illustrations and Field notes expression cabinet.', audio: 'Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.', motion: 'Field notes screening room, explicit streaming playback; excluded from offline packs.' })[a.category];
+    }
     if (ids.has(a.id)) throw Error('Duplicate ID ' + a.id);
     ids.add(a.id);
     a.derivatives ??= [];

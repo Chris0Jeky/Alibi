@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-label="Maker club portrait">
+  <title>Maker club portrait</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="480" height="600" fill="#f4ead4"/>
+  <rect width="480" height="600" fill="url(#grain)" opacity=".24"/>
+  <path d="M45 559 V220 Q45 83 240 83 Q435 83 435 220 V559Z" fill="#8d5145" class="line"/>
+  <path d="M71 558 V225 Q71 111 240 111 Q409 111 409 225 V558Z" fill="#fff7e4" opacity=".22"/>
+  <path d="M44 559 H436" class="line" opacity=".6"/>
+  
+    <path d="M84 559 Q99 443 177 414 Q240 389 303 414 Q381 443 396 559Z" fill="#173e49" class="line"/>
+    <path d="M149 459 Q194 429 216 457 L240 484 L264 457 Q286 429 331 459" fill="none" class="paper-line" opacity=".72"/>
+    <path d="M209 392 V440 Q240 462 271 440 V392" fill="#765044" class="line"/>
+    <path d="M147 289 Q151 201 184 174 Q213 151 240 159 Q267 151 296 174 Q329 201 333 289 Q331 380 240 431 Q149 380 147 289Z" fill="#805548" class="line"/>
+    <path d="M146 271 Q149 194 190 161 Q214 139 240 149 Q266 139 290 161 Q331 194 334 271 Q306 225 277 215 Q240 203 203 215 Q174 225 146 271Z" fill="#3a2d2b" class="line"/>
+    <path d="M158 216 Q174 172 211 155 M194 174 Q240 137 286 174 M269 155 Q306 172 322 216" fill="none" class="fine" opacity=".78"/>
+    <g fill="#3a2d2b" class="fine"><circle cx="169" cy="209" r="18"/><circle cx="188" cy="177" r="15"/><circle cx="214" cy="158" r="14"/><circle cx="266" cy="158" r="14"/><circle cx="292" cy="177" r="15"/><circle cx="311" cy="209" r="18"/></g>
+    <path d="M166 304 Q184 258 212 257 M268 257 Q296 258 314 304" fill="none" class="line"/>
+    <circle cx="214" cy="313" r="6" fill="#172d38"/><circle cx="266" cy="313" r="6" fill="#172d38"/>
+    <path d="M240 318 Q228 349 245 361" fill="none" class="fine"/>
+    <path d="M205 384 Q240 399 276 380" fill="none" class="line"/>
+    <path d="M111 469 Q152 432 201 456 L185 514 Q142 502 106 485Z" fill="#ce8b69" class="line"/>
+    <path d="M279 456 Q328 432 369 469 L374 485 Q338 502 295 514Z" fill="#ce8b69" class="line"/>
+    <path d="M148 458 L138 510 M331 458 L342 510" class="fine" opacity=".62"/>
+    <path d="M115 528 Q240 489 365 528" fill="none" class="paper-line" opacity=".4"/>
+    <path d="M101 184 L135 166 L152 190 L120 208Z" fill="#dbac60" class="line"/><path d="M107 187 L147 184" class="fine"/>
+    <circle cx="351" cy="161" r="20" fill="#dbac60" class="line"/><path d="M351 145 V177 M335 161 H367" class="fine"/>
+  
+  <path d="M84 520 Q240 489 396 520" fill="none" class="fine" opacity=".35"/>
+
+</svg>

@@ -611,8 +611,34 @@
   "acceptance": {
     "localBrowser": "Passed; see evidence/",
     "physicalDevice": "Pending HUMAN_TODO.md q-2/q-4",
-    "auditory": "Pending before recording integration",
+    "auditory": "Pending human listening and device-volume acceptance; opt-in runtime playback is integrated",
     "rights": "Existing receipts retained; new original work has no separate public reuse grant",
     "publication": "Local only; no push or deployment authorized"
+  },
+  "integrationPass": {
+    "baseline": "8545db9",
+    "build": "a08ee0dba82d",
+    "binding": "All produced asset families have app bindings; curated runtime derivatives ship while source masters remain development-only.",
+    "details": {
+      "modules": 43,
+      "composedScenes": 3,
+      "liveGeometryTypes": [
+        "cottage",
+        "barn",
+        "farm",
+        "orchard",
+        "tree",
+        "boat",
+        "bench",
+        "well"
+      ],
+      "companionStates": 32,
+      "audioCues": 20,
+      "atmospheres": 4,
+      "filmCuts": 8,
+      "corePackDelta": -103722,
+      "javascriptGzipDelta": -15891
+    },
+    "evidence": "evidence/integration/results.json"
   }
 }
