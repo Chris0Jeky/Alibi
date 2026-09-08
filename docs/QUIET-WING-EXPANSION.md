@@ -56,7 +56,9 @@ turn those unperformed checks into claims of certification or abandon the author
 1. Refine town presentation and composition further: road appearance/adjacency, building assembly
    choices, camera feel and town life. Check picking and export for each added presentation seam.
 2. Integrate quality animated companions, preserving all four identities, names, bonds and walks.
-   Research candidates are in `docs/quiet-wing/ASSET-RESEARCH.md`; they are not yet downloaded/used.
+   Owl and fox candidates are retained under `assets-source/quiet-wing/companions`, with exact
+   licences and hashes. Both parsed/rendered successfully with idle clips and were visually
+   inspected. They are not yet in the game. Cat/dragon sourcing and in-game behavior remain open.
 3. Additional relaxing games and deeper garden interactions with actual-control proofs.
 4. Cross-app art direction and better case/puzzle imagery; Adobe currently fails initialization
    with HTTP 403. Use other available tools/direct licensed assets without blocking the work.
