@@ -39,6 +39,7 @@
     botPending = false,
     lab = null,
     room = null,
+    roomAttempt = null,
     roomTimer = null,
     roomBusy = false,
     roomError = '',
@@ -1123,10 +1124,36 @@
     try {
       json = await response.json();
     } catch {
-      throw Error('This address is not a configured Alibi room API.');
+      const error = Error('This address is not a configured Alibi room API.');
+      error.status = response.status;
+      throw error;
     }
-    if (!response.ok) throw Error(json.error || 'The room request failed.');
+    if (!response.ok) {
+      const error = Error(json.error || 'The room request failed.');
+      error.status = response.status;
+      throw error;
+    }
     return json;
+  }
+  function privateRoomToken() {
+    return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '');
+  }
+  function roomAttemptFor(kind, code = '') {
+    if (!roomAttempt || roomAttempt.kind !== kind || roomAttempt.code !== code)
+      roomAttempt = { kind, code, requestId: privateRoomToken(), seatToken: privateRoomToken() };
+    return roomAttempt;
+  }
+  async function requestRoomSeat(path, intent) {
+    const payload = { requestId: intent.requestId, seatToken: intent.seatToken };
+    try {
+      return await request(path, 'POST', payload);
+    } catch (error) {
+      if (error.status && error.status < 500) throw error;
+      return request(path, 'POST', payload);
+    }
   }
   function rememberRoom() {
     try {
@@ -1159,14 +1186,19 @@
     roomBusy = true;
     try {
       await configureApi();
-      const result = await request('/rooms', 'POST', {});
-      room = { ...result };
+      const intent = roomAttemptFor('create');
+      const result = await requestRoomSeat('/rooms', intent);
+      room = { ...result, token: intent.seatToken };
+      roomAttempt = null;
       roomError = '';
       rememberRoom();
       document.getElementById('dialog').close();
       bridge.navigate('salon', 'duel');
       render();
       notify('Room ' + room.code + ' is open. Share the code with one friend.');
+    } catch (error) {
+      if (error.status && error.status < 500) roomAttempt = null;
+      throw error;
     } finally {
       roomBusy = false;
     }
@@ -1178,12 +1210,18 @@
       await configureApi();
       const code = document.getElementById('club-room-code')?.value.trim().toUpperCase();
       if (!/^[A-Z2-9]{8}$/.test(code || '')) throw Error('Enter the eight-character room code.');
-      room = await request('/rooms/' + code + '/join', 'POST', {});
+      const intent = roomAttemptFor('join', code);
+      const result = await requestRoomSeat('/rooms/' + code + '/join', intent);
+      room = { ...result, token: intent.seatToken };
+      roomAttempt = null;
       roomError = '';
       rememberRoom();
       document.getElementById('dialog').close();
       bridge.navigate('salon', 'duel');
       render();
+    } catch (error) {
+      if (error.status && error.status < 500) roomAttempt = null;
+      throw error;
     } finally {
       roomBusy = false;
     }
