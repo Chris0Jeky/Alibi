@@ -3,7 +3,8 @@
 const fs = require('node:fs'),
   path = require('node:path');
 require('../src/core.js');
-const C = require('../src/engines.js');
+require('../src/engines.js');
+const C = require('../src/bridges.js');
 const filename = process.argv[2];
 if (!filename) {
   console.error('Usage: node tools/validate-pack.cjs path/to/pack.json');
