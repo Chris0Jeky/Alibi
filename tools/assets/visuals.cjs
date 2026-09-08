@@ -101,6 +101,11 @@ async function main(){
   const card=`assets-source/library/visuals/card-${type}.svg`;put(card,ctx.AlibiUI.art(type).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" '));
   entries.push({id:'family-'+type,title:m.title,category:'families',status:'current',design:'reused',source,derivatives:[card],dimensions:[24,24],provenance:{author:'Alibi project',method:'Unchanged export from current AlibiUI icon/art',source:'src/presentation.js',license:'Existing project rights unchanged'},accessibility:'Existing labelled family controls; decorative diagrams are not instructional claims.',integration:'src/presentation.js; src/app.js:familyCard'});
  }
+ for(const [name,title] of [['heart','Favourites'],['journal','Journal'],['workshop','Workshop'],['download','Save export'],['upload','Restore backup'],['device','Device-local save'],['refresh','Offline update'],['help','Assistance'],['settings','Preferences'],['undo','Undo'],['volume','Sound'],['compass','Activity selection']]){
+  const source=`assets-source/library/visuals/interface-${name}.svg`;
+  put(source,ctx.AlibiUI.icon(name).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ').replace('currentColor',P.petrol));
+  entries.push({id:'interface-'+name,title,category:'interface',status:'current',design:'reused',source,derivatives:[],dimensions:[24,24],provenance:{author:'Alibi project',source:'src/presentation.js',method:'Unchanged existing labelled-control icon export',license:'Existing project rights unchanged'},accessibility:'Decorative icon accompanies existing editable text and accessible control label.',integration:'src/presentation.js; src/app.js',qa:{scope:'Existing control retained; exact SVG exported'}});
+ }
  const runtime=`/* Generated from tools/assets/visuals.cjs. Edit the master, then regenerate. */\n(function(G){'use strict';const glyphs=${JSON.stringify(glyphs)};const P=${JSON.stringify(P)};const highlights=${JSON.stringify(Object.fromEntries(scenes.map(([id])=>[id,'highlight-'+id])))};${badgeBody.toString()}G.AlibiAssets={highlights,badge:(id,earned)=>glyphs[id]?badgeBody(id,earned):''};})(globalThis);\n`;
  const formatted = await require('prettier').format(runtime, { parser:'babel', ...await require('prettier').resolveConfig(path.join(ROOT,'src/asset-library.js')) });
  put('src/asset-library.js',formatted);

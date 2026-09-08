@@ -111,6 +111,18 @@
   "assets-source/library/visuals/card-network.svg": "740c620798e6bd60c141ac47044a688dee64f3f14ec1969b7ea5b70a0ce3aba9",
   "assets-source/library/visuals/family-trail.svg": "ed924cfa0bd3ded3c0e1c27a90af2a1e91d4f389d2324e63319dd68e7b95b113",
   "assets-source/library/visuals/card-trail.svg": "57c922b54e433f0852bf114302d3ef54517cb706c52d00998d84098580f906b7",
+  "assets-source/library/visuals/interface-heart.svg": "d9b244d0d24a39a3f2e95b3aba267d1ce7c4b56af6d5b24ffcd272245b11eae3",
+  "assets-source/library/visuals/interface-journal.svg": "e468f79558d0c9163b7143bf7277499804044d90446fcf06c72e5601bc71a659",
+  "assets-source/library/visuals/interface-workshop.svg": "2d33065c1c81a4d67fc42acd13604cccb48aba8376b36de607c961ec1735b702",
+  "assets-source/library/visuals/interface-download.svg": "ceaf23b6311f07bfd493a5ccbe3576cad1c00bd2f282265c1cc40d81db313fdd",
+  "assets-source/library/visuals/interface-upload.svg": "9a7e0e8993ca2c03a816a9946c150c1c73dee980b969c47511ebf8aa15ab9fb3",
+  "assets-source/library/visuals/interface-device.svg": "77545d2a012558fa827a8f35657f030c7de6b6e066a5bd0232d759382d01f285",
+  "assets-source/library/visuals/interface-refresh.svg": "7d6ac8239cd9f6fde5a97cce5833add8b66673aa171a6aaeff52ed5936b0d059",
+  "assets-source/library/visuals/interface-help.svg": "acfecc88d5adeb0336d5837e1600cd35871cc59c76867f17e703bb27e3769599",
+  "assets-source/library/visuals/interface-settings.svg": "b2eba5e14409690a3d05926f855c2b6f646bcfbdfeb09a845b86688dd3ad4086",
+  "assets-source/library/visuals/interface-undo.svg": "168e750bcfcc83c95b4557f7a3b618cc05c14a78da518500af2d527b34bc9f29",
+  "assets-source/library/visuals/interface-volume.svg": "f166422f852f1af72780bd6a2edd331819e13b2405050d36f7d914eba7515eeb",
+  "assets-source/library/visuals/interface-compass.svg": "85d2569d501609dc5b1f3ceb9c0befadedaf3dfa531fd9dfdc62b28ee80b459e",
   "src/asset-library.js": "197fdc9c0f92f8e799b2db318dd15f2fa1c315df3f41059b930c6cd9906a330a",
-  "assets-source/library/visuals/catalogue.json": "ad01da2848e13a6fd6fad1503b86d7661ce2a49ce0074a907497ba84a7a074ce"
+  "assets-source/library/visuals/catalogue.json": "86647bc6d40ce4ca920bf449f84adc601fb0ad4865380d4965497c654bbb4ce4"
 }

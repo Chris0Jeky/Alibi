@@ -1310,5 +1310,293 @@
     },
     "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
     "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "interface-heart",
+    "title": "Favourites",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-heart.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-journal",
+    "title": "Journal",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-journal.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-workshop",
+    "title": "Workshop",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-workshop.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-download",
+    "title": "Save export",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-download.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-upload",
+    "title": "Restore backup",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-upload.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-device",
+    "title": "Device-local save",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-device.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-refresh",
+    "title": "Offline update",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-refresh.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-help",
+    "title": "Assistance",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-help.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-settings",
+    "title": "Preferences",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-settings.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-undo",
+    "title": "Undo",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-undo.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-volume",
+    "title": "Sound",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-volume.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
+  },
+  {
+    "id": "interface-compass",
+    "title": "Activity selection",
+    "category": "interface",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/interface-compass.svg",
+    "derivatives": [],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "source": "src/presentation.js",
+      "method": "Unchanged existing labelled-control icon export",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Decorative icon accompanies existing editable text and accessible control label.",
+    "integration": "src/presentation.js; src/app.js",
+    "qa": {
+      "scope": "Existing control retained; exact SVG exported"
+    }
   }
 ]
