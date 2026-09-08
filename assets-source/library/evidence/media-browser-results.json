@@ -1,0 +1,61 @@
+{
+  "films": [
+    {
+      "path": "assets-source/library/motion/renders/alibi-intro-landscape.mp4",
+      "duration": 36,
+      "width": 1280,
+      "height": 720,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-intro-portrait.mp4",
+      "duration": 36,
+      "width": 720,
+      "height": 1280,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-quiet-wing-landscape.mp4",
+      "duration": 12,
+      "width": 1280,
+      "height": 720,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-quiet-wing-portrait.mp4",
+      "duration": 12,
+      "width": 720,
+      "height": 1280,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-bridges-landscape.mp4",
+      "duration": 12,
+      "width": 1280,
+      "height": 720,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-bridges-portrait.mp4",
+      "duration": 12,
+      "width": 720,
+      "height": 1280,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-ambient-lamplight.mp4",
+      "duration": 5,
+      "width": 1280,
+      "height": 720,
+      "seeked": true
+    },
+    {
+      "path": "assets-source/library/motion/renders/alibi-ambient-earned-stamp.mp4",
+      "duration": 5,
+      "width": 1280,
+      "height": 720,
+      "seeked": true
+    }
+  ],
+  "scope": "Actual local Chromium decode/play/seek; silent films, no auditory claim"
+}

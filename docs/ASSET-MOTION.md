@@ -55,8 +55,15 @@ checked at `0,6,11.8`; ambient sources at `0,2.5,4.8`. The source snapshots and 
 frames were inspected at start, middle and end. The intro deliveries were decoded specifically at
 0s, 18s and 35s in both orientations; all three positions are populated.
 
-The committed MP4 set is 16.7 MB total. All eight files are H.264, 30 fps, no audio track, with
+The committed MP4 set is 16,909,677 bytes total. All eight files are H.264, 30 fps, no audio track, with
 durations of 36s, 12s or 5s as listed above.
+
+The compiler reported populating its Inter font cache during checks. Authored CSS uses local
+system font stacks and contains no font CDN reference; the game receives no new fonts or media
+SDK. Retained JSON receipts omit personal cache paths. The combined catalogue groups the six
+landscape/portrait cuts as three original films and the two ambient pieces as two originals.
+Final Chromium playback/seek results and actual decoded frame contact sheets are in
+`assets-source/library/evidence/`. Speech is absent, so no speech-caption track is required.
 
 ## QA and boundaries
 

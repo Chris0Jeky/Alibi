@@ -4,10 +4,10 @@
   "branch": "codex/asset-library",
   "build": "fac4d1d1ad6c",
   "counts": {
-    "original": 86,
+    "original": 91,
     "reused": 80,
-    "derivatives": 295,
-    "uniqueFiles": 405
+    "derivatives": 314,
+    "uniqueFiles": 429
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -33,7 +33,15 @@
     "realOrigin": 92,
     "update": 18,
     "appGallery": 36,
-    "modelViewer": 46
+    "modelViewer": 46,
+    "assetNodeTests": 9,
+    "fullyDecodedAudioVideo": 80,
+    "svgSyntax": 144,
+    "cataloguedRasterDecode": 125,
+    "filmCutsPlaybackSeek": 8,
+    "decodedFramesInspected": 24,
+    "blenderSceneObjects": 53,
+    "blenderExternalTextures": 0
   },
   "notVerified": [
     "Physical phone, TalkBack and sustained GPU performance",
@@ -53,5 +61,12 @@
     "Use HUMAN_TODO.md q-2/q-4 for physical-device acceptance; retain saves.",
     "Measure core-pack budget before adding any more core media.",
     "Push or deploy only after separate user authorization."
-  ]
+  ],
+  "motion": {
+    "uniqueFilms": 3,
+    "ambientCompositions": 2,
+    "deliveryCuts": 8,
+    "videoBytes": 16909677,
+    "speech": false
+  }
 }

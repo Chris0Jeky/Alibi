@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "baselineCommit": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
   "counts": {
-    "original": 86,
+    "original": 91,
     "reused": 80,
-    "derivatives": 295,
-    "uniqueFiles": 405
+    "derivatives": 314,
+    "uniqueFiles": 429
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -8439,6 +8439,479 @@
           "path": "assets-source/library/companions/thumbnails/dragon-celebrate.png",
           "bytes": 20160,
           "sha256": "112d866902033442edc7763c90a6e44601334b7a7a3b327304e3b2424cac4238"
+        }
+      ]
+    },
+    {
+      "id": "alibi-intro",
+      "title": "Alibi — A little room to think",
+      "category": "motion",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/motion/intro-landscape/index.html",
+      "derivatives": [
+        "assets-source/library/motion/renders/alibi-intro-landscape.mp4",
+        "assets-source/library/motion/posters/alibi-intro-landscape.jpg",
+        "assets-source/library/motion/intro-portrait/index.html",
+        "assets-source/library/motion/renders/alibi-intro-portrait.mp4",
+        "assets-source/library/motion/posters/alibi-intro-portrait.jpg"
+      ],
+      "metadata": {
+        "cuts": [
+          {
+            "id": "alibi-intro-landscape",
+            "durationSec": 36,
+            "fps": "30/1",
+            "width": 1280,
+            "height": 720,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "116 puzzles",
+              "13 families",
+              "four casebooks",
+              "Quiet Wing",
+              "companions",
+              "exportable saves",
+              "offline ready"
+            ],
+            "format": "landscape"
+          },
+          {
+            "id": "alibi-intro-portrait",
+            "durationSec": 36,
+            "fps": "30/1",
+            "width": 720,
+            "height": 1280,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "116 puzzles",
+              "13 families",
+              "four casebooks",
+              "Quiet Wing",
+              "companions",
+              "exportable saves",
+              "offline ready"
+            ],
+            "format": "portrait"
+          }
+        ]
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/home-landscape.png",
+          "captures/bellweather-landscape.png",
+          "captures/library-bridges-landscape.png",
+          "captures/home-mobile.png"
+        ],
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/cartographer.webp",
+          "covers/coastal-light.webp",
+          "covers/conservatory-study.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
+      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/motion/intro-landscape/index.html",
+          "bytes": 9977,
+          "sha256": "f43cd3ea034b1aec058964c72375d4828ed2b9fb0e903858388636ff31440eec"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-intro-landscape.mp4",
+          "bytes": 5049364,
+          "sha256": "f0a1a60ee3ceb6ca749fe332df1e82984f2f3a1c367a0855985539b8221be812"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-intro-landscape.jpg",
+          "bytes": 56702,
+          "sha256": "bef128aa4244261d73bce54221910bf272b7b9da80b4f849cf0578b2976ed5a4"
+        },
+        {
+          "path": "assets-source/library/motion/intro-portrait/index.html",
+          "bytes": 9114,
+          "sha256": "9ef04564f28eb51d7bf87b16f440e030a2a59fa7386762991fce258bbaceb47f"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-intro-portrait.mp4",
+          "bytes": 4395466,
+          "sha256": "fd6750bf25f38e9225208fadc05b7b159aa0dda446c1dcf4155494e850421652"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-intro-portrait.jpg",
+          "bytes": 50820,
+          "sha256": "45d4c6ca6eaf6d44eac1c8fb0b83120890edc77b1c8a23bb532da2bb455f64de"
+        }
+      ]
+    },
+    {
+      "id": "alibi-quiet-wing",
+      "title": "Alibi — Quiet Wing",
+      "category": "motion",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/motion/quiet-wing-landscape/index.html",
+      "derivatives": [
+        "assets-source/library/motion/renders/alibi-quiet-wing-landscape.mp4",
+        "assets-source/library/motion/posters/alibi-quiet-wing-landscape.jpg",
+        "assets-source/library/motion/quiet-wing-portrait/index.html",
+        "assets-source/library/motion/renders/alibi-quiet-wing-portrait.mp4",
+        "assets-source/library/motion/posters/alibi-quiet-wing-portrait.jpg"
+      ],
+      "metadata": {
+        "cuts": [
+          {
+            "id": "alibi-quiet-wing-landscape",
+            "durationSec": 12,
+            "fps": "30/1",
+            "width": 1280,
+            "height": 720,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "Quiet Wing",
+              "companions",
+              "garden",
+              "exportable saves",
+              "offline ready"
+            ],
+            "format": "landscape"
+          },
+          {
+            "id": "alibi-quiet-wing-portrait",
+            "durationSec": 12,
+            "fps": "30/1",
+            "width": 720,
+            "height": 1280,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "Quiet Wing",
+              "companions",
+              "garden",
+              "exportable saves",
+              "offline ready"
+            ],
+            "format": "portrait"
+          }
+        ]
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [
+          "captures/quiet-realm-landscape.png",
+          "captures/quiet-pets-landscape.png",
+          "captures/quiet-garden-landscape.png"
+        ],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size",
+        "captureUse": "Current local Quiet Wing destination captures: Realm Studio, Companion Nook, and Conservatory Garden; no interaction filming implied"
+      },
+      "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
+      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/motion/quiet-wing-landscape/index.html",
+          "bytes": 5496,
+          "sha256": "03f5f3b52e84b37e6db4365aa54ca2322d69c09c2f888e5adff048759f490fde"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-quiet-wing-landscape.mp4",
+          "bytes": 2024129,
+          "sha256": "ee83dd7f7d715cbe511409e533f079040ac86e745a0294d3ea7e4080bd0a0112"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-quiet-wing-landscape.jpg",
+          "bytes": 75531,
+          "sha256": "6634706befb92ea0c63a201dc75fc45216a65fd5b8dea0add39527e4de945afc"
+        },
+        {
+          "path": "assets-source/library/motion/quiet-wing-portrait/index.html",
+          "bytes": 5449,
+          "sha256": "a95023751263155d29bbe2f26c8c1d4fddf97408080bfd9f275544489d5ae329"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-quiet-wing-portrait.mp4",
+          "bytes": 1398595,
+          "sha256": "a076699ad46ded6844939db6694c5abf0546988db33aaa08ecba5eba88657c53"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-quiet-wing-portrait.jpg",
+          "bytes": 65613,
+          "sha256": "a88cdb53b80fb8350c666095070836d16670bfc9d0d8ed07607a7712d481f318"
+        }
+      ]
+    },
+    {
+      "id": "alibi-bridges",
+      "title": "Alibi — Tidal bridges",
+      "category": "motion",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/motion/bridges-landscape/index.html",
+      "derivatives": [
+        "assets-source/library/motion/renders/alibi-bridges-landscape.mp4",
+        "assets-source/library/motion/posters/alibi-bridges-landscape.jpg",
+        "assets-source/library/motion/bridges-portrait/index.html",
+        "assets-source/library/motion/renders/alibi-bridges-portrait.mp4",
+        "assets-source/library/motion/posters/alibi-bridges-portrait.jpg"
+      ],
+      "metadata": {
+        "cuts": [
+          {
+            "id": "alibi-bridges-landscape",
+            "durationSec": 12,
+            "fps": "30/1",
+            "width": 1280,
+            "height": 720,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "Tidal bridges",
+              "8 puzzles",
+              "touch friendly"
+            ],
+            "format": "landscape"
+          },
+          {
+            "id": "alibi-bridges-portrait",
+            "durationSec": 12,
+            "fps": "30/1",
+            "width": 720,
+            "height": 1280,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "Tidal bridges",
+              "8 puzzles",
+              "touch friendly"
+            ],
+            "format": "portrait"
+          }
+        ]
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": "captures/library-bridges-landscape.png",
+        "artwork": [
+          "covers/bellweather.webp",
+          "covers/briar-house.webp",
+          "covers/glasshouse.webp"
+        ],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
+      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/motion/bridges-landscape/index.html",
+          "bytes": 5530,
+          "sha256": "c36e43915860d12acd1310085f2ad514cc4cf60e2bbd8ac471b317f592438d01"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-bridges-landscape.mp4",
+          "bytes": 1806306,
+          "sha256": "c0d423fdaada8946bef113342bce9a6554274231fb3b4adb64244c2ec56d7a70"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-bridges-landscape.jpg",
+          "bytes": 76211,
+          "sha256": "ceaabc92ed2aea71f5ce118dc377358bf5c6268e2b4dffa7d23a2c4f961da921"
+        },
+        {
+          "path": "assets-source/library/motion/bridges-portrait/index.html",
+          "bytes": 5533,
+          "sha256": "739c73d49ed29a22a06358ad2510dc400c480ef47264c632c2d07a9fea912c63"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-bridges-portrait.mp4",
+          "bytes": 1585103,
+          "sha256": "ca1d0b7b85dc2993b7a52c10a49b6670341cb693843f786ed245419ad5a3a4d7"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-bridges-portrait.jpg",
+          "bytes": 74619,
+          "sha256": "adce3ae2355a10791d7202a850cb26a02df7dd9e545dbafad1fa304c044897bd"
+        }
+      ]
+    },
+    {
+      "id": "alibi-ambient-lamplight",
+      "title": "Alibi — Lamplight settle",
+      "category": "motion",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/motion/ambient-lamplight/index.html",
+      "derivatives": [
+        "assets-source/library/motion/renders/alibi-ambient-lamplight.mp4",
+        "assets-source/library/motion/posters/alibi-ambient-lamplight.jpg"
+      ],
+      "metadata": {
+        "cuts": [
+          {
+            "id": "alibi-ambient-lamplight",
+            "durationSec": 5,
+            "fps": "30/1",
+            "width": 1280,
+            "height": 720,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "Quiet Wing",
+              "device local",
+              "offline ready"
+            ],
+            "format": "landscape"
+          }
+        ]
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
+      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/motion/ambient-lamplight/index.html",
+          "bytes": 4899,
+          "sha256": "271447788d17d783a6101a0775c316f9772807057f6e54d92640d9bc89554c2a"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-ambient-lamplight.mp4",
+          "bytes": 378707,
+          "sha256": "16a9e851f5c8eaa139c58d6b96dde5047aab9b34a86ee4bb2bffb55e0eb28344"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-ambient-lamplight.jpg",
+          "bytes": 65952,
+          "sha256": "6b0cf86bb93516285c35334ce8269fdfffc9e8b1ea0f04eb4998c24292a951d9"
+        }
+      ]
+    },
+    {
+      "id": "alibi-ambient-earned-stamp",
+      "title": "Alibi — Earned stamp",
+      "category": "motion",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/motion/ambient-earned-stamp/index.html",
+      "derivatives": [
+        "assets-source/library/motion/renders/alibi-ambient-earned-stamp.mp4",
+        "assets-source/library/motion/posters/alibi-ambient-earned-stamp.jpg"
+      ],
+      "metadata": {
+        "cuts": [
+          {
+            "id": "alibi-ambient-earned-stamp",
+            "durationSec": 5,
+            "fps": "30/1",
+            "width": 1280,
+            "height": 720,
+            "codec": "h264",
+            "pixelFormat": "yuv420p",
+            "audio": false,
+            "claims": [
+              "116 puzzles",
+              "decorative progress card"
+            ],
+            "format": "landscape"
+          }
+        ]
+      },
+      "provenance": {
+        "captureOrigin": "Local Alibi app at http://127.0.0.1:8787 on 2026-09-08",
+        "captures": [],
+        "artwork": [],
+        "gsap": "library/gsap.min.js",
+        "licenseReceipt": "library/gsap-license.txt",
+        "renderTool": "HyperFrames 0.8.31 via tested local creative-toolchain",
+        "derivativeTranscode": "FFmpeg H.264 downscale to practical delivery size"
+      },
+      "accessibility": "Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.",
+      "integration": "Local promotional composition only; excluded from app runtime and offline pack.",
+      "qa": {
+        "sourceCheck": "pass",
+        "strictCheck": "pass",
+        "snapshots": "start/mid/end inspected",
+        "decodedFrames": "MP4 decoded start/mid/end inspected",
+        "ffprobe": "pass",
+        "poster": "pass"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/motion/ambient-earned-stamp/index.html",
+          "bytes": 4383,
+          "sha256": "df327321ec574849ac4cd477266a95bc1281989f4e4dce894f7b844c5436ef10"
+        },
+        {
+          "path": "assets-source/library/motion/renders/alibi-ambient-earned-stamp.mp4",
+          "bytes": 272007,
+          "sha256": "2186320ca62eba3a6303a4183309c868824308a104356ac60ea1e981a5d34db3"
+        },
+        {
+          "path": "assets-source/library/motion/posters/alibi-ambient-earned-stamp.jpg",
+          "bytes": 60869,
+          "sha256": "83408815926de7425a9986e385817c2760d864db04a3140fec54fac1a8e575aa"
         }
       ]
     },

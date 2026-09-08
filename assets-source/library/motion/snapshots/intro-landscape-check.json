@@ -1,7 +1,3 @@
-[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
-[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
-[INFO] [Compiler] Injected deterministic @font-face rules for 2 requested font families
-[hyperframes] browserGpuMode probe → hardware (WebGL renderer vendor="Google Inc. (Intel)" renderer="ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)")
 {
   "ok": true,
   "strict": true,
@@ -178,5 +174,6 @@
     "version": "0.8.31",
     "latestVersion": "0.8.31",
     "updateAvailable": false
-  }
+  },
+  "productionToolNotes": "HyperFrames reported caching Inter font faces during compilation; machine-local cache paths omitted. No font CDN is referenced by the authored sources or app runtime."
 }
