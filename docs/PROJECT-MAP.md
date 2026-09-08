@@ -94,3 +94,11 @@ save adapter; `tools/build-quiet.cjs` emits the optional pack. The root app owns
 combined backup discovery and updates. Four museum originals/records are in `assets-source/`,
 with optimized pack files and receipts under `src/quiet-wing/assets/`. No combined distribution
 bridge, second app manifest or second service worker is retained.
+
+The expansion adds `city.js` and `gpu.js` for seeded modular layouts and shared Canvas/WebGL
+geometry, `pet-view.js` for animated companions, `calm.js`/`calm-art.js` for the two new relaxing
+families, and garden collection/postcard controls in `app.js`. Original model and museum receipts
+are retained under `assets-source/quiet-wing/` and `assets-source/atmosphere/`. `atmosphere.js` and
+`atmosphere.css` supply credited art on the existing Club and puzzle browsing surfaces.
+`backup-validation.js` shares pure cabinet/Club validation with `validator-worker.js`; imports,
+combined staging and subsequent section validation use its bounded worker. See RELEASE-0.6.0.md.

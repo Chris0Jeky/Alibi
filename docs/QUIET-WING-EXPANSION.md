@@ -70,8 +70,10 @@ turn those unperformed checks into claims of certification or abandon the author
    mystery covers. Three new Met works have explicit public-domain records, original bytes,
    decoded WebPs and phone/desktop inspection. Adobe/image generation/AIC failures were worked
    around with successful direct Met acquisition, not bypasses or unverified stock images.
-5. Run the complete suite, reconcile CI/review, merge reviewed source and deploy to the existing
-   website. Verify hosted saves, offline, update and rollback. No expansion deployment is claimed.
+5. The complete source passed CI and independent review and merged as `6696546`. Sites version 4
+   now serves 0.6.0 at the existing public origin. Hosted saves, offline and old-to-new upgrade
+   evidence is recorded in RELEASE-0.6.0.md. The prior release remains available for file rollback;
+   no production rollback was executed and no physical-device acceptance is implied.
 
 Recovery: export all saves before release testing. Never clear site data. Roll back application
 files while preserving the cabinet, Club and Quiet Wing databases and raw recovery exports.

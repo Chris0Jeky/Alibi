@@ -2,17 +2,19 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
-## Release candidate 0.6.0
+## Hosted release 0.6.0
 
 Build `f7c4ef0b6961` includes the source-integrated Quiet Wing, modular seeded city, animated
 companions, four additional relaxing boards, expanded idle garden and three newly curated
 museum artworks across Club, collection and conservatory. No published puzzle definitions,
-public origins or database identities changed. Source work is on PR #14 in incremental commits.
+public origins or database identities changed. PR #14 merged 30 incremental commits as `6696546`.
 `npm run verify` passes; the visual-refresh suite passes 43 real-image/navigation/viewport checks.
-Earlier changed seams have their direct evidence below. Final CI and hosted deployment/upgrade
-acceptance are the remaining release work. Physical-device gates remain in HUMAN_TODO.md.
-The exact live production origin still reports Sites version 3 from main `1f049a7`; this candidate
-has not yet been deployed. Do not confuse the prepared source with a hosted release.
+Both final source CI runs passed at `8e76e23` (6m42s and 7m10s), with independent reviews and
+the blocking backup-validation and ambiguous-storage-open findings resolved. Sites version 4
+deployed successfully on 2026-09-08 at the original public origin. The actual installed-profile
+upgrade from live build `134d93f3d854` preserved puzzle and Club town state, then reloaded offline.
+See [RELEASE-0.6.0.md](RELEASE-0.6.0.md) for exact source, deployment, evidence and rollback details.
+Physical-device gates remain in HUMAN_TODO.md; browser checks cannot certify the reported phone freeze.
 
 Measured sizes: initial JavaScript 125,138 bytes gzip, core offline pack 1,329,465 bytes,
 optional wing 1,977,944 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
