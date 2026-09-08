@@ -1,6 +1,110 @@
 /* Persistence fallback contracts in a Node VM. Does not emulate IndexedDB transactions. */
-'use strict';const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
-let assertions=0;const ok=(v,m)=>{assert.ok(v,m);assertions++;};
-function setup(local=true,newer=false){const items=new Map(),ls={setItem(k,v){if(!local)throw Error('Storage denied');items.set(k,String(v));},removeItem(k){items.delete(k);},getItem:k=>items.get(k)??null,key:i=>[...items.keys()][i]??null,get length(){return items.size;}};const ctx={structuredClone,Date,console,localStorage:ls,setTimeout,Event:class Event{},dispatchEvent(){}};if(newer)ctx.indexedDB={open(){const r={};setTimeout(()=>{r.error=Object.assign(Error('Newer database'),{name:'VersionError'});r.onerror();},0);return r;}};vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/core.js'),'utf8'),ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/storage.js'),'utf8'),ctx);return {Store:ctx.AlibiStorage.Store,items,ls};}
-(async()=>{for(const local of [true,false]){const {Store,items,ls}=setup(local),s=await new Store().init();ok(s.mode===(local?'local':'session'),'honest '+s.mode+' mode');const r={key:'scene-01@1',rev:0,state:{placements:{}},schemaVersion:1};const one=await s.saveRun(r,0);ok(one.rev===1,'revision increment');ok(r.rev===0,'save does not mutate caller');ok((await s.get('runs',r.key)).rev===1,'saved record retrievable');await assert.rejects(s.saveRun(r,0),e=>e.name==='ConflictError');assertions++;ok((await s.get('runs',r.key)).rev===1,'stale write did not replace save');await s.put('meta','preferences',{seen:['scene'],favorites:['scene-01']});const backup=await s.export();ok(backup.format==='alibi-backup'&&backup.schemaVersion===1,'stable backup envelope');ok(backup.preferences.seen[0]==='scene','preferences exported');await assert.rejects(s.restore({...backup,runs:[]}),/requires IndexedDB/);assertions++;ok((await s.getAll('runs')).length===1,'nontransactional restore refused without clearing data');const again=await new Store().init();ok((await again.getAll('runs')).length===(local?1:0),local?'local fallback visible to fresh store':'session fallback correctly ephemeral');if(local){ls.setItem('alibi.v1.runs.bad','{bad');await assert.rejects(s.getAll('runs'),/damaged/);assertions++;ok(items.has('alibi.v1.runs.bad'),'corrupt record not deleted');}}
-const {Store}=setup(true,true),s=await new Store().init();ok(s.fatal,'newer IndexedDB is a fatal compatibility condition');ok(s.mode==='session'&&!s.db,'newer database does not fall back to competing local saves');ok(s.problem.includes('has not been modified'),'version conflict is explained');fs.writeFileSync(path.join(__dirname,'storage-results.json'),JSON.stringify({passed:true,assertions,scope:'Node VM: session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.'},null,2));console.log('PASS',assertions,'storage contract assertions');})().catch(e=>{console.error(e);process.exitCode=1;});
+'use strict';
+const fs = require('node:fs'),
+  vm = require('node:vm'),
+  assert = require('node:assert/strict'),
+  path = require('node:path');
+let assertions = 0;
+const ok = (v, m) => {
+  assert.ok(v, m);
+  assertions++;
+};
+function setup(local = true, newer = false) {
+  const items = new Map(),
+    ls = {
+      setItem(k, v) {
+        if (!local) throw Error('Storage denied');
+        items.set(k, String(v));
+      },
+      removeItem(k) {
+        items.delete(k);
+      },
+      getItem: (k) => items.get(k) ?? null,
+      key: (i) => [...items.keys()][i] ?? null,
+      get length() {
+        return items.size;
+      },
+    };
+  const ctx = {
+    structuredClone,
+    Date,
+    console,
+    localStorage: ls,
+    setTimeout,
+    Event: class Event {},
+    dispatchEvent() {},
+  };
+  if (newer)
+    ctx.indexedDB = {
+      open() {
+        const r = {};
+        setTimeout(() => {
+          r.error = Object.assign(Error('Newer database'), { name: 'VersionError' });
+          r.onerror();
+        }, 0);
+        return r;
+      },
+    };
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/core.js'), 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), ctx);
+  return { Store: ctx.AlibiStorage.Store, items, ls };
+}
+(async () => {
+  for (const local of [true, false]) {
+    const { Store, items, ls } = setup(local),
+      s = await new Store().init();
+    ok(s.mode === (local ? 'local' : 'session'), 'honest ' + s.mode + ' mode');
+    const r = { key: 'scene-01@1', rev: 0, state: { placements: {} }, schemaVersion: 1 };
+    const one = await s.saveRun(r, 0);
+    ok(one.rev === 1, 'revision increment');
+    ok(r.rev === 0, 'save does not mutate caller');
+    ok((await s.get('runs', r.key)).rev === 1, 'saved record retrievable');
+    await assert.rejects(s.saveRun(r, 0), (e) => e.name === 'ConflictError');
+    assertions++;
+    ok((await s.get('runs', r.key)).rev === 1, 'stale write did not replace save');
+    await s.put('meta', 'preferences', { seen: ['scene'], favorites: ['scene-01'] });
+    const backup = await s.export();
+    ok(backup.format === 'alibi-backup' && backup.schemaVersion === 1, 'stable backup envelope');
+    ok(backup.preferences.seen[0] === 'scene', 'preferences exported');
+    await assert.rejects(s.restore({ ...backup, runs: [] }), /requires IndexedDB/);
+    assertions++;
+    ok(
+      (await s.getAll('runs')).length === 1,
+      'nontransactional restore refused without clearing data',
+    );
+    const again = await new Store().init();
+    ok(
+      (await again.getAll('runs')).length === (local ? 1 : 0),
+      local ? 'local fallback visible to fresh store' : 'session fallback correctly ephemeral',
+    );
+    if (local) {
+      ls.setItem('alibi.v1.runs.bad', '{bad');
+      await assert.rejects(s.getAll('runs'), /damaged/);
+      assertions++;
+      ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+    }
+  }
+  const { Store } = setup(true, true),
+    s = await new Store().init();
+  ok(s.fatal, 'newer IndexedDB is a fatal compatibility condition');
+  ok(s.mode === 'session' && !s.db, 'newer database does not fall back to competing local saves');
+  ok(s.problem.includes('has not been modified'), 'version conflict is explained');
+  fs.writeFileSync(
+    path.join(__dirname, 'storage-results.json'),
+    JSON.stringify(
+      {
+        passed: true,
+        assertions,
+        scope:
+          'Node VM: session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+      },
+      null,
+      2,
+    ),
+  );
+  console.log('PASS', assertions, 'storage contract assertions');
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

@@ -1,0 +1,10 @@
+alibi-deluxe-publish-bundle/
+dist/
+release/
+.venv/
+node_modules/
+alibi-deluxe-play.html
+build-info.json
+tests/*-results.json
+tests/screenshots/
+.openai/
