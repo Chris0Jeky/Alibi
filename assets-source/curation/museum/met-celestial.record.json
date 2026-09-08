@@ -1,0 +1,96 @@
+{
+  "objectID": 358367,
+  "isHighlight": false,
+  "accessionNumber": "51.537.2",
+  "accessionYear": "1951",
+  "isPublicDomain": true,
+  "primaryImage": "https://images.metmuseum.org/CRDImages/dp/original/DP820482.jpg",
+  "primaryImageSmall": "https://images.metmuseum.org/CRDImages/dp/web-large/DP820482.jpg",
+  "additionalImages": [
+    "https://images.metmuseum.org/CRDImages/dp/original/DP102236.jpg",
+    "https://images.metmuseum.org/CRDImages/dp/original/DP102236~1.jpg"
+  ],
+  "constituents": [
+    {
+      "constituentID": 161857,
+      "role": "Artist",
+      "name": "Albrecht Dürer",
+      "constituentULAN_URL": "http://vocab.getty.edu/page/ulan/500115493",
+      "constituentWikidata_URL": "https://www.wikidata.org/wiki/Q5580",
+      "gender": ""
+    }
+  ],
+  "department": "Drawings and Prints",
+  "objectName": "Print",
+  "title": "The Celestial Globe-Southern Hemisphere",
+  "culture": "",
+  "period": "",
+  "dynasty": "",
+  "reign": "",
+  "portfolio": "",
+  "artistRole": "Artist",
+  "artistPrefix": "",
+  "artistDisplayName": "Albrecht Dürer",
+  "artistDisplayBio": "German, Nuremberg 1471–1528 Nuremberg",
+  "artistSuffix": "",
+  "artistAlphaSort": "Dürer, Albrecht",
+  "artistNationality": "German",
+  "artistBeginDate": "1471",
+  "artistEndDate": "1528",
+  "artistGender": "",
+  "artistWikidata_URL": "https://www.wikidata.org/wiki/Q5580",
+  "artistULAN_URL": "http://vocab.getty.edu/page/ulan/500115493",
+  "objectDate": "1515",
+  "objectBeginDate": 1515,
+  "objectEndDate": 1515,
+  "medium": "Woodcut",
+  "dimensions": "Sheet: 16 3/4 x 17 in. (42.5 x 43.2 cm)",
+  "measurements": [
+    {
+      "elementName": "Sheet",
+      "elementDescription": null,
+      "elementMeasurements": {
+        "Height": 42.5451,
+        "Width": 43.1801
+      }
+    }
+  ],
+  "creditLine": "Harris Brisbane Dick Fund, 1951",
+  "geographyType": "",
+  "city": "",
+  "state": "",
+  "county": "",
+  "country": "",
+  "region": "",
+  "subregion": "",
+  "locale": "",
+  "locus": "",
+  "excavation": "",
+  "river": "",
+  "classification": "Prints",
+  "rightsAndReproduction": "",
+  "linkResource": "",
+  "metadataDate": "2025-03-06T04:54:30Z",
+  "repository": "Metropolitan Museum of Art, New York, NY",
+  "objectURL": "https://www.metmuseum.org/art/collection/search/358367",
+  "tags": [
+    {
+      "term": "Astronomy",
+      "AAT_URL": "http://vocab.getty.edu/page/aat/300054534",
+      "Wikidata_URL": "https://www.wikidata.org/wiki/Q333"
+    },
+    {
+      "term": "Coat of Arms",
+      "AAT_URL": "http://vocab.getty.edu/page/aat/300126352",
+      "Wikidata_URL": "https://www.wikidata.org/wiki/Q14659"
+    },
+    {
+      "term": "Maps",
+      "AAT_URL": "http://vocab.getty.edu/page/aat/300028094",
+      "Wikidata_URL": "https://www.wikidata.org/wiki/Q4006"
+    }
+  ],
+  "objectWikidata_URL": "https://www.wikidata.org/wiki/Q97106212",
+  "isTimelineWork": true,
+  "GalleryNumber": ""
+}
