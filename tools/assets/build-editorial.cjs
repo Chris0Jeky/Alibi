@@ -245,24 +245,21 @@ function reader() {
     'Reader',
     C.petrol,
     `
-    <path d="M110 559 Q112 447 183 421 Q240 400 297 421 Q368 447 370 559Z" fill="${C.amber}" class="line"/>
-    <path d="M160 462 Q205 492 240 462 Q275 492 320 462" fill="none" class="paper-line" opacity=".75"/>
-    <path d="M211 394 V438 Q240 463 269 438 V394" fill="${C.terracotta}" class="line"/>
-    <ellipse cx="240" cy="292" rx="84" ry="109" fill="#5d3d35" class="line"/>
-    <path d="M160 278 Q161 159 239 161 Q318 162 321 278 Q291 220 242 223 Q191 224 160 278Z" fill="#d2d1bc" class="line"/>
-    <path d="M169 225 Q180 169 219 152 M208 183 Q240 141 274 157 M254 157 Q300 151 318 204" fill="none" class="fine" opacity=".9"/>
-    <ellipse cx="157" cy="296" rx="19" ry="28" fill="#5d3d35" class="fine"/>
-    <ellipse cx="323" cy="296" rx="19" ry="28" fill="#5d3d35" class="fine"/>
-    <path d="M167 303 Q181 229 240 226 Q299 229 313 303 V345 Q310 404 240 430 Q170 404 167 345Z" fill="#814e41" class="line"/>
-    <path d="M204 309 Q220 297 236 309 M250 309 Q266 297 282 309" fill="none" class="line"/>
-    <circle cx="221" cy="315" r="6" fill="${C.ink}"/><circle cx="259" cy="315" r="6" fill="${C.ink}"/>
-    <path d="M240 318 Q230 350 242 360" fill="none" class="fine"/>
-    <path d="M213 377 Q241 389 270 375" fill="none" class="line"/>
-    <path d="M186 301 H236 M244 301 H294" class="fine"/><circle cx="240" cy="301" r="7" fill="${C.amber}"/>
-    <path d="M129 478 L241 503 L351 478" fill="none" class="paper-line" opacity=".45"/>
-    <path d="M139 463 Q179 446 208 465 L198 492 Q164 496 135 478Z" fill="${C.cream}" class="line"/>
-    <path d="M342 463 Q301 446 272 465 L282 492 Q316 496 346 478Z" fill="${C.cream}" class="line"/>
-    <path d="M152 466 L194 476 M328 466 L286 476" class="fine"/>
+    <path d="M105 559 Q110 449 180 417 Q240 393 300 417 Q370 449 375 559Z" fill="${C.amber}" class="line"/>
+    <path d="M145 457 Q185 429 213 456 L240 481 L267 456 Q295 429 335 457" fill="none" class="paper-line" opacity=".82"/>
+    <path d="M207 387 V438 Q240 467 273 438 V387" fill="#8d5b4b" class="line"/>
+    <path d="M153 284 Q156 178 240 159 Q324 178 327 284 Q322 387 240 424 Q158 387 153 284Z" fill="#8a5947" class="line"/>
+    <path d="M150 268 Q151 171 203 148 Q240 126 280 145 Q326 168 330 249 L314 278 Q296 217 240 221 Q184 218 166 278Z" fill="#d2d1bc" class="line"/>
+    <path d="M158 217 Q174 168 215 147 M199 176 Q240 132 281 150 M259 148 Q302 162 322 215" fill="none" class="fine" opacity=".86"/>
+    <path d="M161 246 Q149 257 151 286 M319 246 Q331 257 329 286" fill="none" class="fine"/>
+    <path d="M177 287 Q195 223 240 223 Q285 223 303 287 V345 Q297 394 240 422 Q183 394 177 345Z" fill="#96634f" class="line"/>
+    <path d="M183 289 Q204 268 225 288 M255 288 Q276 268 297 289" fill="none" class="line"/>
+    <circle cx="207" cy="300" r="19" fill="none" class="line"/><circle cx="273" cy="300" r="19" fill="none" class="line"/>
+    <path d="M226 300 H254" class="line"/><circle cx="207" cy="300" r="5" fill="${C.ink}"/><circle cx="273" cy="300" r="5" fill="${C.ink}"/>
+    <path d="M240 309 Q231 346 242 357" fill="none" class="fine"/>
+    <path d="M212 377 Q240 389 269 374" fill="none" class="line"/>
+    <path d="M155 457 L198 443 L217 476 L171 493Z M325 457 L282 443 L263 476 L309 493Z" fill="${C.cream}" class="line"/>
+    <path d="M125 505 Q170 483 208 501 M272 501 Q310 483 355 505" fill="none" class="fine" opacity=".6"/>
   `,
   );
 }
@@ -272,24 +269,24 @@ function cartographer() {
     'Cartographer',
     C.terracotta,
     `
-    <path d="M103 559 Q111 451 173 424 Q239 397 307 424 Q370 452 378 559Z" fill="${C.petrol}" class="line"/>
-    <path d="M158 456 L208 430 L239 474 L270 430 L322 456" fill="none" class="paper-line" opacity=".72"/>
-    <path d="M211 393 V435 Q240 451 269 435 V393" fill="#bb795e" class="line"/>
-    <ellipse cx="240" cy="286" rx="82" ry="109" fill="#b87858" class="line"/>
-    <path d="M165 278 Q159 185 217 154 Q284 126 323 204 L314 275 Q287 214 238 221 Q190 222 165 278Z" fill="#6d413d" class="line"/>
-    <path d="M172 210 Q203 146 263 149 Q304 155 319 197" fill="none" class="fine"/>
-    <path d="M172 242 Q184 190 213 169 M203 171 Q243 141 284 163 M258 157 Q299 168 314 211" fill="none" class="fine" opacity=".7"/>
-    <path d="M166 304 Q177 229 240 225 Q303 229 314 304 V342 Q307 402 240 425 Q173 402 166 342Z" fill="#bd7b5b" class="line"/>
-    <path d="M197 307 Q216 293 232 307 M248 307 Q264 293 283 307" fill="none" class="line"/>
-    <circle cx="217" cy="313" r="6" fill="${C.ink}"/><circle cx="263" cy="313" r="6" fill="${C.ink}"/>
-    <path d="M240 317 L231 353 L246 357" fill="none" class="fine"/>
-    <path d="M214 378 Q241 388 267 375" fill="none" class="line"/>
-    <path d="M151 308 Q150 354 184 380 M329 308 Q330 354 296 380" fill="none" class="fine"/>
-    <path d="M114 523 Q241 481 366 523" fill="none" class="paper-line" opacity=".5"/>
-    <path d="M128 459 L180 447 L189 484 L138 496Z" fill="${C.amber}" class="line"/>
-    <path d="M140 473 L174 464 M151 489 L183 480" class="fine"/>
-    <circle cx="337" cy="465" r="31" fill="${C.amber}" class="line"/><circle cx="337" cy="465" r="16" fill="${C.petrol}" class="fine"/>
-    <path d="M337 433 V497 M305 465 H369" class="fine"/>
+    <path d="M101 559 Q108 450 173 420 Q240 392 307 420 Q372 450 379 559Z" fill="${C.petrol}" class="line"/>
+    <path d="M147 449 L203 422 L240 476 L277 422 L333 449" fill="none" class="paper-line" opacity=".74"/>
+    <path d="M211 388 V437 Q240 454 269 437 V388" fill="#7b4a3d" class="line"/>
+    <path d="M157 286 Q162 205 190 177 Q212 154 240 159 Q268 154 290 177 Q318 205 323 286 L303 366 L240 430 L177 366Z" fill="#b87858" class="line"/>
+    <path d="M158 260 Q161 193 190 165 Q210 143 240 150 Q270 143 290 165 Q319 193 322 260 Q303 224 283 215 Q240 191 197 215 Q177 224 158 260Z" fill="#6d413d" class="line"/>
+    <g fill="#845048" class="fine">
+      <circle cx="176" cy="196" r="13"/><circle cx="193" cy="173" r="12"/><circle cx="216" cy="157" r="12"/><circle cx="240" cy="152" r="13"/><circle cx="264" cy="157" r="12"/><circle cx="287" cy="173" r="12"/><circle cx="304" cy="196" r="13"/>
+    </g>
+    <path d="M177 291 Q194 239 219 234 M303 291 Q286 239 261 234" fill="none" class="fine" opacity=".72"/>
+    <path d="M173 304 Q190 261 216 263 M264 263 Q290 261 307 304" fill="none" class="line"/>
+    <circle cx="213" cy="311" r="6" fill="${C.ink}"/><circle cx="267" cy="311" r="6" fill="${C.ink}"/>
+    <path d="M240 316 L228 354 L247 360" fill="none" class="fine"/>
+    <path d="M211 381 Q240 394 270 378" fill="none" class="line"/>
+    <path d="M136 502 Q177 474 212 496 M268 496 Q303 474 344 502" fill="none" class="fine" opacity=".6"/>
+    <path d="M111 463 L177 444 L187 493 L121 506Z" fill="${C.amber}" class="line"/>
+    <path d="M126 478 L171 466 M132 493 L177 481" class="fine"/>
+    <circle cx="345" cy="467" r="31" fill="${C.amber}" class="line"/><circle cx="345" cy="467" r="16" fill="${C.petrol}" class="fine"/>
+    <path d="M345 435 V499 M313 467 H377" class="fine"/>
   `,
   );
 }
@@ -299,22 +296,26 @@ function botanist() {
     'Botanist',
     C.moss,
     `
-    <path d="M92 559 Q105 450 176 421 Q240 399 304 421 Q375 450 388 559Z" fill="${C.sage}" class="line"/>
-    <path d="M162 466 Q200 491 240 464 Q280 491 319 466" fill="none" class="paper-line" opacity=".7"/>
-    <path d="M211 395 V439 Q239 459 269 439 V395" fill="#9b6b4a" class="line"/>
-    <ellipse cx="240" cy="291" rx="84" ry="109" fill="#9b6b4a" class="line"/>
-    <path d="M158 277 Q159 191 213 158 Q261 125 316 182 Q334 216 322 278 Q294 227 241 221 Q188 226 158 277Z" fill="${C.ink}" class="line"/>
-    <path d="M171 223 Q194 159 238 150 Q286 149 313 207" fill="none" class="fine" opacity=".72"/>
-    <path d="M168 301 Q179 228 240 225 Q301 228 312 301 V346 Q306 405 240 427 Q174 405 168 346Z" fill="#a97552" class="line"/>
-    <path d="M201 307 Q218 295 236 308 M245 308 Q264 295 281 307" fill="none" class="line"/>
-    <circle cx="219" cy="314" r="6" fill="${C.ink}"/><circle cx="261" cy="314" r="6" fill="${C.ink}"/>
-    <path d="M240 318 Q228 349 243 359" fill="none" class="fine"/>
-    <path d="M210 377 Q240 391 270 376" fill="none" class="line"/>
-    <path d="M115 485 Q140 448 170 463 Q151 491 115 485Z" fill="${C.terracotta}" class="line"/>
-    <path d="M152 474 Q140 426 162 400 Q184 427 170 469" fill="${C.moss}" class="fine"/>
-    <path d="M335 493 Q360 449 388 462 Q376 496 335 493Z" fill="${C.terracotta}" class="line"/>
-    <path d="M367 477 Q357 429 382 409 Q402 442 389 480" fill="${C.moss}" class="fine"/>
-    <path d="M124 531 Q240 494 356 531" fill="none" class="paper-line" opacity=".42"/>
+    <path d="M90 559 Q100 449 173 418 Q240 395 307 418 Q380 449 390 559Z" fill="${C.sage}" class="line"/>
+    <path d="M149 455 Q190 428 214 456 L240 483 L266 456 Q290 428 331 455" fill="none" class="paper-line" opacity=".74"/>
+    <path d="M209 394 V440 Q240 460 271 440 V394" fill="#9b6b4a" class="line"/>
+    <path d="M174 287 Q177 210 192 188 Q211 153 240 155 Q269 153 288 188 Q303 210 306 287 V345 Q299 396 240 424 Q181 396 174 345Z" fill="#c58662" class="line"/>
+    <path d="M171 275 Q167 187 218 145 Q240 128 262 145 Q313 187 309 275 Q288 219 240 222 Q192 219 171 275Z" fill="${C.ink}" class="line"/>
+    <path d="M188 201 Q214 157 240 150 Q266 157 292 201" fill="none" class="fine"/>
+    <g fill="#4e332f" class="line">
+      <path d="M171 213 Q141 246 151 390 Q161 426 181 407 L194 212Z"/>
+      <path d="M309 213 Q339 246 329 390 Q319 426 299 407 L286 212Z"/>
+    </g>
+    <g fill="#b56f57" class="fine"><circle cx="159" cy="239" r="13"/><circle cx="157" cy="270" r="12"/><circle cx="158" cy="301" r="13"/><circle cx="160" cy="333" r="12"/><circle cx="163" cy="365" r="13"/><circle cx="321" cy="239" r="13"/><circle cx="323" cy="270" r="12"/><circle cx="322" cy="301" r="13"/><circle cx="320" cy="333" r="12"/><circle cx="317" cy="365" r="13"/></g>
+    <path d="M191 302 Q211 287 229 302 M251 302 Q269 287 289 302" fill="none" class="line"/>
+    <circle cx="215" cy="310" r="6" fill="${C.ink}"/><circle cx="265" cy="310" r="6" fill="${C.ink}"/>
+    <path d="M240 316 Q231 348 243 358" fill="none" class="fine"/>
+    <g fill="#9e5e4e"><circle cx="199" cy="332" r="3"/><circle cx="211" cy="337" r="3"/><circle cx="222" cy="333" r="3"/><circle cx="258" cy="333" r="3"/><circle cx="270" cy="337" r="3"/><circle cx="282" cy="332" r="3"/></g>
+    <path d="M211 377 Q240 391 270 376" fill="none" class="line"/>
+    <path d="M116 490 Q144 450 173 463 Q153 497 116 490Z" fill="${C.terracotta}" class="line"/>
+    <path d="M151 472 Q140 423 163 400 Q185 431 170 471" fill="${C.moss}" class="fine"/>
+    <path d="M331 492 Q358 449 389 463 Q373 499 331 492Z" fill="${C.terracotta}" class="line"/>
+    <path d="M367 475 Q357 425 382 405 Q403 439 389 480" fill="${C.moss}" class="fine"/>
   `,
   );
 }
@@ -324,21 +325,21 @@ function astronomer() {
     'Astronomer',
     C.ink,
     `
-    <path d="M89 559 Q104 445 177 419 Q240 398 303 419 Q376 445 391 559Z" fill="${C.clay}" class="line"/>
-    <path d="M160 468 Q204 496 240 464 Q276 496 321 468" fill="none" class="paper-line" opacity=".72"/>
-    <path d="M211 394 V438 Q240 460 269 438 V394" fill="#553f39" class="line"/>
-    <ellipse cx="240" cy="288" rx="83" ry="109" fill="#4d342f" class="line"/>
-    <path d="M158 274 Q165 180 240 158 Q314 180 322 274 Q287 216 241 222 Q193 219 158 274Z" fill="#d0c2a0" class="line"/>
-    <path d="M175 209 Q192 168 226 154 M208 178 Q240 142 274 156 M256 155 Q300 163 316 207" fill="none" class="fine"/>
-    <path d="M168 303 Q179 229 240 225 Q301 229 312 303 V345 Q307 403 240 426 Q173 403 168 345Z" fill="#63443a" class="line"/>
-    <path d="M197 308 Q216 294 233 307 M248 307 Q264 294 283 308" fill="none" class="line"/>
-    <circle cx="218" cy="314" r="6" fill="${C.ink}"/><circle cx="262" cy="314" r="6" fill="${C.ink}"/>
-    <path d="M240 318 Q230 349 245 358" fill="none" class="fine"/>
-    <path d="M211 377 Q241 390 271 375" fill="none" class="line"/>
-    <path d="M127 475 Q160 444 200 463 L190 493 Q149 492 120 479Z" fill="${C.petrol}" class="line"/>
-    <path d="M280 462 Q321 444 358 475 L352 497 Q313 488 289 491Z" fill="${C.petrol}" class="line"/>
-    <circle cx="123" cy="161" r="11" fill="${C.amber}"/><circle cx="346" cy="205" r="7" fill="${C.amber}"/><circle cx="362" cy="152" r="14" fill="${C.terracotta}"/>
-    <path d="M105 520 Q240 482 375 520" fill="none" class="paper-line" opacity=".42"/>
+    <path d="M89 559 Q103 446 177 418 Q240 395 303 418 Q377 446 391 559Z" fill="${C.clay}" class="line"/>
+    <path d="M156 465 Q201 493 240 463 Q279 493 324 465" fill="none" class="paper-line" opacity=".74"/>
+    <path d="M211 393 V438 Q240 460 269 438 V393" fill="#553f39" class="line"/>
+    <path d="M171 287 Q174 206 198 177 Q218 153 240 157 Q262 153 282 177 Q306 206 309 287 V344 Q303 396 240 425 Q177 396 171 344Z" fill="#6a443a" class="line"/>
+    <path d="M169 264 Q172 190 208 166 Q240 143 272 166 Q308 190 311 264 Q288 215 240 220 Q192 215 169 264Z" fill="#302e31" class="line"/>
+    <path d="M187 197 Q207 163 240 156 Q273 163 293 197" fill="none" class="fine"/>
+    <path d="M191 294 Q210 276 230 294 M250 294 Q270 276 289 294" fill="none" class="line"/>
+    <circle cx="211" cy="304" r="25" fill="none" class="line"/><circle cx="269" cy="304" r="25" fill="none" class="line"/>
+    <path d="M236 304 H244" class="line"/><circle cx="211" cy="304" r="7" fill="${C.ink}"/><circle cx="269" cy="304" r="7" fill="${C.ink}"/>
+    <path d="M240 316 Q231 349 245 359" fill="none" class="fine"/>
+    <path d="M211 377 Q240 390 271 375" fill="none" class="line"/>
+    <path d="M128 476 Q160 444 201 463 L190 494 Q149 492 120 479Z" fill="${C.petrol}" class="line"/>
+    <path d="M279 463 Q320 444 359 476 L352 497 Q313 491 289 492Z" fill="${C.petrol}" class="line"/>
+    <path d="M126 467 Q165 459 194 475 M286 475 Q315 459 354 467" class="fine" opacity=".58"/>
+    <circle cx="122" cy="161" r="11" fill="${C.amber}"/><circle cx="345" cy="205" r="7" fill="${C.amber}"/><circle cx="361" cy="152" r="14" fill="${C.terracotta}"/>
   `,
   );
 }
@@ -348,22 +349,23 @@ function archivist() {
     'Archivist',
     C.ochre,
     `
-    <path d="M88 559 Q106 446 177 418 Q240 398 303 418 Q374 446 392 559Z" fill="${C.terracotta}" class="line"/>
-    <path d="M155 464 Q201 493 240 464 Q279 493 326 464" fill="none" class="paper-line" opacity=".75"/>
-    <path d="M211 394 V438 Q240 459 269 438 V394" fill="#e0a27a" class="line"/>
-    <ellipse cx="240" cy="290" rx="83" ry="110" fill="#d08d68" class="line"/>
-    <path d="M161 275 Q158 177 240 157 Q322 177 319 275 Q285 219 240 222 Q193 220 161 275Z" fill="#252f35" class="line"/>
-    <path d="M169 210 Q194 164 239 155 Q286 163 312 210" fill="none" class="fine"/>
-    <path d="M168 302 Q179 229 240 225 Q301 229 312 302 V345 Q306 404 240 426 Q174 404 168 345Z" fill="#d79670" class="line"/>
-    <path d="M198 307 Q216 294 234 307 M247 307 Q264 294 282 307" fill="none" class="line"/>
-    <circle cx="218" cy="314" r="6" fill="${C.ink}"/><circle cx="262" cy="314" r="6" fill="${C.ink}"/>
-    <path d="M240 319 Q230 349 245 359" fill="none" class="fine"/>
-    <path d="M211 378 Q241 390 270 375" fill="none" class="line"/>
-    <path d="M119 460 H196 L185 505 H109Z" fill="${C.cream}" class="line"/>
-    <path d="M284 460 H361 L371 505 H295Z" fill="${C.cream}" class="line"/>
-    <path d="M128 477 H180 M301 477 H352 M120 493 H176 M305 493 H361" class="fine" opacity=".7"/>
-    <path d="M240 446 V531" class="fine" opacity=".55"/>
-    <path d="M103 531 Q240 493 377 531" fill="none" class="paper-line" opacity=".42"/>
+    <path d="M87 559 Q104 446 176 417 Q240 392 304 417 Q376 446 393 559Z" fill="${C.terracotta}" class="line"/>
+    <path d="M151 457 Q196 429 214 457 L240 482 L266 457 Q284 429 329 457" fill="none" class="paper-line" opacity=".78"/>
+    <path d="M209 392 V440 Q240 460 271 440 V392" fill="#b4775d" class="line"/>
+    <path d="M169 286 Q173 201 198 174 Q219 151 240 155 Q261 151 282 174 Q307 201 311 286 V347 Q303 401 240 430 Q177 401 169 347Z" fill="#d0a073" class="line"/>
+    <path d="M165 265 Q169 189 205 162 Q240 133 275 162 Q311 189 315 265 Q295 215 240 218 Q185 215 165 265Z" fill="#252f35" class="line"/>
+    <path d="M198 161 Q201 121 240 112 Q279 121 282 161 Q267 143 240 145 Q213 143 198 161Z" fill="#252f35" class="line"/>
+    <path d="M180 199 Q210 158 240 155 Q270 158 300 199" fill="none" class="fine"/>
+    <path d="M187 296 Q207 279 229 296 M251 296 Q273 279 293 296" fill="none" class="line"/>
+    <path d="M185 294 H229 V326 H185Z M251 294 H295 V326 H251Z" fill="none" class="fine"/><path d="M229 307 H251" class="line"/>
+    <circle cx="207" cy="310" r="6" fill="${C.ink}"/><circle cx="273" cy="310" r="6" fill="${C.ink}"/>
+    <path d="M240 319 Q230 349 245 361" fill="none" class="fine"/>
+    <path d="M188 346 Q200 353 210 350 M292 346 Q280 353 270 350" fill="none" class="fine" opacity=".58"/>
+    <path d="M207 384 Q240 398 273 382" fill="none" class="line"/>
+    <path d="M119 459 H198 L185 507 H109Z" fill="${C.cream}" class="line"/>
+    <path d="M282 459 H361 L371 507 H295Z" fill="${C.cream}" class="line"/>
+    <path d="M128 478 H181 M300 478 H352 M120 494 H176 M306 494 H361" class="fine" opacity=".7"/>
+    <path d="M103 532 Q240 493 377 532" fill="none" class="paper-line" opacity=".42"/>
   `,
   );
 }
@@ -373,25 +375,23 @@ function maker() {
     'Maker',
     C.rust,
     `
-    <path d="M90 559 Q103 447 177 419 Q240 399 303 419 Q377 447 390 559Z" fill="${C.petrol}" class="line"/>
-    <path d="M160 469 Q204 493 240 465 Q276 493 321 469" fill="none" class="paper-line" opacity=".7"/>
-    <path d="M211 394 V438 Q240 459 269 438 V394" fill="#9b684d" class="line"/>
-    <ellipse cx="240" cy="290" rx="83" ry="110" fill="#a56e4f" class="line"/>
-    <path d="M159 276 Q160 183 224 159 Q297 133 322 215 L315 277 Q283 224 240 223 Q193 221 159 276Z" fill="#3a2d2b" class="line"/>
-    <path d="M170 210 Q195 160 236 154 M209 170 Q259 133 299 171 M263 152 Q311 175 318 216" fill="none" class="fine" opacity=".8"/>
-    <path d="M168 302 Q179 229 240 225 Q301 229 312 302 V346 Q306 404 240 426 Q174 404 168 346Z" fill="#aa7553" class="line"/>
-    <path d="M198 307 Q216 294 234 307 M247 307 Q264 294 282 307" fill="none" class="line"/>
-    <circle cx="218" cy="314" r="6" fill="${C.ink}"/><circle cx="262" cy="314" r="6" fill="${C.ink}"/>
-    <path d="M240 319 Q230 349 245 359" fill="none" class="fine"/>
-    <path d="M211 378 Q241 391 271 375" fill="none" class="line"/>
-    <path d="M116 471 Q146 438 194 458 L182 513 Q143 499 111 485Z" fill="${C.clay}" class="line"/>
-    <path d="M285 458 Q334 438 365 471 L370 487 Q334 501 294 513Z" fill="${C.clay}" class="line"/>
-    <path d="M154 458 L144 508 M324 455 L335 508" class="fine" opacity=".65"/>
-    <path d="M117 527 Q240 491 363 527" fill="none" class="paper-line" opacity=".4"/>
-    <path d="M103 184 L135 166 L152 190 L120 208Z" fill="${C.amber}" class="line"/>
-    <path d="M107 187 L147 184" class="fine"/>
-    <circle cx="350" cy="161" r="20" fill="${C.amber}" class="line"/>
-    <path d="M350 145 V177 M334 161 H366" class="fine"/>
+    <path d="M84 559 Q99 443 177 414 Q240 389 303 414 Q381 443 396 559Z" fill="${C.petrol}" class="line"/>
+    <path d="M149 459 Q194 429 216 457 L240 484 L264 457 Q286 429 331 459" fill="none" class="paper-line" opacity=".72"/>
+    <path d="M209 392 V440 Q240 462 271 440 V392" fill="#765044" class="line"/>
+    <path d="M147 289 Q151 201 184 174 Q213 151 240 159 Q267 151 296 174 Q329 201 333 289 Q331 380 240 431 Q149 380 147 289Z" fill="#805548" class="line"/>
+    <path d="M146 271 Q149 194 190 161 Q214 139 240 149 Q266 139 290 161 Q331 194 334 271 Q306 225 277 215 Q240 203 203 215 Q174 225 146 271Z" fill="#3a2d2b" class="line"/>
+    <path d="M158 216 Q174 172 211 155 M194 174 Q240 137 286 174 M269 155 Q306 172 322 216" fill="none" class="fine" opacity=".78"/>
+    <g fill="#3a2d2b" class="fine"><circle cx="169" cy="209" r="18"/><circle cx="188" cy="177" r="15"/><circle cx="214" cy="158" r="14"/><circle cx="266" cy="158" r="14"/><circle cx="292" cy="177" r="15"/><circle cx="311" cy="209" r="18"/></g>
+    <path d="M166 304 Q184 258 212 257 M268 257 Q296 258 314 304" fill="none" class="line"/>
+    <circle cx="214" cy="313" r="6" fill="${C.ink}"/><circle cx="266" cy="313" r="6" fill="${C.ink}"/>
+    <path d="M240 318 Q228 349 245 361" fill="none" class="fine"/>
+    <path d="M205 384 Q240 399 276 380" fill="none" class="line"/>
+    <path d="M111 469 Q152 432 201 456 L185 514 Q142 502 106 485Z" fill="${C.clay}" class="line"/>
+    <path d="M279 456 Q328 432 369 469 L374 485 Q338 502 295 514Z" fill="${C.clay}" class="line"/>
+    <path d="M148 458 L138 510 M331 458 L342 510" class="fine" opacity=".62"/>
+    <path d="M115 528 Q240 489 365 528" fill="none" class="paper-line" opacity=".4"/>
+    <path d="M101 184 L135 166 L152 190 L120 208Z" fill="${C.amber}" class="line"/><path d="M107 187 L147 184" class="fine"/>
+    <circle cx="351" cy="161" r="20" fill="${C.amber}" class="line"/><path d="M351 145 V177 M335 161 H367" class="fine"/>
   `,
   );
 }

@@ -168,13 +168,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/reader.svg",
-          "bytes": 3100,
-          "sha256": "9ea5206e64dbdbaca7d76902c689c6dc3cd800856d2aca070122b3e17be7259f"
+          "bytes": 3061,
+          "sha256": "13bd1ca5811489effcb42f1ce31fa4126f45515494846cbda4aecd94c8b187b3"
         },
         {
           "path": "assets-source/library/editorial/reader.webp",
-          "bytes": 19164,
-          "sha256": "2fe06691c2142708486ec3810a17b91cc036cf6c53640aaaa8db1213418f2ccf"
+          "bytes": 22228,
+          "sha256": "d4ca979d91c0761a37cbde37918fcd787ff5494d4b993f9367a6fa1de040a10a"
         }
       ],
       "qa": {
@@ -204,13 +204,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/cartographer.svg",
-          "bytes": 3113,
-          "sha256": "ceb80ae3fb4816df0a142b932b1fec040a0dadbc3d6a8ed468a6998fcf87fc1e"
+          "bytes": 3207,
+          "sha256": "babff8c71847d37dc809919bb2dac410e52b03a32056da33dfc42d62364fa7c8"
         },
         {
           "path": "assets-source/library/editorial/cartographer.webp",
-          "bytes": 20916,
-          "sha256": "59b81bcef1dcaf4b98acd8c4b804a3722215d2a689811999c93fc2bc144f6f29"
+          "bytes": 22120,
+          "sha256": "9926b73b47d2944b546f3884a9b00d30b8e332b6fce0649be14c2928fad0f5e2"
         }
       ],
       "qa": {
@@ -240,13 +240,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/botanist.svg",
-          "bytes": 2916,
-          "sha256": "92c04d52a38f6699fee2acbd99945d88b85ccb37407f367509af445c92ae4166"
+          "bytes": 3582,
+          "sha256": "8977b2357fbddb5688c30c17c3dfbc7155cef3d1cb685e5b46ecafc5dbe37f78"
         },
         {
           "path": "assets-source/library/editorial/botanist.webp",
-          "bytes": 17618,
-          "sha256": "8543176f398c1f74d187eced8734fa6e0724fc519d6005a1bb84fd36d33782ea"
+          "bytes": 20718,
+          "sha256": "52325d8f907d1cc4ce1892ee5d3fd49efc537c614c9e589654aa1df1e3f2ae94"
         }
       ],
       "qa": {
@@ -276,13 +276,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/astronomer.svg",
-          "bytes": 2920,
-          "sha256": "a38d088b6eec8cc1b022fb1b367f5b86d2097870c638fe120a55b63dd46f191b"
+          "bytes": 3027,
+          "sha256": "8a5954269b6782abf6c2cd51933e625c59a55615ec1bd8fabd875c5047ee2341"
         },
         {
           "path": "assets-source/library/editorial/astronomer.webp",
-          "bytes": 17466,
-          "sha256": "5f0922aaed849f132ddb5395f9ba47cc954f81f5be7697fb02b2ba87c41b678d"
+          "bytes": 16022,
+          "sha256": "8428693f00f8df534186b5d9bd66302afccaba4e82df87cf5c85ebea944ed992"
         }
       ],
       "qa": {
@@ -312,13 +312,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/archivist.svg",
-          "bytes": 2839,
-          "sha256": "a8e4583743977e1235302d1ee247916ca103ea0d6eff19b757a8b3cbbcb606e9"
+          "bytes": 3131,
+          "sha256": "2d084ba9c9d3a6f0506f280dba4283e8c2577925dc60f8ff41ed39cbee161066"
         },
         {
           "path": "assets-source/library/editorial/archivist.webp",
-          "bytes": 20518,
-          "sha256": "12f9ffa1457bd5334876770b5ef7643eedb62efa366676312dae1859ff584eaa"
+          "bytes": 20992,
+          "sha256": "4e9986685e81f612b20d41310480d4bd2c38a85965a78d02f1a514513bfccad6"
         }
       ],
       "qa": {
@@ -348,13 +348,13 @@
       "files": [
         {
           "path": "assets-source/library/editorial/maker.svg",
-          "bytes": 3110,
-          "sha256": "7819ad36200adba33d55dcb946cba0b9f9c48cc478905edfc1e9a3a3ba2662ef"
+          "bytes": 3356,
+          "sha256": "5e31318bc3a09f1588c0a3c18331a2331b58c4ed07235782a9ff3106eb9c4cdf"
         },
         {
           "path": "assets-source/library/editorial/maker.webp",
-          "bytes": 20052,
-          "sha256": "df691ffeffa7c820b51f6da7015b5b9224affb13349f30386304c6317f475ab3"
+          "bytes": 21496,
+          "sha256": "ee8b9393a2f54e154ccaac9e6652be8575c36fee1e2b56a559ec65327bea0d6b"
         }
       ],
       "qa": {
