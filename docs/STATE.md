@@ -30,6 +30,13 @@ Auditory acceptance, physical phones/TalkBack, sustained device performance and 
 interoperability remain unverified. [HUMAN_TODO.md](../HUMAN_TODO.md) stays open for those checks
 and owner licence/name decisions. This local candidate does not certify the reported phone freeze.
 
+The artwork registry slice retains four newly acquired Metropolitan Museum of Art
+Open Access objects under `assets-source/curation/`, with current object-level
+`isPublicDomain: true` records, original hashes, credits and optimized WebP derivatives under
+`src/curation-assets/`. It also records the four supplied venue covers, thirteen family icons and
+the excluded Monet candidate whose object page withheld image download. Runtime/UI integration is
+intentionally a follow-on slice; no hotlinks or answer art are included.
+
 ## Hosted release 0.6.0
 
 Build `f7c4ef0b6961` includes the source-integrated Quiet Wing, modular seeded city, animated
