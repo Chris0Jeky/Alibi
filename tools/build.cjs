@@ -81,8 +81,16 @@ function build() {
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
     bridges = read(path.join(SRC, 'bridges.js')),
-    worker =
-      core + '\n' + engines + '\n' + bridges + '\n' + read(path.join(SRC, 'validator-worker.js')),
+    worker = [
+      core,
+      engines,
+      bridges,
+      read(path.join(SRC, 'backup-validation.js')),
+      read(path.join(SRC, 'club-engines.js')),
+      ...['calm.js', 'engine.js', 'storage.js'].map((f) => read(path.join(SRC, 'quiet-wing', f))),
+      `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
+      read(path.join(SRC, 'validator-worker.js')),
+    ].join('\n'),
     css =
       read(path.join(SRC, 'app.css')) +
       '\n' +
@@ -124,6 +132,7 @@ function build() {
       read(path.join(SRC, 'assist.js')),
       read(path.join(SRC, 'atlas.js')),
       read(path.join(SRC, 'atmosphere.js')),
+      read(path.join(SRC, 'backup-validation.js')),
       read(path.join(SRC, 'club.js')),
       read(path.join(SRC, 'activities.js')),
       read(path.join(SRC, 'app.js')),

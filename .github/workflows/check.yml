@@ -47,6 +47,7 @@ jobs:
           python tests/browser_garden.py
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
+          python tests/browser_backup_worker.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update

@@ -125,77 +125,8 @@
   function render() {
     bridge?.render();
   }
-  function validateSave(v) {
-    if (
-      !v ||
-      v.schema !== 1 ||
-      !v.settings ||
-      !v.runs ||
-      !Array.isArray(v.records) ||
-      v.records.length > 120 ||
-      JSON.stringify(v).length > 400000
-    )
-      throw Error('This is not a supported Club save.');
-    if (
-      !['off', 'candidates', 'tidy'].includes(v.settings.assist) ||
-      typeof v.settings.zen !== 'boolean' ||
-      !(
-        v.settings.pinned === null ||
-        (Number.isInteger(v.settings.pinned) &&
-          v.settings.pinned >= 0 &&
-          v.settings.pinned < stories.length)
-      ) ||
-      !Number.isInteger(v.visit) ||
-      !Number.isInteger(v.lastHero)
-    )
-      throw Error('Invalid Club preferences.');
-    for (const [key, r] of Object.entries(v.runs)) {
-      if (
-        !['duel', 'borough', 'archive'].includes(key) ||
-        !r ||
-        (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
-        !Array.isArray(r.log) ||
-        r.log.length > 3000 ||
-        !Array.isArray(r.redo) ||
-        r.redo.length > 3000
-      )
-        throw Error('Invalid game history.');
-      if (key === 'duel') {
-        if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
-        let s = E().reversi.initial();
-        for (const i of [...r.log, ...r.redo.slice().reverse()]) s = E().reversi.move(s, i);
-      }
-      if (key === 'borough') E().borough.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
-      if (key === 'archive') {
-        let s = E().warehouse.initial(r.level);
-        for (const d of [...r.log, ...r.redo.slice().reverse()]) {
-          const next = E().warehouse.move(s, d);
-          if (next === s) throw Error('Invalid archive history.');
-          s = next;
-        }
-      }
-    }
-    for (const r of v.records)
-      if (
-        !r ||
-        typeof r.id !== 'string' ||
-        r.id.length > 100 ||
-        !['duel', 'borough', 'archive'].includes(r.type) ||
-        typeof r.label !== 'string' ||
-        r.label.length > 100 ||
-        !Number.isFinite(r.score) ||
-        typeof r.date !== 'string' ||
-        r.date.length > 40
-      )
-        throw Error('Invalid record.');
-    if (
-      v.settings.api !== undefined &&
-      (typeof v.settings.api !== 'string' || v.settings.api.length > 2048)
-    )
-      throw Error('Invalid API setting.');
-    if (!Array.isArray(v.stamps) || v.stamps.length > 100 || v.stamps.some((x) => x !== 'zen'))
-      throw Error('Invalid stamp book.');
-    return clone(v);
+  function validateSave(value) {
+    return root.AlibiBackupValidation(root.AlibiCore, null, E, stories.length).validateSave(value);
   }
   async function init(api) {
     bridge = api;
@@ -293,7 +224,10 @@
         if (!input.files?.[0]) return;
         if (input.files[0].size > 400000) throw Error('Club save is too large.');
         await engine();
-        const next = validateSave(JSON.parse(await input.files[0].text()));
+        const next = await root.AlibiValidateImport({
+          type: 'club-backup',
+          text: await input.files[0].text(),
+        });
         bridge.dialog(
           'Replace the Club save?',
           `<p>This replaces games-room progress and records, not your original puzzle cabinet saves. Export a copy first if needed.</p>`,
@@ -312,7 +246,7 @@
   }
   async function reviewBackup(value) {
     await engine();
-    const next = validateSave(value);
+    const next = await root.AlibiValidateImport({ type: 'club-backup', value });
     bridge.dialog(
       'Replace the Club save?',
       '<p>This replaces only Club progress. The previous committed Club save becomes its recovery copy.</p>',

@@ -111,61 +111,7 @@
       .filter((r) => r.moves > 0 && !r.completedAt)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
-  function validSettings(s) {
-    const out = {};
-    for (const k of [
-      'timer',
-      'sound',
-      'haptics',
-      'reducedMotion',
-      'contrast',
-      'largeText',
-      'autoCross',
-    ])
-      if (typeof s?.[k] === 'boolean') out[k] = s[k];
-    if (['light', 'night', 'system'].includes(s?.theme)) out.theme = s.theme;
-    return out;
-  }
-  function validateRun(r) {
-    if (
-      !r ||
-      r.schemaVersion !== 1 ||
-      typeof r.key !== 'string' ||
-      r.key.length > 110 ||
-      !Number.isInteger(r.rev) ||
-      r.rev < 0
-    )
-      throw Error('Unsupported saved-game format.');
-    const p = C.validateDefinition(r.puzzle);
-    if (r.key !== keyFor(p)) throw Error('The save does not match its puzzle revision.');
-    C.validateState(p, r.state);
-    if (
-      !Number.isInteger(r.moves) ||
-      r.moves < 0 ||
-      !Number.isInteger(r.hints) ||
-      r.hints < 0 ||
-      !Number.isFinite(r.elapsed) ||
-      r.elapsed < 0 ||
-      r.elapsed > 1e10 ||
-      typeof r.note !== 'string' ||
-      r.note.length > 5000 ||
-      !Array.isArray(r.undo) ||
-      r.undo.length > 100 ||
-      !Array.isArray(r.redo) ||
-      r.redo.length > 100
-    )
-      throw Error('Invalid save counters or history.');
-    for (const s of [...r.undo, ...r.redo]) C.validateState(p, s);
-    for (const k of ['updatedAt', 'completedAt', 'firstCompletedAt'])
-      if (
-        r[k] !== undefined &&
-        r[k] !== null &&
-        (typeof r[k] !== 'string' || r[k].length > 40 || !Number.isFinite(Date.parse(r[k])))
-      )
-        throw Error('Invalid save date.');
-    if (typeof r.updatedAt !== 'string') throw Error('Missing save date.');
-    return r;
-  }
+  const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
   try {
     if (store.fatal) throw Error(store.problem);
     settings = { ...settings, ...validSettings(await store.get('meta', 'settings')) };
@@ -1795,26 +1741,7 @@
   }
   async function stageAll(file) {
     if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
-    const data = JSON.parse(await file.text());
-    if (
-      data.format !== 'alibi-all-saves' ||
-      data.schema !== 1 ||
-      JSON.stringify(data.manifest) !== JSON.stringify(['cabinet', 'club', 'quiet']) ||
-      !data.sections ||
-      Object.keys(data.sections).some((k) => !data.manifest.includes(k))
-    )
-      throw Error('Unknown combined backup. The file and all device saves are unchanged.');
-    validateBackup(data.sections.cabinet);
-    await AlibiClub.validateBackup(data.sections.club);
-    await AlibiActivities.load();
-    if (data.sections.quiet) {
-      if (
-        data.sections.quiet.kind !== 'alibi-quiet-wing-backup' ||
-        data.sections.quiet.schema !== 1
-      )
-        throw Error('Unknown Quiet Wing backup. Nothing was restored.');
-      QWStore.validate(data.sections.quiet.state);
-    }
+    const data = await inWorker({ type: 'combined-backup', text: await file.text() });
     stagedAll = data;
     dialog(
       'Choose a section to restore',
@@ -1829,44 +1756,9 @@
       ],
     );
   }
-  function validateBackup(data) {
-    if (
-      !data ||
-      data.format !== 'alibi-backup' ||
-      data.schemaVersion !== 1 ||
-      !Array.isArray(data.runs) ||
-      data.runs.length > 3000 ||
-      !Array.isArray(data.packs) ||
-      data.packs.length > 100
-    )
-      throw Error('Unsupported backup format. Nothing was changed.');
-    const runs = data.runs.map((r) => validateRun(C.clone(r))),
-      custom = data.packs.map((p) => C.validatePack(p, false));
-    if (
-      new Set(runs.map((r) => r.key)).size !== runs.length ||
-      new Set(custom.map((p) => p.id)).size !== custom.length
-    )
-      throw Error('Duplicate records in this backup.');
-    const ids = [
-      ...starter.puzzles.map((p) => p.id),
-      ...custom.flatMap((p) => p.puzzles.map((p) => p.id)),
-    ];
-    if (new Set(ids).size !== ids.length)
-      throw Error('A custom pack collides with the starter catalogue.');
-    const preferences = { seen: [], favorites: [] };
-    if (data.preferences) {
-      if (Array.isArray(data.preferences.seen))
-        preferences.seen = data.preferences.seen.filter((t) => C.TYPES.includes(t));
-      if (Array.isArray(data.preferences.favorites))
-        preferences.favorites = data.preferences.favorites
-          .filter((x) => typeof x === 'string' && x.length < 90)
-          .slice(0, 3000);
-    }
-    return { ...data, runs, packs: custom, settings: validSettings(data.settings), preferences };
-  }
   async function importBackup(file) {
     if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
-    pendingBackup = validateBackup(JSON.parse(await file.text()));
+    pendingBackup = await inWorker({ type: 'cabinet-backup', text: await file.text() });
     const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
     dialog(
       'Restore your progress.',
@@ -1900,12 +1792,15 @@
             );
         } else combinedPacks.set(p.id, p);
       }
-      b = validateBackup({
-        ...b,
-        runs: [...runs.values()],
-        packs: [...combinedPacks.values()],
-        settings,
-        preferences: prefs,
+      b = await inWorker({
+        type: 'cabinet-backup',
+        value: {
+          ...b,
+          runs: [...runs.values()],
+          packs: [...combinedPacks.values()],
+          settings,
+          preferences: prefs,
+        },
       });
     }
     await store.restore(b);
@@ -2996,6 +2891,7 @@
         : 'This page can keep playing. Reopening may still need a connection.',
     ),
   );
+  globalThis.AlibiValidateImport = inWorker;
   await AlibiClub.init({
     render,
     navigate,

@@ -1989,14 +1989,10 @@
           return;
         }
         try {
-          const o = JSON.parse(await f.text());
-          let isRealm = o.kind === 'alibi-realm',
-            next = isRealm
-              ? E.validateScene(o)
-              : o.kind === 'alibi-quiet-wing-backup' && o.schema === 1
-                ? S.validate(o.state)
-                : null;
-          if (!next) throw Error('This is not an Alibi Quiet Wing backup or realm.');
+          const { isRealm, next } = await G.AlibiValidateImport({
+            type: 'quiet-import',
+            text: await f.text(),
+          });
           const d = modal(
             'Review import',
             `<p>${isRealm ? 'Replace the current realm with' : 'Restore the entire Quiet Wing from'} <strong>${esc(isRealm ? next.name : next.scene.name)}</strong>?</p><p class="micro">An internal recovery copy is kept before a wing restore. A downloadable backup is still the safer copy. Existing Alibi puzzle and Club databases are untouched.</p><div class="row"><button id="before-import">Export current backup</button><button id="confirm-import" class="primary">${isRealm ? 'Replace realm' : 'Restore wing'}</button></div>`,

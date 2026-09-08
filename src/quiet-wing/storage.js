@@ -276,10 +276,10 @@
   G.QWStore = {
     open,
     write: (s) => enqueue(s, false),
-    replace: (s) => {
+    replace: async (s) => {
       if (mode !== 'indexeddb')
         return Promise.reject(Error('Restore requires IndexedDB. Export this session first.'));
-      return enqueue(validate(s), true);
+      return enqueue(await G.AlibiValidateImport({ type: 'quiet-state', value: s }), true);
     },
     validate,
     raw,
@@ -288,4 +288,4 @@
     status: (f) => (onstatus = f),
     info: () => ({ mode, revision, blocked }),
   };
-})(window);
+})(globalThis);

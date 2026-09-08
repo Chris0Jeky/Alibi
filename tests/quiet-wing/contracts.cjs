@@ -37,6 +37,8 @@ function env(storage, indexedDB) {
   c.window = c;
   vm.createContext(c);
   vm.runInContext(code, c);
+  // This storage-only fixture supplies the browser worker's validated result.
+  c.AlibiValidateImport = async (m) => c.QWStore.validate(m.value);
   c.QWStore.status((text, status) => statuses.push({ text, status }));
   return { s: c.QWStore, statuses };
 }
