@@ -95,7 +95,12 @@
           }));
         if (token !== epoch || !host.isConnected) return;
         const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
-        const handle = await G.AlibiQuietWing.mount({ root, css, media: c.media });
+        const handle = await G.AlibiQuietWing.mount({
+          root,
+          css,
+          media: c.media,
+          sources: c.sources,
+        });
         if (token !== epoch || !host.isConnected) {
           handle.dispose();
           return;

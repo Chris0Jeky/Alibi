@@ -2,6 +2,68 @@
 (function (G) {
   'use strict';
   const E = G.QWEngine;
+  const importedCache = new Map();
+  function imported(type, palette, rotation) {
+    const pack = G.QWCityModels;
+    if (!pack) return null;
+    const key = `${type}:${palette}:${rotation}`;
+    if (importedCache.has(key)) return importedCache.get(key);
+    const faces = [];
+    function add(id, turn = 0, up = 0, scale = 1) {
+      const m = pack[id];
+      if (!m) throw Error('Missing city model: ' + id);
+      for (const [colour, ...indices] of m.f) {
+        let color = m.c[colour];
+        const [r, g, b] = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
+        if (id.includes('roof') && (g > r * 1.1 || b > r * 1.2)) color = E.PALETTES[palette][1];
+        faces.push({
+          c: color,
+          v: indices.map((i) => {
+            let [x, y, z] = m.v[i];
+            x = (x - 0.5) * scale + 0.5;
+            y = (y - 0.5) * scale + 0.5;
+            z = z * scale + up;
+            for (let r = 0; r < (turn + rotation) % 4; r++) [x, y] = [1 - y, x];
+            return [x, y, z];
+          }),
+        });
+      }
+    }
+    const pieces = {
+      castlebase: 'tower-square-base',
+      castlefloor: 'tower-square-mid',
+      castletop: 'tower-square-top',
+      castleroof: 'tower-square-roof',
+      castlecorner: 'wall-corner',
+      castlestairs: 'stairs-stone',
+      wall: 'wall',
+      gate: 'wall-doorway',
+      bridge: 'bridge-straight',
+    };
+    if (pieces[type]) add('castle/' + pieces[type]);
+    else if (type === 'tower') {
+      add('castle/tower-hexagon-base');
+      add('castle/tower-hexagon-mid', 0, 1.31);
+      add('castle/tower-hexagon-roof', 0, 1.77);
+    } else if (type === 'keep') {
+      add('castle/tower-square-base');
+      add('castle/tower-square-mid', 0, 1.01);
+      add('castle/tower-square-top', 0, 2.02);
+    } else if (['cottage', 'townhouse', 'inn', 'library', 'barn'].includes(type)) {
+      const floors = ['townhouse', 'library'].includes(type) ? 2 : 1;
+      const wood = ['inn', 'barn'].includes(type) ? 'wood-' : '';
+      for (let z = 0; z < floors; z++)
+        for (let r = 0; r < 4; r++)
+          add(`town/wall-${wood}${r === 0 && z === 0 ? 'door' : 'window-shutters'}`, r, z);
+      add('town/' + (type === 'library' ? 'roof-point' : 'roof-gable'), 0, floors);
+    } else if (type === 'tree' || type === 'pine')
+      add('town/' + (type === 'tree' ? 'tree' : 'tree-high'), 0, 0, 0.65);
+    else if (type === 'lamp') add('town/lantern');
+    else if (type === 'market') add('town/stall-red', 0, 0, 1.4);
+    else return null;
+    importedCache.set(key, faces);
+    return faces;
+  }
   const shade = (hex, k) => {
     let a = hex.replace('#', '');
     if (a.length !== 6) return hex;
@@ -17,6 +79,8 @@
     );
   };
   function model(type, palette = 'terracotta', rotation = 0, time = 0) {
+    const asset = imported(type, palette, rotation);
+    if (asset) return asset;
     const faces = [],
       p = E.PALETTES[palette] || E.PALETTES.terracotta;
     let wall = p[0],
@@ -426,7 +490,16 @@
         });
     return faces;
   }
-  const HEIGHT = { stone: 0.56, timber: 0.6, roof: 0.6, spire: 1.6 };
+  const HEIGHT = {
+    stone: 0.56,
+    timber: 0.6,
+    roof: 0.6,
+    spire: 1.6,
+    castlebase: 1.01,
+    castlefloor: 1.01,
+    castletop: 0.3,
+    castleroof: 2.01,
+  };
   function worldMeshes(scene) {
     let tiles = [];
     for (let y = 0; y < scene.size; y++)

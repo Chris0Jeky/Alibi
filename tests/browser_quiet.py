@@ -27,7 +27,7 @@ with sync_playwright() as pw:
  page.locator('#preset').select_option('empty');page.locator('#new-confirm').click();check(page.evaluate('QWApp.state.scene.tiles.every(t=>!t.items.length)'),'Preset confirmation empties only realm')
  page.locator('[data-category="Modules"]').click();page.locator('[data-type="stone"]').click()
  def cellpos(page,index=104):
-  return page.evaluate('''(index)=>{let r=QWApp.renderer,b=r.canvas.getBoundingClientRect();for(const f of r.faces){if(f.index!==index)continue;let x=f.p.reduce((n,v)=>n+v[0],0)/f.p.length,y=f.p.reduce((n,v)=>n+v[1],0)/f.p.length;if(r.pick(x,y)===index)return {x:b.left+x,y:b.top+y};}throw Error('No visible tile '+index);}''',index)
+  return page.evaluate('''(index)=>{let r=QWApp.renderer,b=r.canvas.getBoundingClientRect();for(const face of r.mesh.find(t=>t.index===index).faces){const points=face.v.map(v=>r.project(...v));let x=points.reduce((n,v)=>n+v[0],0)/points.length,y=points.reduce((n,v)=>n+v[1],0)/points.length;if(r.pick(x,y)===index)return {x:b.left+x,y:b.top+y};}throw Error('No visible tile '+index);}''',index)
  pos=cellpos(page);page.mouse.click(**pos);check(page.evaluate('QWApp.state.scene.tiles[104].items.length')==1,'Actual canvas click places selected piece')
  for type in ['timber','roof']:
   page.locator(f'[data-type="{type}"]').click();pos=cellpos(page);page.mouse.click(**pos)

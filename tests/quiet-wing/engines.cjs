@@ -3,6 +3,7 @@ const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path');
 const E = require('../../src/quiet-wing/engine.js');
+global.QWCityModels = require('../../src/quiet-wing/assets/city-models.json');
 require('../../src/quiet-wing/realm.js');
 const R = global.QWRealm;
 let checks = 0;

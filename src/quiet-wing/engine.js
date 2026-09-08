@@ -33,7 +33,18 @@
     bridge: ['Details', 'Footbridge', 'A wooden span for shallow waterways.'],
     bench: ['Details', 'Garden bench', 'A place to watch the world.'],
     boat: ['Details', 'Little boat', 'A small red-sailed boat.'],
+    castlebase: [
+      'Modules',
+      'Castle foundation',
+      'Kenney stone tower foundation. Supports another floor.',
+    ],
+    castlefloor: ['Modules', 'Castle floor', 'A modular stone floor. Stack up to four pieces.'],
+    castletop: ['Modules', 'Battlements', 'Crenellations to finish a tower.'],
+    castleroof: ['Modules', 'Castle roof', 'A tall roof for a modular tower.'],
+    castlecorner: ['Castle', 'Corner wall', 'Turn a castle wall through a right angle.'],
+    castlestairs: ['Castle', 'Stone steps', 'An exterior stairway for the courtyard.'],
   };
+  const SUPPORTS = ['stone', 'timber', 'castlebase', 'castlefloor'];
   const TERRAIN = ['meadow', 'stone', 'path', 'water', 'sand'];
   const PALETTES = {
     terracotta: ['#e8cf9a', '#c66b4c', '#657c74'],
@@ -181,7 +192,7 @@
       )
         throw Error('Invalid terrain or excessive stack height.');
       if (
-        t.items.slice(0, -1).some((o) => !['stone', 'timber'].includes(o?.type)) ||
+        t.items.slice(0, -1).some((o) => !SUPPORTS.includes(o?.type)) ||
         (t.ground === 'water' &&
           t.items.length &&
           !['stone', 'bridge', 'boat'].includes(t.items[0]?.type))
@@ -232,7 +243,7 @@
         return { error: 'Choose a model and colour.' };
       if (n.items.length >= MAX_STACK)
         return { error: 'Four modules is the stack limit. Remove one first.' };
-      if (n.items.length && !['stone', 'timber'].includes(n.items.at(-1).type))
+      if (n.items.length && !SUPPORTS.includes(n.items.at(-1).type))
         return { error: 'Stack on a stone or timber cube. Remove the top model first.' };
       if (n.ground === 'water' && !n.items.length && !['bridge', 'boat', 'stone'].includes(a.type))
         return { error: 'Use a bridge, boat or stone foundation on water.' };
@@ -680,6 +691,7 @@
     SIZE,
     SIZES,
     TYPES,
+    SUPPORTS,
     TERRAIN,
     PALETTES,
     CROPS,

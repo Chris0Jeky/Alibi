@@ -162,6 +162,7 @@
       function styles() {
         body.classList.toggle('zen', A.state.settings.zen);
         body.classList.toggle('reduce', !A.state.settings.motion);
+        A.renderer?.setMotion?.(A.state.settings.motion);
       }
       function shell() {
         styles();
@@ -223,6 +224,9 @@
         A.petTimer = null;
         A.resizeObs?.disconnect();
         A.resizeObs = null;
+        A.renderer?.dispose?.();
+        A.previewRenderer?.dispose?.();
+        A.previewRenderer = null;
         A.renderer = null;
         A.petAction = 'idle';
       }
@@ -246,6 +250,7 @@
       }
       function realmPage() {
         if (A.resizeObs) A.resizeObs.disconnect();
+        A.renderer?.dispose?.();
         $('#main').innerHTML =
           header(
             '01 / THE REALM STUDIO',
@@ -261,6 +266,7 @@
           zoom: A.state.scene.camera.zoom,
         });
         A.renderer.setScene(A.state.scene);
+        A.renderer.setMotion?.(A.state.settings.motion);
         A.renderer.resize();
         A.resizeObs = new ResizeObserver(() => A.renderer?.resize());
         A.resizeObs.observe($('#realm'));
@@ -466,8 +472,18 @@
             )}</select></label><label>Map size<select id="world-size">${E.SIZES.map((n) => `<option value="${n}" ${n === 20 ? 'selected' : ''}>${n} × ${n}</option>`).join('')}</select></label><label>Seed<input id="world-seed" maxlength="64" value="bellweather"></label><label>Homes along roads<input id="world-density" type="range" min="0" max="100" value="50"></label></div><div class="row"><button id="world-preview">Preview this seed</button><button id="world-random">Surprise me</button></div><canvas id="world-preview-canvas" aria-label="Preview of the generated town"></canvas><p id="world-description" role="status"></p><p>Your current realm stays saved until you choose Use this world. You can undo the replacement during this visit. Export first to keep both.</p><div class="row"><button id="world-use" class="primary">Use this world</button><button id="world-keep">Keep my realm</button></div>`,
         );
         let candidate;
+        A.previewRenderer?.dispose?.();
         const canvas = $('#world-preview-canvas'),
           renderer = new R.Renderer(canvas);
+        A.previewRenderer = renderer;
+        d.addEventListener(
+          'close',
+          () => {
+            renderer.dispose?.();
+            if (A.previewRenderer === renderer) A.previewRenderer = null;
+          },
+          { once: true },
+        );
         const create = () => {
           try {
             candidate = C.generate({
@@ -821,7 +837,7 @@
       function builderHelp() {
         modal(
           'A little model-making',
-          `<p><strong>Desktop:</strong> pick a piece, point to a plot to see its ghost, then click. Use Pan or right-drag to move the view; the mouse wheel zooms.</p><p><strong>Touch:</strong> tap a plot, then the placement button. Drag to pan. Pinch or use +/− to zoom. This prevents a drag from accidentally building a row of houses.</p><p><strong>Stacking:</strong> stone and timber cubes support another piece. A roof or complete building caps the stack. Four modules per plot, five terrain levels.</p><p><strong>Keyboard:</strong> focus the canvas, use arrow keys to select a plot and Enter to apply your tool. Ctrl/Cmd+Z undoes; Ctrl/Cmd+Shift+Z redoes. The tools tray includes remove, height and inspect tools.</p><p>Isometric and diorama are fixed-angle orthographic views, with four camera rotations. Plan is overhead. This is a small 2.5D editor, not a physics simulation or free-orbit WebGL world.</p>`,
+          `<p><strong>Desktop:</strong> pick a piece, point to a plot to see its ghost, then click. Use Pan or right-drag to move the view; the mouse wheel zooms.</p><p><strong>Touch:</strong> tap a plot, then the placement button. Drag to pan. Pinch or use +/− to zoom. This prevents a drag from accidentally building a row of houses.</p><p><strong>Stacking:</strong> stone, timber and castle floors support another piece. A roof or complete building caps the stack. Four modules per plot, five terrain levels.</p><p><strong>Keyboard:</strong> focus the canvas, use arrow keys to select a plot and Enter to apply your tool. Ctrl/Cmd+Z undoes; Ctrl/Cmd+Shift+Z redoes. The tools tray includes remove, height and inspect tools.</p><p>Isometric and diorama are fixed-angle orthographic views, with four camera rotations. Plan is overhead. The lit 3D view uses your graphics hardware when available. A flat-colour view keeps the same editing and export tools available on other browsers. Water motion pauses when hidden or reduced motion is requested.</p>`,
         );
       }
       function petsPage() {
@@ -1136,7 +1152,7 @@
         $('#classics-sources').onclick = () =>
           modal(
             'A classical shelf',
-            `<p>These are new implementations of established recreational mathematics: Hanoi, wolf–goat–cabbage, water jugs, eight queens, the Lo Shu magic square, knight’s tours and sliding tiles.</p><p>The brief texts, layouts and graphics here are newly written. No claim is made that these are original puzzle inventions or that a unique solution exists for every family.</p><p>Source notes and historical references are in <a href="./quiet-wing-sources.html" target="_blank" rel="noopener">the asset and puzzle ledger</a>. The Hanoi minimum follows 2ⁿ − 1; the software tests solve all configured finite instances independently.</p>`,
+            `<p>These are new implementations of established recreational mathematics: Hanoi, wolf–goat–cabbage, water jugs, eight queens, the Lo Shu magic square, knight’s tours and sliding tiles.</p><p>The brief texts, layouts and graphics here are newly written. No claim is made that these are original puzzle inventions or that a unique solution exists for every family.</p><p>Source notes and historical references are in <a href="${esc(context.sources || './quiet-wing-sources.html')}" target="_blank" rel="noopener">the asset and puzzle ledger</a>. The Hanoi minimum follows 2ⁿ − 1; the software tests solve all configured finite instances independently.</p>`,
           );
       }
       function getClassic() {
@@ -1432,7 +1448,7 @@
             )
             .join(
               '',
-            )}</div><section class="panel" style="margin-top:24px"><div class="eyebrow">OPEN ASSET WORKBENCH</div><h2 style="margin-top:9px">A supply cupboard, not a dependency.</h2><p class="micro">The builder uses original procedural models. The small court keeper uses a Kenney CC0 sprite. External 3D model packs are not part of this renderer.</p><a href="./quiet-wing-sources.html" target="_blank" rel="noopener">Open the source, licence and download ledger →</a></section>`;
+            )}</div><section class="panel" style="margin-top:24px"><div class="eyebrow">OPEN ASSET WORKBENCH</div><h2 style="margin-top:9px">A supply cupboard, not a dependency.</h2><p class="micro">The town combines Kenney CC0 castle and fantasy building models with original landscape pieces. Houses assemble from separate walls, windows, doors and roofs. The small court keeper uses a Kenney CC0 sprite.</p><a href="${esc(context.sources || './quiet-wing-sources.html')}" target="_blank" rel="noopener">Open the source, licence and download ledger →</a></section>`;
         $$('[data-load-art]').forEach((b) => (b.onclick = () => loadArt(b.dataset.loadArt, b)));
         $$('[data-art-record]').forEach(
           (b) =>
@@ -1673,7 +1689,7 @@
             )
             .join(
               '',
-            )}<h3 style="margin-top:24px">Keep your place</h3><p>Quiet Wing offline files: ${G.AlibiActivities.diagnostics().offline ? 'Ready' : 'Not ready. Visit online, then reopen this panel.'}</p><p class="micro">This wing has its own save namespace. It does not migrate or change the original Puzzle Cabinet or Club databases.</p><div class="row"><button id="backup-export" class="primary">Export wing backup</button><button id="raw-export">Export raw recovery</button><button id="recovery-export">Export previous save</button><a href="#/settings">All Alibi saves</a><button id="backup-import">Import backup or realm</button><button id="persistent-storage">Request durable storage</button></div><p class="micro subtle" id="storage-detail">${S.info().mode === 'indexeddb' ? 'IndexedDB with revision checks and bounded waits.' : S.info().mode === 'local' ? 'Browser localStorage fallback. Use one tab at a time.' : 'Session only. Export before leaving.'} Browser data can still be cleared. Export before changing domain, browser or device.</p><div class="row"><a href="#/home">← Back to Alibi</a><span class="spacer"></span><a href="./quiet-wing-sources.html" target="_blank" rel="noopener">Sources &amp; licences</a></div>`,
+            )}<h3 style="margin-top:24px">Keep your place</h3><p>Quiet Wing offline files: ${G.AlibiActivities.diagnostics().offline ? 'Ready' : 'Not ready. Visit online, then reopen this panel.'}</p><p class="micro">This wing has its own save namespace. It does not migrate or change the original Puzzle Cabinet or Club databases.</p><div class="row"><button id="backup-export" class="primary">Export wing backup</button><button id="raw-export">Export raw recovery</button><button id="recovery-export">Export previous save</button><a href="#/settings">All Alibi saves</a><button id="backup-import">Import backup or realm</button><button id="persistent-storage">Request durable storage</button></div><p class="micro subtle" id="storage-detail">${S.info().mode === 'indexeddb' ? 'IndexedDB with revision checks and bounded waits.' : S.info().mode === 'local' ? 'Browser localStorage fallback. Use one tab at a time.' : 'Session only. Export before leaving.'} Browser data can still be cleared. Export before changing domain, browser or device.</p><div class="row"><a href="#/home">← Back to Alibi</a><span class="spacer"></span><a href="${esc(context.sources || './quiet-wing-sources.html')}" target="_blank" rel="noopener">Sources &amp; licences</a></div>`,
         );
         $$('[data-setting]', d).forEach(
           (i) =>

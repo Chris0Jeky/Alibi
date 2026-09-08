@@ -21,4 +21,5 @@ for (const [prefix, limit] of [
   );
 }
 
-assert.ok(info.quietWingBytes < 750 * 1024, 'Optional Quiet Wing pack stays below 750 KiB');
+// The optional wing includes a local 3D renderer and 24 curated model sources. Core stays unchanged.
+assert.ok(info.quietWingBytes < 1500 * 1024, 'Optional 3D Quiet Wing pack stays below 1500 KiB');
