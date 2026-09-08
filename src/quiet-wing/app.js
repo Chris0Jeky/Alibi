@@ -1080,6 +1080,34 @@
           $('[data-pot="' + focused + '"]')?.focus({ preventScroll: true });
       }
       const CLASSICS = {
+        'tideglass-morning': {
+          title: 'Tideglass',
+          kind: 'Colour pouring · morning',
+          art: 'well',
+          text: 'Gather each colour and symbol in a full glass of its own. Choose a glass, then pour onto the same top symbol or into an empty glass. A pour moves as many matching top layers as will fit.',
+          note: 'No timer or move limit. Empty glasses are breathing room. Undo any move.',
+        },
+        'tideglass-dusk': {
+          title: 'Evening tide',
+          kind: 'Colour pouring · four colours',
+          art: 'boat',
+          text: 'Arrange four colours into separate full glasses. Choose a source and a destination. Only matching top layers can join; empty glasses accept any colour.',
+          note: 'Symbols repeat the colour information. A nudge examines the current arrangement.',
+        },
+        'pairs-meadow': {
+          title: 'The pressed meadow',
+          kind: 'Matching pairs · botanical',
+          art: 'tree',
+          text: 'Turn over two cards and find their matching botanical illustrations. A mismatch stays visible until you choose the next card. Matched pairs remain face up.',
+          note: 'Eight pairs, no timer. Take as long as you like to remember a small detail.',
+        },
+        'pairs-shore': {
+          title: 'Beachcomber',
+          kind: 'Matching pairs · coastal',
+          art: 'boat',
+          text: 'Find eight pairs of small things from the shore. Turn two cards at a time. Matching pictures stay in your collection; a mismatch waits until your next choice.',
+          note: 'No disappearing cards, countdown or penalties. Undo reveals whenever you need.',
+        },
         hanoi3: {
           title: 'The three towers',
           kind: 'Hanoi · three discs',
@@ -1259,7 +1287,65 @@
           ? `<div class="result"><div class="eyebrow">FILE CLOSED</div><h3>You found a way.</h3><p class="micro">${s.moves} legal moves. Your stamp is in the journal.</p><button class="primary" id="next-classic">Back to the cabinet</button></div>`
           : '';
         if (won) $('#next-classic').onclick = () => navigate('classics');
-        if (s.id.startsWith('hanoi')) {
+        if (s.family === 'pour') {
+          const colours = ['#d49b7b', '#8faaa0', '#a299bd', '#cbb871'],
+            symbols = ['●', '◆', '✦', '▰'];
+          b.innerHTML = `<div class="tideglass-board"><div class="tideglasses">${s.jars
+            .map(
+              (jar, i) =>
+                `<button class="tideglass ${A.classicSelected === i ? 'selected' : ''}" data-glass="${i}" aria-label="Glass ${i + 1}: ${
+                  jar.length
+                    ? jar
+                        .slice()
+                        .reverse()
+                        .map((v) => ['coral circle', 'sage diamond', 'lilac star', 'gold bar'][v])
+                        .join(', ') + ' from top to bottom'
+                    : 'empty'
+                }" aria-pressed="${A.classicSelected === i}"><span class="glass-layers" style="--capacity:${s.capacity}">${Array.from(
+                  { length: s.capacity },
+                  (_, layer) => {
+                    const v = jar[s.capacity - 1 - layer];
+                    return `<span class="glass-layer" style="${v === undefined ? '' : '--liquid:' + colours[v]}">${v === undefined ? '' : symbols[v]}</span>`;
+                  },
+                ).join('')}</span><strong>${i + 1}</strong></button>`,
+            )
+            .join(
+              '',
+            )}</div><p class="micro subtle">Top layers pour first. Match the symbol, or use an empty glass.</p></div>`;
+          $$('[data-glass]').forEach(
+            (button) =>
+              (button.onclick = () => {
+                const index = +button.dataset.glass;
+                if (A.classicSelected === null) {
+                  A.classicSelected = index;
+                  drawClassic();
+                  $('#classic-message').textContent = 'Now choose a destination glass.';
+                } else if (A.classicSelected === index) {
+                  A.classicSelected = null;
+                  drawClassic();
+                } else playMove({ from: A.classicSelected, to: index });
+                $(`[data-glass="${index}"]`)?.focus({ preventScroll: true });
+              }),
+          );
+        } else if (s.family === 'pairs') {
+          const theme = s.id.endsWith('shore') ? 'shore' : 'meadow',
+            names = G.QWCalmArt.names(theme);
+          b.innerHTML = `<div class="pair-board">${s.cards
+            .map((value, i) => {
+              const matched = s.matched.includes(i),
+                open = matched || s.open.includes(i);
+              return `<button class="pair-card ${open ? 'revealed' : ''} ${matched ? 'matched' : ''}" data-calm-cell="${i}" aria-label="Card ${i + 1}: ${open ? names[value] + (matched ? ', matched' : '') : 'face down'}" aria-pressed="${open}">${open ? G.QWCalmArt.art(value, theme) : '<span class="card-back-mark" aria-hidden="true">✧</span>'}<span class="pair-caption">${open ? names[value] : i + 1}</span></button>`;
+            })
+            .join('')}</div>`;
+          $$('[data-calm-cell]').forEach(
+            (button) =>
+              (button.onclick = () => {
+                const cell = +button.dataset.calmCell;
+                playMove({ cell });
+                $(`[data-calm-cell="${cell}"]`)?.focus({ preventScroll: true });
+              }),
+          );
+        } else if (s.id.startsWith('hanoi')) {
           b.innerHTML = `<div class="pegs">${s.pegs
             .map(
               (peg, i) =>
@@ -1370,6 +1456,22 @@
       }
       function classicHint() {
         const s = getClassic().state;
+        if (s.family === 'pour') {
+          const answer = G.QWCalm.solve(s),
+            next = answer.actions?.[0];
+          modal(
+            'A pour to consider',
+            `<p>${next ? `Try pouring glass ${next.from + 1} into glass ${next.to + 1}. This starts a legal route from your current arrangement.` : answer.limited ? 'This arrangement needs more searching than the hint budget allows. Try undoing a few moves to recover an empty glass.' : answer.actions ? 'Every colour is already home.' : 'No route remains from this arrangement. Undo a pour to make space again.'}</p><p class="micro subtle">A bounded search checks legal pours from this board. It does not apply the move for you.</p>`,
+          );
+          return;
+        }
+        if (s.family === 'pairs') {
+          modal(
+            'Notice one small detail',
+            '<p>Try remembering a picture together with its row and column. Turn a card you have not seen, then look for its partner. A mismatch stays visible until your next choice, so there is time to study it.</p><p class="micro subtle">This note does not inspect the hidden pictures.</p>',
+          );
+          return;
+        }
         let msg;
         if (s.id.startsWith('hanoi'))
           msg =

@@ -59,7 +59,9 @@ turn those unperformed checks into claims of certification or abandon the author
    Nimbus, all five interaction presentations, retained saved identities and offline assets.
    Local control, persistence, reduced-motion and graphics-fallback checks pass; hosted and
    physical-device checks remain with the release gates. See STATE.md for measured pack size.
-3. Additional relaxing games and deeper garden interactions with actual-control proofs.
+3. Two new relaxing families now have four complete boards: Tideglass colour pouring and
+   botanical/coastal pair matching. Rules, replayed saves, actual controls and offline completion
+   are verified. Deeper garden/idle interactions remain active work.
 4. Cross-app art direction and better case/puzzle imagery; Adobe currently fails initialization
    with HTTP 403. Use other available tools/direct licensed assets without blocking the work.
 5. Run the complete suite, reconcile CI/review, merge reviewed source and deploy to the existing

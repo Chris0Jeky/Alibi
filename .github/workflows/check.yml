@@ -43,6 +43,7 @@ jobs:
           python tests/browser_city.py
           python tests/browser_city_gpu.py
           python tests/browser_companions.py
+          python tests/browser_calm.py
           python tests/browser_quiet_origin.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py

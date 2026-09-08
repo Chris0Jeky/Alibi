@@ -32,6 +32,14 @@ is 1,952,850 bytes; the initial script is 124,033 bytes gzip and core offline pa
 No external image requests, CSP relaxation or new database identity. Hosted/physical evidence
 remains outstanding. Broader games, artwork and release work remain in the expansion plan.
 
+Relaxing-games slice at `d778361bf3c9`: Tideglass has two finite colour-pouring boards with
+symbol alternatives and bounded current-board search; Pressed Meadow and Beachcomber have
+two illustrated pair boards with persistent reveals. Every new board completes through real
+controls, undo/reload work, and all four completion records survive an offline reload. Four
+focused reducer tests and `npm run verify` pass. Existing games retain their IDs and records.
+New original botanical/coastal motifs are included locally. Phone/desktop captures inspected;
+physical interaction and the final hosted release remain separate gates.
+
 ## Quiet Wing source candidate
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
