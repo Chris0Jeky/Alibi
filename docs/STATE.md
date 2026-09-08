@@ -2,6 +2,25 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Quiet Wing source candidate
+
+- **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
+  commits precede the handoff commit. See [QUIET-WING.md](QUIET-WING.md) for source disposition,
+  actual evidence, asset receipts and recovery. No Quiet Wing hosted release is claimed.
+- Native `#/quiet/…` activity boundary, Shadow DOM isolation and disposal, root-owned updates,
+  optional offline pack, future-save raw recovery and combined backup discovery with staged
+  per-section restore. All existing puzzle/Club identities and both hosting configurations remain.
+- All 209 delivered input hashes match. Four museum images fetched from official endpoints,
+  public-domain flags verified, originals/receipts retained, optimized WebPs decoded and inspected.
+  The downloaded Kenney 2.0 pack remains reference; only the supplied verified keeper sprite renders.
+- Local checks pass: existing Node gate plus 95,459 parameterized Quiet Wing checks and 20 storage
+  checks; 156 real-origin controls; 34 origin/restart/offline/update/recovery checks. Existing browser
+  UI/Club/origin/expedition/restart/boot/update and local two-browser rooms all pass. Independent
+  Terra high review found no blockers. Hosted CI state belongs to the PR, not a presumed success.
+- Remaining gates: [#13](https://github.com/Chris0Jeky/Alibi/issues/13), affected Android freeze [#11](https://github.com/Chris0Jeky/Alibi/issues/11),
+  physical TalkBack/gestures/performance, actual hosted preview/update/rollback, OBJ editor import,
+  and human curation. [HUMAN_TODO.md](../HUMAN_TODO.md). Do not clear site data to recover.
+
 ## After Hours candidate
 
 - Source milestone: **0.5.0-preview.1**, 116 preserved puzzles, thirteen original engines,
