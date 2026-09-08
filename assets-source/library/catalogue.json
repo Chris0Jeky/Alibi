@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "baselineCommit": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
   "counts": {
-    "original": 90,
-    "reused": 76,
-    "derivatives": 294,
-    "uniqueFiles": 404
+    "original": 86,
+    "reused": 80,
+    "derivatives": 295,
+    "uniqueFiles": 405
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -2553,11 +2553,16 @@
         "duration_ms": 280,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.406,
+        "peak_dbfs": -15.407,
         "rms_dbfs": -25,
-        "master_sha256": "dd0ab399ddcc57866aaf9abbc9a793732f5614bf369afc4965eadd8e51321ca9",
-        "opus_sha256": "f1fb077ec44b3e3ea7e09a622a772c8f49f42af0c6577c0050ab935b7fb95d50",
-        "ogg_sha256": "d077e38d13a0a4fc15699e661b222cc901bda5291dbd54cdfd4547dfb70f5066",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "2e1414f69d1a8704bb213138e2347cbb4e76dbe096a4e412211e7a8f8079d3b4",
+        "opus_sha256": "d8d8c3f189b40295a6d00d6e15d327efcbf6501edec2615a2dfd780bd2da80c8",
+        "ogg_sha256": "ae73141012a990ed4ac9a3d6d0478a8e1aae4eda32c08df12363fabce6cd68e6",
         "probe": {
           "opus": {
             "programs": [],
@@ -2610,17 +2615,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-focus-soft.wav",
           "bytes": 26924,
-          "sha256": "dd0ab399ddcc57866aaf9abbc9a793732f5614bf369afc4965eadd8e51321ca9"
+          "sha256": "2e1414f69d1a8704bb213138e2347cbb4e76dbe096a4e412211e7a8f8079d3b4"
         },
         {
           "path": "assets-source/library/audio/production/ui-focus-soft.opus",
-          "bytes": 3105,
-          "sha256": "f1fb077ec44b3e3ea7e09a622a772c8f49f42af0c6577c0050ab935b7fb95d50"
+          "bytes": 3230,
+          "sha256": "d8d8c3f189b40295a6d00d6e15d327efcbf6501edec2615a2dfd780bd2da80c8"
         },
         {
           "path": "assets-source/library/audio/production/ui-focus-soft.ogg",
-          "bytes": 4894,
-          "sha256": "d077e38d13a0a4fc15699e661b222cc901bda5291dbd54cdfd4547dfb70f5066"
+          "bytes": 4896,
+          "sha256": "ae73141012a990ed4ac9a3d6d0478a8e1aae4eda32c08df12363fabce6cd68e6"
         }
       ]
     },
@@ -2640,11 +2645,16 @@
         "duration_ms": 310,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.182,
+        "peak_dbfs": -15.196,
         "rms_dbfs": -24,
-        "master_sha256": "37d1b55615a5793cb678a3bbe779966a6230f90786be1113d0d94bbb5b6cc601",
-        "opus_sha256": "e7b0b1337bc607c7bd2f3f27398694447c0e8fe937ce04cc1b846fcd1e046971",
-        "ogg_sha256": "7220e55771dbcaa45fbd0a9f9c848f791e4659ad7d0e6fa4adba6251932090f2",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "1d34126417421b1a89547b56eb6840029e7e78b5b7654812b706c7cf2bf95d94",
+        "opus_sha256": "b877abecacbf6e7ce87a44326340b744685f8442f8f429928c317cd49c65ce71",
+        "ogg_sha256": "b7319d52dae8c5734605a32ebc1d04fb32b1d79a1284a4469c009aa6fa76a8df",
         "probe": {
           "opus": {
             "programs": [],
@@ -2697,17 +2707,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-select-paper.wav",
           "bytes": 29804,
-          "sha256": "37d1b55615a5793cb678a3bbe779966a6230f90786be1113d0d94bbb5b6cc601"
+          "sha256": "1d34126417421b1a89547b56eb6840029e7e78b5b7654812b706c7cf2bf95d94"
         },
         {
           "path": "assets-source/library/audio/production/ui-select-paper.opus",
-          "bytes": 3574,
-          "sha256": "e7b0b1337bc607c7bd2f3f27398694447c0e8fe937ce04cc1b846fcd1e046971"
+          "bytes": 3532,
+          "sha256": "b877abecacbf6e7ce87a44326340b744685f8442f8f429928c317cd49c65ce71"
         },
         {
           "path": "assets-source/library/audio/production/ui-select-paper.ogg",
-          "bytes": 5229,
-          "sha256": "7220e55771dbcaa45fbd0a9f9c848f791e4659ad7d0e6fa4adba6251932090f2"
+          "bytes": 5215,
+          "sha256": "b7319d52dae8c5734605a32ebc1d04fb32b1d79a1284a4469c009aa6fa76a8df"
         }
       ]
     },
@@ -2727,11 +2737,16 @@
         "duration_ms": 520,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.507,
+        "peak_dbfs": -15.59,
         "rms_dbfs": -25,
-        "master_sha256": "8618b63063a4c961eb4bd43a9b488b7fc8a1aaa719b5e4c4027f9d2e0a62383a",
-        "opus_sha256": "2cbe6e0eb593feae7979f3c07655b023544ebe17aba34565c82cdd3378cb5960",
-        "ogg_sha256": "372a559847cb7f9ddc779e75704562e9aaafa419a64f13894e423407247fe9a3",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "d7be564ad2dfc1bbdfadc35616c70a03e76afa68042b73b73a209b1c97462885",
+        "opus_sha256": "29cc39048e70d0238d92958c13a792bcb837dc99577b4e336ac573a9a73cd417",
+        "ogg_sha256": "d68e8584610d262838277e1c266b9a73367e749d7e332bd3bb86926dd03babf7",
         "probe": {
           "opus": {
             "programs": [],
@@ -2784,17 +2799,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-open-desk.wav",
           "bytes": 49964,
-          "sha256": "8618b63063a4c961eb4bd43a9b488b7fc8a1aaa719b5e4c4027f9d2e0a62383a"
+          "sha256": "d7be564ad2dfc1bbdfadc35616c70a03e76afa68042b73b73a209b1c97462885"
         },
         {
           "path": "assets-source/library/audio/production/ui-open-desk.opus",
-          "bytes": 5208,
-          "sha256": "2cbe6e0eb593feae7979f3c07655b023544ebe17aba34565c82cdd3378cb5960"
+          "bytes": 5270,
+          "sha256": "29cc39048e70d0238d92958c13a792bcb837dc99577b4e336ac573a9a73cd417"
         },
         {
           "path": "assets-source/library/audio/production/ui-open-desk.ogg",
-          "bytes": 6197,
-          "sha256": "372a559847cb7f9ddc779e75704562e9aaafa419a64f13894e423407247fe9a3"
+          "bytes": 6198,
+          "sha256": "d68e8584610d262838277e1c266b9a73367e749d7e332bd3bb86926dd03babf7"
         }
       ]
     },
@@ -2814,11 +2829,16 @@
         "duration_ms": 430,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -16.054,
+        "peak_dbfs": -15.966,
         "rms_dbfs": -26,
-        "master_sha256": "eaba8519580b9361dcc477c657ba2a195ccec1cb3614b27393dcb993c36fa1c4",
-        "opus_sha256": "f991fb71987ab90341c7a0aa595424ba9e16fcd32478d27d3c4bbfa62c85d6bb",
-        "ogg_sha256": "5ccf1804063e4f96a366ece7b158cd218f89402b7440404cc0487ace57946cc1",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "508ccb7db6c32cc9c2fefd28b6ebd0392ecf337938d6da355e581f6ce3d615d0",
+        "opus_sha256": "f5abe4225f5e8196d64af046aaf53e9568efae9f10f16bc677127dec5bd39489",
+        "ogg_sha256": "7989957bb025b3fd2b854bdb52cb0b327e43dafc9cfbbd86ab460ee65b23a430",
         "probe": {
           "opus": {
             "programs": [],
@@ -2871,17 +2891,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-close-desk.wav",
           "bytes": 41324,
-          "sha256": "eaba8519580b9361dcc477c657ba2a195ccec1cb3614b27393dcb993c36fa1c4"
+          "sha256": "508ccb7db6c32cc9c2fefd28b6ebd0392ecf337938d6da355e581f6ce3d615d0"
         },
         {
           "path": "assets-source/library/audio/production/ui-close-desk.opus",
-          "bytes": 4831,
-          "sha256": "f991fb71987ab90341c7a0aa595424ba9e16fcd32478d27d3c4bbfa62c85d6bb"
+          "bytes": 4734,
+          "sha256": "f5abe4225f5e8196d64af046aaf53e9568efae9f10f16bc677127dec5bd39489"
         },
         {
           "path": "assets-source/library/audio/production/ui-close-desk.ogg",
-          "bytes": 5876,
-          "sha256": "5ccf1804063e4f96a366ece7b158cd218f89402b7440404cc0487ace57946cc1"
+          "bytes": 5852,
+          "sha256": "7989957bb025b3fd2b854bdb52cb0b327e43dafc9cfbbd86ab460ee65b23a430"
         }
       ]
     },
@@ -2901,11 +2921,16 @@
         "duration_ms": 360,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -17.352,
+        "peak_dbfs": -16.778,
         "rms_dbfs": -27,
-        "master_sha256": "7a06d535510aa57379c327e49ef48faea6a99c80d3b08980e7f2ebf7401bd7e6",
-        "opus_sha256": "85b0ccabbc572bc252039e8f66199bdc4eb5862f9262084dfcdde8d098864f84",
-        "ogg_sha256": "4a6bc8bb380033a2ec7d3fc5950a0565c4b4730b1e0c9a7d5a2967cb52b75051",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "a3c6720984a5fa7194cebfe0f4ab1e12d00a2993fc6f7a7bc99ef0fa7b7f2bd8",
+        "opus_sha256": "f4dba4150f13c7fa0d623e742ddf922a7fb245e22ac569f1e1ab3bcd35918f40",
+        "ogg_sha256": "25d3a1a04cb198163f16869858119cd248f62ec1990299c254c325d768c8e6e9",
         "probe": {
           "opus": {
             "programs": [],
@@ -2958,17 +2983,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-navigation-page.wav",
           "bytes": 34604,
-          "sha256": "7a06d535510aa57379c327e49ef48faea6a99c80d3b08980e7f2ebf7401bd7e6"
+          "sha256": "a3c6720984a5fa7194cebfe0f4ab1e12d00a2993fc6f7a7bc99ef0fa7b7f2bd8"
         },
         {
           "path": "assets-source/library/audio/production/ui-navigation-page.opus",
-          "bytes": 3914,
-          "sha256": "85b0ccabbc572bc252039e8f66199bdc4eb5862f9262084dfcdde8d098864f84"
+          "bytes": 3654,
+          "sha256": "f4dba4150f13c7fa0d623e742ddf922a7fb245e22ac569f1e1ab3bcd35918f40"
         },
         {
           "path": "assets-source/library/audio/production/ui-navigation-page.ogg",
-          "bytes": 5532,
-          "sha256": "4a6bc8bb380033a2ec7d3fc5950a0565c4b4730b1e0c9a7d5a2967cb52b75051"
+          "bytes": 5749,
+          "sha256": "25d3a1a04cb198163f16869858119cd248f62ec1990299c254c325d768c8e6e9"
         }
       ]
     },
@@ -2988,11 +3013,16 @@
         "duration_ms": 260,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -16.767,
+        "peak_dbfs": -16.752,
         "rms_dbfs": -27,
-        "master_sha256": "3ff68938dfbd5b7629030e2e76927bcda24479ace3c1dfdaa91169f839b943cf",
-        "opus_sha256": "2c4a1391f65baa9dfa3802d768c063a7b6e6f6d340c937825618b866ba124fe7",
-        "ogg_sha256": "f744f98516f5fc2993428f534b37a84f3333f27fc4cfda90317864631fdb69cc",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "9f8951932c43911b2f13d5f86eabbda6a555ae4fdbe8df88151b642fbc0f0119",
+        "opus_sha256": "251667ac47d48b4d58c17ee8a6005792e21d55d52269f4d6f03338dbfe0cece2",
+        "ogg_sha256": "b08879f84ba71004bd444b87c5ca0118401fb70c43318cd356456a55c34fccac",
         "probe": {
           "opus": {
             "programs": [],
@@ -3045,17 +3075,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-tab-switch.wav",
           "bytes": 25004,
-          "sha256": "3ff68938dfbd5b7629030e2e76927bcda24479ace3c1dfdaa91169f839b943cf"
+          "sha256": "9f8951932c43911b2f13d5f86eabbda6a555ae4fdbe8df88151b642fbc0f0119"
         },
         {
           "path": "assets-source/library/audio/production/ui-tab-switch.opus",
-          "bytes": 2429,
-          "sha256": "2c4a1391f65baa9dfa3802d768c063a7b6e6f6d340c937825618b866ba124fe7"
+          "bytes": 2543,
+          "sha256": "251667ac47d48b4d58c17ee8a6005792e21d55d52269f4d6f03338dbfe0cece2"
         },
         {
           "path": "assets-source/library/audio/production/ui-tab-switch.ogg",
-          "bytes": 4759,
-          "sha256": "f744f98516f5fc2993428f534b37a84f3333f27fc4cfda90317864631fdb69cc"
+          "bytes": 4760,
+          "sha256": "b08879f84ba71004bd444b87c5ca0118401fb70c43318cd356456a55c34fccac"
         }
       ]
     },
@@ -3075,11 +3105,16 @@
         "duration_ms": 390,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.528,
+        "peak_dbfs": -15.44,
         "rms_dbfs": -26,
-        "master_sha256": "747b89075d2a6b4c1e6c090bc77f1ed6c0707ce6e0ab152c97a8b5fd96925c34",
-        "opus_sha256": "d326964d5115ab307550b3997c37029094b8d4d0897b722d4c82193dd1762b74",
-        "ogg_sha256": "19cb4d1bd0d62eb4e9f81836bfe057d7f84afff5999b9b572d5b97b049ab6b74",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "ac38e34a5790169d192ad73478a321ac374b0021bf03f0840e7ac215e7a5e1aa",
+        "opus_sha256": "2d70eef6641c13f04b45ab8957f318e1384c4197ef14e360f450944e0a638f12",
+        "ogg_sha256": "9252346219bd2b0132ffa2274de09cc9a0d21510bf790eed77caaf239dc99adf",
         "probe": {
           "opus": {
             "programs": [],
@@ -3132,17 +3167,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-toggle-on.wav",
           "bytes": 37484,
-          "sha256": "747b89075d2a6b4c1e6c090bc77f1ed6c0707ce6e0ab152c97a8b5fd96925c34"
+          "sha256": "ac38e34a5790169d192ad73478a321ac374b0021bf03f0840e7ac215e7a5e1aa"
         },
         {
           "path": "assets-source/library/audio/production/ui-toggle-on.opus",
-          "bytes": 4232,
-          "sha256": "d326964d5115ab307550b3997c37029094b8d4d0897b722d4c82193dd1762b74"
+          "bytes": 4152,
+          "sha256": "2d70eef6641c13f04b45ab8957f318e1384c4197ef14e360f450944e0a638f12"
         },
         {
           "path": "assets-source/library/audio/production/ui-toggle-on.ogg",
-          "bytes": 5636,
-          "sha256": "19cb4d1bd0d62eb4e9f81836bfe057d7f84afff5999b9b572d5b97b049ab6b74"
+          "bytes": 5645,
+          "sha256": "9252346219bd2b0132ffa2274de09cc9a0d21510bf790eed77caaf239dc99adf"
         }
       ]
     },
@@ -3162,11 +3197,16 @@
         "duration_ms": 350,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -16.567,
+        "peak_dbfs": -16.51,
         "rms_dbfs": -27,
-        "master_sha256": "667f354ee0abe83967570a7efc072c702084cad3c537ed378078e33eda96172f",
-        "opus_sha256": "20aa051c4d5bec773b1aee3c8bab92c832e93ab97a6607aae9f56acc1857d8bd",
-        "ogg_sha256": "0ed740a490f129d9dc9351a3bf1409aa3587807115d56189ee572949a4185d52",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "969b583463f47bae74400a0d0ab5e0560a68111b8828a51d5dea0143d07d8a71",
+        "opus_sha256": "6118e586c7e021556fa48420844cde1ed0e2097d85717eeaefac58d5c43b4053",
+        "ogg_sha256": "f3c82bc56ff630a8360afb3ff5b2c846ffc73bd56ff196e78ca05fd1d7a0a450",
         "probe": {
           "opus": {
             "programs": [],
@@ -3219,17 +3259,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-toggle-off.wav",
           "bytes": 33644,
-          "sha256": "667f354ee0abe83967570a7efc072c702084cad3c537ed378078e33eda96172f"
+          "sha256": "969b583463f47bae74400a0d0ab5e0560a68111b8828a51d5dea0143d07d8a71"
         },
         {
           "path": "assets-source/library/audio/production/ui-toggle-off.opus",
-          "bytes": 3980,
-          "sha256": "20aa051c4d5bec773b1aee3c8bab92c832e93ab97a6607aae9f56acc1857d8bd"
+          "bytes": 3886,
+          "sha256": "6118e586c7e021556fa48420844cde1ed0e2097d85717eeaefac58d5c43b4053"
         },
         {
           "path": "assets-source/library/audio/production/ui-toggle-off.ogg",
-          "bytes": 5518,
-          "sha256": "0ed740a490f129d9dc9351a3bf1409aa3587807115d56189ee572949a4185d52"
+          "bytes": 5536,
+          "sha256": "f3c82bc56ff630a8360afb3ff5b2c846ffc73bd56ff196e78ca05fd1d7a0a450"
         }
       ]
     },
@@ -3249,11 +3289,16 @@
         "duration_ms": 360,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.646,
+        "peak_dbfs": -15.742,
         "rms_dbfs": -25,
-        "master_sha256": "4c6957525a35dfbd5234d1a7e41cc09d8ac8a5b154f7b2bdd4aab2fdf7e90b29",
-        "opus_sha256": "548f1f66f9b7ab3575860ac66709e870efec6d770c3bbce9608f8ae419957c3d",
-        "ogg_sha256": "4f1d1f9ba9eb78bb519a7ac22d3a4d992631e7dec701888e18695a2f20b06cd4",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "4204d259544ae762478a19ddcf5f95f5580364475f745a90bea8a64a0317d74b",
+        "opus_sha256": "7e820ed984908c5d43960dbbd6e6c987150794d4225ebcb34a257b01885639af",
+        "ogg_sha256": "ddb875ca06265d3f4e7678f2b0a3e0cacfae3012895a1e798aa505cf60e16947",
         "probe": {
           "opus": {
             "programs": [],
@@ -3306,17 +3351,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-undo.wav",
           "bytes": 34604,
-          "sha256": "4c6957525a35dfbd5234d1a7e41cc09d8ac8a5b154f7b2bdd4aab2fdf7e90b29"
+          "sha256": "4204d259544ae762478a19ddcf5f95f5580364475f745a90bea8a64a0317d74b"
         },
         {
           "path": "assets-source/library/audio/production/ui-undo.opus",
-          "bytes": 4014,
-          "sha256": "548f1f66f9b7ab3575860ac66709e870efec6d770c3bbce9608f8ae419957c3d"
+          "bytes": 3962,
+          "sha256": "7e820ed984908c5d43960dbbd6e6c987150794d4225ebcb34a257b01885639af"
         },
         {
           "path": "assets-source/library/audio/production/ui-undo.ogg",
-          "bytes": 5442,
-          "sha256": "4f1d1f9ba9eb78bb519a7ac22d3a4d992631e7dec701888e18695a2f20b06cd4"
+          "bytes": 5450,
+          "sha256": "ddb875ca06265d3f4e7678f2b0a3e0cacfae3012895a1e798aa505cf60e16947"
         }
       ]
     },
@@ -3336,11 +3381,16 @@
         "duration_ms": 390,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -14.014,
+        "peak_dbfs": -14.033,
         "rms_dbfs": -25,
-        "master_sha256": "da31bae9266fd20052bdcec863529f0f1d7e5abc2db8e6fb4978bb5a46ec618b",
-        "opus_sha256": "d804f6b593b0151a3ad16b2cd7e4419d504cf8f45c010c4312cbf4f31410c84d",
-        "ogg_sha256": "30a05e538ec0ad5a1dc27d02bc560ba2a6ae5a30cb4c8861314d34dc6f56fc08",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "bd21dd374f4948e2a5849b18c398d3b7e15fc7cd23d7d93350946f478405a4fa",
+        "opus_sha256": "5931ea9917d91b5671d092c03871099b00af83b9d4619cae4e83bbffd4ba397f",
+        "ogg_sha256": "11f21889b4dddefbe88d0d3c01f1d176f06a8660075b281f72f65db899b8c9a2",
         "probe": {
           "opus": {
             "programs": [],
@@ -3393,17 +3443,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-redo.wav",
           "bytes": 37484,
-          "sha256": "da31bae9266fd20052bdcec863529f0f1d7e5abc2db8e6fb4978bb5a46ec618b"
+          "sha256": "bd21dd374f4948e2a5849b18c398d3b7e15fc7cd23d7d93350946f478405a4fa"
         },
         {
           "path": "assets-source/library/audio/production/ui-redo.opus",
-          "bytes": 4194,
-          "sha256": "d804f6b593b0151a3ad16b2cd7e4419d504cf8f45c010c4312cbf4f31410c84d"
+          "bytes": 4143,
+          "sha256": "5931ea9917d91b5671d092c03871099b00af83b9d4619cae4e83bbffd4ba397f"
         },
         {
           "path": "assets-source/library/audio/production/ui-redo.ogg",
-          "bytes": 5437,
-          "sha256": "30a05e538ec0ad5a1dc27d02bc560ba2a6ae5a30cb4c8861314d34dc6f56fc08"
+          "bytes": 5453,
+          "sha256": "11f21889b4dddefbe88d0d3c01f1d176f06a8660075b281f72f65db899b8c9a2"
         }
       ]
     },
@@ -3423,11 +3473,16 @@
         "duration_ms": 300,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -17.996,
+        "peak_dbfs": -18.006,
         "rms_dbfs": -29,
-        "master_sha256": "617a9149e5ce75750fd70568c3feef283141b7ef3686de36737faac9ca48599b",
-        "opus_sha256": "98ae0c61ba623236a6900f610489a90e75456ddfd2726feb29a1732a85b9170c",
-        "ogg_sha256": "51d4396acc905fc09d59c5cadb72633929c0c37b55fe26ee733a49833cd81f75",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "eae9ca3f50fc31579fb967113af54bf1d25dbe4ea624c2f30503fa786dac24a8",
+        "opus_sha256": "7a80ca2d02cca53f525c349c75df6cb1275aa6628e80906a585a07e888e25a34",
+        "ogg_sha256": "7e940746b40f70f2dcbd0b253c0248fd610ca48d5c398e74440dc333a0357bfb",
         "probe": {
           "opus": {
             "programs": [],
@@ -3480,17 +3535,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-cancel.wav",
           "bytes": 28844,
-          "sha256": "617a9149e5ce75750fd70568c3feef283141b7ef3686de36737faac9ca48599b"
+          "sha256": "eae9ca3f50fc31579fb967113af54bf1d25dbe4ea624c2f30503fa786dac24a8"
         },
         {
           "path": "assets-source/library/audio/production/ui-cancel.opus",
-          "bytes": 2615,
-          "sha256": "98ae0c61ba623236a6900f610489a90e75456ddfd2726feb29a1732a85b9170c"
+          "bytes": 2792,
+          "sha256": "7a80ca2d02cca53f525c349c75df6cb1275aa6628e80906a585a07e888e25a34"
         },
         {
           "path": "assets-source/library/audio/production/ui-cancel.ogg",
-          "bytes": 5048,
-          "sha256": "51d4396acc905fc09d59c5cadb72633929c0c37b55fe26ee733a49833cd81f75"
+          "bytes": 5081,
+          "sha256": "7e940746b40f70f2dcbd0b253c0248fd610ca48d5c398e74440dc333a0357bfb"
         }
       ]
     },
@@ -3510,11 +3565,16 @@
         "duration_ms": 330,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -19.492,
+        "peak_dbfs": -19.496,
         "rms_dbfs": -29,
-        "master_sha256": "bdd33c046cdcc45ad75137f021e3c89f98dee8550b4a4ef370d5b3abc0f319c3",
-        "opus_sha256": "402fddf9fff9e43de99b68623e378303875c0c189685f71b8b6977c72f2a44e8",
-        "ogg_sha256": "0e07d3cfc69a40806260436722a2bc75a5f091ba02ff0b2cdab997238f02789b",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "3429a191fad0f61f299527572c317cea9833d1958159f144e86963c23ad88704",
+        "opus_sha256": "47038643df020d4830d15e52fb44504dac49aae724f7660f13b6e193c4c5f678",
+        "ogg_sha256": "b9bc830c618c9f6d7cf934f1254084ebfba1f57ce2879b07b6d0690aa9be6661",
         "probe": {
           "opus": {
             "programs": [],
@@ -3567,17 +3627,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-invalid-gentle.wav",
           "bytes": 31724,
-          "sha256": "bdd33c046cdcc45ad75137f021e3c89f98dee8550b4a4ef370d5b3abc0f319c3"
+          "sha256": "3429a191fad0f61f299527572c317cea9833d1958159f144e86963c23ad88704"
         },
         {
           "path": "assets-source/library/audio/production/ui-invalid-gentle.opus",
-          "bytes": 2864,
-          "sha256": "402fddf9fff9e43de99b68623e378303875c0c189685f71b8b6977c72f2a44e8"
+          "bytes": 2834,
+          "sha256": "47038643df020d4830d15e52fb44504dac49aae724f7660f13b6e193c4c5f678"
         },
         {
           "path": "assets-source/library/audio/production/ui-invalid-gentle.ogg",
-          "bytes": 5044,
-          "sha256": "0e07d3cfc69a40806260436722a2bc75a5f091ba02ff0b2cdab997238f02789b"
+          "bytes": 5085,
+          "sha256": "b9bc830c618c9f6d7cf934f1254084ebfba1f57ce2879b07b6d0690aa9be6661"
         }
       ]
     },
@@ -3597,11 +3657,16 @@
         "duration_ms": 430,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.161,
+        "peak_dbfs": -15.165,
         "rms_dbfs": -24,
-        "master_sha256": "149cb9ea1a74fa96619213084a9223d7bc52c25595c54de344d609f008b99a17",
-        "opus_sha256": "f85858c3227fdc23a90bad6b2a392c32a2a3de160c40913588f3bf3ce87c35da",
-        "ogg_sha256": "ca5e9e65781b447b32c3a7459f4eaac8c8063586e56a4253c7cde1de371dbf69",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "b16095812757aea5efa06eb32dbe918d8923a740c63ed449fd5c769966f67e69",
+        "opus_sha256": "e0d103a1bff0ebd87257d0e109b2a705c7528e7424bd3dd6c83179d3190afcda",
+        "ogg_sha256": "f3ed58f40a8c754c473942d33428dc18b212a5c8263f8348a9fab85a576d11c7",
         "probe": {
           "opus": {
             "programs": [],
@@ -3654,17 +3719,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-place-wood.wav",
           "bytes": 41324,
-          "sha256": "149cb9ea1a74fa96619213084a9223d7bc52c25595c54de344d609f008b99a17"
+          "sha256": "b16095812757aea5efa06eb32dbe918d8923a740c63ed449fd5c769966f67e69"
         },
         {
           "path": "assets-source/library/audio/production/ui-place-wood.opus",
-          "bytes": 4342,
-          "sha256": "f85858c3227fdc23a90bad6b2a392c32a2a3de160c40913588f3bf3ce87c35da"
+          "bytes": 4283,
+          "sha256": "e0d103a1bff0ebd87257d0e109b2a705c7528e7424bd3dd6c83179d3190afcda"
         },
         {
           "path": "assets-source/library/audio/production/ui-place-wood.ogg",
-          "bytes": 5458,
-          "sha256": "ca5e9e65781b447b32c3a7459f4eaac8c8063586e56a4253c7cde1de371dbf69"
+          "bytes": 5463,
+          "sha256": "f3ed58f40a8c754c473942d33428dc18b212a5c8263f8348a9fab85a576d11c7"
         }
       ]
     },
@@ -3684,11 +3749,16 @@
         "duration_ms": 380,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -15.518,
+        "peak_dbfs": -15.533,
         "rms_dbfs": -27,
-        "master_sha256": "8dd668907bc51fefcbfab11bdab7b261146e66387a97bba4cee99c9563c72a69",
-        "opus_sha256": "dba7264ad0bd72c9c9aa39cce24fa3e4064b3e21f845ed0f4f36001c3a593664",
-        "ogg_sha256": "b47e2ecc1423a9ae9ac8a0fc7b9f39d23734c5fbbb9e136b3468da4f017904c8",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "02478eeb374de7597719f918db9c1f58a211aa22dc5895f8a1df5f7cf11750fa",
+        "opus_sha256": "233a17aca78fd8ec9efb205c21188dd5223f5e38b267f58c6114a9b8010b26e0",
+        "ogg_sha256": "cea1399a075be30acddc22c79761502dbd79867cd81cf7d5d525d79243afafab",
         "probe": {
           "opus": {
             "programs": [],
@@ -3741,17 +3811,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-remove-low.wav",
           "bytes": 36524,
-          "sha256": "8dd668907bc51fefcbfab11bdab7b261146e66387a97bba4cee99c9563c72a69"
+          "sha256": "02478eeb374de7597719f918db9c1f58a211aa22dc5895f8a1df5f7cf11750fa"
         },
         {
           "path": "assets-source/library/audio/production/ui-remove-low.opus",
-          "bytes": 3416,
-          "sha256": "dba7264ad0bd72c9c9aa39cce24fa3e4064b3e21f845ed0f4f36001c3a593664"
+          "bytes": 3426,
+          "sha256": "233a17aca78fd8ec9efb205c21188dd5223f5e38b267f58c6114a9b8010b26e0"
         },
         {
           "path": "assets-source/library/audio/production/ui-remove-low.ogg",
-          "bytes": 5350,
-          "sha256": "b47e2ecc1423a9ae9ac8a0fc7b9f39d23734c5fbbb9e136b3468da4f017904c8"
+          "bytes": 5368,
+          "sha256": "cea1399a075be30acddc22c79761502dbd79867cd81cf7d5d525d79243afafab"
         }
       ]
     },
@@ -3771,11 +3841,16 @@
         "duration_ms": 620,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -16.818,
+        "peak_dbfs": -16.426,
         "rms_dbfs": -27,
-        "master_sha256": "878e2e43e6f23d64a67f3eed48e1b97d14997a9c69a5e1366bfc55b6f3cddcf2",
-        "opus_sha256": "badaab4a38cc6b5c0a57b1989e7c8c8fec9ca4b5b761bebe7e4373f0c04b6bef",
-        "ogg_sha256": "d484c1cc3d98d2453b1a25b0d273f673ca5400b73e9b0f1e32c4be5fdff31766",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "410690b02b91f1102392fdb3aff390e22243b767b074a35d1fd3a512f37ce1a0",
+        "opus_sha256": "bceeb01b3cf7b464ab40ed7ae953258165d0a7795b38c69e1e86607a8cc5d549",
+        "ogg_sha256": "14b4b30c2b559a020c9841980c32e827a2655aa6e81d035116b244fc8c24786d",
         "probe": {
           "opus": {
             "programs": [],
@@ -3828,17 +3903,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-discover-glint.wav",
           "bytes": 59564,
-          "sha256": "878e2e43e6f23d64a67f3eed48e1b97d14997a9c69a5e1366bfc55b6f3cddcf2"
+          "sha256": "410690b02b91f1102392fdb3aff390e22243b767b074a35d1fd3a512f37ce1a0"
         },
         {
           "path": "assets-source/library/audio/production/ui-discover-glint.opus",
-          "bytes": 6651,
-          "sha256": "badaab4a38cc6b5c0a57b1989e7c8c8fec9ca4b5b761bebe7e4373f0c04b6bef"
+          "bytes": 6315,
+          "sha256": "bceeb01b3cf7b464ab40ed7ae953258165d0a7795b38c69e1e86607a8cc5d549"
         },
         {
           "path": "assets-source/library/audio/production/ui-discover-glint.ogg",
-          "bytes": 7088,
-          "sha256": "d484c1cc3d98d2453b1a25b0d273f673ca5400b73e9b0f1e32c4be5fdff31766"
+          "bytes": 7292,
+          "sha256": "14b4b30c2b559a020c9841980c32e827a2655aa6e81d035116b244fc8c24786d"
         }
       ]
     },
@@ -3858,11 +3933,16 @@
         "duration_ms": 820,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -12.465,
+        "peak_dbfs": -12.502,
         "rms_dbfs": -25,
-        "master_sha256": "ccd097bf0034d5302d3949e2f5a96eadac5c10258c7d30e02f9d3ff51f1d239f",
-        "opus_sha256": "8c43ad88112cbecf719295489c517a17858750b075acf6c3e548ba12332781f1",
-        "ogg_sha256": "7e90d2367fc51d9751b487f331d0b6cbcd0b033c10fccb72c4daf3d12b66b8ac",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "8ade2f701c9280f8df2053714d46f5dfdbcd2aa664b030e86cc835d002bdc0ba",
+        "opus_sha256": "344e5dbcc54e4cacfca1e0e74779268118d507ea08a7868b06277d1488eb9f90",
+        "ogg_sha256": "c193e9dc0927e592293aade6e79b1dbd7e6b68c7328fbfba7959b7c51c114bca",
         "probe": {
           "opus": {
             "programs": [],
@@ -3915,17 +3995,17 @@
         {
           "path": "assets-source/library/audio/masters/ui-complete-calm.wav",
           "bytes": 78764,
-          "sha256": "ccd097bf0034d5302d3949e2f5a96eadac5c10258c7d30e02f9d3ff51f1d239f"
+          "sha256": "8ade2f701c9280f8df2053714d46f5dfdbcd2aa664b030e86cc835d002bdc0ba"
         },
         {
           "path": "assets-source/library/audio/production/ui-complete-calm.opus",
-          "bytes": 8179,
-          "sha256": "8c43ad88112cbecf719295489c517a17858750b075acf6c3e548ba12332781f1"
+          "bytes": 7728,
+          "sha256": "344e5dbcc54e4cacfca1e0e74779268118d507ea08a7868b06277d1488eb9f90"
         },
         {
           "path": "assets-source/library/audio/production/ui-complete-calm.ogg",
-          "bytes": 7935,
-          "sha256": "7e90d2367fc51d9751b487f331d0b6cbcd0b033c10fccb72c4daf3d12b66b8ac"
+          "bytes": 8214,
+          "sha256": "c193e9dc0927e592293aade6e79b1dbd7e6b68c7328fbfba7959b7c51c114bca"
         }
       ]
     },
@@ -3945,11 +4025,16 @@
         "duration_ms": 470,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -19.98,
+        "peak_dbfs": -19.301,
         "rms_dbfs": -29,
-        "master_sha256": "861bcabbcd96b463babc2e074b6122480be27965ba09fafdf1683d9912436dd5",
-        "opus_sha256": "75149fe13c267e8f7ccdf6b9ede53ecf1549880ed1c5a30172e7787bb76ae9dd",
-        "ogg_sha256": "51e64b446129082a2afdb6e197d69d3da50d504f7d20c0d1a6e34a487938ea31",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "024700f67dad9d51374e6313c7113a7fd5cd8e7639bd1404338291ec10729043",
+        "opus_sha256": "7f1e5f330c9afa6a96081b9e4b9b9ad2fed64a132c06db68e0ad227b11d0623b",
+        "ogg_sha256": "a57ebe1a08956668b09f45a097b1bd636263e28f9d073682e875d6e826e132c7",
         "probe": {
           "opus": {
             "programs": [],
@@ -4002,17 +4087,17 @@
         {
           "path": "assets-source/library/audio/masters/pet-greeting.wav",
           "bytes": 45164,
-          "sha256": "861bcabbcd96b463babc2e074b6122480be27965ba09fafdf1683d9912436dd5"
+          "sha256": "024700f67dad9d51374e6313c7113a7fd5cd8e7639bd1404338291ec10729043"
         },
         {
           "path": "assets-source/library/audio/production/pet-greeting.opus",
-          "bytes": 3972,
-          "sha256": "75149fe13c267e8f7ccdf6b9ede53ecf1549880ed1c5a30172e7787bb76ae9dd"
+          "bytes": 3941,
+          "sha256": "7f1e5f330c9afa6a96081b9e4b9b9ad2fed64a132c06db68e0ad227b11d0623b"
         },
         {
           "path": "assets-source/library/audio/production/pet-greeting.ogg",
-          "bytes": 6309,
-          "sha256": "51e64b446129082a2afdb6e197d69d3da50d504f7d20c0d1a6e34a487938ea31"
+          "bytes": 6341,
+          "sha256": "a57ebe1a08956668b09f45a097b1bd636263e28f9d073682e875d6e826e132c7"
         }
       ]
     },
@@ -4032,11 +4117,16 @@
         "duration_ms": 560,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -17.769,
+        "peak_dbfs": -17.682,
         "rms_dbfs": -28,
-        "master_sha256": "29fb18c2cd8f199ebfd40312d328ffc392069548713b9fcfae45a0182908d3e3",
-        "opus_sha256": "e3df1422cfca6d3581a14b744594bf65ff5a76eef6d2680f89e2a8c729ff0db2",
-        "ogg_sha256": "a50ed188371906848f4e284be1165bef81a35a3b311f82b63f7b3eab153f8490",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "c3a6c101119c8ccbdecf778a131e5f121eb22d0ea67ac3e23adf83e57211cbb4",
+        "opus_sha256": "1889c5e8d187f09b110e931cfdf8f5a602fb7251630afab901cb476614f4b1fc",
+        "ogg_sha256": "eace426608b9506ef277db908184ac839f5f7e4dd134244baf90ba46724f5f2a",
         "probe": {
           "opus": {
             "programs": [],
@@ -4089,17 +4179,17 @@
         {
           "path": "assets-source/library/audio/masters/pet-treat.wav",
           "bytes": 53804,
-          "sha256": "29fb18c2cd8f199ebfd40312d328ffc392069548713b9fcfae45a0182908d3e3"
+          "sha256": "c3a6c101119c8ccbdecf778a131e5f121eb22d0ea67ac3e23adf83e57211cbb4"
         },
         {
           "path": "assets-source/library/audio/production/pet-treat.opus",
-          "bytes": 5830,
-          "sha256": "e3df1422cfca6d3581a14b744594bf65ff5a76eef6d2680f89e2a8c729ff0db2"
+          "bytes": 5703,
+          "sha256": "1889c5e8d187f09b110e931cfdf8f5a602fb7251630afab901cb476614f4b1fc"
         },
         {
           "path": "assets-source/library/audio/production/pet-treat.ogg",
-          "bytes": 6476,
-          "sha256": "a50ed188371906848f4e284be1165bef81a35a3b311f82b63f7b3eab153f8490"
+          "bytes": 6507,
+          "sha256": "eace426608b9506ef277db908184ac839f5f7e4dd134244baf90ba46724f5f2a"
         }
       ]
     },
@@ -4119,11 +4209,16 @@
         "duration_ms": 720,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -14.747,
+        "peak_dbfs": -14.57,
         "rms_dbfs": -27,
-        "master_sha256": "8662d19415fe93a86f626145986856372c7f8f743cbc4c630d9e496e30ce9d09",
-        "opus_sha256": "805a3f6564856a30bda29f44bde333d076d8671e686f6fad3cfd07e3234f2a95",
-        "ogg_sha256": "00aede878cdb6f80155cdba8d68339de2bd754f32e6f5fb9e0604697ca24bc64",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "2a7cf3d79ddb22ea6b6f66237e10455b71411b48ee6913e664bdf518b20f7f9b",
+        "opus_sha256": "d0d2f06f776f4560ed3928f69bf97667bb9946db8a91948ab0e57114ad989fde",
+        "ogg_sha256": "5f5366187548db1935ecc5561ef039a478a67b70d16849329259d8540866dac6",
         "probe": {
           "opus": {
             "programs": [],
@@ -4176,17 +4271,17 @@
         {
           "path": "assets-source/library/audio/masters/pet-play.wav",
           "bytes": 69164,
-          "sha256": "8662d19415fe93a86f626145986856372c7f8f743cbc4c630d9e496e30ce9d09"
+          "sha256": "2a7cf3d79ddb22ea6b6f66237e10455b71411b48ee6913e664bdf518b20f7f9b"
         },
         {
           "path": "assets-source/library/audio/production/pet-play.opus",
-          "bytes": 6997,
-          "sha256": "805a3f6564856a30bda29f44bde333d076d8671e686f6fad3cfd07e3234f2a95"
+          "bytes": 6709,
+          "sha256": "d0d2f06f776f4560ed3928f69bf97667bb9946db8a91948ab0e57114ad989fde"
         },
         {
           "path": "assets-source/library/audio/production/pet-play.ogg",
-          "bytes": 7689,
-          "sha256": "00aede878cdb6f80155cdba8d68339de2bd754f32e6f5fb9e0604697ca24bc64"
+          "bytes": 7860,
+          "sha256": "5f5366187548db1935ecc5561ef039a478a67b70d16849329259d8540866dac6"
         }
       ]
     },
@@ -4206,11 +4301,16 @@
         "duration_ms": 900,
         "sample_rate_hz": 48000,
         "channels": 1,
-        "peak_dbfs": -19.187,
+        "peak_dbfs": -18.289,
         "rms_dbfs": -31,
-        "master_sha256": "1866ee49d039840495604641683d5dd65f17bdd4518662dd25fbfe88f5f8b0bb",
-        "opus_sha256": "bba37f211d553671f318f1229878826acbfb43016ce074a80b36af5c866249dd",
-        "ogg_sha256": "3c4d40cd96ab0aeb5a21dde67bc7b971e8d144734aa29e193dc6e788965bbc32",
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -240
+        },
+        "master_sha256": "0d58240f918eb3c9ac784442f00e70ecc8f34df82614de48755ee365119091fc",
+        "opus_sha256": "595f3aca42d7d3d036578525d0462074b09744d2f08a646f714efc5990c75312",
+        "ogg_sha256": "2a0de0293a85aeeef360b90df4c7b972cb6f5b3107dced931c40393821726537",
         "probe": {
           "opus": {
             "programs": [],
@@ -4263,17 +4363,17 @@
         {
           "path": "assets-source/library/audio/masters/pet-rest.wav",
           "bytes": 86444,
-          "sha256": "1866ee49d039840495604641683d5dd65f17bdd4518662dd25fbfe88f5f8b0bb"
+          "sha256": "0d58240f918eb3c9ac784442f00e70ecc8f34df82614de48755ee365119091fc"
         },
         {
           "path": "assets-source/library/audio/production/pet-rest.opus",
-          "bytes": 6400,
-          "sha256": "bba37f211d553671f318f1229878826acbfb43016ce074a80b36af5c866249dd"
+          "bytes": 7090,
+          "sha256": "595f3aca42d7d3d036578525d0462074b09744d2f08a646f714efc5990c75312"
         },
         {
           "path": "assets-source/library/audio/production/pet-rest.ogg",
-          "bytes": 9314,
-          "sha256": "3c4d40cd96ab0aeb5a21dde67bc7b971e8d144734aa29e193dc6e788965bbc32"
+          "bytes": 8914,
+          "sha256": "2a0de0293a85aeeef360b90df4c7b972cb6f5b3107dced931c40393821726537"
         }
       ]
     },
@@ -4293,11 +4393,16 @@
         "duration_ms": 18000,
         "sample_rate_hz": 48000,
         "channels": 2,
-        "peak_dbfs": -28.902,
-        "rms_dbfs": -34.066,
-        "master_sha256": "868cbcc82d251c171800cf8da15e59be0267ac961d65230817113fe08a966790",
-        "opus_sha256": "5223c3595a4aafacb7ca458a0f0e52d098ef8f3a2446e16234b143a2c42f1645",
-        "ogg_sha256": "1fcdacc8d2f398e4c3309bf696680004e0169625aeda986ed57712d00be43491",
+        "peak_dbfs": -24.939,
+        "rms_dbfs": -38.599,
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -173.977
+        },
+        "master_sha256": "d39b387d53d4b3a787b89726c2805228150324076ebe239e07768d966cef71db",
+        "opus_sha256": "4cd5050dac0e5a223f9972386c87f754d08b034addcadd86d64c8260e6373f58",
+        "ogg_sha256": "a862ac832e49991923f7297dc4b49ce9fb3184f900901570717cfd6d009b5e0d",
         "probe": {
           "opus": {
             "programs": [],
@@ -4356,17 +4461,17 @@
         {
           "path": "assets-source/library/audio/masters/ambience-lamplight-library.wav",
           "bytes": 3456044,
-          "sha256": "868cbcc82d251c171800cf8da15e59be0267ac961d65230817113fe08a966790"
+          "sha256": "d39b387d53d4b3a787b89726c2805228150324076ebe239e07768d966cef71db"
         },
         {
           "path": "assets-source/library/audio/production/ambience-lamplight-library.opus",
-          "bytes": 136403,
-          "sha256": "5223c3595a4aafacb7ca458a0f0e52d098ef8f3a2446e16234b143a2c42f1645"
+          "bytes": 142427,
+          "sha256": "4cd5050dac0e5a223f9972386c87f754d08b034addcadd86d64c8260e6373f58"
         },
         {
           "path": "assets-source/library/audio/production/ambience-lamplight-library.ogg",
-          "bytes": 182298,
-          "sha256": "1fcdacc8d2f398e4c3309bf696680004e0169625aeda986ed57712d00be43491"
+          "bytes": 194626,
+          "sha256": "a862ac832e49991923f7297dc4b49ce9fb3184f900901570717cfd6d009b5e0d"
         }
       ]
     },
@@ -4386,11 +4491,16 @@
         "duration_ms": 20000,
         "sample_rate_hz": 48000,
         "channels": 2,
-        "peak_dbfs": -27.077,
-        "rms_dbfs": -33.066,
-        "master_sha256": "2d589bfad489ecd5530e746d1a0cb8d266aa649fc142fa55b894f86e438b7a0e",
-        "opus_sha256": "d6684719512e7b7927e4cf694645a8e71970562e91bf38f208aae2e7d026fbb7",
-        "ogg_sha256": "0c4df2da419002d75413be5d4b8be9bf8cafa75eda90835e5b16cf65e6729b26",
+        "peak_dbfs": -21.418,
+        "rms_dbfs": -37.046,
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -177.793
+        },
+        "master_sha256": "2a79ebbcd8631617de325fe344178ea533d8df2b01fa343eb1f4deff68caef0f",
+        "opus_sha256": "f5843a9388a98fa2337438742d23f5e349e66e7c811571a016203d2793981ea1",
+        "ogg_sha256": "ed2e697ccfb369bca10934e1eb6706851cd4cdde94264d7ed93127dcb93aa3d7",
         "probe": {
           "opus": {
             "programs": [],
@@ -4449,17 +4559,17 @@
         {
           "path": "assets-source/library/audio/masters/ambience-coastal-window.wav",
           "bytes": 3840044,
-          "sha256": "2d589bfad489ecd5530e746d1a0cb8d266aa649fc142fa55b894f86e438b7a0e"
+          "sha256": "2a79ebbcd8631617de325fe344178ea533d8df2b01fa343eb1f4deff68caef0f"
         },
         {
           "path": "assets-source/library/audio/production/ambience-coastal-window.opus",
-          "bytes": 167597,
-          "sha256": "d6684719512e7b7927e4cf694645a8e71970562e91bf38f208aae2e7d026fbb7"
+          "bytes": 157955,
+          "sha256": "f5843a9388a98fa2337438742d23f5e349e66e7c811571a016203d2793981ea1"
         },
         {
           "path": "assets-source/library/audio/production/ambience-coastal-window.ogg",
-          "bytes": 250852,
-          "sha256": "0c4df2da419002d75413be5d4b8be9bf8cafa75eda90835e5b16cf65e6729b26"
+          "bytes": 214178,
+          "sha256": "ed2e697ccfb369bca10934e1eb6706851cd4cdde94264d7ed93127dcb93aa3d7"
         }
       ]
     },
@@ -4479,11 +4589,16 @@
         "duration_ms": 16000,
         "sample_rate_hz": 48000,
         "channels": 2,
-        "peak_dbfs": -29.615,
-        "rms_dbfs": -35.074,
-        "master_sha256": "e17197202a55a91f0b6deaad25ee8b99516e6f716ee7211b882e8a2d186ba3ac",
-        "opus_sha256": "44301c91a7c33c075f4d0fbcccb6cd4ed08b111d6a01d67b94b65c4a9e7ba077",
-        "ogg_sha256": "97454cda15ec70d11fe4ff33b832fef9edbd20359425170c4495a6d43ac89998",
+        "peak_dbfs": -24.17,
+        "rms_dbfs": -38.398,
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -178.254
+        },
+        "master_sha256": "2a00199b30cd97f1a2aba43e31316ae09e1b783437753b0f74beff269fe1ba7d",
+        "opus_sha256": "13e833f3b41b4247a6731eed5db8cbe59adcb92714f2dc79dddaaac6d9311481",
+        "ogg_sha256": "dddadce6d63277b428959eb96720bd28a1c1251d800d84e963790489e7824efe",
         "probe": {
           "opus": {
             "programs": [],
@@ -4542,17 +4657,17 @@
         {
           "path": "assets-source/library/audio/masters/ambience-glasshouse-garden.wav",
           "bytes": 3072044,
-          "sha256": "e17197202a55a91f0b6deaad25ee8b99516e6f716ee7211b882e8a2d186ba3ac"
+          "sha256": "2a00199b30cd97f1a2aba43e31316ae09e1b783437753b0f74beff269fe1ba7d"
         },
         {
           "path": "assets-source/library/audio/production/ambience-glasshouse-garden.opus",
-          "bytes": 121960,
-          "sha256": "44301c91a7c33c075f4d0fbcccb6cd4ed08b111d6a01d67b94b65c4a9e7ba077"
+          "bytes": 128274,
+          "sha256": "13e833f3b41b4247a6731eed5db8cbe59adcb92714f2dc79dddaaac6d9311481"
         },
         {
           "path": "assets-source/library/audio/production/ambience-glasshouse-garden.ogg",
-          "bytes": 210294,
-          "sha256": "97454cda15ec70d11fe4ff33b832fef9edbd20359425170c4495a6d43ac89998"
+          "bytes": 155997,
+          "sha256": "dddadce6d63277b428959eb96720bd28a1c1251d800d84e963790489e7824efe"
         }
       ]
     },
@@ -4572,11 +4687,16 @@
         "duration_ms": 22000,
         "sample_rate_hz": 48000,
         "channels": 2,
-        "peak_dbfs": -27.482,
-        "rms_dbfs": -34.066,
-        "master_sha256": "da104c514ffbe0fceeaf9f72b3511e3136e80c80ae437e3bc37d3eb38e7f8c80",
-        "opus_sha256": "1325db4eeef57189d8ac4a1f8d5a72c3bcab7505b59158bf01245ed0b84e399c",
-        "ogg_sha256": "a1b1d6bf63b968ee4e1f11ef6e46e96e7bc8f57ee8d5548b26a9e1b99b0f29f0",
+        "peak_dbfs": -24.616,
+        "rms_dbfs": -38.454,
+        "spectral": {
+          "energy_above_20_hz_pct": 100,
+          "sub20_energy_pct": 0,
+          "dc_dbfs": -178.403
+        },
+        "master_sha256": "e3d5196cc64ad5c19f3e4b1e472480e0ea8f3a4049ccee31596465f8833021b5",
+        "opus_sha256": "d675df9f123d66dfddbadda1d17882938917a536c2aae4dc2ab49ecc4ec747ee",
+        "ogg_sha256": "a41dac11ba07322675e9b8fded47db905ec7c263c163436562f422368fd7139b",
         "probe": {
           "opus": {
             "programs": [],
@@ -4635,17 +4755,17 @@
         {
           "path": "assets-source/library/audio/masters/ambience-evening-club.wav",
           "bytes": 4224044,
-          "sha256": "da104c514ffbe0fceeaf9f72b3511e3136e80c80ae437e3bc37d3eb38e7f8c80"
+          "sha256": "e3d5196cc64ad5c19f3e4b1e472480e0ea8f3a4049ccee31596465f8833021b5"
         },
         {
           "path": "assets-source/library/audio/production/ambience-evening-club.opus",
-          "bytes": 165624,
-          "sha256": "1325db4eeef57189d8ac4a1f8d5a72c3bcab7505b59158bf01245ed0b84e399c"
+          "bytes": 183305,
+          "sha256": "d675df9f123d66dfddbadda1d17882938917a536c2aae4dc2ab49ecc4ec747ee"
         },
         {
           "path": "assets-source/library/audio/production/ambience-evening-club.ogg",
-          "bytes": 276855,
-          "sha256": "a1b1d6bf63b968ee4e1f11ef6e46e96e7bc8f57ee8d5548b26a9e1b99b0f29f0"
+          "bytes": 215619,
+          "sha256": "a41dac11ba07322675e9b8fded47db905ec7c263c163436562f422368fd7139b"
         }
       ]
     },
@@ -4662,24 +4782,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.9901,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.01,
-          0.5
+          0.9901,
+          1,
+          1.9802
         ],
         "size": [
-          1,
-          1.01,
-          1
+          1.9802,
+          2,
+          1.9802
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.9901
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4692,9 +4812,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -4706,13 +4832,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-base.glb",
-          "bytes": 10284,
-          "sha256": "d1bc2b35db5df12fea6675d5ebfd5aa60e9058f5320b7389ae874fc3db56bc02"
+          "bytes": 10364,
+          "sha256": "466902da7997e8b777332f5b7a7ecaff112b5042c570b2f06a2cc3a9f57254aa"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-base.png",
-          "bytes": 61581,
-          "sha256": "2a3bfae63f282632a3b1bbefff3054144d70780b6f14ce58c803cd82090fde73"
+          "bytes": 91311,
+          "sha256": "146d3a763ae107266e69a87166dd466ddaeabf58d103c7b4e4a27cc48ae632f7"
         }
       ]
     },
@@ -4729,24 +4855,24 @@
       ],
       "metadata": {
         "min": [
-          -0.465,
-          0,
-          -0.465
+          -0.9208,
+          -1,
+          0
         ],
         "max": [
-          0.465,
-          1.01,
-          0.465
+          0.9208,
+          1,
+          1.8416
         ],
         "size": [
-          0.93,
-          1.01,
-          0.93
+          1.8416,
+          2,
+          1.8416
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.9208
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4759,9 +4885,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -4773,13 +4905,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-mid.glb",
-          "bytes": 12752,
-          "sha256": "d4df514ed565abbac8b9a3c3dc0b8cb04c5c30017c835e9006183ae5b33a8e96"
+          "bytes": 12772,
+          "sha256": "d257c1c561d6ebba9beef7e7fb418bc0f5d0de2f55daa3bc3bf5b573c7e5737d"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-mid.png",
-          "bytes": 62982,
-          "sha256": "f602df98fabff51a18be74019c74bbb6b6368e2d4ecff0216eba0afa0944c9b4"
+          "bytes": 96621,
+          "sha256": "34b2811d3919f5dca1a513b858578f7bd16f44c7d0d8792b338d60da582d932a"
         }
       ]
     },
@@ -4796,24 +4928,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -1,
+          -0.3,
+          0
         ],
         "max": [
-          0.5,
-          0.3,
-          0.5
-        ],
-        "size": [
           1,
           0.3,
-          1
+          2
+        ],
+        "size": [
+          2,
+          0.6,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.3,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4826,9 +4958,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -4840,13 +4978,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-top.glb",
-          "bytes": 13920,
-          "sha256": "3225df855581dd30fe7b404202cadeaefd39705c2e4d7492868b4fdb1fe4b3da"
+          "bytes": 13952,
+          "sha256": "4516cee12ed5c87fcbf23a0be3c78d07578d8c0e541dee9dbac85bf010d08f8a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-top.png",
-          "bytes": 62941,
-          "sha256": "1f9372515817f8a708d7bafc78598631cf34194d1a72431c2352249be5d3427a"
+          "bytes": 87104,
+          "sha256": "4e6fec46ab210a5b44039e34736ad50eafb6ee4bf1a3585b6f756a3af40d3b3f"
         }
       ]
     },
@@ -4863,24 +5001,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.4975,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          2.01,
-          0.5
+          0.4975,
+          1,
+          0.995
         ],
         "size": [
-          1,
-          2.01,
-          1
+          0.995,
+          2,
+          0.995
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.4975
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4893,9 +5031,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -4907,13 +5051,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-roof.glb",
-          "bytes": 15176,
-          "sha256": "234af09554c4840473dae269dd79817117d6b3f2f8f985f42aa81116f7bb555b"
+          "bytes": 15264,
+          "sha256": "5fac224b18101194e0cee9941f6275c985c1c47c728afe9a6fd318b5f8505df5"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-roof.png",
-          "bytes": 56869,
-          "sha256": "fbbe972ed1eb85aa31af934cce569ef47d68407f99458ca46805c9359f033a6b"
+          "bytes": 90138,
+          "sha256": "430cf0645a632cac85b2f08a0e1a39b132c842dfeff20fb90efad9d634810a13"
         }
       ]
     },
@@ -4930,24 +5074,24 @@
       ],
       "metadata": {
         "min": [
-          -0.45,
-          0,
-          -0.3897
+          -0.687,
+          -1,
+          0
         ],
         "max": [
-          0.45,
-          1.31,
-          0.3897
+          0.687,
+          1,
+          1.19
         ],
         "size": [
-          0.9,
-          1.31,
-          0.7794
+          1.374,
+          2,
+          1.19
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.595
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4960,9 +5104,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -4974,13 +5124,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-base.glb",
-          "bytes": 11828,
-          "sha256": "7e3da628ff325075901a39dcc1755997980f7a3d3b277d6c8d0e4f1759195abe"
+          "bytes": 11848,
+          "sha256": "e12ac82b37f547e64df87b95b13fcf6d2e35d6ea90541d0af7a02adb1bccee56"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-base.png",
-          "bytes": 61088,
-          "sha256": "1e6576a4902b8d5ae426cb35a82b1362e35a90bb2e7cb8b08578767479ba75bd"
+          "bytes": 93831,
+          "sha256": "3da878394136b4dce417821ec0f12fc2440bb6a5f683ac654d90ac4473735098"
         }
       ]
     },
@@ -4997,24 +5147,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4762,
-          0,
-          -0.4124
+          -1,
+          -0.483,
+          0
         ],
         "max": [
-          0.4762,
-          0.46,
-          0.4124
+          1,
+          0.483,
+          1.7321
         ],
         "size": [
-          0.9524,
-          0.46,
-          0.8248
+          2,
+          0.9659,
+          1.7321
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.483,
+          0.866
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5027,9 +5177,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5041,13 +5197,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-mid.glb",
-          "bytes": 24948,
-          "sha256": "f85a5ccbcb0da92d620c49dbfb88e6fe84d14b1015bcbf615efa26374085cb59"
+          "bytes": 25000,
+          "sha256": "7517b417200e3417331e4d2919d8c94356888c425b5a935efcb66c66801500f3"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-mid.png",
-          "bytes": 67664,
-          "sha256": "64d41b74436fc114c077e22256eb12855853fa5062d6383ae0b3ccd74078470e"
+          "bytes": 91858,
+          "sha256": "bd33910f558038a190c4fc7690d5019eda07d99fd3c07b3d48f089a0a0421153"
         }
       ]
     },
@@ -5064,24 +5220,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4882,
-          0,
-          -0.4228
+          -1,
+          -0.8501,
+          0
         ],
         "max": [
-          0.4882,
-          0.83,
-          0.4228
+          1,
+          0.8501,
+          1.7321
         ],
         "size": [
-          0.9763,
-          0.83,
-          0.8455
+          2,
+          1.7003,
+          1.7321
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.8501,
+          0.866
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5094,9 +5250,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5108,13 +5270,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-roof.glb",
-          "bytes": 11828,
-          "sha256": "4fa6e7e69af6a852619679897a30ed6d170b598335c78fb596af001ee79facfe"
+          "bytes": 11844,
+          "sha256": "50377b025863c9d2102a9c0255db246606f44f116e9a2853d394dc1c3f32d369"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-roof.png",
-          "bytes": 67982,
-          "sha256": "e36f975958bd6acf6ae30d8daf9f7756df0c5a340437b7e4ff472fbe87f9eee4"
+          "bytes": 94114,
+          "sha256": "49fbde50c978a60496cf76b787605baf910271c5042574a5019402caa89391da"
         }
       ]
     },
@@ -5131,24 +5293,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.7634,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.31,
-          0.5
+          0.7634,
+          1,
+          1.5267
         ],
         "size": [
-          1,
-          1.31,
-          1
+          1.5267,
+          2,
+          1.5267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5161,9 +5323,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5175,13 +5343,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall.glb",
-          "bytes": 15356,
-          "sha256": "b3dd3a5d720787c2ad2d3ea41aa91fcf49782f6b03b5b3af850f86aa3d53bd66"
+          "bytes": 15440,
+          "sha256": "93271a43283dcd2717ccbc07bff85e77eb3e939de2852bf4b79e6c033dfe2a79"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall.png",
-          "bytes": 60982,
-          "sha256": "6b43198164ae9c9ab379765df55ce2403a68ec774ab0b3571117597476e18f91"
+          "bytes": 93299,
+          "sha256": "058e49e5e6d446d2ef8df5b929b5499fe981702c6f3b26a06e40679ed321cf2e"
         }
       ]
     },
@@ -5198,24 +5366,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.7634,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.31,
-          0.5
+          0.7634,
+          1,
+          1.5267
         ],
         "size": [
-          1,
-          1.31,
-          1
+          1.5267,
+          2,
+          1.5267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5228,9 +5396,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5242,13 +5416,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-corner.glb",
-          "bytes": 14556,
-          "sha256": "9d0750a5adc3aaf8db7925d7359980943292156e890910a8bb6e768ffa6a2f5e"
+          "bytes": 14640,
+          "sha256": "9ddd7ccdcd1ee72e301dc27a6c5cb74af38019c752f0308b0f1bc906bf49262e"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-corner.png",
-          "bytes": 60792,
-          "sha256": "3f1cd9d8ffbdec4ee5f9dcc3c9c105f8beaf486d83a145c0980184e8889796bd"
+          "bytes": 92671,
+          "sha256": "77c24b66d72c2cde6fb7b4100ba1dbc088db510af75d78040b8932a4cb13c304"
         }
       ]
     },
@@ -5265,24 +5439,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.3817,
+          -1,
+          0
         ],
         "max": [
-          0,
-          1.31,
-          0.5
+          0.3817,
+          1,
+          1.5267
         ],
         "size": [
-          0.5,
-          1.31,
-          1
+          0.7634,
+          2,
+          1.5267
         ],
         "pivot": [
-          0,
-          0,
-          0
+          0.3817,
+          -1,
+          0.7634
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5295,9 +5469,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5309,13 +5489,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-doorway.glb",
-          "bytes": 27952,
-          "sha256": "443091d61214005195ffc159759375e41f8746d325fe78c7ec6c71e3e64c9568"
+          "bytes": 28040,
+          "sha256": "8ac2833aa6d34274272d8a86333901c8ebb684484b6cd700a346a4e2b0aa0717"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-doorway.png",
-          "bytes": 61385,
-          "sha256": "f61c6172456a78fa6c5612fd3fb7c4139865c895ee895661ba23d606d738fb69"
+          "bytes": 100987,
+          "sha256": "8b6aeafda21471906913f402858ec54d1d5390636f5d006d06d558e6dc6ad819"
         }
       ]
     },
@@ -5332,24 +5512,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1163,
-          0,
-          -0.4095
+          -0.3444,
+          -1,
+          0
         ],
         "max": [
-          0.1163,
-          0.675,
-          0.4095
+          0.3444,
+          1,
+          2.4267
         ],
         "size": [
-          0.2325,
-          0.675,
-          0.819
+          0.6889,
+          2,
+          2.4267
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          1.2133
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5362,9 +5542,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5376,13 +5562,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/stairs-stone.glb",
-          "bytes": 12300,
-          "sha256": "f3363aff38ad48116403b110cbba1eeb7337cb5049a0f5cf9c13ec7a20c8ebde"
+          "bytes": 12316,
+          "sha256": "616e86d66a8b0a61a4eced5c9436f69ec2a6bcdc2e28fe02c7b72363e4ceb768"
         },
         {
           "path": "assets-source/library/realm/thumbnails/stairs-stone.png",
-          "bytes": 71549,
-          "sha256": "b21405ecb70a07f8c0b843338309c0ffdec803979340ad0ea8797e243ed917f0"
+          "bytes": 86392,
+          "sha256": "4eb4178b47bd8c0a6a41f6aa20dd46d679442f2ebac3d601d5b1376e808fd7e9"
         }
       ]
     },
@@ -5399,24 +5585,24 @@
       ],
       "metadata": {
         "min": [
-          -0.465,
-          0,
-          -0.465
+          -0.7908,
+          -1,
+          0
         ],
         "max": [
-          0.465,
-          1.176,
-          0.465
+          0.7908,
+          1,
+          1.5816
         ],
         "size": [
-          0.93,
-          1.176,
-          0.93
+          1.5816,
+          2,
+          1.5816
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.7908
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5429,9 +5615,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5443,13 +5635,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/bridge-straight.glb",
-          "bytes": 16008,
-          "sha256": "c854c0c8f07771d984168f9b4875f9e71111f70cc571bfd8e7e49e6633c94ce1"
+          "bytes": 16208,
+          "sha256": "72fc92d6bed87617b2d14123a5b85ec135ff9e30dd8c327daf636f85df37fdbf"
         },
         {
           "path": "assets-source/library/realm/thumbnails/bridge-straight.png",
-          "bytes": 63014,
-          "sha256": "7a55cee6eecb95794940db29d9eaf793b528081298671785eb6f222c0e2e8310"
+          "bytes": 96511,
+          "sha256": "19a9141f43d39a4b7e48b43b080a0985463f26b97a8b8ff22256c509532240e7"
         }
       ]
     },
@@ -5466,24 +5658,24 @@
       ],
       "metadata": {
         "min": [
-          0.325,
-          0,
-          -0.5
+          -0.175,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.175,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.35,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.825,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5496,9 +5688,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5510,13 +5708,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-window-shutters.glb",
-          "bytes": 23128,
-          "sha256": "bbab829470849e3d931ae6e17866c81aedfde825f048e361871c7344a1ff09d0"
+          "bytes": 23160,
+          "sha256": "338d45bb05baf4ed86d9e3c28c1cad55f797a7219b96f1adc229c1ad57ef7480"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-window-shutters.png",
-          "bytes": 69159,
-          "sha256": "601b9fbee43582265a5e94042c1553f9afad4c168be6ae8c1dc07e1f6e5711dc"
+          "bytes": 97920,
+          "sha256": "6af36bebf983346c35d54ddb64b58ed903bc8497a9e22a71b7e1629cdb8b81da"
         }
       ]
     },
@@ -5533,24 +5731,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5563,9 +5761,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5577,13 +5781,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-wood-window-shutters.glb",
-          "bytes": 16860,
-          "sha256": "70284ec45cccebeeeff2d2c8cdda29617891d5befdb5b862ad9bca3285e674b2"
+          "bytes": 16892,
+          "sha256": "e0837e8d269b9d372e08358675197d00b065ca08ed90dbefd35fae8e572d2069"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-wood-window-shutters.png",
-          "bytes": 69228,
-          "sha256": "f2234ee8615a065e62ace6673bcbf51c3ad3d5419029880ca1ca5af5a5aaa52a"
+          "bytes": 97947,
+          "sha256": "df9a2fbcf5e3eea02072a14ad97fab16cfc2aff1eb2e49ce805b254eca0481dd"
         }
       ]
     },
@@ -5600,24 +5804,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5630,9 +5834,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5644,13 +5854,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-door.glb",
-          "bytes": 29456,
-          "sha256": "8b80f42763a3985415c5e9989368bd40bb8326ac794d55460f7b549bad3695b6"
+          "bytes": 29488,
+          "sha256": "97d0ff8b3de0404829c83af338f68e68a74e93322122ceeef5139a0d5a2528b3"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-door.png",
-          "bytes": 70014,
-          "sha256": "21f7864e2d8dfe1a35d846fe1baaa0e9eca54f96cef14fd2e517d301a05c3fed"
+          "bytes": 101945,
+          "sha256": "bfe88922e1c2944aa143e551fc410896770eaa5266ebcf02ec60c102a378c09a"
         }
       ]
     },
@@ -5667,24 +5877,24 @@
       ],
       "metadata": {
         "min": [
-          0.4,
-          0,
-          -0.5
+          -0.1,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1,
-          0.5
-        ],
-        "size": [
           0.1,
           1,
-          1
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
         ],
         "pivot": [
-          0,
-          0,
-          0
+          -0.9,
+          -1,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5697,9 +5907,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5711,13 +5927,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-wood-door.glb",
-          "bytes": 29116,
-          "sha256": "f6cac98fe4a97fb6a7c51e3766256072a525645078dd9b8e8bdf455acc6cdec9"
+          "bytes": 29148,
+          "sha256": "0776d26329f25b15991774448b9e7326edba4d30dce613ac6bf0d4341df8d302"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-wood-door.png",
-          "bytes": 69850,
-          "sha256": "1a84b7b869a6c5c5a63f53ee72980d51092cf9590974f9cb6ac28c736f815b47"
+          "bytes": 100446,
+          "sha256": "12cafafd0c8d92a5922bc1586271de3cec0bc350d34360fbc325d7f4668b0492"
         }
       ]
     },
@@ -5734,24 +5950,24 @@
       ],
       "metadata": {
         "min": [
-          -0.55,
-          0,
-          -0.5354
+          -1,
+          -0.5188,
+          0
         ],
         "max": [
-          0.55,
-          0.5707,
-          0.5354
+          1,
+          0.5188,
+          1.9467
         ],
         "size": [
-          1.1,
-          0.5707,
-          1.0707
+          2,
+          1.0377,
+          1.9467
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.5188,
+          0.9734
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5764,9 +5980,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5778,13 +6000,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/roof-gable.glb",
-          "bytes": 16700,
-          "sha256": "13a728c91826f61f0c41fef8dc06df09cdb6593709238da66f1fb3ea53e4e59e"
+          "bytes": 16720,
+          "sha256": "d0ee6931c4c41eb4ceb36bebc0aedfd162cfd2a8fea8c1770d10ba6a2c786e5f"
         },
         {
           "path": "assets-source/library/realm/thumbnails/roof-gable.png",
-          "bytes": 69808,
-          "sha256": "7e0303fd0d4dce8926fad5001c21ce0fed3af3e999ed5e901378075872aae698"
+          "bytes": 94427,
+          "sha256": "b4e4c22edffb4b28cd58c5ddccbdd782026cd34c7d05383321ce710348ea35e5"
         }
       ]
     },
@@ -5801,24 +6023,24 @@
       ],
       "metadata": {
         "min": [
-          -0.55,
-          0,
-          -0.55
+          -1,
+          -0.4545,
+          0
         ],
         "max": [
-          0.55,
-          0.5,
-          0.55
+          1,
+          0.4545,
+          2
         ],
         "size": [
-          1.1,
-          0.5,
-          1.1
+          2,
+          0.9091,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.4545,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5831,9 +6053,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5845,13 +6073,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/roof-point.glb",
-          "bytes": 14556,
-          "sha256": "53d7dced26ddcaf7f2a80474ba1cb6937c09d8b0e0137ac33b6d3e87d9f795ff"
+          "bytes": 14548,
+          "sha256": "7238e7a7b98ac9183cd2372bc17621abbef0afe66180b30aeaf4efa5c46f7e9f"
         },
         {
           "path": "assets-source/library/realm/thumbnails/roof-point.png",
-          "bytes": 70475,
-          "sha256": "c4108491a3591f0cee62a398cb635569a8d6a55a04fe10dc10cf87843bc046ee"
+          "bytes": 86352,
+          "sha256": "677ceef30aba3a81d015d07d1ed29436b0a1c88340af138be16be7f3062b23db"
         }
       ]
     },
@@ -5868,24 +6096,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5115,
-          0,
-          -0.5115
+          -0.424,
+          -1,
+          0
         ],
         "max": [
-          0.5115,
-          2.4128,
-          0.5115
+          0.424,
+          1,
+          0.848
         ],
         "size": [
-          1.023,
-          2.4128,
-          1.023
+          0.848,
+          2,
+          0.848
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.424
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5898,9 +6126,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5912,13 +6146,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tree.glb",
-          "bytes": 18528,
-          "sha256": "7fdc9e1d42421ca770198b566a2edcfac812e7bd74db4bc5f725649132cf1798"
+          "bytes": 18592,
+          "sha256": "7699a3f2cfd81625b4eb8c5b9a7deaaa80ad03a5075f571edd060d4d14bf507c"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree.png",
-          "bytes": 58116,
-          "sha256": "ec697c5ab265d8eac34dd204abaab4b6e2b6491e27f44e736573418d1ab59914"
+          "bytes": 83649,
+          "sha256": "2bb929bd15191a9b667d456b4381a0b97e64edf801381152d9984c25ce523544"
         }
       ]
     },
@@ -5935,24 +6169,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5115,
-          0,
-          -0.5115
+          -0.3441,
+          -1,
+          0
         ],
         "max": [
-          0.5115,
-          2.9728,
-          0.5115
+          0.3441,
+          1,
+          0.6882
         ],
         "size": [
-          1.023,
-          2.9728,
-          1.023
+          0.6882,
+          2,
+          0.6882
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.3441
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5965,9 +6199,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -5979,13 +6219,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tree-high.glb",
-          "bytes": 19436,
-          "sha256": "bbc050cb740d99332670f511d1501d7d4088a77eb2247f2967eae09a19f1745b"
+          "bytes": 19464,
+          "sha256": "0ce2c51836df68f3f5642e70debdda1e3c27a9fb6d13de39820d9bada9430284"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree-high.png",
-          "bytes": 57090,
-          "sha256": "d1fc78fd9ba846067658d4c512cc1e0ff883e0d7ff7302cef7f75ea7de64fb4b"
+          "bytes": 80769,
+          "sha256": "2985d25f1ea53c1e3008f279a99d5c3ec1d27ce832c9391460aced939be5c934"
         }
       ]
     },
@@ -6002,24 +6242,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1082,
-          0,
-          -0.1122
+          -0.1391,
+          -1,
+          0
         ],
         "max": [
-          0.1082,
-          1.556,
-          0.1122
+          0.1391,
+          1,
+          0.2883
         ],
         "size": [
-          0.2164,
-          1.556,
-          0.2243
+          0.2782,
+          2,
+          0.2883
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.1442
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6032,9 +6272,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -6046,13 +6292,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/lantern.glb",
-          "bytes": 18076,
-          "sha256": "64c44acea02a69e94b8556b3c9d0e9d714fc79126df386c3d8e3ee9455b7e064"
+          "bytes": 18096,
+          "sha256": "517efabb1749686efd3ef950518706e15cbaaa0d11bf75266a5779cb676e7ab4"
         },
         {
           "path": "assets-source/library/realm/thumbnails/lantern.png",
-          "bytes": 64687,
-          "sha256": "76d1c4ee6a19bf16339f4836283ae9a894aa1a444fc80b4edf3a949c5fad279f"
+          "bytes": 77247,
+          "sha256": "cba6eb4ac507ef84dc790cdea627a481569bcf5fc4759fec96a94c5357d01fbd"
         }
       ]
     },
@@ -6069,24 +6315,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -0.8084,
+          -1,
+          0
         ],
         "max": [
-          0.5,
-          1.237,
-          0.5
+          0.8084,
+          1,
+          1.6168
         ],
         "size": [
-          1,
-          1.237,
-          1
+          1.6168,
+          2,
+          1.6168
         ],
         "pivot": [
           0,
-          0,
-          0
+          -1,
+          0.8084
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6099,9 +6345,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -6113,13 +6365,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/stall-red.glb",
-          "bytes": 22360,
-          "sha256": "811c154fbfd818dde71381dea089957f2618425baf8a205f664560772c184369"
+          "bytes": 22400,
+          "sha256": "fd54fb85c18a9a00cf7ada0dc64f8241613499102f5bef5ef3ebc9d2b3ac80fc"
         },
         {
           "path": "assets-source/library/realm/thumbnails/stall-red.png",
-          "bytes": 68498,
-          "sha256": "16272edb5ab9d42af894e694fa765bda20ac8c768a5999524e623d4b00495e14"
+          "bytes": 103769,
+          "sha256": "95a1e3a5d5208c8185b85248dd68e276f22a84f7d464b4b4fcd4e54d6a378e6c"
         }
       ]
     },
@@ -6136,24 +6388,24 @@
       ],
       "metadata": {
         "min": [
-          -0.5,
-          0,
-          -0.5
+          -1,
+          -0.025,
+          0
         ],
         "max": [
-          0.5,
-          0.025,
-          0.5
-        ],
-        "size": [
           1,
           0.025,
-          1
+          2
+        ],
+        "size": [
+          2,
+          0.05,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.025,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6166,9 +6418,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -6180,13 +6438,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/road.glb",
-          "bytes": 13240,
-          "sha256": "928a16b33bdb8b0250fb5a920b92fee4fefc58b54e8ebe3fce5ec62f92df6fe8"
+          "bytes": 13272,
+          "sha256": "ec49c62831abb28459d53d129cd958010cd69c4d41078f518d5061e009bb28d4"
         },
         {
           "path": "assets-source/library/realm/thumbnails/road.png",
-          "bytes": 74756,
-          "sha256": "ee4a3bf4cd554d6e49a3dab13942c3f844a5ba41673a7594f8d4b82718c92f76"
+          "bytes": 80255,
+          "sha256": "f9f01ec07dcda3a64c70756e62548c81ba3a70683de39746a2797298fc667e57"
         }
       ]
     },
@@ -6203,24 +6461,24 @@
       ],
       "metadata": {
         "min": [
-          -1.5,
-          0,
-          -1.5
+          -1,
+          -0.0167,
+          0
         ],
         "max": [
-          1.5,
-          0.05,
-          1.5
+          1,
+          0.0167,
+          2
         ],
         "size": [
-          3,
-          0.05,
-          3
+          2,
+          0.0333,
+          2
         ],
         "pivot": [
           0,
-          0,
-          0
+          -0.0167,
+          1
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6233,9 +6491,15 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
         }
       },
-      "provenance": "CC0-1.0 retained city source",
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "src/quiet-wing/assets/city-models.json",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
@@ -6247,13 +6511,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/road-bend.glb",
-          "bytes": 22764,
-          "sha256": "d2795c6399851678ebabd1da69994f2e8fa889730fb6dea89b8e165a0061ea49"
+          "bytes": 22884,
+          "sha256": "e2d26410ccb9c60c3ddd092582ca09e997033d62657ee534001faa2bd28a7a4b"
         },
         {
           "path": "assets-source/library/realm/thumbnails/road-bend.png",
-          "bytes": 60247,
-          "sha256": "918bd7cc7caadad5cef57a508ebdd277bd9de67766b4450bdd85f6573b4b3c75"
+          "bytes": 80591,
+          "sha256": "acdcb6dc67c7f89f17caab529063b3309fd4057499e5bea49bdcb5415caebd6c"
         }
       ]
     },
@@ -6271,23 +6535,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.1,
-          1
+          1,
+          0.1
         ],
         "size": [
           2,
-          0.1,
-          2
+          2,
+          0.1
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6300,27 +6564,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/ground-grass.glb",
           "bytes": 2040,
-          "sha256": "239d1aa93f316785b6540608d303ebcea56f74cb251cc2c3637b0e9401ca5e61"
+          "sha256": "90f629a9f68f4da3740ed789e981ba0fab4eb84556dc2b9d901df3a0d2d29c75"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-grass.png",
-          "bytes": 76426,
-          "sha256": "a26b328da77b7285354cb6ee267779b228e6e9e5b100c9ae67888be7636a1356"
+          "bytes": 77729,
+          "sha256": "3268c7aa40e32c08960ce0970aff1b851ea92316a974ec2f90dfa04b775b2e94"
         }
       ]
     },
@@ -6338,23 +6606,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.13,
-          1
+          1,
+          0.13
         ],
         "size": [
           2,
-          0.13,
-          2
+          2,
+          0.13
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6367,27 +6635,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/ground-path.glb",
-          "bytes": 3564,
-          "sha256": "033afcbf328a0ca356eb4eeb117e5dffd98aad56fd168b2e8a3ae192b06f2da9"
+          "bytes": 3560,
+          "sha256": "2b7a31fa6b5934c061c581f2f04bfca6263ee35348ff4ce63f3fb47a837874c2"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-path.png",
-          "bytes": 76509,
-          "sha256": "363249d0a4c3b5e9182132f89c48f4e55c4f43fd320006676f0698fa6f21d896"
+          "bytes": 78470,
+          "sha256": "a2cac2ac80ada27f627200987c272f2b04af263307654d39570edb99f19e74f2"
         }
       ]
     },
@@ -6405,23 +6677,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.13,
-          1
+          1,
+          0.13
         ],
         "size": [
           2,
-          0.13,
-          2
+          2,
+          0.13
         ],
         "pivot": [
           0,
-          0.05,
-          0
+          0,
+          0.05
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6434,27 +6706,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/ground-cobble.glb",
-          "bytes": 10524,
-          "sha256": "74b656c2d664568e02de22db289c4c769a1bef385133a02b86530e74425c8a24"
+          "bytes": 10520,
+          "sha256": "e7a13a8f48996b11e34d28ef0723cf4a11162d299bf7717b5caebac775d1a39d"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-cobble.png",
-          "bytes": 76424,
-          "sha256": "645508a1fc0d58e4a275898729596e12bef9a68ddcd55e426d15abb2d19cf2c7"
+          "bytes": 80470,
+          "sha256": "5c3d3c55dea7be1a160e1215e47165b271e97cf5a9980b5347525713ecaf2f32"
         }
       ]
     },
@@ -6472,23 +6748,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.06,
-          1
+          1,
+          0.06
         ],
         "size": [
           2,
-          0.06,
-          2
+          2,
+          0.06
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6501,27 +6777,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/water-tile.glb",
           "bytes": 2040,
-          "sha256": "c56d7628cb1a9f98d4b6a1a4f382ad7d0a2d4a9b8920570b597dfa8829d0182a"
+          "sha256": "3a7a0cdb74e3f556ef03ecafc4c0592db25c173268d795e5684af7a49715ec3a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-tile.png",
-          "bytes": 76493,
-          "sha256": "aa1ca648a7f03b789d64a445f2fa7d216f42696409f206154bf45f82529eb281"
+          "bytes": 76163,
+          "sha256": "6703cbf3141f7fa705564e8f5dd29f98bd6e51f2553526170538e786873d9057"
         }
       ]
     },
@@ -6539,23 +6819,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.12,
-          1
+          1,
+          0.12
         ],
         "size": [
           2,
-          0.12,
-          2
+          2,
+          0.12
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6568,27 +6848,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/water-edge.glb",
-          "bytes": 3548,
-          "sha256": "4e2b0d982c32636c4814ef10fd18fea80982a65268edbdb43920d8c8976bc650"
+          "bytes": 3544,
+          "sha256": "4548b2ff58a43e3b628280e17542d79e3d4d3788efd6373d051a116667da66b8"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-edge.png",
-          "bytes": 76493,
-          "sha256": "c40274d8cb49b8117ed93f26a3900057b17ab20951ce9fe67ea040d788be7596"
+          "bytes": 77328,
+          "sha256": "8c19f33a7ac3dbab80715c20cfcf60e54465f9b5b7d0d5c0d9e17951363fecf3"
         }
       ]
     },
@@ -6606,23 +6890,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.12,
-          1
+          1,
+          0.12
         ],
         "size": [
           2,
-          0.12,
-          2
+          2,
+          0.12
         ],
         "pivot": [
           0,
-          0.03,
-          0
+          0,
+          0.03
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6635,27 +6919,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/water-corner.glb",
           "bytes": 4572,
-          "sha256": "e3a0e0f5dadaa43621eb67b4446db4a93878963aaa057c38aac318b0dff3d4fe"
+          "sha256": "9d5affac032ffb7997842bde4ade39856594c8dc7814110b191744a05d38b3d8"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-corner.png",
-          "bytes": 76597,
-          "sha256": "827088bb2ea6b69db408f2b2a0a9dc00f1681e76b65151dee965fcb69855ad42"
+          "bytes": 78619,
+          "sha256": "1f0b1307e39a983eaf2fb0289ba6fef0c0e833f5089a3a6b1497754b5c3c1891"
         }
       ]
     },
@@ -6673,23 +6961,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -0.22
+          -0.25,
+          0
         ],
         "max": [
           1,
-          1.4,
-          0.28
+          0.25,
+          1.4
         ],
         "size": [
           2,
-          1.4,
-          0.5
+          0.5,
+          1.4
         ],
         "pivot": [
           -0.75,
-          0.7,
-          0
+          0.03,
+          0.7
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6702,27 +6990,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/wall-gate.glb",
-          "bytes": 5516,
-          "sha256": "0df2583acfad50fead9066a6aeb84ea20e42c97289cc609d15aa7c06c698ad51"
+          "bytes": 5536,
+          "sha256": "13621a2121d186fba81b91077b6d43dd2d889538b113ccbd6c586b0baa6eac31"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-gate.png",
-          "bytes": 75624,
-          "sha256": "bb06e4031670f03c714fbb2945aeec980ddd3a074b65ad04a51701a1717b7487"
+          "bytes": 83287,
+          "sha256": "07a708d7369bd0c07dbf52b1197f3d701bd49ca604ad3da898f40458b0f42ea7"
         }
       ]
     },
@@ -6740,23 +7032,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -0.7
+          -0.2222,
+          0
         ],
         "max": [
-          1.25,
-          1.1,
-          0.7
+          1,
+          0.2222,
+          1.2444
         ],
         "size": [
-          2.25,
-          1.1,
-          1.4
+          2,
+          0.4444,
+          1.2444
         ],
         "pivot": [
+          -0.1111,
           0,
-          0.55,
-          0
+          0.4889
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6769,27 +7061,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/wall-end.glb",
-          "bytes": 3772,
-          "sha256": "518b9e33ea02f04ffb43abb20fe9346dcfeb9a7314826daf2f0746386db0b1d3"
+          "bytes": 3828,
+          "sha256": "5dab88e1e1a7510d578444e4d74fd4b944ff936a4a2ed2ac299bf251f959e0e1"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-end.png",
-          "bytes": 78304,
-          "sha256": "e1db5afffe4dcb46a62024c89b426d97b6b0982f16c75fdc8c106f3e696ba275"
+          "bytes": 80741,
+          "sha256": "2530c66691acf63ee7c0bb082cf95814b63e708523fe015e98d6b95b7313b2b1"
         }
       ]
     },
@@ -6806,24 +7102,24 @@
       ],
       "metadata": {
         "min": [
-          -1.35,
-          0.1,
-          -0.55
+          -1,
+          -0.4074,
+          0
         ],
         "max": [
-          1.35,
-          0.67,
-          0.55
+          1,
+          0.4074,
+          0.4926
         ],
         "size": [
-          2.7,
-          0.57,
-          1.1
+          2,
+          0.8148,
+          0.4926
         ],
         "pivot": [
           0,
-          0.55,
-          0
+          0,
+          0.4037
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6836,27 +7132,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/bridge-arched.glb",
-          "bytes": 11548,
-          "sha256": "3825d2917913da35252d20b5038b1822a3bdd26760eae3bb0c8585e225779822"
+          "bytes": 6408,
+          "sha256": "99ce760d8156b73694d444f664b137f7007df4513ded7fd61c195b01677fa6d1"
         },
         {
           "path": "assets-source/library/realm/thumbnails/bridge-arched.png",
-          "bytes": 81499,
-          "sha256": "6298cc8b2bf279ddfdb3130ae7ae700a4f9f15936db6a376844d531d16f91ac4"
+          "bytes": 83843,
+          "sha256": "682e3d23b86e030ba10e1ddc4f2d11961b0c571c9cdddfc3345ac425ada79a99"
         }
       ]
     },
@@ -6873,24 +7173,24 @@
       ],
       "metadata": {
         "min": [
-          -1.2339,
-          0,
-          -1.2339
+          -1,
+          -1,
+          0
         ],
         "max": [
           1,
-          2.72,
-          0.8
+          1,
+          1.6598
         ],
         "size": [
-          2.2339,
-          2.72,
-          2.0339
+          2,
+          2,
+          1.6598
         ],
         "pivot": [
           0,
-          0.6,
-          0
+          0,
+          0.4918
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6903,27 +7203,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-small.glb",
-          "bytes": 5072,
-          "sha256": "de34642007845881b58886ebca76f23daf4090ae564cb019f00db7193e2ea76e"
+          "bytes": 5628,
+          "sha256": "5029a2c436f312d41d502b4483bc5c25bfeb23e16bc6381b26155c3234c50027"
         },
         {
           "path": "assets-source/library/realm/thumbnails/cottage-small.png",
-          "bytes": 79178,
-          "sha256": "8b02f26f1eb6cbf4c800fcfefa4e7e83d43bb718d9c26f0b25e7694ff6bdafdd"
+          "bytes": 89171,
+          "sha256": "a9d2145349ddc0b0e346ae83520e69cf1b5cef7c33ab4648ac4406ee31e15482"
         }
       ]
     },
@@ -6940,24 +7244,24 @@
       ],
       "metadata": {
         "min": [
-          -1.4496,
-          -0.025,
-          -1.4496
+          -1,
+          -1,
+          0
         ],
         "max": [
-          1.25,
-          3.025,
-          0.8
+          1,
+          1,
+          1.3279
         ],
         "size": [
-          2.6996,
-          3.05,
-          2.2496
+          2,
+          2,
+          1.3279
         ],
         "pivot": [
           0,
-          0.6,
-          0
+          0,
+          0.3934
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6970,27 +7274,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-long.glb",
-          "bytes": 5064,
-          "sha256": "35aa70075e3af8c191089c2160a16fce42747a5d613827466c2e65261a70faf9"
+          "bytes": 5628,
+          "sha256": "9bfbc51145a5a854061744cd708d85d855439a704aae95579594d89313c6ecdd"
         },
         {
           "path": "assets-source/library/realm/thumbnails/cottage-long.png",
-          "bytes": 79280,
-          "sha256": "70c08808b505608334b9d490bbd5c5e7ee73521c08710d418454799cc9476c95"
+          "bytes": 86859,
+          "sha256": "be1ef22b8be03c8e301fb6543cd03930fda7d80ad49a8c297775d7152835dfc1"
         }
       ]
     },
@@ -7007,24 +7315,24 @@
       ],
       "metadata": {
         "min": [
-          -1.2339,
-          0,
-          -1.2339
+          -1,
+          -0.8746,
+          0
         ],
         "max": [
-          1.57,
-          2.72,
-          0.8
+          1,
+          0.8746,
+          1.4516
         ],
         "size": [
-          2.8039,
-          2.72,
-          2.0339
+          2,
+          1.7491,
+          1.4516
         ],
         "pivot": [
+          -0.1254,
           0,
-          0.6,
-          0
+          0.4301
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7037,27 +7345,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/farm-barn.glb",
-          "bytes": 6628,
-          "sha256": "71eb5f4c62bb72d0f510b5d36efe519090baf13106ecabfcb4fdf021c7e89245"
+          "bytes": 7268,
+          "sha256": "dee18bb1d9338c16a5a5c158b642c0d00e72ff50517b7b3b3f0fbfd01895b882"
         },
         {
           "path": "assets-source/library/realm/thumbnails/farm-barn.png",
-          "bytes": 79944,
-          "sha256": "5f36572c806b23c6cf9fe788bbe9d5afd0f5d1dffdc376bd4588aec7cddcc95e"
+          "bytes": 86958,
+          "sha256": "6bb1c47fdbba4911224b9d28ba0e92ab700785b1cfa5c8e5a28948127e4c5741"
         }
       ]
     },
@@ -7075,23 +7387,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.4,
-          1
+          1,
+          0.495
         ],
         "size": [
           2,
-          0.4,
-          2
+          2,
+          0.495
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7104,27 +7416,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/crop-wheat.glb",
-          "bytes": 18984,
-          "sha256": "e79b7282afff81fb345ad1434108ca11d5f325e9ab1909b3c013913b9b1a69f9"
+          "bytes": 26756,
+          "sha256": "06d7f7b3f7e3501be536b8a54e0926fd433bf938173555ed5e256069fe97fc0f"
         },
         {
           "path": "assets-source/library/realm/thumbnails/crop-wheat.png",
-          "bytes": 77127,
-          "sha256": "38aad9401bfb95c9ece213f7bc4381dc65481c8d6d33d09685c2ab8c03441e3f"
+          "bytes": 91918,
+          "sha256": "3af1c9df18af6d9eef8dfe1ffe1f1291f00ef6c19807c584110ae14b3e86f016"
         }
       ]
     },
@@ -7142,23 +7458,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          0.24,
-          1
+          1,
+          0.24
         ],
         "size": [
           2,
-          0.24,
-          2
+          2,
+          0.24
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7171,27 +7487,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/crop-rows.glb",
           "bytes": 6300,
-          "sha256": "96ed159a6eaafe6aa258b29c8c2422503d31f30362efbc3332e1c53071be0541"
+          "sha256": "6049e17417c9c0cef524782fa414dc53119e79c2eedc2f0ac302ee3713f4b0b5"
         },
         {
           "path": "assets-source/library/realm/thumbnails/crop-rows.png",
-          "bytes": 77138,
-          "sha256": "191049a7c5b5f9ae212d339c3193c022b2edd59cf49edb729114857007ac74d9"
+          "bytes": 90820,
+          "sha256": "591a0247c6000e3eb65f5f220449da9d9b83faacf7a04d4d8e5605fccd8ad395"
         }
       ]
     },
@@ -7209,23 +7529,23 @@
       "metadata": {
         "min": [
           -1,
-          0,
-          -1
+          -1,
+          0
         ],
         "max": [
           1,
-          1.37,
-          1
+          1,
+          1.275
         ],
         "size": [
           2,
-          1.37,
-          2
+          2,
+          1.275
         ],
         "pivot": [
           0,
-          0.04,
-          0
+          0,
+          0.04
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7238,27 +7558,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/orchard.glb",
-          "bytes": 9756,
-          "sha256": "a4efdad4ead3dbf37897ee8e3b50deaa415177bc04be98256803bea73f44ed0e"
+          "bytes": 9784,
+          "sha256": "510c87336020f607a6773284dbe12552b52f7b81799a9251d053dabe08071e82"
         },
         {
           "path": "assets-source/library/realm/thumbnails/orchard.png",
-          "bytes": 75522,
-          "sha256": "bc02a63ebd2fb694de89005361f541855b9f7609fc2a575dbbf854df78d2d32c"
+          "bytes": 89600,
+          "sha256": "37b8327b2309bf686b9ebfcb9fb8f7b98b301487881a2ee184f1c457f07ee76a"
         }
       ]
     },
@@ -7275,24 +7599,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7604,
-          0.41,
-          -0.65
+          -1,
+          -1,
+          0
         ],
         "max": [
-          0.7604,
-          2.23,
-          0.65
+          1,
+          1,
+          2.6923
         ],
         "size": [
-          1.5209,
-          1.82,
-          1.3
+          2,
+          2,
+          2.6923
         ],
         "pivot": [
           0,
-          0.55,
-          0
+          0,
+          0.7051
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7305,27 +7629,31 @@
           "water": "#5d9ca5",
           "timber": "#765443",
           "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
         }
       },
-      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
       "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
       "integration": "candidate library only; no runtime import",
       "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.",
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/glb/tree-oak.glb",
-          "bytes": 5380,
-          "sha256": "3d0e392eb24a2c4998a1abad4f485fda42c5e975f66f8fd33f1bb4026ac2d592"
+          "bytes": 5228,
+          "sha256": "164dce0a89751c0aa24ad32411eaf4385e79fc93a697e25b2aec5861d5ca428f"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree-oak.png",
-          "bytes": 71714,
-          "sha256": "eec48ff3fff8ba2330782e057e73a27f9e5ffa4fc60bcc532de91a51327c306f"
+          "bytes": 84021,
+          "sha256": "0447d270193f622e85881cd99a42c004ee33e3f12f4e8581bfb5255463f63f1e"
         }
       ]
     },
@@ -7339,13 +7667,18 @@
       "derivatives": [
         "assets-source/library/realm/scenes/harbour.glb",
         "assets-source/library/realm/thumbnails/scene-harbour.png",
-        "assets-source/library/realm/thumbnails/scene-harbour-alt.png"
+        "assets-source/library/realm/thumbnails/scene-harbour-alt.png",
+        "assets-source/library/realm/realm-kit.blend"
       ],
       "metadata": {
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
@@ -7354,23 +7687,28 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/scenes/harbour.glb",
-          "bytes": 66484,
-          "sha256": "53e12f39758f70e40c640ab4c8f07799e49994e4e245030c7e70ef9e2b2050f1"
+          "bytes": 105196,
+          "sha256": "f4bedf66354c6e384d04592c1ef3971bcebcf948205c2d722d336df53012d2f0"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-harbour.png",
-          "bytes": 78697,
-          "sha256": "2376995e5214d48108a1a74a5c92c1b4d877659fc093a5547f5bfdaabe320c8b"
+          "bytes": 316758,
+          "sha256": "8a0cd25a092920dd23f8131eaaaae1c42fdedeaec8e35501c91b931ca6fb9791"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-harbour-alt.png",
-          "bytes": 80488,
-          "sha256": "7853c8b520959074945a0508c4c94d65e7f707616c4fc32e2cb77972754fc239"
+          "bytes": 317824,
+          "sha256": "18b366a577d7b1e87af561cb11675521bb10a6d0e6a6813e5ad570da002638c5"
+        },
+        {
+          "path": "assets-source/library/realm/realm-kit.blend",
+          "bytes": 218380,
+          "sha256": "2cebf5f196cfc12734daccb8b0c4630086f6a8c3528a5c0ae2642f2d4b964bb8"
         }
       ]
     },
@@ -7390,7 +7728,11 @@
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
@@ -7399,23 +7741,23 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/scenes/hillfort.glb",
-          "bytes": 52212,
-          "sha256": "680e8a135a5c95806fa44136eced9b8abed40a2f94930cd6712846806ab658f4"
+          "bytes": 77616,
+          "sha256": "da8aab1394f45c8507d1dbd7129fe67815cda16126d8f410867f091a97e56795"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-hillfort.png",
-          "bytes": 79925,
-          "sha256": "de61eb2a418d717b48c27ca84c99539befed4a431b69b7f9a3f631db7f514039"
+          "bytes": 326441,
+          "sha256": "7ce370427884b7bc6d1994175cd8cb5d412a641f74c5d27bbda0bb270ced6f0f"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-hillfort-alt.png",
-          "bytes": 80076,
-          "sha256": "880770c2d1fe8e767511e94ab9c023bb6b1d6aadb84f7128c8ef38ea6cdb94a6"
+          "bytes": 326462,
+          "sha256": "5ec3d7597d091ae4f42b518200cabaf855959a9aba3a5d4faf8d779c88701634"
         }
       ]
     },
@@ -7435,7 +7777,11 @@
         "views": [
           "isometric",
           "alternate isometric"
-        ]
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
       },
       "provenance": "Original Alibi composition from retained and original library modules.",
       "accessibility": "Two static rendered views accompany the GLB.",
@@ -7444,23 +7790,23 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 11895,
-          "sha256": "16779fc417f084f04e347a978ba06b1047bbe3567fbb2a967c119e5906924875"
+          "bytes": 9798,
+          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
         },
         {
           "path": "assets-source/library/realm/scenes/farmstead.glb",
-          "bytes": 74768,
-          "sha256": "e35502019f19480b873eff31e667004d1151082a8b4217f076a6aeb00a6b88c0"
+          "bytes": 84360,
+          "sha256": "2e8826ae5db7b7fe9a7fa69a96fdaa49c88ff65bc0d3ada51cd21fdc6d5f304c"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-farmstead.png",
-          "bytes": 77059,
-          "sha256": "9e730d0db73d8d47b3ee5348534dcec044d6ae12280cc414ac981045f843f229"
+          "bytes": 335982,
+          "sha256": "a368974f8fe8278d9e9f834c971daacca7a02417f7716d4ea23ae1b1e0f9e1ab"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-farmstead-alt.png",
-          "bytes": 76999,
-          "sha256": "a4bbdb5c282bc6352ca9cc592e6dd442493c85490623eced6cbc646eec3284cb"
+          "bytes": 335352,
+          "sha256": "6935dce41350e33fb038ab9f898b85d2d77a2d7bd060b29838347c5ff16a706b"
         }
       ]
     },
@@ -7469,7 +7815,7 @@
       "title": "Miso",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/cat-idle.svg",
@@ -7509,7 +7855,26 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
@@ -7523,8 +7888,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-idle.svg",
-          "bytes": 3429,
-          "sha256": "ae6448a4357e6cca506bfa4ce505b497a5334c0687a6f35c23c50d1ee93b8671"
+          "bytes": 3729,
+          "sha256": "ba7cc36c4cb7d88f067b43ae5fc40cdab51ebbe3fd0b46d30b92a18dc919c612"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-idle.png",
@@ -7533,8 +7898,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-look.svg",
-          "bytes": 3429,
-          "sha256": "b4ede77ca3fc63f4783908b66901ed01b14b3ecd3924fbdd975ca2b981dfb36d"
+          "bytes": 3729,
+          "sha256": "8f531b97dc693ba32419e97c4edcb5dfefbfdea6424ca34138f9d05f36726b67"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-look.png",
@@ -7543,18 +7908,18 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-attention.svg",
-          "bytes": 3444,
-          "sha256": "6c7d65da28034fcf90a7dbaa972e03f1b37301462266b3ad3c403c229e587af8"
+          "bytes": 3744,
+          "sha256": "6db035fc3c3d41e104679310de29665d365c4e0b15d1c72dd31c29448a6c734c"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-attention.png",
-          "bytes": 17456,
-          "sha256": "5cda242ade0ce242609be83678e03917de43d59bef4a0db8dde241ee64161f54"
+          "bytes": 17678,
+          "sha256": "a7ed980ad6b5cc2f0f75c5a111a7edcddeabfa998a8638d69a30fd41724efe46"
         },
         {
           "path": "assets-source/library/companions/rigs/cat-happy.svg",
-          "bytes": 3432,
-          "sha256": "c5e23e2f3d988ce3f9251b4514aa3465e374c027347987715aed410793765aae"
+          "bytes": 3732,
+          "sha256": "29565643558df6f280363fd10fb2e5da4b8af989dbfe02286927d9e5dd626b0e"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-happy.png",
@@ -7563,8 +7928,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-sleepy.svg",
-          "bytes": 3435,
-          "sha256": "b7f811530b6d2f518f91b71289b76b9ec02ac52f367f9370d50a8a531e498850"
+          "bytes": 3735,
+          "sha256": "c51477a0a6a070ec2de9bfe8853b063bde141ca75a58cdacad35ac31e7f5b9c9"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-sleepy.png",
@@ -7573,8 +7938,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-pet.svg",
-          "bytes": 3426,
-          "sha256": "960ff89720ffd08299dd4f79035d2c3142e8721fec8f80052e41fb95f17118dc"
+          "bytes": 3726,
+          "sha256": "46d2f99b5b93af68fc635ea52131f28132b5fb1e3ee3f069433dc619ebd83dc1"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-pet.png",
@@ -7583,8 +7948,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-feed.svg",
-          "bytes": 3429,
-          "sha256": "568a0c6870d50a816eb45c4790199772eebe32ccd4f6a9bfc4cff2c8f8ac8399"
+          "bytes": 3729,
+          "sha256": "5a6872d9d2f9048d4cb654df2b2bc94417aa2a0c1108bde2d4de6e4a53d9a665"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-feed.png",
@@ -7593,8 +7958,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/cat-celebrate.svg",
-          "bytes": 3444,
-          "sha256": "d99a346580b9f3679d9c487be186a983bcb59624fd90e776647907e452393f31"
+          "bytes": 3744,
+          "sha256": "c120c890b479d0bee4783cc364f31b9972486e79a83ef9fcb05cfbf45b248f6a"
         },
         {
           "path": "assets-source/library/companions/thumbnails/cat-celebrate.png",
@@ -7608,7 +7973,7 @@
       "title": "Fern",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/fox-idle.svg",
@@ -7648,7 +8013,26 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
@@ -7662,8 +8046,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-idle.svg",
-          "bytes": 3389,
-          "sha256": "1cdf5a99862b654365181e06d298e0c8f84d6eafa936a169b440cd340992ca5f"
+          "bytes": 3689,
+          "sha256": "6c13ef446c642a6734f023cbe2fc73f13b0ea2fb9a017ad4f713257ab364786d"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-idle.png",
@@ -7672,8 +8056,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-look.svg",
-          "bytes": 3389,
-          "sha256": "6b3cf5862028205bd7ae2387c5da70ccdc35ace4bfdf5cff8714632745edf568"
+          "bytes": 3689,
+          "sha256": "bbaf8b8fb82b0fc108d1fe2f094a530ff6ce8daa006fd2e54d44fb100997eecd"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-look.png",
@@ -7682,18 +8066,18 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-attention.svg",
-          "bytes": 3404,
-          "sha256": "45104b11bc5a3a44938b9b52590e75b3b7957ff4e80e02bef8789d5f01f582e7"
+          "bytes": 3704,
+          "sha256": "6914b040757201dd4ae7d46ed10612b968636ccb26b8dbcc12d7f60a17ab5543"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-attention.png",
-          "bytes": 18163,
-          "sha256": "44109ef3269bd2e687ec6de3d73be5efd466c42db4b90dbc5a15b2f179ab6dc5"
+          "bytes": 18329,
+          "sha256": "b825a22e0b3138f45a4750c32a18041f5acdcb91f2ffae9873facc65fd94ad7c"
         },
         {
           "path": "assets-source/library/companions/rigs/fox-happy.svg",
-          "bytes": 3392,
-          "sha256": "147ce62bdd77a60ba152cbb6e8dcbd8119de5d63d6b8c648d8ed464a05ce5930"
+          "bytes": 3692,
+          "sha256": "a613300f802fe276f935e8d1fe4ee8f4140bf7ffb669644b44b97a47b55a26d0"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-happy.png",
@@ -7702,8 +8086,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-sleepy.svg",
-          "bytes": 3395,
-          "sha256": "b61430592bc919640c78eb94a4e28f8604767167d43eb71b014b1b241844ec44"
+          "bytes": 3695,
+          "sha256": "7d541c40e4bde2475ff02c84a2996797781fcf871da99690c9b48e0b62dd9834"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-sleepy.png",
@@ -7712,8 +8096,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-pet.svg",
-          "bytes": 3386,
-          "sha256": "8efb574ae624ca553ebf1f613febb0f025a4afc6919b90ee915a0eb2dd91dffa"
+          "bytes": 3686,
+          "sha256": "18f6354074df1ceb30541bad7bd0551241e2ad1c5b1397bf8a6c7948692c8fd3"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-pet.png",
@@ -7722,8 +8106,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-feed.svg",
-          "bytes": 3389,
-          "sha256": "fd1c92db53d7d4a8c8e971a08f69f94c1183cbefa359aa0a5711d802220399e9"
+          "bytes": 3689,
+          "sha256": "bd16b0104f51d7e9455b2a7149051b50ce388b63033b9047a4249a701b559506"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-feed.png",
@@ -7732,8 +8116,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/fox-celebrate.svg",
-          "bytes": 3404,
-          "sha256": "9bac96cfda8d7370ba8e7eaf8633586a407c04f0b24f50941136f98c5b96ad2f"
+          "bytes": 3704,
+          "sha256": "371c33df8a87a10998a5b6486a40e4e52c0540d247b3ed25e0b62e7de162ddaf"
         },
         {
           "path": "assets-source/library/companions/thumbnails/fox-celebrate.png",
@@ -7747,7 +8131,7 @@
       "title": "Pip",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/owl-idle.svg",
@@ -7787,7 +8171,26 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
@@ -7801,8 +8204,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-idle.svg",
-          "bytes": 3132,
-          "sha256": "46025800a89ceae6ba009bebd24c2549383274a5a6c99e4d88e58dd17e0d97b4"
+          "bytes": 3432,
+          "sha256": "5de52d2c710ca9ca9325029c62b2e6b558a27a60935fd2734d057079b300729a"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-idle.png",
@@ -7811,8 +8214,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-look.svg",
-          "bytes": 3132,
-          "sha256": "b95549bdcde48f9a3bf870db3478eed957ffc3146a4d4a06c36a4e40ad19ccc9"
+          "bytes": 3432,
+          "sha256": "4a4b691d544963f6c9c02dc35395f81b3ffea08e48b119f97f705cfda16d2c63"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-look.png",
@@ -7821,18 +8224,18 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-attention.svg",
-          "bytes": 3147,
-          "sha256": "563ce609b8c530c066bd900aabc2f0cf8ee628d1f743a33ca1aa8956cd6b8c9c"
+          "bytes": 3447,
+          "sha256": "5b1aa13dcfa309df496f79bad09d7d4c1b072864385a27ce3cc91c0ac4ec36a9"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-attention.png",
-          "bytes": 16546,
-          "sha256": "1c5d33161ba8be76edcf7e6e54853e9f80d30edbbe0ffd5262020bdb539db80a"
+          "bytes": 16706,
+          "sha256": "a12e212654cc2b2267bcb94c82172ad57170cfdfe19c2e091599c49b872088ec"
         },
         {
           "path": "assets-source/library/companions/rigs/owl-happy.svg",
-          "bytes": 3135,
-          "sha256": "8c26a74498c36a6a5f340ac29c4b5d90c8a0aad0996b283752537b82ce75f4bc"
+          "bytes": 3435,
+          "sha256": "ef41daa87f0e1c62e38b79860d60ee5e47a2923d66441871e7e162bc35eb477a"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-happy.png",
@@ -7841,8 +8244,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-sleepy.svg",
-          "bytes": 3138,
-          "sha256": "88d94840392e3ba926d601e55f4fe68c030563c08df4f11fc7d98ceb584d9837"
+          "bytes": 3438,
+          "sha256": "ab763d68b09c28d46a0b3d734ee0863d49c20679547ef20655f117751cc51458"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-sleepy.png",
@@ -7851,8 +8254,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-pet.svg",
-          "bytes": 3129,
-          "sha256": "f49c7bd51612883096b303d73bcad13ef1581bebc5102b6ef32f55f81658979e"
+          "bytes": 3429,
+          "sha256": "9e26e1f53c752558aa753fcd3e13e21ff93078fcb60cfb7b5cd923b19fd3bddf"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-pet.png",
@@ -7861,8 +8264,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-feed.svg",
-          "bytes": 3132,
-          "sha256": "2b903fd7116bd41fa1d44d84e9ff23c533a385f4129e092d5e9ad62c07ba62dd"
+          "bytes": 3432,
+          "sha256": "fb78f33da9000c4f678f2ec037bae75d63acde4c487ac1f0ddd92bd3c236dfba"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-feed.png",
@@ -7871,8 +8274,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/owl-celebrate.svg",
-          "bytes": 3147,
-          "sha256": "513ecc59ef45c42e10a11a9504d328176abe70ed1bae2e131475469df16d8668"
+          "bytes": 3447,
+          "sha256": "bdae211a585807a2fe05a9f9ee07fe2d57395e7e6dea154f3696b8ee1cc46c64"
         },
         {
           "path": "assets-source/library/companions/thumbnails/owl-celebrate.png",
@@ -7886,7 +8289,7 @@
       "title": "Nimbus",
       "category": "companions",
       "status": "current",
-      "design": "original",
+      "design": "reused",
       "source": "src/quiet-wing/pets.js",
       "derivatives": [
         "assets-source/library/companions/rigs/dragon-idle.svg",
@@ -7926,7 +8329,26 @@
           "pet",
           "feed",
           "celebrate"
-        ]
+        ],
+        "timing": {
+          "transitionMs": 280,
+          "loopMs": 1200,
+          "autoplay": "only when gentle motion is enabled and reduced motion is off"
+        },
+        "stateStatus": {
+          "current": [
+            "idle"
+          ],
+          "proposed": [
+            "look",
+            "attention",
+            "happy",
+            "sleepy",
+            "pet",
+            "feed",
+            "celebrate"
+          ]
+        }
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
@@ -7940,8 +8362,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-idle.svg",
-          "bytes": 3446,
-          "sha256": "1f0d35a9169ccaa93677622e541a7cf9584ddce216264bcc2dc469b75e62e2f9"
+          "bytes": 3746,
+          "sha256": "141e13f6c2fa0224bc62f3a78f562f2cdbd16239444964396302f2dd68761415"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-idle.png",
@@ -7950,8 +8372,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-look.svg",
-          "bytes": 3446,
-          "sha256": "d8d0fb57a3245ff50f898fe4c0d900b6171a963b45d5a30ac392bc3f3b3a42d4"
+          "bytes": 3746,
+          "sha256": "18256eb9a3bd84465fcff19e7d66bd3694adda775ec31c6445cc5af2134a3cf3"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-look.png",
@@ -7960,18 +8382,18 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-attention.svg",
-          "bytes": 3461,
-          "sha256": "6e0235ff6a33a35eb588d2c7ecf05014cc96e539cee3dd5f1c0ed8d40086cf9c"
+          "bytes": 3761,
+          "sha256": "2b7da78da2e18ebca90a61d3d307219fa7b1f2892a0e482da651834210a4dd0a"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-attention.png",
-          "bytes": 19535,
-          "sha256": "c46cea7029bab68a33eebaa07eaa8cac708978aa63ec17ff1365afad9bae8c95"
+          "bytes": 19705,
+          "sha256": "f73b85ea382ed54ac7f8e472ee724ae6760122949f41c5c6d458c930bb03b718"
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-happy.svg",
-          "bytes": 3449,
-          "sha256": "411c7ae53d12b1b55b6b0d6e5da4f02c0f84cd8834f32845c6e50bbc36194494"
+          "bytes": 3749,
+          "sha256": "d010fe0be9cd11d65856b6e72f82539d34e70edf7f076f27acbfefc0cc9bca40"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-happy.png",
@@ -7980,8 +8402,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-sleepy.svg",
-          "bytes": 3452,
-          "sha256": "efd9aab748da9c6c7520fcc477408802a90aa5bedc4c030fbd14129f0234d09e"
+          "bytes": 3752,
+          "sha256": "ea6e3906abe1d81baa97ec87d64d40ca5270be783d83c8efe43907338a5dc883"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-sleepy.png",
@@ -7990,8 +8412,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-pet.svg",
-          "bytes": 3443,
-          "sha256": "c991fdbd900ddd6ebc05ada24b89f96c49f4379aef0fa7910dd701f20cc4a669"
+          "bytes": 3743,
+          "sha256": "e8bd8a07b6f37ca1211fae96461d11d45bb4ee08986b0fa2381c2ebc98974862"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-pet.png",
@@ -8000,8 +8422,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-feed.svg",
-          "bytes": 3446,
-          "sha256": "106d790b0881a9267eb77d31f83142768b9b3d8270a9e14fbd54b9733e47cb98"
+          "bytes": 3746,
+          "sha256": "67a362992e6cf0041a75badd5be58c4bca102c1d4fcd7ee4c38dc3f85b9411e1"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-feed.png",
@@ -8010,8 +8432,8 @@
         },
         {
           "path": "assets-source/library/companions/rigs/dragon-celebrate.svg",
-          "bytes": 3461,
-          "sha256": "ba8d4466097c18d45752f5910c83b42e2d76b7b26b6b30ad3edebd3a13847cc5"
+          "bytes": 3761,
+          "sha256": "36cd865dd164f5d21fd983eead13f1615585301da90db605c5d298ec6acc4fd3"
         },
         {
           "path": "assets-source/library/companions/thumbnails/dragon-celebrate.png",

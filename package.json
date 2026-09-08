@@ -18,6 +18,7 @@
     "assets:visuals": "node tools/assets/visuals.cjs && node tools/assets/catalogue.cjs",
     "assets:catalogue": "node tools/assets/catalogue.cjs",
     "assets:check": "node --test tests/asset-*.test.cjs",
+    "assets:media": "node tools/assets/decode-media.cjs",
     "assets:gallery": "node tools/serve-assets.cjs",
     "cloudflare:preview": "wrangler dev --config wrangler.jsonc",
     "cloudflare:check": "wrangler deploy --dry-run --config wrangler.jsonc",

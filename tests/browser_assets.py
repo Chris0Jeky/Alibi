@@ -25,7 +25,7 @@ with sync_playwright() as p:
         page.locator('#theme-select').select_option(theme)
         page.goto('http://127.0.0.1:8787/#/library/scene');page.wait_for_selector('.puzzle-highlight')
         first=page.locator('.puzzle-card').first
-        first.scroll_into_view_if_needed();first.locator('.card-open').focus()
+        first.scroll_into_view_if_needed();page.keyboard.press('Tab');first.locator('.card-open').focus()
         first.screenshot(path=str(OUT/('highlight-focus-'+theme+'.png')))
         check(page.evaluate('document.documentElement.dataset.theme')==theme,'Actual '+theme+' theme applies to illustrated cards')
     for width in [390,1440]:

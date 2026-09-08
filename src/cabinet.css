@@ -807,6 +807,9 @@ html[data-theme='night'] .book-number {
   object-fit: cover;
   object-position: center;
 }
+.card-open:focus-visible {
+  outline-offset: -4px;
+}
 .zen .puzzle-highlight,
 .club-zen .puzzle-highlight {
   display: none;

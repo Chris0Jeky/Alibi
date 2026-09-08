@@ -69,6 +69,7 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -139,6 +140,7 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -209,6 +211,7 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     },
     {
@@ -279,6 +282,7 @@
       },
       "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
       "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
       "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
     }
   ]

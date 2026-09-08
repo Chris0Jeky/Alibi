@@ -50,7 +50,10 @@ for (const asset of catalogue.assets) {
     asset.metadata.spectral.energy_above_20_hz_pct > 95,
     `${asset.id} has audible-band energy above 20 Hz`,
   );
-  assert.ok(asset.metadata.spectral.sub20_energy_pct < 5, `${asset.id} has limited subsonic energy`);
+  assert.ok(
+    asset.metadata.spectral.sub20_energy_pct < 5,
+    `${asset.id} has limited subsonic energy`,
+  );
   assert.ok(asset.metadata.spectral.dc_dbfs < -60, `${asset.id} has no large DC component`);
   if (asset.category === 'ambient') {
     assert.equal(asset.metadata.loop.deterministic, true);

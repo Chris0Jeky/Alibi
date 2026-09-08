@@ -50,6 +50,7 @@ npm run assets:visuals
 .venv/Scripts/python.exe tools/assets/capture-teaching.py --force
 npm run assets:catalogue
 npm run assets:check
+npm run assets:media
 .venv/Scripts/python.exe tools/assets/inspect-media.py
 npm run verify
 ```

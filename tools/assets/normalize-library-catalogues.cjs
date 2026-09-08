@@ -60,7 +60,7 @@ write(path.join(realmDir, 'catalogue.json'), {
     provenance: asset.provenance,
     accessibility:
       'Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.',
-    integration: asset.integrationReference,
+    integration: asset.integrationReference || asset.integration,
     qa: 'Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds.',
   })),
   scenes: realm.scenes.map((id) => ({
@@ -102,7 +102,7 @@ write(path.join(companionDir, 'catalogue.json'), {
     provenance: asset.provenance,
     accessibility:
       'Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.',
-    integration: asset.integrationReference,
+    integration: asset.integrationReference || asset.integration || 'src/quiet-wing/pets.js and src/quiet-wing/pet-view.js',
     qa: 'All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.',
   })),
 });

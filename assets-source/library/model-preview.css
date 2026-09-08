@@ -19,6 +19,7 @@ h1 {
   color: #173e49;
 }
 .controls {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -26,6 +27,9 @@ h1 {
   padding: 14px;
   background: #efe3ca;
   border: 1px solid #dbac60;
+}
+[hidden] {
+  display: none !important;
 }
 .controls label {
   display: grid;
@@ -107,6 +111,7 @@ dt {
 }
 dd {
   margin: 2px 0;
+  overflow-wrap: anywhere;
 }
 .reduced {
   font: italic 0.88rem system-ui;
