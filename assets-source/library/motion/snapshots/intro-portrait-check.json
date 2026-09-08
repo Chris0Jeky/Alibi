@@ -1,0 +1,182 @@
+[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
+[INFO] [Compiler] Fetched 11 font face(s) for "Inter" from Google Fonts (cached to C:\Users\Cristian3\.cache\hyperframes\fonts\inter)
+[INFO] [Compiler] Injected deterministic @font-face rules for 2 requested font families
+[hyperframes] browserGpuMode probe → hardware (WebGL renderer vendor="Google Inc. (Intel)" renderer="ANGLE (Intel, Intel(R) Arc(TM) Graphics (0x00007D55) Direct3D11 vs_5_0 ps_5_0, D3D11)")
+{
+  "ok": true,
+  "strict": true,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 3,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 6.5,
+        "selector": "div.stats-copy > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 178.87,
+          "right": 317.85,
+          "bottom": 194.97,
+          "width": 267.45,
+          "height": 16.1
+        },
+        "containerSelector": "div.stats-copy > h2:nth-of-type(1)",
+        "text": "FIND YOUR KIND OF PUZZLE",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "6.35"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 178.87,
+          "width": 267.45,
+          "height": 16.1
+        },
+        "firstSeen": 6.5,
+        "lastSeen": 6.5,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 12.625,
+        "selector": "div.case-copy > h2:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 229.42,
+          "right": 345.23,
+          "bottom": 359.42,
+          "width": 294.83,
+          "height": 130
+        },
+        "containerSelector": "p.copy",
+        "text": "Follow the evidence.",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "12.55"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 229.42,
+          "width": 294.83,
+          "height": 130
+        },
+        "firstSeen": 12.625,
+        "lastSeen": 12.625,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 30.625,
+        "selector": "div.close-copy > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 265.12,
+          "right": 341.4,
+          "bottom": 281.22,
+          "width": 291,
+          "height": 16.1
+        },
+        "containerSelector": "div.close-copy > h2:nth-of-type(1)",
+        "text": "COME IN WHEN YOU’RE READY",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "30.55"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 265.12,
+          "width": 291,
+          "height": 16.1
+        },
+        "firstSeen": 30.625,
+        "lastSeen": 30.625,
+        "occurrences": 1,
+        "heldMs": 0
+      }
+    ],
+    "duration": 36,
+    "samples": [
+      0,
+      6,
+      12,
+      18,
+      24,
+      30,
+      35.8
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 3,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      0,
+      6,
+      18,
+      24,
+      35.8
+    ],
+    "checked": 39,
+    "passed": 39
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "_meta": {
+    "version": "0.8.31",
+    "latestVersion": "0.8.31",
+    "updateAvailable": false
+  }
+}
