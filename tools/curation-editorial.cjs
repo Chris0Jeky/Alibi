@@ -18,6 +18,7 @@ function load(root, catalogue) {
       throw Error('Unverified calibration claim');
     return {
       id: n.id,
+      revision: known.get(n.id).revision,
       venue: n.venue,
       goal: n.goal,
       rules: n.rules,
