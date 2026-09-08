@@ -1,0 +1,57 @@
+"""Actual idle-garden controls; time advances only in an explicit test fixture."""
+from pathlib import Path
+import json,os,shutil
+from playwright.sync_api import sync_playwright
+ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results/quiet-wing';OUT.mkdir(parents=True,exist_ok=True)
+checks=[];errors=[]
+def check(value,label):
+    assert value,label
+    checks.append(label);print('PASS',label,flush=True)
+with sync_playwright() as pw:
+    browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True)
+    ctx=browser.new_context(viewport={'width':1280,'height':950},accept_downloads=True)
+    page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
+    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
+    page.goto(base+'#/quiet/garden');page.wait_for_function('()=>window.QWApp?.state?.garden')
+    check(page.locator('[data-seed]').count()==6,'All six named seeds have actual controls')
+    for i,seed in enumerate(['clover','lavender','sunflower','poppy','daisy','bluebell']):
+        page.locator('[data-seed="'+seed+'"]').click();page.locator('[data-pot="'+str(i)+'"]').click()
+    before=page.evaluate('JSON.stringify(QWApp.state.garden.pots)')
+    page.locator('#garden-sow').click()
+    check(page.evaluate('JSON.stringify(QWApp.state.garden.pots)')==before,'Batch planting preserves all occupied pots')
+    page.locator('#garden-gather').click()
+    check(page.evaluate('QWApp.state.garden.pressed')==0,'Unripe flowers cannot be gathered early')
+    page.evaluate('QWApp.state.garden.pots.forEach(p=>p.plantedAt-=1800000)')
+    page.locator('#garden-gather').click()
+    check(page.evaluate('QWApp.state.garden.pressed')==6,'Timestamp fixture allows exactly six completed blooms')
+    check(page.locator('.specimen.discovered').count()==6,'All gathered species appear in the herbarium')
+    page.locator('#garden-gather').click()
+    check(page.evaluate('QWApp.state.garden.pressed')==6,'Repeated gathering cannot duplicate a reward')
+    page.locator('[data-bouquet-slot="0"]').select_option('poppy')
+    page.locator('[data-bouquet-slot="1"]').select_option('lavender')
+    page.locator('[data-bouquet-slot="2"]').select_option('sunflower')
+    page.locator('#bouquet-undo').click()
+    check(page.evaluate('QWApp.state.garden.bouquet')==['poppy','lavender',None],'Bouquet undo restores the previous arrangement')
+    page.locator('[data-bouquet-slot="2"]').select_option('sunflower')
+    page.locator('#bouquet-title').fill('A small & sunny season');page.locator('#bouquet-title-save').click()
+    check(page.locator('#bouquet-art').inner_text().find('A small & sunny season')>=0,'Postcard title is safely rendered as text')
+    with page.expect_download() as event: page.locator('#bouquet-export').click()
+    path=OUT/'garden-postcard.svg';event.value.save_as(str(path))
+    import xml.etree.ElementTree as ET
+    root=ET.parse(path).getroot()
+    check(len(list(root.iter('{http://www.w3.org/2000/svg}svg')))==4,'Export is valid SVG containing all three chosen flowers')
+    page.locator('#garden-style').select_option('shore')
+    check(page.locator('.garden-stage').get_attribute('data-garden-style')=='shore','Setting changes the garden atmosphere')
+    page.locator('#garden-sow').click()
+    check(page.evaluate('QWApp.state.garden.pots.filter(Boolean).length')==6,'Batch planting fills only empty pots')
+    page.wait_for_function('()=>!QWApp.dirty');page.wait_for_function('()=>AlibiActivities.diagnostics().offline')
+    ctx.set_offline(True);page.reload();page.wait_for_function('()=>window.QWApp?.state?.garden')
+    check(page.evaluate('QWApp.state.garden.bouquet')==['poppy','lavender','sunflower'],'Bouquet survives an offline reload')
+    check(page.evaluate('QWApp.state.garden.title')=='A small & sunny season','Postcard title survives an offline reload')
+    check(page.evaluate('Object.values(QWApp.state.garden.collection).every(n=>n===1)'),'Collection counts survive without duplication')
+    page.screenshot(path=str(OUT/'garden-collection-desktop.png'),full_page=True)
+    page.set_viewport_size({'width':390,'height':850});page.screenshot(path=str(OUT/'garden-collection-mobile.png'),full_page=True)
+    check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),'Garden and postcard controls fit a narrow phone viewport')
+    check(not errors,'No uncaught errors in garden controls')
+    (OUT/'garden-results.json').write_text(json.dumps({'checks':checks,'errors':errors,'scope':'Local browser; growth uses a stated timestamp fixture, phone dimensions simulated'},indent=2))
+    browser.close()

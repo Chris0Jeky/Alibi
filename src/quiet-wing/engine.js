@@ -369,7 +369,7 @@
     return true;
   }
   function classicInitial(id) {
-    if (Calm?.definitions[id]) return Calm.initial(id);
+    if (Calm && Object.hasOwn(Calm.definitions, id)) return Calm.initial(id);
     if (/^hanoi[345]$/.test(id)) {
       let n = +id.at(-1);
       return { id, n, pegs: [Array.from({ length: n }, (_, i) => n - i), [], []], moves: 0 };
@@ -402,7 +402,7 @@
     throw Error('Unknown classic');
   }
   function classicMove(state, a) {
-    if (Calm?.definitions[state.id]) return Calm.move(state, a);
+    if (Calm && Object.hasOwn(Calm.definitions, state.id)) return Calm.move(state, a);
     const s = clone(state);
     let error = '';
     if (s.id.startsWith('hanoi')) {
@@ -497,7 +497,7 @@
     return { state: s, won: classicWon(s) };
   }
   function classicWon(s) {
-    if (Calm?.definitions[s.id]) return Calm.won(s);
+    if (Calm && Object.hasOwn(Calm.definitions, s.id)) return Calm.won(s);
     if (s.id.startsWith('slide-')) return s.tiles.every((n, i) => n === (i + 1) % 9);
     if (s.id.startsWith('hanoi')) return s.pegs[2].length === s.n;
     if (s.id === 'river') return s.side.every((x) => x === 1);

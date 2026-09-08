@@ -40,6 +40,14 @@ focused reducer tests and `npm run verify` pass. Existing games retain their IDs
 New original botanical/coastal motifs are included locally. Phone/desktop captures inspected;
 physical interaction and the final hosted release remain separate gates.
 
+Garden slice at `4c2c4aabc558`: six seeds, a species collection, three reusable pressed-flower
+slots, title and setting, batch sow/gather and a valid SVG postcard export. Original three growth
+durations, planted timestamps and historical keepsake totals stay intact; historic species are
+not invented. Node tests cover rollback clocks, bounded growth, one-time harvests, old saves and
+arrangement validation. Sixteen actual browser checks cover controls, safe batch operations,
+undo, SVG parsing, offline save/reload and narrow layout. Growth time is advanced only through
+an explicitly labelled test fixture. `npm run verify` passes. No hosted/physical claim.
+
 ## Quiet Wing source candidate
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test

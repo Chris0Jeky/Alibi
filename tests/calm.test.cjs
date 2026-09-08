@@ -3,6 +3,12 @@ const { test } = require('node:test'),
   assert = require('node:assert/strict');
 const C = require('../src/quiet-wing/calm.js');
 const E = require('../src/quiet-wing/engine.js');
+test('only named game IDs can enter the new replay rules', () => {
+  for (const id of ['constructor', '__proto__', 'toString', 'missing']) {
+    assert.throws(() => C.initial(id), /Unknown/);
+    assert.throws(() => E.classicInitial(id), /Unknown/);
+  }
+});
 test('both pouring boards solve legally within the fixed search budget', () => {
   for (const id of ['tideglass-morning', 'tideglass-dusk']) {
     let state = C.initial(id);

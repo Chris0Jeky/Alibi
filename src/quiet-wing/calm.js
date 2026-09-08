@@ -17,7 +17,7 @@
   };
   const copy = (value) => JSON.parse(JSON.stringify(value));
   function initial(id) {
-    const definition = definitions[id];
+    const definition = Object.hasOwn(definitions, id) ? definitions[id] : null;
     if (!definition) throw Error('Unknown quiet game.');
     if (definition.family === 'pour')
       return {

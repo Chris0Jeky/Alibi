@@ -61,7 +61,8 @@ turn those unperformed checks into claims of certification or abandon the author
    physical-device checks remain with the release gates. See STATE.md for measured pack size.
 3. Two new relaxing families now have four complete boards: Tideglass colour pouring and
    botanical/coastal pair matching. Rules, replayed saves, actual controls and offline completion
-   are verified. Deeper garden/idle interactions remain active work.
+   are verified. Garden expansion also has six species, an identified collection, arrangement
+   undo, batch sow/gather and exported postcards, with local clock, save and actual-control tests.
 4. Cross-app art direction and better case/puzzle imagery; Adobe currently fails initialization
    with HTTP 403. Use other available tools/direct licensed assets without blocking the work.
 5. Run the complete suite, reconcile CI/review, merge reviewed source and deploy to the existing

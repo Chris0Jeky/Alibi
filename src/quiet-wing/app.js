@@ -232,6 +232,7 @@
         A.petView?.dispose();
         A.petView = null;
         A.petAction = 'idle';
+        A.bouquetUndo = null;
       }
       function go() {
         if (disposed) return;
@@ -1012,6 +1013,7 @@
         }</svg>`;
       }
       function gardenPage() {
+        clearInterval(A.gardenTimer);
         $('#main').innerHTML =
           header(
             '03 / THE CONSERVATORY',
@@ -1028,6 +1030,68 @@
             .join(
               '',
             )}</div><div class="facts"><div><strong id="herbarium-count">${A.state.garden.pressed}</strong>Pressed keepsakes</div><div><strong>${A.state.stats.harvests}</strong>Flowers gathered</div></div><div class="notice">No plant death, watering chores, resource shop or real-time server. Clock changes can affect this local toy; it is not a competitive economy.</div><button id="garden-calm" class="soft">Just watch for a moment</button><p class="micro subtle">The garden animates only while it is visible. Growth is a timestamp calculation, not a continuously running background task.</p></aside></div>`;
+        $('.garden-stage').dataset.gardenStyle = A.state.garden.style;
+        $('#main').insertAdjacentHTML(
+          'beforeend',
+          `<section class="panel herbarium-panel"><div class="section-head"><div><div class="eyebrow">YOUR PRESSED-FLOWER BOOK</div><h2>Keep a little of the season.</h2></div><button id="garden-gather" class="soft">Gather ready flowers</button></div><p class="micro">Gather a flower to add its specimen here. Earlier keepsakes stay in your total; only flowers gathered with this collection are identified by species.</p><div class="herbarium-specimens" id="herbarium-specimens"></div><div class="bouquet-layout"><div id="bouquet-art"></div><div><h3>A postcard from your garden</h3><p class="micro">Arrange any flowers you have discovered. Reuse them freely; your collection is never spent.</p><label>Postcard title <input id="bouquet-title" maxlength="40" value="${esc(A.state.garden.title)}"></label><button id="bouquet-title-save">Keep title</button><div id="bouquet-choices"></div><div class="row"><button id="bouquet-undo">Undo arrangement</button><button id="bouquet-export" class="primary">Save postcard · SVG</button></div><label>Garden setting <select id="garden-style"><option value="glasshouse">Glasshouse</option><option value="shore">By the shore</option></select></label><button id="garden-sow" class="soft">Plant selected seed in empty pots</button></div></div></section>`,
+        );
+        $('#garden-style').value = A.state.garden.style;
+        $('#garden-style').onchange = () => {
+          A.state.garden.style = $('#garden-style').value;
+          $('.garden-stage').dataset.gardenStyle = A.state.garden.style;
+          save();
+        };
+        $('#bouquet-title-save').onclick = () => {
+          A.state.garden.title = $('#bouquet-title').value.trim() || 'A few good things';
+          save();
+          renderHerbarium();
+        };
+        $('#garden-sow').onclick = () => {
+          const now = Date.now();
+          let planted = 0;
+          for (let i = 0; i < 6; i++) if (E.plant(A.state, i, A.seed, now)) planted++;
+          A.state.stats.planted = (A.state.stats.planted || 0) + planted;
+          if (planted) {
+            save();
+            renderPots();
+            feedback();
+          }
+          toast(
+            planted
+              ? `${planted} empty pots planted. Existing plants kept.`
+              : 'Every pot is already growing something.',
+          );
+        };
+        $('#garden-gather').onclick = () => {
+          const now = Date.now();
+          let gathered = 0;
+          for (let i = 0; i < 6; i++) if (E.harvest(A.state, i, now)) gathered++;
+          if (gathered) {
+            save();
+            renderPots();
+            renderHerbarium();
+            feedback('win');
+            $('#herbarium-count').textContent = A.state.garden.pressed;
+          }
+          toast(
+            gathered
+              ? `${gathered} flowers tucked into your collection.`
+              : 'No flowers are ready yet. They will wait for you.',
+          );
+        };
+        $('#bouquet-undo').onclick = () => {
+          if (!A.bouquetUndo) return;
+          A.state.garden.bouquet = A.bouquetUndo;
+          A.bouquetUndo = null;
+          save();
+          renderHerbarium();
+        };
+        $('#bouquet-export').onclick = () =>
+          download(
+            new Blob([bouquetSVG()], { type: 'image/svg+xml' }),
+            'alibi-garden-postcard.svg',
+          );
+        renderHerbarium();
         $$('[data-seed]').forEach(
           (b) =>
             (b.onclick = () => {
@@ -1072,12 +1136,65 @@
                 save();
                 renderPots();
                 $('#herbarium-count').textContent = A.state.garden.pressed;
+                renderHerbarium();
                 toast('A bloom for your herbarium.');
               } else toast('Still growing. It will wait for you when it is ready.');
             }),
         );
         if (focused !== undefined)
           $('[data-pot="' + focused + '"]')?.focus({ preventScroll: true });
+      }
+      function pressedArt(seed) {
+        const index = { clover: 0, lavender: 2, sunflower: 3, poppy: 1, daisy: 3, bluebell: 2 }[
+          seed
+        ];
+        let art = G.QWCalmArt.art(index);
+        if (seed === 'sunflower') art = art.replaceAll('#f1e9cb', '#efc457');
+        if (seed === 'bluebell') art = art.replaceAll('#9d95b5', '#839fc4');
+        return art;
+      }
+      function bouquetSVG() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" role="img" aria-label="${esc(A.state.garden.title)}"><rect width="600" height="420" rx="10" fill="#f8f0df"/><rect x="18" y="18" width="564" height="384" rx="4" fill="none" stroke="#c6bd9e"/><text x="300" y="70" text-anchor="middle" fill="#466d61" font-family="Georgia,serif" font-size="24">${esc(A.state.garden.title)}</text>${A.state.garden.bouquet.map((seed, i) => (seed ? pressedArt(seed).replace('<svg ', `<svg x="${48 + i * 168}" y="115" width="168" height="190" `) : `<circle cx="${132 + i * 168}" cy="210" r="44" fill="none" stroke="#d9cfb5" stroke-dasharray="3 7"/>`)).join('')}<text x="300" y="365" text-anchor="middle" fill="#73816b" font-family="Georgia,serif" font-size="14">A small season, kept. · Alibi</text></svg>`;
+      }
+      function renderHerbarium() {
+        const holder = $('#herbarium-specimens');
+        if (!holder) return;
+        holder.innerHTML = Object.entries(E.CROPS)
+          .map(
+            ([id, crop]) =>
+              `<article class="specimen ${A.state.garden.collection[id] ? 'discovered' : ''}">${pressedArt(id)}<strong>${crop.name}</strong><span class="micro">${A.state.garden.collection[id] || 'Not yet gathered'}</span></article>`,
+          )
+          .join('');
+        $('#bouquet-art').innerHTML = bouquetSVG();
+        $('#bouquet-choices').innerHTML = A.state.garden.bouquet
+          .map(
+            (seed, i) =>
+              `<label>Flower ${i + 1} <select data-bouquet-slot="${i}"><option value="">Leave empty</option>${Object.entries(
+                E.CROPS,
+              )
+                .filter(([id]) => A.state.garden.collection[id] > 0)
+                .map(
+                  ([id, crop]) =>
+                    `<option value="${id}" ${seed === id ? 'selected' : ''}>${crop.name}</option>`,
+                )
+                .join('')}</select></label>`,
+          )
+          .join('');
+        $$('[data-bouquet-slot]').forEach(
+          (select) =>
+            (select.onchange = () => {
+              const slot = +select.dataset.bouquetSlot;
+              A.bouquetUndo = E.clone(A.state.garden.bouquet);
+              if (E.arrangeBloom(A.state, slot, select.value || null)) {
+                save();
+                renderHerbarium();
+                $(`[data-bouquet-slot="${slot}"]`).focus({ preventScroll: true });
+              }
+            }),
+        );
+        $('#bouquet-undo').disabled = !A.bouquetUndo;
+        const count = $('.garden-stage + aside .facts div:nth-child(2) strong');
+        if (count) count.textContent = A.state.stats.harvests;
       }
       const CLASSICS = {
         'tideglass-morning': {

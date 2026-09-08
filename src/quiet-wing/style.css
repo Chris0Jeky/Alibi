@@ -768,6 +768,73 @@ svg {
   font-size: 11px;
   padding: 2px 0 5px;
 }
+.herbarium-panel {
+  margin-top: 24px;
+}
+.herbarium-specimens {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+.specimen {
+  display: grid;
+  text-align: center;
+  gap: 6px;
+  background: #f7f1e5;
+  padding: 12px 4px;
+  border: 1px solid #e1dac6;
+  border-radius: 10px;
+}
+.specimen svg {
+  width: 100%;
+  filter: grayscale(0.9);
+  opacity: 0.35;
+}
+.specimen.discovered svg {
+  filter: none;
+  opacity: 1;
+}
+.specimen strong {
+  font:
+    14px Georgia,
+    serif;
+}
+.bouquet-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+#bouquet-art svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 12px #3f4f3620);
+}
+.bouquet-layout label {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0;
+  font-size: 12px;
+}
+.bouquet-layout input,
+.bouquet-layout select {
+  width: 100%;
+  min-width: 0;
+}
+.garden-stage[data-garden-style='shore'] {
+  background: linear-gradient(#b8d2cc 0%, #e0e7d5 48%, #d8c4a4 49%, #f3e6cc 100%);
+}
+@media (max-width: 650px) {
+  .herbarium-specimens {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bouquet-layout {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 520px) {
   .pair-board {
     gap: 6px;
