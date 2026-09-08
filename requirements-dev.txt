@@ -1,0 +1,2 @@
+# Optional browser tooling, separate from the dependency-free game.
+playwright==1.62.0

@@ -71,6 +71,12 @@ The active worker serves navigation from its own cached shell rather than mixing
 
 Retaining one previous cache is not indefinite compatibility for tabs left open through many releases. Ask long-lived tabs to update, and keep backward compatibility in the save model. A server rollback does not roll back IndexedDB or instantly replace every installed service worker. Prefer a forward repair that understands current saves; use the release checklist before a rollback.
 
+## 0.3 reasoning and presentation
+
+`src/insights.js` derives bounded deductions from current clues/entries for four families and computes completed-record explanations. It never consults stored solutions for reasoning hints; tests enforce this with a guarded solution property. These local deductions assume preceding entries are correct and are labeled accordingly.
+
+Casebook covers are original local WebP assets, hashed with the release and included in the offline shell and standalone preview. `src/cabinet.css` extends the base board stylesheet with readable mobile controls.
+
 ## Growth path
 
 First: human puzzle playtesting, hosted persistence/offline acceptance, touch/accessibility testing and authoring polish. Next: a human-reasoning hint trace and better difficulty calibration. Then: optional authenticated backup/sync if players need it. Native packaging, analytics, account systems and monetisation should be separate projects with explicit threat models and costs, not prerequisites for playing a static puzzle.

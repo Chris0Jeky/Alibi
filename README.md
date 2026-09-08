@@ -1,48 +1,91 @@
-# Alibi · A little room to think
+# Alibi
 
-Version 0.2.0. An expanded, local-first puzzle PWA: 102 puzzles, twelve engines, three mystery casebooks, twelve interactive lessons and a visual scene workshop. This is a playable release candidate, not a claim of completed Android or hosted-production certification.
+**A little room to think.** Twelve kinds of puzzle, three illustrated mystery casebooks, and a
+workshop for making a case of your own. No account. No lives. No rush.
 
-## Play or publish
+[Play Alibi](https://alibi-puzzle-club.jeky-tck.chatgpt.site) · [Project map](docs/PROJECT-MAP.md) ·
+[Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
 
-For a single-file preview, open `alibi-deluxe-play.html` in a browser that permits local JavaScript. File-preview apps may not execute it. For installation and durable progress, publish `alibi-deluxe-cloudflare.zip` to one permanent HTTPS address.
+![The Briar House study](src/artwork/briar-house.webp)
 
-The deployment ZIP already contains `index.html` at its root. Upload that ZIP, NOT the source archive or full publishing bundle. There is no build step for the first deployment. Cloudflare Pages Direct Upload provides a documented browser-only initial deployment and subsequent production updates. Cloudflare Drop is another convenient initial upload route; its unclaimed preview expires after one hour. Full instructions: `docs/DEPLOYMENT.md` and the bundle's `START-HERE.html`.
+## Open the cabinet
 
-## Work on the source
+- **102 puzzles, twelve families:** crime scenes, logic grids, witness deductions, nonograms,
+  lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
+- **Three casebooks:** Briar House, The Midnight Departure, and Secrets Under Glass. Four chapters
+  each, drawn from the existing catalogue; these are anthologies rather than branching stories.
+- **Learn by doing:** every family includes a miniature interactive lesson. Selected number and
+  picture games explain a deduction from your current board without consulting the stored answer.
+- **Review the evidence:** completed mysteries explain the final placements, pairings or truth
+  assignments. Reopen the record from a solved board.
+- **Keep your place:** automatic device-local saves, undo/redo, notes, favorites and JSON backups.
+- **Make it yours:** paper/evening themes, larger clues, reduced motion, optional sound and timer.
+- **Play offline:** installable PWA with a complete cached release, including the artwork.
+- **Build a mystery:** edit a scene, verify a unique solution, then export or install a local pack.
 
-Install Node.js 22 or later. The application and build have no npm dependencies. From this folder:
+## Run locally
+
+Node.js 22 or newer. The game and static build have **zero runtime dependencies**; development tools
+are pinned separately. Windows PowerShell users can substitute `npm.cmd` for `npm`.
 
 ```sh
-npm run build
-npm test
+npm ci
+npm run verify
 npm start
 ```
 
-Open `http://127.0.0.1:8787`. The local server binds only to your own computer. Stop with Ctrl+C. Opening localhost on your phone refers to the phone, not your computer; use a hosted HTTPS preview for phone testing.
+Open **http://127.0.0.1:8787**. The server serves the last build, so run `npm run build` after editing.
+It binds to your computer only. On a phone, use the HTTPS play link instead of localhost.
+
+Optional browser acceptance tooling:
 
 ```sh
-node tools/validate-pack.cjs examples/twelve-families.json
-npm run bundle
-```
-
-The optional browser suite needs Python and Playwright, separately from the app:
-
-```sh
-python -m pip install playwright
+python -m venv .venv
+# Activate .venv with your shell, then:
+python -m pip install -r requirements-dev.txt
 python -m playwright install chromium
 python tests/browser_ui.py
+python tests/browser_origin.py
+python tests/browser_update.py
 ```
 
-`CHROMIUM_PATH` can select a system Chromium binary. This UI suite uses an isolated browser document. It does not substitute for the hosted acceptance checklist.
+On Windows use `.venv\Scripts\python.exe` and set `PYTHONUTF8=1`. The origin suite needs `npm start`
+running; the update suite starts its own disposable fixture server. The isolated UI suite completes
+one puzzle in every family through controls. CI also checks real IndexedDB and offline behavior.
 
-## Where things live
+## Inside the box
 
-`src/core.js`: original five engines and scene generator. `src/engines.js`: seven additional engines and validation. `src/storage.js`: IndexedDB and labelled fallbacks. `src/presentation.js`: rules, lessons, original SVG artwork and icons. `src/app.js`: route, player, workshop, saves and PWA interface. `src/app.css`: responsive themes. `content/catalog.json`: published definitions. `content/casebooks.json`: anthology chapter order. `tools/build.cjs`: reproducible static build, coherent offline release and ZIP writer. `tests/`: executable checks and their actual reports. `docs/`: architecture, authoring, deployment, security, release and maintenance guidance.
+| Layer | Files |
+| --- | --- |
+| Pure engines and data contracts | `src/core.js`, `src/engines.js` |
+| Reasoning hints and evidence recaps | `src/insights.js` |
+| Save transactions and recovery | `src/storage.js` |
+| Player, lessons, workshop and PWA | `src/app.js`, `src/presentation.js` |
+| Mobile cabinet and board design | `src/app.css`, `src/cabinet.css`, `src/artwork/` |
+| Published puzzles and compatibility | `content/`, `schemas/`, `examples/` |
+| Build and acceptance | `tools/`, `tests/`, `.github/workflows/` |
 
-## Boundaries
+The [full map](docs/PROJECT-MAP.md) explains every part of the original bundle. The source was
+imported in logical commits and formatted before development; original puzzle IDs and revisions
+remain stable. The untouched supplied bundle stays outside Git's working source.
 
-No accounts, remote saves, purchases, ads, leaderboard, push notifications, APK, Play Store listing or server-generated daily content. Daily selections rotate from the included catalogue using the device's date. Casebooks link existing standalone puzzles; they are not additional puzzles or branching stories. Solutions are shipped to support offline checking and optional reveals. Difficulty and time labels are estimates, not player-study results.
+## Android and future development
 
-The original forty puzzle IDs, revisions and rule fields are preserved. Saved definitions remain attached to their runs. IndexedDB database identity and version remain `alibi-device`, version 1. The application cache is separate from saves. Back up before upgrading a live installation.
+Install the PWA from a supported phone browser. Its manifest, maskable icons, safe areas and offline
+shell are already the browser-to-Android foundation. The [Android checklist](docs/ANDROID.md) covers
+physical testing and the later store-packaging decisions. No APK or App Store release is claimed.
 
-Alibi is a working title. Trademark clearance, a public support address and final operator-specific privacy wording remain release-owner decisions. See `NOTICE.md`.
+[AGENTS.md](AGENTS.md) is the agent entry point; [STATE.md](docs/STATE.md) is the live handoff.
+[CONTRIBUTING.md](CONTRIBUTING.md) describes scoped changes and verification. The next milestone is
+one carefully curated, human-playtested casebook rather than hundreds of generated puzzles.
+
+## Privacy, provenance and limitations
+
+Progress stays in this browser on this device. There is no cloud sync, advertising, analytics SDK,
+account system or payment service. Export a backup before moving browsers, origins or devices.
+Hosting infrastructure may process ordinary request data; see [deployment](docs/DEPLOYMENT.md).
+
+Solutions ship with the app for offline checking and explicit reveals. Scores are not competitive
+or tamper-resistant. Difficulty/time estimates need human calibration. See [security and privacy](docs/SECURITY-AND-PRIVACY.md),
+[asset provenance](docs/ASSETS.md), [NOTICE.md](NOTICE.md), and [owner decisions](HUMAN_TODO.md).
+The source currently has no reuse license; the owner decision is pending.

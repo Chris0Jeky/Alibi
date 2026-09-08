@@ -1,0 +1,10 @@
+{
+  "tier": 2,
+  "name": "daily driver",
+  "authority": { "push": "free", "merge": "free" },
+  "flags": { "sensitive_data": false, "wave_mode": false, "dormant_production": false, "relaxed_work_loss_guards": false },
+  "model_routing": { "harness_and_review": "top", "slices": "mid", "maintenance": "cheap" },
+  "human_todo": "HUMAN_TODO.md",
+  "last_reviewed": "2026-09-08",
+  "notes": "Owner-authorized public puzzle game. T2 reflects device-local saves and a static deployment, without accounts, payments or remote player data. The 2026-09-08 launch request authorizes repository creation, publishing, deployment, tooling, assets and game development. Within that scope, pushes, reviewed merges and deployments are autonomous. Preserve puzzle identities and saves. CI, one independent review and the global head-aging gate precede merge. Luna xhigh is preferred for bounded work; Terra/Sol for stronger judgment; no Astra children. No custom runtime hooks. Reassess before accounts, payments or server-side player data."
+}
