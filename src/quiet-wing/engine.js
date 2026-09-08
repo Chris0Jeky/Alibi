@@ -290,7 +290,15 @@
         bond: { cat: 0, fox: 0, owl: 0, dragon: 0 },
         trip: null,
       },
-      garden: { pots: Array.from({ length: 6 }, () => null), pressed: 0, visits: 0 },
+      garden: {
+        pots: Array.from({ length: 6 }, () => null),
+        pressed: 0,
+        visits: 0,
+        collection: Object.fromEntries(Object.keys(CROPS).map((id) => [id, 0])),
+        bouquet: [null, null, null],
+        title: 'A few good things',
+        style: 'glasshouse',
+      },
       classics: {},
       badges: {},
       stats: {
@@ -313,6 +321,9 @@
     clover: { name: 'Clover', seconds: 120, colour: '#8bb392' },
     lavender: { name: 'Lavender', seconds: 300, colour: '#a291c8' },
     sunflower: { name: 'Sunflower', seconds: 600, colour: '#efc457' },
+    poppy: { name: 'Poppy', seconds: 180, colour: '#cf8b7c' },
+    daisy: { name: 'Daisy', seconds: 90, colour: '#f1e7bd' },
+    bluebell: { name: 'Bluebell', seconds: 900, colour: '#839fc4' },
   };
   function growth(pot, now) {
     if (!pot || !CROPS[pot.seed]) return 0;
@@ -323,16 +334,38 @@
     );
   }
   function plant(s, i, seed, now) {
-    if (!Number.isInteger(i) || i < 0 || i >= 6 || !CROPS[seed] || s.garden.pots[i]) return false;
+    if (
+      !Number.isFinite(now) ||
+      !Number.isInteger(i) ||
+      i < 0 ||
+      i >= 6 ||
+      !CROPS[seed] ||
+      s.garden.pots[i]
+    )
+      return false;
     s.garden.pots[i] = { seed, plantedAt: now };
     return true;
   }
   function harvest(s, i, now) {
+    if (!Number.isInteger(i) || i < 0 || i >= 6 || !Number.isFinite(now)) return false;
     const p = s.garden.pots[i];
     if (!p || growth(p, now) < 1) return false;
     s.garden.pots[i] = null;
     s.garden.pressed++;
     s.stats.harvests++;
+    s.garden.collection ||= Object.fromEntries(Object.keys(CROPS).map((id) => [id, 0]));
+    s.garden.collection[p.seed] = Math.min(1e6, (s.garden.collection[p.seed] || 0) + 1);
+    return true;
+  }
+  function arrangeBloom(s, slot, seed) {
+    if (
+      !Number.isInteger(slot) ||
+      slot < 0 ||
+      slot >= 3 ||
+      (seed !== null && (!CROPS[seed] || !(s.garden.collection?.[seed] > 0)))
+    )
+      return false;
+    s.garden.bouquet[slot] = seed;
     return true;
   }
   function classicInitial(id) {
@@ -651,6 +684,22 @@
       return { seed: p.seed, plantedAt: Math.min(p.plantedAt, Date.now()) };
     });
     n.garden.pressed = clamp(+o.garden.pressed || 0, 0, 1e6);
+    for (const id of Object.keys(CROPS))
+      n.garden.collection[id] = Math.floor(clamp(+o.garden.collection?.[id] || 0, 0, 1e6));
+    if (o.garden.bouquet !== undefined) {
+      if (
+        !Array.isArray(o.garden.bouquet) ||
+        o.garden.bouquet.length !== 3 ||
+        o.garden.bouquet.some((id) => id !== null && (!CROPS[id] || !n.garden.collection[id]))
+      )
+        throw Error('Invalid pressed-flower arrangement.');
+      n.garden.bouquet = clone(o.garden.bouquet);
+    }
+    n.garden.title =
+      typeof o.garden.title === 'string' ? o.garden.title.slice(0, 40) : n.garden.title;
+    n.garden.style = ['glasshouse', 'shore'].includes(o.garden.style)
+      ? o.garden.style
+      : n.garden.style;
     for (const k of Object.keys(n.settings))
       n.settings[k] = typeof o.settings?.[k] === 'boolean' ? o.settings[k] : n.settings[k];
     for (const k of [
@@ -711,6 +760,7 @@
     growth,
     plant,
     harvest,
+    arrangeBloom,
     classicInitial,
     classicMove,
     classicWon,
