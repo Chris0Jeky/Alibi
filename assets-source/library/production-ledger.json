@@ -1,0 +1,72 @@
+{
+  "date": "2026-09-08",
+  "baseline": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
+  "branch": "codex/asset-library",
+  "build": "fac4d1d1ad6c",
+  "counts": {
+    "original": 91,
+    "reused": 80,
+    "derivatives": 314,
+    "uniqueFiles": 429
+  },
+  "creditUse": {
+    "remoteSubmissions": 0,
+    "newCharges": 0,
+    "basis": "Local production and unchanged existing assets only"
+  },
+  "app": {
+    "highlights": 12,
+    "badges": 31,
+    "rulesAndSaveDefinitions": "Unchanged byte diff against baseline",
+    "offlineDelta": {
+      "coreOfflineBytes": 33344,
+      "javascriptGzipBytes": 2126,
+      "quietWingBytes": 51,
+      "uncompressedBytes": 33395
+    }
+  },
+  "verification": {
+    "verify": "pass",
+    "puzzleUI": 182,
+    "club": 106,
+    "quietWing": 156,
+    "realOrigin": 92,
+    "update": 18,
+    "appGallery": 36,
+    "modelViewer": 46,
+    "assetNodeTests": 9,
+    "fullyDecodedAudioVideo": 80,
+    "svgSyntax": 144,
+    "cataloguedRasterDecode": 125,
+    "filmCutsPlaybackSeek": 8,
+    "decodedFramesInspected": 24,
+    "blenderSceneObjects": 53,
+    "blenderExternalTextures": 0
+  },
+  "notVerified": [
+    "Physical phone, TalkBack and sustained GPU performance",
+    "Auditory/device-volume acceptance of new recordings",
+    "Public CI, hosted new build and publication",
+    "Owner licence/name decisions; external OBJ editor interoperability"
+  ],
+  "productionOnly": [
+    "WAV and encoded sound proposals",
+    "GLB kit additions and composed scene demonstrations",
+    "Layered companion state exports",
+    "HyperFrames promotional and ambient films",
+    "Editable masters and gallery"
+  ],
+  "nextSteps": [
+    "Listen to the gallery cues/loops before selecting a bounded runtime audio integration.",
+    "Use HUMAN_TODO.md q-2/q-4 for physical-device acceptance; retain saves.",
+    "Measure core-pack budget before adding any more core media.",
+    "Push or deploy only after separate user authorization."
+  ],
+  "motion": {
+    "uniqueFilms": 3,
+    "ambientCompositions": 2,
+    "deliveryCuts": 8,
+    "videoBytes": 16909677,
+    "speech": false
+  }
+}

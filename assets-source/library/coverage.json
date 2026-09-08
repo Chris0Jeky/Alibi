@@ -1,0 +1,618 @@
+{
+  "schemaVersion": 1,
+  "baseline": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
+  "inventory": {
+    "puzzles": 116,
+    "families": 13,
+    "casebooks": 4,
+    "afterHoursGames": 3,
+    "archiveRooms": 6,
+    "quietWingStamps": 25,
+    "clubStamps": 6,
+    "companions": 4,
+    "onlineRooms": "optional source, not enabled on static host",
+    "realm": "shipped seeded modular builder with alternate views and OBJ/postcard export"
+  },
+  "rows": [
+    {
+      "screen": "Club / four rotating desks",
+      "states": [
+        "new visit",
+        "pinned",
+        "resume",
+        "empty records"
+      ],
+      "existing": "seven gouache covers, ten After Hours motifs, local harbour Canvas",
+      "priority": 2,
+      "delivery": "Reuse covers; motion compositions and catalogue",
+      "audio": "navigation proposal; no autoplay",
+      "baselineGap": "promotional captures and explicit provenance index",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    },
+    {
+      "screen": "Collection / all thirteen families",
+      "states": [
+        "default",
+        "hover",
+        "selected",
+        "keyboard focus",
+        "favourite",
+        "in progress",
+        "solved",
+        "empty filter"
+      ],
+      "existing": "exact SVG category icons, geometric thumbnails, museum figure",
+      "priority": 1,
+      "delivery": "12 integrated highlight vignettes; 13 reused icon/card exports",
+      "qa": "Original UI suite and new viewport/decode checks",
+      "baselineGap": "distinctive puzzle-specific atmosphere",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Player / all thirteen families",
+      "states": [
+        "first lesson",
+        "manual input",
+        "selected",
+        "invalid",
+        "hint",
+        "reveal",
+        "undo",
+        "disabled given",
+        "completed",
+        "save pending",
+        "Zen"
+      ],
+      "existing": "interactive lessons, engine-backed geometry, visible text/non-colour feedback",
+      "priority": 1,
+      "delivery": "Preserve validated boards; export actual lesson captures; keep decoration on cards",
+      "audio": "20 cue proposals; unchanged runtime feedback",
+      "baselineGap": "inspectable teaching exports and sound vocabulary",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    },
+    {
+      "screen": "Four casebooks / chapter lists",
+      "states": [
+        "unread",
+        "in progress",
+        "solved chapter",
+        "ending"
+      ],
+      "existing": "four cover treatments; Bellweather cast/story and solved evidence still life",
+      "priority": 1,
+      "delivery": "Reuse covers and cast text; six atmospheric highlights on puzzle cards; evidence hidden by gallery spoiler control",
+      "notDelivered": "New recurring-character portraits unnecessary for current UI; no invented likeness canon",
+      "baselineGap": "six Bellweather record highlights",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Lantern Duel",
+      "states": [
+        "offline opponent",
+        "same-device",
+        "valid move",
+        "pass",
+        "undo",
+        "result"
+      ],
+      "existing": "local board and coins",
+      "priority": 2,
+      "delivery": "Retain board geometry; actual product capture; proposed completion/placement cues",
+      "baselineGap": "media/feedback exports",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Pocket Borough",
+      "states": [
+        "draft",
+        "placement",
+        "invalid placement",
+        "undo",
+        "score preview",
+        "result",
+        "daily seed"
+      ],
+      "existing": "procedural miniatures and UI",
+      "priority": 2,
+      "delivery": "Retain working game; feature clip uses current captures",
+      "baselineGap": "distinct export/provenance index",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Archive Heist / six rooms",
+      "states": [
+        "start",
+        "push",
+        "undo",
+        "reset",
+        "complete"
+      ],
+      "existing": "exact warehouse geometry and crates",
+      "priority": 2,
+      "delivery": "Reuse current room visuals; gentle cue proposals; no changed maps",
+      "baselineGap": "feedback vocabulary",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Club journal",
+      "states": [
+        "six earned stamps",
+        "six locked stamps",
+        "empty scores",
+        "local records"
+      ],
+      "existing": "six predicate-bound achievements",
+      "priority": 1,
+      "delivery": "Six original paired earned/locked SVG treatments integrated",
+      "baselineGap": "distinct stamp silhouettes",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Living atlas",
+      "states": [
+        "moving",
+        "paused",
+        "reduced motion",
+        "hidden page"
+      ],
+      "existing": "Canvas harbour",
+      "priority": 3,
+      "delivery": "Reuse current render; promotional treatment remains production-only",
+      "baselineGap": "exportable motion",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Realm studio",
+      "states": [
+        "ground",
+        "placement",
+        "selection",
+        "invalid placement",
+        "move/copy",
+        "three camera views",
+        "postcard",
+        "3D export",
+        "fallback"
+      ],
+      "existing": "procedural and CC0 modular geometry, seeded towns, WebGL/Canvas",
+      "priority": 1,
+      "delivery": "Reuse/export current kit plus documented gaps; three composed scenes and model gallery",
+      "qa": "Finite bounds/materials and alternate-view renders; external editor gate remains",
+      "baselineGap": "individually inspectable GLBs and assembled scene exports",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Companion nook / four species",
+      "states": [
+        "idle",
+        "look",
+        "attention",
+        "happy",
+        "sleepy",
+        "pet",
+        "feed",
+        "celebrate",
+        "reduced motion",
+        "model failure"
+      ],
+      "existing": "cat/fox/owl animated models, articulated Nimbus, vector fallbacks",
+      "priority": 1,
+      "delivery": "Existing identities reused in complete state previews; new states explicitly preview-only",
+      "audio": "pet/treat/brush/play cue proposals",
+      "baselineGap": "portable interactive state library and metadata",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    },
+    {
+      "screen": "Conservatory",
+      "states": [
+        "empty bed",
+        "growing",
+        "ready",
+        "harvest",
+        "collection",
+        "pressed slots",
+        "postcard"
+      ],
+      "existing": "six seed species, original botanical vectors and credited greenhouse art",
+      "priority": 2,
+      "delivery": "Keep existing art; quiet ambience proposal with explicit playback only",
+      "baselineGap": "coordinated ambience",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    },
+    {
+      "screen": "Quiet classics / Tideglass / pairs / sliding art / Hanoi / river / jugs / queens / Lo Shu / knight",
+      "states": [
+        "lesson",
+        "move",
+        "invalid",
+        "undo",
+        "complete",
+        "reload"
+      ],
+      "existing": "validated geometry, botanical/coastal motifs, four credited museum pictures",
+      "priority": 2,
+      "delivery": "Reuse existing art/boards; no new rules or fabricated levels",
+      "baselineGap": "media index and feedback vocabulary",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Museum",
+      "states": [
+        "gallery",
+        "art record",
+        "sliding picture",
+        "image decode failure"
+      ],
+      "existing": "four museum images and records, three additional atmospheric works elsewhere",
+      "priority": 2,
+      "delivery": "Existing rights receipts retained; no random new historical works",
+      "baselineGap": "unified discovery",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Quiet Wing journal",
+      "states": [
+        "25 earned stamps",
+        "25 locked stamps",
+        "empty progress"
+      ],
+      "existing": "25 predicate-bound stamps",
+      "priority": 1,
+      "delivery": "25 distinct new silhouettes and paired locked variants integrated",
+      "baselineGap": "repeated silhouettes",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Workshop / pack desk",
+      "states": [
+        "draft",
+        "unsolvable draft",
+        "validation",
+        "import failure",
+        "export"
+      ],
+      "existing": "exact board/editor controls and labelled icons",
+      "priority": 3,
+      "delivery": "Reuse controls and source-linked interface icons; keep editable clues",
+      "baselineGap": "none requiring replacement",
+      "deliveryStatus": "Delivered or intentionally reused"
+    },
+    {
+      "screen": "Settings / saves / recovery / installation",
+      "states": [
+        "mute",
+        "haptics unavailable",
+        "offline ready",
+        "update pending",
+        "fallback",
+        "error",
+        "protected save",
+        "empty saves"
+      ],
+      "existing": "labelled standard icons, recovery text and status banners",
+      "priority": 1,
+      "delivery": "Retain proven recovery UI; no storage changes; audio/haptic integration contract",
+      "baselineGap": "document feedback contracts",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    },
+    {
+      "screen": "Production gallery",
+      "states": [
+        "category filter",
+        "search",
+        "light/dark",
+        "small/large",
+        "spoiler reveal",
+        "audio play",
+        "video seek",
+        "model controls"
+      ],
+      "existing": "none",
+      "priority": 1,
+      "delivery": "Local gallery/catalogue with real files, portable links, no game precache",
+      "baselineGap": "working inspector for masters and exports",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
+    }
+  ],
+  "families": [
+    {
+      "type": "bridges",
+      "title": "Tidal bridges",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-bridges.svg",
+      "card": "assets-source/library/visuals/card-bridges.svg",
+      "teachingCapture": "assets-source/library/teaching/bridges.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "scene",
+      "title": "Crime scenes",
+      "puzzles": 19,
+      "icon": "assets-source/library/visuals/family-scene.svg",
+      "card": "assets-source/library/visuals/card-scene.svg",
+      "teachingCapture": "assets-source/library/teaching/scene.png",
+      "highlights": [
+        "highlight-bellweather-scene-01",
+        "highlight-scene-01",
+        "highlight-scene-03"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "dossier",
+      "title": "Alibi files",
+      "puzzles": 10,
+      "icon": "assets-source/library/visuals/family-dossier.svg",
+      "card": "assets-source/library/visuals/card-dossier.svg",
+      "teachingCapture": "assets-source/library/teaching/dossier.png",
+      "highlights": [
+        "highlight-bellweather-dossier-01",
+        "highlight-bellweather-dossier-02"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "witness",
+      "title": "Witness statements",
+      "puzzles": 11,
+      "icon": "assets-source/library/visuals/family-witness.svg",
+      "card": "assets-source/library/visuals/card-witness.svg",
+      "teachingCapture": "assets-source/library/teaching/witness.png",
+      "highlights": [
+        "highlight-bellweather-witness-03",
+        "highlight-bellweather-witness-01",
+        "highlight-bellweather-witness-02"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "sudoku",
+      "title": "Sudoku",
+      "puzzles": 7,
+      "icon": "assets-source/library/visuals/family-sudoku.svg",
+      "card": "assets-source/library/visuals/card-sudoku.svg",
+      "teachingCapture": "assets-source/library/teaching/sudoku.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "nonogram",
+      "title": "Picture logic",
+      "puzzles": 7,
+      "icon": "assets-source/library/visuals/family-nonogram.svg",
+      "card": "assets-source/library/visuals/card-nonogram.svg",
+      "teachingCapture": "assets-source/library/teaching/nonogram.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "binary",
+      "title": "Sun & moon",
+      "puzzles": 7,
+      "icon": "assets-source/library/visuals/family-binary.svg",
+      "card": "assets-source/library/visuals/card-binary.svg",
+      "teachingCapture": "assets-source/library/teaching/binary.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "futoshiki",
+      "title": "Futoshiki",
+      "puzzles": 7,
+      "icon": "assets-source/library/visuals/family-futoshiki.svg",
+      "card": "assets-source/library/visuals/card-futoshiki.svg",
+      "teachingCapture": "assets-source/library/teaching/futoshiki.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "lightup",
+      "title": "Lanterns",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-lightup.svg",
+      "card": "assets-source/library/visuals/card-lightup.svg",
+      "teachingCapture": "assets-source/library/teaching/lightup.png",
+      "highlights": [
+        "highlight-lightup-01"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "tents",
+      "title": "Tents & trees",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-tents.svg",
+      "card": "assets-source/library/visuals/card-tents.svg",
+      "teachingCapture": "assets-source/library/teaching/tents.png",
+      "highlights": [
+        "highlight-tents-01"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "aquarium",
+      "title": "Aquariums",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-aquarium.svg",
+      "card": "assets-source/library/visuals/card-aquarium.svg",
+      "teachingCapture": "assets-source/library/teaching/aquarium.png",
+      "highlights": [
+        "highlight-aquarium-01"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "network",
+      "title": "Signal paths",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-network.svg",
+      "card": "assets-source/library/visuals/card-network.svg",
+      "teachingCapture": "assets-source/library/teaching/network.png",
+      "highlights": [
+        "highlight-network-01"
+      ],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    },
+    {
+      "type": "trail",
+      "title": "Number trails",
+      "puzzles": 8,
+      "icon": "assets-source/library/visuals/family-trail.svg",
+      "card": "assets-source/library/visuals/card-trail.svg",
+      "teachingCapture": "assets-source/library/teaching/trail.png",
+      "highlights": [],
+      "states": [
+        "unstarted",
+        "selected",
+        "invalid",
+        "hint",
+        "solved",
+        "disabled",
+        "keyboard focus",
+        "Zen"
+      ],
+      "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
+      "priority": 1
+    }
+  ],
+  "acceptance": {
+    "localBrowser": "Passed; see evidence/",
+    "physicalDevice": "Pending HUMAN_TODO.md q-2/q-4",
+    "auditory": "Pending before recording integration",
+    "rights": "Existing receipts retained; new original work has no separate public reuse grant",
+    "publication": "Local only; no push or deployment authorized"
+  }
+}

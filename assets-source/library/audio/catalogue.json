@@ -1,0 +1,1648 @@
+{
+  "schema": 1,
+  "title": "Alibi paper lamplight audio library",
+  "generator": "alibi-local-audio/v2",
+  "source_recipe": "assets-source/library/audio/source/recipes.json",
+  "source_recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+  "defaults": {
+    "autoplay": false,
+    "preload": "none",
+    "mute_contract": "Respect the existing Quiet Wing sound setting before starting any cue or loop.",
+    "reduced_motion_contract": "Reduced motion pauses ambient motion and should also suppress optional ambient loops; deliberate feedback cues remain opt-in.",
+    "haptic_contract": "Keep haptics independent: the existing place/erase/win patterns may run without audio."
+  },
+  "assets": [
+    {
+      "id": "ui-focus-soft",
+      "category": "ui",
+      "event": "focus / hover",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A small wooden lift for a deliberate focus change.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 101,
+        "shape": "pluck"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-focus-soft.wav",
+        "opus": "assets-source/library/audio/production/ui-focus-soft.opus",
+        "ogg": "assets-source/library/audio/production/ui-focus-soft.ogg"
+      },
+      "metadata": {
+        "duration_ms": 280.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.407,
+        "rms_dbfs": -25.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "2e1414f69d1a8704bb213138e2347cbb4e76dbe096a4e412211e7a8f8079d3b4",
+        "opus_sha256": "d8d8c3f189b40295a6d00d6e15d327efcbf6501edec2615a2dfd780bd2da80c8",
+        "ogg_sha256": "ae73141012a990ed4ac9a3d6d0478a8e1aae4eda32c08df12363fabce6cd68e6",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.286500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.280000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:navigation and focusable controls"
+    },
+    {
+      "id": "ui-select-paper",
+      "category": "ui",
+      "event": "select tool or tab",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "Warm two-note selection with a paper-soft tail.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 102,
+        "shape": "marimba"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-select-paper.wav",
+        "opus": "assets-source/library/audio/production/ui-select-paper.opus",
+        "ogg": "assets-source/library/audio/production/ui-select-paper.ogg"
+      },
+      "metadata": {
+        "duration_ms": 310.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.196,
+        "rms_dbfs": -24.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "1d34126417421b1a89547b56eb6840029e7e78b5b7654812b706c7cf2bf95d94",
+        "opus_sha256": "b877abecacbf6e7ce87a44326340b744685f8442f8f429928c317cd49c65ce71",
+        "ogg_sha256": "b7319d52dae8c5734605a32ebc1d04fb32b1d79a1284a4469c009aa6fa76a8df",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.316500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.310000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:tool tray and activity tabs"
+    },
+    {
+      "id": "ui-open-desk",
+      "category": "ui",
+      "event": "open activity / modal",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A low, rounded opening chord with quiet room around it.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 103,
+        "shape": "bell"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-open-desk.wav",
+        "opus": "assets-source/library/audio/production/ui-open-desk.opus",
+        "ogg": "assets-source/library/audio/production/ui-open-desk.ogg"
+      },
+      "metadata": {
+        "duration_ms": 520.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.59,
+        "rms_dbfs": -25.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "d7be564ad2dfc1bbdfadc35616c70a03e76afa68042b73b73a209b1c97462885",
+        "opus_sha256": "29cc39048e70d0238d92958c13a792bcb837dc99577b4e336ac573a9a73cd417",
+        "ogg_sha256": "d68e8584610d262838277e1c266b9a73367e749d7e332bd3bb86926dd03babf7",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.526500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.520000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:navigate(path) and modal()"
+    },
+    {
+      "id": "ui-close-desk",
+      "category": "ui",
+      "event": "close activity / modal",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A descending wooden pair that leaves the listener settled.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 104,
+        "shape": "descending"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-close-desk.wav",
+        "opus": "assets-source/library/audio/production/ui-close-desk.opus",
+        "ogg": "assets-source/library/audio/production/ui-close-desk.ogg"
+      },
+      "metadata": {
+        "duration_ms": 430.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.966,
+        "rms_dbfs": -26.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "508ccb7db6c32cc9c2fefd28b6ebd0392ecf337938d6da355e581f6ce3d615d0",
+        "opus_sha256": "f5abe4225f5e8196d64af046aaf53e9568efae9f10f16bc677127dec5bd39489",
+        "ogg_sha256": "7989957bb025b3fd2b854bdb52cb0b327e43dafc9cfbbd86ab460ee65b23a430",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.436500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.430000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:route disposal and dialog close"
+    },
+    {
+      "id": "ui-navigation-page",
+      "category": "ui",
+      "event": "navigation",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A breathy page turn with a lightly plucked anchor.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 105,
+        "shape": "air-pluck"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-navigation-page.wav",
+        "opus": "assets-source/library/audio/production/ui-navigation-page.opus",
+        "ogg": "assets-source/library/audio/production/ui-navigation-page.ogg"
+      },
+      "metadata": {
+        "duration_ms": 360.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -16.778,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "a3c6720984a5fa7194cebfe0f4ab1e12d00a2993fc6f7a7bc99ef0fa7b7f2bd8",
+        "opus_sha256": "f4dba4150f13c7fa0d623e742ddf922a7fb245e22ac569f1e1ab3bcd35918f40",
+        "ogg_sha256": "25d3a1a04cb198163f16869858119cd248f62ec1990299c254c325d768c8e6e9",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.366500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.360000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:navigate(path)"
+    },
+    {
+      "id": "ui-tab-switch",
+      "category": "ui",
+      "event": "switch view / category",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A short felted tap for changing a local view.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 106,
+        "shape": "soft-click"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-tab-switch.wav",
+        "opus": "assets-source/library/audio/production/ui-tab-switch.opus",
+        "ogg": "assets-source/library/audio/production/ui-tab-switch.ogg"
+      },
+      "metadata": {
+        "duration_ms": 260.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -16.752,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "9f8951932c43911b2f13d5f86eabbda6a555ae4fdbe8df88151b642fbc0f0119",
+        "opus_sha256": "251667ac47d48b4d58c17ee8a6005792e21d55d52269f4d6f03338dbfe0cece2",
+        "ogg_sha256": "b08879f84ba71004bd444b87c5ca0118401fb70c43318cd356456a55c34fccac",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.266500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.260000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realmPage tray tabs and gallery tabs"
+    },
+    {
+      "id": "ui-toggle-on",
+      "category": "ui",
+      "event": "enable setting",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A three-step rise for sound, haptic or motion enabled.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 107,
+        "shape": "rising"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-toggle-on.wav",
+        "opus": "assets-source/library/audio/production/ui-toggle-on.opus",
+        "ogg": "assets-source/library/audio/production/ui-toggle-on.ogg"
+      },
+      "metadata": {
+        "duration_ms": 390.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.44,
+        "rms_dbfs": -26.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "ac38e34a5790169d192ad73478a321ac374b0021bf03f0840e7ac215e7a5e1aa",
+        "opus_sha256": "2d70eef6641c13f04b45ab8957f318e1384c4197ef14e360f450944e0a638f12",
+        "ogg_sha256": "9252346219bd2b0132ffa2274de09cc9a0d21510bf790eed77caaf239dc99adf",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.396500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.390000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange"
+    },
+    {
+      "id": "ui-toggle-off",
+      "category": "ui",
+      "event": "disable setting",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A gentle fall that confirms a setting has quietened.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 108,
+        "shape": "falling"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-toggle-off.wav",
+        "opus": "assets-source/library/audio/production/ui-toggle-off.opus",
+        "ogg": "assets-source/library/audio/production/ui-toggle-off.ogg"
+      },
+      "metadata": {
+        "duration_ms": 350.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -16.51,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "969b583463f47bae74400a0d0ab5e0560a68111b8828a51d5dea0143d07d8a71",
+        "opus_sha256": "6118e586c7e021556fa48420844cde1ed0e2097d85717eeaefac58d5c43b4053",
+        "ogg_sha256": "f3c82bc56ff630a8360afb3ff5b2c846ffc73bd56ff196e78ca05fd1d7a0a450",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.356500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.350000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange"
+    },
+    {
+      "id": "ui-undo",
+      "category": "ui",
+      "event": "undo",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A soft backwards two-note gesture, distinct from erase.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 109,
+        "shape": "undo"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-undo.wav",
+        "opus": "assets-source/library/audio/production/ui-undo.opus",
+        "ogg": "assets-source/library/audio/production/ui-undo.ogg"
+      },
+      "metadata": {
+        "duration_ms": 360.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.742,
+        "rms_dbfs": -25.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "4204d259544ae762478a19ddcf5f95f5580364475f745a90bea8a64a0317d74b",
+        "opus_sha256": "7e820ed984908c5d43960dbbd6e6c987150794d4225ebcb34a257b01885639af",
+        "ogg_sha256": "ddb875ca06265d3f4e7678f2b0a3e0cacfae3012895a1e798aa505cf60e16947",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.366500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.360000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realmAction('undo'), #classic-undo, #bouquet-undo"
+    },
+    {
+      "id": "ui-redo",
+      "category": "ui",
+      "event": "redo",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "The undo gesture reversed into a small forward return.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 110,
+        "shape": "redo"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-redo.wav",
+        "opus": "assets-source/library/audio/production/ui-redo.opus",
+        "ogg": "assets-source/library/audio/production/ui-redo.ogg"
+      },
+      "metadata": {
+        "duration_ms": 390.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -14.033,
+        "rms_dbfs": -25.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "bd21dd374f4948e2a5849b18c398d3b7e15fc7cd23d7d93350946f478405a4fa",
+        "opus_sha256": "5931ea9917d91b5671d092c03871099b00af83b9d4619cae4e83bbffd4ba397f",
+        "ogg_sha256": "11f21889b4dddefbe88d0d3c01f1d176f06a8660075b281f72f65db899b8c9a2",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.396500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.390000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realmAction('redo')"
+    },
+    {
+      "id": "ui-cancel",
+      "category": "ui",
+      "event": "cancel selection / dismiss",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A low felt hush for backing out without failure.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 111,
+        "shape": "hush"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-cancel.wav",
+        "opus": "assets-source/library/audio/production/ui-cancel.opus",
+        "ogg": "assets-source/library/audio/production/ui-cancel.ogg"
+      },
+      "metadata": {
+        "duration_ms": 300.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -18.006,
+        "rms_dbfs": -29.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "eae9ca3f50fc31579fb967113af54bf1d25dbe4ea624c2f30503fa786dac24a8",
+        "opus_sha256": "7a80ca2d02cca53f525c349c75df6cb1275aa6628e80906a585a07e888e25a34",
+        "ogg_sha256": "7e940746b40f70f2dcbd0b253c0248fd610ca48d5c398e74440dc333a0357bfb",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.306500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.300000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realmAction('cancel-tool'), modal close"
+    },
+    {
+      "id": "ui-invalid-gentle",
+      "category": "ui",
+      "event": "invalid move / unavailable action",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "Two muted wood taps; informative without a loud error alarm.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 112,
+        "shape": "rubber"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-invalid-gentle.wav",
+        "opus": "assets-source/library/audio/production/ui-invalid-gentle.opus",
+        "ogg": "assets-source/library/audio/production/ui-invalid-gentle.ogg"
+      },
+      "metadata": {
+        "duration_ms": 330.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -19.496,
+        "rms_dbfs": -29.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "3429a191fad0f61f299527572c317cea9833d1958159f144e86963c23ad88704",
+        "opus_sha256": "47038643df020d4830d15e52fb44504dac49aae724f7660f13b6e193c4c5f678",
+        "ogg_sha256": "b9bc830c618c9f6d7cf934f1254084ebfba1f57ce2879b07b6d0690aa9be6661",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.336500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.330000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:feedback('erase') via playMove error"
+    },
+    {
+      "id": "ui-place-wood",
+      "category": "ui",
+      "event": "place / build / plant",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "A felted wooden placement with a small upper resonance.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 113,
+        "shape": "place"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-place-wood.wav",
+        "opus": "assets-source/library/audio/production/ui-place-wood.opus",
+        "ogg": "assets-source/library/audio/production/ui-place-wood.ogg"
+      },
+      "metadata": {
+        "duration_ms": 430.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.165,
+        "rms_dbfs": -24.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "b16095812757aea5efa06eb32dbe918d8923a740c63ed449fd5c769966f67e69",
+        "opus_sha256": "e0d103a1bff0ebd87257d0e109b2a705c7528e7424bd3dd6c83179d3190afcda",
+        "ogg_sha256": "f3ed58f40a8c754c473942d33428dc18b212a5c8263f8348a9fab85a576d11c7",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.436500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.430000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:applyAt, garden plant, feedback('place')"
+    },
+    {
+      "id": "ui-remove-low",
+      "category": "ui",
+      "event": "remove / erase",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "A low, rounded release for taking a piece away.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 114,
+        "shape": "remove"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-remove-low.wav",
+        "opus": "assets-source/library/audio/production/ui-remove-low.opus",
+        "ogg": "assets-source/library/audio/production/ui-remove-low.ogg"
+      },
+      "metadata": {
+        "duration_ms": 380.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -15.533,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "02478eeb374de7597719f918db9c1f58a211aa22dc5895f8a1df5f7cf11750fa",
+        "opus_sha256": "233a17aca78fd8ec9efb205c21188dd5223f5e38b267f58c6114a9b8010b26e0",
+        "ogg_sha256": "cea1399a075be30acddc22c79761502dbd79867cd81cf7d5d525d79243afafab",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.386500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.380000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:applyAt erase, feedback('erase')"
+    },
+    {
+      "id": "ui-discover-glint",
+      "category": "ui",
+      "event": "discover artwork / species / specimen",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "An airy three-point glint for a first encounter.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 115,
+        "shape": "discover"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-discover-glint.wav",
+        "opus": "assets-source/library/audio/production/ui-discover-glint.opus",
+        "ogg": "assets-source/library/audio/production/ui-discover-glint.ogg"
+      },
+      "metadata": {
+        "duration_ms": 620.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -16.426,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "410690b02b91f1102392fdb3aff390e22243b767b074a35d1fd3a512f37ce1a0",
+        "opus_sha256": "bceeb01b3cf7b464ab40ed7ae953258165d0a7795b38c69e1e86607a8cc5d549",
+        "ogg_sha256": "14b4b30c2b559a020c9841980c32e827a2655aa6e81d035116b244fc8c24786d",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.626500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.620000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:gallery artSeen, pets species, garden collection"
+    },
+    {
+      "id": "ui-complete-calm",
+      "category": "ui",
+      "event": "complete puzzle / harvest / return",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "A restrained four-note close with a long paper-lamplight tail.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 116,
+        "shape": "complete"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ui-complete-calm.wav",
+        "opus": "assets-source/library/audio/production/ui-complete-calm.opus",
+        "ogg": "assets-source/library/audio/production/ui-complete-calm.ogg"
+      },
+      "metadata": {
+        "duration_ms": 820.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -12.502,
+        "rms_dbfs": -25.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "8ade2f701c9280f8df2053714d46f5dfdbcd2aa664b030e86cc835d002bdc0ba",
+        "opus_sha256": "344e5dbcc54e4cacfca1e0e74779268118d507ea08a7868b06277d1488eb9f90",
+        "ogg_sha256": "c193e9dc0927e592293aade6e79b1dbd7e6b68c7328fbfba7959b7c51c114bca",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.826500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.820000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:feedback('win') in classics, garden, pets, export"
+    },
+    {
+      "id": "pet-greeting",
+      "category": "pets",
+      "event": "pet / greet",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "A rounded purr-like pair with no sharp transient.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 117,
+        "shape": "purr"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/pet-greeting.wav",
+        "opus": "assets-source/library/audio/production/pet-greeting.opus",
+        "ogg": "assets-source/library/audio/production/pet-greeting.ogg"
+      },
+      "metadata": {
+        "duration_ms": 470.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -19.301,
+        "rms_dbfs": -29.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "024700f67dad9d51374e6313c7113a7fd5cd8e7639bd1404338291ec10729043",
+        "opus_sha256": "7f1e5f330c9afa6a96081b9e4b9b9ad2fed64a132c06db68e0ad227b11d0623b",
+        "ogg_sha256": "a57ebe1a08956668b09f45a097b1bd636263e28f9d073682e875d6e826e132c7",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.476500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.470000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:petAction('pet') -> feedback('place')"
+    },
+    {
+      "id": "pet-treat",
+      "category": "pets",
+      "event": "treat companion",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A soft three-note offering, separate from the play cue.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 118,
+        "shape": "treat"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/pet-treat.wav",
+        "opus": "assets-source/library/audio/production/pet-treat.opus",
+        "ogg": "assets-source/library/audio/production/pet-treat.ogg"
+      },
+      "metadata": {
+        "duration_ms": 560.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -17.682,
+        "rms_dbfs": -28.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "c3a6c101119c8ccbdecf778a131e5f121eb22d0ea67ac3e23adf83e57211cbb4",
+        "opus_sha256": "1889c5e8d187f09b110e931cfdf8f5a602fb7251630afab901cb476614f4b1fc",
+        "ogg_sha256": "eace426608b9506ef277db908184ac839f5f7e4dd134244baf90ba46724f5f2a",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.566500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.560000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:petAction('treat')"
+    },
+    {
+      "id": "pet-play",
+      "category": "pets",
+      "event": "play companion",
+      "status": "proposed",
+      "existing_event_status": "current",
+      "description": "Light skipping notes with a soft air tail.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 119,
+        "shape": "play"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/pet-play.wav",
+        "opus": "assets-source/library/audio/production/pet-play.opus",
+        "ogg": "assets-source/library/audio/production/pet-play.ogg"
+      },
+      "metadata": {
+        "duration_ms": 720.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -14.57,
+        "rms_dbfs": -27.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "2a7cf3d79ddb22ea6b6f66237e10455b71411b48ee6913e664bdf518b20f7f9b",
+        "opus_sha256": "d0d2f06f776f4560ed3928f69bf97667bb9946db8a91948ab0e57114ad989fde",
+        "ogg_sha256": "5f5366187548db1935ecc5561ef039a478a67b70d16849329259d8540866dac6",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.726500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.720000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:petAction('play') -> feedback('win')"
+    },
+    {
+      "id": "pet-rest",
+      "category": "pets",
+      "event": "nap / settle",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A low, slow settling chord for a companion nap.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 120,
+        "shape": "rest"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/pet-rest.wav",
+        "opus": "assets-source/library/audio/production/pet-rest.opus",
+        "ogg": "assets-source/library/audio/production/pet-rest.ogg"
+      },
+      "metadata": {
+        "duration_ms": 900.0,
+        "sample_rate_hz": 48000,
+        "channels": 1,
+        "peak_dbfs": -18.289,
+        "rms_dbfs": -31.0,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -240.0
+        },
+        "master_sha256": "0d58240f918eb3c9ac784442f00e70ecc8f34df82614de48755ee365119091fc",
+        "opus_sha256": "595f3aca42d7d3d036578525d0462074b09744d2f08a646f714efc5990c75312",
+        "ogg_sha256": "2a0de0293a85aeeef360b90df4c7b972cb6f5b3107dced931c40393821726537",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.906500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 1
+              }
+            ],
+            "format": {
+              "duration": "0.900000"
+            }
+          }
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:petAction('nap')"
+    },
+    {
+      "id": "ambience-lamplight-library",
+      "category": "ambient",
+      "event": "quiet wing home / journal",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "Faint room air, page movement and a distant wooden clock; no tonal alarm.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 201,
+        "shape": "library"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ambience-lamplight-library.wav",
+        "opus": "assets-source/library/audio/production/ambience-lamplight-library.opus",
+        "ogg": "assets-source/library/audio/production/ambience-lamplight-library.ogg"
+      },
+      "metadata": {
+        "duration_ms": 18000.0,
+        "sample_rate_hz": 48000,
+        "channels": 2,
+        "peak_dbfs": -24.939,
+        "rms_dbfs": -38.599,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -173.977
+        },
+        "master_sha256": "d39b387d53d4b3a787b89726c2805228150324076ebe239e07768d966cef71db",
+        "opus_sha256": "4cd5050dac0e5a223f9972386c87f754d08b034addcadd86d64c8260e6373f58",
+        "ogg_sha256": "a862ac832e49991923f7297dc4b49ce9fb3184f900901570717cfd6d009b5e0d",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "18.006500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "18.000000"
+            }
+          }
+        },
+        "loop": {
+          "seam_continuity": "endpoint sample exact",
+          "seam_sample_delta": 0.0,
+          "seam_fade_ms": 250,
+          "deterministic": true
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realm, journal routes; opt-in only"
+    },
+    {
+      "id": "ambience-coastal-window",
+      "category": "ambient",
+      "event": "realm / gallery coastal art",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "Low coastal water and filtered wind under a calm room floor.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 202,
+        "shape": "coast"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ambience-coastal-window.wav",
+        "opus": "assets-source/library/audio/production/ambience-coastal-window.opus",
+        "ogg": "assets-source/library/audio/production/ambience-coastal-window.ogg"
+      },
+      "metadata": {
+        "duration_ms": 20000.0,
+        "sample_rate_hz": 48000,
+        "channels": 2,
+        "peak_dbfs": -21.418,
+        "rms_dbfs": -37.046,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -177.793
+        },
+        "master_sha256": "2a79ebbcd8631617de325fe344178ea533d8df2b01fa343eb1f4deff68caef0f",
+        "opus_sha256": "f5843a9388a98fa2337438742d23f5e349e66e7c811571a016203d2793981ea1",
+        "ogg_sha256": "ed2e697ccfb369bca10934e1eb6706851cd4cdde94264d7ed93127dcb93aa3d7",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "20.006500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "20.000000"
+            }
+          }
+        },
+        "loop": {
+          "seam_continuity": "endpoint sample exact",
+          "seam_sample_delta": 0.0,
+          "seam_fade_ms": 250,
+          "deterministic": true
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:realm, gallery routes; opt-in only"
+    },
+    {
+      "id": "ambience-glasshouse-garden",
+      "category": "ambient",
+      "event": "garden",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "Soft greenhouse air with sparse water drops and a warm bed of leaves.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 203,
+        "shape": "garden"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ambience-glasshouse-garden.wav",
+        "opus": "assets-source/library/audio/production/ambience-glasshouse-garden.opus",
+        "ogg": "assets-source/library/audio/production/ambience-glasshouse-garden.ogg"
+      },
+      "metadata": {
+        "duration_ms": 16000.0,
+        "sample_rate_hz": 48000,
+        "channels": 2,
+        "peak_dbfs": -24.17,
+        "rms_dbfs": -38.398,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -178.254
+        },
+        "master_sha256": "2a00199b30cd97f1a2aba43e31316ae09e1b783437753b0f74beff269fe1ba7d",
+        "opus_sha256": "13e833f3b41b4247a6731eed5db8cbe59adcb92714f2dc79dddaaac6d9311481",
+        "ogg_sha256": "dddadce6d63277b428959eb96720bd28a1c1251d800d84e963790489e7824efe",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "16.006500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "16.000000"
+            }
+          }
+        },
+        "loop": {
+          "seam_continuity": "endpoint sample exact",
+          "seam_sample_delta": 0.0,
+          "seam_fade_ms": 250,
+          "deterministic": true
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:gardenPage; pauses when hidden"
+    },
+    {
+      "id": "ambience-evening-club",
+      "category": "ambient",
+      "event": "classics / club room",
+      "status": "proposed",
+      "existing_event_status": "proposed",
+      "description": "A low wooden room, distant harbour air and a single slow bell texture.",
+      "source": {
+        "recipe": "assets-source/library/audio/source/recipes.json",
+        "generator": "tools/assets/audio/generate_audio.py",
+        "recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+        "seed": 204,
+        "shape": "club"
+      },
+      "derivatives": {
+        "wav_master": "assets-source/library/audio/masters/ambience-evening-club.wav",
+        "opus": "assets-source/library/audio/production/ambience-evening-club.opus",
+        "ogg": "assets-source/library/audio/production/ambience-evening-club.ogg"
+      },
+      "metadata": {
+        "duration_ms": 22000.0,
+        "sample_rate_hz": 48000,
+        "channels": 2,
+        "peak_dbfs": -24.616,
+        "rms_dbfs": -38.454,
+        "spectral": {
+          "energy_above_20_hz_pct": 100.0,
+          "sub20_energy_pct": 0.0,
+          "dc_dbfs": -178.403
+        },
+        "master_sha256": "e3d5196cc64ad5c19f3e4b1e472480e0ea8f3a4049ccee31596465f8833021b5",
+        "opus_sha256": "d675df9f123d66dfddbadda1d17882938917a536c2aae4dc2ab49ecc4ec747ee",
+        "ogg_sha256": "a41dac11ba07322675e9b8fded47db905ec7c263c163436562f422368fd7139b",
+        "probe": {
+          "opus": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "opus",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "22.006500"
+            }
+          },
+          "ogg": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_name": "vorbis",
+                "sample_rate": "48000",
+                "channels": 2
+              }
+            ],
+            "format": {
+              "duration": "22.000000"
+            }
+          }
+        },
+        "loop": {
+          "seam_continuity": "endpoint sample exact",
+          "seam_sample_delta": 0.0,
+          "seam_fade_ms": 250,
+          "deterministic": true
+        }
+      },
+      "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
+      "integration_ref": "src/quiet-wing/app.js:classicsPage; opt-in only"
+    }
+  ]
+}

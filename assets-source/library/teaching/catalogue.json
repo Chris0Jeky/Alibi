@@ -1,0 +1,275 @@
+[
+  {
+    "id": "lesson-scene",
+    "title": "scene interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/scene.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-sudoku",
+    "title": "sudoku interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/sudoku.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-nonogram",
+    "title": "nonogram interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/nonogram.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-binary",
+    "title": "binary interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/binary.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-futoshiki",
+    "title": "futoshiki interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/futoshiki.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-dossier",
+    "title": "dossier interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/dossier.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-witness",
+    "title": "witness interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/witness.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-lightup",
+    "title": "lightup interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/lightup.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-tents",
+    "title": "tents interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/tents.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-aquarium",
+    "title": "aquarium interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/aquarium.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-network",
+    "title": "network interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/network.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-trail",
+    "title": "trail interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/trail.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  },
+  {
+    "id": "lesson-bridges",
+    "title": "bridges interactive lesson",
+    "category": "teaching",
+    "status": "current",
+    "design": "reused",
+    "source": "src/app.js",
+    "derivatives": [
+      "assets-source/library/teaching/bridges.png"
+    ],
+    "provenance": {
+      "method": "Actual existing lesson UI screenshot",
+      "source": "src/presentation.js; src/app.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Static preview only; actual editable controls remain in the app.",
+    "integration": "src/app.js:lesson; tests/browser_ui.py exercises the correct answer through controls",
+    "qa": {
+      "scope": "Existing interactive teaching examples pass all 13 family lesson controls in browser_ui.py; no puzzle solutions exported"
+    }
+  }
+]

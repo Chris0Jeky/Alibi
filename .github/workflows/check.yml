@@ -26,8 +26,17 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: npm ci
+      - name: Ensure audio asset validation tools are available
+        run: |
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+          ffprobe -version
       - run: npm run verify
+      - run: npm run assets:media
       - run: python -m pip install -r requirements-dev.txt
+      - run: python tools/assets/inspect-media.py
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_ui.py
       - name: Play all After Hours games and reversible assistance
@@ -48,6 +57,11 @@ jobs:
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
           python tests/browser_backup_worker.py
+          node tools/serve-assets.cjs > /tmp/alibi-assets.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
+          python tests/browser_assets.py
+          python tests/browser_model_assets.py
+          python tests/browser_asset_media.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update

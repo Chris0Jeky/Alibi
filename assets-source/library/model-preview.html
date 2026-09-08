@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alibi realm and companion library</title>
+  <link rel="stylesheet" href="model-preview.css" />
+  <body>
+    <header>
+      <p>ALIBI · QUIET WING</p>
+      <h1>Realm &amp; companion library</h1>
+      <p>Local source assets only. The viewer is a staging reference, not a runtime import.</p>
+    </header>
+    <main>
+      <section class="controls" aria-label="Preview controls">
+        <label
+          >Library
+          <select id="family">
+            <option value="realm">Realm kit</option>
+            <option value="companions">Companion states</option>
+          </select></label
+        >
+        <label id="piece-label"
+          >Piece
+          <select id="piece"></select
+        ></label>
+        <label id="state-label" hidden
+          >State
+          <select id="state"></select
+        ></label>
+        <label id="camera-label"
+          >Camera
+          <select id="camera">
+            <option value="isometric">Isometric</option>
+            <option value="alternate">Alternate</option>
+          </select></label
+        >
+        <label id="treatment-label"
+          >Treatment
+          <select id="treatment">
+            <option value="placement">Placement</option>
+            <option value="selected">Selected</option>
+            <option value="invalid">Invalid</option>
+          </select></label
+        >
+        <button id="previous" aria-label="Previous piece">←</button
+        ><button id="next" aria-label="Next piece">→</button>
+        <label><input id="motion" type="checkbox" checked /> Gentle motion</label>
+      </section>
+      <section class="stage" aria-live="polite">
+        <canvas id="canvas" aria-label="3D model preview"></canvas>
+        <div id="companion" hidden></div>
+        <img id="static" hidden alt="" />
+        <p id="fallback" hidden>Static thumbnail shown because WebGL is unavailable.</p>
+      </section>
+      <aside>
+        <h2 id="title"></h2>
+        <p id="detail"></p>
+        <dl id="facts"></dl>
+        <p><a id="download" download>Download selected export</a></p>
+        <p><a id="source-link">View source record</a></p>
+        <p class="reduced">
+          Reduced motion keeps the reference still. Use the exported SVG rigs for static fallbacks.
+        </p>
+      </aside>
+    </main>
+    <script defer src="model-preview.js"></script>
+  </body>
+</html>

@@ -1723,6 +1723,8 @@
         );
       }
       function badgeSVG(id, earned = false) {
+        const stamp = G.AlibiAssets?.badge(id, earned);
+        if (stamp) return stamp;
         const types = {
           'first-stone': 'stone',
           hamlet: 'cottage',
