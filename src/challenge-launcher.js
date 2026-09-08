@@ -127,7 +127,7 @@
       if (selected === value) return clear();
       return commit({ from: selected, to: value });
     }
-    if (kind === 'cell') return commit({ cell: value });
+    if (kind === 'cell') return commit(c.family === 'reversi' ? value : { cell: value });
     if (kind === 'item') return commit({ item: value });
     if (kind === 'jug') return commit({ i: value, kind: button.dataset.kind });
     if (kind === 'walk') return commit(button.dataset.value);
