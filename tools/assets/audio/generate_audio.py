@@ -353,7 +353,8 @@ def main() -> int:
                 "id": recipe["id"],
                 "category": recipe["category"],
                 "event": recipe["event"],
-                "status": recipe["status"],
+                "status": "proposed",
+                "existing_event_status": recipe["status"],
                 "description": recipe["description"],
                 "source": {
                     "recipe": "assets-source/library/audio/source/recipes.json",

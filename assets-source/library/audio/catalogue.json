@@ -71,7 +71,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:navigation and focusable controls"
+      "integration_ref": "src/quiet-wing/app.js:navigation and focusable controls",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-select-paper",
@@ -132,7 +133,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:tool tray and activity tabs"
+      "integration_ref": "src/quiet-wing/app.js:tool tray and activity tabs",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-open-desk",
@@ -193,7 +195,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:navigate(path) and modal()"
+      "integration_ref": "src/quiet-wing/app.js:navigate(path) and modal()",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-close-desk",
@@ -254,7 +257,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:route disposal and dialog close"
+      "integration_ref": "src/quiet-wing/app.js:route disposal and dialog close",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-navigation-page",
@@ -315,7 +319,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:navigate(path)"
+      "integration_ref": "src/quiet-wing/app.js:navigate(path)",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-tab-switch",
@@ -376,7 +381,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realmPage tray tabs and gallery tabs"
+      "integration_ref": "src/quiet-wing/app.js:realmPage tray tabs and gallery tabs",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-toggle-on",
@@ -437,7 +443,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange"
+      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-toggle-off",
@@ -498,7 +505,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange"
+      "integration_ref": "src/quiet-wing/app.js:settings() data-setting onchange",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-undo",
@@ -559,7 +567,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realmAction('undo'), #classic-undo, #bouquet-undo"
+      "integration_ref": "src/quiet-wing/app.js:realmAction('undo'), #classic-undo, #bouquet-undo",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-redo",
@@ -620,7 +629,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realmAction('redo')"
+      "integration_ref": "src/quiet-wing/app.js:realmAction('redo')",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-cancel",
@@ -681,13 +691,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realmAction('cancel-tool'), modal close"
+      "integration_ref": "src/quiet-wing/app.js:realmAction('cancel-tool'), modal close",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-invalid-gentle",
       "category": "ui",
       "event": "invalid move / unavailable action",
-      "status": "current",
+      "status": "proposed",
       "description": "Two muted wood taps; informative without a loud error alarm.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -742,13 +753,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:feedback('erase') via playMove error"
+      "integration_ref": "src/quiet-wing/app.js:feedback('erase') via playMove error",
+      "existing_event_status": "current"
     },
     {
       "id": "ui-place-wood",
       "category": "ui",
       "event": "place / build / plant",
-      "status": "current",
+      "status": "proposed",
       "description": "A felted wooden placement with a small upper resonance.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -803,13 +815,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:applyAt, garden plant, feedback('place')"
+      "integration_ref": "src/quiet-wing/app.js:applyAt, garden plant, feedback('place')",
+      "existing_event_status": "current"
     },
     {
       "id": "ui-remove-low",
       "category": "ui",
       "event": "remove / erase",
-      "status": "current",
+      "status": "proposed",
       "description": "A low, rounded release for taking a piece away.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -864,7 +877,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:applyAt erase, feedback('erase')"
+      "integration_ref": "src/quiet-wing/app.js:applyAt erase, feedback('erase')",
+      "existing_event_status": "current"
     },
     {
       "id": "ui-discover-glint",
@@ -925,13 +939,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:gallery artSeen, pets species, garden collection"
+      "integration_ref": "src/quiet-wing/app.js:gallery artSeen, pets species, garden collection",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ui-complete-calm",
       "category": "ui",
       "event": "complete puzzle / harvest / return",
-      "status": "current",
+      "status": "proposed",
       "description": "A restrained four-note close with a long paper-lamplight tail.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -986,13 +1001,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:feedback('win') in classics, garden, pets, export"
+      "integration_ref": "src/quiet-wing/app.js:feedback('win') in classics, garden, pets, export",
+      "existing_event_status": "current"
     },
     {
       "id": "pet-greeting",
       "category": "pets",
       "event": "pet / greet",
-      "status": "current",
+      "status": "proposed",
       "description": "A rounded purr-like pair with no sharp transient.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -1047,7 +1063,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:petAction('pet') -> feedback('place')"
+      "integration_ref": "src/quiet-wing/app.js:petAction('pet') -> feedback('place')",
+      "existing_event_status": "current"
     },
     {
       "id": "pet-treat",
@@ -1108,13 +1125,14 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:petAction('treat')"
+      "integration_ref": "src/quiet-wing/app.js:petAction('treat')",
+      "existing_event_status": "proposed"
     },
     {
       "id": "pet-play",
       "category": "pets",
       "event": "play companion",
-      "status": "current",
+      "status": "proposed",
       "description": "Light skipping notes with a soft air tail.",
       "source": {
         "recipe": "assets-source/library/audio/source/recipes.json",
@@ -1169,7 +1187,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:petAction('play') -> feedback('win')"
+      "integration_ref": "src/quiet-wing/app.js:petAction('play') -> feedback('win')",
+      "existing_event_status": "current"
     },
     {
       "id": "pet-rest",
@@ -1230,7 +1249,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:petAction('nap')"
+      "integration_ref": "src/quiet-wing/app.js:petAction('nap')",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ambience-lamplight-library",
@@ -1297,7 +1317,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realm, journal routes; opt-in only"
+      "integration_ref": "src/quiet-wing/app.js:realm, journal routes; opt-in only",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ambience-coastal-window",
@@ -1364,7 +1385,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:realm, gallery routes; opt-in only"
+      "integration_ref": "src/quiet-wing/app.js:realm, gallery routes; opt-in only",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ambience-glasshouse-garden",
@@ -1431,7 +1453,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:gardenPage; pauses when hidden"
+      "integration_ref": "src/quiet-wing/app.js:gardenPage; pauses when hidden",
+      "existing_event_status": "proposed"
     },
     {
       "id": "ambience-evening-club",
@@ -1498,7 +1521,8 @@
         }
       },
       "provenance": "Original deterministic local synthesis; no external samples or remote generation.",
-      "integration_ref": "src/quiet-wing/app.js:classicsPage; opt-in only"
+      "integration_ref": "src/quiet-wing/app.js:classicsPage; opt-in only",
+      "existing_event_status": "proposed"
     }
   ]
 }

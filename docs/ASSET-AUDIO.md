@@ -1,8 +1,8 @@
 # Alibi audio asset library
 
 This fragment contains an original, deterministic local sound library for the Quiet Wing and
-related calm game surfaces. It is deliberately separate from the runtime until the player owner
-chooses integration points. The style is paper lamplight at a coastal club: felted wood, restrained
+related calm game surfaces. It is staged separately from the runtime for auditory QA and a deliberate
+optional-pack policy. The style is paper lamplight at a coastal club: felted wood, restrained
 plucks, rounded bells, air and water. There are no external samples, remote generation jobs or
 credentials.
 
@@ -45,8 +45,9 @@ page is hidden or disposed. Haptic feedback is independent (`navigator.vibrate`)
 tap for ordinary actions and `[15, 40, 15]` for `win`. Renderer and companion motion already read
 the motion preference. The asset library does not modify these runtime paths.
 
-The catalogue marks each event as `current` where the existing generic path already reaches the
-event and `proposed` where the app has a meaningful place but no distinct cue yet.
+Every new recording is `proposed` because it is playable in the production gallery, not bound to
+the shipped game. `existing_event_status` separately records whether a generic runtime event already
+exists. The table below describes those existing event hooks, not integration of these new recordings.
 
 | Event | Catalogue cue | Current or proposed | Existing source seam |
 | --- | --- | --- | --- |
@@ -87,4 +88,3 @@ time with the existing browser checks.
 Auditory listening was not possible in this agent session. Waveform/contact evidence, local WAV
 generation, SHA-256 receipts and ffprobe decodability were inspected; a human listening pass remains
 the appropriate final tonal and device-volume check before runtime integration.
-
