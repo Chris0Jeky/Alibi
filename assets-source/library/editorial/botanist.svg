@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-label="Botanist club portrait">
+  <title>Botanist club portrait</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="480" height="600" fill="#f4ead4"/>
+  <rect width="480" height="600" fill="url(#grain)" opacity=".24"/>
+  <path d="M45 559 V220 Q45 83 240 83 Q435 83 435 220 V559Z" fill="#547663" class="line"/>
+  <path d="M71 558 V225 Q71 111 240 111 Q409 111 409 225 V558Z" fill="#fff7e4" opacity=".22"/>
+  <path d="M44 559 H436" class="line" opacity=".6"/>
+  
+    <path d="M92 559 Q105 450 176 421 Q240 399 304 421 Q375 450 388 559Z" fill="#87a997" class="line"/>
+    <path d="M162 466 Q200 491 240 464 Q280 491 319 466" fill="none" class="paper-line" opacity=".7"/>
+    <path d="M211 395 V439 Q239 459 269 439 V395" fill="#9b6b4a" class="line"/>
+    <ellipse cx="240" cy="291" rx="84" ry="109" fill="#9b6b4a" class="line"/>
+    <path d="M158 277 Q159 191 213 158 Q261 125 316 182 Q334 216 322 278 Q294 227 241 221 Q188 226 158 277Z" fill="#172d38" class="line"/>
+    <path d="M171 223 Q194 159 238 150 Q286 149 313 207" fill="none" class="fine" opacity=".72"/>
+    <path d="M168 301 Q179 228 240 225 Q301 228 312 301 V346 Q306 405 240 427 Q174 405 168 346Z" fill="#a97552" class="line"/>
+    <path d="M201 307 Q218 295 236 308 M245 308 Q264 295 281 307" fill="none" class="line"/>
+    <circle cx="219" cy="314" r="6" fill="#172d38"/><circle cx="261" cy="314" r="6" fill="#172d38"/>
+    <path d="M240 318 Q228 349 243 359" fill="none" class="fine"/>
+    <path d="M210 377 Q240 391 270 376" fill="none" class="line"/>
+    <path d="M115 485 Q140 448 170 463 Q151 491 115 485Z" fill="#b76d52" class="line"/>
+    <path d="M152 474 Q140 426 162 400 Q184 427 170 469" fill="#547663" class="fine"/>
+    <path d="M335 493 Q360 449 388 462 Q376 496 335 493Z" fill="#b76d52" class="line"/>
+    <path d="M367 477 Q357 429 382 409 Q402 442 389 480" fill="#547663" class="fine"/>
+    <path d="M124 531 Q240 494 356 531" fill="none" class="paper-line" opacity=".42"/>
+  
+  <path d="M84 520 Q240 489 396 520" fill="none" class="fine" opacity=".35"/>
+
+</svg>

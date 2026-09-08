@@ -1,0 +1,365 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "reading-room",
+      "title": "Reading room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/reading-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/reading-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Optional editorial room vignette; decorative field-notes atmosphere.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/reading-room.svg",
+          "bytes": 4778,
+          "sha256": "629d3065a8d95eb4a05dce860db844e13dbc1991ced6eed4d66f27f516ec07e3"
+        },
+        {
+          "path": "assets-source/library/editorial/reading-room.webp",
+          "bytes": 28502,
+          "sha256": "4ff3720551088f07657dc9cb5993cdb824d271c237a14de4e52b3a59442a889d"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "harbour-room",
+      "title": "Harbour room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/harbour-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/harbour-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Optional editorial room vignette; decorative field-notes atmosphere.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/harbour-room.svg",
+          "bytes": 3927,
+          "sha256": "8f56a35cfef45193ae4d6083740c64057b48b2803e21e29d360019acec91a3c2"
+        },
+        {
+          "path": "assets-source/library/editorial/harbour-room.webp",
+          "bytes": 30418,
+          "sha256": "9656fe65a7b2b8a699f50b2077732cc00ca4e2acf4457aed381fb5b5dc416965"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "companion-room",
+      "title": "Companion room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/companion-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/companion-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Optional editorial room vignette; decorative field-notes atmosphere.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/companion-room.svg",
+          "bytes": 3640,
+          "sha256": "fb2b3f76b4577aa171ee3e0aabfc929da4bcf5253adde031aabb7cd5004c2f9f"
+        },
+        {
+          "path": "assets-source/library/editorial/companion-room.webp",
+          "bytes": 26254,
+          "sha256": "b3eaa5ed4e1ae590b9177531c6970bb7b73d9d0d980cf1f38d3e45f84b49652d"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "glasshouse-room",
+      "title": "Glasshouse room",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/glasshouse-room.svg",
+      "derivatives": [
+        "assets-source/library/editorial/glasshouse-room.webp"
+      ],
+      "dimensions": [
+        1200,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative editorial room vignette; adjacent section title remains editable. No gameplay, clue or evidence meaning.",
+      "integration": "Optional editorial room vignette; decorative field-notes atmosphere.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/glasshouse-room.svg",
+          "bytes": 3741,
+          "sha256": "933493926f138eb102c50072eb777a759a19cf100728f6bf310beb56db423b6c"
+        },
+        {
+          "path": "assets-source/library/editorial/glasshouse-room.webp",
+          "bytes": 31664,
+          "sha256": "2ab4eae1c565c5dd3d0ec76314c09ee178bc7c80e65f82b8797ebaa619e8b25c"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "reader",
+      "title": "The Reader",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/reader.svg",
+      "derivatives": [
+        "assets-source/library/editorial/reader.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/reader.svg",
+          "bytes": 3100,
+          "sha256": "9ea5206e64dbdbaca7d76902c689c6dc3cd800856d2aca070122b3e17be7259f"
+        },
+        {
+          "path": "assets-source/library/editorial/reader.webp",
+          "bytes": 19164,
+          "sha256": "2fe06691c2142708486ec3810a17b91cc036cf6c53640aaaa8db1213418f2ccf"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "cartographer",
+      "title": "The Cartographer",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/cartographer.svg",
+      "derivatives": [
+        "assets-source/library/editorial/cartographer.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/cartographer.svg",
+          "bytes": 3113,
+          "sha256": "ceb80ae3fb4816df0a142b932b1fec040a0dadbc3d6a8ed468a6998fcf87fc1e"
+        },
+        {
+          "path": "assets-source/library/editorial/cartographer.webp",
+          "bytes": 20916,
+          "sha256": "59b81bcef1dcaf4b98acd8c4b804a3722215d2a689811999c93fc2bc144f6f29"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "botanist",
+      "title": "The Botanist",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/botanist.svg",
+      "derivatives": [
+        "assets-source/library/editorial/botanist.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/botanist.svg",
+          "bytes": 2916,
+          "sha256": "92c04d52a38f6699fee2acbd99945d88b85ccb37407f367509af445c92ae4166"
+        },
+        {
+          "path": "assets-source/library/editorial/botanist.webp",
+          "bytes": 17618,
+          "sha256": "8543176f398c1f74d187eced8734fa6e0724fc519d6005a1bb84fd36d33782ea"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "astronomer",
+      "title": "The Astronomer",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/astronomer.svg",
+      "derivatives": [
+        "assets-source/library/editorial/astronomer.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/astronomer.svg",
+          "bytes": 2920,
+          "sha256": "a38d088b6eec8cc1b022fb1b367f5b86d2097870c638fe120a55b63dd46f191b"
+        },
+        {
+          "path": "assets-source/library/editorial/astronomer.webp",
+          "bytes": 17466,
+          "sha256": "5f0922aaed849f132ddb5395f9ba47cc954f81f5be7697fb02b2ba87c41b678d"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "archivist",
+      "title": "The Archivist",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/archivist.svg",
+      "derivatives": [
+        "assets-source/library/editorial/archivist.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/archivist.svg",
+          "bytes": 2839,
+          "sha256": "a8e4583743977e1235302d1ee247916ca103ea0d6eff19b757a8b3cbbcb606e9"
+        },
+        {
+          "path": "assets-source/library/editorial/archivist.webp",
+          "bytes": 20518,
+          "sha256": "12f9ffa1457bd5334876770b5ef7643eedb62efa366676312dae1859ff584eaa"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    },
+    {
+      "id": "maker",
+      "title": "The Maker",
+      "category": "editorial",
+      "source": "assets-source/library/editorial/maker.svg",
+      "derivatives": [
+        "assets-source/library/editorial/maker.webp"
+      ],
+      "dimensions": [
+        480,
+        600
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original deterministic layered SVG geometry, locally rasterised with Sharp",
+        "license": "Project original; no separate public reuse grant",
+        "generator": "tools/assets/build-editorial.cjs"
+      },
+      "accessibility": "Decorative fictional club archetype bust; adjacent label remains editable. Not a suspect or museum portrait, and no gameplay meaning.",
+      "integration": "Optional field-notes gallery club illustration; decorative archetype only.",
+      "files": [
+        {
+          "path": "assets-source/library/editorial/maker.svg",
+          "bytes": 3110,
+          "sha256": "7819ad36200adba33d55dcb946cba0b9f9c48cc478905edfc1e9a3a3ba2662ef"
+        },
+        {
+          "path": "assets-source/library/editorial/maker.webp",
+          "bytes": 20052,
+          "sha256": "df691ffeffa7c820b51f6da7015b5b9224affb13349f30386304c6317f475ab3"
+        }
+      ],
+      "qa": {
+        "scope": "Generated locally; SVG source retained; WebP decoded by Sharp and visually inspected as a contact sheet."
+      }
+    }
+  ]
+}

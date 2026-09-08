@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-label="Glasshouse room editorial vignette">
+  <title>Glasshouse room editorial vignette</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="1200" height="600" fill="#f4ead4"/>
+  <rect width="1200" height="600" fill="url(#grain)" opacity=".22"/>
+  <path d="M0 458 C180 424 325 478 510 448 C712 417 926 466 1200 428 V600 H0Z" fill="#b76d52" opacity=".72"/>
+  <path d="M0 498 C190 470 335 514 526 481 C730 446 1000 499 1200 456 V600 H0Z" fill="#8d5145" opacity=".36"/>
+  <path d="M48 52 H1152" class="fine" opacity=".34"/>
+  <path d="M48 548 H1152" class="line" opacity=".52"/>
+  
+    <path d="M82 114 H1118 V431 H82Z" fill="#87a997" opacity=".48"/>
+    <path d="M104 132 H1096 V408 H104Z" fill="#dbac60" opacity=".48"/>
+    <path d="M104 132 V409 M340 132 V409 M585 132 V409 M830 132 V409 M1096 132 V409" class="line" opacity=".68"/>
+    <path d="M104 266 H1096" class="line" opacity=".55"/>
+    <path d="M84 114 L600 56 L1118 114" fill="#173e49" class="line"/>
+    <path d="M112 111 L600 73 L1087 111" fill="#fff7e4"/>
+    <path d="M600 73 V409" class="line" opacity=".74"/>
+    <path d="M183 382 H516 L544 425 H154Z" fill="#b76d52" class="line"/>
+    <path d="M199 408 H500" class="paper-line" opacity=".5"/>
+    <path d="M238 374 Q232 321 263 291 Q296 321 279 377" fill="#547663" class="line"/>
+    <path d="M292 378 Q300 291 342 271 Q373 332 336 382" fill="#547663" class="line"/>
+    <path d="M379 379 Q368 317 403 295 Q431 338 420 381" fill="#87a997" class="line"/>
+    <path d="M220 380 V425 M319 381 V425 M403 382 V425" class="line"/>
+    <path d="M706 383 H1042 V428 H706Z" fill="#173e49" class="line"/>
+    <path d="M736 368 Q724 316 753 292 Q786 326 772 370" fill="#b76d52" class="line"/>
+    <path d="M815 370 Q809 294 842 272 Q875 330 856 372" fill="#547663" class="line"/>
+    <path d="M902 372 Q895 318 927 298 Q956 336 942 373" fill="#87a997" class="line"/>
+    <path d="M1002 384 Q995 337 1021 318 Q1049 345 1038 385" fill="#b88847" class="line"/>
+    <path d="M743 428 L726 498 M1014 428 L1032 498" class="line"/>
+    <path d="M714 499 H758 M1009 499 H1054" class="line"/>
+    <path d="M564 403 Q575 362 608 365 Q633 374 634 416 L575 422Z" fill="#172d38" class="line"/>
+    <path d="M587 364 Q580 326 602 301 Q628 332 612 365" fill="#87a997" class="line"/>
+    <path d="M564 423 H638" class="line"/>
+    <path d="M1100 179 Q1135 145 1158 179 V283 Q1137 304 1100 283Z" fill="#b76d52" class="line"/>
+    <path d="M1118 179 Q1136 148 1150 179" fill="none" class="fine"/>
+    <path d="M1130 304 V422" class="line"/>
+    <path d="M1106 421 H1155" class="line"/>
+    <path d="M518 121 Q550 89 582 122" fill="none" class="fine"/>
+    <path d="M529 120 Q544 158 563 178 Q579 156 591 121" fill="#547663" class="fine"/>
+    <circle cx="520" cy="101" r="12" fill="#dbac60"/>
+  
+  <path d="M35 35 H1165 V565 H35Z" fill="none" class="fine" opacity=".55"/>
+
+</svg>
