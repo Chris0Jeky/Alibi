@@ -12,6 +12,21 @@
       protectedMode = false,
       queue = Promise.resolve();
     const revisions = new Map();
+    const protectedIds = new Set();
+    function validateRecord(record, id) {
+      try {
+        if (record.schema !== 1 || !Number.isInteger(record.revision) || record.revision < 1)
+          throw Error('Unsupported record');
+        const run = registry.validateRun(record.run);
+        if (run.challengeId !== id) throw Error('Record key mismatch');
+        return run;
+      } catch {
+        protectedIds.add(id);
+        throw Error(
+          'Saved challenge record is unsupported and was preserved. Export or reload before writing.',
+        );
+      }
+    }
     const request = (kind, work) =>
       new Promise((resolve, reject) => {
         let tx,
@@ -81,14 +96,7 @@
             })
           : session.get(id);
       if (!record) return null;
-      if (
-        !record ||
-        record.schema !== 1 ||
-        !Number.isInteger(record.revision) ||
-        record.revision < 0
-      )
-        throw Error('Saved challenge record is unsupported and was preserved.');
-      const run = registry.validateRun(record.run);
+      const run = validateRecord(record, id);
       revision = record.revision;
       revisions.set(id, record.revision);
       return run;
@@ -103,6 +111,8 @@
           const id = checked.challengeId,
             expected = revisions.get(id) || 0,
             record = { schema: 1, revision: expected + 1, run: checked };
+          if (protectedIds.has(id))
+            throw Error('This challenge save is protected and was preserved.');
           if (mode === 'indexeddb') await cas(id, record, expected);
           else {
             const current = session.get(id);
@@ -119,6 +129,7 @@
     function cas(id, record, expected) {
       return new Promise((resolve, reject) => {
         let conflict = false,
+          protectedError = null,
           tx;
         try {
           tx = db.transaction(STORE, 'readwrite');
@@ -139,13 +150,23 @@
           tx.onabort = () => {
             clearTimeout(timer);
             reject(
-              conflict
-                ? Error('Another tab changed this challenge save.')
-                : tx.error || Error('Challenge storage failed.'),
+              protectedError ||
+                (conflict
+                  ? Error('Another tab changed this challenge save.')
+                  : tx.error || Error('Challenge storage failed.')),
             );
           };
           const read = tx.objectStore(STORE).get(id);
           read.onsuccess = () => {
+            if (read.result !== undefined) {
+              try {
+                validateRecord(read.result, id);
+              } catch (error) {
+                protectedError = error;
+                tx.abort();
+                return;
+              }
+            }
             if ((read.result?.revision || 0) !== expected) {
               conflict = true;
               tx.abort();

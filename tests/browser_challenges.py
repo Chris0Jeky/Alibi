@@ -94,6 +94,19 @@ try:
         assert '1 moves' in page.locator('.challenge-status').inner_text()
 
         assert page.evaluate('''async () => { const store = AlibiChallengeStore.create(registry); await store.open(); const run = registry.begin('curated-classic-hanoi-02'); run.log.push({from: 2, to: 0}); await store.write(run); return (await store.read(run.challengeId)).log.length; }''') == 1
+        assert page.evaluate('''async () => {
+          const db = await new Promise((resolve,reject)=>{const r=indexedDB.open('alibi-challenges-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+          for (const readFirst of [true,false]) {
+            const id=registry.entries()[readFirst?0:1].id, future={schema:2,revision:0,unrecognised:'keep exactly'};
+            await new Promise((resolve,reject)=>{const tx=db.transaction('runs','readwrite');tx.objectStore('runs').put(future,id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+            const store=AlibiChallengeStore.create(registry);await store.open();
+            if(readFirst){let refused=false;try{await store.read(id)}catch{refused=true}if(!refused)throw Error('Future read accepted')}
+            let refused=false;try{await store.write(registry.begin(id))}catch{refused=true}if(!refused)throw Error('Future write accepted');
+            const after=await new Promise(resolve=>{const r=db.transaction('runs').objectStore('runs').get(id);r.onsuccess=()=>resolve(r.result)});
+            if(JSON.stringify(after)!==JSON.stringify(future))throw Error('Future record changed');
+          }
+          db.close(); return true;
+        }''')
         page.close()
     browser.close()
 
