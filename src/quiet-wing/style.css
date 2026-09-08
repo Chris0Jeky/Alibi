@@ -1717,6 +1717,8 @@ dialog select {
   }
   .rail button {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
     min-height: 48px;
     font-size: 9px;
     padding: 4px;

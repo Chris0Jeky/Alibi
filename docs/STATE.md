@@ -21,7 +21,9 @@ review found no blockers. The combined repository check, supplied 324 and 59 che
 mobile controls, 66 curation real-origin checks and every challenge mechanism at phone/desktop
 widths pass. Visual inspection also caught missing challenge grid styling; explicit spatial
 row/column assertions now cover grid mechanisms and the shipped phone/desktop queen board.
-Final-head CI and publication evidence will be recorded in the PR/release receipt.
+Linux CI exposed narrow navigation min-content overflow; phone rail labels now wrap within their
+flex cells. Final-head CI and publication evidence will be recorded in the PR/release receipt.
+Nonblocking follow-ups: #20 (Duel forcing-opening completion) and #21 (occupied warehouse goals).
 
 This candidate does not certify human solve quality or the physical Android incident. Owner
 checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md). The original deployment identity is unchanged.
