@@ -21,6 +21,7 @@ with sync_playwright() as p:
         context=browser.new_context(viewport={'width':width,'height':950},accept_downloads=True,reduced_motion='reduce')
         page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(URL+'#/library');page.wait_for_function('()=>window.AlibiDiagnostics')
+        page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
         check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==324,'324 official puzzles load')
         page.locator('.curation-collections > summary').click()
         for venue in ('salt','copper','winter','nocturne'):
