@@ -19,13 +19,14 @@ def join(n,items):
  if len(items)==1:items[0].name=n;return items[0]
  bpy.ops.object.select_all(action='DESELECT');[o.select_set(True)for o in items];bpy.context.view_layer.objects.active=items[0];bpy.ops.object.join();items[0].name=n;return items[0]
 def box(items):
+ bpy.context.view_layer.update()
  p=[o.matrix_world@Vector(c)for o in items for c in o.bound_box];lo=Vector((min(v.x for v in p),min(v.y for v in p),min(v.z for v in p)));hi=Vector((max(v.x for v in p),max(v.y for v in p),max(v.z for v in p)));return lo,hi,hi-lo
 def data(o):
  lo,hi,size=box([o]);return {'min':[round(v,4)for v in lo],'max':[round(v,4)for v in hi],'size':[round(v,4)for v in size],'pivot':[round(v,4)for v in o.location]}
-def normalize(o):
+def normalize(o,scale=2):
  # Retained sources share Kenney world units; apply one common conversion rather than
  # inflating narrow details such as lanterns to a two-unit footprint.
- o.scale*=2;bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);lo,hi,size=box([o]);o.location.x-=(lo.x+hi.x)/2;o.location.y-=(lo.y+hi.y)/2;o.location.z-=lo.z;return o
+ o.scale*=scale;bpy.context.view_layer.objects.active=o;o.select_set(True);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True);lo,hi,size=box([o]);o.location.x-=(lo.x+hi.x)/2;o.location.y-=(lo.y+hi.y)/2;o.location.z-=lo.z;bpy.ops.object.transform_apply(location=True,rotation=True,scale=True);return o
 def proc(n):
  p=[]
  if n.startswith('ground'):p=[cube(n,0,0,.05,1,1,.05,'sage'if n=='ground-grass'else'stone')];p+=[]if n=='ground-grass'else[cube('path',0,0,.11,.42,1,.02,'cream')]if n=='ground-path'else[cube('cobble',x,y,.11,.22,.22,.02,'cream')for x in(-.5,0,.5)for y in(-.5,0,.5)]
@@ -42,7 +43,7 @@ def proc(n):
   for x in(-.65,-.22,.22,.65):p+=[cube('row',x,0,.14,.08,.9,.1,'crop')]+([]if n=='crop-rows'else[cone('wheat',x,y,.32,.08,.02,.35,'crop')for y in(-.55,0,.55)])
  elif n=='orchard':p=[cube('ground',0,0,.04,1,1,.04,'sage')]+[x for a,b in((-.5,-.4),(.45,.25))for x in(cyl('trunk',a,b,.38,.09,.7,'timber'),cone('crown',a,b,.95,.42,.12,.65,'sage'))]
  elif n=='tree-oak':p=[cyl('trunk',0,0,.55,.14,1.1,'timber'),cone('canopy',0,0,1.45,.78,.22,1.3,'sage')]
- return normalize(join(n,p))
+ return normalize(join(n,p),1)
 def source(n,pack):
  # Kenney OBJ coordinates are Y-up.  Blender's default OBJ conversion maps that height into Z;
  # the previous Y-forward override kept retained city geometry on its side.
@@ -51,7 +52,10 @@ def make(n):return source(n,dict(EXISTING)[n])if n in dict(EXISTING)else proc(n)
 def select(items):bpy.ops.object.select_all(action='DESELECT');[o.select_set(True)for o in items];bpy.context.view_layer.objects.active=items[0]
 def glb(items,path):select(items);bpy.ops.export_scene.gltf(filepath=path,export_format='GLB',use_selection=True,export_materials='EXPORT')
 def render(items,path,alt=False,large=False):
- lo,hi,size=box(items);s=max(size.x,size.y,size.z,1);target=Vector((0,0,size.z*.3));bpy.ops.object.camera_add(location=((-1.25 if alt else 1.25)*s,-(1.2 if alt else 1.4)*s,1.2*s));cam=bpy.context.object;cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();bpy.ops.object.light_add(type='AREA',location=(-s,-s,2*s));light=bpy.context.object;light.data.energy=1450;light.data.shape='DISK';light.data.size=3.5*s;bpy.ops.mesh.primitive_plane_add(size=12*s,location=(0,0,-.02));floor=bpy.context.object;floor.data.materials.append(mat('cream'));sc=bpy.context.scene;sc.camera=cam;sc.render.engine='BLENDER_EEVEE';sc.world.use_nodes=True;sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=col('cream');sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.3;sc.view_settings.view_transform='Standard';res=640 if large else 320;sc.render.resolution_x=res;sc.render.resolution_y=res*3//4;sc.render.resolution_percentage=100;sc.render.filepath=path;bpy.ops.render.render(write_still=True);[bpy.data.objects.remove(x,do_unlink=True)for x in(cam,light,floor)]
+ hidden={o:o.hide_render for o in bpy.context.scene.objects}
+ for o in hidden:o.hide_render=o not in items
+ lo,hi,size=box(items);s=max(size.x,size.y,size.z,1);target=(lo+hi)/2;bpy.ops.object.camera_add(location=target+Vector(((-1.25 if alt else 1.25)*s,-1.4*s,1.2*s)));cam=bpy.context.object;cam.data.type='ORTHO';cam.data.ortho_scale=s*(2.4 if large else 1.85);cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler();bpy.ops.object.light_add(type='AREA',location=(-s,-s,2*s));light=bpy.context.object;light.data.energy=100*s*s;light.data.shape='DISK';light.data.size=2*s;bpy.ops.mesh.primitive_plane_add(size=12*s,location=(0,0,-.02));floor=bpy.context.object;floor.data.materials.append(mat('cream'));sc=bpy.context.scene;sc.camera=cam;sc.render.engine='BLENDER_EEVEE';sc.world.use_nodes=True;sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=col('cream');sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.4;sc.view_settings.view_transform='AgX';res=640 if large else 320;sc.render.resolution_x=res;sc.render.resolution_y=res*3//4;sc.render.resolution_percentage=100;sc.render.filepath=path;bpy.ops.render.render(write_still=True);[bpy.data.objects.remove(x,do_unlink=True)for x in(cam,light,floor)]
+ for o,value in hidden.items():o.hide_render=value
 def move(o,c):[q.objects.unlink(o)for q in list(o.users_collection)];c.objects.link(o)
 def scene(sid):
  c=bpy.data.collections.new(sid);bpy.context.scene.collection.children.link(c);items=[]
@@ -60,19 +64,20 @@ def scene(sid):
   for x in(-3,-1,1,3):
    for y in(1,3):add('water-tile',x,y)
   for x in(-3,-1,1,3):add('ground-cobble',x,-1)
-  add('bridge-straight',0,1,0,math.pi/2);add('stall-red',-2,-1);add('lantern',0,-1);add('cottage-small',2,-1,0,0,.65);add('tree',3,-.5,0,0,.42)
+  add('bridge-arched',0,1,0,math.pi/2);add('stall-red',-2,-1);add('lantern',0,-1,0,0,.4);add('cottage-small',2,-1);add('tree',3,-.5,0,0,.42)
  elif sid=='hillfort':
   for x in(-2,0,2):
    for y in(-2,0,2):add('ground-grass',x,y)
   for x,y,r in((-3,0,0),(3,0,0),(0,3,math.pi/2),(0,-3,math.pi/2)):add('wall',x,y,0,r)
   for x,y in((-3,-3),(3,-3),(3,3),(-3,3)):add('tower-square-base',x,y)
-  add('wall-gate',0,-3,0,math.pi/2);add('tower-square-mid',-3,-3,1.25);add('tower-square-roof',-3,-3,2.5);add('tree-oak',1,1,0,0,.45)
+  add('wall-gate',0,-3,0,math.pi/2);add('tower-square-mid',-3,-3,2.02);add('tower-square-roof',-3,-3,4.04);add('tree-oak',1,1,0,0,.45)
  else:
   for x in(-3,-1,1,3):
    for y in(-1,1):add('ground-grass',x,y)
-  add('farm-barn',-2,0,0,0,.65);add('cottage-long',1,0,0,0,.7);add('crop-wheat',3,1);add('crop-rows',3,-1);add('orchard',-3,1,0,0,.6);add('ground-path',0,-1);add('lantern',0,1)
+  add('farm-barn',-2,0);add('cottage-long',1,0);add('crop-wheat',3,1);add('crop-rows',3,-1);add('orchard',-3,1,0,0,.6);add('ground-path',0,-1);add('lantern',0,1,0,0,.4)
  return items
 def main():
+ bpy.context.preferences.filepaths.save_version=0
  for d in('glb','thumbnails','scenes'):os.makedirs(os.path.join(OUT,d),exist_ok=True)
  bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False);meta=[]
  for n,p in EXISTING:
@@ -83,6 +88,8 @@ def main():
  for sid in('harbour','hillfort','farmstead'):
   items=scene(sid);total+=len(items);glb(items,os.path.join(OUT,'scenes',sid+'.glb'));render(items,os.path.join(OUT,'thumbnails','scene-'+sid+'.png'),large=True);render(items,os.path.join(OUT,'thumbnails','scene-'+sid+'-alt.png'),True,large=True)
  bpy.ops.file.pack_all()
+ for name in ('hillfort','farmstead'):
+  bpy.data.collections[name].hide_viewport=True;bpy.data.collections[name].hide_render=True
  bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT,'realm-kit.blend'))
  catalog={'schemaVersion':1,'palette':PALETTE,'assets':meta,'scenes':['harbour','hillfort','farmstead'],'master':{'coordinateSystem':'Blender Z-up; standard glTF Y-up export','gridUnits':2,'collections':['harbour','hillfort','farmstead'],'objects':total},'generator':'Blender 5.2.1'}
  for f in('export-metadata.json','catalogue.json'):json.dump(catalog,open(os.path.join(OUT,f),'w',encoding='utf8'),indent=2)

@@ -27,6 +27,12 @@ test('realm kit exposes 40 measured, self-contained GLBs and three composed scen
   assert.ok(c.master.derivatives[1].endsWith('/harbour.glb'));
   for (const x of c.assets) {
     assert.ok(x.metadata.size.every(Number.isFinite));
+    assert.ok(
+      x.metadata.pivot.every((v) => Math.abs(v) < 0.001),
+      'Ground-centred export origin ' + x.id,
+    );
+    if (['ground-grass', 'ground-path', 'ground-cobble', 'water-tile'].includes(x.id))
+      assert.deepEqual(x.metadata.size.slice(0, 2), [2, 2], 'Two-unit snapping tile ' + x.id);
     if (x.status === 'current') {
       assert.equal(x.metadata.rights.author, 'Kenney');
       assert.equal(x.metadata.rights.licenceVersion, 'CC0 1.0');

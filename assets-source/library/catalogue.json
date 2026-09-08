@@ -4782,24 +4782,24 @@
       ],
       "metadata": {
         "min": [
-          -0.9901,
+          -1,
           -1,
           0
         ],
         "max": [
-          0.9901,
           1,
-          1.9802
+          1,
+          2.02
         ],
         "size": [
-          1.9802,
           2,
-          1.9802
+          2,
+          2.02
         ],
         "pivot": [
           0,
-          -1,
-          0.9901
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4832,13 +4832,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-base.glb",
-          "bytes": 10364,
-          "sha256": "466902da7997e8b777332f5b7a7ecaff112b5042c570b2f06a2cc3a9f57254aa"
+          "bytes": 10292,
+          "sha256": "7d362458db613e03ddd54f3e436b15840b4a27d93dd60d7d7a9a1b9716e862b8"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-base.png",
-          "bytes": 91311,
-          "sha256": "146d3a763ae107266e69a87166dd466ddaeabf58d103c7b4e4a27cc48ae632f7"
+          "bytes": 91616,
+          "sha256": "3ed29f27180f7ad47b35335ce7f43f8aba44cfdb33ccb43f743e73750f6893af"
         }
       ]
     },
@@ -4855,24 +4855,24 @@
       ],
       "metadata": {
         "min": [
-          -0.9208,
-          -1,
+          -0.93,
+          -0.93,
           0
         ],
         "max": [
-          0.9208,
-          1,
-          1.8416
+          0.93,
+          0.93,
+          2.02
         ],
         "size": [
-          1.8416,
-          2,
-          1.8416
+          1.86,
+          1.86,
+          2.02
         ],
         "pivot": [
           0,
-          -1,
-          0.9208
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4905,13 +4905,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-mid.glb",
-          "bytes": 12772,
-          "sha256": "d257c1c561d6ebba9beef7e7fb418bc0f5d0de2f55daa3bc3bf5b573c7e5737d"
+          "bytes": 12752,
+          "sha256": "135a8c407d656a3479e33996b4893b57ec7950cd4e8613836f7e25ab581b1d6a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-mid.png",
-          "bytes": 96621,
-          "sha256": "34b2811d3919f5dca1a513b858578f7bd16f44c7d0d8792b338d60da582d932a"
+          "bytes": 96556,
+          "sha256": "5532c5a55c0c3a58d948a42371cdc72e8a08d48f21a201aeadaf89902ff1e8cf"
         }
       ]
     },
@@ -4929,23 +4929,23 @@
       "metadata": {
         "min": [
           -1,
-          -0.3,
+          -1,
           0
         ],
         "max": [
           1,
-          0.3,
-          2
+          1,
+          0.6
         ],
         "size": [
           2,
-          0.6,
-          2
+          2,
+          0.6
         ],
         "pivot": [
           0,
-          -0.3,
-          1
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -4978,13 +4978,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-top.glb",
-          "bytes": 13952,
-          "sha256": "4516cee12ed5c87fcbf23a0be3c78d07578d8c0e541dee9dbac85bf010d08f8a"
+          "bytes": 13928,
+          "sha256": "66186131fa0781963ba7bd39030f57c4b138e466ed69eb25bd5b27ff8e9db5f0"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-top.png",
-          "bytes": 87104,
-          "sha256": "4e6fec46ab210a5b44039e34736ad50eafb6ee4bf1a3585b6f756a3af40d3b3f"
+          "bytes": 92576,
+          "sha256": "6cd4f61e06cfd1a0fa982692c2cbce2d4168aae7afe946120fc8ab7e09328194"
         }
       ]
     },
@@ -5001,24 +5001,24 @@
       ],
       "metadata": {
         "min": [
-          -0.4975,
+          -1,
           -1,
           0
         ],
         "max": [
-          0.4975,
           1,
-          0.995
+          1,
+          4.02
         ],
         "size": [
-          0.995,
           2,
-          0.995
+          2,
+          4.02
         ],
         "pivot": [
           0,
-          -1,
-          0.4975
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5051,13 +5051,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-square-roof.glb",
-          "bytes": 15264,
-          "sha256": "5fac224b18101194e0cee9941f6275c985c1c47c728afe9a6fd318b5f8505df5"
+          "bytes": 15184,
+          "sha256": "1c58b15123322bed11b7bb9f22d1f45c11d170c4442a806c94eced8ed28c5e44"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-square-roof.png",
-          "bytes": 90138,
-          "sha256": "430cf0645a632cac85b2f08a0e1a39b132c842dfeff20fb90efad9d634810a13"
+          "bytes": 89016,
+          "sha256": "0ce2819da7fe2a0661cd984c51abe2acc868c6f1503bddf879ffc13d26a9a6d4"
         }
       ]
     },
@@ -5074,24 +5074,24 @@
       ],
       "metadata": {
         "min": [
-          -0.687,
-          -1,
+          -0.9,
+          -0.7794,
           0
         ],
         "max": [
-          0.687,
-          1,
-          1.19
+          0.9,
+          0.7794,
+          2.62
         ],
         "size": [
-          1.374,
-          2,
-          1.19
+          1.8,
+          1.5588,
+          2.62
         ],
         "pivot": [
           0,
-          -1,
-          0.595
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5124,13 +5124,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-base.glb",
-          "bytes": 11848,
-          "sha256": "e12ac82b37f547e64df87b95b13fcf6d2e35d6ea90541d0af7a02adb1bccee56"
+          "bytes": 11824,
+          "sha256": "abdb862e26471dae7cdc3148bb07c381532d24f4bddded453af9091149d7e2f0"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-base.png",
-          "bytes": 93831,
-          "sha256": "3da878394136b4dce417821ec0f12fc2440bb6a5f683ac654d90ac4473735098"
+          "bytes": 87015,
+          "sha256": "c9c76a85e7101e88f7fc37fe292c01d85aa0f5dfd96ad86dbd9b8bc301504273"
         }
       ]
     },
@@ -5147,24 +5147,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.483,
+          -0.9524,
+          -0.8248,
           0
         ],
         "max": [
-          1,
-          0.483,
-          1.7321
+          0.9524,
+          0.8248,
+          0.92
         ],
         "size": [
-          2,
-          0.9659,
-          1.7321
+          1.9049,
+          1.6497,
+          0.92
         ],
         "pivot": [
           0,
-          -0.483,
-          0.866
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5197,13 +5197,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-mid.glb",
-          "bytes": 25000,
-          "sha256": "7517b417200e3417331e4d2919d8c94356888c425b5a935efcb66c66801500f3"
+          "bytes": 24964,
+          "sha256": "50befbd99f690105cf1a407f17bd2515b8067f20236a4a1a22105fed3e5118db"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-mid.png",
-          "bytes": 91858,
-          "sha256": "bd33910f558038a190c4fc7690d5019eda07d99fd3c07b3d48f089a0a0421153"
+          "bytes": 88817,
+          "sha256": "b4c1b830d8145f1a6ee5609f7b8e95957c5ecf1ddd411d655b323f053591737f"
         }
       ]
     },
@@ -5220,24 +5220,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.8501,
+          -0.9763,
+          -0.8455,
           0
         ],
         "max": [
-          1,
-          0.8501,
-          1.7321
+          0.9763,
+          0.8455,
+          1.66
         ],
         "size": [
-          2,
-          1.7003,
-          1.7321
+          1.9526,
+          1.691,
+          1.66
         ],
         "pivot": [
           0,
-          -0.8501,
-          0.866
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5270,13 +5270,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tower-hexagon-roof.glb",
-          "bytes": 11844,
-          "sha256": "50377b025863c9d2102a9c0255db246606f44f116e9a2853d394dc1c3f32d369"
+          "bytes": 11848,
+          "sha256": "576d7395c0ec538ed8931f3d5c325cde7c169f0865f715b9dfd0e73d427a380b"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tower-hexagon-roof.png",
-          "bytes": 94114,
-          "sha256": "49fbde50c978a60496cf76b787605baf910271c5042574a5019402caa89391da"
+          "bytes": 87742,
+          "sha256": "01fe9fc3a884afcc575ada503671371b0137e9b9bb9b4f5a981aec90a0dfc57e"
         }
       ]
     },
@@ -5293,24 +5293,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7634,
+          -1,
           -1,
           0
         ],
         "max": [
-          0.7634,
           1,
-          1.5267
+          1,
+          2.62
         ],
         "size": [
-          1.5267,
           2,
-          1.5267
+          2,
+          2.62
         ],
         "pivot": [
           0,
-          -1,
-          0.7634
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5343,13 +5343,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall.glb",
-          "bytes": 15440,
-          "sha256": "93271a43283dcd2717ccbc07bff85e77eb3e939de2852bf4b79e6c033dfe2a79"
+          "bytes": 15380,
+          "sha256": "d475385d48c7e12c218ef0af04cedf23d47123c56446c05104d3502a9de2dc8a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall.png",
-          "bytes": 93299,
-          "sha256": "058e49e5e6d446d2ef8df5b929b5499fe981702c6f3b26a06e40679ed321cf2e"
+          "bytes": 96378,
+          "sha256": "3a8d305f55d90a100dbb890226a6fa11c75253a77810c554444511f9da0a0325"
         }
       ]
     },
@@ -5366,24 +5366,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7634,
+          -1,
           -1,
           0
         ],
         "max": [
-          0.7634,
           1,
-          1.5267
+          1,
+          2.62
         ],
         "size": [
-          1.5267,
           2,
-          1.5267
+          2,
+          2.62
         ],
         "pivot": [
           0,
-          -1,
-          0.7634
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5416,13 +5416,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-corner.glb",
-          "bytes": 14640,
-          "sha256": "9ddd7ccdcd1ee72e301dc27a6c5cb74af38019c752f0308b0f1bc906bf49262e"
+          "bytes": 14580,
+          "sha256": "9f5ee61fad9831e21ce28d960520a93c3f2f1b30ae47e8a7ccf8ea20230c2172"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-corner.png",
-          "bytes": 92671,
-          "sha256": "77c24b66d72c2cde6fb7b4100ba1dbc088db510af75d78040b8932a4cb13c304"
+          "bytes": 95299,
+          "sha256": "5211ecebe61fbec2e1baabadbb07ea586b4b084d8b6743823b9378d24137e6ad"
         }
       ]
     },
@@ -5439,24 +5439,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3817,
+          -0.5,
           -1,
           0
         ],
         "max": [
-          0.3817,
+          0.5,
           1,
-          1.5267
+          2.62
         ],
         "size": [
-          0.7634,
+          1,
           2,
-          1.5267
+          2.62
         ],
         "pivot": [
-          0.3817,
-          -1,
-          0.7634
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5489,13 +5489,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-doorway.glb",
-          "bytes": 28040,
-          "sha256": "8ac2833aa6d34274272d8a86333901c8ebb684484b6cd700a346a4e2b0aa0717"
+          "bytes": 27944,
+          "sha256": "d8e6d93c7b5c9c373e3eace8552e1274c3be171fbf4107ba43586414e4b89ef2"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-doorway.png",
-          "bytes": 100987,
-          "sha256": "8b6aeafda21471906913f402858ec54d1d5390636f5d006d06d558e6dc6ad819"
+          "bytes": 93610,
+          "sha256": "b193b5f16c8e441bd2aa5f3210b6a60baf5f1b0043831f8ab0ab5bbb2abbe5de"
         }
       ]
     },
@@ -5512,24 +5512,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3444,
-          -1,
+          -0.2325,
+          -0.819,
           0
         ],
         "max": [
-          0.3444,
-          1,
-          2.4267
+          0.2325,
+          0.819,
+          1.35
         ],
         "size": [
-          0.6889,
-          2,
-          2.4267
+          0.465,
+          1.638,
+          1.35
         ],
         "pivot": [
           0,
-          -1,
-          1.2133
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5562,13 +5562,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/stairs-stone.glb",
-          "bytes": 12316,
-          "sha256": "616e86d66a8b0a61a4eced5c9436f69ec2a6bcdc2e28fe02c7b72363e4ceb768"
+          "bytes": 12296,
+          "sha256": "94a66d52d172c57ebd02f9c3b52d44c6d0305d85e3c048cb60cee88912755674"
         },
         {
           "path": "assets-source/library/realm/thumbnails/stairs-stone.png",
-          "bytes": 86392,
-          "sha256": "4eb4178b47bd8c0a6a41f6aa20dd46d679442f2ebac3d601d5b1376e808fd7e9"
+          "bytes": 81781,
+          "sha256": "4466ef739f47ffab0e04948936e22a60a9415d32c027b8d6f49db4f395e51301"
         }
       ]
     },
@@ -5585,24 +5585,24 @@
       ],
       "metadata": {
         "min": [
-          -0.7908,
-          -1,
+          -0.93,
+          -0.93,
           0
         ],
         "max": [
-          0.7908,
-          1,
-          1.5816
+          0.93,
+          0.93,
+          2.352
         ],
         "size": [
-          1.5816,
-          2,
-          1.5816
+          1.86,
+          1.86,
+          2.352
         ],
         "pivot": [
           0,
-          -1,
-          0.7908
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5635,13 +5635,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/bridge-straight.glb",
-          "bytes": 16208,
-          "sha256": "72fc92d6bed87617b2d14123a5b85ec135ff9e30dd8c327daf636f85df37fdbf"
+          "bytes": 16204,
+          "sha256": "b23c724c5289ce23ce1797ea8dc94479a36f23412a72e39b7328c1c10864b971"
         },
         {
           "path": "assets-source/library/realm/thumbnails/bridge-straight.png",
-          "bytes": 96511,
-          "sha256": "19a9141f43d39a4b7e48b43b080a0985463f26b97a8b8ff22256c509532240e7"
+          "bytes": 97493,
+          "sha256": "6b2f22e9a3c45d23968e1f539252d5b25edf03c6a75a8265343f160e971d6114"
         }
       ]
     },
@@ -5673,9 +5673,9 @@
           2
         ],
         "pivot": [
-          -0.825,
-          -1,
-          1
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5708,13 +5708,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-window-shutters.glb",
-          "bytes": 23160,
-          "sha256": "338d45bb05baf4ed86d9e3c28c1cad55f797a7219b96f1adc229c1ad57ef7480"
+          "bytes": 23404,
+          "sha256": "8734036a76e26862664093fef7777ed31f264d2fa24cfaee9fee25928604db1c"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-window-shutters.png",
-          "bytes": 97920,
-          "sha256": "6af36bebf983346c35d54ddb64b58ed903bc8497a9e22a71b7e1629cdb8b81da"
+          "bytes": 93394,
+          "sha256": "d11fff041986110687ddef94c2f8f91b989e04fc996921bd2cd71dbc6856c6f7"
         }
       ]
     },
@@ -5746,9 +5746,9 @@
           2
         ],
         "pivot": [
-          -0.9,
-          -1,
-          1
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5781,13 +5781,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-wood-window-shutters.glb",
-          "bytes": 16892,
-          "sha256": "e0837e8d269b9d372e08358675197d00b065ca08ed90dbefd35fae8e572d2069"
+          "bytes": 17048,
+          "sha256": "8a54dc221037fdcddbd2041b6081948a50bba363655d3e8a7e967525c0ac84b4"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-wood-window-shutters.png",
-          "bytes": 97947,
-          "sha256": "df9a2fbcf5e3eea02072a14ad97fab16cfc2aff1eb2e49ce805b254eca0481dd"
+          "bytes": 91986,
+          "sha256": "0841498e9ece7a1142bf0b911f47273daf478da853791cd1e11975d280e1ae85"
         }
       ]
     },
@@ -5819,9 +5819,9 @@
           2
         ],
         "pivot": [
-          -0.9,
-          -1,
-          1
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5854,13 +5854,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-door.glb",
-          "bytes": 29488,
-          "sha256": "97d0ff8b3de0404829c83af338f68e68a74e93322122ceeef5139a0d5a2528b3"
+          "bytes": 29996,
+          "sha256": "f49b02b4e10acb956d88e34fe6d05541cac3f91f2c53ad8846e10e22ddaacf76"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-door.png",
-          "bytes": 101945,
-          "sha256": "bfe88922e1c2944aa143e551fc410896770eaa5266ebcf02ec60c102a378c09a"
+          "bytes": 92914,
+          "sha256": "c7d63ecb88cd04fc25fa77e8de42907af37e59e46826670e77b262bd24150147"
         }
       ]
     },
@@ -5892,9 +5892,9 @@
           2
         ],
         "pivot": [
-          -0.9,
-          -1,
-          1
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -5927,13 +5927,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/wall-wood-door.glb",
-          "bytes": 29148,
-          "sha256": "0776d26329f25b15991774448b9e7326edba4d30dce613ac6bf0d4341df8d302"
+          "bytes": 29656,
+          "sha256": "980acd80f0262d68336a0c75482b0483588de4ff8c7917748e0c77884249b984"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-wood-door.png",
-          "bytes": 100446,
-          "sha256": "12cafafd0c8d92a5922bc1586271de3cec0bc350d34360fbc325d7f4668b0492"
+          "bytes": 92666,
+          "sha256": "d28a6eddc21c6324e61aca7c2c8007353d3925034cbc606c3867359a17cb8421"
         }
       ]
     },
@@ -5950,24 +5950,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.5188,
+          -1.1,
+          -1.0707,
           0
         ],
         "max": [
-          1,
-          0.5188,
-          1.9467
+          1.1,
+          1.0707,
+          1.1414
         ],
         "size": [
-          2,
-          1.0377,
-          1.9467
+          2.2,
+          2.1414,
+          1.1414
         ],
         "pivot": [
           0,
-          -0.5188,
-          0.9734
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6000,13 +6000,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/roof-gable.glb",
-          "bytes": 16720,
-          "sha256": "d0ee6931c4c41eb4ceb36bebc0aedfd162cfd2a8fea8c1770d10ba6a2c786e5f"
+          "bytes": 16700,
+          "sha256": "9694dd434ae3c9db93eb5b1dad9b24046d0bc1fe440e824b8f80b37c06c404ba"
         },
         {
           "path": "assets-source/library/realm/thumbnails/roof-gable.png",
-          "bytes": 94427,
-          "sha256": "b4e4c22edffb4b28cd58c5ddccbdd782026cd34c7d05383321ce710348ea35e5"
+          "bytes": 88381,
+          "sha256": "96fd16a1194d9e430e92a82900592aff8b626a60010bce481b6b23d6852b5405"
         }
       ]
     },
@@ -6023,24 +6023,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.4545,
+          -1.1,
+          -1.1,
           0
         ],
         "max": [
-          1,
-          0.4545,
-          2
+          1.1,
+          1.1,
+          1
         ],
         "size": [
-          2,
-          0.9091,
-          2
+          2.2,
+          2.2,
+          1
         ],
         "pivot": [
           0,
-          -0.4545,
-          1
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6073,13 +6073,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/roof-point.glb",
-          "bytes": 14548,
-          "sha256": "7238e7a7b98ac9183cd2372bc17621abbef0afe66180b30aeaf4efa5c46f7e9f"
+          "bytes": 14572,
+          "sha256": "eab9be3f7eca357c6ae7bb3c461127d3ab415979d29b84a522873c92c6472bd1"
         },
         {
           "path": "assets-source/library/realm/thumbnails/roof-point.png",
-          "bytes": 86352,
-          "sha256": "677ceef30aba3a81d015d07d1ed29436b0a1c88340af138be16be7f3062b23db"
+          "bytes": 85409,
+          "sha256": "0bd1cca4435068e7147ea96293c798642eea49a68b42f003d4a4f3d649b93f82"
         }
       ]
     },
@@ -6096,24 +6096,24 @@
       ],
       "metadata": {
         "min": [
-          -0.424,
-          -1,
+          -1.023,
+          -1.023,
           0
         ],
         "max": [
-          0.424,
-          1,
-          0.848
+          1.023,
+          1.023,
+          4.8255
         ],
         "size": [
-          0.848,
-          2,
-          0.848
+          2.046,
+          2.046,
+          4.8255
         ],
         "pivot": [
           0,
-          -1,
-          0.424
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6146,13 +6146,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tree.glb",
-          "bytes": 18592,
-          "sha256": "7699a3f2cfd81625b4eb8c5b9a7deaaa80ad03a5075f571edd060d4d14bf507c"
+          "bytes": 18548,
+          "sha256": "91b773dc18ddc7d1ad8054bc5558c89efef90f93ddf5900389c36fdc8c84b61d"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree.png",
-          "bytes": 83649,
-          "sha256": "2bb929bd15191a9b667d456b4381a0b97e64edf801381152d9984c25ce523544"
+          "bytes": 84480,
+          "sha256": "9a228efc79d30d97c92b4e3be140f47e3572a618fd2ca9ffe1610f430ee7a576"
         }
       ]
     },
@@ -6169,24 +6169,24 @@
       ],
       "metadata": {
         "min": [
-          -0.3441,
-          -1,
+          -1.023,
+          -1.023,
           0
         ],
         "max": [
-          0.3441,
-          1,
-          0.6882
+          1.023,
+          1.023,
+          5.9455
         ],
         "size": [
-          0.6882,
-          2,
-          0.6882
+          2.046,
+          2.046,
+          5.9455
         ],
         "pivot": [
           0,
-          -1,
-          0.3441
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6219,13 +6219,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/tree-high.glb",
-          "bytes": 19464,
-          "sha256": "0ce2c51836df68f3f5642e70debdda1e3c27a9fb6d13de39820d9bada9430284"
+          "bytes": 19452,
+          "sha256": "f517721a5549ed6c81ec160cb35a8b2ac8dc15a93fb2c47879fd5fbb15e7cf7a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree-high.png",
-          "bytes": 80769,
-          "sha256": "2985d25f1ea53c1e3008f279a99d5c3ec1d27ce832c9391460aced939be5c934"
+          "bytes": 83218,
+          "sha256": "470a8c7edb0ed3b20415d440cc291bfec1527e5937f402d3646e953f5cc12c47"
         }
       ]
     },
@@ -6242,24 +6242,24 @@
       ],
       "metadata": {
         "min": [
-          -0.1391,
-          -1,
+          -0.2164,
+          -0.2243,
           0
         ],
         "max": [
-          0.1391,
-          1,
-          0.2883
+          0.2164,
+          0.2243,
+          3.112
         ],
         "size": [
-          0.2782,
-          2,
-          0.2883
+          0.4329,
+          0.4486,
+          3.112
         ],
         "pivot": [
           0,
-          -1,
-          0.1442
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6293,12 +6293,12 @@
         {
           "path": "assets-source/library/realm/glb/lantern.glb",
           "bytes": 18096,
-          "sha256": "517efabb1749686efd3ef950518706e15cbaaa0d11bf75266a5779cb676e7ab4"
+          "sha256": "3bf40a0de86853b6b533e5b975b56d7bcff88316cff59d3be363ceb44b648975"
         },
         {
           "path": "assets-source/library/realm/thumbnails/lantern.png",
-          "bytes": 77247,
-          "sha256": "cba6eb4ac507ef84dc790cdea627a481569bcf5fc4759fec96a94c5357d01fbd"
+          "bytes": 78806,
+          "sha256": "96b3c6ba61933ef1212219e75801c7d65cd0aacda8899b27613d2ecd4dce7982"
         }
       ]
     },
@@ -6315,24 +6315,24 @@
       ],
       "metadata": {
         "min": [
-          -0.8084,
+          -1,
           -1,
           0
         ],
         "max": [
-          0.8084,
           1,
-          1.6168
+          1,
+          2.474
         ],
         "size": [
-          1.6168,
           2,
-          1.6168
+          2,
+          2.474
         ],
         "pivot": [
           0,
-          -1,
-          0.8084
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6365,13 +6365,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/stall-red.glb",
-          "bytes": 22400,
-          "sha256": "fd54fb85c18a9a00cf7ada0dc64f8241613499102f5bef5ef3ebc9d2b3ac80fc"
+          "bytes": 22388,
+          "sha256": "0c91419d7012b8bc1b57dfd97b4dad416388e62c892e4df3ee065202b8c01c63"
         },
         {
           "path": "assets-source/library/realm/thumbnails/stall-red.png",
-          "bytes": 103769,
-          "sha256": "95a1e3a5d5208c8185b85248dd68e276f22a84f7d464b4b4fcd4e54d6a378e6c"
+          "bytes": 103458,
+          "sha256": "3507e5962f541cf14f93ed8fe38a0a70f7e9ae32635bb64a9909f477251fec32"
         }
       ]
     },
@@ -6389,23 +6389,23 @@
       "metadata": {
         "min": [
           -1,
-          -0.025,
+          -1,
           0
         ],
         "max": [
           1,
-          0.025,
-          2
+          1,
+          0.05
         ],
         "size": [
           2,
-          0.05,
-          2
+          2,
+          0.05
         ],
         "pivot": [
           0,
-          -0.025,
-          1
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6438,13 +6438,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/road.glb",
-          "bytes": 13272,
-          "sha256": "ec49c62831abb28459d53d129cd958010cd69c4d41078f518d5061e009bb28d4"
+          "bytes": 13228,
+          "sha256": "1e27753e588b00b3e5e235f4b9dc4d3af732e6523825e4fd5555ccf99ce43579"
         },
         {
           "path": "assets-source/library/realm/thumbnails/road.png",
-          "bytes": 80255,
-          "sha256": "f9f01ec07dcda3a64c70756e62548c81ba3a70683de39746a2797298fc667e57"
+          "bytes": 80146,
+          "sha256": "aac6222621f6e7108bd115bff12b0c3ef4dfcd4063ed66960224b6813f4da76d"
         }
       ]
     },
@@ -6461,24 +6461,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.0167,
+          -3,
+          -3,
           0
         ],
         "max": [
-          1,
-          0.0167,
-          2
+          3,
+          3,
+          0.1
         ],
         "size": [
-          2,
-          0.0333,
-          2
+          6,
+          6,
+          0.1
         ],
         "pivot": [
           0,
-          -0.0167,
-          1
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6511,13 +6511,13 @@
         },
         {
           "path": "assets-source/library/realm/glb/road-bend.glb",
-          "bytes": 22884,
-          "sha256": "e2d26410ccb9c60c3ddd092582ca09e997033d62657ee534001faa2bd28a7a4b"
+          "bytes": 22796,
+          "sha256": "cece4097637d6554c7d923c590c2b15f8ab298955b8ca73a6042688f0f612f82"
         },
         {
           "path": "assets-source/library/realm/thumbnails/road-bend.png",
-          "bytes": 80591,
-          "sha256": "acdcb6dc67c7f89f17caab529063b3309fd4057499e5bea49bdcb5415caebd6c"
+          "bytes": 83612,
+          "sha256": "bb5da70e4952237618719146b8616fc27cfdb3f6c80cc94d9dbb84644b525abc"
         }
       ]
     },
@@ -6551,7 +6551,7 @@
         "pivot": [
           0,
           0,
-          0.05
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6577,18 +6577,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/ground-grass.glb",
-          "bytes": 2040,
-          "sha256": "90f629a9f68f4da3740ed789e981ba0fab4eb84556dc2b9d901df3a0d2d29c75"
+          "bytes": 1980,
+          "sha256": "737a9e838a23b32236300dc35cf012092a677b56b4f473707dbbe6fe1c8dcbf0"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-grass.png",
-          "bytes": 77729,
-          "sha256": "3268c7aa40e32c08960ce0970aff1b851ea92316a974ec2f90dfa04b775b2e94"
+          "bytes": 79431,
+          "sha256": "85dbdb8621c244f5701033f4fa14dcc12aee475e08c18f89912306c71e4eb302"
         }
       ]
     },
@@ -6622,7 +6622,7 @@
         "pivot": [
           0,
           0,
-          0.05
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6648,18 +6648,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/ground-path.glb",
-          "bytes": 3560,
-          "sha256": "2b7a31fa6b5934c061c581f2f04bfca6263ee35348ff4ce63f3fb47a837874c2"
+          "bytes": 3500,
+          "sha256": "9e7187f0d081fe4e68094e0ac7ed7cd617d7033e2d430ee15819cea5c34ff279"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-path.png",
-          "bytes": 78470,
-          "sha256": "a2cac2ac80ada27f627200987c272f2b04af263307654d39570edb99f19e74f2"
+          "bytes": 82232,
+          "sha256": "a5e66f6661bf0dca0e11f5d8c0a8214f6a16e50b0334bcb8072f103be3858652"
         }
       ]
     },
@@ -6693,7 +6693,7 @@
         "pivot": [
           0,
           0,
-          0.05
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6719,18 +6719,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/ground-cobble.glb",
-          "bytes": 10520,
-          "sha256": "e7a13a8f48996b11e34d28ef0723cf4a11162d299bf7717b5caebac775d1a39d"
+          "bytes": 10464,
+          "sha256": "12766e8fd139441e41208e579498aa26b0e1f9852a0a251d1648044c58dc4c98"
         },
         {
           "path": "assets-source/library/realm/thumbnails/ground-cobble.png",
-          "bytes": 80470,
-          "sha256": "5c3d3c55dea7be1a160e1215e47165b271e97cf5a9980b5347525713ecaf2f32"
+          "bytes": 84065,
+          "sha256": "9c7a889c946c04911c50d0d5c0cef64f5d19856c52653e901e6edab24796c856"
         }
       ]
     },
@@ -6764,7 +6764,7 @@
         "pivot": [
           0,
           0,
-          0.03
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6790,18 +6790,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/water-tile.glb",
-          "bytes": 2040,
-          "sha256": "3a7a0cdb74e3f556ef03ecafc4c0592db25c173268d795e5684af7a49715ec3a"
+          "bytes": 1980,
+          "sha256": "1fca72c660901ad1e77dab452fa92965e576f0cff25c9a4d6e908352613446a2"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-tile.png",
-          "bytes": 76163,
-          "sha256": "6703cbf3141f7fa705564e8f5dd29f98bd6e51f2553526170538e786873d9057"
+          "bytes": 79955,
+          "sha256": "1f28c21dbc3f9ad9cf5c63350b00ce442139c327334ce03803bb1c8cb973aee9"
         }
       ]
     },
@@ -6835,7 +6835,7 @@
         "pivot": [
           0,
           0,
-          0.03
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6861,18 +6861,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/water-edge.glb",
-          "bytes": 3544,
-          "sha256": "4548b2ff58a43e3b628280e17542d79e3d4d3788efd6373d051a116667da66b8"
+          "bytes": 3480,
+          "sha256": "f9a7781945bdc5ccf6200dc9b8f4f646b110f1da4d408e6a3cbfba903091c1a4"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-edge.png",
-          "bytes": 77328,
-          "sha256": "8c19f33a7ac3dbab80715c20cfcf60e54465f9b5b7d0d5c0d9e17951363fecf3"
+          "bytes": 81170,
+          "sha256": "dabe922919730e87c8100ec398a2b3a95c6aa81b5770d5d87aa330e6fc94aaaa"
         }
       ]
     },
@@ -6906,7 +6906,7 @@
         "pivot": [
           0,
           0,
-          0.03
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -6932,18 +6932,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/water-corner.glb",
-          "bytes": 4572,
-          "sha256": "9d5affac032ffb7997842bde4ade39856594c8dc7814110b191744a05d38b3d8"
+          "bytes": 4508,
+          "sha256": "097faefee6db93b02a06bd1080af186d55a9f4cca3484804844ec7da3f4d14c2"
         },
         {
           "path": "assets-source/library/realm/thumbnails/water-corner.png",
-          "bytes": 78619,
-          "sha256": "1f0b1307e39a983eaf2fb0289ba6fef0c0e833f5089a3a6b1497754b5c3c1891"
+          "bytes": 82749,
+          "sha256": "feb4147ee6feaa03b410b0e9e137fe3f7b4629c95b62ce70688b8efaaea68bec"
         }
       ]
     },
@@ -6975,9 +6975,9 @@
           1.4
         ],
         "pivot": [
-          -0.75,
-          0.03,
-          0.7
+          0,
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7003,18 +7003,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/wall-gate.glb",
-          "bytes": 5536,
-          "sha256": "13621a2121d186fba81b91077b6d43dd2d889538b113ccbd6c586b0baa6eac31"
+          "bytes": 5408,
+          "sha256": "36f2247823e99b99ce2052a13566d37594bb9f9c0385ad871cb69374073411cf"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-gate.png",
-          "bytes": 83287,
-          "sha256": "07a708d7369bd0c07dbf52b1197f3d701bd49ca604ad3da898f40458b0f42ea7"
+          "bytes": 85160,
+          "sha256": "62eecf80f55a47af4f2963720b4bca15a5073a25718e6cfe3292710c607a74ac"
         }
       ]
     },
@@ -7031,24 +7031,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.2222,
+          -1.125,
+          -0.25,
           0
         ],
         "max": [
-          1,
-          0.2222,
-          1.2444
+          1.125,
+          0.25,
+          1.4
         ],
         "size": [
-          2,
-          0.4444,
-          1.2444
+          2.25,
+          0.5,
+          1.4
         ],
         "pivot": [
-          -0.1111,
           0,
-          0.4889
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7074,18 +7074,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/wall-end.glb",
-          "bytes": 3828,
-          "sha256": "5dab88e1e1a7510d578444e4d74fd4b944ff936a4a2ed2ac299bf251f959e0e1"
+          "bytes": 3696,
+          "sha256": "906f3edbcb0aa2012e21ab6f8e53466f43d1ccba08f17d5b2da626bfad3d26c2"
         },
         {
           "path": "assets-source/library/realm/thumbnails/wall-end.png",
-          "bytes": 80741,
-          "sha256": "2530c66691acf63ee7c0bb082cf95814b63e708523fe015e98d6b95b7313b2b1"
+          "bytes": 80956,
+          "sha256": "c236566b06d7b27466f5893a16f0c884d924ff06f9743bf03dac0d9a2595f940"
         }
       ]
     },
@@ -7102,24 +7102,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.4074,
+          -1.35,
+          -0.55,
           0
         ],
         "max": [
-          1,
-          0.4074,
-          0.4926
+          1.35,
+          0.55,
+          0.665
         ],
         "size": [
-          2,
-          0.8148,
-          0.4926
+          2.7,
+          1.1,
+          0.665
         ],
         "pivot": [
           0,
           0,
-          0.4037
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7145,18 +7145,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/bridge-arched.glb",
-          "bytes": 6408,
-          "sha256": "99ce760d8156b73694d444f664b137f7007df4513ded7fd61c195b01677fa6d1"
+          "bytes": 6372,
+          "sha256": "a2937b8eea3372414931a84bbfbcfb4ed115449871742e784022afc0f50573e3"
         },
         {
           "path": "assets-source/library/realm/thumbnails/bridge-arched.png",
-          "bytes": 83843,
-          "sha256": "682e3d23b86e030ba10e1ddc4f2d11961b0c571c9cdddfc3345ac425ada79a99"
+          "bytes": 83163,
+          "sha256": "1026b17cae2c3e896bc4c4f3ef3cd5ec39fb312d0fef5237271df1eb02cabd59"
         }
       ]
     },
@@ -7174,23 +7174,23 @@
       "metadata": {
         "min": [
           -1,
-          -1,
+          -0.85,
           0
         ],
         "max": [
           1,
-          1,
-          1.6598
+          0.85,
+          1.95
         ],
         "size": [
           2,
-          2,
-          1.6598
+          1.7,
+          1.95
         ],
         "pivot": [
           0,
           0,
-          0.4918
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7216,18 +7216,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-small.glb",
-          "bytes": 5628,
-          "sha256": "5029a2c436f312d41d502b4483bc5c25bfeb23e16bc6381b26155c3234c50027"
+          "bytes": 5556,
+          "sha256": "b4883b30f2a1fe97361ddbc0c19b3d363ac26d6088441710cf7815fa2feb359e"
         },
         {
           "path": "assets-source/library/realm/thumbnails/cottage-small.png",
-          "bytes": 89171,
-          "sha256": "a9d2145349ddc0b0e346ae83520e69cf1b5cef7c33ab4648ac4406ee31e15482"
+          "bytes": 87710,
+          "sha256": "b777d026aafe2b70a39bbad52560be5c8bfe3dc690013deae14df46b034755b4"
         }
       ]
     },
@@ -7244,24 +7244,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -1,
+          -1.25,
+          -1.0625,
           0
         ],
         "max": [
-          1,
-          1,
-          1.3279
+          1.25,
+          1.0625,
+          1.95
         ],
         "size": [
-          2,
-          2,
-          1.3279
+          2.5,
+          2.125,
+          1.95
         ],
         "pivot": [
           0,
           0,
-          0.3934
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7287,18 +7287,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-long.glb",
-          "bytes": 5628,
-          "sha256": "9bfbc51145a5a854061744cd708d85d855439a704aae95579594d89313c6ecdd"
+          "bytes": 5512,
+          "sha256": "687763e112fd2b9056a4e2077d63756e9de1d01cef1a1cb1d605c1d52f7eba46"
         },
         {
           "path": "assets-source/library/realm/thumbnails/cottage-long.png",
-          "bytes": 86859,
-          "sha256": "be1ef22b8be03c8e301fb6543cd03930fda7d80ad49a8c297775d7152835dfc1"
+          "bytes": 86840,
+          "sha256": "908c7e21f0fc4b408f30d078c651b0537153c36d6870bdbc1b4ca2d93e98dda0"
         }
       ]
     },
@@ -7315,24 +7315,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -0.8746,
+          -1.285,
+          -0.85,
           0
         ],
         "max": [
-          1,
-          0.8746,
-          1.4516
+          1.285,
+          0.85,
+          1.95
         ],
         "size": [
-          2,
-          1.7491,
-          1.4516
+          2.57,
+          1.7,
+          1.95
         ],
         "pivot": [
-          -0.1254,
           0,
-          0.4301
+          0,
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7358,18 +7358,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/farm-barn.glb",
-          "bytes": 7268,
-          "sha256": "dee18bb1d9338c16a5a5c158b642c0d00e72ff50517b7b3b3f0fbfd01895b882"
+          "bytes": 7128,
+          "sha256": "c7a6e179a6848e78810ab682e35fa7ab6c859b551aa1c4ccfce03331fa6c4a88"
         },
         {
           "path": "assets-source/library/realm/thumbnails/farm-barn.png",
-          "bytes": 86958,
-          "sha256": "6bb1c47fdbba4911224b9d28ba0e92ab700785b1cfa5c8e5a28948127e4c5741"
+          "bytes": 86114,
+          "sha256": "a01388695fcf465930afd409e53c32e78fa8bbdc1bf85f989359befd49d84241"
         }
       ]
     },
@@ -7403,7 +7403,7 @@
         "pivot": [
           0,
           0,
-          0.04
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7429,18 +7429,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/crop-wheat.glb",
-          "bytes": 26756,
-          "sha256": "06d7f7b3f7e3501be536b8a54e0926fd433bf938173555ed5e256069fe97fc0f"
+          "bytes": 26716,
+          "sha256": "f1682705c08101a512bb2fd57414a008fce186102c5d507074582b5299eb13c1"
         },
         {
           "path": "assets-source/library/realm/thumbnails/crop-wheat.png",
-          "bytes": 91918,
-          "sha256": "3af1c9df18af6d9eef8dfe1ffe1f1291f00ef6c19807c584110ae14b3e86f016"
+          "bytes": 91612,
+          "sha256": "d1c385ddae48f49d20296849d80747beaf9ab563b0bb02c12a7450933ef9df48"
         }
       ]
     },
@@ -7474,7 +7474,7 @@
         "pivot": [
           0,
           0,
-          0.04
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7500,18 +7500,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/crop-rows.glb",
-          "bytes": 6300,
-          "sha256": "6049e17417c9c0cef524782fa414dc53119e79c2eedc2f0ac302ee3713f4b0b5"
+          "bytes": 6260,
+          "sha256": "15080af58a687a071d86ac5d0064be2232ce17ac6f2deb2f6ce0c06de3c63744"
         },
         {
           "path": "assets-source/library/realm/thumbnails/crop-rows.png",
-          "bytes": 90820,
-          "sha256": "591a0247c6000e3eb65f5f220449da9d9b83faacf7a04d4d8e5605fccd8ad395"
+          "bytes": 89629,
+          "sha256": "874c36ef18ad6dc3a61563524e7ca42b15f48f503ea564d6a394504377c83679"
         }
       ]
     },
@@ -7545,7 +7545,7 @@
         "pivot": [
           0,
           0,
-          0.04
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7571,18 +7571,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/orchard.glb",
-          "bytes": 9784,
-          "sha256": "510c87336020f607a6773284dbe12552b52f7b81799a9251d053dabe08071e82"
+          "bytes": 9724,
+          "sha256": "ef22e0e43ff456cd086fd861466a5f5979f4e4b683638f59990b40dd4d9968ed"
         },
         {
           "path": "assets-source/library/realm/thumbnails/orchard.png",
-          "bytes": 89600,
-          "sha256": "37b8327b2309bf686b9ebfcb9fb8f7b98b301487881a2ee184f1c457f07ee76a"
+          "bytes": 85624,
+          "sha256": "d65915803d53122e0297dc4df47378bf608ebd8727c4b27861acad1bcf9dad71"
         }
       ]
     },
@@ -7599,24 +7599,24 @@
       ],
       "metadata": {
         "min": [
-          -1,
-          -1,
+          -0.78,
+          -0.78,
           0
         ],
         "max": [
-          1,
-          1,
-          2.6923
+          0.78,
+          0.78,
+          2.1
         ],
         "size": [
-          2,
-          2,
-          2.6923
+          1.56,
+          1.56,
+          2.1
         ],
         "pivot": [
           0,
           0,
-          0.7051
+          0
         ],
         "palette": {
           "petrol": "#173e49",
@@ -7642,18 +7642,18 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/glb/tree-oak.glb",
-          "bytes": 5228,
-          "sha256": "164dce0a89751c0aa24ad32411eaf4385e79fc93a697e25b2aec5861d5ca428f"
+          "bytes": 5244,
+          "sha256": "b0e1d1b4513563c0c408506199f6111952b3f001d27069a0e9c62b82c009c39a"
         },
         {
           "path": "assets-source/library/realm/thumbnails/tree-oak.png",
-          "bytes": 84021,
-          "sha256": "0447d270193f622e85881cd99a42c004ee33e3f12f4e8581bfb5255463f63f1e"
+          "bytes": 83069,
+          "sha256": "67775cc1a3889dc8c3f8ec11a0cb2956b1869f525e6bcbe7212e3135e542c77f"
         }
       ]
     },
@@ -7687,28 +7687,28 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/scenes/harbour.glb",
-          "bytes": 105196,
-          "sha256": "f4bedf66354c6e384d04592c1ef3971bcebcf948205c2d722d336df53012d2f0"
+          "bytes": 94856,
+          "sha256": "1a1640eaac29ac64eb1d7607b7f9f6d4835ef28b781e6028285e3bf84ecd9eef"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-harbour.png",
-          "bytes": 316758,
-          "sha256": "8a0cd25a092920dd23f8131eaaaae1c42fdedeaec8e35501c91b931ca6fb9791"
+          "bytes": 318332,
+          "sha256": "b21da8c52e9185a60ce6cf7fad56ff48ca7811c09345aeb28f4bab55a02128f9"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-harbour-alt.png",
-          "bytes": 317824,
-          "sha256": "18b366a577d7b1e87af561cb11675521bb10a6d0e6a6813e5ad570da002638c5"
+          "bytes": 312946,
+          "sha256": "059154c9301dfda14fc855920f03cfd598a47f31fd0a9a3821c867a7368e515c"
         },
         {
           "path": "assets-source/library/realm/realm-kit.blend",
-          "bytes": 218380,
-          "sha256": "2cebf5f196cfc12734daccb8b0c4630086f6a8c3528a5c0ae2642f2d4b964bb8"
+          "bytes": 213991,
+          "sha256": "18b3d9cfd167f240c1c3677db3e3f9c4cdfa621c798655f4f09d86b10429af9a"
         }
       ]
     },
@@ -7741,23 +7741,23 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/scenes/hillfort.glb",
-          "bytes": 77616,
-          "sha256": "da8aab1394f45c8507d1dbd7129fe67815cda16126d8f410867f091a97e56795"
+          "bytes": 77308,
+          "sha256": "118d65bf758aab3dd8a0a51046b560b488065947f6cd0f0af1aaf01655d2169b"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-hillfort.png",
-          "bytes": 326441,
-          "sha256": "7ce370427884b7bc6d1994175cd8cb5d412a641f74c5d27bbda0bb270ced6f0f"
+          "bytes": 352560,
+          "sha256": "ae8f6cc83f2bfc7a74bd6b270d366e9f5bcf067c7af2cbc42f6a5a511d4f4b62"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-hillfort-alt.png",
-          "bytes": 326462,
-          "sha256": "5ec3d7597d091ae4f42b518200cabaf855959a9aba3a5d4faf8d779c88701634"
+          "bytes": 344014,
+          "sha256": "0d16ff7a803fb4a40c9b16360c310c1785568771db43ef6e6e7577ea0e83275c"
         }
       ]
     },
@@ -7790,23 +7790,23 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 9798,
-          "sha256": "0459f6d01455ca36f22431d8edb24812f0cb90cea146dd12729c97e2d3ca11a3"
+          "bytes": 10693,
+          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
         },
         {
           "path": "assets-source/library/realm/scenes/farmstead.glb",
-          "bytes": 84360,
-          "sha256": "2e8826ae5db7b7fe9a7fa69a96fdaa49c88ff65bc0d3ada51cd21fdc6d5f304c"
+          "bytes": 84176,
+          "sha256": "b0bd0ff97e7996e22d707b2fe3c6c54d3942272c8bb92aad52a522b1e7a4d096"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-farmstead.png",
-          "bytes": 335982,
-          "sha256": "a368974f8fe8278d9e9f834c971daacca7a02417f7716d4ea23ae1b1e0f9e1ab"
+          "bytes": 311607,
+          "sha256": "be46ec578a13294ee66d2fcdef33e6174c912a7d08c59e497c914ba6025cd114"
         },
         {
           "path": "assets-source/library/realm/thumbnails/scene-farmstead-alt.png",
-          "bytes": 335352,
-          "sha256": "6935dce41350e33fb038ab9f898b85d2d77a2d7bd060b29838347c5ff16a706b"
+          "bytes": 306656,
+          "sha256": "cf5ebebad37c64ea24107a4082fdeef978471bc510fb002d47ab3477bf5e6605"
         }
       ]
     },
