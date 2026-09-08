@@ -267,25 +267,30 @@
   ];
   const warehouse = {
     maps: warehouseMaps,
-    initial(level = 0) {
-      if (!integer(level, 0, warehouseMaps.length - 1)) throw Error('Unknown archive.');
-      const m = warehouseMaps[level].map,
-        w = m[0].length,
-        flat = m.join(''),
+    fromMap(map, level = null) {
+      if (!Array.isArray(map) || map.length < 3 || map.length > 20)
+        throw Error('Invalid archive map.');
+      const w = typeof map[0] === 'string' ? map[0].length : 0;
+      if (w < 3 || w > 30 || map.some((row) => typeof row !== 'string' || row.length !== w))
+        throw Error('Invalid archive map dimensions.');
+      const flat = map.join(''),
         walls = [],
         goals = [],
         crates = [];
       let player = -1;
       [...flat].forEach((c, i) => {
+        if (!'# .@$+*'.includes(c)) throw Error('Invalid archive map tile.');
         if (c === '#') walls.push(i);
         if ('.+*'.includes(c)) goals.push(i);
         if ('$*'.includes(c)) crates.push(i);
         if ('@+'.includes(c)) player = i;
       });
+      if (player < 0 || crates.length < 1 || crates.length !== goals.length)
+        throw Error('Invalid archive map pieces.');
       return {
         level,
         w,
-        h: m.length,
+        h: map.length,
         walls,
         goals,
         crates,
@@ -294,6 +299,10 @@
         pushes: 0,
         done: false,
       };
+    },
+    initial(level = 0) {
+      if (!integer(level, 0, warehouseMaps.length - 1)) throw Error('Unknown archive.');
+      return this.fromMap(warehouseMaps[level].map, level);
     },
     move(s, direction) {
       const ds = { up: -s.w, right: 1, down: s.w, left: -1 };
