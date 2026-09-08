@@ -8,8 +8,18 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..', '..');
 const source = path.join(root, 'assets-source', 'library', 'realm', 'glb');
+const details = path.join(root, 'assets-source', 'library', 'realm', 'details');
 const output = path.join(root, 'src', 'quiet-wing', 'assets', 'library-models.json');
-const MODELS = ['cottage-small', 'farm-barn', 'crop-rows', 'orchard', 'tree-oak'];
+const MODELS = {
+  'cottage-small': path.join(source, 'cottage-small.glb'),
+  'farm-barn': path.join(source, 'farm-barn.glb'),
+  'crop-rows': path.join(source, 'crop-rows.glb'),
+  orchard: path.join(source, 'orchard.glb'),
+  'tree-oak': path.join(source, 'tree-oak.glb'),
+  boat: path.join(details, 'boat.glb'),
+  bench: path.join(details, 'bench.glb'),
+  'well-fountain': path.join(details, 'well-fountain.glb'),
+};
 const componentSize = { 5121: 1, 5123: 2, 5125: 4, 5126: 4 };
 const componentReader = {
   5121: (view, offset) => view.getUint8(offset),
@@ -114,9 +124,7 @@ function convert(file) {
 }
 
 function build() {
-  return Object.fromEntries(
-    MODELS.map((name) => [name, convert(path.join(source, name + '.glb'))]),
-  );
+  return Object.fromEntries(Object.entries(MODELS).map(([name, file]) => [name, convert(file)]));
 }
 
 function main() {

@@ -3,6 +3,7 @@
 const { test } = require('node:test'),
   assert = require('node:assert/strict'),
   child = require('node:child_process'),
+  fs = require('node:fs'),
   path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const library = require('../src/quiet-wing/assets/library-models.json');
@@ -12,6 +13,9 @@ const mappings = {
   farm: 'crop-rows',
   orchard: 'orchard',
   tree: 'tree-oak',
+  boat: 'boat',
+  bench: 'bench',
+  well: 'well-fountain',
 };
 
 test('the checked-in Realm library geometry is reproducible, finite and bounded for one plot', () => {
@@ -26,8 +30,8 @@ test('the checked-in Realm library geometry is reproducible, finite and bounded 
   assert.equal(imported.status, 0, imported.stderr);
   assert.deepEqual(Object.keys(library), Object.values(mappings));
   for (const [id, model] of Object.entries(library)) {
-    assert.ok(model.v.length > 0 && model.v.length < 300, `${id} has a compact vertex count`);
-    assert.ok(model.f.length > 0 && model.f.length < 150, `${id} has a compact face count`);
+    assert.ok(model.v.length > 0 && model.v.length < 700, `${id} has a compact vertex count`);
+    assert.ok(model.f.length > 0 && model.f.length < 250, `${id} has a compact face count`);
     for (const vertex of model.v) {
       assert.equal(vertex.length, 3);
       assert.ok(vertex.every(Number.isFinite));
@@ -42,6 +46,19 @@ test('the checked-in Realm library geometry is reproducible, finite and bounded 
         indices.every((index) => Number.isInteger(index) && index >= 0 && index < model.v.length),
       );
     }
+  }
+});
+
+test('detail masters record existing saved types, real output files and their per-model face budgets', () => {
+  const catalogue = require('../assets-source/library/realm/details/catalogue.json');
+  assert.deepEqual(
+    catalogue.assets.map((asset) => asset.type),
+    ['boat', 'bench', 'well'],
+  );
+  for (const asset of catalogue.assets) {
+    assert.ok(asset.metadata.triangleCount > 0 && asset.metadata.triangleCount < 250);
+    for (const derivative of asset.derivatives)
+      assert.ok(fs.existsSync(path.join(root, derivative)), `${asset.id} includes ${derivative}`);
   }
 });
 
@@ -70,6 +87,10 @@ test('live Realm placeables use the library geometry while saved type, palette a
   assert.ok(
     R.model('barn', 'rose', 0).some((face) => face.c === '#a94f51'),
     'barn roof keeps its saved palette',
+  );
+  assert.ok(
+    R.model('boat', 'rose', 0).some((face) => face.c === '#596d68'),
+    'detail accents keep their saved palette',
   );
   const unturned = R.model('barn', 'rose', 0)[0].v,
     turned = R.model('barn', 'rose', 1)[0].v;

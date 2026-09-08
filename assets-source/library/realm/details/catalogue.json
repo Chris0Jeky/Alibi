@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "master": {
+    "id": "realm-details-master",
+    "title": "Realm details Blender master",
+    "category": "realm-detail",
+    "status": "current",
+    "design": "original",
+    "source": "tools/assets/build-realm-details.py",
+    "derivatives": [
+      "assets-source/library/realm/details/realm-details.blend"
+    ],
+    "metadata": {
+      "coordinateSystem": "Blender Z-up; standard glTF Y-up export",
+      "gridUnits": 2
+    },
+    "provenance": "Original Alibi editable master for the live Realm detail modules.",
+    "accessibility": "Each exported GLB includes a static PNG thumbnail.",
+    "integration": "Selected models are converted into compact runtime geometry.",
+    "qa": "Opened and exported by Blender 5.2.1 LTS."
+  },
+  "assets": [
+    {
+      "id": "boat",
+      "type": "boat",
+      "title": "Little boat",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/boat.glb",
+        "assets-source/library/realm/details/boat.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.78,
+          -0.37,
+          0.08
+        ],
+        "max": [
+          0.9,
+          0.37,
+          1.06
+        ],
+        "size": [
+          1.68,
+          0.74,
+          0.98
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "triangleCount": 103,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Converted into src/quiet-wing/assets/library-models.json for the existing saved type.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation."
+    },
+    {
+      "id": "bench",
+      "type": "bench",
+      "title": "Garden bench",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/bench.glb",
+        "assets-source/library/realm/details/bench.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.64,
+          -0.28,
+          0.0
+        ],
+        "max": [
+          0.64,
+          0.28,
+          0.9484
+        ],
+        "size": [
+          1.28,
+          0.56,
+          0.9484
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "triangleCount": 144,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Converted into src/quiet-wing/assets/library-models.json for the existing saved type.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation."
+    },
+    {
+      "id": "well-fountain",
+      "type": "well",
+      "title": "Village fountain",
+      "category": "realm-detail",
+      "status": "current",
+      "design": "original",
+      "source": "tools/assets/build-realm-details.py",
+      "derivatives": [
+        "assets-source/library/realm/details/well-fountain.glb",
+        "assets-source/library/realm/details/well-fountain.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5421,
+          -0.57,
+          0.0
+        ],
+        "max": [
+          0.5421,
+          0.57,
+          0.725
+        ],
+        "size": [
+          1.0842,
+          1.14,
+          0.725
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "triangleCount": 178,
+        "palette": {
+          "petrol": "#173e49",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "timber": "#765443",
+          "water": "#5d9ca5"
+        }
+      },
+      "provenance": "Original Alibi low-poly detail model, authored locally in Blender.",
+      "accessibility": "Static PNG thumbnail accompanies the GLB; no runtime GLB loader is used.",
+      "integration": "Converted into src/quiet-wing/assets/library-models.json for the existing saved type.",
+      "qa": "Measured bounds and triangle budget are recorded during deterministic local generation."
+    }
+  ],
+  "generator": "Blender 5.2.1 LTS"
+}
