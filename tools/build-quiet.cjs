@@ -40,6 +40,13 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
     town: inlineBase['quiet-town'],
     keeper: 'data:image/png;base64,' + keeper.toString('base64'),
   };
+  for (const species of ['cat', 'fox', 'owl']) {
+    const bytes = fs.readFileSync(
+      path.join(root, 'assets-source/quiet-wing/companions', species + '.glb'),
+    );
+    media['pet-' + species] = emit('pet-' + species, bytes, 'glb');
+    inlineMedia['pet-' + species] = 'data:model/gltf-binary;base64,' + bytes.toString('base64');
+  }
   const museum = path.join(dir, 'assets/museum');
   if (fs.existsSync(museum))
     for (const file of fs.readdirSync(museum).sort()) {

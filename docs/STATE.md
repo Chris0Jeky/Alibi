@@ -20,6 +20,18 @@ headless rendering was slow enough to justify automatic ambient-motion pausing. 
 additional games, wider visual refresh and deployment remain active work; no expansion release
 or physical test is claimed. The earlier source-candidate evidence below is historical.
 
+Companion slice at build `26a3c7354c8b`: cat, fox and owl use locally bundled animated GLBs;
+Nimbus is an original articulated model. All saved identities, nicknames, affection and strolls
+use the existing state. Live affection labels now refresh immediately. The view falls back to
+the existing illustration on download/WebGL failure or context loss, and disposes on navigation.
+Local browser checks cover all four models/actions, reduced motion, hidden-page pause, offline
+reload with names retained, route disposal and narrow viewport. All 156 existing Quiet Wing
+controls and 36 origin/update/recovery checks pass with these changes. Desktop/phone portraits
+were inspected. Independent Terra high review found no confirmed blockers. Optional offline pack
+is 1,952,850 bytes; the initial script is 124,033 bytes gzip and core offline pack 1,159,001 bytes.
+No external image requests, CSP relaxation or new database identity. Hosted/physical evidence
+remains outstanding. Broader games, artwork and release work remain in the expansion plan.
+
 ## Quiet Wing source candidate
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test

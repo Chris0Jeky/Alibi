@@ -163,6 +163,7 @@
         body.classList.toggle('zen', A.state.settings.zen);
         body.classList.toggle('reduce', !A.state.settings.motion);
         A.renderer?.setMotion?.(A.state.settings.motion);
+        A.petView?.setMotion(A.state.settings.motion);
       }
       function shell() {
         styles();
@@ -228,6 +229,8 @@
         A.previewRenderer?.dispose?.();
         A.previewRenderer = null;
         A.renderer = null;
+        A.petView?.dispose();
+        A.petView = null;
         A.petAction = 'idle';
       }
       function go() {
@@ -842,6 +845,8 @@
       }
       function petsPage() {
         clearInterval(A.gardenTimer);
+        clearTimeout(A.petTimer);
+        A.petView?.dispose();
         const species = A.state.pets.selected,
           pet = P.INFO[species],
           name = A.state.pets.names[species];
@@ -866,7 +871,13 @@
             )
             .join(
               '',
-            )}</div></div><aside class="panel"><div class="eyebrow">${pet.species}</div><h2 style="margin-top:10px">${esc(name)}</h2><p>${pet.note}</p><button id="rename-pet" class="textbtn" style="padding-left:0">Give a nickname</button><div class="bond"><i style="width:${Math.min(100, A.state.pets.bond[species] * 5)}%"></i></div><div class="micro subtle">${A.state.pets.bond[species]} moments together. Affection never decays.</div><div class="facts"><div><strong>${A.state.stats.species.length}/4</strong>Friends greeted</div><div><strong>${A.state.stats.walks}</strong>Strolls completed</div></div><hr style="border:none;border-top:1px solid var(--line);margin:23px 0"><h3>A small adventure</h3><p class="micro">Send a companion to collect a little keepsake. The walk finishes while this page is closed. No penalties, paid shortcuts or care schedule.</p><div id="trip-status"></div><p class="micro subtle" style="margin-top:20px">Original layered 2D artwork. Petting, play, brushing, sleep, blinks, breathing and tail movements.</p></aside></div>`;
+            )}</div></div><aside class="panel"><div class="eyebrow">${pet.species}</div><h2 style="margin-top:10px">${esc(name)}</h2><p>${pet.note}</p><button id="rename-pet" class="textbtn" style="padding-left:0">Give a nickname</button><div class="bond"><i style="width:${Math.min(100, A.state.pets.bond[species] * 5)}%"></i></div><div class="micro subtle">${A.state.pets.bond[species]} moments together. Affection never decays.</div><div class="facts"><div><strong>${A.state.stats.species.length}/4</strong>Friends greeted</div><div><strong>${A.state.stats.walks}</strong>Strolls completed</div></div><hr style="border:none;border-top:1px solid var(--line);margin:23px 0"><h3>A small adventure</h3><p class="micro">Send a companion to collect a little keepsake. The walk finishes while this page is closed. No penalties, paid shortcuts or care schedule.</p><div id="trip-status"></div><p class="micro subtle" style="margin-top:20px">Animated animal portraits and an original cloud dragon. Pet, treat, play, brush or settle down for a nap. Illustrations stay available when 3D cannot load.</p></aside></div>`;
+        A.petView = new G.QWPetView(
+          $('#pet-portrait'),
+          species,
+          A.artURLs['pet-' + species],
+          A.state.settings.motion,
+        );
         $$('[data-species]').forEach(
           (b) =>
             (b.onclick = () => {
@@ -912,19 +923,27 @@
           A.lastPetSpecies = s;
         }
         if (!A.state.stats.species.includes(s)) A.state.stats.species.push(s);
-        $('#pet-portrait').innerHTML = P.svg(s, id, A.state.pets.names[s]);
+        $('.bond i').style.width = Math.min(100, A.state.pets.bond[s] * 5) + '%';
+        $('.bond + .micro').textContent =
+          A.state.pets.bond[s] + ' moments together. Affection never decays.';
+        $('.facts strong').textContent = A.state.stats.species.length + '/4';
+        $('#pet-portrait .pet-svg').outerHTML = P.svg(s, id, A.state.pets.names[s]);
+        A.petView?.setAction(id);
+        $('#pet-stage').dataset.action = id;
         feedback(id === 'play' ? 'win' : 'place');
         save();
         clearTimeout(A.petTimer);
         if (id !== 'nap')
           A.petTimer = setTimeout(() => {
             if (A.route === 'pets') {
-              $('#pet-portrait').innerHTML = P.svg(
+              $('#pet-portrait .pet-svg').outerHTML = P.svg(
                 A.state.pets.selected,
                 'idle',
                 A.state.pets.names[A.state.pets.selected],
               );
               A.petAction = 'idle';
+              A.petView?.setAction('idle');
+              $('#pet-stage').dataset.action = 'idle';
             }
           }, 3000);
       }

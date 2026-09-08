@@ -21,5 +21,5 @@ for (const [prefix, limit] of [
   );
 }
 
-// The optional wing includes a local 3D renderer and 24 curated model sources. Core stays unchanged.
-assert.ok(info.quietWingBytes < 1500 * 1024, 'Optional 3D Quiet Wing pack stays below 1500 KiB');
+// Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
+assert.ok(info.quietWingBytes < 2250 * 1024, 'Optional Quiet Wing pack stays below 2250 KiB');

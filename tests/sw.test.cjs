@@ -106,7 +106,7 @@ function setup(failInstall = false) {
           .readdirSync(path.join(ROOT, 'dist/assets'))
           .filter(
             (n) =>
-              !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license)\./.test(
+              !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
                 n,
               ),
           ).length,
@@ -116,7 +116,7 @@ function setup(failInstall = false) {
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
       (n) =>
-        !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license)\./.test(
+        !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
           n,
         ),
     )) {

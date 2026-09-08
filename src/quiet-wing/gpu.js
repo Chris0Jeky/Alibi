@@ -1,4 +1,5 @@
 /* Optional, locally bundled 3D presentation. The shared geometry remains the export source. */
+import './pet-view.js';
 import {
   WebGLRenderer,
   Scene,
