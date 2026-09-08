@@ -12,7 +12,7 @@
     KEY = 'state',
     FALLBACK = NAME + ':fallback',
     DEADLINE = 2200;
-  function connect() {
+  function connect(version = 1) {
     return new Promise((resolve, reject) => {
       let settled = false,
         r,
@@ -27,17 +27,22 @@
         err ? reject(err) : resolve(value);
       }
       try {
-        r = indexedDB.open(NAME, 1);
+        r = version === null ? indexedDB.open(NAME) : indexedDB.open(NAME, version);
       } catch (e) {
         finish(e);
         return;
       }
       r.onupgradeneeded = () => {
+        if (settled || version === null) {
+          r.transaction.abort();
+          return;
+        }
         if (!r.result.objectStoreNames.contains('saves')) r.result.createObjectStore('saves');
       };
       r.onsuccess = () => finish(null, r.result);
       r.onerror = () => finish(r.error || Error('Storage could not open.'));
-      r.onblocked = () => finish(Error('Another tab is blocking storage.'));
+      r.onblocked = () =>
+        finish(Object.assign(Error('Another tab is blocking storage.'), { name: 'BlockedError' }));
     });
   }
   function transact(kind, work) {
@@ -98,7 +103,13 @@
         onstatus('Storage changed in another tab. Export, then reload.', 'error');
       };
       mode = 'indexeddb';
-    } catch {
+    } catch (e) {
+      if (e.name === 'VersionError' || e.name === 'BlockedError') {
+        blocked = true;
+        mode = 'protected';
+        onstatus('A newer or blocked database was preserved. Export raw recovery.', 'error');
+        return { saved: null, mode, blocked };
+      }
       try {
         localStorage.setItem(FALLBACK + ':probe', '1');
         localStorage.removeItem(FALLBACK + ':probe');
@@ -147,6 +158,48 @@
     return value;
   }
   async function raw() {
+    if (mode === 'protected') {
+      const future = await connect(null);
+      try {
+        const stores = {};
+        for (const name of future.objectStoreNames) {
+          stores[name] = await new Promise((resolve, reject) => {
+            const tx = future.transaction(name, 'readonly'),
+              rows = [];
+            const timer = setTimeout(() => {
+              try {
+                tx.abort();
+              } catch {}
+              reject(Error('Raw recovery timed out. Stored data is unchanged.'));
+            }, DEADLINE);
+            tx.oncomplete = () => {
+              clearTimeout(timer);
+              resolve(rows);
+            };
+            tx.onabort = tx.onerror = () => {
+              clearTimeout(timer);
+              reject(tx.error || Error('Raw recovery failed.'));
+            };
+            tx.objectStore(name).openCursor().onsuccess = (e) => {
+              const cursor = e.target.result;
+              if (cursor) {
+                rows.push({ key: cursor.key, value: cursor.value });
+                cursor.continue();
+              }
+            };
+          });
+        }
+        return {
+          format: 'alibi-quiet-wing-raw',
+          schema: 1,
+          mode,
+          databaseVersion: future.version,
+          stores,
+        };
+      } finally {
+        future.close();
+      }
+    }
     if (mode === 'indexeddb')
       return transact('readonly', (s, set) => {
         const rows = [];
