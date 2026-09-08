@@ -19,7 +19,9 @@ with sync_playwright() as pw:
     for width in [390,768,1440]:
         page.set_viewport_size({'width':width,'height':950})
         for route in ['home','library/bridges','library/nonogram','library/scene','casebooks','quiet/garden']:
-            page.evaluate('(r)=>location.hash="/"+r',route)
+            # A fresh document prevents a shared figure selector matching the departing route.
+            page.goto(base+'#/'+route)
+            page.reload()
             if route=='quiet/garden': page.wait_for_selector('.garden-inspiration')
             elif route=='home':page.wait_for_selector('.quiet-invitation')
             else:page.wait_for_selector('.collection-atmosphere')
