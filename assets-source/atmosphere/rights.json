@@ -1,0 +1,75 @@
+{
+  "institution": "The Metropolitan Museum of Art",
+  "policy": "https://www.metmuseum.org/hubs/open-access",
+  "works": [
+    {
+      "id": "reading-room",
+      "artist": "Camille Corot",
+      "title": "A Woman Reading",
+      "date": "1869 and 1870",
+      "record": "https://collectionapi.metmuseum.org/public/collection/v1/objects/435991",
+      "imageURL": "https://images.metmuseum.org/CRDImages/ep/original/DP-16589-001.jpg",
+      "creditLine": "Gift of Louise Senff Cameron, in memory of her uncle, Charles H. Senff, 1928",
+      "publicDomain": true,
+      "original": {
+        "sha256": "8408e849f433f0f42f3c8e7975f9b62beabe363d447f08e348863a7cffd19b85",
+        "bytes": 3389355,
+        "width": 2926,
+        "height": 4000
+      },
+      "optimized": {
+        "sha256": "73c94be76f03f4a79b4f90adba04a452cbba327cb442b68a1b3311205747169c",
+        "bytes": 21730,
+        "width": 600,
+        "height": 820
+      },
+      "modifications": "Resized and encoded as WebP; no generative alteration or attribution as fictional evidence."
+    },
+    {
+      "id": "conservatory-study",
+      "artist": "George Cochran Lambdin",
+      "title": "Side of a Greenhouse",
+      "date": "1870–80 (?)",
+      "record": "https://collectionapi.metmuseum.org/public/collection/v1/objects/11393",
+      "imageURL": "https://images.metmuseum.org/CRDImages/ad/original/DT9510.jpg",
+      "creditLine": "Gift of Mrs. J. Augustus Barnard, 1979",
+      "publicDomain": true,
+      "original": {
+        "sha256": "6119de15e4f9bcc900d664fa942b9bbdb7f19f31972d32c69c587454f96f315a",
+        "bytes": 3156803,
+        "width": 2930,
+        "height": 3722
+      },
+      "optimized": {
+        "sha256": "cf57b4a52165db39e87b489451a9c693a8bf2b5883d54ba11cb9e2dbfa109752",
+        "bytes": 55414,
+        "width": 650,
+        "height": 826
+      },
+      "modifications": "Resized and encoded as WebP; no generative alteration or attribution as fictional evidence."
+    },
+    {
+      "id": "coastal-light",
+      "artist": "William Trost Richards",
+      "title": "Near Land's End, Cornwall",
+      "date": "1879",
+      "record": "https://collectionapi.metmuseum.org/public/collection/v1/objects/11903",
+      "imageURL": "https://images.metmuseum.org/CRDImages/ad/original/ap50.9.jpg",
+      "creditLine": "Gift of T. S. Matthews, 1950",
+      "publicDomain": true,
+      "original": {
+        "sha256": "7653daba3d3b8cb6f89fd3485d24154c68e222c07d53afceb4691002793f0d52",
+        "bytes": 742025,
+        "width": 2268,
+        "height": 1155
+      },
+      "optimized": {
+        "sha256": "9b04b0980d60291613dfd29d4f1d09ee23179bbd655a4920cb10007ae64a2695",
+        "bytes": 22114,
+        "width": 1000,
+        "height": 509
+      },
+      "modifications": "Resized and encoded as WebP; no generative alteration or attribution as fictional evidence."
+    }
+  ]
+}
