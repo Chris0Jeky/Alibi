@@ -91,6 +91,9 @@ function setup(failInstall = false) {
   return { handlers, data, calls, lifecycle, request };
 }
 (async () => {
+  const standalone = fs.readFileSync(path.join(ROOT, 'alibi-deluxe-play.html'), 'utf8');
+  const clubConfig = JSON.parse(standalone.match(/globalThis\.ALIBI_CLUB_CONFIG=(.*);\n/)[1]);
+  check(clubConfig.engineSource === fs.readFileSync(path.join(ROOT, 'src/club-engines.js'), 'utf8'), 'Standalone keeps exact game source including adjacent crate symbols');
   const x = setup();
   await x.lifecycle('install');
   check(

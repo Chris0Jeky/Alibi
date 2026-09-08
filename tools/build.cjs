@@ -229,10 +229,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
-      .replace('<!-- HEAD -->', '<style>' + css + '</style>')
+      .replace('<!-- HEAD -->', () => '<style>' + css + '</style>')
       .replace(
         '<!-- SCRIPTS -->',
-        '<script>' + boot + '\n' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
+        () =>
+          '<script>' + boot + '\n' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
       ),
   );
   zip(
