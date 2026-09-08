@@ -26,10 +26,17 @@ with sync_playwright() as pw:
             elif route=='home':page.wait_for_selector('.quiet-invitation')
             else:page.wait_for_selector('.collection-atmosphere')
             # Wait until the current location's images can really decode, including lazy images.
-            page.locator('.garden-inspiration' if route=='quiet/garden' else '.quiet-invitation' if route=='home' else '.collection-atmosphere').scroll_into_view_if_needed()
-            page.wait_for_function('()=>{const roots=[document,...Array.from(document.querySelectorAll("*")).filter(e=>e.shadowRoot).map(e=>e.shadowRoot)];return roots.flatMap(r=>Array.from(r.querySelectorAll(".museum-atmosphere img,.garden-inspiration img"))).every(i=>i.complete&&i.naturalWidth>0)}')
-            check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),str(width)+' '+route+' fits the viewport')
             target=page.locator('.garden-inspiration' if route=='quiet/garden' else '.quiet-invitation' if route=='home' else '.collection-atmosphere')
+            # A tall figure may scroll its caption into view while its lazy image remains offscreen.
+            # Inspect the current route's image, rather than unrelated/hidden figures in the document.
+            picture=target.locator('img').first
+            picture.scroll_into_view_if_needed()
+            try:
+                picture.evaluate('async img => { await img.decode(); if(!img.naturalWidth) throw Error("Empty museum image"); }')
+            except Exception:
+                (OUT/'image-failure.json').write_text(json.dumps({'route':route,'width':width,'images':target.locator('img').evaluate_all('(imgs)=>imgs.map(i=>({src:i.currentSrc||i.src,complete:i.complete,width:i.naturalWidth,loading:i.loading,rect:i.getBoundingClientRect().toJSON()}))'),'errors':errors},indent=2))
+                raise
+            check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),str(width)+' '+route+' fits the viewport')
             check('Public Domain' in target.inner_text(),str(width)+' '+route+' displays the real artwork credit')
             target.screenshot(path=str(OUT/(route.replace('/','-')+'-'+str(width)+'.png')))
     page.evaluate('location.hash="/casebooks"');page.wait_for_selector('.full-books')
