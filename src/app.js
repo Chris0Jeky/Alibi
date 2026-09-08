@@ -2947,7 +2947,8 @@
       } catch (e) {
         const host = document.getElementById('quiet-host');
         if (host)
-          host.innerHTML = `<p style="padding:24px">${esc(e.message)} <a href="#/home">Return to Alibi</a></p>`;
+          (host.shadowRoot || host).innerHTML =
+            `<p style="padding:24px">${esc(e.message)} <a href="#/home">Return to Alibi</a></p>`;
       }
     }
     if (serial !== routeSerial) return;
