@@ -738,7 +738,7 @@
           ', ',
         )}, ${live ? 'connected to source' : 'not connected'}${i === p.source ? ', source' : ''}`;
     }
-    return `<button id="cell-${i}" class="${cls}" data-action="cell" data-cell="${i}" aria-label="${esc(label)}" ${disabled ? 'disabled' : ''} ${extra} style="${style}" tabindex="${i === selectedCell ? '0' : '-1'}">${content}</button>`;
+    return `<button id="cell-${i}" class="${cls}" data-action="cell" data-cell="${i}" aria-label="${esc(label)}" ${disabled ? 'disabled' : ''} ${extra} style="${style}" tabindex="${!disabled && i === selectedCell ? '0' : '-1'}">${content}</button>`;
   }
   function enabledCell(p, i) {
     if (p.type === 'scene') return !p.objects.some((o) => o.cell === i);
@@ -1196,7 +1196,8 @@
     if (blocked()) return;
     const p = current.puzzle,
       s = current.state;
-    if (!Number.isInteger(index) || index < 0 || index >= p.size ** 2) return;
+    if (!Number.isInteger(index) || index < 0 || index >= p.size ** 2 || !enabledCell(p, index))
+      return;
     selectedCell = index;
     const t = p.type;
     if (t === 'scene') {
@@ -2527,7 +2528,7 @@
   document.addEventListener('pointercancel', endPaint);
   document.addEventListener('contextmenu', (e) => {
     const el = e.target.closest('[data-action="cell"]');
-    if (!el) return;
+    if (!el || el.disabled) return;
     e.preventDefault();
     if (
       ['nonogram', 'lightup', 'tents'].includes(current?.puzzle.type) &&
