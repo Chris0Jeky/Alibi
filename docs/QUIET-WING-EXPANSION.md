@@ -53,8 +53,10 @@ turn those unperformed checks into claims of certification or abandon the author
 
 ## Next work toward the full request
 
-1. Refine town presentation and composition further: road appearance/adjacency, building assembly
-   choices, camera feel and town life. Check picking and export for each added presentation seam.
+1. Town construction now includes assembled homes, separate stackable castle modules and
+   reproducible landscapes. Connected paving and height transitions share the Canvas/WebGL/export
+   geometry. Water and companion motion have lifecycle guards. Further simulation/economy is not
+   claimed; this is an open creative builder. Final renderer regression and hosted checks follow.
 2. Companion integration is implemented: licensed cat/fox/owl skeletons, original articulated
    Nimbus, all five interaction presentations, retained saved identities and offline assets.
    Local control, persistence, reduced-motion and graphics-fallback checks pass; hosted and
@@ -70,3 +72,8 @@ turn those unperformed checks into claims of certification or abandon the author
 
 Recovery: export all saves before release testing. Never clear site data. Roll back application
 files while preserving the cabinet, Club and Quiet Wing databases and raw recovery exports.
+
+Independent relaxing-games/garden review found no CRITICAL/HIGH defects. One MEDIUM malformed
+crop-identifier import issue is tracked at https://github.com/Chris0Jeky/Alibi/issues/15; named seed
+controls and ordinary saves do not produce those identifiers. Kept outside the current fix round
+under the bounded review policy. The primary completion, clock and persistence checks pass.

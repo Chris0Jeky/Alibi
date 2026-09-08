@@ -1,4 +1,4 @@
-/* Shared 3D geometry -> Canvas, SVG and Wavefront OBJ. No third-party renderer. */
+/* Shared 3D geometry -> Canvas, WebGL, SVG and Wavefront OBJ. */
 (function (G) {
   'use strict';
   const E = G.QWEngine;
@@ -509,7 +509,7 @@
           faces = [],
           g = {
             meadow: '#a6b58d',
-            path: '#d3be95',
+            path: '#a6b58d',
             stone: '#b8b6a6',
             water: '#76a8a8',
             sand: '#dbc99b',
@@ -552,16 +552,43 @@
         ])
           push(side, shade(t.ground === 'water' ? '#6b9193' : '#8c9c82', 0.85));
         if (t.ground === 'path') {
-          for (let k = 0; k < 3; k++)
-            push(
-              [
-                [x + 0.1 + k * 0.29, y + 0.12, z + 0.001],
-                [x + 0.31 + k * 0.29, y + 0.12, z + 0.001],
-                [x + 0.31 + k * 0.29, y + 0.39, z + 0.001],
-                [x + 0.1 + k * 0.29, y + 0.39, z + 0.001],
-              ],
-              '#c5ae85',
-            );
+          const links = roadLinks(scene, y * scene.size + x);
+          const height = (u, v) => {
+            if (v < 0.25 && links[0] !== null)
+              return z + Math.max(0, links[0] - t.height) * 0.43 * (0.25 - v) * 4;
+            if (u > 0.75 && links[1] !== null)
+              return z + Math.max(0, links[1] - t.height) * 0.43 * (u - 0.75) * 4;
+            if (v > 0.75 && links[2] !== null)
+              return z + Math.max(0, links[2] - t.height) * 0.43 * (v - 0.75) * 4;
+            if (u < 0.25 && links[3] !== null)
+              return z + Math.max(0, links[3] - t.height) * 0.43 * (0.25 - u) * 4;
+            return z;
+          };
+          const paved = (u, v) =>
+            (u >= 0.25 && u <= 0.75 && v >= 0.25 && v <= 0.75) ||
+            (u >= 0.25 &&
+              u <= 0.75 &&
+              ((v < 0.25 && links[0] !== null) || (v > 0.75 && links[2] !== null))) ||
+            (v >= 0.25 &&
+              v <= 0.75 &&
+              ((u > 0.75 && links[1] !== null) || (u < 0.25 && links[3] !== null)));
+          for (let row = 0; row < 4; row++)
+            for (let col = 0; col < 4; col++) {
+              if (!paved((col + 0.5) / 4, (row + 0.5) / 4)) continue;
+              const u = col / 4,
+                v = row / 4,
+                gap = 0.012;
+              const corners = [
+                [u + gap, v + gap],
+                [u + 0.25 - gap, v + gap],
+                [u + 0.25 - gap, v + 0.25 - gap],
+                [u + gap, v + 0.25 - gap],
+              ];
+              push(
+                corners.map(([a, b]) => [x + a, y + b, height(a, b) + 0.007]),
+                (row + col) % 2 ? '#c9b795' : '#dbcaab',
+              );
+            }
         }
         let level = z;
         for (const item of t.items) {
@@ -572,6 +599,25 @@
         tiles.push({ x, y, z, faces, index: y * scene.size + x });
       }
     return tiles;
+  }
+  function roadLinks(scene, index) {
+    const x = index % scene.size,
+      y = Math.floor(index / scene.size),
+      tile = scene.tiles[index];
+    return [
+      [x, y - 1],
+      [x + 1, y],
+      [x, y + 1],
+      [x - 1, y],
+    ].map(([a, b]) => {
+      if (a < 0 || b < 0 || a >= scene.size || b >= scene.size) return null;
+      const next = scene.tiles[b * scene.size + a];
+      return Math.abs(next.height - tile.height) <= 1 &&
+        (next.ground === 'path' ||
+          next.items.some((piece) => ['bridge', 'gate'].includes(piece.type)))
+        ? next.height
+        : null;
+    });
   }
   class Renderer {
     constructor(canvas) {
@@ -845,5 +891,5 @@
       )
       .join('')}</g></svg>`;
   }
-  G.QWRealm = { Renderer, model, worldMeshes, thumbnail, shade, HEIGHT };
+  G.QWRealm = { Renderer, model, worldMeshes, roadLinks, thumbnail, shade, HEIGHT };
 })(typeof window === 'undefined' ? globalThis : window);

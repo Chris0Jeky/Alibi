@@ -48,6 +48,11 @@ arrangement validation. Sixteen actual browser checks cover controls, safe batch
 undo, SVG parsing, offline save/reload and narrow layout. Growth time is advanced only through
 an explicitly labelled test fixture. `npm run verify` passes. No hosted/physical claim.
 
+Road polish at `33ef49b1ea88`: shared paving follows neighbouring roads, gates and bridges,
+with raised transitions to adjacent higher plots. Cliffs and row boundaries do not connect.
+The new geometry regression, full verify, 28 city controls and 14 GPU/fallback checks pass.
+Postcard inputs now have the same readable sizing and 44-pixel minimum as other touch controls.
+
 ## Quiet Wing source candidate
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test

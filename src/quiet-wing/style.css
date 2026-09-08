@@ -823,6 +823,14 @@ svg {
 .bouquet-layout select {
   width: 100%;
   min-width: 0;
+  min-height: 44px;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
 }
 .garden-stage[data-garden-style='shore'] {
   background: linear-gradient(#b8d2cc 0%, #e0e7d5 48%, #d8c4a4 49%, #f3e6cc 100%);
