@@ -27,6 +27,7 @@
       };
       const E = G.QWEngine,
         R = G.QWRealm,
+        C = G.QWCity,
         P = G.QWPets,
         S = G.QWStore,
         $ = (q, r = root) => r.querySelector(q),
@@ -45,6 +46,9 @@
         rot: 0,
         tool: 'build',
         category: 'Homes',
+        brush: 1,
+        anchor: -1,
+        blueprint: 'courtyard',
         selection: -1,
         history: [],
         future: [],
@@ -249,7 +253,7 @@
             'Place a house. Grow a street. There is nothing to keep up with.',
             `<span class="pill"><i class="dot"></i> No resources. No score. All pieces open.</span>`,
           ) +
-          `<div class="world-layout"><div><div class="world-wrap"><canvas id="realm" class="world-canvas" tabindex="0" aria-label="Realm builder. Arrow keys choose a plot, Enter applies the selected tool. Plus and minus zoom. Drag in pan mode."></canvas><div class="world-top"><div class="row"><button data-view="isometric" class="${A.state.scene.camera.view === 'isometric' ? 'active' : ''}">Isometric</button><button data-view="diorama" class="${A.state.scene.camera.view === 'diorama' ? 'active' : ''}">Diorama</button><button data-view="plan" class="${A.state.scene.camera.view === 'plan' ? 'active' : ''}">Plan</button></div><button data-ract="sky">${A.state.scene.sky === 'morning' ? 'Morning' : A.state.scene.sky === 'sunset' ? 'Golden hour' : 'Moonlight'}</button></div><div class="world-tools"><button data-ract="zoomout" aria-label="Zoom out">−</button><button data-ract="zoomin" aria-label="Zoom in">+</button><button data-ract="rotate" aria-label="Rotate camera">↻ View</button><button data-ract="pan" id="panbtn">Pan</button><button data-ract="fit">Fit</button></div><div class="world-caption"><strong id="realm-caption">${esc(A.state.scene.name)}</strong>14 × 14 plots · your little world</div><div class="world-companion">${P.svg(A.state.pets.selected, 'idle', 'Your companion visiting the realm')}</div><button class="pending-place primary" id="place" hidden>Place here</button></div><div class="world-foot"><span id="plot-status" aria-live="polite">Choose a piece below. Point to a plot to preview; click to place.</span><span class="row"><button class="iconbtn textbtn" data-ract="undo" title="Undo (Ctrl+Z)" aria-label="Undo realm edit">${icon('undo')}</button><button class="iconbtn textbtn" data-ract="redo" title="Redo (Ctrl+Y)" aria-label="Redo realm edit">${icon('redo')}</button><button class="iconbtn textbtn" data-ract="controls" aria-label="Builder controls">?</button><button class="iconbtn soft" data-ract="export" title="Export realm">${icon('download')}<span>Export</span></button></span></div></div><aside class="inspector" id="inspector"></aside></div><section class="tooltray" aria-label="Building pieces"><div class="tray-tabs">${['Homes', 'Castle', 'Countryside', 'Nature', 'Details', 'Modules', 'Ground', 'Tools'].map((x) => `<button data-category="${x}" class="${x === A.category ? 'active' : ''}">${x}</button>`).join('')}</div><div class="models" id="models"></div></section><details class="plot-controls"><summary>Choose a plot without the canvas</summary><div class="row"><label>Column <select id="plot-x">${Array.from({ length: 14 }, (_, i) => `<option value="${i}">${i + 1}</option>`).join('')}</select></label><label>Row <select id="plot-y">${Array.from({ length: 14 }, (_, i) => `<option value="${i}">${i + 1}</option>`).join('')}</select></label><button id="plot-apply">Apply selected tool</button></div><p id="plot-summary" role="status">Choose a row and column to inspect.</p></details><div class="toolbar-notice">Cubes can stack. A roof finishes the stack. Water accepts foundations, bridges and boats. <button class="textbtn" data-ract="palette" style="font-size:11px;min-height:28px;padding:2px 8px">Colours &amp; options</button></div>`;
+          `<div class="city-toolbar"><button class="primary" data-ract="generate">Generate a world</button><span id="town-status" role="status"></span><label>Brush <select id="brush-size"><option value="1">1 plot</option><option value="3">3 × 3</option><option value="5">5 × 5</option></select></label><button data-ract="cancel-tool" id="cancel-tool" hidden>Cancel selection</button></div><div class="world-layout"><div><div class="world-wrap"><canvas id="realm" class="world-canvas" tabindex="0" aria-label="Realm builder. Arrow keys choose a plot, Enter applies the selected tool. Plus and minus zoom. Drag in pan mode."></canvas><div class="world-top"><div class="row"><button data-view="isometric" class="${A.state.scene.camera.view === 'isometric' ? 'active' : ''}">Isometric</button><button data-view="diorama" class="${A.state.scene.camera.view === 'diorama' ? 'active' : ''}">Diorama</button><button data-view="plan" class="${A.state.scene.camera.view === 'plan' ? 'active' : ''}">Plan</button></div><button data-ract="sky">${A.state.scene.sky === 'morning' ? 'Morning' : A.state.scene.sky === 'sunset' ? 'Golden hour' : 'Moonlight'}</button></div><div class="world-tools"><button data-ract="zoomout" aria-label="Zoom out">−</button><button data-ract="zoomin" aria-label="Zoom in">+</button><button data-ract="rotate" aria-label="Rotate camera">↻ View</button><button data-ract="pan" id="panbtn">Pan</button><button data-ract="fit">Fit</button></div><div class="world-caption"><strong id="realm-caption">${esc(A.state.scene.name)}</strong>${A.state.scene.size} × ${A.state.scene.size} plots · your little world</div><div class="world-companion">${P.svg(A.state.pets.selected, 'idle', 'Your companion visiting the realm')}</div><button class="pending-place primary" id="place" hidden>Place here</button></div><div class="world-foot"><span id="plot-status" aria-live="polite">Choose a piece below. Point to a plot to preview; click to place.</span><span class="row"><button class="iconbtn textbtn" data-ract="undo" title="Undo (Ctrl+Z)" aria-label="Undo realm edit">${icon('undo')}</button><button class="iconbtn textbtn" data-ract="redo" title="Redo (Ctrl+Y)" aria-label="Redo realm edit">${icon('redo')}</button><button class="iconbtn textbtn" data-ract="controls" aria-label="Builder controls">?</button><button class="iconbtn soft" data-ract="export" title="Export realm">${icon('download')}<span>Export</span></button></span></div></div><aside class="inspector" id="inspector"></aside></div><section class="tooltray" aria-label="Building pieces"><div class="tray-tabs">${['Homes', 'Castle', 'Countryside', 'Nature', 'Details', 'Modules', 'Plans', 'Ground', 'Tools'].map((x) => `<button data-category="${x}" class="${x === A.category ? 'active' : ''}">${x}</button>`).join('')}</div><div class="models" id="models"></div></section><details class="plot-controls"><summary>Choose a plot without the canvas</summary><div class="row"><label>Column <select id="plot-x">${Array.from({ length: A.state.scene.size }, (_, i) => `<option value="${i}">${i + 1}</option>`).join('')}</select></label><label>Row <select id="plot-y">${Array.from({ length: A.state.scene.size }, (_, i) => `<option value="${i}">${i + 1}</option>`).join('')}</select></label><button id="plot-apply">Apply selected tool</button></div><p id="plot-summary" role="status">Choose a row and column to inspect.</p></details><div class="toolbar-notice">Cubes can stack. A roof finishes the stack. Water accepts foundations, bridges and boats. <button class="textbtn" data-ract="palette" style="font-size:11px;min-height:28px;padding:2px 8px">Colours &amp; options</button></div>`;
         A.renderer = new R.Renderer($('#realm'));
         Object.assign(A.renderer, {
           angle: A.state.scene.camera.angle,
@@ -276,20 +280,31 @@
           if (b.dataset.type) {
             A.type = b.dataset.type;
             A.tool = 'build';
+            A.anchor = -1;
             drawModels();
             inspector();
             preview();
           }
           if (b.dataset.ground) {
             A.tool = 'paint';
+            A.anchor = -1;
             A.ground = b.dataset.ground;
             drawModels();
             inspector();
           }
           if (b.dataset.tool) {
             A.tool = b.dataset.tool;
+            A.anchor = -1;
             drawModels();
             inspector();
+          }
+          if (b.dataset.blueprint) {
+            A.blueprint = b.dataset.blueprint;
+            A.tool = 'stamp';
+            A.anchor = -1;
+            drawModels();
+            inspector();
+            preview();
           }
           if (b.dataset.view) {
             A.renderer.view = b.dataset.view;
@@ -304,9 +319,15 @@
           }
           if (b.dataset.ract) realmAction(b.dataset.ract);
         };
+        $('#brush-size').value = String(A.brush);
+        $('#brush-size').onchange = (e) => {
+          A.brush = Number(e.target.value);
+        };
+        townStatus();
         $('#place').onclick = () => applyAt();
         const selectPlot = () => {
-          A.selection = Number($('#plot-y').value) * 14 + Number($('#plot-x').value);
+          A.selection =
+            Number($('#plot-y').value) * A.state.scene.size + Number($('#plot-x').value);
           preview();
         };
         $('#plot-x').onchange = selectPlot;
@@ -325,6 +346,13 @@
             (t) =>
               `<button class="model ${A.tool === 'paint' && A.ground === t ? 'selected' : ''}" data-ground="${t}"><div class="ground-sample" style="background:${{ meadow: '#a6b58d', path: '#d3be95', stone: '#b8b6a6', water: '#76a8a8', sand: '#dbc99b' }[t]}"></div>${t[0].toUpperCase() + t.slice(1)}</button>`,
           ).join('');
+        } else if (A.category === 'Plans') {
+          c.innerHTML = Object.entries(C.BLUEPRINTS)
+            .map(
+              ([id, b]) =>
+                `<button class="model ${A.tool === 'stamp' && A.blueprint === id ? 'selected' : ''}" data-blueprint="${id}">${R.thumbnail(id === 'courtyard' ? 'keep' : id === 'hamlet' ? 'townhouse' : 'barn', A.palette)}${b.name}<small>${b.rows.length} × ${b.rows.length} plots</small></button>`,
+            )
+            .join('');
         } else if (A.category === 'Tools')
           c.innerHTML = [
             ['erase', 'Remove top', 'undo'],
@@ -332,6 +360,9 @@
             ['lower', 'Lower land', 'realm'],
             ['turn', 'Turn model', 'rotate'],
             ['inspect', 'Inspect plot', 'settings'],
+            ['road', 'Connect road', 'realm'],
+            ['move', 'Move building', 'hand'],
+            ['copy', 'Copy building', 'realm'],
           ]
             .map(
               ([id, name, ic]) =>
@@ -362,6 +393,10 @@
                   turn: 'Turn model',
                   paint: 'Paint ' + A.ground,
                   inspect: 'Inspect a plot',
+                  road: 'Connect a road',
+                  move: 'Move a building',
+                  copy: 'Copy a building',
+                  stamp: C.BLUEPRINTS[A.blueprint].name,
                 }[A.tool] || A.tool,
                 'Choose a plot. Every change can be undone.',
               ];
@@ -374,7 +409,7 @@
           )
           .join(
             '',
-          )}</div></div><div class="row"><button data-ract="turnpiece">Turn piece ↻</button></div><hr><div><label for="realmname">Realm name</label><input id="realmname" maxlength="64" value="${esc(A.state.scene.name)}"></div><div><label for="preset">Starting place</label><select id="preset"><option value="">Choose a new sketch…</option value="harbour">Little Bellweather</option><option value="garden">Walled garden</option><option value="empty">Empty island</option></select></div><p class="tiny">Changes save on this device. Export a realm file to take it with you.</p><button data-ract="backup" class="textbtn" style="margin-top:auto;font-size:11px">Backups &amp; import</button>`;
+          )}</div></div><div class="row"><button data-ract="turnpiece">Turn piece ↻</button></div><hr><div><label for="realmname">Realm name</label><input id="realmname" maxlength="64" value="${esc(A.state.scene.name)}"></div><div><label for="preset">Starting place</label><select id="preset"><option value="">Choose a new sketch…</option><option value="harbour">Little Bellweather</option><option value="garden">Walled garden</option><option value="empty">Empty island</option></select></div><p class="tiny">Changes save on this device. Export a realm file to take it with you.</p><button data-ract="backup" class="textbtn" style="margin-top:auto;font-size:11px">Backups &amp; import</button>`;
         c.onclick = (e) => {
           let b = e.target.closest('[data-palette]');
           if (b) {
@@ -400,30 +435,124 @@
         const t = A.state.scene.tiles[A.selection];
         if (t) {
           $('#plot-status').textContent =
-            `Plot ${(A.selection % 14) + 1}, ${Math.floor(A.selection / 14) + 1} · ${t.ground} · level ${t.height} · ${t.items.length ? t.items.map((x) => E.TYPES[x.type][1]).join(' + ') : 'empty'}`;
+            `Plot ${(A.selection % A.state.scene.size) + 1}, ${Math.floor(A.selection / A.state.scene.size) + 1} · ${t.ground} · level ${t.height} · ${t.items.length ? t.items.map((x) => E.TYPES[x.type][1]).join(' + ') : 'empty'}`;
         } else
           $('#plot-status').textContent =
             'Choose a piece below. Point to a plot to preview; click to place.';
         if ($('#plot-summary')) $('#plot-summary').textContent = $('#plot-status').textContent;
+        if ($('#cancel-tool')) $('#cancel-tool').hidden = A.anchor < 0;
+        if (A.anchor >= 0) {
+          const msg =
+            A.tool === 'road' ? 'Choose the end of your road.' : 'Choose the destination plot.';
+          $('#plot-status').textContent += ' · ' + msg;
+          $('#plot-summary').textContent = $('#plot-status').textContent;
+        }
+      }
+      function townStatus() {
+        const node = $('#town-status');
+        if (!node) return;
+        const t = C.describe(A.state.scene);
+        node.textContent = `${t.homes} homes · room for ${t.residents} · ${t.connected} on the main road · ${t.nature} green pieces`;
+      }
+      function generationDialog() {
+        const d = modal(
+          'Find your next little world',
+          `<div class="generator-fields"><label>Landscape<select id="world-layout">${Object.entries(
+            C.LAYOUTS,
+          )
+            .map(([id, name]) => `<option value="${id}">${name}</option>`)
+            .join(
+              '',
+            )}</select></label><label>Map size<select id="world-size">${E.SIZES.map((n) => `<option value="${n}" ${n === 20 ? 'selected' : ''}>${n} × ${n}</option>`).join('')}</select></label><label>Seed<input id="world-seed" maxlength="64" value="bellweather"></label><label>Homes along roads<input id="world-density" type="range" min="0" max="100" value="50"></label></div><div class="row"><button id="world-preview">Preview this seed</button><button id="world-random">Surprise me</button></div><canvas id="world-preview-canvas" aria-label="Preview of the generated town"></canvas><p id="world-description" role="status"></p><p>Your current realm stays saved until you choose Use this world. You can undo the replacement during this visit. Export first to keep both.</p><div class="row"><button id="world-use" class="primary">Use this world</button><button id="world-keep">Keep my realm</button></div>`,
+        );
+        let candidate;
+        const canvas = $('#world-preview-canvas'),
+          renderer = new R.Renderer(canvas);
+        const create = () => {
+          try {
+            candidate = C.generate({
+              seed: $('#world-seed').value,
+              layout: $('#world-layout').value,
+              size: Number($('#world-size').value),
+              density: Number($('#world-density').value) / 100,
+            });
+            renderer.setScene(candidate);
+            renderer.resize();
+            const t = C.describe(candidate);
+            $('#world-description').textContent =
+              `${candidate.name}: ${t.homes} homes, ${t.roadPlots} road plots. The same settings create the same town.`;
+            $('#world-use').disabled = false;
+          } catch (e) {
+            candidate = null;
+            $('#world-description').textContent = e.message;
+            $('#world-use').disabled = true;
+          }
+        };
+        $('#world-preview').onclick = create;
+        $('#world-random').onclick = () => {
+          $('#world-seed').value =
+            'island-' + crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+          create();
+        };
+        for (const id of ['world-layout', 'world-size', 'world-seed', 'world-density']) {
+          $('#' + id).oninput = () => {
+            candidate = null;
+            $('#world-use').disabled = true;
+            $('#world-description').textContent =
+              'Preview these settings before replacing your realm.';
+          };
+        }
+        $('#world-keep').onclick = () => d.close();
+        $('#world-use').onclick = () => {
+          if (!candidate) return;
+          A.history.push({ whole: true, before: E.clone(A.state.scene), after: candidate });
+          if (A.history.length > 100) A.history.shift();
+          A.future = [];
+          A.state.scene = candidate;
+          A.selection = -1;
+          A.anchor = -1;
+          d.close();
+          realmPage();
+          save();
+        };
+        create();
       }
       function applyAt() {
         if (A.tool === 'inspect') {
           const t = A.state.scene.tiles[A.selection];
           toast(
             t
-              ? `Plot ${(A.selection % 14) + 1}, ${Math.floor(A.selection / 14) + 1}: ${t.items.length ? t.items.map((x) => E.TYPES[x.type][1]).join(', ') : 'empty ' + t.ground}`
+              ? `Plot ${(A.selection % A.state.scene.size) + 1}, ${Math.floor(A.selection / A.state.scene.size) + 1}: ${t.items.length ? t.items.map((x) => E.TYPES[x.type][1]).join(', ') : 'empty ' + t.ground}`
               : 'Choose a plot.',
           );
           return;
         }
-        const patch = E.editScene(A.state.scene, {
+        if (['road', 'move', 'copy'].includes(A.tool) && A.anchor < 0) {
+          if (A.selection < 0) return toast('Choose a starting plot.');
+          if (A.tool !== 'road' && !A.state.scene.tiles[A.selection].items.length)
+            return toast('Choose a plot with a building first.');
+          A.anchor = A.selection;
+          preview();
+          return;
+        }
+        const action = {
           kind: A.tool,
           index: A.selection,
           type: A.type,
           palette: A.palette,
           rot: A.rot,
           ground: A.ground,
-        });
+        };
+        const patch =
+          A.tool === 'road'
+            ? C.road(A.state.scene, A.anchor, A.selection)
+            : ['move', 'copy'].includes(A.tool)
+              ? C.transfer(A.state.scene, A.anchor, A.selection, A.tool === 'copy')
+              : A.tool === 'stamp'
+                ? C.stamp(A.state.scene, A.selection, A.blueprint, A.palette, A.rot)
+                : ['paint', 'erase', 'raise', 'lower'].includes(A.tool)
+                  ? C.area(A.state.scene, A.selection, A.brush, action)
+                  : E.editScene(A.state.scene, action);
         if (patch.error) {
           toast(patch.error);
           return;
@@ -431,10 +560,12 @@
         A.history.push(patch);
         if (A.history.length > 100) A.history.shift();
         A.future = [];
-        A.state.scene = E.applyEdit(A.state.scene, patch);
+        A.state.scene = patch.whole ? E.clone(patch.after) : E.applyEdit(A.state.scene, patch);
+        A.anchor = -1;
         if (A.tool === 'build') A.state.stats.built++;
         if (A.tool === 'erase') A.state.stats.removed++;
         A.renderer.setScene(A.state.scene);
+        townStatus();
         preview();
         $('#place').hidden = true;
         const flash = $('#realm');
@@ -458,8 +589,9 @@
           : E.applyEdit(A.state.scene, p, !redo);
         A.renderer.setScene(A.state.scene);
         $('#realm-caption').textContent = A.state.scene.name;
-        inspector();
-        preview();
+        A.selection = -1;
+        A.anchor = -1;
+        realmPage();
         save();
       }
       function newPreset(id) {
@@ -482,6 +614,12 @@
       }
       function realmAction(id) {
         let r = A.renderer;
+        if (id === 'generate') return generationDialog();
+        if (id === 'cancel-tool') {
+          A.anchor = -1;
+          preview();
+          return;
+        }
         if (id === 'undo') return realmUndo();
         if (id === 'redo') return realmUndo(true);
         if (id === 'zoomout' || id === 'zoomin') {
@@ -621,10 +759,20 @@
           save();
         };
         canvas.onkeydown = (e) => {
-          const dirs = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -14, ArrowDown: 14 };
+          const dirs = {
+            ArrowLeft: -1,
+            ArrowRight: 1,
+            ArrowUp: -A.state.scene.size,
+            ArrowDown: A.state.scene.size,
+          };
           if (e.key in dirs) {
             e.preventDefault();
-            A.selection = E.clamp((A.selection < 0 ? 98 : A.selection) + dirs[e.key], 0, 195);
+            A.selection = E.clamp(
+              (A.selection < 0 ? Math.floor(A.state.scene.tiles.length / 2) : A.selection) +
+                dirs[e.key],
+              0,
+              A.state.scene.tiles.length - 1,
+            );
             preview();
           }
           if (e.key === 'Enter') {

@@ -1825,3 +1825,56 @@ dialog select {
 .zen .badge {
   display: none;
 }
+
+.city-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.city-toolbar > span {
+  flex: 1 1 280px;
+  font-size: 0.875rem;
+}
+.city-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.city-toolbar select {
+  width: auto;
+}
+.generator-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.generator-fields label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.875rem;
+}
+#world-preview-canvas {
+  width: 100%;
+  height: 300px;
+  border-radius: 14px;
+  margin-top: 16px;
+}
+.models .model small {
+  display: block;
+  margin-top: 5px;
+}
+@media (max-width: 600px) {
+  .generator-fields {
+    grid-template-columns: 1fr;
+  }
+  #world-preview-canvas {
+    height: 220px;
+  }
+  .city-toolbar > span {
+    order: 3;
+    flex-basis: 100%;
+  }
+}

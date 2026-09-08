@@ -40,6 +40,7 @@ jobs:
           python tests/browser_restart.py
           python tests/browser_boot.py
           python tests/browser_quiet.py
+          python tests/browser_city.py
           python tests/browser_quiet_origin.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py

@@ -519,6 +519,7 @@
     }
     setScene(s) {
       this.scene = s;
+      if (this.selection >= s.tiles.length) this.selection = -1;
       this.mesh = worldMeshes(s);
       this.render();
     }
@@ -545,7 +546,7 @@
       if (!b.width || !b.height) return;
       this.w = b.width;
       this.h = b.height;
-      this.unit = Math.min(this.w / 31, this.h / 18);
+      this.unit = Math.min(this.w / (this.scene.size * 2 + 3), this.h / (this.scene.size + 4));
       this.canvas.width = Math.round(this.w * this.dpr);
       this.canvas.height = Math.round(this.h * this.dpr);
       this.base.width = this.canvas.width;
@@ -665,8 +666,8 @@
       c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       if (selection >= 0) {
         const t = this.scene.tiles[selection],
-          x = selection % 14,
-          y = Math.floor(selection / 14),
+          x = selection % this.scene.size,
+          y = Math.floor(selection / this.scene.size),
           z = t.height * 0.43;
         const p = [
           [x, y, z + 0.03],

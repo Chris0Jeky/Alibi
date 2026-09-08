@@ -2,6 +2,18 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Quiet Wing expansion in progress
+
+The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
+See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding scope.
+First layer: reproducible harbour/river/hillfort/woodland worlds up to 28 × 28 plots, preview before
+replacement, castle/village/farm plans, routed roads and bridges, move/copy, area brushes and town
+feedback. Existing 14 × 14 saves remain valid without migration. Whole edits undo together.
+Local build `36bc52304bfc` passes `npm run verify`, seven city rule tests, 28 actual city control
+checks across 390/768/1440px, all 156 Quiet Wing controls and 34 origin/restart/recovery checks.
+Phone and desktop screenshots were inspected. Richer rendering/assets, companions, games, visual
+refresh and deployment remain active work; no expanded hosted release or physical test is claimed.
+
 ## Quiet Wing source candidate
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
