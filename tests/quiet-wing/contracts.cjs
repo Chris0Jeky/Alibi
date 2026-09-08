@@ -212,7 +212,7 @@ function fakeIDB() {
     passed: true,
     assertions: checks,
     scope:
-      'Adapter exercised with localStorage and transactional IndexedDB fixtures, including conflicts, restore, timeout/abort; source-level cache/update boundaries. Not actual browser persistence or service-worker lifecycle.',
+      'Adapter exercised with localStorage and transactional IndexedDB fixtures, including conflicts, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
   };
   fs.writeFileSync(
     require('node:path').join(__dirname, 'contract-results.json'),

@@ -39,6 +39,8 @@ jobs:
           python tests/browser_origin.py
           python tests/browser_restart.py
           python tests/browser_boot.py
+          python tests/browser_quiet.py
+          python tests/browser_quiet_origin.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update
@@ -56,6 +58,7 @@ jobs:
             alibi-deluxe-cloudflare.zip
             build-info.json
             tests/*-results.json
+            tests/quiet-wing/*-results.json
             tests/screenshots/
             test-results/browser-origin/*.json
             test-results/browser-update/*.json
@@ -66,4 +69,5 @@ jobs:
             test-results/browser-restart/
             test-results/browser-rooms/
             test-results/browser-boot/
+            test-results/quiet-wing/
           retention-days: 14
