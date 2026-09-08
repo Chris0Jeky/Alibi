@@ -55,6 +55,8 @@
         petAction: 'idle',
         classic: 'hanoi3',
         classicSelected: null,
+        challengeRegistry: null,
+        challengeStore: null,
         seed: 'clover',
         artURLs: { ...context.media },
         artCache: {},
@@ -173,6 +175,7 @@
             ['pets', 'Companions'],
             ['garden', 'Garden'],
             ['classics', 'Classics'],
+            ['challenges', 'Challenges'],
             ['gallery', 'Art room'],
             ['journal', 'Journal'],
           ]
@@ -237,7 +240,15 @@
       function go() {
         if (disposed) return;
         const route = routePath().split('/')[0];
-        A.route = ['realm', 'pets', 'garden', 'classics', 'gallery', 'journal'].includes(route)
+        A.route = [
+          'realm',
+          'pets',
+          'garden',
+          'classics',
+          'challenges',
+          'gallery',
+          'journal',
+        ].includes(route)
           ? route
           : 'realm';
         disposeActivity();
@@ -248,6 +259,7 @@
           pets: petsPage,
           garden: gardenPage,
           classics: classicsPage,
+          challenges: challengesPage,
           gallery: galleryPage,
           journal: journalPage,
         })[A.route]();
@@ -1313,7 +1325,7 @@
             )
             .join(
               '',
-            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
+            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-challenges" class="textbtn" style="font-size:10px">Curated challenges</button><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
         $$('[data-play]').forEach(
           (b) => (b.onclick = () => navigate('classics/' + b.dataset.play)),
         );
@@ -1322,6 +1334,131 @@
             'A classical shelf',
             `<p>These are new implementations of established recreational mathematics: Hanoi, wolf–goat–cabbage, water jugs, eight queens, the Lo Shu magic square, knight’s tours and sliding tiles.</p><p>The brief texts, layouts and graphics here are newly written. No claim is made that these are original puzzle inventions or that a unique solution exists for every family.</p><p>Source notes and historical references are in <a href="${esc(context.sources || './quiet-wing-sources.html')}" target="_blank" rel="noopener">the asset and puzzle ledger</a>. The Hanoi minimum follows 2ⁿ − 1; the software tests solve all configured finite instances independently.</p>`,
           );
+        $('#classics-challenges').onclick = () => navigate('challenges');
+      }
+      function challengesPage() {
+        const requested = routePath().split('/')[1] || '';
+        if (
+          !G.ALIBI_CHALLENGE_DATA ||
+          !G.AlibiChallenges ||
+          !G.AlibiChallengeLauncher ||
+          !G.AlibiChallengeStore
+        ) {
+          $('#main').innerHTML = header(
+            '05 / CURATED CHALLENGES',
+            'A fresh set is still arriving.',
+            'This release does not include the trusted challenge pack. Return to the classical cabinet and try another puzzle.',
+          );
+          return;
+        }
+        try {
+          A.challengeRegistry ||= G.AlibiChallenges.create(G.ALIBI_CHALLENGE_DATA, {
+            quiet: E,
+            club: G.AlibiClubEngines,
+          });
+        } catch (error) {
+          $('#main').innerHTML = header(
+            '05 / CURATED CHALLENGES',
+            'The challenge pack is protected.',
+            esc(error.message),
+          );
+          return;
+        }
+        if (!requested) {
+          const entries = A.challengeRegistry.entries();
+          $('#main').innerHTML =
+            header(
+              '05 / CURATED CHALLENGES',
+              'Fixed starts. Your own route.',
+              'Each challenge rebuilds from its recorded start and your legal moves. Existing classics and Club games keep their own saves.',
+            ) +
+            `<div class="card-grid">${entries.map((c) => `<button class="activity-card" data-challenge-id="${esc(c.id)}"><div class="info"><span class="tag">${esc(c.family)}</span><h3>${esc(c.title)}</h3><p>${esc(c.instruction).slice(0, 112)}…</p><span class="pill">Open challenge →</span></div></button>`).join('')}</div>`;
+          $$('[data-challenge-id]').forEach(
+            (button) =>
+              (button.onclick = () => navigate('challenges/' + button.dataset.challengeId)),
+          );
+          return;
+        }
+        let challenge;
+        try {
+          challenge = A.challengeRegistry.get(requested);
+        } catch {
+          navigate('challenges');
+          return;
+        }
+        $('#main').innerHTML =
+          header(
+            '05 / ' + esc(challenge.family),
+            esc(challenge.title),
+            'A trusted start, your legal replay.',
+            `<button id="challenge-back" class="soft">← All challenges</button>`,
+          ) +
+          '<div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export previous save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p><div id="challenge-host"></div>';
+        $('#challenge-back').onclick = () => navigate('challenges');
+        const host = $('#challenge-host');
+        A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
+        A.challengeStore
+          .open()
+          .then(() => A.challengeStore.read(challenge.id))
+          .catch((error) => {
+            toast(error.message);
+            return null;
+          })
+          .then((saved) => {
+            if (disposed || A.route !== 'challenges' || routePath().split('/')[1] !== challenge.id)
+              return;
+            A.challengeHandle = G.AlibiChallengeLauncher.mount(
+              host,
+              A.challengeRegistry,
+              challenge.id,
+              saved,
+              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+            );
+          });
+        $('#challenge-export').onclick = () => exportChallenge(A.challengeHandle?.save());
+        $('#challenge-recovery').onclick = async () => {
+          try {
+            exportChallenge(await A.challengeStore.recovery(challenge.id), 'previous');
+          } catch (error) {
+            toast(error.message);
+          }
+        };
+        $('#challenge-import').onclick = () => $('#challenge-file').click();
+        $('#challenge-file').onchange = async () => {
+          const file = $('#challenge-file').files?.[0];
+          if (!file) return;
+          try {
+            const imported = A.challengeRegistry.validateRun(JSON.parse(await file.text()));
+            if (imported.challengeId !== challenge.id)
+              throw Error('Choose a save for this exact challenge.');
+            await A.challengeStore.write(imported);
+            A.challengeHandle?.dispose();
+            A.challengeHandle = G.AlibiChallengeLauncher.mount(
+              host,
+              A.challengeRegistry,
+              challenge.id,
+              imported,
+              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+            );
+            toast('Challenge save restored. The previous save remains available for export.');
+          } catch (error) {
+            toast(error.message);
+          }
+          $('#challenge-file').value = '';
+        };
+      }
+      function exportChallenge(run, suffix = 'challenge') {
+        if (!run) {
+          toast('Finish opening this challenge before exporting it.');
+          return;
+        }
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(
+          new Blob([JSON.stringify(run, null, 2)], { type: 'application/json' }),
+        );
+        link.download = 'alibi-' + suffix + '-' + run.challengeId + '.json';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
       function getClassic() {
         let run = A.state.classics[A.classic];
