@@ -1,0 +1,1383 @@
+{
+  "schemaVersion": 1,
+  "palette": {
+    "petrol": "#173e49",
+    "ink": "#172d38",
+    "cream": "#f4ead4",
+    "amber": "#dbac60",
+    "sage": "#87a997",
+    "terracotta": "#b76d52",
+    "stone": "#77807a",
+    "water": "#5d9ca5",
+    "timber": "#765443",
+    "crop": "#b9b75d"
+  },
+  "assets": [
+    {
+      "id": "tower-square-base",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-base.obj",
+      "derivatives": [
+        "glb/tower-square-base.glb",
+        "thumbnails/tower-square-base.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.01,
+          0.5
+        ],
+        "size": [
+          1.0,
+          1.01,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-square-mid",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-mid.obj",
+      "derivatives": [
+        "glb/tower-square-mid.glb",
+        "thumbnails/tower-square-mid.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.465,
+          0.0,
+          -0.465
+        ],
+        "max": [
+          0.465,
+          1.01,
+          0.465
+        ],
+        "size": [
+          0.93,
+          1.01,
+          0.93
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-square-top",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-top.obj",
+      "derivatives": [
+        "glb/tower-square-top.glb",
+        "thumbnails/tower-square-top.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          0.3,
+          0.5
+        ],
+        "size": [
+          1.0,
+          0.3,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-square-roof",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-roof.obj",
+      "derivatives": [
+        "glb/tower-square-roof.glb",
+        "thumbnails/tower-square-roof.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          2.01,
+          0.5
+        ],
+        "size": [
+          1.0,
+          2.01,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-hexagon-base",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-base.obj",
+      "derivatives": [
+        "glb/tower-hexagon-base.glb",
+        "thumbnails/tower-hexagon-base.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.45,
+          0.0,
+          -0.3897
+        ],
+        "max": [
+          0.45,
+          1.31,
+          0.3897
+        ],
+        "size": [
+          0.9,
+          1.31,
+          0.7794
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-hexagon-mid",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-mid.obj",
+      "derivatives": [
+        "glb/tower-hexagon-mid.glb",
+        "thumbnails/tower-hexagon-mid.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.4762,
+          0.0,
+          -0.4124
+        ],
+        "max": [
+          0.4762,
+          0.46,
+          0.4124
+        ],
+        "size": [
+          0.9524,
+          0.46,
+          0.8248
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tower-hexagon-roof",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-roof.obj",
+      "derivatives": [
+        "glb/tower-hexagon-roof.glb",
+        "thumbnails/tower-hexagon-roof.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.4882,
+          0.0,
+          -0.4228
+        ],
+        "max": [
+          0.4882,
+          0.83,
+          0.4228
+        ],
+        "size": [
+          0.9763,
+          0.83,
+          0.8455
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/wall.obj",
+      "derivatives": [
+        "glb/wall.glb",
+        "thumbnails/wall.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.31,
+          0.5
+        ],
+        "size": [
+          1.0,
+          1.31,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-corner",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/wall-corner.obj",
+      "derivatives": [
+        "glb/wall-corner.glb",
+        "thumbnails/wall-corner.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.31,
+          0.5
+        ],
+        "size": [
+          1.0,
+          1.31,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-doorway",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/wall-doorway.obj",
+      "derivatives": [
+        "glb/wall-doorway.glb",
+        "thumbnails/wall-doorway.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          -0.0,
+          -0.5
+        ],
+        "max": [
+          0.0,
+          1.31,
+          0.5
+        ],
+        "size": [
+          0.5,
+          1.31,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "stairs-stone",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/stairs-stone.obj",
+      "derivatives": [
+        "glb/stairs-stone.glb",
+        "thumbnails/stairs-stone.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.1163,
+          0.0,
+          -0.4095
+        ],
+        "max": [
+          0.1163,
+          0.675,
+          0.4095
+        ],
+        "size": [
+          0.2325,
+          0.675,
+          0.819
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "bridge-straight",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/castle/bridge-straight.obj",
+      "derivatives": [
+        "glb/bridge-straight.glb",
+        "thumbnails/bridge-straight.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.465,
+          0.0,
+          -0.465
+        ],
+        "max": [
+          0.465,
+          1.176,
+          0.465
+        ],
+        "size": [
+          0.93,
+          1.176,
+          0.93
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-window-shutters",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/wall-window-shutters.obj",
+      "derivatives": [
+        "glb/wall-window-shutters.glb",
+        "thumbnails/wall-window-shutters.png"
+      ],
+      "metadata": {
+        "min": [
+          0.325,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "size": [
+          0.175,
+          1.0,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-wood-window-shutters",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/wall-wood-window-shutters.obj",
+      "derivatives": [
+        "glb/wall-wood-window-shutters.glb",
+        "thumbnails/wall-wood-window-shutters.png"
+      ],
+      "metadata": {
+        "min": [
+          0.4,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "size": [
+          0.1,
+          1.0,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-door",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/wall-door.obj",
+      "derivatives": [
+        "glb/wall-door.glb",
+        "thumbnails/wall-door.png"
+      ],
+      "metadata": {
+        "min": [
+          0.4,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "size": [
+          0.1,
+          1.0,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "wall-wood-door",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/wall-wood-door.obj",
+      "derivatives": [
+        "glb/wall-wood-door.glb",
+        "thumbnails/wall-wood-door.png"
+      ],
+      "metadata": {
+        "min": [
+          0.4,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "size": [
+          0.1,
+          1.0,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "roof-gable",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/roof-gable.obj",
+      "derivatives": [
+        "glb/roof-gable.glb",
+        "thumbnails/roof-gable.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.55,
+          -0.0,
+          -0.5354
+        ],
+        "max": [
+          0.55,
+          0.5707,
+          0.5354
+        ],
+        "size": [
+          1.1,
+          0.5707,
+          1.0707
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "roof-point",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/roof-point.obj",
+      "derivatives": [
+        "glb/roof-point.glb",
+        "thumbnails/roof-point.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.55,
+          0.0,
+          -0.55
+        ],
+        "max": [
+          0.55,
+          0.5,
+          0.55
+        ],
+        "size": [
+          1.1,
+          0.5,
+          1.1
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tree",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/tree.obj",
+      "derivatives": [
+        "glb/tree.glb",
+        "thumbnails/tree.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5115,
+          0.0,
+          -0.5115
+        ],
+        "max": [
+          0.5115,
+          2.4128,
+          0.5115
+        ],
+        "size": [
+          1.023,
+          2.4128,
+          1.023
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "tree-high",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/tree-high.obj",
+      "derivatives": [
+        "glb/tree-high.glb",
+        "thumbnails/tree-high.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5115,
+          0.0,
+          -0.5115
+        ],
+        "max": [
+          0.5115,
+          2.9728,
+          0.5115
+        ],
+        "size": [
+          1.023,
+          2.9728,
+          1.023
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "lantern",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/lantern.obj",
+      "derivatives": [
+        "glb/lantern.glb",
+        "thumbnails/lantern.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.1082,
+          0.0,
+          -0.1122
+        ],
+        "max": [
+          0.1082,
+          1.556,
+          0.1122
+        ],
+        "size": [
+          0.2164,
+          1.556,
+          0.2243
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "stall-red",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/stall-red.obj",
+      "derivatives": [
+        "glb/stall-red.glb",
+        "thumbnails/stall-red.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          1.237,
+          0.5
+        ],
+        "size": [
+          1.0,
+          1.237,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "road",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/road.obj",
+      "derivatives": [
+        "glb/road.glb",
+        "thumbnails/road.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.5,
+          0.025,
+          0.5
+        ],
+        "size": [
+          1.0,
+          0.025,
+          1.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "road-bend",
+      "category": "retained-city",
+      "status": "current",
+      "source": "assets-source/quiet-wing/city/town/road-bend.obj",
+      "derivatives": [
+        "glb/road-bend.glb",
+        "thumbnails/road-bend.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ],
+        "max": [
+          1.5,
+          0.05,
+          1.5
+        ],
+        "size": [
+          3.0,
+          0.05,
+          3.0
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "provenance": "CC0-1.0 retained city source",
+      "integrationReference": "src/quiet-wing/assets/city-models.json"
+    },
+    {
+      "id": "ground-grass",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/ground-grass.glb",
+        "thumbnails/ground-grass.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.1,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.05,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "ground-path",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/ground-path.glb",
+        "thumbnails/ground-path.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.13,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.13,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.05,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "ground-cobble",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/ground-cobble.glb",
+        "thumbnails/ground-cobble.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.13,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.13,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.05,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "water-tile",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/water-tile.glb",
+        "thumbnails/water-tile.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.06,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.06,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.03,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "water-edge",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/water-edge.glb",
+        "thumbnails/water-edge.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.12,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.12,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.03,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "water-corner",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/water-corner.glb",
+        "thumbnails/water-corner.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.12,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.12,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.03,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "wall-gate",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/wall-gate.glb",
+        "thumbnails/wall-gate.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -0.22
+        ],
+        "max": [
+          1.0,
+          1.4,
+          0.28
+        ],
+        "size": [
+          2.0,
+          1.4,
+          0.5
+        ],
+        "pivot": [
+          -0.75,
+          0.7,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "wall-end",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/wall-end.glb",
+        "thumbnails/wall-end.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -0.7
+        ],
+        "max": [
+          1.25,
+          1.1,
+          0.7
+        ],
+        "size": [
+          2.25,
+          1.1,
+          1.4
+        ],
+        "pivot": [
+          0.0,
+          0.55,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "bridge-arched",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/bridge-arched.glb",
+        "thumbnails/bridge-arched.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.35,
+          0.1,
+          -0.55
+        ],
+        "max": [
+          1.35,
+          0.67,
+          0.55
+        ],
+        "size": [
+          2.7,
+          0.57,
+          1.1
+        ],
+        "pivot": [
+          0.0,
+          0.55,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "cottage-small",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/cottage-small.glb",
+        "thumbnails/cottage-small.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.2339,
+          0.0,
+          -1.2339
+        ],
+        "max": [
+          1.0,
+          2.72,
+          0.8
+        ],
+        "size": [
+          2.2339,
+          2.72,
+          2.0339
+        ],
+        "pivot": [
+          0.0,
+          0.6,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "cottage-long",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/cottage-long.glb",
+        "thumbnails/cottage-long.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.4496,
+          -0.025,
+          -1.4496
+        ],
+        "max": [
+          1.25,
+          3.025,
+          0.8
+        ],
+        "size": [
+          2.6996,
+          3.05,
+          2.2496
+        ],
+        "pivot": [
+          0.0,
+          0.6,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "farm-barn",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/farm-barn.glb",
+        "thumbnails/farm-barn.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.2339,
+          0.0,
+          -1.2339
+        ],
+        "max": [
+          1.57,
+          2.72,
+          0.8
+        ],
+        "size": [
+          2.8039,
+          2.72,
+          2.0339
+        ],
+        "pivot": [
+          0.0,
+          0.6,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "crop-wheat",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/crop-wheat.glb",
+        "thumbnails/crop-wheat.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.4,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.4,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.04,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "crop-rows",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/crop-rows.glb",
+        "thumbnails/crop-rows.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          0.24,
+          1.0
+        ],
+        "size": [
+          2.0,
+          0.24,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.04,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "orchard",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/orchard.glb",
+        "thumbnails/orchard.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        "max": [
+          1.0,
+          1.37,
+          1.0
+        ],
+        "size": [
+          2.0,
+          1.37,
+          2.0
+        ],
+        "pivot": [
+          0.0,
+          0.04,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    },
+    {
+      "id": "tree-oak",
+      "category": "compatible-module",
+      "status": "proposed",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "glb/tree-oak.glb",
+        "thumbnails/tree-oak.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.7604,
+          0.41,
+          -0.65
+        ],
+        "max": [
+          0.7604,
+          2.23,
+          0.65
+        ],
+        "size": [
+          1.5209,
+          1.82,
+          1.3
+        ],
+        "pivot": [
+          0.0,
+          0.55,
+          0.0
+        ]
+      },
+      "provenance": "Original Alibi geometry; palette derives from Quiet Wing",
+      "integrationReference": "candidate library only; no runtime import"
+    }
+  ],
+  "scenes": [
+    "harbour",
+    "hillfort",
+    "farmstead"
+  ],
+  "generator": "Blender 5.2.1"
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alibi realm and companion library</title>
+  <link rel="stylesheet" href="model-preview.css" />
+  <body>
+    <header>
+      <p>ALIBI · QUIET WING</p>
+      <h1>Realm &amp; companion library</h1>
+      <p>Local source assets only. The viewer is a staging reference, not a runtime import.</p>
+    </header>
+    <main>
+      <section class="controls" aria-label="Preview controls">
+        <label
+          >Library
+          <select id="family">
+            <option value="realm">Realm kit</option>
+            <option value="companions">Companion states</option>
+          </select></label
+        >
+        <label id="piece-label"
+          >Piece
+          <select id="piece"></select
+        ></label>
+        <label id="state-label" hidden
+          >State
+          <select id="state"></select
+        ></label>
+        <button id="previous" aria-label="Previous piece">←</button
+        ><button id="next" aria-label="Next piece">→</button>
+        <label><input id="motion" type="checkbox" checked /> Gentle motion</label>
+      </section>
+      <section class="stage" aria-live="polite">
+        <canvas id="canvas" aria-label="3D model preview"></canvas
+        ><img id="companion" hidden alt="" />
+        <p id="fallback" hidden>Static thumbnail shown because WebGL is unavailable.</p>
+      </section>
+      <aside>
+        <h2 id="title"></h2>
+        <p id="detail"></p>
+        <dl id="facts"></dl>
+        <p class="reduced">
+          Reduced motion keeps the reference still. Use the exported SVG rigs for static fallbacks.
+        </p>
+      </aside>
+    </main>
+    <script type="module" src="model-preview.js"></script>
+  </body>
+</html>
