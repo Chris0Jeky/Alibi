@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 2,
+  "assets": [
+    {
+      "id": "cat",
+      "title": "Miso",
+      "category": "companions",
+      "status": "current",
+      "design": "original",
+      "source": "src/quiet-wing/pets.js",
+      "derivatives": [
+        "assets-source/library/companions/rigs/cat-idle.svg",
+        "assets-source/library/companions/thumbnails/cat-idle.png",
+        "assets-source/library/companions/rigs/cat-look.svg",
+        "assets-source/library/companions/thumbnails/cat-look.png",
+        "assets-source/library/companions/rigs/cat-attention.svg",
+        "assets-source/library/companions/thumbnails/cat-attention.png",
+        "assets-source/library/companions/rigs/cat-happy.svg",
+        "assets-source/library/companions/thumbnails/cat-happy.png",
+        "assets-source/library/companions/rigs/cat-sleepy.svg",
+        "assets-source/library/companions/thumbnails/cat-sleepy.png",
+        "assets-source/library/companions/rigs/cat-pet.svg",
+        "assets-source/library/companions/thumbnails/cat-pet.png",
+        "assets-source/library/companions/rigs/cat-feed.svg",
+        "assets-source/library/companions/thumbnails/cat-feed.png",
+        "assets-source/library/companions/rigs/cat-celebrate.svg",
+        "assets-source/library/companions/thumbnails/cat-celebrate.png"
+      ],
+      "metadata": {
+        "viewBox": "0 0 300 300",
+        "layers": [
+          "tail",
+          "body",
+          "arm",
+          "head",
+          "eyes",
+          "hearts",
+          "sleep"
+        ],
+        "states": [
+          "idle",
+          "look",
+          "attention",
+          "happy",
+          "sleepy",
+          "pet",
+          "feed",
+          "celebrate"
+        ]
+      },
+      "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
+      "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
+    },
+    {
+      "id": "fox",
+      "title": "Fern",
+      "category": "companions",
+      "status": "current",
+      "design": "original",
+      "source": "src/quiet-wing/pets.js",
+      "derivatives": [
+        "assets-source/library/companions/rigs/fox-idle.svg",
+        "assets-source/library/companions/thumbnails/fox-idle.png",
+        "assets-source/library/companions/rigs/fox-look.svg",
+        "assets-source/library/companions/thumbnails/fox-look.png",
+        "assets-source/library/companions/rigs/fox-attention.svg",
+        "assets-source/library/companions/thumbnails/fox-attention.png",
+        "assets-source/library/companions/rigs/fox-happy.svg",
+        "assets-source/library/companions/thumbnails/fox-happy.png",
+        "assets-source/library/companions/rigs/fox-sleepy.svg",
+        "assets-source/library/companions/thumbnails/fox-sleepy.png",
+        "assets-source/library/companions/rigs/fox-pet.svg",
+        "assets-source/library/companions/thumbnails/fox-pet.png",
+        "assets-source/library/companions/rigs/fox-feed.svg",
+        "assets-source/library/companions/thumbnails/fox-feed.png",
+        "assets-source/library/companions/rigs/fox-celebrate.svg",
+        "assets-source/library/companions/thumbnails/fox-celebrate.png"
+      ],
+      "metadata": {
+        "viewBox": "0 0 300 300",
+        "layers": [
+          "tail",
+          "body",
+          "arm",
+          "head",
+          "eyes",
+          "hearts",
+          "sleep"
+        ],
+        "states": [
+          "idle",
+          "look",
+          "attention",
+          "happy",
+          "sleepy",
+          "pet",
+          "feed",
+          "celebrate"
+        ]
+      },
+      "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
+      "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
+    },
+    {
+      "id": "owl",
+      "title": "Pip",
+      "category": "companions",
+      "status": "current",
+      "design": "original",
+      "source": "src/quiet-wing/pets.js",
+      "derivatives": [
+        "assets-source/library/companions/rigs/owl-idle.svg",
+        "assets-source/library/companions/thumbnails/owl-idle.png",
+        "assets-source/library/companions/rigs/owl-look.svg",
+        "assets-source/library/companions/thumbnails/owl-look.png",
+        "assets-source/library/companions/rigs/owl-attention.svg",
+        "assets-source/library/companions/thumbnails/owl-attention.png",
+        "assets-source/library/companions/rigs/owl-happy.svg",
+        "assets-source/library/companions/thumbnails/owl-happy.png",
+        "assets-source/library/companions/rigs/owl-sleepy.svg",
+        "assets-source/library/companions/thumbnails/owl-sleepy.png",
+        "assets-source/library/companions/rigs/owl-pet.svg",
+        "assets-source/library/companions/thumbnails/owl-pet.png",
+        "assets-source/library/companions/rigs/owl-feed.svg",
+        "assets-source/library/companions/thumbnails/owl-feed.png",
+        "assets-source/library/companions/rigs/owl-celebrate.svg",
+        "assets-source/library/companions/thumbnails/owl-celebrate.png"
+      ],
+      "metadata": {
+        "viewBox": "0 0 300 300",
+        "layers": [
+          "tail",
+          "body",
+          "arm",
+          "head",
+          "eyes",
+          "hearts",
+          "sleep"
+        ],
+        "states": [
+          "idle",
+          "look",
+          "attention",
+          "happy",
+          "sleepy",
+          "pet",
+          "feed",
+          "celebrate"
+        ]
+      },
+      "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
+      "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
+    },
+    {
+      "id": "dragon",
+      "title": "Nimbus",
+      "category": "companions",
+      "status": "current",
+      "design": "original",
+      "source": "src/quiet-wing/pets.js",
+      "derivatives": [
+        "assets-source/library/companions/rigs/dragon-idle.svg",
+        "assets-source/library/companions/thumbnails/dragon-idle.png",
+        "assets-source/library/companions/rigs/dragon-look.svg",
+        "assets-source/library/companions/thumbnails/dragon-look.png",
+        "assets-source/library/companions/rigs/dragon-attention.svg",
+        "assets-source/library/companions/thumbnails/dragon-attention.png",
+        "assets-source/library/companions/rigs/dragon-happy.svg",
+        "assets-source/library/companions/thumbnails/dragon-happy.png",
+        "assets-source/library/companions/rigs/dragon-sleepy.svg",
+        "assets-source/library/companions/thumbnails/dragon-sleepy.png",
+        "assets-source/library/companions/rigs/dragon-pet.svg",
+        "assets-source/library/companions/thumbnails/dragon-pet.png",
+        "assets-source/library/companions/rigs/dragon-feed.svg",
+        "assets-source/library/companions/thumbnails/dragon-feed.png",
+        "assets-source/library/companions/rigs/dragon-celebrate.svg",
+        "assets-source/library/companions/thumbnails/dragon-celebrate.png"
+      ],
+      "metadata": {
+        "viewBox": "0 0 300 300",
+        "layers": [
+          "tail",
+          "body",
+          "arm",
+          "head",
+          "eyes",
+          "hearts",
+          "sleep"
+        ],
+        "states": [
+          "idle",
+          "look",
+          "attention",
+          "happy",
+          "sleepy",
+          "pet",
+          "feed",
+          "celebrate"
+        ]
+      },
+      "provenance": "Original Alibi layered vector geometry. Existing 3D candidate and licence records remain in assets-source/quiet-wing/companions/.",
+      "accessibility": "Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.",
+      "integration": "src/quiet-wing/pets.js and src/quiet-wing/pet-view.js",
+      "qa": "All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs."
+    }
+  ]
+}
