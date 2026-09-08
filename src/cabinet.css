@@ -799,3 +799,15 @@ html[data-theme='night'] .book-number {
     font-size: 14px;
   }
 }
+/* Editorial highlights stay on collection cards, away from the playing surface. */
+.puzzle-highlight {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.zen .puzzle-highlight,
+.club-zen .puzzle-highlight {
+  display: none;
+}

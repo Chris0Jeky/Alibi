@@ -1,0 +1,1314 @@
+[
+  {
+    "id": "highlight-bellweather-witness-03",
+    "title": "Porch in the sea air",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-witness-03.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-witness-03.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "The earliest record establishes the lighthouse setting without illustrating the missing object.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-bellweather-witness-01",
+    "title": "Weather at the window",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-witness-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-witness-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "The squall is public story context; no account or person is encoded.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-bellweather-dossier-01",
+    "title": "Archive shelves",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-dossier-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-dossier-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "Editorial texture for a linked inventory, without readable labels or evidence assignments.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-bellweather-scene-01",
+    "title": "Lantern gallery",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-scene-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-scene-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "An architectural exterior avoids revealing the actual floor plan or any placement.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-bellweather-witness-02",
+    "title": "The lens workshop",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-witness-02.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-witness-02.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "Workshop material, with no key, hand, suspect or ownership cue.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-bellweather-dossier-02",
+    "title": "The harbour office",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-bellweather-dossier-02.svg",
+    "derivatives": [
+      "src/artwork/highlight-bellweather-dossier-02.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "A harbour desk marks the later record without illustrating its objects or assignments.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-scene-01",
+    "title": "The dining room after dusk",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-scene-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-scene-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "The first published scene is a useful return point; a single place setting implies no clue counts.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-scene-03",
+    "title": "Behind the curtain",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-scene-03.svg",
+    "derivatives": [
+      "src/artwork/highlight-scene-03.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "A theatre silhouette distinguishes this scene while leaving the backstage floor plan unknown.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-lightup-01",
+    "title": "A glasshouse at dusk",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-lightup-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-lightup-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "A gentle first illumination puzzle earns a welcoming botanical vignette, not a solved board.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-tents-01",
+    "title": "Woodland margin",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-tents-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-tents-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "A woodland mood avoids depicting trees and tents in rule-bearing arrangements.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-aquarium-01",
+    "title": "A drop of blue",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-aquarium-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-aquarium-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "This category highlight depicts a vessel rather than a puzzle tank arrangement.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "highlight-network-01",
+    "title": "Signal cottage",
+    "category": "highlights",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/highlight-network-01.svg",
+    "derivatives": [
+      "src/artwork/highlight-network-01.webp"
+    ],
+    "dimensions": [
+      320,
+      240
+    ],
+    "selection": "An architectural signal motif introduces the family without drawing a valid network or solution.",
+    "spoiler": false,
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Decorative empty alt; puzzle title remains editable. Hidden in Zen.",
+    "integration": "src/app.js:puzzleCard"
+  },
+  {
+    "id": "badge-first-stone",
+    "title": "First stone",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-first-stone.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-first-stone-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-hamlet",
+    "title": "Village maker",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-hamlet.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-hamlet-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-borough",
+    "title": "A town of your own",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-borough.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-borough-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-castle",
+    "title": "Castle keeper",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-castle.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-castle-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-gardener",
+    "title": "A green corner",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-gardener.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-gardener-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-architect",
+    "title": "Above the rooftops",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-architect.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-architect-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-new-angle",
+    "title": "Another perspective",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-new-angle.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-new-angle-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-postcard",
+    "title": "Wish you were here",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-postcard.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-postcard-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-maker",
+    "title": "The model-maker",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-maker.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-maker-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-hello",
+    "title": "A new friend",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-hello.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-hello-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-menagerie",
+    "title": "Four little friends",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-menagerie.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-menagerie-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-kindred",
+    "title": "Familiar company",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-kindred.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-kindred-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-wanderer",
+    "title": "There and back",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-wanderer.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-wanderer-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-seed",
+    "title": "First shoots",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-seed.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-seed-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-pressed",
+    "title": "Between the pages",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-pressed.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-pressed-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-herbarium",
+    "title": "Small herbarium",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-herbarium.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-herbarium-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-hanoi",
+    "title": "Patient hands",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-hanoi.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-hanoi-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-ferryman",
+    "title": "A safe crossing",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-ferryman.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-ferryman-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-measure",
+    "title": "Precisely four",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-measure.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-measure-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-queens",
+    "title": "A quiet court",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-queens.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-queens-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-lo-shu",
+    "title": "Fifteen everywhere",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-lo-shu.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-lo-shu-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-knight",
+    "title": "Every square",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-knight.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-knight-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-scholar",
+    "title": "The classical shelf",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-scholar.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-scholar-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-restorer",
+    "title": "A picture, restored",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-restorer.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-restorer-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-curator",
+    "title": "A closer look",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-curator.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-curator-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/quiet-wing/app.js:badgeSVG"
+  },
+  {
+    "id": "badge-club-first-light",
+    "title": "First light",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-first-light.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-first-light-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "badge-club-curious",
+    "title": "A curious mind",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-curious.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-curious-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "badge-club-town",
+    "title": "Town planner",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-town.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-town-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "badge-club-duel",
+    "title": "A seat at the table",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-duel.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-duel-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "badge-club-archive",
+    "title": "In good order",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-archive.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-archive-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "badge-club-zen",
+    "title": "A quiet practice",
+    "category": "badges",
+    "status": "current",
+    "design": "original",
+    "source": "assets-source/library/visuals/badge-club-zen.svg",
+    "derivatives": [
+      "assets-source/library/visuals/badge-club-zen-locked.svg"
+    ],
+    "dimensions": [
+      100,
+      100
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Original deterministic SVG geometry",
+      "license": "Project original; no separate public reuse grant",
+      "source": "tools/assets/visuals.cjs"
+    },
+    "accessibility": "Adjacent name and earned status; lock glyph is an additional non-colour cue.",
+    "integration": "src/club.js:clubJournal"
+  },
+  {
+    "id": "family-bridges",
+    "title": "Tidal bridges",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-bridges.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-bridges.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-scene",
+    "title": "Crime scenes",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-scene.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-scene.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-dossier",
+    "title": "Alibi files",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-dossier.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-dossier.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-witness",
+    "title": "Witness statements",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-witness.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-witness.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-sudoku",
+    "title": "Sudoku",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-sudoku.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-sudoku.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-nonogram",
+    "title": "Picture logic",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-nonogram.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-nonogram.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-binary",
+    "title": "Sun & moon",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-binary.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-binary.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-futoshiki",
+    "title": "Futoshiki",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-futoshiki.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-futoshiki.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-lightup",
+    "title": "Lanterns",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-lightup.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-lightup.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-tents",
+    "title": "Tents & trees",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-tents.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-tents.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-aquarium",
+    "title": "Aquariums",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-aquarium.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-aquarium.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-network",
+    "title": "Signal paths",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-network.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-network.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  },
+  {
+    "id": "family-trail",
+    "title": "Number trails",
+    "category": "families",
+    "status": "current",
+    "design": "reused",
+    "source": "assets-source/library/visuals/family-trail.svg",
+    "derivatives": [
+      "assets-source/library/visuals/card-trail.svg"
+    ],
+    "dimensions": [
+      24,
+      24
+    ],
+    "provenance": {
+      "author": "Alibi project",
+      "method": "Unchanged export from current AlibiUI icon/art",
+      "source": "src/presentation.js",
+      "license": "Existing project rights unchanged"
+    },
+    "accessibility": "Existing labelled family controls; decorative diagrams are not instructional claims.",
+    "integration": "src/presentation.js; src/app.js:familyCard"
+  }
+]

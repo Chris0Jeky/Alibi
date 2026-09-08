@@ -376,10 +376,15 @@
     const r = rec(p),
       inProgress = r && r.moves > 0 && !r.completedAt,
       fav = prefs.favorites.includes(p.id);
-    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${AlibiClub.portrait(
-      p.type,
-      [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
-    )}${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty)}<span>${p.minutes || 8} min${p.type === 'witness' ? '' : ` · ${p.size} × ${p.size}`}</span></div></div></button></article>`;
+    const highlight = globalThis.ALIBI_MEDIA?.[globalThis.AlibiAssets.highlights[p.id]];
+    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
+      highlight
+        ? `<img class="puzzle-highlight" src="${esc(highlight)}" width="320" height="240" alt="" loading="lazy" decoding="async">`
+        : AlibiClub.portrait(
+            p.type,
+            [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
+          )
+    }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty)}<span>${p.minutes || 8} min${p.type === 'witness' ? '' : ` · ${p.size} × ${p.size}`}</span></div></div></button></article>`;
   }
   function bookCard(b, i) {
     const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length;
