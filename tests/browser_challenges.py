@@ -10,6 +10,18 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = [item for name in ('classics', 'warehouse', 'reversi', 'borough') for item in json.loads((ROOT / 'content' / 'challenges' / f'{name}.json').read_text())['challenges']]
 BY_ID = {item['id']: item for item in DATA}
 
+def assert_grid(page):
+    assert page.evaluate('''() => {
+      const grid=document.querySelector('.challenge-grid'); if(!grid)return true;
+      const columns=getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+      const cells=[...grid.children].map(e=>e.getBoundingClientRect());
+      return getComputedStyle(grid).display==='grid' && columns>1 &&
+        Math.abs(cells[0].y-cells[columns-1].y)<1 &&
+        cells[columns].y>cells[0].bottom &&
+        Math.abs(cells[columns].x-cells[0].x)<1 &&
+        cells.every(r=>r.width>=24 && r.right<=innerWidth);
+    }'''), 'Board cells must retain their spatial rows and columns'
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
@@ -26,6 +38,7 @@ try:
         page = browser.new_page(viewport={'width': width, 'height': 900})
         page.goto(f'http://127.0.0.1:{server.server_port}/')
         page.set_content('<main id="host"></main>')
+        page.add_style_tag(path=str(ROOT / 'src/quiet-wing/style.css'))
         for source in ('src/quiet-wing/engine.js', 'src/club-engines.js', 'src/challenges.js', 'src/challenge-storage.js', 'src/challenge-launcher.js'):
             page.add_script_tag(path=str(ROOT / source))
         page.evaluate('(data) => { window.registry = AlibiChallenges.create(data, {quiet: QWEngine, club: AlibiClubEngines}); window.persisted = null; AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, "curated-classic-hanoi-01", null, run => window.persisted = run); }', DATA)
@@ -41,6 +54,7 @@ try:
 
         def mount(challenge_id):
             page.evaluate('(id) => AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, id, null, () => {})', challenge_id)
+            assert_grid(page)
 
         sliding = BY_ID['curated-classic-sliding-01']['solutionActions'][0]
         mount('curated-classic-sliding-01')
@@ -136,6 +150,13 @@ try:
         page.locator('#challenge-file').set_input_files({'name':'challenge.json','mimeType':'application/json','buffer':exported})
         page.wait_for_function("()=>window.challengeJobs.includes('challenge-run')")
         page.locator('.challenge-status').filter(has_text='1 moves').wait_for()
+        for width in (390, 1280):
+            page.set_viewport_size({'width': width, 'height': 900})
+            page.goto(production_url.rstrip('/') + '#/quiet/challenges')
+            page.locator('[data-challenge-id="curated-classic-queens-01"]').click()
+            assert_grid(page)
+            assert page.locator('.challenge-grid').evaluate("e=>getComputedStyle(e).gridTemplateColumns.split(' ').length") == 8
+            page.screenshot(path=str(ROOT / 'test-results/curation-ui' / f'final-challenge-{width}.png'), full_page=True)
         page.context.browser.close()
 finally:
   server.shutdown()

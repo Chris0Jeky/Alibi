@@ -19,7 +19,9 @@ Independent review found a future-record overwrite and the fix now refuses write
 failed reads and inside the transaction; real IndexedDB tests prove preservation. Core/editorial
 review found no blockers. The combined repository check, supplied 324 and 59 checkers, 182 new
 mobile controls, 66 curation real-origin checks and every challenge mechanism at phone/desktop
-widths pass. Final-head CI and publication evidence will be recorded in the PR/release receipt.
+widths pass. Visual inspection also caught missing challenge grid styling; explicit spatial
+row/column assertions now cover grid mechanisms and the shipped phone/desktop queen board.
+Final-head CI and publication evidence will be recorded in the PR/release receipt.
 
 This candidate does not certify human solve quality or the physical Android incident. Owner
 checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md). The original deployment identity is unchanged.

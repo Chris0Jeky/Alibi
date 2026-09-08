@@ -2104,6 +2104,37 @@ dialog select {
   border-radius: 14px;
   margin-top: 16px;
 }
+.challenge-grid {
+  display: grid;
+  gap: 3px;
+  width: min(100%, 440px);
+  margin: 18px 0;
+}
+.challenge-grid > button {
+  min-width: 0;
+  padding: 2px;
+  aspect-ratio: 1;
+  border-radius: 5px;
+  font-size: clamp(16px, 4vw, 24px);
+}
+.challenge-grid > button:disabled {
+  opacity: 1;
+  color: var(--ink);
+  background: #e1e8df;
+}
+.challenge-controls [aria-pressed='true'] {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+.challenge-pegs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.challenge-pegs strong {
+  display: block;
+  margin-top: 10px;
+}
 .models .model small {
   display: block;
   margin-top: 5px;
