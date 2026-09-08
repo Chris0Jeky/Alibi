@@ -1,0 +1,712 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Alibi data-only puzzle pack",
+  "description": "Structural authoring assistance. Runtime validation and uniqueness checking remain mandatory.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "puzzles"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999999
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "author": {
+      "type": "string"
+    },
+    "puzzles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 150,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/scene"
+          },
+          {
+            "$ref": "#/$defs/sudoku"
+          },
+          {
+            "$ref": "#/$defs/nonogram"
+          },
+          {
+            "$ref": "#/$defs/binary"
+          },
+          {
+            "$ref": "#/$defs/futoshiki"
+          },
+          {
+            "$ref": "#/$defs/dossier"
+          },
+          {
+            "$ref": "#/$defs/witness"
+          },
+          {
+            "$ref": "#/$defs/lightup"
+          },
+          {
+            "$ref": "#/$defs/tents"
+          },
+          {
+            "$ref": "#/$defs/aquarium"
+          },
+          {
+            "$ref": "#/$defs/network"
+          },
+          {
+            "$ref": "#/$defs/trail"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "common": {
+      "type": "object",
+      "required": [
+        "id",
+        "revision",
+        "type",
+        "title",
+        "subtitle",
+        "difficulty",
+        "size",
+        "solution"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,63}$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 999999
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 90
+        },
+        "subtitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "difficulty": {
+          "enum": [
+            "Gentle",
+            "Steady",
+            "Tricky"
+          ]
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 9
+        },
+        "story": {
+          "type": "string",
+          "maxLength": 1600
+        }
+      },
+      "description": "Cross-field geometry, references, dimensions and logic must also pass the executable validators and bounded solver."
+    },
+    "scene": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "roomNames",
+            "rooms",
+            "people",
+            "objects",
+            "victim",
+            "clues",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "scene"
+            },
+            "roomNames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rooms": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "name",
+                  "role",
+                  "color"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "objects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "cell",
+                  "kind",
+                  "name"
+                ]
+              }
+            },
+            "victim": {
+              "type": "string"
+            },
+            "clues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "who"
+                ]
+              }
+            },
+            "solution": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sudoku": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "boxRows",
+            "boxCols",
+            "givens",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "sudoku"
+            },
+            "boxRows": {
+              "type": "integer"
+            },
+            "boxCols": {
+              "type": "integer"
+            },
+            "givens": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nonogram": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "rowClues",
+            "colClues",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "nonogram"
+            },
+            "rowClues": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "colClues": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "binary": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "givens",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "binary"
+            },
+            "givens": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "futoshiki": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "givens",
+            "solution",
+            "inequalities"
+          ],
+          "properties": {
+            "type": {
+              "const": "futoshiki"
+            },
+            "givens": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "inequalities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "a",
+                  "b",
+                  "op"
+                ],
+                "properties": {
+                  "a": {
+                    "type": "integer"
+                  },
+                  "b": {
+                    "type": "integer"
+                  },
+                  "op": {
+                    "enum": [
+                      "<",
+                      ">"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "dossier": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "people",
+            "categories",
+            "solution",
+            "targetItem",
+            "clues"
+          ],
+          "properties": {
+            "type": {
+              "const": "dossier"
+            },
+            "people": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "string"
+              }
+            },
+            "categories": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "values"
+                ]
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "targetItem": {
+              "type": "integer"
+            },
+            "clues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "witness": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "people",
+            "statements",
+            "trueCount",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "witness"
+            },
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "statements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "speaker",
+                  "kind",
+                  "suspects"
+                ],
+                "properties": {
+                  "speaker": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "is",
+                      "not",
+                      "oneof"
+                    ]
+                  },
+                  "suspects": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "trueCount": {
+              "type": "integer"
+            },
+            "solution": {
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "lightup": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "walls",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "lightup"
+            },
+            "walls": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tents": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "trees",
+            "rowTargets",
+            "colTargets",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "tents"
+            },
+            "trees": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "rowTargets": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "colTargets": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "aquarium": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "tanks",
+            "rowTargets",
+            "colTargets",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "aquarium"
+            },
+            "tanks": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "rowTargets": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "colTargets": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "network": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "tiles",
+            "source",
+            "locked",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "network"
+            },
+            "tiles": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "source": {
+              "type": "integer"
+            },
+            "locked": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "trail": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "givens",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "trail"
+            },
+            "givens": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

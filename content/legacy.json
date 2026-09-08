@@ -1,0 +1,4697 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-starter",
+  "version": 1,
+  "title": "The first collection",
+  "author": "Alibi prototype",
+  "puzzles": [
+    {
+      "id": "scene-01",
+      "revision": 1,
+      "type": "scene",
+      "title": "The last service",
+      "subtitle": "Briar House",
+      "story": "A dinner ended early. Five people were inside when the lights went out. Reconstruct the room, then name the killer.",
+      "difficulty": "Gentle",
+      "size": 5,
+      "roomNames": [
+        "Dining room",
+        "Kitchen",
+        "Study",
+        "Glasshouse"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 3,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 17,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 16,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 2,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 23,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "miles"
+        },
+        {
+          "kind": "near",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "above",
+          "who": "ada",
+          "other": "felix"
+        },
+        {
+          "kind": "notRoom",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "above",
+          "who": "miles",
+          "other": "ada"
+        },
+        {
+          "kind": "col",
+          "who": "ada",
+          "value": 2
+        }
+      ],
+      "solution": {
+        "june": 1,
+        "miles": 9,
+        "ada": 12,
+        "felix": 20,
+        "victim": 18
+      }
+    },
+    {
+      "id": "scene-02",
+      "revision": 1,
+      "type": "scene",
+      "title": "A quiet carriage",
+      "subtitle": "The northbound sleeper",
+      "story": "The night train never stopped. Someone in the first-class carriage knows why the conductor did.",
+      "difficulty": "Gentle",
+      "size": 5,
+      "roomNames": [
+        "Lounge",
+        "Dining car",
+        "Cabin A",
+        "Cabin B"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 8,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 1,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 2,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 6,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 4,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 2
+        },
+        {
+          "kind": "col",
+          "who": "felix",
+          "value": 1
+        },
+        {
+          "kind": "col",
+          "who": "miles",
+          "value": 0
+        },
+        {
+          "kind": "row",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "col",
+          "who": "june",
+          "value": 3
+        }
+      ],
+      "solution": {
+        "june": 23,
+        "miles": 0,
+        "ada": 7,
+        "felix": 16,
+        "victim": 14
+      }
+    },
+    {
+      "id": "scene-03",
+      "revision": 1,
+      "type": "scene",
+      "title": "After the encore",
+      "subtitle": "Orpheum Theatre",
+      "story": "The audience has gone. Behind the curtain, five accounts of the final bow do not quite line up.",
+      "difficulty": "Steady",
+      "size": 5,
+      "roomNames": [
+        "Stage",
+        "Wings",
+        "Dressing room",
+        "Green room"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 4,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 16,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 20,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 11,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 8,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "notEdge",
+          "who": "miles"
+        },
+        {
+          "kind": "col",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "col",
+          "who": "ada",
+          "value": 0
+        },
+        {
+          "kind": "row",
+          "who": "june",
+          "value": 3
+        },
+        {
+          "kind": "row",
+          "who": "felix",
+          "value": 4
+        },
+        {
+          "kind": "row",
+          "who": "ada",
+          "value": 1
+        }
+      ],
+      "solution": {
+        "june": 17,
+        "miles": 13,
+        "ada": 5,
+        "felix": 24,
+        "victim": 1
+      }
+    },
+    {
+      "id": "scene-04",
+      "revision": 1,
+      "type": "scene",
+      "title": "The missing hour",
+      "subtitle": "Bell Street",
+      "story": "The clockmaker left one watch running. Place everyone in the workshop to reconstruct the last hour.",
+      "difficulty": "Steady",
+      "size": 5,
+      "roomNames": [
+        "Workshop",
+        "Shopfront",
+        "Office",
+        "Storeroom"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 9,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 21,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 10,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 15,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 14,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "above",
+          "who": "felix",
+          "other": "ada"
+        },
+        {
+          "kind": "edge",
+          "who": "felix"
+        },
+        {
+          "kind": "above",
+          "who": "ada",
+          "other": "june"
+        },
+        {
+          "kind": "notEdge",
+          "who": "june"
+        },
+        {
+          "kind": "near",
+          "who": "miles",
+          "value": 14
+        },
+        {
+          "kind": "room",
+          "who": "ada",
+          "value": 0
+        },
+        {
+          "kind": "left",
+          "who": "felix",
+          "other": "ada"
+        },
+        {
+          "kind": "left",
+          "who": "ada",
+          "other": "june"
+        }
+      ],
+      "solution": {
+        "june": 12,
+        "miles": 19,
+        "ada": 6,
+        "felix": 0,
+        "victim": 23
+      }
+    },
+    {
+      "id": "scene-05",
+      "revision": 1,
+      "type": "scene",
+      "title": "Under glass",
+      "subtitle": "Winter garden",
+      "story": "Rain taps the glass roof. Nobody admits to entering the rare-plant collection that evening.",
+      "difficulty": "Steady",
+      "size": 5,
+      "roomNames": [
+        "Orchid room",
+        "Fern house",
+        "Potting shed",
+        "Atrium"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 12,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 3,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 4,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 24,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 17,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "room",
+          "who": "miles",
+          "value": 0
+        },
+        {
+          "kind": "room",
+          "who": "june",
+          "value": 1
+        },
+        {
+          "kind": "notRoom",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "notEdge",
+          "who": "miles"
+        },
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 17
+        }
+      ],
+      "solution": {
+        "june": 2,
+        "miles": 6,
+        "ada": 18,
+        "felix": 20,
+        "victim": 14
+      }
+    },
+    {
+      "id": "scene-06",
+      "revision": 1,
+      "type": "scene",
+      "title": "The seventh painting",
+      "subtitle": "Gallery No. 7",
+      "story": "A private viewing. A switched label. One collector who never made it to the champagne reception.",
+      "difficulty": "Steady",
+      "size": 5,
+      "roomNames": [
+        "East gallery",
+        "West gallery",
+        "Restoration",
+        "Reception"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 13,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 2,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 15,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 16,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 3,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "ada"
+        },
+        {
+          "kind": "left",
+          "who": "felix",
+          "other": "miles"
+        },
+        {
+          "kind": "row",
+          "who": "june",
+          "value": 0
+        },
+        {
+          "kind": "col",
+          "who": "june",
+          "value": 4
+        },
+        {
+          "kind": "row",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "row",
+          "who": "miles",
+          "value": 4
+        },
+        {
+          "kind": "row",
+          "who": "ada",
+          "value": 1
+        }
+      ],
+      "solution": {
+        "june": 4,
+        "miles": 23,
+        "ada": 5,
+        "felix": 17,
+        "victim": 11
+      }
+    },
+    {
+      "id": "scene-07",
+      "revision": 1,
+      "type": "scene",
+      "title": "Low tide",
+      "subtitle": "Saltwater Point",
+      "story": "The ferry is cancelled and the island is cut off. The keeper was not alone in the lighthouse.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Lantern room",
+        "Chart room",
+        "Kitchen",
+        "Quarters"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 12,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 8,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 1,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 7,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 14,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "room",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "notRoom",
+          "who": "june",
+          "value": 3
+        },
+        {
+          "kind": "near",
+          "who": "felix",
+          "value": 14
+        },
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 1
+        },
+        {
+          "kind": "notEdge",
+          "who": "miles"
+        },
+        {
+          "kind": "left",
+          "who": "ada",
+          "other": "june"
+        },
+        {
+          "kind": "room",
+          "who": "miles",
+          "value": 3
+        },
+        {
+          "kind": "edge",
+          "who": "ada"
+        }
+      ],
+      "solution": {
+        "june": 22,
+        "miles": 13,
+        "ada": 0,
+        "felix": 19,
+        "victim": 6
+      }
+    },
+    {
+      "id": "scene-08",
+      "revision": 1,
+      "type": "scene",
+      "title": "A bitter blend",
+      "subtitle": "Paper Cup",
+      "story": "The cafe closed at six. The barista remembers every order, but not where everyone was standing.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Counter",
+        "Roastery",
+        "Reading room",
+        "Kitchen"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 1,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 8,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 22,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 23,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 13,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "col",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "row",
+          "who": "felix",
+          "value": 1
+        },
+        {
+          "kind": "col",
+          "who": "felix",
+          "value": 4
+        },
+        {
+          "kind": "col",
+          "who": "miles",
+          "value": 3
+        },
+        {
+          "kind": "row",
+          "who": "miles",
+          "value": 3
+        },
+        {
+          "kind": "col",
+          "who": "ada",
+          "value": 0
+        }
+      ],
+      "solution": {
+        "june": 2,
+        "miles": 18,
+        "ada": 20,
+        "felix": 9,
+        "victim": 11
+      }
+    },
+    {
+      "id": "scene-09",
+      "revision": 1,
+      "type": "scene",
+      "title": "The final chapter",
+      "subtitle": "Wren Library",
+      "story": "An author invited four guests to hear the ending. Only four people left the reading.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Reading room",
+        "Archives",
+        "Office",
+        "Book room"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 15,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 8,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 12,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 6,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 11,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "notEdge",
+          "who": "june"
+        },
+        {
+          "kind": "edge",
+          "who": "felix"
+        },
+        {
+          "kind": "notRoom",
+          "who": "miles",
+          "value": 2
+        },
+        {
+          "kind": "left",
+          "who": "miles",
+          "other": "felix"
+        },
+        {
+          "kind": "above",
+          "who": "miles",
+          "other": "ada"
+        },
+        {
+          "kind": "above",
+          "who": "ada",
+          "other": "june"
+        },
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 15
+        },
+        {
+          "kind": "above",
+          "who": "felix",
+          "other": "miles"
+        }
+      ],
+      "solution": {
+        "june": 18,
+        "miles": 7,
+        "ada": 10,
+        "felix": 4,
+        "victim": 21
+      }
+    },
+    {
+      "id": "scene-10",
+      "revision": 1,
+      "type": "scene",
+      "title": "Static on the line",
+      "subtitle": "Station Nine",
+      "story": "The broadcast went silent. Work backwards through the studio to find who was beside the presenter.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Studio A",
+        "Studio B",
+        "Control room",
+        "Lobby"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 23,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 22,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 16,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 12,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 19,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "above",
+          "who": "june",
+          "other": "ada"
+        },
+        {
+          "kind": "near",
+          "who": "felix",
+          "value": 22
+        },
+        {
+          "kind": "notRoom",
+          "who": "miles",
+          "value": 1
+        },
+        {
+          "kind": "above",
+          "who": "miles",
+          "other": "june"
+        },
+        {
+          "kind": "notRoom",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "left",
+          "who": "ada",
+          "other": "felix"
+        },
+        {
+          "kind": "notEdge",
+          "who": "ada"
+        }
+      ],
+      "solution": {
+        "june": 8,
+        "miles": 0,
+        "ada": 11,
+        "felix": 17,
+        "victim": 24
+      }
+    },
+    {
+      "id": "scene-11",
+      "revision": 1,
+      "type": "scene",
+      "title": "Snowbound",
+      "subtitle": "The Alpine Lodge",
+      "story": "The guests say they stayed in their rooms. The floor plan tells a rather different story.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Lounge",
+        "Dining room",
+        "Ski room",
+        "Study"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 10,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 23,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 11,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 9,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 7,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "room",
+          "who": "june",
+          "value": 1
+        },
+        {
+          "kind": "near",
+          "who": "miles",
+          "value": 10
+        },
+        {
+          "kind": "room",
+          "who": "ada",
+          "value": 2
+        },
+        {
+          "kind": "near",
+          "who": "felix",
+          "value": 23
+        },
+        {
+          "kind": "edge",
+          "who": "felix"
+        },
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 7
+        }
+      ],
+      "solution": {
+        "june": 3,
+        "miles": 5,
+        "ada": 12,
+        "felix": 24,
+        "victim": 16
+      }
+    },
+    {
+      "id": "scene-12",
+      "revision": 1,
+      "type": "scene",
+      "title": "A perfect alibi",
+      "subtitle": "The observatory",
+      "story": "Every statement is true. That does not make everyone innocent. This time, use the relationships between clues.",
+      "difficulty": "Tricky",
+      "size": 5,
+      "roomNames": [
+        "Telescope",
+        "Chart room",
+        "Library",
+        "Workshop"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 7,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 8,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 13,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 15,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 1,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "felix"
+        },
+        {
+          "kind": "near",
+          "who": "miles",
+          "value": 13
+        },
+        {
+          "kind": "edge",
+          "who": "june"
+        },
+        {
+          "kind": "left",
+          "who": "miles",
+          "other": "ada"
+        },
+        {
+          "kind": "left",
+          "who": "felix",
+          "other": "ada"
+        },
+        {
+          "kind": "near",
+          "who": "ada",
+          "value": 13
+        },
+        {
+          "kind": "row",
+          "who": "felix",
+          "value": 1
+        }
+      ],
+      "solution": {
+        "june": 21,
+        "miles": 18,
+        "ada": 14,
+        "felix": 5,
+        "victim": 2
+      }
+    },
+    {
+      "boxRows": 2,
+      "boxCols": 2,
+      "id": "sudoku-01",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "A little order",
+      "subtitle": "4 \u00d7 4 \u00b7 Number logic",
+      "difficulty": "Gentle",
+      "size": 4,
+      "givens": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        4,
+        0,
+        0,
+        2,
+        0
+      ],
+      "solution": [
+        3,
+        1,
+        4,
+        2,
+        2,
+        4,
+        1,
+        3,
+        1,
+        2,
+        3,
+        4,
+        4,
+        3,
+        2,
+        1
+      ]
+    },
+    {
+      "boxRows": 2,
+      "boxCols": 3,
+      "id": "sudoku-02",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "Morning ritual",
+      "subtitle": "6 \u00d7 6 \u00b7 Number logic",
+      "difficulty": "Gentle",
+      "size": 6,
+      "givens": [
+        1,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        5,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        2,
+        0,
+        6,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        1,
+        2,
+        5,
+        4,
+        3,
+        6,
+        6,
+        3,
+        4,
+        5,
+        2,
+        1,
+        5,
+        6,
+        3,
+        2,
+        1,
+        4,
+        4,
+        1,
+        2,
+        3,
+        6,
+        5,
+        3,
+        4,
+        1,
+        6,
+        5,
+        2,
+        2,
+        5,
+        6,
+        1,
+        4,
+        3
+      ]
+    },
+    {
+      "boxRows": 2,
+      "boxCols": 3,
+      "id": "sudoku-03",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "Six of one",
+      "subtitle": "6 \u00d7 6 \u00b7 Number logic",
+      "difficulty": "Steady",
+      "size": 6,
+      "givens": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        6,
+        2,
+        0,
+        0,
+        0,
+        6,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        3,
+        4,
+        0,
+        0,
+        2,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        3,
+        5,
+        4,
+        6,
+        1,
+        2,
+        1,
+        6,
+        2,
+        5,
+        3,
+        4,
+        6,
+        4,
+        1,
+        2,
+        5,
+        3,
+        5,
+        2,
+        3,
+        4,
+        6,
+        1,
+        2,
+        1,
+        5,
+        3,
+        4,
+        6,
+        4,
+        3,
+        6,
+        1,
+        2,
+        5
+      ]
+    },
+    {
+      "boxRows": 2,
+      "boxCols": 3,
+      "id": "sudoku-04",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "The quiet hour",
+      "subtitle": "6 \u00d7 6 \u00b7 Number logic",
+      "difficulty": "Steady",
+      "size": 6,
+      "givens": [
+        1,
+        0,
+        6,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        4,
+        0,
+        0,
+        0,
+        5,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        6,
+        1
+      ],
+      "solution": [
+        1,
+        5,
+        6,
+        2,
+        4,
+        3,
+        2,
+        4,
+        3,
+        1,
+        5,
+        6,
+        3,
+        1,
+        4,
+        6,
+        2,
+        5,
+        6,
+        2,
+        5,
+        3,
+        1,
+        4,
+        4,
+        6,
+        1,
+        5,
+        3,
+        2,
+        5,
+        3,
+        2,
+        4,
+        6,
+        1
+      ]
+    },
+    {
+      "boxRows": 3,
+      "boxCols": 3,
+      "id": "sudoku-05",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "Room to think",
+      "subtitle": "9 \u00d7 9 \u00b7 Number logic",
+      "difficulty": "Steady",
+      "size": 9,
+      "givens": [
+        0,
+        5,
+        0,
+        4,
+        7,
+        8,
+        0,
+        0,
+        3,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        6,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0,
+        6,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        2,
+        7,
+        5,
+        9,
+        0,
+        0,
+        0,
+        2,
+        0,
+        8,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        5,
+        7,
+        0,
+        4,
+        9,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "solution": [
+        1,
+        5,
+        9,
+        4,
+        7,
+        8,
+        6,
+        2,
+        3,
+        7,
+        4,
+        8,
+        2,
+        6,
+        3,
+        1,
+        5,
+        9,
+        6,
+        2,
+        3,
+        5,
+        1,
+        9,
+        7,
+        4,
+        8,
+        2,
+        3,
+        7,
+        9,
+        5,
+        6,
+        4,
+        8,
+        1,
+        5,
+        9,
+        6,
+        8,
+        4,
+        1,
+        2,
+        3,
+        7,
+        4,
+        8,
+        1,
+        3,
+        2,
+        7,
+        5,
+        9,
+        6,
+        9,
+        6,
+        2,
+        1,
+        8,
+        5,
+        3,
+        7,
+        4,
+        8,
+        1,
+        5,
+        7,
+        3,
+        4,
+        9,
+        6,
+        2,
+        3,
+        7,
+        4,
+        6,
+        9,
+        2,
+        8,
+        1,
+        5
+      ]
+    },
+    {
+      "boxRows": 3,
+      "boxCols": 3,
+      "id": "sudoku-06",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "A longer pause",
+      "subtitle": "9 \u00d7 9 \u00b7 Number logic",
+      "difficulty": "Tricky",
+      "size": 9,
+      "givens": [
+        9,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        4,
+        6,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        9,
+        0,
+        0,
+        5,
+        0,
+        9,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0,
+        0,
+        1,
+        0,
+        7,
+        0,
+        8,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        1,
+        6,
+        7,
+        8,
+        0
+      ],
+      "solution": [
+        9,
+        8,
+        1,
+        2,
+        5,
+        7,
+        3,
+        4,
+        6,
+        7,
+        5,
+        2,
+        3,
+        6,
+        4,
+        1,
+        9,
+        8,
+        4,
+        6,
+        3,
+        1,
+        8,
+        9,
+        2,
+        7,
+        5,
+        1,
+        7,
+        8,
+        5,
+        4,
+        2,
+        6,
+        3,
+        9,
+        2,
+        4,
+        5,
+        6,
+        9,
+        3,
+        8,
+        1,
+        7,
+        3,
+        9,
+        6,
+        8,
+        7,
+        1,
+        5,
+        2,
+        4,
+        8,
+        2,
+        7,
+        4,
+        3,
+        5,
+        9,
+        6,
+        1,
+        6,
+        1,
+        9,
+        7,
+        2,
+        8,
+        4,
+        5,
+        3,
+        5,
+        3,
+        4,
+        9,
+        1,
+        6,
+        7,
+        8,
+        2
+      ]
+    },
+    {
+      "boxRows": 3,
+      "boxCols": 3,
+      "id": "sudoku-07",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "Perfectly placed",
+      "subtitle": "9 \u00d7 9 \u00b7 Number logic",
+      "difficulty": "Tricky",
+      "size": 9,
+      "givens": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        9,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        8,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0,
+        9,
+        5,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        5,
+        7,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        3,
+        0,
+        1,
+        0,
+        0,
+        8,
+        0,
+        4,
+        0,
+        9,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        7,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        9,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        2,
+        8,
+        7,
+        6,
+        4,
+        5,
+        9,
+        1,
+        3,
+        6,
+        5,
+        4,
+        3,
+        9,
+        1,
+        7,
+        8,
+        2,
+        3,
+        1,
+        9,
+        2,
+        7,
+        8,
+        4,
+        5,
+        6,
+        4,
+        6,
+        8,
+        9,
+        5,
+        3,
+        1,
+        2,
+        7,
+        9,
+        3,
+        5,
+        7,
+        1,
+        2,
+        8,
+        6,
+        4,
+        7,
+        2,
+        1,
+        4,
+        8,
+        6,
+        5,
+        3,
+        9,
+        1,
+        7,
+        3,
+        8,
+        2,
+        4,
+        6,
+        9,
+        5,
+        5,
+        9,
+        6,
+        1,
+        3,
+        7,
+        2,
+        4,
+        8,
+        8,
+        4,
+        2,
+        5,
+        6,
+        9,
+        3,
+        7,
+        1
+      ]
+    },
+    {
+      "id": "nonogram-01",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The diamond",
+      "subtitle": "5 \u00d7 5 \u00b7 Picture logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "nonogram-02",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Desk lamp",
+      "subtitle": "5 \u00d7 5 \u00b7 Picture logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nonogram-03",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Coffee break",
+      "subtitle": "7 \u00d7 7 \u00b7 Picture logic",
+      "difficulty": "Steady",
+      "size": 7,
+      "rowClues": [
+        [
+          4
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          6
+        ],
+        [
+          4
+        ],
+        [
+          0
+        ]
+      ],
+      "colClues": [
+        [
+          4
+        ],
+        [
+          6
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          6
+        ],
+        [
+          4
+        ],
+        [
+          2
+        ]
+      ],
+      "solution": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "nonogram-04",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Evergreen",
+      "subtitle": "7 \u00d7 7 \u00b7 Picture logic",
+      "difficulty": "Steady",
+      "size": 7,
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          7
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          7
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "nonogram-05",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A spare key",
+      "subtitle": "7 \u00d7 7 \u00b7 Picture logic",
+      "difficulty": "Steady",
+      "size": 7,
+      "rowClues": [
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          0
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          3
+        ],
+        [
+          0
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "nonogram-06",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Night wings",
+      "subtitle": "7 \u00d7 7 \u00b7 Picture logic",
+      "difficulty": "Steady",
+      "size": 7,
+      "rowClues": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "solution": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "nonogram-07",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "True north",
+      "subtitle": "7 \u00d7 7 \u00b7 Picture logic",
+      "difficulty": "Steady",
+      "size": 7,
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          2,
+          1,
+          2
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          7
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "binary-01",
+      "revision": 1,
+      "type": "binary",
+      "title": "Two sides",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Gentle",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "solution": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "binary-02",
+      "revision": 1,
+      "type": "binary",
+      "title": "Day and night",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Gentle",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        0,
+        -1,
+        0,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "solution": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "binary-03",
+      "revision": 1,
+      "type": "binary",
+      "title": "In equal measure",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Steady",
+      "size": 6,
+      "givens": [
+        -1,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1
+      ],
+      "solution": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "binary-04",
+      "revision": 1,
+      "type": "binary",
+      "title": "No third wheel",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Steady",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        1
+      ],
+      "solution": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "binary-05",
+      "revision": 1,
+      "type": "binary",
+      "title": "A fine balance",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Steady",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        0,
+        1,
+        1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "solution": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "id": "binary-06",
+      "revision": 1,
+      "type": "binary",
+      "title": "Mirror, mirror",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Tricky",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        0
+      ],
+      "solution": [
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "binary-07",
+      "revision": 1,
+      "type": "binary",
+      "title": "A different pattern",
+      "subtitle": "6 \u00d7 6 \u00b7 Binary logic",
+      "difficulty": "Tricky",
+      "size": 6,
+      "givens": [
+        0,
+        -1,
+        0,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        -1,
+        -1
+      ],
+      "solution": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 23,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 17,
+          "b": 22,
+          "op": ">"
+        },
+        {
+          "a": 19,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 0,
+          "b": 1,
+          "op": "<"
+        },
+        {
+          "a": 10,
+          "b": 11,
+          "op": "<"
+        },
+        {
+          "a": 7,
+          "b": 8,
+          "op": "<"
+        },
+        {
+          "a": 7,
+          "b": 12,
+          "op": "<"
+        },
+        {
+          "a": 9,
+          "b": 14,
+          "op": ">"
+        },
+        {
+          "a": 0,
+          "b": 5,
+          "op": ">"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": ">"
+        },
+        {
+          "a": 6,
+          "b": 7,
+          "op": "<"
+        }
+      ],
+      "id": "futoshiki-01",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "More or less",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "givens": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        3,
+        5,
+        4,
+        2,
+        1,
+        1,
+        2,
+        3,
+        4,
+        5,
+        2,
+        3,
+        5,
+        1,
+        4,
+        4,
+        1,
+        2,
+        5,
+        3,
+        5,
+        4,
+        1,
+        3,
+        2
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 21,
+          "b": 22,
+          "op": "<"
+        },
+        {
+          "a": 6,
+          "b": 7,
+          "op": "<"
+        },
+        {
+          "a": 17,
+          "b": 22,
+          "op": "<"
+        },
+        {
+          "a": 5,
+          "b": 10,
+          "op": "<"
+        },
+        {
+          "a": 2,
+          "b": 7,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 12,
+          "op": "<"
+        },
+        {
+          "a": 16,
+          "b": 17,
+          "op": ">"
+        },
+        {
+          "a": 16,
+          "b": 21,
+          "op": ">"
+        },
+        {
+          "a": 22,
+          "b": 23,
+          "op": "<"
+        },
+        {
+          "a": 23,
+          "b": 24,
+          "op": "<"
+        },
+        {
+          "a": 17,
+          "b": 18,
+          "op": "<"
+        }
+      ],
+      "id": "futoshiki-02",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "Small differences",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "givens": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        2,
+        4,
+        5,
+        1,
+        3,
+        1,
+        3,
+        4,
+        5,
+        2,
+        5,
+        2,
+        3,
+        4,
+        1,
+        3,
+        5,
+        1,
+        2,
+        4,
+        4,
+        1,
+        2,
+        3,
+        5
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 5,
+          "b": 6,
+          "op": "<"
+        },
+        {
+          "a": 1,
+          "b": 6,
+          "op": "<"
+        },
+        {
+          "a": 19,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 21,
+          "b": 22,
+          "op": "<"
+        },
+        {
+          "a": 3,
+          "b": 8,
+          "op": ">"
+        },
+        {
+          "a": 13,
+          "b": 18,
+          "op": ">"
+        },
+        {
+          "a": 18,
+          "b": 23,
+          "op": "<"
+        },
+        {
+          "a": 10,
+          "b": 11,
+          "op": ">"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": ">"
+        },
+        {
+          "a": 2,
+          "b": 7,
+          "op": "<"
+        },
+        {
+          "a": 6,
+          "b": 7,
+          "op": ">"
+        }
+      ],
+      "id": "futoshiki-03",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "A balancing act",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Steady",
+      "size": 5,
+      "givens": [
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "solution": [
+        4,
+        3,
+        1,
+        5,
+        2,
+        2,
+        5,
+        3,
+        4,
+        1,
+        5,
+        1,
+        2,
+        3,
+        4,
+        3,
+        2,
+        4,
+        1,
+        5,
+        1,
+        4,
+        5,
+        2,
+        3
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 0,
+          "b": 5,
+          "op": "<"
+        },
+        {
+          "a": 2,
+          "b": 3,
+          "op": "<"
+        },
+        {
+          "a": 2,
+          "b": 7,
+          "op": ">"
+        },
+        {
+          "a": 13,
+          "b": 14,
+          "op": "<"
+        },
+        {
+          "a": 7,
+          "b": 8,
+          "op": "<"
+        },
+        {
+          "a": 11,
+          "b": 16,
+          "op": "<"
+        },
+        {
+          "a": 13,
+          "b": 18,
+          "op": "<"
+        },
+        {
+          "a": 12,
+          "b": 13,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 12,
+          "op": "<"
+        },
+        {
+          "a": 9,
+          "b": 14,
+          "op": "<"
+        },
+        {
+          "a": 10,
+          "b": 15,
+          "op": ">"
+        }
+      ],
+      "id": "futoshiki-04",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "The upper hand",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Steady",
+      "size": 5,
+      "givens": [
+        4,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0
+      ],
+      "solution": [
+        4,
+        1,
+        3,
+        5,
+        2,
+        5,
+        4,
+        1,
+        2,
+        3,
+        3,
+        2,
+        5,
+        1,
+        4,
+        2,
+        5,
+        4,
+        3,
+        1,
+        1,
+        3,
+        2,
+        4,
+        5
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 6,
+          "b": 7,
+          "op": "<"
+        },
+        {
+          "a": 21,
+          "b": 22,
+          "op": ">"
+        },
+        {
+          "a": 4,
+          "b": 9,
+          "op": "<"
+        },
+        {
+          "a": 12,
+          "b": 17,
+          "op": ">"
+        },
+        {
+          "a": 2,
+          "b": 7,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 16,
+          "op": "<"
+        },
+        {
+          "a": 9,
+          "b": 14,
+          "op": ">"
+        },
+        {
+          "a": 15,
+          "b": 20,
+          "op": "<"
+        },
+        {
+          "a": 5,
+          "b": 10,
+          "op": "<"
+        },
+        {
+          "a": 14,
+          "b": 19,
+          "op": "<"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": "<"
+        }
+      ],
+      "id": "futoshiki-05",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "Between the lines",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Steady",
+      "size": 5,
+      "givens": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        5,
+        2,
+        3,
+        1,
+        4,
+        3,
+        1,
+        2,
+        4,
+        5,
+        4,
+        3,
+        5,
+        2,
+        1,
+        1,
+        5,
+        4,
+        3,
+        2,
+        2,
+        4,
+        1,
+        5,
+        3
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 2,
+          "b": 3,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 16,
+          "op": ">"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": ">"
+        },
+        {
+          "a": 15,
+          "b": 16,
+          "op": "<"
+        },
+        {
+          "a": 9,
+          "b": 14,
+          "op": ">"
+        },
+        {
+          "a": 13,
+          "b": 18,
+          "op": ">"
+        },
+        {
+          "a": 16,
+          "b": 21,
+          "op": "<"
+        },
+        {
+          "a": 1,
+          "b": 6,
+          "op": ">"
+        },
+        {
+          "a": 18,
+          "b": 19,
+          "op": "<"
+        },
+        {
+          "a": 17,
+          "b": 18,
+          "op": ">"
+        },
+        {
+          "a": 19,
+          "b": 24,
+          "op": ">"
+        }
+      ],
+      "id": "futoshiki-06",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "Strictly speaking",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Tricky",
+      "size": 5,
+      "givens": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        5,
+        2,
+        4,
+        3,
+        1,
+        3,
+        1,
+        2,
+        4,
+        5,
+        1,
+        4,
+        3,
+        5,
+        2,
+        2,
+        3,
+        5,
+        1,
+        4,
+        4,
+        5,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "inequalities": [
+        {
+          "a": 10,
+          "b": 11,
+          "op": "<"
+        },
+        {
+          "a": 20,
+          "b": 21,
+          "op": ">"
+        },
+        {
+          "a": 13,
+          "b": 14,
+          "op": "<"
+        },
+        {
+          "a": 6,
+          "b": 11,
+          "op": ">"
+        },
+        {
+          "a": 14,
+          "b": 19,
+          "op": ">"
+        },
+        {
+          "a": 18,
+          "b": 19,
+          "op": ">"
+        },
+        {
+          "a": 8,
+          "b": 9,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 12,
+          "op": "<"
+        },
+        {
+          "a": 6,
+          "b": 7,
+          "op": ">"
+        },
+        {
+          "a": 23,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 1,
+          "b": 6,
+          "op": "<"
+        }
+      ],
+      "id": "futoshiki-07",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "Order of things",
+      "subtitle": "5 \u00d7 5 \u00b7 Inequality logic",
+      "difficulty": "Tricky",
+      "size": 5,
+      "givens": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        2
+      ],
+      "solution": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        3,
+        5,
+        4,
+        2,
+        1,
+        2,
+        3,
+        5,
+        1,
+        4,
+        4,
+        1,
+        2,
+        5,
+        3,
+        5,
+        4,
+        1,
+        3,
+        2
+      ]
+    }
+  ]
+}

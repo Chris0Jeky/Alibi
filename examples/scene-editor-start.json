@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "id": "example-scene-editor",
+  "version": 1,
+  "title": "Scene editing example",
+  "author": "Alibi workshop",
+  "puzzles": [
+    {
+      "id": "example-edited-scene",
+      "revision": 1,
+      "type": "scene",
+      "title": "My first edited scene",
+      "subtitle": "Briar House",
+      "story": "A dinner ended early. Five people were inside when the lights went out. Reconstruct the room, then name the killer.",
+      "difficulty": "Gentle",
+      "size": 5,
+      "roomNames": [
+        "Dining room",
+        "Kitchen",
+        "Study",
+        "Glasshouse"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 3,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 17,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 16,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 2,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 23,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "miles"
+        },
+        {
+          "kind": "near",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "above",
+          "who": "ada",
+          "other": "felix"
+        },
+        {
+          "kind": "notRoom",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "above",
+          "who": "miles",
+          "other": "ada"
+        },
+        {
+          "kind": "col",
+          "who": "ada",
+          "value": 2
+        }
+      ],
+      "solution": {
+        "june": 1,
+        "miles": 9,
+        "ada": 12,
+        "felix": 20,
+        "victim": 18
+      },
+      "collection": "mystery",
+      "minutes": 5
+    }
+  ]
+}

@@ -1,0 +1,912 @@
+{
+  "schemaVersion": 1,
+  "id": "example-twelve-families",
+  "version": 1,
+  "title": "Twelve family authoring examples",
+  "author": "Alibi workshop",
+  "puzzles": [
+    {
+      "id": "example-scene-01",
+      "revision": 1,
+      "type": "scene",
+      "title": "Example: The last service",
+      "subtitle": "Briar House",
+      "story": "A dinner ended early. Five people were inside when the lights went out. Reconstruct the room, then name the killer.",
+      "difficulty": "Gentle",
+      "size": 5,
+      "roomNames": [
+        "Dining room",
+        "Kitchen",
+        "Study",
+        "Glasshouse"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "june",
+          "name": "June",
+          "role": "The chef",
+          "color": 0
+        },
+        {
+          "id": "miles",
+          "name": "Miles",
+          "role": "The musician",
+          "color": 1
+        },
+        {
+          "id": "ada",
+          "name": "Ada",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "felix",
+          "name": "Felix",
+          "role": "The host",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ellis",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 3,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 17,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 16,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 2,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 23,
+          "kind": "lamp",
+          "name": "lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "miles"
+        },
+        {
+          "kind": "near",
+          "who": "june",
+          "value": 2
+        },
+        {
+          "kind": "above",
+          "who": "ada",
+          "other": "felix"
+        },
+        {
+          "kind": "notRoom",
+          "who": "felix",
+          "value": 3
+        },
+        {
+          "kind": "above",
+          "who": "miles",
+          "other": "ada"
+        },
+        {
+          "kind": "col",
+          "who": "ada",
+          "value": 2
+        }
+      ],
+      "solution": {
+        "june": 1,
+        "miles": 9,
+        "ada": 12,
+        "felix": 20,
+        "victim": 18
+      },
+      "collection": "mystery",
+      "minutes": 5
+    },
+    {
+      "boxRows": 2,
+      "boxCols": 2,
+      "id": "example-sudoku-01",
+      "revision": 1,
+      "type": "sudoku",
+      "title": "Example: A little order",
+      "subtitle": "4 × 4 · Number logic",
+      "difficulty": "Gentle",
+      "size": 4,
+      "givens": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        4,
+        0,
+        0,
+        2,
+        0
+      ],
+      "solution": [
+        3,
+        1,
+        4,
+        2,
+        2,
+        4,
+        1,
+        3,
+        1,
+        2,
+        3,
+        4,
+        4,
+        3,
+        2,
+        1
+      ],
+      "collection": "classic",
+      "minutes": 5
+    },
+    {
+      "id": "example-nonogram-01",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Example: The diamond",
+      "subtitle": "5 × 5 · Picture logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "example-binary-01",
+      "revision": 1,
+      "type": "binary",
+      "title": "Example: Two sides",
+      "subtitle": "6 × 6 · Binary logic",
+      "difficulty": "Gentle",
+      "size": 6,
+      "givens": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        0,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "solution": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "collection": "classic",
+      "minutes": 5
+    },
+    {
+      "inequalities": [
+        {
+          "a": 23,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 17,
+          "b": 22,
+          "op": ">"
+        },
+        {
+          "a": 19,
+          "b": 24,
+          "op": ">"
+        },
+        {
+          "a": 0,
+          "b": 1,
+          "op": "<"
+        },
+        {
+          "a": 10,
+          "b": 11,
+          "op": "<"
+        },
+        {
+          "a": 7,
+          "b": 8,
+          "op": "<"
+        },
+        {
+          "a": 7,
+          "b": 12,
+          "op": "<"
+        },
+        {
+          "a": 9,
+          "b": 14,
+          "op": ">"
+        },
+        {
+          "a": 0,
+          "b": 5,
+          "op": ">"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": ">"
+        },
+        {
+          "a": 6,
+          "b": 7,
+          "op": "<"
+        }
+      ],
+      "id": "example-futoshiki-01",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "Example: More or less",
+      "subtitle": "5 × 5 · Inequality logic",
+      "difficulty": "Gentle",
+      "size": 5,
+      "givens": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        3,
+        5,
+        4,
+        2,
+        1,
+        1,
+        2,
+        3,
+        4,
+        5,
+        2,
+        3,
+        5,
+        1,
+        4,
+        4,
+        1,
+        2,
+        5,
+        3,
+        5,
+        4,
+        1,
+        3,
+        2
+      ],
+      "collection": "classic",
+      "minutes": 5
+    },
+    {
+      "id": "example-dossier-01",
+      "revision": 1,
+      "type": "dossier",
+      "title": "Example: The duplicate key",
+      "subtitle": "Briar House",
+      "size": 4,
+      "difficulty": "Gentle",
+      "people": [
+        "Iris",
+        "Theo",
+        "Mina",
+        "Otto"
+      ],
+      "categories": [
+        {
+          "name": "Room",
+          "values": [
+            "study",
+            "gallery",
+            "lounge",
+            "kitchen"
+          ]
+        },
+        {
+          "name": "Object",
+          "values": [
+            "brass key",
+            "blue envelope",
+            "pocket watch",
+            "ivory ticket"
+          ]
+        }
+      ],
+      "solution": [
+        1,
+        0,
+        3,
+        2,
+        2,
+        3,
+        0,
+        1
+      ],
+      "targetItem": 0,
+      "story": "A small but valuable object disappeared from Briar House. Each person visited a different room and carried a different object. A reliable camera record links the theft to whoever carried the brass key. Match both categories, then identify that person.",
+      "clues": [
+        {
+          "kind": "link",
+          "a": 2,
+          "b": 1
+        },
+        {
+          "kind": "ne",
+          "cat": 0,
+          "who": 2,
+          "value": 2
+        },
+        {
+          "kind": "ne",
+          "cat": 1,
+          "who": 3,
+          "value": 2
+        },
+        {
+          "kind": "ne",
+          "cat": 0,
+          "who": 1,
+          "value": 1
+        },
+        {
+          "kind": "ne",
+          "cat": 0,
+          "who": 2,
+          "value": 1
+        },
+        {
+          "kind": "eq",
+          "cat": 1,
+          "who": 1,
+          "value": 3
+        },
+        {
+          "kind": "ne",
+          "cat": 1,
+          "who": 2,
+          "value": 2
+        },
+        {
+          "kind": "ne",
+          "cat": 0,
+          "who": 2,
+          "value": 0
+        }
+      ],
+      "collection": "mystery",
+      "minutes": 5
+    },
+    {
+      "id": "example-witness-01",
+      "revision": 1,
+      "type": "witness",
+      "title": "Example: Four accounts of midnight",
+      "subtitle": "Briar House",
+      "size": 4,
+      "difficulty": "Gentle",
+      "people": [
+        "Iris",
+        "Theo",
+        "Mina",
+        "Otto"
+      ],
+      "story": "The miniature portrait vanished during a brief power cut at Briar House. Exactly one of these four people took it. Statements refer only to that theft; nobody else could have done it.",
+      "solution": 2,
+      "statements": [
+        {
+          "speaker": "The porter",
+          "kind": "is",
+          "suspects": [
+            3
+          ]
+        },
+        {
+          "speaker": "The cleaner",
+          "kind": "oneof",
+          "suspects": [
+            1,
+            0
+          ]
+        },
+        {
+          "speaker": "The courier",
+          "kind": "oneof",
+          "suspects": [
+            2,
+            0
+          ]
+        },
+        {
+          "speaker": "The caretaker",
+          "kind": "not",
+          "suspects": [
+            2
+          ]
+        }
+      ],
+      "trueCount": 1,
+      "collection": "mystery",
+      "minutes": 3
+    },
+    {
+      "id": "example-lightup-01",
+      "revision": 1,
+      "type": "lightup",
+      "title": "Example: First light",
+      "subtitle": "Briar House",
+      "size": 5,
+      "difficulty": "Gentle",
+      "walls": [
+        -1,
+        -2,
+        -2,
+        -2,
+        -2,
+        -1,
+        -2,
+        1,
+        -2,
+        -2,
+        -2,
+        -1,
+        -2,
+        -1,
+        -2,
+        -1,
+        -1,
+        -1,
+        -2,
+        -2,
+        -2,
+        -1,
+        -2,
+        -1,
+        -1
+      ],
+      "solution": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "example-tents-01",
+      "revision": 1,
+      "type": "tents",
+      "title": "Example: A clearing in the woods",
+      "subtitle": "Briar House",
+      "size": 5,
+      "difficulty": "Gentle",
+      "trees": [
+        14,
+        22,
+        0,
+        7,
+        21
+      ],
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "rowTargets": [
+        1,
+        1,
+        1,
+        0,
+        2
+      ],
+      "colTargets": [
+        2,
+        0,
+        1,
+        2,
+        0
+      ],
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "example-aquarium-01",
+      "revision": 1,
+      "type": "aquarium",
+      "title": "Example: A drop of blue",
+      "subtitle": "Briar House",
+      "size": 5,
+      "difficulty": "Gentle",
+      "tanks": [
+        2,
+        2,
+        2,
+        2,
+        4,
+        3,
+        3,
+        5,
+        5,
+        4,
+        1,
+        1,
+        1,
+        4,
+        4,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "solution": [
+        1,
+        3,
+        0,
+        0,
+        2,
+        0
+      ],
+      "rowTargets": [
+        0,
+        1,
+        5,
+        2,
+        5
+      ],
+      "colTargets": [
+        3,
+        3,
+        2,
+        2,
+        3
+      ],
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "example-network-01",
+      "revision": 1,
+      "type": "network",
+      "title": "Example: A signal in the static",
+      "subtitle": "Briar House",
+      "size": 4,
+      "difficulty": "Gentle",
+      "source": 8,
+      "locked": [],
+      "tiles": [
+        4,
+        6,
+        9,
+        8,
+        9,
+        12,
+        3,
+        12,
+        10,
+        2,
+        7,
+        11,
+        3,
+        5,
+        9,
+        8
+      ],
+      "solution": [
+        3,
+        1,
+        2,
+        0,
+        2,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        3,
+        0,
+        1,
+        0,
+        1
+      ],
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "example-trail-01",
+      "revision": 1,
+      "type": "trail",
+      "title": "Example: Follow the numbers",
+      "subtitle": "Briar House",
+      "size": 4,
+      "difficulty": "Gentle",
+      "solution": [
+        14,
+        15,
+        2,
+        3,
+        13,
+        16,
+        1,
+        4,
+        12,
+        9,
+        8,
+        5,
+        11,
+        10,
+        7,
+        6
+      ],
+      "givens": [
+        0,
+        15,
+        0,
+        0,
+        0,
+        16,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "collection": "visual",
+      "minutes": 5
+    }
+  ]
+}

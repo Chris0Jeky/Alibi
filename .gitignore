@@ -1,0 +1,23 @@
+# Local working material and reproducible outputs
+alibi-deluxe-publish-bundle/
+dist/
+release/
+build-info.json
+alibi-deluxe-play.html
+*.zip
+*.tar.gz
+node_modules/
+.venv/
+.wrangler/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+tests/*-results.json
+tests/screenshots/
+tests/*.log
+tests/*.pid
+test-results/
+playwright-report/
+.openai/*.tmp

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "briar-house",
+    "title": "The Briar House papers",
+    "tagline": "A stolen key. A silent house. Four pieces of evidence.",
+    "setting": "An old country house, after dark",
+    "color": "green",
+    "icon": "scene",
+    "intro": "An envelope arrives with no return address. Inside: a floor plan, four witness accounts, a torn photograph and a note asking you to reconstruct the last evening at Briar House. The puzzles form an anthology investigation; each chapter teaches a different kind of deduction.",
+    "chapters": [
+      {
+        "id": "witness-01",
+        "name": "Conflicting accounts",
+        "brief": "Start with the statements. Only the specified number can be true."
+      },
+      {
+        "id": "dossier-01",
+        "name": "The duplicate key",
+        "brief": "Match people, rooms and objects to identify the key’s carrier."
+      },
+      {
+        "id": "nonogram-05",
+        "name": "The torn photograph",
+        "brief": "Rebuild the shape left in the photograph."
+      },
+      {
+        "id": "scene-13",
+        "name": "The last room",
+        "brief": "Place everyone on the floor plan, then name the murderer."
+      }
+    ],
+    "ending": "You have reconstructed the house’s four records: statements, possessions, a photograph and the final scene. The investigation is complete. Every puzzle remains available for another look."
+  },
+  {
+    "id": "night-train",
+    "title": "The midnight departure",
+    "tagline": "A stopped clock. A lost signal. Nobody leaves yet.",
+    "setting": "An overnight train on the coast",
+    "color": "blue",
+    "icon": "network",
+    "intro": "The night train stops between stations. You have four records from the carriage and its signal box. Restore the signal, trace a route, compare the statements, then reconstruct the carriage. Each record is a standalone logic puzzle in this casebook.",
+    "chapters": [
+      {
+        "id": "network-01",
+        "name": "A signal in the static",
+        "brief": "Turn each tile until the whole network connects."
+      },
+      {
+        "id": "trail-02",
+        "name": "The conductor’s route",
+        "brief": "Follow the numbers through every square."
+      },
+      {
+        "id": "witness-06",
+        "name": "The clockless room",
+        "brief": "Test the witnesses’ accounts against the truth count."
+      },
+      {
+        "id": "scene-02",
+        "name": "A quiet carriage",
+        "brief": "Rebuild the scene before the train departs."
+      }
+    ],
+    "ending": "The records are in order and the signal is clear. You have completed the midnight departure casebook."
+  },
+  {
+    "id": "glasshouse",
+    "title": "Secrets under glass",
+    "tagline": "Follow the water. Turn on the lights. Find the truth.",
+    "setting": "A botanical conservatory in winter",
+    "color": "amber",
+    "icon": "aquarium",
+    "intro": "The conservatory caretaker has left four puzzles among the records. The water levels and lighting plan are the first pieces. An inventory and a floor plan complete the file. Solve them in sequence or open any chapter.",
+    "chapters": [
+      {
+        "id": "aquarium-02",
+        "name": "The tide room",
+        "brief": "Fill the glass tanks to match the edge clues."
+      },
+      {
+        "id": "lightup-03",
+        "name": "Paper lanterns",
+        "brief": "Light every floor tile without crossing beams."
+      },
+      {
+        "id": "dossier-03",
+        "name": "The violet envelope",
+        "brief": "Make the connections in the inventory."
+      },
+      {
+        "id": "scene-15",
+        "name": "The locked conservatory",
+        "brief": "Place the five people and close the case."
+      }
+    ],
+    "ending": "Water, light, inventory and floor plan: the conservatory file is complete. The casebook is ready to archive."
+  }
+]
