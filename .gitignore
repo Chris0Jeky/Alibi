@@ -28,3 +28,6 @@ alibi-after-hours-bundle/
 
 alibi-quiet-wing-bundle/
 tests/quiet-wing/*-results.json
+
+alibi-curation/
+.curation-worktrees/

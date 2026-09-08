@@ -120,29 +120,33 @@ function build() {
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngine);
   write(path.join(DIST, workerURL), worker);
-  const base =
-    `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\n` +
-    [
-      core,
-      engines,
-      bridges,
-      read(path.join(SRC, 'storage.js')),
-      read(path.join(SRC, 'presentation.js')),
-      read(path.join(SRC, 'asset-library.js')),
-      read(path.join(SRC, 'insights.js')),
-      read(path.join(SRC, 'assist.js')),
-      read(path.join(SRC, 'atlas.js')),
-      read(path.join(SRC, 'atmosphere.js')),
-      read(path.join(SRC, 'backup-validation.js')),
-      read(path.join(SRC, 'club.js')),
-      read(path.join(SRC, 'activities.js')),
-      read(path.join(SRC, 'app.js')),
-    ].join('\n');
+  const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
+  const contentSource = `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\n`;
+  const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
+  write(path.join(DIST, contentURL), contentSource);
+  const base = [
+    core,
+    engines,
+    bridges,
+    read(path.join(SRC, 'storage.js')),
+    read(path.join(SRC, 'presentation.js')),
+    read(path.join(SRC, 'asset-library.js')),
+    read(path.join(SRC, 'curation.js')),
+    read(path.join(SRC, 'insights.js')),
+    read(path.join(SRC, 'assist.js')),
+    read(path.join(SRC, 'atlas.js')),
+    read(path.join(SRC, 'atmosphere.js')),
+    read(path.join(SRC, 'backup-validation.js')),
+    read(path.join(SRC, 'club.js')),
+    read(path.join(SRC, 'activities.js')),
+    read(path.join(SRC, 'app.js')),
+  ].join('\n');
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
     release = hash(
-      base +
+      contentSource +
+        base +
         boot +
         worker +
         clubEngine +
@@ -193,7 +197,7 @@ function build() {
       .replace('<!-- HEAD -->', head)
       .replace(
         '<!-- SCRIPTS -->',
-        `<script src="${bootURL}" defer></script><script src="./${jsName}" defer></script>`,
+        `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script>`,
       ),
   );
   const assets = [
@@ -208,6 +212,7 @@ function build() {
     engineURL,
     bootURL,
     workerURL,
+    contentURL,
     ...Object.values(media),
   ];
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
@@ -249,7 +254,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       .replace(
         '<!-- SCRIPTS -->',
         () =>
-          '<script>' + boot + '\n' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
+          '<script>' +
+          boot +
+          '\n' +
+          (contentSource + standalone).replace(/<\/script/gi, '<\\/script') +
+          '</script>',
       ),
   );
   zip(
@@ -266,6 +275,9 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
     coreOfflineBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes,
+    officialContentBytes: Buffer.byteLength(contentSource),
+    officialContentGzipBytes: zlib.gzipSync(contentSource).length,
+    initialCodeAndContentGzipBytes: zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,
   };
