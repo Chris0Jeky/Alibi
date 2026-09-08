@@ -51,6 +51,9 @@ async function tab(storage) {
 (async () => {
   const s = store(),
     a = await tab(s);
+  const pendingSave = a.AlibiClub.save();
+  check(typeof pendingSave?.then === 'function', 'Club save exposes an awaitable completion');
+  await pendingSave;
   check(
     a.AlibiClub.diagnostics().storageMode === 'local',
     'Falls back to local storage when IndexedDB is unavailable',
@@ -69,14 +72,14 @@ async function tab(storage) {
   await c.AlibiClub.save();
   const d = await tab(s);
   check(d.AlibiClub.diagnostics().hero === 2, 'Unpinning resumes rotation on the next visit');
-  await a.AlibiClub.action({ dataset: { action: 'club-assist', value: 'off' } });
+  await a.AlibiClub.action({ dataset: { action: 'club-assist', value: 'tidy' } });
   await a.AlibiClub.save();
   check(
     a.AlibiClub.diagnostics().saveError.includes('another tab'),
     'Older session detects sequential revision conflict',
   );
   check(
-    JSON.parse(s.getItem('alibi-afterhours-v1')).data.settings.assist === 'tidy',
+    JSON.parse(s.getItem('alibi-afterhours-v1')).data.settings.assist === 'off',
     'Conflicting old save does not overwrite newer preferences',
   );
   const raw = s.getItem('alibi-afterhours-v1');

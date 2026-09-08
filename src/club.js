@@ -22,7 +22,7 @@
     loading = null;
   let state = {
     schema: 1,
-    settings: { zen: false, assist: 'tidy', pinned: null },
+    settings: { zen: false, assist: 'off', pinned: null },
     visit: 0,
     lastHero: -1,
     runs: {},
@@ -308,8 +308,8 @@
       }
     };
   }
-  function persist() {
-    const snapshot = clone(state);
+  function persist(replacement = null) {
+    const snapshot = clone(replacement || state);
     saveQueue = saveQueue
       .then(async () => {
         if (saveError && storageMode !== 'session') return;
@@ -323,6 +323,7 @@
                 tx.abort();
                 return;
               }
+              if (replacement && get.result) os.put(get.result, 'recovery');
               os.put({ rev: rev + 1, data: snapshot }, 'state');
             };
             tx.oncomplete = () => {
@@ -653,11 +654,11 @@
     ];
     return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list.')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon]) => `<div class="club-stamp ${earned ? 'earned' : ''}">${emblem(icon)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${r.score} points</span><small>${r.date.slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
   }
-  function exportSave() {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }),
+  function exportSave(value = state, label = 'club') {
+    const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
       a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'alibi-club-' + day() + '.json';
+    a.download = 'alibi-' + label + '-' + day() + '.json';
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
@@ -795,13 +796,29 @@
         delete root.__clubForced;
         bridge.apply({ type: 'set', cell: d.cell, value: d.value });
       } else if (a === 'export') exportSave();
-      else if (a === 'import') document.getElementById('club-import').click();
+      else if (a === 'recovery') {
+        if (!db || storageMode !== 'indexeddb')
+          throw Error('A Club recovery copy requires device storage.');
+        const saved = await new Promise((resolve, reject) => {
+          const r = db.transaction('club', 'readonly').objectStore('club').get('recovery');
+          r.onsuccess = () => resolve(r.result);
+          r.onerror = () => reject(r.error);
+        });
+        if (!saved) throw Error('No Club backup has been restored yet.');
+        exportSave(saved.data, 'club-recovery');
+      } else if (a === 'import') document.getElementById('club-import').click();
       else if (a === 'restore-confirm') {
         document.getElementById('dialog').close();
         if (root.__alibiPendingClub) {
-          state = root.__alibiPendingClub;
+          if (storageMode !== 'indexeddb' || saveError)
+            throw Error(
+              'Restore needs healthy device storage. Export this session before reloading.',
+            );
+          const next = root.__alibiPendingClub;
           delete root.__alibiPendingClub;
-          await persist();
+          await persist(next);
+          if (saveError) throw Error(saveError);
+          state = next;
           await onRoute(route);
           render();
         }
