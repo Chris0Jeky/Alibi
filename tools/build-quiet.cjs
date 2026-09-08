@@ -6,7 +6,9 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
   const dir = path.join(root, 'src/quiet-wing');
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
-  const source = ['engine.js', 'realm.js', 'pets.js', 'storage.js', 'app.js'].map(read).join('\n');
+  const source = ['engine.js', 'city.js', 'realm.js', 'pets.js', 'storage.js', 'app.js']
+    .map(read)
+    .join('\n');
   const cssSource = read('style.css'),
     files = [];
   function emit(name, bytes, ext) {

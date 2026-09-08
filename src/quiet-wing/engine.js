@@ -42,14 +42,16 @@
     ochre: ['#e7c271', '#a45848', '#748a8d'],
     lavender: ['#c9bcda', '#766492', '#7c8c7c'],
   };
-  function emptyScene() {
+  const SIZES = [14, 20, 28];
+  function emptyScene(size = SIZE) {
+    if (!SIZES.includes(size)) throw Error('Choose a 14, 20 or 28 plot island.');
     return {
       schema: VERSION,
       kind: 'alibi-realm',
       id: 'little-bellweather',
       name: 'Little Bellweather',
-      size: SIZE,
-      tiles: Array.from({ length: SIZE * SIZE }, () => ({
+      size,
+      tiles: Array.from({ length: size * size }, () => ({
         ground: 'meadow',
         height: 0,
         items: [],
@@ -160,11 +162,11 @@
   function validateScene(x) {
     if (!x || x.schema !== VERSION || x.kind !== 'alibi-realm')
       throw Error('Unsupported realm format. Your current realm has not changed.');
-    if (x.size !== SIZE || !Array.isArray(x.tiles) || x.tiles.length !== SIZE * SIZE)
-      throw Error('A realm must have 14 × 14 plots.');
+    if (!SIZES.includes(x.size) || !Array.isArray(x.tiles) || x.tiles.length !== x.size * x.size)
+      throw Error('A realm must have 14, 20 or 28 plots on each side.');
     if (typeof x.name !== 'string' || x.name.length > 64)
       throw Error('Realm names must be 64 characters or fewer.');
-    const y = emptyScene();
+    const y = emptyScene(x.size);
     y.name = x.name.trim() || 'Untitled realm';
     y.id = typeof x.id === 'string' ? x.id.slice(0, 80) : y.id;
     y.tiles = x.tiles.map((t) => {
@@ -676,6 +678,7 @@
   G.QWEngine = {
     VERSION,
     SIZE,
+    SIZES,
     TYPES,
     TERRAIN,
     PALETTES,
