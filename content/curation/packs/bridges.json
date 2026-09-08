@@ -1,0 +1,969 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-curated-bridges",
+  "version": 1,
+  "title": "Alibi Curated / Tidal bridges",
+  "author": "Alibi",
+  "puzzles": [
+    {
+      "id": "curated-bridges-01",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The two-bar crossing",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 2
+        },
+        {
+          "cell": 4,
+          "count": 2
+        },
+        {
+          "cell": 10,
+          "count": 4
+        },
+        {
+          "cell": 14,
+          "count": 5
+        },
+        {
+          "cell": 22,
+          "count": 1
+        },
+        {
+          "cell": 24,
+          "count": 2
+        }
+      ],
+      "solution": [
+        0,
+        2,
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-02",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The outer islands",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 2
+        },
+        {
+          "cell": 4,
+          "count": 1
+        },
+        {
+          "cell": 10,
+          "count": 3
+        },
+        {
+          "cell": 12,
+          "count": 4
+        },
+        {
+          "cell": 14,
+          "count": 2
+        },
+        {
+          "cell": 22,
+          "count": 4
+        },
+        {
+          "cell": 24,
+          "count": 2
+        }
+      ],
+      "solution": [
+        0,
+        2,
+        1,
+        1,
+        1,
+        2,
+        0,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-03",
+      "revision": 1,
+      "type": "bridges",
+      "title": "A bend in the coast",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Steady",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 2
+        },
+        {
+          "cell": 4,
+          "count": 5
+        },
+        {
+          "cell": 6,
+          "count": 3
+        },
+        {
+          "cell": 14,
+          "count": 2
+        },
+        {
+          "cell": 16,
+          "count": 3
+        },
+        {
+          "cell": 18,
+          "count": 2
+        },
+        {
+          "cell": 20,
+          "count": 1
+        },
+        {
+          "cell": 30,
+          "count": 2
+        },
+        {
+          "cell": 32,
+          "count": 3
+        },
+        {
+          "cell": 46,
+          "count": 1
+        }
+      ],
+      "solution": [
+        2,
+        0,
+        2,
+        1,
+        1,
+        2,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-04",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The last safe causeway",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Tricky",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 2
+        },
+        {
+          "cell": 2,
+          "count": 4
+        },
+        {
+          "cell": 4,
+          "count": 1
+        },
+        {
+          "cell": 6,
+          "count": 2
+        },
+        {
+          "cell": 14,
+          "count": 4
+        },
+        {
+          "cell": 16,
+          "count": 5
+        },
+        {
+          "cell": 20,
+          "count": 3
+        },
+        {
+          "cell": 28,
+          "count": 3
+        },
+        {
+          "cell": 30,
+          "count": 3
+        },
+        {
+          "cell": 32,
+          "count": 2
+        },
+        {
+          "cell": 34,
+          "count": 3
+        },
+        {
+          "cell": 46,
+          "count": 3
+        },
+        {
+          "cell": 48,
+          "count": 3
+        }
+      ],
+      "solution": [
+        2,
+        0,
+        0,
+        2,
+        1,
+        0,
+        1,
+        2,
+        2,
+        0,
+        1,
+        2,
+        1,
+        1,
+        0,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-05",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The garden channels",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 1
+        },
+        {
+          "cell": 10,
+          "count": 4
+        },
+        {
+          "cell": 12,
+          "count": 1
+        },
+        {
+          "cell": 20,
+          "count": 4
+        },
+        {
+          "cell": 22,
+          "count": 3
+        },
+        {
+          "cell": 24,
+          "count": 1
+        }
+      ],
+      "solution": [
+        1,
+        1,
+        2,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-06",
+      "revision": 1,
+      "type": "bridges",
+      "title": "Two ways across",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 3
+        },
+        {
+          "cell": 2,
+          "count": 6
+        },
+        {
+          "cell": 4,
+          "count": 3
+        },
+        {
+          "cell": 10,
+          "count": 1
+        },
+        {
+          "cell": 12,
+          "count": 4
+        },
+        {
+          "cell": 22,
+          "count": 3
+        },
+        {
+          "cell": 24,
+          "count": 2
+        }
+      ],
+      "solution": [
+        2,
+        1,
+        2,
+        2,
+        1,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-07",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The broken-looking network",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Steady",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 2
+        },
+        {
+          "cell": 6,
+          "count": 1
+        },
+        {
+          "cell": 14,
+          "count": 2
+        },
+        {
+          "cell": 18,
+          "count": 1
+        },
+        {
+          "cell": 20,
+          "count": 2
+        },
+        {
+          "cell": 28,
+          "count": 3
+        },
+        {
+          "cell": 30,
+          "count": 3
+        },
+        {
+          "cell": 34,
+          "count": 3
+        },
+        {
+          "cell": 46,
+          "count": 2
+        },
+        {
+          "cell": 48,
+          "count": 3
+        }
+      ],
+      "solution": [
+        1,
+        1,
+        0,
+        0,
+        2,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-08",
+      "revision": 1,
+      "type": "bridges",
+      "title": "Bridges among the reeds",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Tricky",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 2
+        },
+        {
+          "cell": 2,
+          "count": 1
+        },
+        {
+          "cell": 4,
+          "count": 2
+        },
+        {
+          "cell": 6,
+          "count": 4
+        },
+        {
+          "cell": 16,
+          "count": 3
+        },
+        {
+          "cell": 20,
+          "count": 6
+        },
+        {
+          "cell": 28,
+          "count": 3
+        },
+        {
+          "cell": 30,
+          "count": 4
+        },
+        {
+          "cell": 34,
+          "count": 4
+        },
+        {
+          "cell": 42,
+          "count": 3
+        },
+        {
+          "cell": 44,
+          "count": 6
+        },
+        {
+          "cell": 46,
+          "count": 3
+        },
+        {
+          "cell": 48,
+          "count": 1
+        }
+      ],
+      "solution": [
+        0,
+        2,
+        0,
+        1,
+        2,
+        0,
+        2,
+        2,
+        0,
+        2,
+        0,
+        1,
+        2,
+        2,
+        0,
+        2,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-09",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The sculpture islands",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 1
+        },
+        {
+          "cell": 10,
+          "count": 3
+        },
+        {
+          "cell": 14,
+          "count": 3
+        },
+        {
+          "cell": 20,
+          "count": 2
+        },
+        {
+          "cell": 22,
+          "count": 4
+        },
+        {
+          "cell": 24,
+          "count": 3
+        }
+      ],
+      "solution": [
+        1,
+        2,
+        0,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-10",
+      "revision": 1,
+      "type": "bridges",
+      "title": "An archipelago in ink",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 4
+        },
+        {
+          "cell": 2,
+          "count": 2
+        },
+        {
+          "cell": 10,
+          "count": 6
+        },
+        {
+          "cell": 12,
+          "count": 3
+        },
+        {
+          "cell": 14,
+          "count": 3
+        },
+        {
+          "cell": 20,
+          "count": 2
+        },
+        {
+          "cell": 24,
+          "count": 2
+        }
+      ],
+      "solution": [
+        2,
+        2,
+        0,
+        2,
+        2,
+        1,
+        2,
+        0
+      ]
+    },
+    {
+      "id": "curated-bridges-11",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The narrow connections",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Steady",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 3
+        },
+        {
+          "cell": 4,
+          "count": 1
+        },
+        {
+          "cell": 14,
+          "count": 3
+        },
+        {
+          "cell": 16,
+          "count": 4
+        },
+        {
+          "cell": 20,
+          "count": 2
+        },
+        {
+          "cell": 32,
+          "count": 3
+        },
+        {
+          "cell": 34,
+          "count": 2
+        },
+        {
+          "cell": 42,
+          "count": 4
+        },
+        {
+          "cell": 44,
+          "count": 2
+        },
+        {
+          "cell": 46,
+          "count": 2
+        }
+      ],
+      "solution": [
+        1,
+        2,
+        0,
+        1,
+        2,
+        1,
+        0,
+        1,
+        1,
+        2,
+        2,
+        0
+      ]
+    },
+    {
+      "id": "curated-bridges-12",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The whole picture",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Tricky",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 1
+        },
+        {
+          "cell": 4,
+          "count": 2
+        },
+        {
+          "cell": 14,
+          "count": 1
+        },
+        {
+          "cell": 16,
+          "count": 3
+        },
+        {
+          "cell": 18,
+          "count": 2
+        },
+        {
+          "cell": 20,
+          "count": 2
+        },
+        {
+          "cell": 28,
+          "count": 4
+        },
+        {
+          "cell": 30,
+          "count": 8
+        },
+        {
+          "cell": 32,
+          "count": 4
+        },
+        {
+          "cell": 34,
+          "count": 4
+        },
+        {
+          "cell": 42,
+          "count": 1
+        },
+        {
+          "cell": 44,
+          "count": 4
+        },
+        {
+          "cell": 48,
+          "count": 2
+        }
+      ],
+      "solution": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        2,
+        0,
+        0,
+        2,
+        2,
+        1,
+        2,
+        2,
+        2,
+        0,
+        0,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-13",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The frozen river posts",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 3
+        },
+        {
+          "cell": 2,
+          "count": 2
+        },
+        {
+          "cell": 10,
+          "count": 4
+        },
+        {
+          "cell": 14,
+          "count": 1
+        },
+        {
+          "cell": 20,
+          "count": 4
+        },
+        {
+          "cell": 22,
+          "count": 2
+        }
+      ],
+      "solution": [
+        2,
+        1,
+        0,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "id": "curated-bridges-14",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The outlying stations",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Gentle",
+      "size": 5,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 2
+        },
+        {
+          "cell": 4,
+          "count": 1
+        },
+        {
+          "cell": 10,
+          "count": 2
+        },
+        {
+          "cell": 14,
+          "count": 3
+        },
+        {
+          "cell": 20,
+          "count": 4
+        },
+        {
+          "cell": 22,
+          "count": 5
+        },
+        {
+          "cell": 24,
+          "count": 3
+        }
+      ],
+      "solution": [
+        0,
+        2,
+        1,
+        0,
+        2,
+        2,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "curated-bridges-15",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The dispatch islands",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Steady",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 0,
+          "count": 3
+        },
+        {
+          "cell": 2,
+          "count": 3
+        },
+        {
+          "cell": 6,
+          "count": 4
+        },
+        {
+          "cell": 14,
+          "count": 5
+        },
+        {
+          "cell": 18,
+          "count": 4
+        },
+        {
+          "cell": 20,
+          "count": 5
+        },
+        {
+          "cell": 28,
+          "count": 3
+        },
+        {
+          "cell": 30,
+          "count": 1
+        },
+        {
+          "cell": 34,
+          "count": 2
+        },
+        {
+          "cell": 46,
+          "count": 2
+        }
+      ],
+      "solution": [
+        1,
+        2,
+        2,
+        0,
+        2,
+        1,
+        2,
+        1,
+        2,
+        2,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "curated-bridges-16",
+      "revision": 1,
+      "type": "bridges",
+      "title": "Before the thaw",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Tricky",
+      "size": 7,
+      "islands": [
+        {
+          "cell": 2,
+          "count": 1
+        },
+        {
+          "cell": 4,
+          "count": 2
+        },
+        {
+          "cell": 16,
+          "count": 5
+        },
+        {
+          "cell": 18,
+          "count": 5
+        },
+        {
+          "cell": 20,
+          "count": 3
+        },
+        {
+          "cell": 28,
+          "count": 2
+        },
+        {
+          "cell": 30,
+          "count": 6
+        },
+        {
+          "cell": 32,
+          "count": 1
+        },
+        {
+          "cell": 34,
+          "count": 5
+        },
+        {
+          "cell": 42,
+          "count": 2
+        },
+        {
+          "cell": 44,
+          "count": 5
+        },
+        {
+          "cell": 46,
+          "count": 2
+        },
+        {
+          "cell": 48,
+          "count": 3
+        }
+      ],
+      "solution": [
+        0,
+        1,
+        2,
+        2,
+        2,
+        1,
+        0,
+        2,
+        2,
+        0,
+        0,
+        2,
+        1,
+        0,
+        2,
+        2,
+        1,
+        1
+      ]
+    }
+  ]
+}

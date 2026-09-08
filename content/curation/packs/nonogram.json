@@ -1,0 +1,1325 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-curated-nonogram",
+  "version": 1,
+  "title": "Alibi Curated / Picture logic",
+  "author": "Alibi",
+  "puzzles": [
+    {
+      "id": "curated-nonogram-01",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A small signal",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-02",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Through the sea mist",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-03",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The harbour token",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "rowClues": [
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          4
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-04",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A shape in the spray",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-05",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Under a quiet roof",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      "colClues": [
+        [
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-06",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "Between the leaves",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ],
+        [
+          0
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-07",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The rain collector’s mark",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "rowClues": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          3
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          4
+        ],
+        [
+          3
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-08",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A pattern under glass",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          3
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          0
+        ],
+        [
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-09",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The printer’s first proof",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "rowClues": [
+        [
+          5
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ]
+      ],
+      "colClues": [
+        [
+          2
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-10",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A familiar outline",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "rowClues": [
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          2
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          4
+        ],
+        [
+          2
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-11",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The gilded impression",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          5
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          5
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-12",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "What the frame concealed",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Steady",
+      "size": 7,
+      "solution": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          1
+        ]
+      ],
+      "colClues": [
+        [
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          7
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-13",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The postmark fragment",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Steady",
+      "size": 7,
+      "solution": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          7
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ],
+        [
+          7
+        ]
+      ],
+      "colClues": [
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          7
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-14",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "A winter silhouette",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Steady",
+      "size": 7,
+      "solution": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "rowClues": [
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          1
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          0
+        ],
+        [
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          7
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          1
+        ],
+        [
+          0
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-15",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "An old stamp design",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Steady",
+      "size": 7,
+      "solution": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          5
+        ],
+        [
+          7
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "colClues": [
+        [
+          6
+        ],
+        [
+          7
+        ],
+        [
+          2
+        ],
+        [
+          2
+        ],
+        [
+          2
+        ],
+        [
+          7
+        ],
+        [
+          6
+        ]
+      ]
+    },
+    {
+      "id": "curated-nonogram-16",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The picture in the envelope",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Gentle",
+      "size": 5,
+      "solution": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "rowClues": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          5
+        ],
+        [
+          3
+        ],
+        [
+          3
+        ],
+        [
+          5
+        ]
+      ],
+      "colClues": [
+        [
+          2,
+          1
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          4
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    }
+  ]
+}

@@ -76,7 +76,7 @@ function zip(entries, out) {
 function build() {
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
-  const catalog = JSON.parse(read(path.join(ROOT, 'content/catalog.json'))),
+  const catalog = require('./official-catalogue.cjs').load(ROOT),
     books = JSON.parse(read(path.join(ROOT, 'content/casebooks.json'))),
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),

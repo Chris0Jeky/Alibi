@@ -1,0 +1,2215 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-curated-scene",
+  "version": 1,
+  "title": "Alibi Curated / Crime scenes",
+  "author": "Alibi",
+  "puzzles": [
+    {
+      "id": "curated-scene-01",
+      "revision": 1,
+      "type": "scene",
+      "title": "The silent meridian",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Nora",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Silas",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Leonie",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Bram",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Edwin",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "chart room",
+        "dome",
+        "workshop",
+        "reading room"
+      ],
+      "objects": [
+        {
+          "cell": 11,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 1,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 23,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 15,
+        "person-2": 4,
+        "person-3": 6,
+        "person-4": 13,
+        "victim": 22
+      },
+      "clues": [
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-3"
+        },
+        {
+          "kind": "left",
+          "who": "person-4",
+          "other": "person-2"
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "person-4"
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 0
+        },
+        {
+          "kind": "near",
+          "who": "victim",
+          "value": 23
+        }
+      ],
+      "story": "Edwin was found dead at the Salt Observatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-02",
+      "revision": 1,
+      "type": "scene",
+      "title": "The locked dome",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Nora",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Silas",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Leonie",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Bram",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Edwin",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "chart room",
+        "dome",
+        "workshop",
+        "reading room"
+      ],
+      "objects": [
+        {
+          "cell": 20,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 24,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 12,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 17,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 6,
+        "person-2": 2,
+        "person-3": 23,
+        "person-4": 10,
+        "victim": 19
+      },
+      "clues": [
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "victim"
+        },
+        {
+          "kind": "notRoom",
+          "who": "victim",
+          "value": 1
+        },
+        {
+          "kind": "above",
+          "who": "victim",
+          "other": "person-3"
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-1"
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-4",
+          "other": "person-2"
+        },
+        {
+          "kind": "above",
+          "who": "person-1",
+          "other": "person-4"
+        }
+      ],
+      "story": "Edwin was found dead at the Salt Observatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-03",
+      "revision": 1,
+      "type": "scene",
+      "title": "An interrupted reading",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Steady",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Nora",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Silas",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Leonie",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Bram",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Edwin",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "chart room",
+        "dome",
+        "workshop",
+        "reading room"
+      ],
+      "objects": [
+        {
+          "cell": 4,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 15,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 13,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 22,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 0,
+          "kind": "lamp",
+          "name": "floor lamp"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 24,
+        "person-2": 3,
+        "person-3": 7,
+        "person-4": 10,
+        "victim": 16
+      },
+      "clues": [
+        {
+          "kind": "notRoom",
+          "who": "person-2",
+          "value": 0
+        },
+        {
+          "kind": "near",
+          "who": "victim",
+          "value": 15
+        },
+        {
+          "kind": "differentRoom",
+          "who": "victim",
+          "other": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "person-4",
+          "other": "person-2"
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-3"
+        },
+        {
+          "kind": "above",
+          "who": "victim",
+          "other": "person-1"
+        },
+        {
+          "kind": "notEdge",
+          "who": "victim"
+        }
+      ],
+      "story": "Edwin was found dead at the Salt Observatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-04",
+      "revision": 1,
+      "type": "scene",
+      "title": "Footsteps above the tide",
+      "subtitle": "The Salt Observatory",
+      "difficulty": "Tricky",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Nora",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Silas",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Leonie",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Bram",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Edwin",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "chart room",
+        "dome",
+        "workshop",
+        "reading room"
+      ],
+      "objects": [
+        {
+          "cell": 23,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 1,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 15,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 24,
+        "person-2": 16,
+        "person-3": 8,
+        "person-4": 10,
+        "victim": 2
+      },
+      "clues": [
+        {
+          "kind": "notRoom",
+          "who": "person-3",
+          "value": 0
+        },
+        {
+          "kind": "sameRoom",
+          "who": "person-4",
+          "other": "victim"
+        },
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "person-1"
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "person-4"
+        },
+        {
+          "kind": "edge",
+          "who": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "victim"
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-3"
+        }
+      ],
+      "story": "Edwin was found dead at the Salt Observatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-05",
+      "revision": 1,
+      "type": "scene",
+      "title": "The orchid supper",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Tamsin",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Hugo",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Cleo",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Orin",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Vera",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "potting room",
+        "glasshouse",
+        "seed room",
+        "garden room"
+      ],
+      "objects": [
+        {
+          "cell": 1,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 23,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 13,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 19,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 15,
+        "person-2": 21,
+        "person-3": 14,
+        "person-4": 2,
+        "victim": 8
+      },
+      "clues": [
+        {
+          "kind": "near",
+          "who": "victim",
+          "value": 13
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "sameRoom",
+          "who": "person-2",
+          "other": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-3"
+        },
+        {
+          "kind": "edge",
+          "who": "person-2"
+        },
+        {
+          "kind": "edge",
+          "who": "person-3"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-2"
+        }
+      ],
+      "story": "Vera was found dead at the Copper Conservatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-06",
+      "revision": 1,
+      "type": "scene",
+      "title": "The glass corridor",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Tamsin",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Hugo",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Cleo",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Orin",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Vera",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "potting room",
+        "glasshouse",
+        "seed room",
+        "garden room"
+      ],
+      "objects": [
+        {
+          "cell": 13,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 18,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 4,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 8,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 16,
+          "kind": "lamp",
+          "name": "floor lamp"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 9,
+        "person-2": 12,
+        "person-3": 3,
+        "person-4": 15,
+        "victim": 21
+      },
+      "clues": [
+        {
+          "kind": "sameRoom",
+          "who": "person-3",
+          "other": "person-2"
+        },
+        {
+          "kind": "edge",
+          "who": "person-1"
+        },
+        {
+          "kind": "above",
+          "who": "person-1",
+          "other": "person-2"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "victim"
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-1",
+          "value": 0
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "person-1"
+        }
+      ],
+      "story": "Vera was found dead at the Copper Conservatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-07",
+      "revision": 1,
+      "type": "scene",
+      "title": "A leaf on the piano",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Steady",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Tamsin",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Hugo",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Cleo",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Orin",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Vera",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "potting room",
+        "glasshouse",
+        "seed room",
+        "garden room"
+      ],
+      "objects": [
+        {
+          "cell": 12,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 22,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 13,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 11,
+        "person-2": 7,
+        "person-3": 0,
+        "person-4": 19,
+        "victim": 23
+      },
+      "clues": [
+        {
+          "kind": "above",
+          "who": "person-1",
+          "other": "person-4"
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "victim",
+          "other": "person-4"
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "person-2"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "victim"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-2"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "victim"
+        }
+      ],
+      "story": "Vera was found dead at the Copper Conservatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-08",
+      "revision": 1,
+      "type": "scene",
+      "title": "The last watering",
+      "subtitle": "The Copper Conservatory",
+      "difficulty": "Tricky",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Tamsin",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Hugo",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Cleo",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Orin",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Vera",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "potting room",
+        "glasshouse",
+        "seed room",
+        "garden room"
+      ],
+      "objects": [
+        {
+          "cell": 10,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 11,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 0,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 24,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 20,
+        "person-2": 3,
+        "person-3": 16,
+        "person-4": 12,
+        "victim": 9
+      },
+      "clues": [
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-4"
+        },
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-4",
+          "value": 11
+        },
+        {
+          "kind": "edge",
+          "who": "victim"
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 2
+        },
+        {
+          "kind": "near",
+          "who": "person-3",
+          "value": 11
+        }
+      ],
+      "story": "Vera was found dead at the Copper Conservatory. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-09",
+      "revision": 1,
+      "type": "scene",
+      "title": "The frame without a face",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Elena",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Basil",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Nell",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Jonas",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Milo",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "gallery",
+        "studio",
+        "print room",
+        "conservation room"
+      ],
+      "objects": [
+        {
+          "cell": 19,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 3,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 21,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 6,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 15,
+          "kind": "lamp",
+          "name": "floor lamp"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 16,
+        "person-2": 13,
+        "person-3": 5,
+        "person-4": 2,
+        "victim": 24
+      },
+      "clues": [
+        {
+          "kind": "notRoom",
+          "who": "person-3",
+          "value": 2
+        },
+        {
+          "kind": "room",
+          "who": "person-2",
+          "value": 3
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-3",
+          "value": 1
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "victim"
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "person-1"
+        }
+      ],
+      "story": "Milo was found dead at the Nocturne Gallery. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-10",
+      "revision": 1,
+      "type": "scene",
+      "title": "A seat in the dark",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Elena",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Basil",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Nell",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Jonas",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Milo",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "gallery",
+        "studio",
+        "print room",
+        "conservation room"
+      ],
+      "objects": [
+        {
+          "cell": 21,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 9,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 3,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 19,
+        "person-2": 2,
+        "person-3": 23,
+        "person-4": 6,
+        "victim": 10
+      },
+      "clues": [
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-3"
+        },
+        {
+          "kind": "edge",
+          "who": "person-3"
+        },
+        {
+          "kind": "near",
+          "who": "person-2",
+          "value": 3
+        },
+        {
+          "kind": "edge",
+          "who": "victim"
+        },
+        {
+          "kind": "left",
+          "who": "person-3",
+          "other": "person-1"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "victim"
+        }
+      ],
+      "story": "Milo was found dead at the Nocturne Gallery. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-11",
+      "revision": 1,
+      "type": "scene",
+      "title": "The varnish room",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Steady",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Elena",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Basil",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Nell",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Jonas",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Milo",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "gallery",
+        "studio",
+        "print room",
+        "conservation room"
+      ],
+      "objects": [
+        {
+          "cell": 8,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 0,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 11,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 17,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 5,
+        "person-2": 21,
+        "person-3": 3,
+        "person-4": 12,
+        "victim": 19
+      },
+      "clues": [
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-2"
+        },
+        {
+          "kind": "edge",
+          "who": "victim"
+        },
+        {
+          "kind": "room",
+          "who": "person-2",
+          "value": 2
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-3",
+          "other": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-4",
+          "value": 11
+        },
+        {
+          "kind": "edge",
+          "who": "person-2"
+        }
+      ],
+      "story": "Milo was found dead at the Nocturne Gallery. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-12",
+      "revision": 1,
+      "type": "scene",
+      "title": "The final hanging",
+      "subtitle": "The Nocturne Gallery",
+      "difficulty": "Tricky",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Elena",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Basil",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Nell",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Jonas",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Milo",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "gallery",
+        "studio",
+        "print room",
+        "conservation room"
+      ],
+      "objects": [
+        {
+          "cell": 0,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 20,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 3,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 24,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 18,
+          "kind": "lamp",
+          "name": "floor lamp"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 15,
+        "person-2": 23,
+        "person-3": 9,
+        "person-4": 2,
+        "victim": 11
+      },
+      "clues": [
+        {
+          "kind": "room",
+          "who": "victim",
+          "value": 0
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "victim"
+        },
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "victim"
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-3",
+          "other": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-4",
+          "value": 3
+        }
+      ],
+      "story": "Milo was found dead at the Nocturne Gallery. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-13",
+      "revision": 1,
+      "type": "scene",
+      "title": "The undelivered letter",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Esme",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Rafe",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Lina",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Otis",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ansel",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "counter hall",
+        "sorting room",
+        "registry",
+        "parcel room"
+      ],
+      "objects": [
+        {
+          "cell": 5,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 17,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 8,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 22,
+        "person-2": 9,
+        "person-3": 16,
+        "person-4": 10,
+        "victim": 3
+      },
+      "clues": [
+        {
+          "kind": "sameRoom",
+          "who": "person-3",
+          "other": "person-1"
+        },
+        {
+          "kind": "left",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "left",
+          "who": "victim",
+          "other": "person-2"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "room",
+          "who": "victim",
+          "value": 1
+        },
+        {
+          "kind": "above",
+          "who": "person-3",
+          "other": "person-1"
+        }
+      ],
+      "story": "Ansel was found dead at the Winter Post Office. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-14",
+      "revision": 1,
+      "type": "scene",
+      "title": "Five coats at closing",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Gentle",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Esme",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Rafe",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Lina",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Otis",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ansel",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        3,
+        3,
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "roomNames": [
+        "counter hall",
+        "sorting room",
+        "registry",
+        "parcel room"
+      ],
+      "objects": [
+        {
+          "cell": 7,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 10,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 23,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 12,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 17,
+        "person-2": 1,
+        "person-3": 24,
+        "person-4": 13,
+        "victim": 5
+      },
+      "clues": [
+        {
+          "kind": "near",
+          "who": "person-1",
+          "value": 12
+        },
+        {
+          "kind": "room",
+          "who": "person-4",
+          "value": 1
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-2",
+          "value": 2
+        },
+        {
+          "kind": "left",
+          "who": "victim",
+          "other": "person-2"
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-3"
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 3
+        },
+        {
+          "kind": "edge",
+          "who": "person-2"
+        }
+      ],
+      "story": "Ansel was found dead at the Winter Post Office. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-15",
+      "revision": 1,
+      "type": "scene",
+      "title": "The sorting-room silence",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Steady",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Esme",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Rafe",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Lina",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Otis",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ansel",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "counter hall",
+        "sorting room",
+        "registry",
+        "parcel room"
+      ],
+      "objects": [
+        {
+          "cell": 13,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 24,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 4,
+          "kind": "piano",
+          "name": "upright piano"
+        },
+        {
+          "cell": 5,
+          "kind": "shelf",
+          "name": "bookshelf"
+        },
+        {
+          "cell": 9,
+          "kind": "lamp",
+          "name": "floor lamp"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 12,
+        "person-2": 20,
+        "person-3": 8,
+        "person-4": 1,
+        "victim": 19
+      },
+      "clues": [
+        {
+          "kind": "left",
+          "who": "person-1",
+          "other": "person-3"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-3"
+        },
+        {
+          "kind": "near",
+          "who": "person-1",
+          "value": 13
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-4"
+        },
+        {
+          "kind": "above",
+          "who": "person-1",
+          "other": "victim"
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-1",
+          "value": 1
+        }
+      ],
+      "story": "Ansel was found dead at the Winter Post Office. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    },
+    {
+      "id": "curated-scene-16",
+      "revision": 1,
+      "type": "scene",
+      "title": "The snowbound office",
+      "subtitle": "The Winter Post Office",
+      "difficulty": "Tricky",
+      "size": 5,
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Esme",
+          "role": "The recorder",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Rafe",
+          "role": "The technician",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Lina",
+          "role": "The visitor",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Otis",
+          "role": "The custodian",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Ansel",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        3,
+        3
+      ],
+      "roomNames": [
+        "counter hall",
+        "sorting room",
+        "registry",
+        "parcel room"
+      ],
+      "objects": [
+        {
+          "cell": 14,
+          "kind": "plant",
+          "name": "potted fern"
+        },
+        {
+          "cell": 1,
+          "kind": "table",
+          "name": "work table"
+        },
+        {
+          "cell": 7,
+          "kind": "piano",
+          "name": "upright piano"
+        }
+      ],
+      "victim": "victim",
+      "solution": {
+        "person-1": 24,
+        "person-2": 8,
+        "person-3": 16,
+        "person-4": 2,
+        "victim": 10
+      },
+      "clues": [
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "victim"
+        },
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-4",
+          "value": 7
+        },
+        {
+          "kind": "above",
+          "who": "victim",
+          "other": "person-1"
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 2
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-4",
+          "value": 1
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-3"
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-1"
+        }
+      ],
+      "story": "Ansel was found dead at the Winter Post Office. The five positions on this plan record the moment of the incident. All listed clues are reliable. Reconstruct those positions, then identify the only suspect who shared the victim's room. For this case, the evidence establishes that this person was responsible."
+    }
+  ]
+}
