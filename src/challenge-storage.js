@@ -41,6 +41,7 @@
         }
       });
     async function open() {
+      if (db || protectedMode) return info();
       if (!G.indexedDB) {
         mode = 'session';
         return info();
