@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-08",
+  "purpose": "Trusted source and derivative registry for curation artwork. This registry contains no answer art.",
+  "policy": {
+    "noHotlinks": true,
+    "museumApiFlag": "isPublicDomain === true",
+    "museumPolicy": "https://www.metmuseum.org/hubs/open-access",
+    "sourceRoot": "assets-source/curation",
+    "derivativeRoot": "src/curation-assets"
+  },
+  "assets": [
+    {
+      "id": "met-melencolia",
+      "kind": "museum-image",
+      "venue": "nocturne",
+      "title": "Melencolia I",
+      "artist": "Albrecht Dürer",
+      "date": "1514",
+      "alt": "A densely detailed engraving with geometric instruments, a polyhedron and a numbered square.",
+      "editorialNote": "Use as a gallery interlude. Its famous square is 4×4; do not present it as the same board as Alibi’s 3×3 Lo Shu game.",
+      "source": {
+        "institution": "The Metropolitan Museum of Art",
+        "objectId": 336228,
+        "accession": "43.106.1",
+        "objectPage": "https://www.metmuseum.org/art/collection/search/336228",
+        "apiRecord": "https://collectionapi.metmuseum.org/public/collection/v1/objects/336228",
+        "imageUrl": "https://images.metmuseum.org/CRDImages/dp/original/DP820348.jpg",
+        "contentType": "image/jpeg",
+        "publicDomain": true,
+        "apiRightsFlag": "isPublicDomain === true",
+        "creditLine": "Harris Brisbane Dick Fund, 1943",
+        "file": "assets-source/curation/museum/met-melencolia.jpg",
+        "sha256": "ea8e4a7d78d56d7b1bfec95c640470a3a768b3f0f9d7bdb520c402791c27a330",
+        "bytes": 4391204,
+        "width": 2820,
+        "height": 3561
+      },
+      "rights": {
+        "policy": "https://www.metmuseum.org/hubs/open-access",
+        "licence": "CC0 for designated Met Open Access public-domain images",
+        "credit": "Albrecht Dürer. Melencolia I, 1514. The Metropolitan Museum of Art, Harris Brisbane Dick Fund, 1943. Public Domain / Open Access."
+      },
+      "derivative": {
+        "file": "src/curation-assets/museum/met-melencolia.webp",
+        "sha256": "94f08df0b4b8873252a3ec73b8db1ca26b4479913a82e1e6b22a99995768a396",
+        "bytes": 783456,
+        "width": 1267,
+        "height": 1600,
+        "format": "image/webp",
+        "transform": "RGB decode; EXIF orientation; aspect-preserving fit within 1600×1600; WebP quality 88; no crop"
+      }
+    },
+    {
+      "id": "met-celestial",
+      "kind": "museum-image",
+      "venue": "salt",
+      "title": "The Celestial Globe-Southern Hemisphere",
+      "artist": "Albrecht Dürer",
+      "date": "1515",
+      "alt": "A circular engraved celestial map with labelled constellations.",
+      "editorialNote": "Historical atmosphere for the observatory, not a current scientific sky chart.",
+      "source": {
+        "institution": "The Metropolitan Museum of Art",
+        "objectId": 358367,
+        "accession": "51.537.2",
+        "objectPage": "https://www.metmuseum.org/art/collection/search/358367",
+        "apiRecord": "https://collectionapi.metmuseum.org/public/collection/v1/objects/358367",
+        "imageUrl": "https://images.metmuseum.org/CRDImages/dp/original/DP820482.jpg",
+        "contentType": "image/jpeg",
+        "publicDomain": true,
+        "apiRightsFlag": "isPublicDomain === true",
+        "creditLine": "Harris Brisbane Dick Fund, 1951",
+        "file": "assets-source/curation/museum/met-celestial.jpg",
+        "sha256": "f8c4c0dafc33eeb3bb7867794bd40610f3136ede6708e22f6c316c0643b34eb4",
+        "bytes": 3217129,
+        "width": 2845,
+        "height": 3774
+      },
+      "rights": {
+        "policy": "https://www.metmuseum.org/hubs/open-access",
+        "licence": "CC0 for designated Met Open Access public-domain images",
+        "credit": "Albrecht Dürer. The Celestial Globe-Southern Hemisphere, 1515. The Metropolitan Museum of Art, Harris Brisbane Dick Fund, 1951. Public Domain / Open Access."
+      },
+      "derivative": {
+        "file": "src/curation-assets/museum/met-celestial.webp",
+        "sha256": "bde46b78d9c3bc2171fd5248b52ec5c18e37444723a19141609c196ecc9fe3eb",
+        "bytes": 422028,
+        "width": 1206,
+        "height": 1600,
+        "format": "image/webp",
+        "transform": "RGB decode; EXIF orientation; aspect-preserving fit within 1600×1600; WebP quality 88; no crop"
+      }
+    },
+    {
+      "id": "met-kanbara",
+      "kind": "museum-image",
+      "venue": "winter",
+      "title": "A Snowy Evening at Kanbara Station",
+      "artist": "Utagawa Hiroshige",
+      "date": "ca. 1833–34",
+      "alt": "Travellers pass snow-covered roofs and slopes in a quiet evening landscape.",
+      "editorialNote": "Suitable for a winter collection interlude. The museum describes the scene as imaginary; do not add claims of a documented storm.",
+      "source": {
+        "institution": "The Metropolitan Museum of Art",
+        "objectId": 36937,
+        "accession": "JP486",
+        "objectPage": "https://www.metmuseum.org/art/collection/search/36937",
+        "apiRecord": "https://collectionapi.metmuseum.org/public/collection/v1/objects/36937",
+        "imageUrl": "https://images.metmuseum.org/CRDImages/as/original/DP122189.jpg",
+        "contentType": "image/jpeg",
+        "publicDomain": true,
+        "apiRightsFlag": "isPublicDomain === true",
+        "creditLine": "Rogers Fund, 1918",
+        "file": "assets-source/curation/museum/met-kanbara.jpg",
+        "sha256": "83e3784b924b4212f127f415c55a1607eac032a81bbb78d8b1b9d7e5871908da",
+        "bytes": 2608273,
+        "width": 3698,
+        "height": 2512
+      },
+      "rights": {
+        "policy": "https://www.metmuseum.org/hubs/open-access",
+        "licence": "CC0 for designated Met Open Access public-domain images",
+        "credit": "Utagawa Hiroshige. A Snowy Evening at Kanbara Station, ca. 1833–34. The Metropolitan Museum of Art, Rogers Fund, 1918. Public Domain / Open Access."
+      },
+      "derivative": {
+        "file": "src/curation-assets/museum/met-kanbara.webp",
+        "sha256": "3c8c57e526d115e652948bcd3bb092536beb765903cb7a1f57949591e713a4f8",
+        "bytes": 410078,
+        "width": 1600,
+        "height": 1087,
+        "format": "image/webp",
+        "transform": "RGB decode; EXIF orientation; aspect-preserving fit within 1600×1600; WebP quality 88; no crop"
+      }
+    },
+    {
+      "id": "met-irises",
+      "kind": "museum-image",
+      "venue": "copper",
+      "title": "Irises",
+      "artist": "Vincent van Gogh",
+      "date": "1890",
+      "alt": "Blue and violet irises in a pale vase against a light ground.",
+      "editorialNote": "Use in the collection shell or completion card, not underneath a precision grid.",
+      "source": {
+        "institution": "The Metropolitan Museum of Art",
+        "objectId": 436528,
+        "accession": "58.187",
+        "objectPage": "https://www.metmuseum.org/art/collection/search/436528",
+        "apiRecord": "https://collectionapi.metmuseum.org/public/collection/v1/objects/436528",
+        "imageUrl": "https://images.metmuseum.org/CRDImages/ep/original/DP346474.jpg",
+        "contentType": "image/jpeg",
+        "publicDomain": true,
+        "apiRightsFlag": "isPublicDomain === true",
+        "creditLine": "Gift of Adele R. Levy, 1958",
+        "file": "assets-source/curation/museum/met-irises.jpg",
+        "sha256": "6b851d821d565e61817250b272417c79721724f8dba2deaffe9b4c9ca4c35685",
+        "bytes": 5228776,
+        "width": 4000,
+        "height": 3172
+      },
+      "rights": {
+        "policy": "https://www.metmuseum.org/hubs/open-access",
+        "licence": "CC0 for designated Met Open Access public-domain images",
+        "credit": "Vincent van Gogh. Irises, 1890. The Metropolitan Museum of Art, Gift of Adele R. Levy, 1958. Public Domain / Open Access."
+      },
+      "derivative": {
+        "file": "src/curation-assets/museum/met-irises.webp",
+        "sha256": "28a5894d3e0280e3d9a9a6db287830363dceb6ac09b0c6a647c9c5ce6533e65c",
+        "bytes": 716094,
+        "width": 1600,
+        "height": 1269,
+        "format": "image/webp",
+        "transform": "RGB decode; EXIF orientation; aspect-preserving fit within 1600×1600; WebP quality 88; no crop"
+      }
+    },
+    {
+      "id": "cover-copper",
+      "kind": "venue-cover",
+      "source": {
+        "catalogue": "alibi-curation/assets/covers/copper.svg",
+        "file": "assets-source/curation/supplied/copper.svg",
+        "sha256": "066a8b3fb0dcce732985b5d38cd5f219901d3cbcaf648f104b9d25b7f232e7ff",
+        "bytes": 4013,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/copper.svg",
+        "sha256": "066a8b3fb0dcce732985b5d38cd5f219901d3cbcaf648f104b9d25b7f232e7ff",
+        "bytes": 4013,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "cover-nocturne",
+      "kind": "venue-cover",
+      "source": {
+        "catalogue": "alibi-curation/assets/covers/nocturne.svg",
+        "file": "assets-source/curation/supplied/nocturne.svg",
+        "sha256": "aa7be6acc68bba7825d33494979d9670fed7b940388c97ae01d7b07dfe8de6ed",
+        "bytes": 2672,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/nocturne.svg",
+        "sha256": "aa7be6acc68bba7825d33494979d9670fed7b940388c97ae01d7b07dfe8de6ed",
+        "bytes": 2672,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "cover-salt",
+      "kind": "venue-cover",
+      "source": {
+        "catalogue": "alibi-curation/assets/covers/salt.svg",
+        "file": "assets-source/curation/supplied/salt.svg",
+        "sha256": "3b0dfcfb2d19a724dc93fec5dd978198e9d6b9cf8c919e8bf13d22bc8cfc6241",
+        "bytes": 3008,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/salt.svg",
+        "sha256": "3b0dfcfb2d19a724dc93fec5dd978198e9d6b9cf8c919e8bf13d22bc8cfc6241",
+        "bytes": 3008,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "cover-winter",
+      "kind": "venue-cover",
+      "source": {
+        "catalogue": "alibi-curation/assets/covers/winter.svg",
+        "file": "assets-source/curation/supplied/winter.svg",
+        "sha256": "aceb1bfcddd765b120c66a2c119d7ea5ecf71e2bb08783feea5051a43963ee32",
+        "bytes": 3087,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/winter.svg",
+        "sha256": "aceb1bfcddd765b120c66a2c119d7ea5ecf71e2bb08783feea5051a43963ee32",
+        "bytes": 3087,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-aquarium",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/aquarium.svg",
+        "file": "assets-source/curation/supplied/aquarium.svg",
+        "sha256": "cf24aed58c4678d89df893edbe0fd352013c8d177b5b5d13b08e656cd46d5e59",
+        "bytes": 411,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/aquarium.svg",
+        "sha256": "cf24aed58c4678d89df893edbe0fd352013c8d177b5b5d13b08e656cd46d5e59",
+        "bytes": 411,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-binary",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/binary.svg",
+        "file": "assets-source/curation/supplied/binary.svg",
+        "sha256": "46387245cf5643112884d4f71df31f68c1ea1807be30a9ca3bc2fba20b02f3f4",
+        "bytes": 359,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/binary.svg",
+        "sha256": "46387245cf5643112884d4f71df31f68c1ea1807be30a9ca3bc2fba20b02f3f4",
+        "bytes": 359,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-bridges",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/bridges.svg",
+        "file": "assets-source/curation/supplied/bridges.svg",
+        "sha256": "33cda6b7ec0d0adf1f67a7fb6d8679ce2d769a7274d8c5101a561c6433533b46",
+        "bytes": 753,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/bridges.svg",
+        "sha256": "33cda6b7ec0d0adf1f67a7fb6d8679ce2d769a7274d8c5101a561c6433533b46",
+        "bytes": 753,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-dossier",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/dossier.svg",
+        "file": "assets-source/curation/supplied/dossier.svg",
+        "sha256": "12e781eee0b53acae4c75e3cd18a063586ecf911ce19a0d64f7dd1d8f751c761",
+        "bytes": 491,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/dossier.svg",
+        "sha256": "12e781eee0b53acae4c75e3cd18a063586ecf911ce19a0d64f7dd1d8f751c761",
+        "bytes": 491,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-futoshiki",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/futoshiki.svg",
+        "file": "assets-source/curation/supplied/futoshiki.svg",
+        "sha256": "756f21649b5c233cd5204d9f4ef34aeb8659973cc5aafe22b2249c4dbf18f8c6",
+        "bytes": 576,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/futoshiki.svg",
+        "sha256": "756f21649b5c233cd5204d9f4ef34aeb8659973cc5aafe22b2249c4dbf18f8c6",
+        "bytes": 576,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-lightup",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/lightup.svg",
+        "file": "assets-source/curation/supplied/lightup.svg",
+        "sha256": "fb42b932dc3481db324019c9202bee585fededaa96ed007ea0cccad226116f58",
+        "bytes": 466,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/lightup.svg",
+        "sha256": "fb42b932dc3481db324019c9202bee585fededaa96ed007ea0cccad226116f58",
+        "bytes": 466,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-network",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/network.svg",
+        "file": "assets-source/curation/supplied/network.svg",
+        "sha256": "b1d684ba393b473154df94139dfa94842a7df62a85bff9e1e6d0b28c03d1fa8a",
+        "bytes": 463,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/network.svg",
+        "sha256": "b1d684ba393b473154df94139dfa94842a7df62a85bff9e1e6d0b28c03d1fa8a",
+        "bytes": 463,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-nonogram",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/nonogram.svg",
+        "file": "assets-source/curation/supplied/nonogram.svg",
+        "sha256": "44d08f8f220c4140920cbac510053c93a2aa6e479bd59ae26afd02cf0e31c9d4",
+        "bytes": 1307,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/nonogram.svg",
+        "sha256": "44d08f8f220c4140920cbac510053c93a2aa6e479bd59ae26afd02cf0e31c9d4",
+        "bytes": 1307,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-scene",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/scene.svg",
+        "file": "assets-source/curation/supplied/scene.svg",
+        "sha256": "41782740773e8b2f1717b3364bedd1b879ef2b9fbfa5325893136356f5972295",
+        "bytes": 468,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/scene.svg",
+        "sha256": "41782740773e8b2f1717b3364bedd1b879ef2b9fbfa5325893136356f5972295",
+        "bytes": 468,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-sudoku",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/sudoku.svg",
+        "file": "assets-source/curation/supplied/sudoku.svg",
+        "sha256": "27d16824f28205ac9850cb93df094f2f74334966566802b8a8a3f795cb104b6b",
+        "bytes": 684,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/sudoku.svg",
+        "sha256": "27d16824f28205ac9850cb93df094f2f74334966566802b8a8a3f795cb104b6b",
+        "bytes": 684,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-tents",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/tents.svg",
+        "file": "assets-source/curation/supplied/tents.svg",
+        "sha256": "666a053fa2bd1e4d99c60e8c4dd881e690b417c10daa6303efbbaf56ea8f27c9",
+        "bytes": 338,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/tents.svg",
+        "sha256": "666a053fa2bd1e4d99c60e8c4dd881e690b417c10daa6303efbbaf56ea8f27c9",
+        "bytes": 338,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-trail",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/trail.svg",
+        "file": "assets-source/curation/supplied/trail.svg",
+        "sha256": "a7ccaf1990bf0851561766fe8d0d0a80236fee8fa8e7e3febcf4b8ffab183e34",
+        "bytes": 356,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/trail.svg",
+        "sha256": "a7ccaf1990bf0851561766fe8d0d0a80236fee8fa8e7e3febcf4b8ffab183e34",
+        "bytes": 356,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    },
+    {
+      "id": "icon-witness",
+      "kind": "family-icon",
+      "source": {
+        "catalogue": "alibi-curation/assets/icons/witness.svg",
+        "file": "assets-source/curation/supplied/witness.svg",
+        "sha256": "945d74358db1ea73af25faec78fbe3322ce05a4211996d929b11265f6135fb36",
+        "bytes": 413,
+        "rights": "Supplied original Alibi curation vector; repository-owned input retained for integration."
+      },
+      "derivative": {
+        "file": "src/curation-assets/supplied/witness.svg",
+        "sha256": "945d74358db1ea73af25faec78fbe3322ce05a4211996d929b11265f6135fb36",
+        "bytes": 413,
+        "format": "image/svg+xml",
+        "transform": "Copied byte-for-byte; vector source is already the delivery form.",
+        "sameBytesAsSource": true
+      }
+    }
+  ],
+  "reused": [],
+  "unavailable": [
+    {
+      "objectId": 438007,
+      "title": "The Path through the Irises",
+      "artist": "Claude Monet",
+      "reason": "Object page explicitly withheld image download. A generic museum Open Access footer is insufficient evidence for this item. No bytes were acquired or referenced by the app.",
+      "sourcePage": "https://www.metmuseum.org/art/collection/search/438007",
+      "status": "excluded"
+    }
+  ]
+}
