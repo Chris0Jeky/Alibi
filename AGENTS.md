@@ -1,6 +1,6 @@
 # Alibi development
 
-Alibi is a mobile-first, device-local puzzle PWA: twelve pure engines, 102 puzzles, three
+Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 116 puzzles, four
 casebooks, a workshop and offline saves. It builds to static files with no runtime dependency.
 The root is the working source. `alibi-deluxe-publish-bundle/` is untouched, ignored input.
 
@@ -20,7 +20,7 @@ node tools/validate-pack.cjs examples/twelve-families.json
 
 The local server prints `http://127.0.0.1:8787` and serves the last build; rebuild after edits.
 Browser checks use Python + `requirements-dev.txt` in `.venv`. Set `PYTHONUTF8=1` on Windows.
-`tests/browser_ui.py` completes all twelve games in an isolated document. `tests/browser_origin.py`
+`tests/browser_ui.py` completes all thirteen games in an isolated document. `tests/browser_origin.py`
 uses real IndexedDB and service workers in disposable profiles. Neither proves a physical phone.
 
 | Changed seam | Required evidence |
@@ -46,8 +46,8 @@ uses real IndexedDB and service workers in disposable profiles. Neither proves a
 - Drafts may be unsolvable while being edited. Validate their shape without erasing unfinished work.
 - No credentials, private saves or generated test profiles in Git or client assets.
 - Host identity is pinned in `.openai/hosting.json` and `docs/DEPLOYMENT.md`.
-- One writer per checkout; coordinator integrates research and reviews. Prefer Luna xhigh for
-  bounded tasks, Terra/Sol when needed, and no Astra children (owner preference).
+- One writer per checkout; coordinator integrates research and reviews. Use Luna for bounded tasks and lower reasoning effort for routine checks. The owner asked
+  to dial back costly subagents; avoid Terra/Sol in this pass and never spawn Astra children.
 - Keep tooling small: no speculative MCP servers, command-deny hooks, accounts or native wrappers.
 
 For a new worktree, first verify its resolved root and Git identity and read these instructions.
