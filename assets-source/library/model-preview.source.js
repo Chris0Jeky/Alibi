@@ -108,11 +108,11 @@ function resize() {
 function positionCamera(size) {
   const alternate = $('camera').value === 'alternate';
   camera.position.set(
-    alternate ? -size * 1.55 : size * 1.7,
-    size * 1.25,
-    alternate ? size * 1.2 : size * 1.7,
+    alternate ? -size : size,
+    size * 0.85,
+    size,
   );
-  camera.lookAt(0, size * 0.18, 0);
+  camera.lookAt(0, 0, 0);
 }
 function draw() {
   if (!renderer || !scene || !camera) return;
@@ -153,7 +153,8 @@ async function showRealm(asset, token) {
     scene.add(active);
     const bounds = new THREE.Box3().setFromObject(active),
       center = bounds.getCenter(new THREE.Vector3()),
-      size = bounds.getSize(new THREE.Vector3()).length() || 1;
+      dimensions = bounds.getSize(new THREE.Vector3()),
+      size = Math.max(dimensions.x, dimensions.y, dimensions.z, 1);
     active.position.sub(center);
     positionCamera(size);
     treatment();

@@ -33,7 +33,8 @@ def proc(n):
  elif n.startswith('water'):p=[cube(n,0,0,.03,1,1,.03,'water')];p+=[]if n=='water-tile'else[cube('shore',0,-.88,.08,1,.12,.04,'cream')]if n=='water-edge'else[cube('shore-a',0,-.88,.08,1,.12,.04,'cream'),cube('shore-b',-.88,0,.08,.12,1,.04,'cream')]
  elif n.startswith('wall'):
   p=[cube('wall',0,0,.55,1,.18,.55,'stone')]
-  if n=='wall-gate':p=[cube('post-a',-.75,0,.7,.25,.22,.7,'stone'),cube('post-b',.75,0,.7,.25,.22,.7,'stone'),cube('lintel',0,0,1.2,1,.22,.2,'stone'),cube('door',0,-.24,.48,.45,.04,.48,'timber')]
+  if n=='wall-gate':
+   [bpy.data.objects.remove(o,do_unlink=True) for o in p];p=[cube('post-a',-.75,0,.7,.25,.22,.7,'stone'),cube('post-b',.75,0,.7,.25,.22,.7,'stone'),cube('lintel',0,0,1.2,1,.22,.2,'stone'),cube('door',0,-.24,.48,.45,.04,.48,'timber')]
   if n=='wall-end':p+=[cyl('cap',1,0,.7,.25,1.4,'stone')]
  elif n.startswith('bridge'):p=[cube('deck',0,0,.55,1.35,.55,.12,'timber')]+[cyl('pier',x,0,.28,.18,.55,'stone')for x in(-1.1,1.1)]
  elif n.startswith('cottage')or n=='farm-barn':

@@ -6577,8 +6577,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/ground-grass.glb",
@@ -6648,8 +6648,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/ground-path.glb",
@@ -6719,8 +6719,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/ground-cobble.glb",
@@ -6790,8 +6790,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/water-tile.glb",
@@ -6861,8 +6861,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/water-edge.glb",
@@ -6932,8 +6932,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/water-corner.glb",
@@ -7003,8 +7003,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/wall-gate.glb",
@@ -7074,8 +7074,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/wall-end.glb",
@@ -7145,8 +7145,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/bridge-arched.glb",
@@ -7216,8 +7216,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-small.glb",
@@ -7287,8 +7287,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/cottage-long.glb",
@@ -7358,8 +7358,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/farm-barn.glb",
@@ -7429,8 +7429,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/crop-wheat.glb",
@@ -7500,8 +7500,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/crop-rows.glb",
@@ -7571,8 +7571,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/orchard.glb",
@@ -7642,8 +7642,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/glb/tree-oak.glb",
@@ -7687,8 +7687,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/scenes/harbour.glb",
@@ -7707,8 +7707,8 @@
         },
         {
           "path": "assets-source/library/realm/realm-kit.blend",
-          "bytes": 213991,
-          "sha256": "18b3d9cfd167f240c1c3677db3e3f9c4cdfa621c798655f4f09d86b10429af9a"
+          "bytes": 181088,
+          "sha256": "e599e34da5777bf8891b4a1a1fe48075d93305e60e17b6474de9989582d3b7cc"
         }
       ]
     },
@@ -7741,8 +7741,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/scenes/hillfort.glb",
@@ -7790,8 +7790,8 @@
       "files": [
         {
           "path": "tools/assets/build-realm-library.py",
-          "bytes": 10693,
-          "sha256": "071290f1e5df275c9ba45886fd60d72696e3971f767f04001fa2b83c5bf4b06d"
+          "bytes": 10752,
+          "sha256": "c5a80d8f05a9d9657c617c27906f669c6912f22d714b1828c34b1191b506c70f"
         },
         {
           "path": "assets-source/library/realm/scenes/farmstead.glb",
