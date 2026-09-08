@@ -110,3 +110,10 @@ The 0.6.0-lab.1 source adds an optional realm builder, four companions, a timest
 main navigation. It loads separately; Settings & saves can export all three save sections together.
 This candidate has local browser evidence and has not been promoted to the public sites.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
+
+## Local asset library
+
+Run `npm run assets:gallery` to inspect the source-backed production library at
+`http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
+realm modules and companion states, sound previews and authored motion. Large production files
+stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).

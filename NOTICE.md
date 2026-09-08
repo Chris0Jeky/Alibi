@@ -13,3 +13,9 @@ retain their own upstream licenses.
 Alibi is a working name, not a trademark-clearance claim. Crime-scene puzzles were described in the
 prototype as Murdoku-inspired; this project is independent and contains no claimed official book
 puzzles or branding. Any store release needs the publisher/name decisions in HUMAN_TODO.md.
+
+The local asset-production library retains these rights boundaries. New editorial vectors,
+stamps, procedural modules, audio synthesis and authored films are original project work;
+no separate public reuse grant is made. Existing museum public-domain records and third-party
+model/software licences remain attached to their respective assets. See docs/ASSET-LIBRARY.md
+and its catalogue for source-specific attribution and distribution status.
