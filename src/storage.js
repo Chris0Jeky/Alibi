@@ -25,6 +25,17 @@
         this.db = await new Promise((resolve, reject) => {
           const request = indexedDB.open(DB, VERSION);
           let abandoned = false;
+          const timer = setTimeout(() => {
+            abandoned = true;
+            reject(
+              Object.assign(
+                new Error(
+                  'Opening saved progress timed out. Close other Alibi windows and reload. Your existing saves have not been changed.',
+                ),
+                { name: 'BlockedError' },
+              ),
+            );
+          }, 8000);
           request.onupgradeneeded = () => {
             if (abandoned) {
               request.transaction.abort();
@@ -35,11 +46,16 @@
                 request.result.createObjectStore(n, { keyPath: 'key' });
           };
           request.onsuccess = () => {
+            clearTimeout(timer);
             if (abandoned) request.result.close();
             else resolve(request.result);
           };
-          request.onerror = () => reject(request.error);
+          request.onerror = () => {
+            clearTimeout(timer);
+            reject(request.error);
+          };
           request.onblocked = () => {
+            clearTimeout(timer);
             abandoned = true;
             reject(
               Object.assign(

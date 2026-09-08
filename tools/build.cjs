@@ -103,7 +103,10 @@ function build() {
   }
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
-    workerURL = `./assets/validator.${hash(worker)}.js`;
+    workerURL = `./assets/validator.${hash(worker)}.js`,
+    boot = read(path.join(SRC, 'boot.js')),
+    bootURL = `./assets/boot.${hash(boot)}.js`;
+  write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngine);
   write(path.join(DIST, workerURL), worker);
   const base =
@@ -125,6 +128,7 @@ function build() {
       .join(''),
     release = hash(
       base +
+        boot +
         worker +
         clubEngine +
         css +
@@ -171,7 +175,10 @@ function build() {
     path.join(DIST, 'index.html'),
     template
       .replace('<!-- HEAD -->', head)
-      .replace('<!-- SCRIPTS -->', `<script src="./${jsName}" defer></script>`),
+      .replace(
+        '<!-- SCRIPTS -->',
+        `<script src="${bootURL}" defer></script><script src="./${jsName}" defer></script>`,
+      ),
   );
   const assets = [
     './',
@@ -183,6 +190,7 @@ function build() {
     './' + jsName,
     './' + cssName,
     engineURL,
+    bootURL,
     workerURL,
     ...Object.values(media),
   ];
@@ -224,7 +232,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       .replace('<!-- HEAD -->', '<style>' + css + '</style>')
       .replace(
         '<!-- SCRIPTS -->',
-        '<script>' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
+        '<script>' + boot + '\n' + standalone.replace(/<\/script/gi, '<\\/script') + '</script>',
       ),
   );
   zip(

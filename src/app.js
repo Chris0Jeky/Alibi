@@ -2901,6 +2901,7 @@
       pendingSaves,
     }),
   };
+  globalThis.AlibiBootReady?.();
   if (
     !cfg.standalone &&
     'serviceWorker' in navigator &&

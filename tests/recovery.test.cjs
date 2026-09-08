@@ -72,6 +72,8 @@ test('blocked IndexedDB stops without creating a competing fallback or leaking a
     request = {},
     closed = [];
   const context = {
+    setTimeout,
+    clearTimeout,
     structuredClone,
     Event,
     console,
@@ -103,4 +105,44 @@ test('blocked IndexedDB stops without creating a competing fallback or leaking a
   };
   request.onsuccess();
   assert.equal(closed.length, 1);
+});
+
+test('silent IndexedDB open times out without fallback writes and closes a late connection', async () => {
+  let expire,
+    closed = 0,
+    writes = 0;
+  const request = {};
+  const context = {
+    setTimeout(fn) {
+      expire = fn;
+      return 1;
+    },
+    clearTimeout() {},
+    indexedDB: {
+      open() {
+        return request;
+      },
+    },
+    localStorage: {
+      setItem() {
+        writes++;
+      },
+      removeItem() {},
+    },
+  };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), context);
+  const pending = new context.AlibiStorage.Store().init();
+  expire();
+  const store = await pending;
+  assert.equal(store.fatal, true);
+  assert.equal(writes, 0);
+  assert.match(store.problem, /timed out/);
+  request.result = {
+    close() {
+      closed++;
+    },
+  };
+  request.onsuccess();
+  assert.equal(closed, 1);
 });
