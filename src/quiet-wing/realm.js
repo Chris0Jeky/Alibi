@@ -9,6 +9,9 @@
     farm: 'crop-rows',
     orchard: 'orchard',
     tree: 'tree-oak',
+    boat: 'boat',
+    bench: 'bench',
+    well: 'well-fountain',
   };
   function imported(type, palette, rotation) {
     const libraryPiece = LIBRARY_PIECES[type],
@@ -25,10 +28,9 @@
       for (const [colour, ...indices] of m.f) {
         let color = m.c[colour];
         const [r, g, b] = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
-        if (
-          (id.includes('roof') && (g > r * 1.1 || b > r * 1.2)) ||
-          (libraryReady && color === '#b76d52')
-        )
+        if (libraryReady && color === '#b76d52') color = E.PALETTES[palette][1];
+        else if (libraryReady && color === '#173e49') color = E.PALETTES[palette][2];
+        else if (id.includes('roof') && (g > r * 1.1 || b > r * 1.2))
           color = E.PALETTES[palette][1];
         faces.push({
           c: color,
