@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.4.0",
+  "version": "0.5.0-preview.1",
   "private": true,
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
   "engines": {
@@ -14,10 +14,14 @@
     "format:check": "prettier --check \"src/**/*.{js,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" package.json",
     "verify": "npm run format:check && npm run build && npm test",
     "generate": "node tools/generate-content.cjs",
-    "bundle": "node tools/package.cjs"
+    "bundle": "node tools/package.cjs",
+    "cloudflare:preview": "wrangler dev --config wrangler.jsonc",
+    "cloudflare:check": "wrangler deploy --dry-run --config wrangler.jsonc",
+    "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc"
   },
   "devDependencies": {
     "prettier": "3.9.6",
-    "sharp": "0.35.4"
+    "sharp": "0.35.4",
+    "wrangler": "4.129.1"
   }
 }
