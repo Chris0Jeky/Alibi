@@ -4,7 +4,7 @@ Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
 ## Release candidate 0.6.0
 
-Build `da61c35650b7` includes the source-integrated Quiet Wing, modular seeded city, animated
+Build `32ca05dfa106` includes the source-integrated Quiet Wing, modular seeded city, animated
 companions, four additional relaxing boards, expanded idle garden and three newly curated
 museum artworks across Club, collection and conservatory. No published puzzle definitions,
 public origins or database identities changed. Source work is on PR #14 in incremental commits.
@@ -14,8 +14,8 @@ acceptance are the remaining release work. Physical-device gates remain in HUMAN
 The exact live production origin still reports Sites version 3 from main `1f049a7`; this candidate
 has not yet been deployed. Do not confuse the prepared source with a hosted release.
 
-Measured sizes: initial JavaScript 125,138 bytes gzip, core offline pack 1,329,156 bytes,
-optional wing 1,977,735 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
+Measured sizes: initial JavaScript 125,137 bytes gzip, core offline pack 1,329,465 bytes,
+optional wing 1,977,943 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
 includes the renderer, models, three animated animals and museum assets. No runtime asset CDN.
 Three Met originals and their public-domain records are retained under assets-source/atmosphere.
 Adobe returned HTTP403, image generation failed connection, and AIC images challenged requests;
@@ -33,6 +33,10 @@ The original real-origin recovery/update suite remains green. CI exposed an artw
 the departing route's shared selector; destination-document visual checks now pass locally.
 Additional MEDIUM preference, standalone-credit, slow-cache exit and unprimed offline combined
 export findings are tracked in [#16](https://github.com/Chris0Jeky/Alibi/issues/16), with workarounds.
+Ambiguous IndexedDB open failures, including timeouts, now remain protected instead of starting
+a competing writable fallback. Only explicitly unavailable or denied IndexedDB can use the
+existing fallback. Regression coverage verifies refusal, no fallback creation and exact recovery
+of the original committed save after a successful retry.
 
 ## Quiet Wing expansion in progress
 

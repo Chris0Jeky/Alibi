@@ -123,6 +123,12 @@ function fakeIDB() {
   };
 }
 (async () => {
+  const stalledFallback = local();
+  const stalled = env(stalledFallback, {open() { return {}; }});
+  const stalledResult = await stalled.s.open();
+  ok(stalledResult.blocked && stalledResult.mode === 'protected', 'An ambiguous open timeout stays protected instead of forking a fallback save');
+  await assert.rejects(stalled.s.write(E.newState(Date.now())), /./);
+  ok(stalledFallback.m.size === 0, 'Timed-out open creates no fallback edits');
   const ls = local(),
     a = env(ls),
     r = await a.s.open();

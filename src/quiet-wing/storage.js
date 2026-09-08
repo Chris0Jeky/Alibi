@@ -16,7 +16,10 @@
     return new Promise((resolve, reject) => {
       let settled = false,
         r,
-        t = setTimeout(() => finish(Error('Storage open timed out.')), DEADLINE);
+        t = setTimeout(
+          () => finish(Object.assign(Error('Storage open timed out.'), { name: 'TimeoutError' })),
+          DEADLINE,
+        );
       function finish(err, value) {
         if (settled) {
           value?.close();
@@ -27,6 +30,8 @@
         err ? reject(err) : resolve(value);
       }
       try {
+        if (typeof indexedDB === 'undefined' || !indexedDB)
+          throw Object.assign(Error('IndexedDB is unavailable.'), { name: 'NotSupportedError' });
         r = version === null ? indexedDB.open(NAME) : indexedDB.open(NAME, version);
       } catch (e) {
         finish(e);
@@ -104,10 +109,13 @@
       };
       mode = 'indexeddb';
     } catch (e) {
-      if (e.name === 'VersionError' || e.name === 'BlockedError') {
+      if (!['SecurityError', 'NotSupportedError'].includes(e.name)) {
         blocked = true;
         mode = 'protected';
-        onstatus('A newer or blocked database was preserved. Export raw recovery.', 'error');
+        onstatus(
+          'A newer, blocked or unavailable database was preserved. Retry loading; export recovery when storage responds.',
+          'error',
+        );
         return { saved: null, mode, blocked };
       }
       try {

@@ -146,7 +146,21 @@ try:
     check(page.get_by_role('link',name='Return to Alibi',exact=True).is_visible(),'Failed shadow mount exposes a visible return link')
     page.get_by_role('link',name='Return to Alibi',exact=True).click();page.wait_for_function('()=>!AlibiActivities.diagnostics().active')
     check(page.evaluate('QWApp.renderer===null && QWApp.resizeObs===null'),'Failed mount disposes its activity resources')
-    future.close()
+    # A stalled open must not create a competing, writable fallback save.
+    timeout_ctx=future.new_context();timeout_page=timeout_ctx.new_page();quiet(timeout_page,base)
+    rename(timeout_page,'Original after retry');timeout_before=stored(timeout_page)
+    timeout_page.add_init_script('''(() => {const open=indexedDB.open.bind(indexedDB);indexedDB.open=(...args)=>{
+      if(args[0]==='alibi-quiet-wing-v1'&&!sessionStorage.getItem('tested-stall')){
+        sessionStorage.setItem('tested-stall','1');return {};
+      }return open(...args);
+    }})()''')
+    timeout_page.reload();timeout_page.wait_for_function('()=>window.AlibiActivities?.diagnostics().active')
+    check(timeout_page.evaluate('QWStore.info().blocked && QWStore.info().mode==="protected"'),'Stalled real-origin database open stays protected')
+    check(timeout_page.evaluate('()=>QWStore.write(QWApp.state).then(()=>false,()=>true)'),'Stalled open refuses a competing save')
+    check(timeout_page.evaluate('localStorage.getItem("alibi-quiet-wing-v1:fallback")===null'),'Stalled open does not create fallback data')
+    timeout_page.reload();timeout_page.wait_for_function('()=>window.AlibiActivities?.diagnostics().active')
+    check(timeout_page.evaluate('QWApp.state.scene.name')=='Original after retry' and stored(timeout_page)==timeout_before,'Retry recovers the exact original committed state')
+    timeout_ctx.close();future.close()
     check(not errors,'No unhandled errors in origin, restart and update tests')
 finally:
     server.shutdown();server.server_close();fixture.cleanup()
