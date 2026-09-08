@@ -158,7 +158,7 @@
       {
         "id": "lightup-03",
         "name": "Paper lanterns",
-        "brief": "Light every floor tile without crossing beams."
+        "brief": "Light every floor tile without letting lanterns shine directly at one another."
       },
       {
         "id": "dossier-03",

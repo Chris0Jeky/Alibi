@@ -57,7 +57,7 @@
         'Every person has exactly one match in each category. Every room and object is used once.',
         'A ✓ records a match. By default, the other cells in its row and column become ×.',
         'Use both grids. Some clues connect a room to an object, so evidence carries between them.',
-        'Clue checkboxes are your notes, not automatic verdicts. Complete both grids to identify the culprit.',
+        'Clue checkboxes are your notes, not automatic verdicts. Complete both grids before answering the final question.',
       ],
       tip: 'Record the direct exclusions first. A linked room/object clue can turn a match in one grid into a match in the other.',
       lesson: 'The clue says: “Iris was in the study.” Tap the intersection of Iris and Study.',
@@ -164,7 +164,7 @@
         'Printed numbers are fixed. Vertical signs work exactly like horizontal ones.',
       ],
       tip: 'A chain of inequalities restricts several values at once. In a 5-cell chain, every position may be forced.',
-      lesson: 'The row uses 1, 2, 3 and 4. Which missing number fits between 2 < □ < 4?',
+      lesson: 'The available digits are 1–4. Which value satisfies 2 < □ < 4?',
       lessonNote: 'Only 3 is larger than 2 and smaller than 4.',
     },
     lightup: {

@@ -4,7 +4,7 @@
 
 A new scenario for an existing family is data. A new crime-scene layout can be made in the visual workshop. A new family requires engine, solver, validation, rendering and teaching work. There is no arbitrary executable plugin import.
 
-`examples/twelve-families.json` contains one valid, solver-checked example for each family. IDs are prefixed `example-` so this pack can be imported alongside the starter collection. They are deliberately copies for learning the format, not twelve additional original puzzles. `examples/scene-editor-start.json` is a separate editable case with its own ID. Rename both pack and puzzle IDs before making another imported collection.
+`examples/twelve-families.json` contains valid, solver-checked examples for the original starter families. The current catalogue has thirteen supported families, including Tidal bridges (`bridges`); use the family-specific format below when authoring one that is not represented in this teaching pack. IDs are prefixed `example-` so this pack can be imported alongside the starter collection. These are deliberately copies for learning the format, not additional original puzzles. `examples/scene-editor-start.json` is a separate editable case with its own ID. Rename both pack and puzzle IDs before making another imported collection.
 
 ```sh
 node tools/validate-pack.cjs examples/twelve-families.json
@@ -25,7 +25,7 @@ node tools/validate-pack.cjs examples/twelve-families.json
 }
 ```
 
-Use 1–150 puzzles per pack, up to 3 MB for UI imports. IDs begin with a lowercase letter and contain lowercase letters, digits or hyphens, 2–64 characters. IDs such as constructor/prototype are rejected. Each puzzle requires `id`, `revision`, `type`, `title`, `subtitle`, `difficulty`, `size`, `solution` and its family-specific fields. Difficulty is Gentle, Steady or Tricky. Use plain text. Imported strings are escaped; no HTML, JavaScript or remote asset loading is supported.
+Use 1–150 puzzles per pack, up to 3 MB for UI imports. IDs begin with a lowercase letter and contain lowercase letters, digits or hyphens, 2–64 characters. IDs such as constructor/prototype are rejected. Each puzzle requires `id`, `revision`, `type`, `title`, `subtitle`, `difficulty`, `size`, `solution` and its family-specific fields. Difficulty is Gentle, Steady or Tricky and should describe a human deduction path; generated search effort is not a rating. `minutes` is optional: leave it absent until a positive estimate has been measured or explicitly curated. Use plain text. Imported strings are escaped; no HTML, JavaScript or remote asset loading is supported.
 
 Arrays representing grids are row-major. Index is `row * size + column`, with row and column zero-based in JSON. Display labels are rows 1…N and columns A…N. Thus on a 5×5 board, row 2 column C is index 7. Definitions and solutions use these indices, not displayed coordinates.
 
@@ -91,7 +91,7 @@ Number grid with `givens`/`solution` and `inequalities:[{a,b,op}]`. `a` and `b` 
 
 A local import changes one browser, not the website. To publish an official puzzle, add its validated definition to `content/catalog.json`, preserve all published IDs/revisions, run build/tests, and upload the entire release to the existing production project. `npm run generate` reconstructs the seeded starter catalogue; it is a development tool, not the normal publishing command. Do not run it over a hand-edited published catalogue casually.
 
-Casebooks live in `content/casebooks.json`. Each has id/title/tagline/setting/intro/ending/color/icon and chapters with `{id,name,brief}`. Chapter IDs reference catalogue puzzle IDs. The current UI unlocks the next chapter after completing earlier chapters, and shares puzzle completion with the main library. The existing casebooks are anthologies; do not claim that incidental story names from separate puzzles form a tightly continuous plot.
+Casebooks live in `content/casebooks.json`. Each has id/title/tagline/setting/intro/ending/color/icon and chapters with `{id,name,brief}`. Chapter IDs reference catalogue puzzle IDs. All chapters are visible from the casebook page; the suggested next chapter follows completion, while every chapter remains available for replay and shares puzzle completion with the main library. Bridges chapters use the same published `bridges` definitions as the collection. The existing casebooks are anthologies; do not claim that incidental story names from separate puzzles form a tightly continuous plot.
 
 ## Acceptance for every authored puzzle
 
