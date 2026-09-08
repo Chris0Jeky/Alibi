@@ -23,3 +23,5 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
   Track [issue #13](https://github.com/Chris0Jeky/Alibi/issues/13).
 - [ ] q-5 — Human-review classic difficulty and idle reward pace; import a real exported OBJ/MTL
   into a 3D editor. Current finite geometry/ZIP checks do not prove editor interoperability.
+
+- [ ] q-6 — Playtest the Curation Cabinet sampler (two puzzles per family) without answer reveals; record wording, solve path, guessing, timing and hint expectations in docs/curation/PLAYTEST_TEMPLATE.md. Review the 59 separate challenges for enjoyment and touch ergonomics. Machine uniqueness/replays do not calibrate difficulty.

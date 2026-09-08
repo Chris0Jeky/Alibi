@@ -2,6 +2,28 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Curation Cabinet 0.7.0 candidate
+
+The isolated `codex/curation-cabinet` integrates the final asset commit `3dddb47`, 208 new core
+puzzles in thirteen bounded packs, and 59 separately versioned challenges. All 116 published
+puzzles and legacy fixtures are unchanged; the official aggregate contains 324 puzzles.
+[CURATION.md](CURATION.md) records source identity, budgets and reproduction. Trusted editorial
+notes bind by ID/revision; answer notes require completion, and unsolved cards use venue covers.
+Four object-level Met Open Access images have recorded hashes, credits and 600px runtime copies.
+The unavailable Monet candidate is documented. Difficulty remains provisional; absent times are
+not replaced by fabricated estimates. Earlier film footage is explicitly dated to the 116-puzzle edition.
+
+The challenge launcher is in the optional Quiet Wing, with validated fixed starts, replayed logs,
+locked givens/prefixes and separate challenge backups. Restore uses the existing timed worker.
+Independent review found a future-record overwrite and the fix now refuses writes both after
+failed reads and inside the transaction; real IndexedDB tests prove preservation. Core/editorial
+review found no blockers. The combined repository check, supplied 324 and 59 checkers, 182 new
+mobile controls, 66 curation real-origin checks and every challenge mechanism at phone/desktop
+widths pass. Final-head CI and publication evidence will be recorded in the PR/release receipt.
+
+This candidate does not certify human solve quality or the physical Android incident. Owner
+checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md). The original deployment identity is unchanged.
+
 ## Local integrated asset experience
 
 `codex/asset-library` builds `a08ee0dba82d`, preserving the 116-puzzle definitions, engine and

@@ -10,7 +10,7 @@ workshop for making a case of your own. No account. No lives. No rush.
 
 ## Open the cabinet
 
-- **116 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **324 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
   chapter revelations. Three earlier anthology casebooks remain available.
