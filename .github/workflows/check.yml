@@ -1,0 +1,26 @@
+name: Check and package
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - run: npm test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: alibi-static-release
+          path: |
+            alibi-deluxe-cloudflare.zip
+            build-info.json
+            tests/*-results.json
+# This workflow does not deploy or need Cloudflare credentials.
+# Pin approved action commit hashes for your production supply-chain policy.
