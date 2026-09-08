@@ -65,8 +65,11 @@ turn those unperformed checks into claims of certification or abandon the author
    botanical/coastal pair matching. Rules, replayed saves, actual controls and offline completion
    are verified. Garden expansion also has six species, an identified collection, arrangement
    undo, batch sow/gather and exported postcards, with local clock, save and actual-control tests.
-4. Cross-app art direction and better case/puzzle imagery; Adobe currently fails initialization
-   with HTTP 403. Use other available tools/direct licensed assets without blocking the work.
+4. Cross-app art direction is implemented: a botanical Club invitation, credited atmosphere
+   across puzzle-family/casebook browsing and the garden, retaining the original illustrated
+   mystery covers. Three new Met works have explicit public-domain records, original bytes,
+   decoded WebPs and phone/desktop inspection. Adobe/image generation/AIC failures were worked
+   around with successful direct Met acquisition, not bypasses or unverified stock images.
 5. Run the complete suite, reconcile CI/review, merge reviewed source and deploy to the existing
    website. Verify hosted saves, offline, update and rollback. No expansion deployment is claimed.
 

@@ -90,7 +90,9 @@ function build() {
       '\n' +
       read(path.join(SRC, 'expedition.css')) +
       '\n' +
-      read(path.join(SRC, 'club.css')),
+      read(path.join(SRC, 'club.css')) +
+      '\n' +
+      read(path.join(SRC, 'atmosphere.css')),
     template = read(path.join(SRC, 'index.html'));
   const media = {},
     inlineMedia = {};
@@ -121,6 +123,7 @@ function build() {
       read(path.join(SRC, 'insights.js')),
       read(path.join(SRC, 'assist.js')),
       read(path.join(SRC, 'atlas.js')),
+      read(path.join(SRC, 'atmosphere.js')),
       read(path.join(SRC, 'club.js')),
       read(path.join(SRC, 'activities.js')),
       read(path.join(SRC, 'app.js')),

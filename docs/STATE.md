@@ -2,6 +2,29 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Release candidate 0.6.0
+
+Build `1eb4c7ecc30b` includes the source-integrated Quiet Wing, modular seeded city, animated
+companions, four additional relaxing boards, expanded idle garden and three newly curated
+museum artworks across Club, collection and conservatory. No published puzzle definitions,
+public origins or database identities changed. Source work is on PR #14 in incremental commits.
+`npm run verify` passes; the visual-refresh suite passes 43 real-image/navigation/viewport checks.
+Earlier changed seams have their direct evidence below. Final CI and hosted deployment/upgrade
+acceptance are the remaining release work. Physical-device gates remain in HUMAN_TODO.md.
+The exact live production origin still reports Sites version 3 from main `1f049a7`; this candidate
+has not yet been deployed. Do not confuse the prepared source with a hosted release.
+
+Measured sizes: initial JavaScript 125,086 bytes gzip, core offline pack 1,263,969 bytes,
+optional wing 1,977,816 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
+includes the renderer, models, three animated animals and museum assets. No runtime asset CDN.
+Three Met originals and their public-domain records are retained under assets-source/atmosphere.
+Adobe returned HTTP403, image generation failed connection, and AIC images challenged requests;
+verified Met downloads supplied the final art without bypassing those services.
+
+Residual review finding: [#15](https://github.com/Chris0Jeky/Alibi/issues/15), MEDIUM malformed
+crop identifiers in hand-edited imports. Ordinary controls/saves do not create them. Physical
+Android recovery, assistive technology and editor interoperability remain explicitly open.
+
 ## Quiet Wing expansion in progress
 
 The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
