@@ -19,6 +19,11 @@ assert.equal(catalogue.assets.filter((a) => a.category !== 'ambient').length, 20
 assert.equal(catalogue.defaults.autoplay, false);
 
 for (const asset of catalogue.assets) {
+  assert.equal(asset.status, 'proposed', `${asset.id} remains a proposed recording asset`);
+  assert.ok(
+    ['current', 'proposed'].includes(asset.existing_event_status),
+    `${asset.id} preserves the existing event audit status`,
+  );
   for (const [kind, relative] of Object.entries(asset.derivatives)) {
     assert.equal(path.isAbsolute(relative), false, `${asset.id} ${kind} path is portable`);
     assert.equal(relative.includes('..'), false, `${asset.id} ${kind} path does not escape root`);
@@ -41,6 +46,12 @@ for (const asset of catalogue.assets) {
   }
   assert.ok(asset.metadata.duration_ms > 200, `${asset.id} has duration`);
   assert.ok(asset.metadata.rms_dbfs < -20, `${asset.id} remains calm`);
+  assert.ok(
+    asset.metadata.spectral.energy_above_20_hz_pct > 95,
+    `${asset.id} has audible-band energy above 20 Hz`,
+  );
+  assert.ok(asset.metadata.spectral.sub20_energy_pct < 5, `${asset.id} has limited subsonic energy`);
+  assert.ok(asset.metadata.spectral.dc_dbfs < -60, `${asset.id} has no large DC component`);
   if (asset.category === 'ambient') {
     assert.equal(asset.metadata.loop.deterministic, true);
     assert.equal(asset.metadata.loop.seam_sample_delta, 0);
