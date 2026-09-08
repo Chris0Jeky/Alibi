@@ -1,0 +1,353 @@
+{
+  "schema": "alibi-curation-challenges/v1",
+  "notASchema1ImportPack": true,
+  "challenges": [
+    {
+      "id": "curated-archive-01",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The bent corridor",
+      "map": [
+        "#######",
+        "# .   #",
+        "#   # #",
+        "#  $  #",
+        "# @   #",
+        "#######"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RRULDLUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 8,
+        "referencePushes": 3,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 156
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-02",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "Two labels in the receiving room",
+      "map": [
+        "#######",
+        "# . . #",
+        "#     #",
+        "# #   #",
+        "#  $$ #",
+        "# @   #",
+        "#######"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RUUURULDDDDRUUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 15,
+        "referencePushes": 7,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 2582
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-03",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The pillar between shelves",
+      "map": [
+        "########",
+        "# .  . #",
+        "#  #   #",
+        "#      #",
+        "#  $$  #",
+        "# @    #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RURDRUUUDLLDLUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 15,
+        "referencePushes": 8,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 4772
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-04",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The inner reading room",
+      "map": [
+        "########",
+        "#      #",
+        "# . .  #",
+        "##   # #",
+        "# $$   #",
+        "#  @   #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "UDLUURDRU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 9,
+        "referencePushes": 5,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 650
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-05",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "A route around the crates",
+      "map": [
+        "########",
+        "# . .  #",
+        "#   #  #",
+        "#      #",
+        "# # $$ #",
+        "# @    #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RRUDRUUURULLLDDRDRUURUL",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 23,
+        "referencePushes": 11,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 5783
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-06",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The drying-room partition",
+      "map": [
+        "########",
+        "#  .   #",
+        "# . #  #",
+        "#      #",
+        "# $$ # #",
+        "#  @   #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "UUUDDDLUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 9,
+        "referencePushes": 5,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 707
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-07",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The northern stack",
+      "map": [
+        "#######",
+        "#   . #",
+        "# #   #",
+        "# .   #",
+        "#  $$ #",
+        "# @   #",
+        "#######"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RUDRUUUDL",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 9,
+        "referencePushes": 5,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 637
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-08",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The long way to the label",
+      "map": [
+        "########",
+        "#.     #",
+        "#  # . #",
+        "#      #",
+        "#  $$  #",
+        "# @ #  #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RURURRDDLUULLLDLUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 18,
+        "referencePushes": 8,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 2648
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-09",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "Keep an aisle open",
+      "map": [
+        "########",
+        "#  . . #",
+        "#      #",
+        "# #    #",
+        "#   $$ #",
+        "# @  # #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RRUURRDLLDLUUURDRU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 18,
+        "referencePushes": 9,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 2319
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-10",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The gap beside the pillar",
+      "map": [
+        "########",
+        "# .    #",
+        "#    . #",
+        "#  #   #",
+        "# $ $  #",
+        "#   @  #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "UUDDLLUUURR",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 11,
+        "referencePushes": 6,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 1228
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-11",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The return to the shelves",
+      "map": [
+        "########",
+        "#  . . #",
+        "# #    #",
+        "#      #",
+        "#  $$# #",
+        "# @    #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "RUUDDRUULURDRU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 14,
+        "referencePushes": 7,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 2666
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    },
+    {
+      "id": "curated-archive-12",
+      "revision": 1,
+      "family": "warehouse",
+      "title": "The final pair of records",
+      "map": [
+        "########",
+        "# . .  #",
+        "#      #",
+        "#   #  #",
+        "# $$   #",
+        "# @  # #",
+        "########"
+      ],
+      "instruction": "Push each crate onto a brass plate. You can push one crate at a time, never pull. The archivist must be able to stand behind a crate before pushing it. Walking does not change a crate’s direction.",
+      "solutionPath": "UDRUUULURDDDLUU",
+      "verification": {
+        "reducerReplayComplete": true,
+        "minimumWalkingMoves": 15,
+        "referencePushes": 7,
+        "pushOptimalityClaim": false,
+        "method": "Breadth-first search over (player, sorted crates), with only non-goal wall-corner deadlocks pruned",
+        "nodes": 4117
+      },
+      "hint": "Plan where you will stand for the last push, then keep a walking route to that square.",
+      "status": "engine-verified; add map to trusted archive content / launcher",
+      "sourceKind": "Original authored room footprint; independently solved with current archive engine",
+      "humanPlaytested": false
+    }
+  ]
+}
