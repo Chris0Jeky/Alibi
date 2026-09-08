@@ -32,7 +32,7 @@ with sync_playwright() as pw:
             picture=target.locator('img').first
             picture.scroll_into_view_if_needed()
             try:
-                picture.evaluate('async img => { await img.decode(); if(!img.naturalWidth) throw Error("Empty museum image"); }')
+                picture.evaluate('async img => { await Promise.race([img.decode(),new Promise((_,reject)=>setTimeout(()=>reject(Error("Museum image decode exceeded 10 seconds")),10000))]); if(!img.naturalWidth) throw Error("Empty museum image"); }')
             except Exception:
                 (OUT/'image-failure.json').write_text(json.dumps({'route':route,'width':width,'images':target.locator('img').evaluate_all('(imgs)=>imgs.map(i=>({src:i.currentSrc||i.src,complete:i.complete,width:i.naturalWidth,loading:i.loading,rect:i.getBoundingClientRect().toJSON()}))'),'errors':errors},indent=2))
                 raise

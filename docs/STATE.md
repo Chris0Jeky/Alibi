@@ -4,7 +4,7 @@ Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
 ## Release candidate 0.6.0
 
-Build `32ca05dfa106` includes the source-integrated Quiet Wing, modular seeded city, animated
+Build `f7c4ef0b6961` includes the source-integrated Quiet Wing, modular seeded city, animated
 companions, four additional relaxing boards, expanded idle garden and three newly curated
 museum artworks across Club, collection and conservatory. No published puzzle definitions,
 public origins or database identities changed. Source work is on PR #14 in incremental commits.
@@ -14,8 +14,8 @@ acceptance are the remaining release work. Physical-device gates remain in HUMAN
 The exact live production origin still reports Sites version 3 from main `1f049a7`; this candidate
 has not yet been deployed. Do not confuse the prepared source with a hosted release.
 
-Measured sizes: initial JavaScript 125,137 bytes gzip, core offline pack 1,329,465 bytes,
-optional wing 1,977,943 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
+Measured sizes: initial JavaScript 125,138 bytes gzip, core offline pack 1,329,465 bytes,
+optional wing 1,977,944 bytes. Existing core/initial budgets pass; the optional 2,250 KiB budget
 includes the renderer, models, three animated animals and museum assets. No runtime asset CDN.
 Three Met originals and their public-domain records are retained under assets-source/atmosphere.
 Adobe returned HTTP403, image generation failed connection, and AIC images challenged requests;
@@ -37,6 +37,10 @@ Ambiguous IndexedDB open failures, including timeouts, now remain protected inst
 a competing writable fallback. Only explicitly unavailable or denied IndexedDB can use the
 existing fallback. Regression coverage verifies refusal, no fallback creation and exact recovery
 of the original committed save after a successful retry.
+CI reproduced a deferred garden image that never decoded on one Linux runner while the parallel
+run passed. The single garden image now loads eagerly inside the already-lazy activity; its
+browser decode assertion has a ten-second deadline and failure diagnostics. No optional activity
+code or models are loaded on the cabinet by this change.
 
 ## Quiet Wing expansion in progress
 

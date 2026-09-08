@@ -1094,7 +1094,7 @@
         renderHerbarium();
         $('#main').insertAdjacentHTML(
           'beforeend',
-          `<aside class="garden-inspiration"><figure><img src="${G.ALIBI_MEDIA?.['conservatory-study'] || ''}" alt="Side of a Greenhouse by George Cochran Lambdin" loading="lazy" width="650" height="826"><figcaption><a href="https://www.metmuseum.org/art/collection/search/11393" target="_blank" rel="noopener noreferrer">George Cochran Lambdin · Side of a Greenhouse</a><br>1870–80 (?) · The Met · Public Domain</figcaption></figure><div><div class="eyebrow">FROM THE MUSEUM WALL</div><h2>Some things reward a second look.</h2><p>Real paint, real leaves, a patch of window light. A small piece of the museum to keep beside your own growing things.</p><a href="#/quiet/gallery">Spend a moment in the art room →</a></div></aside>`,
+          `<aside class="garden-inspiration"><figure><img src="${G.ALIBI_MEDIA?.['conservatory-study'] || ''}" alt="Side of a Greenhouse by George Cochran Lambdin" loading="eager" width="650" height="826"><figcaption><a href="https://www.metmuseum.org/art/collection/search/11393" target="_blank" rel="noopener noreferrer">George Cochran Lambdin · Side of a Greenhouse</a><br>1870–80 (?) · The Met · Public Domain</figcaption></figure><div><div class="eyebrow">FROM THE MUSEUM WALL</div><h2>Some things reward a second look.</h2><p>Real paint, real leaves, a patch of window light. A small piece of the museum to keep beside your own growing things.</p><a href="#/quiet/gallery">Spend a moment in the art room →</a></div></aside>`,
         );
         $$('[data-seed]').forEach(
           (b) =>
