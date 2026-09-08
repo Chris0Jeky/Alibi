@@ -1,22 +1,16 @@
-# Verification report
+# Verification record
 
-Application 0.2.0, build 04628f8c5791. Reports were produced by the supplied test scripts. Assertions below are checks, not a claim that all failure modes have been covered.
+Historical 0.2.0 evidence remains in the initial import commit and untouched source bundle.
+Current commands and acceptance scope are recorded in STATE.md and the generated CI artifacts.
+Do not count a browser emulation run as physical Android or assistive-technology certification.
 
-## Completed
+| Gate | Scope |
+| --- | --- |
+| `npm run verify` | Formatting, deterministic build, all catalogue solvers, save/worker contracts, regressions and deductions |
+| `python tests/browser_ui.py` | Real Chromium controls in an isolated document; all twelve lessons and families, workshop, exports, four viewport widths |
+| `python tests/browser_origin.py` | Real-origin IndexedDB, reload/restart, notes/settings, backup/restore, conflict protection, quarantine and offline navigation |
+| `python tests/browser_update.py` | Coherent A/B fixture releases on one origin, explicit update, open-tab behavior and saved puzzle continuity |
+| Hosted smoke/acceptance | Actual HTTPS origin, assets/MIME/security headers and disposable-profile gameplay |
 
-- 1741 engine/content assertions: all 102 definitions, exactly one solution each, published answers, reducer completion, locked clues, legacy forty-field compatibility, extra generated scenes, malformed inputs and required mystery accusations.
-- 157 real Chromium DOM/control checks: complete one puzzle in every family, all twelve hands-on lessons, undo/redo, notes, pause, mobile evidence drawer, worker-backed workshop, pack rejection, backup export/revalidation and revision-pinned continuation.
-- The browser suite checked 20 routes at widths 360, 390, 768 and 1440 pixels for whole-page horizontal overflow. A deliberately enlarged board may scroll locally.
-- 27 fallback storage contract assertions in a Node VM: honest modes, sequential revision conflicts, export preferences, corrupt-record preservation, refusal of nontransactional restore and newer-database refusal.
-- 24 simulated CacheStorage/service-worker and built-asset checks: coherent shell, explicit activation, failed installation cleanup, old-hash compatibility, cache boundaries, manifest identity and assets.
-- The two example packs were accepted by executable validators; a structural JSON Schema check was run against the catalogue and examples.
-
-## Not established by these reports
-
-This environment blocked normal browser URL navigation, including localhost and a synthetic routed HTTPS origin, with ERR_BLOCKED_BY_ADMINISTRATOR. UI tests therefore used Chromium set_content in an isolated document. They exercised real rendered controls, Blob workers and downloads, but session-memory storage rather than a genuine hosted IndexedDB origin.
-
-Actual IndexedDB transaction/reload durability, restore replacement/merge on real IndexedDB, installed Android behaviour, a real service-worker-controlled offline restart and a live two-release update remain pending. No Cloudflare account was changed or deployment performed. There is no physical-device, screen-reader, penetration-test or human difficulty-calibration certification. Follow RELEASE-CHECKLIST.md.
-
-## Reproduce
-
-`npm run build` then `npm test`. For browser checks, install the optional Python Playwright dependency and run `python tests/browser_ui.py`. Test scripts fail on assertions; do not substitute a stale report for a new execution.
+The content solver proves uniqueness under implemented rules. It does not prove enjoyment,
+human solve-time labels, narrative quality, branding rights or a physical device's behavior.

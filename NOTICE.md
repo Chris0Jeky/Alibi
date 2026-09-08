@@ -1,9 +1,15 @@
-# Project notice and release-owner decisions
+# Project notice
 
-This bundle was prepared for the project owner as editable project material. No open-source license is selected on the owner's behalf. Hosting the game and deciding to publish its source are separate choices. Before public source redistribution, choose the intended license and add the actual rights-holder information; do not mistake this notice for an automatic MIT grant or a legal clearance opinion.
+Alibi's public source is published by Chris0Jeky. No open-source reuse license has been selected
+as of 2026-09-08. Public visibility is not an MIT or GPL license grant. The owner is choosing
+between GPL-3.0, MIT and leaving the source without a reuse license; see HUMAN_TODO.md.
 
-The application contains code, puzzle data, original inline SVG illustrations, raster app icons and synthesised interface feedback. No external font files, photographs, music, puzzle books or third-party runtime libraries are included. Existing base code/content came from the user's preceding Alibi prototype. The optional developer tooling has its own upstream terms.
+The editable 0.2.0 prototype, puzzle definitions, inline SVG board previews and install icons were
+supplied by the project owner. Three casebook illustrations were generated with OpenAI image
+generation for this project; provenance is recorded in docs/ASSETS.md. No stock photos, remote fonts,
+music or third-party runtime libraries are fetched by the game. Optional developer dependencies
+retain their own upstream licenses.
 
-Alibi is a working name and has not been trademark-cleared. Murdoku is mentioned to describe inspiration for one family; this app is independent and is not presented as an official Murdoku product. No original Murdoku book puzzles or artwork have been copied into this bundle.
-
-Before public promotion, decide the name, hosting account, permanent origin, operator/support identity, privacy wording and licensing. Technical hosting can be tested now; those publication decisions are intentionally not invented.
+Alibi is a working name, not a trademark-clearance claim. Crime-scene puzzles were described in the
+prototype as Murdoku-inspired; this project is independent and contains no claimed official book
+puzzles or branding. Any store release needs the publisher/name decisions in HUMAN_TODO.md.

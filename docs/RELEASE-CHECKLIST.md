@@ -1,6 +1,6 @@
 # Release and acceptance checklist
 
-Do not mark unperformed checks as passed. Version 0.2.0 has engine, isolated-Chromium UI and simulated service-worker checks, but real hosted installation, IndexedDB reload durability and Android behaviour still require acceptance.
+Do not mark unperformed checks as passed. This is the long-term acceptance backlog. See STATE.md for the measured 0.3.0 gate results. Automated real-origin acceptance and physical Android certification are separate.
 
 ## Before the first public link
 

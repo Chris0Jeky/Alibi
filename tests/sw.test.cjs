@@ -93,7 +93,13 @@ function setup(failInstall = false) {
 (async () => {
   const x = setup();
   await x.lifecycle('install');
-  check(x.data.get(name).size === 8, 'Release installs all eight shell resources');
+  check(x.data.get(name).size === 11, 'Release installs the shell and all three casebook covers');
+  for (const asset of fs.readdirSync(path.join(__dirname, '../dist/assets'))) {
+    check(
+      [...x.data.get(name).keys()].some((url) => url.endsWith('/assets/' + asset)),
+      'Offline release includes ' + asset,
+    );
+  }
   check(x.calls.skip === 0, 'Installation never forces activation');
   await x.lifecycle('activate');
   check(x.calls.claim === 1, 'Activation claims clients');

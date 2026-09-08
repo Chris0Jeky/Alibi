@@ -21,3 +21,6 @@ tests/*.pid
 test-results/
 playwright-report/
 .openai/*.tmp
+
+test-results-ui.log
+alibi-deluxe-guide.html

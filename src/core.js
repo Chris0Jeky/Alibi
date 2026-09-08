@@ -732,6 +732,12 @@
         !(s.accused === null || p.people.some((x) => x.id === s.accused))
       )
         throw new Error('Invalid scene save.');
+      const placed = Object.values(s.placements);
+      if (
+        new Set(placed).size !== placed.length ||
+        placed.some((cell) => p.objects.some((o) => o.cell === cell))
+      )
+        throw new Error('Invalid scene save.');
       for (const [id, values] of Object.entries(s.notes))
         if (!p.people.some((x) => x.id === id) || !ints(values, 0, N - 1))
           throw new Error('Invalid scene notes.');
@@ -746,6 +752,84 @@
           throw new Error('Invalid number notes.');
     }
     return clone(s);
+  }
+  // Drafts may be unsolvable while being edited. Validate shape, not publication rules.
+  function validateSceneDraft(input) {
+    const p = clone(input),
+      n = 5,
+      N = n * n;
+    const int = (x, max) => Number.isInteger(x) && x >= 0 && x < max;
+    const text = (x, max) => typeof x === 'string' && x.length <= max;
+    const fail = () => {
+      throw Error('The saved workshop draft needs attention.');
+    };
+    if (
+      !p ||
+      p.type !== 'scene' ||
+      p.size !== n ||
+      !text(p.id, 64) ||
+      !/^[a-z][a-z0-9-]+$/.test(p.id) ||
+      !Number.isInteger(p.revision) ||
+      p.revision < 1 ||
+      !text(p.title, 90) ||
+      !text(p.subtitle, 120) ||
+      !text(p.story, 1200) ||
+      !Array.isArray(p.roomNames) ||
+      p.roomNames.length < 2 ||
+      p.roomNames.length > 8 ||
+      !p.roomNames.every((x) => text(x, 40)) ||
+      !Array.isArray(p.rooms) ||
+      p.rooms.length !== N ||
+      !p.rooms.every((x) => int(x, p.roomNames.length)) ||
+      !Array.isArray(p.people) ||
+      p.people.length !== n ||
+      !p.people.every(
+        (x) =>
+          x &&
+          text(x.id, 64) &&
+          /^[a-z][a-z0-9-]+$/.test(x.id) &&
+          !['constructor', 'prototype', '__proto__'].includes(x.id) &&
+          text(x.name, 30) &&
+          text(x.role, 50) &&
+          int(x.color, 5),
+      )
+    )
+      fail();
+    const ids = p.people.map((x) => x.id);
+    if (
+      new Set(ids).size !== n ||
+      !ids.includes(p.victim) ||
+      !Array.isArray(p.objects) ||
+      p.objects.length > N ||
+      !p.objects.every(
+        (o) =>
+          o &&
+          int(o.cell, N) &&
+          ['plant', 'table', 'piano', 'shelf', 'lamp'].includes(o.kind) &&
+          text(o.name, 40),
+      ) ||
+      new Set(p.objects.map((o) => o.cell)).size !== p.objects.length ||
+      !Array.isArray(p.clues) ||
+      p.clues.length > 40 ||
+      !p.solution ||
+      Array.isArray(p.solution) ||
+      Object.keys(p.solution).length !== n ||
+      !ids.every((id) => int(p.solution[id], N))
+    )
+      fail();
+    for (const c of p.clues) {
+      if (!c || !ids.includes(c.who)) fail();
+      if (['left', 'above', 'sameRoom', 'differentRoom'].includes(c.kind)) {
+        if (!ids.includes(c.other)) fail();
+      } else if (['room', 'notRoom'].includes(c.kind)) {
+        if (!int(c.value, p.roomNames.length)) fail();
+      } else if (['row', 'col'].includes(c.kind)) {
+        if (!int(c.value, n)) fail();
+      } else if (c.kind === 'near') {
+        if (!int(c.value, N)) fail();
+      } else if (!['edge', 'notEdge'].includes(c.kind)) fail();
+    }
+    return p;
   }
   function seededRandom(seed) {
     let a = seed >>> 0;
@@ -782,13 +866,11 @@
       if (Object.values(sol).filter((c) => rooms[c] === rooms[sol.victim]).length === 2) break;
     }
     const cells = shuffle(range(25).filter((c) => !Object.values(sol).includes(c)));
-    const objects = cells
-      .slice(0, 4)
-      .map((cell, i) => ({
-        cell,
-        kind: ['plant', 'table', 'piano', 'shelf'][i],
-        name: ['plant', 'table', 'piano', 'bookshelf'][i],
-      }));
+    const objects = cells.slice(0, 4).map((cell, i) => ({
+      cell,
+      kind: ['plant', 'table', 'piano', 'shelf'][i],
+      name: ['plant', 'table', 'piano', 'bookshelf'][i],
+    }));
     const p = {
       id: `workshop-${seed.toString(36)}-${Date.now().toString(36)}`,
       revision: 1,
@@ -858,6 +940,7 @@
     solve,
     hint,
     validateDefinition,
+    validateSceneDraft,
     validatePack,
     validateState,
     createSceneDraft,

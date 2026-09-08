@@ -7,7 +7,7 @@ const fs = require('node:fs'),
 const ROOT = path.resolve(__dirname, '..'),
   SRC = path.join(ROOT, 'src'),
   DIST = path.join(ROOT, 'dist'),
-  VERSION = '0.2.0';
+  VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
 const read = (p) => fs.readFileSync(p, 'utf8'),
   hash = (x) => crypto.createHash('sha256').update(x).digest('hex').slice(0, 12),
   write = (p, x) => {
@@ -81,8 +81,17 @@ function build() {
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
     worker = core + '\n' + engines + '\n' + read(path.join(SRC, 'validator-worker.js')),
-    css = read(path.join(SRC, 'app.css')),
+    css = read(path.join(SRC, 'app.css')) + '\n' + read(path.join(SRC, 'cabinet.css')),
     template = read(path.join(SRC, 'index.html'));
+  const media = {},
+    inlineMedia = {};
+  for (const p of files(path.join(SRC, 'artwork'))) {
+    const data = fs.readFileSync(p),
+      name = path.parse(p).name;
+    media[name] = `./assets/${name}.${hash(data)}${path.extname(p)}`;
+    inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
+    write(path.join(DIST, media[name]), data);
+  }
   const base =
     `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\n` +
     [
@@ -90,14 +99,17 @@ function build() {
       engines,
       read(path.join(SRC, 'storage.js')),
       read(path.join(SRC, 'presentation.js')),
+      read(path.join(SRC, 'insights.js')),
       read(path.join(SRC, 'app.js')),
     ].join('\n');
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
-    release = hash(base + css + VERSION + template + read(__filename) + fingerprint),
+    release = hash(
+      base + css + VERSION + template + read(__filename) + fingerprint + JSON.stringify(media),
+    ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\n${base}`,
+  const js = `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\n${base}`,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -145,6 +157,7 @@ function build() {
     './icons/icon-maskable.png',
     './' + jsName,
     './' + cssName,
+    ...Object.values(media),
   ];
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
 const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
@@ -177,7 +190,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\n${base}`;
+  const standalone = `globalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\n${base}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
