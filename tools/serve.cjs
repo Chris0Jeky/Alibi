@@ -9,6 +9,7 @@ const root = path.resolve(__dirname, '../dist'),
     '.js': 'text/javascript; charset=utf-8',
     '.css': 'text/css; charset=utf-8',
     '.png': 'image/png',
+    '.webp': 'image/webp',
     '.webmanifest': 'application/manifest+json',
     '.json': 'application/json',
   };

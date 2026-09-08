@@ -95,6 +95,7 @@ with sync_playwright() as pw:
             for i,value in enumerate(p['solution']):
                 if not p['givens'][i]:action('trail-value',f'[data-value="{value}"]');cell(i)
         completed();check(bool(state()['completedAt']),typ+' completed entirely through UI')
+        action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened');dismiss()
         if typ in ['dossier','lightup','aquarium','network']:page.screenshot(path=str(shots/f'desktop-{typ}.png'),full_page=True)
     # In-progress pencil/erase/pause/hint and routing durability (same document, not reload).
     p=next(p for p in PUZZLES if p['type']=='sudoku' and p['id']!='sudoku-01');open_p(p);dismiss()
@@ -102,7 +103,7 @@ with sync_playwright() as pw:
     check(1 in state()['state']['notes'].get(str(i),[]),'Pencil marks stored without filling value')
     action('pencil');action('erase');check(not state()['state']['notes'].get(str(i)),'Erase clears notes')
     action('pause');check(page.locator('.paused-cover').count()>0,'Pause hides puzzle');page.locator('.paused-cover [data-action="pause"]').click()
-    action('hint');check(page.locator('dialog[open]').count()==1,'Hint opens without changing board');dismiss()
+    hint_before=state()['state'];action('hint');check(page.locator('dialog[open]').count()==1 and state()['state']==hint_before,'Hint opens without changing board');dismiss()
     cell(i);action('value',f'[data-value="{p["solution"][i]}"]');before=state()['state'];route('home');open_p(p);dismiss()
     check(state()['state']==before,'In-progress state survives route navigation')
     # Responsive layout: all primary routes and all twelve board families.
@@ -160,6 +161,6 @@ with sync_playwright() as pw:
     # Revert this test-only catalogue mutation before any further exports.
     page.evaluate('(title)=>{const p=ALIBI_CATALOG.puzzles.find(p=>p.id==="sudoku-02");p.revision=1;p.title=title;}',old_title)
     check(not errors,'No uncaught browser exceptions')
-    (ROOT/'tests/browser-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'checks':checks,'errors':errors,'browser':browser.version,'scope':'Chromium isolated page via set_content; real DOM, controls, Blob workers and downloads; not hosted navigation, IndexedDB persistence, real service worker or Android.'},indent=2))
+    (ROOT/'tests/browser-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'checks':checks,'errors':errors,'browser':browser.version,'build':page.evaluate('ALIBI_CONFIG.build'),'scope':'Chromium isolated page via set_content; real DOM, controls, Blob workers and downloads; not hosted navigation, IndexedDB persistence, real service worker or Android.'},indent=2))
     browser.close()
 print('PASS',len(checks),'browser checks')

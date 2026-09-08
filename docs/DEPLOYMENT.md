@@ -13,7 +13,7 @@ paid external service is needed. Never create another project just to publish an
 
 ## Release procedure
 
-1. Run `npm ci`, `npm run verify`, and both browser acceptance suites. Inspect mobile and desktop.
+1. Run `npm ci`, `npm run verify`, and all three browser acceptance suites. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. Build the merged source. Record its full Git SHA and `build-info.json`.
 4. Use the Sites hosting skill and the existing project ID. Acquire a short-lived source write
