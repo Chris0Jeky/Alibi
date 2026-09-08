@@ -28,7 +28,7 @@ module.exports = function buildExperience(root, dist) {
   });
   const manifest = {
     scenes: realm.scenes.map(model),
-    modules: realm.assets.map(model),
+    modules: [...realm.assets, ...read('realm/details/catalogue.json').assets].map(model),
     companions: read('companions/catalogue.json').assets.map((a) => ({
       id: a.id,
       title: a.title,

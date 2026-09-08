@@ -111,7 +111,7 @@
         if (A.state.settings.haptic && navigator.vibrate)
           navigator.vibrate(kind === 'win' ? [15, 40, 15] : 10);
         if (!A.state.settings.sound) return;
-        if (G.QWExperience) {
+        if (G.QWExperience && !G.ALIBI_CONFIG.standalone) {
           soundscape.play(
             {
               erase: 'ui-remove-low',
@@ -176,6 +176,21 @@
         });
       }
       function styles() {
+        const soundButton = $('[data-act="sound"]');
+        if (soundButton) {
+          soundButton.setAttribute(
+            'aria-label',
+            A.state.settings.sound ? 'Mute sound' : 'Enable sound',
+          );
+          soundButton.title = 'Sound ' + (A.state.settings.sound ? 'on' : 'off');
+        }
+        if (!A.state.settings.sound) {
+          soundscape.stop();
+          root.querySelectorAll('audio,video').forEach((media) => media.pause());
+          A.ambience = '';
+          const selection = $('#room-ambience');
+          if (selection) selection.value = '';
+        }
         body.classList.toggle('zen', A.state.settings.zen);
         body.classList.toggle('reduce', !A.state.settings.motion);
         A.renderer?.setMotion?.(A.state.settings.motion);
@@ -218,6 +233,7 @@
             A.state.settings.sound = !A.state.settings.sound;
             if (!A.state.settings.sound) {
               soundscape.stop();
+              root.querySelectorAll('audio,video').forEach((media) => media.pause());
               A.ambience = '';
               const select = $('#room-ambience');
               if (select) select.value = '';
@@ -242,7 +258,8 @@
         const room = { pets: 'companion-room', garden: 'glasshouse-room', gallery: 'reading-room' }[
           A.route
         ];
-        const art = G.QWExperience?.editorial.find((a) => a.id === room);
+        const art =
+          !G.ALIBI_CONFIG.standalone && G.QWExperience?.editorial.find((a) => a.id === room);
         return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}${art ? `<img class="room-illustration" src="${art.image}" alt="" width="1200" height="600">` : ''}</section>`;
       }
       function disposeActivity() {
@@ -284,10 +301,16 @@
           folio: () => {
             soundscape.stop();
             A.ambience = '';
-            A.folio = G.QWFolio.mount($('#main'));
+            A.folio = G.QWFolio.mount($('#main'), () => {
+              if (!A.state.settings.sound) {
+                A.state.settings.sound = true;
+                save();
+              }
+              $('[data-act="sound"]').setAttribute('aria-label', 'Mute sound');
+            });
           },
         })[A.route]();
-        if (A.route !== 'folio') {
+        if (A.route !== 'folio' && !G.ALIBI_CONFIG.standalone) {
           const atmosphere = document.createElement('label');
           atmosphere.className = 'ambient-choice';
           atmosphere.innerHTML = `Listen here <select id="room-ambience" aria-label="Background atmosphere"><option value="">Quiet</option>${[
@@ -314,6 +337,14 @@
           visit.className = 'room-visit';
           visit.innerHTML =
             '<span>A little more to discover: scenes, portraits, sound and short films.</span><a href="#/quiet/folio">Open field notes ↗</a>';
+          if (A.route === 'realm' && !G.ALIBI_CONFIG.standalone) {
+            const harbour = G.QWExperience.editorial.find((art) => art.id === 'harbour-room');
+            if (harbour)
+              visit.insertAdjacentHTML(
+                'afterbegin',
+                `<img src="${harbour.image}" alt="" width="180" height="90">`,
+              );
+          }
           $('#main').append(visit);
         }
       }
@@ -678,6 +709,7 @@
         A.anchor = -1;
         realmPage();
         save();
+        feedback(redo ? 'redo' : 'undo');
       }
       function newPreset(id) {
         const d = modal(
@@ -2135,6 +2167,7 @@
         'pagehide',
         () => {
           flush().catch(() => {});
+          soundscape.stop();
           audio?.suspend();
         },
         { signal: listeners.signal },

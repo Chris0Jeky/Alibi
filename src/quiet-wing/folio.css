@@ -236,6 +236,21 @@
   font-size: 13px;
   gap: 15px;
 }
+.room-visit img {
+  width: 180px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+@media (max-width: 760px) {
+  .room-visit {
+    flex-wrap: wrap;
+  }
+  .room-visit img {
+    width: 100%;
+    height: 140px;
+  }
+}
 .ambient-choice {
   display: flex;
   gap: 8px;

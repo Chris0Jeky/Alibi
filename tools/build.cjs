@@ -111,6 +111,13 @@ function build() {
     inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
+  // A single small editorial invitation belongs to the core; the full folio remains optional.
+  const readingRoom = fs.readFileSync(
+    path.join(ROOT, 'assets-source/library/editorial/reading-room.webp'),
+  );
+  media['club-reading-room'] = `./assets/club-reading-room.${hash(readingRoom)}.webp`;
+  inlineMedia['club-reading-room'] = 'data:image/webp;base64,' + readingRoom.toString('base64');
+  write(path.join(DIST, media['club-reading-room']), readingRoom);
   const experience = require('./build-experience.cjs')(ROOT, DIST);
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
@@ -156,10 +163,9 @@ function build() {
         JSON.stringify(quiet.config),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = require('esbuild').transformSync(
-      `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${base}`,
-      { minify: true, target: 'es2022' },
-    ).code,
+  const js =
+      `globalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);

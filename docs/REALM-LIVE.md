@@ -22,9 +22,9 @@ The imported barn and cottage retain the saved colour story on their terracotta 
 windmill deliberately keeps its procedural body and moving sails: there is no corresponding source
 library GLB, and its motion is part of the current Realm behaviour.
 
-This adds no runtime GLB loader, network request, database change or new placeable type. The source
-GLBs, Blender master and thumbnails remain in the production library; only compact geometry is
-inlined into the optional Quiet Wing activity. `tests/realm-library-models.test.cjs` proves the
+This live-placeable mapping adds no GLB download, database change or new placeable type. Compact
+geometry is inlined into the optional Quiet Wing activity; Field notes separately loads the original
+GLB derivatives on demand. Editable masters stay in the source library. `tests/realm-library-models.test.cjs` proves the
 conversion is current and that finite, bounded geometry is used by the saved-placeable path.
 
 Physical-device performance and external OBJ-editor interoperability remain open in

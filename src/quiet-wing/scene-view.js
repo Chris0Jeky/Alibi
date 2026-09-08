@@ -7,6 +7,8 @@ import {
   PerspectiveCamera,
   Box3,
   Vector3,
+  ACESFilmicToneMapping,
+  PCFSoftShadowMap,
 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 function release(root) {
@@ -37,10 +39,17 @@ class SceneView {
     this.canvas.setAttribute('aria-hidden', 'true');
     this.renderer = new WebGLRenderer({ canvas: this.canvas, alpha: true, antialias: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    this.renderer.toneMapping = ACESFilmicToneMapping;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = PCFSoftShadowMap;
     this.scene = new Scene();
     this.scene.add(new HemisphereLight('#fff5db', '#375661', 2.4));
     const light = new DirectionalLight('#ffe3b2', 3);
     light.position.set(-4, 8, 5);
+    light.castShadow = true;
+    light.shadow.mapSize.set(1024, 1024);
+    light.shadow.bias = -0.0005;
+    this.light = light;
     this.scene.add(light);
     this.camera = new PerspectiveCamera(40, 1, 0.01, 200);
     const response = await fetch(url, {
@@ -55,6 +64,20 @@ class SceneView {
     this.model = gltf.scene;
     const box = new Box3().setFromObject(this.model);
     this.size = box.getSize(new Vector3()).length();
+    this.model.traverse((node) => {
+      if (node.isMesh) {
+        node.castShadow = true;
+        node.receiveShadow = true;
+      }
+    });
+    Object.assign(light.shadow.camera, {
+      left: -this.size,
+      right: this.size,
+      top: this.size,
+      bottom: -this.size,
+      far: 100,
+    });
+    light.shadow.camera.updateProjectionMatrix();
     this.model.position.sub(box.getCenter(new Vector3()));
     this.scene.add(this.model);
     this.host.append(this.canvas);
@@ -108,6 +131,7 @@ class SceneView {
     this.fallback();
     release(this.model);
     this.renderer?.dispose();
+    this.light?.shadow.map?.dispose();
     this.renderer?.forceContextLoss();
   }
 }

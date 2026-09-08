@@ -6,7 +6,12 @@
       /[&<>"']/g,
       (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
     );
-  function mount(host) {
+  function mount(host, onPlay = () => {}) {
+    if (G.ALIBI_CONFIG.standalone) {
+      host.innerHTML =
+        '<section class="folio-intro"><span class="eyebrow">FIELD NOTES</span><h1>A little more beyond this page.</h1><p>The illustrated field notes, sound library and films are part of the full browser edition. This single-file preview keeps the puzzles and Quiet Wing available without those larger downloads.</p><a href="#/quiet/realm">Return to your realm →</a></section>';
+      return { dispose() {} };
+    }
     const data = G.QWExperience;
     const events = new AbortController();
     let view,
@@ -153,6 +158,7 @@
     content.addEventListener(
       'play',
       (event) => {
+        if (event.target.tagName === 'AUDIO') onPlay();
         content.querySelectorAll('audio,video').forEach((m) => {
           if (m !== event.target) m.pause();
         });

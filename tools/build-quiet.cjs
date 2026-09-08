@@ -7,6 +7,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
   const modelData = read('assets/city-models.json');
+  const libraryData = read('assets/library-models.json');
   const companionArt = Object.fromEntries(
     ['cat', 'fox', 'owl', 'dragon'].map((id) => [
       id,
@@ -28,7 +29,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
     write: false,
   }).outputFiles[0].text;
   const source =
-    `globalThis.QWCityModels=${modelData};\nglobalThis.QWExperience=${JSON.stringify(experience.manifest)};\nglobalThis.QWCompanionArt=${JSON.stringify(companionArt)};\n` +
+    `globalThis.QWCityModels=${modelData};\nglobalThis.QWLibraryModels=${libraryData};\nglobalThis.QWExperience=${JSON.stringify(experience.manifest)};\nglobalThis.QWCompanionArt=${JSON.stringify(companionArt)};\n` +
     [
       'calm.js',
       'calm-art.js',
@@ -46,6 +47,11 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
       .join('\n');
   const cssSource = read('style.css') + '\n' + read('folio.css'),
     files = [];
+  // These small headers accompany the regular wing offline; the model/media folio is opt-in.
+  for (const room of experience.manifest.editorial.filter((a) => a.id.endsWith('-room'))) {
+    files.push(room.image);
+    experience.bytes -= fs.statSync(path.join(dist, room.image)).size;
+  }
   function emit(name, bytes, ext) {
     const url = `./assets/quiet-${name}.${hash(bytes)}.${ext}`;
     fs.writeFileSync(path.join(dist, url), bytes);
