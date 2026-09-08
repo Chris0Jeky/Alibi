@@ -61,6 +61,7 @@ jobs:
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
           python tests/browser_assets.py
           python tests/browser_model_assets.py
+          python tests/browser_asset_media.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update

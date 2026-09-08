@@ -2,6 +2,34 @@
 
 Updated 2026-09-08. Git, CI and review threads take precedence over prose.
 
+## Local asset library candidate
+
+`codex/asset-library` builds `fac4d1d1ad6c` from the recorded 0.6.0 baseline. Twelve original
+editorial vignette derivatives now illustrate selected puzzle cards; 31 distinct stamp silhouettes
+retain the existing six Club and 25 Quiet Wing unlock predicates. Puzzle definitions, IDs, revisions,
+engines and saves are unchanged. Zen hides decorative highlights; keyboard focus remains visible.
+The reusable production library includes exact category/interface exports and lesson captures,
+realm geometry and composed scenes, four layered companion state sets, locally synthesized audio
+and authored HyperFrames films. These larger production assets stay outside the game build.
+
+See [ASSET-LIBRARY.md](ASSET-LIBRARY.md), the machine-readable
+[production ledger](../assets-source/library/production-ledger.json),
+[coverage matrix](../assets-source/library/coverage.json) and
+[catalogue](../assets-source/library/catalogue.json). Start `npm run assets:gallery` for the local
+inspector on port 8790. All generation used local tools or unchanged existing assets; no new paid
+submissions, purchases or credits were used. No push, PR, deployment or public publication is
+authorized by this asset session. The hosted release section below describes the earlier release.
+
+The local app passes verification, 182 puzzle UI checks, 106 Club checks, 156 Quiet Wing checks,
+92 real-origin persistence/offline checks and 18 update checks. Source-library acceptance includes
+actual controls, decoding, hashes, spoiler filtering, simulated mobile/desktop views and all 32
+companion state previews. Final production checks and limits are recorded in the ledger.
+Core offline pack is 1,362,809 bytes (+33,344); initial JS gzip is 127,264 (+2,126); optional Quiet
+Wing is 1,977,995 (+51). Budgets were not changed, and core headroom is only about 340 bytes.
+Auditory acceptance, physical phones/TalkBack, sustained device performance and external editor
+interoperability remain unverified. [HUMAN_TODO.md](../HUMAN_TODO.md) stays open for those checks
+and owner licence/name decisions. This local candidate does not certify the reported phone freeze.
+
 ## Hosted release 0.6.0
 
 Build `f7c4ef0b6961` includes the source-integrated Quiet Wing, modular seeded city, animated

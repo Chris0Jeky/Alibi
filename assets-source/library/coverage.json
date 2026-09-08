@@ -23,10 +23,11 @@
         "empty records"
       ],
       "existing": "seven gouache covers, ten After Hours motifs, local harbour Canvas",
-      "gap": "promotional captures and explicit provenance index",
       "priority": 2,
       "delivery": "Reuse covers; motion compositions and catalogue",
-      "audio": "navigation proposal; no autoplay"
+      "audio": "navigation proposal; no autoplay",
+      "baselineGap": "promotional captures and explicit provenance index",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     },
     {
       "screen": "Collection / all thirteen families",
@@ -41,10 +42,11 @@
         "empty filter"
       ],
       "existing": "exact SVG category icons, geometric thumbnails, museum figure",
-      "gap": "distinctive puzzle-specific atmosphere",
       "priority": 1,
       "delivery": "12 integrated highlight vignettes; 13 reused icon/card exports",
-      "qa": "Original UI suite and new viewport/decode checks"
+      "qa": "Original UI suite and new viewport/decode checks",
+      "baselineGap": "distinctive puzzle-specific atmosphere",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Player / all thirteen families",
@@ -62,10 +64,11 @@
         "Zen"
       ],
       "existing": "interactive lessons, engine-backed geometry, visible text/non-colour feedback",
-      "gap": "inspectable teaching exports and sound vocabulary",
       "priority": 1,
       "delivery": "Preserve validated boards; export actual lesson captures; keep decoration on cards",
-      "audio": "20 cue proposals; unchanged runtime feedback"
+      "audio": "20 cue proposals; unchanged runtime feedback",
+      "baselineGap": "inspectable teaching exports and sound vocabulary",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     },
     {
       "screen": "Four casebooks / chapter lists",
@@ -76,10 +79,11 @@
         "ending"
       ],
       "existing": "four cover treatments; Bellweather cast/story and solved evidence still life",
-      "gap": "six Bellweather record highlights",
       "priority": 1,
       "delivery": "Reuse covers and cast text; six atmospheric highlights on puzzle cards; evidence hidden by gallery spoiler control",
-      "notDelivered": "New recurring-character portraits unnecessary for current UI; no invented likeness canon"
+      "notDelivered": "New recurring-character portraits unnecessary for current UI; no invented likeness canon",
+      "baselineGap": "six Bellweather record highlights",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Lantern Duel",
@@ -92,9 +96,10 @@
         "result"
       ],
       "existing": "local board and coins",
-      "gap": "media/feedback exports",
       "priority": 2,
-      "delivery": "Retain board geometry; actual product capture; proposed completion/placement cues"
+      "delivery": "Retain board geometry; actual product capture; proposed completion/placement cues",
+      "baselineGap": "media/feedback exports",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Pocket Borough",
@@ -108,9 +113,10 @@
         "daily seed"
       ],
       "existing": "procedural miniatures and UI",
-      "gap": "distinct export/provenance index",
       "priority": 2,
-      "delivery": "Retain working game; feature clip uses current captures"
+      "delivery": "Retain working game; feature clip uses current captures",
+      "baselineGap": "distinct export/provenance index",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Archive Heist / six rooms",
@@ -122,9 +128,10 @@
         "complete"
       ],
       "existing": "exact warehouse geometry and crates",
-      "gap": "feedback vocabulary",
       "priority": 2,
-      "delivery": "Reuse current room visuals; gentle cue proposals; no changed maps"
+      "delivery": "Reuse current room visuals; gentle cue proposals; no changed maps",
+      "baselineGap": "feedback vocabulary",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Club journal",
@@ -135,9 +142,10 @@
         "local records"
       ],
       "existing": "six predicate-bound achievements",
-      "gap": "distinct stamp silhouettes",
       "priority": 1,
-      "delivery": "Six original paired earned/locked SVG treatments integrated"
+      "delivery": "Six original paired earned/locked SVG treatments integrated",
+      "baselineGap": "distinct stamp silhouettes",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Living atlas",
@@ -148,9 +156,10 @@
         "hidden page"
       ],
       "existing": "Canvas harbour",
-      "gap": "exportable motion",
       "priority": 3,
-      "delivery": "Reuse current render; promotional treatment remains production-only"
+      "delivery": "Reuse current render; promotional treatment remains production-only",
+      "baselineGap": "exportable motion",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Realm studio",
@@ -166,10 +175,11 @@
         "fallback"
       ],
       "existing": "procedural and CC0 modular geometry, seeded towns, WebGL/Canvas",
-      "gap": "individually inspectable GLBs and assembled scene exports",
       "priority": 1,
       "delivery": "Reuse/export current kit plus documented gaps; three composed scenes and model gallery",
-      "qa": "Finite bounds/materials and alternate-view renders; external editor gate remains"
+      "qa": "Finite bounds/materials and alternate-view renders; external editor gate remains",
+      "baselineGap": "individually inspectable GLBs and assembled scene exports",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Companion nook / four species",
@@ -186,10 +196,11 @@
         "model failure"
       ],
       "existing": "cat/fox/owl animated models, articulated Nimbus, vector fallbacks",
-      "gap": "portable interactive state library and metadata",
       "priority": 1,
       "delivery": "Existing identities reused in complete state previews; new states explicitly preview-only",
-      "audio": "pet/treat/brush/play cue proposals"
+      "audio": "pet/treat/brush/play cue proposals",
+      "baselineGap": "portable interactive state library and metadata",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     },
     {
       "screen": "Conservatory",
@@ -203,9 +214,10 @@
         "postcard"
       ],
       "existing": "six seed species, original botanical vectors and credited greenhouse art",
-      "gap": "coordinated ambience",
       "priority": 2,
-      "delivery": "Keep existing art; quiet ambience proposal with explicit playback only"
+      "delivery": "Keep existing art; quiet ambience proposal with explicit playback only",
+      "baselineGap": "coordinated ambience",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     },
     {
       "screen": "Quiet classics / Tideglass / pairs / sliding art / Hanoi / river / jugs / queens / Lo Shu / knight",
@@ -218,9 +230,10 @@
         "reload"
       ],
       "existing": "validated geometry, botanical/coastal motifs, four credited museum pictures",
-      "gap": "media index and feedback vocabulary",
       "priority": 2,
-      "delivery": "Reuse existing art/boards; no new rules or fabricated levels"
+      "delivery": "Reuse existing art/boards; no new rules or fabricated levels",
+      "baselineGap": "media index and feedback vocabulary",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Museum",
@@ -231,9 +244,10 @@
         "image decode failure"
       ],
       "existing": "four museum images and records, three additional atmospheric works elsewhere",
-      "gap": "unified discovery",
       "priority": 2,
-      "delivery": "Existing rights receipts retained; no random new historical works"
+      "delivery": "Existing rights receipts retained; no random new historical works",
+      "baselineGap": "unified discovery",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Quiet Wing journal",
@@ -243,9 +257,10 @@
         "empty progress"
       ],
       "existing": "25 predicate-bound stamps",
-      "gap": "repeated silhouettes",
       "priority": 1,
-      "delivery": "25 distinct new silhouettes and paired locked variants integrated"
+      "delivery": "25 distinct new silhouettes and paired locked variants integrated",
+      "baselineGap": "repeated silhouettes",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Workshop / pack desk",
@@ -257,9 +272,10 @@
         "export"
       ],
       "existing": "exact board/editor controls and labelled icons",
-      "gap": "none requiring replacement",
       "priority": 3,
-      "delivery": "Reuse controls and source-linked interface icons; keep editable clues"
+      "delivery": "Reuse controls and source-linked interface icons; keep editable clues",
+      "baselineGap": "none requiring replacement",
+      "deliveryStatus": "Delivered or intentionally reused"
     },
     {
       "screen": "Settings / saves / recovery / installation",
@@ -274,9 +290,10 @@
         "empty saves"
       ],
       "existing": "labelled standard icons, recovery text and status banners",
-      "gap": "document feedback contracts",
       "priority": 1,
-      "delivery": "Retain proven recovery UI; no storage changes; audio/haptic integration contract"
+      "delivery": "Retain proven recovery UI; no storage changes; audio/haptic integration contract",
+      "baselineGap": "document feedback contracts",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     },
     {
       "screen": "Production gallery",
@@ -291,9 +308,10 @@
         "model controls"
       ],
       "existing": "none",
-      "gap": "working inspector for masters and exports",
       "priority": 1,
-      "delivery": "Local gallery/catalogue with real files, portable links, no game precache"
+      "delivery": "Local gallery/catalogue with real files, portable links, no game precache",
+      "baselineGap": "working inspector for masters and exports",
+      "deliveryStatus": "Delivered; proposed audio remains staged for auditory review"
     }
   ],
   "families": [
@@ -589,5 +607,12 @@
       "delivery": "Existing exact rules/controls retained; exported category and lesson assets; curated highlights only where listed",
       "priority": 1
     }
-  ]
+  ],
+  "acceptance": {
+    "localBrowser": "Passed; see evidence/",
+    "physicalDevice": "Pending HUMAN_TODO.md q-2/q-4",
+    "auditory": "Pending before recording integration",
+    "rights": "Existing receipts retained; new original work has no separate public reuse grant",
+    "publication": "Local only; no push or deployment authorized"
+  }
 }

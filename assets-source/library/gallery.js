@@ -102,6 +102,9 @@ function render() {
       el('p', 'Integration: ' + e.integration),
       el('p', JSON.stringify(e.qa), 'qa'),
     );
+    const exports = el('div', null, 'links');
+    for (const p of paths) exports.append(link(p.split('/').pop(), p));
+    details.append(el('p', 'All source and derivative files'), exports);
     copy.append(details);
     card.append(copy);
     grid.append(card);

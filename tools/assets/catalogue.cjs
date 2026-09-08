@@ -48,6 +48,37 @@ function main() {
     const p = BASE + folder + '/catalogue.json';
     if (fs.existsSync(path.join(ROOT, p))) {
       const v = read(p);
+      if (folder === 'motion' && v.items) {
+        const groups = new Map();
+        for (const item of v.items) {
+          const id = item.id.replace(/-(landscape|portrait)$/, '');
+          const prefix = BASE + 'motion/';
+          let a = groups.get(id);
+          if (!a) {
+            a = {
+              id,
+              title: item.title.replace(/ \((landscape|portrait)\)$/, ''),
+              category: 'motion',
+              status: 'proposed',
+              design: 'original',
+              source: prefix + item.source,
+              derivatives: [],
+              metadata: { cuts: [] },
+              provenance: item.provenance,
+              accessibility:
+                'Silent authored film with editable on-screen text, poster and explicit playback; no autoplay.',
+              integration:
+                'Local promotional composition only; excluded from app runtime and offline pack.',
+              qa: item.qa,
+            };
+            groups.set(id, a);
+          } else a.derivatives.push(prefix + item.source);
+          a.derivatives.push(...item.derivatives.map((d) => prefix + d.path));
+          a.metadata.cuts.push({ id: item.id, ...item.metadata });
+        }
+        assets.push(...groups.values());
+        continue;
+      }
       assets.push(...(Array.isArray(v) ? v : v.assets));
       if (v.scenes) assets.push(...v.scenes);
       if (v.master && v.scenes?.length)

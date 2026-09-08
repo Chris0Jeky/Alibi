@@ -70,6 +70,13 @@ baseline initial JS gzip: 125,138 bytes. Final values and direct test evidence a
 the production ledger. The remaining core-pack headroom is small and must be measured before
 adding another in-game asset.
 
+The [production ledger](../assets-source/library/production-ledger.json) gives final counts and
+check totals. [Evidence](../assets-source/library/evidence/) retains compact local browser results,
+inspected screenshots and before/after payload measurements. The current game build is
+`fac4d1d1ad6c`: core 1,362,809 bytes (+33,344), initial JS gzip 127,264 (+2,126), optional wing
+1,977,995 (+51). The local startup sample is explicitly unthrottled and has no baseline latency
+comparison; it is not a phone-performance claim.
+
 All work uses local synthesis/geometry and unchanged existing art. No purchases, credits,
 paid submissions, accounts or overages were used. Existing Kenney CC0 receipts remain attached
 to retained models; the new exports include embedded materials. Existing museum attributions
