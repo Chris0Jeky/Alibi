@@ -88,6 +88,8 @@ function build() {
       read(path.join(SRC, 'backup-validation.js')),
       read(path.join(SRC, 'club-engines.js')),
       ...['calm.js', 'engine.js', 'storage.js'].map((f) => read(path.join(SRC, 'quiet-wing', f))),
+      `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(['classics', 'warehouse', 'reversi', 'borough'].flatMap((name) => JSON.parse(read(path.join(ROOT, 'content/challenges', name + '.json'))).challenges))};`,
+      read(path.join(SRC, 'challenges.js')),
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),

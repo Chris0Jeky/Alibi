@@ -1524,7 +1524,12 @@
           const file = $('#challenge-file').files?.[0];
           if (!file) return;
           try {
-            const imported = A.challengeRegistry.validateRun(JSON.parse(await file.text()));
+            if (file.size > 3 * 1024 * 1024) throw Error('Challenge save exceeds 3 MB.');
+            if (!G.AlibiValidateImport) throw Error('Background validation is unavailable.');
+            const imported = await G.AlibiValidateImport({
+              type: 'challenge-run',
+              text: await file.text(),
+            });
             if (imported.challengeId !== challenge.id)
               throw Error('Choose a save for this exact challenge.');
             await A.challengeStore.write(imported);

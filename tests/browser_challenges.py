@@ -120,8 +120,18 @@ try:
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()
         assert '1 moves' in page.locator('.challenge-status').inner_text()
+        page.evaluate('''() => { const Original=Worker; window.challengeJobs=[]; window.Worker=class extends Original {postMessage(m){challengeJobs.push(m.type);super.postMessage(m)}} }''')
+        with page.expect_download() as saved_download:
+            page.locator('#challenge-export').click()
+        exported=Path(saved_download.value.path()).read_bytes()
+        page.locator('[data-challenge="undo"]').click()
+        assert '0 moves' in page.locator('.challenge-status').inner_text()
+        page.locator('#challenge-file').set_input_files({'name':'challenge.json','mimeType':'application/json','buffer':exported})
+        page.wait_for_function("()=>window.challengeJobs.includes('challenge-run')")
+        page.locator('.challenge-status').filter(has_text='1 moves').wait_for()
         page.context.browser.close()
 finally:
   server.shutdown()
   server.server_close()
 print('PASS trusted challenge launcher controls and saved replay restore at phone and desktop widths.')
+

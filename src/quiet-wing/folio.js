@@ -111,7 +111,7 @@
         const id = a.id.replace(/-(landscape|portrait)$/, '');
         groups.set(id, [...(groups.get(id) || []), a]);
       });
-      content.innerHTML = `<p class="folio-lede">Small films from Alibi. Soundless, unhurried, and yours to start.</p><div class="folio-film-grid">${[...groups].map(([id, cuts]) => `<article><video controls playsinline preload="none" poster="${cuts[0].image}" src="${cuts[0].url}" aria-label="${esc(cuts[0].title)}"></video><div><h2>${esc(cuts[0].title.replace(/ \(landscape\)$/, ''))}</h2><p>${cuts[0].duration} seconds · silent</p>${cuts.length > 1 ? `<label>Framing<select data-film="${id}">${cuts.map((a) => `<option value="${a.id}">${a.id.endsWith('portrait') ? 'Portrait' : 'Landscape'}</option>`).join('')}</select></label>` : ''}</div></article>`).join('')}</div>`;
+      content.innerHTML = `<p class="folio-lede">Small films from Alibi. Soundless, unhurried, and yours to start. Recorded before the Curation Cabinet expansion, these films show the earlier 116-puzzle edition.</p><div class="folio-film-grid">${[...groups].map(([id, cuts]) => `<article><video controls playsinline preload="none" poster="${cuts[0].image}" src="${cuts[0].url}" aria-label="${esc(cuts[0].title)}"></video><div><h2>${esc(cuts[0].title.replace(/ \(landscape\)$/, ''))}</h2><p>${cuts[0].duration} seconds · silent</p>${cuts.length > 1 ? `<label>Framing<select data-film="${id}">${cuts.map((a) => `<option value="${a.id}">${a.id.endsWith('portrait') ? 'Portrait' : 'Landscape'}</option>`).join('')}</select></label>` : ''}</div></article>`).join('')}</div>`;
       content.querySelectorAll('[data-film]').forEach(
         (select) =>
           (select.onchange = () => {

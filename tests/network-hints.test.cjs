@@ -8,10 +8,8 @@ const C = require('../src/engines.js'),
   NetworkHints = require('../src/network-hints.js'),
   Insights = require('../src/insights.js'),
   published = require('../content/catalog.json').puzzles,
-  curatedPath = path.join(__dirname, '../alibi-curation/packs/network.json'),
-  curated = fs.existsSync(curatedPath)
-    ? JSON.parse(fs.readFileSync(curatedPath, 'utf8')).puzzles
-    : [];
+  curatedPath = path.join(__dirname, '../content/curation/packs/network.json'),
+  curated = JSON.parse(fs.readFileSync(curatedPath, 'utf8')).puzzles;
 
 function rotate(mask, turns) {
   for (let i = 0; i < turns; i++) mask = ((mask << 1) & 15) | (mask >>> 3);
@@ -20,7 +18,7 @@ function rotate(mask, turns) {
 
 test('network guidance is answer-independent and forces verified orientations', () => {
   const puzzles = [...published.filter((p) => p.type === 'network'), ...curated];
-  assert.ok(puzzles.length === (curated.length ? 24 : 8));
+  assert.equal(puzzles.length, 24);
   for (const p of puzzles) {
     const start = C.registry.network.initial(p),
       before = structuredClone(start),
