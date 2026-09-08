@@ -101,7 +101,7 @@
       revisions.set(id, record.revision);
       return run;
     }
-    function write(run) {
+    function write(run, restoring = false) {
       const checked = registry.validateRun(run);
       queue = queue
         .catch(() => {})
@@ -113,8 +113,9 @@
             record = { schema: 1, revision: expected + 1, run: checked };
           if (protectedIds.has(id))
             throw Error('This challenge save is protected and was preserved.');
-          if (mode === 'indexeddb') await cas(id, record, expected);
+          if (mode === 'indexeddb') await cas(id, record, expected, restoring);
           else {
+            if (restoring) throw Error('Restore requires transactional challenge storage.');
             const current = session.get(id);
             if ((current?.revision || 0) !== expected)
               throw Error('Another tab changed this challenge save.');
@@ -126,7 +127,7 @@
         });
       return queue;
     }
-    function cas(id, record, expected) {
+    function cas(id, record, expected, restoring) {
       return new Promise((resolve, reject) => {
         let conflict = false,
           protectedError = null,
@@ -173,7 +174,8 @@
               return;
             }
             const store = tx.objectStore(STORE);
-            if (read.result) store.put({ at: Date.now(), record: read.result }, 'recovery:' + id);
+            if (restoring && read.result)
+              store.put({ at: Date.now(), record: read.result }, 'recovery:' + id);
             store.put(record, id);
           };
         } catch (error) {
@@ -194,7 +196,15 @@
     function info() {
       return { mode, protected: protectedMode, revision };
     }
-    return { open, read, write, recovery, flush: () => queue, info };
+    return {
+      open,
+      read,
+      write,
+      restore: (run) => write(run, true),
+      recovery,
+      flush: () => queue,
+      info,
+    };
   }
   G.AlibiChallengeStore = { create };
   if (typeof module !== 'undefined') module.exports = G.AlibiChallengeStore;

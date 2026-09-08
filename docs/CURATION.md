@@ -49,8 +49,30 @@ The original published pack remains separate so the bundle checker does not coun
 
 ## Remaining acceptance
 
-Challenge, museum, final asset reconciliation and exact final-head evidence are being integrated.
+The 59 challenges, four acquired museum images and final asset commit `3dddb47` are integrated.
+The original and new-puzzle UI suites pass, as do 66 curation real-origin controls and every
+challenge mechanism at 390/1280px. PR #19 carries the exact head, CI and review receipt.
 Hosted acceptance and physical-device playtesting are distinct. Publication requires the reviewed
 source and green repository gate; a curation bundle or old report alone is not a deployment receipt.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains the owner-action record, including the affected Android
 retest, TalkBack, sustained performance, source licence and name decisions.
+
+## Challenge saves and acquired art
+
+Challenges use a separate `alibi-challenges-v1` database, never the core pack importer. Each run
+pins its challenge revision, mechanism, objective, start hash and bounded action log. Queens
+and knight prefixes remain fixed, semantic objectives allow alternate valid finishes, and
+imported JSON is parsed/replayed in the existing timed worker. Store/mount callers defensively
+validate the bounded replay again. Restores atomically retain a pre-restore copy; subsequent
+moves retain that copy. Session fallback refuses restore. Unknown/future records are protected.
+Challenge export/restore is explicit; the combined cabinet/Club/Quiet backup does not include it.
+
+The trusted art ledger is `assets-source/curation/registry.json`; runtime hashes/transforms are
+in `assets-source/curation/runtime.json`. Durer’s Melencolia and celestial map, Hiroshige’s Kanbara
+and Van Gogh’s Irises use current Met object-level Open Access records. The Monet candidate
+remains unavailable with no placeholder. Four 600px museum images total 155,210 bytes.
+
+`node tools/update-curation-bundle.cjs` creates a versioned, hashed refresh inside the ignored
+input folder, including the integrated preview/site, current runtime assets, museum provenance
+and source content. It preserves the original 498-file delivery and refuses to overwrite an
+existing snapshot. This is a reviewable local artifact, not a publication receipt.

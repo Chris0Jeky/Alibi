@@ -95,6 +95,13 @@ try:
 
         assert page.evaluate('''async () => { const store = AlibiChallengeStore.create(registry); await store.open(); const run = registry.begin('curated-classic-hanoi-02'); run.log.push({from: 2, to: 0}); await store.write(run); return (await store.read(run.challengeId)).log.length; }''') == 1
         assert page.evaluate('''async () => {
+          const store=AlibiChallengeStore.create(registry);await store.open();
+          const id='curated-classic-hanoi-02', before=await store.read(id);
+          await store.restore(registry.begin(id));
+          await store.write(before);
+          return JSON.stringify(await store.recovery(id))===JSON.stringify(before);
+        }''')
+        assert page.evaluate('''async () => {
           const db = await new Promise((resolve,reject)=>{const r=indexedDB.open('alibi-challenges-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
           for (const readFirst of [true,false]) {
             const id=registry.entries()[readFirst?0:1].id, future={schema:2,revision:0,unrecognised:'keep exactly'};

@@ -1489,7 +1489,7 @@
             'A trusted start, your legal replay.',
             `<button id="challenge-back" class="soft">← All challenges</button>`,
           ) +
-          '<div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export previous save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p><div id="challenge-host"></div>';
+          '<div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export pre-restore save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p><div id="challenge-host"></div>';
         $('#challenge-back').onclick = () => navigate('challenges');
         const host = $('#challenge-host');
         A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
@@ -1532,7 +1532,7 @@
             });
             if (imported.challengeId !== challenge.id)
               throw Error('Choose a save for this exact challenge.');
-            await A.challengeStore.write(imported);
+            await A.challengeStore.restore(imported);
             A.challengeHandle?.dispose();
             A.challengeHandle = G.AlibiChallengeLauncher.mount(
               host,

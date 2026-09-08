@@ -21,6 +21,8 @@ test('session fallback saves only validated replay records without affecting leg
   next.log.push({ from: 0, to: 1 });
   await store.write(next);
   assert.equal((await store.read(next.challengeId)).log.length, 2);
+  await assert.rejects(store.restore(registry.begin(next.challengeId)), /transactional/);
+  assert.equal((await store.read(next.challengeId)).log.length, 2);
   run.startingStateHash = 'changed';
   assert.throws(() => store.write(run), /trusted definition/);
   const legacy = Q.classicInitial('hanoi3');
