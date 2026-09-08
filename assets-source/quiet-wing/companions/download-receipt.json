@@ -24,6 +24,17 @@
       ],
       "skins": 1,
       "meshes": 1
+    },
+    {
+      "id": "cat",
+      "url": "https://static.poly.pizza/8b3fc8b2-7eae-4b19-8084-d2fbd725bc58.glb",
+      "sha256": "2ed030946f552f2b46433294391628a37583ae74a496d3164c003e1f95b24e4e",
+      "bytes": 280840,
+      "animations": [
+        "Cat.001|IdleCat"
+      ],
+      "skins": 1,
+      "meshes": 1
     }
   ]
 }

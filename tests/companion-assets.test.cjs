@@ -30,6 +30,7 @@ test('animated companion candidates match their receipts and contain no external
       }
   }
   assert.match(fs.readFileSync(path.join(dir, 'OWL-METADATA.json'), 'utf8'), /CC0 1.0/);
+  assert.match(fs.readFileSync(path.join(dir, 'CAT-LICENSE-AND-SOURCE.md'), 'utf8'), /CC BY 3.0/);
   assert.match(
     fs.readFileSync(path.join(dir, 'FOX-LICENSE-AND-SOURCE.md'), 'utf8'),
     /Creative Commons Attribution 4.0/,
