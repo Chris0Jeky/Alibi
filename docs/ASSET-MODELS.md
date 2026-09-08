@@ -6,7 +6,7 @@ The realm kit has 40 genuine GLB 2.0 pieces with embedded buffers and material d
 
 The companion library exports the existing original `QWPets.svg` geometry for Miso (cat), Fern (fox), Pip (owl) and Nimbus (cloud dragon). Every rig has named tail/body/arm/head/eyes/hearts/sleep layers and idle, look, attention, happy, sleepy, pet, feed and celebrate states. The current third-party GLB candidates are deliberately left intact at `assets-source/quiet-wing/companions/`; their source and attribution records remain authoritative.
 
-Open `assets-source/library/model-preview.html` through the local server. It imports the repository's local Three development bundle, offers realm and state selection, and uses a static SVG path for companions or reduced motion. It does not fetch any network asset.
+Open `assets-source/library/model-preview.html` through the local server. Its checked-in Three bundle offers realm and state selection, static SVG fallbacks, source links and a download link for the selected export. It does not fetch any network asset.
 
 Rebuild after a source change:
 
@@ -14,6 +14,7 @@ Rebuild after a source change:
 node tools/assets/build-companion-library.cjs
 & 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python tools/assets/build-realm-library.py
 node tools/assets/normalize-library-catalogues.cjs
+node tools/assets/build-model-preview.cjs
 node --test tests/asset-models.test.cjs
 ```
 
