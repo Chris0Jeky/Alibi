@@ -91,11 +91,36 @@
       }
       return this;
     }
+    watch(tx, reject) {
+      const timer = setTimeout(() => {
+        const error = new Error(
+          'Saved progress stopped responding. Export your current session, close other Alibi windows, and reload.',
+        );
+        reject(error);
+        try {
+          tx.abort();
+        } catch {}
+        this.problem = error.message;
+        root.dispatchEvent(new Event('alibi-storage-change'));
+      }, 8000);
+      const finish = () => clearTimeout(timer);
+      tx.addEventListener('complete', finish, { once: true });
+      tx.addEventListener('error', finish, { once: true });
+      tx.addEventListener(
+        'abort',
+        () => {
+          finish();
+          if (!tx.onabort) reject(tx.error || new Error('Storage transaction aborted.'));
+        },
+        { once: true },
+      );
+    }
     async getAll(store) {
       if (this.db)
         return new Promise((resolve, reject) => {
           const tx = this.db.transaction(store, 'readonly'),
             r = tx.objectStore(store).getAll();
+          this.watch(tx, reject);
           r.onsuccess = () => resolve(r.result.map((x) => x.value));
           r.onerror = () => reject(r.error);
         });
@@ -122,6 +147,7 @@
         return new Promise((resolve, reject) => {
           const tx = this.db.transaction(store, 'readonly'),
             r = tx.objectStore(store).get(key);
+          this.watch(tx, reject);
           r.onsuccess = () => resolve(r.result?.value);
           r.onerror = () => reject(r.error);
         });
@@ -135,6 +161,7 @@
       if (this.db)
         return new Promise((resolve, reject) => {
           const tx = this.db.transaction(store, 'readwrite');
+          this.watch(tx, reject);
           tx.objectStore(store).put({ key, value });
           tx.oncomplete = () => resolve(value);
           tx.onerror = () => reject(tx.error);
@@ -155,6 +182,7 @@
           const tx = this.db.transaction('runs', 'readwrite'),
             os = tx.objectStore('runs'),
             r = os.get(record.key);
+          this.watch(tx, reject);
           r.onsuccess = () => {
             if ((r.result?.value.rev || 0) !== expectedRevision) {
               conflict = true;
@@ -189,6 +217,7 @@
             runs = tx.objectStore('runs'),
             packs = tx.objectStore('packs'),
             meta = tx.objectStore('meta');
+          this.watch(tx, reject);
           meta.put({ key: 'pre-restore-backup', value: previous });
           runs.clear();
           packs.clear();

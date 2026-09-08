@@ -234,6 +234,7 @@
       const v = await new Promise((resolve, reject) => {
         const tx = db.transaction('club', 'readonly'),
           r = tx.objectStore('club').get('state');
+        watch(tx, reject);
         r.onsuccess = () => resolve(r.result);
         r.onerror = () => reject(r.error);
       });
@@ -308,6 +309,29 @@
       }
     };
   }
+  function watch(tx, reject) {
+    const timer = setTimeout(() => {
+      reject(
+        Error(
+          'Club storage stopped responding. Export this session, close other Alibi windows and reload.',
+        ),
+      );
+      try {
+        tx.abort();
+      } catch {}
+    }, 8000);
+    const finish = () => clearTimeout(timer);
+    tx.addEventListener('complete', finish, { once: true });
+    tx.addEventListener('error', finish, { once: true });
+    tx.addEventListener(
+      'abort',
+      () => {
+        finish();
+        if (!tx.onabort) reject(tx.error || Error('Club storage transaction aborted.'));
+      },
+      { once: true },
+    );
+  }
   function persist(replacement = null) {
     const snapshot = clone(replacement || state);
     saveQueue = saveQueue
@@ -318,6 +342,7 @@
             const tx = db.transaction('club', 'readwrite'),
               os = tx.objectStore('club'),
               get = os.get('state');
+            watch(tx, reject);
             get.onsuccess = () => {
               if ((get.result?.rev || 0) !== rev) {
                 tx.abort();

@@ -146,3 +146,34 @@ test('silent IndexedDB open times out without fallback writes and closes a late 
   request.onsuccess();
   assert.equal(closed, 1);
 });
+
+test('a silent save transaction rejects and aborts instead of blocking subsequent navigation', async () => {
+  let expire,
+    aborted = false;
+  const tx = {
+    objectStore: () => ({ get: () => ({}) }),
+    addEventListener() {},
+    abort() {
+      aborted = true;
+    },
+  };
+  const context = {
+    AlibiCore: { clone: structuredClone },
+    setTimeout(fn) {
+      expire = fn;
+      return 1;
+    },
+    clearTimeout() {},
+    Event,
+    dispatchEvent() {},
+  };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), context);
+  const store = new context.AlibiStorage.Store();
+  store.db = { transaction: () => tx };
+  const saved = store.saveRun({ key: 'scene-01@1' }, 0);
+  expire();
+  await assert.rejects(saved, /stopped responding/);
+  assert.equal(aborted, true);
+  assert.match(store.problem, /Export your current session/);
+});

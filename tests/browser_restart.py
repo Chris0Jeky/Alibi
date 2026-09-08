@@ -16,10 +16,13 @@ with tempfile.TemporaryDirectory(prefix="alibi-restart-") as profile, sync_playw
     page.on("pageerror",lambda e: errors.append(str(e)))
     page.goto(BASE); page.wait_for_function("() => !!globalThis.AlibiDiagnostics")
     puzzles=page.evaluate("ALIBI_CATALOG.puzzles.filter(p=>p.type==='scene')")
-    for puzzle in puzzles:
+    for puzzle in puzzles + [puzzles[0]] * 3:
         key=puzzle['id']+'@'+str(puzzle['revision'])
         page.evaluate("s=>location.hash=s",'#/play/'+key)
         page.wait_for_function("k=>AlibiDiagnostics.getCurrent()?.key===k",arg=key)
+        if page.evaluate("AlibiDiagnostics.getCurrent().completedAt"):
+            page.locator('[data-action="restart"]').first.click()
+            page.locator('[data-action="restart-confirm"]').click()
         if page.locator('dialog[open]').count():
             page.locator('[data-action="lesson-example"]').click()
             page.locator('[data-action="lesson-person"]').click()
