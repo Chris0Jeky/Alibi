@@ -132,6 +132,7 @@ function build() {
     read(path.join(SRC, 'presentation.js')),
     read(path.join(SRC, 'asset-library.js')),
     read(path.join(SRC, 'curation.js')),
+    read(path.join(SRC, 'network-hints.js')),
     read(path.join(SRC, 'insights.js')),
     read(path.join(SRC, 'assist.js')),
     read(path.join(SRC, 'atlas.js')),
