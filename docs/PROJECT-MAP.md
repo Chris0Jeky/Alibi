@@ -32,15 +32,16 @@ flowchart TD
 | --- | --- |
 | `src/core.js` | Scene and number/picture engines, base validation, solver, scene generation |
 | `src/engines.js` | Dossier, witness, lightup, tents, aquarium, network and trail engines |
+| `src/bridges.js` | Bounded Hashi engine, visibility graph, uniqueness solver and capacity deductions |
 | `src/insights.js` | Clue-based reasoning hints and completed-record explanations |
 | `src/storage.js` | Revision-conditional saves, labeled fallbacks and atomic restore |
 | `src/app.js` | Routes, player, lessons, workshop, journal, backup and PWA lifecycle |
 | `src/presentation.js` | Family rules, lessons, icons and decorative board previews |
-| `src/app.css`, `src/cabinet.css` | Base boards/themes and public mobile cabinet styling |
+| `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
-| `content/catalog.json` | 102 published definitions; stable IDs and revisions |
+| `content/catalog.json` | 116 published definitions; stable IDs and revisions |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
-| `content/casebooks.json` | Three sequences referencing existing puzzles |
+| `content/casebooks.json` | Four casebooks: Bellweather plus three earlier anthologies |
 | `schemas/`, `examples/` | Pack format and portable authoring examples |
 | `tools/` | Build, local server, pack validation, generation and bundling |
 | `tests/` | Pure contracts, worker simulation, isolated controls and real-origin acceptance |
@@ -51,9 +52,10 @@ flowchart TD
 
 | Family | Count | Main interaction |
 | --- | ---: | --- |
-| Crime scenes | 18 | Spatial placement followed by an accusation |
-| Alibi files | 8 | People/room/object deduction matrices |
-| Witness statements | 8 | Truth counts and culprit selection |
+| Tidal bridges | 8 | Tap island pairs to cycle bridge counts |
+| Crime scenes | 19 | Spatial placement followed by an accusation |
+| Alibi files | 10 | People/room/object deduction matrices |
+| Witness statements | 11 | Truth counts and culprit selection |
 | Picture logic | 7 | Nonogram paint, cross, clear |
 | Lanterns | 8 | Illumination and numbered-wall constraints |
 | Tents & trees | 8 | Tree matching and edge counts |
@@ -64,12 +66,13 @@ flowchart TD
 | Sun & moon | 7 | Balanced binary lines without triples |
 | Futoshiki | 7 | Latin square and inequality constraints |
 
-Casebooks are anthologies of existing puzzles, not twelve extra puzzles or a continuous branching
-story. Daily choices rotate from the catalogue using the device date. All progress is device-local.
+Bellweather adds six original, chronological records. The earlier three casebooks are anthologies
+of existing puzzles. Casebook entries reference catalogue IDs; they are not extra copies. Daily choices rotate from the catalogue using the device date. All progress is device-local.
 
 ## Known content work
 
 Several imported scenes reuse roles/stories, and a few casebook aliases imply different objects
 from their chapter's standalone puzzle. Do not silently rewrite published definitions to make
 marketing copy fit. Curate revised definitions with explicit revision changes and retained saves.
-The next content milestone should improve one casebook through human playtesting.
+Bellweather and Bridges curation decisions are in [BELLWEATHER-CURATION.md](BELLWEATHER-CURATION.md).
+Human playtesting remains the next content milestone.

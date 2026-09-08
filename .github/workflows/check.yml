@@ -35,6 +35,8 @@ jobs:
           npm start > /tmp/alibi-server.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
+      - name: Play the Bellweather expedition and Bridges on mobile
+        run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update
         run: python tests/browser_update.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -48,5 +50,7 @@ jobs:
             tests/screenshots/
             test-results/browser-origin/*.json
             test-results/browser-update/*.json
+            test-results/browser-expedition/**/*.json
+            test-results/browser-expedition/**/*.png
             test-results/*.png
           retention-days: 14

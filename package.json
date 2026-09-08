@@ -1,8 +1,8 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "A local-first puzzle PWA with twelve engines, original mystery casebooks and a visual workshop.",
+  "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
   "engines": {
     "node": ">=22"
   },

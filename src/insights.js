@@ -18,6 +18,7 @@
     return out.length ? out : [0];
   }
   function deduction(p, s) {
+    if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const n = p.size,
       issues = C.registry[p.type].validate(p, s);
     if (issues.length)
@@ -150,6 +151,7 @@
         ),
       ];
     const summaries = {
+      bridges: `All ${p.islands?.length || 0} islands meet their bridge counts and belong to one connected network.`,
       sudoku: 'Every row, column and box contains each number exactly once.',
       futoshiki: 'Every row and column contains each number once, and every inequality holds.',
       binary:

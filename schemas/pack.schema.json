@@ -72,6 +72,9 @@
           },
           {
             "$ref": "#/$defs/trail"
+          },
+          {
+            "$ref": "#/$defs/bridges"
           }
         ]
       }
@@ -702,6 +705,62 @@
               "type": "array",
               "items": {
                 "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "bridges": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/common"
+        },
+        {
+          "type": "object",
+          "required": [
+            "islands",
+            "solution"
+          ],
+          "properties": {
+            "type": {
+              "const": "bridges"
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 9
+            },
+            "islands": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 18,
+              "items": {
+                "type": "object",
+                "required": [
+                  "cell",
+                  "count"
+                ],
+                "properties": {
+                  "cell": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 80
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 8
+                  }
+                }
+              }
+            },
+            "solution": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2
               }
             }
           }

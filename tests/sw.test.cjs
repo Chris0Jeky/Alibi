@@ -93,7 +93,7 @@ function setup(failInstall = false) {
 (async () => {
   const x = setup();
   await x.lifecycle('install');
-  check(x.data.get(name).size === 11, 'Release installs the shell and all three casebook covers');
+  check(x.data.get(name).size === 15, 'Release installs the shell and all seven illustrations');
   for (const asset of fs.readdirSync(path.join(__dirname, '../dist/assets'))) {
     check(
       [...x.data.get(name).keys()].some((url) => url.endsWith('/assets/' + asset)),

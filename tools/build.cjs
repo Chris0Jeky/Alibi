@@ -80,8 +80,15 @@ function build() {
     books = JSON.parse(read(path.join(ROOT, 'content/casebooks.json'))),
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
-    worker = core + '\n' + engines + '\n' + read(path.join(SRC, 'validator-worker.js')),
-    css = read(path.join(SRC, 'app.css')) + '\n' + read(path.join(SRC, 'cabinet.css')),
+    bridges = read(path.join(SRC, 'bridges.js')),
+    worker =
+      core + '\n' + engines + '\n' + bridges + '\n' + read(path.join(SRC, 'validator-worker.js')),
+    css =
+      read(path.join(SRC, 'app.css')) +
+      '\n' +
+      read(path.join(SRC, 'cabinet.css')) +
+      '\n' +
+      read(path.join(SRC, 'expedition.css')),
     template = read(path.join(SRC, 'index.html'));
   const media = {},
     inlineMedia = {};
@@ -97,6 +104,7 @@ function build() {
     [
       core,
       engines,
+      bridges,
       read(path.join(SRC, 'storage.js')),
       read(path.join(SRC, 'presentation.js')),
       read(path.join(SRC, 'insights.js')),
@@ -120,8 +128,7 @@ function build() {
     id: './',
     name: 'Alibi · A little room to think',
     short_name: 'Alibi',
-    description:
-      '102 original mystery, logic and visual puzzles. Offline play and a puzzle workshop.',
+    description: `${catalog.puzzles.length} original mystery, logic and visual puzzles. Offline play and a puzzle workshop.`,
     lang: 'en',
     start_url: './',
     scope: './',

@@ -39,16 +39,16 @@ with sync_playwright() as pw:
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
     check(page.title().startswith('Alibi'),'Application title and boot')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==102,'All 102 puzzles loaded')
-    check(page.evaluate('AlibiDiagnostics.getCounts().types')==12,'All twelve engines loaded')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==116,'All 116 puzzles loaded')
+    check(page.evaluate('AlibiDiagnostics.getCounts().types')==13,'All thirteen engines loaded')
     page.screenshot(path=str(shots/'desktop-home.png'),full_page=True)
-    for typ in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail']:
+    for typ in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail','bridges']:
         p=next(p for p in PUZZLES if p['type']==typ)
         open_p(p)
         check(page.locator('dialog[open]').count()==1,typ+' first-play lesson opens')
         action('lesson-example')
         if typ=='scene':action('lesson-person')
-        targets={'scene':[5],'dossier':[0],'witness':[1],'sudoku':[4],'nonogram':[1,2,3,4],'binary':[1],'futoshiki':[3],'lightup':[0],'tents':[1],'aquarium':[2],'network':[1],'trail':[1]}[typ]
+        targets={'scene':[5],'dossier':[0],'witness':[1],'sudoku':[4],'nonogram':[1,2,3,4],'binary':[1],'futoshiki':[3],'lightup':[0],'tents':[1],'aquarium':[2],'network':[1],'trail':[1],'bridges':[2]}[typ]
         for i in targets:action('lesson-tap',f'[data-cell="{i}"]')
         check(page.locator('.lesson-success').count()==1,typ+' miniature lesson responds correctly')
         action('lesson-finish');check(page.locator('dialog[open]').count()==0,typ+' lesson leads into game')
@@ -94,6 +94,11 @@ with sync_playwright() as pw:
         elif typ=='trail':
             for i,value in enumerate(p['solution']):
                 if not p['givens'][i]:action('trail-value',f'[data-value="{value}"]');cell(i)
+        elif typ=='bridges':
+            edges=page.evaluate('(p)=>AlibiCore.bridges.graph(p).edges',p)
+            for edge,value in zip(edges,p['solution']):
+                for _ in range(value):
+                    cell(p['islands'][edge['a']]['cell']);cell(p['islands'][edge['b']]['cell'])
         completed();check(bool(state()['completedAt']),typ+' completed entirely through UI')
         action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened');dismiss()
         if typ in ['dossier','lightup','aquarium','network']:page.screenshot(path=str(shots/f'desktop-{typ}.png'),full_page=True)
@@ -107,7 +112,7 @@ with sync_playwright() as pw:
     cell(i);action('value',f'[data-value="{p["solution"][i]}"]');before=state()['state'];route('home');open_p(p);dismiss()
     check(state()['state']==before,'In-progress state survives route navigation')
     # Responsive layout: all primary routes and all twelve board families.
-    layout_paths=['home','library','casebooks','casebooks/briar-house','journal','workshop','settings','privacy']+['play/'+next(p['id'] for p in PUZZLES if p['type']==t)+'@1' for t in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail']]
+    layout_paths=['home','library','casebooks','casebooks/briar-house','casebooks/last-light-at-bellweather','journal','workshop','settings','privacy']+['play/'+next(p['id'] for p in PUZZLES if p['type']==t)+'@1' for t in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail','bridges']]
     for width in [360,390,768,1440]:
         page.set_viewport_size({'width':width,'height':900})
         for path in layout_paths:
@@ -141,10 +146,10 @@ with sync_playwright() as pw:
     check('Verified:' in page.locator('#draft-verification').inner_text(),'Edited scene can be reverified')
     page.screenshot(path=str(shots/'desktop-workshop.png'),full_page=True)
     action('add-draft');page.wait_for_function('AlibiDiagnostics.getCounts().customPacks===1')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==103,'Verified custom scene installs locally')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==117,'Verified custom scene installs locally')
     # Invalid pack is rejected without any mutation.
     page.locator('#pack-input').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{"schemaVersion":99}'})
-    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==103,'Bad pack cannot modify catalogue')
+    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==117,'Bad pack cannot modify catalogue')
     route('settings')
     with page.expect_download() as dl:action('export')
     backup=json.loads(Path(dl.value.path()).read_text());check(backup['format']=='alibi-backup' and len(backup['runs'])>=12,'Backup exports actual played states')

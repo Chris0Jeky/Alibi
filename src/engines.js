@@ -788,6 +788,9 @@
     )
       fail('Invalid puzzle header.');
     if (p.story !== undefined && !text(p.story, 1600)) fail('Invalid story.');
+    if (p.question !== undefined && !text(p.question, 200)) fail('Invalid final question.');
+    if (p.questionContext !== undefined && !text(p.questionContext, 400))
+      fail('Invalid question context.');
     const n = p.size,
       N = n * n;
     if (p.type === 'dossier') {
@@ -1000,12 +1003,12 @@
       input.puzzles.length > 150
     )
       throw new Error('A valid pack needs an ID, title and 1–150 puzzles.');
-    const puzzles = input.puzzles.map(definition);
+    const puzzles = input.puzzles.map((p) => C.validateDefinition(p));
     if (new Set(puzzles.map((p) => p.id)).size !== puzzles.length)
       throw new Error('Duplicate puzzle IDs.');
     if (checkUnique)
       for (const p of puzzles)
-        if (solve(p).solutions.length !== 1)
+        if (C.solve(p).solutions.length !== 1)
           throw new Error(`${p.title}: the rules do not identify exactly one solution.`);
     return {
       schemaVersion: 1,

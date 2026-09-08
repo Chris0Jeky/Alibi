@@ -9,7 +9,14 @@
 - Save validation and recovery repairs, automated real-origin acceptance and CI.
 - Public HTTPS deployment, reproducible release assets and documented agent workflow.
 
-## Next: one memorable casebook
+## Bellweather expedition: 0.4
+
+- Four new original illustrations carried into case files and playing screens.
+- Six coherent Bellweather records with timed chapters, cast and earned revelations.
+- Tidal bridges: eight curated maps, an original bounded engine, lesson and visible-count hints.
+- Independent rule oracle and real mobile-origin completion of the new catalogue.
+
+## Next: player-calibrated content
 
 Human-playtest two puzzles per family; record ambiguous instructions and actual solve times.
 Curate the Briar House anthology with consistent locations, roles, objects and chapter recaps.

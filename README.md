@@ -1,21 +1,21 @@
 # Alibi
 
-**A little room to think.** Twelve kinds of puzzle, three illustrated mystery casebooks, and a
+**A little room to think.** Thirteen kinds of puzzle, four illustrated mystery casebooks, and a
 workshop for making a case of your own. No account. No lives. No rush.
 
 [Play Alibi](https://alibi-puzzle-club.jeky-tck.chatgpt.site) · [Project map](docs/PROJECT-MAP.md) ·
 [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
 
-![The Briar House study](src/artwork/briar-house.webp)
+![The last light at Bellweather](src/artwork/bellweather.webp)
 
 ## Open the cabinet
 
-- **102 puzzles, twelve families:** crime scenes, logic grids, witness deductions, nonograms,
-  lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
-- **Three casebooks:** Briar House, The Midnight Departure, and Secrets Under Glass. Four chapters
-  each, drawn from the existing catalogue; these are anthologies rather than branching stories.
+- **116 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+  tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
+- **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
+  chapter revelations. Three earlier anthology casebooks remain available.
 - **Learn by doing:** every family includes a miniature interactive lesson. Selected number and
-  picture games explain a deduction from your current board without consulting the stored answer.
+  picture games and Bridges explain a deduction from your current board without consulting the stored answer.
 - **Review the evidence:** completed mysteries explain the final placements, pairings or truth
   assignments. Reopen the record from a solved board.
 - **Keep your place:** automatic device-local saves, undo/redo, notes, favorites and JSON backups.
@@ -47,6 +47,7 @@ python -m playwright install chromium
 python tests/browser_ui.py
 python tests/browser_origin.py
 python tests/browser_update.py
+python tests/browser_expedition.py
 ```
 
 On Windows use `.venv\Scripts\python.exe` and set `PYTHONUTF8=1`. The origin suite needs `npm start`
@@ -57,11 +58,11 @@ one puzzle in every family through controls. CI also checks real IndexedDB and o
 
 | Layer | Files |
 | --- | --- |
-| Pure engines and data contracts | `src/core.js`, `src/engines.js` |
+| Pure engines and data contracts | `src/core.js`, `src/engines.js`, `src/bridges.js` |
 | Reasoning hints and evidence recaps | `src/insights.js` |
 | Save transactions and recovery | `src/storage.js` |
 | Player, lessons, workshop and PWA | `src/app.js`, `src/presentation.js` |
-| Mobile cabinet and board design | `src/app.css`, `src/cabinet.css`, `src/artwork/` |
+| Mobile cabinet and board design | `src/app.css`, `src/cabinet.css`, `src/expedition.css`, `src/artwork/` |
 | Published puzzles and compatibility | `content/`, `schemas/`, `examples/` |
 | Build and acceptance | `tools/`, `tests/`, `.github/workflows/` |
 
@@ -77,7 +78,7 @@ physical testing and the later store-packaging decisions. No APK or App Store re
 
 [AGENTS.md](AGENTS.md) is the agent entry point; [STATE.md](docs/STATE.md) is the live handoff.
 [CONTRIBUTING.md](CONTRIBUTING.md) describes scoped changes and verification. The next milestone is
-one carefully curated, human-playtested casebook rather than hundreds of generated puzzles.
+human playtesting of Bellweather and the bridge charts, followed by deliberate content revisions.
 
 ## Privacy, provenance and limitations
 
