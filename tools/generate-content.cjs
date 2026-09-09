@@ -20,6 +20,7 @@ const pick = (a) => a[Math.floor(rnd() * a.length)],
   range = C.range;
 const pack = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/legacy.json'), 'utf8')),
   publishedCatalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/catalog.json'), 'utf8')),
+  publishedBooks = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/casebooks.json'), 'utf8')),
   publishedById = new Map(publishedCatalog.puzzles.map((p) => [p.id, p])),
   publishedIds = new Set(publishedCatalog.puzzles.map((p) => p.id));
 pack.version = 2;
@@ -599,5 +600,14 @@ const books = [
       'The four standalone records are filed: water, light, inventory and floor plan. The conservatory casebook is ready to archive and revisit.',
   },
 ];
-fs.writeFileSync(path.join(ROOT, 'content/casebooks.json'), JSON.stringify(books, null, 2) + '\n');
+const publishedBooksById = new Map(publishedBooks.map((book) => [book.id, book])),
+  seededBookIds = new Set(books.map((book) => book.id));
+if (publishedBooksById.size !== publishedBooks.length || seededBookIds.size !== books.length)
+  throw Error('Duplicate casebook ID');
+const preservedBooks = books.map((book) => publishedBooksById.get(book.id) || book);
+for (const book of publishedBooks) if (!seededBookIds.has(book.id)) preservedBooks.push(book);
+fs.writeFileSync(
+  path.join(ROOT, 'content/casebooks.json'),
+  JSON.stringify(preservedBooks, null, 2) + '\n',
+);
 console.log('TOTAL', pack.puzzles.length, 'TYPES', C.TYPES.length);

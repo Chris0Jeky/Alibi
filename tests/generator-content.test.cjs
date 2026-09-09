@@ -41,6 +41,16 @@ test('content generation preserves the published catalogue and casebook framing'
       fs.copyFileSync(path.join(ROOT, file), destination);
     }
 
+    // Published editorial corrections and additions must survive even when the seed is stale.
+    const editedBooks = readJson(path.join(fixture, 'content/casebooks.json'));
+    editedBooks[0].chapters[0].brief = 'A reviewed correction made after the seeded release.';
+    editedBooks.push({
+      ...structuredClone(editedBooks[1]),
+      id: 'later-anthology',
+      title: 'Later records',
+    });
+    fs.writeFileSync(path.join(fixture, 'content/casebooks.json'), JSON.stringify(editedBooks));
+
     const beforeCatalog = readJson(path.join(fixture, 'content/catalog.json')),
       beforeBooks = readJson(path.join(fixture, 'content/casebooks.json')),
       run = spawnSync(process.execPath, ['tools/generate-content.cjs'], {
@@ -59,12 +69,16 @@ test('content generation preserves the published catalogue and casebook framing'
       afterCatalog.puzzles.length,
       'generated catalogue IDs remain unique',
     );
-    assert.equal(afterBooks.length, 4, 'all published casebooks remain present');
+    assert.equal(
+      afterBooks.length,
+      5,
+      'all published casebooks and later additions remain present',
+    );
     assert.equal(afterBooks[0].format, 'continuous', 'Bellweather remains the continuous casebook');
     assert.equal(afterBooks[0].chapters.length, 6, 'Bellweather chronology remains six chapters');
     assert.ok(
       afterBooks.slice(1).every((book) => book.format === 'anthology'),
-      'the three earlier casebooks remain anthologies',
+      'the earlier and added anthologies retain their format',
     );
 
     const reportDir = path.join(ROOT, 'test-results', 'generator');

@@ -2,6 +2,11 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
+and casebooks, including later editorial corrections and extra books absent from its seeds.
+A disposable regression deliberately changes a chapter brief and adds an anthology, then proves
+both survive generation. The runtime catalogue is unchanged. Hosted 0.9 release details follow.
+
 ## Discovery, history and seeded issue QA in progress
 
 The active iteration is tracked in [POLISH-QA.md](POLISH-QA.md). The candidate adds illustrated
