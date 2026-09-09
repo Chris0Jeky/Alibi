@@ -2,9 +2,10 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Theatrical edition 0.8.0 candidate
+## Theatrical edition 0.8.0 live
 
-PR #26 is being integrated with merged PR #27 on `codex/theatrical-edition`. Eight complete local
+PR #26 merged as `adb4f5d` after both exact-head CI runs passed. Build `c8ea40a83be7` is live on
+the existing Cloudflare primary and Sites fallback. Eight complete local
 rooms combine original painted artwork, line emblems, weather, procedural room sound, five
 source-verified photographic alternatives and four deliberately played films. The existing
 interactive Field notes library remains available through its own optional pack. Delivery uses
@@ -14,9 +15,20 @@ all existing core/JS/CSS/Wing budgets. No published puzzle definitions or save i
 The 88 new theatre checks, 16 delivery checks, 182 puzzle UI checks, 92 real-origin checks,
 66 curation checks, 158 Quiet Wing checks, Field notes and After Hours suites pass locally.
 All five real photo endpoints returned the pinned WebP bytes through browser CORS checks.
-Independent final review and CI precede deployment; this candidate section does not claim a new
-hosted release. The Sites fallback's missing response headers are still tracked in #6; a matching
-document CSP/referrer policy now provides the supported document-level protection.
+Independent reviews and bounded fixes are recorded on PR #26. Both live origins pass 92 storage/
+offline checks and the real 0.7-to-0.8 Save & update test with pinned puzzle state preserved.
+All 254 primary public files match exactly; all 250 fallback non-HTML files match exactly, and
+its four HTML files preserve the original content plus the host's challenge-script insertion.
+The primary passes 88 theatre checks. Five photo providers pass CORS/fingerprint checks from both hosts.
+The Sites fallback's missing response headers and generic WebP/Ogg/model MIME types remain #6;
+its same-origin enhanced image is correctly rejected when providers are blocked, retaining the painting.
+The corresponding primary-mirror theatre test is not claimed to pass on Sites.
+Document CSP/referrer policy provides the supported document-level protection.
+
+PR #26 closes #5, #12, #16, #18, #22, #23 and #28; #7 was superseded. Late nonblocking review
+follow-up #36 preserves the Wing's separate motion choice when the root setting permits motion.
+Root Reduce motion still suppresses animation. This limitation and physical-device acceptance
+remain open; see [RELEASE-0.8.0.md](RELEASE-0.8.0.md) for the exact deployment receipts.
 
 See [THEATRICAL-EDITION.md](THEATRICAL-EDITION.md), [ASSET-DELIVERY.md](ASSET-DELIVERY.md) and
 [ONLINE-ASSETS.md](ONLINE-ASSETS.md). [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for physical
@@ -328,7 +340,7 @@ Postcard inputs now have the same readable sizing and 44-pixel minimum as other 
 - Hosted CI and public-origin results belong in the release receipt. Physical Android,
   iOS, TalkBack and human difficulty calibration remain unverified.
 
-## Follow-up
+## Earlier follow-up inventory (historical; current release status above)
 
 1. Human-playtest Bellweather and Bridges; see [BELLWEATHER-CURATION.md](BELLWEATHER-CURATION.md).
 2. [#1](https://github.com/Chris0Jeky/Alibi/issues/1): curate the earlier Briar House anthology.
