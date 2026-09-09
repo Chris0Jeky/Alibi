@@ -2,33 +2,46 @@
 (function (G) {
   'use strict';
   let loaded,
+    castleLoaded,
     active = null,
+    activeKind = null,
+    activeHost = null,
     epoch = 0,
     offline = false,
     caching = null,
     operation = Promise.resolve(),
-    preferences = null;
+    preferences = null,
+    practice = null;
   const config = () => G.ALIBI_QUIET_CONFIG;
   const copyPreferences = (value) => (value ? { ...value } : null);
+  async function loadSource(c) {
+    if (!c) throw Error('This activity is unavailable in the current build.');
+    if (c.source) {
+      const url = URL.createObjectURL(new Blob([c.source], { type: 'text/javascript' }));
+      try {
+        await script(url);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    } else await script(c.script);
+  }
   async function load() {
     if (G.AlibiQuietWing) return;
     if (!loaded)
-      loaded = (async () => {
-        const c = config();
-        if (!c) throw Error('Quiet Wing is unavailable in this build.');
-        if (c.source) {
-          const url = URL.createObjectURL(new Blob([c.source], { type: 'text/javascript' }));
-          try {
-            await script(url);
-          } finally {
-            URL.revokeObjectURL(url);
-          }
-        } else await script(c.script);
-      })().catch((e) => {
+      loaded = loadSource(config()).catch((error) => {
         loaded = null;
-        throw e;
+        throw error;
       });
     await loaded;
+  }
+  async function loadCastle() {
+    if (G.AlibiCastle) return;
+    if (!castleLoaded)
+      castleLoaded = loadSource(config()?.castle).catch((error) => {
+        castleLoaded = null;
+        throw error;
+      });
+    await castleLoaded;
   }
   function script(url) {
     return new Promise((resolve, reject) => {
@@ -70,7 +83,6 @@
         }
       }
       offline = true;
-      // Keep the previous optional pack for tabs running the prior release.
       const keys = (await caches.keys()).filter((k) => k.startsWith('alibi-quiet-wing-pack-'));
       const keep = new Set([name, ...keys.filter((k) => k !== name).slice(-1)]);
       await Promise.all(keys.filter((k) => !keep.has(k)).map((k) => caches.delete(k)));
@@ -78,42 +90,65 @@
       offline = false;
     }
   }
+  async function disposeActive() {
+    if (!active) return;
+    try {
+      await active.flush();
+    } catch {}
+    try {
+      active.dispose();
+    } finally {
+      active = activeKind = activeHost = null;
+    }
+  }
   function enter(host, options = {}) {
     if (options.preferences) preferences = copyPreferences(options.preferences);
+    const kind = G.location?.hash?.startsWith('#/quiet/castle') ? 'castle' : 'quiet';
+    if (kind === 'castle' && Object.prototype.hasOwnProperty.call(options, 'practice'))
+      practice = options.practice || null;
     const token = ++epoch;
     operation = operation
       .catch(() => {})
       .then(async () => {
         if (token !== epoch || !host.isConnected) return;
-        if (active) {
+        if (active && activeKind === kind && activeHost === host) {
           active.setPreferences?.(preferences);
+          if (kind === 'castle') active.setPractice?.(practice);
           active.route();
           return;
         }
-        await load();
+        await disposeActive();
+        if (kind === 'castle') await loadCastle();
+        else await load();
         const c = config();
         const css =
-          c.cssSource ??
-          (await fetch(c.css, { signal: AbortSignal.timeout(15000) }).then((r) => {
-            if (!r.ok) throw Error('Activity styles could not load.');
-            return r.text();
-          }));
+          kind === 'castle'
+            ? ''
+            : (c.cssSource ??
+              (await fetch(c.css, { signal: AbortSignal.timeout(15000) }).then((r) => {
+                if (!r.ok) throw Error('Activity styles could not load.');
+                return r.text();
+              })));
         if (token !== epoch || !host.isConnected) return;
         const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
-        const handle = await G.AlibiQuietWing.mount({
+        const activity = kind === 'castle' ? G.AlibiCastle : G.AlibiQuietWing;
+        const handle = await activity.mount({
           root,
           css,
           media: c.media,
           sources: c.sources,
           preferences,
+          practice: kind === 'castle' ? practice : null,
         });
         if (token !== epoch || !host.isConnected) {
           handle.dispose();
           return;
         }
         active = handle;
-        // Navigation and save flushing must not wait for optional network downloads.
-        if (!caching)
+        activeKind = kind;
+        activeHost = host;
+        if (kind === 'castle') G.AlibiCastle.cachePack();
+        else if (!caching)
           caching = cachePack().finally(() => {
             caching = null;
           });
@@ -122,17 +157,7 @@
   }
   function leave() {
     ++epoch;
-    operation = operation
-      .catch(() => {})
-      .then(async () => {
-        if (!active) return;
-        // A failed/session save remains available in memory on return and for export.
-        try {
-          await active.flush();
-        } catch {}
-        active.dispose();
-        active = null;
-      });
+    operation = operation.catch(() => {}).then(disposeActive);
     return operation;
   }
   async function flush() {
@@ -145,7 +170,8 @@
         );
     }
     if (active) await active.flush();
-    else if (G.QWRetainedDirty)
+    if (activeKind !== 'castle') await G.AlibiCastle?.flush();
+    if (activeKind !== 'quiet' && G.QWRetainedDirty)
       throw Error('Return to Quiet Wing and export its unsaved session before updating.');
     if (G.QWApp && G.QWStore.info().mode === 'session')
       throw Error('Quiet Wing is session-only. Export it before updating.');
@@ -156,6 +182,10 @@
     preferences = copyPreferences(value);
     active?.setPreferences?.(preferences);
   }
+  function setPractice(value) {
+    practice = value || null;
+    if (activeKind === 'castle') active?.setPractice?.(practice);
+  }
   function focusDestination() {
     return !!active?.focusDestination?.();
   }
@@ -164,8 +194,15 @@
     leave,
     flush,
     load,
+    loadCastle,
     setPreferences,
+    setPractice,
     focusDestination,
-    diagnostics: () => ({ loaded: !!G.AlibiQuietWing, active: !!active, offline }),
+    diagnostics: () => ({
+      loaded: !!G.AlibiQuietWing,
+      active: !!active,
+      offline: activeKind === 'castle' ? (G.AlibiCastle?.offline() ?? false) : offline,
+      kind: activeKind,
+    }),
   };
 })(globalThis);
