@@ -10,7 +10,8 @@
     offline = false,
     caching = null,
     operation = Promise.resolve(),
-    preferences = null;
+    preferences = null,
+    practice = null;
   const config = () => G.ALIBI_QUIET_CONFIG;
   const copyPreferences = (value) => (value ? { ...value } : null);
   async function loadSource(c) {
@@ -103,6 +104,8 @@
   function enter(host, options = {}) {
     if (options.preferences) preferences = copyPreferences(options.preferences);
     const kind = G.location?.hash?.startsWith('#/quiet/castle') ? 'castle' : 'quiet';
+    if (kind === 'castle' && Object.prototype.hasOwnProperty.call(options, 'practice'))
+      practice = options.practice || null;
     const token = ++epoch;
     operation = operation
       .catch(() => {})
@@ -110,6 +113,7 @@
         if (token !== epoch || !host.isConnected) return;
         if (active && activeKind === kind && activeHost === host) {
           active.setPreferences?.(preferences);
+          if (kind === 'castle') active.setPractice?.(practice);
           active.route();
           return;
         }
@@ -134,6 +138,7 @@
           media: c.media,
           sources: c.sources,
           preferences,
+          practice: kind === 'castle' ? practice : null,
         });
         if (token !== epoch || !host.isConnected) {
           handle.dispose();
@@ -177,6 +182,10 @@
     preferences = copyPreferences(value);
     active?.setPreferences?.(preferences);
   }
+  function setPractice(value) {
+    practice = value || null;
+    if (activeKind === 'castle') active?.setPractice?.(practice);
+  }
   function focusDestination() {
     return !!active?.focusDestination?.();
   }
@@ -187,6 +196,7 @@
     load,
     loadCastle,
     setPreferences,
+    setPractice,
     focusDestination,
     diagnostics: () => ({
       loaded: !!G.AlibiQuietWing,
