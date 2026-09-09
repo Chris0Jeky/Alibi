@@ -179,6 +179,7 @@ function build() {
     read(path.join(SRC, 'atmosphere.js')),
     read(path.join(SRC, 'backup-validation.js')),
     read(path.join(SRC, 'club.js')),
+    read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
   ].join('\n');

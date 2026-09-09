@@ -85,7 +85,7 @@
     lastPointerAt = 0,
     routeSerial = 0,
     rendering = false;
-  let caseReturn = '',
+  let caseReturn = null,
     makerFields = {
       title: 'An unexpected guest',
       setting: 'A house after dark',
@@ -115,6 +115,50 @@
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
+  function isCurrentCompletion(run, puzzle) {
+    try {
+      const projected = globalThis.AlibiClub?.projected?.(puzzle, run.state)?.state || run.state;
+      return !!E[puzzle.type].complete(puzzle, projected);
+    } catch {
+      return false;
+    }
+  }
+  async function readCommittedRuns() {
+    if (storageFatal || saveError) throw Error('Saved progress is unavailable.');
+    await enqueueSave();
+    await queue;
+    if (storageFatal || saveError || pendingSaves) throw Error('Saved progress is not settled.');
+    return (await store.getAll('runs')).map((run) => C.clone(run));
+  }
+  function openPractice(puzzleId, roomId) {
+    const binding = globalThis.AlibiCastlePractice?.roomFor?.(roomId);
+    let puzzle = null;
+    if (typeof puzzleId === 'string') {
+      const [id, revision] = puzzleId.split('@');
+      puzzle = starter.puzzles.find(
+        (candidate) =>
+          candidate.id === id && (!revision || candidate.revision === Number(revision)),
+      );
+    }
+    if (!binding || !puzzle || puzzle.type !== binding.family) return false;
+    caseReturn = {
+      puzzleKey: keyFor(puzzle),
+      roomId: binding.roomId,
+      label: binding.label,
+      target: binding.implemented
+        ? `#/quiet/castle/room/${encodeURIComponent(binding.roomId)}`
+        : '#/quiet/castle/directory',
+    };
+    navigate('play', keyFor(puzzle));
+    return true;
+  }
+  const practice = globalThis.AlibiCastlePractice?.create?.({
+    catalogue: starter,
+    readRuns: readCommittedRuns,
+    validateRun,
+    isCurrentCompletion,
+    onOpen: openPractice,
+  });
   try {
     if (store.fatal) throw Error(store.problem);
     settings = { ...settings, ...validSettings(await store.get('meta', 'settings')) };
@@ -375,11 +419,19 @@
     return Math.max(0, Math.min(95, Math.round(v * 100)));
   }
   function navItem(label, ic, page, id = '', count = '') {
-    const active = route.page === page && (page !== 'library' || route.id === id);
+    const active =
+      route.page === page &&
+      (page === 'library'
+        ? route.id === id
+        : page === 'quiet'
+          ? id
+            ? route.id === id
+            : route.id !== 'castle'
+          : true);
     return `<button class="nav-item ${active ? 'active' : ''}" data-action="navigate" data-page="${page}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${esc(label)}</span>${count !== '' ? `<span class="count">${count}</span>` : active ? '<span class="dot"></span>' : ''}</button>`;
   }
   function sidebar() {
-    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon', '', 'NEW')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
+    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon', '', 'NEW')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
   }
   function mobileNav() {
     if (route.page === 'play' && current)
@@ -390,11 +442,12 @@
       ['casebooks', 'book', 'Casebooks'],
       ['salon', 'sun', 'Games room'],
       ['settings', 'more', 'Your space'],
+      ['quiet', 'home', 'Wrenmere Castle', 'castle'],
     ]
-      .map(
-        ([p, ic, label]) =>
-          `<button class="${route.page === p ? 'active' : ''}" data-action="navigate" data-page="${p}" ${route.page === p ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`,
-      )
+      .map(([p, ic, label, id = '']) => {
+        const active = route.page === p && (!id || route.id === id);
+        return `<button class="${active ? 'active' : ''}" data-action="navigate" data-page="${p}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`;
+      })
       .join('')}</nav>`;
   }
   function footer() {
@@ -590,6 +643,10 @@
     if (p.type === 'bridges')
       return `<section class="chapter-atmosphere cartography"><img src="${esc(media.cartographer)}" alt="" width="1536" height="1024"><div><span class="eyebrow">THE CARTOGRAPHER’S DESK</span><p>${esc(p.story || 'Every crossing brings the islands a little closer.')}</p></div></section>`;
     return '';
+  }
+  function practiceReturnBanner(p) {
+    if (!caseReturn || !p || caseReturn.puzzleKey !== keyFor(p)) return '';
+    return `<div class="info-note practice-return" role="status"><span>Practice shelf · ${esc(caseReturn.label)}</span>${B('Return to Wrenmere', 'return-to-castle', 'back', 'secondary small')}</div>`;
   }
   function storyPage() {
     const book = books.find((b) => b.id === route.book),
@@ -1096,7 +1153,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${chapterAtmosphere(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${B('How to play', 'lesson', 'book', 'secondary', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${chapterAtmosphere(p)}${practiceReturnBanner(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${B('How to play', 'lesson', 'book', 'secondary', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -2265,7 +2322,14 @@
         else navigate('casebooks', book?.id || '');
         break;
       }
+      case 'return-to-castle': {
+        const target = caseReturn?.target;
+        caseReturn = null;
+        if (target) location.hash = target;
+        break;
+      }
       case 'back-to-collection':
+        caseReturn = null;
         if (route.book) navigate('casebooks', route.book);
         else navigate('library', current?.puzzle.type || '');
         break;
@@ -2489,6 +2553,7 @@
         }
         break;
       case 'next':
+        caseReturn = null;
         nextPuzzle();
         break;
       case 'lesson':
@@ -3067,6 +3132,7 @@
       ].includes(route.page)
     )
       route.page = 'home';
+    if (route.page !== 'play') caseReturn = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
     if (route.page === 'play') {
       const [pid, revision] = id.split('@'),
@@ -3078,6 +3144,7 @@
           (catalog && (!revision || catalog.revision === Number(revision)) ? catalog : null) ||
           (!revision ? [...records.values()].find((r) => r.puzzle.id === pid)?.puzzle : null);
       if (p) {
+        if (caseReturn && caseReturn.puzzleKey !== keyFor(p)) caseReturn = null;
         current = getRun(p);
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
@@ -3096,6 +3163,7 @@
         if (!books.some((b) => b.id === route.book)) route.book = '';
       } else {
         current = null;
+        caseReturn = null;
         route.page = 'library';
         route.id = '';
         toast('That puzzle revision is not in this collection.', true);
@@ -3110,6 +3178,7 @@
       try {
         await AlibiActivities.enter(document.getElementById('quiet-host'), {
           preferences: settings,
+          practice,
         });
       } catch (e) {
         const host = document.getElementById('quiet-host');
@@ -3189,6 +3258,8 @@
     storage: store.mode,
     puzzleCount: all().length,
     getCurrent: () => (current ? C.clone(current) : null),
+    getPracticeSnapshot: () =>
+      practice?.snapshot?.() || Promise.resolve({ rooms: {}, available: false }),
     getCounts: () => ({
       puzzles: all().length,
       types: C.TYPES.length,
