@@ -2,6 +2,11 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
+and casebooks, including later editorial corrections and extra books absent from its seeds.
+A disposable regression deliberately changes a chapter brief and adds an anthology, then proves
+both survive generation. The runtime catalogue is unchanged. Hosted 0.9 release details follow.
+
 ## Discovery and history 0.9.0 live; iterative QA continues
 
 PR #65 merged at `92565a4a064c02dae00dd3bd80678ecaaaf91cd4`. Build `f0b367c654a4` is published on
@@ -18,8 +23,8 @@ Save & update transition passed on both sites, preserving an extra move, exact s
 definition through offline reload. This resolves the previously unverified fallback transition
 tracked in #63; it does not establish the cause of the earlier timeout. See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
 
-The ongoing strategy and remaining acceptance are in [POLISH-QA.md](POLISH-QA.md). Issue #66
-tracks generator/authoring drift. The separate active task **Explore Alibi castle expansion**
+The ongoing strategy and remaining acceptance are in [POLISH-QA.md](POLISH-QA.md). The generator
+follow-up above addresses #66. The separate active task **Explore Alibi castle expansion**
 owns Wrenmere implementation and its checkout; do not duplicate or mutate that task's work.
 Physical-device and owner acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
