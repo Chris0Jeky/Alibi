@@ -182,6 +182,7 @@
     leave,
     flush,
     load,
+    loadCastle,
     setPreferences,
     diagnostics: () => ({
       loaded: !!G.AlibiQuietWing,

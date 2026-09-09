@@ -3,6 +3,9 @@ on:
   push:
     paths:
       - 'src/castle/**'
+      - 'assets-source/castle/**'
+      - 'src/app.js'
+      - 'src/validator-worker.js'
       - 'src/activities.js'
       - 'src/atmosphere.js'
       - 'tools/build*.cjs'
@@ -11,6 +14,9 @@ on:
   pull_request:
     paths:
       - 'src/castle/**'
+      - 'assets-source/castle/**'
+      - 'src/app.js'
+      - 'src/validator-worker.js'
       - 'src/activities.js'
       - 'src/atmosphere.js'
       - 'tools/build*.cjs'
@@ -24,7 +30,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   castle:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       PYTHONUTF8: '1'
@@ -60,6 +66,7 @@ jobs:
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_castle.py
+          python tests/browser_castle_recovery.py
       - name: Check formatting independently of runtime acceptance
         if: always()
         run: npm run format:check
@@ -74,5 +81,6 @@ jobs:
           name: castle-evidence-${{ github.run_id }}
           path: |
             test-results/castle/
+            test-results/castle-recovery/
             build-info.json
           if-no-files-found: ignore

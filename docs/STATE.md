@@ -8,7 +8,10 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 the `8ffe98a` main baseline in an isolated checkout. The merge is conflict-free. The full
 format/build/Node gate passes after updating optional-pack accounting and the activity-host
 lifecycle regression to cover the added castle activity. This is a local source checkpoint,
-not a release. Castle restore (#44), bespoke assets/navigation (#45–47), investigation tools
+not a release. Castle restore (#44) now has bounded worker import, merge/replace with atomic
+recovery, exact-session export acknowledgement and combined-backup integration. The full
+local gate and seven groups of real-origin recovery checks pass, including quota/interruption,
+malformed/future files, cancellation, stale tabs and recovery export. Bespoke assets/navigation (#45–47), investigation tools
 and production acceptance remain the active work. Existing public puzzle definitions and
 all existing saves remain unchanged. Owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 

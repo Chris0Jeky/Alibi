@@ -76,6 +76,14 @@ function zip(entries, out) {
 function build() {
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
+  const castleValidation = require('esbuild').buildSync({
+    entryPoints: [path.join(SRC, 'castle/validation-entry.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'iife',
+    target: 'es2022',
+    write: false,
+  }).outputFiles[0].text;
   const catalog = require('./official-catalogue.cjs').load(ROOT),
     books = JSON.parse(read(path.join(ROOT, 'content/casebooks.json'))),
     core = read(path.join(SRC, 'core.js')),
@@ -90,6 +98,7 @@ function build() {
       ...['calm.js', 'engine.js', 'storage.js'].map((f) => read(path.join(SRC, 'quiet-wing', f))),
       `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(['classics', 'warehouse', 'reversi', 'borough'].flatMap((name) => JSON.parse(read(path.join(ROOT, 'content/challenges', name + '.json'))).challenges))};`,
       read(path.join(SRC, 'challenges.js')),
+      castleValidation,
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),

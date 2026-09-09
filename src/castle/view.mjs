@@ -6,9 +6,25 @@ import styles from './style.mjs';
 import nativeStyle from './native-style.mjs';
 import { inspectObject, appendObservation } from './objects.mjs';
 import { CastleStore } from './storage.mjs';
+import { IMPORT_LIMIT } from './backup.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
+let stagedImport, showStagedImport;
+export async function exportBackup() {
+  const store = (retained ||= new CastleStore());
+  await store.init();
+  await store.pending;
+  return JSON.parse(store.export());
+}
+export async function prepareImport(data) {
+  stagedImport = await globalThis.AlibiValidateImport({
+    type: 'castle-backup',
+    text: JSON.stringify(data),
+  });
+  if (location.hash === '#/quiet/castle/journal') showStagedImport?.();
+  else location.hash = '#/quiet/castle/journal';
+}
 const rootRoute = () => {
   const parts = globalThis.location.hash.split('/');
   return { view: parts[3] || 'map', id: parts[4] || 'gatehouse' };
@@ -31,6 +47,7 @@ export async function mount({ root, preferences = null }) {
     hint = 0,
     feedback = '',
     walk = { node: null, edges: [] };
+  let pendingRestore = null;
   let disposed = false,
     opener = null,
     filmTimer = null,
@@ -71,8 +88,8 @@ export async function mount({ root, preferences = null }) {
     root.host.dataset.sound = String(state.preferences.sound && effective?.sound !== false);
   }
   function save(next) {
-    state = next;
     store.save(next);
+    state = next;
     prefs();
   }
   function mutate(fn) {
@@ -150,12 +167,12 @@ export async function mount({ root, preferences = null }) {
     );
     (next || $('#castle-main')).focus({ preventScroll: true });
   }
-  function exportSave() {
-    const url = URL.createObjectURL(new Blob([store.export()], { type: 'application/json' }));
+  function download(text, name) {
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
     objectURLs.add(url);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'alibi-castle-save.json';
+    a.download = name;
     a.click();
     const timer = setTimeout(() => {
       URL.revokeObjectURL(url);
@@ -163,7 +180,58 @@ export async function mount({ root, preferences = null }) {
       timers.delete(timer);
     }, 1000);
     timers.add(timer);
+  }
+  async function exportSave() {
+    await store.pending;
+    download(store.export(), 'alibi-castle-save.json');
     announce('Castle export prepared. Check that your browser saved the file.');
+    if (store.mode !== 'local')
+      show(
+        'Keep this notebook',
+        `<p>Check your browser’s downloads and keep the castle JSON file somewhere safe. Downloading alone does not confirm that it was saved.</p><p>After confirmation, Alibi can update while the exported notebook remains unchanged. The protected device record will still be left untouched.</p>${button('I saved this file', 'acknowledge-export', '', 'class="primary"')}`,
+      );
+  }
+  function reviewRestore(data) {
+    active = null;
+    pendingRestore = { data, revision: store.state.revision };
+    show(
+      'Review castle restore',
+      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
+    );
+  }
+  async function restoreNotebook(replace) {
+    if (!pendingRestore) throw Error('Review a castle backup before restoring.');
+    for (const control of dialog.querySelectorAll('button')) control.disabled = true;
+    try {
+      state = await store.restore(pendingRestore.data, {
+        replace,
+        expectedRevision: pendingRestore.revision,
+      });
+      pendingRestore = null;
+      close();
+      announce('Castle notebook restored. Its previous contents are available as a recovery copy.');
+    } finally {
+      for (const control of dialog.querySelectorAll('button')) control.disabled = false;
+    }
+  }
+  async function exportRecovery() {
+    const copy = await store.recovery();
+    if (!copy) {
+      announce('No castle restore has been performed on this device.');
+      return;
+    }
+    download(JSON.stringify(copy, null, 2), 'alibi-castle-pre-restore.json');
+    announce('Previous castle notebook exported. Import this file to review a recovery.');
+  }
+  async function importFile(file) {
+    if (!file) return;
+    if (file.size > IMPORT_LIMIT)
+      throw Error('Castle backup exceeds the 512 KiB import limit. Nothing was changed.');
+    const data = await globalThis.AlibiValidateImport({
+      type: 'castle-backup',
+      text: await file.text(),
+    });
+    if (!disposed) reviewRestore(data);
   }
   function settings() {
     show(
@@ -435,7 +503,7 @@ export async function mount({ root, preferences = null }) {
     if ($('#observation-result')) $('#observation-result').textContent = result.message;
     announce(result.message);
   }
-  function action(event) {
+  async function action(event) {
     const target = event.target.closest?.('[data-do]');
     if (!target) return;
     const name = target.dataset.do,
@@ -464,8 +532,23 @@ export async function mount({ root, preferences = null }) {
     else if (name === 'notebook') {
       close();
       navigate('journal');
-    } else if (name === 'export') exportSave();
-    else if (name === 'film-play') {
+    } else if (name === 'export') await exportSave();
+    else if (name === 'import') {
+      $('#castle-import').value = '';
+      $('#castle-import').click();
+    } else if (name === 'recovery') await exportRecovery();
+    else if (name === 'restore-merge') await restoreNotebook(false);
+    else if (name === 'restore-replace')
+      show(
+        'Replace this castle notebook?',
+        `<p>The reviewed file will replace this castle notebook. A pre-restore copy stays on the device.</p>${button('Replace with reviewed file', 'restore-confirm', '', 'class="primary"')}`,
+      );
+    else if (name === 'restore-confirm') await restoreNotebook(true);
+    else if (name === 'acknowledge-export') {
+      store.acknowledgeExport();
+      close();
+      announce('Export confirmed. A later edit will require a new export before updating.');
+    } else if (name === 'film-play') {
       if (filmPlaying) {
         stopFilm();
         target.textContent = 'Play';
@@ -481,7 +564,16 @@ export async function mount({ root, preferences = null }) {
       $('#film-play').textContent = 'Play';
     } else playAction(name, value);
   }
-  root.addEventListener('click', action, { signal: abort.signal });
+  const failure = (error) => {
+    if (!disposed) show('Notebook needs attention', `<p role="alert">${escape(error.message)}</p>`);
+  };
+  root.addEventListener(
+    'click',
+    (event) => {
+      action(event).catch(failure);
+    },
+    { signal: abort.signal },
+  );
   root.addEventListener(
     'input',
     (event) => {
@@ -511,7 +603,8 @@ export async function mount({ root, preferences = null }) {
     'change',
     (event) => {
       const el = event.target;
-      if (el.dataset.wheel !== undefined && active === 'gate') {
+      if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
+      else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
         next[i] = Number(el.value);
@@ -564,7 +657,16 @@ export async function mount({ root, preferences = null }) {
     }
     render();
     $('#castle-main').focus({ preventScroll: true });
+    showStagedImport();
   }
+  const reviewStaged = () => {
+    if (stagedImport && !disposed) {
+      const data = stagedImport;
+      stagedImport = null;
+      reviewRestore(data);
+    }
+  };
+  showStagedImport = reviewStaged;
   route();
   return {
     route,
@@ -575,6 +677,7 @@ export async function mount({ root, preferences = null }) {
     },
     dispose() {
       disposed = true;
+      if (showStagedImport === reviewStaged) showStagedImport = null;
       stopFilm();
       abort.abort();
       unsubscribe();

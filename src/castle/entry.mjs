@@ -22,6 +22,8 @@ globalThis.AlibiCastle = {
   mount,
   flush: view.flush,
   diagnostics: view.diagnostics,
+  exportBackup: view.exportBackup,
+  prepareImport: view.prepareImport,
   cachePack: cache.load,
   offline: cache.available,
 };
