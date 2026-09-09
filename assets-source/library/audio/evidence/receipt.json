@@ -1,0 +1,15 @@
+{
+  "generator": "alibi-local-audio/v2",
+  "source_recipe_sha256": "f5139052a193e2d1c87dcd09bca4d51d656c90ccd3861b7beb0d429d07025168",
+  "asset_count": 24,
+  "cue_count": 20,
+  "loop_count": 4,
+  "waveform_contact": "assets-source/library/audio/evidence/waveform-contact.png",
+  "all_encoded_with": "ffmpeg libopus/libvorbis; all files probed with ffprobe",
+  "all_hashes_in": "assets-source/library/audio/catalogue.json",
+  "spectral_guardrails": {
+    "minimum_energy_above_20_hz_pct": 100.0,
+    "maximum_sub20_energy_pct": 0.0,
+    "maximum_dc_dbfs": -173.977
+  }
+}

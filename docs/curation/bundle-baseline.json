@@ -1,0 +1,13 @@
+{
+  "repository": "Chris0Jeky/Alibi",
+  "mainCommit": "1f049a794609be04f29a91117fbd1a8701d28d08",
+  "testedArtifactBranch": "codex/quiet-wing",
+  "testedArtifactCommit": "067275480b2d4f317a1619bda85b9a2268203f1f",
+  "pullRequest": 14,
+  "workflowRun": 34241538916,
+  "artifactId": 10062350894,
+  "build": "4ab44b544990",
+  "version": "0.6.0-lab.1",
+  "retrieved": "2026-09-08",
+  "note": "A successful CI artifact, not evidence that this exact build is deployed at the supplied preview URL. Hosted browsing was blocked in the execution environment. Core content from this artifact contains 116 puzzles in 13 families."
+}

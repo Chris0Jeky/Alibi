@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Alibi — Lamplight settle</title>
+    <link rel="stylesheet" href="motion.css" />
+    <script src="library/gsap.min.js"></script>
+    <style>
+      .ambient-lamp .ambient-copy { position:absolute; left:150px; top:270px; width:720px; }
+      .ambient-lamp .ambient-card { position:absolute; right:220px; top:150px; width:650px; height:780px; border:2px solid rgba(219,172,96,.7); border-radius:340px 340px 28px 28px; background:linear-gradient(180deg,rgba(219,172,96,.24),rgba(23,62,73,.22)); box-shadow:0 28px 80px rgba(0,0,0,.28); overflow:hidden; }
+      .ambient-lamp .ambient-card::after { content:""; position:absolute; inset:40px; border:1px solid rgba(244,234,212,.28); border-radius:300px 300px 10px 10px; }
+      .ambient-lamp .lamp-glow { position:absolute; left:190px; top:150px; width:270px; height:270px; border-radius:50%; background:radial-gradient(circle,rgba(255,218,135,.9) 0%,rgba(219,172,96,.32) 38%,transparent 72%); filter:blur(4px); }
+      .ambient-lamp .lamp-line { position:absolute; left:324px; top:252px; width:3px; height:300px; background:var(--amber); transform-origin:top; }
+      .ambient-lamp .ambient-card-copy { position:absolute; left:100px; bottom:110px; z-index:2; width:440px; text-align:center; }
+      .ambient-lamp .ambient-card-copy strong { display:block; font:600 68px/1 Georgia,serif; color:var(--cream); }
+      .ambient-lamp .ambient-card-copy span { display:block; margin-top:18px; text-transform:uppercase; letter-spacing:.2em; color:var(--muted); font-size:17px; }
+    </style>
+  </head>
+  <body>
+    <main id="root" data-composition-id="alibi-ambient-lamplight" data-start="0" data-duration="5" data-width="1920" data-height="1080" data-fps="30">
+      <section id="scene-lamplight" class="scene clip ambient-lamp" data-start="0" data-duration="5" data-track-index="0">
+        <div class="grain" data-layout-ignore></div><div class="brand" data-enter="left" data-at="0.1">alibi<i>:</i></div><div class="micro" data-enter="right" data-at="0.15">A little room to think</div>
+        <div class="ambient-copy"><div class="kicker" data-enter="up" data-at="0.2">A quiet interlude</div><h1 class="headline" data-enter="up" data-at="0.35">Leave a light<br/>on for later.</h1><p class="subhead" data-enter="up" data-at="0.65">A decorative pause for the moments between puzzles.</p></div>
+        <div class="ambient-card" data-drift data-at="0" data-drift-end="4.7" data-dx="-10" data-dy="-8" data-rotate="2"><div class="lamp-glow" data-pulse></div><div class="lamp-line" data-grow></div><div class="ambient-card-copy"><strong>Quiet Wing</strong><span>device local · offline ready</span></div></div>
+        <div class="footer-note" data-enter="left" data-at="1.05">Decorative preview · no interaction shown</div>
+      </section>
+    </main>
+    <script>(() => {
+  const root = document.querySelector('#root');
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+  const scenes = [...root.querySelectorAll('.scene')];
+  scenes.forEach((scene) => {
+    const start = Number(scene.dataset.start || 0); const duration = Number(scene.dataset.duration || 1);
+    if (start === 0) tl.set(scene, { autoAlpha: 1 }, 0); else tl.fromTo(scene, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.42 }, Math.max(0, start - 0.42));
+    tl.to(scene, { autoAlpha: 0, duration: 0.38, ease: 'power2.in' }, Math.max(start + duration - 0.42, start + 0.1));
+  });
+  root.querySelectorAll('[data-enter]').forEach((el) => { const at = Number(el.dataset.at || 0); const from = el.dataset.enter === 'left' ? { x: -70, y: 10, autoAlpha: 0 } : el.dataset.enter === 'right' ? { x: 70, y: 10, autoAlpha: 0 } : { y: 65, autoAlpha: 0 }; tl.fromTo(el, from, { x: 0, y: 0, autoAlpha: 1, duration: 0.72 }, at); });
+  root.querySelectorAll('[data-drift]').forEach((el) => { const at = Number(el.dataset.at || 0); const end = Number(el.dataset.driftEnd || 1); tl.fromTo(el, { x: 0, y: 0, rotation: -2 }, { x: Number(el.dataset.dx || 20), y: Number(el.dataset.dy || -12), rotation: Number(el.dataset.rotate || 2), duration: Math.max(.8, end - at), ease: 'sine.inOut' }, at); });
+  root.querySelectorAll('[data-grow]').forEach((el) => tl.fromTo(el, { scaleY: 0, transformOrigin: 'top center' }, { scaleY: 1, duration: .8 }, Number(el.dataset.at || 0)));
+  root.querySelectorAll('[data-pulse]').forEach((el) => tl.to(el, { scale: 1.16, opacity: .72, duration: 1.8, repeat: 1, yoyo: true, ease: 'sine.inOut' }, .3));
+  scenes.forEach((scene) => { const start = Number(scene.dataset.start || 0); tl.set(scene.querySelectorAll('[data-enter]'), { autoAlpha: 1, x: 0, y: 0 }, start); });
+  window.__timelines = window.__timelines || {};
+  window.__timelines[root.dataset.compositionId] = tl;
+})();</script>
+  </body>
+</html>

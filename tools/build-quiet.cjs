@@ -2,11 +2,40 @@
 const fs = require('node:fs'),
   path = require('node:path'),
   crypto = require('node:crypto');
-module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
+module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experience) {
   const dir = path.join(root, 'src/quiet-wing');
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
   const modelData = read('assets/city-models.json');
+  const challengeData = ['classics', 'warehouse', 'reversi', 'borough'].flatMap(
+    (name) =>
+      JSON.parse(fs.readFileSync(path.join(root, 'content/challenges', name + '.json'), 'utf8'))
+        .challenges,
+  );
+  const quietEngine = require(path.join(dir, 'engine.js'));
+  const clubEngine = require(path.join(root, 'src/club-engines.js'));
+  require(path.join(root, 'src/challenges.js')).create(challengeData, {
+    quiet: quietEngine,
+    club: clubEngine,
+  });
+  const challengeSource =
+    `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(challengeData)};\n` +
+    ['club-engines.js', 'challenges.js', 'challenge-storage.js', 'challenge-launcher.js']
+      .map((name) => fs.readFileSync(path.join(root, 'src', name), 'utf8'))
+      .join('\n');
+  const libraryData = read('assets/library-models.json');
+  const companionArt = Object.fromEntries(
+    ['cat', 'fox', 'owl', 'dragon'].map((id) => [
+      id,
+      fs
+        .readFileSync(
+          path.join(root, 'assets-source/library/companions/rigs', id + '-idle.svg'),
+          'utf8',
+        )
+        .replace(/<style>[\s\S]*?<\/style>/, '')
+        .replace(/ id="[^"]*"/g, ''),
+    ]),
+  );
   const gpu = require('esbuild').buildSync({
     entryPoints: [path.join(dir, 'gpu.js')],
     bundle: true,
@@ -16,7 +45,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
     write: false,
   }).outputFiles[0].text;
   const source =
-    `globalThis.QWCityModels=${modelData};\n` +
+    `globalThis.QWCityModels=${modelData};\nglobalThis.QWLibraryModels=${libraryData};\nglobalThis.QWExperience=${JSON.stringify(experience.manifest)};\nglobalThis.QWCompanionArt=${JSON.stringify(companionArt)};\n` +
     [
       'calm.js',
       'calm-art.js',
@@ -26,12 +55,21 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase) {
       'gpu.js',
       'pets.js',
       'storage.js',
+      'sound.js',
+      'folio.js',
       'app.js',
     ]
-      .map((f) => (f === 'gpu.js' ? gpu : read(f)))
+      .map((f) =>
+        f === 'gpu.js' ? gpu : read(f) + (f === 'engine.js' ? '\n' + challengeSource : ''),
+      )
       .join('\n');
-  const cssSource = read('style.css'),
+  const cssSource = read('style.css') + '\n' + read('folio.css'),
     files = [];
+  // These small headers accompany the regular wing offline; the model/media folio is opt-in.
+  for (const room of experience.manifest.editorial.filter((a) => a.id.endsWith('-room'))) {
+    files.push(room.image);
+    experience.bytes -= fs.statSync(path.join(dist, room.image)).size;
+  }
   function emit(name, bytes, ext) {
     const url = `./assets/quiet-${name}.${hash(bytes)}.${ext}`;
     fs.writeFileSync(path.join(dist, url), bytes);

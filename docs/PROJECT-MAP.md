@@ -39,7 +39,9 @@ flowchart TD
 | `src/presentation.js` | Family rules, lessons, icons and decorative board previews |
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
-| `content/catalog.json` | 116 published definitions; stable IDs and revisions |
+| `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 324 puzzles across fourteen bounded packs |
+| `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Four casebooks: Bellweather plus three earlier anthologies |
 | `schemas/`, `examples/` | Pack format and portable authoring examples |
@@ -52,19 +54,19 @@ flowchart TD
 
 | Family | Count | Main interaction |
 | --- | ---: | --- |
-| Tidal bridges | 8 | Tap island pairs to cycle bridge counts |
-| Crime scenes | 19 | Spatial placement followed by an accusation |
-| Alibi files | 10 | People/room/object deduction matrices |
-| Witness statements | 11 | Truth counts and culprit selection |
-| Picture logic | 7 | Nonogram paint, cross, clear |
-| Lanterns | 8 | Illumination and numbered-wall constraints |
-| Tents & trees | 8 | Tree matching and edge counts |
-| Aquariums | 8 | Shared water levels within tanks |
-| Signal paths | 8 | Connected network rotations |
-| Number trails | 8 | Consecutive path through every square |
-| Sudoku | 7 | Row, column and box constraints |
-| Sun & moon | 7 | Balanced binary lines without triples |
-| Futoshiki | 7 | Latin square and inequality constraints |
+| Tidal bridges | 24 | Tap island pairs to cycle bridge counts |
+| Crime scenes | 35 | Spatial placement followed by an accusation |
+| Alibi files | 26 | People/room/object deduction matrices |
+| Witness statements | 27 | Truth counts and culprit selection |
+| Picture logic | 23 | Nonogram paint, cross, clear |
+| Lanterns | 24 | Illumination and numbered-wall constraints |
+| Tents & trees | 24 | Tree matching and edge counts |
+| Aquariums | 24 | Shared water levels within tanks |
+| Signal paths | 24 | Connected network rotations |
+| Number trails | 24 | Consecutive path through every square |
+| Sudoku | 23 | Row, column and box constraints |
+| Sun & moon | 23 | Balanced binary lines without triples |
+| Futoshiki | 23 | Latin square and inequality constraints |
 
 Bellweather adds six original, chronological records. The earlier three casebooks are anthologies
 of existing puzzles. Casebook entries reference catalogue IDs; they are not extra copies. Daily choices rotate from the catalogue using the device date. All progress is device-local.
@@ -102,3 +104,9 @@ are retained under `assets-source/quiet-wing/` and `assets-source/atmosphere/`. 
 `atmosphere.css` supply credited art on the existing Club and puzzle browsing surfaces.
 `backup-validation.js` shares pure cabinet/Club validation with `validator-worker.js`; imports,
 combined staging and subsequent section validation use its bounded worker. See RELEASE-0.6.0.md.
+
+## Curation Cabinet
+
+[CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
+independent checks and human-playtest limits. The 59 additional classic/Club challenges are
+separate experiences, never core imports or additions to the 324-puzzle count.

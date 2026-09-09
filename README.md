@@ -10,7 +10,7 @@ workshop for making a case of your own. No account. No lives. No rush.
 
 ## Open the cabinet
 
-- **116 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **324 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
   chapter revelations. Three earlier anthology casebooks remain available.
@@ -110,3 +110,10 @@ The 0.6.0-lab.1 source adds an optional realm builder, four companions, a timest
 main navigation. It loads separately; Settings & saves can export all three save sections together.
 This candidate has local browser evidence and has not been promoted to the public sites.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
+
+## Local asset library
+
+Run `npm run assets:gallery` to inspect the source-backed production library at
+`http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
+realm modules and companion states, sound previews and authored motion. Large production files
+stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).

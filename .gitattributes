@@ -5,3 +5,5 @@
 *.glb binary
 # Rights receipts fingerprint the original downloaded bytes, including their line endings.
 assets-source/quiet-wing/city/** -text
+assets-source/library/** -text
+src/asset-library.js text eol=lf

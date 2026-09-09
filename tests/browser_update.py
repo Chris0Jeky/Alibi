@@ -25,6 +25,7 @@ import shutil
 import tempfile
 import threading
 import time
+import traceback
 from urllib.parse import unquote, urlsplit
 
 from playwright.sync_api import sync_playwright
@@ -116,17 +117,20 @@ def make_releases() -> tuple[tempfile.TemporaryDirectory, Path, Path]:
     old_js_name = a_assets[0].name
     old_js_ref = f"./assets/{old_js_name}"
     old_js = b_assets[0].read_text(encoding="utf-8")
-    first, remainder = old_js.split("\n", 1)
     prefix = "globalThis.ALIBI_CONFIG="
-    if not first.startswith(prefix) or not first.endswith(";"):
+    config_lines = list(re.finditer(r"^globalThis\.ALIBI_CONFIG=(.+);$", old_js, re.MULTILINE))
+    if len(config_lines) != 1:
         temp.cleanup()
-        raise AssertionError("Could not locate the built ALIBI_CONFIG line")
-    config = json.loads(first[len(prefix) : -1])
+        raise AssertionError("Expected exactly one built ALIBI_CONFIG line")
+    config_line = config_lines[0]
+    config = json.loads(config_line.group(1))
     original_build = config["build"]
     # This label intentionally makes the synthetic release obvious in reports
     # and in the player-facing footer/settings screen.
     config.update({"version": f"{config['version']}-test-fixture-b", "build": "fixture-b"})
-    changed_js = prefix + json.dumps(config, separators=(",", ":")) + ";\n" + remainder
+    changed_js = (old_js[:config_line.start()] + prefix
+                  + json.dumps(config, separators=(",", ":")) + ";"
+                  + old_js[config_line.end():])
     new_js_name = f"alibi.{hashlib.sha256(changed_js.encode('utf-8')).hexdigest()[:12]}.js"
     new_js = release_b / "assets" / new_js_name
     b_assets[0].unlink()
@@ -215,6 +219,7 @@ def run() -> dict:
     started = time.monotonic()
     result: dict = {"passed": False, "checks": checks, "errors": errors}
     fixture_temp = None
+    profile_temp = None
     server = None
     browser = None
     context = None
@@ -222,6 +227,9 @@ def run() -> dict:
     page2 = None
     try:
         fixture_temp, release_a, release_b = make_releases()
+        # Chromium's on-disk service-worker paths fail in deeply nested Windows profiles.
+        # Keep the disposable profile inside this checkout, but outside the release fixture.
+        profile_temp = tempfile.TemporaryDirectory(prefix="p-", dir=str(ROOT))
         server = MutableStaticServer(release_a)
         threading.Thread(target=server.serve_forever, name="alibi-update-server", daemon=True).start()
         base_url = f"http://127.0.0.1:{server.server_address[1]}"
@@ -231,7 +239,7 @@ def run() -> dict:
             if os.environ.get("CHROMIUM_PATH"):
                 launch["executable_path"] = os.environ["CHROMIUM_PATH"]
             browser = pw.chromium.launch_persistent_context(
-                str(Path(fixture_temp.name) / "browser-profile"),
+                profile_temp.name,
                 **launch,
                 viewport={"width": 390, "height": 900},
                 accept_downloads=True,
@@ -386,6 +394,7 @@ def run() -> dict:
             )
     except Exception as error:  # Keep a durable failure report for the parent.
         result["error"] = f"{type(error).__name__}: {error}"
+        result["traceback"] = traceback.format_exc()
         print(f"FAIL {result['error']}", flush=True)
     finally:
         if context is not None:
@@ -398,6 +407,8 @@ def run() -> dict:
             server.server_close()
         if fixture_temp is not None:
             fixture_temp.cleanup()
+        if profile_temp is not None:
+            profile_temp.cleanup()
         result["elapsed_seconds"] = round(time.monotonic() - started, 3)
         result["assertions"] = len(checks)
         result["passed"] = "error" not in result

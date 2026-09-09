@@ -7,6 +7,9 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 PUZZLES=json.loads((ROOT/'content/catalog.json').read_text())['puzzles']
+CURATED=os.environ.get('ALIBI_CURATION_UI')=='1'
+if CURATED:
+    PUZZLES=[p for f in sorted((ROOT/'content/curation/packs').glob('*.json')) for p in json.loads(f.read_text())['puzzles']]
 checks=[]; errors=[]; shots=ROOT/'tests/screenshots';shots.mkdir(exist_ok=True)
 def check(value,label):
     assert value,label
@@ -17,7 +20,7 @@ with sync_playwright() as pw:
     if os.environ.get('CHROMIUM_PATH'): launch['executable_path']=os.environ['CHROMIUM_PATH']
     elif Path('/usr/bin/chromium').exists(): launch['executable_path']='/usr/bin/chromium'
     browser=pw.chromium.launch(**launch)
-    context=browser.new_context(viewport={'width':1440,'height':1000},accept_downloads=True,reduced_motion='reduce')
+    context=browser.new_context(viewport={'width':int(os.environ.get('ALIBI_UI_WIDTH','1440')),'height':1000},accept_downloads=True,reduced_motion='reduce')
     page=context.new_page();page.set_default_timeout(5000)
     page.on('pageerror',lambda e: errors.append(str(e)))
     page.set_content((ROOT/'alibi-deluxe-play.html').read_text(),wait_until='load')
@@ -39,7 +42,7 @@ with sync_playwright() as pw:
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
     check(page.title().startswith('Alibi'),'Application title and boot')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==116,'All 116 puzzles loaded')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==324,'All 324 puzzles loaded')
     check(page.evaluate('AlibiDiagnostics.getCounts().types')==13,'All thirteen engines loaded')
     page.screenshot(path=str(shots/'desktop-home.png'),full_page=True)
     for typ in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail','bridges']:
@@ -103,7 +106,8 @@ with sync_playwright() as pw:
         action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened');dismiss()
         if typ in ['dossier','lightup','aquarium','network']:page.screenshot(path=str(shots/f'desktop-{typ}.png'),full_page=True)
     # In-progress pencil/erase/pause/hint and routing durability (same document, not reload).
-    p=next(p for p in PUZZLES if p['type']=='sudoku' and p['id']!='sudoku-01');open_p(p);dismiss()
+    page.set_viewport_size({'width':1440,'height':1000})
+    p=[p for p in PUZZLES if p['type']=='sudoku'][1];open_p(p);dismiss()
     i=next(i for i,v in enumerate(p['givens']) if not v);cell(i);action('pencil');action('value','[data-value="1"]')
     check(1 in state()['state']['notes'].get(str(i),[]),'Pencil marks stored without filling value')
     action('pencil');action('erase');check(not state()['state']['notes'].get(str(i)),'Erase clears notes')
@@ -146,10 +150,10 @@ with sync_playwright() as pw:
     check('Verified:' in page.locator('#draft-verification').inner_text(),'Edited scene can be reverified')
     page.screenshot(path=str(shots/'desktop-workshop.png'),full_page=True)
     action('add-draft');page.wait_for_function('AlibiDiagnostics.getCounts().customPacks===1')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==117,'Verified custom scene installs locally')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==325,'Verified custom scene installs locally')
     # Invalid pack is rejected without any mutation.
     page.locator('#pack-input').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{"schemaVersion":99}'})
-    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==117,'Bad pack cannot modify catalogue')
+    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==325,'Bad pack cannot modify catalogue')
     route('settings')
     with page.expect_download() as dl:action('export')
     backup=json.loads(Path(dl.value.path()).read_text());check(backup['format']=='alibi-backup' and len(backup['runs'])>=12,'Backup exports actual played states')

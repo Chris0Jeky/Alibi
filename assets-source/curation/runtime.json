@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "sourceRegistry": "assets-source/curation/registry.json",
+  "budget": {
+    "maxBytes": 225280,
+    "totalBytes": 155210,
+    "totalKiB": 151.57
+  },
+  "settings": {
+    "maxDimension": 600,
+    "quality": 70
+  },
+  "assets": [
+    {
+      "id": "met-melencolia",
+      "venue": "nocturne",
+      "source": {
+        "registry": "assets-source/curation/registry.json",
+        "path": "assets-source/curation/museum/met-melencolia.jpg",
+        "sha256": "ea8e4a7d78d56d7b1bfec95c640470a3a768b3f0f9d7bdb520c402791c27a330",
+        "bytes": 4391204,
+        "width": 2820,
+        "height": 3561,
+        "mime": "image/jpeg"
+      },
+      "runtime": {
+        "path": "src/curation-assets/runtime/met-melencolia.webp",
+        "sha256": "be17ccbe03e787f7cdd887d2bdf7724a575668ce6a993ab73fd5ba540ba994cf",
+        "bytes": 48734,
+        "width": 475,
+        "height": 600,
+        "mime": "image/webp"
+      },
+      "originalSha256": "ea8e4a7d78d56d7b1bfec95c640470a3a768b3f0f9d7bdb520c402791c27a330",
+      "derivation": {
+        "maxDimension": 600,
+        "quality": 70,
+        "transform": "Decode retained JPEG; apply EXIF orientation; RGB conversion; aspect-preserving fit inside the runtime cap; WebP encode; no crop or generative alteration."
+      }
+    },
+    {
+      "id": "met-celestial",
+      "venue": "salt",
+      "source": {
+        "registry": "assets-source/curation/registry.json",
+        "path": "assets-source/curation/museum/met-celestial.jpg",
+        "sha256": "f8c4c0dafc33eeb3bb7867794bd40610f3136ede6708e22f6c316c0643b34eb4",
+        "bytes": 3217129,
+        "width": 2845,
+        "height": 3774,
+        "mime": "image/jpeg"
+      },
+      "runtime": {
+        "path": "src/curation-assets/runtime/met-celestial.webp",
+        "sha256": "361a6295fdb57f470092b35f238cd589d15ae89eab7b0104f8afb85bc3ada69e",
+        "bytes": 35948,
+        "width": 452,
+        "height": 600,
+        "mime": "image/webp"
+      },
+      "originalSha256": "f8c4c0dafc33eeb3bb7867794bd40610f3136ede6708e22f6c316c0643b34eb4",
+      "derivation": {
+        "maxDimension": 600,
+        "quality": 70,
+        "transform": "Decode retained JPEG; apply EXIF orientation; RGB conversion; aspect-preserving fit inside the runtime cap; WebP encode; no crop or generative alteration."
+      }
+    },
+    {
+      "id": "met-kanbara",
+      "venue": "winter",
+      "source": {
+        "registry": "assets-source/curation/registry.json",
+        "path": "assets-source/curation/museum/met-kanbara.jpg",
+        "sha256": "83e3784b924b4212f127f415c55a1607eac032a81bbb78d8b1b9d7e5871908da",
+        "bytes": 2608273,
+        "width": 3698,
+        "height": 2512,
+        "mime": "image/jpeg"
+      },
+      "runtime": {
+        "path": "src/curation-assets/runtime/met-kanbara.webp",
+        "sha256": "ef83178ce3d8542caa407645dd6d91005faef9c5416f4e58477b86eabd302956",
+        "bytes": 29122,
+        "width": 600,
+        "height": 408,
+        "mime": "image/webp"
+      },
+      "originalSha256": "83e3784b924b4212f127f415c55a1607eac032a81bbb78d8b1b9d7e5871908da",
+      "derivation": {
+        "maxDimension": 600,
+        "quality": 70,
+        "transform": "Decode retained JPEG; apply EXIF orientation; RGB conversion; aspect-preserving fit inside the runtime cap; WebP encode; no crop or generative alteration."
+      }
+    },
+    {
+      "id": "met-irises",
+      "venue": "copper",
+      "source": {
+        "registry": "assets-source/curation/registry.json",
+        "path": "assets-source/curation/museum/met-irises.jpg",
+        "sha256": "6b851d821d565e61817250b272417c79721724f8dba2deaffe9b4c9ca4c35685",
+        "bytes": 5228776,
+        "width": 4000,
+        "height": 3172,
+        "mime": "image/jpeg"
+      },
+      "runtime": {
+        "path": "src/curation-assets/runtime/met-irises.webp",
+        "sha256": "f3c3b91af67f67a8d415b08fc30cb76265d04bfcc7d79059ec4e2ae818c00aa8",
+        "bytes": 41406,
+        "width": 600,
+        "height": 476,
+        "mime": "image/webp"
+      },
+      "originalSha256": "6b851d821d565e61817250b272417c79721724f8dba2deaffe9b4c9ca4c35685",
+      "derivation": {
+        "maxDimension": 600,
+        "quality": 70,
+        "transform": "Decode retained JPEG; apply EXIF orientation; RGB conversion; aspect-preserving fit inside the runtime cap; WebP encode; no crop or generative alteration."
+      }
+    }
+  ]
+}

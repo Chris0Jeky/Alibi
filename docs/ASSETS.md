@@ -34,3 +34,16 @@ for the source-license decision and HUMAN_TODO.md for publisher/name decisions.
 After Hours also supplies 22 editable SVG motifs in `src/illustrations/`. Ten motifs are new;
 the others reuse existing family previews. The player generates these vectors in `club.js`.
 The harbour uses local Canvas drawing instructions; no image or video stream is fetched.
+
+## Local production library
+
+The asset-library branch adds twelve original editorial SVG vignettes and compact WebP
+derivatives to selected existing puzzle cards, plus 31 distinct earned/locked stamp silhouettes
+bound to the existing six Club and 25 Quiet Wing award rules. Gouache covers and all seven
+museum pictures remain unchanged. These vectors contain no lettering or answer data.
+
+[ASSET-LIBRARY.md](ASSET-LIBRARY.md) maps the editable masters, exact category/interface exports,
+actual teaching captures, portable realm kit and companion states, locally synthesised sound
+and authored HyperFrames films. Its source-hashed catalogue distinguishes reused designs from
+new work and production previews from in-game bindings. The local gallery does not enter the
+offline PWA build. New original work does not change the repository's source-rights decision.

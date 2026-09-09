@@ -1,5 +1,8 @@
 (function (G) {
   'use strict';
+  // Keep fallback runs and pending transactions for the lifetime of this document.
+  let challengeRegistry = null,
+    challengeStore = null;
   G.AlibiQuietWing = {
     async mount(context) {
       const root = context.root;
@@ -55,6 +58,8 @@
         petAction: 'idle',
         classic: 'hanoi3',
         classicSelected: null,
+        challengeRegistry,
+        challengeStore,
         seed: 'clover',
         artURLs: { ...context.media },
         artCache: {},
@@ -105,11 +110,27 @@
         );
         return d;
       }
+      const soundscape = new G.QWSound();
       let audio;
       function feedback(kind = 'place') {
         if (A.state.settings.haptic && navigator.vibrate)
           navigator.vibrate(kind === 'win' ? [15, 40, 15] : 10);
         if (!A.state.settings.sound) return;
+        if (G.QWExperience && !G.ALIBI_CONFIG.standalone) {
+          soundscape.play(
+            {
+              erase: 'ui-remove-low',
+              win: 'ui-complete-calm',
+              treat: 'pet-treat',
+              play: 'pet-play',
+              nap: 'pet-rest',
+              pet: 'pet-greeting',
+              undo: 'ui-undo',
+              redo: 'ui-redo',
+            }[kind] || 'ui-place-wood',
+          );
+          return;
+        }
         try {
           audio = audio || new (G.AudioContext || G.webkitAudioContext)();
           audio.resume().catch(() => {});
@@ -150,16 +171,35 @@
         if (label) label.textContent = 'Saving…';
         A.saveTimer = setTimeout(() => flush().catch(() => {}), 120);
       }
-      function flush() {
+      async function flush() {
         clearTimeout(A.saveTimer);
-        if (!A.dirty) return S.flush();
-        A.dirty = false;
-        return S.write(A.state).catch((e) => {
-          A.dirty = true;
-          throw e;
-        });
+        const quietSave = !A.dirty
+          ? S.flush()
+          : (() => {
+              A.dirty = false;
+              return S.write(A.state).catch((e) => {
+                A.dirty = true;
+                throw e;
+              });
+            })();
+        await Promise.all([quietSave, A.challengeStore?.flush()]);
       }
       function styles() {
+        const soundButton = $('[data-act="sound"]');
+        if (soundButton) {
+          soundButton.setAttribute(
+            'aria-label',
+            A.state.settings.sound ? 'Mute sound' : 'Enable sound',
+          );
+          soundButton.title = 'Sound ' + (A.state.settings.sound ? 'on' : 'off');
+        }
+        if (!A.state.settings.sound) {
+          soundscape.stop();
+          root.querySelectorAll('audio,video').forEach((media) => media.pause());
+          A.ambience = '';
+          const selection = $('#room-ambience');
+          if (selection) selection.value = '';
+        }
         body.classList.toggle('zen', A.state.settings.zen);
         body.classList.toggle('reduce', !A.state.settings.motion);
         A.renderer?.setMotion?.(A.state.settings.motion);
@@ -173,8 +213,10 @@
             ['pets', 'Companions'],
             ['garden', 'Garden'],
             ['classics', 'Classics'],
+            ['challenges', 'Challenges'],
             ['gallery', 'Art room'],
             ['journal', 'Journal'],
+            ['folio', 'Field notes'],
           ]
             .map(
               ([id, name]) =>
@@ -199,6 +241,13 @@
           }
           if (b.dataset.act === 'sound') {
             A.state.settings.sound = !A.state.settings.sound;
+            if (!A.state.settings.sound) {
+              soundscape.stop();
+              root.querySelectorAll('audio,video').forEach((media) => media.pause());
+              A.ambience = '';
+              const select = $('#room-ambience');
+              if (select) select.value = '';
+            }
             toast('Sound ' + (A.state.settings.sound ? 'on' : 'off'));
             b.setAttribute('aria-label', A.state.settings.sound ? 'Mute sound' : 'Enable sound');
             save();
@@ -216,9 +265,16 @@
         });
       }
       function header(eyebrow, title, text, extra = '') {
-        return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}</section>`;
+        const room = { pets: 'companion-room', garden: 'glasshouse-room', gallery: 'reading-room' }[
+          A.route
+        ];
+        const art =
+          !G.ALIBI_CONFIG.standalone && G.QWExperience?.editorial.find((a) => a.id === room);
+        return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}${art ? `<img class="room-illustration" src="${art.image}" alt="" width="1200" height="600">` : ''}</section>`;
       }
       function disposeActivity() {
+        A.folio?.dispose();
+        A.folio = null;
         clearInterval(A.gardenTimer);
         A.gardenTimer = null;
         clearTimeout(A.petTimer);
@@ -237,7 +293,16 @@
       function go() {
         if (disposed) return;
         const route = routePath().split('/')[0];
-        A.route = ['realm', 'pets', 'garden', 'classics', 'gallery', 'journal'].includes(route)
+        A.route = [
+          'realm',
+          'pets',
+          'garden',
+          'classics',
+          'challenges',
+          'gallery',
+          'journal',
+          'folio',
+        ].includes(route)
           ? route
           : 'realm';
         disposeActivity();
@@ -248,9 +313,58 @@
           pets: petsPage,
           garden: gardenPage,
           classics: classicsPage,
+          challenges: challengesPage,
           gallery: galleryPage,
           journal: journalPage,
+          folio: () => {
+            soundscape.stop();
+            A.ambience = '';
+            A.folio = G.QWFolio.mount($('#main'), () => {
+              if (!A.state.settings.sound) {
+                A.state.settings.sound = true;
+                save();
+              }
+              $('[data-act="sound"]').setAttribute('aria-label', 'Mute sound');
+            });
+          },
         })[A.route]();
+        if (A.route !== 'folio' && !G.ALIBI_CONFIG.standalone) {
+          const atmosphere = document.createElement('label');
+          atmosphere.className = 'ambient-choice';
+          atmosphere.innerHTML = `Listen here <select id="room-ambience" aria-label="Background atmosphere"><option value="">Quiet</option>${[
+            ['lamplight-library', 'Lamplit library'],
+            ['coastal-window', 'Coastal window'],
+            ['glasshouse-garden', 'Glasshouse'],
+            ['evening-club', 'Evening club'],
+          ]
+            .map(([id, label]) => `<option value="ambience-${id}">${label}</option>`)
+            .join('')}</select>`;
+          $('#main').append(atmosphere);
+          $('#room-ambience').value = A.ambience || '';
+          $('#room-ambience').onchange = (event) => {
+            A.ambience = event.target.value;
+            if (A.ambience) {
+              A.state.settings.sound = true;
+              save();
+              const button = $('[data-act="sound"]');
+              button.setAttribute('aria-label', 'Mute sound');
+            }
+            soundscape.ambience(A.ambience);
+          };
+          const visit = document.createElement('aside');
+          visit.className = 'room-visit';
+          visit.innerHTML =
+            '<span>A little more to discover: scenes, portraits, sound and short films.</span><a href="#/quiet/folio">Open field notes ↗</a>';
+          if (A.route === 'realm' && !G.ALIBI_CONFIG.standalone) {
+            const harbour = G.QWExperience.editorial.find((art) => art.id === 'harbour-room');
+            if (harbour)
+              visit.insertAdjacentHTML(
+                'afterbegin',
+                `<img src="${harbour.image}" alt="" width="180" height="90">`,
+              );
+          }
+          $('#main').append(visit);
+        }
       }
       function realmPage() {
         if (A.resizeObs) A.resizeObs.disconnect();
@@ -613,6 +727,7 @@
         A.anchor = -1;
         realmPage();
         save();
+        feedback(redo ? 'redo' : 'undo');
       }
       function newPreset(id) {
         const d = modal(
@@ -931,7 +1046,7 @@
         $('#pet-portrait .pet-svg').outerHTML = P.svg(s, id, A.state.pets.names[s]);
         A.petView?.setAction(id);
         $('#pet-stage').dataset.action = id;
-        feedback(id === 'play' ? 'win' : 'place');
+        feedback(id);
         save();
         clearTimeout(A.petTimer);
         if (id !== 'nap')
@@ -1313,7 +1428,7 @@
             )
             .join(
               '',
-            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
+            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-challenges" class="textbtn" style="font-size:10px">Curated challenges</button><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
         $$('[data-play]').forEach(
           (b) => (b.onclick = () => navigate('classics/' + b.dataset.play)),
         );
@@ -1322,6 +1437,138 @@
             'A classical shelf',
             `<p>These are new implementations of established recreational mathematics: Hanoi, wolf–goat–cabbage, water jugs, eight queens, the Lo Shu magic square, knight’s tours and sliding tiles.</p><p>The brief texts, layouts and graphics here are newly written. No claim is made that these are original puzzle inventions or that a unique solution exists for every family.</p><p>Source notes and historical references are in <a href="${esc(context.sources || './quiet-wing-sources.html')}" target="_blank" rel="noopener">the asset and puzzle ledger</a>. The Hanoi minimum follows 2ⁿ − 1; the software tests solve all configured finite instances independently.</p>`,
           );
+        $('#classics-challenges').onclick = () => navigate('challenges');
+      }
+      function challengesPage() {
+        const requested = routePath().split('/')[1] || '';
+        if (
+          !G.ALIBI_CHALLENGE_DATA ||
+          !G.AlibiChallenges ||
+          !G.AlibiChallengeLauncher ||
+          !G.AlibiChallengeStore
+        ) {
+          $('#main').innerHTML = header(
+            '05 / CURATED CHALLENGES',
+            'A fresh set is still arriving.',
+            'This release does not include the trusted challenge pack. Return to the classical cabinet and try another puzzle.',
+          );
+          return;
+        }
+        try {
+          A.challengeRegistry ||= G.AlibiChallenges.create(G.ALIBI_CHALLENGE_DATA, {
+            quiet: E,
+            club: G.AlibiClubEngines,
+          });
+          challengeRegistry = A.challengeRegistry;
+        } catch (error) {
+          $('#main').innerHTML = header(
+            '05 / CURATED CHALLENGES',
+            'The challenge pack is protected.',
+            esc(error.message),
+          );
+          return;
+        }
+        if (!requested) {
+          const entries = A.challengeRegistry.entries();
+          $('#main').innerHTML =
+            header(
+              '05 / CURATED CHALLENGES',
+              'Fixed starts. Your own route.',
+              'Each challenge rebuilds from its recorded start and your legal moves. Existing classics and Club games keep their own saves.',
+            ) +
+            `<div class="card-grid">${entries.map((c) => `<button class="activity-card" data-challenge-id="${esc(c.id)}"><div class="info"><span class="tag">${esc(c.family)}</span><h3>${esc(c.title)}</h3><p>${esc(c.instruction).slice(0, 112)}…</p><span class="pill">Open challenge →</span></div></button>`).join('')}</div>`;
+          $$('[data-challenge-id]').forEach(
+            (button) =>
+              (button.onclick = () => navigate('challenges/' + button.dataset.challengeId)),
+          );
+          return;
+        }
+        let challenge;
+        try {
+          challenge = A.challengeRegistry.get(requested);
+        } catch {
+          navigate('challenges');
+          return;
+        }
+        $('#main').innerHTML =
+          header(
+            '05 / ' + esc(challenge.family),
+            esc(challenge.title),
+            'A trusted start, your legal replay.',
+            `<button id="challenge-back" class="soft">← All challenges</button>`,
+          ) +
+          '<div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export pre-restore save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p><div id="challenge-host"></div>';
+        $('#challenge-back').onclick = () => navigate('challenges');
+        const host = $('#challenge-host');
+        A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
+        challengeStore = A.challengeStore;
+        A.challengeStore
+          .open()
+          .then(() => A.challengeStore.read(challenge.id))
+          .catch((error) => {
+            toast(error.message);
+            return null;
+          })
+          .then((saved) => {
+            if (disposed || A.route !== 'challenges' || routePath().split('/')[1] !== challenge.id)
+              return;
+            A.challengeHandle = G.AlibiChallengeLauncher.mount(
+              host,
+              A.challengeRegistry,
+              challenge.id,
+              saved,
+              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+            );
+          });
+        $('#challenge-export').onclick = () => exportChallenge(A.challengeHandle?.save());
+        $('#challenge-recovery').onclick = async () => {
+          try {
+            exportChallenge(await A.challengeStore.recovery(challenge.id), 'previous');
+          } catch (error) {
+            toast(error.message);
+          }
+        };
+        $('#challenge-import').onclick = () => $('#challenge-file').click();
+        $('#challenge-file').onchange = async () => {
+          const file = $('#challenge-file').files?.[0];
+          if (!file) return;
+          try {
+            if (file.size > 3 * 1024 * 1024) throw Error('Challenge save exceeds 3 MB.');
+            if (!G.AlibiValidateImport) throw Error('Background validation is unavailable.');
+            const imported = await G.AlibiValidateImport({
+              type: 'challenge-run',
+              text: await file.text(),
+            });
+            if (imported.challengeId !== challenge.id)
+              throw Error('Choose a save for this exact challenge.');
+            await A.challengeStore.restore(imported);
+            A.challengeHandle?.dispose();
+            A.challengeHandle = G.AlibiChallengeLauncher.mount(
+              host,
+              A.challengeRegistry,
+              challenge.id,
+              imported,
+              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+            );
+            toast('Challenge save restored. The previous save remains available for export.');
+          } catch (error) {
+            toast(error.message);
+          }
+          $('#challenge-file').value = '';
+        };
+      }
+      function exportChallenge(run, suffix = 'challenge') {
+        if (!run) {
+          toast('Finish opening this challenge before exporting it.');
+          return;
+        }
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(
+          new Blob([JSON.stringify(run, null, 2)], { type: 'application/json' }),
+        );
+        link.download = 'alibi-' + suffix + '-' + run.challengeId + '.json';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
       function getClassic() {
         let run = A.state.classics[A.classic];
@@ -1723,6 +1970,8 @@
         );
       }
       function badgeSVG(id, earned = false) {
+        const stamp = G.AlibiAssets?.badge(id, earned);
+        if (stamp) return stamp;
         const types = {
           'first-stone': 'stone',
           hamlet: 'cottage',
@@ -2068,6 +2317,7 @@
         'pagehide',
         () => {
           flush().catch(() => {});
+          soundscape.stop();
           audio?.suspend();
         },
         { signal: listeners.signal },
@@ -2110,6 +2360,7 @@
         state: () => A.state,
         dispose() {
           disposed = true;
+          soundscape.dispose();
           G.QWRetainedState =
             A.dirty || S.info().mode === 'session' || S.info().blocked ? A.state : null;
           G.QWRetainedDirty = A.dirty;

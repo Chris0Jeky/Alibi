@@ -1,0 +1,67 @@
+{
+  "baseline": {
+    "version": "0.6.0",
+    "build": "f7c4ef0b6961",
+    "puzzles": 116,
+    "types": 13,
+    "casebooks": 4,
+    "files": 37,
+    "uncompressedBytes": 3307409,
+    "quietWingBytes": 1977944,
+    "coreOfflineBytes": 1329465,
+    "javascriptGzipBytes": 125138,
+    "uploadZipBytes": 1625480
+  },
+  "current": {
+    "version": "0.6.0",
+    "build": "fac4d1d1ad6c",
+    "puzzles": 116,
+    "types": 13,
+    "casebooks": 4,
+    "files": 49,
+    "uncompressedBytes": 3340804,
+    "quietWingBytes": 1977995,
+    "coreOfflineBytes": 1362809,
+    "javascriptGzipBytes": 127264,
+    "uploadZipBytes": 1656852
+  },
+  "delta": {
+    "coreOfflineBytes": 33344,
+    "javascriptGzipBytes": 2126,
+    "quietWingBytes": 51,
+    "uncompressedBytes": 33395
+  },
+  "startup": {
+    "samples": [
+      {
+        "appReadyMs": 141.60000014305115,
+        "domContentLoadedMs": 36.90000009536743,
+        "requests": 5
+      },
+      {
+        "appReadyMs": 115.90000009536743,
+        "domContentLoadedMs": 27.200000047683716,
+        "requests": 5
+      },
+      {
+        "appReadyMs": 122.19999980926514,
+        "domContentLoadedMs": 30.799999952316284,
+        "requests": 5
+      },
+      {
+        "appReadyMs": 122.5,
+        "domContentLoadedMs": 33.09999990463257,
+        "requests": 5
+      },
+      {
+        "appReadyMs": 123.89999985694885,
+        "domContentLoadedMs": 30.59999990463257,
+        "requests": 5
+      }
+    ],
+    "medianAppReadyMs": 122.5,
+    "scope": "Five fresh local Chromium contexts, 390px, reduced motion, no CPU/network throttling; not physical or comparative baseline latency",
+    "measuredBuild": "ca71369c3464",
+    "note": "Measured before the final three-line keyboard focus CSS fix; no latency baseline or physical-device claim."
+  }
+}

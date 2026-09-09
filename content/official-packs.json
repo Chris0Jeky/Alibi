@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "packs": [
+    "catalog.json",
+    "curation/packs/aquarium.json",
+    "curation/packs/binary.json",
+    "curation/packs/bridges.json",
+    "curation/packs/dossier.json",
+    "curation/packs/futoshiki.json",
+    "curation/packs/lightup.json",
+    "curation/packs/network.json",
+    "curation/packs/nonogram.json",
+    "curation/packs/scene.json",
+    "curation/packs/sudoku.json",
+    "curation/packs/tents.json",
+    "curation/packs/trail.json",
+    "curation/packs/witness.json"
+  ]
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-label="Cartographer club portrait">
+  <title>Cartographer club portrait</title>
+  <defs>
+    <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="5" r="1.2" fill="#172d38" opacity=".16"/>
+      <circle cx="16" cy="13" r=".9" fill="#172d38" opacity=".12"/>
+      <circle cx="9" cy="20" r=".7" fill="#172d38" opacity=".1"/>
+    </pattern>
+    <pattern id="dots" width="15" height="15" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="1.8" fill="#dbac60" opacity=".38"/>
+    </pattern>
+    
+  </defs>
+  <style>
+    .line{stroke:#172d38;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+    .fine{stroke:#172d38;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .paper-line{stroke:#f4ead4;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+  </style>
+  
+  <rect width="480" height="600" fill="#f4ead4"/>
+  <rect width="480" height="600" fill="url(#grain)" opacity=".24"/>
+  <path d="M45 559 V220 Q45 83 240 83 Q435 83 435 220 V559Z" fill="#b76d52" class="line"/>
+  <path d="M71 558 V225 Q71 111 240 111 Q409 111 409 225 V558Z" fill="#fff7e4" opacity=".22"/>
+  <path d="M44 559 H436" class="line" opacity=".6"/>
+  
+    <path d="M101 559 Q108 450 173 420 Q240 392 307 420 Q372 450 379 559Z" fill="#173e49" class="line"/>
+    <path d="M147 449 L203 422 L240 476 L277 422 L333 449" fill="none" class="paper-line" opacity=".74"/>
+    <path d="M211 388 V437 Q240 454 269 437 V388" fill="#7b4a3d" class="line"/>
+    <path d="M157 286 Q162 205 190 177 Q212 154 240 159 Q268 154 290 177 Q318 205 323 286 L303 366 L240 430 L177 366Z" fill="#b87858" class="line"/>
+    <path d="M158 260 Q161 193 190 165 Q210 143 240 150 Q270 143 290 165 Q319 193 322 260 Q303 224 283 215 Q240 191 197 215 Q177 224 158 260Z" fill="#6d413d" class="line"/>
+    <g fill="#845048" class="fine">
+      <circle cx="176" cy="196" r="13"/><circle cx="193" cy="173" r="12"/><circle cx="216" cy="157" r="12"/><circle cx="240" cy="152" r="13"/><circle cx="264" cy="157" r="12"/><circle cx="287" cy="173" r="12"/><circle cx="304" cy="196" r="13"/>
+    </g>
+    <path d="M177 291 Q194 239 219 234 M303 291 Q286 239 261 234" fill="none" class="fine" opacity=".72"/>
+    <path d="M173 304 Q190 261 216 263 M264 263 Q290 261 307 304" fill="none" class="line"/>
+    <circle cx="213" cy="311" r="6" fill="#172d38"/><circle cx="267" cy="311" r="6" fill="#172d38"/>
+    <path d="M240 316 L228 354 L247 360" fill="none" class="fine"/>
+    <path d="M211 381 Q240 394 270 378" fill="none" class="line"/>
+    <path d="M136 502 Q177 474 212 496 M268 496 Q303 474 344 502" fill="none" class="fine" opacity=".6"/>
+    <path d="M111 463 L177 444 L187 493 L121 506Z" fill="#dbac60" class="line"/>
+    <path d="M126 478 L171 466 M132 493 L177 481" class="fine"/>
+    <circle cx="345" cy="467" r="31" fill="#dbac60" class="line"/><circle cx="345" cy="467" r="16" fill="#173e49" class="fine"/>
+    <path d="M345 435 V499 M313 467 H377" class="fine"/>
+  
+  <path d="M84 520 Q240 489 396 520" fill="none" class="fine" opacity=".35"/>
+
+</svg>

@@ -1,0 +1,2323 @@
+{
+  "schemaVersion": 2,
+  "master": {
+    "id": "realm-kit-master",
+    "title": "Realm kit Blender master",
+    "category": "realm",
+    "status": "proposed",
+    "design": "original",
+    "source": "tools/assets/build-realm-library.py",
+    "derivatives": [
+      "assets-source/library/realm/realm-kit.blend",
+      "assets-source/library/realm/scenes/harbour.glb",
+      "assets-source/library/realm/thumbnails/scene-harbour.png"
+    ],
+    "metadata": {
+      "coordinateSystem": "Blender Z-up; standard glTF Y-up export",
+      "gridUnits": 2,
+      "collections": [
+        "harbour",
+        "hillfort",
+        "farmstead"
+      ],
+      "objects": 53
+    },
+    "provenance": "Original Alibi editable master containing the three composed reference collections.",
+    "accessibility": "Harbour GLB and static thumbnail accompany the editable Blender master.",
+    "integration": "Candidate library only; no runtime import.",
+    "qa": "Master opens with populated scene collections; the companion GLB is structure-checked."
+  },
+  "assets": [
+    {
+      "id": "tower-square-base",
+      "title": "Tower Square Base",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-base.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-square-base.glb",
+        "assets-source/library/realm/thumbnails/tower-square-base.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          2.02
+        ],
+        "size": [
+          2,
+          2,
+          2.02
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-square-mid",
+      "title": "Tower Square Mid",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-mid.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-square-mid.glb",
+        "assets-source/library/realm/thumbnails/tower-square-mid.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.93,
+          -0.93,
+          0
+        ],
+        "max": [
+          0.93,
+          0.93,
+          2.02
+        ],
+        "size": [
+          1.86,
+          1.86,
+          2.02
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-square-top",
+      "title": "Tower Square Top",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-top.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-square-top.glb",
+        "assets-source/library/realm/thumbnails/tower-square-top.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.6
+        ],
+        "size": [
+          2,
+          2,
+          0.6
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-square-roof",
+      "title": "Tower Square Roof",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-square-roof.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-square-roof.glb",
+        "assets-source/library/realm/thumbnails/tower-square-roof.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          4.02
+        ],
+        "size": [
+          2,
+          2,
+          4.02
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-hexagon-base",
+      "title": "Tower Hexagon Base",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-base.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-hexagon-base.glb",
+        "assets-source/library/realm/thumbnails/tower-hexagon-base.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.9,
+          -0.7794,
+          0
+        ],
+        "max": [
+          0.9,
+          0.7794,
+          2.62
+        ],
+        "size": [
+          1.8,
+          1.5588,
+          2.62
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-hexagon-mid",
+      "title": "Tower Hexagon Mid",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-mid.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-hexagon-mid.glb",
+        "assets-source/library/realm/thumbnails/tower-hexagon-mid.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.9524,
+          -0.8248,
+          0
+        ],
+        "max": [
+          0.9524,
+          0.8248,
+          0.92
+        ],
+        "size": [
+          1.9049,
+          1.6497,
+          0.92
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tower-hexagon-roof",
+      "title": "Tower Hexagon Roof",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/tower-hexagon-roof.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tower-hexagon-roof.glb",
+        "assets-source/library/realm/thumbnails/tower-hexagon-roof.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.9763,
+          -0.8455,
+          0
+        ],
+        "max": [
+          0.9763,
+          0.8455,
+          1.66
+        ],
+        "size": [
+          1.9526,
+          1.691,
+          1.66
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall",
+      "title": "Wall",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/wall.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall.glb",
+        "assets-source/library/realm/thumbnails/wall.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          2.62
+        ],
+        "size": [
+          2,
+          2,
+          2.62
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-corner",
+      "title": "Wall Corner",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/wall-corner.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-corner.glb",
+        "assets-source/library/realm/thumbnails/wall-corner.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          2.62
+        ],
+        "size": [
+          2,
+          2,
+          2.62
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-doorway",
+      "title": "Wall Doorway",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/wall-doorway.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-doorway.glb",
+        "assets-source/library/realm/thumbnails/wall-doorway.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.5,
+          -1,
+          0
+        ],
+        "max": [
+          0.5,
+          1,
+          2.62
+        ],
+        "size": [
+          1,
+          2,
+          2.62
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "stairs-stone",
+      "title": "Stairs Stone",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/stairs-stone.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/stairs-stone.glb",
+        "assets-source/library/realm/thumbnails/stairs-stone.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.2325,
+          -0.819,
+          0
+        ],
+        "max": [
+          0.2325,
+          0.819,
+          1.35
+        ],
+        "size": [
+          0.465,
+          1.638,
+          1.35
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "bridge-straight",
+      "title": "Bridge Straight",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/castle/bridge-straight.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/bridge-straight.glb",
+        "assets-source/library/realm/thumbnails/bridge-straight.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.93,
+          -0.93,
+          0
+        ],
+        "max": [
+          0.93,
+          0.93,
+          2.352
+        ],
+        "size": [
+          1.86,
+          1.86,
+          2.352
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/castle-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-window-shutters",
+      "title": "Wall Window Shutters",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/wall-window-shutters.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-window-shutters.glb",
+        "assets-source/library/realm/thumbnails/wall-window-shutters.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.175,
+          -1,
+          0
+        ],
+        "max": [
+          0.175,
+          1,
+          2
+        ],
+        "size": [
+          0.35,
+          2,
+          2
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-wood-window-shutters",
+      "title": "Wall Wood Window Shutters",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/wall-wood-window-shutters.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-wood-window-shutters.glb",
+        "assets-source/library/realm/thumbnails/wall-wood-window-shutters.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.1,
+          -1,
+          0
+        ],
+        "max": [
+          0.1,
+          1,
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-door",
+      "title": "Wall Door",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/wall-door.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-door.glb",
+        "assets-source/library/realm/thumbnails/wall-door.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.1,
+          -1,
+          0
+        ],
+        "max": [
+          0.1,
+          1,
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-wood-door",
+      "title": "Wall Wood Door",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/wall-wood-door.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-wood-door.glb",
+        "assets-source/library/realm/thumbnails/wall-wood-door.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.1,
+          -1,
+          0
+        ],
+        "max": [
+          0.1,
+          1,
+          2
+        ],
+        "size": [
+          0.2,
+          2,
+          2
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "roof-gable",
+      "title": "Roof Gable",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/roof-gable.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/roof-gable.glb",
+        "assets-source/library/realm/thumbnails/roof-gable.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.1,
+          -1.0707,
+          0
+        ],
+        "max": [
+          1.1,
+          1.0707,
+          1.1414
+        ],
+        "size": [
+          2.2,
+          2.1414,
+          1.1414
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "roof-point",
+      "title": "Roof Point",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/roof-point.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/roof-point.glb",
+        "assets-source/library/realm/thumbnails/roof-point.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.1,
+          -1.1,
+          0
+        ],
+        "max": [
+          1.1,
+          1.1,
+          1
+        ],
+        "size": [
+          2.2,
+          2.2,
+          1
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tree",
+      "title": "Tree",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/tree.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tree.glb",
+        "assets-source/library/realm/thumbnails/tree.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.023,
+          -1.023,
+          0
+        ],
+        "max": [
+          1.023,
+          1.023,
+          4.8255
+        ],
+        "size": [
+          2.046,
+          2.046,
+          4.8255
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tree-high",
+      "title": "Tree High",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/tree-high.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/tree-high.glb",
+        "assets-source/library/realm/thumbnails/tree-high.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.023,
+          -1.023,
+          0
+        ],
+        "max": [
+          1.023,
+          1.023,
+          5.9455
+        ],
+        "size": [
+          2.046,
+          2.046,
+          5.9455
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "lantern",
+      "title": "Lantern",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/lantern.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/lantern.glb",
+        "assets-source/library/realm/thumbnails/lantern.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.2164,
+          -0.2243,
+          0
+        ],
+        "max": [
+          0.2164,
+          0.2243,
+          3.112
+        ],
+        "size": [
+          0.4329,
+          0.4486,
+          3.112
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "stall-red",
+      "title": "Stall Red",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/stall-red.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/stall-red.glb",
+        "assets-source/library/realm/thumbnails/stall-red.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          2.474
+        ],
+        "size": [
+          2,
+          2,
+          2.474
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "road",
+      "title": "Road",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/road.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/road.glb",
+        "assets-source/library/realm/thumbnails/road.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.05
+        ],
+        "size": [
+          2,
+          2,
+          0.05
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "road-bend",
+      "title": "Road Bend",
+      "category": "realm",
+      "status": "current",
+      "design": "reused",
+      "source": "assets-source/quiet-wing/city/town/road-bend.obj",
+      "derivatives": [
+        "assets-source/library/realm/glb/road-bend.glb",
+        "assets-source/library/realm/thumbnails/road-bend.png"
+      ],
+      "metadata": {
+        "min": [
+          -3,
+          -3,
+          0
+        ],
+        "max": [
+          3,
+          3,
+          0.1
+        ],
+        "size": [
+          6,
+          6,
+          0.1
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Kenney",
+          "sourcePage": "https://kenney.nl/assets/fantasy-town-kit",
+          "licenceVersion": "CC0 1.0",
+          "receipt": "assets-source/quiet-wing/city/receipt.json"
+        }
+      },
+      "provenance": "CC0 retained source normalized to two-unit Z-up footprint.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "src/quiet-wing/assets/city-models.json",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "ground-grass",
+      "title": "Ground Grass",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/ground-grass.glb",
+        "assets-source/library/realm/thumbnails/ground-grass.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.1
+        ],
+        "size": [
+          2,
+          2,
+          0.1
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "ground-path",
+      "title": "Ground Path",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/ground-path.glb",
+        "assets-source/library/realm/thumbnails/ground-path.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.13
+        ],
+        "size": [
+          2,
+          2,
+          0.13
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "ground-cobble",
+      "title": "Ground Cobble",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/ground-cobble.glb",
+        "assets-source/library/realm/thumbnails/ground-cobble.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.13
+        ],
+        "size": [
+          2,
+          2,
+          0.13
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "water-tile",
+      "title": "Water Tile",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/water-tile.glb",
+        "assets-source/library/realm/thumbnails/water-tile.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.06
+        ],
+        "size": [
+          2,
+          2,
+          0.06
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "water-edge",
+      "title": "Water Edge",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/water-edge.glb",
+        "assets-source/library/realm/thumbnails/water-edge.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.12
+        ],
+        "size": [
+          2,
+          2,
+          0.12
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "water-corner",
+      "title": "Water Corner",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/water-corner.glb",
+        "assets-source/library/realm/thumbnails/water-corner.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.12
+        ],
+        "size": [
+          2,
+          2,
+          0.12
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-gate",
+      "title": "Wall Gate",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-gate.glb",
+        "assets-source/library/realm/thumbnails/wall-gate.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -0.25,
+          0
+        ],
+        "max": [
+          1,
+          0.25,
+          1.4
+        ],
+        "size": [
+          2,
+          0.5,
+          1.4
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "wall-end",
+      "title": "Wall End",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/wall-end.glb",
+        "assets-source/library/realm/thumbnails/wall-end.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.125,
+          -0.25,
+          0
+        ],
+        "max": [
+          1.125,
+          0.25,
+          1.4
+        ],
+        "size": [
+          2.25,
+          0.5,
+          1.4
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "bridge-arched",
+      "title": "Bridge Arched",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/bridge-arched.glb",
+        "assets-source/library/realm/thumbnails/bridge-arched.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.35,
+          -0.55,
+          0
+        ],
+        "max": [
+          1.35,
+          0.55,
+          0.665
+        ],
+        "size": [
+          2.7,
+          1.1,
+          0.665
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "cottage-small",
+      "title": "Cottage Small",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/cottage-small.glb",
+        "assets-source/library/realm/thumbnails/cottage-small.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -0.85,
+          0
+        ],
+        "max": [
+          1,
+          0.85,
+          1.95
+        ],
+        "size": [
+          2,
+          1.7,
+          1.95
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "cottage-long",
+      "title": "Cottage Long",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/cottage-long.glb",
+        "assets-source/library/realm/thumbnails/cottage-long.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.25,
+          -1.0625,
+          0
+        ],
+        "max": [
+          1.25,
+          1.0625,
+          1.95
+        ],
+        "size": [
+          2.5,
+          2.125,
+          1.95
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "farm-barn",
+      "title": "Farm Barn",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/farm-barn.glb",
+        "assets-source/library/realm/thumbnails/farm-barn.png"
+      ],
+      "metadata": {
+        "min": [
+          -1.285,
+          -0.85,
+          0
+        ],
+        "max": [
+          1.285,
+          0.85,
+          1.95
+        ],
+        "size": [
+          2.57,
+          1.7,
+          1.95
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "crop-wheat",
+      "title": "Crop Wheat",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/crop-wheat.glb",
+        "assets-source/library/realm/thumbnails/crop-wheat.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.495
+        ],
+        "size": [
+          2,
+          2,
+          0.495
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "crop-rows",
+      "title": "Crop Rows",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/crop-rows.glb",
+        "assets-source/library/realm/thumbnails/crop-rows.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          0.24
+        ],
+        "size": [
+          2,
+          2,
+          0.24
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "orchard",
+      "title": "Orchard",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/orchard.glb",
+        "assets-source/library/realm/thumbnails/orchard.png"
+      ],
+      "metadata": {
+        "min": [
+          -1,
+          -1,
+          0
+        ],
+        "max": [
+          1,
+          1,
+          1.275
+        ],
+        "size": [
+          2,
+          2,
+          1.275
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    },
+    {
+      "id": "tree-oak",
+      "title": "Tree Oak",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/glb/tree-oak.glb",
+        "assets-source/library/realm/thumbnails/tree-oak.png"
+      ],
+      "metadata": {
+        "min": [
+          -0.78,
+          -0.78,
+          0
+        ],
+        "max": [
+          0.78,
+          0.78,
+          2.1
+        ],
+        "size": [
+          1.56,
+          1.56,
+          2.1
+        ],
+        "pivot": [
+          0,
+          0,
+          0
+        ],
+        "palette": {
+          "petrol": "#173e49",
+          "ink": "#172d38",
+          "cream": "#f4ead4",
+          "amber": "#dbac60",
+          "sage": "#87a997",
+          "terracotta": "#b76d52",
+          "stone": "#77807a",
+          "water": "#5d9ca5",
+          "timber": "#765443",
+          "crop": "#b9b75d"
+        },
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi two-unit Z-up modular geometry.",
+      "accessibility": "Measured GLB with a static PNG thumbnail; use the thumbnail when WebGL or motion is unavailable.",
+      "integration": "candidate library only; no runtime import",
+      "qa": "Validated as a GLB 2.0 container with embedded buffer/material definitions and finite measured bounds."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "harbour",
+      "title": "Harbour",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/scenes/harbour.glb",
+        "assets-source/library/realm/thumbnails/scene-harbour.png",
+        "assets-source/library/realm/thumbnails/scene-harbour-alt.png"
+      ],
+      "metadata": {
+        "views": [
+          "isometric",
+          "alternate isometric"
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi composition from retained and original library modules.",
+      "accessibility": "Two static rendered views accompany the GLB.",
+      "integration": "Candidate library only; no runtime import.",
+      "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs."
+    },
+    {
+      "id": "hillfort",
+      "title": "Hillfort",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/scenes/hillfort.glb",
+        "assets-source/library/realm/thumbnails/scene-hillfort.png",
+        "assets-source/library/realm/thumbnails/scene-hillfort-alt.png"
+      ],
+      "metadata": {
+        "views": [
+          "isometric",
+          "alternate isometric"
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi composition from retained and original library modules.",
+      "accessibility": "Two static rendered views accompany the GLB.",
+      "integration": "Candidate library only; no runtime import.",
+      "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs."
+    },
+    {
+      "id": "farmstead",
+      "title": "Farmstead",
+      "category": "realm",
+      "status": "proposed",
+      "design": "original",
+      "source": "tools/assets/build-realm-library.py",
+      "derivatives": [
+        "assets-source/library/realm/scenes/farmstead.glb",
+        "assets-source/library/realm/thumbnails/scene-farmstead.png",
+        "assets-source/library/realm/thumbnails/scene-farmstead-alt.png"
+      ],
+      "metadata": {
+        "views": [
+          "isometric",
+          "alternate isometric"
+        ],
+        "rights": {
+          "author": "Alibi",
+          "licenceVersion": "Original work"
+        }
+      },
+      "provenance": "Original Alibi composition from retained and original library modules.",
+      "accessibility": "Two static rendered views accompany the GLB.",
+      "integration": "Candidate library only; no runtime import.",
+      "qa": "GLB structure and both preview PNGs are checked by tests/asset-models.test.cjs."
+    }
+  ]
+}

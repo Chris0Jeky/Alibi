@@ -60,7 +60,7 @@
     zoomed = false,
     accuseChoice = null,
     sessionSeconds = 0,
-    library = { search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 },
+    library = { venue: '', search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 },
     workTab = 'scene',
     draft = null,
     draftVerified = false,
@@ -278,11 +278,26 @@
       }
     }
   });
-  function difficulty(level) {
+  function difficulty(level, p) {
+    p = p || current?.puzzle;
     const at = ['Gentle', 'Steady', 'Tricky'].indexOf(level);
+    const curationDifficulty = globalThis.AlibiCuration?.difficulty,
+      label =
+        (typeof curationDifficulty === 'function' && curationDifficulty(p)) ||
+        (p?.id?.startsWith('curated-') ? `${level} · provisional` : level);
     return `<span class="difficulty"><span class="bars" aria-hidden="true">${range(3)
       .map((i) => `<i class="${i <= at ? 'on' : ''}"></i>`)
-      .join('')}</span>${esc(level)}</span>`;
+      .join('')}</span>${esc(label)}</span>`;
+  }
+  function timing(p) {
+    const curationTiming = globalThis.AlibiCuration?.timing,
+      value = typeof curationTiming === 'function' ? curationTiming(p) : p?.minutes;
+    return Number.isInteger(value) && value > 0 ? `${value} min` : '';
+  }
+  function puzzleMeta(p) {
+    return [timing(p), p.type === 'witness' ? '' : `${p.size} × ${p.size}`]
+      .filter(Boolean)
+      .join(' · ');
   }
   function time(sec) {
     sec = Math.floor(sec);
@@ -376,10 +391,17 @@
     const r = rec(p),
       inProgress = r && r.moves > 0 && !r.completedAt,
       fav = prefs.favorites.includes(p.id);
-    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${AlibiClub.portrait(
-      p.type,
-      [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
-    )}${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty)}<span>${p.minutes || 8} min${p.type === 'witness' ? '' : ` · ${p.size} × ${p.size}`}</span></div></div></button></article>`;
+    const highlight =
+      globalThis.ALIBI_MEDIA?.[globalThis.AlibiAssets.highlights[p.id]] ||
+      globalThis.AlibiCuration.cover?.(p);
+    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
+      highlight
+        ? `<img class="puzzle-highlight" src="${esc(highlight)}" width="320" height="240" alt="" loading="lazy" decoding="async">`
+        : AlibiClub.portrait(
+            p.type,
+            [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
+          )
+    }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div></div></button></article>`;
   }
   function bookCard(b, i) {
     const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length;
@@ -424,7 +446,7 @@
     <div class="section-head"><div><div class="eyebrow">A LITTLE DISCOVERY, EVERY DAY</div><h2>Your daily three.</h2></div>${B('All puzzles', 'navigate', 'arrow', 'ghost', 'data-page="library"')}</div><div class="daily-grid">${daily()
       .map(
         (p, i) =>
-          `<button class="daily-card" data-action="open" ${openAttrs(p)}><div class="daily-art">${art(p.type, p)}</div><div><div class="tag">${['The deduction', 'The picture', 'The pattern'][i]}</div><h3>${esc(p.title)}</h3><small>${esc(M[p.type].title)} · ${p.minutes || 8} min${solved(rec(p)) ? ' · Solved' : ''}</small></div>${icon('chevron')}</button>`,
+          `<button class="daily-card" data-action="open" ${openAttrs(p)}><div class="daily-art">${art(p.type, p)}</div><div><div class="tag">${['The deduction', 'The picture', 'The pattern'][i]}</div><h3>${esc(p.title)}</h3><small>${esc(M[p.type].title)}${timing(p) ? ` · ${timing(p)}` : ''}${solved(rec(p)) ? ' · Solved' : ''}</small></div>${icon('chevron')}</button>`,
       )
       .join('')}</div>
     <div class="section-head"><div><div class="eyebrow">SETTLE INTO A CASE FILE</div><h2>Every detail tells a story.</h2><p>${books.length} casebooks. Follow a longer thread, one discovery at a time.</p></div>${B('All casebooks', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div><div class="book-grid">${books.map(bookCard).join('')}</div>
@@ -437,6 +459,7 @@
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
+        (!library.venue || globalThis.AlibiCuration.get(p)?.venue === library.venue) &&
         (library.group === 'all' || M[p.type].group === library.group) &&
         (library.difficulty === 'all' || p.difficulty === library.difficulty),
     );
@@ -456,7 +479,7 @@
         (library.status === 'favorites' && prefs.favorites.includes(p.id))
       );
     });
-    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${['Gentle', 'Steady', 'Tricky'].map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
+    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${['Gentle', 'Steady', 'Tricky'].map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
       ['started', 'In progress'],
@@ -496,11 +519,15 @@
       return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every chapter is yours to open.</h3><p>Play in order or follow your curiosity. Your chapter progress stays with the same saved puzzles in the collection.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
       next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0];
-    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} chapters · ${b.chapters.reduce((sum, c) => sum + (find(c.id).minutes || 8), 0)} minute estimate</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
+    const chapterTimes = b.chapters.map((c) => find(c.id)).map(timing),
+      caseTime = chapterTimes.every(Boolean)
+        ? `${chapterTimes.reduce((sum, label) => sum + Number.parseInt(label, 10), 0)} minute estimate`
+        : '';
+    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} chapters${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
       .map((c, i) => {
         const p = find(c.id),
           finished = solved(rec(p));
-        return `<article class="chapter-entry ${finished ? 'finished' : ''}"><button class="chapter" data-action="open" ${openAttrs(p, b.id)}><span class="chapter-num">${finished ? icon('check') : String(i + 1).padStart(2, '0')}</span><span class="chapter-copy"><small>${esc(c.time || M[p.type].title)} · ${p.minutes || 8} min</small><strong>${esc(c.name)}</strong><span>${esc(c.brief)}</span></span>${icon('arrow')}</button>${finished && c.revelation ? `<div class="chapter-revelation"><span class="eyebrow">EVIDENCE ESTABLISHED</span><p>${esc(c.revelation)}</p></div>` : ''}</article>`;
+        return `<article class="chapter-entry ${finished ? 'finished' : ''}"><button class="chapter" data-action="open" ${openAttrs(p, b.id)}><span class="chapter-num">${finished ? icon('check') : String(i + 1).padStart(2, '0')}</span><span class="chapter-copy"><small>${esc(c.time || M[p.type].title)}${timing(p) ? ` · ${timing(p)}` : ''}</small><strong>${esc(c.name)}</strong><span>${esc(c.brief)}</span></span>${icon('arrow')}</button>${finished && c.revelation ? `<div class="chapter-revelation"><span class="eyebrow">EVIDENCE ESTABLISHED</span><p>${esc(c.revelation)}</p></div>` : ''}</article>`;
       })
       .join(
         '',
@@ -932,6 +959,8 @@
   function accusation(p, s) {
     if (!['scene', 'dossier', 'witness'].includes(p.type)) return '';
     if (current.completedAt) return '';
+    if (p.type === 'dossier' && !p.question)
+      p = { ...p, question: 'Who carried the missing object?' };
     const ready =
       p.type === 'scene'
         ? C.sceneComplete(p, s)
@@ -939,7 +968,7 @@
           ? X.dossierReady(p, s)
           : true;
     if (!ready)
-      return `<div class="locked-question">${icon('lock')}${p.type === 'scene' ? 'Fit every person and clue to unlock your accusation.' : 'Complete both category grids to identify the culprit.'}</div>`;
+      return `<div class="locked-question">${icon('lock')}${p.type === 'scene' ? 'Fit every person and clue to unlock your accusation.' : 'Complete both category grids before answering the final question.'}</div>`;
     const people =
       p.type === 'scene'
         ? p.people.filter((x) => x.id !== p.victim).map((x) => ({ id: x.id, name: x.name }))
@@ -965,7 +994,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${chapterAtmosphere(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'help', 'How to play', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${chapterAtmosphere(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'help', 'How to play', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -982,7 +1011,7 @@
       )}</div>${workTab === 'scene' ? sceneMaker() : workTab === 'packs' ? packDesk() : authorGuide()}`;
   }
   function sceneMaker() {
-    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Start with a solver-checked draft. Then edit rooms, furniture and clues in the visual editor below.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator provides a mechanical draft, not a fully edited mystery. Human playtesting still determines whether the clues feel elegant, the story makes sense, and the difficulty is right.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>All twelve game families can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
+    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Start with a solver-checked draft. Then edit rooms, furniture and clues in the visual editor below.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator provides a mechanical draft, not a fully edited mystery. Human playtesting still determines whether the clues feel elegant, the story makes sense, and the difficulty is right.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>Any supported puzzle family can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
   }
   function draftEditor() {
     const p = draft;
@@ -1041,7 +1070,7 @@
       )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div></section>`;
   }
   function packDesk() {
-    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any of the twelve game families.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div>${
+    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div>${
       packs
         .slice(1)
         .map(
@@ -1053,7 +1082,7 @@
     }</section></div>`;
   }
   function authorGuide() {
-    return `<div class="workshop-grid"><section class="panel"><h2>Scenarios are data.</h2><p>A pack has an ID, title, version and list of puzzle definitions. Each puzzle has its own stable ID and revision, plus the fields its engine needs. Export the starter examples to see every supported format.</p><div class="guide-rules"><div class="guide-rule">Use a unique, lowercase ID such as my-puzzle-01. An imported pack must not collide with the installed collection.</div><div class="guide-rule">A solution is required for validation and optional reveals. The importer independently checks that the rules allow exactly one solution.</div><div class="guide-rule">Changing a published puzzle’s rules requires a new revision. Existing game saves keep a snapshot of their original puzzle.</div><div class="guide-rule">Text is plain text. There are no HTML snippets, remote asset URLs or executable puzzle plugins in imported packs.</div></div><div class="row actions">${B('Export twelve example puzzles', 'export-template', 'download')}${B('Open scene maker', 'work-tab', 'scene', 'secondary', 'data-value="scene"')}</div></section><section class="panel"><h2>Publish deliberately.</h2><p>Importing adds content to your device. It does not update the public website. For everyone to receive an official pack, add it to the source catalogue, run the tests, build the static release, then update the existing deployment.</p><div class="docs-card"><h3>A new family needs an engine.</h3><p>Implement initial state, actions, constraint checks, completion detection, a bounded solver, definition/state validation, a renderer and a mini lesson. The source bundle documents these extension points.</p></div><div class="docs-card"><h3>Before calling a puzzle finished</h3><p>Verify one solution, solve it without hints, check every clue, test on a narrow screen, and ask another person to play it. Uniqueness is necessary; it does not guarantee an enjoyable deduction path.</p></div><p class="fine" style="margin-top:17px">The full publishing bundle includes architecture, schemas, authoring examples, deployment steps, backup strategy, automated tests and an agent handoff.</p></section></div>`;
+    return `<div class="workshop-grid"><section class="panel"><h2>Scenarios are data.</h2><p>A pack has an ID, title, version and list of puzzle definitions. Each puzzle has its own stable ID and revision, plus the fields its engine needs. Export the starter examples to see every supported format.</p><div class="guide-rules"><div class="guide-rule">Use a unique, lowercase ID such as my-puzzle-01. An imported pack must not collide with the installed collection.</div><div class="guide-rule">A solution is required for validation and optional reveals. The importer independently checks that the rules allow exactly one solution.</div><div class="guide-rule">Changing a published puzzle’s rules requires a new revision. Existing game saves keep a snapshot of their original puzzle.</div><div class="guide-rule">Text is plain text. There are no HTML snippets, remote asset URLs or executable puzzle plugins in imported packs.</div></div><div class="row actions">${B('Export starter examples', 'export-template', 'download')}${B('Open scene maker', 'work-tab', 'scene', 'secondary', 'data-value="scene"')}</div></section><section class="panel"><h2>Publish deliberately.</h2><p>Importing adds content to your device. It does not update the public website. For everyone to receive an official pack, add it to the source catalogue, run the tests, build the static release, then update the existing deployment.</p><div class="docs-card"><h3>A new family needs an engine.</h3><p>Implement initial state, actions, constraint checks, completion detection, a bounded solver, definition/state validation, a renderer and a mini lesson. The source bundle documents these extension points.</p></div><div class="docs-card"><h3>Before calling a puzzle finished</h3><p>Verify one solution, solve it without hints, check every clue, test on a narrow screen, and ask another person to play it. Uniqueness is necessary; it does not guarantee an enjoyable deduction path.</p></div><p class="fine" style="margin-top:17px">The full publishing bundle includes architecture, schemas, authoring examples, deployment steps, backup strategy, automated tests and an agent handoff.</p></section></div>`;
   }
   function render() {
     if (route.page === 'quiet') {
@@ -1373,7 +1402,7 @@
     else if (p.type === 'scene' && C.sceneComplete(p, current.state))
       feedback = 'Every placement fits. Now identify the suspect in the victim’s room.';
     else if (p.type === 'dossier' && X.dossierReady(p, current.state))
-      feedback = 'Both grids fit the clues. Use the final evidence to identify the culprit.';
+      feedback = 'Both grids fit the clues. Use the final evidence to answer the final question.';
     else
       feedback =
         'No current rule conflicts found. This does not guarantee every entry is correct; the puzzle is not complete yet.';
@@ -2183,6 +2212,19 @@
         break;
       case 'hint':
         showHint();
+        break;
+      case 'curation-venue':
+        library.venue = v || '';
+        library.limit = 24;
+        render();
+        break;
+      case 'curation-notes':
+        if (current && globalThis.AlibiCuration.get(current.puzzle))
+          dialog(
+            'Curator notes.',
+            globalThis.AlibiCuration.notes(current.puzzle, !!current.completedAt),
+            [{ label: 'Back to puzzle', action: 'close-dialog' }],
+          );
         break;
       case 'review-record':
         reviewRecord();

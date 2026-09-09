@@ -1,6 +1,101 @@
 # Live development state
 
-Updated 2026-09-08. Git, CI and review threads take precedence over prose.
+Updated 2026-09-09. Git, CI and review threads take precedence over prose.
+
+## Curation Cabinet 0.7.0 candidate
+
+The isolated `codex/curation-cabinet` integrates the final asset commit `3dddb47`, 208 new core
+puzzles in thirteen bounded packs, and 59 separately versioned challenges. All 116 published
+puzzles and legacy fixtures are unchanged; the official aggregate contains 324 puzzles.
+[CURATION.md](CURATION.md) records source identity, budgets and reproduction. Trusted editorial
+notes bind by ID/revision; answer notes require completion, and unsolved cards use venue covers.
+Four object-level Met Open Access images have recorded hashes, credits and 600px runtime copies.
+The unavailable Monet candidate is documented. Difficulty remains provisional; absent times are
+not replaced by fabricated estimates. Earlier film footage is explicitly dated to the 116-puzzle edition.
+
+The challenge launcher is in the optional Quiet Wing, with validated fixed starts, replayed logs,
+locked givens/prefixes and separate challenge backups. Restore uses the existing timed worker.
+Independent review found a future-record overwrite and the fix now refuses writes both after
+failed reads and inside the transaction; real IndexedDB tests prove preservation. Core/editorial
+review found no blockers. The combined repository check, supplied 324 and 59 checkers, 182 new
+mobile controls, 66 curation real-origin checks and every challenge mechanism at phone/desktop
+widths pass. Visual inspection also caught missing challenge grid styling; explicit spatial
+row/column assertions now cover grid mechanisms and the shipped phone/desktop queen board.
+Linux CI exposed narrow navigation min-content overflow; phone rail labels now wrap within their
+flex cells. Final-head CI and publication evidence will be recorded in the PR/release receipt.
+Release closeout fixes #20 (Duel forcing-opening completion) and #21 (occupied warehouse goals),
+adds coordinate/state names to queen and knight controls, retains challenge sessions across
+Quiet Wing remounts, and awaits challenge writes before updates. Session/protected challenge
+stores refuse updates until exported or resolved. Real-control regressions pass. The release
+fixture now locates configuration after other globals, and keeps its disposable Chromium profile
+short enough for Windows service-worker storage; all 18 two-release checks pass.
+Challenge reads now wait for pending writes before remounting; the immediate-two-write regression
+and focused independent review pass. Remaining backup-scope wording and Duel/Borough coordinate
+labels are tracked in [#22](https://github.com/Chris0Jeky/Alibi/issues/22).
+
+The remaining bundle inventory has been reconciled: all packs, challenge files, editorial JSON
+and 17 venue/icon SVGs match the source; board/solution SVGs and the review studio are reference
+material, and the sampler is for human playtesting. No required source payload remains unused.
+
+This candidate does not certify human solve quality or the physical Android incident. Owner
+checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md). The original deployment identity is unchanged.
+
+## Local integrated asset experience
+
+`codex/asset-library` builds `a08ee0dba82d`, preserving the 116-puzzle definitions, engine and
+save contracts. The produced asset families now have app bindings: Field notes at `#/quiet/folio`
+offers 43 modules, three scenes, 32 companion expressions, 24 audio assets and eight film cuts.
+Eight existing realm building types now use original library geometry. This pass also produces
+four illustrated rooms, six distinct fictional club portraits, and three additional detail models.
+The home invitation and Quiet Wing headers use the new imagery; actual companion actions use
+the expression artwork while retaining animated 3D. Sounds are deliberate and stop on mute,
+backgrounding and disposal. Single-file previews omit unavailable optional media explicitly.
+
+Core offline pack: 1,259,087 bytes (103,722 fewer than the first asset pass); initial JS gzip:
+111,373 bytes (15,891 fewer). The automatic optional wing is 2,189,871 bytes. Field notes has a
+separate explicit 7,393,439-byte offline copy; films remain streaming-only. Existing budgets pass.
+Source masters remain outside the distribution. Catalogue: 104 original designs/compositions,
+80 reused designs and 331 derivatives. No push, deployment or new charges in this pass.
+
+Verified: `npm run verify` (52 Node entries plus existing engine/storage contracts), 182 puzzle
+controls, 106 Club controls, 156 Quiet Wing controls, 92 real-origin checks, 18 two-release update
+checks, 40 Quiet Wing origin checks, 28 realm controls, 14 GPU/lifecycle checks, and 45 integrated
+experience checks. Final desktop/phone-sized screenshots were inspected. Independent review's
+single-file optional-media finding is fixed and regression-tested; its focused follow-up is clear.
+Physical phones/TalkBack, auditory acceptance and external editor interoperability remain open.
+
+See [EXPERIENCE-INTEGRATION.md](EXPERIENCE-INTEGRATION.md), the
+[integration ledger](../assets-source/library/integration-ledger.json), and
+[HUMAN_TODO.md](../HUMAN_TODO.md). The separate curation task owns `alibi-curation/` and
+`.curation-worktrees/`; those inputs are preserved and are not part of this asset pass.
+
+## First asset library pass (historical)
+
+The first asset pass built `fac4d1d1ad6c` from the recorded 0.6.0 baseline. Twelve original
+editorial vignette derivatives now illustrate selected puzzle cards; 31 distinct stamp silhouettes
+retain the existing six Club and 25 Quiet Wing unlock predicates. Puzzle definitions, IDs, revisions,
+engines and saves are unchanged. Zen hides decorative highlights; keyboard focus remains visible.
+The reusable production library includes exact category/interface exports and lesson captures,
+realm geometry and composed scenes, four layered companion state sets, locally synthesized audio
+and authored HyperFrames films. These larger production assets stay outside the game build.
+
+See [ASSET-LIBRARY.md](ASSET-LIBRARY.md), the machine-readable
+[production ledger](../assets-source/library/production-ledger.json),
+[coverage matrix](../assets-source/library/coverage.json) and
+[catalogue](../assets-source/library/catalogue.json). Start `npm run assets:gallery` for the local
+inspector on port 8790. All generation used local tools or unchanged existing assets; no new paid
+submissions, purchases or credits were used. No push, PR, deployment or public publication is
+authorized by this asset session. The hosted release section below describes the earlier release.
+
+The local app passes verification, 182 puzzle UI checks, 106 Club checks, 156 Quiet Wing checks,
+92 real-origin persistence/offline checks and 18 update checks. Source-library acceptance includes
+actual controls, decoding, hashes, spoiler filtering, simulated mobile/desktop views and all 32
+companion state previews. Final production checks and limits are recorded in the ledger.
+Core offline pack is 1,362,809 bytes (+33,344); initial JS gzip is 127,264 (+2,126); optional Quiet
+Wing is 1,977,995 (+51). Budgets were not changed, and core headroom is only about 340 bytes.
+Auditory acceptance, physical phones/TalkBack, sustained device performance and external editor
+interoperability remain unverified. [HUMAN_TODO.md](../HUMAN_TODO.md) stays open for those checks
+and owner licence/name decisions. This local candidate does not certify the reported phone freeze.
 
 ## Hosted release 0.6.0
 

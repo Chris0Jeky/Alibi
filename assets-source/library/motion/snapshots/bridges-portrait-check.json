@@ -1,0 +1,173 @@
+{
+  "ok": true,
+  "strict": true,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 3,
+    "findings": [
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 4.5,
+        "selector": "#scene-feature > div:nth-of-type(4) > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 171.87,
+          "right": 298.39,
+          "bottom": 187.97,
+          "width": 247.99,
+          "height": 16.1
+        },
+        "containerSelector": "#scene-feature > div:nth-of-type(4) > h2:nth-of-type(1)",
+        "text": "THE COLLECTION IS OPEN",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "4.35"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 171.87,
+          "width": 247.99,
+          "height": 16.1
+        },
+        "firstSeen": 4.5,
+        "lastSeen": 4.5,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 8.375,
+        "selector": "#scene-feature-3 > div:nth-of-type(3) > div:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 176.43,
+          "right": 168.9,
+          "bottom": 192.53,
+          "width": 118.5,
+          "height": 16.1
+        },
+        "containerSelector": "#scene-feature-3 > div:nth-of-type(3) > h2:nth-of-type(1)",
+        "text": "OPEN A FILE",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "8.25"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 176.43,
+          "width": 118.5,
+          "height": 16.1
+        },
+        "firstSeen": 8.375,
+        "lastSeen": 8.375,
+        "occurrences": 1,
+        "heldMs": 0
+      },
+      {
+        "code": "content_overlap",
+        "severity": "info",
+        "time": 8.625,
+        "selector": "#scene-feature-3 > div:nth-of-type(3) > h2:nth-of-type(1)",
+        "message": "Two text blocks overlap and may render unreadable.",
+        "rect": {
+          "left": 50.4,
+          "top": 215.42,
+          "right": 332.25,
+          "bottom": 345.42,
+          "width": 281.85,
+          "height": 130
+        },
+        "containerSelector": "#scene-feature-3 > div:nth-of-type(3) > p:nth-of-type(1)",
+        "text": "Take your time.",
+        "fixHint": "Give each block its own zone, or mark intentional layering with data-layout-allow-overlap.",
+        "dataAttributes": {
+          "data-enter": "up",
+          "data-at": "8.55"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 50.4,
+          "y": 215.42,
+          "width": 281.85,
+          "height": 130
+        },
+        "firstSeen": 8.625,
+        "lastSeen": 8.625,
+        "occurrences": 1,
+        "heldMs": 0
+      }
+    ],
+    "duration": 12,
+    "samples": [
+      0,
+      6,
+      11.8
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 3,
+    "truncated": false
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      0,
+      6,
+      11.8
+    ],
+    "checked": 22,
+    "passed": 22
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "_meta": {
+    "version": "0.8.31",
+    "latestVersion": "0.8.31",
+    "updateAvailable": false
+  },
+  "productionToolNotes": "HyperFrames reported caching Inter font faces during compilation; machine-local cache paths omitted. No font CDN is referenced by the authored sources or app runtime."
+}

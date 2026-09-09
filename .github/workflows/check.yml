@@ -11,7 +11,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       PYTHONUTF8: '1'
     steps:
@@ -26,10 +26,23 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: npm ci
+      - name: Ensure audio asset validation tools are available
+        run: |
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --yes ffmpeg
+          fi
+          ffprobe -version
       - run: npm run verify
+      - run: node tools/verify-curation.cjs
+      - run: node tools/curation/replay_challenges.cjs src/quiet-wing/engine.js src/club-engines.js test-results/challenges-replay.json
+      - run: npm run assets:media
       - run: python -m pip install -r requirements-dev.txt
+      - run: python tools/assets/inspect-media.py
       - run: python -m playwright install --with-deps chromium
       - run: python tests/browser_ui.py
+      - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=390 python tests/browser_ui.py
+      - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=1280 python tests/browser_ui.py
       - name: Play all After Hours games and reversible assistance
         run: python tests/browser_club.py
       - name: Exercise real IndexedDB and offline play
@@ -37,6 +50,8 @@ jobs:
           npm start > /tmp/alibi-server.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
+          python tests/browser_curation.py
+          ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
           python tests/browser_restart.py
           python tests/browser_boot.py
           python tests/browser_quiet.py
@@ -48,6 +63,12 @@ jobs:
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
           python tests/browser_backup_worker.py
+          node tools/serve-assets.cjs > /tmp/alibi-assets.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
+          python tests/browser_assets.py
+          python tests/browser_model_assets.py
+          python tests/browser_asset_media.py
+          python tests/browser_experience.py
       - name: Play the Bellweather expedition and Bridges on mobile
         run: python tests/browser_expedition.py
       - name: Verify an in-progress game survives a release update
@@ -78,4 +99,7 @@ jobs:
             test-results/browser-boot/
             test-results/quiet-wing/
             test-results/atmosphere/
+            test-results/curation-ui/
+            test-results/curation-check/
+            test-results/challenges-replay.json
           retention-days: 14

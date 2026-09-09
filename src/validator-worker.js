@@ -2,7 +2,14 @@ self.onmessage = (e) => {
   try {
     let value;
     const m = e.data;
-    if (m.type === 'combined-backup') {
+    if (m.type === 'challenge-run') {
+      if (typeof m.text !== 'string' || m.text.length > 3 * 1024 * 1024)
+        throw Error('Challenge save exceeds the import limit.');
+      value = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
+        quiet: QWEngine,
+        club: AlibiClubEngines,
+      }).validateRun(JSON.parse(m.text));
+    } else if (m.type === 'combined-backup') {
       const data = JSON.parse(m.text);
       if (
         !data ||

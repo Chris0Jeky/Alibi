@@ -2,6 +2,55 @@
   margin: 0;
   min-width: 0;
 }
+.folio-invitation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+  margin: 32px 0;
+  padding: 24px;
+  background: #173e49;
+  color: #f4ead4;
+  text-decoration: none;
+  border-radius: 18px;
+}
+.folio-invitation > img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 5px;
+}
+.folio-invitation > span {
+  display: grid;
+  gap: 15px;
+}
+.folio-invitation strong {
+  font:
+    36px/1.05 Georgia,
+    serif;
+  letter-spacing: -0.035em;
+}
+.folio-invitation .eyebrow,
+.folio-invitation b {
+  color: #ebc17e;
+}
+.folio-invitation > span > span {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.folio-invitation b {
+  font-size: 13px;
+}
+body.zen .folio-invitation {
+  display: none;
+}
+@media (max-width: 650px) {
+  .folio-invitation {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 18px;
+  }
+}
 .museum-atmosphere img {
   width: 100%;
   height: 100%;

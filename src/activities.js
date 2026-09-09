@@ -126,6 +126,14 @@
     return operation;
   }
   async function flush() {
+    const challengeStore = G.QWApp?.challengeStore;
+    if (challengeStore) {
+      await challengeStore.flush();
+      if (challengeStore.info().mode === 'session' || challengeStore.info().protected)
+        throw Error(
+          'Return to Challenges and export or resolve its session saves before updating.',
+        );
+    }
     if (active) await active.flush();
     else if (G.QWRetainedDirty)
       throw Error('Return to Quiet Wing and export its unsaved session before updating.');
