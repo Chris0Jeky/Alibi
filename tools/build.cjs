@@ -312,12 +312,14 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     files: files(DIST).length,
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
+    castleBytes: quiet.castleBytes,
     experienceBytes: experience.bytes,
     enhancementBytes: delivery.bytes,
     experienceOfflineBytes: experience.manifest.bytes,
     coreOfflineBytes:
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
+      quiet.castleBytes -
       experience.bytes -
       delivery.bytes,
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,

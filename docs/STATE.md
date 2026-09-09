@@ -2,6 +2,19 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Wrenmere production integration in progress
+
+`codex/wrenmere-production` integrates all original commits from draft PRs #39–42 into
+the `8ffe98a` main baseline in an isolated checkout. The merge is conflict-free. The full
+format/build/Node gate passes after updating optional-pack accounting and the activity-host
+lifecycle regression to cover the added castle activity. This is a local source checkpoint,
+not a release. Castle restore (#44), bespoke assets/navigation (#45–47), investigation tools
+and production acceptance remain the active work. Existing public puzzle definitions and
+all existing saves remain unchanged. Owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+The supplied `alibi-castle/` directory is reference input in the original checkout. Its full
+resource map and the production strategy are being reconciled under `docs/castle/`.
+
 ## Player-feedback QA 0.8.2 live
 
 The complete feedback slice and keyboard-focus follow-up are published on both existing origins.
