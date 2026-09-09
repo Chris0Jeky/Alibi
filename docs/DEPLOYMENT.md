@@ -86,7 +86,8 @@ Current references: [Static Assets](https://developers.cloudflare.com/workers/st
 
 Deploy the complete output including `enhanced-*` artwork. These optional files are excluded
 from core installation, not from publication. Preserve the emitted CSP (`img-src` allows decoded
-blob images; `connect-src` lists only configured mirror origins). No external mirror is configured
-by default. Before enabling one, verify actual CORS/MIME/fingerprints and failure recovery on both
+blob images; `connect-src` lists only configured mirror origins). Five photographic alternatives
+use approved Unsplash/Pexels endpoints plus exact same-origin copies; museum detail stays local.
+Before changing a source, verify actual CORS/MIME/fingerprints and failure recovery on both
 app origins using [ASSET-DELIVERY.md](ASSET-DELIVERY.md). A first-party or CDN outage must retain
 the same complete compact artwork, and must never change save stores or force an app update.

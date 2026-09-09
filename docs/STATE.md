@@ -2,7 +2,27 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Adaptive delivery candidate (2026-09-09)
+## Theatrical edition 0.8.0 candidate
+
+PR #26 is being integrated with merged PR #27 on `codex/theatrical-edition`. Eight complete local
+rooms combine original painted artwork, line emblems, weather, procedural room sound, five
+source-verified photographic alternatives and four deliberately played films. The existing
+interactive Field notes library remains available through its own optional pack. Delivery uses
+nine verified enhancements and eight concurrent-safe cache slots. CSS minification preserves
+all existing core/JS/CSS/Wing budgets. No published puzzle definitions or save identities change.
+
+The 88 new theatre checks, 16 delivery checks, 182 puzzle UI checks, 92 real-origin checks,
+66 curation checks, 158 Quiet Wing checks, Field notes and After Hours suites pass locally.
+All five real photo endpoints returned the pinned WebP bytes through browser CORS checks.
+Independent final review and CI precede deployment; this candidate section does not claim a new
+hosted release. The Sites fallback's missing response headers are still tracked in #6; a matching
+document CSP/referrer policy now provides the supported document-level protection.
+
+See [THEATRICAL-EDITION.md](THEATRICAL-EDITION.md), [ASSET-DELIVERY.md](ASSET-DELIVERY.md) and
+[ONLINE-ASSETS.md](ONLINE-ASSETS.md). [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for physical
+Android, TalkBack, sensory quality, sustained performance, licensing and player judgement.
+
+## Adaptive delivery 0.7 source checkpoint (historical; merged in PR #27)
 
 `codex/adaptive-assets` starts from `ae5d127` and implements the policy in
 [ASSET-DELIVERY.md](ASSET-DELIVERY.md). Museum interludes retain complete 600px artwork in the
@@ -179,7 +199,7 @@ run passed. The single garden image now loads eagerly inside the already-lazy ac
 browser decode assertion has a ten-second deadline and failure diagnostics. No optional activity
 code or models are loaded on the cabinet by this change.
 
-## Quiet Wing expansion in progress
+## Quiet Wing expansion (historical; superseded by 0.6/0.7 releases)
 
 The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
 See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding scope.
@@ -230,7 +250,7 @@ with raised transitions to adjacent higher plots. Cliffs and row boundaries do n
 The new geometry regression, full verify, 28 city controls and 14 GPU/fallback checks pass.
 Postcard inputs now have the same readable sizing and 44-pixel minimum as other touch controls.
 
-## Quiet Wing source candidate
+## Quiet Wing source candidate (historical; superseded)
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
   commits precede the handoff commit. See [QUIET-WING.md](QUIET-WING.md) for source disposition,

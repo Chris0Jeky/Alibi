@@ -1,7 +1,7 @@
 /* Optional, immutable image upgrades. Complete local artwork is always rendered first. */
 (function (G) {
   'use strict';
-  const CACHE = 'alibi-enhanced-images-v1',
+  const CACHE = 'alibi-enhanced-images-v2',
     MAX_BYTES = 1024 * 1024,
     MAX_ENTRIES = 8;
   const entries = G.ALIBI_DELIVERY || {};
@@ -28,6 +28,10 @@
       }),
     ]).finally(() => clearTimeout(timer));
   }
+  // Retire only our known superseded image cache. Never enumerate or delete save/shell caches.
+  try {
+    if (G.caches?.delete) void bounded(G.caches.delete('alibi-enhanced-images-v1')).catch(() => {});
+  } catch {}
   async function validated(response, entry) {
     if (
       !response?.ok ||
@@ -64,8 +68,10 @@
     const entry = entries[id];
     if (!entry || preference === 'local' || G.ALIBI_CONFIG?.standalone || signal?.aborted)
       return null;
-    // Cache keys are local, content-addressed URLs, even when a CDN supplied the bytes.
-    const key = new URL(entry.urls.at(-1), G.location.href).href;
+    // Eight deterministic slots remain bounded even when several tabs write concurrently.
+    // A collision only replaces optional detail; the fingerprint check prevents a wrong image.
+    const slot = parseInt(entry.sha256.slice(0, 8), 16) % MAX_ENTRIES;
+    const key = new URL('./__alibi-detail/' + slot, G.location.href).href;
     let cache;
     try {
       cache = await bounded(G.caches.open(CACHE));
@@ -92,15 +98,10 @@
         const blob = await validated(response, entry);
         if (controller.signal.aborted || !allowed()) return null;
         if (cache) {
-          // Serialize writes and evictions. Optional storage has no access to save databases or shell caches.
+          // Serialize this document's writes to the fixed slots. Optional storage has no access to save databases or shell caches.
           writeQueue = writeQueue
             .catch(() => {})
             .then(async () => {
-              const keys = await bounded(cache.keys());
-              for (const old of keys
-                .filter((r) => r.url !== key)
-                .slice(0, Math.max(0, keys.length - MAX_ENTRIES + 1)))
-                await bounded(cache.delete(old));
               await bounded(
                 cache.put(key, new Response(blob, { headers: { 'Content-Type': entry.mime } })),
               );
@@ -130,6 +131,8 @@
       if (entry) {
         img.src = entry.fallback;
         img.dataset.assetQuality = 'compact';
+        const credit = img.parentElement?.querySelector('[data-adaptive-credit]');
+        if (credit) credit.hidden = true;
       }
     }
     async function pump() {
@@ -147,6 +150,8 @@
         if (!controller.signal.aborted && img.isConnected && preference !== 'local') {
           img.src = url;
           img.dataset.assetQuality = 'enhanced';
+          const credit = img.parentElement?.querySelector('[data-adaptive-credit]');
+          if (credit) credit.hidden = false;
         }
       } catch {
         /* Decode failure retains the compact artwork. */

@@ -207,6 +207,19 @@ corrupt.classics.hanoi3 = {
   state: {},
 };
 ok(!E.validateState(corrupt).classics.hanoi3);
+const boundedActions = Array.from({ length: E.MAX_CLASSIC_ACTIONS }, (_, i) => ({
+    i: 0,
+    kind: i % 2 ? 'empty' : 'fill',
+  })),
+  atLimit = E.newState(now),
+  overLimit = E.newState(now);
+atLimit.classics.jugs = { actions: boundedActions, state: {} };
+overLimit.classics.jugs = {
+  actions: [...boundedActions, { i: 0, kind: 'fill' }],
+  state: {},
+};
+ok(E.validateState(atLimit).classics.jugs, 'Classic history at 5,000 actions remains recoverable');
+ok(!E.validateState(overLimit).classics.jugs, 'Classic history over 5,000 actions is rejected');
 reject(() => E.validateState({ ...corrupt, schema: 8 }));
 let awards = E.newState(now);
 eq(E.award(awards, now), [], 'A demo village does not immediately award anything');

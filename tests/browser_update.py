@@ -164,8 +164,8 @@ def make_releases() -> tuple[tempfile.TemporaryDirectory, Path, Path]:
 
 
 def wait_for_app(page, version: str | None = None) -> None:
-    page.wait_for_function("window.AlibiDiagnostics && AlibiDiagnostics.getCurrent()")
-    page.wait_for_function("AlibiDiagnostics.getStatus().mode === 'indexeddb'")
+    page.wait_for_function('() => (window.AlibiDiagnostics && AlibiDiagnostics.getCurrent())')
+    page.wait_for_function("() => (AlibiDiagnostics.getStatus().mode === 'indexeddb')")
     if version:
         page.wait_for_function(
             "(expected) => window.ALIBI_CONFIG?.version === expected", arg=version
@@ -182,7 +182,7 @@ def dismiss_lesson(page) -> None:
             close = dialog.locator('[data-action="close-dialog"]')
             if close.count():
                 close.click()
-        page.wait_for_function("!document.querySelector('dialog[open]')")
+        page.wait_for_function("() => (!document.querySelector('dialog[open]'))")
 
 
 def current(page) -> dict:
@@ -208,7 +208,7 @@ def make_sudoku_move(page, expected_moves: int) -> dict:
         "(moves) => AlibiDiagnostics.getCurrent()?.moves === moves", arg=expected_moves
     )
     page.wait_for_function(
-        "document.querySelector('#save-state')?.textContent.includes('Saved on this device')"
+        "() => (document.querySelector('#save-state')?.textContent.includes('Saved on this device'))"
     )
     return current(page)
 
@@ -252,8 +252,8 @@ def run() -> dict:
             page.goto(puzzle_url, wait_until="domcontentloaded")
             wait_for_app(page)
             dismiss_lesson(page)
-            page.wait_for_function("navigator.serviceWorker.ready")
-            page.wait_for_function("AlibiDiagnostics.getStatus().offlineReady === true")
+            page.wait_for_function('() => (navigator.serviceWorker.ready)')
+            page.wait_for_function('() => (AlibiDiagnostics.getStatus().offlineReady === true)')
             if not page.evaluate("!!navigator.serviceWorker.controller"):
                 page.reload(wait_until="domcontentloaded")
                 wait_for_app(page)
@@ -285,7 +285,7 @@ def run() -> dict:
             page2.goto(puzzle_url, wait_until="domcontentloaded")
             wait_for_app(page2)
             dismiss_lesson(page2)
-            page2.wait_for_function("navigator.serviceWorker.ready")
+            page2.wait_for_function('() => (navigator.serviceWorker.ready)')
             page2_loads_before_update = load_events[0]
             check(
                 page2.evaluate("ALIBI_CONFIG.version") == a_config["version"],
@@ -304,7 +304,7 @@ def run() -> dict:
             page.wait_for_function(
                 "async () => !!(await navigator.serviceWorker.getRegistration())?.waiting"
             )
-            page.wait_for_function("AlibiDiagnostics.getStatus().waitingUpdate === true")
+            page.wait_for_function('() => (AlibiDiagnostics.getStatus().waitingUpdate === true)')
             check(
                 page.locator('[data-action="apply-update"]').is_visible(),
                 "Release B appears as the actual Save & update banner",
@@ -327,10 +327,10 @@ def run() -> dict:
             # This is the app's real activation control.  The page reload is
             # expected only after the user has asked to switch releases.
             page.locator('[data-action="apply-update"]').click(no_wait_after=True)
-            page.wait_for_function("window.AlibiDiagnostics && window.ALIBI_CONFIG")
+            page.wait_for_function('() => (window.AlibiDiagnostics && window.ALIBI_CONFIG)')
             wait_for_app(page, f"{a_config['version']}-test-fixture-b")
-            page.wait_for_function("!!navigator.serviceWorker.controller")
-            page.wait_for_function("AlibiDiagnostics.getCurrent()?.moves === 2")
+            page.wait_for_function('() => (!!navigator.serviceWorker.controller)')
+            page.wait_for_function('() => (AlibiDiagnostics.getCurrent()?.moves === 2)')
             b_config = page.evaluate(
                 "() => ({version: ALIBI_CONFIG.version, build: ALIBI_CONFIG.build})"
             )
@@ -368,7 +368,7 @@ def run() -> dict:
 
             page2.reload(wait_until="domcontentloaded")
             wait_for_app(page2, f"{a_config['version']}-test-fixture-b")
-            page2.wait_for_function("AlibiDiagnostics.getCurrent()?.moves === 2")
+            page2.wait_for_function('() => (AlibiDiagnostics.getCurrent()?.moves === 2)')
             b_run_2 = current(page2)
             check(
                 b_run_2["state"] == expected_state,

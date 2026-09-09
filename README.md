@@ -123,3 +123,7 @@ Run `npm run assets:gallery` to inspect the source-backed production library at
 `http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
 realm modules and companion states, sound previews and authored motion. Large production files
 stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).
+
+The [theatrical edition](docs/THEATRICAL-EDITION.md) adds eight atmospheric rooms, locally composed
+sound, credited optional photography and short films. The [delivery strategy](docs/ASSET-DELIVERY.md)
+keeps complete artwork, controls and play available offline after installation.

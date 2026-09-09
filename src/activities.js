@@ -6,8 +6,10 @@
     epoch = 0,
     offline = false,
     caching = null,
-    operation = Promise.resolve();
+    operation = Promise.resolve(),
+    preferences = null;
   const config = () => G.ALIBI_QUIET_CONFIG;
+  const copyPreferences = (value) => (value ? { ...value } : null);
   async function load() {
     if (G.AlibiQuietWing) return;
     if (!loaded)
@@ -76,13 +78,15 @@
       offline = false;
     }
   }
-  function enter(host) {
+  function enter(host, options = {}) {
+    if (options.preferences) preferences = copyPreferences(options.preferences);
     const token = ++epoch;
     operation = operation
       .catch(() => {})
       .then(async () => {
         if (token !== epoch || !host.isConnected) return;
         if (active) {
+          active.setPreferences?.(preferences);
           active.route();
           return;
         }
@@ -101,6 +105,7 @@
           css,
           media: c.media,
           sources: c.sources,
+          preferences,
         });
         if (token !== epoch || !host.isConnected) {
           handle.dispose();
@@ -147,11 +152,16 @@
     if (G.QWStore?.info().blocked)
       throw Error('Export or resolve Quiet Wing recovery before updating.');
   }
+  function setPreferences(value) {
+    preferences = copyPreferences(value);
+    active?.setPreferences?.(preferences);
+  }
   G.AlibiActivities = {
     enter,
     leave,
     flush,
     load,
+    setPreferences,
     diagnostics: () => ({ loaded: !!G.AlibiQuietWing, active: !!active, offline }),
   };
 })(globalThis);

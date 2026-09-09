@@ -31,7 +31,7 @@ with sync_playwright() as p:
         image = gallery(page)
         page.wait_for_function('()=>document.querySelector("img[data-adaptive-image]")?.dataset.assetQuality === "enhanced"')
         check(image.evaluate('(i)=>i.naturalHeight') == 1600, 'Online gallery decodes 1600px artwork ' + str(width))
-        page.wait_for_function('async()=> (await (await caches.open("alibi-enhanced-images-v1")).keys()).length>0')
+        page.wait_for_function('async()=> (await (await caches.open("alibi-enhanced-images-v2")).keys()).length>0')
         check(not page.evaluate('document.documentElement.scrollWidth > innerWidth+1'), 'Gallery controls fit viewport ' + str(width))
         page.screenshot(path=str(OUT / f'online-{width}.png'), full_page=True)
         page.locator('[data-asset-mode]').click()

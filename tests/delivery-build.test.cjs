@@ -55,8 +55,15 @@ test('delivery build emits exact derivatives outside the offline shell and valid
   const sw = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
   assert.ok(!sw.includes('/enhanced-'));
   const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
-  assert.equal(info.enhancementBytes, built.bytes);
-  assert.ok(info.enhancementBytes < 3 * 1024 * 1024);
+  const photos = JSON.parse(
+    fs.readFileSync(path.join(root, 'assets-source/online/acquired/receipt.json')),
+  ).assets;
+  assert.equal(info.enhancementBytes, built.bytes + photos.reduce((n, a) => n + a.bytes, 0));
+  assert.ok(info.enhancementBytes < 4 * 1024 * 1024);
+  const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  assert.ok(html.includes('http-equiv="Content-Security-Policy"'));
+  assert.ok(html.indexOf('http-equiv="Content-Security-Policy"') < html.indexOf('<script'));
+  assert.ok(!html.includes('frame-ancestors'), 'framing is a response-header policy only');
   const headers = fs.readFileSync(path.join(root, 'dist/_headers'), 'utf8');
   assert.ok(headers.includes("img-src 'self' data: blob:"));
   assert.ok(headers.includes("script-src 'self';"));
