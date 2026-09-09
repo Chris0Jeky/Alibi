@@ -3,6 +3,7 @@
   'use strict';
   const Calm = typeof module !== 'undefined' ? require('./calm.js') : G.QWCalm;
   const VERSION = 1,
+    MAX_CLASSIC_ACTIONS = 5000,
     SIZE = 14,
     MAX_STACK = 4,
     clone = (x) => JSON.parse(JSON.stringify(x)),
@@ -726,7 +727,7 @@
     ] of Object.entries(o.classics || {})) {
       try {
         let st = classicInitial(id);
-        if (!Array.isArray(v.actions) || v.actions.length > 5000) continue;
+        if (!Array.isArray(v.actions) || v.actions.length > MAX_CLASSIC_ACTIONS) continue;
         for (const a of v.actions) {
           const r = classicMove(st, a);
           if (r.error) throw Error();
@@ -741,6 +742,7 @@
   }
   G.QWEngine = {
     VERSION,
+    MAX_CLASSIC_ACTIONS,
     SIZE,
     SIZES,
     TYPES,
