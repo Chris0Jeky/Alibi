@@ -24,7 +24,7 @@
     const works = (config.artwork || []).filter(
       (a) => a.kind === 'museum-image' && (!venue || a.venue === venue),
     );
-    return `<details class="curation-gallery"><summary>Museum interludes and credits</summary><div>${works.map((a) => `<figure><img src="${esc(G.ALIBI_CURATION_MEDIA?.[a.id])}" alt="${esc(a.alt)}" loading="lazy" decoding="async"><figcaption><strong>${esc(a.title)}</strong><p>${esc(a.note)}</p><small>${esc(a.credit)} <a href="${esc(a.source)}" target="_blank" rel="noopener noreferrer">Museum object record</a></small></figcaption></figure>`).join('')}</div></details>`;
+    return `<details class="curation-gallery"><summary>Museum interludes and credits</summary><p>Complete artwork stays on your device. Sharper detail loads when available and is kept for offline viewing when storage allows.</p><button class="btn secondary small" data-asset-mode aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">Use less data · compact artwork only</button><div>${works.map((a) => `<figure><img data-adaptive-image="${esc(a.id)}" src="${esc(G.ALIBI_CURATION_MEDIA?.[a.id])}" alt="${esc(a.alt)}" loading="lazy" decoding="async"><figcaption><strong>${esc(a.title)}</strong><p>${esc(a.note)}</p><small>${esc(a.credit)} <a href="${esc(a.source)}" target="_blank" rel="noopener noreferrer">Museum object record</a></small></figcaption></figure>`).join('')}</div></details>`;
   }
   G.AlibiCuration = {
     get,

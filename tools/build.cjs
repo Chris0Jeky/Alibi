@@ -125,6 +125,7 @@ function build() {
   const experience = require('./build-experience.cjs')(ROOT, DIST);
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const curation = require('./build-curation.cjs')(ROOT, DIST);
+  const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
@@ -145,6 +146,7 @@ function build() {
     read(path.join(SRC, 'storage.js')),
     read(path.join(SRC, 'presentation.js')),
     read(path.join(SRC, 'asset-library.js')),
+    read(path.join(SRC, 'asset-delivery.js')),
     read(path.join(SRC, 'curation.js')),
     read(path.join(SRC, 'network-hints.js')),
     read(path.join(SRC, 'insights.js')),
@@ -172,11 +174,12 @@ function build() {
         fingerprint +
         JSON.stringify(media) +
         JSON.stringify(quiet.config) +
-        JSON.stringify(curation.media),
+        JSON.stringify(curation.media) +
+        JSON.stringify(delivery.entries),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      `globalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
       require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -248,7 +251,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${delivery.origins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
 /
   Cache-Control: no-cache
 /index.html
@@ -294,9 +297,13 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
     experienceBytes: experience.bytes,
+    enhancementBytes: delivery.bytes,
     experienceOfflineBytes: experience.manifest.bytes,
     coreOfflineBytes:
-      files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) - quiet.bytes - experience.bytes,
+      files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
+      quiet.bytes -
+      experience.bytes -
+      delivery.bytes,
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,

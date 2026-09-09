@@ -3,6 +3,61 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
+
+test('optional download cannot block leaving a mounted activity or flushing its save', async () => {
+  const calls = [];
+  let completeDownload;
+  const env = {
+    Request,
+    AbortSignal,
+    ALIBI_QUIET_CONFIG: {
+      cssSource: '',
+      media: {},
+      files: ['https://test.invalid/wing.js'],
+      script: 'https://test.invalid/wing.js',
+      build: 'fixture',
+    },
+    caches: {
+      open: async () => ({
+        match: async () => undefined,
+        addAll: () =>
+          new Promise((resolve) => {
+            completeDownload = resolve;
+          }),
+      }),
+      keys: async () => [],
+    },
+    AlibiQuietWing: {
+      mount: async () => ({
+        flush: async () => calls.push('flush'),
+        dispose: () => calls.push('dispose'),
+      }),
+    },
+  };
+  vm.runInNewContext(fs.readFileSync(require.resolve('../src/activities.js'), 'utf8'), env);
+  const done = Promise.resolve().then(async () => {
+    await env.AlibiActivities.enter({ isConnected: true, attachShadow: () => ({}) });
+    await env.AlibiActivities.leave();
+    return true;
+  });
+  let timer;
+  try {
+    assert.equal(
+      await Promise.race([
+        done,
+        new Promise((resolve) => {
+          timer = setTimeout(() => resolve(false), 150);
+        }),
+      ]),
+      true,
+    );
+    assert.deepEqual(calls, ['flush', 'dispose']);
+    assert.equal(env.AlibiActivities.diagnostics().offline, false);
+  } finally {
+    clearTimeout(timer);
+    completeDownload?.();
+  }
+});
 test('a route exit serializes with a pending mount and disposes it before the next mount', async () => {
   const calls = [];
   let finishFirst;

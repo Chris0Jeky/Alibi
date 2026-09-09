@@ -10,7 +10,7 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
   const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
   assert.equal(
     info.uncompressedBytes,
-    info.coreOfflineBytes + info.quietWingBytes + info.experienceBytes,
+    info.coreOfflineBytes + info.quietWingBytes + info.experienceBytes + info.enhancementBytes,
   );
   assert.ok(info.experienceBytes < 30 * 1024 * 1024);
   assert.ok(info.experienceOfflineBytes < 9 * 1024 * 1024);

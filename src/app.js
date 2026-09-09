@@ -1089,6 +1089,7 @@
       if (!document.getElementById('quiet-host')) {
         $('#app').innerHTML =
           '<div id="quiet-update"></div><div id="quiet-host"><p style="padding:24px">Opening the quiet wing…</p></div>';
+        globalThis.AlibiDelivery.observe();
         AlibiClub.afterRender(route);
         document.getElementById('zen-exit')?.remove();
       }
@@ -1125,6 +1126,7 @@
         lab: () => AlibiClub.labPage(),
       };
       $('#app').innerHTML = shell((views[route.page] || home)());
+      globalThis.AlibiDelivery.observe();
       theme();
       AlibiClub.afterRender(route);
       if (current)
