@@ -79,8 +79,8 @@
       ? `<a data-adaptive-credit hidden href="${escape(a.source)}" target="_blank" rel="noopener noreferrer">${escape(a.credit)}</a>`
       : '';
   }
-  function bar() {
-    return `<aside class="theatre-rail" aria-label="Room atmosphere"><span class="theatre-rail-title">${emblem(scene?.motif)}<span>${escape(scene?.title || 'The club')}<small>AN IMAGINED PLACE · YOUR OWN PACE</small></span></span><div class="theatre-controls"><button type="button" data-theatre-sound aria-pressed="${sound}">Room sound ${sound ? 'on' : 'off'}</button><button type="button" data-theatre-motion aria-pressed="${movement}">${movement ? 'Still the room' : 'Let it breathe'}</button><button type="button" data-theatre-data aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">${G.AlibiDelivery?.mode() === 'local' ? 'Painted edition' : 'Rich edition'}</button></div></aside>`;
+  function bar(quiet = false) {
+    return `<aside class="theatre-rail" aria-label="Room atmosphere"><span class="theatre-rail-title">${emblem(scene?.motif)}<span>${escape(scene?.title || 'The club')}<small>AN IMAGINED PLACE · YOUR OWN PACE</small></span></span><div class="theatre-controls">${quiet ? '<a href="#/home">Choose a room ↗</a>' : `<button type="button" data-theatre-sound aria-pressed="${sound}">Room sound ${sound ? 'on' : 'off'}</button><button type="button" data-theatre-motion aria-pressed="${movement}">${movement ? 'Still the room' : 'Let it breathe'}</button><button type="button" data-theatre-data aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">${G.AlibiDelivery?.mode() === 'local' ? 'Painted edition' : 'Rich edition'}</button>`}</div></aside>`;
   }
   function room(story) {
     const s = byId.get(choice) || byId.get(story) || scene || config.scenes[0];
@@ -236,6 +236,10 @@
   }
   function attach(r = route, puzzle) {
     route = r;
+    if (r.page === 'quiet') {
+      sound = false;
+      stopSound();
+    }
     const next = choose(r, puzzle),
       changed = next?.id !== scene?.id;
     scene = next || scene;

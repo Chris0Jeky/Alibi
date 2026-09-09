@@ -52,7 +52,8 @@ or paid asset service is necessary for this release.
 The visible rail exposes Room sound, Still the room and Painted/Rich edition controls. Room and
 image preferences persist locally. Reduced-motion, hidden documents and Zen stop decorative
 motion and room audio; returning to the foreground does not unexpectedly restart sound. Films
-pause when hidden, and route disposal closes them. The single-file preview includes all local
+pause when hidden, and route disposal closes them. Entering Quiet Wing stops the core room audio;
+its own existing sound controls then own playback, avoiding two ambience systems at once. The single-file preview includes all local
 room artwork and procedural sound, and honestly labels films as a hosted-edition feature.
 Night, stronger contrast and large text are supported. Game boards remain clear and usable;
 atmospheric layers cannot intercept pointer input. Physical sensory/accessibility acceptance is

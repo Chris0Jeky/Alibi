@@ -1,8 +1,9 @@
 """Actual app integration: optional media, controls, lifecycle and offline notes."""
-import json, urllib.parse
+import json, urllib.parse, os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
+URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').rstrip('/')+'/'
 OUT=ROOT/'test-results/experience'; OUT.mkdir(parents=True,exist_ok=True)
 checks=[]
 def check(ok,label):
@@ -15,10 +16,10 @@ with sync_playwright() as p:
     page.add_init_script("""(() => { const Original=window.Audio; window.__testAudio=[]; window.Audio=function(...args) { const audio=new Original(...args); window.__testAudio.push(audio); return audio; }; })();""")
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.on('request',lambda r:requests.append(r.url))
-    page.goto('http://127.0.0.1:8787/#/home');page.wait_for_selector('.club-welcome')
+    page.goto(URL+'#/home');page.wait_for_selector('.club-welcome')
     page.wait_for_timeout(300)
     check(not any('/folio-' in u for u in requests),'Puzzle startup requests no optional field-notes media')
-    page.goto('http://127.0.0.1:8787/#/quiet/folio');page.wait_for_selector('#folio-stage img')
+    page.goto(URL+'#/quiet/folio');page.wait_for_selector('#folio-stage img')
     page.locator('#folio-stage img').evaluate('(i)=>i.decode()')
     check(page.locator('[data-folio-tab]').count()==6,'Six field-notes sections are in the actual app')
     check(not any(u.endswith('.mp4') or u.endswith('.ogg') for u in requests),'Field notes opens silently without film or audio downloads')
@@ -84,7 +85,7 @@ with sync_playwright() as p:
     page.wait_for_function("()=>document.querySelector('#quiet-host').shadowRoot.querySelector('#folio-model-status').textContent.startsWith('3D ready')")
     check(True,'Kept scene and 3D model work after a real offline reload')
     context.set_offline(False)
-    page.goto('http://127.0.0.1:8787/#/quiet/pets');page.wait_for_selector('[data-pet-action="treat"]')
+    page.goto(URL+'#/quiet/pets');page.wait_for_selector('[data-pet-action="treat"]')
     page.locator('[data-pet-action="treat"]').click()
     check(page.locator('#pet-portrait .state-feed').count()==1,'Actual treat action uses the new illustrated expression')
     page.locator('#room-ambience').select_option('ambience-coastal-window')
@@ -104,7 +105,7 @@ with sync_playwright() as p:
     page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>true}); document.dispatchEvent(new Event('visibilitychange'))")
     check(page.evaluate('window.__testAudio.every(a=>a.paused)'),'Hidden page pauses all soundscape elements')
     page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>false}); document.dispatchEvent(new Event('visibilitychange'))")
-    page.goto('http://127.0.0.1:8787/#/home');page.wait_for_timeout(300)
+    page.goto(URL+'#/home');page.wait_for_timeout(300)
     check(page.evaluate('!AlibiActivities.diagnostics().active'),'Leaving disposes the optional activity')
     check(not errors,'No uncaught app errors: '+str(errors))
     standalone=browser.new_page();missing=[]

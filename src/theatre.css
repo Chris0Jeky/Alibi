@@ -528,3 +528,9 @@ html[data-large='true'] .theatre-note {
   font-size: 10px;
   border-radius: 5px;
 }
+
+.theatre-controls a {
+  color: #f1e5cb;
+  padding: 12px;
+  font-size: 12px;
+}

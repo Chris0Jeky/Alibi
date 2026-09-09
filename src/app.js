@@ -1095,7 +1095,7 @@
         document.getElementById('zen-exit')?.remove();
       }
       document.getElementById('quiet-update').innerHTML =
-        globalThis.AlibiTheatre.bar() +
+        globalThis.AlibiTheatre.bar(true) +
         (waitingUpdate
           ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
           : '');

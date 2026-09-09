@@ -86,7 +86,9 @@ one mirror each and credential-free HTTPS URLs with no query or fragment. Photo 
 separately permits only the approved provider path and `fm`, `fit`, `w`, `q`, `cs` transforms.
 Provider transforms can drift: a hash mismatch deliberately falls back to the same-origin copy. It generates the
 precise `connect-src` origin list and permits decoded `blob:` images; script policy stays local.
-Local development reads the emitted CSP too. Check actual headers on every production host.
+Local development reads the emitted CSP too. The HTML also carries the same document CSP and
+referrer policy for hosts that ignore `_headers`; `frame-ancestors`, MIME/nosniff and permissions
+remain host response concerns. Check actual headers on every production host.
 
 Package CDNs may be used during development to acquire pinned, licensed inputs. **Runtime code
 is a different trust and availability boundary from images.** Bundle required libraries locally;

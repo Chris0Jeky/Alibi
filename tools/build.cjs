@@ -225,7 +225,8 @@ function build() {
     ],
   };
   write(path.join(DIST, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
-  const head = `<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png"><link rel="stylesheet" href="./${cssName}">`;
+  const documentPolicy = `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${delivery.origins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
+  const head = `<meta http-equiv="Content-Security-Policy" content="${documentPolicy}"><meta name="referrer" content="no-referrer"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png"><link rel="stylesheet" href="./${cssName}">`;
   write(
     path.join(DIST, 'index.html'),
     template
@@ -265,7 +266,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${delivery.origins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+  Content-Security-Policy: ${documentPolicy}; frame-ancestors 'none'
 /
   Cache-Control: no-cache
 /index.html
