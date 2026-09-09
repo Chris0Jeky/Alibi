@@ -10,9 +10,12 @@ with sync_playwright() as pw:
     page=browser.new_page()
     page.goto(BASE+'#/settings')
     page.wait_for_function('() => !!window.AlibiDiagnostics')
+    page.context.set_offline(True)
     with page.expect_download() as download:
         page.locator('[data-action="export-all"]').click()
+    page.context.set_offline(False)
     data=json.loads(Path(download.value.path()).read_text(encoding='utf-8'))
+    assert data['manifest']==['cabinet','club'] and any('Quiet Wing was not included:' in w for w in data['warnings'])
     # Reload into the core shell; validation must not execute the activity bundle here.
     page.reload();page.wait_for_function('() => !!window.AlibiDiagnostics')
     page.evaluate('''() => {const Original=Worker;window.jobs=[];window.Worker=class extends Original {
