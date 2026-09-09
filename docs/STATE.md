@@ -2,9 +2,9 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Focused QA 0.10.1 candidate
+## Focused QA 0.10.1 published
 
-The next patch preserves focused library cards through background rerenders (#75) and keeps
+The patch preserves focused library cards through background rerenders (#75) and keeps
 collection selectors usable from the keyboard, including the removed Show all escape (#71).
 A controlled storage event reproduces BUTTON-to-BODY focus loss in the published 0.9.1 build;
 the fixed build retains the same puzzle, viewport and Enter action. This isolates the rendering
@@ -15,7 +15,12 @@ headers while appending new seeds (#69). Disposable regressions cover reordering
 insertion, custom metadata and duplicates. No published puzzle definition or save identity changes.
 The combined 0.10.0 base and 0.10.1 metadata pass source verification (148 Node tests), 182 UI
 checks, 53 library keyboard checks, 20 discovery checks and the narrow-layout matrix.
-Independent reviews found no blocker. Publication follows the separate castle task's receipt.
+Independent reviews found no blocker. PR #81 merged at `900816a`; build `3161ffd2958c` is
+published on both existing origins after all four final CI checks passed. Each origin passes
+92 storage/offline checks, 53 library keyboard checks and the actual 0.10.0-to-0.10.1 save/update/
+offline transition. The primary passes discovery and narrow-layout checks. Published file hashes
+match, allowing only the documented fallback HTML challenge insertion. Issues #69, #71 and #75
+are resolved; #72's focused CI artifact retention is verified and merged through PR #74.
 See [RELEASE-0.10.1.md](RELEASE-0.10.1.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Wrenmere 0.10.0 published
