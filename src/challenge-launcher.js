@@ -87,8 +87,22 @@
       return grid(
         Array.from({ length: n * n }, (_, i) => i),
         n,
-        (_, i) =>
-          `<button data-action="cell" data-value="${i}" ${c.fixedCells?.includes(i) || (c.fixedPrefixLength && s.path.includes(i)) ? 'disabled aria-label="Fixed square"' : ''}>${c.family === 'queens' ? (occupied.includes(i) ? '♛' : '') : occupied.indexOf(i) + 1 || ''}</button>`,
+        (_, i) => {
+          const fixed =
+            c.fixedCells?.includes(i) ||
+            (c.fixedPrefixLength && s.path.slice(0, c.fixedPrefixLength).includes(i));
+          const visited = occupied.indexOf(i);
+          const state =
+            c.family === 'queens'
+              ? visited >= 0
+                ? 'queen'
+                : 'empty'
+              : visited >= 0
+                ? `visit ${visited + 1}`
+                : 'unvisited';
+          const disabled = fixed || (c.family === 'knight' && visited >= 0);
+          return `<button data-action="cell" data-value="${i}" aria-label="Row ${Math.floor(i / n) + 1}, column ${(i % n) + 1}, ${fixed ? 'fixed ' : ''}${state}" ${disabled ? 'disabled' : ''}>${c.family === 'queens' ? (visited >= 0 ? '♛' : '') : visited + 1 || ''}</button>`;
+        },
       );
     }
     if (c.family === 'magic')
@@ -102,8 +116,38 @@
       return `${grid(
         Array.from({ length: s.w * s.h }, (_, i) => i),
         s.w,
-        (_, i) =>
-          `<button disabled>${s.walls.includes(i) ? '■' : s.player === i ? '@' : s.crates.includes(i) ? '$' : s.goals.includes(i) ? '◇' : ''}</button>`,
+        (_, i) => {
+          const goal = s.goals.includes(i),
+            player = s.player === i,
+            crate = s.crates.includes(i);
+          const label = s.walls.includes(i)
+            ? 'wall'
+            : player
+              ? goal
+                ? 'player on goal'
+                : 'player'
+              : crate
+                ? goal
+                  ? 'crate on goal'
+                  : 'crate'
+                : goal
+                  ? 'goal'
+                  : 'floor';
+          const glyph = s.walls.includes(i)
+            ? '■'
+            : player
+              ? goal
+                ? '⊕'
+                : '@'
+              : crate
+                ? goal
+                  ? '▣'
+                  : '$'
+                : goal
+                  ? '◇'
+                  : '';
+          return `<button disabled aria-label="Row ${Math.floor(i / s.w) + 1}, column ${(i % s.w) + 1}, ${label}">${glyph}</button>`;
+        },
       )}<div class="row">${['up', 'left', 'down', 'right'].map((v) => `<button data-action="walk" data-value="${v}">${v}</button>`).join('')}</div>`;
     if (c.family === 'reversi')
       return grid(

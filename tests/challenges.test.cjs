@@ -11,6 +11,16 @@ const raw = files.flatMap(
 );
 const registry = Challenges.create(raw, { quiet: Q, club: E });
 
+test('Duel completion requires the forcing opening while old nonforcing saves remain readable', () => {
+  const run = registry.begin('curated-duel-01');
+  run.log = [1, 2, 5, 35, 34, 3];
+  const view = registry.replay(run);
+  assert.equal(view.state.done, true);
+  assert.ok(E.reversi.score(view.state).gold > E.reversi.score(view.state).ink);
+  assert.equal(view.complete, false);
+  assert.deepEqual(registry.validateRun(run), run);
+});
+
 test('all 59 trusted definitions rebuild from their start and supplied replays', () => {
   assert.equal(registry.count, 59);
   for (const c of registry.entries()) {

@@ -74,6 +74,8 @@ try:
         queens = BY_ID['curated-classic-queens-01']['solutionActions'][0]
         mount('curated-classic-queens-01')
         assert page.locator('[data-action="cell"][data-value="8"]').is_disabled()
+        assert page.locator('[data-value="8"]').get_attribute('aria-label') == 'Row 2, column 1, fixed queen'
+        assert page.get_by_role('button', name='Row 1, column 1, empty', exact=True).count() == 1
         page.locator(f'[data-action="cell"][data-value="{queens["cell"]}"]').click()
         assert '1 moves' in page.locator('.challenge-status').inner_text()
 
@@ -86,6 +88,8 @@ try:
         knight = BY_ID['curated-classic-knight-01']['solutionActions'][0]
         mount('curated-classic-knight-01')
         assert page.locator('[data-action="cell"][data-value="0"]').is_disabled()
+        assert page.locator('[data-value="0"]').get_attribute('aria-label') == 'Row 1, column 1, fixed visit 1'
+        assert page.locator('.challenge-grid button').evaluate_all("es=>es.every(e=>e.getAttribute('aria-label')?.includes('column'))")
         page.locator(f'[data-action="cell"][data-value="{knight["cell"]}"]').click()
         assert '1 moves' in page.locator('.challenge-status').inner_text()
 
@@ -95,6 +99,23 @@ try:
         direction = {'U': 'up', 'R': 'right', 'D': 'down', 'L': 'left'}[warehouse]
         page.locator(f'[data-action="walk"][data-value="{direction}"]').click()
         assert '1 moves' in page.locator('.challenge-status').inner_text()
+
+        assert page.evaluate('''() => {
+          let found=false;
+          for(const c of registry.entries().filter(c=>c.family==='warehouse')) {
+            const run=registry.begin(c.id);
+            for(const move of c.solutionPath) {
+              run.log.push(move);const v=registry.replay(run);
+              if(!v.complete && v.state.crates.some(i=>v.state.goals.includes(i))) {
+                AlibiChallengeLauncher.mount(document.querySelector('#host'),registry,c.id,run,()=>{});
+                const cells=[...document.querySelectorAll('.challenge-grid button')];
+                found=cells.some(e=>e.textContent==='▣' && e.getAttribute('aria-label').includes('crate on goal'));
+                if(found)return true;
+              }
+            }
+          }
+          return found;
+        }'''), 'An occupied warehouse goal remains visible before completion'
 
         duel = BY_ID['curated-duel-01']['principalVariation'][0]
         mount('curated-duel-01')

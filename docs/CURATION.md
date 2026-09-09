@@ -66,6 +66,22 @@ imported JSON is parsed/replayed in the existing timed worker. Store/mount calle
 validate the bounded replay again. Restores atomically retain a pre-restore copy; subsequent
 moves retain that copy. Session fallback refuses restore. Unknown/future records are protected.
 Challenge export/restore is explicit; the combined cabinet/Club/Quiet backup does not include it.
+The document retains the challenge registry/store across optional-wing remounts. Both active
+and inactive challenge queues participate in the update gate; session/protected stores refuse
+activation. Duel completion requires its recorded forcing opening, while older nonforcing
+replays remain readable. Occupied warehouse goals remain visible and board controls carry
+coordinate/state names.
+
+## Remaining bundle disposition
+
+The release inventory rechecked all thirteen packs, four challenge files, two editorial JSON
+sidecars and seventeen venue/icon SVGs against the delivery by SHA-256: all match. The 208 board
+SVGs and 208 solution SVGs, editorial curation book and preview review studio remain reference
+assets; they are not required app payloads. Native boards render from validated definitions,
+and answer images never enter unsolved thumbnails. The first-26 sampler, audit screenshots
+and prior check reports support human review rather than adding duplicate official entries.
+Checker equivalents and pure network hints are integrated. No required source payload remains
+unused; the unavailable Monet candidate and human calibration remain explicitly outstanding.
 
 The trusted art ledger is `assets-source/curation/registry.json`; runtime hashes/transforms are
 in `assets-source/curation/runtime.json`. Durer’s Melencolia and celestial map, Hiroshige’s Kanbara

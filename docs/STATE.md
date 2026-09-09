@@ -1,6 +1,6 @@
 # Live development state
 
-Updated 2026-09-08. Git, CI and review threads take precedence over prose.
+Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## Curation Cabinet 0.7.0 candidate
 
@@ -23,7 +23,16 @@ widths pass. Visual inspection also caught missing challenge grid styling; expli
 row/column assertions now cover grid mechanisms and the shipped phone/desktop queen board.
 Linux CI exposed narrow navigation min-content overflow; phone rail labels now wrap within their
 flex cells. Final-head CI and publication evidence will be recorded in the PR/release receipt.
-Nonblocking follow-ups: #20 (Duel forcing-opening completion) and #21 (occupied warehouse goals).
+Release closeout fixes #20 (Duel forcing-opening completion) and #21 (occupied warehouse goals),
+adds coordinate/state names to queen and knight controls, retains challenge sessions across
+Quiet Wing remounts, and awaits challenge writes before updates. Session/protected challenge
+stores refuse updates until exported or resolved. Real-control regressions pass. The release
+fixture now locates configuration after other globals, and keeps its disposable Chromium profile
+short enough for Windows service-worker storage; all 18 two-release checks pass.
+
+The remaining bundle inventory has been reconciled: all packs, challenge files, editorial JSON
+and 17 venue/icon SVGs match the source; board/solution SVGs and the review studio are reference
+material, and the sampler is for human playtesting. No required source payload remains unused.
 
 This candidate does not certify human solve quality or the physical Android incident. Owner
 checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md). The original deployment identity is unchanged.

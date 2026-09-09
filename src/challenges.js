@@ -82,7 +82,7 @@
       const c = get(run.challengeId);
       let state = start(c, Q, E);
       for (const action of run.log) state = apply(c, state, action, Q, E);
-      return { challenge: c, run, state, complete: complete(c, state, Q, E) };
+      return { challenge: c, run, state, complete: complete(c, state, Q, E, run.log) };
     }
     function validateRun(value) {
       if (
@@ -141,7 +141,8 @@
     const solution = typeof supplied === 'string' ? [...supplied] : supplied;
     if (!Array.isArray(solution) || !solution.length) fail('Trusted challenge lacks a replay.');
     for (const action of solution) state = apply(c, state, action, Q, E);
-    if (!complete(c, state, Q, E)) fail('Trusted challenge replay does not meet its objective.');
+    if (!complete(c, state, Q, E, solution))
+      fail('Trusted challenge replay does not meet its objective.');
   }
   function startDescriptor(c) {
     if (c.family === 'warehouse') return { map: c.map };
@@ -256,11 +257,15 @@
     if (c.family === 'reversi') return { type: 'terminal-win', player: c.startState.turn };
     return { type: 'complete' };
   }
-  function complete(c, state, Q, E) {
+  function complete(c, state, Q, E, log) {
     if (c.family === 'borough') return state.done && E.borough.score(state) >= c.targetScore;
     if (c.family === 'reversi') {
       const score = E.reversi.score(state);
-      return state.done && (score.gold - score.ink) * c.startState.turn > 0;
+      return (
+        state.done &&
+        log[0] === c.solutionFirstMove &&
+        (score.gold - score.ink) * c.startState.turn > 0
+      );
     }
     return c.family === 'warehouse' ? state.done : Q.classicWon(state);
   }
