@@ -192,6 +192,8 @@ hypothesis. Test these as two distinct operations across reload and restore.
 
 ## Chapter III — “What Warning Reached” (`#54`, proposed)
 
+Bounded implementation proposal: [#76](https://github.com/Chris0Jeky/Alibi/issues/76). Editorial and human acceptance remain separate gates.
+
 **Story beat.** The player follows the warning network through `rookery`, `post`, `reservoir`, and `archive`. The intended arrangement, the installed temporary
 arrangement, and what witnesses actually observed are separate records. A deferred relief-gate repair and a disconnected village branch explain separate
 failures; neither becomes a tidy murder motive or a claim about exact flood physics.
@@ -215,6 +217,8 @@ retains labels such as “intended” and “observed” while removing the trag
 
 ## Chapter IV — “Other Bank” (`#54`, proposed)
 
+Bounded implementation proposal: [#77](https://github.com/Chris0Jeky/Alibi/issues/77). Editorial and human acceptance remain separate gates.
+
 **Story beat.** `boathouse`, `bridge`, `orchard`, and `court` join the records. A capacity and crossing schedule establishes intervals in which Finch was at the
 tower and Mara moved toward the warning point. Independent records corroborate her warning direction and Finch's early presence; they do not establish every
 second, a final thought, or that a different action would certainly have saved anyone.
@@ -235,6 +239,8 @@ theatrical timestamp. The proposed story-bible outline's later times are authori
 independent records plus the interval model; the player then chooses whether to read the optional reflection.
 
 ## Chapter V — “An Honest Exhibition” (`#54`, proposed)
+
+Bounded implementation proposal: [#78](https://github.com/Chris0Jeky/Alibi/issues/78). Editorial and human acceptance remain separate gates.
 
 **Story beat.** In the `study`, the player compares the report draft with the published account. In `post`, Ada Vale's correspondence gives a family
 counterweight without becoming a confession. In `museum`, the player builds an exhibition that distinguishes supported, contradicted, and not established

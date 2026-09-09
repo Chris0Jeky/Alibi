@@ -18,10 +18,11 @@ checks, 53 library keyboard checks, 20 discovery checks and the narrow-layout ma
 Independent reviews found no blocker. Publication follows the separate castle task's receipt.
 See [RELEASE-0.10.1.md](RELEASE-0.10.1.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
-## Wrenmere 0.10.0 production candidate
+## Wrenmere 0.10.0 published
 
-`codex/wrenmere-production` preserves every original commit from draft PRs #39–42 and
-integrates the merged 0.9.1 player release (#70, `8641b3e`). Chapter I now has ten questions, twelve original scene
+PR #73 merged at `bcd95fdef4b47fb4b61a41b2c1385406aed57f2d`; build `5b0d056fe08b` is
+published on both existing origins. All eighteen original draft-stack commits (#39–42) survive
+alongside the 0.9.1 player fixes. Chapter I now has ten questions, twelve original scene
 SVGs, consistent map layers, nearby doors, visible objects, an optional captioned prologue,
 three museum label reviews and eight revisable evidence-linked hypotheses. The secret stair
 stays absent from the map, directory and search until its deduction.
@@ -36,10 +37,12 @@ and stale-record checks. The actual Save & update control rejects a protected no
 an exact export is explicitly acknowledged; the exported notes can then be recovered on the
 new release. Cabinet, Club, Quiet Wing, challenge and castle state remain separate.
 
-The local full gate, ten-question controls at 390/1280, real-origin recovery, investigation,
-exploration/media/offline, practice/return/restart and A/B update checks pass. Visual inspection
-covered grounds, room and museum layouts. Final independent review, exact-head CI and production
-publication remain pending; this is not a hosted-release claim.
+Full CI and independent review pass. Each hosted origin passes 92 storage/offline checks and
+all five castle suites, including the complete chapter, recovery, investigation, media and
+practice. Both actual 0.9.1 → 0.10.0 upgrades retain exact saved state and pinned definitions
+through activation and offline reload. All release files match, with the documented hosting
+challenge addition on fallback HTML. See [RELEASE-0.10.0.md](RELEASE-0.10.0.md). P2 follow-ups
+#79/#80 cover exact starter focus and repeated note-section deduplication; no data was lost.
 
 The supplied folder is mapped in [RESOURCES.md](castle/RESOURCES.md): 69 files, all 68 supplied
 checksums matching, with complete design references preserved. Start with the [strategy](castle/STRATEGY.md),
@@ -59,7 +62,7 @@ The hosted library pagination matrix exposed timing-dependent focus loss (#75); 
 background-render regression confirms focus loss, while the original hosted event sequence
 remains unproven. Collection-settings
 focus (#71) and focused CI artifact retention (#72) are separate tracked follow-ups.
-See [RELEASE-0.9.1.md](RELEASE-0.9.1.md). The castle task reserves 0.10.0 and owns that expansion.
+See [RELEASE-0.9.1.md](RELEASE-0.9.1.md) for that historical release. Wrenmere 0.10.0 is recorded above.
 
 Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
 and casebooks, including later editorial corrections and extra books absent from its seeds.
