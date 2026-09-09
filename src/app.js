@@ -2952,13 +2952,7 @@
                 : ix === x && (d < 0 ? iy < y : iy > y),
             )
             .sort((a, b) =>
-              d < 0
-                ? horizontal
-                  ? b.x - a.x
-                  : b.y - a.y
-                : horizontal
-                  ? a.x - b.x
-                  : a.y - b.y,
+              d < 0 ? (horizontal ? b.x - a.x : b.y - a.y) : horizontal ? a.x - b.x : a.y - b.y,
             );
         next = candidates[0]?.cell ?? selectedCell;
       } else {
