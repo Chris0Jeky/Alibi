@@ -30,7 +30,7 @@ collection and its playing surface. The coastal street leads to the existing Lan
 The current build uses local artwork, bundled code and system fonts. Approved immutable image
 mirrors can be configured for progressive detail; complete local versions remain available offline.
 See [ASSET-DELIVERY.md](ASSET-DELIVERY.md) for delivery classes, budgets and CDN requirements.
-No external mirror is currently configured. Node developer tools and Python Playwright carry their own upstream licenses. See NOTICE.md
+Five approved photographs use optional Unsplash/Pexels delivery with exact same-origin mirrors. Node developer tools and Python Playwright carry their own upstream licenses. See NOTICE.md
 for the source-license decision and HUMAN_TODO.md for publisher/name decisions.
 
 After Hours also supplies 22 editable SVG motifs in `src/illustrations/`. Ten motifs are new;
@@ -39,20 +39,14 @@ The harbour uses local Canvas drawing instructions; no image or video stream is 
 
 ## Optional online enhancement catalogue
 
-The cozy After Hours redesign introduces a **catalogue only**, not yet a merged runtime dependency,
-at `assets-source/online/after-hours.json`. It records vetted online presentation candidates and a
-meaningful local fallback for every candidate. The first set covers the four rotating home editions
-and a reading-room module using Unsplash/Pexels photography.
+The integrated After Hours edition binds five acquired and credited photographs to the rotating
+home covers and listening room, through the shared `AlibiDelivery` loader. Every photograph has
+a complete local illustration, an exact same-origin mirror and an acquisition receipt. The
+unverifiable lighthouse candidate was replaced with a source-verified Pexels photograph.
 
-The contract is deliberately local-first: the app renders the existing local art immediately, then a
-future generic loader may replace it only after an allowed remote image has loaded and decoded.
-Remote assets must never contain the only clue, answer, instruction, state, control or semantic
-meaning. Failure, offline use, Save-Data, slow connections or route disposal leave the local design
-intact. Credits remain attached to any remote asset that is actually displayed.
-
-See [ONLINE-ASSETS.md](ONLINE-ASSETS.md) for CSP, privacy, performance, caching and acceptance rules.
-This catalogue is designed to integrate with the separate asset-availability/runtime work without
-duplicating its loader.
+See [ONLINE-ASSETS.md](ONLINE-ASSETS.md) for sources and [ASSET-DELIVERY.md](ASSET-DELIVERY.md)
+for the implemented contract. [THEATRICAL-EDITION.md](THEATRICAL-EDITION.md) maps eight local
+SVG emblems, six weather treatments, procedural sound, recordings, films and playable worlds.
 
 ## Local production library
 

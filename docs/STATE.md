@@ -2,7 +2,7 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Adaptive delivery candidate (2026-09-09)
+## Adaptive delivery 0.7 source checkpoint (historical; merged in PR #27)
 
 `codex/adaptive-assets` starts from `ae5d127` and implements the policy in
 [ASSET-DELIVERY.md](ASSET-DELIVERY.md). Museum interludes retain complete 600px artwork in the
@@ -179,7 +179,7 @@ run passed. The single garden image now loads eagerly inside the already-lazy ac
 browser decode assertion has a ten-second deadline and failure diagnostics. No optional activity
 code or models are loaded on the cabinet by this change.
 
-## Quiet Wing expansion in progress
+## Quiet Wing expansion (historical; superseded by 0.6/0.7 releases)
 
 The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
 See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding scope.

@@ -36,6 +36,8 @@ flowchart TD
 | `src/insights.js` | Clue-based reasoning hints and completed-record explanations |
 | `src/storage.js` | Revision-conditional saves, labeled fallbacks and atomic restore |
 | `src/app.js` | Routes, player, lessons, workshop, journal, backup and PWA lifecycle |
+| `content/theatre.json`, `src/theatre.js`, `src/theatre.css` | Eight local rooms, optional sound/films, scene controls and presentation lifecycle |
+| `src/asset-delivery.js`, `tools/build-delivery.cjs` | Verified optional image delivery, exact mirrors and bounded cache slots |
 | `src/presentation.js` | Family rules, lessons, icons and decorative board previews |
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
