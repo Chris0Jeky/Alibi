@@ -2940,7 +2940,30 @@
     if (d && !['dossier', 'witness'].includes(p.type)) {
       e.preventDefault();
       let next = selectedCell + d;
-      while (next >= 0 && next < p.size ** 2 && !enabledCell(p, next)) next += d;
+      if (p.type === 'bridges') {
+        const x = selectedCell % p.size,
+          y = Math.floor(selectedCell / p.size),
+          horizontal = e.key === 'ArrowLeft' || e.key === 'ArrowRight',
+          candidates = p.islands
+            .map(({ cell }) => ({ cell, x: cell % p.size, y: Math.floor(cell / p.size) }))
+            .filter(({ x: ix, y: iy }) =>
+              horizontal
+                ? iy === y && (d < 0 ? ix < x : ix > x)
+                : ix === x && (d < 0 ? iy < y : iy > y),
+            )
+            .sort((a, b) =>
+              d < 0
+                ? horizontal
+                  ? b.x - a.x
+                  : b.y - a.y
+                : horizontal
+                  ? a.x - b.x
+                  : a.y - b.y,
+            );
+        next = candidates[0]?.cell ?? selectedCell;
+      } else {
+        while (next >= 0 && next < p.size ** 2 && !enabledCell(p, next)) next += d;
+      }
       if (next >= 0 && next < p.size ** 2) selectedCell = next;
       render();
       document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
