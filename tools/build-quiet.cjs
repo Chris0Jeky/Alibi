@@ -124,9 +124,11 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
   fs.writeFileSync(path.join(dist, 'quiet-wing-sources.html'), sources);
   files.push(sourcesURL, './quiet-wing-sources.html', media.town);
   const build = hash(JSON.stringify(files) + sources);
+  const standaloneSources =
+    'data:text/html;charset=utf-8,' + encodeURIComponent(sources.toString());
   return {
     config: { script, css, media, files, build, sources: sourcesURL },
-    standalone: { source, cssSource, media: inlineMedia, sources: './quiet-wing-sources.html' },
+    standalone: { source, cssSource, media: inlineMedia, sources: standaloneSources },
     bytes: files
       .filter((f) => f !== media.town)
       .reduce((n, f) => n + fs.statSync(path.join(dist, f)).size, 0),
