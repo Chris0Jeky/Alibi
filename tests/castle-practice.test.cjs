@@ -106,7 +106,7 @@ test('three distinct first official solves reveal optional room detail without c
     }),
     snapshot = await adapter.snapshot();
   assert.equal(snapshot.rooms.observatory.completed, 3);
-  assert.match(snapshot.rooms.observatory.detail, /instrument table/);
+  assert.match(snapshot.rooms.observatory.detail, /paper constellation/);
   assert.equal(Object.prototype.hasOwnProperty.call(snapshot.rooms.observatory, 'points'), false);
 });
 

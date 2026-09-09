@@ -4,6 +4,15 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## Wrenmere production integration in progress
 
+Catalogue checkpoint: all 328 official puzzles now belong to thirteen room familiarity tracks,
+with 39 named starter links. Three distinct saved solves reveal an optional room detail; guided
+play counts and restarting does not revoke past completion. The root adapter validates the
+official ID, revision and definition before counting. Castle receives metadata, not private run
+content. Four actual-control practice/return/restart groups pass at 390/1280. The new A/B release
+test also proves export acknowledgement through the real Save & update control. Later chapters
+and creative rewards have detailed [continuation](castle/CONTINUATION.md) and
+[delivery](castle/DEFERRED-REWARDS.md) plans. Final review and publication are still pending.
+
 Navigation/media checkpoint: the integration now includes main PR #65 (`92565a4`, Alibi 0.9.0).
 The twelve original scene SVGs and optional captioned prologue are delivered under separate
 budgets. The grounds preserve map coordinates; rooms have visible hotspots, equivalent named

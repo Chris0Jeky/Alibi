@@ -33,9 +33,13 @@ const rootRoute = () => {
   return { view: parts[3] || 'map', id: parts[4] || 'gatehouse' };
 };
 
-export async function mount({ root, preferences = null }) {
+export async function mount({ root, preferences = null, practice = null }) {
   const store = (retained ||= new CastleStore());
   await store.init();
+  let practiceSnapshot = { available: false, rooms: {} };
+  try {
+    practiceSnapshot = (await practice?.snapshot()) || practiceSnapshot;
+  } catch {}
   const abort = new AbortController();
   let state = store.state,
     view = 'map',
@@ -116,7 +120,7 @@ export async function mount({ root, preferences = null }) {
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }
-  const pages = () => createPages({ state, view, selected, era, search, filter });
+  const pages = () => createPages({ state, view, selected, era, search, filter, practiceSnapshot });
   const roomCard = (r) => pages().roomCard(r);
   function render() {
     if (disposed) return;
@@ -586,7 +590,13 @@ export async function mount({ root, preferences = null }) {
     const name = target.dataset.do,
       value = target.dataset.value;
     if (name === 'close') close();
-    else if (name === 'theory-edit') editTheory(value);
+    else if (name === 'practice') {
+      if (!(await practice?.open(value, target.dataset.room)))
+        show(
+          'Practice shelf unavailable',
+          '<p>This official puzzle could not be opened. Return to the collection or try again after reopening the castle.</p>',
+        );
+    } else if (name === 'theory-edit') editTheory(value);
     else if (name === 'theory-save') saveTheory(value);
     else if (name === 'theory-remove')
       show(
@@ -784,6 +794,9 @@ export async function mount({ root, preferences = null }) {
   route();
   return {
     route,
+    setPractice(value) {
+      practice = value;
+    },
     focusDestination() {
       if (disposed) return false;
       $('#castle-main').focus({ preventScroll: true });

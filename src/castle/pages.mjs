@@ -5,12 +5,15 @@ import { roomObjects } from './objects.mjs';
 import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
 import { atmosphere, nearby, nextThread, listed } from './exploration.mjs';
-export function createPages({ state, view, selected, era, search, filter }) {
+import { practicePanel } from './practice.mjs';
+export function createPages({ state, view, selected, era, search, filter, practiceSnapshot }) {
   const room = () => W.rooms.find((r) => r.id === selected) || W.rooms[0];
+  const practice = (r) =>
+    practiceSnapshot?.rooms?.[r.id] ? practicePanel(r, practiceSnapshot) : '';
   function roomCard(r) {
     const status = E.roomStatus(state, r),
       done = E.has(state, r.puzzle);
-    return `<article class="card"><span class="eyebrow">${escape(r.wing)}</span><h3>${escape(r.name)}</h3><p>${escape(r.line)}</p><div class="tag">${!r.implemented ? 'Planned room' : done ? 'Question solved' : status.open ? 'Open' : status.reason}</div>${r.implemented ? button(status.open ? 'Enter room' : 'Inspect the door', 'visit', r.id) : ''}</article>`;
+    return `<article class="card"><span class="eyebrow">${escape(r.wing)}</span><h3>${escape(r.name)}</h3><p>${escape(r.line)}</p><div class="tag">${!r.implemented ? 'Planned room' : done ? 'Question solved' : status.open ? 'Open' : status.reason}</div>${r.implemented ? button(status.open ? 'Enter room' : 'Inspect the door', 'visit', r.id) : ''}${view === 'directory' ? practice(r) : ''}</article>`;
   }
   function rail(r) {
     const status = E.roomStatus(state, r),
@@ -44,7 +47,7 @@ export function createPages({ state, view, selected, era, search, filter }) {
       r.id,
     )
       .map((object) => button(escape(object.title), 'object', object.id))
-      .join('')}</section>${nearby(r, state)}`;
+      .join('')}</section>${practice(r)}${nearby(r, state)}`;
   }
   function museumPage() {
     return `<section class="page"><span class="eyebrow">The Quiet Wing · handle → notice → learn → use</span><h1>The Museum of Questions</h1><p>Try the objects at the tables. Then help prepare the labels for reopening. Three carefully reviewed labels open Mara’s exhibition drawer.</p><figure class="museum-scene">${Art.interior(W.rooms.find((r) => r.id === 'museum'))}<figcaption>Questions We Share · The tables are open. You may handle the objects.</figcaption></figure><div class="directory">${W.exhibits.map((x, i) => `<article class="card"><div class="exhibit-diagram" aria-hidden="true">${['N ⟷ I ⟷ E', '4 · 9 · 2', '◆ ◇ ◆ ◇'][i]}</div><span class="eyebrow">${escape(x.era)}</span><h2>${escape(x.title)}</h2><p>${escape(x.summary)}</p><p class="tag">${E.has(state, x.puzzle) ? 'Object explored' : escape(x.method)}${state.labels[x.id] ? ' · Label reviewed' : ''}</p><div class="stack">${button('Try the object', 'puzzle', x.puzzle)}${button('Read its history', 'exhibit', x.id)}${button(state.labels[x.id] ? 'Revisit the label' : 'Review the museum label', 'label', x.id, E.has(state, x.puzzle) ? '' : 'disabled')}</div></article>`).join('')}</div><section class="card curator-drawer"><span class="eyebrow">Questions We Share</span><h2>Mara’s exhibition drawer</h2><p>${Object.keys(state.labels).length} / 3 labels reviewed. Complete an object investigation, then check what its label can honestly claim.</p>${button('Open the exhibition drawer', 'curator-drawer', '', Object.keys(state.labels).length === 3 ? 'class="primary"' : 'disabled')}</section><p class="small" style="margin-top:25px">Bridges or Lo Shu also opens the Map Room. These historical examples teach ways of thinking; they are not evidence for events in fictional Wrenmere.</p>${nearby(

@@ -20,6 +20,7 @@ export default `
 .theory-board{margin-top:32px;border-top:1px solid #667265;padding-top:26px}.theory-board h3{overflow-wrap:anywhere}.theory-citation{display:flex;gap:10px;align-items:center;min-height:44px}.theory-citation input{width:22px;height:22px}.curator-drawer{margin-top:24px}fieldset{margin-top:18px;border:1px solid #667265;border-radius:6px}
 #castle-film{display:block;width:100%;max-height:58dvh;background:#112629;border-radius:8px}
 .museum-scene{position:relative;margin:26px 0;border:1px solid #536357;border-radius:9px;overflow:hidden;height:250px}.museum-scene .castle-painting{object-fit:cover;object-position:center 55%}.museum-scene figcaption{position:absolute;inset:auto 0 0;background:#142f30e8;padding:12px 18px;font-size:13px;color:#e0c89c}
+.practice-panel{margin:22px 28px}.practice-panel h2{font-size:24px}.card .practice-panel{margin:20px 0 0;padding:16px;background:#1b3333}.practice-detail{padding:16px;border-left:3px solid #d3b477;background:#29453e;margin:18px 0 0}.practice-panel> .stack{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
 :host([data-contrast=true]) .hotspot,:host([data-contrast=true]) .pin{background:#061820;color:#fff;border-color:#ffdc92}
 @media(max-width:480px){.scene-heading{padding:22px 18px}.scene-heading h1{font-size:34px}.scene-controls{padding:12px;gap:6px}.scene-controls button{padding:8px 10px}.castle-objects,.nearby{padding:18px}.map-help{padding:12px 18px}}
 `;

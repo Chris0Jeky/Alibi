@@ -124,7 +124,8 @@
     }
   }
   async function readCommittedRuns() {
-    if (storageFatal || saveError) throw Error('Saved progress is unavailable.');
+    if (storageFatal || saveError || store.mode === 'session')
+      throw Error('Saved progress is unavailable.');
     await enqueueSave();
     await queue;
     if (storageFatal || saveError || pendingSaves) throw Error('Saved progress is not settled.');
@@ -442,7 +443,7 @@
       ['casebooks', 'book', 'Casebooks'],
       ['salon', 'sun', 'Games room'],
       ['settings', 'more', 'Your space'],
-      ['quiet', 'home', 'Wrenmere Castle', 'castle'],
+      ['quiet', 'home', 'Castle', 'castle'],
     ]
       .map(([p, ic, label, id = '']) => {
         const active = route.page === p && (!id || route.id === id);

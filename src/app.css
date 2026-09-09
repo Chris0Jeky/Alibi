@@ -3535,6 +3535,12 @@ html[data-reduced='true'] *:after {
     color: var(--green);
     background: var(--green-soft);
   }
+  .mobile-nav:not(.play-nav) button {
+    min-width: 44px;
+    min-height: 44px;
+    flex: 1;
+    padding-inline: 3px;
+  }
   .mobile-nav .icon {
     width: 18px;
     height: 18px;

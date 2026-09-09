@@ -24,6 +24,9 @@ No production deployment is claimed by this source checkpoint.
   budgets and the optional media contract. Named controls provide the same actions as hotspots.
 - `feedback.mjs`: short opt-in sound and movement responses. Root comfort settings take precedence. Effects never determine gameplay.
 - `cache.mjs`, `entry.mjs`: a separate optional castle cache and native mount/flush/dispose contract.
+- `src/castle-practice.js`, `practice.mjs`: thirteen official-family tracks, 39 starter links,
+  first-solve familiarity and internal return context. [PRACTICE.md](PRACTICE.md) defines the
+  read boundary and why these discoveries do not award case evidence or cross-game entitlements.
 - `tools/build-quiet-pack.cjs`: the unchanged prior Quiet Wing builder, renamed.
 - `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate 96 KiB source-bundle limit; the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
 
