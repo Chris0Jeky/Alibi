@@ -53,7 +53,10 @@ test('A stalled transaction is aborted within its watchdog', async () => {
       abort: () => aborted++,
     }),
   };
-  await assert.rejects(store.transaction('readonly', () => {}), /timed out/);
+  await assert.rejects(
+    store.transaction('readonly', () => {}),
+    /timed out/,
+  );
   assert.equal(aborted, 1);
 });
 
@@ -86,7 +89,11 @@ function memoryTransactions() {
           staged = value;
         },
       };
-      operation(records, (value) => (result = value), (error) => (failure = error));
+      operation(
+        records,
+        (value) => (result = value),
+        (error) => (failure = error),
+      );
     });
   }
   return {
