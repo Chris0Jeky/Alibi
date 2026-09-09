@@ -130,3 +130,26 @@ retests, sensory comfort, sustained battery/performance, enjoyment and difficult
 remain in [HUMAN_TODO.md](../../HUMAN_TODO.md), with #2/#11/#13/#56 as appropriate.
 The existing Cloudflare primary and Sites fallback retain their separate device saves.
 No new account, domain, store package, external player data or licensing decision is implied.
+
+## 0.10.0 delivery checkpoint
+
+PR #73 preserves the eighteen original draft-stack commits and publishes Chapter I on both
+existing origins. [RELEASE-0.10.0.md](../RELEASE-0.10.0.md) records the exact source, CI,
+independent review, hosted controls, file fingerprints and actual saved-game upgrades.
+
+| Original intention | Implemented now | Durable continuation |
+| --- | --- | --- |
+| A castle that teaches ways of thinking | Ten questions across ten locations, two-era map, room methods, guided explanations and revisable hypotheses | Full 32-location world bible; geographic/floor/wing refinement remains #45 |
+| A puzzle museum with history and philosophy | Three source-backed objects, hands-on label revisions, proof/legend/model distinctions and an exhibition drawer | Broader research/curation #50 and the complete museum editorial bible |
+| Visual exploration, media, objects and secrets | Twelve supplied SVG exports, nearby doors, nine observations, optional captioned prologue and concealed stair | Bespoke layered art #46, richer objects #47, material cues #48, portraits/voices #49 and two further films #52 |
+| Progression tied to puzzle categories | Ten-point first completions, clue prerequisites, thirteen official-family familiarity tracks and 39 starters; three first solves reveal room details | Receipt delivery and wider rewards remain #30/#55; familiarity does not manufacture evidence |
+| A tragic mystery larger than individual boards | The Seventeenth Minute establishes a feasible route and carefully qualified testimony | Proposed Chapter II records/proof gaps in CONTINUATION.md; later warning, crossing and exhibition slices #76–78 under #54 |
+| A Quiet Wing worth returning to | Museum activities, revisable curation, room discoveries and links to existing creative spaces | Human first-visit/comfort review #56; richer museum and companion roles remain planned |
+| Customisable, developing Blender pets | Existing companions remain available | Reproducible masters, bounded GLB/2D fallbacks, optional roles and meaningful experience in DEFERRED-REWARDS.md and #31/#32 |
+| Seeds, kits, colours and growing towns | Existing creations and ownership remain intact | Proposed receipt/outbox contract, Under the Dome kit, species/placement/expansion and recovery acceptance in #29–35/#37 |
+| Reuse the supplied work and finish the drafts | Complete 69-file inventory, all 68 supplied checksums matched, eight complete bibles retained, all original stack commits merged | RESOURCES.md maps each input and disposition; source-package plans are distinguished from runtime authority |
+
+Recovery gate #44 is implemented and verified. Other production issues remain open for their
+full acceptance criteria: this release does not represent every proposed scene, chapter or
+reward system as finished. #79/#80 track the two reproduced P2 review improvements. Human
+Android, TalkBack, story comfort and difficulty remain in HUMAN_TODO.md q-7 and the earlier items.
