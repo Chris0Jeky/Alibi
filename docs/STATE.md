@@ -11,7 +11,7 @@ interactive Field notes library remains available through its own optional pack.
 nine verified enhancements and eight concurrent-safe cache slots. CSS minification preserves
 all existing core/JS/CSS/Wing budgets. No published puzzle definitions or save identities change.
 
-The 70 new theatre checks, 16 delivery checks, 182 puzzle UI checks, 92 real-origin checks,
+The 88 new theatre checks, 16 delivery checks, 182 puzzle UI checks, 92 real-origin checks,
 66 curation checks, 158 Quiet Wing checks, Field notes and After Hours suites pass locally.
 All five real photo endpoints returned the pinned WebP bytes through browser CORS checks.
 Independent final review and CI precede deployment; this candidate section does not claim a new

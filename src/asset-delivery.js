@@ -28,6 +28,10 @@
       }),
     ]).finally(() => clearTimeout(timer));
   }
+  // Retire only our known superseded image cache. Never enumerate or delete save/shell caches.
+  try {
+    if (G.caches?.delete) void bounded(G.caches.delete('alibi-enhanced-images-v1')).catch(() => {});
+  } catch {}
   async function validated(response, entry) {
     if (
       !response?.ok ||

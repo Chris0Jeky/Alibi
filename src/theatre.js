@@ -245,8 +245,11 @@
     scene = next || scene;
     document.body.dataset.theatreScene = scene?.id || 'reading-room';
     document.querySelectorAll('.club-hero').forEach((hero) => {
-      if (!hero.querySelector('.theatre-weather') && scene)
+      const weather = hero.querySelector('.theatre-weather');
+      if (scene && !weather?.classList.contains('weather-' + scene.motion)) {
+        weather?.remove();
         hero.insertAdjacentHTML('beforeend', layers(scene));
+      }
     });
     const title = document.querySelector('.theatre-rail-title');
     if (title)
@@ -331,6 +334,7 @@
       };
       video.play().catch((error) => {
         if (filmDialog !== dialog) return;
+        if (error.name === 'NotAllowedError') clearTimeout(filmTimer);
         status.textContent =
           error.name === 'NotAllowedError'
             ? 'Press play when you are ready.'

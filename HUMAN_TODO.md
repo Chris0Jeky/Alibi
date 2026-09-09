@@ -25,3 +25,7 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
   into a 3D editor. Current finite geometry/ZIP checks do not prove editor interoperability.
 
 - [ ] q-6 — Playtest the Curation Cabinet sampler (two puzzles per family) without answer reveals; record wording, solve path, guessing, timing and hint expectations in docs/curation/PLAYTEST_TEMPLATE.md. Review the 59 separate challenges for enjoyment and touch ergonomics. Machine uniqueness/replays do not calibrate difficulty.
+
+The 0.8 theatrical edition adds an acceptance focus for q-4: compare Painted/Rich rooms, try
+Room sound and Still the room, background/return, and deliberately play a short film. Browser
+checks do not confirm loudness, comfort, battery use or sustained performance on the affected phone.

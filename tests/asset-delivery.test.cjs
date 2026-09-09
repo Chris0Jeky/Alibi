@@ -46,6 +46,11 @@ function setup(fetcher = async () => response(), opts = {}) {
       setItem: (key, value) => stored.set(key, value),
     },
     caches: {
+      delete: async (name) => {
+        (opts.deleted || []).push(name);
+        if (opts.denied) throw Error('Denied');
+        return true;
+      },
       open: async () => {
         if (opts.denied) throw Error('Denied');
         return cache;
@@ -156,4 +161,11 @@ test('independent tabs racing writes stay within eight slots and never return an
     collisions >= 24,
     'overwritten slots fall back locally without returning the wrong picture',
   );
+});
+
+test('retirement deletes only the known legacy image cache without delaying use', async () => {
+  const deleted = [];
+  const x = setup(undefined, { deleted });
+  assert.ok(await x.api.resolve('art'));
+  assert.deepEqual(deleted, ['alibi-enhanced-images-v1']);
 });

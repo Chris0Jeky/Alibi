@@ -48,8 +48,9 @@ network attempts; local rendering never waits for either. Requests omit credenti
 The `alibi-enhanced-images-v2` cache has eight deterministic URL slots derived from the hash.
 Concurrent tabs can overwrite a slot but cannot allocate a ninth slot through this loader. Every
 read still validates the full fingerprint, so a collision returns to local art or refetches the
-correct rendition. Each entry is at most 1 MiB; browser accounting/overhead is separate. Existing
-v1 detail caches from earlier releases are not save data and may remain until browser eviction.
+correct rendition. Each entry is at most 1 MiB; browser accounting/overhead is separate. The known v1 detail cache is retired by a bounded, nonblocking initialization attempt.
+Denied deletion or an old still-running tab can retain/recreate v1 until a later initialization;
+this never delays play or deletes another cache.
 The loader does not open IndexedDB or remove shell, wing, folio or unrelated caches.
 The cache is reusable across app releases because every hit is checked against the current
 manifest's exact fingerprint. Obsolete detail may be evicted without changing saved puzzles.
