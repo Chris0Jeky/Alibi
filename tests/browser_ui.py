@@ -42,7 +42,7 @@ with sync_playwright() as pw:
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
     check(page.title().startswith('Alibi'),'Application title and boot')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==324,'All 324 puzzles loaded')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==328,'All 328 puzzles loaded')
     check(page.evaluate('AlibiDiagnostics.getCounts().types')==13,'All thirteen engines loaded')
     page.screenshot(path=str(shots/'desktop-home.png'),full_page=True)
     for typ in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail','bridges']:
