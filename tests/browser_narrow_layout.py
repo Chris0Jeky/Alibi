@@ -4,10 +4,10 @@ import json
 import os
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'test-results' / 'edge-layout'
+OUT = Path(os.environ.get('ALIBI_RESULTS', str(ROOT / 'test-results' / 'edge-layout')))
 OUT.mkdir(parents=True, exist_ok=True)
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8796')
 
@@ -39,6 +39,10 @@ def measurements(page):
             boardColumn: rect('.board-column'),
             evidenceColumn: rect('.evidence-column'),
             secondary: rect('.play-secondary'),
+            assistant: [...document.querySelectorAll('.assist-bar button')].map(button => {
+              const box = button.getBoundingClientRect();
+              return {font: parseFloat(getComputedStyle(button).fontSize), width: box.width, height: box.height};
+            }),
           };
         }"""
     )
@@ -75,6 +79,7 @@ with sync_playwright() as playwright:
     page.goto(f'{URL}/#/settings')
     page.wait_for_selector('#setting-largeText')
     set_toggle(page, '#setting-largeText', True)
+    set_toggle(page, '#setting-contrast', True)
     open_puzzle(page, 'sudoku-01')
     large_320 = measurements(page)
     page.screenshot(path=str(OUT / '320-sudoku.png'), full_page=True)
@@ -87,16 +92,23 @@ with sync_playwright() as playwright:
     page.locator(f'[data-action="value"][data-value="{value}"]').click()
     control_state = page.evaluate('AlibiDiagnostics.getCurrent().state')
     control_applied = control_state['cells'][blank] == value
+    assistant = page.locator('.assist-bar')
+    assistant.get_by_role('button', name='Candidates', exact=True).click()
+    expect(assistant.get_by_role('button', name='Candidates', exact=True)).to_have_attribute('aria-pressed', 'true')
+    assistant.get_by_role('button', name='How it works', exact=True).click()
+    expect(page.locator('dialog[open]')).to_contain_text('Helpful, not all-knowing.')
+    page.get_by_role('button', name='Back to the board', exact=True).click()
+    assistant.get_by_role('button', name='Off', exact=True).click()
 
     all_measurements = {'normal320': normal_320, 'large320': large_320}
-    for width, height in [(390, 900), (640, 360), (1440, 900)]:
+    for width, height in [(320, 640), (390, 900), (640, 360), (1440, 900)]:
         page.set_viewport_size({'width': width, 'height': height})
-        for puzzle_id in ['sudoku-01', 'scene-01', 'aquarium-01']:
+        for puzzle_id in ['sudoku-01', 'sudoku-05', 'scene-01', 'aquarium-01']:
             open_puzzle(page, puzzle_id)
             all_measurements[f'{width}-{puzzle_id}'] = measurements(page)
 
     def fits(values):
-        return values['scrollWidth'] <= values['innerWidth'] and all(
+        return all(button['font'] >= 14 and button['width'] >= 44 and button['height'] >= 44 for button in values['assistant']) and values['scrollWidth'] <= values['innerWidth'] and all(
             values[key] is None or values[key]['right'] <= values['innerWidth'] + 0.5
             for key in ['boardColumn', 'evidenceColumn', 'secondary']
         )
