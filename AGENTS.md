@@ -46,7 +46,8 @@ uses real IndexedDB and service workers in disposable profiles. Neither proves a
 - Reasoning hints in `insights.js` must not read `solution`; optional reveals are labeled separately.
 - Drafts may be unsolvable while being edited. Validate their shape without erasing unfinished work.
 - No credentials, private saves or generated test profiles in Git or client assets.
-- Host identity is pinned in `.openai/hosting.json` and `docs/DEPLOYMENT.md`.
+- Cloudflare is primary (`wrangler.jsonc`); Sites is the fallback (`.openai/hosting.json`).
+  Preserve both existing origins and their separate saves; see `docs/DEPLOYMENT.md`.
 - One writer per checkout; coordinator integrates research and reviews. Use Luna xhigh for bounded tasks and Terra high when debugging or architecture needs it, following the owner’s After Hours request. Keep routine checks inline; never spawn Astra children.
 - Split integrations into incremental, tested, reviewable commits as each coherent layer is ready.
 - Keep tooling small: no speculative MCP servers, command-deny hooks, accounts or native wrappers.

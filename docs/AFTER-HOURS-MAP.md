@@ -29,7 +29,7 @@ prototype package manager files or historical test reports are published as work
 | Startup recovery | `src/boot.js` | Independent watchdog, retry and app-file-only refresh; no IndexedDB deletion |
 | Release build | `tools/build.cjs` | Lazy engine and validator assets precached, exact standalone source, stable PWA identity |
 | Optional private rooms | `optional-online/` | Separate Worker and Durable Objects; reviewed/tested separately from static launch |
-| Cloudflare static preview | `wrangler.jsonc` | Assets-only Worker in existing account, explicit 404, native headers; current host retained |
+| Cloudflare primary site | `wrangler.jsonc` | Existing assets-only Worker, explicit 404 and native headers; Sites retained as fallback |
 
 ## Integration corrections
 
@@ -53,8 +53,9 @@ with recovery. The exact Android trigger remains unconfirmed. Do not clear the a
 
 ## Hosting and future scope
 
-Cloudflare uses a separate preview origin. Browser storage does not cross origins: export cabinet
-and Club saves on the old site and restore them on the new one. Keep both original backup files.
+Cloudflare is now primary; the existing Sites origin is the fallback. Browser storage does not
+cross origins: export cabinet, Club and Quiet Wing saves, plus separate challenge exports, on the
+old site and restore them on the new one. Keep the original backup files.
 There is no automatic redirect or silent migration. See [DEPLOYMENT.md](DEPLOYMENT.md).
 Private rooms are optional; static deployment does not activate a server. No accounts, public
 matchmaking, chat, global rankings, score integrity, cloud sync or native store release is claimed.

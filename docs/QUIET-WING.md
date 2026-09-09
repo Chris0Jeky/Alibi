@@ -1,8 +1,9 @@
 # Quiet Wing integration and recovery
 
 This records the original source-integration checkpoint. The owner-requested city/graphics/game
-expansion is now active: see [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) and [STATE.md](STATE.md)
-for current models, rendering, tests and remaining deployment work. Recovery instructions below
+expansion and curation release supersede this checkpoint: see [STATE.md](STATE.md)
+for current models, rendering, tests and deployment evidence. Cloudflare is primary and Sites is
+the fallback; [DEPLOYMENT.md](DEPLOYMENT.md) records both existing origins. Recovery instructions below
 still apply; the old asset sizes and procedural-only descriptions are historical.
 
 Source candidate: **0.6.0-lab.1**, built 2026-09-08. This is an integrated source candidate,

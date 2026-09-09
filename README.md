@@ -3,8 +3,13 @@
 **A little room to think.** Thirteen kinds of puzzle, four illustrated mystery casebooks, and a
 workshop for making a case of your own. No account. No lives. No rush.
 
-[Play Alibi](https://alibi-puzzle-club.jeky-tck.chatgpt.site) · [Project map](docs/PROJECT-MAP.md) ·
+[Play Alibi — primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
+[Fallback site](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) · [Project map](docs/PROJECT-MAP.md) ·
 [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
+
+Cloudflare is the main site; the existing ChatGPT Sites address remains a fallback for existing
+installations. Saves do not transfer between addresses. Before moving, export the cabinet, Club
+and Quiet Wing backup, plus each challenge you want to keep, then import at the destination.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 
@@ -92,23 +97,24 @@ or tamper-resistant. Difficulty/time estimates need human calibration. See [secu
 The source currently has no reuse license; the owner decision is pending.
 
 
-## After Hours preview
+## After Hours
 
 The new games room adds **Lantern Duel**, **Pocket Borough**, and six **Archive Heist** rooms.
 Choose reversible assistance, rotate or pin the illustrated desk, explore the living harbour,
 or enter Zen. The original 116 puzzles and four casebooks remain available with their saves.
 
 [Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
-[Owner/device follow-up](HUMAN_TODO.md). Cabinet and Club backups are separate; export both before
-moving to another website address. Optional private-room server source is included and tested
+[Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
+challenge exports remain separate. Export before moving to another website address. Optional private-room server source is included and tested
 locally, but a static deployment does not enable public online play.
 
-## Quiet Wing source candidate
+## Quiet Wing and Curation Cabinet
 
-The 0.6.0-lab.1 source adds an optional realm builder, four companions, a timestamp garden,
-13 classic configurations and four rights-verified museum images. Enter from the home desk or
-main navigation. It loads separately; Settings & saves can export all three save sections together.
-This candidate has local browser evidence and has not been promoted to the public sites.
+The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
+classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
+home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies,
+bringing the core catalogue to 324. Difficulty remains provisional and missing times are not invented.
+Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 
 ## Local asset library
