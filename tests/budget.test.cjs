@@ -12,7 +12,7 @@ assert.ok(
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
-  '324 definitions and editorial data stay under 1 MiB',
+  'Official definitions and editorial data stay under 1 MiB',
 );
 assert.ok(
   info.coreOfflineBytes < 2.3 * 1024 * 1024,
