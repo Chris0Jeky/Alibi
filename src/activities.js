@@ -156,12 +156,16 @@
     preferences = copyPreferences(value);
     active?.setPreferences?.(preferences);
   }
+  function focusDestination() {
+    return !!active?.focusDestination?.();
+  }
   G.AlibiActivities = {
     enter,
     leave,
     flush,
     load,
     setPreferences,
+    focusDestination,
     diagnostics: () => ({ loaded: !!G.AlibiQuietWing, active: !!active, offline }),
   };
 })(globalThis);
