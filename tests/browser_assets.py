@@ -13,10 +13,13 @@ with sync_playwright() as p:
     page=browser.new_page(viewport={'width':1440,'height':1000},reduced_motion='reduce')
     errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto('http://127.0.0.1:8787/#/library');page.wait_for_selector('.puzzle-card')
+    page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
     while page.locator('[data-action="show-more"]').count():
         page.locator('[data-action="show-more"]').click()
-    images=page.locator('.puzzle-highlight')
-    check(images.count()==12,'Twelve highlights appear on actual collection cards')
+    highlight_sources=page.evaluate('Object.values(AlibiAssets.highlights).map(key=>ALIBI_MEDIA[key])')
+    images=page.locator(','.join('img.puzzle-highlight[src='+json.dumps(src)+']' for src in highlight_sources))
+    check(images.count()==12,'Twelve original highlights remain on their collection cards')
+    check(page.locator('.puzzle-highlight').count()==220,'Original highlights and 208 safe curation covers appear')
     for i in range(images.count()):
         images.nth(i).scroll_into_view_if_needed();images.nth(i).evaluate('i=>i.decode()')
         check(images.nth(i).get_attribute('alt')=='','Decorative highlight adds no spoken clue '+str(i))
