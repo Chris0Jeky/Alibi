@@ -5,6 +5,7 @@
     active = null,
     epoch = 0,
     offline = false,
+    caching = null,
     operation = Promise.resolve();
   const config = () => G.ALIBI_QUIET_CONFIG;
   async function load() {
@@ -54,7 +55,7 @@
     const name = 'alibi-quiet-wing-pack-' + c.build;
     try {
       const cache = await caches.open(name);
-      if (!(await cache.match(c.script))) {
+      if (!(await Promise.all(c.files.map((url) => cache.match(url)))).every(Boolean)) {
         try {
           await cache.addAll(
             c.files.map(
@@ -106,7 +107,11 @@
           return;
         }
         active = handle;
-        await cachePack();
+        // Navigation and save flushing must not wait for optional network downloads.
+        if (!caching)
+          caching = cachePack().finally(() => {
+            caching = null;
+          });
       });
     return operation;
   }

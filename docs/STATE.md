@@ -2,6 +2,30 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Adaptive delivery candidate (2026-09-09)
+
+`codex/adaptive-assets` starts from `ae5d127` and implements the policy in
+[ASSET-DELIVERY.md](ASSET-DELIVERY.md). Museum interludes retain complete 600px artwork in the
+core and progressively decode verified 1600px detail from optional release files. The loader
+supports one approved CORS mirror plus the same-origin copy, bounded requests/storage, a separate
+image cache and a persistent compact-only preference. No external mirror is configured.
+Quiet Wing pack downloads no longer hold the navigation/save-flush operation open.
+
+Local build `ca81380b205a`: core 1,863,504 bytes, initial JavaScript 102,444 bytes gzip,
+optional enhancement images 2,331,656 bytes; all existing budgets pass without increases.
+Local verification: full format/build/Node gate, 182 puzzle UI checks, 92 real-origin checks,
+66 curation checks, 18 two-tab update checks, and 16 new adaptive-delivery browser checks.
+Phone-sized and desktop gallery screenshots were visually inspected. Node regressions additionally
+cover CDN failure, invalid/oversized/partial responses, hashes, quota denial, timeouts and
+nonblocking activity disposal. Evidence is under `tests/delivery-*.log` and `test-results/delivery/`.
+
+The ready [PR #27](https://github.com/Chris0Jeky/Alibi/pull/27) contains two implementation/strategy
+commits plus review reconciliation. Independent read-only review found no blockers; its low-risk
+cross-tab optional-cache target race is tracked in [#28](https://github.com/Chris0Jeky/Alibi/issues/28).
+This is source/local acceptance, not a new production deployment. Hosted CI, actual external-mirror
+CORS and physical-device performance remain distinct gates. [HUMAN_TODO.md](../HUMAN_TODO.md),
+particularly q-2/q-4, remains open; no subjective owner checks have been closed.
+
 ## Current deployment: Cloudflare primary, Sites fallback
 
 Owner decision 2026-09-09: the main play URL is

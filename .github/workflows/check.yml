@@ -51,6 +51,7 @@ jobs:
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
           python tests/browser_curation.py
+          python tests/browser_delivery.py
           ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
           python tests/browser_restart.py
           python tests/browser_boot.py
@@ -100,6 +101,7 @@ jobs:
             test-results/quiet-wing/
             test-results/atmosphere/
             test-results/curation-ui/
+            test-results/delivery/
             test-results/curation-check/
             test-results/challenges-replay.json
           retention-days: 14

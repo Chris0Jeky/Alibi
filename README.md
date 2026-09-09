@@ -25,7 +25,7 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
   assignments. Reopen the record from a solved board.
 - **Keep your place:** automatic device-local saves, undo/redo, notes, favorites and JSON backups.
 - **Make it yours:** paper/evening themes, larger clues, reduced motion, optional sound and timer.
-- **Play offline:** installable PWA with a complete cached release, including the artwork.
+- **Play offline:** a complete cached core with real artwork and controls; sharper museum images load when available and retain compact offline equivalents. Optional activities have separate downloads. See [asset delivery](docs/ASSET-DELIVERY.md).
 - **Build a mystery:** edit a scene, verify a unique solution, then export or install a local pack.
 
 ## Run locally

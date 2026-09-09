@@ -27,8 +27,10 @@ The lighthouse follows the player into Bellweather chapters; the evidence still 
 only with solved chapter revelations. The cartographer illustration identifies the Bridges
 collection and its playing surface. The coastal street leads to the existing Lanterns puzzles.
 
-No stock photography, remote fonts, external music or third-party runtime code is fetched by the
-game. Node developer tools and Python Playwright carry their own upstream licenses. See NOTICE.md
+The current build uses local artwork, bundled code and system fonts. Approved immutable image
+mirrors can be configured for progressive detail; complete local versions remain available offline.
+See [ASSET-DELIVERY.md](ASSET-DELIVERY.md) for delivery classes, budgets and CDN requirements.
+No external mirror is currently configured. Node developer tools and Python Playwright carry their own upstream licenses. See NOTICE.md
 for the source-license decision and HUMAN_TODO.md for publisher/name decisions.
 
 After Hours also supplies 22 editable SVG motifs in `src/illustrations/`. Ten motifs are new;

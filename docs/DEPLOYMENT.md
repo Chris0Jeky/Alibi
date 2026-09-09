@@ -81,3 +81,12 @@ Current references: [Static Assets](https://developers.cloudflare.com/workers/st
 [headers](https://developers.cloudflare.com/workers/static-assets/headers/),
 [Durable Objects](https://developers.cloudflare.com/durable-objects/),
 [secrets](https://developers.cloudflare.com/workers/configuration/secrets/).
+
+## Adaptive assets
+
+Deploy the complete output including `enhanced-*` artwork. These optional files are excluded
+from core installation, not from publication. Preserve the emitted CSP (`img-src` allows decoded
+blob images; `connect-src` lists only configured mirror origins). No external mirror is configured
+by default. Before enabling one, verify actual CORS/MIME/fingerprints and failure recovery on both
+app origins using [ASSET-DELIVERY.md](ASSET-DELIVERY.md). A first-party or CDN outage must retain
+the same complete compact artwork, and must never change save stores or force an app update.
