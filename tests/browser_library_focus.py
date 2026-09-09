@@ -126,6 +126,36 @@ def main():
                     active_id(page) == "main",
                     f"Library family back path retains its route focus at {width}px",
                 )
+
+                # A storage notification is a background rerender while the first newly visible
+                # card is focused. Its stable key must preserve both focus and the card's action.
+                page.goto(URL + "/#/library")
+                page.locator("#main").wait_for(state="visible")
+                page.locator('[data-action="browse-all"]').click()
+                page.locator("#library-show-more").focus()
+                page.keyboard.press("Enter")
+                first_new = page.locator('.puzzle-card').nth(24).locator('[data-action="open"]')
+                expect(first_new).to_be_focused()
+                card_id = first_new.get_attribute("id")
+                puzzle_key = first_new.get_attribute("data-id")
+                check(
+                    card_id == f"library-card-{puzzle_key}",
+                    f"First new library card has a stable focus ID at {width}px",
+                )
+                page.evaluate("window.dispatchEvent(new Event('alibi-storage-change'))")
+                expect(first_new).to_be_focused()
+                expect(first_new).to_be_in_viewport()
+                check(
+                    active_id(page) == card_id,
+                    f"Background storage rerender preserves card focus and viewport at {width}px",
+                )
+                page.keyboard.press("Enter")
+                expect(page.locator("dialog[open]")).to_be_visible()
+                check(
+                    page.evaluate("AlibiDiagnostics.getCurrent()?.key") == puzzle_key,
+                    f"Preserved card still opens the correct puzzle at {width}px",
+                )
+                page.locator('dialog[open] [data-action="close-dialog"]').click()
                 context.close()
         finally:
             browser.close()
