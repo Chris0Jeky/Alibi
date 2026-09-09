@@ -11,13 +11,22 @@ self.onmessage = (e) => {
       }).validateRun(JSON.parse(m.text));
     } else if (m.type === 'combined-backup') {
       const data = JSON.parse(m.text);
+      const manifest = data?.manifest,
+        fullManifest = ['cabinet', 'club', 'quiet'],
+        coreManifest = ['cabinet', 'club'];
       if (
         !data ||
         data.format !== 'alibi-all-saves' ||
         data.schema !== 1 ||
-        JSON.stringify(data.manifest) !== JSON.stringify(['cabinet', 'club', 'quiet']) ||
+        (JSON.stringify(manifest) !== JSON.stringify(fullManifest) &&
+          JSON.stringify(manifest) !== JSON.stringify(coreManifest)) ||
         !data.sections ||
-        Object.keys(data.sections).some((k) => !data.manifest.includes(k))
+        Object.keys(data.sections).some((k) => !manifest.includes(k)) ||
+        !manifest.every((k) => Object.hasOwn(data.sections, k)) ||
+        (manifest.length === 3 && !data.sections.quiet) ||
+        (manifest.length === 2 &&
+          (!Array.isArray(data.warnings) ||
+            !data.warnings.some((warning) => /quiet wing/i.test(String(warning)))))
       )
         throw Error('Unknown combined backup. The file and all device saves are unchanged.');
       const validators = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG, () => AlibiClubEngines, 4);

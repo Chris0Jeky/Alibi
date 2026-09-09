@@ -28,6 +28,12 @@ with sync_playwright() as pw:
     assert page.evaluate("jobs.includes('combined-backup') && stopped===1 && !window.QWEngine")
     assert page.evaluate('AlibiDiagnostics.getCounts()')==before
     checks.append('Valid combined backup stages in a terminated worker with no save writes or optional UI code')
+    page.get_by_role('button',name='Cancel',exact=True).click()
+    partial=json.loads(json.dumps(data));partial['manifest']=['cabinet','club'];partial['sections'].pop('quiet',None);partial['warnings']=['Quiet Wing was not included: unavailable offline. Export it separately when available.']
+    submit(partial)
+    page.get_by_text('Warnings:',exact=False).wait_for()
+    assert page.get_by_text('Quiet Wing was not included:',exact=False).is_visible()
+    checks.append('Offline cabinet and Club export stages with an explicit missing Quiet Wing warning')
     page.locator('[data-action="all-cabinet"]').click()
     page.locator('[data-action="restore-merge"]').wait_for()
     assert page.evaluate("jobs.includes('cabinet-backup')")
@@ -50,7 +56,7 @@ with sync_playwright() as pw:
     };window.ticks=0;setInterval(()=>ticks++,50)}''')
     submit(data)
     page.get_by_text('Validation reached its 25-second safety limit. Use a smaller pack or simpler puzzle.',exact=True).wait_for(timeout=35000)
-    assert page.evaluate('ticks>100 && stopped===6')
+    assert page.evaluate('ticks>100 && stopped>=6')
     assert page.evaluate('AlibiDiagnostics.getCounts()')==before
     checks.append('Stalled worker is terminated at 25 seconds while the UI remains responsive and saves unchanged')
     browser.close()

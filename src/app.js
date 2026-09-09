@@ -1747,34 +1747,61 @@
   let stagedAll = null;
   async function exportAll() {
     const cabinet = await cabinetBackup();
-    await AlibiClub.save().catch(() => {});
-    await AlibiActivities.load();
-    let quiet = AlibiActivities.diagnostics().active ? window.QWApp.state : window.QWRetainedState;
-    if (!quiet) quiet = (await QWStore.open()).saved;
-    if (AlibiActivities.diagnostics().active) await QWApp.flush().catch(() => {});
-    const raw = await QWStore.raw();
+    const warnings = [];
+    await AlibiClub.save().catch((e) =>
+      warnings.push('Club save could not be flushed: ' + e.message),
+    );
+    let quiet = null,
+      raw = null;
+    try {
+      if (globalThis.navigator?.onLine === false) throw Error('Quiet Wing is unavailable offline.');
+      await AlibiActivities.load();
+      if (AlibiActivities.diagnostics().active) {
+        await globalThis.QWApp.flush();
+        quiet = globalThis.QWApp.state;
+      } else quiet = globalThis.QWRetainedState;
+      if (!quiet && globalThis.QWStore) {
+        quiet = (await globalThis.QWStore.open()).saved;
+        raw = await globalThis.QWStore.raw();
+      } else if (globalThis.QWStore) raw = await globalThis.QWStore.raw();
+      if (quiet && !raw && globalThis.QWStore) raw = await globalThis.QWStore.raw();
+      if (!quiet) throw Error('No committed Quiet Wing save is available.');
+    } catch (e) {
+      quiet = null;
+      raw = null;
+      warnings.push(
+        'Quiet Wing was not included: ' + e.message + ' Export it separately when available.',
+      );
+    }
+    const sections = { cabinet, club: AlibiClub.diagnostics().state },
+      manifest = ['cabinet', 'club'];
+    if (quiet) {
+      sections.quiet = { kind: 'alibi-quiet-wing-backup', schema: 1, state: C.clone(quiet) };
+      manifest.push('quiet');
+    }
     download('alibi-all-saves.json', {
       format: 'alibi-all-saves',
       schema: 1,
       applicationVersion: cfg.version,
       exportedAt: new Date().toISOString(),
-      manifest: ['cabinet', 'club', 'quiet'],
+      manifest,
       scope: 'Device-local sections. Restore separately; no cross-database transaction.',
-      sections: {
-        cabinet,
-        club: AlibiClub.diagnostics().state,
-        quiet: quiet ? { kind: 'alibi-quiet-wing-backup', schema: 1, state: C.clone(quiet) } : null,
-      },
-      recovery: { quiet: raw },
+      sections,
+      ...(raw ? { recovery: { quiet: raw } } : {}),
       warnings: [
+        ...warnings,
         saveError,
         AlibiClub.diagnostics().saveError,
-        QWStore.info().blocked
+        globalThis.QWStore?.info().blocked
           ? 'Quiet Wing has protected stored data. Keep the raw recovery section.'
           : '',
       ].filter(Boolean),
     });
-    toast('All saves exported. Check any warnings before restoring.');
+    toast(
+      warnings.length
+        ? 'Cabinet and Club saves exported. Check the Quiet Wing warning before restoring.'
+        : 'All saves exported. Check any warnings before restoring.',
+    );
   }
   async function stageAll(file) {
     if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
@@ -1782,7 +1809,7 @@
     stagedAll = data;
     dialog(
       'Choose a section to restore',
-      '<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>',
+      `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
       [
         { label: 'Review cabinet restore', action: 'all-cabinet' },
         { label: 'Review Club restore', action: 'all-club' },
@@ -2889,7 +2916,9 @@
     render();
     if (route.page === 'quiet') {
       try {
-        await AlibiActivities.enter(document.getElementById('quiet-host'), { preferences: settings });
+        await AlibiActivities.enter(document.getElementById('quiet-host'), {
+          preferences: settings,
+        });
       } catch (e) {
         const host = document.getElementById('quiet-host');
         if (host)
