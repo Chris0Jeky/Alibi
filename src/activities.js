@@ -182,6 +182,11 @@
     flush,
     load,
     setPreferences,
-    diagnostics: () => ({ loaded: !!G.AlibiQuietWing, active: !!active, offline, kind: activeKind }),
+    diagnostics: () => ({
+      loaded: !!G.AlibiQuietWing,
+      active: !!active,
+      offline,
+      kind: activeKind,
+    }),
   };
 })(globalThis);
