@@ -2,6 +2,11 @@
 
 No owner input is needed to continue the authorized browser-game launch.
 
+2026-09-09 playtest update: the owner reports that two real players have played Alibi and loved
+it. This is a successful early qualitative playtest. Their concrete interaction/content feedback
+is tracked in [PLAYER-QA.md](docs/PLAYER-QA.md). The report does not explicitly confirm the
+affected-device freeze retest, TalkBack, measured difficulty or the complete sampler below.
+
 - [ ] q-1 — Choose the public source license: GPL-3.0, MIT, or no reuse license yet.
   Asked in this session. Until answered, there is no open-source license grant.
 - [ ] q-2 — Finish physical Android acceptance (installation and initial play confirmed by owner on 2026-09-08): install, airplane-mode relaunch, backup export,

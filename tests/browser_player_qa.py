@@ -21,13 +21,15 @@ with sync_playwright() as pw:
         page.locator('.family-card[data-id="sudoku"]').click()
         expect(page.locator('.puzzle-card')).to_have_count(23)
         for index in range(1, 5):
-            page.locator('.curation-collections > summary').click()
+            if page.locator('.curation-collections').get_attribute('open') is None:
+                page.locator('.curation-collections > summary').click()
             page.locator('.curation-collections [data-action="curation-venue"]').nth(index).click()
             expect(page.locator('.puzzle-card')).to_have_count(4)
             # Escape is outside the collapsed disclosure and available on a phone.
             page.get_by_role('button', name='Show all collections', exact=True).click()
             expect(page.locator('.puzzle-card')).to_have_count(23)
-        page.locator('.curation-collections > summary').click()
+        if page.locator('.curation-collections').get_attribute('open') is None:
+            page.locator('.curation-collections > summary').click()
         page.locator('.curation-collections [data-action="curation-venue"]').nth(1).click()
         page.get_by_role('button', name='All puzzles', exact=True).click()
         expect(page.locator('.family-card')).to_have_count(13)
@@ -69,6 +71,39 @@ with sync_playwright() as pw:
         page.reload()
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('board cross.*candidates: ' + first_person['name']))
         page.screenshot(path=str(OUT / f'scene-{width}.png'), full_page=True)
+        cell.click()  # Place selected person after reload resets to Place people.
+        moves = page.evaluate('AlibiDiagnostics.getCurrent().moves')
+        page.locator('[data-action="scene-mode"][data-value="candidate"]').click()
+        cell.click()
+        assert page.evaluate('AlibiDiagnostics.getCurrent().moves') == moves, 'occupied-cell notes do not create invisible edits'
+        cell.press('n')
+        expect(page.locator('[data-action="scene-mode"][data-value="exclude"]')).to_have_attribute('aria-pressed', 'true')
+        expect(page.locator('#save-state')).to_contain_text('Saved on this device')
+        context.set_offline(True)
+        page.reload()
+        expect(cell).to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
+        context.set_offline(False)
+        for puzzle in json.loads((ROOT / 'content/extra/binary-large.json').read_text())['puzzles']:
+            page.goto(URL + '/#/play/' + puzzle['id'])
+            if page.locator('dialog[open]').count():
+                page.locator('dialog[open] [data-action="close-dialog"]').click()
+            for value in [0, 1]:
+                page.locator(f'[data-action="symbol"][data-value="{value}"]').click()
+                for i, answer in enumerate(puzzle['solution']):
+                    if answer == value and puzzle['givens'][i] == -1:
+                        page.locator(f'[data-action="cell"][data-cell="{i}"]').click()
+            expect(page.locator('dialog[open]')).to_be_visible()
+            assert page.evaluate('Boolean(AlibiDiagnostics.getCurrent().completedAt)')
+            page.locator('dialog[open] [data-action="close-dialog"]').click()
+            page.screenshot(path=str(OUT / f'{puzzle["id"]}-{width}.png'), full_page=True)
+        book = json.loads((ROOT / 'content/casebooks.json').read_text())[0]
+        page.goto(URL + '/#/casebooks/' + book['id'])
+        page.locator('.chapter[data-action="open"]').nth(2).click()
+        expect(page.locator('.story-page')).to_contain_text(book['chapters'][2]['brief'])
+        assert book['ending'] not in page.locator('.story-page').inner_text(), 'out-of-order opening has no epilogue spoiler'
+        page.screenshot(path=str(OUT / f'story-{width}.png'), full_page=True)
+        page.get_by_role('button', name='Continue to puzzle', exact=True).click()
+        expect(page.locator('.play-title')).to_be_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'horizontal overflow'
         assert not errors, errors
         context.close()

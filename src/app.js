@@ -941,7 +941,7 @@
         )
         .join(
           '',
-        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers.</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Notes beneath a person reappear when you remove them.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
@@ -1178,6 +1178,10 @@
         el.scrollLeft,
         el.scrollTop,
       ]),
+      disclosures = [...document.querySelectorAll('details[data-disclosure-key]')].map((el) => [
+        el.dataset.disclosureKey,
+        el.open,
+      ]),
       sy = window.scrollY;
     try {
       const views = {
@@ -1195,6 +1199,10 @@
         lab: () => AlibiClub.labPage(),
       };
       $('#app').innerHTML = shell((views[route.page] || home)());
+      for (const [key, open] of disclosures) {
+        const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
+        if (el) el.open = open;
+      }
       theme();
       AlibiClub.afterRender(route);
       globalThis.AlibiTheatre.attach(route, current?.puzzle);
@@ -1387,6 +1395,10 @@
     }
     if (t === 'scene') {
       const occupant = p.people.find((w) => s.placements[w.id] === index);
+      if (occupant && (sceneMarkMode !== 'place' || pencil)) {
+        toast('Choose an empty square for working notes.');
+        return;
+      }
       if (sceneMarkMode === 'candidate' || sceneMarkMode === 'board-cross') {
         act({ type: sceneMarkMode, who: selectedPerson, cell: index });
         return;
@@ -2876,6 +2888,7 @@
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
       e.preventDefault();
       pencil = !pencil;
+      if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
       render();
       return;
     }

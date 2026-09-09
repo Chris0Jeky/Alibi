@@ -112,3 +112,18 @@ details > summary:focus-visible {
 .story-actions .btn {
   min-height: 48px;
 }
+@media (max-width: 700px) {
+  .mobile-nav button span {
+    font-size: 11px;
+  }
+  .control-note,
+  .filters .filter-meta {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .filter-top select,
+  .filter-top input {
+    font-size: 14px;
+    min-height: 44px;
+  }
+}

@@ -20,7 +20,7 @@ Terra high supplies an independent interaction audit and later review.
 Reproduce with actual controls, select a coherent slice, implement, add behavior regressions,
 run required checks and inspect phone/desktop screenshots, then commit. Review the final
 candidate independently and publish through the repository's existing gates. Preserve all
-published definitions and saves. Wrenmere PRs #39–41 are separate ongoing work.
+published definitions and saves. Wrenmere PRs #39–42 are separate ongoing work.
 
 ## Interaction matrix
 
@@ -43,3 +43,36 @@ chapter pages, completed-digit feedback, and cell candidates/exclusions. It does
 close the earlier Android freeze retest, TalkBack or sustained-performance acceptance.
 
 Owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Implemented and locally exercised
+
+- Family landing with 13 game choices; Browse all retains search and filters. Top-level
+  Puzzles clears remembered filters. Each thematic selection has a persistent escape.
+- Disclosure styling and mobile control text/targets are clearer. Collection/gallery open state
+  survives background rendering; this fixed a reproduced menu-collapse race during installation.
+- Existing Sudoku/Futoshiki candidates are labelled Cell notes; digit keys show when all copies
+  are placed, with accessible counts and explicit wording that this is not answer verification.
+- Scenes have candidate initials, per-person exclusions and independent board X marks. Optional
+  bounded state fields preserve old saves. Undo/redo and offline reload retain them. New notes
+  require an empty cell; notes underneath later placements reappear when the person is removed.
+- Casebooks use opening, revelation and epilogue pages with Continue actions. Chapters remain
+  available out of order, completed chapters remain replayable, and unsolved openings hide endings.
+- Four 8×8 Sun & Moon boards add 256 cells: 328 total puzzles and 27 in this family. Each has
+  one solution under both the production solver and an independent row-enumeration oracle.
+  No earlier published definitions were regenerated. Difficulty is provisional; no times invented.
+
+Evidence: full format/build/Node gate; player-feedback real-control matrix at 390/1440;
+253 Bellweather/Bridges expedition checks; 92 real-origin storage/offline checks;
+66 curation checks; 158 Quiet Wing checks; all After Hours controls pass. Screenshots under
+`test-results/player-qa/` include families, Sudoku, scenes, larger boards and story pages.
+All 182 original family/UI checks pass, including workshop installation after the catalogue grows. Hosted CI/release results are recorded at closeout.
+
+Manual browser actions separately verified mobile Casebooks → opening → Continue → lesson,
+and collection selection → persistent Show all collections → restored full family list.
+Phone and desktop screenshots were visually inspected. These are simulated phone viewports,
+not claims about a physical phone. A fresh Terra high review found no confirmed blockers after
+the occupied-cell annotation guard. Retaining notes under a tentative placement is intentional.
+
+Pre-existing tooling finding: npm audit reports a libheif advisory through Wrangler's nested
+Miniflare/sharp dependency. This is build/development tooling, not shipped client JavaScript;
+it is recorded for a separate dependency update rather than forcing unrelated package upgrades.
