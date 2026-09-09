@@ -2,7 +2,19 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Player-feedback QA 0.8.1 live; keyboard-focus follow-up
+## Player-feedback QA 0.8.2 live
+
+The complete feedback slice and keyboard-focus follow-up are published on both existing origins.
+PR #60 merged at `c42a3886ac1ca87cb666fe57b246f51a3e185213`; build `d4e57ffe54f5` is live.
+Both complete exact-head CI runs pass. Each current live origin passes 92 storage/offline checks,
+and the primary passes the player-feedback matrix at phone/desktop widths. The primary live
+0.8.1-to-0.8.2 Save & update test preserves exact state and pinned definitions through offline reload.
+The fallback probe timed out waiting for its update-ready signal; its old-to-new transition is
+not certified. The initial fallback file sweep briefly received a 404 for the new app script;
+a complete recheck matches every non-HTML asset. The connection to the timeout is plausible but
+not proven by a worker trace. [Issue #63](https://github.com/Chris0Jeky/Alibi/issues/63) records this gap.
+See [RELEASE-0.8.2.md](RELEASE-0.8.2.md). Anthology framing (#61), Quiet Wing/native-link focus (#62)
+and physical-device acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remain open.
 
 CI recovery: repeated hosted attempts failed before app tests on a Google Chrome APT index
 checksum mismatch ([#59](https://github.com/Chris0Jeky/Alibi/issues/59)). The candidate workflow
@@ -17,10 +29,10 @@ The attempted live 0.8.0-to-0.8.1 upgrade probe ended without a final receipt, s
 transition is not claimed verified. Full CI includes the two-release update suite.
 See [RELEASE-0.8.1.md](RELEASE-0.8.1.md) for publication evidence.
 
-The separate `codex/route-focus` 0.8.2 candidate gives internal page navigation a destination
+The `codex/route-focus` 0.8.2 change gives internal page navigation a destination
 focus target while preserving first-play modal focus, search editing and direct-load behavior.
-Terra reproduced the defect and verified the fix at phone/desktop widths. This follow-up
-remains unpublished until its own checks and independent review pass.
+Terra reproduced the defect and verified the fix at phone/desktop widths. Independent Luna review
+found no blocker; two adjacent P2 focus paths were explicitly retained in issue #62.
 
 `codex/player-qa` starts at `f3414f6`. Family-first browsing, visible collection-filter escape,
 clearer rules and cell-note controls, placed-digit feedback, saved scene candidate initials and
