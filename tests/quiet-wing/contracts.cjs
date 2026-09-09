@@ -200,6 +200,22 @@ function fakeIDB() {
     fake.data.get('state').scene.name === 'Replacement',
     'Restore and recovery commit together in fixture',
   );
+  for (const invalid of ['constructor', '__proto__', 'toString']) {
+    const badPot = E.newState(Date.now());
+    badPot.garden.pots[0] = { seed: invalid, plantedAt: Date.now() };
+    await assert.rejects(w.s.replace(badPot), /Invalid seed/);
+    const badBouquet = E.newState(Date.now());
+    badBouquet.garden.bouquet[0] = invalid;
+    await assert.rejects(w.s.replace(badBouquet), /Invalid pressed-flower arrangement/);
+  }
+  ok(
+    fake.data.get('recovery').state.scene.name === 'Latest',
+    'Rejected garden restores preserve the recovery copy',
+  );
+  ok(
+    fake.data.get('state').scene.name === 'Replacement',
+    'Rejected garden restores preserve the current save',
+  );
   fake.setHang(true);
   try {
     await w.s.write(x);
