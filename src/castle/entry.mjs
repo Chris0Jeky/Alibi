@@ -19,6 +19,9 @@ async function mount(options) {
   };
 }
 globalThis.AlibiCastle = {
-  mount, flush: view.flush, diagnostics: view.diagnostics,
-  cachePack: cache.load, offline: cache.available,
+  mount,
+  flush: view.flush,
+  diagnostics: view.diagnostics,
+  cachePack: cache.load,
+  offline: cache.available,
 };
