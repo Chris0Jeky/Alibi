@@ -1,5 +1,9 @@
 # The artist's cabinet
 
+This is the historical production checkpoint. Its delivered assets were integrated into the
+0.7.0 release; current publication and host roles are in [STATE.md](STATE.md) and
+[DEPLOYMENT.md](DEPLOYMENT.md). The original source gallery remains a local authoring tool.
+
 Local asset production on `codex/asset-library`, based on
 `897651e53a27b29e2b9a0a55d75b474ee0de88dc` (0.6.0). Nothing from this session is pushed,
 deployed or externally published. The supplied Cloudflare preview was inspected in Chromium;

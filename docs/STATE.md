@@ -2,7 +2,23 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Curation Cabinet 0.7.0 candidate
+## Current deployment: Cloudflare primary, Sites fallback
+
+Owner decision 2026-09-09: the main play URL is
+**https://alibi-after-hours-preview.commit-atlas.workers.dev/**. The original
+**https://alibi-puzzle-club.jeky-tck.chatgpt.site/** is the fallback. Preserve both existing origins;
+saves are not shared or silently migrated. `wrangler.jsonc` owns primary deployment and
+`.openai/hosting.json` owns the fallback. New links and GitHub metadata use Cloudflare.
+
+Curation Cabinet 0.7.0, build `447f3b3b8ddc`, merged as `ad284c7` and deployed to Cloudflare
+version `f69a51d1-d410-450f-859e-c9716093f482`. Both final source CI runs passed. Cloudflare passes
+92 HTTPS persistence/offline checks, 66 curation checks and emitted-file hash/header verification.
+Sites fallback version 5 also deployed successfully. Its actual 0.6.0-to-0.7.0 upgrade preserved
+the saved move and pinned puzzle definition, followed by a successful offline reload.
+See [RELEASE-0.7.0.md](RELEASE-0.7.0.md) for exact evidence,
+limitations and rollback references. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+## Curation Cabinet integration evidence
 
 The isolated `codex/curation-cabinet` integrates the final asset commit `3dddb47`, 208 new core
 puzzles in thirteen bounded packs, and 59 separately versioned challenges. All 116 published

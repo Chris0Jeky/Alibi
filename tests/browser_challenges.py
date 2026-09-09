@@ -171,7 +171,7 @@ try:
         }''')
         assert not page.evaluate('challengeFlushFinished'), 'Wing flush must await challenge writes'
         page.evaluate('releaseChallengeSave()')
-        page.wait_for_function('challengeFlushFinished')
+        page.wait_for_function('()=>window.challengeFlushFinished')
         page.evaluate('''() => {
           window.updateFlushFinished=false;
           AlibiActivities.flush().then(()=>window.updateFlushFinished=true);
@@ -181,7 +181,7 @@ try:
           QWApp.challengeStore.flush=originalChallengeFlush;
           releaseChallengeSave();
         }''')
-        page.wait_for_function('updateFlushFinished')
+        page.wait_for_function('()=>window.updateFlushFinished')
         page.evaluate('''() => { const Original=Worker; window.challengeJobs=[]; window.Worker=class extends Original {postMessage(m){challengeJobs.push(m.type);super.postMessage(m)}} }''')
         with page.expect_download() as saved_download:
             page.locator('#challenge-export').click()
@@ -210,7 +210,7 @@ try:
         page.evaluate('()=>QWApp.flush()')
         assert page.evaluate('QWApp.challengeStore.info().mode') == 'session'
         page.evaluate("location.hash='/library'")
-        page.wait_for_function('!AlibiActivities.diagnostics().active')
+        page.wait_for_function('()=>!AlibiActivities.diagnostics().active')
         assert page.evaluate('''async () => {
           try { await AlibiActivities.flush(); return false; }
           catch(e) { return e.message.includes('Challenges'); }
