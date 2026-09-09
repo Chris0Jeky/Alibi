@@ -1426,20 +1426,23 @@ body.club-experiment {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  font-size: 11px;
+  font-size: inherit;
 }
 .assist-bar > span {
-  font-size: 10px;
+  font-size: 0.875em;
   font-weight: 650;
   margin-right: auto;
 }
 .assist-bar > div {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 .assist-bar .btn {
-  min-height: 34px;
-  font-size: 9px;
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 0.875em;
   padding: 7px 10px;
 }
 .derived-mark {
@@ -2246,20 +2249,14 @@ body.club-experiment {
     gap: 5px;
     padding: 9px 10px;
   }
-  .assist-bar > span {
-    font-size: 9px;
-  }
   .assist-bar > div {
-    gap: 3px;
+    gap: 6px;
   }
   .assist-bar .btn {
-    font-size: 8px;
     padding: 7px 8px;
-    min-height: 32px;
   }
   .assist-bar > .btn:last-child {
-    padding: 0 4px;
-    min-height: 28px;
+    padding: 7px 8px;
   }
   .derived-candidates {
     font-size: 8px;

@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.9.1",
+    "date": "2026-09-09",
+    "title": "Keep your place",
+    "tag": "v0.9.1",
+    "receipt": "docs/RELEASE-0.9.1.md",
+    "changes": [
+      "Puzzle panels fit narrow screens with large text enabled, keeping the board and its controls inside the page.",
+      "Desk assistant labels are readable on mobile and respond to larger text, with larger touch targets and room to wrap.",
+      "Keyboard focus stays with library filters. Loading more puzzles takes you to the first new puzzle, so you can continue exploring."
+    ]
+  },
+  {
     "version": "0.9.0",
     "date": "2026-09-09",
     "title": "A clearer way to explore",
@@ -11,7 +23,8 @@
       "Keyboard navigation follows links into and out of the Quiet Wing. Bridges arrow keys keep to the selected row or column.",
       "Your Quiet Wing motion choice stays yours when broader comfort settings change. Malformed garden backups are rejected before they can become broken saves.",
       "Casebook pages now distinguish the continuous Bellweather investigation from the three anthologies of independent records, including their endings and replay controls."
-    ]
+    ],
+    "source": "92565a4a064c02dae00dd3bd80678ecaaaf91cd4"
   },
   {
     "version": "0.8.2",
