@@ -141,6 +141,26 @@ try:
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()
         assert '1 moves' in page.locator('.challenge-status').inner_text()
+        page.evaluate('''async () => {
+          await QWApp.challengeStore.flush();
+          window.originalChallengeFlush=QWApp.challengeStore.flush;
+          QWApp.challengeStore.flush=()=>new Promise(resolve=>window.releaseChallengeSave=resolve);
+          window.challengeFlushFinished=false;
+          QWApp.flush().then(()=>window.challengeFlushFinished=true);
+        }''')
+        assert not page.evaluate('challengeFlushFinished'), 'Wing flush must await challenge writes'
+        page.evaluate('releaseChallengeSave()')
+        page.wait_for_function('challengeFlushFinished')
+        page.evaluate('''() => {
+          window.updateFlushFinished=false;
+          AlibiActivities.flush().then(()=>window.updateFlushFinished=true);
+        }''')
+        assert not page.evaluate('updateFlushFinished'), 'Update gate must await challenge writes'
+        page.evaluate('''() => {
+          QWApp.challengeStore.flush=originalChallengeFlush;
+          releaseChallengeSave();
+        }''')
+        page.wait_for_function('updateFlushFinished')
         page.evaluate('''() => { const Original=Worker; window.challengeJobs=[]; window.Worker=class extends Original {postMessage(m){challengeJobs.push(m.type);super.postMessage(m)}} }''')
         with page.expect_download() as saved_download:
             page.locator('#challenge-export').click()
@@ -158,8 +178,27 @@ try:
             assert page.locator('.challenge-grid').evaluate("e=>getComputedStyle(e).gridTemplateColumns.split(' ').length") == 8
             page.screenshot(path=str(ROOT / 'test-results/curation-ui' / f'final-challenge-{width}.png'), full_page=True)
         page.context.browser.close()
+
+        browser = p.chromium.launch()
+        context = browser.new_context(viewport={'width':390,'height':900})
+        context.add_init_script("Object.defineProperty(window, 'indexedDB', {value:undefined})")
+        page = context.new_page()
+        page.goto(production_url.rstrip('/') + '#/quiet/challenges/curated-classic-hanoi-01')
+        page.locator('[data-action="peg"][data-value="1"]').click()
+        page.locator('[data-action="peg"][data-value="2"]').click()
+        page.evaluate('()=>QWApp.flush()')
+        assert page.evaluate('QWApp.challengeStore.info().mode') == 'session'
+        page.evaluate("location.hash='/library'")
+        page.wait_for_function('!AlibiActivities.diagnostics().active')
+        assert page.evaluate('''async () => {
+          try { await AlibiActivities.flush(); return false; }
+          catch(e) { return e.message.includes('Challenges'); }
+        }'''), 'Update refuses inactive session challenge saves'
+        page.evaluate("location.hash='/quiet/challenges/curated-classic-hanoi-01'")
+        page.locator('.challenge-status').filter(has_text='1 moves').wait_for()
+        assert page.evaluate('(async()=> (await QWApp.challengeStore.read("curated-classic-hanoi-01")).log.length)()') == 1
+        browser.close()
 finally:
   server.shutdown()
   server.server_close()
 print('PASS trusted challenge launcher controls and saved replay restore at phone and desktop widths.')
-

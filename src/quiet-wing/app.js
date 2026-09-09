@@ -1,5 +1,8 @@
 (function (G) {
   'use strict';
+  // Keep fallback runs and pending transactions for the lifetime of this document.
+  let challengeRegistry = null,
+    challengeStore = null;
   G.AlibiQuietWing = {
     async mount(context) {
       const root = context.root;
@@ -55,8 +58,8 @@
         petAction: 'idle',
         classic: 'hanoi3',
         classicSelected: null,
-        challengeRegistry: null,
-        challengeStore: null,
+        challengeRegistry,
+        challengeStore,
         seed: 'clover',
         artURLs: { ...context.media },
         artCache: {},
@@ -168,14 +171,18 @@
         if (label) label.textContent = 'Saving…';
         A.saveTimer = setTimeout(() => flush().catch(() => {}), 120);
       }
-      function flush() {
+      async function flush() {
         clearTimeout(A.saveTimer);
-        if (!A.dirty) return S.flush();
-        A.dirty = false;
-        return S.write(A.state).catch((e) => {
-          A.dirty = true;
-          throw e;
-        });
+        const quietSave = !A.dirty
+          ? S.flush()
+          : (() => {
+              A.dirty = false;
+              return S.write(A.state).catch((e) => {
+                A.dirty = true;
+                throw e;
+              });
+            })();
+        await Promise.all([quietSave, A.challengeStore?.flush()]);
       }
       function styles() {
         const soundButton = $('[data-act="sound"]');
@@ -1452,6 +1459,7 @@
             quiet: E,
             club: G.AlibiClubEngines,
           });
+          challengeRegistry = A.challengeRegistry;
         } catch (error) {
           $('#main').innerHTML = header(
             '05 / CURATED CHALLENGES',
@@ -1493,6 +1501,7 @@
         $('#challenge-back').onclick = () => navigate('challenges');
         const host = $('#challenge-host');
         A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
+        challengeStore = A.challengeStore;
         A.challengeStore
           .open()
           .then(() => A.challengeStore.read(challenge.id))
