@@ -19,7 +19,9 @@ No production deployment is claimed by this source checkpoint.
 - `investigation.mjs`, `investigation-view.mjs`: eight revisable hypotheses with collected-record
   references, three curatorial label exercises and the exhibition drawer. Player assessments
   never manufacture evidence. Sources and editorial boundaries are in [MUSEUM-SOURCES.md](MUSEUM-SOURCES.md).
-- `art.mjs`: existing local Alibi paintings. These are atmosphere, not architectural evidence. The original Wrenmere procedural scene uploads were blocked before reaching GitHub and are not included here.
+- `art.mjs`, `exploration.mjs`: the original Wrenmere illustrations, a consistent estate map,
+  room moods/methods, inspectable details and nearby doors. [ASSETS.md](ASSETS.md) records provenance,
+  budgets and the optional media contract. Named controls provide the same actions as hotspots.
 - `feedback.mjs`: short opt-in sound and movement responses. Root comfort settings take precedence. Effects never determine gameplay.
 - `cache.mjs`, `entry.mjs`: a separate optional castle cache and native mount/flush/dispose contract.
 - `tools/build-quiet-pack.cjs`: the unchanged prior Quiet Wing builder, renamed.
@@ -40,7 +42,16 @@ A dirty or protected notebook blocks updates until the player explicitly confirm
 export of that exact session. Initiating or cancelling a download does not acknowledge it.
 Further edits invalidate the acknowledgement. Confirmation never makes protected storage writable.
 
-The map uses numbered navigation positions over reused artwork. A full architectural map and distinct Wrenmere paintings remain #45/#46. The optional four-frame text interlude has manual controls and a transcript. The supplied rendered MP4 is not included; #52 owns media integration. Chapters II–V, companion roles, seeds, reward kits and town expansion are not implemented by this stack.
+The map uses the supplied 1200×760 estate illustration and matching numbered positions. Both
+era layers keep that geometry; the small-screen map can pan horizontally, with named entrances
+below. A secret route appears only after its deduction. The ten room illustrations use their
+own 1000×660 coordinates. Inspecting a locked nearby door preserves the current room.
+
+The supplied 18-second silent film has native playback controls, captions and a complete text
+alternative. It never autoplays or downloads with the activity. Closing or leaving releases its
+source; backgrounding pauses playback. The story-off and standalone experiences retain the
+manually controlled text interlude. Chapters II–V, companion roles, seeds, reward kits and town
+expansion remain planned work.
 
 ## Verification
 
@@ -52,6 +63,11 @@ The map uses numbered navigation positions over reused artwork. A full architect
 the pre-restore copy, malformed/future imports, stale tabs, combined manifests and simulated
 quota/interruption in real IndexedDB. `tests/castle-backup.test.mjs` covers atomicity, bounds,
 future records, revision races and exact export acknowledgement with deterministic fixtures.
+
+`python tests/browser_castle_investigation.py` checks hypotheses, citations and the three label
+revisions on a validated synthetic save. `python tests/browser_castle_exploration.py` checks both
+screen sizes, pin geometry, hotspots, locked exits, deliberate film playback/caption loading,
+source release and actual offline scene decoding. Reports distinguish fixtures from playthroughs.
 
 The first #39 layer has a full repository CI pass at `29410d9`. Later layers require their own head checks. Run the existing full `npm run verify` and origin/Quiet Wing suites too. Keep #2, #11 and #13 open for physical Android, TalkBack and sustained-device acceptance. Draft PRs do not close those gates.
 

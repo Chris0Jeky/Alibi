@@ -43,7 +43,8 @@ The current source measurement is 12 SVGs / 137,331 bytes; the delivered scene d
 137,225 bytes, within the 180 KiB scene budget. The bundled script is 69,015 bytes. The prologue
 MP4 is 828,098 bytes and must remain at or below 1 MiB. The poster, captions and transcript are
 also included in the returned castle byte accounting, although all four remain on demand. The
-current combined castle accounting is 1,251,640 bytes. The builder reports `scriptBytes`,
+asset-only integration checkpoint's combined castle accounting was 1,251,640 bytes. Use the
+current build receipt for the final UI's size. The builder reports `scriptBytes`,
 `sceneBytes`, `originalSceneBytes`, `filmBytes` and the combined `bytes` value for release
 accounting.
 
@@ -85,7 +86,7 @@ that has no same-origin media directory.
 
 `src/castle/art.mjs` reads the configured media URLs at render time. `estate('today', false)` and
 `estate('1911', false)` contain no service-route label. After the inference is completed, the
-`secret` argument permits the service-route caption. The 1911 master contains a dashed service
+`secret` argument permits the service-route caption and matching SVG overlay. The 1911 master contains a dashed service
 route, so `tools/build-castle.cjs` removes that one authored route from the delivered derivative;
 the original master remains unchanged in `assets-source/castle/rooms/estate-1911.svg`.
 

@@ -56,14 +56,13 @@ function estate(era = 'today', secret = false) {
     : secret
       ? 'Present-day directory · service route located.'
       : 'Present-day directory';
-  return `<div class="castle-plan" data-era="${historical ? '1911' : 'today'}">${image(id, historical ? 'A fictional 1911 survey of the Wrenmere estate.' : 'A present-day directory of the Wrenmere estate.')}<div class="castle-plan-grid" aria-hidden="true"></div><p class="castle-map-caption">${caption}</p></div>`;
+  return `<div class="castle-plan" data-era="${historical ? '1911' : 'today'}">${image(id, historical ? 'A fictional 1911 survey of the Wrenmere estate.' : 'A present-day directory of the Wrenmere estate.')}${secret ? '<svg class="secret-route" viewBox="0 0 1200 760" aria-hidden="true"><path d="M405 453l60-18 0-49" stroke="#e6c986" stroke-width="4" stroke-dasharray="5 4" fill="none"/></svg>' : ''}<p class="castle-map-caption">${caption}</p></div>`;
 }
 
 function interior(room, era = 'today') {
   const id = ROOM_MEDIA.includes(room?.id) ? room.id : '';
-  const period = era === '1911' ? '1911 survey layer' : 'present-day visit';
   const description = id
-    ? `${room.name}: an original Wrenmere room illustration, ${period}. Puzzle clues appear in the text and controls.`
+    ? `${room.name}: an original Wrenmere room illustration. Puzzle clues appear in the text and controls.`
     : 'A Wrenmere room illustration is unavailable in this build.';
   return image(id, description);
 }

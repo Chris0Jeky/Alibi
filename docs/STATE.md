@@ -4,6 +4,14 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## Wrenmere production integration in progress
 
+Navigation/media checkpoint: the integration now includes main PR #65 (`92565a4`, Alibi 0.9.0).
+The twelve original scene SVGs and optional captioned prologue are delivered under separate
+budgets. The grounds preserve map coordinates; rooms have visible hotspots, equivalent named
+controls, nearby exits and thinking methods. The full local gate, ten-question playthrough at
+390/1280, notebook recovery and eight exploration/media/offline checks pass. Visual inspection
+covered the grounds, room and museum layouts. These are browser simulations, not physical-phone
+acceptance. Catalogue familiarity and final production review/release remain in progress.
+
 `codex/wrenmere-production` integrates all original commits from draft PRs #39–42 into
 the `8ffe98a` main baseline in an isolated checkout. The merge is conflict-free. The full
 format/build/Node gate passes after updating optional-pack accounting and the activity-host

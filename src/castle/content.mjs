@@ -53,7 +53,7 @@ export default {
       method: 'Find an invariant',
       source: ['bridges'],
       summary:
-        'Try tracing the bridges, then count the connections at each bank. The count explains why the walk keeps getting stuck.',
+        'Try tracing the bridges, then count the connections at each land area. The count explains why the walk keeps getting stuck.',
       history:
         'Euler’s 1736 work showed that a route crossing each of the seven bridges exactly once is impossible. Our schematic preserves the connections, not the physical scale of the city.',
       boundary:

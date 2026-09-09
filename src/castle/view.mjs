@@ -136,16 +136,17 @@ export async function mount({ root, preferences = null }) {
   function visit(id) {
     const r = W.rooms.find((r) => r.id === id);
     if (!r) return;
-    selected = id;
     const status = E.roomStatus(state, r);
     if (!status.open) {
       show(r.name, `<p>${escape(status.reason)}</p>`);
       return;
     }
+    selected = id;
     if (!state.visited.includes(id)) mutate((n) => n.visited.push(id));
     navigate(id === 'museum' ? 'museum' : 'room', id === 'museum' ? '' : id);
   }
   function show(title, body) {
+    releaseFilm();
     if (!dialog.open) opener = root.activeElement;
     dialog.innerHTML = `${button('Close', 'close', '', 'class="close" aria-label="Close window"')}<h2 id="castle-title">${escape(title)}</h2>${body}`;
     if (!dialog.open) dialog.showModal();
@@ -155,18 +156,29 @@ export async function mount({ root, preferences = null }) {
     clearTimeout(filmTimer);
     filmTimer = null;
     filmPlaying = false;
+    $('#castle-film')?.pause();
+  }
+  function releaseFilm() {
+    stopFilm();
+    const video = $('#castle-film');
+    if (video) {
+      video.removeAttribute('src');
+      video.load();
+    }
   }
   function close() {
-    stopFilm();
+    releaseFilm();
     active = null;
     selection = null;
     if (dialog.open) dialog.close();
+    dialog.replaceChildren();
     render();
-    const next = [...root.querySelectorAll('button,a')].find((el) =>
+    const candidates = [...root.querySelectorAll('button,a')].filter((el) =>
       opener?.dataset?.do
         ? el.dataset.do === opener.dataset.do && el.dataset.value === opener.dataset.value
         : opener?.href && el.href === opener.href,
     );
+    const next = candidates.find((el) => el.className === opener?.className) || candidates[0];
     (next || $('#castle-main')).focus({ preventScroll: true });
   }
   function download(text, name) {
@@ -295,9 +307,28 @@ export async function mount({ root, preferences = null }) {
     filmIndex = 0;
     show(
       'An invitation to Wrenmere',
-      `<div class="prologue"><p id="film-line"></p><span id="film-progress" class="small"></span></div><div class="actions">${button('Play', 'film-play', '', 'id="film-play"')}${button('Next frame', 'film-next')}</div><details><summary>Read the complete text</summary><p>${filmLines().map(escape).join('</p><p>')}</p></details><p class="small">An optional four-frame text interlude. The package’s rendered video is not bundled into this activity; no required clue depends on it.</p>`,
+      `<div class="prologue"><p id="film-line"></p><span id="film-progress" class="small"></span></div><div class="actions">${button('Play', 'film-play', '', 'id="film-play"')}${button('Next frame', 'film-next')}</div><details><summary>Read the complete text</summary><p>${filmLines().map(escape).join('</p><p>')}</p></details><p class="small">An optional four-frame text interlude. Read at your own pace; no required clue depends on playback.</p>`,
     );
     drawFilm();
+    const media = globalThis.ALIBI_QUIET_CONFIG?.castle?.film;
+    if (media && state.preferences.story) {
+      dialog.querySelector('.prologue').outerHTML =
+        `<video id="castle-film" controls playsinline preload="none" poster="${escape(media.poster)}" src="${escape(media.src)}" aria-label="Wrenmere illustrated prologue"><track kind="captions" label="English" srclang="en" src="${escape(media.captions)}" default></video>`;
+      dialog.querySelector('.actions').remove();
+      dialog.querySelector('details').innerHTML =
+        `<summary>Read the complete text</summary><p>The house is open. Its history isn’t.</p><p>A ticket. A clock. Seventeen missing minutes.</p><p>Not every answer is a verdict.</p><p>Alibi · Wrenmere Castle. A house of unfinished questions.</p>`;
+      dialog.querySelector('p.small').textContent =
+        'An optional 18-second silent illustrated film. Press play when you are ready. Its complete text is below; no clue depends on playback.';
+      $('#castle-film').addEventListener(
+        'error',
+        () => {
+          if ($('#castle-film'))
+            dialog.querySelector('p.small').textContent =
+              'The film is unavailable here. Its complete text is below; you can continue the visit.';
+        },
+        { signal: abort.signal },
+      );
+    }
   }
   function exhibit(id) {
     const x = W.exhibits.find((x) => x.id === id);
@@ -597,7 +628,11 @@ export async function mount({ root, preferences = null }) {
       for (const el of root.querySelectorAll('[data-do="era"]'))
         if (el.dataset.value === value) el.focus({ preventScroll: true });
     } else if (name === 'object') inspect(value);
-    else if (name === 'keep-observation') keepObservation(value);
+    else if (name === 'room-puzzle') {
+      if (value === 'rest') rest();
+      else if (value === 'reveal') resolution();
+      else puzzle(value);
+    } else if (name === 'keep-observation') keepObservation(value);
     else if (name === 'puzzle') puzzle(value);
     else if (name === 'preferences') settings();
     else if (name === 'invitation') invitation();
@@ -719,9 +754,10 @@ export async function mount({ root, preferences = null }) {
   );
   function route() {
     if (disposed) return;
-    stopFilm();
+    releaseFilm();
     active = null;
     if (dialog.open) dialog.close();
+    dialog.replaceChildren();
     const next = rootRoute();
     view = ['map', 'museum', 'journal', 'directory', 'room'].includes(next.view)
       ? next.view
@@ -746,6 +782,11 @@ export async function mount({ root, preferences = null }) {
   route();
   return {
     route,
+    focusDestination() {
+      if (disposed) return false;
+      $('#castle-main').focus({ preventScroll: true });
+      return true;
+    },
     flush: () => store.flush(),
     setPreferences(value) {
       effective = value;
@@ -754,7 +795,7 @@ export async function mount({ root, preferences = null }) {
     dispose() {
       disposed = true;
       if (showStagedImport === reviewStaged) showStagedImport = null;
-      stopFilm();
+      releaseFilm();
       abort.abort();
       unsubscribe();
       for (const timer of timers) clearTimeout(timer);

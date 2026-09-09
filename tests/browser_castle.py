@@ -25,7 +25,8 @@ def controls(page, width, output):
         selector = f'[data-do="{action}"]'
         if value is not None:
             selector += f'[data-value="{value}"]'
-        page.locator(selector).first.click()
+        scope = page.locator('#castle-dialog') if page.locator('#castle-dialog').is_visible() else page
+        scope.locator(selector).first.click()
     def puzzle(room):
         go('room/' + room)
         click('puzzle')
@@ -128,7 +129,7 @@ def controls(page, width, output):
     click('keep-observation', 'library-pencil')
     expect(page.locator('#observation-result')).to_contain_text('already in your notebook')
     click('close')
-    expect(page.locator('[data-do="object"]')).to_be_focused()
+    expect(page.locator('[data-do="object"]').first).to_be_focused()
     go('journal')
     expect(page.locator('#notes')).to_contain_text('A pencilled correction')
     record('optional observations copy once and restore focus')
