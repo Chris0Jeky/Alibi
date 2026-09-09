@@ -2,6 +2,21 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Discovery, history and seeded issue QA in progress
+
+The active iteration is tracked in [POLISH-QA.md](POLISH-QA.md). The candidate adds illustrated
+collection invitations, recent-feature cards and an offline version history reachable from the
+desk and footer. [CHANGELOG.md](../CHANGELOG.md) covers all public versions from 0.3 through 0.8.2.
+GitHub historical release descriptions now lead with player changes; four missing deployment
+entries were added at their original source commits. Original receipt text (apart from newline
+normalization) and download assets are retained. Current hosted application remains 0.8.2.
+
+Local candidate verification, 182 UI checks, 66 curation checks, the player-feedback matrix and
+20 discovery/history checks pass. Phone/desktop collection cards were visually inspected.
+Focus, anthology and other seeded bug fixes are in separate owned worktrees; integration,
+independent review, exact-head CI and deployment remain pending. Physical-device and owner
+acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Player-feedback QA 0.8.2 live
 
 The complete feedback slice and keyboard-focus follow-up are published on both existing origins.

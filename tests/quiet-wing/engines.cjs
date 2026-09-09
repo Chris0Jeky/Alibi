@@ -85,6 +85,25 @@ ok(E.harvest(state, 0, now + 120000));
 eq(state.garden.pressed, 1);
 ok(!E.harvest(state, 0, now + 130000), 'No double collect');
 eq(E.growth({ seed: 'lavender', plantedAt: now }, now + 40 * 86400000), 1);
+const cropIds = Object.keys(E.CROPS),
+  allCrops = E.newState(now);
+for (const [i, id] of cropIds.entries()) ok(E.plant(allCrops, i, id, now), `Plant accepts ${id}`);
+eq(
+  allCrops.garden.pots.map((pot) => pot.seed),
+  cropIds,
+  'All six published crop IDs remain accepted',
+);
+for (const invalid of ['constructor', '__proto__', 'toString']) {
+  const badPot = E.newState(now);
+  badPot.garden.pots[0] = { seed: invalid, plantedAt: now };
+  reject(() => E.validateState(badPot), `Inherited crop ID ${invalid} is rejected from pots`);
+  const badBouquet = E.newState(now);
+  badBouquet.garden.bouquet[0] = invalid;
+  reject(
+    () => E.validateState(badBouquet),
+    `Inherited crop ID ${invalid} is rejected from bouquets`,
+  );
+}
 function moves(id) {
   if (id.startsWith('hanoi'))
     return [0, 1, 2].flatMap((from) => [0, 1, 2].map((to) => ({ from, to })));

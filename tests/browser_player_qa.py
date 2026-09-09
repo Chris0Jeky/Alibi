@@ -106,14 +106,43 @@ with sync_playwright() as pw:
             assert page.evaluate('Boolean(AlibiDiagnostics.getCurrent().completedAt)')
             page.locator('dialog[open] [data-action="close-dialog"]').click()
             page.screenshot(path=str(OUT / f'{puzzle["id"]}-{width}.png'), full_page=True)
-        book = json.loads((ROOT / 'content/casebooks.json').read_text())[0]
+        books = json.loads((ROOT / 'content/casebooks.json').read_text())
+        book = books[1]
         page.goto(URL + '/#/casebooks/' + book['id'])
+        expect(page.locator('.case-duration')).to_contain_text('4 records')
+        expect(page.locator('.section-head')).to_contain_text('The records.')
+        assert 'standalone' in page.locator('.case-opening').inner_text().lower(), 'anthology opening names standalone records'
         page.locator('.chapter[data-action="open"]').nth(2).click()
+        expect(page.locator('.story-page')).to_contain_text('RECORD 3 OF 4')
+        expect(page.locator('.story-format-note')).to_contain_text('Standalone record')
         expect(page.locator('.story-page')).to_contain_text(book['chapters'][2]['brief'])
-        assert book['ending'] not in page.locator('.story-page').inner_text(), 'out-of-order opening has no epilogue spoiler'
-        page.screenshot(path=str(OUT / f'story-{width}.png'), full_page=True)
+        assert book['ending'] not in page.locator('.story-page').inner_text(), 'out-of-order opening has no anthology ending spoiler'
+        page.screenshot(path=str(OUT / f'anthology-story-{width}.png'), full_page=True)
         page.get_by_role('button', name='Continue to puzzle', exact=True).click()
         expect(page.locator('.play-title')).to_be_visible()
+        if page.locator('dialog[open]').count():
+            page.locator('dialog[open] [data-action="close-dialog"]').click()
+        puzzle = page.evaluate('AlibiDiagnostics.getCurrent().puzzle')
+        page.locator('[data-action="brush"][data-value="0"]').click()
+        for i, value in enumerate(puzzle['solution']):
+            if value == 0:
+                page.locator(f'[data-action="cell"][data-cell="{i}"]').click()
+        page.locator('[data-action="brush"][data-value="1"]').click()
+        for i, value in enumerate(puzzle['solution']):
+            if value == 1:
+                page.locator(f'[data-action="cell"][data-cell="{i}"]').click()
+        expect(page.locator('dialog[open]')).to_be_visible()
+        page.locator('dialog[open] [data-action="next"]').click()
+        expect(page.locator('.story-page')).to_contain_text('RECORD 3 OF 4')
+        expect(page.get_by_role('button', name='Continue to the next record', exact=True)).to_be_visible()
+        assert book['ending'] not in page.locator('.story-page').inner_text(), 'partial anthology stays short of its ending'
+        page.get_by_role('button', name='Revisit this puzzle', exact=True).click()
+        expect(page.locator('.play-title')).to_be_visible()
+        expect(page.locator('.board-instruction')).to_contain_text('Puzzle solved')
+        page.get_by_role('button', name='Back to casebook', exact=True).click()
+        expect(page.locator('.chapter-entry.finished')).to_have_count(1)
+        expect(page.locator('.case-ending')).to_have_count(0)
+        page.screenshot(path=str(OUT / f'story-{width}.png'), full_page=True)
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'horizontal overflow'
         assert not errors, errors
         context.close()

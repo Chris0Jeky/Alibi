@@ -326,8 +326,9 @@
     daisy: { name: 'Daisy', seconds: 90, colour: '#f1e7bd' },
     bluebell: { name: 'Bluebell', seconds: 900, colour: '#839fc4' },
   };
+  const hasCrop = (id) => Object.hasOwn(CROPS, id);
   function growth(pot, now) {
-    if (!pot || !CROPS[pot.seed]) return 0;
+    if (!pot || !hasCrop(pot.seed)) return 0;
     return clamp(
       Math.max(0, Math.min(now - pot.plantedAt, 8 * 3600000)) / (CROPS[pot.seed].seconds * 1000),
       0,
@@ -340,7 +341,7 @@
       !Number.isInteger(i) ||
       i < 0 ||
       i >= 6 ||
-      !CROPS[seed] ||
+      !hasCrop(seed) ||
       s.garden.pots[i]
     )
       return false;
@@ -363,7 +364,7 @@
       !Number.isInteger(slot) ||
       slot < 0 ||
       slot >= 3 ||
-      (seed !== null && (!CROPS[seed] || !(s.garden.collection?.[seed] > 0)))
+      (seed !== null && (!hasCrop(seed) || !(s.garden.collection?.[seed] > 0)))
     )
       return false;
     s.garden.bouquet[slot] = seed;
@@ -681,7 +682,7 @@
       throw Error('Invalid garden.');
     n.garden.pots = o.garden.pots.map((p) => {
       if (!p) return null;
-      if (!CROPS[p.seed] || !Number.isFinite(p.plantedAt)) throw Error('Invalid seed.');
+      if (!hasCrop(p.seed) || !Number.isFinite(p.plantedAt)) throw Error('Invalid seed.');
       return { seed: p.seed, plantedAt: Math.min(p.plantedAt, Date.now()) };
     });
     n.garden.pressed = clamp(+o.garden.pressed || 0, 0, 1e6);
@@ -691,7 +692,7 @@
       if (
         !Array.isArray(o.garden.bouquet) ||
         o.garden.bouquet.length !== 3 ||
-        o.garden.bouquet.some((id) => id !== null && (!CROPS[id] || !n.garden.collection[id]))
+        o.garden.bouquet.some((id) => id !== null && (!hasCrop(id) || !n.garden.collection[id]))
       )
         throw Error('Invalid pressed-flower arrangement.');
       n.garden.bouquet = clone(o.garden.bouquet);

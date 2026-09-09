@@ -127,3 +127,253 @@ details > summary:focus-visible {
     min-height: 44px;
   }
 }
+
+/* Discovery cards share the cabinet palette in every theme. */
+.club-news {
+  margin: 32px 0;
+}
+.news-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.news-heading h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(25px, 3vw, 36px);
+  line-height: 1.2;
+  margin: 8px 0;
+}
+.news-heading p,
+.collection-intro {
+  max-width: 65ch;
+  color: var(--muted);
+  margin: 10px 0 18px;
+}
+.collection-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  text-align: left;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.collection-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+.collection-card-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+}
+.collection-card-copy strong {
+  font:
+    600 clamp(20px, 2vw, 25px)/1.2 Georgia,
+    serif;
+}
+.collection-card-copy > span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.collection-card-copy b {
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 14px;
+  color: var(--green);
+}
+.collection-card .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.collection-card:hover {
+  border-color: var(--green);
+}
+.collection-card[aria-pressed='true'] {
+  border-color: var(--green);
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.collection-caption {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 80ch;
+  line-height: 1.6;
+}
+.news-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.news-features > button {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  text-align: left;
+}
+.news-features > button > span:last-child {
+  display: grid;
+  gap: 7px;
+}
+.news-features strong {
+  font:
+    600 23px/1.25 Georgia,
+    serif;
+}
+.news-features span span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.news-features b {
+  font-size: 14px;
+  margin-top: 5px;
+  color: var(--green);
+}
+.news-symbol {
+  font-size: 36px;
+  white-space: nowrap;
+  color: var(--green);
+}
+.curation-collections {
+  background: var(--paper);
+  padding: 16px;
+}
+.curation-collections > summary {
+  padding: 12px;
+  border: 0;
+  font-size: 17px;
+}
+.disclosure-hint {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 12px;
+}
+.curation-gallery > summary {
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+}
+.curation-gallery[open] > summary {
+  margin-bottom: 16px;
+}
+.release-history {
+  max-width: 850px;
+  margin: auto;
+}
+.release-history > p {
+  max-width: 65ch;
+  font-size: 17px;
+}
+.release-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0;
+}
+.release-index a {
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  text-decoration: none;
+  min-height: 44px;
+}
+.release-entry {
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 100px;
+}
+.release-entry h2 {
+  font:
+    600 clamp(23px, 3vw, 31px)/1.3 Georgia,
+    serif;
+  margin: 8px 0 16px;
+}
+.release-entry ul {
+  padding-left: 22px;
+}
+.release-entry li {
+  margin: 10px 0;
+  max-width: 68ch;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.release-entry .release-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.release-links a {
+  padding: 10px 0;
+}
+@media (max-width: 1100px) {
+  .collection-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .news-symbol {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .news-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .news-features {
+    grid-template-columns: 1fr;
+  }
+  .news-features > button {
+    padding: 20px;
+  }
+  .collection-cards {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .collection-card {
+    flex-direction: row;
+  }
+  .collection-card img {
+    width: 30%;
+    aspect-ratio: auto;
+    object-fit: cover;
+  }
+  .collection-card-copy {
+    padding: 16px;
+    gap: 8px;
+  }
+  .collection-card-copy strong {
+    font-size: 21px;
+  }
+  .collection-card-copy > span {
+    font-size: 14px;
+  }
+  .disclosure-hint {
+    display: block;
+    margin: 4px 0 0;
+  }
+  .curation-collections {
+    padding: 12px;
+  }
+}
