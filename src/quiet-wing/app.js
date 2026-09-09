@@ -2380,6 +2380,13 @@
         },
         flush,
         setPreferences: applyRootPreferences,
+        focusDestination: () => {
+          if ($('#modal')?.open) return false;
+          const main = $('#main');
+          if (!main) return false;
+          main.focus({ preventScroll: true });
+          return root.activeElement === main;
+        },
         state: () => A.state,
         dispose() {
           disposed = true;

@@ -126,3 +126,28 @@ test('root preferences reach the mounted wing and update it while active', async
   assert.deepEqual(JSON.parse(JSON.stringify(updates)), [second]);
   await env.AlibiActivities.leave();
 });
+
+test('the activity exposes its own destination focus only while mounted', async () => {
+  const calls = [];
+  const env = {
+    ALIBI_QUIET_CONFIG: { cssSource: '', media: {} },
+    AlibiQuietWing: {
+      mount: async () => ({
+        focusDestination: () => {
+          calls.push('focus');
+          return true;
+        },
+        flush: async () => {},
+        dispose: () => {},
+      }),
+    },
+  };
+  vm.runInNewContext(fs.readFileSync(require.resolve('../src/activities.js'), 'utf8'), env);
+  const registry = env.AlibiActivities;
+  assert.equal(registry.focusDestination(), false);
+  await registry.enter({ isConnected: true, attachShadow: () => ({}) });
+  assert.equal(registry.focusDestination(), true);
+  assert.deepEqual(calls, ['focus']);
+  await registry.leave();
+  assert.equal(registry.focusDestination(), false);
+});

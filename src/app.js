@@ -204,6 +204,23 @@
       location.hash = h;
     }
   }
+  function requestLinkFocus(e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
+    const link = e
+      .composedPath()
+      .find(
+        (node) => node instanceof HTMLAnchorElement && node.getAttribute('href')?.startsWith('#/'),
+      );
+    if (!link || link.target || link.hasAttribute('download')) return;
+    const hash = link.hash;
+    if (!hash.startsWith('#/')) return;
+    const focusSerial = ++routeFocusSerial;
+    if (location.hash === hash) {
+      e.preventDefault();
+      loadRoute(focusSerial).catch((error) => toast(error.message, true));
+    } else routeFocusRequests.set(hash, focusSerial);
+  }
   function getRun(p) {
     const key = keyFor(p);
     if (records.has(key)) return records.get(key);
@@ -2712,6 +2729,7 @@
       $('#main')?.focus();
       return;
     }
+    requestLinkFocus(e);
     const el = e.target.closest('[data-action]');
     if (!el || el.disabled) return;
     handleAction(el, e).catch((err) => {
@@ -3055,8 +3073,10 @@
     document.title = current ? `${current.puzzle.title} · Alibi` : 'Alibi · A little room to think';
     if (current && !prefs.seen.includes(current.puzzle.type) && !storageFatal && !saveError)
       startLesson(current.puzzle.type, true);
-    if (focusSerial && focusSerial === routeFocusSerial && !$('#dialog').open)
-      $('#main')?.focus({ preventScroll: true });
+    if (focusSerial && focusSerial === routeFocusSerial && !$('#dialog').open) {
+      if (route.page !== 'quiet' || !AlibiActivities.focusDestination?.())
+        $('#main')?.focus({ preventScroll: true });
+    }
   }
   window.addEventListener('hashchange', () => {
     const focusSerial = routeFocusRequests.get(location.hash) || 0;
