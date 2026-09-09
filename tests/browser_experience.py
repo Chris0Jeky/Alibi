@@ -1,5 +1,5 @@
 """Actual app integration: optional media, controls, lifecycle and offline notes."""
-import json
+import json, urllib.parse
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
@@ -94,6 +94,13 @@ with sync_playwright() as p:
     check(page.locator('#room-ambience').input_value()=='','Mute clears the active atmosphere selection')
     check(page.evaluate('window.__testAudio.every(a=>a.paused)'),'Mute stops actual cue and atmosphere media elements')
     page.locator('#room-ambience').select_option('ambience-glasshouse-garden')
+    page.wait_for_function('()=>window.__testAudio.some(a=>a.loop && !a.paused)')
+    page.evaluate("()=>AlibiActivities.setPreferences({theme:'system',reducedMotion:true,contrast:false,largeText:false})")
+    check(page.locator('#room-ambience').input_value()=='','Root reduced motion stops Quiet Wing ambience')
+    check(page.evaluate('window.__testAudio.every(a=>a.paused)'),'Root reduced motion pauses Quiet Wing media')
+    page.evaluate("()=>AlibiActivities.setPreferences({theme:'night',reducedMotion:false,contrast:true,largeText:true})")
+    check(page.evaluate("()=>{const b=document.querySelector('#quiet-host').shadowRoot.querySelector('.qw-body');return b.classList.contains('night')&&b.classList.contains('contrast')&&b.classList.contains('large')}"),'Root evening, contrast and larger text reach Quiet Wing styles')
+    check(page.evaluate("()=>getComputedStyle(document.querySelector('#quiet-host').shadowRoot.querySelector('.qw-body')).fontSize=='16px'"),'Root larger text changes Quiet Wing base text size')
     page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>true}); document.dispatchEvent(new Event('visibilitychange'))")
     check(page.evaluate('window.__testAudio.every(a=>a.paused)'),'Hidden page pauses all soundscape elements')
     page.evaluate("Object.defineProperty(document,'hidden',{configurable:true,get:()=>false}); document.dispatchEvent(new Event('visibilitychange'))")
@@ -108,5 +115,9 @@ with sync_playwright() as p:
     check(standalone.locator('.room-illustration,#room-ambience').count()==0,'Single-file preview omits unavailable room downloads and atmospheres')
     standalone.locator('[data-route="folio"]').click();standalone.wait_for_selector('.folio-intro')
     check(not missing and 'full browser edition' in standalone.locator('.folio-intro').inner_text(),'Single-file Field notes explains its boundary without broken optional media')
+    standalone.locator('[data-route="classics"]').click();standalone.wait_for_selector('#classics-sources')
+    standalone.locator('#classics-sources').click();standalone.wait_for_selector('#modal a')
+    source_href=standalone.locator('#modal a')
+    check(source_href.count()==1 and 'Quiet Wing sources' in urllib.parse.unquote(source_href.get_attribute('href').split(',',1)[1]),'Single-file sources link carries its ledger inline')
     browser.close()
 (OUT/'results.json').write_text(json.dumps({'checks':checks,'physicalDevice':False},indent=2),encoding='utf-8')
