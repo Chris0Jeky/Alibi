@@ -3,6 +3,7 @@ import json, os
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 ROOT=Path(__file__).resolve().parents[1]
+RELEASES=json.loads((ROOT/'content/releases.json').read_text(encoding='utf-8'))
 OUT=Path(os.environ.get('ALIBI_RESULTS',str(ROOT/'test-results/discovery'))); OUT.mkdir(parents=True,exist_ok=True)
 URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787').rstrip('/')
 checks=[]
@@ -30,7 +31,7 @@ with sync_playwright() as pw:
             page.get_by_role('button',name='Show all collections',exact=True).click()
             expect(page.locator('.filter-meta')).to_contain_text('328 puzzles')
             page.locator('.footer [data-page="changelog"]').click()
-            expect(page.locator('.release-entry')).to_have_count(11)
+            expect(page.locator('.release-entry')).to_have_count(len(RELEASES))
             page.get_by_role('button',name='Back to your desk',exact=True).click()
             expect(page.locator('.club-news')).to_be_visible()
         page.locator('.news-features [data-id="binary"]').click()
@@ -52,7 +53,7 @@ with sync_playwright() as pw:
         check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'History fits {width}')
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
         context.set_offline(True);page.reload()
-        expect(page.locator('.release-entry')).to_have_count(11)
+        expect(page.locator('.release-entry')).to_have_count(len(RELEASES))
         check(True,f'All historical versions reload offline at {width}')
         context.set_offline(False)
         page.get_by_role('button',name='Back to your desk',exact=True).click()
