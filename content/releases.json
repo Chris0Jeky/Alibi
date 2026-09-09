@@ -1,6 +1,18 @@
 [
   {
+    "version": "0.10.1",
+    "date": "2026-09-09",
+    "title": "Smooth keyboard browsing",
+    "tag": "v0.10.1",
+    "receipt": "docs/RELEASE-0.10.1.md",
+    "changes": [
+      "Keep your place on a puzzle card when the library refreshes in the background. Loading more puzzles still takes you straight to the first new board.",
+      "Choose a collection with the keyboard and stay on the selected setting. Showing all collections returns focus to the updated results, ready to keep exploring."
+    ]
+  },
+  {
     "version": "0.10.0",
+    "source": "bcd95fdef4b47fb4b61a41b2c1385406aed57f2d",
     "date": "2026-09-09",
     "title": "Welcome to Wrenmere",
     "tag": "v0.10.0",
@@ -15,6 +27,7 @@
   },
   {
     "version": "0.9.1",
+    "source": "8641b3e385f663af6be3ca138aa948d6b355c591",
     "date": "2026-09-09",
     "title": "Keep your place",
     "tag": "v0.9.1",

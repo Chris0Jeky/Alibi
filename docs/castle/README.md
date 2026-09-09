@@ -1,11 +1,10 @@
 # Wrenmere implementation
 
-Chapter I is The Seventeenth Minute. Start at `#/quiet/castle/map` or the Wrenmere link in the home page's Quiet Wing invitation. This is a review candidate, not a deployment receipt.
+Chapter I is The Seventeenth Minute. [Enter Wrenmere](https://alibi-after-hours-preview.commit-atlas.workers.dev/#/quiet/castle/map) or use Castle in Alibi's navigation. The [0.10.0 receipt](../RELEASE-0.10.0.md) records the published build and actual hosted evidence.
 
 The original stack (#39 foundation → #40 storage → #41 experience → #42 native integration)
-is preserved in `codex/wrenmere-production`, integrated with current main. The production PR
-will supersede those drafts with their original commits intact. Start with [STRATEGY.md](STRATEGY.md).
-No production deployment is claimed by this source checkpoint.
+is preserved by merged PR #73, integrated with the current player. All eighteen original commits
+remain in history. Start with [STRATEGY.md](STRATEGY.md).
 
 ## Code map
 
@@ -72,7 +71,7 @@ revisions on a validated synthetic save. `python tests/browser_castle_exploratio
 screen sizes, pin geometry, hotspots, locked exits, deliberate film playback/caption loading,
 source release and actual offline scene decoding. Reports distinguish fixtures from playthroughs.
 
-The first #39 layer has a full repository CI pass at `29410d9`. Later layers require their own head checks. Run the existing full `npm run verify` and origin/Quiet Wing suites too. Keep #2, #11 and #13 open for physical Android, TalkBack and sustained-device acceptance. Draft PRs do not close those gates.
+PR #73 passes the full repository and castle CI gates. Both actual hosts pass all five castle suites and 92 origin checks; the actual saved-game release update passes on each. Keep #2, #11, #13 and #56 open for physical Android, TalkBack and human acceptance. The release does not close those gates.
 
 ## Production queue
 

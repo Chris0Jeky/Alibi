@@ -78,6 +78,9 @@ def run():
                 assert page.evaluate('castleDetachedFilm.paused && !castleDetachedFilm.getAttribute("src")')
                 assert page.locator('#castle-film').count()==0
                 report['checks'].append(f'{width}: opt-in captioned film plays; closing pauses and releases its source')
+                # The optional room pack can finish before a first hosted core installation.
+                # An offline navigation needs both the root worker and the castle pack.
+                page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
                 context.set_offline(True)
                 page.reload()
                 expect(page.locator('#castle-main h1')).to_have_text('The Long Library')

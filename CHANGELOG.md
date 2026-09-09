@@ -6,6 +6,15 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.10.1 · Smooth keyboard browsing
+
+2026-09-09
+
+- Keep your place on a puzzle card when the library refreshes in the background. Loading more puzzles still takes you straight to the first new board.
+- Choose a collection with the keyboard and stay on the selected setting. Showing all collections returns focus to the updated results, ready to keep exploring.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.10.1) · [Deployment receipt](docs/RELEASE-0.10.1.md)
+
 ## 0.10.0 · Welcome to Wrenmere
 
 2026-09-09

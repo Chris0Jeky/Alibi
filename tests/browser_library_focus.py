@@ -126,6 +126,76 @@ def main():
                     active_id(page) == "main",
                     f"Library family back path retains its route focus at {width}px",
                 )
+
+                # A storage notification is a background rerender while the first newly visible
+                # card is focused. Its stable key must preserve both focus and the card's action.
+                page.goto(URL + "/#/library")
+                page.locator("#main").wait_for(state="visible")
+                page.locator('[data-action="browse-all"]').click()
+                page.locator("#library-show-more").focus()
+                page.keyboard.press("Enter")
+                first_new = page.locator('.puzzle-card').nth(24).locator('[data-action="open"]')
+                expect(first_new).to_be_focused()
+                card_id = first_new.get_attribute("id")
+                puzzle_key = first_new.get_attribute("data-id")
+                check(
+                    card_id == f"library-card-{puzzle_key}",
+                    f"First new library card has a stable focus ID at {width}px",
+                )
+                page.evaluate("window.dispatchEvent(new Event('alibi-storage-change'))")
+                expect(first_new).to_be_focused()
+                expect(first_new).to_be_in_viewport()
+                check(
+                    active_id(page) == card_id,
+                    f"Background storage rerender preserves card focus and viewport at {width}px",
+                )
+                page.keyboard.press("Enter")
+                expect(page.locator("dialog[open]")).to_be_visible()
+                check(
+                    page.evaluate("AlibiDiagnostics.getCurrent()?.key") == puzzle_key,
+                    f"Preserved card still opens the correct puzzle at {width}px",
+                )
+                page.locator('dialog[open] [data-action="close-dialog"]').click()
+
+                # Collection cards are also rerendered filter controls and need a stable anchor.
+                curation_page = context.new_page()
+                curation_page.set_default_timeout(5000)
+                curation_page.on("pageerror", lambda error: errors.append(str(error)))
+                curation_page.goto(URL + "/#/library")
+                curation_page.locator("#main").wait_for(state="visible")
+                browse_all = curation_page.locator('[data-action="browse-all"]')
+                browse_all.wait_for(state="visible")
+                browse_all.click()
+                curation_page.locator(".curation-collections > summary").focus()
+                curation_page.keyboard.press("Enter")
+                salt = curation_page.locator(
+                    '.curation-collections [data-action="curation-venue"][data-value="salt"]'
+                )
+                salt.focus()
+                curation_page.keyboard.press("Enter")
+                expect(curation_page.locator(".filter-meta")).to_contain_text("52 puzzles")
+                collection_focus = active_id(curation_page)
+                check(
+                    collection_focus == "library-collection-salt",
+                    f"Collection filter retains focus at {width}px (active {collection_focus})",
+                )
+                scope_all = curation_page.get_by_role(
+                    "button", name="Show all collections", exact=True
+                )
+                scope_all.focus()
+                curation_page.keyboard.press("Enter")
+                expect(curation_page.locator(".filter-meta")).to_contain_text("328 puzzles")
+                check(
+                    active_id(curation_page) == "library-filter-status",
+                    f"Removed collection escape focuses status at {width}px",
+                )
+                curation_page.locator("#library-collection-all").focus()
+                curation_page.keyboard.press("Enter")
+                check(
+                    active_id(curation_page) == "library-collection-all",
+                    f"All collections control retains focus at {width}px",
+                )
+                curation_page.close()
                 context.close()
         finally:
             browser.close()

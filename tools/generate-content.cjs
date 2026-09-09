@@ -400,29 +400,34 @@ for (let k = 0; k < 8; k++) {
   accept(p);
 }
 // Editorial metadata is additive; preserve old puzzle definitions/revisions for save compatibility.
-// Published definitions remain authoritative when a generator rule changes, while genuinely new
-// seeded puzzles can still be added by this development-only tool.
+// The checked-in catalogue is the ordered base. Published definitions remain authoritative when a
+// generator rule changes, while genuinely new seeded puzzles can still be added by this tool.
 const generatedPuzzles = pack.puzzles.slice(),
   generatedIds = new Set(generatedPuzzles.map((p) => p.id));
 if (generatedIds.size !== generatedPuzzles.length) throw Error('Duplicate generated puzzle ID');
-pack.puzzles = generatedPuzzles.map((p) => publishedById.get(p.id) || p);
-for (const p of publishedCatalog.puzzles) if (!generatedIds.has(p.id)) pack.puzzles.push(p);
-if (new Set(pack.puzzles.map((p) => p.id)).size !== pack.puzzles.length)
+if (publishedById.size !== publishedCatalog.puzzles.length)
   throw Error('Duplicate published puzzle ID');
-for (const p of pack.puzzles) {
-  if (!publishedIds.has(p.id)) {
-    p.collection = ['scene', 'dossier', 'witness'].includes(p.type)
-      ? 'mystery'
-      : ['lightup', 'tents', 'aquarium', 'network', 'nonogram', 'trail'].includes(p.type)
-        ? 'visual'
-        : 'classic';
-    p.minutes =
-      p.type === 'witness'
-        ? [3, 5, 7][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)]
-        : [5, 10, 15][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)];
-  }
+const orderedPuzzles = publishedCatalog.puzzles.slice();
+for (const p of generatedPuzzles) {
+  if (publishedIds.has(p.id)) continue;
+  p.collection = ['scene', 'dossier', 'witness'].includes(p.type)
+    ? 'mystery'
+    : ['lightup', 'tents', 'aquarium', 'network', 'nonogram', 'trail'].includes(p.type)
+      ? 'visual'
+      : 'classic';
+  p.minutes =
+    p.type === 'witness'
+      ? [3, 5, 7][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)]
+      : [5, 10, 15][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)];
+  orderedPuzzles.push(p);
 }
-fs.writeFileSync(path.join(ROOT, 'content/catalog.json'), JSON.stringify(pack, null, 2) + '\n');
+if (new Set(orderedPuzzles.map((p) => p.id)).size !== orderedPuzzles.length)
+  throw Error('Duplicate published puzzle ID');
+const catalogue = { ...publishedCatalog, puzzles: orderedPuzzles };
+fs.writeFileSync(
+  path.join(ROOT, 'content/catalog.json'),
+  JSON.stringify(catalogue, null, 2) + '\n',
+);
 const books = [
   {
     id: 'last-light-at-bellweather',
@@ -601,13 +606,16 @@ const books = [
   },
 ];
 const publishedBooksById = new Map(publishedBooks.map((book) => [book.id, book])),
+  publishedBookIds = new Set(publishedBooks.map((book) => book.id)),
   seededBookIds = new Set(books.map((book) => book.id));
 if (publishedBooksById.size !== publishedBooks.length || seededBookIds.size !== books.length)
   throw Error('Duplicate casebook ID');
-const preservedBooks = books.map((book) => publishedBooksById.get(book.id) || book);
-for (const book of publishedBooks) if (!seededBookIds.has(book.id)) preservedBooks.push(book);
+const preservedBooks = publishedBooks.slice();
+for (const book of books) if (!publishedBookIds.has(book.id)) preservedBooks.push(book);
+if (new Set(preservedBooks.map((book) => book.id)).size !== preservedBooks.length)
+  throw Error('Duplicate casebook ID');
 fs.writeFileSync(
   path.join(ROOT, 'content/casebooks.json'),
   JSON.stringify(preservedBooks, null, 2) + '\n',
 );
-console.log('TOTAL', pack.puzzles.length, 'TYPES', C.TYPES.length);
+console.log('TOTAL', catalogue.puzzles.length, 'TYPES', C.TYPES.length);

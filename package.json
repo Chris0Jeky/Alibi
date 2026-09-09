@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "private": true,
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
   "engines": {

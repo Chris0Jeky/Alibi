@@ -479,11 +479,12 @@
   function puzzleCard(p) {
     const r = rec(p),
       inProgress = r && r.moves > 0 && !r.completedAt,
-      fav = prefs.favorites.includes(p.id);
+      fav = prefs.favorites.includes(p.id),
+      openID = route.page === 'library' ? ` id="library-card-${esc(keyFor(p))}"` : '';
     const highlight =
       globalThis.ALIBI_MEDIA?.[globalThis.AlibiAssets.highlights[p.id]] ||
       globalThis.AlibiCuration.cover?.(p);
-    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
+    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button${openID} class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
       highlight
         ? `<img class="puzzle-highlight" src="${esc(highlight)}" width="320" height="240" alt="" loading="lazy" decoding="async">`
         : AlibiClub.portrait(
