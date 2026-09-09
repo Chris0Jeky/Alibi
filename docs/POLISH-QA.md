@@ -13,10 +13,10 @@ Active objective: work through seeded issues, continue actual-control QA, publis
 
 ## Current assignments
 
-- Coordinator: discovery UI, version history, anthology copy integration, release publication and final QA.
-- Terra high: focus transitions and adjacent motion-preference diagnosis in its own checkout.
-- Luna xhigh: bounded Bridges/garden regressions in its own checkout.
-- Luna xhigh: read-only historical release and narrative evidence.
+- Coordinator: release publication, live-update proof, ongoing QA and integration.
+- Completed: Terra focus/motion, Luna Bridges/garden and anthology fixes; integrated in PR #65.
+- Luna xhigh: generator/authoring repair (#66) in an isolated checkout and independent next interaction audit.
+- Separate task **Explore Alibi castle expansion** owns castle production, museum, notebook and recovery work.
 
 ## Acceptance matrix
 
@@ -49,3 +49,18 @@ Chromium context reached offline-ready on primary0.8.2 with complete activation 
 errors; ordinary scripted HTTP403/1010 responses were client-specific, not evidence that normal
 browser access was broken. A fresh context probe captures worker events and diagnostics and uses
 the actual Check for updates and Save & update controls. Keep all outcomes separate.
+
+## Published checkpoint and next work
+
+0.9.0 is live on both origins from merged PR #65 (`92565a4`), build `f0b367c654a4`.
+Both full CI runs and independent review passed. Both current origins pass 92 storage/offline
+checks; primary discovery/history passes 20 actual-control checks at 390px/1440px. Both actual
+0.8.2-to-0.9.0 update transitions preserve the extra saved move and pinned definition through
+offline reload (#63). See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
+
+Continue #66 and the independent interaction audit. Castle-related issues #43–56 and their
+original PR stack belong to the active castle task; coordinate main/deployment changes instead
+of parallel implementation. Companion/garden/realm expansion #29–35/#37 retains its prerequisite
+design and acceptance gates. Physical/human checks (#1, #2, #11, #13, #56) remain open; the two
+positive real-player reports do not stand in for those specific checks. Provider headers (#6)
+and shared estate registration (#3) remain outside this app-code slice.
