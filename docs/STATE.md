@@ -2,6 +2,22 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Focused QA 0.10.1 candidate
+
+The next patch preserves focused library cards through background rerenders (#75) and keeps
+collection selectors usable from the keyboard, including the removed Show all escape (#71).
+A controlled storage event reproduces BUTTON-to-BODY focus loss in the published 0.9.1 build;
+the fixed build retains the same puzzle, viewport and Enter action. This isolates the rendering
+defect without claiming the original hosted service-worker event sequence is known.
+
+The authoring generator also preserves editorial puzzle/book order and complete catalogue
+headers while appending new seeds (#69). Disposable regressions cover reordering, middle
+insertion, custom metadata and duplicates. No published puzzle definition or save identity changes.
+The combined 0.10.0 base and 0.10.1 metadata pass source verification (148 Node tests), 182 UI
+checks, 53 library keyboard checks, 20 discovery checks and the narrow-layout matrix.
+Independent reviews found no blocker. Publication follows the separate castle task's receipt.
+See [RELEASE-0.10.1.md](RELEASE-0.10.1.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Wrenmere 0.10.0 production candidate
 
 `codex/wrenmere-production` preserves every original commit from draft PRs #39–42 and
