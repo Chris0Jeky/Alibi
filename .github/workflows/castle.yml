@@ -40,9 +40,11 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: npm ci
-      - name: Show activity formatting differences
-        run: npx prettier src/activities.js | diff -u src/activities.js - || true
-      - run: npm run format:check
+      - name: Show exact formatting differences
+        run: |
+          for file in src/activities.js tests/castle*.test.mjs; do
+            npx prettier "$file" | diff -u "$file" - || true
+          done
       - run: node --test tests/castle*.test.mjs
       - run: npm run build
       - run: node tests/budget.test.cjs
@@ -55,6 +57,9 @@ jobs:
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_castle.py
+      - name: Check formatting independently of runtime acceptance
+        if: always()
+        run: npm run format:check
       - name: Print acceptance evidence
         if: always()
         run: |
