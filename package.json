@@ -32,7 +32,7 @@
     "wrangler": "4.129.1"
   },
   "overrides": {
-    "miniflare": {
+    "miniflare@5.20260907.0-alpha": {
       "sharp": "0.35.4"
     }
   }
