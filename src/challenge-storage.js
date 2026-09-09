@@ -63,27 +63,51 @@
       }
       try {
         db = await new Promise((resolve, reject) => {
-          const r = G.indexedDB.open(NAME, 1),
-            timer = setTimeout(() => reject(Error('Challenge storage timed out.')), 2200);
+          const r = G.indexedDB.open(NAME, 1);
+          let settled = false,
+            abandoned = false;
+          const finish = (error, value) => {
+            if (settled) {
+              value?.close();
+              return;
+            }
+            settled = true;
+            clearTimeout(timer);
+            if (error) {
+              abandoned = true;
+              reject(error);
+            } else resolve(value);
+          };
+          const timer = setTimeout(
+            () =>
+              finish(
+                Object.assign(Error('Challenge storage timed out.'), { name: 'TimeoutError' }),
+              ),
+            2200,
+          );
           r.onupgradeneeded = () => {
+            if (abandoned) {
+              r.transaction?.abort?.();
+              return;
+            }
             if (!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE);
           };
-          r.onsuccess = () => {
-            clearTimeout(timer);
-            resolve(r.result);
-          };
-          r.onerror = r.onblocked = () => {
-            clearTimeout(timer);
-            reject(r.error || Error('Challenge storage unavailable.'));
-          };
+          r.onsuccess = () => finish(null, r.result);
+          r.onerror = () => finish(r.error || Error('Challenge storage unavailable.'));
+          r.onblocked = () =>
+            finish(
+              Object.assign(Error('Another tab is blocking challenge storage.'), {
+                name: 'BlockedError',
+              }),
+            );
         });
         db.onversionchange = () => {
           db.close();
           protectedMode = true;
         };
         mode = 'indexeddb';
-      } catch {
-        protectedMode = true;
+      } catch (error) {
+        if (!['SecurityError', 'NotSupportedError'].includes(error?.name)) protectedMode = true;
         mode = 'session';
       }
       return info();
