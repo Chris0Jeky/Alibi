@@ -2,13 +2,25 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Player-feedback QA candidate
+## Player-feedback QA 0.8.1 live; keyboard-focus follow-up
 
 CI recovery: repeated hosted attempts failed before app tests on a Google Chrome APT index
 checksum mismatch ([#59](https://github.com/Chris0Jeky/Alibi/issues/59)). The candidate workflow
 now pins Ubuntu 24.04 and uses its existing Ubuntu source definition for all APT calls, including
 Playwright's dependency installation. Package verification and every test remain required.
-Hosted results must prove this recovery before merge or publication.
+Both complete exact-head runs passed, and [PR #57](https://github.com/Chris0Jeky/Alibi/pull/57)
+merged at `3a36ce255104ffff961a2fbdc4f5f3ea54632b5b`. Issue #59 is resolved.
+Build `653a01d17507` is published on both existing sites. Each passes 92 live-origin
+storage/offline checks. All 254 primary public files match; all 250 fallback non-HTML files
+match, and its four HTML files preserve the source plus the known 938-byte host challenge.
+The attempted live 0.8.0-to-0.8.1 upgrade probe ended without a final receipt, so that exact
+transition is not claimed verified. Full CI includes the two-release update suite.
+See [RELEASE-0.8.1.md](RELEASE-0.8.1.md) for publication evidence.
+
+The separate `codex/route-focus` 0.8.2 candidate gives internal page navigation a destination
+focus target while preserving first-play modal focus, search editing and direct-load behavior.
+Terra reproduced the defect and verified the fix at phone/desktop widths. This follow-up
+remains unpublished until its own checks and independent review pass.
 
 `codex/player-qa` starts at `f3414f6`. Family-first browsing, visible collection-filter escape,
 clearer rules and cell-note controls, placed-digit feedback, saved scene candidate initials and
@@ -21,8 +33,7 @@ This does not certify the earlier Android incident or replace measured difficult
 acceptance. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for those specific checks.
 
 Plan and evidence: [PLAYER-QA.md](PLAYER-QA.md). Future narrative seed:
-[FUTURE-CASES.md](FUTURE-CASES.md). Source/local candidate only until release evidence is recorded;
-the live 0.8.0 receipt below remains authoritative. Separate Wrenmere PRs #39–42 are not integrated.
+[FUTURE-CASES.md](FUTURE-CASES.md). Separate Wrenmere PRs #39–42 are not integrated.
 
 ## Theatrical edition 0.8.0 live
 

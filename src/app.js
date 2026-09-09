@@ -46,6 +46,8 @@
     quarantined = 0,
     current = null,
     route = { page: 'home', id: '', book: '' },
+    routeFocusSerial = 0,
+    routeFocusRequests = new Map(),
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
@@ -195,8 +197,12 @@
         limit: 24,
       };
     const h = `#/${page}${id ? '/' + encodeURIComponent(id) : ''}${book ? '?book=' + encodeURIComponent(book) : ''}`;
-    if (location.hash === h) loadRoute();
-    else location.hash = h;
+    const focusSerial = ++routeFocusSerial;
+    if (location.hash === h) loadRoute(focusSerial);
+    else {
+      routeFocusRequests.set(h, focusSerial);
+      location.hash = h;
+    }
   }
   function getRun(p) {
     const key = keyFor(p);
@@ -2942,7 +2948,7 @@
       lesson = null;
     }
   });
-  async function loadRoute() {
+  async function loadRoute(focusSerial = 0) {
     const serial = ++routeSerial;
     bridgeAnchor = null;
     endPaint();
@@ -3035,8 +3041,14 @@
     document.title = current ? `${current.puzzle.title} · Alibi` : 'Alibi · A little room to think';
     if (current && !prefs.seen.includes(current.puzzle.type) && !storageFatal && !saveError)
       startLesson(current.puzzle.type, true);
+    if (focusSerial && focusSerial === routeFocusSerial && !$('#dialog').open)
+      $('#main')?.focus({ preventScroll: true });
   }
-  window.addEventListener('hashchange', () => loadRoute().catch((e) => toast(e.message, true)));
+  window.addEventListener('hashchange', () => {
+    const focusSerial = routeFocusRequests.get(location.hash) || 0;
+    routeFocusRequests.delete(location.hash);
+    loadRoute(focusSerial).catch((e) => toast(e.message, true));
+  });
   setInterval(() => {
     if (current && !paused && !document.hidden && !$('#dialog').open && !current.completedAt) {
       sessionSeconds++;

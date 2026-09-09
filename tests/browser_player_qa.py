@@ -17,9 +17,11 @@ with sync_playwright() as pw:
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.goto(URL + '/#/library')
         expect(page.locator('.family-card')).to_have_count(13)
+        assert page.evaluate('document.activeElement.id') != 'main', 'Direct route load does not steal focus'
         page.screenshot(path=str(OUT / f'families-{width}.png'), full_page=True)
         page.locator('.family-card[data-id="sudoku"]').click()
         expect(page.locator('.puzzle-card')).to_have_count(23)
+        assert page.evaluate('document.activeElement.id') == 'main', 'Family navigation focuses the destination landmark'
         for index in range(1, 5):
             if page.locator('.curation-collections').get_attribute('open') is None:
                 page.locator('.curation-collections > summary').click()
@@ -33,9 +35,15 @@ with sync_playwright() as pw:
         page.locator('.curation-collections [data-action="curation-venue"]').nth(1).click()
         page.get_by_role('button', name='All puzzles', exact=True).click()
         expect(page.locator('.family-card')).to_have_count(13)
+        assert page.evaluate('document.activeElement.id') == 'main', 'Collection back navigation focuses the destination landmark'
         page.locator('.family-card[data-id="sudoku"]').click()
         expect(page.locator('.puzzle-card')).to_have_count(23)
+        page.locator('#library-search').fill('sudoku')
+        assert page.evaluate('document.activeElement.id') == 'library-search', 'Filter render keeps search focus'
+        page.locator('#library-search').fill('')
         page.locator('.puzzle-card [data-action="open"]').first.click()
+        expect(page.locator('dialog[open]')).to_be_visible()
+        assert page.evaluate("document.activeElement.closest('dialog') === document.querySelector('dialog[open]')"), 'Automatic lesson keeps modal focus'
         page.locator('dialog[open] [data-action="close-dialog"]').click()
         puzzle = page.evaluate('AlibiDiagnostics.getCurrent().puzzle')
         blank = next(i for i, value in enumerate(puzzle['givens']) if not value)
@@ -111,4 +119,3 @@ with sync_playwright() as pw:
         context.close()
     browser.close()
 print('Player feedback checks pass at phone and desktop widths.')
-

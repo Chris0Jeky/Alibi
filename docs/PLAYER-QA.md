@@ -76,3 +76,15 @@ the occupied-cell annotation guard. Retaining notes under a tentative placement 
 Pre-existing tooling finding: npm audit reports a libheif advisory through Wrangler's nested
 Miniflare/sharp dependency. This is build/development tooling, not shipped client JavaScript;
 it is recorded for a separate dependency update rather than forcing unrelated package upgrades.
+
+## Parallel follow-up, 2026-09-09
+
+The 0.8.1 release is published; see [RELEASE-0.8.1.md](RELEASE-0.8.1.md).
+Terra's next accessibility pass confirmed labelled family Rules controls and native lesson focus,
+then reproduced destination focus falling to BODY after internal page navigation. The isolated
+0.8.2 follow-up focuses the main landmark after navigation while leaving direct hash loads,
+search rerenders and first-play modal focus alone. Its regression runs at both phone/desktop widths.
+
+Luna's editorial pass distinguished the continuous Bellweather case from the three explicitly
+standalone anthologies. Their narrative framing and an expanded future-case evidence outline are
+recorded in [FUTURE-CASES.md](FUTURE-CASES.md). No new casebook is added in this session.
