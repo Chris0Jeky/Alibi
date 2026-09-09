@@ -111,3 +111,10 @@ combined staging and subsequent section validation use its bounded worker. See R
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 59 additional classic/Club challenges are
 separate experiences, never core imports or additions to the 324-puzzle count.
+
+## Adaptive asset delivery
+
+[ASSET-DELIVERY.md](ASSET-DELIVERY.md) defines offline capabilities and online enhancements.
+`src/asset-delivery.js` upgrades visible museum images without blocking compact artwork or play.
+`tools/build-delivery.cjs` emits hash-verified detail and the trusted mirror/CSP manifest from
+`content/asset-delivery.json`. Optional detail bytes are outside the atomic core shell.
