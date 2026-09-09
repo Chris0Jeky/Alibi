@@ -1874,12 +1874,9 @@
     location.reload();
   }
   async function inWorker(message) {
-    const response = globalThis.ALIBI_WORKER_SOURCE
-      ? null
-      : await fetch(globalThis.ALIBI_WORKER_URL);
-    if (response && !response.ok)
-      throw Error('The validator could not be loaded. Reconnect and try again.');
-    const workerText = globalThis.ALIBI_WORKER_SOURCE || (await response.text());
+    const workerText = globalThis.ALIBI_WORKER_SOURCE
+      ? globalThis.ALIBI_WORKER_SOURCE
+      : await globalThis.AlibiValidatorLoader.load(globalThis.ALIBI_WORKER_URL);
     return new Promise((resolve, reject) => {
       if (!window.Worker) throw Error('This browser does not support background validation.');
       const blob = new Blob([workerText], { type: 'text/javascript' }),

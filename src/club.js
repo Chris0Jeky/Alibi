@@ -773,7 +773,9 @@
         if (!db || storageMode !== 'indexeddb')
           throw Error('A Club recovery copy requires device storage.');
         const saved = await new Promise((resolve, reject) => {
-          const r = db.transaction('club', 'readonly').objectStore('club').get('recovery');
+          const tx = db.transaction('club', 'readonly'),
+            r = tx.objectStore('club').get('recovery');
+          watch(tx, reject);
           r.onsuccess = () => resolve(r.result);
           r.onerror = () => reject(r.error);
         });
