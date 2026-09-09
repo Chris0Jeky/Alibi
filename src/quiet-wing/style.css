@@ -21,6 +21,37 @@
   background: var(--paper);
   font-size: 14px;
 }
+.qw-body.night {
+  --paper: #243330;
+  --cream: #2f423e;
+  --ink: #f2efe4;
+  --muted: #bdc9bd;
+  --line: #60746b;
+  --green: #a8ceb7;
+  --gold: #e5bd6d;
+  --pale: #41534b;
+  --red: #e08e77;
+  --shadow: 0 8px 32px #0f1a1740;
+}
+.qw-body.contrast {
+  --ink: #16302e;
+  --muted: #42534b;
+  --line: #66766b;
+  --green: #1e5a43;
+  --gold: #855c1a;
+  --pale: #dbe4d4;
+}
+.qw-body.night.contrast {
+  --ink: #ffffff;
+  --muted: #d9e4d9;
+  --line: #8da398;
+  --green: #c0ead1;
+  --gold: #f4d58a;
+  --pale: #526960;
+}
+.qw-body.large {
+  font-size: 16px;
+}
 * {
   box-sizing: border-box;
 }
