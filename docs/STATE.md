@@ -2,20 +2,26 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Discovery, history and seeded issue QA in progress
+## Discovery and history 0.9.0 live; iterative QA continues
 
-The active iteration is tracked in [POLISH-QA.md](POLISH-QA.md). The candidate adds illustrated
-collection invitations, recent-feature cards and an offline version history reachable from the
-desk and footer. [CHANGELOG.md](../CHANGELOG.md) covers all public versions from 0.3 through 0.8.2.
-GitHub historical release descriptions now lead with player changes; four missing deployment
-entries were added at their original source commits. Original receipt text (apart from newline
-normalization) and download assets are retained. Current hosted application remains 0.8.2.
+PR #65 merged at `92565a4a064c02dae00dd3bd80678ecaaaf91cd4`. Build `f0b367c654a4` is published on
+both existing origins. Illustrated collection invitations, recent-feature cards and offline
+version history are available from the desk/library/footer. Bridges direction, inherited crop
+identifiers, Quiet Wing focus/motion and anthology framing fixes are integrated and published
+(#9, #15, #36, #61, #62). The scoped Sharp override resolves #58 and installs under the CI runner's
+npm 10.9.8 with zero audit findings. [CHANGELOG.md](../CHANGELOG.md) and GitHub releases include
+the historical public versions, retaining their original source identities and receipts.
 
-Local candidate verification, 182 UI checks, 66 curation checks, the player-feedback matrix and
-20 discovery/history checks pass. Phone/desktop collection cards were visually inspected.
-Focus, anthology and other seeded bug fixes are in separate owned worktrees; integration,
-independent review, exact-head CI and deployment remain pending. Physical-device and owner
-acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Both complete CI runs passed. Each live origin passed 92 storage/offline checks; the primary
+passed 20 actual-control discovery/history checks at phone/desktop widths. The real 0.8.2-to-0.9.0
+Save & update transition passed on both sites, preserving an extra move, exact state and pinned
+definition through offline reload. This resolves the previously unverified fallback transition
+tracked in #63; it does not establish the cause of the earlier timeout. See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
+
+The ongoing strategy and remaining acceptance are in [POLISH-QA.md](POLISH-QA.md). Issue #66
+tracks generator/authoring drift. The separate active task **Explore Alibi castle expansion**
+owns Wrenmere implementation and its checkout; do not duplicate or mutate that task's work.
+Physical-device and owner acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Player-feedback QA 0.8.2 live
 

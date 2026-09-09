@@ -3,7 +3,7 @@ import json, os
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'test-results/discovery'; OUT.mkdir(parents=True,exist_ok=True)
+OUT=Path(os.environ.get('ALIBI_RESULTS',str(ROOT/'test-results/discovery'))); OUT.mkdir(parents=True,exist_ok=True)
 URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787').rstrip('/')
 checks=[]
 (OUT/'results.json').write_text(json.dumps({'passed':False,'status':'running'}))
@@ -19,7 +19,7 @@ with sync_playwright() as pw:
         page.goto(URL+'/#/home')
         expect(page.locator('.club-news .collection-card')).to_have_count(4)
         page.locator('.club-news').scroll_into_view_if_needed()
-        page.wait_for_function("[...document.querySelectorAll('.club-news .collection-card img')].every(i=>i.complete&&i.naturalWidth>0)")
+        page.wait_for_function("()=>[...document.querySelectorAll('.club-news .collection-card img')].every(i=>i.complete&&i.naturalWidth>0)")
         page.screenshot(path=str(OUT/f'desk-{width}.png'),full_page=True)
         check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'Desk fits {width}')
         for venue in ['salt','copper','nocturne','winter']:
@@ -50,7 +50,7 @@ with sync_playwright() as pw:
         page.locator('[data-action="release-jump"][data-value="0.8.2"]').click()
         page.screenshot(path=str(OUT/f'history-{width}.png'),full_page=True)
         check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'History fits {width}')
-        page.wait_for_function('navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
         context.set_offline(True);page.reload()
         expect(page.locator('.release-entry')).to_have_count(10)
         check(True,f'All historical versions reload offline at {width}')
