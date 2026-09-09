@@ -15,7 +15,7 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
 
 ## Open the cabinet
 
-- **324 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **328 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
   chapter revelations. Three earlier anthology casebooks remain available.
@@ -127,3 +127,10 @@ stay outside the offline game build. [Delivery, provenance and regeneration](doc
 The [theatrical edition](docs/THEATRICAL-EDITION.md) adds eight atmospheric rooms, locally composed
 sound, credited optional photography and short films. The [delivery strategy](docs/ASSET-DELIVERY.md)
 keeps complete artwork, controls and play available offline after installation.
+
+## Player feedback update
+
+Version 0.8.1 adds family-first browsing, clearer rules and cell notes, scene candidate letters and
+board crosses, dedicated casebook story pages, and four larger 8×8 Sun & Moon boards.
+Two real players enjoyed the game; structured physical-device and difficulty checks remain open.
+See [the QA plan and evidence](docs/PLAYER-QA.md).

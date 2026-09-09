@@ -542,10 +542,17 @@ def complete_bellweather(page: Page) -> None:
         if index < len(BELLWEATHER_IDS) - 1:
             next_id = BELLWEATHER_IDS[index + 1]
             page.locator('dialog[open] [data-action="next"]').click()
+            page.wait_for_selector('.story-page')
+            check(casebook['chapters'][index]['revelation'] in page.locator('.story-page').inner_text(), 'Completed chapter has a dedicated story page')
+            page.locator('[data-action="story-next"]').click()
+            page.locator('[data-action="story-play"]').click()
             wait_check(page, "id => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=next_id, timeout=TIMEOUT_MS)
             check(current(page)["puzzle"]["id"] == next_id, f"casebook advances to {next_id}")
         else:
             page.locator('dialog[open] [data-action="next"]').click()
+            page.wait_for_selector('.story-page')
+            check(casebook['ending'] in page.locator('.story-page').inner_text(), 'Final chapter opens the epilogue')
+            page.get_by_role('button', name='Back to case file', exact=True).click()
             wait_check(page, "path => location.hash.replace(/^#\\/?/, '').startsWith(path)", arg=f"casebooks/{BELLWEATHER_ID}", timeout=TIMEOUT_MS)
             page.wait_for_selector(".case-ending", timeout=TIMEOUT_MS)
             check(page.locator(".case-ending").count() == 1, "Bellweather casebook shows its final ending after six chapters")

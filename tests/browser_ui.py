@@ -42,7 +42,7 @@ with sync_playwright() as pw:
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
     check(page.title().startswith('Alibi'),'Application title and boot')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==324,'All 324 puzzles loaded')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==328,'All 328 puzzles loaded')
     check(page.evaluate('AlibiDiagnostics.getCounts().types')==13,'All thirteen engines loaded')
     page.screenshot(path=str(shots/'desktop-home.png'),full_page=True)
     for typ in ['scene','dossier','witness','sudoku','nonogram','binary','futoshiki','lightup','tents','aquarium','network','trail','bridges']:
@@ -150,10 +150,10 @@ with sync_playwright() as pw:
     check('Verified:' in page.locator('#draft-verification').inner_text(),'Edited scene can be reverified')
     page.screenshot(path=str(shots/'desktop-workshop.png'),full_page=True)
     action('add-draft');page.wait_for_function('AlibiDiagnostics.getCounts().customPacks===1')
-    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==325,'Verified custom scene installs locally')
+    check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==329,'Verified custom scene installs locally')
     # Invalid pack is rejected without any mutation.
     page.locator('#pack-input').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{"schemaVersion":99}'})
-    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==325,'Bad pack cannot modify catalogue')
+    page.wait_for_timeout(300);check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==329,'Bad pack cannot modify catalogue')
     route('settings')
     with page.expect_download() as dl:action('export')
     backup=json.loads(Path(dl.value.path()).read_text());check(backup['format']=='alibi-backup' and len(backup['runs'])>=12,'Backup exports actual played states')

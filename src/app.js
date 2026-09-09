@@ -49,6 +49,7 @@
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
+    sceneMarkMode = 'place',
     pencil = false,
     brush = 1,
     paused = false,
@@ -184,6 +185,15 @@
     if (!d.open) d.showModal();
   }
   function navigate(page, id = '', book = '') {
+    if (page === 'library' && !id)
+      library = {
+        venue: '',
+        search: '',
+        group: 'all',
+        difficulty: 'all',
+        status: 'all',
+        limit: 24,
+      };
     const h = `#/${page}${id ? '/' + encodeURIComponent(id) : ''}${book ? '?book=' + encodeURIComponent(book) : ''}`;
     if (location.hash === h) loadRoute();
     else location.hash = h;
@@ -457,6 +467,16 @@
   function libraryPage() {
     const type = route.id,
       m = M[type];
+    if (
+      !type &&
+      !library.search &&
+      library.status === 'all' &&
+      !library.venue &&
+      library.group === 'all' &&
+      library.difficulty === 'all' &&
+      !library.browseAll
+    )
+      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div>`;
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
@@ -512,7 +532,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div class="filter-meta"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'All ' + m.title.toLowerCase() + ' are available.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
+    }<div class="filter-meta"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
@@ -543,6 +563,17 @@
     if (p.type === 'bridges')
       return `<section class="chapter-atmosphere cartography"><img src="${esc(media.cartographer)}" alt="" width="1536" height="1024"><div><span class="eyebrow">THE CARTOGRAPHER’S DESK</span><p>${esc(p.story || 'Every crossing brings the islands a little closer.')}</p></div></section>`;
     return '';
+  }
+  function storyPage() {
+    const book = books.find((b) => b.id === route.book),
+      chapter = book?.chapters.find((c) => c.id === route.id.split('@')[0]);
+    if (!chapter)
+      return `<div class="empty"><h1>Choose a casebook.</h1>${B('Casebooks', 'navigate', 'book', '', 'data-page="casebooks"')}</div>`;
+    const puzzle = find(chapter.id),
+      done = solved(rec(puzzle)),
+      finished = book.chapters.every((c) => solved(rec(find(c.id)))),
+      index = book.chapters.indexOf(chapter);
+    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? 'EPILOGUE' : `CHAPTER ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? 'The file is in order.' : chapter.name)}</h1>${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || 'Another record is complete. The case file keeps your discovery.' : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B('Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
   }
   function chapterReveal(p) {
     const b = books.find((book) => book.id === route.book),
@@ -609,7 +640,10 @@
       const room = p.rooms[i],
         person = p.people.find((w) => s.placements[w.id] === i),
         obj = p.objects.find((o) => o.cell === i),
-        ex = (s.notes[selectedPerson] || []).includes(i);
+        ex = (s.notes[selectedPerson] || []).includes(i),
+        candidates = p.people.filter((person) => s.candidates?.[i]?.includes(person.id)),
+        exclusions = p.people.filter((person) => s.notes[person.id]?.includes(i)),
+        crossed = s.crosses?.includes(i);
       cls += ' scene-cell';
       style = `background:var(--room-${room});`;
       if (c === 0 || p.rooms[i - 1] !== room) style += 'border-left:2px solid var(--board-border);';
@@ -621,6 +655,14 @@
       if (person?.id === selectedPerson) cls += ' selected';
       label += `, ${p.roomNames[room]}, ${obj ? 'blocked by ' + obj.name : person ? person.name : ex ? 'excluded for selected person' : 'empty'}`;
       content = `<span class="room-code">${String.fromCharCode(65 + room)}</span>${obj ? icon(obj.kind, 'furniture') : person ? token(person, p) : ex ? '<span class="excluded">×</span>' : ''}`;
+      if (!obj && !person) {
+        content = `<span class="room-code">${String.fromCharCode(65 + room)}</span>${crossed ? '<span class="excluded">×</span>' : ''}<span class="scene-candidates">${candidates.map((person) => `<span>${esc(person.name[0])}</span>`).join('')}${exclusions.map((person) => `<span>${esc(person.name[0])}×</span>`).join('')}</span>`;
+      }
+      if (crossed) label += ', board cross';
+      if (candidates.length)
+        label += ', candidates: ' + candidates.map((person) => person.name).join(', ');
+      if (exclusions.length)
+        label += ', excluded: ' + exclusions.map((person) => person.name).join(', ');
       disabled = !!obj;
     } else if (t === 'sudoku' || t === 'futoshiki' || t === 'trail') {
       const val = s.cells[i],
@@ -873,15 +915,33 @@
       return `<div class="toolrow">${tool('Clear selection', 'erase', 'close', false, bridgeAnchor === null ? 'disabled' : '')}</div><p class="control-note">Repeat a pair: one bridge → two → none. Arrow keys move between islands; Enter selects. Delete cancels the selection.</p>`;
     if (t === 'sudoku' || t === 'futoshiki') {
       content = `<div class="numberpad" style="--keys:${p.size > 6 ? 5 : p.size}">${range(p.size)
-        .map(
-          (i) =>
-            `<button class="number-key" data-action="value" data-value="${i + 1}" aria-label="${pencil ? 'Pencil note' : 'Enter'} ${i + 1}">${i + 1}</button>`,
+        .map((i) => {
+          const count = s.cells.filter((value) => value === i + 1).length;
+          const placed = count === p.size;
+          return `<button class="number-key ${placed ? 'digit-placed' : ''}" data-action="value" data-value="${i + 1}" aria-label="${pencil ? 'Pencil note' : 'Enter'} ${i + 1}, ${count} of ${p.size} placed">${i + 1}${placed ? '<small aria-hidden="true">✓</small>' : ''}</button>`;
+        })
+        .join(
+          '',
+        )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
+    } else if (t === 'scene')
+      content = `<div class="toolrow" aria-label="Scene marking mode">${[
+        ['place', 'Place people'],
+        ['candidate', 'Letter notes'],
+        ['exclude', 'Person exclusions'],
+        ['board-cross', 'Board X'],
+      ]
+        .map(([mode, label]) =>
+          tool(
+            label,
+            'scene-mode',
+            mode === 'place' ? 'scene' : 'pencil',
+            sceneMarkMode === mode,
+            `data-value="${mode}"`,
+          ),
         )
         .join(
           '',
-        )}</div><div class="toolrow">${tool(pencil ? 'Pencil on' : 'Pencil', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">Select a square, then a number. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
-    } else if (t === 'scene')
-      content = `<div class="toolrow">${tool(pencil ? 'Exclude squares' : 'Place people', 'pencil', pencil ? 'pencil' : 'scene', pencil)}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Tap squares to rule them out for the selected person. These are your notes.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'}</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Notes beneath a person reappear when you remove them.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
@@ -987,15 +1047,19 @@
       name = p.people?.find?.((x) => x.id === selectedPerson)?.name,
       placement =
         p.type === 'scene'
-          ? pencil
-            ? `Rule out squares for <strong>${esc(name)}</strong>.`
-            : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
+          ? sceneMarkMode === 'board-cross'
+            ? 'Tap an empty square to add or remove a board X.'
+            : sceneMarkMode === 'candidate'
+              ? `Mark possible squares for <strong>${esc(name)}</strong>.`
+              : pencil
+                ? `Rule out squares for <strong>${esc(name)}</strong>.`
+                : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
           : p.type === 'trail'
             ? brush === -1
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${chapterAtmosphere(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'help', 'How to play', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${chapterAtmosphere(p)}<div class="play-head"><button class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${B('How to play', 'lesson', 'book', 'secondary', `data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board') : ''}${round('pause', 'pause', 'Pause and hide the board')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column">${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1114,12 +1178,17 @@
         el.scrollLeft,
         el.scrollTop,
       ]),
+      disclosures = [...document.querySelectorAll('details[data-disclosure-key]')].map((el) => [
+        el.dataset.disclosureKey,
+        el.open,
+      ]),
       sy = window.scrollY;
     try {
       const views = {
         home,
         library: libraryPage,
         casebooks: casebooksPage,
+        story: storyPage,
         journal: journalPage,
         settings: settingsPage,
         workshop: workshopPage,
@@ -1130,6 +1199,10 @@
         lab: () => AlibiClub.labPage(),
       };
       $('#app').innerHTML = shell((views[route.page] || home)());
+      for (const [key, open] of disclosures) {
+        const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
+        if (el) el.open = open;
+      }
       theme();
       AlibiClub.afterRender(route);
       globalThis.AlibiTheatre.attach(route, current?.puzzle);
@@ -1232,7 +1305,11 @@
         mystery ? 'Case closed.' : 'That satisfying “aha”.',
         `<div class="success-icon">${icon('check')}</div><p>${esc(explanation)}</p>${chapterReveal(p)}<div class="success-facts"><div><strong>${current.moves}</strong><small>Moves made</small></div><div><strong>${current.hints}</strong><small>Reveals used</small></div><div><strong>${solved(current) ? '✓' : ''}</strong><small>${store.mode === 'session' ? 'In this session’s journal' : 'Saved in your journal'}</small></div></div>${route.book ? '<p>You have completed another chapter. Continue the casebook whenever you are ready.</p>' : ''}`,
         [
-          { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
+          {
+            label: route.book ? 'Read the next page' : 'Another puzzle',
+            action: 'next',
+            icon: 'arrow',
+          },
           { label: 'Review the record', action: 'review-record', secondary: true },
         ],
       );
@@ -1318,6 +1395,14 @@
     }
     if (t === 'scene') {
       const occupant = p.people.find((w) => s.placements[w.id] === index);
+      if (occupant && (sceneMarkMode !== 'place' || pencil)) {
+        toast('Choose an empty square for working notes.');
+        return;
+      }
+      if (sceneMarkMode === 'candidate' || sceneMarkMode === 'board-cross') {
+        act({ type: sceneMarkMode, who: selectedPerson, cell: index });
+        return;
+      }
       if (pencil) {
         act({ type: 'exclude', who: selectedPerson, cell: index });
         return;
@@ -1448,7 +1533,11 @@
       'The completed record.',
       `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
       [
-        { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
+        {
+          label: route.book ? 'Read the next page' : 'Another puzzle',
+          action: 'next',
+          icon: 'arrow',
+        },
         { label: 'Back to my board', action: 'close-dialog', secondary: true },
       ],
     );
@@ -1488,24 +1577,13 @@
   }
   function nextPuzzle() {
     closeDialog();
+    if (current && route.book) {
+      navigate('story', keyFor(current.puzzle), route.book);
+      return;
+    }
     if (!current) {
       navigate('library');
       return;
-    }
-    if (route.book) {
-      const book = books.find((b) => b.id === route.book);
-      if (book) {
-        const i = book.chapters.findIndex((c) => c.id === current.puzzle.id),
-          next =
-            book.chapters.slice(i + 1).find((c) => !solved(rec(find(c.id)))) ||
-            book.chapters.find((c) => !solved(rec(find(c.id))));
-        if (next) {
-          navigate('play', keyFor(find(next.id)), book.id);
-          return;
-        }
-        navigate('casebooks', book.id);
-        return;
-      }
     }
     const ps = all().filter((p) => p.type === current.puzzle.type),
       i = ps.findIndex((p) => p.id === current.puzzle.id),
@@ -2120,8 +2198,22 @@
         break;
       case 'open':
         closeDialog();
+        navigate(el.dataset.book ? 'story' : 'play', id, el.dataset.book || '');
+        break;
+      case 'story-play':
         navigate('play', id, el.dataset.book || '');
         break;
+      case 'story-next': {
+        const book = books.find((b) => b.id === route.book);
+        const index = book?.chapters.findIndex((c) => c.id === route.id.split('@')[0]);
+        const next =
+          book &&
+          (book.chapters.slice(index + 1).find((c) => !solved(rec(find(c.id)))) ||
+            book.chapters.find((c) => !solved(rec(find(c.id)))));
+        if (next) navigate('story', keyFor(find(next.id)), book.id);
+        else navigate('casebooks', book?.id || '');
+        break;
+      }
       case 'back-to-collection':
         if (route.book) navigate('casebooks', route.book);
         else navigate('library', current?.puzzle.type || '');
@@ -2140,6 +2232,10 @@
         break;
       case 'favorites-filter':
         library.status = 'favorites';
+        render();
+        break;
+      case 'browse-all':
+        library.browseAll = true;
         render();
         break;
       case 'reset-filters':
@@ -2168,6 +2264,12 @@
         break;
       case 'pencil':
         pencil = !pencil;
+        if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
+        render();
+        break;
+      case 'scene-mode':
+        sceneMarkMode = v;
+        pencil = v === 'exclude';
         render();
         break;
       case 'erase':
@@ -2786,6 +2888,7 @@
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
       e.preventDefault();
       pencil = !pencil;
+      if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
       render();
       return;
     }
@@ -2864,6 +2967,7 @@
         'library',
         'play',
         'casebooks',
+        'story',
         'journal',
         'settings',
         'workshop',
@@ -2890,6 +2994,7 @@
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
+        sceneMarkMode = 'place';
         pencil = false;
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;

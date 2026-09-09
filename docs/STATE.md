@@ -2,6 +2,28 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Player-feedback QA candidate
+
+CI recovery: repeated hosted attempts failed before app tests on a Google Chrome APT index
+checksum mismatch ([#59](https://github.com/Chris0Jeky/Alibi/issues/59)). The candidate workflow
+now pins Ubuntu 24.04 and uses its existing Ubuntu source definition for all APT calls, including
+Playwright's dependency installation. Package verification and every test remain required.
+Hosted results must prove this recovery before merge or publication.
+
+`codex/player-qa` starts at `f3414f6`. Family-first browsing, visible collection-filter escape,
+clearer rules and cell-note controls, placed-digit feedback, saved scene candidate initials and
+independent board crosses, and dedicated casebook story pages address two players' feedback.
+Four new unique 8×8 Sun & Moon boards bring the aggregate to 328 puzzles (27 Sun & Moon).
+All earlier definitions, catalogue IDs/revisions and storage identities are preserved.
+
+The owner reports two real players loved the game: successful early qualitative playtesting.
+This does not certify the earlier Android incident or replace measured difficulty/accessibility
+acceptance. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for those specific checks.
+
+Plan and evidence: [PLAYER-QA.md](PLAYER-QA.md). Future narrative seed:
+[FUTURE-CASES.md](FUTURE-CASES.md). Source/local candidate only until release evidence is recorded;
+the live 0.8.0 receipt below remains authoritative. Separate Wrenmere PRs #39–42 are not integrated.
+
 ## Theatrical edition 0.8.0 live
 
 PR #26 merged as `adb4f5d` after both exact-head CI runs passed. Build `c8ea40a83be7` is live on
