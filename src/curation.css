@@ -9,6 +9,28 @@
   min-height: 44px;
   display: list-item;
   padding: 10px 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+.collection-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0;
+}
+details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  font-weight: 650;
+}
+details > summary:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
 }
 .curation-collections .row {
   flex-wrap: wrap;
@@ -36,4 +58,22 @@
 }
 .curation-gallery figcaption {
   padding: 12px 0;
+}
+.number-key.digit-placed {
+  background: var(--paper);
+  color: var(--muted);
+  border-style: dashed;
+}
+.number-key small {
+  font-size: 0.65em;
+  margin-left: 3px;
+}
+@media (max-width: 700px) {
+  .filters .btn,
+  .play-secondary .btn,
+  .toolrow .tool,
+  .play-head > .btn {
+    min-height: 44px;
+    font-size: 13px;
+  }
 }
