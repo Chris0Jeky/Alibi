@@ -23,6 +23,7 @@ def run():
                 page.goto(BASE+'#/quiet/castle/map')
                 expect(page.locator('.map-stage')).to_be_visible()
                 page.wait_for_function('() => AlibiActivities.diagnostics().offline')
+                expect(page.locator('.castle-offline')).to_have_text('Castle rooms ready offline.')
                 assert not any('.mp4' in url for url in requests)
                 assert page.locator('.secret-route').count()==0
                 stage=page.locator('.map-stage').bounding_box()
@@ -87,6 +88,18 @@ def run():
                 assert not errors,errors
                 report['checks'].append(f'{width}: original room illustration and text controls reopen offline without page overflow')
                 context.close()
+            # A missing optional scene must leave the question and named controls usable.
+            context=browser.new_context(viewport={'width':390,'height':900})
+            context.route('**/*.library.svg',lambda route: route.fulfill(status=404,body='Missing test scene'))
+            page=context.new_page()
+            page.goto(BASE+'#/quiet/castle/room/library')
+            expect(page.locator('.castle-offline')).to_contain_text('not ready offline')
+            page.locator('[data-do="puzzle"]').click()
+            expect(page.locator('#castle-dialog')).to_contain_text('Arrange the five books')
+            page.locator('[data-do="close"]').click()
+            assert not page.evaluate('AlibiActivities.diagnostics().offline')
+            report['checks'].append('Missing optional room art leaves the actual question usable and does not claim offline readiness')
+            context.close()
             browser.close()
         report['passed']=True
     finally:

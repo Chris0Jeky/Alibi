@@ -55,6 +55,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     feedback = '',
     walk = { node: null, edges: [] };
   let pendingRestore = null;
+  let offlineState = globalThis.AlibiCastle?.offline() ? 'ready' : 'loading';
   let disposed = false,
     opener = null,
     filmTimer = null,
@@ -82,7 +83,7 @@ export async function mount({ root, preferences = null, practice = null }) {
           : 'Castle progress saved on this device'
         : 'Castle progress needs attention';
     $('footer').innerHTML =
-      `${escape(label)}. Castle exports cover this chapter only; Cabinet, Club and Quiet Wing exports are separate. ${link('Open castle notebook', 'journal')}`;
+      `${escape(label)}. Castle exports cover this chapter only; Cabinet, Club and Quiet Wing exports are separate. ${link('Open castle notebook', 'journal')}<br><span class="castle-offline">${globalThis.ALIBI_CONFIG?.standalone ? 'Castle rooms are included in this file.' : offlineState === 'ready' ? 'Castle rooms ready offline.' : offlineState === 'loading' ? 'Preparing castle rooms for offline visits…' : 'Castle rooms are not ready offline. Reopen online to retry.'}</span>`;
   }
   function prefs() {
     root.host.dataset.reduced = String(
@@ -794,6 +795,10 @@ export async function mount({ root, preferences = null, practice = null }) {
   route();
   return {
     route,
+    setOffline(ready) {
+      offlineState = ready ? 'ready' : 'unavailable';
+      updateStatus();
+    },
     setPractice(value) {
       practice = value;
     },
