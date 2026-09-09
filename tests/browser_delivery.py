@@ -15,6 +15,7 @@ def gallery(page):
     page.goto(URL + '#/library')
     page.reload()
     page.wait_for_function('()=>window.AlibiDiagnostics && navigator.serviceWorker.controller')
+    page.locator('[data-action="browse-all"]').click()
     if page.locator('.curation-collections').get_attribute('open') is None:
         page.locator('.curation-collections > summary').click()
     page.locator('[data-action="curation-venue"][data-value="nocturne"]').click()
