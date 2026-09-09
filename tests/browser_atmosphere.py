@@ -13,6 +13,7 @@ with sync_playwright() as pw:
     page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url))
     base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
     page.goto(base+'#/home');page.wait_for_selector('.quiet-invitation')
+    page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
     check(page.locator('.quiet-destinations a').count()==4,'Club invites players to all four Quiet Wing areas')
     check(page.evaluate('!window.QWEngine'),'Art on the Club page does not execute the optional game engines')
     check(not any('/assets/quiet-activity.' in url for url in requests),'Opening the Club does not request the optional activity bundle')
@@ -22,6 +23,7 @@ with sync_playwright() as pw:
             # A fresh document prevents a shared figure selector matching the departing route.
             page.goto(base+'#/'+route)
             page.reload()
+            page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
             if route=='quiet/garden': page.wait_for_selector('.garden-inspiration')
             elif route=='home':page.wait_for_selector('.quiet-invitation')
             else:page.wait_for_selector('.collection-atmosphere')
