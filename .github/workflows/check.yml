@@ -118,6 +118,9 @@ jobs:
             test-results/quiet-wing/
             test-results/atmosphere/
             test-results/curation-ui/
+            test-results/discovery/
+            test-results/edge-layout/
+            test-results/library-focus/
             test-results/delivery/
             test-results/theatre/
             test-results/curation-check/
