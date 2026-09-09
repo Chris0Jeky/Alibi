@@ -34,6 +34,8 @@ See [THEATRICAL-EDITION.md](THEATRICAL-EDITION.md), [ASSET-DELIVERY.md](ASSET-DE
 [ONLINE-ASSETS.md](ONLINE-ASSETS.md). [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for physical
 Android, TalkBack, sensory quality, sustained performance, licensing and player judgement.
 
+All sections below are historical checkpoints. The live release and current limitations are above.
+
 ## Adaptive delivery 0.7 source checkpoint (historical; merged in PR #27)
 
 `codex/adaptive-assets` starts from `ae5d127` and implements the policy in
@@ -58,7 +60,7 @@ This is source/local acceptance, not a new production deployment. Hosted CI, act
 CORS and physical-device performance remain distinct gates. [HUMAN_TODO.md](../HUMAN_TODO.md),
 particularly q-2/q-4, remains open; no subjective owner checks have been closed.
 
-## Current deployment: Cloudflare primary, Sites fallback
+## Historical 0.7 deployment: Cloudflare primary, Sites fallback
 
 Owner decision 2026-09-09: the main play URL is
 **https://alibi-after-hours-preview.commit-atlas.workers.dev/**. The original
