@@ -10,7 +10,9 @@ Both complete exact-head CI runs pass. Each current live origin passes 92 storag
 and the primary passes the player-feedback matrix at phone/desktop widths. The primary live
 0.8.1-to-0.8.2 Save & update test preserves exact state and pinned definitions through offline reload.
 The fallback probe timed out waiting for its update-ready signal; its old-to-new transition is
-not certified. [Issue #63](https://github.com/Chris0Jeky/Alibi/issues/63) records the missing evidence.
+not certified. The initial fallback file sweep briefly received a 404 for the new app script;
+a complete recheck matches every non-HTML asset. The connection to the timeout is plausible but
+not proven by a worker trace. [Issue #63](https://github.com/Chris0Jeky/Alibi/issues/63) records this gap.
 See [RELEASE-0.8.2.md](RELEASE-0.8.2.md). Anthology framing (#61), Quiet Wing/native-link focus (#62)
 and physical-device acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remain open.
 

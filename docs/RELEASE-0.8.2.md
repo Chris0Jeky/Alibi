@@ -25,15 +25,20 @@ without adding a new casebook or treating an unresolved motive as finished canon
   deployment `appgdep_6aa1aa6fda508191b18be090649930d9`, succeeded.
 - Both current live origins pass all 92 storage/offline checks. The primary also passes the full
   player-feedback control matrix at 390/1440.
-- All 254 primary public files match the release. All 250 fallback non-HTML files match; its four
-  HTML files preserve the exact source plus the known 938-byte challenge insertion.
+- All 254 primary public files match the release. A complete fallback recheck matches all 250
+  non-HTML files; its four HTML files preserve the exact source plus the known 938-byte challenge
+  insertion. The initial sweep briefly received a 404 for the new app script; that failure is
+  retained in the evidence rather than counted as a clean first attempt.
 - The primary live 0.8.1-to-0.8.2 probe keeps the old release active while waiting, saves another move,
   then uses Save & update and verifies exact state/pinned definition retention after offline reload.
 
 ## NOT verified
 
-The same fallback probe timed out after 90 seconds waiting for the update-ready signal. It did not
-retain a worker/network snapshot at failure, so the cause is unknown. Current-release offline and
+The same fallback probe timed out after 90 seconds waiting for the update-ready signal. The initial
+file sweep returned 404 for `assets/alibi.2b7909e7f1f3.js`; a later fetch and complete recheck match
+the bundled file. A required cache asset missing during installation can prevent the worker reaching
+waiting. This supports transient host publication/serving inconsistency, but the probe did not retain
+its worker/network snapshot, so the exact causal request is unconfirmed. Current-release offline and
 storage checks passed there, but the hosted old-to-new transition is not certified. This is tracked
 in [#63](https://github.com/Chris0Jeky/Alibi/issues/63); no fallback upgrade success is inferred.
 The earlier 0.8.0-to-0.8.1 probe likewise lacked a final receipt.
