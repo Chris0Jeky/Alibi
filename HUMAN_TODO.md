@@ -34,3 +34,10 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
 The 0.8 theatrical edition adds an acceptance focus for q-4: compare Painted/Rich rooms, try
 Room sound and Still the room, background/return, and deliberately play a short film. Browser
 checks do not confirm loudness, comfort, battery use or sustained performance on the affected phone.
+
+- [ ] q-7 — Play Wrenmere Chapter I on the affected phone and with a new player: follow the
+  grounds and nearby doors, inspect an object, try the museum label reviews, revise a notebook
+  hypothesis, export/review a castle backup and deliberately play the captioned prologue.
+  Try larger text, TalkBack and offline reopening. Record where the story, uncertainty or next
+  step becomes unclear, and whether the visit feels rewarding. Browser simulations do not close
+  this item; track [issue #56](https://github.com/Chris0Jeky/Alibi/issues/56).

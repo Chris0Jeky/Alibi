@@ -85,16 +85,19 @@ test('a route exit serializes with a pending mount and disposes it before the ne
   const first = registry.enter(host());
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(typeof finishFirst, 'function');
+  const secondHost = host();
   const leaving = registry.leave(),
-    second = registry.enter(host());
+    second = registry.enter(secondHost);
   finishFirst();
   await Promise.all([first, leaving, second]);
   assert.deepEqual(calls, ['mount1', 'dispose1', 'mount2']);
   assert.equal(registry.diagnostics().active, true);
-  await registry.enter(host());
+  await registry.enter(secondHost);
   assert.equal(calls.at(-1), 'route2');
+  await registry.enter(host());
+  assert.deepEqual(calls.slice(-3), ['flush2', 'dispose2', 'mount3']);
   await registry.leave();
-  assert.deepEqual(calls.slice(-2), ['flush2', 'dispose2']);
+  assert.deepEqual(calls.slice(-2), ['flush3', 'dispose3']);
   assert.equal(registry.diagnostics().active, false);
 });
 
