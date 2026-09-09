@@ -4,6 +4,12 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## Player-feedback QA candidate
 
+CI recovery: repeated hosted attempts failed before app tests on a Google Chrome APT index
+checksum mismatch ([#59](https://github.com/Chris0Jeky/Alibi/issues/59)). The candidate workflow
+now pins Ubuntu 24.04 and uses its existing Ubuntu source definition for all APT calls, including
+Playwright's dependency installation. Package verification and every test remain required.
+Hosted results must prove this recovery before merge or publication.
+
 `codex/player-qa` starts at `f3414f6`. Family-first browsing, visible collection-filter escape,
 clearer rules and cell-note controls, placed-digit feedback, saved scene candidate initials and
 independent board crosses, and dedicated casebook story pages address two players' feedback.

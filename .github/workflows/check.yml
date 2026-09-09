@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
       PYTHONUTF8: '1'
@@ -26,11 +26,21 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: npm ci
+      - name: Use Ubuntu repositories for CI system dependencies
+        run: |
+          # FFmpeg and Playwright's Linux dependencies come from Ubuntu. The
+          # runner's unrelated Chrome feed can have inconsistent package indexes.
+          # Apply this to the whole job, including Playwright's later apt calls.
+          test -s /etc/apt/sources.list.d/ubuntu.sources
+          printf '%s\n' \
+            'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' \
+            'Dir::Etc::sourceparts "-";' \
+            | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
       - name: Ensure audio asset validation tools are available
         run: |
           if ! command -v ffprobe >/dev/null; then
             sudo apt-get update
-            sudo apt-get install --yes ffmpeg
+            sudo apt-get install --yes --no-install-recommends ffmpeg
           fi
           ffprobe -version
       - run: npm run verify
