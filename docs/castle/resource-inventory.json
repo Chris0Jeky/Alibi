@@ -1,0 +1,562 @@
+{
+  "inputFolder": "alibi-castle",
+  "checked": "2026-09-09",
+  "files": 69,
+  "bytes": 6671776,
+  "suppliedChecksums": 68,
+  "mismatches": [],
+  "entries": [
+    {
+      "path": "AGENT-PROMPT.md",
+      "bytes": 2439,
+      "sha256": "b6eed207048ec7112ae3004afa064d366474716e303595bd0f6001333fe7991f",
+      "suppliedChecksumMatches": true,
+      "disposition": "brief, rights or prompt reference; current repository instructions take precedence",
+      "preservedReference": null
+    },
+    {
+      "path": "ALIBI-CASTLE-MASTER.md",
+      "bytes": 80372,
+      "sha256": "6ffd2fb375cd8d550908a707cde884a680e6d538680561b915228c4e39a60d10",
+      "suppliedChecksumMatches": true,
+      "disposition": "brief, rights or prompt reference; current repository instructions take precedence",
+      "preservedReference": null
+    },
+    {
+      "path": "contracts/estate-host.ts",
+      "bytes": 1412,
+      "sha256": "10b4a4b64fa1d602de75c4a24cae7fe25cf2f7f0ee7c17c3cbd826ef77dbdffb",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/estate-host.ts"
+    },
+    {
+      "path": "contracts/world-catalogue.json",
+      "bytes": 23500,
+      "sha256": "71ab7a8efbd24035c8beebbf31f26cd18a6f7f3831a07c42de4aef501cafd5fa",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/world-catalogue.json"
+    },
+    {
+      "path": "DESIGN-BOOK.html",
+      "bytes": 808658,
+      "sha256": "4ebb0470c464d0c9c3b9eec6a1c1cf4f0012a539199e7170f1fdc51f93045acd",
+      "suppliedChecksumMatches": true,
+      "disposition": "standalone preview; never deploy over Alibi",
+      "preservedReference": null
+    },
+    {
+      "path": "DESIGN.md",
+      "bytes": 1395,
+      "sha256": "b3ecfc77c88beaf63a1709c8962820092562201ad90995c76cecb0de82d43609",
+      "suppliedChecksumMatches": true,
+      "disposition": "brief, rights or prompt reference; current repository instructions take precedence",
+      "preservedReference": null
+    },
+    {
+      "path": "docs/ART-AND-MOTION.md",
+      "bytes": 4817,
+      "sha256": "3b9aacaeab3a0b791e035ce28e308e82a325abac3c80579a31c4021c87f8a79f",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/ART-AND-MOTION.md"
+    },
+    {
+      "path": "docs/DEFERRED-SYSTEMS.md",
+      "bytes": 3370,
+      "sha256": "7e204bb0ac7bc720cd94091ad1bd4db498409a2acb55b819a06a98c30559528a",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/DEFERRED-SYSTEMS.md"
+    },
+    {
+      "path": "docs/INTEGRATION.md",
+      "bytes": 11217,
+      "sha256": "f472991c3459999e8aa2be2e8e9dbbd1ffb7eeb204933053f49b862b498350b7",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/INTEGRATION.md"
+    },
+    {
+      "path": "docs/MUSEUM-EDITORIAL.md",
+      "bytes": 6898,
+      "sha256": "254a35a1bc9d1ac17c8b94dec21b4c029d1dd504d09de4d7fdf8bec416d0cdf5",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/MUSEUM-EDITORIAL.md"
+    },
+    {
+      "path": "docs/PROGRESSION-AND-QUESTS.md",
+      "bytes": 9653,
+      "sha256": "064f736a0d81b21318ba3c3009e7e72daec291801f94260ef129311f6ae34d4f",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/PROGRESSION-AND-QUESTS.md"
+    },
+    {
+      "path": "docs/QA.md",
+      "bytes": 5169,
+      "sha256": "1335d3ca523b0cdfc5fc07a4be2ba9e2c399f0398b741a68f35b75a6cf59699e",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/QA.md"
+    },
+    {
+      "path": "docs/STORY-BIBLE-SPOILERS.md",
+      "bytes": 14574,
+      "sha256": "1f84767ef2bf7decf99cd682df77134ed0b5f6e894ff3e8edc53440e6d13d3be",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/STORY-BIBLE-SPOILERS.md"
+    },
+    {
+      "path": "docs/WORLD-BIBLE.md",
+      "bytes": 18318,
+      "sha256": "e8e75e686c5694c4621f1394c74939019dd6ae5fa649c7fa7d2861a874fbc2ee",
+      "suppliedChecksumMatches": true,
+      "disposition": "preserved design reference",
+      "preservedReference": "docs/castle/design/WORLD-BIBLE.md"
+    },
+    {
+      "path": "media/prologue-poster.png",
+      "bytes": 216679,
+      "sha256": "5c666374eed0e1cc2949bd75bb63de140bbf5794ff8cafbc263bf9b3c00a7ee5",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue-scene-1.svg",
+      "bytes": 27484,
+      "sha256": "78ebc7f406aa9ec63e81f4a6131e2fe7fa6646d348b1942567b20afcc136f3bd",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue-scene-2.svg",
+      "bytes": 3196,
+      "sha256": "be722239bd07fa91cc44dec6dd5d7f8935a120624e50814fcf70a2d0ef190fd9",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue-scene-3.svg",
+      "bytes": 11432,
+      "sha256": "083bc71c9ebc56f30697811ef912d6d1a1b1f94206eed6bd7466d619f437581d",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue-scene-4.svg",
+      "bytes": 27703,
+      "sha256": "db249c37e576d87e9444f776c1cc9524d1e8fdf7979d52cb4a899de68f0f7d39",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue-transcript.txt",
+      "bytes": 334,
+      "sha256": "57aaff7b8e63b71f5edcbf876ba4406935a15c36fd1390a3da8f13508e2819cc",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/prologue.vtt",
+      "bytes": 289,
+      "sha256": "199e2e9f8a67c61a57beb395b614231f553c6b194b6368971ac07bedbe983c3d",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/cartography.svg",
+      "bytes": 2430,
+      "sha256": "50232864f54fa4063cb952a0a3aded76db4b7ca9c95737b9e464dbc5ae951bc9",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/conservatory.svg",
+      "bytes": 13152,
+      "sha256": "bfc8f4763f2bba5b3eb420ec43955a99b7d46de4789372ec173f88e2564c7516",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/estate-1911.svg",
+      "bytes": 27703,
+      "sha256": "db249c37e576d87e9444f776c1cc9524d1e8fdf7979d52cb4a899de68f0f7d39",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/estate-today.svg",
+      "bytes": 27484,
+      "sha256": "78ebc7f406aa9ec63e81f4a6131e2fe7fa6646d348b1942567b20afcc136f3bd",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/gatehouse.svg",
+      "bytes": 11561,
+      "sha256": "59f5efc4a30c1ac2e79da2c19cd0f386690c526aa046504b510a05f455c0dd43",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/library.svg",
+      "bytes": 11432,
+      "sha256": "083bc71c9ebc56f30697811ef912d6d1a1b1f94206eed6bd7466d619f437581d",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/museum.svg",
+      "bytes": 11715,
+      "sha256": "1288c958be22e21d7bc926ee3213db746dcadecca17bd6b82d64d4b4993a58d1",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/observatory.svg",
+      "bytes": 3196,
+      "sha256": "be722239bd07fa91cc44dec6dd5d7f8935a120624e50814fcf70a2d0ef190fd9",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/orangery.svg",
+      "bytes": 3898,
+      "sha256": "62e98be12e50803d6fc08f571e472716fed903fa6a06bcfbf3d2cca761191d9a",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/study.svg",
+      "bytes": 11437,
+      "sha256": "d8e3c3669135a66dfcf9029e63150138dd954d8c7c5edc940977a755149873b5",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/west-stair.svg",
+      "bytes": 1722,
+      "sha256": "3b13b45324024d8e44e42c8a129847c0138be570b544561cf48cd94edcdb17a0",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/rooms/workshop.svg",
+      "bytes": 11601,
+      "sha256": "45c4ce4ba275c75633488028db831bcf3561f9e324861e8306e24e5ce73615e9",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "media/wrenmere-prologue.mp4",
+      "bytes": 828098,
+      "sha256": "36bcf2e4b78d751f4d1484d4ed450f28125e74451ff390f04a929dcbe4a7a0d0",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "NOTICE.md",
+      "bytes": 1054,
+      "sha256": "74c156bbb842f4a8954e0c2e5385588579679f0ca1910bb939e94ed411002db1",
+      "suppliedChecksumMatches": true,
+      "disposition": "brief, rights or prompt reference; current repository instructions take precedence",
+      "preservedReference": null
+    },
+    {
+      "path": "PLAY-WRENMERE-LITE.html",
+      "bytes": 105494,
+      "sha256": "cb3e6104991dd383918f2c7124f69471b4e9bdd761ccd19c8d72ec580f7c9c7a",
+      "suppliedChecksumMatches": true,
+      "disposition": "standalone preview; never deploy over Alibi",
+      "preservedReference": null
+    },
+    {
+      "path": "PLAY-WRENMERE.html",
+      "bytes": 1209677,
+      "sha256": "c424a980d5f5828990657835694a2d2ab095ed86f584963174123851c66551c6",
+      "suppliedChecksumMatches": true,
+      "disposition": "standalone preview; never deploy over Alibi",
+      "preservedReference": null
+    },
+    {
+      "path": "README.md",
+      "bytes": 5079,
+      "sha256": "67ad73813a115b2fe219cbb5870a2bb21033a345bb69119cbbe0760924de9dee",
+      "suppliedChecksumMatches": true,
+      "disposition": "brief, rights or prompt reference; current repository instructions take precedence",
+      "preservedReference": null
+    },
+    {
+      "path": "src/app.js",
+      "bytes": 40148,
+      "sha256": "8ba21e137a17c97297c856db6b9d5378673bff36b56c64ba183be97a026c0127",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "src/art.js",
+      "bytes": 12311,
+      "sha256": "69260fc1be07d84a890265b3cc829233ddd686093e0aec2d884f578c2d859866",
+      "suppliedChecksumMatches": true,
+      "disposition": "original editable art or media for native adaptation",
+      "preservedReference": null
+    },
+    {
+      "path": "src/engine.js",
+      "bytes": 8541,
+      "sha256": "b1efdbe9a1a67df0f6eb99e2a2f3e267652d8ee91cd9ccaf85f27b211a0c4b20",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "src/index.html",
+      "bytes": 754,
+      "sha256": "e96af4a0783d0f3f05b1b24098a386479ae9d354d8e5c999563af0dcb3358698",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "src/puzzles.js",
+      "bytes": 7110,
+      "sha256": "1a7f6185d6585968b99c647a912ce8ff3b3d2d0037ff7da488b8f28b6d731bf6",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 21791,
+      "sha256": "a8989edc5ff1dd2a129914450f94802f9a4b49700359cae56ba2359692ebdffb",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "src/world.js",
+      "bytes": 14833,
+      "sha256": "84b0ead1f9349edf6b339047bb821ceef2e52396f2c56b9ecbb11edd0eaacb55",
+      "suppliedChecksumMatches": true,
+      "disposition": "logic and presentation reference; native equivalent under src/castle; no standalone app transplant",
+      "preservedReference": null
+    },
+    {
+      "path": "tests/browser.py",
+      "bytes": 10032,
+      "sha256": "6680b579879bdb83107c1e3183cbb9f2af3bfcf61c619c1c928de8e838647656",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "tests/capture.py",
+      "bytes": 946,
+      "sha256": "7621b37a4991e443267d3199ff5f8b48e8e77183c6d7ba1812f8f6a417ae96f5",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "tests/engine.test.cjs",
+      "bytes": 7577,
+      "sha256": "3acf79471bd1da294ce3faffbbc97eea3536dae9ae68083c734b257262dc4503",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "tools/build.cjs",
+      "bytes": 1140,
+      "sha256": "7a9534cddc83a158371e9a90ae72a958141cf81df216a746426f3c2c3eb7ccff",
+      "suppliedChecksumMatches": true,
+      "disposition": "prototype production reference; use native release builder",
+      "preservedReference": null
+    },
+    {
+      "path": "tools/render-film.py",
+      "bytes": 3713,
+      "sha256": "a7905b0e2687d6e8ae7c7437a7237da539ee19ec7e951285e0d7be40b9b63532",
+      "suppliedChecksumMatches": true,
+      "disposition": "prototype production reference; use native release builder",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/browser-desktop-log.txt",
+      "bytes": 2472,
+      "sha256": "4251dfed7d3fe4d98cbb255bc6a57ebd01f5aef1635c5daab09eb78103d90979",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/browser-mobile-log.txt",
+      "bytes": 2412,
+      "sha256": "a51b2080c57c07d3b41f82dc0d96c9a151b135cad61eb71a7567b631a2c8f3f0",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/browser-results-1440.json",
+      "bytes": 3018,
+      "sha256": "7854603eaf0158bc4b2422916c99dc96be2ef2597a741299526502a65c4bd5f4",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/browser-results-390.json",
+      "bytes": 2958,
+      "sha256": "2f662934dff85425ccb4dae66898542fcdc34db5003f69545159f608bfbe6c3d",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/design-book-desktop.png",
+      "bytes": 344061,
+      "sha256": "95443c381120766f65da5a516662c8fca15d9fc023d580cacb7653a262d219d2",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/design-book-mobile.png",
+      "bytes": 54796,
+      "sha256": "69048795fac3780f711266fd47fcfe816fafb4bde2e104515f4712dbad413698",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/engine-tests.txt",
+      "bytes": 4493,
+      "sha256": "60c1a6dfb6e0a9b7b0aa01cb44704484c2a4558ad16d0ab8c5fdb60423f11583",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/estate-desktop.png",
+      "bytes": 537805,
+      "sha256": "091bec1f20f1a05e5152df450cbcc1efe229b60d7bc945afe2fccead2402bf52",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/estate-mobile.png",
+      "bytes": 252307,
+      "sha256": "cdaa757c843a1c90f7f2eb644a22bb839bb52db5d849752f01ba0cc557140eda",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/map-puzzle-1440.png",
+      "bytes": 164950,
+      "sha256": "222914c31a2c3df347a02db97bc8578292fdc4d8ae5c9ef1f41393d9589bbf55",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/map-puzzle-390.png",
+      "bytes": 173923,
+      "sha256": "0537a3bc6e04ac5dfce71421c910d6ca35d7994f8240e7bfe5ddc05d7ed8f291",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/museum-1440.png",
+      "bytes": 163122,
+      "sha256": "23a378ea4831ed648656c8594f9a69b4cf6e64569a5380c1979a1b6e6b6e4a9b",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/museum-390.png",
+      "bytes": 145842,
+      "sha256": "f83a559d76e2f0d4d3ac475132e30f7ec9ec73097ac6c46030252a58c4680fe9",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/notebook-1440.png",
+      "bytes": 167059,
+      "sha256": "b57ff0b611a308f5f9eaa62f49e688539db92582d0e35bbc80ca071d97f8ae15",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/notebook-390.png",
+      "bytes": 157309,
+      "sha256": "43c43e209a28c58307fe73f0106b11e8a9d2c1d31db76d4c8c40db4e16e50fc5",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/observatory-1440.png",
+      "bytes": 555963,
+      "sha256": "108d98834d1c13c4d198322b26975605e85f9e2fab85fcb2abbc4d8c896181d2",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/observatory-390.png",
+      "bytes": 237072,
+      "sha256": "72cba7eadf370301e5ae044f69725413c3cfdd5aa08460fb79a9fddb002fe0f8",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/REPORT.json",
+      "bytes": 1517,
+      "sha256": "d045eb0475759cf3f0455f69edfe79f5d8688b977698f691e09e04a2026610eb",
+      "suppliedChecksumMatches": true,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    },
+    {
+      "path": "verification/SHA256SUMS.txt",
+      "bytes": 6159,
+      "sha256": "0c0422687727d62e0861926cc8c2ff1dcdb388b50844f4a8a81af7610fdf3f59",
+      "suppliedChecksumMatches": null,
+      "disposition": "historical prototype verification; does not certify production",
+      "preservedReference": null
+    }
+  ]
+}

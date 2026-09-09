@@ -16,6 +16,8 @@ const root = path.resolve(__dirname, '../dist'),
     '.ogg': 'audio/ogg',
     '.opus': 'audio/ogg',
     '.mp4': 'video/mp4',
+    '.vtt': 'text/vtt; charset=utf-8',
+    '.txt': 'text/plain; charset=utf-8',
     '.webmanifest': 'application/manifest+json',
     '.json': 'application/json',
   };

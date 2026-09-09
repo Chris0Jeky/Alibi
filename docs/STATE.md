@@ -2,6 +2,35 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Wrenmere 0.10.0 production candidate
+
+`codex/wrenmere-production` preserves every original commit from draft PRs #39–42 and
+integrates the merged 0.9.1 player release (#70, `8641b3e`). Chapter I now has ten questions, twelve original scene
+SVGs, consistent map layers, nearby doors, visible objects, an optional captioned prologue,
+three museum label reviews and eight revisable evidence-linked hypotheses. The secret stair
+stays absent from the map, directory and search until its deduction.
+
+All 328 official puzzles feed thirteen room familiarity tracks with 39 starter links. Three
+first solves reveal a small room detail; hints count and restarting retains earlier completion.
+The adapter validates committed official definitions and passes metadata only. These discoveries
+never award story evidence or cross-game entitlements.
+
+Notebook import uses the bounded worker, reviewable merge/replace, an atomic pre-restore copy
+and stale-record checks. The actual Save & update control rejects a protected notebook until
+an exact export is explicitly acknowledged; the exported notes can then be recovered on the
+new release. Cabinet, Club, Quiet Wing, challenge and castle state remain separate.
+
+The local full gate, ten-question controls at 390/1280, real-origin recovery, investigation,
+exploration/media/offline, practice/return/restart and A/B update checks pass. Visual inspection
+covered grounds, room and museum layouts. Final independent review, exact-head CI and production
+publication remain pending; this is not a hosted-release claim.
+
+The supplied folder is mapped in [RESOURCES.md](castle/RESOURCES.md): 69 files, all 68 supplied
+checksums matching, with complete design references preserved. Start with the [strategy](castle/STRATEGY.md),
+[continuation records and proof graphs](castle/CONTINUATION.md), and [deferred pet/garden/city plan](castle/DEFERRED-REWARDS.md).
+Chapters II–V and creative reward connections remain planned. [HUMAN_TODO.md](../HUMAN_TODO.md)
+tracks physical Android, TalkBack, comfort and new-player acceptance, including castle q-7.
+
 ## Small-screen and keyboard QA 0.9.1 published
 
 The 0.9.1 release addresses reproduced 320px large-text player overflow, tiny Desk assistant
@@ -10,8 +39,9 @@ scenes and aquariums, actual assistant controls and 44px targets. Player history
 patch. PR #70 merged at `8641b3e`; build `efb6b034ac62` is published on both existing origins.
 Both full CI runs pass. Each host passes 92 storage/offline checks and the actual 0.9.0-to-0.9.1
 save/update/offline transition. The primary passes discovery and narrow-layout matrices.
-The hosted library pagination matrix exposed timing-dependent focus loss; background refreshes
-are under investigation despite passing local/CI runs. Collection-settings
+The hosted library pagination matrix exposed timing-dependent focus loss (#75); a controlled
+background-render regression confirms focus loss, while the original hosted event sequence
+remains unproven. Collection-settings
 focus (#71) and focused CI artifact retention (#72) are separate tracked follow-ups.
 See [RELEASE-0.9.1.md](RELEASE-0.9.1.md). The castle task reserves 0.10.0 and owns that expansion.
 

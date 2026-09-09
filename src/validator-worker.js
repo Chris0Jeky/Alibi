@@ -2,7 +2,11 @@ self.onmessage = (e) => {
   try {
     let value;
     const m = e.data;
-    if (m.type === 'challenge-run') {
+    if (m.type === 'castle-backup') {
+      if (typeof m.text !== 'string' || m.text.length > 512 * 1024)
+        throw Error('Castle backup exceeds the 512 KiB import limit.');
+      value = AlibiCastleValidation.validateBackup(JSON.parse(m.text));
+    } else if (m.type === 'challenge-run') {
       if (typeof m.text !== 'string' || m.text.length > 3 * 1024 * 1024)
         throw Error('Challenge save exceeds the import limit.');
       value = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
@@ -10,21 +14,26 @@ self.onmessage = (e) => {
         club: AlibiClubEngines,
       }).validateRun(JSON.parse(m.text));
     } else if (m.type === 'combined-backup') {
+      if (typeof m.text !== 'string' || m.text.length > 20 * 1024 * 1024)
+        throw Error('Combined backup exceeds the 20 MB import limit.');
       const data = JSON.parse(m.text);
       const manifest = data?.manifest,
-        fullManifest = ['cabinet', 'club', 'quiet'],
-        coreManifest = ['cabinet', 'club'];
+        supported = [
+          ['cabinet', 'club'],
+          ['cabinet', 'club', 'quiet'],
+          ['cabinet', 'club', 'castle'],
+          ['cabinet', 'club', 'quiet', 'castle'],
+        ];
       if (
         !data ||
         data.format !== 'alibi-all-saves' ||
         data.schema !== 1 ||
-        (JSON.stringify(manifest) !== JSON.stringify(fullManifest) &&
-          JSON.stringify(manifest) !== JSON.stringify(coreManifest)) ||
+        !supported.some((keys) => JSON.stringify(manifest) === JSON.stringify(keys)) ||
         !data.sections ||
         Object.keys(data.sections).some((k) => !manifest.includes(k)) ||
         !manifest.every((k) => Object.hasOwn(data.sections, k)) ||
-        (manifest.length === 3 && !data.sections.quiet) ||
-        (manifest.length === 2 &&
+        (manifest.includes('quiet') && !data.sections.quiet) ||
+        (!manifest.includes('quiet') &&
           (!Array.isArray(data.warnings) ||
             !data.warnings.some((warning) => /quiet wing/i.test(String(warning)))))
       )
@@ -40,6 +49,7 @@ self.onmessage = (e) => {
           throw Error('Unknown Quiet Wing backup. Nothing was restored.');
         QWStore.validate(data.sections.quiet.state);
       }
+      if (manifest.includes('castle')) AlibiCastleValidation.validateBackup(data.sections.castle);
       value = data;
     } else if (m.type === 'cabinet-backup') {
       value = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG).validateBackup(

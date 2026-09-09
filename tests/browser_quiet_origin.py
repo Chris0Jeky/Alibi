@@ -93,7 +93,7 @@ try:
     wing.evaluate('location.hash="/settings"');wing.locator('[data-action="export-all"]').wait_for()
     with wing.expect_download() as d: wing.locator('[data-action="export-all"]').click()
     bundle=OUT/'all-saves.json';d.value.save_as(bundle);data=json.loads(bundle.read_text())
-    check(data['manifest']==['cabinet','club','quiet'],'Combined backup names all three stores')
+    check(data['manifest']==['cabinet','club','quiet','castle'],'Combined backup names all four available stores')
     check(data['sections']['quiet']['state']['scene']['name']=='Newer committed keep','Combined backup uses latest committed Quiet Wing state')
     before=stored(wing)
     wing.locator('[data-action="import-all"]').click();wing.locator('#all-backup-input').set_input_files(bundle)
