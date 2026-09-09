@@ -29,6 +29,9 @@ Quiet Wing remounts, and awaits challenge writes before updates. Session/protect
 stores refuse updates until exported or resolved. Real-control regressions pass. The release
 fixture now locates configuration after other globals, and keeps its disposable Chromium profile
 short enough for Windows service-worker storage; all 18 two-release checks pass.
+Challenge reads now wait for pending writes before remounting; the immediate-two-write regression
+and focused independent review pass. Remaining backup-scope wording and Duel/Borough coordinate
+labels are tracked in [#22](https://github.com/Chris0Jeky/Alibi/issues/22).
 
 The remaining bundle inventory has been reconciled: all packs, challenge files, editorial JSON
 and 17 venue/icon SVGs match the source; board/solution SVGs and the review studio are reference

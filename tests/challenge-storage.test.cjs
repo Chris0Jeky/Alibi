@@ -9,6 +9,20 @@ const Store = require('../src/challenge-storage.js');
 const raw = ['classics', 'warehouse', 'reversi', 'borough'].flatMap(
   (n) => JSON.parse(fs.readFileSync(`content/challenges/${n}.json`)).challenges,
 );
+
+test('reopening a challenge reads the latest queued replay before another move', async () => {
+  const registry = Challenges.create(raw, { quiet: Q, club: E });
+  const store = Store.create(registry);
+  await store.open();
+  const first = registry.begin('curated-classic-hanoi-01');
+  first.log.push({ from: 1, to: 2 });
+  const second = structuredClone(first);
+  second.log.push({ from: 0, to: 1 });
+  const writes = [store.write(first), store.write(second)];
+  const reopened = await store.read(first.challengeId);
+  await Promise.all(writes);
+  assert.deepEqual(reopened, second);
+});
 test('session fallback saves only validated replay records without affecting legacy state', async () => {
   const registry = Challenges.create(raw, { quiet: Q, club: E });
   const store = Store.create(registry);

@@ -89,6 +89,8 @@
       return info();
     }
     async function read(id) {
+      // A refused write must not prevent reading/exporting the last committed run.
+      await queue.catch(() => {});
       const record =
         mode === 'indexeddb'
           ? await request('readonly', (s, done) => {
