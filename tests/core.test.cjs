@@ -167,6 +167,11 @@ for (const type of ['lightup', 'tents']) {
 }
 const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
 ok(books.length === 4, 'four casebooks');
+ok(books[0].format === 'continuous', 'Bellweather keeps continuous casebook framing');
+ok(
+  books.slice(1).every((book) => book.format === 'anthology'),
+  'earlier casebooks keep standalone-record framing',
+);
 for (const b of books)
   for (const ch of b.chapters)
     ok(

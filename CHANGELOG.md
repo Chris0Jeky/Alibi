@@ -1,20 +1,108 @@
-# 0.3.0 — Public puzzle cabinet (2026-09-08)
+# Alibi changelog
 
-- Establish a public, maintainable repository from the 0.2.0 bundle with incremental import history.
-- Add original illustrated casebook covers and readable phone-first navigation, controls and type.
-- Explain board-based deductions for Sudoku, Futoshiki, Sun & moon and Picture logic.
-- Make completed-record explanations available for every family, including full mystery evidence.
-- Repair keyboard entry to boards starting with a wall, tree, furniture or locked tile.
-- Reject malformed scene occupancy and unused extra-family notes during save validation.
-- Quarantine malformed workshop drafts without deleting them; preserve structurally valid unfinished edits.
-- Stop on blocked IndexedDB instead of creating a competing fallback store.
-- Add real-origin save/offline/update acceptance, CI, repository guidance and portable release packaging.
-- Preserve all 102 published puzzle IDs/revisions and the original forty compatibility fixtures.
+Player-facing changes, newest first. The same history is available offline in the app under **What’s new**.
 
-Physical Android acceptance, human difficulty calibration and the source-license choice remain
-explicitly recorded in HUMAN_TODO.md. This is a browser release, not an APK/store release.
+[Play Alibi](https://alibi-after-hours-preview.commit-atlas.workers.dev/) · [GitHub releases and downloads](https://github.com/Chris0Jeky/Alibi/releases)
 
-# 0.2.0
+These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
+
+## 0.9.0 · A clearer way to explore
+
+2026-09-09
+
+- Find recent additions on your desk, with illustrated collection cards, short invitations and a direct route into each setting.
+- Read What’s new from the desk or footer, including earlier versions, even while offline. GitHub release notes now include the missing historical versions.
+- Keyboard navigation follows links into and out of the Quiet Wing. Bridges arrow keys keep to the selected row or column.
+- Your Quiet Wing motion choice stays yours when broader comfort settings change. Malformed garden backups are rejected before they can become broken saves.
+
+- Casebook pages now distinguish the continuous Bellweather investigation from the three anthologies of independent records, including their endings and replay controls.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.9.0) · [Deployment receipt](docs/RELEASE-0.9.0.md)
+
+## 0.8.2 · A better place to land
+
+2026-09-09
+
+- Internal page buttons now move keyboard focus to the destination page, making it easier to keep exploring.
+- Search keeps your typing position, and first-play lessons keep focus inside their dialog.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.8.2) · [Deployment receipt](docs/RELEASE-0.8.2.md)
+
+## 0.8.1 · More possibilities, shaped by players
+
+2026-09-09
+
+- Choose a puzzle family first, then browse its levels. A visible “Show all collections” button gets you out of a collection filter.
+- Sketch possible people with small letter notes in crime-scene cells, and mark a board square with a cross independently of a person. Sudoku shows when all copies of a digit are placed.
+- Find How to play more easily, and read casebook openings, continuation pages and epilogues between puzzles.
+- Four new 8 × 8 Sun & Moon boards bring that family to 27 puzzles and the full cabinet to 328.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.8.1) · [Deployment receipt](docs/RELEASE-0.8.1.md)
+
+## 0.8.0 · The theatrical edition
+
+2026-09-09
+
+- Eight rooms gain painted scenery, weather, emblems and optional room sound. Choose credited photographic alternatives when you want a different atmosphere.
+- Deliberately played short films and an interactive Field notes library add more to explore. Enhanced media stays optional; comfort controls let you quiet the room.
+- Backup warnings, offline downloads and recovery handling are clearer. Existing puzzles and progress keep their identities.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.8.0) · [Deployment receipt](docs/RELEASE-0.8.0.md)
+
+## 0.7.0 · The Curation Cabinet
+
+2026-09-09
+
+- 208 new puzzles arrive in the Salt Observatory, Copper Conservatory, Nocturne Gallery and Winter Post Office. The cabinet grows to 324 puzzles across thirteen families.
+- Curator notes offer rules, general tactics and answer notes after completion. Collection artwork brings each setting to life.
+- A separate set of 59 fixed-start challenges expands the games and quiet activities. Difficulty remains an editorial estimate, ready for player feedback.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.7.0) · [Deployment receipt](docs/RELEASE-0.7.0.md)
+
+## 0.6.0 · A door into the Quiet Wing
+
+2026-09-08
+
+- Build seeded towns and castles, connect roads, and undo your world edits. A Canvas view keeps the realm usable when 3D rendering is unavailable.
+- Meet animated companions, try four additional relaxing boards, grow a flower collection and make postcards.
+- Museum artwork and an optional offline pack make room for quieter visits. The original 116 cabinet puzzles and their saves stay intact.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.6.0) · [Deployment receipt](docs/RELEASE-0.6.0.md)
+
+## 0.5.0-preview.1 · After Hours
+
+2026-09-08
+
+- The games room opens with Lantern Duel, Pocket Borough and six Archive Heist rooms. Play offline or share the same device for a local duel.
+- Rotating desk editions, a club journal, reversible assistance, Zen and an animated harbour atlas offer new ways to spend a visit.
+- Recovery and saving receive extra care. Public online multiplayer is not enabled.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.5.0-preview.1)
+
+## 0.4.0 · The Bellweather expedition
+
+2026-09-08
+
+- Follow six chronological records at Bellweather, with one cast, a developing investigation and revelations earned as you solve.
+- Eight original Tidal bridges maps add a thirteenth puzzle family, with touch and keyboard controls, a hands-on lesson and reasoning hints.
+- The cabinet grows to 116 puzzles, with four illustrated casebooks.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.4.0)
+
+## 0.3.0 · The puzzle cabinet opens
+
+2026-09-08
+
+- The first public cabinet brings together 102 puzzles across twelve families, illustrated casebooks and navigation designed for phones.
+- Try reasoning hints, review completed records, and keep unfinished creations in the workshop.
+- Progress saves on your device, with backups, recovery controls and offline play.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.3.0)
+
+## 0.2.0 · Original source baseline
+
+This predates the first public release. The original notes are retained below.
+
 
 40 to 102 puzzles. Five to twelve families. Eighteen original crime scenes, eight alibi logic-grid files, eight witness-statement mysteries, eight each of lanterns, tents, aquariums, signal paths and number trails, plus the original seven each of Sudoku, picture logic, binary logic and Futoshiki.
 
@@ -26,3 +114,5 @@ Preserved legacy puzzle definitions and IndexedDB identity. Saved definition sna
 
 Validation reports distinguish pure engine tests, actual isolated-browser controls, fallback storage contracts, simulated service-worker lifecycle and the still-pending hosted/Android acceptance layer.
 
+
+Physical-device, accessibility and owner decisions remain in [HUMAN_TODO.md](HUMAN_TODO.md).

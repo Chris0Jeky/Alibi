@@ -157,10 +157,11 @@ function build() {
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
   editorial.artwork = curation.assets;
-  const contentSource = `globalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\n`;
+  const contentSource = `globalThis.ALIBI_RELEASES=${JSON.stringify(JSON.parse(read(path.join(ROOT, 'content/releases.json'))))};\nglobalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\n`;
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
   const base = [
+    read(path.join(SRC, 'updates.js')),
     core,
     engines,
     bridges,

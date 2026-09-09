@@ -185,6 +185,7 @@
         await Promise.all([quietSave, A.challengeStore?.flush()]);
       }
       function styles() {
+        const motion = motionEnabled();
         const soundButton = $('[data-act="sound"]');
         if (soundButton) {
           soundButton.setAttribute(
@@ -193,7 +194,7 @@
           );
           soundButton.title = 'Sound ' + (A.state.settings.sound ? 'on' : 'off');
         }
-        if (!A.state.settings.sound || !A.state.settings.motion) {
+        if (!A.state.settings.sound || !motion) {
           soundscape.stop();
           root.querySelectorAll('audio,video').forEach((media) => media.pause());
           A.ambience = '';
@@ -201,14 +202,20 @@
           if (selection) selection.value = '';
         }
         body.classList.toggle('zen', A.state.settings.zen);
-        body.classList.toggle('reduce', !A.state.settings.motion);
-        A.renderer?.setMotion?.(A.state.settings.motion);
-        A.petView?.setMotion(A.state.settings.motion);
+        body.classList.toggle('reduce', !motion);
+        A.renderer?.setMotion?.(motion);
+        A.petView?.setMotion(motion);
+      }
+      function motionEnabled() {
+        return (
+          !!A.state?.settings.motion &&
+          !A.rootPreferences?.reducedMotion &&
+          !G.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
       }
       function applyRootPreferences(preferences) {
         A.rootPreferences = preferences ? { ...preferences } : null;
         if (!A.state || !preferences) return;
-        A.state.settings.motion = !preferences.reducedMotion;
         const dark =
           preferences.theme === 'night' ||
           (preferences.theme === 'system' && G.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -396,7 +403,7 @@
           zoom: A.state.scene.camera.zoom,
         });
         A.renderer.setScene(A.state.scene);
-        A.renderer.setMotion?.(A.state.settings.motion);
+        A.renderer.setMotion?.(motionEnabled());
         A.renderer.resize();
         A.resizeObs = new ResizeObserver(() => A.renderer?.resize());
         A.resizeObs.observe($('#realm'));
@@ -1007,7 +1014,7 @@
           $('#pet-portrait'),
           species,
           A.artURLs['pet-' + species],
-          A.state.settings.motion,
+          motionEnabled(),
         );
         $$('[data-species]').forEach(
           (b) =>
@@ -2348,8 +2355,6 @@
         A.state = G.QWRetainedState || result.saved || E.newState(Date.now());
         if (!A.state.stats.views.includes(A.state.scene.camera.view))
           A.state.stats.views.push(A.state.scene.camera.view);
-        if (G.matchMedia('(prefers-reduced-motion: reduce)').matches)
-          A.state.settings.motion = false;
         applyRootPreferences(context.preferences);
         A.dirty = G.QWRetainedDirty || false;
         go();
@@ -2380,6 +2385,13 @@
         },
         flush,
         setPreferences: applyRootPreferences,
+        focusDestination: () => {
+          if ($('#modal')?.open) return false;
+          const main = $('#main');
+          if (!main) return false;
+          main.focus({ preventScroll: true });
+          return root.activeElement === main;
+        },
         state: () => A.state,
         dispose() {
           disposed = true;

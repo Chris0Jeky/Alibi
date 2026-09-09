@@ -204,6 +204,23 @@
       location.hash = h;
     }
   }
+  function requestLinkFocus(e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+      return;
+    const link = e
+      .composedPath()
+      .find(
+        (node) => node instanceof HTMLAnchorElement && node.getAttribute('href')?.startsWith('#/'),
+      );
+    if (!link || link.target || link.hasAttribute('download')) return;
+    const hash = link.hash;
+    if (!hash.startsWith('#/')) return;
+    const focusSerial = ++routeFocusSerial;
+    if (location.hash === hash) {
+      e.preventDefault();
+      loadRoute(focusSerial).catch((error) => toast(error.message, true));
+    } else routeFocusRequests.set(hash, focusSerial);
+  }
   function getRun(p) {
     const key = keyFor(p);
     if (records.has(key)) return records.get(key);
@@ -381,7 +398,7 @@
       .join('')}</nav>`;
   }
   function footer() {
-    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
+    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="changelog">What’s new</button><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
   }
   function shell(content) {
     const label =
@@ -395,6 +412,7 @@
             workshop: 'The workshop',
             settings: 'Settings & saves',
             privacy: 'Privacy & credits',
+            changelog: 'What’s new',
             salon: 'The games room',
             lab: 'The living atlas',
             club: 'Club journal',
@@ -421,8 +439,9 @@
     }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div></div></button></article>`;
   }
   function bookCard(b, i) {
-    const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length;
-    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${caseArt(b.id)}<span class="book-number">CASE FILE / 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} chapters</span></div></div></button>`;
+    const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
+      units = b.format === 'anthology' ? 'records' : 'chapters';
+    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${caseArt(b.id)}<span class="book-number">CASE FILE / 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} ${units}</span></div></div></button>`;
   }
   function caseArt(id, eager = false) {
     const source = globalThis.ALIBI_MEDIA?.[books.find((b) => b.id === id)?.artwork || id];
@@ -482,7 +501,7 @@
       library.difficulty === 'all' &&
       !library.browseAll
     )
-      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div>`;
+      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
@@ -543,14 +562,16 @@
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
     if (!b)
-      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every chapter is yours to open.</h3><p>Play in order or follow your curiosity. Your chapter progress stays with the same saved puzzles in the collection.</p></div></div>`;
+      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every part of a casebook is yours to open.</h3><p>Follow Bellweather’s continuous investigation in order, or follow your curiosity through the earlier standalone records.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
-      next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0];
+      next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0],
+      anthology = b.format === 'anthology',
+      units = anthology ? 'records' : 'chapters';
     const chapterTimes = b.chapters.map((c) => find(c.id)).map(timing),
       caseTime = chapterTimes.every(Boolean)
         ? `${chapterTimes.reduce((sum, label) => sum + Number.parseInt(label, 10), 0)} minute estimate`
         : '';
-    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} chapters${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
+    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? (anthology ? 'Continue to the next record' : 'Continue the casebook') : anthology ? 'Open the first record' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} ${units}${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>${anthology ? 'The records.' : 'The case file.'}</h2><span class="tag">${done} / ${b.chapters.length} ${units} complete</span></div><div class="chapter-list">${b.chapters
       .map((c, i) => {
         const p = find(c.id),
           finished = solved(rec(p));
@@ -558,7 +579,7 @@
       })
       .join(
         '',
-      )}</div>${done === b.chapters.length ? `<div class="case-ending"><div class="eyebrow">Casebook complete</div><h2>The file is in order.</h2><p>${esc(b.ending)}</p>${B('Choose another casebook', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div>` : ''}`;
+      )}</div>${done === b.chapters.length ? `<div class="case-ending"><div class="eyebrow">${anthology ? 'Anthology complete' : 'Casebook complete'}</div><h2>${anthology ? 'The records are filed.' : 'The file is in order.'}</h2><p>${esc(b.ending)}</p>${B('Choose another casebook', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div>` : ''}`;
   }
   function chapterAtmosphere(p) {
     const b = books.find((book) => book.id === route.book),
@@ -578,8 +599,18 @@
     const puzzle = find(chapter.id),
       done = solved(rec(puzzle)),
       finished = book.chapters.every((c) => solved(rec(find(c.id)))),
-      index = book.chapters.indexOf(chapter);
-    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? 'EPILOGUE' : `CHAPTER ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? 'The file is in order.' : chapter.name)}</h1>${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || 'Another record is complete. The case file keeps your discovery.' : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B('Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
+      index = book.chapters.indexOf(chapter),
+      anthology = book.format === 'anthology',
+      unit = anthology ? 'RECORD' : 'CHAPTER',
+      completionLabel = anthology ? 'ANTHOLOGY COMPLETE' : 'EPILOGUE',
+      completionTitle = anthology ? 'The records are filed.' : 'The file is in order.',
+      formatNote = anthology
+        ? '<p class="story-format-note">Standalone record. Open any record in any order; completed records stay available in the case file.</p>'
+        : '',
+      completedText = anthology
+        ? 'This record is complete. The solved evidence stays in the anthology file.'
+        : 'Another record is complete. The case file keeps your discovery.';
+    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? completionLabel : `${unit} ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? completionTitle : chapter.name)}</h1>${formatNote}${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || completedText : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B(anthology ? 'Continue to the next record' : 'Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
   }
   function chapterReveal(p) {
     const b = books.find((book) => book.id === route.book),
@@ -1199,6 +1230,7 @@
         settings: settingsPage,
         workshop: workshopPage,
         privacy: privacyPage,
+        changelog: () => globalThis.AlibiUpdates.page(),
         play: playPage,
         salon: () => AlibiClub.roomPage(route.id),
         club: () => AlibiClub.profile(),
@@ -2368,6 +2400,17 @@
       case 'hint':
         showHint();
         break;
+      case 'release-jump': {
+        const entry = document.getElementById('release-' + v);
+        entry?.focus({ preventScroll: true });
+        entry?.scrollIntoView({ behavior: 'instant', block: 'start' });
+        break;
+      }
+      case 'discover-collection':
+        navigate('library');
+        library.venue = v || '';
+        library.browseAll = true;
+        break;
       case 'curation-venue':
         library.venue = v || '';
         library.limit = 24;
@@ -2719,6 +2762,7 @@
       $('#main')?.focus();
       return;
     }
+    requestLinkFocus(e);
     const el = e.target.closest('[data-action]');
     if (!el || el.disabled) return;
     handleAction(el, e).catch((err) => {
@@ -2929,7 +2973,24 @@
     if (d && !['dossier', 'witness'].includes(p.type)) {
       e.preventDefault();
       let next = selectedCell + d;
-      while (next >= 0 && next < p.size ** 2 && !enabledCell(p, next)) next += d;
+      if (p.type === 'bridges') {
+        const x = selectedCell % p.size,
+          y = Math.floor(selectedCell / p.size),
+          horizontal = e.key === 'ArrowLeft' || e.key === 'ArrowRight',
+          candidates = p.islands
+            .map(({ cell }) => ({ cell, x: cell % p.size, y: Math.floor(cell / p.size) }))
+            .filter(({ x: ix, y: iy }) =>
+              horizontal
+                ? iy === y && (d < 0 ? ix < x : ix > x)
+                : ix === x && (d < 0 ? iy < y : iy > y),
+            )
+            .sort((a, b) =>
+              d < 0 ? (horizontal ? b.x - a.x : b.y - a.y) : horizontal ? a.x - b.x : a.y - b.y,
+            );
+        next = candidates[0]?.cell ?? selectedCell;
+      } else {
+        while (next >= 0 && next < p.size ** 2 && !enabledCell(p, next)) next += d;
+      }
       if (next >= 0 && next < p.size ** 2) selectedCell = next;
       render();
       document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
@@ -2998,6 +3059,7 @@
         'settings',
         'workshop',
         'privacy',
+        'changelog',
         'salon',
         'lab',
         'club',
@@ -3061,8 +3123,10 @@
     document.title = current ? `${current.puzzle.title} · Alibi` : 'Alibi · A little room to think';
     if (current && !prefs.seen.includes(current.puzzle.type) && !storageFatal && !saveError)
       startLesson(current.puzzle.type, true);
-    if (focusSerial && focusSerial === routeFocusSerial && !$('#dialog').open)
-      $('#main')?.focus({ preventScroll: true });
+    if (focusSerial && focusSerial === routeFocusSerial && !$('#dialog').open) {
+      if (route.page !== 'quiet' || !AlibiActivities.focusDestination?.())
+        $('#main')?.focus({ preventScroll: true });
+    }
   }
   window.addEventListener('hashchange', () => {
     const focusSerial = routeFocusRequests.get(location.hash) || 0;
