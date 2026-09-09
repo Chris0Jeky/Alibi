@@ -77,3 +77,14 @@ details > summary:focus-visible {
     font-size: 13px;
   }
 }
+.scene-candidates {
+  position: absolute;
+  inset: 22% 5% 5%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  gap: 2px 4px;
+  font-size: clamp(10px, 2.5vw, 14px);
+  line-height: 1.2;
+  pointer-events: none;
+}

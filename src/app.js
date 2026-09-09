@@ -49,6 +49,7 @@
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
+    sceneMarkMode = 'place',
     pencil = false,
     brush = 1,
     paused = false,
@@ -628,7 +629,10 @@
       const room = p.rooms[i],
         person = p.people.find((w) => s.placements[w.id] === i),
         obj = p.objects.find((o) => o.cell === i),
-        ex = (s.notes[selectedPerson] || []).includes(i);
+        ex = (s.notes[selectedPerson] || []).includes(i),
+        candidates = p.people.filter((person) => s.candidates?.[i]?.includes(person.id)),
+        exclusions = p.people.filter((person) => s.notes[person.id]?.includes(i)),
+        crossed = s.crosses?.includes(i);
       cls += ' scene-cell';
       style = `background:var(--room-${room});`;
       if (c === 0 || p.rooms[i - 1] !== room) style += 'border-left:2px solid var(--board-border);';
@@ -640,6 +644,14 @@
       if (person?.id === selectedPerson) cls += ' selected';
       label += `, ${p.roomNames[room]}, ${obj ? 'blocked by ' + obj.name : person ? person.name : ex ? 'excluded for selected person' : 'empty'}`;
       content = `<span class="room-code">${String.fromCharCode(65 + room)}</span>${obj ? icon(obj.kind, 'furniture') : person ? token(person, p) : ex ? '<span class="excluded">×</span>' : ''}`;
+      if (!obj && !person) {
+        content = `<span class="room-code">${String.fromCharCode(65 + room)}</span>${crossed ? '<span class="excluded">×</span>' : ''}<span class="scene-candidates">${candidates.map((person) => `<span>${esc(person.name[0])}</span>`).join('')}${exclusions.map((person) => `<span>${esc(person.name[0])}×</span>`).join('')}</span>`;
+      }
+      if (crossed) label += ', board cross';
+      if (candidates.length)
+        label += ', candidates: ' + candidates.map((person) => person.name).join(', ');
+      if (exclusions.length)
+        label += ', excluded: ' + exclusions.map((person) => person.name).join(', ');
       disabled = !!obj;
     } else if (t === 'sudoku' || t === 'futoshiki' || t === 'trail') {
       const val = s.cells[i],
@@ -901,7 +913,24 @@
           '',
         )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
     } else if (t === 'scene')
-      content = `<div class="toolrow">${tool(pencil ? 'Exclude squares' : 'Place people', 'pencil', pencil ? 'pencil' : 'scene', pencil)}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Tap squares to rule them out for the selected person. These are your notes.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'}</p>`;
+      content = `<div class="toolrow" aria-label="Scene marking mode">${[
+        ['place', 'Place people'],
+        ['candidate', 'Letter notes'],
+        ['exclude', 'Person exclusions'],
+        ['board-cross', 'Board X'],
+      ]
+        .map(([mode, label]) =>
+          tool(
+            label,
+            'scene-mode',
+            mode === 'place' ? 'scene' : 'pencil',
+            sceneMarkMode === mode,
+            `data-value="${mode}"`,
+          ),
+        )
+        .join(
+          '',
+        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
@@ -1007,9 +1036,13 @@
       name = p.people?.find?.((x) => x.id === selectedPerson)?.name,
       placement =
         p.type === 'scene'
-          ? pencil
-            ? `Rule out squares for <strong>${esc(name)}</strong>.`
-            : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
+          ? sceneMarkMode === 'board-cross'
+            ? 'Tap an empty square to add or remove a board X.'
+            : sceneMarkMode === 'candidate'
+              ? `Mark possible squares for <strong>${esc(name)}</strong>.`
+              : pencil
+                ? `Rule out squares for <strong>${esc(name)}</strong>.`
+                : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
           : p.type === 'trail'
             ? brush === -1
               ? 'Tap an editable number to erase it.'
@@ -1338,6 +1371,10 @@
     }
     if (t === 'scene') {
       const occupant = p.people.find((w) => s.placements[w.id] === index);
+      if (sceneMarkMode === 'candidate' || sceneMarkMode === 'board-cross') {
+        act({ type: sceneMarkMode, who: selectedPerson, cell: index });
+        return;
+      }
       if (pencil) {
         act({ type: 'exclude', who: selectedPerson, cell: index });
         return;
@@ -2192,6 +2229,12 @@
         break;
       case 'pencil':
         pencil = !pencil;
+        if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
+        render();
+        break;
+      case 'scene-mode':
+        sceneMarkMode = v;
+        pencil = v === 'exclude';
         render();
         break;
       case 'erase':
@@ -2914,6 +2957,7 @@
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
+        sceneMarkMode = 'place';
         pencil = false;
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;

@@ -50,9 +50,29 @@ with sync_playwright() as pw:
         page.locator('[data-action="erase"]').click()
         expect(page.locator('.number-key[data-value="1"]')).not_to_have_class('number-key digit-placed')
         page.screenshot(path=str(OUT / f'sudoku-{width}.png'), full_page=True)
+        scene = next(p for p in json.loads((ROOT / 'content/catalog.json').read_text())['puzzles'] if p['type'] == 'scene')
+        page.goto(URL + '/#/play/' + scene['id'])
+        page.locator('dialog[open] [data-action="close-dialog"]').click()
+        free = next(i for i in range(scene['size'] ** 2) if all(o['cell'] != i for o in scene['objects']))
+        cell = page.locator(f'[data-action="cell"][data-cell="{free}"]')
+        page.locator('[data-action="scene-mode"][data-value="candidate"]').click()
+        cell.click()
+        first_person = scene['people'][0]
+        expect(cell).to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
+        page.locator('[data-action="scene-mode"][data-value="board-cross"]').click()
+        cell.click()
+        assert page.evaluate('Object.keys(AlibiDiagnostics.getCurrent().state.placements).length') == 0
+        page.locator('.main-tools [data-action="undo"]').click()
+        expect(cell).not_to_have_attribute('aria-label', __import__('re').compile('board cross'))
+        page.locator('.main-tools [data-action="redo"]').click()
+        expect(page.locator("#save-state")).to_contain_text("Saved on this device")
+        page.reload()
+        expect(cell).to_have_attribute('aria-label', __import__('re').compile('board cross.*candidates: ' + first_person['name']))
+        page.screenshot(path=str(OUT / f'scene-{width}.png'), full_page=True)
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'horizontal overflow'
         assert not errors, errors
         context.close()
     browser.close()
 print('Player feedback checks pass at phone and desktop widths.')
+
 

@@ -227,6 +227,28 @@
   }
   function applyScene(p, s, a) {
     const t = clone(s);
+    if (['candidate', 'board-cross'].includes(a.type)) {
+      if (
+        !Number.isInteger(a.cell) ||
+        a.cell < 0 ||
+        a.cell >= p.size ** 2 ||
+        p.objects.some((o) => o.cell === a.cell)
+      )
+        return s;
+      if (a.type === 'board-cross') {
+        const cells = t.crosses || [];
+        t.crosses = cells.includes(a.cell) ? cells.filter((c) => c !== a.cell) : [...cells, a.cell];
+      } else {
+        if (!p.people.some((person) => person.id === a.who)) return s;
+        t.candidates ??= {};
+        const people = t.candidates[a.cell] || [];
+        t.candidates[a.cell] = people.includes(a.who)
+          ? people.filter((id) => id !== a.who)
+          : [...people, a.who];
+        if (!t.candidates[a.cell].length) delete t.candidates[a.cell];
+      }
+      return t;
+    }
     if (a.type === 'place') {
       if (
         !p.people.some((x) => x.id === a.who) ||
@@ -741,6 +763,31 @@
       for (const [id, values] of Object.entries(s.notes))
         if (!p.people.some((x) => x.id === id) || !ints(values, 0, N - 1))
           throw new Error('Invalid scene notes.');
+      if (
+        s.crosses !== undefined &&
+        (!ints(s.crosses, 0, N - 1) ||
+          new Set(s.crosses).size !== s.crosses.length ||
+          s.crosses.some((cell) => p.objects.some((o) => o.cell === cell)))
+      )
+        throw new Error('Invalid scene crosses.');
+      if (s.candidates !== undefined) {
+        if (
+          !s.candidates ||
+          typeof s.candidates !== 'object' ||
+          Array.isArray(s.candidates) ||
+          !Object.entries(s.candidates).every(
+            ([cell, people]) =>
+              /^(0|[1-9]\d*)$/.test(cell) &&
+              Number(cell) < N &&
+              !p.objects.some((o) => o.cell === Number(cell)) &&
+              Array.isArray(people) &&
+              people.length <= p.people.length &&
+              new Set(people).size === people.length &&
+              people.every((id) => p.people.some((person) => person.id === id)),
+          )
+        )
+          throw new Error('Invalid scene candidates.');
+      }
     } else {
       const lo = ['binary', 'nonogram'].includes(p.type) ? -1 : 0,
         hi = ['binary', 'nonogram'].includes(p.type) ? 1 : n;
