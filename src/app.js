@@ -501,7 +501,7 @@
       library.difficulty === 'all' &&
       !library.browseAll
     )
-      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
+      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary', 'id="library-browse-all" data-focus-fallback="main"')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
@@ -553,11 +553,11 @@
           ]
             .map(
               ([g, l, ic]) =>
-                `<button class="chip ${library.group === g ? 'active' : ''}" data-action="group-filter" data-value="${g}" aria-pressed="${library.group === g}">${icon(ic)}${l}</button>`,
+                `<button id="library-filter-${g}" class="chip ${library.group === g ? 'active' : ''}" data-action="group-filter" data-value="${g}" aria-pressed="${library.group === g}">${icon(ic)}${l}</button>`,
             )
             .join('')}</div>`
         : ''
-    }<div class="filter-meta"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
+    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
@@ -1207,6 +1207,7 @@
     rendering = true;
     const active = document.activeElement,
       focusID = active?.id,
+      focusFallbackID = active?.dataset.focusFallback,
       selection = ['INPUT', 'TEXTAREA'].includes(active?.tagName)
         ? [active.selectionStart, active.selectionEnd]
         : null,
@@ -1220,6 +1221,13 @@
         el.open,
       ]),
       sy = window.scrollY;
+    let usedFocusFallback = false;
+    const isFocusTarget = (el) =>
+      el &&
+      !el.hidden &&
+      !el.disabled &&
+      el.getAttribute('aria-hidden') !== 'true' &&
+      el.getClientRects().length;
     try {
       const views = {
         home,
@@ -1262,15 +1270,22 @@
       }
       if (focusID) {
         const el = document.getElementById(focusID);
-        if (el) {
+        if (isFocusTarget(el)) {
           el.focus({ preventScroll: true });
           if (selection && typeof el.setSelectionRange === 'function' && selection[0] !== null)
             try {
               el.setSelectionRange(...selection);
             } catch {}
+        } else {
+          const fallback = document.getElementById(focusFallbackID) || $('#main');
+          if (isFocusTarget(fallback)) {
+            fallback.focus();
+            usedFocusFallback = true;
+          }
         }
       }
-      if (window.scrollY !== sy) window.scrollTo({ top: sy, behavior: 'instant' });
+      if (!usedFocusFallback && window.scrollY !== sy)
+        window.scrollTo({ top: sy, behavior: 'instant' });
     } finally {
       rendering = false;
     }
@@ -2280,10 +2295,13 @@
         library = { search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 };
         render();
         break;
-      case 'show-more':
+      case 'show-more': {
+        const firstNewIndex = library.limit;
         library.limit += 24;
         render();
+        document.querySelectorAll('.puzzle-card [data-action="open"]')[firstNewIndex]?.focus();
         break;
+      }
       case 'person':
         selectedPerson = id;
         render();

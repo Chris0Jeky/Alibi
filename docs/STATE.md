@@ -2,10 +2,20 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Small-screen and keyboard QA patch in progress
+
+The 0.9.1 candidate addresses reproduced 320px large-text player overflow, tiny Desk assistant
+controls and library-action focus loss. The expanded layout matrix includes full-size Sudoku,
+scenes and aquariums, actual assistant controls and 44px targets. Player history includes the
+patch. Current hosting remains the verified 0.9.0 release below until a new receipt is recorded.
+See [RELEASE-0.9.1.md](RELEASE-0.9.1.md). The castle task reserves 0.10.0 and owns that expansion.
+
 Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
 and casebooks, including later editorial corrections and extra books absent from its seeds.
 A disposable regression deliberately changes a chapter brief and adds an anthology, then proves
 both survive generation. The runtime catalogue is unchanged. Hosted 0.9 release details follow.
+
+Future editorial order and catalogue-header preservation are tracked separately in #69.
 
 ## Discovery and history 0.9.0 live; iterative QA continues
 
