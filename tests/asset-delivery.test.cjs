@@ -17,7 +17,7 @@ const entry = {
 const response = (body = bytes, status = 200, type = 'image/webp') =>
   new Response(body, { status, headers: { 'Content-Type': type } });
 function setup(fetcher = async () => response(), opts = {}) {
-  const data = new Map(),
+  const data = opts.sharedData || new Map(),
     calls = [],
     stored = new Map();
   const cache = {
@@ -40,7 +40,7 @@ function setup(fetcher = async () => response(), opts = {}) {
     clearTimeout,
     location: { href: 'https://app.example/' },
     navigator: { onLine: true, connection: { addEventListener() {} } },
-    ALIBI_DELIVERY: { art: entry },
+    ALIBI_DELIVERY: { art: opts.entry || entry },
     localStorage: {
       getItem: (key) => stored.get(key),
       setItem: (key, value) => stored.set(key, value),
@@ -128,10 +128,32 @@ test('hung network and route cancellation have bounded completion', async () => 
   controller.abort();
   assert.equal(await request, null);
 });
-test('optional cache is capped at eight entries without touching other stores', async () => {
-  const x = setup();
-  for (let i = 0; i < 12; i++) x.data.set('https://app.example/assets/old-' + i, response());
-  assert.ok(await x.api.resolve('art'));
-  await new Promise((r) => setTimeout(r, 20));
-  assert.equal(x.data.size, 8);
+test('independent tabs racing writes stay within eight slots and never return another image', async () => {
+  const sharedData = new Map();
+  const tabs = Array.from({ length: 32 }, (_, i) => {
+    const body = Buffer.from('different image ' + i);
+    const image = {
+      ...entry,
+      bytes: body.length,
+      sha256: crypto.createHash('sha256').update(body).digest('hex'),
+    };
+    return { body, client: setup(async () => response(body), { sharedData, entry: image }) };
+  });
+  const results = await Promise.all(tabs.map((t) => t.client.api.resolve('art')));
+  for (let i = 0; i < tabs.length; i++)
+    assert.equal(await results[i].text(), tabs[i].body.toString());
+  await new Promise((r) => setTimeout(r, 30));
+  assert.ok(sharedData.size > 1 && sharedData.size <= 8);
+  let collisions = 0;
+  for (const { body, client } of tabs) {
+    client.context.navigator.onLine = false;
+    const cached = await client.api.resolve('art');
+    if (cached) assert.equal(await cached.text(), body.toString());
+    else collisions++;
+    assert.equal(client.calls.length, 1);
+  }
+  assert.ok(
+    collisions >= 24,
+    'overwritten slots fall back locally without returning the wrong picture',
+  );
 });

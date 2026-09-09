@@ -1,0 +1,72 @@
+"""Actual room controls, offline assets, opt-in sound, films and theme regression checks."""
+import json, os
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/'test-results/theatre'; OUT.mkdir(parents=True,exist_ok=True)
+URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').rstrip('/')+'/'
+checks=[]
+def check(value,label):
+ assert value,label
+ checks.append(label); print('PASS',label,flush=True)
+with sync_playwright() as pw:
+ browser=pw.chromium.launch(headless=True)
+ for width in (390,1280):
+  c=browser.new_context(viewport={'width':width,'height':900},reduced_motion='no-preference')
+  # Provider failure is deterministic; approved same-origin bytes must work equally well.
+  c.route('https://images.unsplash.com/**',lambda r:r.abort())
+  c.route('https://images.pexels.com/**',lambda r:r.abort())
+  page=c.new_page(); errors=[]; media=[]
+  page.on('pageerror',lambda e:errors.append(str(e)))
+  page.on('request',lambda r:media.append(r.url) if '.mp4' in r.url or '.ogg' in r.url else None)
+  page.goto(URL); page.wait_for_function('()=>window.AlibiTheatre && navigator.serviceWorker.controller')
+  runtime=page.evaluate('ALIBI_CONFIG')
+  check(not media,'No sound or films download before a gesture '+str(width))
+  page.locator('.theatre-stage').scroll_into_view_if_needed()
+  page.wait_for_function('()=>document.querySelector(".theatre-stage img").dataset.assetQuality==="enhanced"')
+  check(page.locator('.theatre-stage [data-adaptive-credit]').is_visible(),'Photo source credit accompanies verified enhancement')
+  page.locator('[data-theatre-data]').click()
+  check(page.locator('.theatre-stage img').get_attribute('data-asset-quality')=='compact','Painted edition restores complete local illustration')
+  page.wait_for_function('()=>navigator.serviceWorker.controller')
+  c.set_offline(True)
+  for scene in page.evaluate('AlibiTheatre.scenes.map(s=>s.id)'):
+   page.locator('button[data-theatre-scene="'+scene+'"]').click()
+   page.wait_for_function('()=>{const i=document.querySelector(".theatre-stage img");return i.complete && i.naturalWidth>0}')
+   check(page.locator('.theatre-stage').get_attribute('data-theatre-stage')==scene,'Offline room '+scene+' '+str(width))
+   check(page.locator('button[data-theatre-scene="'+scene+'"]').get_attribute('aria-pressed')=='true','Room choice has semantic pressed state')
+  page.locator('button[data-theatre-scene="glasshouse"]').focus(); page.keyboard.press('Enter')
+  check(page.evaluate('AlibiTheatre.diagnostics().scene')=='glasshouse','Room choice works with keyboard')
+  page.locator('[data-theatre-moment]').click()
+  check('Something stirs' in page.locator('.theatre-stage-copy p').inner_text(),'Notice action reveals scene-specific observation')
+  page.locator('[data-theatre-sound]').click()
+  page.wait_for_function('()=>AlibiTheatre.diagnostics().localAudio')
+  check(not page.evaluate('AlibiTheatre.diagnostics().streamingAudio'),'Real offline AudioContext creates local soundscape without media')
+  page.locator('[data-theatre-motion]').click()
+  check(not page.evaluate('AlibiTheatre.diagnostics().localAudio'),'Still-room preference disposes sound and animation')
+  check(page.locator('[data-theatre-sound]').get_attribute('aria-pressed')=='false','Sound control accurately reflects stopped playback')
+  check(page.locator('.theatre-weather i').first.evaluate('(e)=>getComputedStyle(e).animationName')=='none','Still room stops decorative animation')
+  page.reload(); page.wait_for_function('()=>window.AlibiTheatre')
+  check(page.evaluate('AlibiTheatre.diagnostics().choice')=='glasshouse','Room choice survives offline reload')
+  check(page.evaluate('AlibiTheatre.diagnostics().still'),'Still preference survives reload')
+  page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+  page.wait_for_function('()=>/connection|unavailable/.test(document.querySelector(".theatre-dialog [role=status]").textContent)')
+  check(True,'Offline film explains availability and retains local activity')
+  check(page.locator('.theatre-dialog video').evaluate('(v)=>v.paused'),'Offline film does not play or trap navigation')
+  page.keyboard.press('Escape'); check(page.locator('.theatre-dialog').count()==0,'Escape closes and disposes film')
+  page.locator('.theatre-room').screenshot(path=str(OUT/f'painted-{width}.png'))
+  page.goto(URL+'#/settings'); page.locator('#theme-select').select_option('night')
+  page.goto(URL+'#/home'); page.wait_for_selector('.club-welcome h1')
+  contrast=page.locator('.club-welcome h1').evaluate('''e=>{function luminance(rgb){return rgb.match(/[\\d.]+/g).slice(0,3).map(v=>{v=Number(v)/255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0)};const a=luminance(getComputedStyle(e).color), b=luminance(getComputedStyle(document.body).backgroundColor);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)}''')
+  check(contrast>=4.5,'Night heading contrast exceeds 4.5:1 '+str(width))
+  check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),'Room controls fit viewport '+str(width))
+  page.screenshot(path=str(OUT/f'night-{width}.png'),full_page=True)
+  c.set_offline(False)
+  page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+  page.wait_for_function('()=>document.querySelector(".theatre-dialog video").currentTime>0')
+  check(True,'Selected short film actually plays '+str(width))
+  page.locator('[data-close-film]').click(); check(page.locator('video').count()==0,'Close releases video resources')
+  check(not errors,'No runtime errors '+str(width)+str(errors))
+  c.close()
+ browser.close()
+(OUT/'results.json').write_text(json.dumps({'passed':True,'runtime':runtime,'checks':checks},indent=2))
+print('PASS',len(checks),'theatre browser checks')

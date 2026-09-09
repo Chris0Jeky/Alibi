@@ -1,4 +1,4 @@
-/* Reproducible zero-dependency build and ZIP creation, using Node's standard library. */
+/* Reproducible static build. Tooling dependencies never become runtime network dependencies. */
 'use strict';
 const fs = require('node:fs'),
   path = require('node:path'),
@@ -93,18 +93,24 @@ function build() {
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),
-    css =
+    css = require('esbuild').transformSync(
       read(path.join(SRC, 'app.css')) +
-      '\n' +
-      read(path.join(SRC, 'cabinet.css')) +
-      '\n' +
-      read(path.join(SRC, 'expedition.css')) +
-      '\n' +
-      read(path.join(SRC, 'club.css')) +
-      '\n' +
-      read(path.join(SRC, 'atmosphere.css')) +
-      '\n' +
-      read(path.join(SRC, 'curation.css')),
+        '\n' +
+        read(path.join(SRC, 'cabinet.css')) +
+        '\n' +
+        read(path.join(SRC, 'expedition.css')) +
+        '\n' +
+        read(path.join(SRC, 'club.css')) +
+        '\n' +
+        read(path.join(SRC, 'atmosphere.css')) +
+        '\n' +
+        read(path.join(SRC, 'curation.css')) +
+        '\n' +
+        read(path.join(SRC, 'after-hours.css')) +
+        '\n' +
+        read(path.join(SRC, 'theatre.css')),
+      { loader: 'css', minify: true, target: ['chrome100', 'safari15.4'] },
+    ).code,
     template = read(path.join(SRC, 'index.html'));
   const media = {},
     inlineMedia = {};
@@ -123,9 +129,15 @@ function build() {
   inlineMedia['club-reading-room'] = 'data:image/webp;base64,' + readingRoom.toString('base64');
   write(path.join(DIST, media['club-reading-room']), readingRoom);
   const experience = require('./build-experience.cjs')(ROOT, DIST);
+  const theatreSource = JSON.parse(read(path.join(ROOT, 'content/theatre.json')));
+  const theatre = {
+    scenes: theatreSource.scenes,
+    audio: experience.manifest.audio.filter((a) => a.loop),
+    films: experience.manifest.films.filter((a) => theatreSource.films.includes(a.id)),
+  };
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const curation = require('./build-curation.cjs')(ROOT, DIST);
-  const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media);
+  const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media, media);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
@@ -147,6 +159,7 @@ function build() {
     read(path.join(SRC, 'presentation.js')),
     read(path.join(SRC, 'asset-library.js')),
     read(path.join(SRC, 'asset-delivery.js')),
+    read(path.join(SRC, 'theatre.js')),
     read(path.join(SRC, 'curation.js')),
     read(path.join(SRC, 'network-hints.js')),
     read(path.join(SRC, 'insights.js')),
@@ -175,11 +188,12 @@ function build() {
         JSON.stringify(media) +
         JSON.stringify(quiet.config) +
         JSON.stringify(curation.media) +
-        JSON.stringify(delivery.entries),
+        JSON.stringify(delivery.entries) +
+        JSON.stringify(theatre),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      `globalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
       require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -268,7 +282,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
+  const standalone = `globalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template

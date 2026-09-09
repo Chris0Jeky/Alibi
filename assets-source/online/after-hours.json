@@ -17,11 +17,11 @@
       "role": "home-hero-enhancement",
       "story": "bellweather",
       "remote": {
-        "url": "https://images.unsplash.com/photo-1688696772797-5d8b0c147983?auto=format&fit=crop&w=1800&q=82",
-        "sourcePage": "https://unsplash.com/photos/a-lighthouse-on-top-of-a-cliff-in-the-ocean-uI0Ac9VxQ4E",
-        "provider": "Unsplash",
+        "url": "https://images.pexels.com/photos/30210002/pexels-photo-30210002.jpeg?cs=tinysrgb&w=1400",
+        "sourcePage": "https://www.pexels.com/photo/scenic-white-lighthouse-on-coastal-cliff-30210002/",
+        "provider": "Pexels",
         "photographer": "Erik Mclean",
-        "license": "Unsplash License"
+        "license": "Pexels License"
       },
       "fallback": "src/artwork/bellweather.webp",
       "reason": "Authentic rugged lighthouse photography for the prominent online edition; the existing Bellweather painting remains a complete atmospheric offline cover."
