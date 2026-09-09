@@ -20,6 +20,7 @@ function setup(fetcher = async () => response(), opts = {}) {
   const data = opts.sharedData || new Map(),
     calls = [],
     stored = new Map();
+  const testTimer = opts.shortTimeouts ? (fn, ms) => setTimeout(fn, Math.min(ms, 80)) : setTimeout;
   const cache = {
     match: async (key) => data.get(key)?.clone(),
     keys: async () => [...data.keys()].map((url) => ({ url })),
@@ -35,8 +36,18 @@ function setup(fetcher = async () => response(), opts = {}) {
     URL,
     AbortController,
     Uint8Array,
-    crypto: crypto.webcrypto,
-    setTimeout: (fn, ms) => setTimeout(fn, Math.min(ms, 80)),
+    crypto:
+      opts.hashDelayMs == null
+        ? crypto.webcrypto
+        : {
+            subtle: {
+              digest: async (...args) => {
+                await new Promise((resolve) => setTimeout(resolve, opts.hashDelayMs));
+                return crypto.webcrypto.subtle.digest(...args);
+              },
+            },
+          },
+    setTimeout: testTimer,
     clearTimeout,
     location: { href: 'https://app.example/' },
     navigator: { onLine: true, connection: { addEventListener() {} } },
@@ -75,6 +86,12 @@ test('CDN bytes are verified, cached under a local fingerprint, and reused offli
   assert.equal(x.calls[0].options.credentials, 'omit');
   assert.equal(x.calls[0].options.mode, 'cors');
   assert.equal(x.calls[0].options.redirect, 'error');
+});
+test('CDN bytes survive hash work longer than the fixture cancellation deadline', async () => {
+  const x = setup(undefined, { hashDelayMs: 120 });
+  assert.equal(await (await x.api.resolve('art')).text(), bytes.toString());
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(x.data.size, 1);
 });
 test('CDN errors fall through to same-origin bytes', async () => {
   const x = setup(async (url) => {
@@ -126,6 +143,7 @@ test('hung network and route cancellation have bounded completion', async () => 
       new Promise((_, reject) =>
         signal.addEventListener('abort', () => reject(Error('Aborted')), { once: true }),
       ),
+    { shortTimeouts: true },
   );
   assert.equal(await x.api.resolve('art'), null);
   const controller = new AbortController();
