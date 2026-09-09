@@ -6,7 +6,7 @@ from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "test-results" / "library-focus"
+OUT = Path(os.environ.get("ALIBI_RESULTS", str(ROOT / "test-results" / "library-focus")))
 URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []
@@ -91,27 +91,26 @@ def main():
                     f"Empty-state reset falls back to main at {width}px",
                 )
 
-                # Repeated keyboard activation preserves the pagination anchor until it disappears.
+                # Each page moves to its first new puzzle, including the final page.
                 page.locator('[data-action="browse-all"]').click()
                 expected_cards = 24
                 while page.locator("#library-show-more").count():
+                    first_new_index = expected_cards
                     page.locator("#library-show-more").focus()
                     page.keyboard.press("Enter")
                     expected_cards = min(expected_cards + 24, 328)
                     expect(page.locator(".puzzle-card")).to_have_count(expected_cards)
-                    if expected_cards < 328:
-                        check(
-                            active_id(page) == "library-show-more",
-                            f"Show more retains focus at {width}px ({expected_cards})",
-                        )
+                    first_new = page.locator('.puzzle-card').nth(first_new_index).locator('[data-action="open"]')
+                    expect(first_new).to_be_focused()
+                    expect(first_new).to_be_in_viewport()
+                    check(True, f"Show more focuses the first newly visible puzzle at {width}px ({expected_cards})")
                 check(
-                    active_id(page) == "library-filter-status"
-                    and page.locator("#library-filter-status").inner_text().startswith("328 puzzles"),
-                    f"Removed final pagination control focuses updated status at {width}px",
+                    page.locator("#library-show-more").count() == 0,
+                    f"Final pagination control is removed at {width}px",
                 )
                 screenshot = OUT / f"library-focus-{width}.png"
-                page.screenshot(path=str(screenshot), full_page=True)
-                screenshots.append(str(screenshot.relative_to(ROOT)))
+                page.screenshot(path=str(screenshot))
+                screenshots.append(str(screenshot.resolve()))
 
                 # Existing family route and All puzzles escape remain intact after focus changes.
                 page.reload()
@@ -140,7 +139,8 @@ def main():
         "url": URL,
         "widths": [390, 1440],
         "screenshots": screenshots,
-        "scope": "real Chromium controls on a local static origin; no hosted or physical-device claim",
+        "origin": URL,
+        "scope": "real Chromium controls at the recorded origin; simulated viewports, not a physical device",
     }
     (OUT / "receipt.json").write_text(json.dumps(receipt, indent=2), encoding="utf-8")
     print(json.dumps(receipt, indent=2), flush=True)

@@ -2295,10 +2295,13 @@
         library = { search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 };
         render();
         break;
-      case 'show-more':
+      case 'show-more': {
+        const firstNewIndex = library.limit;
         library.limit += 24;
         render();
+        document.querySelectorAll('.puzzle-card [data-action="open"]')[firstNewIndex]?.focus();
         break;
+      }
       case 'person':
         selectedPerson = id;
         render();

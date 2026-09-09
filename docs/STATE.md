@@ -2,6 +2,14 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## Small-screen and keyboard QA patch in progress
+
+The 0.9.1 candidate addresses reproduced 320px large-text player overflow, tiny Desk assistant
+controls and library-action focus loss. The expanded layout matrix includes full-size Sudoku,
+scenes and aquariums, actual assistant controls and 44px targets. Player history includes the
+patch. Current hosting remains the verified 0.9.0 release below until a new receipt is recorded.
+See [RELEASE-0.9.1.md](RELEASE-0.9.1.md). The castle task reserves 0.10.0 and owns that expansion.
+
 ## Discovery and history 0.9.0 live; iterative QA continues
 
 PR #65 merged at `92565a4a064c02dae00dd3bd80678ecaaaf91cd4`. Build `f0b367c654a4` is published on

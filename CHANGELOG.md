@@ -6,6 +6,16 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.9.1 · Keep your place
+
+2026-09-09
+
+- Puzzle panels fit narrow screens with large text enabled, keeping the board and its controls inside the page.
+- Desk assistant labels are readable on mobile and respond to larger text, with larger touch targets and room to wrap.
+- Keyboard focus stays with library filters. Loading more puzzles takes you to the first new puzzle, so you can continue exploring.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.9.1) · [Deployment receipt](docs/RELEASE-0.9.1.md)
+
 ## 0.9.0 · A clearer way to explore
 
 2026-09-09
