@@ -532,7 +532,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div class="filter-meta"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'All ' + m.title.toLowerCase() + ' are available.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
+    }<div class="filter-meta"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
@@ -563,6 +563,17 @@
     if (p.type === 'bridges')
       return `<section class="chapter-atmosphere cartography"><img src="${esc(media.cartographer)}" alt="" width="1536" height="1024"><div><span class="eyebrow">THE CARTOGRAPHER’S DESK</span><p>${esc(p.story || 'Every crossing brings the islands a little closer.')}</p></div></section>`;
     return '';
+  }
+  function storyPage() {
+    const book = books.find((b) => b.id === route.book),
+      chapter = book?.chapters.find((c) => c.id === route.id.split('@')[0]);
+    if (!chapter)
+      return `<div class="empty"><h1>Choose a casebook.</h1>${B('Casebooks', 'navigate', 'book', '', 'data-page="casebooks"')}</div>`;
+    const puzzle = find(chapter.id),
+      done = solved(rec(puzzle)),
+      finished = book.chapters.every((c) => solved(rec(find(c.id)))),
+      index = book.chapters.indexOf(chapter);
+    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? 'EPILOGUE' : `CHAPTER ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? 'The file is in order.' : chapter.name)}</h1>${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || 'Another record is complete. The case file keeps your discovery.' : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B('Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
   }
   function chapterReveal(p) {
     const b = books.find((book) => book.id === route.book),
@@ -1173,6 +1184,7 @@
         home,
         library: libraryPage,
         casebooks: casebooksPage,
+        story: storyPage,
         journal: journalPage,
         settings: settingsPage,
         workshop: workshopPage,
@@ -1285,7 +1297,11 @@
         mystery ? 'Case closed.' : 'That satisfying “aha”.',
         `<div class="success-icon">${icon('check')}</div><p>${esc(explanation)}</p>${chapterReveal(p)}<div class="success-facts"><div><strong>${current.moves}</strong><small>Moves made</small></div><div><strong>${current.hints}</strong><small>Reveals used</small></div><div><strong>${solved(current) ? '✓' : ''}</strong><small>${store.mode === 'session' ? 'In this session’s journal' : 'Saved in your journal'}</small></div></div>${route.book ? '<p>You have completed another chapter. Continue the casebook whenever you are ready.</p>' : ''}`,
         [
-          { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
+          {
+            label: route.book ? 'Read the next page' : 'Another puzzle',
+            action: 'next',
+            icon: 'arrow',
+          },
           { label: 'Review the record', action: 'review-record', secondary: true },
         ],
       );
@@ -1505,7 +1521,11 @@
       'The completed record.',
       `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
       [
-        { label: route.book ? 'Next chapter' : 'Another puzzle', action: 'next', icon: 'arrow' },
+        {
+          label: route.book ? 'Read the next page' : 'Another puzzle',
+          action: 'next',
+          icon: 'arrow',
+        },
         { label: 'Back to my board', action: 'close-dialog', secondary: true },
       ],
     );
@@ -1545,24 +1565,13 @@
   }
   function nextPuzzle() {
     closeDialog();
+    if (current && route.book) {
+      navigate('story', keyFor(current.puzzle), route.book);
+      return;
+    }
     if (!current) {
       navigate('library');
       return;
-    }
-    if (route.book) {
-      const book = books.find((b) => b.id === route.book);
-      if (book) {
-        const i = book.chapters.findIndex((c) => c.id === current.puzzle.id),
-          next =
-            book.chapters.slice(i + 1).find((c) => !solved(rec(find(c.id)))) ||
-            book.chapters.find((c) => !solved(rec(find(c.id))));
-        if (next) {
-          navigate('play', keyFor(find(next.id)), book.id);
-          return;
-        }
-        navigate('casebooks', book.id);
-        return;
-      }
     }
     const ps = all().filter((p) => p.type === current.puzzle.type),
       i = ps.findIndex((p) => p.id === current.puzzle.id),
@@ -2177,8 +2186,22 @@
         break;
       case 'open':
         closeDialog();
+        navigate(el.dataset.book ? 'story' : 'play', id, el.dataset.book || '');
+        break;
+      case 'story-play':
         navigate('play', id, el.dataset.book || '');
         break;
+      case 'story-next': {
+        const book = books.find((b) => b.id === route.book);
+        const index = book?.chapters.findIndex((c) => c.id === route.id.split('@')[0]);
+        const next =
+          book &&
+          (book.chapters.slice(index + 1).find((c) => !solved(rec(find(c.id)))) ||
+            book.chapters.find((c) => !solved(rec(find(c.id)))));
+        if (next) navigate('story', keyFor(find(next.id)), book.id);
+        else navigate('casebooks', book?.id || '');
+        break;
+      }
       case 'back-to-collection':
         if (route.book) navigate('casebooks', route.book);
         else navigate('library', current?.puzzle.type || '');
@@ -2931,6 +2954,7 @@
         'library',
         'play',
         'casebooks',
+        'story',
         'journal',
         'settings',
         'workshop',
