@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Optional online visual enhancements for After Hours. Every entry has a meaningful local fallback and may be skipped without changing gameplay, layout semantics or puzzle meaning.",
+  "policy": {
+    "baseline": "local-first",
+    "requiredForGameplay": false,
+    "allowHotlinkAtRuntime": true,
+    "referrerPolicy": "no-referrer",
+    "respectSaveData": true,
+    "skipOnSlowConnections": true,
+    "creditWhenDisplayed": true,
+    "notes": "These are presentation upgrades only. Never use remote media for clues, answers, instructions, controls or the only representation of a state."
+  },
+  "assets": [
+    {
+      "id": "hero-bellweather-photo",
+      "role": "home-hero-enhancement",
+      "story": "bellweather",
+      "remote": {
+        "url": "https://images.unsplash.com/photo-1688696772797-5d8b0c147983?auto=format&fit=crop&w=1800&q=82",
+        "sourcePage": "https://unsplash.com/photos/a-lighthouse-on-top-of-a-cliff-in-the-ocean-uI0Ac9VxQ4E",
+        "provider": "Unsplash",
+        "photographer": "Erik Mclean",
+        "license": "Unsplash License"
+      },
+      "fallback": "src/artwork/bellweather.webp",
+      "reason": "Authentic rugged lighthouse photography for the prominent online edition; the existing Bellweather painting remains a complete atmospheric offline cover."
+    },
+    {
+      "id": "hero-glasshouse-photo",
+      "role": "home-hero-enhancement",
+      "story": "glasshouse",
+      "remote": {
+        "url": "https://images.unsplash.com/photo-1697779027416-aa4e0ac8d8d3?auto=format&fit=crop&w=1800&q=82",
+        "sourcePage": "https://unsplash.com/photos/a-large-glass-building-with-plants-growing-inside-of-it-Kfnys94_hhw",
+        "provider": "Unsplash",
+        "photographer": "Josh Hild",
+        "license": "Unsplash License"
+      },
+      "fallback": "src/artwork/glasshouse.webp",
+      "reason": "A genuinely lit conservatory at night feels authored and tactile while the local gouache still carries the same story offline."
+    },
+    {
+      "id": "hero-night-train-photo",
+      "role": "home-hero-enhancement",
+      "story": "night-train",
+      "remote": {
+        "url": "https://images.unsplash.com/photo-1698497751337-7e3029d1147c?auto=format&fit=crop&w=1800&q=82",
+        "sourcePage": "https://unsplash.com/photos/a-train-traveling-down-train-tracks-next-to-a-forest-T6vHYXQ-KIs",
+        "provider": "Unsplash",
+        "photographer": "Red Shuheart",
+        "license": "Unsplash License"
+      },
+      "fallback": "src/artwork/night-train.webp",
+      "reason": "Real blue-hour rail photography gives the online edition a believable sense of place; the existing local cover remains the offline treatment."
+    },
+    {
+      "id": "hero-cartographer-photo",
+      "role": "home-hero-enhancement",
+      "story": "cartographer",
+      "remote": {
+        "url": "https://images.unsplash.com/photo-1612257998095-1feb6bd2bcf9?auto=format&fit=crop&w=1800&q=82",
+        "sourcePage": "https://unsplash.com/photos/brown-wooden-handle-on-white-and-brown-textile-DYWHwLZyJ64",
+        "provider": "Unsplash",
+        "photographer": "Suhash Villuri",
+        "license": "Unsplash License"
+      },
+      "fallback": "src/artwork/cartographer.webp",
+      "reason": "A real map-and-compass still life suits the games-room invitation without relying on synthetic hero art."
+    },
+    {
+      "id": "club-reading-room-photo",
+      "role": "optional-room-enhancement",
+      "remote": {
+        "url": "https://images.pexels.com/photos/13278838/pexels-photo-13278838.jpeg?auto=compress&cs=tinysrgb&w=1600",
+        "sourcePage": "https://www.pexels.com/photo/lamp-shade-between-black-armchairs-13278838",
+        "provider": "Pexels",
+        "photographer": "Ayse Ipek",
+        "license": "Pexels License"
+      },
+      "fallback": "assets-source/library/editorial/reading-room.webp",
+      "reason": "Warm armchairs, books and lamp make an effective real-photography enhancement for a reading-room module; the existing deterministic room vignette remains functional and attractive offline."
+    }
+  ]
+}

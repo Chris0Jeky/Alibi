@@ -35,7 +35,24 @@ for the source-license decision and HUMAN_TODO.md for publisher/name decisions.
 
 After Hours also supplies 22 editable SVG motifs in `src/illustrations/`. Ten motifs are new;
 the others reuse existing family previews. The player generates these vectors in `club.js`.
-The harbour uses local Canvas drawing instructions; no image or video stream is fetched.
+The harbour uses local Canvas drawing instructions; no image or video stream is required.
+
+## Optional online enhancement catalogue
+
+The cozy After Hours redesign introduces a **catalogue only**, not yet a merged runtime dependency,
+at `assets-source/online/after-hours.json`. It records vetted online presentation candidates and a
+meaningful local fallback for every candidate. The first set covers the four rotating home editions
+and a reading-room module using Unsplash/Pexels photography.
+
+The contract is deliberately local-first: the app renders the existing local art immediately, then a
+future generic loader may replace it only after an allowed remote image has loaded and decoded.
+Remote assets must never contain the only clue, answer, instruction, state, control or semantic
+meaning. Failure, offline use, Save-Data, slow connections or route disposal leave the local design
+intact. Credits remain attached to any remote asset that is actually displayed.
+
+See [ONLINE-ASSETS.md](ONLINE-ASSETS.md) for CSP, privacy, performance, caching and acceptance rules.
+This catalogue is designed to integrate with the separate asset-availability/runtime work without
+duplicating its loader.
 
 ## Local production library
 

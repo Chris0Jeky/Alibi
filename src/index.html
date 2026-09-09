@@ -12,6 +12,592 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Alibi · After hours at the puzzle club</title>
+    <style id="after-hours-redesign">
+      /* Cozy mystery visual overrides. Puzzle logic and save contracts remain untouched. */
+      :root {
+        --club-midnight: #102d35;
+        --club-midnight-2: #173e45;
+        --club-brass: #c49a55;
+        --club-brass-light: #e5c482;
+        --club-parchment: #f4ecdc;
+        --club-parchment-deep: #e8dcc6;
+        --club-walnut: #4d382b;
+        --club-moss: #607968;
+        --club-shadow: 0 24px 70px rgba(20, 42, 42, 0.14);
+        --club-soft-shadow: 0 12px 34px rgba(27, 43, 38, 0.11);
+      }
+      body.club-home,
+      body.club-experiment {
+        background:
+          radial-gradient(circle at 12% 0%, rgba(196, 154, 85, 0.11), transparent 33rem),
+          radial-gradient(circle at 91% 16%, rgba(39, 86, 87, 0.08), transparent 29rem),
+          linear-gradient(180deg, #f4f0e7 0, #eee8dc 48%, #e9e3d8 100%);
+      }
+      .club-home .main,
+      .club-experiment .main {
+        padding-top: 38px;
+        padding-bottom: 72px;
+      }
+      .club-welcome {
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .club-welcome::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -14px;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(75, 83, 68, 0.24),
+          rgba(196, 154, 85, 0.38),
+          transparent 82%
+        );
+      }
+      .club-welcome h1 {
+        color: #203b35;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+      .club-weather {
+        background: rgba(255, 252, 244, 0.62);
+        border: 1px solid rgba(113, 112, 91, 0.16);
+        border-radius: 999px;
+        padding: 9px 13px 8px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(8px);
+      }
+      .club-weather small {
+        margin-top: 3px;
+      }
+      .weather-dot {
+        box-shadow:
+          0 0 0 4px rgba(196, 154, 85, 0.12),
+          0 0 18px rgba(196, 154, 85, 0.35);
+        animation: club-lamp-breathe 4.8s ease-in-out infinite;
+      }
+      .club-opening {
+        gap: 24px;
+        align-items: stretch;
+      }
+      .club-hero {
+        min-height: 470px;
+        border-radius: 22px;
+        border: 1px solid rgba(236, 219, 178, 0.18);
+        box-shadow:
+          0 30px 78px rgba(14, 45, 50, 0.24),
+          0 2px 0 rgba(255, 255, 255, 0.28) inset;
+        transform: translateZ(0);
+      }
+      .club-hero::before {
+        content: '';
+        position: absolute;
+        inset: 12px;
+        border: 1px solid rgba(240, 219, 174, 0.14);
+        border-radius: 15px;
+        pointer-events: none;
+        z-index: 1;
+      }
+      .club-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.32;
+        background:
+          radial-gradient(circle at 73% 21%, rgba(237, 190, 108, 0.34), transparent 16rem),
+          repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 5px);
+        mix-blend-mode: screen;
+      }
+      .club-hero > img {
+        filter: saturate(0.86) contrast(1.03) brightness(0.88);
+        transform: scale(1.002);
+        transition:
+          transform 0.7s cubic-bezier(0.2, 0.65, 0.25, 1),
+          filter 0.45s ease;
+      }
+      .club-hero:hover > img {
+        transform: scale(1.025);
+        filter: saturate(0.93) contrast(1.04) brightness(0.9);
+      }
+      .hero-vignette {
+        background:
+          linear-gradient(
+            90deg,
+            rgba(9, 37, 43, 0.96) 0%,
+            rgba(9, 37, 43, 0.79) 39%,
+            rgba(9, 37, 43, 0.25) 72%,
+            rgba(9, 37, 43, 0.16)
+          ),
+          linear-gradient(0deg, rgba(7, 31, 36, 0.88), transparent 50%),
+          radial-gradient(circle at 72% 24%, rgba(203, 153, 76, 0.12), transparent 38%);
+      }
+      .hero-topline {
+        padding: 29px 34px 0;
+      }
+      .hero-seal {
+        width: 50px;
+        height: 50px;
+        padding-top: 9px;
+        border-color: rgba(229, 196, 130, 0.4);
+        color: #eadbb8;
+        background: rgba(17, 47, 51, 0.32);
+        box-shadow:
+          0 0 0 4px rgba(12, 39, 43, 0.2),
+          inset 0 0 16px rgba(229, 196, 130, 0.08);
+        transition:
+          transform 0.3s ease,
+          background 0.3s ease;
+      }
+      .club-hero:hover .hero-seal {
+        transform: rotate(4deg) scale(1.04);
+        background: rgba(36, 64, 61, 0.46);
+      }
+      .hero-copy {
+        padding: 18px 36px 31px;
+      }
+      .hero-copy h2 {
+        max-width: 650px;
+        text-wrap: balance;
+        text-shadow: 0 2px 24px rgba(0, 0, 0, 0.26);
+      }
+      .hero-copy p {
+        max-width: 390px;
+        font-size: 13px;
+      }
+      .hero-cta {
+        border-radius: 999px;
+        padding-inline: 20px;
+        box-shadow:
+          0 10px 24px rgba(3, 22, 25, 0.18),
+          inset 0 1px rgba(255, 255, 255, 0.65);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+      }
+      .hero-cta span {
+        transition: transform 0.2s ease;
+      }
+      .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(3, 22, 25, 0.23);
+      }
+      .hero-cta:hover span {
+        transform: translate(3px, -1px);
+      }
+      .hero-cta:active {
+        transform: translateY(0) scale(0.985);
+      }
+      .hero-foot {
+        margin-inline: 30px;
+      }
+      .club-letter {
+        border-radius: 8px 15px 11px 7px;
+        background:
+          linear-gradient(105deg, rgba(118, 82, 45, 0.035), transparent 28%),
+          repeating-linear-gradient(0deg, rgba(79, 65, 47, 0.018) 0 1px, transparent 1px 4px),
+          #f6efdf;
+        border-color: rgba(112, 91, 63, 0.2);
+        box-shadow:
+          0 18px 50px rgba(50, 48, 37, 0.13),
+          0 2px 0 rgba(255, 255, 255, 0.72) inset;
+        transform: rotate(-0.45deg);
+        transition:
+          transform 0.28s ease,
+          box-shadow 0.28s ease;
+      }
+      .club-letter:hover {
+        transform: rotate(0deg) translateY(-3px);
+        box-shadow:
+          0 24px 58px rgba(50, 48, 37, 0.17),
+          0 2px 0 rgba(255, 255, 255, 0.72) inset;
+      }
+      .paperclip {
+        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.16));
+      }
+      .club-letter-art {
+        filter: drop-shadow(0 9px 10px rgba(54, 45, 32, 0.11));
+        transition: transform 0.35s ease;
+      }
+      .club-letter:hover .club-letter-art {
+        transform: translateY(-2px) rotate(0.7deg);
+      }
+      .letter-handwriting {
+        color: #8b684c;
+      }
+      .club-underhero {
+        margin-top: 16px;
+        border: 1px solid rgba(85, 96, 78, 0.14);
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: rgba(255, 252, 244, 0.48);
+        backdrop-filter: blur(8px);
+      }
+      .club-section {
+        position: relative;
+        margin-top: 44px;
+        padding-top: 29px;
+      }
+      .club-section::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          rgba(55, 77, 64, 0.24),
+          rgba(196, 154, 85, 0.2),
+          transparent 92%
+        );
+      }
+      .section-number {
+        color: #9a7946;
+        background: #eee2cc;
+        border: 1px solid rgba(145, 111, 60, 0.15);
+        width: 34px;
+        height: 34px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: inset 0 1px rgba(255, 255, 255, 0.75);
+      }
+      .club-gamecards {
+        gap: 16px;
+      }
+      .club-gamecard,
+      .club-category {
+        position: relative;
+        border-radius: 16px;
+        border-color: rgba(83, 99, 80, 0.16);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(249, 244, 234, 0.35)),
+          var(--paper);
+        box-shadow:
+          var(--club-soft-shadow),
+          inset 0 1px rgba(255, 255, 255, 0.8);
+        overflow: hidden;
+        transition:
+          transform 0.24s cubic-bezier(0.2, 0.7, 0.25, 1),
+          box-shadow 0.24s ease,
+          border-color 0.24s ease;
+      }
+      .club-gamecard::after,
+      .club-category::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          120deg,
+          transparent 35%,
+          rgba(255, 255, 255, 0.5) 48%,
+          transparent 61%
+        );
+        transform: translateX(-125%);
+        transition: transform 0.65s ease;
+      }
+      .club-gamecard:hover,
+      .club-category:hover {
+        transform: translateY(-6px) rotate(0.12deg);
+        border-color: rgba(172, 130, 65, 0.33);
+        box-shadow:
+          0 20px 48px rgba(35, 52, 43, 0.16),
+          inset 0 1px rgba(255, 255, 255, 0.9);
+      }
+      .club-gamecard:hover::after,
+      .club-category:hover::after {
+        transform: translateX(125%);
+      }
+      .club-gamecard:active,
+      .club-category:active {
+        transform: translateY(-1px) scale(0.99);
+      }
+      .club-gamecard .club-portrait,
+      .club-category .club-portrait {
+        transition:
+          transform 0.3s ease,
+          filter 0.3s ease;
+        transform-origin: 50% 80%;
+      }
+      .club-gamecard:hover .club-portrait,
+      .club-category:hover .club-portrait {
+        transform: scale(1.025);
+        filter: saturate(1.06) contrast(1.02);
+      }
+      .club-daily {
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at 7% 0%, rgba(226, 190, 125, 0.16), transparent 17rem),
+          linear-gradient(120deg, #294f4c, #1a3c40 66%, #17353b);
+        color: #f4ead6;
+        border: 1px solid rgba(227, 202, 148, 0.2);
+        box-shadow:
+          0 22px 50px rgba(24, 54, 52, 0.18),
+          inset 0 1px rgba(255, 255, 255, 0.06);
+      }
+      .club-daily h3 {
+        color: #fff6e4;
+      }
+      .club-daily p {
+        color: #d8dfd3;
+      }
+      .club-daily .chip {
+        background: rgba(238, 220, 179, 0.14);
+        color: #e3c985;
+        border-color: rgba(227, 201, 139, 0.2);
+      }
+      .daily-illustration {
+        background: rgba(238, 224, 193, 0.94);
+        border-radius: 14px;
+        box-shadow:
+          0 13px 28px rgba(5, 23, 25, 0.22),
+          inset 0 1px #fff;
+        transition: transform 0.28s ease;
+      }
+      .club-daily:hover .daily-illustration {
+        transform: translateY(-3px) rotate(-1deg);
+      }
+      .club-zen-card {
+        border-radius: 20px;
+        border-color: rgba(95, 111, 91, 0.18);
+        background:
+          radial-gradient(circle at 83% 40%, rgba(193, 159, 98, 0.15), transparent 18rem),
+          linear-gradient(135deg, #f5efe2, #ece4d5);
+        box-shadow: var(--club-soft-shadow);
+      }
+      .club-gameheading {
+        margin-bottom: 24px;
+        padding-bottom: 21px;
+        border-bottom: 1px solid rgba(77, 94, 76, 0.18);
+      }
+      .club-gameheading h1 {
+        color: #183a35;
+        text-shadow: 0 1px rgba(255, 255, 255, 0.75);
+      }
+      .club-playlayout {
+        gap: 22px;
+      }
+      .club-boardpanel {
+        border-radius: 19px;
+        border-color: rgba(76, 90, 73, 0.18);
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.62), transparent 35%),
+          #f7f2e7;
+        box-shadow:
+          var(--club-shadow),
+          inset 0 1px #fff;
+      }
+      .club-gameaside {
+        gap: 16px;
+      }
+      .desk-note,
+      .club-rules,
+      .seed-control {
+        border-radius: 12px;
+        border-color: rgba(111, 90, 62, 0.18);
+        box-shadow:
+          0 10px 28px rgba(62, 51, 37, 0.08),
+          inset 0 1px rgba(255, 255, 255, 0.72);
+      }
+      .desk-note {
+        background:
+          repeating-linear-gradient(
+            0deg,
+            transparent 0 27px,
+            rgba(97, 82, 58, 0.045) 27px 28px
+          ),
+          #f4e9d5;
+        transform: rotate(0.22deg);
+      }
+      .club-rules summary {
+        transition:
+          color 0.18s ease,
+          background 0.18s ease;
+        border-radius: 8px;
+      }
+      .club-rules summary:hover {
+        color: #8a6332;
+        background: rgba(191, 153, 87, 0.08);
+      }
+      .duel-cell,
+      .borough-cell,
+      .archive-cell,
+      .plan {
+        transition:
+          transform 0.15s ease,
+          filter 0.15s ease,
+          box-shadow 0.15s ease,
+          background 0.15s ease;
+      }
+      .duel-cell:not(:disabled):hover,
+      .borough-cell:not(:disabled):hover,
+      .archive-cell:not(:disabled):hover,
+      .plan:not(:disabled):hover {
+        transform: translateY(-1px);
+        filter: brightness(1.035);
+      }
+      .duel-cell:not(:disabled):active,
+      .borough-cell:not(:disabled):active,
+      .archive-cell:not(:disabled):active,
+      .plan:not(:disabled):active {
+        transform: scale(0.965);
+      }
+      .duel-cell.legal .legal-dot {
+        box-shadow:
+          0 0 0 5px rgba(217, 177, 99, 0.12),
+          0 0 15px rgba(217, 177, 99, 0.2);
+      }
+      .duel-cell.capture-preview {
+        box-shadow:
+          inset 0 0 0 2px rgba(208, 166, 87, 0.58),
+          inset 0 0 20px rgba(208, 166, 87, 0.12);
+      }
+      .borough-cell.plot-selected {
+        box-shadow:
+          inset 0 0 0 3px rgba(185, 144, 80, 0.55),
+          0 7px 16px rgba(69, 83, 68, 0.12);
+      }
+      .btn,
+      .round {
+        transition:
+          transform 0.16s ease,
+          box-shadow 0.18s ease,
+          background 0.18s ease,
+          border-color 0.18s ease;
+      }
+      .btn:hover:not(:disabled) {
+        box-shadow: 0 8px 18px rgba(36, 64, 49, 0.12);
+      }
+      .btn:active:not(:disabled),
+      .round:active:not(:disabled) {
+        transform: translateY(1px) scale(0.975);
+        box-shadow: none;
+      }
+      button:focus-visible,
+      a:focus-visible {
+        outline-color: var(--club-brass);
+        outline-offset: 4px;
+        box-shadow: 0 0 0 6px rgba(196, 154, 85, 0.12);
+      }
+      .club-toast,
+      .toast {
+        box-shadow: 0 20px 60px rgba(15, 35, 35, 0.24);
+        border: 1px solid rgba(229, 196, 130, 0.2);
+        backdrop-filter: blur(10px);
+      }
+      @keyframes club-lamp-breathe {
+        0%,
+        100% {
+          opacity: 0.72;
+          transform: scale(0.92);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.08);
+        }
+      }
+      @media (max-width: 900px) {
+        .club-home .main,
+        .club-experiment .main {
+          padding-top: 26px;
+        }
+        .club-opening {
+          gap: 15px;
+        }
+        .club-hero {
+          min-height: 440px;
+          border-radius: 18px;
+        }
+        .club-letter {
+          transform: none;
+        }
+        .club-letter:hover {
+          transform: translateY(-2px);
+        }
+      }
+      @media (max-width: 650px) {
+        body.club-home,
+        body.club-experiment {
+          background:
+            radial-gradient(circle at 18% 0%, rgba(196, 154, 85, 0.12), transparent 22rem),
+            linear-gradient(180deg, #f3eee5, #ebe4d9);
+        }
+        .club-welcome {
+          align-items: flex-start;
+        }
+        .club-weather {
+          border-radius: 13px;
+          max-width: 145px;
+        }
+        .club-hero {
+          min-height: 510px;
+          border-radius: 17px;
+        }
+        .club-hero::before {
+          inset: 8px;
+          border-radius: 12px;
+        }
+        .hero-topline {
+          padding: 22px 21px 0;
+        }
+        .hero-copy {
+          padding: 15px 22px 25px;
+        }
+        .hero-copy p {
+          font-size: 12px;
+        }
+        .hero-foot {
+          margin-inline: 19px;
+        }
+        .club-underhero {
+          border-radius: 14px;
+        }
+        .club-section {
+          margin-top: 36px;
+        }
+        .club-gamecard:hover,
+        .club-category:hover {
+          transform: translateY(-3px);
+        }
+        .club-boardpanel {
+          border-radius: 15px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .weather-dot {
+          animation: none;
+        }
+        .club-hero > img,
+        .hero-seal,
+        .hero-cta,
+        .hero-cta span,
+        .club-letter,
+        .club-letter-art,
+        .club-gamecard,
+        .club-category,
+        .club-portrait,
+        .daily-illustration,
+        .duel-cell,
+        .borough-cell,
+        .archive-cell,
+        .plan,
+        .btn,
+        .round {
+          transition: none !important;
+        }
+        .club-hero:hover > img,
+        .club-gamecard:hover,
+        .club-category:hover,
+        .club-letter:hover {
+          transform: none;
+        }
+      }
+    </style>
     <!-- HEAD -->
   </head>
   <body>
