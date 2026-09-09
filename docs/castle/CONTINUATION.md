@@ -1,12 +1,12 @@
 # Wrenmere continuation: proposed Chapters II–V
 
-Status: production proposal. Chapter I (`seventeenth-minute`) is the only shipped castle chapter. Every ID in this document is a proposed content ID at
+Status: production proposal. Chapter I (`seventeenth-minute`) is the only implemented castle chapter. Every ID in this document is a proposed content ID at
 `revision: 1`; none should be treated as an existing save, unlock, or published fact. This separation matters because the current castle save is schema 1 and
 refuses unknown state shapes (`src/castle/engine.mjs`, `src/castle/storage.mjs`).
 
-The proposal reconciles the supplied story and world bibles in `.castle-input/production-docs/design/STORY-BIBLE-SPOILERS.md` and
-`.castle-input/production-docs/design/WORLD-BIBLE.md` with the current room registry in `src/castle/rooms.mjs`, the current Chapter I content in
-`src/castle/content.mjs`, and the quest/access rules in `.castle-input/production-docs/design/PROGRESSION-AND-QUESTS.md`. Those copied files are planning
+The proposal reconciles the supplied story and world bibles in `docs/castle/design/STORY-BIBLE-SPOILERS.md` and
+`docs/castle/design/WORLD-BIBLE.md` with the current room registry in `src/castle/rooms.mjs`, the current Chapter I content in
+`src/castle/content.mjs`, and the quest/access rules in `docs/castle/design/PROGRESSION-AND-QUESTS.md`. Those copied files are planning
 sources; the source tree remains the runtime authority.
 
 ## Canon guardrails
@@ -26,7 +26,7 @@ record or observation -> permitted inference -> remaining uncertainty
 ```
 
 The player can change a hypothesis as new records arrive. A changed mind is progress, and no grief, forgiveness, or moral score is awarded. Points and ordinary
-room familiarity remain separate from evidence and access as specified in `.castle-input/production-docs/design/PROGRESSION-AND-QUESTS.md`.
+room familiarity remain separate from evidence and access as specified in `docs/castle/design/PROGRESSION-AND-QUESTS.md`.
 
 ## Geography and stable IDs
 
@@ -156,6 +156,40 @@ The first test set should prove:
 6. Hints expose orientation, constraint, method, and optional solution in order without reading `solution` from state.
 7. CAS conflict, export/import, and a stale tab cannot award the same evidence twice.
 
+### Chapter II record drafts and proof gaps to close
+
+The record IDs above describe a proposed graph; they are not enough by themselves to prove the
+conclusion. Use the following **new fictional draft copy** as the starting point for the first
+authoring slice. Edit and review these records together before publishing any of them.
+
+| Proposed record | Draft text / visible feature | What it can support |
+| --- | --- | --- |
+| `wrenmere.ch2.survey-1911` | “Household survey, 1911. The cupboard stair opens onto the covered walk. The walk joins the river gate beside the laundry yard.” Show the same fixed courtyard corners and scale marks as the later survey. | A physical connection, conditional on the survey being accurate; no person's journey. |
+| `wrenmere.ch2.survey-later` | The same courtyard corners and scale marks survive. The cupboard stair is absent; the covered walk ends at an unlabelled wall. An accession slip dates this copy after the flood. | An omission between dated editions. It does not establish the editor, instruction or motive. |
+| `wrenmere.ch2.iona-reference` | A signed household inventory: “Iona Bell. Spare lamp, courtyard stair cupboard.” Compare a repeated abbreviation, a distinctive correction and household vocabulary with the unsigned margin. | Corroborating attribution to Iona, not certain identification from handwriting alone. This record must be added to the graph before offering an attribution answer. |
+| `wrenmere.ch2.garden-log` | “I saw Miss Vale come out at the river gate. She asked which bridge path remained passable.” Label this as a separate gardener's recollection with its own accession/source note. | Independent support for the direction of travel. It does not supply an exact time, destination reached or final intention. |
+
+The garden log is a new proposed record, not a quotation found in the supplied bundle. Its
+author, date of recollection and provenance must be settled in the Chapter II editorial pass.
+Until that exists, the unsigned margin supports an attributed observation only: do not award
+“Mara certainly travelled this route” from a map alignment or a service list alone.
+
+Map the current engine explicitly before implementing the proposed namespaced IDs:
+
+- Current `shelves` supplies record `maintenance`; current `clock` supplies `ticket`;
+  current `route` supplies `path`; current `inference` opens the stair and `margin`.
+- `wrenmere.ch1.route-feasible` in the proposed graph is an editorial alias for the completed
+  clock/route/inference chain. It is **not** a current stored key. A continuation adapter must
+  derive it from that validated chain, rather than renaming existing completions.
+- The smallest first slice can establish the plan omission and preserve the two competing
+  interpretations. Keep margin attribution and corroborated travel locked until their actual
+  records are authored. A useful partial chapter must identify exactly what remains open.
+
+The archive interaction should expose a record after solving its alignment question, then ask
+the visitor to choose the supported claim. A wrong claim highlights the missing source, never
+manufactures testimony. Store the discovered record independently of the visitor's revisable
+hypothesis. Test these as two distinct operations across reload and restore.
+
 ## Chapter III — “What Warning Reached” (`#54`, proposed)
 
 **Story beat.** The player follows the warning network through `rookery`, `post`, `reservoir`, and `archive`. The intended arrangement, the installed temporary
@@ -224,12 +258,12 @@ treatment. The `questions-we-share` room is an authored continuation invitation,
 
 ## Compatibility and acceptance boundary
 
-Chapters II–V should use stable room IDs and content revision 1, with explicit migration tests before any old save can see a new gate. A current save's
-`completed` answers remain pinned to their existing activity IDs/revisions. New evidence is additive and idempotent; replay, reset, reopen, or decorative visits
+Chapters II–V should use stable room IDs and content revision 1, with explicit migration tests before any old save can see a new gate. A current castle save’s
+`completed` answers are validated against the frozen Chapter I version-1 definitions. Per-record content revision pinning must be designed for continuation; it is not already a castle save feature. New evidence is additive and idempotent; replay, reset, reopen, or decorative visits
 do not farm access. Official completion receipts may contribute to familiarity only after their registered definition and revision are validated; custom packs
 never grant an official story entitlement.
 
 The shipped Chapter I remains playable with story on or off, without downloading a film, and with its existing 1911 lens as optional context. Future rooms may
-use the same room directory/direct access and Quiet Wing practice/history purpose described in `.castle-input/production-docs/design/WORLD-BIBLE.md`. Physical
+use the same room directory/direct access and Quiet Wing practice/history purpose described in `docs/castle/design/WORLD-BIBLE.md`. Physical
 phone, TalkBack, sensory, battery, enjoyment, and difficulty acceptance remain human playtest work under the existing production notes and `HUMAN_TODO.md`; this
 proposal does not convert simulated checks into those claims.

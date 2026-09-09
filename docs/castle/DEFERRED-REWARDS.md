@@ -1,8 +1,8 @@
 # Deferred rewards: one safe observatory vertical
 
 Status: implementation plan for epic `#29` and its existing children `#30`–`#37`. This document does not close or edit issues and does not claim that the plan
-is shipped. The copied source of the plan is `.castle-input/production-docs/design/DEFERRED-SYSTEMS.md`, with progression rules in
-`.castle-input/production-docs/design/PROGRESSION-AND-QUESTS.md` and current Quiet Wing behavior in `src/quiet-wing/engine.js`, `src/quiet-wing/pets.js`,
+is shipped. The copied source of the plan is `docs/castle/design/DEFERRED-SYSTEMS.md`, with progression rules in
+`docs/castle/design/PROGRESSION-AND-QUESTS.md` and current Quiet Wing behavior in `src/quiet-wing/engine.js`, `src/quiet-wing/pets.js`,
 `src/quiet-wing/pet-view.js`, `src/quiet-wing/folio.js`, and `src/quiet-wing/city.js`.
 
 ## Existing boundary

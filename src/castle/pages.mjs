@@ -4,7 +4,7 @@ import * as Art from './art.mjs';
 import { roomObjects } from './objects.mjs';
 import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
-import { atmosphere, nearby, nextThread } from './exploration.mjs';
+import { atmosphere, nearby, nextThread, listed } from './exploration.mjs';
 export function createPages({ state, view, selected, era, search, filter }) {
   const room = () => W.rooms.find((r) => r.id === selected) || W.rooms[0];
   function roomCard(r) {
@@ -67,10 +67,11 @@ export function createPages({ state, view, selected, era, search, filter }) {
   function directory() {
     const rooms = W.rooms.filter(
       (r) =>
+        listed(state, r) &&
         (filter === 'all' || r.wing === filter) &&
         `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
     );
-    return `<section class="page"><h1>Room directory</h1><p>Ten locations are open in this chapter. The other twenty-two entries describe later work; they have no hidden unlock condition in this build.</p><div class="filters"><label>Find a room<input id="search" type="search" value="${escape(search)}"></label><label>Wing<select id="filter"><option value="all">Every wing</option>${[...new Set(W.rooms.map((r) => r.wing))].map((w) => `<option ${filter === w ? 'selected' : ''}>${escape(w)}</option>`).join('')}</select></label></div><p class="small" id="results-count">${rooms.length} rooms</p><div class="directory" id="room-results">${rooms.map(roomCard).join('')}</div></section>`;
+    return `<section class="page"><h1>Room directory</h1><p>The named doors lead into this chapter. Clues may uncover another entrance. Twenty-two planned locations describe later work; they have no hidden unlock condition in this build.</p><div class="filters"><label>Find a room<input id="search" type="search" value="${escape(search)}"></label><label>Wing<select id="filter"><option value="all">Every wing</option>${[...new Set(W.rooms.map((r) => r.wing))].map((w) => `<option ${filter === w ? 'selected' : ''}>${escape(w)}</option>`).join('')}</select></label></div><p class="small" id="results-count">${rooms.length} rooms</p><div class="directory" id="room-results">${rooms.map(roomCard).join('')}</div></section>`;
   }
   return { roomCard, mapPage, roomPage, museumPage, notebook, directory };
 }

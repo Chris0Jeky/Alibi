@@ -78,3 +78,8 @@ The first #39 layer has a full repository CI pass at `29410d9`. Later layers req
 #29 remains the companion/garden/realm epic. Use #30's receipt contract and #37's cross-system acceptance; no parallel wallet or duplicate reward authority.
 
 Writing guidance: [WRITING.md](WRITING.md). Later narrative: [CHAPTERS.md](CHAPTERS.md). Preserve clue wording and evidence qualifications during stylistic edits.
+
+Buildable continuation: [CONTINUATION.md](CONTINUATION.md) specifies proposed chapter records,
+proof graphs, room loops, draft text and compatibility cases. [DEFERRED-REWARDS.md](DEFERRED-REWARDS.md)
+defines the proposed observatory kit, delivery/recovery contract and the pet/Blender/garden/city
+sequence. These are implementation plans, not unlocked content or changes to existing creations.

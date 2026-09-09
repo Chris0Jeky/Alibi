@@ -9,6 +9,7 @@ import { CastleStore } from './storage.mjs';
 import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
 import { labelQuestions } from './investigation.mjs';
+import { listed } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
@@ -698,6 +699,7 @@ export async function mount({ root, preferences = null }) {
         search = el.value;
         const matches = W.rooms.filter(
           (r) =>
+            listed(state, r) &&
             (filter === 'all' || r.wing === filter) &&
             `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
         );

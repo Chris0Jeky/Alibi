@@ -79,6 +79,7 @@ export function atmosphere(id) {
   const [ambience, method, exits, puzzle, object] = rooms[id] || rooms.gatehouse;
   return { ambience, method, exits, puzzle, object };
 }
+export const listed = (state, room) => room.id !== 'west-stair' || E.has(state, 'inference');
 export function nearby(room, state) {
   return `<nav class="nearby" aria-label="Nearby doors"><h2>From here</h2>${atmosphere(room.id)
     .exits.filter((id) => id !== 'west-stair' || E.has(state, 'inference'))

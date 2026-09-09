@@ -69,6 +69,7 @@ jobs:
           python tests/browser_castle_recovery.py
           python tests/browser_castle_investigation.py
           python tests/browser_castle_exploration.py
+          python tests/browser_castle_update.py
       - name: Check formatting independently of runtime acceptance
         if: always()
         run: npm run format:check
@@ -86,5 +87,6 @@ jobs:
             test-results/castle-recovery/
             test-results/castle-investigation/
             test-results/castle-exploration/
+            test-results/castle-update/
             build-info.json
           if-no-files-found: ignore
