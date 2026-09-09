@@ -7,6 +7,8 @@ import nativeStyle from './native-style.mjs';
 import { inspectObject, appendObservation } from './objects.mjs';
 import { CastleStore } from './storage.mjs';
 import { IMPORT_LIMIT } from './backup.mjs';
+import { theoryForm } from './investigation-view.mjs';
+import { labelQuestions } from './investigation.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
@@ -503,12 +505,86 @@ export async function mount({ root, preferences = null }) {
     if ($('#observation-result')) $('#observation-result').textContent = result.message;
     announce(result.message);
   }
+  function editTheory(id) {
+    if (!state.preferences.story) return;
+    active = null;
+    show(id ? 'Revise a hypothesis' : 'A working hypothesis', theoryForm(state, id));
+    $('#theory-text').focus();
+  }
+  function saveTheory(id) {
+    const theory = {
+      id,
+      text: $('#theory-text').value.trim(),
+      position: $('#theory-position').value,
+      records: [...dialog.querySelectorAll('[data-citation]:checked')].map((input) => input.value),
+    };
+    mutate((next) => {
+      const index = next.theories.findIndex((t) => t.id === id);
+      if (index < 0) next.theories.push(theory);
+      else next.theories[index] = theory;
+    });
+    close();
+    announce('Hypothesis saved. You can revise its assessment and references.');
+  }
+  function showLabel(id) {
+    const question = labelQuestions[id];
+    if (!question || !E.has(state, id)) return;
+    active = null;
+    show(
+      'Review the museum label',
+      `<p>${escape(question.prompt)}</p><div class="choices">${question.options.map(([value, text]) => button(escape(text), 'label-answer', `${id}:${value}`)).join('')}</div><p id="label-result" class="feedback" role="status"></p><p class="small">Choose a label supported by the source. Revisions are welcome; there is no penalty.</p>`,
+    );
+  }
+  function answerLabel(value) {
+    const [id, answer] = value.split(':'),
+      question = labelQuestions[id];
+    if (!question || !E.has(state, id) || !$('#label-result')) return;
+    const correct = answer === question.answer;
+    if (correct && !state.labels[id])
+      mutate((next) => {
+        next.labels[id] = answer;
+      });
+    $('#label-result').textContent =
+      `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
+    announce($('#label-result').textContent);
+  }
   async function action(event) {
     const target = event.target.closest?.('[data-do]');
     if (!target) return;
     const name = target.dataset.do,
       value = target.dataset.value;
     if (name === 'close') close();
+    else if (name === 'theory-edit') editTheory(value);
+    else if (name === 'theory-save') saveTheory(value);
+    else if (name === 'theory-remove')
+      show(
+        'Remove this hypothesis?',
+        `<p>Your collected records and other notes stay in the notebook.</p>${button('Remove this hypothesis', 'theory-remove-confirm', value)}`,
+      );
+    else if (name === 'theory-remove-confirm') {
+      mutate((next) => {
+        next.theories = next.theories.filter((t) => t.id !== value);
+      });
+      close();
+      announce('Hypothesis removed.');
+    } else if (name === 'record') {
+      const record = E.evidence(state).find((r) => r.id === value);
+      if (record && state.preferences.story)
+        show(
+          record.title,
+          `<p class="eyebrow">${escape(record.kind)} · ${escape(record.from)}</p><p>${escape(record.text)}</p><p><em>${escape(record.question)}</em></p>`,
+        );
+    } else if (name === 'label') showLabel(value);
+    else if (name === 'label-answer') answerLabel(value);
+    else if (name === 'curator-drawer' && Object.keys(state.labels).length === 3)
+      show(
+        'Questions We Share',
+        state.preferences.story
+          ? '<p>A pencilled exhibition draft lies beside two game pieces: one perfect, one carefully repaired.</p><article class="card evidence"><h3>Mara’s exhibition draft</h3><p>“Put the mended game beside the untouched one. Ask how it was used. Leave room on the label for the next person to tell us something we missed.”</p></article><p>The drawer preserves an intention for the museum, not an answer to the flood. You have helped put that intention into practice.</p>' +
+              quietLinks()
+          : '<p>A perfect game piece sits beside a carefully mended one. The revised labels have a place at the reopening exhibition.</p>' +
+              quietLinks(),
+      );
     else if (name === 'visit') visit(value);
     else if (name === 'select') {
       selected = value;

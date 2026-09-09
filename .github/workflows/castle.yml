@@ -67,6 +67,7 @@ jobs:
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_castle.py
           python tests/browser_castle_recovery.py
+          python tests/browser_castle_investigation.py
       - name: Check formatting independently of runtime acceptance
         if: always()
         run: npm run format:check
@@ -82,5 +83,6 @@ jobs:
           path: |
             test-results/castle/
             test-results/castle-recovery/
+            test-results/castle-investigation/
             build-info.json
           if-no-files-found: ignore

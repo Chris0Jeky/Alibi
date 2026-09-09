@@ -16,6 +16,9 @@ No production deployment is claimed by this source checkpoint.
   writes the previous notebook and replacement atomically; other database keys stay untouched.
 - `pages.mjs`, `boards.mjs`, `view.mjs`: page composition, accessible boards and owned UI lifecycle.
 - `objects.mjs`: optional room observations. Keeping one in the notebook never grants a puzzle reward.
+- `investigation.mjs`, `investigation-view.mjs`: eight revisable hypotheses with collected-record
+  references, three curatorial label exercises and the exhibition drawer. Player assessments
+  never manufacture evidence. Sources and editorial boundaries are in [MUSEUM-SOURCES.md](MUSEUM-SOURCES.md).
 - `art.mjs`: existing local Alibi paintings. These are atmosphere, not architectural evidence. The original Wrenmere procedural scene uploads were blocked before reaching GitHub and are not included here.
 - `feedback.mjs`: short opt-in sound and movement responses. Root comfort settings take precedence. Effects never determine gameplay.
 - `cache.mjs`, `entry.mjs`: a separate optional castle cache and native mount/flush/dispose contract.

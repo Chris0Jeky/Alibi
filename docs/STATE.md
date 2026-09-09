@@ -16,7 +16,12 @@ and production acceptance remain the active work. Existing public puzzle definit
 all existing saves remain unchanged. Owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 The supplied `alibi-castle/` directory is reference input in the original checkout. Its full
-resource map and the production strategy are being reconciled under `docs/castle/`.
+resource map covers 69 files; all 68 supplied checksums match. The full design/contract
+references and [production strategy](castle/STRATEGY.md) are preserved under `docs/castle/`.
+The evidence board now saves eight bounded, revisable hypotheses with collected-record
+references. Three source-backed curatorial label exercises open Mara's exhibition drawer;
+neither personal assessments nor label replays manufacture puzzle points or story evidence.
+Phone/desktop real-control and reload tests pass for those new interactions.
 
 ## Player-feedback QA 0.8.2 live
 

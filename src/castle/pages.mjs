@@ -3,6 +3,7 @@ import * as E from './engine.mjs';
 import * as Art from './art.mjs';
 import { roomObjects } from './objects.mjs';
 import { escape, button, link } from './html.mjs';
+import { theoryBoard } from './investigation-view.mjs';
 export function createPages({ state, view, selected, era, search, filter }) {
   const room = () => W.rooms.find((r) => r.id === selected) || W.rooms[0];
   function roomCard(r) {
@@ -43,7 +44,7 @@ export function createPages({ state, view, selected, era, search, filter }) {
       .join('')}</section>`;
   }
   function museumPage() {
-    return `<section class="page"><span class="eyebrow">The Quiet Wing</span><h1>The Museum of Questions</h1><p>Try the objects at the tables. Their labels explain where the questions came from, and which parts we have reconstructed.</p><div class="directory">${W.exhibits.map((x, i) => `<article class="card"><div class="exhibit-diagram" aria-hidden="true">${['N ⟷ I ⟷ E', '4 · 9 · 2', '◆ ◇ ◆ ◇'][i]}</div><span class="eyebrow">${escape(x.era)}</span><h2>${escape(x.title)}</h2><p>${escape(x.summary)}</p><p class="tag">${E.has(state, x.puzzle) ? 'Explored' : escape(x.method)}</p>${button('Examine the object', 'exhibit', x.id)}</article>`).join('')}</div><p class="small" style="margin-top:25px">Completing Bridges or Lo Shu also opens the Map Room. The fair-dice activity is a modern model, not a reconstruction of the complete Royal Game of Ur.</p>${button('Visit the conservatory', 'visit', 'conservatory')}</section>`;
+    return `<section class="page"><span class="eyebrow">The Quiet Wing · handle → notice → learn → use</span><h1>The Museum of Questions</h1><p>Try the objects at the tables. Then help prepare the labels for reopening. Three carefully reviewed labels open Mara’s exhibition drawer.</p><div class="directory">${W.exhibits.map((x, i) => `<article class="card"><div class="exhibit-diagram" aria-hidden="true">${['N ⟷ I ⟷ E', '4 · 9 · 2', '◆ ◇ ◆ ◇'][i]}</div><span class="eyebrow">${escape(x.era)}</span><h2>${escape(x.title)}</h2><p>${escape(x.summary)}</p><p class="tag">${E.has(state, x.puzzle) ? 'Object explored' : escape(x.method)}${state.labels[x.id] ? ' · Label reviewed' : ''}</p><div class="stack">${button('Try the object', 'puzzle', x.puzzle)}${button('Read its history', 'exhibit', x.id)}${button(state.labels[x.id] ? 'Revisit the label' : 'Review the museum label', 'label', x.id, E.has(state, x.puzzle) ? '' : 'disabled')}</div></article>`).join('')}</div><section class="card curator-drawer"><span class="eyebrow">Questions We Share</span><h2>Mara’s exhibition drawer</h2><p>${Object.keys(state.labels).length} / 3 labels reviewed. Complete an object investigation, then check what its label can honestly claim.</p>${button('Open the exhibition drawer', 'curator-drawer', '', Object.keys(state.labels).length === 3 ? 'class="primary"' : 'disabled')}</section><p class="small" style="margin-top:25px">Bridges or Lo Shu also opens the Map Room. These historical examples teach ways of thinking; they are not evidence for events in fictional Wrenmere.</p>${button('Visit the conservatory', 'visit', 'conservatory')}</section>`;
   }
   function notebook() {
     return `<section class="page"><h1>Castle notebook</h1><div class="row">${button('Export castle save', 'export')}${button('Review castle backup', 'import')}${button('Export recovery copy', 'recovery')}</div><input id="castle-import" type="file" accept="application/json,.json" hidden><p class="small">This export contains Wrenmere Chapter I only. Settings can export the castle alongside Cabinet, Club and Quiet Wing; challenge replays remain separate. Review imports before merging or replacing. Each restore keeps a recovery copy.</p><label for="notes">Your notes</label><textarea id="notes" maxlength="12000" placeholder="What have you established? What still needs checking?">${escape(state.notes)}</textarea><p class="small" id="notes-count">${state.notes.length} / 12,000 characters</p><h2>Collected records</h2><div class="directory">${
@@ -55,7 +56,7 @@ export function createPages({ state, view, selected, era, search, filter }) {
             )
             .join('') || '<p>The library is a useful place to start looking.</p>'
         : '<p>Story records are hidden. Turn the story back on in Preferences to read them.</p>'
-    }</div></section>`;
+    }</div>${theoryBoard(state)}</section>`;
   }
   function directory() {
     const rooms = W.rooms.filter(

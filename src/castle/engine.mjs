@@ -1,4 +1,5 @@
 import W from './content.mjs';
+import { validateTheories, validateLabels } from './investigation.mjs';
 const ids = [
   'gate',
   'shelves',
@@ -40,6 +41,8 @@ function initial() {
     visited: [],
     drafts: {},
     revealed: [],
+    theories: [],
+    labels: {},
     preferences: { motion: true, sound: false, story: true },
   };
 }
@@ -299,6 +302,8 @@ function validate(s) {
     'drafts',
     'revealed',
     'preferences',
+    'theories',
+    'labels',
   ]);
   shape(s.completed, ids);
   shape(s.drafts, ids);
@@ -318,6 +323,8 @@ function validate(s) {
           'drafts',
           'revealed',
           'preferences',
+          'theories',
+          'labels',
         ].includes(k),
     )
   )
@@ -375,6 +382,11 @@ function validate(s) {
   clean.notes = s.notes;
   clean.visited = [...s.visited];
   clean.drafts = clone(s.drafts);
+  clean.theories = validateTheories(s.theories);
+  const collected = evidence(s).map((record) => record.id);
+  if (clean.theories.some((theory) => theory.records.some((id) => !collected.includes(id))))
+    throw Error('A hypothesis cites a record that has not been collected.');
+  clean.labels = validateLabels(s.labels, s.completed);
   clean.preferences = {
     motion: s.preferences.motion,
     sound: s.preferences.sound,

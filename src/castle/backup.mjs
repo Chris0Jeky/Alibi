@@ -1,4 +1,5 @@
 import { validate, clone } from './engine.mjs';
+import { mergeTheories } from './investigation.mjs';
 
 export const IMPORT_LIMIT = 512 * 1024;
 export function validateBackup(data) {
@@ -45,6 +46,8 @@ export function mergeStates(local, incoming) {
   for (const id of Object.keys(next.completed)) delete next.drafts[id];
   next.visited = [...new Set([...current.visited, ...added.visited])];
   next.revealed = [...new Set([...current.revealed, ...added.revealed])];
+  next.theories = mergeTheories(current.theories, added.theories);
+  next.labels = { ...added.labels, ...current.labels };
   if (added.notes && added.notes !== current.notes) {
     const section = `--- Imported notebook ---\n${added.notes}`;
     if (!current.notes.endsWith(section))
