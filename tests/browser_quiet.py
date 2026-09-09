@@ -53,7 +53,11 @@ with sync_playwright() as pw:
    elif id=='river':page.locator(f'[data-passenger="{a["item"]}"]').click()
    elif id=='jugs':page.locator(f'[data-jug="{a["i"]}"][data-kind="{a["kind"]}"]').click()
    elif id=='magic':
-    page.locator(f'[data-magic="{a["from"]}"]').click();page.locator(f'[data-magic="{a["to"]}"]').click()
+    page.locator(f'[data-magic="{a["from"]}"]').click()
+    if a is actions[0]:
+     check(page.locator(f'[data-magic="{a["from"]}"]').get_attribute('aria-pressed')=='true','Lo Shu selected tile exposes semantic pressed state')
+     check('selected' in page.locator(f'[data-magic="{a["from"]}"]').get_attribute('aria-label'),'Lo Shu selected tile announces its state')
+    page.locator(f'[data-magic="{a["to"]}"]').click()
    elif id.startswith('slide-'):page.locator(f'[data-slide="{a["cell"]}"]').click()
    else:page.locator(f'[data-cell="{a["cell"]}"]').click()
   check(page.evaluate('(id)=>QWEngine.classicWon(QWApp.state.classics[id].state)',id),id+' completed through controls')
