@@ -381,7 +381,7 @@
       .join('')}</nav>`;
   }
   function footer() {
-    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
+    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="changelog">What’s new</button><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
   }
   function shell(content) {
     const label =
@@ -395,6 +395,7 @@
             workshop: 'The workshop',
             settings: 'Settings & saves',
             privacy: 'Privacy & credits',
+            changelog: 'What’s new',
             salon: 'The games room',
             lab: 'The living atlas',
             club: 'Club journal',
@@ -482,7 +483,7 @@
       library.difficulty === 'all' &&
       !library.browseAll
     )
-      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div>`;
+      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
@@ -1199,6 +1200,7 @@
         settings: settingsPage,
         workshop: workshopPage,
         privacy: privacyPage,
+        changelog: () => globalThis.AlibiUpdates.page(),
         play: playPage,
         salon: () => AlibiClub.roomPage(route.id),
         club: () => AlibiClub.profile(),
@@ -2355,6 +2357,17 @@
       case 'hint':
         showHint();
         break;
+      case 'release-jump': {
+        const entry = document.getElementById('release-' + v);
+        entry?.focus({ preventScroll: true });
+        entry?.scrollIntoView({ behavior: 'instant', block: 'start' });
+        break;
+      }
+      case 'discover-collection':
+        navigate('library');
+        library.venue = v || '';
+        library.browseAll = true;
+        break;
       case 'curation-venue':
         library.venue = v || '';
         library.limit = 24;
@@ -2978,6 +2991,7 @@
         'settings',
         'workshop',
         'privacy',
+        'changelog',
         'salon',
         'lab',
         'club',

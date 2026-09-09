@@ -1,0 +1,119 @@
+[
+  {
+    "version": "0.8.2",
+    "date": "2026-09-09",
+    "title": "A better place to land",
+    "source": "c42a3886ac1ca87cb666fe57b246f51a3e185213",
+    "tag": "v0.8.2",
+    "receipt": "docs/RELEASE-0.8.2.md",
+    "changes": [
+      "Internal page buttons now move keyboard focus to the destination page, making it easier to keep exploring.",
+      "Search keeps your typing position, and first-play lessons keep focus inside their dialog."
+    ]
+  },
+  {
+    "version": "0.8.1",
+    "date": "2026-09-09",
+    "title": "More possibilities, shaped by players",
+    "source": "3a36ce255104ffff961a2fbdc4f5f3ea54632b5b",
+    "tag": "v0.8.1",
+    "receipt": "docs/RELEASE-0.8.1.md",
+    "changes": [
+      "Choose a puzzle family first, then browse its levels. A visible “Show all collections” button gets you out of a collection filter.",
+      "Sketch possible people with small letter notes in crime-scene cells, and mark a board square with a cross independently of a person. Sudoku shows when all copies of a digit are placed.",
+      "Find How to play more easily, and read casebook openings, continuation pages and epilogues between puzzles.",
+      "Four new 8 × 8 Sun & Moon boards bring that family to 27 puzzles and the full cabinet to 328."
+    ]
+  },
+  {
+    "version": "0.8.0",
+    "date": "2026-09-09",
+    "title": "The theatrical edition",
+    "source": "adb4f5dcfdf5b3352616c612b0d21a0e9b05cb4e",
+    "tag": "v0.8.0",
+    "receipt": "docs/RELEASE-0.8.0.md",
+    "changes": [
+      "Eight rooms gain painted scenery, weather, emblems and optional room sound. Choose credited photographic alternatives when you want a different atmosphere.",
+      "Deliberately played short films and an interactive Field notes library add more to explore. Enhanced media stays optional; comfort controls let you quiet the room.",
+      "Backup warnings, offline downloads and recovery handling are clearer. Existing puzzles and progress keep their identities."
+    ]
+  },
+  {
+    "version": "0.7.0",
+    "date": "2026-09-09",
+    "title": "The Curation Cabinet",
+    "source": "ad284c74e80b8504d5831f4c277db93b3540857d",
+    "tag": "v0.7.0",
+    "receipt": "docs/RELEASE-0.7.0.md",
+    "changes": [
+      "208 new puzzles arrive in the Salt Observatory, Copper Conservatory, Nocturne Gallery and Winter Post Office. The cabinet grows to 324 puzzles across thirteen families.",
+      "Curator notes offer rules, general tactics and answer notes after completion. Collection artwork brings each setting to life.",
+      "A separate set of 59 fixed-start challenges expands the games and quiet activities. Difficulty remains an editorial estimate, ready for player feedback."
+    ]
+  },
+  {
+    "version": "0.6.0",
+    "date": "2026-09-08",
+    "title": "A door into the Quiet Wing",
+    "source": "669654613d68d93e8eaf8a9dd49d32616464692f",
+    "tag": "v0.6.0",
+    "receipt": "docs/RELEASE-0.6.0.md",
+    "changes": [
+      "Build seeded towns and castles, connect roads, and undo your world edits. A Canvas view keeps the realm usable when 3D rendering is unavailable.",
+      "Meet animated companions, try four additional relaxing boards, grow a flower collection and make postcards.",
+      "Museum artwork and an optional offline pack make room for quieter visits. The original 116 cabinet puzzles and their saves stay intact."
+    ]
+  },
+  {
+    "version": "0.5.0-preview.1",
+    "date": "2026-09-08",
+    "title": "After Hours",
+    "source": "1f049a794609be04f29a91117fbd1a8701d28d08",
+    "tag": "v0.5.0-preview.1",
+    "receipt": null,
+    "changes": [
+      "The games room opens with Lantern Duel, Pocket Borough and six Archive Heist rooms. Play offline or share the same device for a local duel.",
+      "Rotating desk editions, a club journal, reversible assistance, Zen and an animated harbour atlas offer new ways to spend a visit.",
+      "Recovery and saving receive extra care. Public online multiplayer is not enabled."
+    ]
+  },
+  {
+    "version": "0.4.0",
+    "date": "2026-09-08",
+    "title": "The Bellweather expedition",
+    "source": "36d5e01180c017e7bd3fa068526fd2669034c9b0",
+    "tag": "v0.4.0",
+    "receipt": null,
+    "changes": [
+      "Follow six chronological records at Bellweather, with one cast, a developing investigation and revelations earned as you solve.",
+      "Eight original Tidal bridges maps add a thirteenth puzzle family, with touch and keyboard controls, a hands-on lesson and reasoning hints.",
+      "The cabinet grows to 116 puzzles, with four illustrated casebooks."
+    ]
+  },
+  {
+    "version": "0.3.0",
+    "date": "2026-09-08",
+    "title": "The puzzle cabinet opens",
+    "source": "cc31881b2adc6c5df79bc31b836f0f40e225005f",
+    "tag": "v0.3.0",
+    "receipt": null,
+    "changes": [
+      "The first public cabinet brings together 102 puzzles across twelve families, illustrated casebooks and navigation designed for phones.",
+      "Try reasoning hints, review completed records, and keep unfinished creations in the workshop.",
+      "Progress saves on your device, with backups, recovery controls and offline play."
+    ]
+  },
+  {
+    "version": "0.2.0",
+    "date": null,
+    "title": "The original source cabinet",
+    "source": "40532523b6c4a0ab97b1e817862cf13a6f6f4d40",
+    "tag": null,
+    "receipt": null,
+    "changes": [
+      "The original source bundle expanded from 40 to 102 puzzles and from five to twelve families, with three anthology casebooks.",
+      "Lessons, favourites, a journal, a scene workshop, keyboard controls, notes, undo and comfort settings formed the original cabinet.",
+      "This is a historical source baseline, before the first public release. It has no published release download."
+    ]
+  }
+]
