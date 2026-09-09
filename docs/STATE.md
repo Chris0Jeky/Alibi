@@ -2,57 +2,61 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Wrenmere production integration in progress
+## Wrenmere production candidate
 
-Catalogue checkpoint: all 328 official puzzles now belong to thirteen room familiarity tracks,
-with 39 named starter links. Three distinct saved solves reveal an optional room detail; guided
-play counts and restarting does not revoke past completion. The root adapter validates the
-official ID, revision and definition before counting. Castle receives metadata, not private run
-content. Four actual-control practice/return/restart groups pass at 390/1280. The new A/B release
-test also proves export acknowledgement through the real Save & update control. Later chapters
-and creative rewards have detailed [continuation](castle/CONTINUATION.md) and
-[delivery](castle/DEFERRED-REWARDS.md) plans. Final review and publication are still pending.
+`codex/wrenmere-production` preserves every original commit from draft PRs #39–42 and
+integrates the current player release. Chapter I now has ten questions, twelve original scene
+SVGs, consistent map layers, nearby doors, visible objects, an optional captioned prologue,
+three museum label reviews and eight revisable evidence-linked hypotheses. The secret stair
+stays absent from the map, directory and search until its deduction.
 
-Navigation/media checkpoint: the integration now includes main PR #65 (`92565a4`, Alibi 0.9.0).
-The twelve original scene SVGs and optional captioned prologue are delivered under separate
-budgets. The grounds preserve map coordinates; rooms have visible hotspots, equivalent named
-controls, nearby exits and thinking methods. The full local gate, ten-question playthrough at
-390/1280, notebook recovery and eight exploration/media/offline checks pass. Visual inspection
-covered the grounds, room and museum layouts. These are browser simulations, not physical-phone
-acceptance. Catalogue familiarity and final production review/release remain in progress.
+All 328 official puzzles feed thirteen room familiarity tracks with 39 starter links. Three
+first solves reveal a small room detail; hints count and restarting retains earlier completion.
+The adapter validates committed official definitions and passes metadata only. These discoveries
+never award story evidence or cross-game entitlements.
 
-`codex/wrenmere-production` integrates all original commits from draft PRs #39–42 into
-the `8ffe98a` main baseline in an isolated checkout. The merge is conflict-free. The full
-format/build/Node gate passes after updating optional-pack accounting and the activity-host
-lifecycle regression to cover the added castle activity. This is a local source checkpoint,
-not a release. Castle restore (#44) now has bounded worker import, merge/replace with atomic
-recovery, exact-session export acknowledgement and combined-backup integration. The full
-local gate and seven groups of real-origin recovery checks pass, including quota/interruption,
-malformed/future files, cancellation, stale tabs and recovery export. Bespoke assets/navigation (#45–47), investigation tools
-and production acceptance remain the active work. Existing public puzzle definitions and
-all existing saves remain unchanged. Owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Notebook import uses the bounded worker, reviewable merge/replace, an atomic pre-restore copy
+and stale-record checks. The actual Save & update control rejects a protected notebook until
+an exact export is explicitly acknowledged; the exported notes can then be recovered on the
+new release. Cabinet, Club, Quiet Wing, challenge and castle state remain separate.
 
-The supplied `alibi-castle/` directory is reference input in the original checkout. Its full
-resource map covers 69 files; all 68 supplied checksums match. The full design/contract
-references and [production strategy](castle/STRATEGY.md) are preserved under `docs/castle/`.
-The evidence board now saves eight bounded, revisable hypotheses with collected-record
-references. Three source-backed curatorial label exercises open Mara's exhibition drawer;
-neither personal assessments nor label replays manufacture puzzle points or story evidence.
-Phone/desktop real-control and reload tests pass for those new interactions.
-## Discovery, history and seeded issue QA in progress
+The local full gate, ten-question controls at 390/1280, real-origin recovery, investigation,
+exploration/media/offline, practice/return/restart and A/B update checks pass. Visual inspection
+covered grounds, room and museum layouts. Final independent review, exact-head CI and production
+publication remain pending; this is not a hosted-release claim.
 
-The active iteration is tracked in [POLISH-QA.md](POLISH-QA.md). The candidate adds illustrated
-collection invitations, recent-feature cards and an offline version history reachable from the
-desk and footer. [CHANGELOG.md](../CHANGELOG.md) covers all public versions from 0.3 through 0.8.2.
-GitHub historical release descriptions now lead with player changes; four missing deployment
-entries were added at their original source commits. Original receipt text (apart from newline
-normalization) and download assets are retained. Current hosted application remains 0.8.2.
+The supplied folder is mapped in [RESOURCES.md](castle/RESOURCES.md): 69 files, all 68 supplied
+checksums matching, with complete design references preserved. Start with the [strategy](castle/STRATEGY.md),
+[continuation records and proof graphs](castle/CONTINUATION.md), and [deferred pet/garden/city plan](castle/DEFERRED-REWARDS.md).
+Chapters II–V and creative reward connections remain planned. [HUMAN_TODO.md](../HUMAN_TODO.md)
+tracks physical Android, TalkBack, comfort and new-player acceptance, including castle q-7.
 
-Local candidate verification, 182 UI checks, 66 curation checks, the player-feedback matrix and
-20 discovery/history checks pass. Phone/desktop collection cards were visually inspected.
-Focus, anthology and other seeded bug fixes are in separate owned worktrees; integration,
-independent review, exact-head CI and deployment remain pending. Physical-device and owner
-acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
+and casebooks, including later editorial corrections and extra books absent from its seeds.
+A disposable regression deliberately changes a chapter brief and adds an anthology, then proves
+both survive generation. The runtime catalogue is unchanged. Hosted 0.9 release details follow.
+
+
+## Discovery and history 0.9.0 live; iterative QA continues
+
+PR #65 merged at `92565a4a064c02dae00dd3bd80678ecaaaf91cd4`. Build `f0b367c654a4` is published on
+both existing origins. Illustrated collection invitations, recent-feature cards and offline
+version history are available from the desk/library/footer. Bridges direction, inherited crop
+identifiers, Quiet Wing focus/motion and anthology framing fixes are integrated and published
+(#9, #15, #36, #61, #62). The scoped Sharp override resolves #58 and installs under the CI runner's
+npm 10.9.8 with zero audit findings. [CHANGELOG.md](../CHANGELOG.md) and GitHub releases include
+the historical public versions, retaining their original source identities and receipts.
+
+Both complete CI runs passed. Each live origin passed 92 storage/offline checks; the primary
+passed 20 actual-control discovery/history checks at phone/desktop widths. The real 0.8.2-to-0.9.0
+Save & update transition passed on both sites, preserving an extra move, exact state and pinned
+definition through offline reload. This resolves the previously unverified fallback transition
+tracked in #63; it does not establish the cause of the earlier timeout. See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
+
+The ongoing strategy and remaining acceptance are in [POLISH-QA.md](POLISH-QA.md). The generator
+follow-up above addresses #66. The separate active task **Explore Alibi castle expansion**
+owns Wrenmere implementation and its checkout; do not duplicate or mutate that task's work.
+Physical-device and owner acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Player-feedback QA 0.8.2 live
 
