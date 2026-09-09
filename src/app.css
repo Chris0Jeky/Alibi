@@ -1339,6 +1339,9 @@ input[type='checkbox'] {
   align-items: start;
   gap: 24px;
 }
+.player-grid > * {
+  min-width: 0;
+}
 .board-card {
   border: 1px solid var(--line);
   border-radius: 17px;
