@@ -1,6 +1,6 @@
 # Player discovery and iterative QA
 
-Active objective: work through seeded issues, continue actual-control QA, publish a player-facing changelog including historical versions, improve GitHub release notes retroactively, and make new collections/features inviting and readable.
+Iteration objective: work through seeded issues, continue actual-control QA, publish a player-facing changelog including historical versions, improve GitHub release notes retroactively, and make new collections/features inviting and readable.
 
 ## Working strategy
 
@@ -16,7 +16,7 @@ Active objective: work through seeded issues, continue actual-control QA, publis
 - Coordinator: release publication, live-update proof, ongoing QA and integration.
 - Completed: Terra focus/motion, Luna Bridges/garden and anthology fixes; integrated in PR #65.
 - Completed: generator preservation (#66), narrow player/assistant layout and library actions (PR #70).
-- Luna xhigh: background card focus and generator editorial order/header preservation (#69), in separate checkouts.
+- Completed: Luna focus and generator editorial order/header preservation (#69/#71/#75), integrated in PR #81 after independent review.
 - Separate task **Explore Alibi castle expansion** owns castle production, museum, notebook and recovery work.
 
 ## Acceptance matrix
@@ -59,16 +59,24 @@ checks; primary discovery/history passes 20 actual-control checks at 390px/1440p
 0.8.2-to-0.9.0 update transitions preserve the extra saved move and pinned definition through
 offline reload (#63). See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
 
-The 0.9.1 follow-up is published at `8641b3e`, build `efb6b034ac62`. Both origins pass the actual
+The 0.9.1 follow-up was published at `8641b3e`, build `efb6b034ac62`. Both origins pass the actual
 0.9.0-to-0.9.1 save/update/offline transition and 92 current-origin checks. The primary passes
 discovery and narrow-layout checks. Local/CI library focus passes, but a hosted pagination
 run lost focus after 168 cards; background rerenders are being investigated without claiming
 that matrix passes. Collection-settings focus (#71), editorial order/header preservation (#69),
-and focused CI artifact retention (#72) remain follow-ups. See [RELEASE-0.9.1.md](RELEASE-0.9.1.md).
+and focused CI artifact retention (#72) were retained as follow-ups. See [RELEASE-0.9.1.md](RELEASE-0.9.1.md).
 
-Continue the independent interaction audit. Castle-related issues #43–56 and their
-original PR stack belong to the active castle task; coordinate main/deployment changes instead
-of parallel implementation. Companion/garden/realm expansion #29–35/#37 retains its prerequisite
+The completed 0.10.1 QA iteration is published from PR #81 (`900816a`), build `3161ffd2958c`.
+It resolves #69/#71/#75; PR #74 resolves #72 with actual uploaded-artifact inspection.
+Both hosted origins now pass all 53 library keyboard checks, 92 storage/offline checks and the
+actual 0.10.0-to-0.10.1 saved-game update/offline transition. The primary also passes discovery
+and narrow-layout checks. All four CI checks passed and independent review found no blocker.
+See [RELEASE-0.10.1.md](RELEASE-0.10.1.md). The current practical QA slice is complete; future
+iterations retain the remaining prerequisites rather than claiming the app is bug-free.
+
+Wrenmere 0.10.0 is separately published through PR #73, preserving the original PR #39–42 stack.
+Castle follow-ups #76–80 and the expansion strategy remain with that work's continuation records.
+Companion/garden/realm expansion #29–35/#37 retains its prerequisite
 design and acceptance gates. Physical/human checks (#1, #2, #11, #13, #56) remain open; the two
 positive real-player reports do not stand in for those specific checks. Provider headers (#6)
 and shared estate registration (#3) remain outside this app-code slice.
