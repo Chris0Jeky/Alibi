@@ -40,6 +40,15 @@ TIMEOUT_MS = int(os.environ.get("ALIBI_TIMEOUT_MS", "10000"))
 IDB_TIMEOUT = float(os.environ.get("ALIBI_IDB_TIMEOUT", "10"))
 SW_TIMEOUT = float(os.environ.get("ALIBI_SW_TIMEOUT", "45"))
 SEED_PAGE = urljoin(BASE, "manifest.webmanifest")
+ORIGIN_SCENARIOS = (
+    "durability",
+    "backup_restore",
+    "cross_tab",
+    "keyboard",
+    "offline",
+    "malformed_draft",
+    "newer_database",
+)
 
 checks: list[str] = []
 errors: list[dict[str, str]] = []
@@ -793,6 +802,8 @@ def run() -> int:
         "errors": errors,
         "console": logs,
         "passed": False,
+        "scenarioSet": [],
+        "fullSuite": False,
     }
     with sync_playwright() as pw:
         # Chromium adds long cache paths beneath profiles; keep them outside long
@@ -809,6 +820,18 @@ def run() -> int:
                 scenario_newer_database,
             ]
             only = os.environ.get("ALIBI_ONLY")
+            if only and only not in ORIGIN_SCENARIOS:
+                raise ValueError(f"Unknown ALIBI_ONLY scenario: {only}")
+            selected = [scenario.__name__.removeprefix("scenario_") for scenario in scenarios]
+            if only:
+                selected = [only]
+            result["scenarioSet"] = selected
+            result["fullSuite"] = selected == list(ORIGIN_SCENARIOS) and not only
+            result["scope"] = (
+                "fresh persistent Chromium profiles; real-origin DOM, IndexedDB, service worker and browser restart; full scenario set"
+                if result["fullSuite"]
+                else f"focused origin scenario: {only}"
+            )
             for scenario in scenarios:
                 if only and scenario.__name__ != f"scenario_{only}":
                     continue

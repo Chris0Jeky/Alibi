@@ -6,16 +6,51 @@ const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const { build } = require('./build.cjs');
 const ROOT = path.resolve(__dirname, '..');
+const ORIGIN_SCENARIOS = [
+  'durability',
+  'backup_restore',
+  'cross_tab',
+  'keyboard',
+  'offline',
+  'malformed_draft',
+  'newer_database',
+];
+
+function nodeSuites(root = ROOT) {
+  const testDir = path.join(root, 'tests');
+  return {
+    tests: fs
+      .readdirSync(testDir)
+      .filter((f) => /\.test\.[cm]js$/.test(f))
+      .sort()
+      .map((f) => path.join(testDir, f)),
+    scripts: ['tests/quiet-wing/engines.cjs', 'tests/quiet-wing/contracts.cjs'],
+  };
+}
+
+function isCompleteOriginReport(result, build) {
+  return (
+    result?.passed === true &&
+    result.fullSuite === true &&
+    result.runtime?.build === build &&
+    JSON.stringify(result.scenarioSet) === JSON.stringify(ORIGIN_SCENARIOS)
+  );
+}
+
+function newPackageDirectory(root, info) {
+  const releaseRoot = path.join(root, 'release');
+  fs.mkdirSync(releaseRoot, { recursive: true });
+  return fs.mkdtempSync(path.join(releaseRoot, `alibi-${info.version}-${info.build}-`));
+}
+
 function pack() {
   build();
-  const tests = fs
-    .readdirSync(path.join(ROOT, 'tests'))
-    .filter((f) => f.endsWith('.test.cjs'))
-    .map((f) => path.join(ROOT, 'tests', f));
-  execFileSync(process.execPath, ['--test', ...tests], { cwd: ROOT, stdio: 'inherit' });
+  const suites = nodeSuites();
+  execFileSync(process.execPath, ['--test', ...suites.tests], { cwd: ROOT, stdio: 'inherit' });
+  for (const script of suites.scripts)
+    execFileSync(process.execPath, [path.join(ROOT, script)], { cwd: ROOT, stdio: 'inherit' });
   const info = JSON.parse(fs.readFileSync(path.join(ROOT, 'build-info.json'), 'utf8'));
-  const output = path.join(ROOT, 'release', `alibi-${info.version}-${info.build}`);
-  fs.mkdirSync(output, { recursive: true });
+  const output = newPackageDirectory(ROOT, info);
   const selected = ['alibi-deluxe-cloudflare.zip', 'alibi-deluxe-play.html', 'build-info.json'];
   const reports = [
     'tests/core-results.json',
@@ -28,7 +63,7 @@ function pack() {
   const origin = path.join(ROOT, 'test-results/browser-origin/browser-origin.json');
   if (fs.existsSync(origin)) {
     const result = JSON.parse(fs.readFileSync(origin, 'utf8'));
-    if (result.passed && result.runtime?.build === info.build)
+    if (isCompleteOriginReport(result, info.build))
       reports.push('test-results/browser-origin/browser-origin.json');
   }
   const update = path.join(ROOT, 'test-results/browser-update/results.json');
@@ -62,14 +97,31 @@ function pack() {
         source: 'https://github.com/Chris0Jeky/Alibi',
         androidVerified: false,
         reports: reports.map((p) => path.basename(p)),
+        files: [...entries.map((p) => path.basename(p)), 'SHA256SUMS', 'RELEASE-MANIFEST.json'],
         note: 'Packaging does not prove deployment. Browser reports are included only when their build identity matches.',
       },
       null,
       2,
     ),
   );
+  const declared = JSON.parse(
+    fs.readFileSync(path.join(output, 'RELEASE-MANIFEST.json'), 'utf8'),
+  ).files.sort();
+  const actual = fs
+    .readdirSync(output, { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort();
+  if (JSON.stringify(actual) !== JSON.stringify(declared))
+    throw Error('Release manifest does not match the fresh package directory.');
   console.log(output);
   return output;
 }
 if (require.main === module) pack();
-module.exports = { pack };
+module.exports = {
+  ORIGIN_SCENARIOS,
+  isCompleteOriginReport,
+  newPackageDirectory,
+  nodeSuites,
+  pack,
+};
