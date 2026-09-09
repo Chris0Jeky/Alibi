@@ -439,8 +439,9 @@
     }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div></div></button></article>`;
   }
   function bookCard(b, i) {
-    const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length;
-    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${caseArt(b.id)}<span class="book-number">CASE FILE / 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} chapters</span></div></div></button>`;
+    const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
+      units = b.format === 'anthology' ? 'records' : 'chapters';
+    return `<button class="book-card" data-action="navigate" data-page="casebooks" data-id="${b.id}"><div class="book-cover">${caseArt(b.id)}<span class="book-number">CASE FILE / 0${i + 1}</span></div><div class="book-info"><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p><div class="book-progress">${b.chapters.map((c) => `<i class="${solved(rec(find(c.id))) ? 'done' : ''}"></i>`).join('')}<span>${count} / ${b.chapters.length} ${units}</span></div></div></button>`;
   }
   function caseArt(id, eager = false) {
     const source = globalThis.ALIBI_MEDIA?.[books.find((b) => b.id === id)?.artwork || id];
@@ -561,14 +562,16 @@
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
     if (!b)
-      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every chapter is yours to open.</h3><p>Play in order or follow your curiosity. Your chapter progress stays with the same saved puzzles in the collection.</p></div></div>`;
+      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every part of a casebook is yours to open.</h3><p>Follow Bellweather’s continuous investigation in order, or follow your curiosity through the earlier standalone records.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
-      next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0];
+      next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0],
+      anthology = b.format === 'anthology',
+      units = anthology ? 'records' : 'chapters';
     const chapterTimes = b.chapters.map((c) => find(c.id)).map(timing),
       caseTime = chapterTimes.every(Boolean)
         ? `${chapterTimes.reduce((sum, label) => sum + Number.parseInt(label, 10), 0)} minute estimate`
         : '';
-    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? 'Continue the casebook' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} chapters${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>The case file.</h2><span class="tag">${done} / ${b.chapters.length} chapters complete</span></div><div class="chapter-list">${b.chapters
+    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? (anthology ? 'Continue to the next record' : 'Continue the casebook') : anthology ? 'Open the first record' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} ${units}${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>${anthology ? 'The records.' : 'The case file.'}</h2><span class="tag">${done} / ${b.chapters.length} ${units} complete</span></div><div class="chapter-list">${b.chapters
       .map((c, i) => {
         const p = find(c.id),
           finished = solved(rec(p));
@@ -576,7 +579,7 @@
       })
       .join(
         '',
-      )}</div>${done === b.chapters.length ? `<div class="case-ending"><div class="eyebrow">Casebook complete</div><h2>The file is in order.</h2><p>${esc(b.ending)}</p>${B('Choose another casebook', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div>` : ''}`;
+      )}</div>${done === b.chapters.length ? `<div class="case-ending"><div class="eyebrow">${anthology ? 'Anthology complete' : 'Casebook complete'}</div><h2>${anthology ? 'The records are filed.' : 'The file is in order.'}</h2><p>${esc(b.ending)}</p>${B('Choose another casebook', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div>` : ''}`;
   }
   function chapterAtmosphere(p) {
     const b = books.find((book) => book.id === route.book),
@@ -596,8 +599,18 @@
     const puzzle = find(chapter.id),
       done = solved(rec(puzzle)),
       finished = book.chapters.every((c) => solved(rec(find(c.id)))),
-      index = book.chapters.indexOf(chapter);
-    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? 'EPILOGUE' : `CHAPTER ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? 'The file is in order.' : chapter.name)}</h1>${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || 'Another record is complete. The case file keeps your discovery.' : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B('Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
+      index = book.chapters.indexOf(chapter),
+      anthology = book.format === 'anthology',
+      unit = anthology ? 'RECORD' : 'CHAPTER',
+      completionLabel = anthology ? 'ANTHOLOGY COMPLETE' : 'EPILOGUE',
+      completionTitle = anthology ? 'The records are filed.' : 'The file is in order.',
+      formatNote = anthology
+        ? '<p class="story-format-note">Standalone record. Open any record in any order; completed records stay available in the case file.</p>'
+        : '',
+      completedText = anthology
+        ? 'This record is complete. The solved evidence stays in the anthology file.'
+        : 'Another record is complete. The case file keeps your discovery.';
+    return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? completionLabel : `${unit} ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? completionTitle : chapter.name)}</h1>${formatNote}${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || completedText : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B(anthology ? 'Continue to the next record' : 'Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
   }
   function chapterReveal(p) {
     const b = books.find((book) => book.id === route.book),
