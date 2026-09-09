@@ -86,11 +86,7 @@ function memoryTransactions() {
           staged = value;
         },
       };
-      operation(
-        records,
-        (value) => (result = value),
-        (error) => (failure = error),
-      );
+      operation(records, (value) => (result = value), (error) => (failure = error));
     });
   }
   return {
