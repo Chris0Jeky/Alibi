@@ -28,3 +28,24 @@ Active objective: work through seeded issues, continue actual-control QA, publis
 - Persistence: saves and pinned definitions unchanged, current-origin offline suite and a live update with an extra move before activation.
 
 Evidence will be recorded as each check runs. Physical Android, TalkBack, human difficulty/sensory review and owner decisions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## First integration checkpoint
+
+The news/history slice passed source verification, 182 UI checks, 66 curation checks, 20 focused
+discovery/history checks and 92 local real-origin checks. Visual inspections covered phone and
+desktop cards, large text/high contrast, and the night palette. All eight historical GitHub
+release entries are visible; twelve API assertions verify source tags and original receipt/assets.
+The source-only 0.2 baseline is also retained in the app and repository changelog.
+
+Integrated from independent worktrees: #9 Bridges directional movement (261 expedition checks),
+#15 inherited crop names and non-mutating restore refusal, #62 root/Quiet Wing native-link focus,
+#36 preserved local motion under root/OS overrides, and #61 anthology framing. Final combined
+checks and review remain in progress. #58 uses a scoped Sharp patch override with unchanged other
+package versions; clean installation and audit report zero vulnerabilities.
+
+The first live-update seed attempts failed before an update existed: one test predicate violated
+CSP and the corrected persistent-profile attempt had no registered worker. A separate fresh
+Chromium context reached offline-ready on primary0.8.2 with complete activation events and no
+errors; ordinary scripted HTTP403/1010 responses were client-specific, not evidence that normal
+browser access was broken. A fresh context probe captures worker events and diagnostics and uses
+the actual Check for updates and Save & update controls. Keep all outcomes separate.

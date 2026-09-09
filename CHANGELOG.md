@@ -6,6 +6,19 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.9.0 · A clearer way to explore
+
+2026-09-09
+
+- Find recent additions on your desk, with illustrated collection cards, short invitations and a direct route into each setting.
+- Read What’s new from the desk or footer, including earlier versions, even while offline. GitHub release notes now include the missing historical versions.
+- Keyboard navigation follows links into and out of the Quiet Wing. Bridges arrow keys keep to the selected row or column.
+- Your Quiet Wing motion choice stays yours when broader comfort settings change. Malformed garden backups are rejected before they can become broken saves.
+
+- Casebook pages now distinguish the continuous Bellweather investigation from the three anthologies of independent records, including their endings and replay controls.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.9.0) · [Deployment receipt](docs/RELEASE-0.9.0.md)
+
 ## 0.8.2 · A better place to land
 
 2026-09-09
