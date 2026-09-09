@@ -41,8 +41,10 @@ There are at most two visible-image tasks per mounted gallery. Each candidate ge
 including body transfer; each image is at most 1 MiB. Cache operations have a 1.5-second wait
 budget and decoding has two seconds. With one mirror plus the origin, an upgrade can take two
 network attempts; local rendering never waits for either. Requests omit credentials and referrers.
-The enhancement cache keeps at most eight entries after serialized writes, evicting oldest
-entries; it does not open IndexedDB or remove shell, wing, folio or unrelated caches.
+The enhancement cache targets eight entries after writes serialized within a tab, evicting oldest
+entries. Concurrent tabs can temporarily exceed that target; [#28](https://github.com/Chris0Jeky/Alibi/issues/28)
+tracks cross-tab eviction coordination before expanding the four-image registry. This is not a hard
+global storage quota; it does not open IndexedDB or remove shell, wing, folio or unrelated caches.
 The cache is reusable across app releases because every hit is checked against the current
 manifest's exact fingerprint. Obsolete detail may be evicted without changing saved puzzles.
 

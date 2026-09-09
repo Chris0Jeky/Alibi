@@ -19,6 +19,9 @@ Phone-sized and desktop gallery screenshots were visually inspected. Node regres
 cover CDN failure, invalid/oversized/partial responses, hashes, quota denial, timeouts and
 nonblocking activity disposal. Evidence is under `tests/delivery-*.log` and `test-results/delivery/`.
 
+The ready [PR #27](https://github.com/Chris0Jeky/Alibi/pull/27) contains two implementation/strategy
+commits plus review reconciliation. Independent read-only review found no blockers; its low-risk
+cross-tab optional-cache target race is tracked in [#28](https://github.com/Chris0Jeky/Alibi/issues/28).
 This is source/local acceptance, not a new production deployment. Hosted CI, actual external-mirror
 CORS and physical-device performance remain distinct gates. [HUMAN_TODO.md](../HUMAN_TODO.md),
 particularly q-2/q-4, remains open; no subjective owner checks have been closed.
