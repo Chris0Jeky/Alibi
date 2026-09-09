@@ -71,7 +71,7 @@ with sync_playwright() as pw:
  # Browser autoplay policy must not erase the native Play control's source.
  c=browser.new_context();page=c.new_page()
  page.add_init_script("const play=HTMLMediaElement.prototype.play; HTMLMediaElement.prototype.play=function(){if(this.tagName==='VIDEO'&&!window.allowFilm)return Promise.reject(new DOMException('Gesture needed','NotAllowedError'));return play.call(this)}")
- page.goto(URL);page.wait_for_selector('.theatre-screenings summary');page.locator('.theatre-screenings summary').click();page.locator('[data-theatre-film]').first.click()
+ page.goto(URL);page.wait_for_function('()=>window.AlibiDiagnostics?.getStatus().offlineReady && navigator.serviceWorker.controller');page.locator('.theatre-screenings summary').click();page.locator('[data-theatre-film]').first.click()
  page.wait_for_function('()=>document.querySelector(".theatre-dialog [role=status]").textContent.includes("Press play")')
  page.wait_for_timeout(8200)
  check(bool(page.locator('.theatre-dialog video').get_attribute('src')),'Autoplay refusal retains a playable source beyond the network deadline')

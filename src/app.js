@@ -1797,10 +1797,12 @@
           : '',
       ].filter(Boolean),
     });
+    const exported = manifest
+      .map((section) => ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing' })[section])
+      .join(', ');
     toast(
-      warnings.length
-        ? 'Cabinet, Club and Quiet Wing exported. Check the warning before restoring.'
-        : 'Cabinet, Club and Quiet Wing exported. Challenge replays remain separate.',
+      `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
+      warnings.length > 0,
     );
   }
   async function stageAll(file) {

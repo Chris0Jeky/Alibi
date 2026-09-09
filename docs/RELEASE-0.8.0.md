@@ -21,9 +21,9 @@ Packaging runs all Node suites and includes only matching, complete origin recei
 
 ## Verified source checkpoint
 
-Build `8a8723beb9eb`: 324 puzzles, 13 families, four casebooks, 255 emitted files.
-Core offline bytes: 1,872,649. Initial JavaScript gzip: 110,628 bytes; initial code and official
-content gzip: 149,113. Quiet Wing: 2,281,378 bytes. Image enhancements: 3,303,960 bytes outside
+Build `c8ea40a83be7`: 324 puzzles, 13 families, four casebooks, 255 emitted files.
+Core offline bytes: 1,872,667. Initial JavaScript gzip: 110,647 bytes; initial code and official
+content gzip: 149,132. Quiet Wing: 2,281,378 bytes. Image enhancements: 3,303,960 bytes outside
 core installation. All existing core/JS/CSS/Wing budgets pass; optional images are below 4 MiB.
 
 Local format/build gate: 91 Node tests, 581,834 Quiet engine assertions and 22 contract assertions.
@@ -36,6 +36,9 @@ UI, storage and update results are retained under `test-results/` and in the fin
 
 Two independent bounded review slices covered multimedia/integration and reliability respectively.
 One scoped verification confirmed the media review fixes. Review details and hosted CI are on PR #26.
+The final backup confirmation names only exported sections and immediately identifies an omitted
+Quiet Wing. The autoplay test waits for service-worker startup before opening its film shelf;
+the failed CI trace showed the startup render closing that disclosure during the click.
 
 ## NOT verified / residual risk
 

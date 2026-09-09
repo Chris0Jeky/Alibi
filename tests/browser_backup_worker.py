@@ -14,7 +14,9 @@ with sync_playwright() as pw:
     page.context.set_offline(True)
     with page.expect_download() as download:
         page.locator('[data-action="export-all"]').click()
-    assert page.locator('#toasts').inner_text().startswith('Cabinet, Club and Quiet Wing exported.')
+    message=page.locator('#toasts').inner_text()
+    assert 'Cabinet, Club exported.' in message and 'Quiet Wing was not included:' in message
+    assert 'Quiet Wing exported.' not in message
     page.context.set_offline(False)
     data=json.loads(Path(download.value.path()).read_text(encoding='utf-8'))
     assert data['manifest']==['cabinet','club'] and any('Quiet Wing was not included:' in w for w in data['warnings'])
