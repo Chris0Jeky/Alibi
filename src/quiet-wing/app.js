@@ -205,6 +205,18 @@
         A.renderer?.setMotion?.(A.state.settings.motion);
         A.petView?.setMotion(A.state.settings.motion);
       }
+      function applyRootPreferences(preferences) {
+        A.rootPreferences = preferences ? { ...preferences } : null;
+        if (!A.state || !preferences) return;
+        A.state.settings.motion = !preferences.reducedMotion;
+        const dark =
+          preferences.theme === 'night' ||
+          (preferences.theme === 'system' && G.matchMedia('(prefers-color-scheme: dark)').matches);
+        body.classList.toggle('night', dark);
+        body.classList.toggle('contrast', !!preferences.contrast);
+        body.classList.toggle('large', !!preferences.largeText);
+        styles();
+      }
       function shell() {
         styles();
         $('#app').innerHTML =
@@ -2329,6 +2341,7 @@
           A.state.stats.views.push(A.state.scene.camera.view);
         if (G.matchMedia('(prefers-reduced-motion: reduce)').matches)
           A.state.settings.motion = false;
+        applyRootPreferences(context.preferences);
         A.dirty = G.QWRetainedDirty || false;
         go();
         if (result.blocked)
@@ -2357,6 +2370,7 @@
           }
         },
         flush,
+        setPreferences: applyRootPreferences,
         state: () => A.state,
         dispose() {
           disposed = true;

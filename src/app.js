@@ -163,6 +163,7 @@
     document.documentElement.dataset.reduced = settings.reducedMotion;
     document.documentElement.dataset.contrast = settings.contrast;
     document.documentElement.dataset.large = settings.largeText;
+    globalThis.AlibiActivities?.setPreferences?.(settings);
   }
   theme();
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', theme);
@@ -2888,7 +2889,7 @@
     render();
     if (route.page === 'quiet') {
       try {
-        await AlibiActivities.enter(document.getElementById('quiet-host'));
+        await AlibiActivities.enter(document.getElementById('quiet-host'), { preferences: settings });
       } catch (e) {
         const host = document.getElementById('quiet-host');
         if (host)

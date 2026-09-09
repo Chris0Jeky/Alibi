@@ -97,3 +97,32 @@ test('a route exit serializes with a pending mount and disposes it before the ne
   assert.deepEqual(calls.slice(-2), ['flush2', 'dispose2']);
   assert.equal(registry.diagnostics().active, false);
 });
+
+test('root preferences reach the mounted wing and update it while active', async () => {
+  const mounted = [],
+    updates = [],
+    host = () => ({ isConnected: true, attachShadow: () => ({}) });
+  const env = {
+    ALIBI_QUIET_CONFIG: { cssSource: '', media: {} },
+    AlibiQuietWing: {
+      mount: async (context) => {
+        mounted.push(context.preferences);
+        return {
+          route() {},
+          setPreferences: (value) => updates.push(value),
+          flush: async () => {},
+          dispose: () => {},
+        };
+      },
+    },
+  };
+  vm.runInNewContext(fs.readFileSync(require.resolve('../src/activities.js'), 'utf8'), env);
+  const first = { theme: 'night', reducedMotion: true, contrast: true, largeText: false };
+  env.AlibiActivities.setPreferences(first);
+  await env.AlibiActivities.enter(host());
+  assert.deepEqual(JSON.parse(JSON.stringify(mounted)), [first]);
+  const second = { theme: 'light', reducedMotion: false, contrast: false, largeText: true };
+  env.AlibiActivities.setPreferences(second);
+  assert.deepEqual(JSON.parse(JSON.stringify(updates)), [second]);
+  await env.AlibiActivities.leave();
+});
