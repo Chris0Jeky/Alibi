@@ -10,9 +10,11 @@ with sync_playwright() as pw:
     page=browser.new_page()
     page.goto(BASE+'#/settings')
     page.wait_for_function('() => !!window.AlibiDiagnostics')
+    page.get_by_text('Curated challenge replays are separate:',exact=False).wait_for()
     page.context.set_offline(True)
     with page.expect_download() as download:
         page.locator('[data-action="export-all"]').click()
+    assert page.locator('#toasts').inner_text().startswith('Cabinet, Club and Quiet Wing exported.')
     page.context.set_offline(False)
     data=json.loads(Path(download.value.path()).read_text(encoding='utf-8'))
     assert data['manifest']==['cabinet','club'] and any('Quiet Wing was not included:' in w for w in data['warnings'])
