@@ -48,7 +48,8 @@ flowchart TD
 | `tools/` | Build, local server, pack validation, generation and bundling |
 | `tests/` | Pure contracts, worker simulation, isolated controls and real-origin acceptance |
 | `.github/` | CI and contribution templates |
-| `.openai/hosting.json` | Exact Sites project and static output; no credential |
+| `wrangler.jsonc` | Existing Cloudflare primary site and static output |
+| `.openai/hosting.json` | Exact Sites fallback project and static output; no credential |
 
 ## Games and content
 
