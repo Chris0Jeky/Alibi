@@ -2,12 +2,17 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Small-screen and keyboard QA patch in progress
+## Small-screen and keyboard QA 0.9.1 published
 
-The 0.9.1 candidate addresses reproduced 320px large-text player overflow, tiny Desk assistant
+The 0.9.1 release addresses reproduced 320px large-text player overflow, tiny Desk assistant
 controls and library-action focus loss. The expanded layout matrix includes full-size Sudoku,
 scenes and aquariums, actual assistant controls and 44px targets. Player history includes the
-patch. Current hosting remains the verified 0.9.0 release below until a new receipt is recorded.
+patch. PR #70 merged at `8641b3e`; build `efb6b034ac62` is published on both existing origins.
+Both full CI runs pass. Each host passes 92 storage/offline checks and the actual 0.9.0-to-0.9.1
+save/update/offline transition. The primary passes discovery and narrow-layout matrices.
+The hosted library pagination matrix exposed timing-dependent focus loss; background refreshes
+are under investigation despite passing local/CI runs. Collection-settings
+focus (#71) and focused CI artifact retention (#72) are separate tracked follow-ups.
 See [RELEASE-0.9.1.md](RELEASE-0.9.1.md). The castle task reserves 0.10.0 and owns that expansion.
 
 Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
