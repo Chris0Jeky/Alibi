@@ -1,6 +1,8 @@
 import * as view from './view.mjs';
 import { attachFeedback } from './feedback.mjs';
+import { createPackCache } from './cache.mjs';
 
+const cache = createPackCache(() => globalThis.ALIBI_QUIET_CONFIG?.castle);
 async function mount(options) {
   const handle = await view.mount(options);
   const feedback = attachFeedback(options.root);
@@ -16,4 +18,7 @@ async function mount(options) {
     },
   };
 }
-globalThis.AlibiCastle = { mount, flush: view.flush, diagnostics: view.diagnostics };
+globalThis.AlibiCastle = {
+  mount, flush: view.flush, diagnostics: view.diagnostics,
+  cachePack: cache.load, offline: cache.available,
+};

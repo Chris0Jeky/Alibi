@@ -142,7 +142,8 @@
         active = handle;
         activeKind = kind;
         activeHost = host;
-        if (!caching)
+        if (kind === 'castle') G.AlibiCastle.cachePack();
+        else if (!caching)
           caching = cachePack().finally(() => {
             caching = null;
           });
@@ -185,7 +186,7 @@
     diagnostics: () => ({
       loaded: !!G.AlibiQuietWing,
       active: !!active,
-      offline,
+      offline: activeKind === 'castle' ? (G.AlibiCastle?.offline() ?? false) : offline,
       kind: activeKind,
     }),
   };

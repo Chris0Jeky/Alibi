@@ -42,8 +42,10 @@ jobs:
       - run: npm ci
       - name: Show activity formatting differences
         run: npx prettier src/activities.js | diff -u src/activities.js - || true
+      - run: npm run format:check
       - run: node --test tests/castle*.test.mjs
       - run: npm run build
+      - run: node tests/budget.test.cjs
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
       - name: Play the chapter and verify native storage
@@ -58,3 +60,11 @@ jobs:
         run: |
           cat test-results/castle/acceptance.json 2>/dev/null || true
           cat /tmp/alibi-castle-server.log 2>/dev/null || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: castle-evidence-${{ github.run_id }}
+          path: |
+            test-results/castle/
+            build-info.json
+          if-no-files-found: ignore

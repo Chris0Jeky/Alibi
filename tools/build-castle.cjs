@@ -12,9 +12,15 @@ module.exports = function buildCastle(root, dist) {
     target: 'es2022',
     write: false,
   }).outputFiles[0].text;
+  const bytes = Buffer.byteLength(source);
+  if (bytes > 96 * 1024) throw Error('Castle activity exceeds its separate 96 KiB budget.');
   const hash = crypto.createHash('sha256').update(source).digest('hex').slice(0, 12);
   const script = `./assets/quiet-castle.${hash}.js`;
   fs.mkdirSync(path.join(dist, 'assets'), { recursive: true });
   fs.writeFileSync(path.join(dist, script), source);
-  return { config: { script }, standalone: { source }, bytes: Buffer.byteLength(source) };
+  return {
+    config: { script, files: [script], build: hash },
+    standalone: { source },
+    bytes,
+  };
 };
