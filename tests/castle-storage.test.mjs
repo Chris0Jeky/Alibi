@@ -57,47 +57,48 @@ test('A stalled transaction is aborted within its watchdog', async () => {
   assert.equal(aborted, 1);
 });
 
-// This is a deterministic transaction harness, not a replacement for the browser IDB suite.
+// This deterministic harness complements the real-origin IndexedDB tests.
 function memoryTransactions() {
   let committed;
   let queue = Promise.resolve();
+  function run(mode, operation) {
+    return new Promise((resolve, reject) => {
+      let result;
+      let staged;
+      let failure;
+      const records = {
+        get() {
+          const request = {};
+          queueMicrotask(() => {
+            request.result = committed;
+            request.onsuccess();
+            if (failure) {
+              reject(failure);
+              return;
+            }
+            if (staged) committed = staged;
+            resolve(result);
+          });
+          return request;
+        },
+        put(value) {
+          assert.equal(mode, 'readwrite');
+          staged = value;
+        },
+      };
+      operation(
+        records,
+        (value) => (result = value),
+        (error) => (failure = error),
+      );
+    });
+  }
   return {
     read: () => committed,
     attach(store) {
       store.mode = 'local';
       store.transaction = (mode, operation) => {
-        const task = queue.then(
-          () =>
-            new Promise((resolve, reject) => {
-              let result;
-              let staged;
-              let failure;
-              const records = {
-                get() {
-                  const request = {};
-                  queueMicrotask(() => {
-                    request.result = committed;
-                    request.onsuccess();
-                    if (failure) reject(failure);
-                    else {
-                      if (staged) committed = staged;
-                      resolve(result);
-                    }
-                  });
-                  return request;
-                },
-                put(value) {
-                  assert.equal(mode, 'readwrite');
-                  staged = value;
-                },
-              };
-              operation(
-                records,
-                (value) => (result = value),
-                (error) => (failure = error),
-              );
-            }),
-        );
+        const task = queue.then(() => run(mode, operation));
         queue = task.catch(() => {});
         return task;
       };

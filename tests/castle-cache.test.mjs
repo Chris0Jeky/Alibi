@@ -6,7 +6,7 @@ const config = {
   build: '123456abcdef',
   files: ['./assets/quiet-castle.123456abcdef.js'],
 };
-test('Castle cache retains its predecessor and never deletes other activity caches', async () => {
+test('Castle cache keeps its predecessor and leaves other activity caches alone', async () => {
   const removed = [];
   const storage = {
     open: async () => ({ match: async () => ({ ok: true }) }),
@@ -25,7 +25,7 @@ test('Castle cache retains its predecessor and never deletes other activity cach
   assert.deepEqual(removed, ['alibi-castle-pack-oldest']);
 });
 
-test('Castle cache refuses foreign or mismatched files and tolerates denied storage', async () => {
+test('Castle cache rejects mismatched files and tolerates storage denial', async () => {
   let opened = 0;
   const storage = {
     open: async () => {
@@ -33,7 +33,8 @@ test('Castle cache refuses foreign or mismatched files and tolerates denied stor
       throw Error('Cache storage denied');
     },
   };
-  const invalid = createPackCache(() => ({ ...config, files: ['https://example.test/x'] }), storage);
+  const foreign = { ...config, files: ['https://example.test/x'] };
+  const invalid = createPackCache(() => foreign, storage);
   assert.equal(await invalid.load(), false);
   assert.equal(opened, 0);
   const denied = createPackCache(() => config, storage);
