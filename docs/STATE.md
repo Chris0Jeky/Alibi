@@ -2,10 +2,10 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
-## Wrenmere production candidate
+## Wrenmere 0.10.0 production candidate
 
 `codex/wrenmere-production` preserves every original commit from draft PRs #39–42 and
-integrates the current player release. Chapter I now has ten questions, twelve original scene
+integrates the merged 0.9.1 player release (#70, `8641b3e`). Chapter I now has ten questions, twelve original scene
 SVGs, consistent map layers, nearby doors, visible objects, an optional captioned prologue,
 three museum label reviews and eight revisable evidence-linked hypotheses. The secret stair
 stays absent from the map, directory and search until its deduction.

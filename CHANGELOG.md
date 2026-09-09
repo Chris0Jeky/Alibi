@@ -6,6 +6,18 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.10.0 · Welcome to Wrenmere
+
+2026-09-09
+
+- Enter Wrenmere Castle through an illustrated estate map, explore ten locations across two eras, inspect objects and follow a hidden route through the first chapter of its mystery.
+- Keep a notebook of evidence and revisable theories. Ten questions teach ordering, routes, probability and careful inference, with graduated hints and first-completion rewards.
+- Visit the puzzle museum, try three historical objects and revise their labels to distinguish mathematical proof, legend and modern reconstruction. Discover a small exhibition drawer.
+- Practise the existing thirteen puzzle families from their castle rooms. Three first solves reveal a room detail; 39 starter links guide the first visits and return you to the estate.
+- Watch an optional captioned prologue, revisit downloaded castle rooms offline, and review notebook backups before merging or replacing them. The original puzzle cabinet, Quiet Wing and their saves remain available.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.10.0) · [Deployment receipt](docs/RELEASE-0.10.0.md)
+
 ## 0.9.1 · Keep your place
 
 2026-09-09
