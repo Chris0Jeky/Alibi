@@ -15,7 +15,8 @@ Active objective: work through seeded issues, continue actual-control QA, publis
 
 - Coordinator: release publication, live-update proof, ongoing QA and integration.
 - Completed: Terra focus/motion, Luna Bridges/garden and anthology fixes; integrated in PR #65.
-- Luna xhigh: generator/authoring repair (#66) in an isolated checkout and independent next interaction audit.
+- Completed: generator preservation (#66), narrow player/assistant layout and library actions (PR #70).
+- Luna xhigh: background card focus and generator editorial order/header preservation (#69), in separate checkouts.
 - Separate task **Explore Alibi castle expansion** owns castle production, museum, notebook and recovery work.
 
 ## Acceptance matrix
@@ -58,7 +59,14 @@ checks; primary discovery/history passes 20 actual-control checks at 390px/1440p
 0.8.2-to-0.9.0 update transitions preserve the extra saved move and pinned definition through
 offline reload (#63). See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
 
-Continue #66 and the independent interaction audit. Castle-related issues #43–56 and their
+The 0.9.1 follow-up is published at `8641b3e`, build `efb6b034ac62`. Both origins pass the actual
+0.9.0-to-0.9.1 save/update/offline transition and 92 current-origin checks. The primary passes
+discovery and narrow-layout checks. Local/CI library focus passes, but a hosted pagination
+run lost focus after 168 cards; background rerenders are being investigated without claiming
+that matrix passes. Collection-settings focus (#71), editorial order/header preservation (#69),
+and focused CI artifact retention (#72) remain follow-ups. See [RELEASE-0.9.1.md](RELEASE-0.9.1.md).
+
+Continue the independent interaction audit. Castle-related issues #43–56 and their
 original PR stack belong to the active castle task; coordinate main/deployment changes instead
 of parallel implementation. Companion/garden/realm expansion #29–35/#37 retains its prerequisite
 design and acceptance gates. Physical/human checks (#1, #2, #11, #13, #56) remain open; the two
