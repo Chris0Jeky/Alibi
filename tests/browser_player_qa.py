@@ -83,9 +83,11 @@ with sync_playwright() as pw:
         page.reload()
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
         context.set_offline(False)
-        for puzzle in json.loads((ROOT / 'content/extra/binary-large.json').read_text())['puzzles']:
+        for puzzle_index, puzzle in enumerate(json.loads((ROOT / 'content/extra/binary-large.json').read_text())['puzzles']):
             page.goto(URL + '/#/play/' + puzzle['id'])
-            if page.locator('dialog[open]').count():
+            # The first binary game opens its lesson after asynchronous save loading.
+            # A count() snapshot can run before that dialog appears on a fresh origin.
+            if puzzle_index == 0:
                 page.locator('dialog[open] [data-action="close-dialog"]').click()
             for value in [0, 1]:
                 page.locator(f'[data-action="symbol"][data-value="{value}"]').click()
@@ -109,5 +111,4 @@ with sync_playwright() as pw:
         context.close()
     browser.close()
 print('Player feedback checks pass at phone and desktop widths.')
-
 
