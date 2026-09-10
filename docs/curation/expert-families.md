@@ -9,7 +9,7 @@ sampling before it becomes a calibrated difficulty claim.
 | Family    | Puzzle                |       Size | Intended pressure                                                                  |
 | --------- | --------------------- | ---------: | ---------------------------------------------------------------------------------- |
 | Scene     | `expert-scene-01`     |        5×5 | Room, furniture, row and column constraints converge on the shared-room deduction. |
-| Dossier   | `expert-dossier-01`   |        4×4 | Two linked permutations and negative evidence leave the target item last.          |
+| Dossier   | `expert-dossier-01`   |        4×4 | Indirect links and exclusions place every non-key object before the target remains. |
 | Witness   | `expert-witness-01`   | 4 suspects | Five mixed statements must be tested against one exact true-count.                 |
 | Nonogram  | `expert-nonogram-01`  |      15×15 | Long and separated runs cross repeatedly between rows and columns.                 |
 | Lightup   | `expert-lightup-01`   |        6×6 | Numbered walls and overlapping visibility corridors force lantern placement.       |
@@ -19,7 +19,7 @@ sampling before it becomes a calibrated difficulty claim.
 | Trail     | `expert-trail-01`     |        5×5 | Sparse anchors use distance parity and forced neighbours late in the path.         |
 | Binary    | `expert-binary-01`    |        8×8 | Half-filled distinct lines and no triples create chained deductions.               |
 | Futoshiki | `expert-futoshiki-01` |        7×7 | A larger Latin square combines givens with a long adjacent inequality chain.       |
-| Bridges   | `expert-bridges-01`   |        9×9 | Degree counts, crossings and network connectivity constrain the final routes.      |
+| Bridges   | `expert-bridges-01`   |        9×9 | A 3×3 loop mixes empty, single and double routes; connectivity completes the chain. |
 
 The focused runtime check is:
 
