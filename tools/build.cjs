@@ -156,12 +156,16 @@ function build() {
   const curation = require('./build-curation.cjs')(ROOT, DIST);
   const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media, media);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
-    engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
+    clubEngineBundle = require('esbuild').transformSync(clubEngine, {
+      minify: true,
+      target: 'es2022',
+    }).code,
+    engineURL = `./assets/club-engines.${hash(clubEngineBundle)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
     boot = read(path.join(SRC, 'boot.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
   write(path.join(DIST, bootURL), boot);
-  write(path.join(DIST, engineURL), clubEngine);
+  write(path.join(DIST, engineURL), clubEngineBundle);
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
   editorial.artwork = curation.assets;
@@ -199,7 +203,7 @@ function build() {
         base +
         boot +
         worker +
-        clubEngine +
+        clubEngineBundle +
         css +
         VERSION +
         template +

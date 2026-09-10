@@ -9,6 +9,7 @@ require('../src/insights.js');
 const A = require('../src/assist.js'),
   E = require('../src/club-engines.js'),
   pack = require('../content/catalog.json');
+require('../src/backup-validation.js');
 let checks = 0;
 const ok = (v, m) => {
     assert.ok(v, m);
@@ -152,6 +153,74 @@ for (let k = 1; k < 15; k++) {
   if (best) ok(E.reversi.legal(s).includes(best.cell), 'Bounded bot returns a legal move');
   eq(s, old, 'Search never mutates board');
 }
+// Tic-Tac-Toe is deliberately small enough to exhaust every reachable state.
+const tic = E.tictactoe,
+  ticStates = new Map();
+function visitTic(s) {
+  const key = s.board.join(',') + ':' + s.turn + ':' + s.done;
+  if (ticStates.has(key)) return;
+  ticStates.set(key, s);
+  for (const cell of tic.legal(s)) visitTic(tic.move(s, cell));
+}
+visitTic(tic.initial());
+ok(ticStates.size > 5000, 'Tic-Tac-Toe state walk is exhaustive');
+for (const s of ticStates.values()) {
+  const x = s.board.filter((v) => v === 1).length,
+    o = s.board.filter((v) => v === -1).length,
+    winner = tic.winner(s);
+  ok(x === o || x === o + 1, 'Every reachable Tic-Tac-Toe state has alternating turns');
+  if (s.done) {
+    ok(!tic.legal(s).length, 'Finished Tic-Tac-Toe states have no legal moves');
+    ok(!!winner || s.ply === 9, 'Finished Tic-Tac-Toe state is a win or a draw');
+  } else
+    ok(
+      tic.legal(s).every((cell) => s.board[cell] === 0),
+      'Legal Tic-Tac-Toe moves are empty',
+    );
+}
+const botCannotLose = (s, seen = new Map()) => {
+  const key = s.board.join(',') + ':' + s.turn;
+  if (seen.has(key)) return seen.get(key);
+  if (s.done) return s.winner !== 1;
+  // Seed a provisional value to keep this proof finite even if the reducer changes.
+  seen.set(key, true);
+  if (s.turn === -1) return botCannotLose(tic.move(s, tic.best(s, 9).cell), seen);
+  return tic.legal(s).every((cell) => botCannotLose(tic.move(s, cell), seen));
+};
+ok(botCannotLose(tic.initial()), 'Exhaustive minimax keeper cannot lose from any human play');
+let finished = tic.initial();
+for (const cell of [0, 3, 1, 4, 2]) finished = tic.move(finished, cell);
+ok(finished.done && finished.winner === 1, 'Tic-Tac-Toe detects a winning line');
+bad(() => tic.move(finished, 5), 'Finished Tic-Tac-Toe rejects extra moves');
+bad(() => tic.replay([0, 0]), 'Tic-Tac-Toe replay rejects repeated squares');
+bad(() => tic.replay([{ cell: 0 }]), 'Tic-Tac-Toe replay rejects malformed move values');
+const clubValidator = AlibiBackupValidation(C, null, () => E, 4),
+  validClub = {
+    schema: 1,
+    settings: { assist: 'off', zen: false, pinned: null },
+    visit: 1,
+    lastHero: -1,
+    runs: { tictactoe: { mode: 'bot', log: [0], redo: [] } },
+    records: [],
+    stamps: [],
+  };
+clubValidator.validateSave(validClub);
+bad(
+  () =>
+    clubValidator.validateSave({
+      ...validClub,
+      runs: { tictactoe: { mode: 'remote', log: [], redo: [] } },
+    }),
+  'Club backup rejects unsupported Tic-Tac-Toe mode',
+);
+bad(
+  () =>
+    clubValidator.validateSave({
+      ...validClub,
+      runs: { tictactoe: { mode: 'bot', log: [0, 0], redo: [] } },
+    }),
+  'Club backup rejects malformed Tic-Tac-Toe replay',
+);
 // Original archive maps must actually be playable.
 for (let level = 0; level < E.warehouse.maps.length; level++) {
   let s = E.warehouse.initial(level);
