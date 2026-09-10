@@ -4,6 +4,18 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## September feedback candidate, 2026-09-10
 
+### Mahjong Solitaire candidate
+
+A small twenty-tile layered table adds the eighth Games Room game. Seeded deals are constructed
+with a solvable removal sequence; matching tiles must be uncovered and have an open horizontal
+side. Replay, undo/redo, restart and offline saves pass 66 actual-control checks at 390/1440px,
+including clearing all ten pairs and reopening a completed table. Integration preserves the
+Games Room index and its eight game cards plus the atlas. Tiles stay at least 44px wide; narrow
+screens pan the table. Full verify passes with 174 Node tests and supplementary suites.
+The stylesheet cap grows from 32 to 33 KiB for the measured 32.2 KiB stylesheet; JavaScript,
+engine, initial combined payload and total offline caps remain unchanged. Human/device playtesting
+is still open in [HUMAN_TODO.md](../HUMAN_TODO.md). This is an undeployed candidate.
+
 ### Advanced family candidates
 
 Twelve new definitions extend the provisional Expert shelf to all thirteen cabinet families,

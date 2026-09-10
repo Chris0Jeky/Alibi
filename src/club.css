@@ -365,7 +365,6 @@ body.club-experiment {
   color: var(--ink);
 }
 .club-gamecard:hover {
-  transform: translateY(-4px);
   box-shadow: 0 10px 20px #18343c13;
 }
 .club-portrait {
@@ -1238,6 +1237,44 @@ body.club-experiment {
   font-size: 18px;
   font-weight: 400;
 }
+
+.mahjong-scroll {
+  overflow-x: auto;
+}
+.mahjong-board {
+  position: relative;
+  min-width: 400px;
+  width: min(100%, 490px);
+  height: 220px;
+  margin: auto;
+  background: #496d6b;
+  border-radius: 8px;
+}
+.mahjong-tile {
+  position: absolute;
+  top: calc(56% - var(--tile-z) * 18px);
+  left: calc(var(--tile-x) * 12.5% + var(--tile-z) * 3px);
+  z-index: calc(var(--tile-z) * 10 + 1);
+  width: 11.2%;
+  height: 92px;
+  padding: 0;
+  border: 2px solid #ad8255;
+  border-radius: 5px;
+  background: #f5edda;
+  color: #294d50;
+  font-size: 24px;
+}
+.mahjong-tile.chosen {
+  outline: 3px solid #e6b964;
+  outline-offset: 2px;
+}
+.mahjong-tile.match-target {
+  background: #b7cf9f;
+}
+.mahjong-tile.blocked {
+  background: #d9d7cb;
+  color: #6d7771;
+}
 .domino-hand {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1315,6 +1352,7 @@ body.club-experiment {
   color: var(--muted);
   font-size: 10px;
 }
+
 .block-meta {
   display: flex;
   align-items: center;
@@ -2537,6 +2575,7 @@ body.club-experiment {
     gap: 8px;
     font-size: 10px;
   }
+
   .seed-label {
     font-size: 7px;
     letter-spacing: 0.6px;

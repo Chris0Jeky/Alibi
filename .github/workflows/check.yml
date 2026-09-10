@@ -76,6 +76,7 @@ jobs:
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_invitation.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_dominoes.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_families.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_mahjong.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_feedback_discovery.py
           python tests/browser_delivery.py
           python tests/browser_theatre.py
