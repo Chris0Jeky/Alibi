@@ -62,6 +62,11 @@ injected challenge (#6); document CSP/referrer metadata remains intact. The date
 below are historical candidate checkpoints; their smaller counts and publication status describe
 their own stage, not the current total.
 
+The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone while a native
+`<summary>` has focus. The two-width feedback-discovery browser matrix proves ArrowRight and
+Delete do not move focus into or erase the active puzzle; Observatory origin coverage and asset
+cache decisions remain separate follow-ups.
+
 ## September feedback candidate, 2026-09-10
 
 ### Mahjong Solitaire candidate
