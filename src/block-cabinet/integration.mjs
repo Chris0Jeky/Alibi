@@ -63,6 +63,7 @@ export function startIntegration() {
   }
   function restoreSimple() {
     simple = true;
+    document.body.classList.remove('block-motion-active');
     surface?.dispose();
     surface = null;
     host?.remove();
@@ -122,6 +123,7 @@ export function startIntegration() {
   function attach() {
     if (busy) return;
     const target = document.querySelector('.block-panel');
+    document.body.classList.toggle('block-motion-active', !!target && !simple);
     if (!target) {
       surface?.dispose();
       surface = null;
@@ -151,6 +153,14 @@ export function startIntegration() {
           reducedMotion: !!club().diagnostics().state.settings.zen,
         });
       else surface.refresh();
+      const kicker = host.querySelector('.bc-header .bc-kicker');
+      if (kicker && kicker.tagName !== 'A') {
+        const back = document.createElement('a');
+        back.className = 'bc-kicker bc-return';
+        back.href = '#/salon';
+        back.textContent = '← Games room';
+        kicker.replaceWith(back);
+      }
     } catch {
       restoreSimple();
     }
@@ -166,6 +176,7 @@ export function startIntegration() {
     running: true,
     diagnostics: () => ({ active: !!surface, simple, lab: !!lab, ...surface?.diagnostics() }),
     dispose() {
+      document.body.classList.remove('block-motion-active');
       observer.disconnect();
       closeLab();
       surface?.dispose();

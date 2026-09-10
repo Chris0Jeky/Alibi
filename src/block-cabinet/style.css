@@ -649,3 +649,48 @@
     margin-top: 9px;
   }
 }
+
+/* Integrated game focus: keep a real return link, not the surrounding web page chrome. */
+.bc-return {
+  text-decoration: none;
+  display: inline-block;
+  padding: 6px 0;
+}
+.bc-return:focus-visible {
+  outline: 3px solid #ffe0a0;
+  outline-offset: 3px;
+}
+body.block-motion-active .club-gameheading {
+  display: none;
+}
+@media (max-width: 760px) {
+  body.block-motion-active .topbar,
+  body.block-motion-active .theatre-rail,
+  body.block-motion-active .mobile-nav,
+  body.block-motion-active #main > .footer {
+    display: none;
+  }
+  body.block-motion-active .main-wrap,
+  body.block-motion-active #main {
+    padding: 0;
+    margin: 0;
+  }
+  body.block-motion-active .bc-studio {
+    min-height: 100dvh;
+    border-radius: 0;
+    border: 0;
+    padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+  }
+  body.block-motion-active .bc-header {
+    margin-bottom: 12px;
+  }
+  body.block-motion-active .bc-header h2 {
+    margin-top: 3px;
+  }
+  body.block-motion-active .bc-scoreboard {
+    padding-bottom: 10px;
+  }
+  body.block-motion-active .bc-studio .bc-piece {
+    height: 104px;
+  }
+}

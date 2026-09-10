@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from block_touch_cases import assert_touch_drag
 
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
 OUT = Path('test-results/block-motion')
@@ -81,6 +82,7 @@ with sync_playwright() as p:
         page.mouse.move(geometry['x'], geometry['y'], steps=8); page.mouse.up()
         page.wait_for_timeout(1900)
         check(len(current(page)['log']) == n+1, f'{width}: mouse drag commits exactly once')
+        assert_touch_drag(page, context, check, width)
         tray = page.locator('.bc-host [data-piece="0"]').bounding_box()
         cdp = context.new_cdp_session(page)
         n = len(current(page)['log'])

@@ -22,7 +22,8 @@ test('Block Cabinet is an independently bounded optional pack, not hidden initia
   assert.ok(info.blockMotionLoaderGzipBytes < 2 * 1024);
   const sw = fs.readFileSync(path.join(dist, 'sw.js'), 'utf8');
   assert.ok(sw.includes(loaderName), 'Small loader belongs to the coherent offline shell');
-  for (const name of packs) assert.ok(!sw.includes(name), 'Optional pack does not precache on install');
+  for (const name of packs)
+    assert.ok(!sw.includes(name), 'Optional pack does not precache on install');
   const html = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
   assert.ok(html.includes(loaderName));
   const context = {
