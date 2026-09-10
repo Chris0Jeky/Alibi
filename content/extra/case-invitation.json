@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "id": "case-invitation",
+  "version": 1,
+  "title": "The unfinished invitation",
+  "author": "Alibi editorial team",
+  "puzzles": [
+    {
+      "id": "invitation-witness-plate",
+      "revision": 1,
+      "type": "witness",
+      "title": "The plate under the press",
+      "subtitle": "Pike & Tide",
+      "size": 4,
+      "difficulty": "Steady",
+      "people": ["Orrin", "Mara", "Elias", "Celia"],
+      "story": "Four accounts describe who retrieved Iona Reed's copper tide-mark plate before the new invitations were printed. Exactly three accounts are true.",
+      "solution": 1,
+      "statements": [
+        {"speaker": "The pressman", "kind": "is", "suspects": [0]},
+        {"speaker": "The apprentice", "kind": "is", "suspects": [1]},
+        {"speaker": "The courier", "kind": "oneof", "suspects": [0, 1]},
+        {"speaker": "The bookbinder", "kind": "oneof", "suspects": [1, 2]}
+      ],
+      "trueCount": 3,
+      "collection": "mystery",
+      "minutes": 4
+    },
+    {
+      "id": "invitation-dossier-stock",
+      "revision": 1,
+      "type": "dossier",
+      "title": "The fresh stock",
+      "subtitle": "Pike & Tide",
+      "size": 4,
+      "difficulty": "Steady",
+      "people": ["Orrin", "Mara", "Elias", "Celia"],
+      "categories": [
+        {"name": "Paper stock", "values": ["linen", "cotton", "rag paper", "vellum"]},
+        {"name": "Batch mark", "values": ["batch 12", "batch 17", "batch 21", "batch 24"]}
+      ],
+      "solution": [1, 3, 0, 2, 1, 3, 0, 2],
+      "targetItem": 0,
+      "story": "The stock book records four paper lots and four batch marks. Match them to find who carried batch 12, the mark stamped on the fresh invitation packet.",
+      "clues": [
+        {"kind": "ne", "cat": 0, "who": 0, "value": 0},
+        {"kind": "eq", "cat": 0, "who": 1, "value": 3},
+        {"kind": "eq", "cat": 1, "who": 0, "value": 1},
+        {"kind": "eq", "cat": 1, "who": 2, "value": 0},
+        {"kind": "link", "a": 2, "b": 2}
+      ],
+      "collection": "mystery",
+      "minutes": 5
+    },
+    {
+      "id": "invitation-nonogram-mark",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The tide-mark proof",
+      "subtitle": "Pike & Tide · Picture logic",
+      "size": 5,
+      "difficulty": "Steady",
+      "rowClues": [[1], [3], [5], [1], [1]],
+      "colClues": [[1], [2], [5], [2], [1]],
+      "solution": [
+        0, 0, 1, 0, 0,
+        0, 1, 1, 1, 0,
+        1, 1, 1, 1, 1,
+        0, 0, 1, 0, 0,
+        0, 0, 1, 0, 0
+      ],
+      "story": "The recovered proof sheet is still smudged. Rebuild its five-by-five mark to compare the distinctive tide symbol with Iona Reed's signed apprenticeship plate.",
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "invitation-scene-drying-room",
+      "revision": 1,
+      "type": "scene",
+      "title": "The drying-room access",
+      "subtitle": "Pike & Tide",
+      "story": "Celia Wren's archive packet vanished from the drying room after the shop closed. Reconstruct the positions around the missing portfolio. This floor plan establishes opportunity only; authorship must come from the later ledger.",
+      "difficulty": "Steady",
+      "size": 5,
+      "roomNames": ["Press room", "Drying room", "Front shop", "Office"],
+      "rooms": [
+        0, 0, 1, 1, 1,
+        0, 0, 1, 1, 1,
+        2, 2, 3, 3, 3,
+        2, 2, 3, 3, 3,
+        2, 2, 3, 3, 3
+      ],
+      "people": [
+        {"id": "orrin", "name": "Orrin", "role": "The master printer", "color": 0},
+        {"id": "mara", "name": "Mara", "role": "The bookbinder", "color": 1},
+        {"id": "elias", "name": "Elias", "role": "The courier", "color": 2},
+        {"id": "rowan", "name": "Rowan", "role": "The clerk", "color": 3},
+        {"id": "celia", "name": "Celia", "role": "The client", "color": 4}
+      ],
+      "objects": [
+        {"cell": 3, "kind": "plant", "name": "drying rack"},
+        {"cell": 17, "kind": "table", "name": "worktable"},
+        {"cell": 16, "kind": "piano", "name": "hand press"},
+        {"cell": 2, "kind": "shelf", "name": "plate shelf"},
+        {"cell": 23, "kind": "lamp", "name": "desk lamp"}
+      ],
+      "victim": "celia",
+      "clues": [
+        {"kind": "edge", "who": "mara"},
+        {"kind": "near", "who": "orrin", "value": 2},
+        {"kind": "above", "who": "elias", "other": "rowan"},
+        {"kind": "notRoom", "who": "rowan", "value": 3},
+        {"kind": "above", "who": "mara", "other": "elias"},
+        {"kind": "col", "who": "elias", "value": 2}
+      ],
+      "solution": {"orrin": 1, "mara": 9, "elias": 12, "rowan": 20, "celia": 18},
+      "collection": "mystery",
+      "minutes": 6
+    },
+    {
+      "id": "invitation-witness-envelope",
+      "revision": 1,
+      "type": "witness",
+      "title": "The sealed envelope",
+      "subtitle": "Pike & Tide",
+      "size": 4,
+      "difficulty": "Steady",
+      "people": ["Orrin", "Mara", "Elias", "Celia"],
+      "story": "The shop's four accounts describe who carried the sealed envelope toward the post room. Exactly two accounts can be true, and this only establishes the envelope's route.",
+      "solution": 2,
+      "statements": [
+        {"speaker": "The foreman", "kind": "is", "suspects": [0]},
+        {"speaker": "The courier", "kind": "is", "suspects": [2]},
+        {"speaker": "The apprentice", "kind": "oneof", "suspects": [0, 2]},
+        {"speaker": "The client", "kind": "oneof", "suspects": [0, 3]}
+      ],
+      "trueCount": 2,
+      "collection": "mystery",
+      "minutes": 4
+    },
+    {
+      "id": "invitation-dossier-ledger",
+      "revision": 1,
+      "type": "dossier",
+      "title": "The commission ledger",
+      "subtitle": "Pike & Tide",
+      "size": 4,
+      "difficulty": "Tricky",
+      "people": ["Orrin", "Mara", "Elias", "Celia"],
+      "categories": [
+        {"name": "Job number", "values": ["job 42", "job 51", "job 63", "job 77"]},
+        {"name": "Ledger entry", "values": ["Celia's note", "paper invoice", "courier receipt", "harbour commission"]}
+      ],
+      "solution": [2, 0, 3, 1, 3, 1, 2, 0],
+      "targetItem": 3,
+      "story": "The final ledger has been rearranged. Match its job numbers and entries to identify who carried the harbour commission card for the invitation run.",
+      "clues": [
+        {"kind": "ne", "cat": 0, "who": 0, "value": 0},
+        {"kind": "eq", "cat": 0, "who": 2, "value": 3},
+        {"kind": "eq", "cat": 1, "who": 0, "value": 3},
+        {"kind": "eq", "cat": 1, "who": 1, "value": 1},
+        {"kind": "link", "a": 1, "b": 0}
+      ],
+      "collection": "mystery",
+      "minutes": 6
+    },
+    {
+      "id": "invitation-nonogram-seal",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The old seal",
+      "subtitle": "Pike & Tide · Picture logic",
+      "size": 5,
+      "difficulty": "Tricky",
+      "rowClues": [[3], [2, 2], [1, 1], [2, 2], [3]],
+      "colClues": [[3], [2, 2], [1, 1], [2, 2], [3]],
+      "solution": [
+        0, 1, 1, 1, 0,
+        1, 1, 0, 1, 1,
+        1, 0, 0, 0, 1,
+        1, 1, 0, 1, 1,
+        0, 1, 1, 1, 0
+      ],
+      "story": "The sealed envelope bears an old four-wave stamp. Rebuild the mark so the archive can distinguish Iona's proof from Orrin's fresh invitation run.",
+      "collection": "visual",
+      "minutes": 5
+    },
+    {
+      "id": "invitation-witness-organizer",
+      "revision": 1,
+      "type": "witness",
+      "title": "Who sent the invitations?",
+      "subtitle": "Pike & Tide",
+      "size": 4,
+      "difficulty": "Tricky",
+      "people": ["Orrin", "Mara", "Elias", "Celia"],
+      "story": "The last four accounts concern the staged gathering itself. Exactly three are true. Use the recovered mark, route and commission together before naming the organizer.",
+      "solution": 0,
+      "statements": [
+        {"speaker": "The pressman", "kind": "is", "suspects": [0]},
+        {"speaker": "The courier", "kind": "is", "suspects": [2]},
+        {"speaker": "The bookbinder", "kind": "oneof", "suspects": [0, 1]},
+        {"speaker": "The client", "kind": "oneof", "suspects": [0, 2]}
+      ],
+      "trueCount": 3,
+      "collection": "mystery",
+      "minutes": 5
+    }
+  ]
+}
