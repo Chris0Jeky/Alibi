@@ -15,6 +15,7 @@
     "curation/packs/tents.json",
     "curation/packs/trail.json",
     "curation/packs/witness.json",
-    "extra/binary-large.json"
+    "extra/binary-large.json",
+    "extra/nonogram-large.json"
   ]
 }
