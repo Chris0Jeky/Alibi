@@ -45,6 +45,11 @@ checkouts. No new hosted release is claimed.
 Independent review reproduced focus loss on the Room settings summary during background
 refresh. A stable summary identity fixes it; the storage-event regression passes at both
 widths, and the scoped artwork checks and download budget remain green.
+Connector review also caught stale image assertions in the required asset browser suite and
+the Quiet Wing's separate render path. Asset checks now assert family diagrams and collection
+stamps; the Quiet Wing keeps its room link directly visible without a disclosure. The actual
+asset/gallery suite and phone/desktop discovery suite pass. CI's prior red run failed on the
+replaced image assertion; it was not a runtime or storage failure.
 
 ### Recorded ambience candidate
 

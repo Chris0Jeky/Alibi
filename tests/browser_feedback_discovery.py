@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'feedback-discovery'
 OUT.mkdir(parents=True, exist_ok=True)
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8792')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8792').rstrip('/')
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     for width in [390, 1440]:
@@ -58,6 +58,11 @@ with sync_playwright() as pw:
         expect(page.locator('[data-action="club-build"]')).to_be_enabled()
         page.locator('[data-action="club-build"]').scroll_into_view_if_needed()
         page.screenshot(path=str(OUT/f'borough-{width}.png'))
+        page.goto(URL + '/#/quiet/journal')
+        expect(page.locator('#quiet-room-choice')).to_be_visible()
+        expect(page.locator('.theatre-settings')).to_have_count(0)
+        page.evaluate("dispatchEvent(new Event('alibi-storage-change'))")
+        expect(page.locator('#quiet-room-choice')).to_be_visible()
         assert not errors, errors
         print(f'PASS family thumbnails and secondary room controls at {width}px', flush=True)
         context.close()

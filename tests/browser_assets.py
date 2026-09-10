@@ -19,17 +19,15 @@ with sync_playwright() as p:
     page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
     while page.locator('[data-action="show-more"]').count():
         page.locator('[data-action="show-more"]').click()
-    highlight_sources=page.evaluate('Object.values(AlibiAssets.highlights).map(key=>ALIBI_MEDIA[key])')
-    images=page.locator(','.join('img.puzzle-highlight[src='+json.dumps(src)+']' for src in highlight_sources))
-    check(images.count()==12,'Twelve original highlights remain on their collection cards')
-    check(page.locator('.puzzle-highlight').count()==220,'Original highlights and 208 safe curation covers appear')
-    for i in range(images.count()):
-        images.nth(i).scroll_into_view_if_needed();images.nth(i).evaluate('i=>i.decode()')
-        check(images.nth(i).get_attribute('alt')=='','Decorative highlight adds no spoken clue '+str(i))
+    check(page.locator('svg.puzzle-art').count()==page.locator('.puzzle-card').count(),'Every puzzle card leads with a family diagram')
+    check(page.locator('.collection-stamp').count()==208,'Reviewed collection stamps remain secondary metadata')
+    check(page.locator('.puzzle-highlight').count()==0,'Repeated cover images no longer replace family diagrams')
+    for art in page.locator('svg.puzzle-art').all():
+        check(art.get_attribute('aria-hidden')=='true','Family diagram is decorative alongside the readable category')
     for theme in ['light','night']:
         page.goto(URL+'#/settings');page.wait_for_selector('#theme-select')
         page.locator('#theme-select').select_option(theme)
-        page.goto(URL+'#/library/scene');page.wait_for_selector('.puzzle-highlight')
+        page.goto(URL+'#/library/scene');page.wait_for_selector('svg.puzzle-art')
         first=page.locator('.puzzle-card').first
         first.scroll_into_view_if_needed();page.keyboard.press('Tab');first.locator('.card-open').focus()
         first.screenshot(path=str(OUT/('highlight-focus-'+theme+'.png')))
@@ -65,3 +63,5 @@ with sync_playwright() as p:
     check(not errors,'No page errors during app or gallery navigation')
     (OUT/'results.json').write_text(json.dumps({'checks':checks,'errors':errors,'scope':'Local Chromium; no physical-device certification'},indent=2),encoding='utf8')
     browser.close()
+
+
