@@ -13,8 +13,11 @@ player-feedback suite at 390/1440px, the new seven-tap/hold/undo/offline matrix 
 and 92 real-origin checks. Phone and desktop screenshots were inspected. The first origin run
 overlapped a build that replaces `dist` and encountered a 404 during startup; the rerun against
 the settled build passes. Do not rebuild the served output during browser suites.
-This is a local candidate, not a published release. Progress accounting is the next slice;
-larger puzzles, sound, discovery, case content and Games Room additions remain queued.
+Progress accounting now uses earned completion consistently: solving then Undo or Restart
+retains Solved and excludes the record from In progress/Not started and the desk resume list.
+The actual-control feedback suite proves solve → Undo → reload → filters → Restart at both
+widths; the full Node gate passes. This is a local candidate, not a published release.
+Larger puzzles, sound, discovery, case content and Games Room additions remain queued.
 Human acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Focused QA 0.10.1 published

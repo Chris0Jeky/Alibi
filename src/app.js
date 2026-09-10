@@ -109,9 +109,12 @@
   function solved(r) {
     return !!(r?.firstCompletedAt || r?.completedAt);
   }
+  function activeRun(r) {
+    return !!r?.moves && !solved(r);
+  }
   function activeRecords() {
     return [...records.values()]
-      .filter((r) => r.moves > 0 && !r.completedAt)
+      .filter(activeRun)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
@@ -384,7 +387,7 @@
   }
   function progress(p, r) {
     if (!r) return 0;
-    if (r.completedAt) return 100;
+    if (solved(r)) return 100;
     const s = r.state,
       n = p.size,
       N = n * n;
@@ -478,7 +481,7 @@
   }
   function puzzleCard(p) {
     const r = rec(p),
-      inProgress = r && r.moves > 0 && !r.completedAt,
+      inProgress = activeRun(r),
       fav = prefs.favorites.includes(p.id),
       openID = route.page === 'library' ? ` id="library-card-${esc(keyFor(p))}"` : '';
     const highlight =
@@ -574,8 +577,8 @@
       const r = rec(p);
       return (
         library.status === 'all' ||
-        (library.status === 'new' && !r?.moves) ||
-        (library.status === 'started' && r?.moves > 0 && !r.completedAt) ||
+        (library.status === 'new' && !r?.moves && !solved(r)) ||
+        (library.status === 'started' && activeRun(r)) ||
         (library.status === 'solved' && solved(r)) ||
         (library.status === 'favorites' && prefs.favorites.includes(p.id))
       );
@@ -3389,6 +3392,7 @@
     navigate,
     all,
     records: () => [...records.values()],
+    activeRun,
     settings: () => settings,
     current: () => current,
     apply: act,
