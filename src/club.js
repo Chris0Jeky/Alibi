@@ -585,7 +585,9 @@
     ensureRun('tictactoe');
     const r = state.runs.tictactoe,
       s = currentGame('tictactoe'),
-      winning = E().tictactoe.lines.find((line) => line.every((i) => s.board[i] === s.winner)),
+      winning = s.winner
+        ? E().tictactoe.lines.find((line) => line.every((i) => s.board[i] === s.winner))
+        : null,
       canMove = !s.done && (r.mode === 'local' || s.turn === 1),
       label = s.done
         ? s.winner === 1
@@ -596,7 +598,7 @@
         : s.turn === 1
           ? 'X to move.'
           : 'O to move.';
-    return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', 'data-value="bot"', r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', 'data-value="local"', r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div class="club-turn-status tic-status" role="status"><strong>${label}</strong>${s.done ? ' The match is complete.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
+    return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', `data-value="bot" aria-pressed="${r.mode === 'bot'}"`, r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', `data-value="local" aria-pressed="${r.mode === 'local'}"`, r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div id="tictactoe-status" class="club-turn-status tic-status" role="status" tabindex="-1"><strong>${label}</strong>${s.done ? ' The match is complete.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
   }
   function regionGardensPage() {
     ensureRun('regiongardens');
@@ -800,6 +802,7 @@
         .filter((r) => r.type === 'borough')
         .slice()
         .sort((a, b) => b.score - a.score),
+      gameRecords = state.records.filter((r) => r.type !== 'borough').slice(0, 20),
       unique = new Map();
     for (const r of towns) if (!unique.has(r.label)) unique.set(r.label, r);
     const achievements = [
@@ -820,7 +823,15 @@
       ],
       ['A quiet practice', 'Enter Zen mode.', state.stamps.includes('zen'), 'garden'],
     ];
-    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list.')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon], index) => `<div class="club-stamp ${earned ? 'earned' : ''}">${root.AlibiAssets.badge(['club-first-light', 'club-curious', 'club-town', 'club-duel', 'club-archive', 'club-zen'][index], earned)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${r.score} points</span><small>${r.date.slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}${go('Quiet Wing journal', 'quiet', 'journal', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
+    const gameRecordOutcome = (r) =>
+      r.type === 'tictactoe'
+        ? r.score === 1
+          ? 'X wins'
+          : r.score === -1
+            ? 'O wins'
+            : 'Draw'
+        : `${r.score} points`;
+    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list.')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon], index) => `<div class="club-stamp ${earned ? 'earned' : ''}">${root.AlibiAssets.badge(['club-first-light', 'club-curious', 'club-town', 'club-duel', 'club-archive', 'club-zen'][index], earned)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${r.score} points</span><small>${r.date.slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="panel club-game-records"><div class="club-section-head"><div><span class="eyebrow">GAMES ROOM / COMPLETED RECORDS</span><h2>Matches worth keeping.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>Completed games stay here with their local outcome. No online ranking is implied.</p>${gameRecords.length ? `<div class="record-table">${gameRecords.map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${esc(gameRecordOutcome(r))}</span><small>${String(r.date).slice(0, 10)}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first completed game will go here.</div>'}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}${go('Quiet Wing journal', 'quiet', 'journal', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
   }
   function exportSave(value = state, label = 'club') {
     const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
@@ -883,7 +894,10 @@
           notify(e.data.error, true);
           return;
         }
-        commitGame(game, e.data.cell);
+        commitGame(game, e.data.cell).then(() => {
+          if (game === 'tictactoe')
+            document.getElementById('tictactoe-status')?.focus({ preventScroll: true });
+        });
       };
       botWorker.onerror = () => {
         botPending = false;
@@ -1015,7 +1029,7 @@
           stopPoll();
           room = null;
         }
-        if (state.runs[game].log.length) {
+        if (state.runs[game].log.length || state.runs[game].redo.length) {
           root.__clubReset = { id: game, mode };
           confirmation(
             game === 'duel' ? 'Take a new seat?' : 'Start a new match?',
@@ -1152,7 +1166,10 @@
         if (game === 'duel' && room) return await roomMove(Number(el.dataset.cell));
         const s = currentGame(game);
         if (state.runs[game].mode === 'bot' && s.turn !== 1) return;
-        await commitGame(game, Number(el.dataset.cell));
+        const cell = Number(el.dataset.cell);
+        await commitGame(game, cell);
+        if (game === 'tictactoe')
+          document.getElementById('tictactoe-status')?.focus({ preventScroll: true });
       } else if (a === 'undo' || a === 'redo') {
         const r = state.runs[id];
         if (!r) return;
