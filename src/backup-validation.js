@@ -119,7 +119,7 @@
         throw Error('Invalid Club preferences.');
       for (const [key, r] of Object.entries(v.runs)) {
         if (
-          !['duel', 'borough', 'archive'].includes(key) ||
+          !['duel', 'borough', 'archive', 'tictactoe'].includes(key) ||
           !r ||
           (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
           !Array.isArray(r.log) ||
@@ -132,6 +132,10 @@
           if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
           let s = E().reversi.initial();
           for (const i of [...r.log, ...r.redo.slice().reverse()]) s = E().reversi.move(s, i);
+        }
+        if (key === 'tictactoe') {
+          if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
+          E().tictactoe.replay([...r.log, ...r.redo.slice().reverse()]);
         }
         if (key === 'borough') E().borough.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
         if (key === 'archive') {
@@ -148,7 +152,7 @@
           !r ||
           typeof r.id !== 'string' ||
           r.id.length > 100 ||
-          !['duel', 'borough', 'archive'].includes(r.type) ||
+          !['duel', 'borough', 'archive', 'tictactoe'].includes(r.type) ||
           typeof r.label !== 'string' ||
           r.label.length > 100 ||
           !Number.isFinite(r.score) ||
