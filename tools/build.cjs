@@ -150,7 +150,7 @@ function build() {
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
-    boot = read(path.join(SRC, 'boot.js')) + '\n' + read(path.join(ROOT, 'observatory/browser.js')),
+    boot = read(path.join(SRC, 'boot.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngine);
@@ -182,6 +182,7 @@ function build() {
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
+    read(path.join(ROOT, 'observatory/browser.js')),
   ].join('\n');
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
