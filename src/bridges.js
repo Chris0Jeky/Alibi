@@ -158,12 +158,16 @@
       !integer(p.revision, 1, 999999) ||
       !text(p.title, 90) ||
       !text(p.subtitle, 120) ||
-      !['Gentle', 'Steady', 'Tricky'].includes(p.difficulty) ||
+      !C.DIFFICULTIES.includes(p.difficulty) ||
       !integer(p.size, 5, 9) ||
       (p.story !== undefined && !text(p.story, 1600)) ||
       (p.minutes !== undefined && !integer(p.minutes, 1, 90))
     )
       throw new Error('Invalid bridges header.');
+    if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
+      throw new Error('Invalid bridges difficulty status.');
+    if (p.difficultyEvidence !== undefined && !text(p.difficultyEvidence, 240))
+      throw new Error('Invalid bridges difficulty evidence.');
     if (
       !Array.isArray(p.islands) ||
       p.islands.length < 4 ||

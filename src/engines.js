@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const C = root.AlibiCore,
-    { clone, range, equal } = C,
+    { clone, range, equal, DIFFICULTIES } = C,
     legacy = {
       solve: C.solve,
       validateDefinition: C.validateDefinition,
@@ -87,12 +87,24 @@
         ? c.suspects[0] !== who
         : c.suspects.includes(who);
   }
+  function witnessAction(p) {
+    return typeof p?.action === 'string' && p.action.trim()
+      ? p.action.trim()
+      : 'took the missing object';
+  }
   function witnessText(p, c) {
+    if (!(typeof p?.action === 'string' && p.action.trim()))
+      return c.kind === 'is'
+        ? `${p.people[c.suspects[0]]} took it.`
+        : c.kind === 'not'
+          ? `${p.people[c.suspects[0]]} did not take it.`
+          : `Either ${p.people[c.suspects[0]]} or ${p.people[c.suspects[1]]} took it.`;
+    const action = witnessAction(p);
     return c.kind === 'is'
-      ? `${p.people[c.suspects[0]]} took it.`
+      ? `${p.people[c.suspects[0]]} ${action}.`
       : c.kind === 'not'
-        ? `${p.people[c.suspects[0]]} did not take it.`
-        : `Either ${p.people[c.suspects[0]]} or ${p.people[c.suspects[1]]} took it.`;
+        ? `${p.people[c.suspects[0]]} was not the person who ${action}.`
+        : `Either ${p.people[c.suspects[0]]} or ${p.people[c.suspects[1]]} ${action}.`;
   }
   function visible(p, i) {
     const out = [];
@@ -353,7 +365,7 @@
         s.accused !== null && p.statements.filter((c) => truth(c, s.accused)).length !== p.trueCount
           ? [
               issue(
-                `With ${p.people[s.accused]} as the culprit, ${p.statements.filter((c) => truth(c, s.accused)).length} statements would be true. The evidence says exactly ${p.trueCount}.`,
+                `With ${p.people[s.accused]} as ${typeof p.action === 'string' && p.action.trim() ? `the person who ${witnessAction(p)}` : 'the culprit'}, ${p.statements.filter((c) => truth(c, s.accused)).length} statements would be true. The evidence says exactly ${p.trueCount}.`,
               ),
             ]
           : [],
@@ -783,10 +795,14 @@
       !int(p.revision, 1, 999999) ||
       !text(p.title, 90) ||
       !text(p.subtitle, 120) ||
-      !['Gentle', 'Steady', 'Tricky'].includes(p.difficulty) ||
+      !DIFFICULTIES.includes(p.difficulty) ||
       !int(p.size, 3, 7)
     )
       fail('Invalid puzzle header.');
+    if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
+      fail('Invalid difficulty status.');
+    if (p.difficultyEvidence !== undefined && !text(p.difficultyEvidence, 240))
+      fail('Invalid difficulty evidence.');
     if (p.story !== undefined && !text(p.story, 1600)) fail('Invalid story.');
     if (p.question !== undefined && !text(p.question, 200)) fail('Invalid final question.');
     if (p.questionContext !== undefined && !text(p.questionContext, 400))
@@ -835,6 +851,7 @@
         fail('Dossier solution violates clues.');
     }
     if (p.type === 'witness') {
+      if (p.action !== undefined && !text(p.action, 120)) fail('Invalid witness action.');
       if (
         !Array.isArray(p.people) ||
         p.people.length !== n ||
@@ -1090,6 +1107,7 @@
     dossierAssignments,
     dossierReady,
     truth,
+    witnessAction,
     witnessText,
     visible,
     litCells,

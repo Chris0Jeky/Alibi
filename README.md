@@ -15,10 +15,11 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
 
 ## Open the cabinet
 
-- **328 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **355 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
-  chapter revelations. Three earlier anthology casebooks remain available.
+  chapter revelations. The unfinished invitation adds eight more continuous chapters; three earlier anthologies remain available.
+- **Eight Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, Draw Dominoes, Lantern Gardens and Mahjong Solitaire.
 - **Learn by doing:** every family includes a miniature interactive lesson. Selected number and
   picture games and Bridges explain a deduction from your current board without consulting the stored answer.
 - **Review the evidence:** completed mysteries explain the final placements, pairings or truth

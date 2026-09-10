@@ -799,18 +799,55 @@ html[data-theme='night'] .book-number {
     font-size: 14px;
   }
 }
-/* Editorial highlights stay on collection cards, away from the playing surface. */
-.puzzle-highlight {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
 .card-open:focus-visible {
   outline-offset: -4px;
 }
-.zen .puzzle-highlight,
-.club-zen .puzzle-highlight {
-  display: none;
+/* Puzzle family first; collection artwork stays a small secondary stamp. */
+.card-family-symbol {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.card-family-symbol .icon {
+  width: 24px;
+  height: 24px;
+}
+.collection-stamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 4px 8px 4px 4px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: left;
+}
+.collection-stamp img {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.collection-stamp span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.card-art .badge {
+  top: 10px;
+  left: 54px;
+  bottom: auto;
 }

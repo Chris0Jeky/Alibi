@@ -1,6 +1,7 @@
 """Real-origin curation controls and artwork; no physical-device certification."""
 import json, os
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results/curation-ui';OUT.mkdir(parents=True,exist_ok=True)
@@ -22,7 +23,7 @@ with sync_playwright() as p:
         page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(URL+'#/library');page.wait_for_function('()=>window.AlibiDiagnostics')
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
-        check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==328,'328 official puzzles load')
+        check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==OFFICIAL_COUNT,'All registered official puzzles load')
         page.locator('[data-action="browse-all"]').click()
         page.locator('.curation-collections > summary').click()
         for venue in ('salt','copper','winter','nocturne'):

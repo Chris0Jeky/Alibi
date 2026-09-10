@@ -2,6 +2,11 @@
 import json
 import os
 from pathlib import Path
+from official_fixture import (
+    OFFICIAL_COUNT,
+    official_group_count,
+    official_venue_count,
+)
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -9,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(os.environ.get("ALIBI_RESULTS", str(ROOT / "test-results" / "library-focus")))
 URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 OUT.mkdir(parents=True, exist_ok=True)
+MYSTERY_COUNT = official_group_count("mystery")
+SALT_COUNT = official_venue_count("salt")
 checks = []
 errors = []
 
@@ -52,7 +59,9 @@ def main():
                 filter_button = page.locator("#library-filter-mystery")
                 filter_button.focus()
                 page.keyboard.press("Enter")
-                expect(page.locator(".filter-meta")).to_contain_text("88 puzzles")
+                expect(page.locator(".filter-meta")).to_contain_text(
+                    f"{MYSTERY_COUNT} puzzles"
+                )
                 check(
                     active_id(page) == "library-filter-mystery",
                     f"Keyboard filter retains focus at {width}px",
@@ -98,7 +107,7 @@ def main():
                     first_new_index = expected_cards
                     page.locator("#library-show-more").focus()
                     page.keyboard.press("Enter")
-                    expected_cards = min(expected_cards + 24, 328)
+                    expected_cards = min(expected_cards + 24, OFFICIAL_COUNT)
                     expect(page.locator(".puzzle-card")).to_have_count(expected_cards)
                     first_new = page.locator('.puzzle-card').nth(first_new_index).locator('[data-action="open"]')
                     expect(first_new).to_be_focused()
@@ -173,7 +182,9 @@ def main():
                 )
                 salt.focus()
                 curation_page.keyboard.press("Enter")
-                expect(curation_page.locator(".filter-meta")).to_contain_text("52 puzzles")
+                expect(curation_page.locator(".filter-meta")).to_contain_text(
+                    f"{SALT_COUNT} puzzles"
+                )
                 collection_focus = active_id(curation_page)
                 check(
                     collection_focus == "library-collection-salt",
@@ -184,7 +195,7 @@ def main():
                 )
                 scope_all.focus()
                 curation_page.keyboard.press("Enter")
-                expect(curation_page.locator(".filter-meta")).to_contain_text("328 puzzles")
+                expect(curation_page.locator(".filter-meta")).to_contain_text(f"{OFFICIAL_COUNT} puzzles")
                 check(
                     active_id(curation_page) == "library-filter-status",
                     f"Removed collection escape focuses status at {width}px",

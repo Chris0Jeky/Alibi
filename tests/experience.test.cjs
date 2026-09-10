@@ -14,6 +14,7 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
       info.quietWingBytes +
       info.castleBytes +
       info.experienceBytes +
+      info.ambienceBytes +
       info.enhancementBytes,
   );
   assert.ok(info.experienceBytes < 30 * 1024 * 1024);

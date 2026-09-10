@@ -67,6 +67,17 @@ jobs:
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_focus.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_motion.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_player_qa.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_september_feedback.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_tic_tac_toe.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_large_nonogram.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_sudoku.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_cabinet.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_region_gardens.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_invitation.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_dominoes.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_families.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_mahjong.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_feedback_discovery.py
           python tests/browser_delivery.py
           python tests/browser_theatre.py
           ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
@@ -125,4 +136,8 @@ jobs:
             test-results/theatre/
             test-results/curation-check/
             test-results/challenges-replay.json
+            test-results/large-nonogram/
+            test-results/expert-browser/
+            test-results/tic-tac-toe/
+            test-results/player-qa/
           retention-days: 14

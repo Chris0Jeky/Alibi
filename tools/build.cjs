@@ -89,7 +89,7 @@ function build() {
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
     bridges = read(path.join(SRC, 'bridges.js')),
-    worker = [
+    workerSource = [
       core,
       engines,
       bridges,
@@ -102,6 +102,10 @@ function build() {
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),
+    worker = require('esbuild').transformSync(workerSource, {
+      minify: true,
+      target: 'es2022',
+    }).code,
     css = require('esbuild').transformSync(
       read(path.join(SRC, 'app.css')) +
         '\n' +
@@ -127,7 +131,8 @@ function build() {
     const data = fs.readFileSync(p),
       name = path.parse(p).name;
     media[name] = `./assets/${name}.${hash(data)}${path.extname(p)}`;
-    inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
+    const mime = path.extname(p) === '.svg' ? 'image/svg+xml' : 'image/webp';
+    inlineMedia[name] = `data:${mime};base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
   // A single small editorial invitation belongs to the core; the full folio remains optional.
@@ -139,21 +144,33 @@ function build() {
   write(path.join(DIST, media['club-reading-room']), readingRoom);
   const experience = require('./build-experience.cjs')(ROOT, DIST);
   const theatreSource = JSON.parse(read(path.join(ROOT, 'content/theatre.json')));
+  const ambience = JSON.parse(
+    read(path.join(ROOT, 'assets-source/ambience/catalogue.json')),
+  ).assets.map((a) => {
+    const bytes = fs.readFileSync(path.join(ROOT, a.file));
+    const url = `./assets/ambience-${a.id}.${hash(bytes)}.mp3`;
+    write(path.join(DIST, url), bytes);
+    return { id: a.id, title: a.title, url, loop: true, author: a.author, source: a.source };
+  });
   const theatre = {
     scenes: theatreSource.scenes,
-    audio: experience.manifest.audio.filter((a) => a.loop),
+    audio: ambience,
     films: experience.manifest.films.filter((a) => theatreSource.films.includes(a.id)),
   };
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const curation = require('./build-curation.cjs')(ROOT, DIST);
   const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media, media);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
-    engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
+    clubEngineBundle = require('esbuild').transformSync(clubEngine, {
+      minify: true,
+      target: 'es2022',
+    }).code,
+    engineURL = `./assets/club-engines.${hash(clubEngineBundle)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
     boot = read(path.join(SRC, 'boot.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
   write(path.join(DIST, bootURL), boot);
-  write(path.join(DIST, engineURL), clubEngine);
+  write(path.join(DIST, engineURL), clubEngineBundle);
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
   editorial.artwork = curation.assets;
@@ -192,7 +209,7 @@ function build() {
         base +
         boot +
         worker +
-        clubEngine +
+        clubEngineBundle +
         css +
         VERSION +
         template +
@@ -330,13 +347,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     castleBytes: quiet.castleBytes,
     experienceBytes: experience.bytes,
     enhancementBytes: delivery.bytes,
+    ambienceBytes: ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     experienceOfflineBytes: experience.manifest.bytes,
     coreOfflineBytes:
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
       quiet.castleBytes -
       experience.bytes -
-      delivery.bytes,
+      delivery.bytes -
+      ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,

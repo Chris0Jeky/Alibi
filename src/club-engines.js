@@ -141,6 +141,709 @@
       return { cell: best, value, nodes };
     },
   };
+  const ticTacToe = {
+    lines: [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ],
+    initial() {
+      return { board: Array(9).fill(0), turn: 1, ply: 0, winner: 0, done: false };
+    },
+    winner(s) {
+      for (const [a, b, c] of this.lines)
+        if (s.board[a] && s.board[a] === s.board[b] && s.board[a] === s.board[c]) return s.board[a];
+      return 0;
+    },
+    legal(s) {
+      return s.done ? [] : s.board.flatMap((v, i) => (v === 0 ? [i] : []));
+    },
+    move(s, cell) {
+      if (!s || s.done) throw Error('This match is finished.');
+      if (!integer(cell, 0, 8) || s.board[cell] !== 0) throw Error('Choose an empty square.');
+      const q = copy(s);
+      q.board[cell] = q.turn;
+      q.ply++;
+      q.winner = this.winner(q);
+      q.done = !!q.winner || q.ply === 9;
+      q.turn = q.done ? 0 : -q.turn;
+      return q;
+    },
+    best(s, depth = 9) {
+      const moves = this.legal(s);
+      if (!moves.length) return null;
+      const player = s.turn,
+        limit = Math.min(9, Math.max(1, Number.isInteger(depth) ? depth : 9));
+      let nodes = 0;
+      const memo = new Map();
+      const search = (q, d) => {
+        nodes++;
+        const winner = this.winner(q);
+        if (winner) return winner === player ? 100 - q.ply : -100 + q.ply;
+        if (q.ply === 9 || d === 0) return 0;
+        const key = q.board.join(',') + ':' + q.turn + ':' + d;
+        if (memo.has(key)) return memo.get(key);
+        const maximizing = q.turn === player;
+        let value = maximizing ? -Infinity : Infinity;
+        for (const cell of this.legal(q)) {
+          const score = search(this.move(q, cell), d - 1);
+          value = maximizing ? Math.max(value, score) : Math.min(value, score);
+        }
+        memo.set(key, value);
+        return value;
+      };
+      let best = moves[0],
+        value = -Infinity;
+      for (const cell of moves) {
+        const score = search(this.move(s, cell), limit - 1);
+        if (score > value) {
+          value = score;
+          best = cell;
+        }
+      }
+      return { cell: best, value, nodes };
+    },
+    replay(log) {
+      if (!Array.isArray(log) || log.length > 9) throw Error('Invalid tic-tac-toe replay.');
+      let s = this.initial();
+      for (const cell of log) {
+        if (!integer(cell, 0, 8)) throw Error('Invalid tic-tac-toe move.');
+        s = this.move(s, cell);
+      }
+      return s;
+    },
+  };
+  const blockShapes = [
+    { id: 'single', name: 'Single square', cells: [[0, 0]] },
+    {
+      id: 'domino-h',
+      name: 'Horizontal pair',
+      cells: [
+        [0, 0],
+        [1, 0],
+      ],
+    },
+    {
+      id: 'domino-v',
+      name: 'Vertical pair',
+      cells: [
+        [0, 0],
+        [0, 1],
+      ],
+    },
+    {
+      id: 'tri-h',
+      name: 'Three in a row',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+      ],
+    },
+    {
+      id: 'tri-v',
+      name: 'Three down',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+      ],
+    },
+    {
+      id: 'corner',
+      name: 'Corner three',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ],
+    },
+    {
+      id: 'square',
+      name: 'Small square',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'line4-h',
+      name: 'Long horizontal',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+      ],
+    },
+    {
+      id: 'line4-v',
+      name: 'Long vertical',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+      ],
+    },
+    {
+      id: 'l4-right',
+      name: 'Right angle',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 2],
+      ],
+    },
+    {
+      id: 'l4-left',
+      name: 'Left angle',
+      cells: [
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [0, 2],
+      ],
+    },
+    {
+      id: 'tee',
+      name: 'T shape',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'zig',
+      name: 'Zigzag',
+      cells: [
+        [1, 0],
+        [2, 0],
+        [0, 1],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'line5-h',
+      name: 'Five across',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+        [4, 0],
+      ],
+    },
+    {
+      id: 'line5-v',
+      name: 'Five down',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
+      ],
+    },
+    {
+      id: 'l5',
+      name: 'Long angle',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 3],
+      ],
+    },
+    {
+      id: 'cross',
+      name: 'Cross',
+      cells: [
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [2, 1],
+        [1, 2],
+      ],
+    },
+    {
+      id: 'stair5',
+      name: 'Stair step',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [2, 1],
+        [2, 2],
+      ],
+    },
+  ];
+  const blockShapeById = new Map(blockShapes.map((shape) => [shape.id, shape]));
+  function blockPiece(seed, index) {
+    return blockShapes[
+      Math.floor(random('block-cabinet:' + seed + ':' + index)() * blockShapes.length)
+    ].id;
+  }
+  function blockTray(seed, turn) {
+    return [0, 1, 2].map((slot) => blockPiece(seed, turn * 3 + slot));
+  }
+  const blockCabinet = {
+    size: 8,
+    shapes: blockShapes.map(copy),
+    initial(seed = 'BLOCK-01') {
+      seed = seedText(seed);
+      return {
+        seed,
+        board: Array(64).fill(0),
+        tray: blockTray(seed, 0),
+        score: 0,
+        turn: 0,
+        done: false,
+        lastClear: { rows: [], columns: [] },
+      };
+    },
+    shape(id) {
+      const shape = blockShapeById.get(id);
+      if (!shape) throw Error('Unknown block piece.');
+      return shape;
+    },
+    cellsAt(s, slot, origin) {
+      if (!integer(slot, 0, 2) || !integer(origin, 0, 63))
+        throw Error('Choose a block piece and square.');
+      const shape = this.shape(s.tray[slot]),
+        row = Math.floor(origin / 8),
+        column = origin % 8;
+      return shape.cells.map(([x, y]) => (row + y) * 8 + column + x);
+    },
+    legal(s, slot, origin) {
+      if (!s || s.done || !Array.isArray(s.board) || s.board.length !== 64) return false;
+      if (!integer(slot, 0, 2) || !integer(origin, 0, 63) || !blockShapeById.has(s.tray?.[slot]))
+        return false;
+      const shape = blockShapeById.get(s.tray[slot]),
+        row = Math.floor(origin / 8),
+        column = origin % 8;
+      return shape.cells.every(([x, y]) => {
+        const targetRow = row + y,
+          targetColumn = column + x;
+        return targetRow < 8 && targetColumn < 8 && s.board[targetRow * 8 + targetColumn] === 0;
+      });
+    },
+    placements(s, slot) {
+      if (!integer(slot, 0, 2) || !blockShapeById.has(s?.tray?.[slot])) return [];
+      return Array.from({ length: 64 }, (_, cell) => cell).filter((cell) =>
+        this.legal(s, slot, cell),
+      );
+    },
+    isGameOver(s) {
+      return !!s?.done || ![0, 1, 2].some((slot) => this.placements(s, slot).length);
+    },
+    move(s, slot, origin) {
+      if (!s || s.done) throw Error('This cabinet is closed. Start a new game.');
+      if (!this.legal(s, slot, origin)) throw Error('That piece does not fit there.');
+      const shape = this.shape(s.tray[slot]),
+        board = s.board.slice(),
+        cells = this.cellsAt(s, slot, origin);
+      cells.forEach((cell) => (board[cell] = 1));
+      const rows = Array.from({ length: 8 }, (_, row) => row).filter((row) =>
+          Array.from({ length: 8 }, (_, column) => board[row * 8 + column]).every(Boolean),
+        ),
+        columns = Array.from({ length: 8 }, (_, column) => column).filter((column) =>
+          Array.from({ length: 8 }, (_, row) => board[row * 8 + column]).every(Boolean),
+        );
+      rows.forEach((row) =>
+        Array.from({ length: 8 }, (_, column) => (board[row * 8 + column] = 0)),
+      );
+      columns.forEach((column) =>
+        Array.from({ length: 8 }, (_, row) => (board[row * 8 + column] = 0)),
+      );
+      const q = {
+        seed: s.seed,
+        board,
+        tray: s.tray.slice(),
+        score: s.score + shape.cells.length + 10 * (rows.length + columns.length),
+        turn: s.turn + 1,
+        done: false,
+        lastClear: { rows, columns },
+      };
+      q.tray[slot] = blockPiece(q.seed, q.turn + 2);
+      q.done = this.isGameOver(q);
+      return q;
+    },
+    score(s) {
+      return Number.isFinite(s?.score) ? s.score : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid Block Cabinet replay.');
+      let s = this.initial(seed);
+      for (const action of log) {
+        if (
+          !action ||
+          typeof action !== 'object' ||
+          Object.keys(action).sort().join(',') !== 'cell,slot' ||
+          !integer(action.slot, 0, 2) ||
+          !integer(action.cell, 0, 63)
+        )
+          throw Error('Invalid Block Cabinet move.');
+        s = this.move(s, action.slot, action.cell);
+      }
+      return s;
+    },
+  };
+  const dominoTiles = [];
+  for (let a = 0; a <= 6; a++)
+    for (let b = a; b <= 6; b++) dominoTiles.push({ id: dominoTiles.length, a, b, pips: a + b });
+  function dominoDeck(seed) {
+    const deck = dominoTiles.map((tile) => tile.id),
+      r = random('draw-dominoes:' + seed);
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+  }
+  const dominoTileById = new Map(dominoTiles.map((tile) => [tile.id, tile]));
+  const dominoes = {
+    handSize: 7,
+    stockSize: 14,
+    tiles: dominoTiles.map(copy),
+    tile(id) {
+      const tile = dominoTileById.get(id);
+      if (!tile) throw Error('Unknown domino tile.');
+      return tile;
+    },
+    initial(seed = 'DOMINO-01') {
+      seed = seedText(seed);
+      const deck = dominoDeck(seed);
+      return {
+        seed,
+        human: deck.slice(0, 7),
+        bot: deck.slice(7, 14),
+        stock: deck.slice(14),
+        chain: [],
+        turn: 'human',
+        done: false,
+        winner: null,
+        lastAction: 'Choose a tile to open the chain.',
+      };
+    },
+    pips(hand) {
+      return Array.isArray(hand)
+        ? hand.reduce((total, id) => total + (dominoTileById.get(id)?.pips || 0), 0)
+        : 0;
+    },
+    ends(s) {
+      return s?.chain?.length ? [s.chain[0].left, s.chain[s.chain.length - 1].right] : [];
+    },
+    legalMoves(s, player = 'human') {
+      if (!s || s.done || !['human', 'bot'].includes(player)) return [];
+      const hand = s[player];
+      if (!Array.isArray(hand)) return [];
+      if (!s.chain.length) return hand.map((tile) => ({ tile, end: 'start' }));
+      const [left, right] = this.ends(s),
+        out = [];
+      for (const tileId of hand) {
+        const tile = dominoTileById.get(tileId);
+        if (!tile) continue;
+        if (tile.a === left || tile.b === left) out.push({ tile: tileId, end: 'left' });
+        if (tile.a === right || tile.b === right) out.push({ tile: tileId, end: 'right' });
+      }
+      return out;
+    },
+    canPlay(s, tile, end) {
+      return this.legalMoves(s, s?.turn === 'bot' ? 'bot' : 'human').some(
+        (move) => move.tile === tile && move.end === end,
+      );
+    },
+    place(s, tileId, end) {
+      const tile = this.tile(tileId),
+        chain = s.chain.slice();
+      if (!chain.length) {
+        chain.push({ tile: tileId, left: tile.a, right: tile.b });
+      } else if (end === 'left') {
+        const open = chain[0].left,
+          left = tile.a === open ? tile.b : tile.a;
+        chain.unshift({ tile: tileId, left, right: open });
+      } else {
+        const open = chain[chain.length - 1].right,
+          right = tile.a === open ? tile.b : tile.a;
+        chain.push({ tile: tileId, left: open, right });
+      }
+      return chain;
+    },
+    finish(s) {
+      const humanPips = this.pips(s.human),
+        botPips = this.pips(s.bot);
+      return {
+        ...s,
+        done: true,
+        turn: 'none',
+        winner: humanPips === botPips ? 'draw' : humanPips < botPips ? 'human' : 'bot',
+        humanPips,
+        botPips,
+      };
+    },
+    keeperTurn(s) {
+      let q = copy(s);
+      q.turn = 'bot';
+      while (true) {
+        const moves = this.legalMoves(q, 'bot');
+        if (moves.length) {
+          const move = moves[0],
+            tile = this.tile(move.tile);
+          q.bot = q.bot.filter((id) => id !== move.tile);
+          q.chain = this.place(q, move.tile, move.end);
+          q.lastAction = `The keeper played ${tile.a}|${tile.b}.`;
+          if (!q.bot.length)
+            return {
+              ...q,
+              done: true,
+              turn: 'none',
+              winner: 'bot',
+              humanPips: this.pips(q.human),
+              botPips: 0,
+            };
+          q.turn = 'human';
+          return q;
+        }
+        if (q.stock.length) {
+          q.bot = q.bot.concat(q.stock[0]);
+          q.stock = q.stock.slice(1);
+          continue;
+        }
+        q.turn = 'human';
+        q.lastAction = 'The keeper passes. Choose a move if you can.';
+        return this.legalMoves(q, 'human').length ? q : this.finish(q);
+      }
+    },
+    move(s, action) {
+      if (!s || s.done || s.turn !== 'human') throw Error('This domino round is finished.');
+      if (!action || typeof action !== 'object' || typeof action.kind !== 'string')
+        throw Error('Invalid domino action.');
+      const keys = Object.keys(action).sort().join(','),
+        q = copy(s);
+      if (action.kind === 'play') {
+        if (
+          keys !== 'end,kind,tile' ||
+          !integer(action.tile, 0, 27) ||
+          !['start', 'left', 'right'].includes(action.end)
+        )
+          throw Error('Invalid domino play.');
+        if (
+          !this.legalMoves(s, 'human').some(
+            (move) => move.tile === action.tile && move.end === action.end,
+          )
+        )
+          throw Error('That tile cannot play on that end.');
+        q.human = q.human.filter((id) => id !== action.tile);
+        q.chain = this.place(q, action.tile, action.end);
+        q.lastAction = `You played ${this.tile(action.tile).a}|${this.tile(action.tile).b}.`;
+        if (!q.human.length)
+          return {
+            ...q,
+            done: true,
+            turn: 'none',
+            winner: 'human',
+            humanPips: 0,
+            botPips: this.pips(q.bot),
+          };
+        return this.keeperTurn(q);
+      }
+      if (action.kind === 'draw') {
+        if (keys !== 'kind' || this.legalMoves(s, 'human').length || !q.stock.length)
+          throw Error('Draw only when no tile plays and stock remains.');
+        const tile = q.stock[0];
+        q.stock = q.stock.slice(1);
+        q.human.push(tile);
+        q.lastAction = `You drew ${this.tile(tile).a}|${this.tile(tile).b}. ${this.legalMoves(q, 'human').length ? 'It matches an open end.' : 'Draw again until a tile plays.'}`;
+        return q;
+      }
+      if (action.kind === 'pass') {
+        if (keys !== 'kind' || this.legalMoves(s, 'human').length || q.stock.length)
+          throw Error('Pass only when no tile plays and stock is empty.');
+        q.lastAction = 'You pass. The keeper takes its turn.';
+        return this.keeperTurn(q);
+      }
+      throw Error('Invalid domino action.');
+    },
+    score(s) {
+      return s?.winner === 'human'
+        ? this.pips(s.bot)
+        : s?.winner === 'bot'
+          ? -this.pips(s.human)
+          : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid domino replay.');
+      let s = this.initial(seed);
+      for (const action of log) s = this.move(s, action);
+      return s;
+    },
+  };
+  const mahjongKinds = 'ABCDEFGHIJ'.split(''),
+    mahjongLayout = [
+      { z: 0, x: 0 },
+      { z: 0, x: 1 },
+      { z: 0, x: 2 },
+      { z: 0, x: 3 },
+      { z: 0, x: 4 },
+      { z: 0, x: 5 },
+      { z: 0, x: 6 },
+      { z: 0, x: 7 },
+      { z: 1, x: 1 },
+      { z: 1, x: 2 },
+      { z: 1, x: 3 },
+      { z: 1, x: 4 },
+      { z: 1, x: 5 },
+      { z: 1, x: 6 },
+      { z: 2, x: 2 },
+      { z: 2, x: 3 },
+      { z: 2, x: 4 },
+      { z: 2, x: 5 },
+      { z: 3, x: 3 },
+      { z: 3, x: 4 },
+    ],
+    mahjongPairOrder = [
+      [18, 19],
+      [14, 17],
+      [15, 16],
+      [8, 13],
+      [9, 12],
+      [10, 11],
+      [0, 7],
+      [1, 6],
+      [2, 5],
+      [3, 4],
+    ];
+  function mahjongFaces(seed) {
+    const faces = mahjongKinds.slice(),
+      r = random('mahjong:' + seed);
+    for (let i = faces.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [faces[i], faces[j]] = [faces[j], faces[i]];
+    }
+    return faces;
+  }
+  const mahjongSolitaire = {
+    size: 20,
+    pairCount: mahjongPairOrder.length,
+    kinds: mahjongKinds.slice(),
+    layout: mahjongLayout.map(copy),
+    initial(seed = 'MAHJONG-01') {
+      seed = seedText(seed);
+      const faces = mahjongFaces(seed),
+        byId = Array(mahjongLayout.length);
+      mahjongPairOrder.forEach(([a, b], pair) => {
+        byId[a] = byId[b] = faces[pair];
+      });
+      return {
+        seed,
+        tiles: mahjongLayout.map((position, id) => ({
+          id,
+          x: position.x,
+          y: 0,
+          z: position.z,
+          face: byId[id],
+          removed: false,
+        })),
+        score: 0,
+        pairs: 0,
+        done: false,
+        won: false,
+        stuck: false,
+      };
+    },
+    free(s, id) {
+      if (!s?.tiles || !integer(id, 0, mahjongLayout.length - 1)) return false;
+      const tile = s.tiles[id];
+      if (!tile || tile.removed) return false;
+      const above = s.tiles.some(
+          (other) => !other.removed && other.z > tile.z && other.x === tile.x && other.y === tile.y,
+        ),
+        left = s.tiles.some(
+          (other) =>
+            !other.removed && other.z === tile.z && other.y === tile.y && other.x === tile.x - 1,
+        ),
+        right = s.tiles.some(
+          (other) =>
+            !other.removed && other.z === tile.z && other.y === tile.y && other.x === tile.x + 1,
+        );
+      return !above && (!left || !right);
+    },
+    matching(s, a, b) {
+      return (
+        integer(a, 0, mahjongLayout.length - 1) &&
+        integer(b, 0, mahjongLayout.length - 1) &&
+        a !== b &&
+        this.free(s, a) &&
+        this.free(s, b) &&
+        s.tiles[a]?.face === s.tiles[b]?.face
+      );
+    },
+    pairs(s) {
+      if (!s?.tiles || s.done) return [];
+      const out = [];
+      for (let a = 0; a < s.tiles.length; a++)
+        for (let b = a + 1; b < s.tiles.length; b++) if (this.matching(s, a, b)) out.push([a, b]);
+      return out;
+    },
+    move(s, a, b) {
+      if (!s || s.done) throw Error('This table is closed. Start a new game.');
+      if (!this.matching(s, a, b)) throw Error('Choose two free matching tiles.');
+      const tiles = s.tiles.map((tile) => ({ ...tile }));
+      tiles[a].removed = true;
+      tiles[b].removed = true;
+      const won = tiles.every((tile) => tile.removed),
+        q = {
+          seed: s.seed,
+          tiles,
+          score: s.score + 10,
+          pairs: s.pairs + 1,
+          done: won,
+          won,
+          stuck: false,
+        };
+      if (!won) {
+        const stuck = !this.pairs(q).length;
+        q.done = stuck;
+        q.stuck = stuck;
+      }
+      return q;
+    },
+    score(s) {
+      return Number.isFinite(s?.score) ? s.score : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > mahjongPairOrder.length)
+        throw Error('Invalid Mahjong replay.');
+      let s = this.initial(seed);
+      for (const action of log) {
+        if (
+          !action ||
+          typeof action !== 'object' ||
+          Object.keys(action).sort().join(',') !== 'a,b' ||
+          !integer(action.a, 0, mahjongLayout.length - 1) ||
+          !integer(action.b, 0, mahjongLayout.length - 1)
+        )
+          throw Error('Invalid Mahjong move.');
+        s = this.move(s, action.a, action.b);
+      }
+      return s;
+    },
+  };
   const types = ['home', 'garden', 'cafe', 'library', 'water'];
   const typeInfo = {
     home: {
@@ -384,7 +1087,138 @@
       return { path: null, nodes: seen.size };
     },
   };
-  const api = { version: 1, hash, random, seedText, neighbors, copy, reversi, borough, warehouse };
+  // Original reviewed region boards. Answers stay in the authoring source, not this engine.
+  const gardenLayouts = [
+    {
+      id: 'garden-1',
+      revision: 1,
+      title: 'Window boxes',
+      size: 6,
+      regions: [
+        1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 1, 1, 2, 3, 3, 3, 1, 1, 1, 4, 4, 4, 4, 1, 1, 4,
+        5, 4, 4, 4, 4,
+      ],
+    },
+    {
+      id: 'garden-2',
+      revision: 1,
+      title: 'The orchard gate',
+      size: 6,
+      regions: [
+        0, 0, 0, 0, 2, 2, 1, 0, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 1, 3, 3, 2, 2, 2, 1, 1, 4, 4, 2, 2, 1,
+        1, 4, 4, 5, 5,
+      ],
+    },
+    {
+      id: 'garden-3',
+      revision: 1,
+      title: 'The glass walk',
+      size: 6,
+      regions: [
+        1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 2, 4, 4, 4, 4, 2, 2, 4, 4, 4, 3, 3, 3, 4, 4, 5, 3, 5, 5, 4,
+        4, 5, 5, 5, 5,
+      ],
+    },
+    {
+      id: 'garden-4',
+      revision: 1,
+      title: 'After the rain',
+      size: 7,
+      regions: [
+        0, 0, 0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 3, 0, 2, 0, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 4, 4, 5, 5, 3, 3, 6, 6, 4, 5, 5, 3, 6, 6, 6, 4,
+      ],
+    },
+    {
+      id: 'garden-5',
+      revision: 1,
+      title: 'The walled garden',
+      size: 7,
+      regions: [
+        0, 0, 1, 1, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 4, 4, 4, 1, 2, 2, 2, 4, 4, 4, 4, 2, 2, 3, 4, 4, 4,
+        2, 2, 2, 2, 4, 4, 4, 5, 5, 5, 6, 4, 4, 5, 5, 5, 6, 6,
+      ],
+    },
+    {
+      id: 'garden-6',
+      revision: 1,
+      title: 'Lantern night',
+      size: 7,
+      regions: [
+        1, 0, 0, 0, 4, 2, 2, 1, 0, 5, 5, 4, 2, 2, 5, 5, 5, 3, 4, 4, 2, 5, 5, 5, 3, 4, 4, 4, 5, 5, 5,
+        5, 4, 4, 4, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 6, 6, 6, 4,
+      ],
+    },
+  ];
+  const regionGardens = {
+    layouts: gardenLayouts,
+    initial(level = 0) {
+      if (!integer(level, 0, gardenLayouts.length - 1)) throw Error('Unknown garden.');
+      return { level, marks: Array(gardenLayouts[level].size ** 2).fill(0), done: false };
+    },
+    conflicts(s) {
+      const p = gardenLayouts[s.level],
+        n = p.size;
+      const tokens = s.marks.flatMap((v, i) => (v === 1 ? [i] : [])),
+        bad = new Set();
+      for (let a = 0; a < tokens.length; a++)
+        for (let b = a + 1; b < tokens.length; b++) {
+          const i = tokens[a],
+            j = tokens[b],
+            x = i % n,
+            y = Math.floor(i / n),
+            xx = j % n,
+            yy = Math.floor(j / n);
+          if (
+            x === xx ||
+            y === yy ||
+            p.regions[i] === p.regions[j] ||
+            (Math.abs(x - xx) <= 1 && Math.abs(y - yy) <= 1)
+          ) {
+            bad.add(i);
+            bad.add(j);
+          }
+        }
+      return [...bad];
+    },
+    move(s, cell) {
+      if (s.done || !integer(cell, 0, s.marks.length - 1))
+        throw Error('Choose a square in an unfinished garden.');
+      const q = copy(s);
+      q.marks[cell] = (q.marks[cell] + 1) % 3;
+      q.done =
+        q.marks.filter((v) => v === 1).length === gardenLayouts[q.level].size &&
+        this.conflicts(q).length === 0;
+      return q;
+    },
+    replay(level, log) {
+      if (!Array.isArray(log) || log.length > 3000) throw Error('Invalid garden replay.');
+      let s = this.initial(level);
+      for (const cell of log) s = this.move(s, cell);
+      return s;
+    },
+  };
+  const api = {
+    regionGardens,
+    version: 1,
+    hash,
+    random,
+    seedText,
+    neighbors,
+    copy,
+    reversi,
+    ticTacToe,
+    tictactoe: ticTacToe,
+    blockCabinet,
+    blockcabinet: blockCabinet,
+    dominoes,
+    domino: dominoes,
+    mahjongSolitaire,
+    mahjong: mahjongSolitaire,
+    mahjongsolitaire: mahjongSolitaire,
+    borough,
+    warehouse,
+  };
   root.AlibiClubEngines = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);

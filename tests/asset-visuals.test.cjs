@@ -11,6 +11,24 @@ const ctx = {};
 vm.createContext(ctx);
 for (const f of ['asset-library.js', 'quiet-wing/calm.js', 'quiet-wing/engine.js'])
   vm.runInContext(fs.readFileSync(path.join(root, 'src', f), 'utf8'), ctx);
+
+test('Every puzzle family has distinct diagram art without reading answers', () => {
+  vm.runInContext(fs.readFileSync(path.join(root, 'src/presentation.js'), 'utf8'), ctx);
+  const catalog = JSON.parse(fs.readFileSync(path.join(root, 'content/catalog.json')));
+  const art = Object.keys(ctx.AlibiUI.data).map((type) => {
+    const puzzle = catalog.puzzles.find((p) => p.type === type);
+    Object.defineProperty(puzzle, 'solution', {
+      get() {
+        throw Error('Answer accessed');
+      },
+    });
+    const result = ctx.AlibiUI.art(type, puzzle, 0);
+    assert.match(result, /<svg/);
+    assert.doesNotMatch(result, /<img|<script|foreignObject/);
+    return result;
+  });
+  assert.equal(new Set(art).size, 13);
+});
 test('Every real stamp gets a distinct silhouette without changing award logic', () => {
   const actual = ctx.QWEngine.BADGES.map(([id]) => id);
   assert.equal(actual.length, 25);

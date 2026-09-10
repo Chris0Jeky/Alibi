@@ -36,6 +36,21 @@
   gap: 7px;
   flex-wrap: wrap;
 }
+.theatre-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.theatre-controls select,
+.theatre-controls input {
+  min-height: 44px;
+  max-width: 160px;
+}
+.theatre-controls [role='status'] {
+  flex-basis: 100%;
+  font-size: 12px;
+}
 .theatre-controls button,
 .theatre-stage-copy button {
   min-height: 44px;
@@ -533,4 +548,36 @@ html[data-large='true'] .theatre-note {
   color: #f1e5cb;
   padding: 12px;
   font-size: 12px;
+}
+.theatre-settings {
+  margin-left: auto;
+  max-width: 100%;
+}
+.theatre-settings > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.theatre-settings > summary::after {
+  content: '+';
+}
+.theatre-settings[open] > summary::after {
+  content: '−';
+}
+.theatre-settings > summary:focus-visible {
+  outline: 3px solid #dbae55;
+  outline-offset: 3px;
+}
+.theatre-settings[open] .theatre-controls {
+  padding-bottom: 8px;
+}
+@media (max-width: 700px) {
+  .theatre-settings[open] {
+    width: 100%;
+  }
 }

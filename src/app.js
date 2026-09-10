@@ -51,7 +51,7 @@
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
-    sceneMarkMode = 'place',
+    sceneMarkMode = 'cycle',
     pencil = false,
     brush = 1,
     paused = false,
@@ -109,9 +109,12 @@
   function solved(r) {
     return !!(r?.firstCompletedAt || r?.completedAt);
   }
+  function activeRun(r) {
+    return !!r?.moves && !solved(r);
+  }
   function activeRecords() {
     return [...records.values()]
-      .filter((r) => r.moves > 0 && !r.completedAt)
+      .filter(activeRun)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
@@ -359,12 +362,15 @@
   });
   function difficulty(level, p) {
     p = p || current?.puzzle;
-    const at = ['Gentle', 'Steady', 'Tricky'].indexOf(level);
+    const at = C.DIFFICULTIES.indexOf(level);
     const curationDifficulty = globalThis.AlibiCuration?.difficulty,
-      label =
-        (typeof curationDifficulty === 'function' && curationDifficulty(p)) ||
-        (p?.id?.startsWith('curated-') ? `${level} · provisional` : level);
-    return `<span class="difficulty"><span class="bars" aria-hidden="true">${range(3)
+      curationLabel = typeof curationDifficulty === 'function' ? curationDifficulty(p) : '',
+      label = curationLabel
+        ? `${curationLabel}${p?.difficultyStatus && !curationLabel.includes('·') ? ` · ${p.difficultyStatus}` : ''}`
+        : `${level}${p?.difficultyStatus ? ` · ${p.difficultyStatus}` : p?.id?.startsWith('curated-') ? ' · provisional' : ''}`;
+    return `<span class="difficulty"><span class="bars" aria-hidden="true">${range(
+      C.DIFFICULTIES.length,
+    )
       .map((i) => `<i class="${i <= at ? 'on' : ''}"></i>`)
       .join('')}</span>${esc(label)}</span>`;
   }
@@ -384,7 +390,7 @@
   }
   function progress(p, r) {
     if (!r) return 0;
-    if (r.completedAt) return 100;
+    if (solved(r)) return 100;
     const s = r.state,
       n = p.size,
       N = n * n;
@@ -478,20 +484,18 @@
   }
   function puzzleCard(p) {
     const r = rec(p),
-      inProgress = r && r.moves > 0 && !r.completedAt,
+      inProgress = activeRun(r),
       fav = prefs.favorites.includes(p.id),
       openID = route.page === 'library' ? ` id="library-card-${esc(keyFor(p))}"` : '';
-    const highlight =
-      globalThis.ALIBI_MEDIA?.[globalThis.AlibiAssets.highlights[p.id]] ||
-      globalThis.AlibiCuration.cover?.(p);
-    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button${openID} class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
-      highlight
-        ? `<img class="puzzle-highlight" src="${esc(highlight)}" width="320" height="240" alt="" loading="lazy" decoding="async">`
-        : AlibiClub.portrait(
-            p.type,
-            [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
-          )
-    }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div></div></button></article>`;
+    const collection = globalThis.AlibiCuration.collections.find(
+      (c) => c.id === globalThis.AlibiCuration.get(p)?.venue,
+    );
+    const collectionCover = globalThis.AlibiCuration.cover?.(p);
+    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button${openID} class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art" data-family="${esc(p.type)}">${AlibiUI.art(
+      p.type,
+      p,
+      [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
+    )}<span class="card-family-symbol">${icon(M[p.type].icon)}</span>${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div>${collection ? `<span class="collection-stamp">${collectionCover ? `<img src="${esc(collectionCover)}" width="28" height="28" alt="" loading="lazy">` : ''}<span>${esc(collection.title)}</span></span>` : ''}</div></button></article>`;
   }
   function bookCard(b, i) {
     const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
@@ -574,13 +578,13 @@
       const r = rec(p);
       return (
         library.status === 'all' ||
-        (library.status === 'new' && !r?.moves) ||
-        (library.status === 'started' && r?.moves > 0 && !r.completedAt) ||
+        (library.status === 'new' && !r?.moves && !solved(r)) ||
+        (library.status === 'started' && activeRun(r)) ||
         (library.status === 'solved' && solved(r)) ||
         (library.status === 'favorites' && prefs.favorites.includes(p.id))
       );
     });
-    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${['Gentle', 'Steady', 'Tricky'].map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
+    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
       ['started', 'In progress'],
@@ -737,7 +741,10 @@
         person = p.people.find((w) => s.placements[w.id] === i),
         obj = p.objects.find((o) => o.cell === i),
         ex = (s.notes[selectedPerson] || []).includes(i),
-        candidates = p.people.filter((person) => s.candidates?.[i]?.includes(person.id)),
+        candidates = p.people.filter(
+          (person) =>
+            s.placements[person.id] === undefined && s.candidates?.[i]?.includes(person.id),
+        ),
         exclusions = p.people.filter((person) => s.notes[person.id]?.includes(i)),
         crossed = s.crosses?.includes(i);
       cls += ' scene-cell';
@@ -933,7 +940,11 @@
             : `<div class="axis">${r + 1}</div>`;
       for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
     }
-    return `<div class="board-scroll ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Scroll sideways to pan the board.</p>' : ''}${boardLegend(p, s)}`;
+    const pan =
+      n > 9 && zoomed
+        ? `<div class="toolrow" aria-label="Pan large board">${B('Left', 'board-pan', '', 'secondary small', 'data-value="-1" aria-label="Move view left"')}${B('Right', 'board-pan', '', 'secondary small', 'data-value="1" aria-label="Move view right"')}${B('Up', 'board-pan', '', 'secondary small', 'data-value="-1" data-axis="y" aria-label="Move view up"')}${B('Down', 'board-pan', '', 'secondary small', 'data-value="1" data-axis="y" aria-label="Move view down"')}</div>`
+        : '';
+    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s)}`;
   }
   function boardLegend(p, s) {
     if (p.type === 'scene')
@@ -1002,7 +1013,7 @@
       )}</div><div class="logic-summary">${p.people.map((name, i) => `<div><strong>${esc(name)}</strong><span>${esc(a[i] >= 0 ? p.categories[0].values[a[i]] : 'Room unknown')} · ${esc(a[n + i] >= 0 ? p.categories[1].values[a[n + i]] : 'Object unknown')}</span></div>`).join('')}</div>`;
   }
   function witnessBoard(p, s) {
-    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person took the missing object.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.</p>`;
+    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.</p>`;
   }
   function controls(p, s) {
     const t = p.type;
@@ -1021,6 +1032,7 @@
         )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
     } else if (t === 'scene')
       content = `<div class="toolrow" aria-label="Scene marking mode">${[
+        ['cycle', 'Tap cycle'],
         ['place', 'Place people'],
         ['candidate', 'Letter notes'],
         ['exclude', 'Person exclusions'],
@@ -1037,7 +1049,7 @@
         )
         .join(
           '',
-        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Notes beneath a person reappear when you remove them.</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Repeat taps: person → note → exclusion → X → person. Selection stays fixed.' : sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} Notes return when placements are removed. Hold a square to clear marks or a name for tools, or use the action buttons.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
@@ -1059,6 +1071,10 @@
         .join(
           '',
         )}</div><div class="toolrow">${tool(brush === -1 ? 'Erasing' : 'Next: ' + trailValue, 'trail-mode', brush === -1 ? 'erase' : 'trail', brush !== -1)}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Choose a number, then a square. The next unused number is selected automatically.</p>`;
+    if (t === 'nonogram') {
+      const tidy = AlibiClub.assistance() === 'tidy';
+      content += `<div class="toolrow">${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Uses the Desk assistant’s tidy setting. Crosses appear when your filled runs match a row or column clue. Change the filled squares and automatic crosses disappear; your manual crosses stay.</p>`;
+    }
     return `<div class="controls">${content}</div>`;
   }
   function evidence(p, s) {
@@ -1130,7 +1146,7 @@
       p.type === 'scene'
         ? p.people.filter((x) => x.id !== p.victim).map((x) => ({ id: x.id, name: x.name }))
         : p.people.map((name, id) => ({ name, id }));
-    return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect the answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
+    return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : p.type === 'witness' ? `Who ${X.witnessAction(p)}?` : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : typeof p.action === 'string' && p.action.trim() ? `Choose the only candidate who ${esc(X.witnessAction(p))}; your T/F notes do not affect your answer.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect your answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' || p.questionContext ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
   }
   function playPage() {
     return AlibiClub.assistBar() + playPageInner();
@@ -1143,13 +1159,15 @@
       name = p.people?.find?.((x) => x.id === selectedPerson)?.name,
       placement =
         p.type === 'scene'
-          ? sceneMarkMode === 'board-cross'
-            ? 'Tap an empty square to add or remove a board X.'
-            : sceneMarkMode === 'candidate'
-              ? `Mark possible squares for <strong>${esc(name)}</strong>.`
-              : pencil
-                ? `Rule out squares for <strong>${esc(name)}</strong>.`
-                : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
+          ? sceneMarkMode === 'cycle'
+            ? `<strong>${esc(name)}</strong> is selected. Repeat taps: place → note → exclusion → X.`
+            : sceneMarkMode === 'board-cross'
+              ? 'Tap an empty square to add or remove a board X.'
+              : sceneMarkMode === 'candidate'
+                ? `Mark possible squares for <strong>${esc(name)}</strong>.`
+                : pencil
+                  ? `Rule out squares for <strong>${esc(name)}</strong>.`
+                  : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
           : p.type === 'trail'
             ? brush === -1
               ? 'Tap an editable number to erase it.'
@@ -1401,7 +1419,7 @@
         const id = C.murderer(p, current.state),
           who = p.people.find((x) => x.id === id),
           room = p.roomNames[p.rooms[current.state.placements[p.victim]]];
-        explanation = `${who.name} was the only suspect in the ${room} with the victim. Every person and clue fits the reconstructed scene.`;
+        explanation = `${who.name} was the only other person in the ${room} with ${p.people.find((x) => x.id === p.victim).name}. Every person and clue fits the reconstructed scene. The floor plan establishes who shared a room; the case narrative explains what that means.`;
       } else if (p.type === 'dossier') {
         const a = X.dossierAssignments(p, current.state),
           who = p.people[a.slice(p.size).indexOf(p.targetItem)];
@@ -1411,7 +1429,10 @@
           trues = p.statements
             .map((cl, i) => (X.truth(cl, current.state.accused) ? i + 1 : null))
             .filter((v) => v !== null);
-        explanation = `${who} is the only culprit who makes exactly ${p.trueCount} statements true. The true account${trues.length === 1 ? ' is' : 's are'} ${trues.join(', ')}.`;
+        explanation =
+          typeof p.action === 'string' && p.action.trim()
+            ? `${who} is the only candidate who ${X.witnessAction(p)}. Exactly ${p.trueCount} statements are true; account${trues.length === 1 ? '' : 's'} ${trues.join(', ')} ${trues.length === 1 ? 'is' : 'are'} true.`
+            : `${who} is the only candidate who makes exactly ${p.trueCount} statements true. The true account${trues.length === 1 ? ' is' : 's are'} ${trues.join(', ')}.`;
       }
       dialog(
         mystery ? 'Case closed.' : 'That satisfying “aha”.',
@@ -1456,6 +1477,12 @@
         why = AlibiAssist.reason(p, s, action.cell, action.value);
       if (action.type === 'place' && s.placements[action.who] !== action.cell)
         why = AlibiAssist.reason(p, s, action.cell, null, action.who);
+      if (
+        action.type === 'cycle-mark' &&
+        s.placements[action.who] !== action.cell &&
+        E.scene.reduce(p, s, action).placements[action.who] === action.cell
+      )
+        why = AlibiAssist.reason(p, s, action.cell, null, action.who);
       if (p.type === 'dossier' && action.type === 'mark' && action.value === 1) {
         const projection = AlibiClub.projected(p, s);
         why = projection.derived[action.cell] || '';
@@ -1470,6 +1497,45 @@
       auto: false,
     });
     return commit(next, opts);
+  }
+  function sceneMenu(kind) {
+    if (current?.puzzle.type !== 'scene' || blocked()) return;
+    const person = current.puzzle.people.find((w) => w.id === selectedPerson);
+    if (kind === 'person') {
+      dialog(
+        person.name + ': marking tools',
+        '<p>Choose a tool, then tap a square. These choices are also below the board.</p>',
+        [
+          ['cycle', 'Tap cycle'],
+          ['place', 'Place people'],
+          ['candidate', 'Letter notes'],
+          ['exclude', 'Person exclusions'],
+          ['board-cross', 'Board X'],
+        ].map(([value, label]) => ({
+          label,
+          action: 'scene-mode',
+          attrs: `data-value="${value}"`,
+        })),
+      );
+    } else {
+      dialog(
+        'Square actions',
+        `<p>Row ${Math.floor(selectedCell / current.puzzle.size) + 1}, column ${String.fromCharCode(65 + (selectedCell % current.puzzle.size))}. Clearing is reversible with Undo.</p>`,
+        [
+          {
+            label: 'Clear ' + esc(person.name) + ' here',
+            action: 'scene-clear-marks',
+            attrs: 'data-value="selected"',
+          },
+          {
+            label: 'Clear everything here',
+            action: 'scene-clear-marks',
+            attrs: 'data-value="all"',
+            secondary: true,
+          },
+        ],
+      );
+    }
   }
   function nextTrail(s, p) {
     return (
@@ -1507,6 +1573,15 @@
     }
     if (t === 'scene') {
       const occupant = p.people.find((w) => s.placements[w.id] === index);
+      if (sceneMarkMode === 'cycle') {
+        if (occupant && occupant.id !== selectedPerson) {
+          selectedPerson = occupant.id;
+          render();
+          toast(occupant.name + ' selected. Tap again to make a letter note.');
+        } else act({ type: 'cycle-mark', who: selectedPerson, cell: index });
+        document.getElementById('cell-' + index)?.focus({ preventScroll: true });
+        return;
+      }
       if (occupant && (sceneMarkMode !== 'place' || pencil)) {
         toast('Choose an empty square for working notes.');
         return;
@@ -2402,7 +2477,21 @@
         if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
         render();
         break;
+      case 'scene-person-menu':
+        sceneMenu('person');
+        break;
+      case 'scene-cell-menu':
+        sceneMenu('cell');
+        break;
+      case 'scene-clear-marks':
+        if (!blocked()) {
+          closeDialog();
+          act({ type: 'clear-marks', who: selectedPerson, cell: selectedCell, all: v === 'all' });
+          document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
+        }
+        break;
       case 'scene-mode':
+        closeDialog();
         sceneMarkMode = v;
         pencil = v === 'exclude';
         render();
@@ -2521,6 +2610,15 @@
         zoomed = !zoomed;
         render();
         break;
+      case 'board-pan': {
+        const scroller = document.querySelector('[data-scroll-key="board"]');
+        if (scroller) {
+          const vertical = el.dataset.axis === 'y';
+          scroller[vertical ? 'scrollTop' : 'scrollLeft'] +=
+            Number(v) * (vertical ? scroller.clientHeight : scroller.clientWidth) * 0.75;
+        }
+        break;
+      }
       case 'pause':
         paused = !paused;
         enqueueSave();
@@ -2840,7 +2938,56 @@
         break;
     }
   }
+  let sceneHold = null,
+    sceneHoldClickUntil = 0;
+  function cancelSceneHold() {
+    if (sceneHold) clearTimeout(sceneHold.timer);
+    sceneHold = null;
+  }
+  document.addEventListener('pointerdown', (e) => {
+    cancelSceneHold();
+    sceneHoldClickUntil = 0;
+    const el = e.target.closest('[data-action="person"], .scene-cell[data-cell]');
+    if (
+      !el ||
+      el.disabled ||
+      e.button !== 0 ||
+      current?.puzzle.type !== 'scene' ||
+      $('#dialog').open ||
+      blocked()
+    )
+      return;
+    const key = current.key;
+    sceneHold = {
+      x: e.clientX,
+      y: e.clientY,
+      timer: setTimeout(() => {
+        sceneHold = null;
+        if (current?.key !== key || route.page !== 'play' || $('#dialog').open || blocked()) return;
+        sceneHoldClickUntil = Date.now() + 1000;
+        if (el.dataset.action === 'person') selectedPerson = el.dataset.id;
+        else selectedCell = Number(el.dataset.cell);
+        render();
+        sceneMenu(el.dataset.action === 'person' ? 'person' : 'cell');
+      }, 550),
+    };
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (sceneHold && Math.hypot(e.clientX - sceneHold.x, e.clientY - sceneHold.y) > 10)
+      cancelSceneHold();
+  });
+  for (const event of ['pointerup', 'pointercancel', 'scroll'])
+    document.addEventListener(event, cancelSceneHold, true);
+  window.addEventListener('blur', cancelSceneHold);
   document.addEventListener('click', (e) => {
+    if (
+      e.detail &&
+      Date.now() < sceneHoldClickUntil &&
+      e.target.closest('[data-action="person"], .scene-cell[data-cell]')
+    ) {
+      e.preventDefault();
+      return;
+    }
     const skip = e.target.closest('.skip-link');
     if (skip) {
       e.preventDefault();
@@ -3169,7 +3316,7 @@
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
-        sceneMarkMode = 'place';
+        sceneMarkMode = 'cycle';
         pencil = false;
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;
@@ -3177,7 +3324,7 @@
         feedback = '';
         evidenceTab = 'clues';
         dossierTab = 0;
-        zoomed = false;
+        zoomed = p.size > 9;
         accuseChoice = current.state.accused ?? null;
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';
@@ -3266,6 +3413,7 @@
     navigate,
     all,
     records: () => [...records.values()],
+    activeRun,
     settings: () => settings,
     current: () => current,
     apply: act,
