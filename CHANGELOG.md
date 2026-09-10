@@ -6,6 +6,19 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.0 · A clearer table, more ways to play
+
+2026-09-10
+
+- Keep earned puzzle completion after undo or restart, with consistent solved and in-progress lists.
+- Cycle scene placements, candidate initials, exclusions and general crosses without losing other notes. Hold a square or name for more actions.
+- Try 15×15 Nonograms with reversible completed-line crosses, plus new provisional Expert puzzles in every family.
+- Find games by their own board illustrations, keep room settings out of the way, and choose optional recorded rain or waves.
+- Follow eight original chapters in The unfinished invitation, with story pages between puzzles and a final epilogue.
+- Visit five new Games Room tables: Tic-Tac-Toe, Block Cabinet, Draw Dominoes, Lantern Gardens and Mahjong Solitaire.
+
+[GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.0) · [Deployment receipt](docs/RELEASE-0.11.0.md)
+
 ## 0.10.1 · Smooth keyboard browsing
 
 2026-09-09
