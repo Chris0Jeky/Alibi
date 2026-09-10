@@ -20,16 +20,16 @@ def main():
             context = browser.new_context(
                 viewport={"width": width, "height": 900},
                 reduced_motion="reduce",
-                service_workers="block",
             )
             page = context.new_page()
             page.on("pageerror", lambda error: errors.append(str(error)))
-            page.goto(URL + "/#/library")
-            page.locator("[data-action='browse-all']").click()
+            page.goto(URL + "/#/library/sudoku")
+            page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
             page.locator("#difficulty-filter").select_option("Expert")
             expect(page.locator(".filter-meta")).to_contain_text("3 puzzles")
             expect(page.locator(".puzzle-card")).to_have_count(3)
             expect(page.locator(".difficulty").first).to_have_text("Expert · provisional")
+            page.screenshot(path=str(OUT/f"filter-{width}.png"),full_page=True)
             checks.append(f"Expert filter shows three provisional puzzles at {width}px")
             page.locator(".puzzle-card [data-action='open']").first.click()
             expect(page.locator(".play-head")).to_be_visible()
@@ -39,6 +39,7 @@ def main():
             page.locator("[data-action='value'][data-value='3']").click()
             expect(page.locator("#cell-0")).to_have_text("3")
             checks.append(f"Expert Sudoku accepts a real numberpad placement at {width}px")
+            page.locator(".board-card").screenshot(path=str(OUT/f"board-{width}.png"))
             context.close()
         browser.close()
     report = {"passed": not errors, "checks": checks, "errors": errors, "url": URL}

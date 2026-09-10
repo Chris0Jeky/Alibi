@@ -15,7 +15,7 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
 
 ## Open the cabinet
 
-- **332 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **335 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
   chapter revelations. Three earlier anthology casebooks remain available.

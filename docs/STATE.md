@@ -90,6 +90,13 @@ now derive from the checked-in registry, including the additional custom-puzzle 
 The pure-engine review found no blocker. UI integration review and human difficulty sampling
 remain pending. PR #85 is merged; recorded ambience is PR #87 and Tic-Tac-Toe is PR #88.
 
+Three additive Expert9×9 Sudoku boards bring the combined candidate to335. Expert is a shared
+validated difficulty label, displayed with four bars and an explicit provisional qualifier.
+Independent uniqueness checks pass; production search uses6,634–7,515 nodes versus1,767 for
+the hardest existing Tricky Sudoku. This is comparative machine evidence, not human calibration.
+The integrated155-test source gate, Expert filter/placement at390/1440px, larger-grid regression
+and library keyboard suite pass. The original books and published puzzle definitions remain intact.
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps
