@@ -389,7 +389,7 @@
     const puzzles = bridge.all(),
       runs = bridge.records(),
       active = [
-        ...runs.filter((r) => r.moves > 0 && !r.completedAt),
+        ...runs.filter(bridge.activeRun),
         ...Object.entries(state.runs)
           .filter(([id, r]) => E() && r.log.length && !currentGame(id).done)
           .map(([id, r]) => ({

@@ -79,7 +79,7 @@ with sync_playwright() as pw:
         page.reload()
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('board cross.*candidates: ' + first_person['name']))
         page.screenshot(path=str(OUT / f'scene-{width}.png'), full_page=True)
-        cell.click()  # Place selected person after reload resets to Place people.
+        cell.click()  # Reload starts in Tap cycle; a board cross returns to placement.
         moves = page.evaluate('AlibiDiagnostics.getCurrent().moves')
         page.locator('[data-action="scene-mode"][data-value="candidate"]').click()
         cell.click()
@@ -89,6 +89,8 @@ with sync_playwright() as pw:
         expect(page.locator('#save-state')).to_contain_text('Saved on this device')
         context.set_offline(True)
         page.reload()
+        expect(cell).not_to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
+        cell.click()  # Placed person becomes a visible candidate again.
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
         context.set_offline(False)
         for puzzle_index, puzzle in enumerate(json.loads((ROOT / 'content/extra/binary-large.json').read_text())['puzzles']):
@@ -143,6 +145,35 @@ with sync_playwright() as pw:
         expect(page.locator('.chapter-entry.finished')).to_have_count(1)
         expect(page.locator('.case-ending')).to_have_count(0)
         page.screenshot(path=str(OUT / f'story-{width}.png'), full_page=True)
+        # Earned completion remains consistent when reviewing with Undo or replaying.
+        completed_id = puzzle['id']
+        page.goto(URL + '/#/play/' + completed_id)
+        expect(page.locator('.board-instruction')).to_contain_text('Puzzle solved')
+        page.locator('.main-tools [data-action="undo"]').click()
+        assert page.evaluate('!!AlibiDiagnostics.getCurrent().firstCompletedAt && !AlibiDiagnostics.getCurrent().completedAt')
+        expect(page.locator('#save-state')).to_contain_text('Saved on this device')
+        page.reload()
+        expect(page.locator('.play-title')).to_contain_text(puzzle['title'])
+        assert page.evaluate('!!AlibiDiagnostics.getCurrent().firstCompletedAt && !AlibiDiagnostics.getCurrent().completedAt')
+        def assert_solved_only():
+            page.goto(URL + '/#/library/' + puzzle['type'])
+            card = page.locator('.puzzle-card').filter(has=page.locator(f'[data-action="open"][data-id="{completed_id}@{puzzle["revision"]}"]'))
+            expect(card.locator('.badge')).to_contain_text('Solved')
+            page.locator('#status-filter').select_option('started')
+            expect(card).to_have_count(0)
+            page.locator('#status-filter').select_option('new')
+            expect(card).to_have_count(0)
+            page.locator('#status-filter').select_option('solved')
+            expect(card).to_have_count(1)
+        assert_solved_only()
+        page.goto(URL + '/#/home')
+        expect(page.locator('.club-letter')).not_to_contain_text(puzzle['title'])
+        page.goto(URL + '/#/play/' + completed_id)
+        page.locator('[data-action="restart"]').click()
+        page.locator('[data-action="restart-confirm"]').click()
+        assert page.evaluate('AlibiDiagnostics.getCurrent().moves === 0 && !!AlibiDiagnostics.getCurrent().firstCompletedAt')
+        expect(page.locator('#save-state')).to_contain_text('Saved on this device')
+        assert_solved_only()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'horizontal overflow'
         assert not errors, errors
         context.close()
