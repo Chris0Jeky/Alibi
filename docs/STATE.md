@@ -66,6 +66,17 @@ and unavailable-audio silence pass. Phone and desktop controls were visually ins
 Independent review found no blocker; the standalone empty-selector/copy finding is tracked
 as [issue #86](https://github.com/Chris0Jeky/Alibi/issues/86).
 
+### Tic-Tac-Toe candidate
+
+The Games Room now includes Tic-Tac-Toe against an exhaustive offline opponent or another
+player on the same device. Legal replay validation, undo/redo, local records and backups extend
+the existing Club contract. Original engine source remains readable; hosted Club and validator
+worker bundles use the existing esbuild minifier to preserve the core download budget.
+Full verify passes (152 Node tests plus supplementary suites), including 22,792 Club assertions.
+The actual-control suite passes 17 checks with a real-origin offline reload; backup-worker
+checks pass. Phone/desktop boards were visually inspected. Independent review is underway;
+hosted delivery and physical-device acceptance remain pending in HUMAN_TODO.md.
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps

@@ -4,6 +4,8 @@ import os
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / 'test-results/tic-tac-toe'
+OUT.mkdir(parents=True, exist_ok=True)
 checks = []
 errors = []
 
@@ -29,10 +31,14 @@ with sync_playwright() as playwright:
     page = context.new_page()
     page.set_default_timeout(7000)
     page.on("pageerror", lambda error: errors.append(str(error)))
-    page.set_content(
-        (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
-        wait_until="load",
-    )
+    if os.environ.get('ALIBI_URL'):
+        page.goto(os.environ['ALIBI_URL'])
+        page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+    else:
+        page.set_content(
+            (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
+            wait_until="load",
+        )
     page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
     def action(name, extra=""):
@@ -92,6 +98,16 @@ with sync_playwright() as playwright:
     check("X wins" not in page.locator(".tic-status").inner_text(), "Undo reopens a finished local match")
     action("club-redo", '[data-id="tictactoe"]')
     check("X wins" in page.locator(".tic-status").inner_text(), "Redo restores the finished local match")
+    if os.environ.get('ALIBI_URL'):
+        page.wait_for_timeout(600)
+        context.set_offline(True)
+        page.reload()
+        page.wait_for_selector('.tic-status')
+        check('X wins' in page.locator('.tic-status').inner_text(), 'Finished match persists through real-origin offline reload')
+    for width in (390, 1440):
+        page.set_viewport_size({'width': width, 'height': 900})
+        check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Tic-Tac-Toe fits {width}px')
+        page.locator('.tic-panel').screenshot(path=str(OUT/f'board-{width}.png'))
     route("/home")
     check(
         page.locator('.club-gamecard[data-id="tictactoe"]').count() == 1,

@@ -89,7 +89,7 @@ function build() {
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
     bridges = read(path.join(SRC, 'bridges.js')),
-    worker = [
+    workerSource = [
       core,
       engines,
       bridges,
@@ -102,6 +102,10 @@ function build() {
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),
+    worker = require('esbuild').transformSync(workerSource, {
+      minify: true,
+      target: 'es2022',
+    }).code,
     css = require('esbuild').transformSync(
       read(path.join(SRC, 'app.css')) +
         '\n' +
