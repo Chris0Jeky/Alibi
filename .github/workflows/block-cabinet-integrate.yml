@@ -1,0 +1,123 @@
+name: Prepare Block Cabinet integration
+on:
+  push:
+    branches: [codex/block-cabinet-delivery]
+    paths: [.github/workflows/block-cabinet-integrate.yml]
+permissions:
+  contents: write
+concurrency:
+  group: block-cabinet-integration-preparation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: codex/block-cabinet-integration
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - name: Install the repository's actual media and browser dependencies
+        run: |
+          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+          python -m pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+      - name: Wire the optional pack into the existing reproducible build
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/build.cjs');s=p.read_text()
+          if 'const blockMotion =' not in s:
+            marker='  const fingerprint ='
+            assert marker in s
+            s=s.replace(marker,"""  const blockMotion = require('./build-block-motion.cjs')(ROOT, DIST);
+            const blockLoader = require('esbuild').transformSync(
+              `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.config)};\\n` + read(path.join(SRC, 'block-motion-loader.js')),
+              { minify: true, target: 'es2022' },
+            ).code;
+            const blockLoaderURL = `./assets/block-motion-loader.${hash(blockLoader)}.js`;
+            write(path.join(DIST, blockLoaderURL), blockLoader);
+          """+marker,1)
+            s=s.replace('contentSource +\n        base +','contentSource +\n        blockLoader +\n        base +',1)
+            old='<script src="./${jsName}" defer></script>`'
+            assert old in s
+            s=s.replace(old,'<script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`',1)
+            s=s.replace('    engineURL,\n    bootURL,','    engineURL,\n    blockLoaderURL,\n    bootURL,',1)
+            marker='  const standalone = `'
+            assert marker in s
+            s=s.replace(marker,'  const standalone = `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\\n',1)
+            old='${base}`;'
+            assert old in s
+            s=s.replace(old,"${base}\\n${read(path.join(SRC, 'block-motion-loader.js'))}`;",1)
+            s=s.replace('    observatoryBytes: Buffer.byteLength(observatory),','    blockMotionBytes: blockMotion.bytes,\n    blockMotionLoaderGzipBytes: zlib.gzipSync(blockLoader).length,\n    observatoryBytes: Buffer.byteLength(observatory),',1)
+            s=s.replace('      Buffer.byteLength(observatory),','      Buffer.byteLength(observatory) -\n      blockMotion.bytes,',1)
+            s=s.replace('zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length,','zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length + zlib.gzipSync(blockLoader).length,',1)
+            p.write_text(s)
+          p=Path('tests/sw.test.cjs');s=p.read_text()
+          if "!n.startsWith('block-motion.')" not in s:
+            s=s.replace("!n.startsWith('observatory.') &&", "!n.startsWith('observatory.') &&\n        !n.startsWith('block-motion.') &&\n        !n.startsWith('block-atelier.') &&")
+            p.write_text(s)
+          p=Path('tests/browser_block_cabinet.py');s=p.read_text()
+          marker='        route("/salon/blockcabinet")'
+          if 'Switch to the retained simple controls' not in s:
+            first=s.index(marker)+len(marker)
+            s=s[:first]+'''
+                  # Switch to the retained simple controls through the real user-facing menu.
+                  # The separate browser_block_motion suite exercises the enhanced surface.
+                  page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+                  menu = page.locator('.bc-host [data-command="menu"]')
+                  if menu.is_visible():
+                      menu.click()
+                  page.locator('.bc-host [data-command="simple"]').click()
+          '''.replace('\n                  ', '\n        ').rstrip()+s[first:]
+            p.write_text(s)
+          p=Path('.github/workflows/check.yml');s=p.read_text()
+          if 'python tests/browser_block_motion.py' not in s:
+            marker='          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_cabinet.py'
+            assert marker in s
+            s=s.replace(marker,marker+'\n          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_motion.py',1)
+            s=s.replace('            test-results/player-qa/','            test-results/player-qa/\n            test-results/block-motion/',1)
+            p.write_text(s)
+          p=Path('docs/STATE.md');s=p.read_text();heading='## Block Cabinet integration candidate (not deployed)'
+          if heading not in s:
+            p.write_text(s.replace('# Live development state\n','# Live development state\n\n'+heading+'\n\nA separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export. The initial loader is a small separate shell script; heavy game code and art load on entry. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.\n',1))
+          p=Path('docs/BLOCK-CABINET-ENGINE.md');s=p.read_text().replace('emits a small loader in the main bundle','emits a small separate loader in the initial shell');p.write_text(s)
+          PY
+      - name: Format candidate files
+        run: npx prettier --write 'src/game-feel/*.mjs' 'src/block-cabinet/*.mjs' src/block-cabinet/style.css src/block-motion-loader.js tools/build-block-motion.cjs tools/build.cjs tests/sw.test.cjs tests/block-motion.test.mjs
+      - name: Commit only the reviewed integration paths
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/game-feel src/block-cabinet src/block-motion-loader.js tools/build.cjs tools/build-block-motion.cjs tests/sw.test.cjs tests/block-motion.test.mjs tests/browser_block_cabinet.py .github/workflows/check.yml docs/STATE.md docs/BLOCK-CABINET-ENGINE.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat(block-cabinet): wire optional surface, offline pack and actual-control CI'
+            git push origin HEAD:refs/heads/codex/block-cabinet-integration
+          fi
+      - name: Verify existing project and new rules
+        run: npm run verify
+      - name: Exercise actual enhanced and fallback controls
+        run: |
+          npm start > /tmp/alibi-server.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_motion.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_cabinet.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: block-cabinet-integration-evidence
+          path: |
+            build-info.json
+            test-results/block-motion/
+            tests/*-results.json
+            /tmp/alibi-server.log
+          retention-days: 14
