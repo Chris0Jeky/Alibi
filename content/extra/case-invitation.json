@@ -56,6 +56,7 @@
       "trueCount": 3,
       "collection": "mystery",
       "minutes": 4,
+      "action": "retrieved the copper plate",
       "question": "Who retrieved the copper plate?",
       "questionContext": "Use this record to answer the question. Access and carrying evidence do not by themselves establish guilt."
     },
@@ -410,6 +411,7 @@
       "trueCount": 2,
       "collection": "mystery",
       "minutes": 4,
+      "action": "carried the envelope",
       "question": "Who carried the envelope?",
       "questionContext": "Use this record to answer the question. Access and carrying evidence do not by themselves establish guilt."
     },
@@ -625,6 +627,7 @@
       "trueCount": 3,
       "collection": "mystery",
       "minutes": 5,
+      "action": "arranged the gathering",
       "question": "Who arranged the gathering?",
       "questionContext": "Use this record to answer the question. Access and carrying evidence do not by themselves establish guilt."
     }

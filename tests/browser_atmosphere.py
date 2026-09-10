@@ -3,6 +3,7 @@ from pathlib import Path
 import json,os,shutil
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results/atmosphere';OUT.mkdir(parents=True,exist_ok=True)
+BOOK_IDS=sorted(book['id'] for book in json.loads((ROOT/'content/casebooks.json').read_text(encoding='utf-8')))
 checks=[];errors=[];requests=[]
 def check(v,label):
     assert v,label
@@ -42,7 +43,8 @@ with sync_playwright() as pw:
             check('Public Domain' in target.inner_text(),str(width)+' '+route+' displays the real artwork credit')
             target.screenshot(path=str(OUT/(route.replace('/','-')+'-'+str(width)+'.png')))
     page.evaluate('location.hash="/casebooks"');page.wait_for_selector('.full-books')
-    check(page.locator('.full-books .book-card').count()==4,'All four original casebooks remain available')
+    rendered_books=page.locator('.full-books .book-card').evaluate_all('(cards)=>cards.map(card=>card.dataset.id).sort()')
+    check(rendered_books==BOOK_IDS,'Every registered casebook remains available without duplicates')
     page.evaluate('location.hash="/home"');page.wait_for_selector('.quiet-destinations')
     page.locator('.quiet-destinations a[href="#/quiet/classics"]').click();page.wait_for_selector('[data-play="tideglass-morning"]')
     check(page.locator('[data-play="pairs-meadow"]').is_visible(),'Source invitation opens the new game shelf')
