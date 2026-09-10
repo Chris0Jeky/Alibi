@@ -43,6 +43,26 @@ reported. That check now also runs in CI after `npm run verify`.
 
 ## Published verification
 
-Pending publication. This section is completed with the deployed Worker version, the hosted
-response headers, the first consented payload admitted by the collector and a withdrawal check,
-in the publication follow-up that references this PR.
+Published 2026-09-10 from `46a3eb1db98d61ff085e9d150248f7a46a94caff` (PR #83 merged with the
+0.11.0 `main`), build `ce47924a1cd5`: `npm run verify` 178 tests and `observatory/check.mjs`
+green on that commit, `npm run cloudflare:check` read 278 assets, `npm run cloudflare:deploy`
+uploaded 5 changed files (270 unchanged).
+
+- [Primary](https://alibi-after-hours-preview.commit-atlas.workers.dev/): Worker version
+  `38a1ca89-cbb5-4428-bbc3-0390c613bb46`. The response CSP header lists the collector origin in
+  `connect-src`; the bundle `assets/alibi.3c55be01aa3a.js` names `assets/observatory.cedd32490510.js`,
+  which is served with 200, 10,834 bytes and sha256 `cedd3249…` equal to the lock; `sw.js` has no
+  observatory entry.
+- Real browser (Chromium, this box): the **Usage sharing** block sits at the end of the page after
+  the app content. Ticking the box set the status to "Sharing is on. Untick to stop future
+  collection." and the collector admitted one `page.view` (route `home`, release `unattributed`) at
+  18:03:56Z; the first request took 5.4 s on a cold path and hit the adapter's 5 s abort, so the
+  client counted it failed while the server had admitted it (tracked as Pulseboard#32 item 7); a
+  reload sent a second `page.view` in about 1 s, client `sent: 1`, collector total 2 with two
+  distinct page sessions. Unticking set "Sharing is off. The app works normally." and stored
+  `allow: false`; a further reload made no collect request and the collector total stayed at 2.
+- Fallback (ChatGPT Sites): **not updated**, remains on 0.11.0. Publishing there follows the
+  release procedure's Sites steps with the owner's short-lived credential.
+
+Not verified here: the Python browser suites on this machine (CI ran them on the PR head), a
+physical phone, a real Global Privacy Control signal in a shipping browser, and the fallback origin.
