@@ -26,6 +26,23 @@ progress and scene behavior after that escaping fix; an initially reported cycle
 was withdrawn after a correct-build remeasurement. New regression coverage runs in CI.
 Human acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+### Family-first browsing candidate
+
+`codex/feedback-discovery` follows the first feedback slice in PR #84. Puzzle cards now lead
+with distinct family diagrams and symbols; a small collection stamp follows the details.
+Sudoku's 9×9 motif differs from Futoshiki, and Bridges depicts islands and links. No answer is
+read by the art renderer. Room sound/motion/edition controls are behind a keyboard-operable
+Room settings disclosure, whose open state survives background renders. Films remain farther
+down the home page under “Optional short films.” Pocket Borough's plot/build enabled-state
+transition passes; no specific functional defect was reproduced from the ambiguous report.
+
+Local evidence: full verify with unchanged download budgets, 182 UI checks, 90 theatre checks,
+library keyboard suite and new 390/1440px discovery/control matrix. Phone/desktop screenshots
+were inspected; collection stamps moved below the artwork after the phone preview showed
+they obscured the diagram. Audio quality is not addressed by this presentation slice; recorded
+ambience sourcing is underway separately. Tic-tac-toe and 15×15 Nonograms are in isolated worker
+checkouts. No new hosted release is claimed.
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps

@@ -25,6 +25,8 @@ with sync_playwright() as pw:
   page.locator('.theatre-stage').scroll_into_view_if_needed()
   page.wait_for_function('()=>document.querySelector(".theatre-stage img").dataset.assetQuality==="enhanced"')
   check(page.locator('.theatre-stage [data-adaptive-credit]').is_visible(),'Photo source credit accompanies verified enhancement')
+  check(not page.locator('[data-theatre-data]').is_visible(), 'Atmosphere controls are secondary by default')
+  page.locator('.theatre-settings > summary').click()
   page.locator('[data-theatre-data]').click()
   check(page.locator('.theatre-stage img').get_attribute('data-asset-quality')=='compact','Painted edition restores complete local illustration')
   page.wait_for_function('()=>navigator.serviceWorker.controller')

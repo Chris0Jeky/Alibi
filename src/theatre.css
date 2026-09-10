@@ -534,3 +534,35 @@ html[data-large='true'] .theatre-note {
   padding: 12px;
   font-size: 12px;
 }
+.theatre-settings {
+  margin-left: auto;
+  max-width: 100%;
+}
+.theatre-settings > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.theatre-settings > summary::after {
+  content: '+';
+}
+.theatre-settings[open] > summary::after {
+  content: '−';
+}
+.theatre-settings > summary:focus-visible {
+  outline: 3px solid #dbae55;
+  outline-offset: 3px;
+}
+.theatre-settings[open] .theatre-controls {
+  padding-bottom: 8px;
+}
+@media (max-width: 700px) {
+  .theatre-settings[open] {
+    width: 100%;
+  }
+}
