@@ -624,7 +624,8 @@
       !['Gentle', 'Steady', 'Tricky'].includes(p.difficulty)
     )
       fail('Invalid title, subtitle or difficulty.');
-    if (!int(p.size, 4, p.type === 'scene' ? 5 : 9)) fail('Unsupported grid size.');
+    if (!int(p.size, 4, p.type === 'scene' ? 5 : p.type === 'nonogram' ? 15 : 9))
+      fail('Unsupported grid size.');
     const n = p.size,
       N = n * n;
     if (p.type === 'scene') {

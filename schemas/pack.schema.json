@@ -123,11 +123,32 @@
         "size": {
           "type": "integer",
           "minimum": 3,
-          "maximum": 9
+          "maximum": 15
         },
         "story": {
           "type": "string",
           "maxLength": 1600
+        }
+      },
+      "if": {
+        "properties": {
+          "type": {
+            "const": "nonogram"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "size": {
+            "maximum": 15
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "size": {
+            "maximum": 9
+          }
         }
       },
       "description": "Cross-field geometry, references, dimensions and logic must also pass the executable validators and bounded solver."
