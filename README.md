@@ -88,8 +88,7 @@ human playtesting of Bellweather and the bridge charts, followed by deliberate c
 
 ## Privacy, provenance and limitations
 
-Progress stays in this browser on this device. There is no cloud sync, advertising, analytics SDK,
-account system or payment service. Export a backup before moving browsers, origins or devices.
+Progress stays in this browser on this device. There is no cloud sync, advertising, account system or payment service. Usage sharing is an opt-in control at the bottom of the page, off by default, sending only content-free action counts (see Settings → Privacy & credits). Export a backup before moving browsers, origins or devices.
 Hosting infrastructure may process ordinary request data; see [deployment](docs/DEPLOYMENT.md).
 
 Solutions ship with the app for offline checking and explicit reveals. Scores are not competitive

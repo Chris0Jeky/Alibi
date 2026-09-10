@@ -44,6 +44,7 @@ jobs:
           fi
           ffprobe -version
       - run: npm run verify
+      - run: node observatory/check.mjs
       - run: node tools/verify-curation.cjs
       - run: node tools/curation/replay_challenges.cjs src/quiet-wing/engine.js src/club-engines.js test-results/challenges-replay.json
       - run: npm run assets:media

@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.11.1",
+    "date": "2026-09-10",
+    "title": "Optional usage sharing",
+    "tag": "v0.11.1",
+    "receipt": "docs/RELEASE-0.11.1.md",
+    "changes": [
+      "Add an optional Usage sharing control at the bottom of the page. It stays off until you tick it, sends only a small set of content-free action counts to pulseboard-observatory.commit-atlas.workers.dev, never puzzles, answers, saves, imported packs or workshop text, and can be switched off at any time. Standalone exports stay silent."
+    ]
+  },
+  {
     "version": "0.11.0",
     "date": "2026-09-10",
     "title": "A clearer table, more ways to play",
