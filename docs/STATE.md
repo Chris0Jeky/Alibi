@@ -50,11 +50,14 @@ PR #94's first Quiet Wing keyboard-remount check timed out; the independent same
 passed the whole suite. Canonical local diagnostics and one bounded failed-run retry also passed;
 no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
 
-Non-blocking review follow-ups remain in #6, #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
-hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
-those limitations explicit. Sites still controls response headers/MIME and its injected challenge
-(#6); document CSP/referrer metadata remains intact. The dated slice notes below are historical candidate checkpoints;
-their smaller counts and publication status describe their own stage, not the current total.
+The Block Cabinet follow-up in #93 is implemented: an occupied cell that is also a legal piece
+origin now exposes both facts in its accessible label, with actual-control coverage at 390/1440px.
+Other non-blocking review follow-ups remain in #6, #86, #89, #90, #96, #100 and #102, including
+large-Nonogram hint latency and the widest clue layout's approximately 43px mobile cells. The
+release keeps those limitations explicit. Sites still controls response headers/MIME and its
+injected challenge (#6); document CSP/referrer metadata remains intact. The dated slice notes
+below are historical candidate checkpoints; their smaller counts and publication status describe
+their own stage, not the current total.
 
 ## September feedback candidate, 2026-09-10
 

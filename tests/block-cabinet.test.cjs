@@ -60,6 +60,16 @@ test('Block Cabinet only places the displayed orientation and clears rows and co
   assert.equal(cleared.score, 25, 'simultaneous row and column clears score once each');
 });
 
+test('Block Cabinet keeps a legal origin when its occupied bounding corner is outside the shape', () => {
+  const first = blocks.initial('A2');
+  assert.deepEqual(first.tray, ['l5', 'cross', 'stair5']);
+  const placed = blocks.move(first, 0, 0);
+  assert.equal(placed.board[25], 1, 'the prior long angle occupies the later origin');
+  assert.equal(placed.tray[1], 'cross');
+  assert.ok(blocks.legal(placed, 1, 25), 'the cross does not use its occupied bounding corner');
+  assert.deepEqual(blocks.cellsAt(placed, 1, 25), [26, 33, 34, 35, 42]);
+});
+
 test('Block Cabinet detects a stuck tray and rejects untrusted replays', () => {
   const stuck = blocks.initial('STUCK');
   stuck.board = Array(64).fill(1);

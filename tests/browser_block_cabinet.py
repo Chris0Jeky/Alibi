@@ -111,16 +111,35 @@ with sync_playwright() as playwright:
             page.reload()
             page.wait_for_selector('.block-cell.filled')
             check(page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log.length') == 1, f'Placement survives offline reload at {width}px')
-        page.locator("#block-seed").fill("SECOND-SEED")
+        page.locator("#block-seed").fill("A2")
         page.locator('[data-action="club-block-use-seed"]').click()
         check(page.locator("dialog[open]").count() == 1, f"Changing seed asks before clearing at {width}px")
         page.locator('[data-action="club-reset-confirm"]').click()
         page.wait_for_function(
-            "() => AlibiClub.diagnostics().state.runs.blockcabinet.seed === 'SECOND-SEED'"
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.seed === 'A2'"
         )
         check(
             page.evaluate("() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length") == 0,
             f"Confirmed seed change starts a fresh replay at {width}px",
+        )
+        page.locator('[data-action="club-block-piece"][data-value="0"]').click()
+        page.locator('.block-cell[data-cell="0"].legal-origin').click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 1"
+        )
+        page.locator('[data-action="club-block-piece"][data-value="1"]').click()
+        occupied_origin = page.locator('.block-cell[data-cell="25"]')
+        check(
+            "filled, legal origin for Cross" in occupied_origin.get_attribute("aria-label"),
+            f"An occupied bounding corner exposes its legal origin to assistive technology at {width}px",
+        )
+        occupied_origin.click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 2"
+        )
+        check(
+            page.evaluate("() => AlibiClub.diagnostics().state.runs.blockcabinet.log[1].cell") == 25,
+            f"The occupied legal origin remains an actual playable control at {width}px",
         )
         page.screenshot(path=str(ROOT / "test-results" / f"block-cabinet-play-{width}.png"), full_page=True)
         route("/home")
