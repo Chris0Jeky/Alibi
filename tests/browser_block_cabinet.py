@@ -30,10 +30,14 @@ with sync_playwright() as playwright:
         page = context.new_page()
         page.set_default_timeout(7000)
         page.on("pageerror", lambda error: errors.append(str(error)))
-        page.set_content(
-            (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
-            wait_until="load",
-        )
+        if os.environ.get('ALIBI_URL'):
+            page.goto(os.environ['ALIBI_URL'])
+            page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        else:
+            page.set_content(
+                (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
+                wait_until="load",
+            )
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
         def route(path):
@@ -101,6 +105,12 @@ with sync_playwright() as playwright:
             page.locator(".block-cell.filled").count() > 0,
             f"Redo restores the placed piece at {width}px",
         )
+        if os.environ.get('ALIBI_URL'):
+            page.wait_for_timeout(500)
+            context.set_offline(True)
+            page.reload()
+            page.wait_for_selector('.block-cell.filled')
+            check(page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log.length') == 1, f'Placement survives offline reload at {width}px')
         page.locator("#block-seed").fill("SECOND-SEED")
         page.locator('[data-action="club-block-use-seed"]').click()
         check(page.locator("dialog[open]").count() == 1, f"Changing seed asks before clearing at {width}px")

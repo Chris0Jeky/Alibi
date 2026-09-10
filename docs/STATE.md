@@ -84,18 +84,28 @@ revisions are unchanged; size15 is permitted only for Nonograms, while other bou
 Independent row-pattern and production solvers prove uniqueness within the declared limits.
 Large boards open enlarged, offer four pan buttons and retain visible clue margins in a bounded
 scroll area. Phone/desktop controls, auto-crosses, undo and offline reload pass; screenshots were
-inspected and clue text enlarged after the first preview. Full verify passes154 Node tests plus
-supplementary suites; the original182 UI and92 real-origin checks pass. Browser catalogue counts
+inspected and clue text enlarged after the first preview. Full verify passes 154 Node tests plus
+supplementary suites; the original 182 UI and 92 real-origin checks pass. Browser catalogue counts
 now derive from the checked-in registry, including the additional custom-puzzle assertion.
 The pure-engine review found no blocker. UI integration review and human difficulty sampling
 remain pending. PR #85 is merged; recorded ambience is PR #87 and Tic-Tac-Toe is PR #88.
 
-Three additive Expert9×9 Sudoku boards bring the combined candidate to335. Expert is a shared
+Three additive Expert 9×9 Sudoku boards bring the combined candidate to 335. Expert is a shared
 validated difficulty label, displayed with four bars and an explicit provisional qualifier.
-Independent uniqueness checks pass; production search uses6,634–7,515 nodes versus1,767 for
+Independent uniqueness checks pass; production search uses 6,634–7,515 nodes versus 1,767 for
 the hardest existing Tricky Sudoku. This is comparative machine evidence, not human calibration.
-The integrated155-test source gate, Expert filter/placement at390/1440px, larger-grid regression
+The integrated 155-test source gate, Expert filter/placement at 390/1440px, larger-grid regression
 and library keyboard suite pass. The original books and published puzzle definitions remain intact.
+
+### Block Cabinet candidate
+
+The fifth Games Room engine is an original seeded 8×8 block-placement game. Each placement
+draws a replacement tray piece; completed rows and columns clear together. No rotations,
+timer or promise of endlessly solvable seeds is implied. Strict Club replay validation, undo,
+redo and score records use the existing save contract. Full verify passes 159 Node tests plus
+supplementary suites; 32 actual-control checks pass, including phone/desktop offline reload.
+Both layouts were inspected, and backup-worker checks pass. Independent review and physical-device
+acceptance remain pending.
 
 ## Focused QA 0.10.1 published
 
