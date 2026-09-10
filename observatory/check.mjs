@@ -4,8 +4,13 @@ import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 const root = new URL('../', import.meta.url);
 const lock = JSON.parse(readFileSync(new URL('observatory.lock.json', root), 'utf8'));
-const code = readFileSync(new URL(lock.target, root), 'utf8');
-assert.equal(createHash('sha256').update(code).digest('hex'), lock.sha256);
+// The lock is keyed by target since Pulseboard#15; the original single-entry shape still reads.
+const installs = lock.installs ?? { [lock.target]: { project: lock.project, sha256: lock.sha256 } };
+const [target, entry] = Object.entries(installs)[0] ?? [];
+assert.ok(target, 'The lock records no installed artifact');
+const code = readFileSync(new URL(target, root), 'utf8');
+assert.equal(createHash('sha256').update(code).digest('hex'), entry.sha256, target);
+assert.ok(!/MAX_BYTES|MAX_BATCH/.test(code), 'Server-only constants must not be published');
 assert.ok(code.includes('"endpoint":""'));
 let context = { document: { readyState: 'complete' } };
 vm.runInNewContext(code, context);
