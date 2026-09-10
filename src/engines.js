@@ -789,6 +789,8 @@
       fail('Invalid puzzle header.');
     if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
       fail('Invalid difficulty status.');
+    if (p.difficultyEvidence !== undefined && !text(p.difficultyEvidence, 240))
+      fail('Invalid difficulty evidence.');
     if (p.story !== undefined && !text(p.story, 1600)) fail('Invalid story.');
     if (p.question !== undefined && !text(p.question, 200)) fail('Invalid final question.');
     if (p.questionContext !== undefined && !text(p.questionContext, 400))

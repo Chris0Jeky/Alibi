@@ -1,0 +1,602 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-expert-families",
+  "version": 1,
+  "title": "Alibi · Provisional Expert Families",
+  "author": "Alibi",
+  "puzzles": [
+    {
+      "id": "expert-scene-01",
+      "revision": 1,
+      "type": "scene",
+      "title": "The brass observatory",
+      "subtitle": "The Night Archive",
+      "story": "A storm trapped five guests in the Night Archive. Reconstruct the room, row and column evidence, then identify the suspect who shared the victim’s room.",
+      "difficulty": "Expert",
+      "size": 5,
+      "roomNames": ["Lounge", "Kitchen", "Study", "Garden room"],
+      "rooms": [0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 2, 2, 2, 3, 3, 2, 2, 2, 3, 3],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Mara",
+          "role": "A guest",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Quin",
+          "role": "A guest",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Sela",
+          "role": "A guest",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Tobin",
+          "role": "A guest",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Veda",
+          "role": "The victim",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 6,
+          "kind": "plant",
+          "name": "plant"
+        },
+        {
+          "cell": 20,
+          "kind": "table",
+          "name": "table"
+        },
+        {
+          "cell": 21,
+          "kind": "piano",
+          "name": "piano"
+        },
+        {
+          "cell": 15,
+          "kind": "shelf",
+          "name": "bookshelf"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "row",
+          "who": "person-1",
+          "value": 4
+        },
+        {
+          "kind": "near",
+          "who": "person-2",
+          "value": 15
+        },
+        {
+          "kind": "col",
+          "who": "person-4",
+          "value": 2
+        },
+        {
+          "kind": "col",
+          "who": "person-3",
+          "value": 1
+        },
+        {
+          "kind": "col",
+          "who": "person-1",
+          "value": 4
+        }
+      ],
+      "solution": {
+        "person-1": 24,
+        "person-2": 10,
+        "person-3": 1,
+        "person-4": 7,
+        "victim": 18
+      },
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Five-way placement uses room, furniture, row and column constraints; the final room-count deduction identifies the culprit."
+    },
+    {
+      "id": "expert-dossier-01",
+      "revision": 1,
+      "type": "dossier",
+      "title": "The missing master key",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Two linked permutations plus negative evidence force the last room/object pairs; the final target item remains a separate deduction.",
+      "size": 4,
+      "people": ["Mara", "Quin", "Sela", "Tobin"],
+      "categories": [
+        {
+          "name": "Room",
+          "values": ["archive", "winter garden", "map room", "clock gallery"]
+        },
+        {
+          "name": "Object",
+          "values": ["master key", "red seal", "silver lens", "field journal"]
+        }
+      ],
+      "solution": [1, 0, 3, 2, 0, 1, 3, 2],
+      "targetItem": 0,
+      "story": "A master key vanished from the Night Archive. Match each archivist to one room and one object, then identify who carried the key.",
+      "question": "Who carried the master key?",
+      "questionContext": "Every room and object is used once.",
+      "clues": [
+        {
+          "kind": "link",
+          "a": 2,
+          "b": 2
+        },
+        {
+          "kind": "eq",
+          "cat": 0,
+          "who": 0,
+          "value": 1
+        },
+        {
+          "kind": "eq",
+          "cat": 1,
+          "who": 0,
+          "value": 0
+        },
+        {
+          "kind": "ne",
+          "cat": 1,
+          "who": 1,
+          "value": 2
+        },
+        {
+          "kind": "eq",
+          "cat": 1,
+          "who": 2,
+          "value": 3
+        },
+        {
+          "kind": "ne",
+          "cat": 0,
+          "who": 2,
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "expert-witness-01",
+      "revision": 1,
+      "type": "witness",
+      "title": "Five accounts after closing",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Five mixed is/not/either statements leave one culprit at the stated true-count; the contradiction is resolved by testing all accounts together.",
+      "size": 4,
+      "people": ["Mara", "Quin", "Sela", "Tobin"],
+      "story": "The archive seal disappeared after closing. Exactly one of these four people took it, and exactly two of five statements are true.",
+      "solution": 2,
+      "statements": [
+        {
+          "speaker": "The archivist",
+          "kind": "is",
+          "suspects": [3]
+        },
+        {
+          "speaker": "The porter",
+          "kind": "not",
+          "suspects": [0]
+        },
+        {
+          "speaker": "The conservator",
+          "kind": "not",
+          "suspects": [3]
+        },
+        {
+          "speaker": "The guard",
+          "kind": "oneof",
+          "suspects": [0, 3]
+        },
+        {
+          "speaker": "The clerk",
+          "kind": "oneof",
+          "suspects": [0, 1]
+        }
+      ],
+      "trueCount": 2
+    },
+    {
+      "id": "expert-nonogram-01",
+      "revision": 1,
+      "type": "nonogram",
+      "title": "The signal constellation",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A 15x15 multi-run picture couples long central runs with separated edge runs; solving crosses row and column run bounds repeatedly.",
+      "size": 15,
+      "story": "A signal constellation is hidden in a fifteen-by-fifteen chart. Reconstruct the beacon pattern from its row and column runs.",
+      "solution": [
+        1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1,
+        0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+        1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+        0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1,
+        1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+        1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0,
+        1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1,
+        1, 0, 1, 1, 1, 1, 1, 1
+      ],
+      "rowClues": [
+        [1, 1, 4],
+        [4, 1, 4, 2],
+        [1, 3, 2, 1, 1, 1],
+        [3, 1, 7],
+        [2, 4, 2, 2],
+        [1, 2, 2, 5],
+        [3, 3, 3],
+        [3, 2, 2],
+        [4, 2, 2, 1],
+        [1, 2, 1, 4, 1],
+        [1, 2, 5, 1, 2],
+        [3, 2, 3, 2],
+        [1, 3, 4, 1, 1],
+        [4, 1, 1, 1, 1],
+        [2, 2, 2, 6]
+      ],
+      "colClues": [
+        [4, 2, 6],
+        [1, 2, 1, 1, 2],
+        [4, 1, 6],
+        [2, 3, 3],
+        [5, 1, 2, 1],
+        [1, 5, 2],
+        [1, 1, 2, 2, 1, 1],
+        [1, 4, 2, 5],
+        [1, 1, 2, 1, 3],
+        [4, 1, 6],
+        [1, 7, 1],
+        [4, 1, 4, 1, 1],
+        [1, 1, 1, 1, 1, 2],
+        [2, 3, 1, 3, 1],
+        [3, 2, 4, 2]
+      ]
+    },
+    {
+      "id": "expert-lightup-01",
+      "revision": 1,
+      "type": "lightup",
+      "title": "The unlit corridor",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A six-by-six wall map uses sparse numbered walls plus visibility corridors; forced lanterns emerge from overlapping lines of sight.",
+      "size": 6,
+      "story": "The Night Archive lost its lights. Place lanterns so every open tile is lit without two lanterns seeing one another.",
+      "walls": [
+        -2, -2, -2, 0, -1, -2, -2, 1, -2, -2, -2, -2, -1, -2, -2, -2, -2, -2, -2, -2, -2, -1, 1, -2,
+        -2, -2, -2, -2, -2, 0, -2, -2, 2, -2, -1, -1
+      ],
+      "solution": [
+        1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+        1, 0, 1, 0, 0
+      ]
+    },
+    {
+      "id": "expert-tents-01",
+      "revision": 1,
+      "type": "tents",
+      "title": "The winter campsite",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Five tree/tent pairings combine row and column totals with diagonal no-touch exclusions; the matching step resolves the final candidate pairs.",
+      "size": 5,
+      "story": "Five trees stand around the winter archive. Place one tent beside every tree, obeying the line totals and the rule that tents never touch.",
+      "trees": [17, 3, 1, 22, 9],
+      "solution": [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+      "rowTargets": [2, 0, 2, 0, 1],
+      "colTargets": [1, 1, 1, 0, 2]
+    },
+    {
+      "id": "expert-aquarium-01",
+      "revision": 1,
+      "type": "aquarium",
+      "title": "The six glass reservoirs",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Six irregular tanks create overlapping row/column totals; the tank levels must be narrowed together rather than filled independently.",
+      "size": 6,
+      "story": "Set the waterlines in six connected reservoirs. Row and column totals reveal how high each tank can rise.",
+      "tanks": [
+        3, 3, 3, 3, 4, 4, 6, 1, 1, 1, 1, 4, 6, 6, 6, 1, 1, 1, 2, 6, 5, 5, 1, 0, 2, 5, 5, 5, 0, 0, 2,
+        2, 5, 5, 0, 0
+      ],
+      "solution": [0, 1, 1, 1, 2, 0, 2],
+      "rowTargets": [6, 1, 3, 2, 0, 2],
+      "colTargets": [3, 4, 2, 1, 2, 2]
+    },
+    {
+      "id": "expert-network-01",
+      "revision": 1,
+      "type": "network",
+      "title": "The relay room",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A six-by-six spanning network hides edge-safe rotations; propagation plus a connectivity check is needed to resolve the last loops.",
+      "size": 6,
+      "story": "Rotate every relay tile until the Night Archive receives one connected signal with no open ends.",
+      "source": 17,
+      "locked": [],
+      "tiles": [
+        1, 5, 9, 12, 10, 6, 2, 9, 12, 11, 3, 5, 5, 9, 9, 5, 5, 4, 3, 9, 10, 1, 12, 12, 6, 6, 9, 5,
+        3, 10, 6, 10, 10, 10, 7, 9
+      ],
+      "solution": [
+        1, 1, 3, 3, 0, 1, 1, 2, 1, 1, 2, 0, 0, 1, 3, 0, 0, 2, 0, 3, 1, 0, 2, 0, 0, 2, 1, 1, 2, 1, 3,
+        0, 0, 0, 3, 0
+      ]
+    },
+    {
+      "id": "expert-trail-01",
+      "revision": 1,
+      "type": "trail",
+      "title": "The long way through",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A five-by-five Hamilton path keeps only decisive anchors; distance parity and forced neighbours carry the late-stage deductions.",
+      "size": 5,
+      "story": "Trace a numbered route through every archive tile once. Consecutive numbers must share an edge.",
+      "solution": [
+        21, 22, 25, 2, 3, 20, 23, 24, 1, 4, 19, 18, 17, 16, 5, 12, 13, 14, 15, 6, 11, 10, 9, 8, 7
+      ],
+      "givens": [0, 22, 25, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "id": "expert-binary-01",
+      "revision": 1,
+      "type": "binary",
+      "title": "The split signal",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "An eight-by-eight balance uses half-filled distinct lines and no triples; clue minimisation leaves chained row/column deductions.",
+      "size": 8,
+      "story": "Restore the split signal. Every row and column contains four marks of each kind, with no run of three identical marks.",
+      "solution": [
+        1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1,
+        1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0,
+        1, 1
+      ],
+      "givens": [
+        1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1, 0, -1, 1, -1, -1, -1, 0, -1, 1, -1, 1,
+        -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, -1, -1,
+        -1, -1, 1, -1, -1, -1, -1, -1, 0, -1, -1, 1, -1, -1, -1
+      ]
+    },
+    {
+      "id": "expert-futoshiki-01",
+      "revision": 1,
+      "type": "futoshiki",
+      "title": "The uneven ledger",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A seven-by-seven Latin square mixes sparse givens with a long chain of adjacent inequalities, requiring cross-row and column propagation.",
+      "size": 7,
+      "story": "Complete the ledger with one of each value in every row and column. The adjacent signs mark the surviving order constraints.",
+      "solution": [
+        1, 6, 5, 7, 4, 3, 2, 3, 5, 7, 4, 2, 6, 1, 2, 3, 6, 5, 7, 1, 4, 7, 2, 1, 3, 6, 4, 5, 6, 7, 4,
+        2, 1, 5, 3, 5, 4, 2, 1, 3, 7, 6, 4, 1, 3, 6, 5, 2, 7
+      ],
+      "inequalities": [
+        {
+          "a": 37,
+          "b": 38,
+          "op": ">"
+        },
+        {
+          "a": 21,
+          "b": 22,
+          "op": ">"
+        },
+        {
+          "a": 44,
+          "b": 45,
+          "op": "<"
+        },
+        {
+          "a": 46,
+          "b": 47,
+          "op": ">"
+        },
+        {
+          "a": 25,
+          "b": 26,
+          "op": ">"
+        },
+        {
+          "a": 5,
+          "b": 6,
+          "op": ">"
+        },
+        {
+          "a": 33,
+          "b": 40,
+          "op": "<"
+        },
+        {
+          "a": 3,
+          "b": 10,
+          "op": ">"
+        },
+        {
+          "a": 22,
+          "b": 23,
+          "op": ">"
+        },
+        {
+          "a": 11,
+          "b": 18,
+          "op": "<"
+        },
+        {
+          "a": 36,
+          "b": 43,
+          "op": ">"
+        },
+        {
+          "a": 18,
+          "b": 25,
+          "op": ">"
+        },
+        {
+          "a": 16,
+          "b": 23,
+          "op": ">"
+        },
+        {
+          "a": 20,
+          "b": 27,
+          "op": "<"
+        },
+        {
+          "a": 4,
+          "b": 5,
+          "op": ">"
+        },
+        {
+          "a": 10,
+          "b": 17,
+          "op": "<"
+        },
+        {
+          "a": 38,
+          "b": 45,
+          "op": "<"
+        },
+        {
+          "a": 19,
+          "b": 20,
+          "op": "<"
+        },
+        {
+          "a": 31,
+          "b": 38,
+          "op": ">"
+        },
+        {
+          "a": 23,
+          "b": 24,
+          "op": "<"
+        },
+        {
+          "a": 10,
+          "b": 11,
+          "op": ">"
+        },
+        {
+          "a": 24,
+          "b": 25,
+          "op": "<"
+        },
+        {
+          "a": 28,
+          "b": 35,
+          "op": ">"
+        },
+        {
+          "a": 32,
+          "b": 33,
+          "op": "<"
+        },
+        {
+          "a": 4,
+          "b": 11,
+          "op": ">"
+        },
+        {
+          "a": 42,
+          "b": 43,
+          "op": ">"
+        },
+        {
+          "a": 3,
+          "b": 4,
+          "op": ">"
+        },
+        {
+          "a": 25,
+          "b": 32,
+          "op": ">"
+        }
+      ],
+      "givens": [
+        1, 0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 6, 0, 4,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 6, 5, 0, 0
+      ]
+    },
+    {
+      "id": "expert-bridges-01",
+      "revision": 1,
+      "type": "bridges",
+      "title": "The tideway crossings",
+      "subtitle": "The Night Archive",
+      "difficulty": "Expert",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "A nine-by-nine island graph uses non-crossing route choices and degree counts; connectivity and crossing exclusions distinguish the final network.",
+      "size": 9,
+      "story": "Restore the tideway crossings. Connect every island with bridges, meet each island count and never let routes cross.",
+      "islands": [
+        {
+          "cell": 48,
+          "count": 2
+        },
+        {
+          "cell": 61,
+          "count": 2
+        },
+        {
+          "cell": 37,
+          "count": 1
+        },
+        {
+          "cell": 64,
+          "count": 2
+        },
+        {
+          "cell": 46,
+          "count": 3
+        },
+        {
+          "cell": 55,
+          "count": 3
+        },
+        {
+          "cell": 16,
+          "count": 1
+        },
+        {
+          "cell": 50,
+          "count": 1
+        },
+        {
+          "cell": 69,
+          "count": 1
+        }
+      ],
+      "solution": [1, 1, 1, 1, 1, 1, 1, 1]
+    }
+  ]
+}
