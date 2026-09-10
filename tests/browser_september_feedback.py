@@ -76,6 +76,53 @@ with sync_playwright() as pw:
         page.reload()
         expect(page.locator(f'#cell-{elsewhere}')).to_have_attribute('aria-label', re.compile('candidates: ' + who['name']))
         page.screenshot(path=str(OUT / f'scene-{width}.png'), full_page=True)
+        context.set_offline(False)
+        nonograms = [p for p in json.loads((ROOT / 'content/catalog.json').read_text())['puzzles'] if p['type'] == 'nonogram']
+        non, row, filled, blanks = next((p, r,
+            [r*p['size']+c for c in range(p['size']) if p['solution'][r*p['size']+c] == 1],
+            [r*p['size']+c for c in range(p['size']) if p['solution'][r*p['size']+c] == 0 and p['colClues'][c]])
+            for p in nonograms for r in range(p['size'])
+            if 0 < sum(p['solution'][r*p['size']:(r+1)*p['size']]) < p['size'] - 1
+            and len([c for c in range(p['size']) if p['solution'][r*p['size']+c] == 0 and p['colClues'][c]]) >= 2)
+        page.goto(URL + '/#/play/' + non['id'])
+        page.locator('dialog[open] [data-action="close-dialog"]').click()
+        auto = page.locator('.controls [data-action="club-assist"]')
+        expect(auto).to_contain_text('Auto-cross completed lines: off')
+        auto.click()
+        page.locator('[data-action="brush"][data-value="0"]').click()
+        page.locator(f'#cell-{blanks[0]}').click()
+        page.locator('[data-action="brush"][data-value="1"]').click()
+        for i in filled: page.locator(f'#cell-{i}').click()
+        derived = page.locator(f'#cell-{blanks[1]}')
+        expect(derived).to_have_class(re.compile('derived-mark'))
+        assert state()['cells'][blanks[1]] == -1, 'automatic crosses never overwrite saved manual cells'
+        assert state()['cells'][blanks[0]] == 0
+        page.locator('.main-tools [data-action="undo"]').click()
+        expect(derived).not_to_have_class(re.compile('derived-mark'))
+        assert state()['cells'][blanks[0]] == 0, 'manual cross survives changed premise'
+        page.locator('.main-tools [data-action="redo"]').click()
+        expect(derived).to_have_class(re.compile('derived-mark'))
+        expect(page.locator('#save-state')).to_contain_text('Saved on this device')
+        page.wait_for_function('AlibiClub.diagnostics().revision > 0')
+        context.set_offline(True)
+        page.reload()
+        expect(derived).to_have_class(re.compile('derived-mark'))
+        expect(auto).to_contain_text('Auto-cross completed lines: on')
+        auto.click()
+        expect(derived).not_to_have_class(re.compile('derived-mark'))
+        assert state()['cells'][blanks[0]] == 0
+        page.screenshot(path=str(OUT / f'nonogram-{width}.png'), full_page=True)
+        context.set_offline(False)
+        # Custom names are plain text even in newly generated action labels.
+        other_scene = next(p for p in json.loads((ROOT / 'content/catalog.json').read_text())['puzzles'] if p['type'] == 'scene' and p['id'] != puzzle['id'])
+        markup_name = '<b id="name-markup">J</b>'
+        page.evaluate("arg => { ALIBI_CATALOG.puzzles.find(p => p.id === arg.id).people[0].name = arg.name; }", {'id': other_scene['id'], 'name': markup_name})
+        page.evaluate("id => { location.hash = '#/play/' + id; }", other_scene['id'])
+        expect(page.locator('.play-title')).to_contain_text(other_scene['title'])
+        page.locator('[data-action="scene-cell-menu"]').click()
+        expect(page.locator('dialog[open]')).to_contain_text('Clear ' + markup_name + ' here')
+        expect(page.locator('#name-markup')).to_have_count(0)
+        page.locator('dialog[open] [data-action="close-dialog"]').click()
         assert not errors, errors
         print(f'PASS scene cycle/notes/holds/undo/offline at {width}px', flush=True)
         context.close()

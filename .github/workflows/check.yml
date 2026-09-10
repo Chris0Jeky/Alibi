@@ -67,6 +67,7 @@ jobs:
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_focus.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_motion.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_player_qa.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_september_feedback.py
           python tests/browser_delivery.py
           python tests/browser_theatre.py
           ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py

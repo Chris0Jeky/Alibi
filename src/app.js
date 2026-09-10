@@ -1066,6 +1066,10 @@
         .join(
           '',
         )}</div><div class="toolrow">${tool(brush === -1 ? 'Erasing' : 'Next: ' + trailValue, 'trail-mode', brush === -1 ? 'erase' : 'trail', brush !== -1)}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Choose a number, then a square. The next unused number is selected automatically.</p>`;
+    if (t === 'nonogram') {
+      const tidy = AlibiClub.assistance() === 'tidy';
+      content += `<div class="toolrow">${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Uses the Desk assistant’s tidy setting. Crosses appear when your filled runs match a row or column clue. Change the filled squares and automatic crosses disappear; your manual crosses stay.</p>`;
+    }
     return `<div class="controls">${content}</div>`;
   }
   function evidence(p, s) {
@@ -1511,7 +1515,7 @@
         `<p>Row ${Math.floor(selectedCell / current.puzzle.size) + 1}, column ${String.fromCharCode(65 + (selectedCell % current.puzzle.size))}. Clearing is reversible with Undo.</p>`,
         [
           {
-            label: 'Clear ' + person.name + ' here',
+            label: 'Clear ' + esc(person.name) + ' here',
             action: 'scene-clear-marks',
             attrs: 'data-value="selected"',
           },

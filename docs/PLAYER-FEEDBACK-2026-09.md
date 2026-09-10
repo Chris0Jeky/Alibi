@@ -8,9 +8,9 @@ claim that every request is already delivered. Preserve published definitions an
 
 | Slice | Outcome and acceptance | State |
 | --- | --- | --- |
-| 1. Completion | Reproduce inconsistent solved counts across the library, journal, desk and casebooks. Keep an earned completion after restart; separate it from the current board. Test save/reload and replay. | Investigating |
-| 2. Crime-scene input | Default repeated taps on a square cycle selected person → candidate initial → excluded initial → general X → person. Retain other people's notes through repeated cycles. Hide candidates for placed people without deleting them; restore on removal. Hold square for selected/all clearing; hold person for marking choices. Provide visible keyboard equivalents, undo and reload checks. | Implementing |
-| 3. Nonogram assistance | Offer reversible crosses when the currently filled runs exactly match a row/column clue. Derive from visible clues, never the solution. Reconsider automatic marks when the premise changes; preserve manual marks and test undo, drag and offline saves. | Planned |
+| 1. Completion | Reproduce inconsistent solved counts across the library, journal, desk and casebooks. Keep an earned completion after restart; separate it from the current board. Test save/reload and replay. | Implemented locally; review passed |
+| 2. Crime-scene input | Default repeated taps on a square cycle selected person → candidate initial → excluded initial → general X → person. Retain other people's notes through repeated cycles. Hide candidates for placed people without deleting them; restore on removal. Hold square for selected/all clearing; hold person for marking choices. Provide visible keyboard equivalents, undo and reload checks. | Implemented locally; reviewed and exercised |
+| 3. Nonogram assistance | Offer reversible crosses when the currently filled runs exactly match a row/column clue. Derive from visible clues, never the solution. Reconsider automatic marks when the premise changes; preserve manual marks and test undo, drag and offline saves. | Existing reversible engine exposed; browser checks pass |
 | 4. Larger, harder puzzles | Add bounded 15×15 nonograms; retain classic 9×9 Sudoku and specify larger variants separately (10×10 with 2×5 boxes or 16×16). Audit solver/import/render bounds first. Add new IDs only, independent uniqueness evidence, phone zoom and candidate controls. Expand every family with varied deduction paths and higher difficulty labels backed by human sampling, not board size alone. | Planned |
 | 5. First-screen hierarchy | Move Winter Gallery sound/motion/edition controls into secondary room settings; demote Screening Room to optional discovery. Keep both reachable and keyboard accessible. Inspect Pocket Borough's entry/action styling at phone and desktop sizes and fix a reproduced inconsistency. | Planned |
 | 6. Sound | Replace the disliked procedural ambience with a small opt-in rain/waves audio trial. Obtain source-specific rights, credits and optimized loop assets; keep silence as default, volume/stop controls and offline fallback. Streaming is optional future enhancement, not required for play; assess provider terms, privacy and embed availability before adding it. Human listening determines comfort. | Planned |
@@ -24,8 +24,9 @@ claim that every request is already delivered. Preserve published definitions an
   in cycle mode. Existing explicit placement/note/exclusion/X tools remain available.
 - Other people's annotations survive a cycle. Candidate visibility is derived from placements;
   the saved candidate list is not destructively pruned when a person moves.
-- “Standard 10×10 Sudoku” is treated as a desire for larger and harder puzzles. Classic is
-  9×9; a 10×10 variant requires an explicit ten-symbol/box design and supporting UI.
+- The owner explicitly permits whichever sizes fit the rules and scale correctly (10 September
+  clarification). Retain 9×9 classic Sudoku and select larger variants on solver/UI evidence.
+  Higher difficulty and varied reasoning are the objective, not a mandatory 10×10 size.
 - The region-game description is ambiguous: one token per row, column and colour normally
   leaves empty cells, whereas “no empty spaces” suggests a different assignment puzzle.
   Specify the rule set before implementation; do not silently invent contradictory rules.

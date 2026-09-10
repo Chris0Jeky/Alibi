@@ -18,6 +18,12 @@ retains Solved and excludes the record from In progress/Not started and the desk
 The actual-control feedback suite proves solve → Undo → reload → filters → Restart at both
 widths; the full Node gate passes. This is a local candidate, not a published release.
 Larger puzzles, sound, discovery, case content and Games Room additions remain queued.
+Nonograms now expose the existing reversible tidy projection beside Fill/Cross/Erase as
+“Auto-cross completed lines.” The new browser matrix proves row crosses, premise removal,
+manual-mark preservation, undo/redo and offline preference restoration. Scene menu labels
+escape custom names, with a markup-name browser regression. Independent Luna reviews approved
+progress and scene behavior after that escaping fix; an initially reported cycle-loop concern
+was withdrawn after a correct-build remeasurement. New regression coverage runs in CI.
 Human acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Focused QA 0.10.1 published
