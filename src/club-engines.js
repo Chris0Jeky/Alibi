@@ -501,6 +501,197 @@
       return s;
     },
   };
+  const dominoTiles = [];
+  for (let a = 0; a <= 6; a++)
+    for (let b = a; b <= 6; b++) dominoTiles.push({ id: dominoTiles.length, a, b, pips: a + b });
+  function dominoDeck(seed) {
+    const deck = dominoTiles.map((tile) => tile.id),
+      r = random('draw-dominoes:' + seed);
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+  }
+  const dominoTileById = new Map(dominoTiles.map((tile) => [tile.id, tile]));
+  const dominoes = {
+    handSize: 7,
+    stockSize: 14,
+    tiles: dominoTiles.map(copy),
+    tile(id) {
+      const tile = dominoTileById.get(id);
+      if (!tile) throw Error('Unknown domino tile.');
+      return tile;
+    },
+    initial(seed = 'DOMINO-01') {
+      seed = seedText(seed);
+      const deck = dominoDeck(seed);
+      return {
+        seed,
+        human: deck.slice(0, 7),
+        bot: deck.slice(7, 14),
+        stock: deck.slice(14),
+        chain: [],
+        turn: 'human',
+        done: false,
+        winner: null,
+        lastAction: 'Choose a tile to open the chain.',
+      };
+    },
+    pips(hand) {
+      return Array.isArray(hand)
+        ? hand.reduce((total, id) => total + (dominoTileById.get(id)?.pips || 0), 0)
+        : 0;
+    },
+    ends(s) {
+      return s?.chain?.length ? [s.chain[0].left, s.chain[s.chain.length - 1].right] : [];
+    },
+    legalMoves(s, player = 'human') {
+      if (!s || s.done || !['human', 'bot'].includes(player)) return [];
+      const hand = s[player];
+      if (!Array.isArray(hand)) return [];
+      if (!s.chain.length) return hand.map((tile) => ({ tile, end: 'start' }));
+      const [left, right] = this.ends(s),
+        out = [];
+      for (const tileId of hand) {
+        const tile = dominoTileById.get(tileId);
+        if (!tile) continue;
+        if (tile.a === left || tile.b === left) out.push({ tile: tileId, end: 'left' });
+        if (tile.a === right || tile.b === right) out.push({ tile: tileId, end: 'right' });
+      }
+      return out;
+    },
+    canPlay(s, tile, end) {
+      return this.legalMoves(s, s?.turn === 'bot' ? 'bot' : 'human').some(
+        (move) => move.tile === tile && move.end === end,
+      );
+    },
+    place(s, tileId, end) {
+      const tile = this.tile(tileId),
+        chain = s.chain.slice();
+      if (!chain.length) {
+        chain.push({ tile: tileId, left: tile.a, right: tile.b });
+      } else if (end === 'left') {
+        const open = chain[0].left,
+          left = tile.a === open ? tile.b : tile.a;
+        chain.unshift({ tile: tileId, left, right: open });
+      } else {
+        const open = chain[chain.length - 1].right,
+          right = tile.a === open ? tile.b : tile.a;
+        chain.push({ tile: tileId, left: open, right });
+      }
+      return chain;
+    },
+    finish(s) {
+      const humanPips = this.pips(s.human),
+        botPips = this.pips(s.bot);
+      return {
+        ...s,
+        done: true,
+        turn: 'none',
+        winner: humanPips === botPips ? 'draw' : humanPips < botPips ? 'human' : 'bot',
+        humanPips,
+        botPips,
+      };
+    },
+    keeperTurn(s) {
+      let q = copy(s);
+      q.turn = 'bot';
+      while (true) {
+        const moves = this.legalMoves(q, 'bot');
+        if (moves.length) {
+          const move = moves[0],
+            tile = this.tile(move.tile);
+          q.bot = q.bot.filter((id) => id !== move.tile);
+          q.chain = this.place(q, move.tile, move.end);
+          q.lastAction = `The keeper played ${tile.a}|${tile.b}.`;
+          if (!q.bot.length)
+            return {
+              ...q,
+              done: true,
+              turn: 'none',
+              winner: 'bot',
+              humanPips: this.pips(q.human),
+              botPips: 0,
+            };
+          q.turn = 'human';
+          return q;
+        }
+        if (q.stock.length) {
+          q.bot = q.bot.concat(q.stock[0]);
+          q.stock = q.stock.slice(1);
+          continue;
+        }
+        q.turn = 'human';
+        q.lastAction = 'The keeper passes. Choose a move if you can.';
+        return this.legalMoves(q, 'human').length ? q : this.finish(q);
+      }
+    },
+    move(s, action) {
+      if (!s || s.done || s.turn !== 'human') throw Error('This domino round is finished.');
+      if (!action || typeof action !== 'object' || typeof action.kind !== 'string')
+        throw Error('Invalid domino action.');
+      const keys = Object.keys(action).sort().join(','),
+        q = copy(s);
+      if (action.kind === 'play') {
+        if (
+          keys !== 'end,kind,tile' ||
+          !integer(action.tile, 0, 27) ||
+          !['start', 'left', 'right'].includes(action.end)
+        )
+          throw Error('Invalid domino play.');
+        if (
+          !this.legalMoves(s, 'human').some(
+            (move) => move.tile === action.tile && move.end === action.end,
+          )
+        )
+          throw Error('That tile cannot play on that end.');
+        q.human = q.human.filter((id) => id !== action.tile);
+        q.chain = this.place(q, action.tile, action.end);
+        q.lastAction = `You played ${this.tile(action.tile).a}|${this.tile(action.tile).b}.`;
+        if (!q.human.length)
+          return {
+            ...q,
+            done: true,
+            turn: 'none',
+            winner: 'human',
+            humanPips: 0,
+            botPips: this.pips(q.bot),
+          };
+        return this.keeperTurn(q);
+      }
+      if (action.kind === 'draw') {
+        if (keys !== 'kind' || this.legalMoves(s, 'human').length || !q.stock.length)
+          throw Error('Draw only when no tile plays and stock remains.');
+        const tile = q.stock[0];
+        q.stock = q.stock.slice(1);
+        q.human.push(tile);
+        q.lastAction = `You drew ${this.tile(tile).a}|${this.tile(tile).b}. ${this.legalMoves(q, 'human').length ? 'It matches an open end.' : 'Draw again until a tile plays.'}`;
+        return q;
+      }
+      if (action.kind === 'pass') {
+        if (keys !== 'kind' || this.legalMoves(s, 'human').length || q.stock.length)
+          throw Error('Pass only when no tile plays and stock is empty.');
+        q.lastAction = 'You pass. The keeper takes its turn.';
+        return this.keeperTurn(q);
+      }
+      throw Error('Invalid domino action.');
+    },
+    score(s) {
+      return s?.winner === 'human'
+        ? this.pips(s.bot)
+        : s?.winner === 'bot'
+          ? -this.pips(s.human)
+          : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid domino replay.');
+      let s = this.initial(seed);
+      for (const action of log) s = this.move(s, action);
+      return s;
+    },
+  };
   const types = ['home', 'garden', 'cafe', 'library', 'water'];
   const typeInfo = {
     home: {
@@ -868,6 +1059,8 @@
     tictactoe: ticTacToe,
     blockCabinet,
     blockcabinet: blockCabinet,
+    dominoes,
+    domino: dominoes,
     borough,
     warehouse,
   };
