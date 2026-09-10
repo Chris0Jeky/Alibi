@@ -2,12 +2,12 @@
   "schema_version": 1, "reviewed_on": "2026-09-10", "repository": "Chris0Jeky/Alibi", "stable_id": "alibi", "runtime_class": "static",
   "public_origin": "https://alibi-after-hours-preview.commit-atlas.workers.dev/", "origin_evidence": "repository-reported",
   "target": "Keep existing Workers Static Assets; rooms are a separate rollout",
-  "source_paths": ["wrangler.jsonc", "docs/DEPLOYMENT.md"],
+  "source_paths": ["wrangler.jsonc", "docs/DEPLOYMENT.md", "src/castle/storage.mjs"],
   "persistent_state": ["Browser IndexedDB and offline caches", "Optional rooms have separate Durable Objects"],
   "invariants": ["Keep both existing origins recoverable", "Preserve alibi-device and published puzzle/save IDs", "No cloud sync, analytics or online rooms enabled by this plan", "Deploy only the complete approved build"],
   "gates": ["Name and hostname approval", "Origin export/import and installed-PWA acceptance", "Separate optional-room security and quota acceptance"],
   "tasks": [
-    {"id":"AL1","goal":"Prepare a reversible canonical-origin migration","acceptance":"Export/import cabinet, Club, Quiet Wing and challenge state; old origins remain usable"},
+    {"id":"AL1","goal":"Prepare a reversible canonical-origin migration","acceptance":"Export/import cabinet, Club, Quiet Wing, Castle/Wrenmere and challenge state; verify alibi-castle-v1 recovery and the castle section of the all-progress backup; old origins remain usable"},
     {"id":"AL2","goal":"Separate marketing names from persistent identifiers","acceptance":"A display-name change leaves saved progress, manifest update behavior and content IDs intact"},
     {"id":"AL3","goal":"Qualify optional rooms independently","acceptance":"Allowed origins, secret references, expiry, abuse bounds and two-device tests pass before any activation"}
   ],

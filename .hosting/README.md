@@ -6,7 +6,7 @@ Keep the current static Worker. The optional-online Worker/Durable Objects imple
 
 ## Origin migration acceptance
 
-Before changing the canonical hostname, implement and test an explicit export/import journey for cabinet, Club, Quiet Wing and separately exported challenges. Keep both existing origins usable for recovery. A redirect cannot transfer IndexedDB or service-worker state. Test a real installed PWA, offline/reconnect behavior, old cached releases, deep links and interrupted migration. Do not force an update mid-game or silently reset an unknown save.
+Before changing the canonical hostname, implement and test an explicit export/import journey for cabinet, Club, Quiet Wing, Castle/Wrenmere and separately exported challenges. Castle progress lives in `alibi-castle-v1`; verify both its notebook backup/restore and the `castle` section produced by the all-progress export in `src/app.js`. Include castle progress in the old-origin recovery and interrupted-restore checks. Keep both existing origins usable for recovery. A redirect cannot transfer IndexedDB or service-worker state. Test a real installed PWA, offline/reconnect behavior, old cached releases, deep links and interrupted migration. Do not force an update mid-game or silently reset an unknown save.
 
 Before any display-name change, inventory UI copy, manifest name/icons, page titles, social previews and store-facing material separately from `alibi-device`, schema versions, content IDs, storage keys and backup formats. Stable identifiers remain unchanged unless a separately approved compatibility migration proves otherwise. No candidate name or domain is adopted by this PR.
 
