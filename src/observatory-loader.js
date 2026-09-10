@@ -1,5 +1,5 @@
 // Loads the Observatory consent control after the page has finished loading. The artifact ships as
-// its own hashed, precached asset so it never joins the initial bundle or its download budget. The
+// its own hashed asset outside the offline shell, so it never joins the initial bundle or its budgets. The
 // artifact itself refuses standalone exports, automated browsers, DNT/GPC signals and foreign origins.
 (function () {
   const url = globalThis.ALIBI_OBSERVATORY_URL;
