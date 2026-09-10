@@ -2,7 +2,11 @@
 import json
 import os
 from pathlib import Path
-from official_fixture import OFFICIAL_COUNT
+from official_fixture import (
+    OFFICIAL_COUNT,
+    official_group_count,
+    official_venue_count,
+)
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -10,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(os.environ.get("ALIBI_RESULTS", str(ROOT / "test-results" / "library-focus")))
 URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 OUT.mkdir(parents=True, exist_ok=True)
+MYSTERY_COUNT = official_group_count("mystery")
+SALT_COUNT = official_venue_count("salt")
 checks = []
 errors = []
 
@@ -53,7 +59,9 @@ def main():
                 filter_button = page.locator("#library-filter-mystery")
                 filter_button.focus()
                 page.keyboard.press("Enter")
-                expect(page.locator(".filter-meta")).to_contain_text("88 puzzles")
+                expect(page.locator(".filter-meta")).to_contain_text(
+                    f"{MYSTERY_COUNT} puzzles"
+                )
                 check(
                     active_id(page) == "library-filter-mystery",
                     f"Keyboard filter retains focus at {width}px",
@@ -174,7 +182,9 @@ def main():
                 )
                 salt.focus()
                 curation_page.keyboard.press("Enter")
-                expect(curation_page.locator(".filter-meta")).to_contain_text("52 puzzles")
+                expect(curation_page.locator(".filter-meta")).to_contain_text(
+                    f"{SALT_COUNT} puzzles"
+                )
                 collection_focus = active_id(curation_page)
                 check(
                     collection_focus == "library-collection-salt",
