@@ -71,6 +71,13 @@ function setup(local = true, newer = false) {
       ok(items.has('alibi.v1.meta.preferences'), 'meta fallback keeps its prefixed key');
       ok(items.has('alibi.v1.packs.example-pack'), 'pack fallback keeps its prefixed key');
       ok(!items.has('alibi.v1.probe'), 'fallback probe is not retained as save data');
+      ok(
+        [...items.keys()].sort().join('|') ===
+          ['alibi.v1.meta.preferences', 'alibi.v1.packs.example-pack', 'alibi.v1.runs.scene-01@1']
+            .sort()
+            .join('|'),
+        'cabinet fallback key set matches the documented inventory',
+      );
     }
     const backup = await s.export();
     ok(backup.format === 'alibi-backup' && backup.schemaVersion === 1, 'stable backup envelope');

@@ -42,9 +42,10 @@ enough to recover data. A redirect alone cannot move browser saves.
 ### Origin migration inventory
 
 Before any future origin migration, enumerate these records explicitly. This is the persistent
-save inventory; session-only data is intentionally not a migration input. Copying or replacing a
-fallback must not turn a blocked, newer or unreadable IndexedDB database into a writable older
-save.
+fallback inventory for the three adapters tracked by issue #110; the challenge and Wrenmere Castle
+stores have separate export contracts and are intentionally outside this table. Session-only data
+is not a migration input. Copying or replacing a fallback must not turn a blocked, newer or
+unreadable IndexedDB database into a writable older save.
 
 | Area | IndexedDB store | Persistent fallback | Recovery and migration constraint |
 | --- | --- | --- | --- |
