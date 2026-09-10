@@ -17,6 +17,7 @@
     "curation/packs/witness.json",
     "extra/binary-large.json",
     "extra/nonogram-large.json",
-    "extra/sudoku-expert.json"
+    "extra/sudoku-expert.json",
+    "extra/case-invitation.json"
   ]
 }
