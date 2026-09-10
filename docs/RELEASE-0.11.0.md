@@ -28,8 +28,14 @@ completion/reload failure before the fix and now preserves both the completed ta
 record and another Club run through offline reload. Tests use disposable browser contexts.
 Cloudflare's final dry-run reads 277 assets with no runtime bindings. No hosted result is implied.
 
-Measured initial JavaScript is 126,673 bytes gzipped, combined initial code/content 176,130 bytes,
-and the core offline shell 1,967,606 bytes. Recorded ambience adds 224,682 optional bytes after use.
+Final candidate `c50e19f8e184` additionally passes the 176-test full gate after strengthening two
+unpublished Expert entries. Dossier's key is now indirectly deduced; Bridges has five degree-valid
+possibilities but one connected solution. Native and independent solvers agree; independent
+review found no blocker and all twelve Expert family boards render at 390/1440px. Mahjong's
+distinct matching-tile emblem passes 182 UI and 78 game checks, with both card sizes inspected.
+
+Measured initial JavaScript is 126,761 bytes gzipped, combined initial code/content 176,248 bytes,
+and the core offline shell 1,968,154 bytes. Recorded ambience adds 224,682 optional bytes after use.
 The current primary rollback reference is Worker version `41be47e1-31e2-47d9-a7fa-7b4a4141e947`;
 the fallback remains on saved version 12 until publication. No rollback was executed.
 
@@ -39,5 +45,5 @@ the fallback remains on saved version 12 until publication. No rollback was exec
 difficulty calibration and narrative/gameplay sampling. Browser emulation does not close these.
 Recorded ambience avoids a streaming dependency; no third-party player or account was added.
 
-Non-blocking review follow-ups are tracked in issues #86, #89, #90, #93, #96 and #100. They remain
+Non-blocking review follow-ups are tracked in issues #86, #89, #90, #93, #96, #100 and #102. They remain
 separate from the player-reported completion and interaction fixes in this release.

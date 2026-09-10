@@ -12,7 +12,7 @@ PRs #84, #85, #87, #88, #91 and #92 are merged. The remaining reviewed stack is 
 #97 → #98 → #99 → #101. Publication to both existing origins remains
 pending until required CI and ordered merges complete.
 
-Integrated `npm run verify` passes with 174 Node tests and supplementary suites. The 32-suite
+Integrated `npm run verify` passes with 176 Node tests and supplementary suites. The 32-suite
 local browser matrix passes. Review then found a Mahjong completion score omitted from persisted
 records; the narrow fix passes 78 Mahjong browser checks, the original Club suite and 92
 real-origin checks against build `13fe27a36f2b`. Completion followed by offline reload now retains
@@ -22,7 +22,18 @@ These failures were stale test expectations, not lost puzzles or runtime regress
 dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
 narrative and difficulty acceptance remain open in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
-Non-blocking review follow-ups remain in #86, #89, #90, #93, #96 and #100, including large-Nonogram
+Final candidate `c50e19f8e184` also gives Mahjong its own matching-tile emblem (all nine Games
+Room/playground illustrations are distinct at 390/1440px), with 182 UI and 78 Mahjong checks
+passing after that change. Two unpublished Expert entries were strengthened: the Dossier target
+is indirect and uniquely deduced; Bridges has five degree-valid candidates narrowed to one by
+connectivity. Native and independent checks agree, independent review found no blocker, and all
+twelve Expert family entries render at both widths. Human calibration is still open.
+
+PR #94's first Quiet Wing keyboard-remount check timed out; the independent same-head push run
+passed the whole suite. Canonical local diagnostics also pass. One bounded failed-run retry is
+pending; no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
+
+Non-blocking review follow-ups remain in #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
 hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
 those limitations explicit. The dated slice notes below are historical candidate checkpoints;
 their smaller counts and publication status describe their own stage, not the current total.
