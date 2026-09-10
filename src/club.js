@@ -397,6 +397,10 @@
       return svg(
         '<rect x="26" y="19" width="49" height="91" rx="8" fill="#e2d6b9" stroke="#476c69" stroke-width="3" transform="rotate(-14 50 64)"/><path d="M34 64h39" stroke="#b67854" stroke-width="3" transform="rotate(-14 50 64)"/><circle cx="51" cy="45" r="6" fill="#b67854"/><circle cx="57" cy="83" r="6" fill="#b67854"/><rect x="82" y="19" width="49" height="91" rx="8" fill="#f2d590" stroke="#476c69" stroke-width="3" transform="rotate(14 107 64)"/><path d="M89 64h39" stroke="#b67854" stroke-width="3" transform="rotate(14 107 64)"/><circle cx="107" cy="44" r="6" fill="#b67854"/><circle cx="115" cy="84" r="6" fill="#b67854"/>',
       );
+    if (type === 'mahjong')
+      return svg(
+        '<g stroke="#476c69" stroke-width="3"><rect x="26" y="34" width="52" height="81" rx="8" fill="#93b2a1"/><rect x="21" y="25" width="52" height="81" rx="8" fill="#e2d6b9"/><rect x="88" y="25" width="52" height="81" rx="8" fill="#93b2a1"/><rect x="83" y="16" width="52" height="81" rx="8" fill="#f6efd9"/></g><g font-family="Georgia" font-size="42" text-anchor="middle" fill="#244e57"><text x="47" y="79">A</text><text x="109" y="70">A</text></g>',
+      );
     if (type === 'archive')
       return svg(
         '<path fill="#d4c7ad" d="m8 94 66-34 77 34-66 34z"/><path fill="#cf9f68" d="M42 51 82 72v47l-40-22z"/><path fill="#997850" d="m82 72 37-21v47l-37 21z"/><path fill="#e2bf89" d="m42 51 37-21 40 21-37 21z"/><path stroke="#775d44" stroke-width="3" fill="none" d="m51 63 23 47m0-34-23 16m38-13 23 8m-23 7 23-27"/><path fill="#f4e7c9" d="m53 66 14 7v14l-14-7z"/>',
