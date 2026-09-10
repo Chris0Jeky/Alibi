@@ -849,5 +849,7 @@ html[data-theme='night'] .book-number {
 .card-art .badge {
   top: 10px;
   left: 54px;
+  right: 58px;
   bottom: auto;
+  max-width: calc(100% - 112px);
 }

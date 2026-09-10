@@ -15,6 +15,22 @@ expected_sudoku_cards = min(24, sum(p['type'] == 'sudoku' for p in official_puzz
 OUT = ROOT / 'test-results' / 'player-qa'
 OUT.mkdir(parents=True, exist_ok=True)
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8792')
+
+
+def assert_status_layout(card, expected_status):
+    expect(card.locator('.badge')).to_contain_text(expected_status)
+    badge_locator = card.locator('.card-art .badge')
+    badge = badge_locator.bounding_box()
+    favorite = card.locator('.fav').bounding_box()
+    art = card.locator('.card-art').bounding_box()
+    assert badge and favorite, f'{expected_status} card exposes both status and favorite controls'
+    assert badge['x'] + badge['width'] <= favorite['x'] - 4, (
+        f'{expected_status} badge keeps four pixels of horizontal space before favorite: '
+        f'art={art}, badge={badge}, favorite={favorite}, '
+        f'css={badge_locator.evaluate("el => ({left:getComputedStyle(el).left,right:getComputedStyle(el).right,maxWidth:getComputedStyle(el).maxWidth,width:getComputedStyle(el).width})")}'
+    )
+
+
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     for width in [390, 1440]:
@@ -66,6 +82,13 @@ with sync_playwright() as pw:
         expect(page.locator('.number-key[data-value="1"]')).to_have_class('number-key digit-placed')
         page.locator('[data-action="erase"]').click()
         expect(page.locator('.number-key[data-value="1"]')).not_to_have_class('number-key digit-placed')
+        page.goto(URL + '/#/library/' + puzzle['type'])
+        in_progress_card = page.locator('.puzzle-card').filter(
+            has=page.locator(f'[data-action="open"][data-id="{puzzle["id"]}@{puzzle["revision"]}"]')
+        )
+        assert_status_layout(in_progress_card, 'In progress')
+        page.goto(URL + '/#/play/' + puzzle['id'])
+        expect(page.locator('.play-title')).to_contain_text(puzzle['title'])
         page.screenshot(path=str(OUT / f'sudoku-{width}.png'), full_page=True)
         scene = next(p for p in official_puzzles if p['type'] == 'scene')
         page.goto(URL + '/#/play/' + scene['id'])
@@ -165,7 +188,7 @@ with sync_playwright() as pw:
         def assert_solved_only():
             page.goto(URL + '/#/library/' + puzzle['type'])
             card = page.locator('.puzzle-card').filter(has=page.locator(f'[data-action="open"][data-id="{completed_id}@{puzzle["revision"]}"]'))
-            expect(card.locator('.badge')).to_contain_text('Solved')
+            assert_status_layout(card, 'Solved')
             page.locator('#status-filter').select_option('started')
             expect(card).to_have_count(0)
             page.locator('#status-filter').select_option('new')
