@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import vm from 'node:vm';
+const root = new URL('../', import.meta.url);
+const lock = JSON.parse(readFileSync(new URL('observatory.lock.json', root), 'utf8'));
+const code = readFileSync(new URL(lock.target, root), 'utf8');
+assert.equal(createHash('sha256').update(code).digest('hex'), lock.sha256);
+assert.ok(code.includes('"endpoint":""'));
+let context = { document: { readyState: 'complete' } };
+vm.runInNewContext(code, context);
+assert.equal(context.PulseboardUsage, null);
+const configured = code.replace('"endpoint":""', '"endpoint":"https://collector.test/v1/collect/alibi"');
+context = { URL, document: { readyState: 'complete' }, navigator: {}, location: { origin: 'https://alibi-after-hours-preview.commit-atlas.workers.dev', protocol: 'https:', pathname: '/' }, ALIBI_CONFIG: { standalone: true } };
+vm.runInNewContext(configured, context);
+assert.equal(context.PulseboardUsage, null);
+console.log('Hash, inactive runtime and public-origin standalone rejection passed. Full build QA remains required.');

@@ -150,7 +150,8 @@ function build() {
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     engineURL = `./assets/club-engines.${hash(clubEngine)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
-    boot = read(path.join(SRC, 'boot.js')),
+    boot =
+      read(path.join(SRC, 'boot.js')) + '\n' + read(path.join(ROOT, 'observatory/browser.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngine);
