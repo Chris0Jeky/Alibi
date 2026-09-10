@@ -21,6 +21,18 @@ Incremental source, independent review, uniqueness and actual-control evidence i
 after the reviewed stack lands. The 33 KiB stylesheet cap accommodates the measured 32.2 KiB
 stylesheet; initial JS, game-engine, combined payload and total offline caps remain unchanged.
 
+Local build `13fe27a36f2b` passes the full 174-test Node gate and supplementary suites. The
+32-suite browser matrix passed before the final narrow Mahjong score fix; afterward, 78 Mahjong
+checks, the original Club suite and 92 real-origin checks pass again. The regression reproduced
+completion/reload failure before the fix and now preserves both the completed table's finite
+record and another Club run through offline reload. Tests use disposable browser contexts.
+Cloudflare's final dry-run reads 277 assets with no runtime bindings. No hosted result is implied.
+
+Measured initial JavaScript is 126,673 bytes gzipped, combined initial code/content 176,130 bytes,
+and the core offline shell 1,967,606 bytes. Recorded ambience adds 224,682 optional bytes after use.
+The current primary rollback reference is Worker version `41be47e1-31e2-47d9-a7fa-7b4a4141e947`;
+the fallback remains on saved version 12 until publication. No rollback was executed.
+
 ## Acceptance still open
 
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android recovery, TalkBack, sound listening,

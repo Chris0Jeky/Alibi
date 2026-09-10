@@ -8,12 +8,15 @@ All requested September feature slices are implemented. The current source has 3
 puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
 plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
 interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
-PRs #84, #85, #87, #88 and #91 are merged. The remaining reviewed stack is #92 → #94 → #95 →
-#97 → #98 → #99, followed by release preparation. Publication to both existing origins remains
+PRs #84, #85, #87, #88, #91 and #92 are merged. The remaining reviewed stack is #94 → #95 →
+#97 → #98 → #99 → #101. Publication to both existing origins remains
 pending until required CI and ordered merges complete.
 
-Integrated `npm run verify` passes with 174 Node tests and supplementary suites. Browser
-verification is in progress against a settled 0.11.0 build. Fixed catalogue-count assertions now
+Integrated `npm run verify` passes with 174 Node tests and supplementary suites. The 32-suite
+local browser matrix passes. Review then found a Mahjong completion score omitted from persisted
+records; the narrow fix passes 78 Mahjong browser checks, the original Club suite and 92
+real-origin checks against build `13fe27a36f2b`. Completion followed by offline reload now retains
+the finite record and another game's saved run. Fixed catalogue-count assertions now
 derive Sudoku, mystery-group and Binary totals from source registries as new content is added.
 These failures were stale test expectations, not lost puzzles or runtime regressions. Cloudflare
 dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
