@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   const cfg = () => root.ALIBI_CLUB_CONFIG || {};
@@ -33,6 +33,7 @@
     hero = 0,
     selectedPlan = 0,
     selectedPlot = null,
+    selectedBlockSlot = null,
     previewCell = null,
     botWorker = null,
     botJob = 0,
@@ -358,6 +359,12 @@
       `<path fill="#d2c6ae" d="m13 96 67-27 67 27-67 29z"/><path fill="${a}" d="m36 58 47 20v43l-47-21z"/><path fill="${b}" d="m83 78 45-22v44l-45 21z"/><path fill="${type === 'library' ? '#304e59' : '#774d48'}" d="m25 60 22-38 47 19 44 16-54 27z"/>${type === 'library' ? '<path fill="#b9cbd0" d="m43 34 46 16 35-16-43-15z"/><path stroke="#ecdfbf" stroke-width="6" d="M52 68v28m15-22v28m30-23v25m16-32v25"/>' : '<path fill="#f4d88f" d="m46 72 10 4v13l-10-4zm19 8 10 4v13l-10-4zm35 2 12-6v15l-12 6z"/>'}${type === 'cafe' ? '<path fill="#f9edcb" d="m84 82 46-21-1 10-44 22z"/><path stroke="#c47c66" stroke-width="4" d="m92 78 2 13m11-19 2 13m11-19 2 13"/>' : ''}`,
     );
   }
+  function blockPieceArt(id) {
+    const shape = E().blockCabinet.shape(id),
+      width = Math.max(...shape.cells.map(([x]) => x)) + 1,
+      height = Math.max(...shape.cells.map(([, y]) => y)) + 1;
+    return `<span class="block-piece-art" style="--piece-w:${width};--piece-h:${height}" aria-hidden="true">${shape.cells.map(([x, y]) => `<i style="grid-column:${x + 1};grid-row:${y + 1}"></i>`).join('')}</span>`;
+  }
   function emblem(type, variant = 0) {
     if (['home', 'garden', 'cafe', 'library', 'water'].includes(type)) return building(type);
     if (type === 'borough')
@@ -371,6 +378,10 @@
     if (type === 'tictactoe')
       return svg(
         '<rect x="27" y="12" width="106" height="106" rx="8" fill="#e7d5b7" stroke="#476c69" stroke-width="3"/><path d="M62 18v94M98 18v94M33 53h94M33 89h94" stroke="#476c69" stroke-width="4"/><g fill="none" stroke="#b67854" stroke-width="5"><circle cx="45" cy="35" r="9"/><circle cx="116" cy="71" r="9"/><circle cx="81" cy="107" r="9"/></g><path d="m70 26 21 18m0-18L70 44m-35 35 21 18m0-18-21 18" stroke="#244e57" stroke-width="5" stroke-linecap="round"/>',
+      );
+    if (type === 'blockcabinet')
+      return svg(
+        '<rect x="20" y="14" width="120" height="102" rx="7" fill="#e2d6b9" stroke="#476c69" stroke-width="3"/><path d="M50 14v102M80 14v102M110 14v102M20 39h120M20 64h120M20 89h120" stroke="#476c69" stroke-width="2"/><g fill="#b67854"><rect x="25" y="19" width="20" height="15" rx="3"/><rect x="55" y="44" width="20" height="15" rx="3"/><rect x="85" y="69" width="20" height="15" rx="3"/><rect x="115" y="94" width="20" height="15" rx="3"/></g><path d="M33 126h94" stroke="#b99050" stroke-width="5" stroke-linecap="round"/>',
       );
     if (type === 'archive')
       return svg(
@@ -408,7 +419,9 @@
                     ? 'Pocket Borough · ' + r.seed
                     : id === 'tictactoe'
                       ? 'Tic-Tac-Toe'
-                      : 'Archive Heist · ' + E().warehouse.maps[r.level].name,
+                      : id === 'blockcabinet'
+                        ? 'Block Cabinet · ' + r.seed
+                        : 'Archive Heist · ' + E().warehouse.maps[r.level].name,
             },
           })),
       ].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))[0],
@@ -418,7 +431,7 @@
     let target = t.target;
     if (t.id === 'glasshouse' || t.id === 'night-train')
       target = root.ALIBI_CASEBOOKS.find((b) => b.artwork === t.id)?.id || target;
-    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
+    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
   }
   function gameCard(id, title, description, tag) {
     return `<button class="club-gamecard" data-action="navigate" data-page="${id === 'lab' ? 'lab' : 'salon'}" data-id="${id === 'lab' ? '' : id}">${portrait(id)}<div class="gamecard-copy"><small>${tag}</small><h3>${title} <span>↗</span></h3><p>${description}</p></div></button>`;
@@ -427,6 +440,7 @@
     route = r;
     uiError = '';
     selectedPlot = null;
+    selectedBlockSlot = null;
     previewCell = null;
     botJob++;
     botPending = false;
@@ -470,6 +484,8 @@
     if (id === 'duel' && !state.runs.duel) state.runs.duel = { mode: 'bot', log: [], redo: [] };
     if (id === 'tictactoe' && !state.runs.tictactoe)
       state.runs.tictactoe = { mode: 'bot', log: [], redo: [] };
+    if (id === 'blockcabinet' && !state.runs.blockcabinet)
+      state.runs.blockcabinet = { seed: 'BLOCK-01', log: [], redo: [] };
     if (id === 'borough' && !state.runs.borough)
       state.runs.borough = { seed: 'EVENING-01', log: [], redo: [] };
     if (id === 'archive' && !state.runs.archive)
@@ -484,6 +500,7 @@
       return s;
     }
     if (id === 'tictactoe') return E().tictactoe.replay(r.log);
+    if (id === 'blockcabinet') return E().blockCabinet.replay(r.seed, r.log);
     if (id === 'borough') return E().borough.replay(r.seed, r.log);
     if (id === 'archive') {
       let s = E().warehouse.initial(r.level);
@@ -500,9 +517,10 @@
       return `<div class="panel"><h1>The room is taking a moment.</h1><p>${esc(uiError)}</p>${go('Back to your desk', 'home')}</div>`;
     if (id === 'duel') return duelPage();
     if (id === 'tictactoe') return ticTacToePage();
+    if (id === 'blockcabinet') return blockCabinetPage();
     if (id === 'borough') return boroughPage();
     if (id === 'archive') return archivePage();
-    return `${heading('The games room.', 'AFTER HOURS · EXPERIMENTS', 'Different rules. The same room to think.')}${status()}<div class="club-gamecards room-cards">${gameCard('duel', 'Lantern Duel', 'A familiar territory game, with a patient opponent.', 'STRATEGY · BOT / TWO PLAYERS')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT / TWO PLAYERS')}${gameCard('borough', 'Pocket Borough', 'Draft plans. Build neighbours. Make a better place.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'Six original rooms. No pulling, no pressure.', 'SPATIAL PLANNING · UNDO FREELY')}${gameCard('lab', 'The living atlas', 'A live procedural harbour and its performance instruments.', 'GRAPHICS PLAYGROUND · NO SCORE')}</div><div class="club-two-panels"><section class="panel"><span class="eyebrow">A TABLE FOR TWO</span><h2>Actual play, not pretend players.</h2><p>Pass a game between two people on one device. Lantern Duel also supports an optional private-room server.</p>${go('Take a seat →', 'salon', 'duel')}${B('Online room settings', 'online-settings', '', 'secondary')}</section><section class="panel"><span class="eyebrow">YOUR OWN MEASURE</span><h2>Records without the noise.</h2><p>Personal bests, a little stamp book, and a daily seed. No fabricated rivals, no vanishing streaks, no global rank claims.</p>${go('Open the club journal →', 'club')}${B('Export Club save', 'export', '', 'secondary')}</section></div>`;
+    return `${heading('The games room.', 'AFTER HOURS · EXPERIMENTS', 'Different rules. The same room to think.')}${status()}<div class="club-gamecards room-cards">${gameCard('duel', 'Lantern Duel', 'A familiar territory game, with a patient opponent.', 'STRATEGY · BOT / TWO PLAYERS')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT / TWO PLAYERS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Draft plans. Build neighbours. Make a better place.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'Six original rooms. No pulling, no pressure.', 'SPATIAL PLANNING · UNDO FREELY')}${gameCard('lab', 'The living atlas', 'A live procedural harbour and its performance instruments.', 'GRAPHICS PLAYGROUND · NO SCORE')}</div><div class="club-two-panels"><section class="panel"><span class="eyebrow">A TABLE FOR TWO</span><h2>Actual play, not pretend players.</h2><p>Pass a game between two people on one device. Lantern Duel also supports an optional private-room server.</p>${go('Take a seat →', 'salon', 'duel')}${B('Online room settings', 'online-settings', '', 'secondary')}</section><section class="panel"><span class="eyebrow">YOUR OWN MEASURE</span><h2>Records without the noise.</h2><p>Personal bests, a little stamp book, and a daily seed. No fabricated rivals, no vanishing streaks, no global rank claims.</p>${go('Open the club journal →', 'club')}${B('Export Club save', 'export', '', 'secondary')}</section></div>`;
   }
   function ruleDetails(content, open = false) {
     return `<details class="club-rules" ${open ? 'open' : ''}><summary>How this works <span>+</span></summary>${content}</details>`;
@@ -542,6 +560,15 @@
           ? 'X to move.'
           : 'O to move.';
     return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', 'data-value="bot"', r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', 'data-value="local"', r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div class="club-turn-status tic-status" role="status"><strong>${label}</strong>${s.done ? ' The match is complete.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
+  }
+  function blockCabinetPage() {
+    ensureRun('blockcabinet');
+    const r = state.runs.blockcabinet,
+      s = currentGame('blockcabinet'),
+      selected = Number.isInteger(selectedBlockSlot) ? selectedBlockSlot : null,
+      selectedShape = selected === null ? null : E().blockCabinet.shape(s.tray[selected]),
+      legalOrigins = new Set(selected === null ? [] : E().blockCabinet.placements(s, selected));
+    return `${heading('Block Cabinet.', 'THE GAMES ROOM / 03', 'Fit the pieces. Clear full lines. Keep the tray moving.')}${status()}<div class="club-playlayout"><section class="club-boardpanel block-panel"><div class="block-meta"><span class="seed-label">SEED / ${esc(s.seed)}</span><span>TURN <strong>${s.turn}</strong></span><span class="score-value"><strong>${E().blockCabinet.score(s)}</strong> points</span></div><div class="block-grid" role="group" aria-label="Block Cabinet board, eight rows and columns">${s.board.map((v, i) => `<button id="block-cabinet-cell-${i}" class="block-cell ${v ? 'filled' : ''} ${legalOrigins.has(i) ? 'legal-origin' : ''}" data-action="club-block-cell" data-cell="${i}" ${s.done ? 'disabled' : ''} aria-label="Row ${Math.floor(i / 8) + 1}, column ${(i % 8) + 1}: ${v ? 'filled' : legalOrigins.has(i) ? 'empty, legal origin for ' + selectedShape.name : selected === null ? 'empty, choose a piece first' : 'empty, unavailable for selected piece'}">${v ? '<span class="block-cell-mark"></span>' : ''}</button>`).join('')}</div><div class="block-status" role="status">${s.done ? `<strong>Cabinet closed.</strong> No tray piece fits. Final score ${E().blockCabinet.score(s)}.` : selected === null ? 'Choose one of the three pieces, then tap a highlighted starting square.' : `Selected ${esc(selectedShape.name)}. Tap a highlighted square to place it.`}</div><div class="block-tray" aria-label="Available pieces">${s.tray.map((piece, i) => `<button id="block-cabinet-piece-${i}" class="block-piece ${selected === i ? 'chosen' : ''}" data-action="club-block-piece" data-value="${i}" aria-pressed="${selected === i}" ${s.done ? 'disabled' : ''}>${blockPieceArt(piece)}<strong>${esc(E().blockCabinet.shape(piece).name)}</strong><small>Piece ${i + 1}</small></button>`).join('')}</div>${toolbar('blockcabinet', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CABINET CARD</span><h2>Leave no corner stranded.</h2><p>Small pieces keep a crowded board alive. Clear a full row or column when it appears, then look at what the next tray may need.</p>${emblem('blockcabinet')}</div>${ruleDetails('<p>Select one of the three pieces, then tap a legal highlighted origin on the 8×8 board. Pieces keep the orientation shown in the tray; rotation is intentionally unavailable in this first edition.</p><p>Every filled row and column clears together after a placement. A piece scores its filled squares, plus ten points for every cleared line. The next piece is drawn from the seeded tray sequence, so the same seed always gives the same game.</p><p>When none of the three pieces fits, the cabinet closes. There is no timer and no claim that every seed remains solvable forever.</p>', true)}<section class="seed-control"><label for="block-seed">Start another seeded cabinet</label><input id="block-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'block-use-seed', '', 'secondary small')}</div></section><p class="club-local-note">Your replay, undo, redo and score stay in the device-local Club save. No network is required.</p></aside></div>`;
   }
   function boroughPage() {
     ensureRun('borough');
@@ -597,7 +624,7 @@
       key =
         id +
         ':' +
-        (id === 'borough' ? r.seed : id === 'archive' ? r.level : r.mode) +
+        (id === 'borough' || id === 'blockcabinet' ? r.seed : id === 'archive' ? r.level : r.mode) +
         ':' +
         E().hash(JSON.stringify(r.log));
     if (state.records.some((x) => x.id === key)) return;
@@ -608,7 +635,9 @@
           ? E().reversi.score(s).gold - E().reversi.score(s).ink
           : id === 'tictactoe'
             ? s.winner
-            : s.pushes;
+            : id === 'blockcabinet'
+              ? E().blockCabinet.score(s)
+              : s.pushes;
     state.records.unshift({
       id: key,
       type: id,
@@ -621,9 +650,11 @@
               ? r.mode === 'bot'
                 ? 'Against the keeper'
                 : 'Two at the table'
-              : r.mode === 'bot'
-                ? 'Against the keeper'
-                : 'Two at the table',
+              : id === 'blockcabinet'
+                ? 'Block Cabinet · ' + r.seed
+                : r.mode === 'bot'
+                  ? 'Against the keeper'
+                  : 'Two at the table',
       score: points,
       date: new Date().toISOString(),
     });
@@ -678,6 +709,7 @@
     r.rulesVersion = 1;
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
+    if (id === 'blockcabinet') E().blockCabinet.move(before, value.slot, value.cell);
     if (id === 'borough') E().borough.move(before, value.slot, value.cell);
     if (id === 'archive' && E().warehouse.move(before, value) === before) return;
     r.log.push(value);
@@ -861,6 +893,37 @@
           save();
           render();
         }
+      } else if (a === 'block-piece') {
+        const slot = Number(v),
+          s = currentGame('blockcabinet');
+        if (!s || s.done || !Number.isInteger(slot) || slot < 0 || slot > 2) return;
+        selectedBlockSlot = selectedBlockSlot === slot ? null : slot;
+        render();
+      } else if (a === 'block-cell') {
+        const slot = selectedBlockSlot,
+          cell = Number(el.dataset.cell),
+          s = currentGame('blockcabinet');
+        if (slot === null) {
+          notify('Choose a piece from the tray first.');
+          return;
+        }
+        if (!s || !E().blockCabinet.legal(s, slot, cell)) {
+          notify('That piece does not fit there. Choose a highlighted square.');
+          return;
+        }
+        selectedBlockSlot = null;
+        await commitGame('blockcabinet', { slot, cell });
+        document.getElementById('block-cabinet-cell-' + cell)?.focus({ preventScroll: true });
+      } else if (a === 'block-use-seed') {
+        const seed = E().seedText(document.getElementById('block-seed').value),
+          r = state.runs.blockcabinet;
+        if (r.seed === seed && !r.log.length) return;
+        root.__clubReset = { id: 'blockcabinet', seed };
+        confirmation(
+          'Start another cabinet?',
+          'Your current cabinet is replaced. Completed records remain in the Club journal.',
+          'reset-confirm',
+        );
       } else if (a === 'duel-cell' || a === 'tictactoe-cell') {
         const game = a === 'duel-cell' ? 'duel' : 'tictactoe';
         if (game === 'duel' && room) return await roomMove(Number(el.dataset.cell));

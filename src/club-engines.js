@@ -218,6 +218,289 @@
       return s;
     },
   };
+  const blockShapes = [
+    { id: 'single', name: 'Single square', cells: [[0, 0]] },
+    {
+      id: 'domino-h',
+      name: 'Horizontal pair',
+      cells: [
+        [0, 0],
+        [1, 0],
+      ],
+    },
+    {
+      id: 'domino-v',
+      name: 'Vertical pair',
+      cells: [
+        [0, 0],
+        [0, 1],
+      ],
+    },
+    {
+      id: 'tri-h',
+      name: 'Three in a row',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+      ],
+    },
+    {
+      id: 'tri-v',
+      name: 'Three down',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+      ],
+    },
+    {
+      id: 'corner',
+      name: 'Corner three',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ],
+    },
+    {
+      id: 'square',
+      name: 'Small square',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'line4-h',
+      name: 'Long horizontal',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+      ],
+    },
+    {
+      id: 'line4-v',
+      name: 'Long vertical',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+      ],
+    },
+    {
+      id: 'l4-right',
+      name: 'Right angle',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [1, 2],
+      ],
+    },
+    {
+      id: 'l4-left',
+      name: 'Left angle',
+      cells: [
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [0, 2],
+      ],
+    },
+    {
+      id: 'tee',
+      name: 'T shape',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'zig',
+      name: 'Zigzag',
+      cells: [
+        [1, 0],
+        [2, 0],
+        [0, 1],
+        [1, 1],
+      ],
+    },
+    {
+      id: 'line5-h',
+      name: 'Five across',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [2, 0],
+        [3, 0],
+        [4, 0],
+      ],
+    },
+    {
+      id: 'line5-v',
+      name: 'Five down',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
+      ],
+    },
+    {
+      id: 'l5',
+      name: 'Long angle',
+      cells: [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 3],
+      ],
+    },
+    {
+      id: 'cross',
+      name: 'Cross',
+      cells: [
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [2, 1],
+        [1, 2],
+      ],
+    },
+    {
+      id: 'stair5',
+      name: 'Stair step',
+      cells: [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [2, 1],
+        [2, 2],
+      ],
+    },
+  ];
+  const blockShapeById = new Map(blockShapes.map((shape) => [shape.id, shape]));
+  function blockPiece(seed, index) {
+    return blockShapes[
+      Math.floor(random('block-cabinet:' + seed + ':' + index)() * blockShapes.length)
+    ].id;
+  }
+  function blockTray(seed, turn) {
+    return [0, 1, 2].map((slot) => blockPiece(seed, turn * 3 + slot));
+  }
+  const blockCabinet = {
+    size: 8,
+    shapes: blockShapes.map(copy),
+    initial(seed = 'BLOCK-01') {
+      seed = seedText(seed);
+      return {
+        seed,
+        board: Array(64).fill(0),
+        tray: blockTray(seed, 0),
+        score: 0,
+        turn: 0,
+        done: false,
+        lastClear: { rows: [], columns: [] },
+      };
+    },
+    shape(id) {
+      const shape = blockShapeById.get(id);
+      if (!shape) throw Error('Unknown block piece.');
+      return shape;
+    },
+    cellsAt(s, slot, origin) {
+      if (!integer(slot, 0, 2) || !integer(origin, 0, 63))
+        throw Error('Choose a block piece and square.');
+      const shape = this.shape(s.tray[slot]),
+        row = Math.floor(origin / 8),
+        column = origin % 8;
+      return shape.cells.map(([x, y]) => (row + y) * 8 + column + x);
+    },
+    legal(s, slot, origin) {
+      if (!s || s.done || !Array.isArray(s.board) || s.board.length !== 64) return false;
+      if (!integer(slot, 0, 2) || !integer(origin, 0, 63) || !blockShapeById.has(s.tray?.[slot]))
+        return false;
+      const shape = blockShapeById.get(s.tray[slot]),
+        row = Math.floor(origin / 8),
+        column = origin % 8;
+      return shape.cells.every(([x, y]) => {
+        const targetRow = row + y,
+          targetColumn = column + x;
+        return targetRow < 8 && targetColumn < 8 && s.board[targetRow * 8 + targetColumn] === 0;
+      });
+    },
+    placements(s, slot) {
+      if (!integer(slot, 0, 2) || !blockShapeById.has(s?.tray?.[slot])) return [];
+      return Array.from({ length: 64 }, (_, cell) => cell).filter((cell) =>
+        this.legal(s, slot, cell),
+      );
+    },
+    isGameOver(s) {
+      return !!s?.done || ![0, 1, 2].some((slot) => this.placements(s, slot).length);
+    },
+    move(s, slot, origin) {
+      if (!s || s.done) throw Error('This cabinet is closed. Start a new game.');
+      if (!this.legal(s, slot, origin)) throw Error('That piece does not fit there.');
+      const shape = this.shape(s.tray[slot]),
+        board = s.board.slice(),
+        cells = this.cellsAt(s, slot, origin);
+      cells.forEach((cell) => (board[cell] = 1));
+      const rows = Array.from({ length: 8 }, (_, row) => row).filter((row) =>
+          Array.from({ length: 8 }, (_, column) => board[row * 8 + column]).every(Boolean),
+        ),
+        columns = Array.from({ length: 8 }, (_, column) => column).filter((column) =>
+          Array.from({ length: 8 }, (_, row) => board[row * 8 + column]).every(Boolean),
+        );
+      rows.forEach((row) =>
+        Array.from({ length: 8 }, (_, column) => (board[row * 8 + column] = 0)),
+      );
+      columns.forEach((column) =>
+        Array.from({ length: 8 }, (_, row) => (board[row * 8 + column] = 0)),
+      );
+      const q = {
+        seed: s.seed,
+        board,
+        tray: s.tray.slice(),
+        score: s.score + shape.cells.length + 10 * (rows.length + columns.length),
+        turn: s.turn + 1,
+        done: false,
+        lastClear: { rows, columns },
+      };
+      q.tray[slot] = blockPiece(q.seed, q.turn + 2);
+      q.done = this.isGameOver(q);
+      return q;
+    },
+    score(s) {
+      return Number.isFinite(s?.score) ? s.score : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid Block Cabinet replay.');
+      let s = this.initial(seed);
+      for (const action of log) {
+        if (
+          !action ||
+          typeof action !== 'object' ||
+          Object.keys(action).sort().join(',') !== 'cell,slot' ||
+          !integer(action.slot, 0, 2) ||
+          !integer(action.cell, 0, 63)
+        )
+          throw Error('Invalid Block Cabinet move.');
+        s = this.move(s, action.slot, action.cell);
+      }
+      return s;
+    },
+  };
   const types = ['home', 'garden', 'cafe', 'library', 'water'];
   const typeInfo = {
     home: {
@@ -471,6 +754,8 @@
     reversi,
     ticTacToe,
     tictactoe: ticTacToe,
+    blockCabinet,
+    blockcabinet: blockCabinet,
     borough,
     warehouse,
   };

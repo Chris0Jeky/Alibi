@@ -1113,6 +1113,156 @@ body.club-experiment {
   margin: 12px 0 20px;
   line-height: 1.7;
 }
+.block-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 11px;
+}
+.block-meta strong {
+  font-family: var(--club-serif);
+  font-size: 17px;
+  font-weight: 400;
+}
+.block-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  max-width: 490px;
+  margin: auto;
+  padding: 8px;
+  background: #496d6b;
+  border: 1px solid #34585a;
+  border-radius: 9px;
+  box-shadow: 0 5px 0 #294d50;
+}
+.block-cell {
+  min-width: 0;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid #c4d0c1;
+  border-radius: 3px;
+  background: #f0eadc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition:
+    background 0.12s,
+    box-shadow 0.12s;
+}
+.block-cell.filled {
+  background: #b67854;
+  border-color: #a15e4a;
+  box-shadow:
+    inset 0 2px 0 #d99669,
+    0 2px 0 #804b43;
+}
+.block-cell.legal-origin {
+  background: #f3d58d;
+  border-color: #b99050;
+  box-shadow: inset 0 0 0 2px #e6b964;
+}
+.block-cell.legal-origin:after {
+  content: '+';
+  color: #795d35;
+  font-family: var(--club-serif);
+  font-size: 18px;
+  line-height: 1;
+}
+.block-cell:not(:disabled):hover {
+  background: #f6e8bf;
+}
+.block-cell.filled:not(:disabled):hover {
+  background: #c68b62;
+}
+.block-cell:focus-visible {
+  outline: 3px solid #b67854;
+  outline-offset: -4px;
+  z-index: 1;
+}
+.block-cell-mark {
+  width: 68%;
+  height: 68%;
+  border-radius: 3px;
+  background: #f1c778;
+  box-shadow: inset 0 2px 0 #f8dea2;
+}
+.block-status {
+  text-align: center;
+  min-height: 37px;
+  margin-top: 21px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.block-status strong {
+  color: var(--ink);
+  font-family: var(--club-serif);
+  font-size: 18px;
+  font-weight: 400;
+}
+.block-tray {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  max-width: 490px;
+  margin: 18px auto 0;
+}
+.block-piece {
+  min-width: 0;
+  min-height: 105px;
+  padding: 10px 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.block-piece:hover {
+  background: #f6e8bf;
+}
+.block-piece.chosen {
+  border: 2px solid #647f63;
+  padding: 9px 6px 7px;
+  background: #e3eadb;
+  color: #254b41;
+}
+.block-piece:focus-visible {
+  outline: 3px solid #b67854;
+  outline-offset: 2px;
+}
+.block-piece-art {
+  display: grid;
+  grid-template-columns: repeat(var(--piece-w), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--piece-h), minmax(0, 1fr));
+  width: min(100%, 88px);
+  aspect-ratio: var(--piece-w) / var(--piece-h);
+  gap: 3px;
+}
+.block-piece-art i {
+  display: block;
+  border-radius: 3px;
+  background: #b67854;
+  box-shadow:
+    inset 0 2px 0 #d99669,
+    0 2px 0 #804b43;
+}
+.block-piece strong {
+  font-size: 10px;
+  font-weight: 550;
+  text-align: center;
+}
+.block-piece small {
+  color: var(--muted);
+  font-size: 8px;
+}
 .archive-header {
   display: flex;
   align-items: center;
@@ -2222,6 +2372,46 @@ body.club-experiment {
   }
   .build-confirm {
     font-size: 11px;
+  }
+  .block-meta {
+    margin-bottom: 15px;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .block-meta strong {
+    font-size: 15px;
+  }
+  .block-grid {
+    gap: 2px;
+    padding: 5px;
+  }
+  .block-cell.legal-origin:after {
+    font-size: 15px;
+  }
+  .block-status {
+    font-size: 11px;
+    min-height: 35px;
+  }
+  .block-tray {
+    gap: 6px;
+    margin-top: 17px;
+  }
+  .block-piece {
+    min-height: 94px;
+    padding: 8px 4px 7px;
+  }
+  .block-piece.chosen {
+    padding: 7px 3px 6px;
+  }
+  .block-piece-art {
+    width: min(100%, 72px);
+    gap: 2px;
+  }
+  .block-piece strong {
+    font-size: 9px;
+  }
+  .block-piece small {
+    font-size: 7px;
   }
   .archive-header h2 {
     font-size: 22px;
