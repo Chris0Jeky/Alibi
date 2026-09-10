@@ -4,6 +4,18 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## September feedback candidate, 2026-09-10
 
+### Draw Dominoes candidate
+
+Classic double-six draw dominoes adds a seventh Games Room game. Each side starts with seven
+tiles, draws when blocked, passes only with an empty stock, and wins by emptying its hand or
+having fewer pips when both sides are blocked. The offline keeper is deterministic and simple.
+Independent review found no blocker; 1,000 seeded games conserved tiles and legal chains, and
+500 completed rounds replayed identically. Thirty integrated browser checks pass at 390/1440px,
+including undo, redo, seed confirmation and offline reload. All 169 other Node checks passed;
+the budget check then passed after serving the original invitation SVG instead of a raster
+derivative and simplifying tiny-screen Domino styles. Core/JS/CSS limits were not increased.
+Human playtesting remains in [HUMAN_TODO.md](../HUMAN_TODO.md). No deployment is claimed.
+
 ### Longer casebook candidate
 
 The unfinished invitation adds eight original, independently unique records and a fifth book,

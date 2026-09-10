@@ -131,7 +131,8 @@ function build() {
     const data = fs.readFileSync(p),
       name = path.parse(p).name;
     media[name] = `./assets/${name}.${hash(data)}${path.extname(p)}`;
-    inlineMedia[name] = `data:image/webp;base64,${data.toString('base64')}`;
+    const mime = path.extname(p) === '.svg' ? 'image/svg+xml' : 'image/webp';
+    inlineMedia[name] = `data:${mime};base64,${data.toString('base64')}`;
     write(path.join(DIST, media[name]), data);
   }
   // A single small editorial invitation belongs to the core; the full folio remains optional.

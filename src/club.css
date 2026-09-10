@@ -1240,7 +1240,7 @@ body.club-experiment {
 }
 .domino-hand {
   display: grid;
-  grid-template-columns: repeat(4, minmax(70px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   max-width: 570px;
   margin: 12px auto 0;
@@ -1277,7 +1277,7 @@ body.club-experiment {
   grid-template-columns: 1fr 2px 1fr;
   align-items: center;
   justify-items: center;
-  width: 60px;
+  width: 50px;
   height: 43px;
   border: 1px solid #b99050;
   border-radius: 5px;
@@ -2575,59 +2575,14 @@ body.club-experiment {
   .build-confirm {
     font-size: 11px;
   }
-  .domino-meta {
-    gap: 6px 9px;
-    margin-bottom: 13px;
-    font-size: 9px;
-  }
-  .domino-meta strong {
-    font-size: 14px;
+  .domino-hand {
+    gap: 5px;
   }
   .domino-chain-wrap {
     padding: 10px 8px;
   }
   .domino-end-row {
-    gap: 5px;
-    margin-bottom: 8px;
-  }
-  .domino-end-row .btn {
-    padding: 7px 8px;
-    font-size: 10px;
-  }
-  .domino-chain {
-    min-height: 58px;
-  }
-  .domino-chain-piece {
-    grid-template-columns: 21px 2px 21px;
-    min-width: 44px;
-    min-height: 39px;
-    font-size: 14px;
-  }
-  .domino-hand {
-    grid-template-columns: repeat(4, minmax(58px, 1fr));
-    gap: 5px;
-  }
-  .domino-hand-tile {
-    min-height: 89px;
-    padding: 7px 2px 5px;
-  }
-  .domino-hand-tile.chosen {
-    padding: 6px 1px 4px;
-  }
-  .domino-tile-art {
-    width: 50px;
-    height: 37px;
-    font-size: 15px;
-  }
-  .domino-hand-tile strong {
-    font-size: 9px;
-  }
-  .domino-hand-tile small {
-    font-size: 7px;
-  }
-  .domino-draw-row {
-    gap: 6px;
-    margin-top: 14px;
+    flex-wrap: wrap;
   }
   .block-meta {
     margin-bottom: 15px;

@@ -30,10 +30,11 @@ with sync_playwright() as playwright:
         page = context.new_page()
         page.set_default_timeout(7000)
         page.on("pageerror", lambda error: errors.append(str(error)))
-        page.set_content(
-            (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
-            wait_until="load",
-        )
+        if os.environ.get('ALIBI_URL'):
+            page.goto(os.environ['ALIBI_URL'])
+            page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        else:
+            page.set_content((ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"), wait_until="load")
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
         def route(path):
@@ -97,6 +98,13 @@ with sync_playwright() as playwright:
             f"Redo restores the domino chain at {width}px",
         )
         page.locator("#domino-seed").fill("SECOND-DOMINO")
+        if os.environ.get('ALIBI_URL'):
+            page.wait_for_timeout(600)
+            context.set_offline(True)
+            page.reload()
+            page.wait_for_selector('.domino-chain-piece')
+            check(page.evaluate('AlibiClub.diagnostics().state.runs.dominoes.log.length')==1, f'Round survives offline reload at {width}px')
+            page.locator("#domino-seed").fill("SECOND-DOMINO")
         page.locator('[data-action="club-domino-use-seed"]').click()
         check(
             page.locator("dialog[open]").count() == 1,
