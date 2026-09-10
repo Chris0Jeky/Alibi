@@ -1,6 +1,54 @@
 # Live development state
 
-Updated 2026-09-09. Git, CI and review threads take precedence over prose.
+Updated 2026-09-10. Git, CI and review threads take precedence over prose.
+
+## 0.11.0 integrated release candidate
+
+All requested September feature slices are implemented. The current source has 355 cabinet
+puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
+plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
+interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
+PRs #84, #85, #87, #88, #91, #92, #94, #95, #97, #98 and #99 are merged with green checks.
+The final release is PR #101. Publication to both existing origins remains pending its final
+main-based CI and merge. Merging the completed stack into the release changed no source files.
+
+Late PR #95 review identified theft wording in three non-theft witness chapters. The correction
+uses each record's authored action in statements, conclusions, validation and hints, retaining
+legacy defaults. Positive, negative and either/or statements have focused regressions. Candidate
+`48a8bc3bc1ee` passes formatting, build, all 177 Node tests and supplementary suites after refreshing
+the generated catalogue's app-script fingerprints. The earlier catalogue failure was a stale
+size/hash record, not a disabled assertion. The corrected casebook passes 62 actual-control
+browser assertions at 390/1440px; all three witness statement layouts were visually inspected
+with no horizontal overflow. The integrated release also passed full hosted CI before its final
+main merge. A further one-off control proof completes all twelve new Expert records at both
+widths, rejects a wrong witness answer and verifies Bridges undo: 26 checks, zero failures.
+Difficulty labels remain provisional; this proof establishes playable controls, not calibration.
+
+Integrated `npm run verify` passes with 176 Node tests and supplementary suites. The 32-suite
+local browser matrix passes. Review then found a Mahjong completion score omitted from persisted
+records; the narrow fix passes 78 Mahjong browser checks, the original Club suite and 92
+real-origin checks against build `13fe27a36f2b`. Completion followed by offline reload now retains
+the finite record and another game's saved run. Fixed catalogue-count assertions now
+derive Sudoku, mystery-group and Binary totals from source registries as new content is added.
+These failures were stale test expectations, not lost puzzles or runtime regressions. Cloudflare
+dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
+narrative and difficulty acceptance remain open in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Final candidate `c50e19f8e184` also gives Mahjong its own matching-tile emblem (all nine Games
+Room/playground illustrations are distinct at 390/1440px), with 182 UI and 78 Mahjong checks
+passing after that change. Two unpublished Expert entries were strengthened: the Dossier target
+is indirect and uniquely deduced; Bridges has five degree-valid candidates narrowed to one by
+connectivity. Native and independent checks agree, independent review found no blocker, and all
+twelve Expert family entries render at both widths. Human calibration is still open.
+
+PR #94's first Quiet Wing keyboard-remount check timed out; the independent same-head push run
+passed the whole suite. Canonical local diagnostics also pass. One bounded failed-run retry is
+pending; no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
+
+Non-blocking review follow-ups remain in #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
+hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
+those limitations explicit. The dated slice notes below are historical candidate checkpoints;
+their smaller counts and publication status describe their own stage, not the current total.
 
 ## September feedback candidate, 2026-09-10
 
