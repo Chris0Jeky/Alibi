@@ -36,7 +36,7 @@ with sync_playwright() as p:
  for k in range(17):
   action('club-plan',f'[data-value="{k%3}"]');page.locator('.borough-cell:not(.built)').first.click();action('club-build')
   if k==10:shot('borough-desktop')
- check(page.locator('.town-finished').count()==1,'Eighteen placements complete the town');check(any(x['type']=='borough' for x in diag()['state']['records']),'Town result enters the personal records');route('/club');check(page.locator('.club-town-records>div').count()==1,'Local leaderboard contains the actual town result');check('THIS BROWSER ONLY' in page.locator('.local-label').inner_text(),'Leaderboard scope is visible');shot('journal-desktop')
+ check(page.locator('.town-finished').count()==1,'Eighteen placements complete the town');check(any(x['type']=='borough' for x in diag()['state']['records']),'Town result enters the personal records');route('/club');check(page.locator('.club-town-records>div').count()==1,'Local leaderboard contains the actual town result');check('THIS BROWSER ONLY' in page.locator('section.panel:has(.club-town-records) .local-label').inner_text(),'Leaderboard scope is visible');shot('journal-desktop')
  route('/home');action('club-daily');page.wait_for_timeout(200);page.locator('.borough-cell:not(.built)').first.click();action('club-build');before=log('borough');route('/home');check(page.locator('.club-letter.has-run').count()==1,'Home offers to continue the latest unfinished game');action('club-daily');page.wait_for_timeout(180);check(log('borough')==before,'Opening today’s town again does not erase it')
  route('/salon/archive');paths=['RRULL','RUDLLU','RUU','UUDRDRUULUL','RRRUUDLLDLUU','UUDDLUDLUURRRDRU'];directions={'R':'right','U':'up','D':'down','L':'left'}
  for level,path in enumerate(paths):
