@@ -367,6 +367,10 @@
   }
   function emblem(type, variant = 0) {
     if (['home', 'garden', 'cafe', 'library', 'water'].includes(type)) return building(type);
+    if (type === 'regiongardens')
+      return svg(
+        '<rect x="20" y="15" width="120" height="100" rx="12" fill="#93b2a1"/><path d="M60 15v100M100 15v100M20 50h120M20 80h120" stroke="#f6efd9" stroke-width="4"/><g fill="#eac575" stroke="#355b52" stroke-width="3"><circle cx="40" cy="30" r="10"/><circle cx="120" cy="65" r="10"/><circle cx="80" cy="100" r="10"/></g>',
+      );
     if (type === 'borough')
       return svg(
         `<path fill="#d5d1b3" d="m15 77 67-41 68 41-67 42z"/><g transform="translate(8,3) scale(.65)">${building('home').replace(/^<svg[^>]*>|<\/svg>$/g, '')}</g><g transform="translate(74,40) scale(.48)">${building('garden').replace(/^<svg[^>]*>|<\/svg>$/g, '')}</g>`,
@@ -421,7 +425,9 @@
                       ? 'Tic-Tac-Toe'
                       : id === 'blockcabinet'
                         ? 'Block Cabinet · ' + r.seed
-                        : 'Archive Heist · ' + E().warehouse.maps[r.level].name,
+                        : id === 'regiongardens'
+                          ? 'Lantern Gardens · ' + E().regionGardens.layouts[r.level].title
+                          : 'Archive Heist · ' + E().warehouse.maps[r.level].name,
             },
           })),
       ].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))[0],
@@ -431,7 +437,7 @@
     let target = t.target;
     if (t.id === 'glasshouse' || t.id === 'night-train')
       target = root.ALIBI_CASEBOOKS.find((b) => b.artwork === t.id)?.id || target;
-    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
+    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('regiongardens', 'Lantern Gardens', 'One lantern in each row, column and garden.', 'REGIONS · SIX ORIGINAL BOARDS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 6 ROOMS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
   }
   function gameCard(id, title, description, tag) {
     return `<button class="club-gamecard" data-action="navigate" data-page="${id === 'lab' ? 'lab' : 'salon'}" data-id="${id === 'lab' ? '' : id}">${portrait(id)}<div class="gamecard-copy"><small>${tag}</small><h3>${title} <span>↗</span></h3><p>${description}</p></div></button>`;
@@ -488,6 +494,8 @@
       state.runs.blockcabinet = { seed: 'BLOCK-01', log: [], redo: [] };
     if (id === 'borough' && !state.runs.borough)
       state.runs.borough = { seed: 'EVENING-01', log: [], redo: [] };
+    if (id === 'regiongardens' && !state.runs.regiongardens)
+      state.runs.regiongardens = { level: 0, log: [], redo: [] };
     if (id === 'archive' && !state.runs.archive)
       state.runs.archive = { level: 0, log: [], redo: [] };
   }
@@ -501,6 +509,7 @@
     }
     if (id === 'tictactoe') return E().tictactoe.replay(r.log);
     if (id === 'blockcabinet') return E().blockCabinet.replay(r.seed, r.log);
+    if (id === 'regiongardens') return E().regionGardens.replay(r.level, r.log);
     if (id === 'borough') return E().borough.replay(r.seed, r.log);
     if (id === 'archive') {
       let s = E().warehouse.initial(r.level);
@@ -518,9 +527,10 @@
     if (id === 'duel') return duelPage();
     if (id === 'tictactoe') return ticTacToePage();
     if (id === 'blockcabinet') return blockCabinetPage();
+    if (id === 'regiongardens') return regionGardensPage();
     if (id === 'borough') return boroughPage();
     if (id === 'archive') return archivePage();
-    return `${heading('The games room.', 'AFTER HOURS · EXPERIMENTS', 'Different rules. The same room to think.')}${status()}<div class="club-gamecards room-cards">${gameCard('duel', 'Lantern Duel', 'A familiar territory game, with a patient opponent.', 'STRATEGY · BOT / TWO PLAYERS')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT / TWO PLAYERS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Draft plans. Build neighbours. Make a better place.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'Six original rooms. No pulling, no pressure.', 'SPATIAL PLANNING · UNDO FREELY')}${gameCard('lab', 'The living atlas', 'A live procedural harbour and its performance instruments.', 'GRAPHICS PLAYGROUND · NO SCORE')}</div><div class="club-two-panels"><section class="panel"><span class="eyebrow">A TABLE FOR TWO</span><h2>Actual play, not pretend players.</h2><p>Pass a game between two people on one device. Lantern Duel also supports an optional private-room server.</p>${go('Take a seat →', 'salon', 'duel')}${B('Online room settings', 'online-settings', '', 'secondary')}</section><section class="panel"><span class="eyebrow">YOUR OWN MEASURE</span><h2>Records without the noise.</h2><p>Personal bests, a little stamp book, and a daily seed. No fabricated rivals, no vanishing streaks, no global rank claims.</p>${go('Open the club journal →', 'club')}${B('Export Club save', 'export', '', 'secondary')}</section></div>`;
+    return `${heading('The games room.', 'AFTER HOURS · EXPERIMENTS', 'Different rules. The same room to think.')}${status()}<div class="club-gamecards room-cards">${gameCard('duel', 'Lantern Duel', 'A familiar territory game, with a patient opponent.', 'STRATEGY · BOT / TWO PLAYERS')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT / TWO PLAYERS')}${gameCard('regiongardens', 'Lantern Gardens', 'One lantern in each row, column and garden.', 'REGIONS · SIX ORIGINAL BOARDS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Draft plans. Build neighbours. Make a better place.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'Six original rooms. No pulling, no pressure.', 'SPATIAL PLANNING · UNDO FREELY')}${gameCard('lab', 'The living atlas', 'A live procedural harbour and its performance instruments.', 'GRAPHICS PLAYGROUND · NO SCORE')}</div><div class="club-two-panels"><section class="panel"><span class="eyebrow">A TABLE FOR TWO</span><h2>Actual play, not pretend players.</h2><p>Pass a game between two people on one device. Lantern Duel also supports an optional private-room server.</p>${go('Take a seat →', 'salon', 'duel')}${B('Online room settings', 'online-settings', '', 'secondary')}</section><section class="panel"><span class="eyebrow">YOUR OWN MEASURE</span><h2>Records without the noise.</h2><p>Personal bests, a little stamp book, and a daily seed. No fabricated rivals, no vanishing streaks, no global rank claims.</p>${go('Open the club journal →', 'club')}${B('Export Club save', 'export', '', 'secondary')}</section></div>`;
   }
   function ruleDetails(content, open = false) {
     return `<details class="club-rules" ${open ? 'open' : ''}><summary>How this works <span>+</span></summary>${content}</details>`;
@@ -560,6 +570,23 @@
           ? 'X to move.'
           : 'O to move.';
     return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', 'data-value="bot"', r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', 'data-value="local"', r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div class="club-turn-status tic-status" role="status"><strong>${label}</strong>${s.done ? ' The match is complete.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
+  }
+  function regionGardensPage() {
+    ensureRun('regiongardens');
+    const r = state.runs.regiongardens,
+      s = currentGame('regiongardens'),
+      p = E().regionGardens.layouts[r.level],
+      bad = new Set(E().regionGardens.conflicts(s));
+    return `${heading('Lantern Gardens.', 'THE GAMES ROOM', 'A place for each light. Room between neighbours.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><h2>${esc(p.title)}</h2><div class="region-board" style="--garden-size:${p.size}" role="group" aria-label="Lantern Gardens board">${s.marks.map((v, i) => `<button id="garden-cell-${i}" class="region-cell ${bad.has(i) ? 'conflict' : ''}" style="--garden-color:var(--garden-${p.regions[i]})" data-action="club-garden-cell" data-cell="${i}" aria-pressed="${v === 1}" aria-label="Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}, garden ${String.fromCharCode(65 + p.regions[i])}: ${v === 1 ? 'lantern' : v === 2 ? 'excluded' : 'empty'}${bad.has(i) ? ', conflicts with another lantern' : ''}" ${s.done ? 'disabled' : ''}><small>${String.fromCharCode(65 + p.regions[i])}</small><span aria-hidden="true">${v === 1 ? '●' : v === 2 ? '×' : ''}</span></button>`).join('')}</div><p id="garden-status" tabindex="-1" role="status">${s.done ? 'All lanterns have a place. Garden complete.' : `${s.marks.filter((v) => v === 1).length} / ${p.size} lanterns placed. ${bad.size ? 'Outlined lanterns share a row, column or garden, or touch.' : 'Tap a square: lantern → exclusion → empty.'}`}</p>${toolbar('regiongardens', r)}</section><aside class="club-gameaside">${ruleDetails('<p>Place exactly one lantern in every row, column and lettered colour region. Lanterns must not touch, even at a corner. All squares belong to a region; most squares stay empty.</p><p>Tap a square to cycle lantern, exclusion cross and empty. Mistakes remain editable. Every garden has exactly one solution. Undo reopens a completed board.</p>', true)}<section class="panel"><h2>Choose a garden</h2>${E()
+      .regionGardens.layouts.map((g, i) =>
+        B(
+          `${esc(g.title)} · ${g.size}×${g.size}${state.records.some((x) => x.type === 'regiongardens' && x.label === g.title) ? ' · Solved' : ''}`,
+          'garden-level',
+          `data-value="${i}" aria-pressed="${r.level === i}"`,
+          'secondary small',
+        ),
+      )
+      .join('')}</section></aside></div>`;
   }
   function blockCabinetPage() {
     ensureRun('blockcabinet');
@@ -624,7 +651,11 @@
       key =
         id +
         ':' +
-        (id === 'borough' || id === 'blockcabinet' ? r.seed : id === 'archive' ? r.level : r.mode) +
+        (id === 'borough' || id === 'blockcabinet'
+          ? r.seed
+          : ['archive', 'regiongardens'].includes(id)
+            ? r.level
+            : r.mode) +
         ':' +
         E().hash(JSON.stringify(r.log));
     if (state.records.some((x) => x.id === key)) return;
@@ -637,24 +668,28 @@
             ? s.winner
             : id === 'blockcabinet'
               ? E().blockCabinet.score(s)
-              : s.pushes;
+              : id === 'regiongardens'
+                ? r.log.length
+                : s.pushes;
     state.records.unshift({
       id: key,
       type: id,
       label:
-        id === 'borough'
-          ? r.seed
-          : id === 'archive'
-            ? E().warehouse.maps[r.level].name
-            : id === 'tictactoe'
-              ? r.mode === 'bot'
-                ? 'Against the keeper'
-                : 'Two at the table'
-              : id === 'blockcabinet'
-                ? 'Block Cabinet · ' + r.seed
-                : r.mode === 'bot'
+        id === 'regiongardens'
+          ? E().regionGardens.layouts[r.level].title
+          : id === 'borough'
+            ? r.seed
+            : id === 'archive'
+              ? E().warehouse.maps[r.level].name
+              : id === 'tictactoe'
+                ? r.mode === 'bot'
                   ? 'Against the keeper'
-                  : 'Two at the table',
+                  : 'Two at the table'
+                : id === 'blockcabinet'
+                  ? 'Block Cabinet · ' + r.seed
+                  : r.mode === 'bot'
+                    ? 'Against the keeper'
+                    : 'Two at the table',
       score: points,
       date: new Date().toISOString(),
     });
@@ -710,6 +745,7 @@
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
     if (id === 'blockcabinet') E().blockCabinet.move(before, value.slot, value.cell);
+    if (id === 'regiongardens') E().regionGardens.move(before, value);
     if (id === 'borough') E().borough.move(before, value.slot, value.cell);
     if (id === 'archive' && E().warehouse.move(before, value) === before) return;
     r.log.push(value);
@@ -890,6 +926,27 @@
           );
         } else {
           state.runs[game] = { mode, log: [], redo: [] };
+          save();
+          render();
+        }
+      } else if (a === 'garden-cell') {
+        await commitGame('regiongardens', Number(el.dataset.cell));
+        if (currentGame('regiongardens').done)
+          document.getElementById('garden-status')?.focus({ preventScroll: true });
+      } else if (a === 'garden-level') {
+        const level = Number(v),
+          r = state.runs.regiongardens;
+        E().regionGardens.initial(level);
+        if (level === r.level) return;
+        if (r.log.length || r.redo.length) {
+          root.__clubReset = { id: 'regiongardens', level };
+          confirmation(
+            'Open another garden?',
+            'This replaces the current board. Solved garden records are kept.',
+            'reset-confirm',
+          );
+        } else {
+          r.level = level;
           save();
           render();
         }

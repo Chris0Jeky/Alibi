@@ -4,6 +4,18 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## September feedback candidate, 2026-09-10
 
+### Lantern Gardens candidate
+
+Six original 6×6/7×7 region boards add the requested row/column/colour placement game.
+Each has one lantern per row, column and lettered region, with no touching even diagonally.
+The full board is partitioned into regions; empty squares are intentional in this interpretation.
+Tap cycles lantern/exclusion/empty. Completion, undo/redo, level confirmation and offline saves
+use the Club replay contract. Runtime layouts omit authoring answers. Independent enumeration
+proves unique solutions and connected regions. Full source verify passes (162 Node tests plus
+supplementary suites); 30 browser assertions pass at 390/1440px including completion and offline
+reload. Physical-device and human difficulty acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+This brings the candidate to six Games Room games; it is not yet deployed.
+
 `codex/player-feedback-september` starts from `541ba1e`. The complete incremental queue is
 in [PLAYER-FEEDBACK-2026-09.md](PLAYER-FEEDBACK-2026-09.md). Scene taps now cycle placement,
 candidate, exclusion and board cross while preserving other annotations. Placed people's
