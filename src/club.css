@@ -1238,6 +1238,91 @@ body.club-experiment {
   font-size: 18px;
   font-weight: 400;
 }
+.mahjong-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 11px;
+}
+.mahjong-meta strong {
+  font-family: var(--club-serif);
+  font-size: 17px;
+  font-weight: 400;
+}
+.mahjong-board {
+  position: relative;
+  width: min(100%, 490px);
+  height: 220px;
+  margin: auto;
+  padding: 8px;
+  border: 1px solid #34585a;
+  border-radius: 9px;
+  background: #496d6b;
+  box-shadow: 0 5px 0 #294d50;
+}
+.mahjong-tile {
+  position: absolute;
+  top: calc(56% - var(--tile-z) * 18px);
+  left: calc(var(--tile-x) * 12.5% + var(--tile-z) * 3px);
+  z-index: calc(var(--tile-z) * 10 + 1);
+  width: 11.2%;
+  height: 92px;
+  padding: 0;
+  border: 2px solid #ad8255;
+  border-radius: 7px;
+  background: #f5edda;
+  color: #294d50;
+  box-shadow:
+    2px 3px 0 #315858,
+    inset 0 0 0 2px #fffaf0;
+  font-family: var(--club-serif);
+  font-size: 27px;
+  line-height: 1;
+  transition:
+    transform 0.12s,
+    border-color 0.12s,
+    background 0.12s;
+}
+.mahjong-tile.free:not(:disabled):hover,
+.mahjong-tile.free:focus-visible,
+.mahjong-tile.chosen {
+  border-color: #b67854;
+  background: #f3d58d;
+  transform: translateY(-4px);
+}
+.mahjong-tile.chosen {
+  outline: 3px solid #e6b964;
+  outline-offset: 2px;
+}
+.mahjong-tile.match-target {
+  border-color: #647f63;
+  box-shadow:
+    2px 3px 0 #315858,
+    inset 0 0 0 3px #b7cf9f;
+}
+.mahjong-tile.blocked {
+  color: #6d7771;
+  background: #d9d7cb;
+  box-shadow:
+    2px 3px 0 #315858,
+    inset 0 0 0 2px #ece8db;
+}
+.mahjong-status {
+  min-height: 37px;
+  margin-top: 21px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+}
+.mahjong-status strong {
+  color: var(--ink);
+  font-family: var(--club-serif);
+  font-size: 18px;
+  font-weight: 400;
+}
 .domino-hand {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1314,6 +1399,24 @@ body.club-experiment {
 .domino-draw-row span {
   color: var(--muted);
   font-size: 10px;
+}
+.mahjong-mini {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.mahjong-mini i {
+  display: grid;
+  width: 42px;
+  height: 55px;
+  place-items: center;
+  border: 2px solid #ad8255;
+  border-radius: 5px;
+  background: #f5edda;
+  color: #294d50;
+  font-family: var(--club-serif);
+  font-size: 19px;
+  font-style: normal;
 }
 .block-meta {
   display: flex;
@@ -2536,6 +2639,32 @@ body.club-experiment {
     margin-bottom: 15px;
     gap: 8px;
     font-size: 10px;
+  }
+  .mahjong-meta {
+    margin-bottom: 15px;
+    gap: 8px;
+    font-size: 10px;
+  }
+  .mahjong-meta strong {
+    font-size: 15px;
+  }
+  .mahjong-board {
+    height: 180px;
+    padding: 5px;
+  }
+  .mahjong-tile {
+    top: calc(59% - var(--tile-z) * 15px);
+    width: 11.5%;
+    height: 70px;
+    font-size: 21px;
+  }
+  .mahjong-status {
+    min-height: 35px;
+    margin-top: 18px;
+    font-size: 11px;
+  }
+  .mahjong-status strong {
+    font-size: 16px;
   }
   .seed-label {
     font-size: 7px;

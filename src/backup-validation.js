@@ -127,6 +127,7 @@
             'blockcabinet',
             'regiongardens',
             'dominoes',
+            'mahjong',
           ].includes(key) ||
           !r ||
           (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
@@ -166,6 +167,11 @@
             throw Error('Invalid domino seed.');
           E().dominoes.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
         }
+        if (key === 'mahjong') {
+          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+            throw Error('Invalid Mahjong seed.');
+          E().mahjong.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
+        }
       }
       for (const r of v.records)
         if (
@@ -180,6 +186,7 @@
             'blockcabinet',
             'regiongardens',
             'dominoes',
+            'mahjong',
           ].includes(r.type) ||
           typeof r.label !== 'string' ||
           r.label.length > 100 ||

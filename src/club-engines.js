@@ -692,6 +692,158 @@
       return s;
     },
   };
+  const mahjongKinds = 'ABCDEFGHIJ'.split(''),
+    mahjongLayout = [
+      { z: 0, x: 0 },
+      { z: 0, x: 1 },
+      { z: 0, x: 2 },
+      { z: 0, x: 3 },
+      { z: 0, x: 4 },
+      { z: 0, x: 5 },
+      { z: 0, x: 6 },
+      { z: 0, x: 7 },
+      { z: 1, x: 1 },
+      { z: 1, x: 2 },
+      { z: 1, x: 3 },
+      { z: 1, x: 4 },
+      { z: 1, x: 5 },
+      { z: 1, x: 6 },
+      { z: 2, x: 2 },
+      { z: 2, x: 3 },
+      { z: 2, x: 4 },
+      { z: 2, x: 5 },
+      { z: 3, x: 3 },
+      { z: 3, x: 4 },
+    ],
+    mahjongPairOrder = [
+      [18, 19],
+      [14, 17],
+      [15, 16],
+      [8, 13],
+      [9, 12],
+      [10, 11],
+      [0, 7],
+      [1, 6],
+      [2, 5],
+      [3, 4],
+    ];
+  function mahjongFaces(seed) {
+    const faces = mahjongKinds.slice(),
+      r = random('mahjong:' + seed);
+    for (let i = faces.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [faces[i], faces[j]] = [faces[j], faces[i]];
+    }
+    return faces;
+  }
+  const mahjongSolitaire = {
+    size: 20,
+    pairCount: mahjongPairOrder.length,
+    kinds: mahjongKinds.slice(),
+    layout: mahjongLayout.map(copy),
+    initial(seed = 'MAHJONG-01') {
+      seed = seedText(seed);
+      const faces = mahjongFaces(seed),
+        byId = Array(mahjongLayout.length);
+      mahjongPairOrder.forEach(([a, b], pair) => {
+        byId[a] = byId[b] = faces[pair];
+      });
+      return {
+        seed,
+        tiles: mahjongLayout.map((position, id) => ({
+          id,
+          x: position.x,
+          y: 0,
+          z: position.z,
+          face: byId[id],
+          removed: false,
+        })),
+        score: 0,
+        pairs: 0,
+        done: false,
+        won: false,
+        stuck: false,
+      };
+    },
+    free(s, id) {
+      if (!s?.tiles || !integer(id, 0, mahjongLayout.length - 1)) return false;
+      const tile = s.tiles[id];
+      if (!tile || tile.removed) return false;
+      const above = s.tiles.some(
+          (other) => !other.removed && other.z > tile.z && other.x === tile.x && other.y === tile.y,
+        ),
+        left = s.tiles.some(
+          (other) =>
+            !other.removed && other.z === tile.z && other.y === tile.y && other.x === tile.x - 1,
+        ),
+        right = s.tiles.some(
+          (other) =>
+            !other.removed && other.z === tile.z && other.y === tile.y && other.x === tile.x + 1,
+        );
+      return !above && (!left || !right);
+    },
+    matching(s, a, b) {
+      return (
+        integer(a, 0, mahjongLayout.length - 1) &&
+        integer(b, 0, mahjongLayout.length - 1) &&
+        a !== b &&
+        this.free(s, a) &&
+        this.free(s, b) &&
+        s.tiles[a]?.face === s.tiles[b]?.face
+      );
+    },
+    pairs(s) {
+      if (!s?.tiles || s.done) return [];
+      const out = [];
+      for (let a = 0; a < s.tiles.length; a++)
+        for (let b = a + 1; b < s.tiles.length; b++) if (this.matching(s, a, b)) out.push([a, b]);
+      return out;
+    },
+    move(s, a, b) {
+      if (!s || s.done) throw Error('This table is closed. Start a new game.');
+      if (!this.matching(s, a, b)) throw Error('Choose two free matching tiles.');
+      const tiles = s.tiles.map((tile) => ({ ...tile }));
+      tiles[a].removed = true;
+      tiles[b].removed = true;
+      const won = tiles.every((tile) => tile.removed),
+        q = {
+          seed: s.seed,
+          tiles,
+          score: s.score + 10,
+          pairs: s.pairs + 1,
+          done: won,
+          won,
+          stuck: false,
+        };
+      if (!won) {
+        const stuck = !this.pairs(q).length;
+        q.done = stuck;
+        q.stuck = stuck;
+      }
+      return q;
+    },
+    score(s) {
+      return Number.isFinite(s?.score) ? s.score : 0;
+    },
+    replay(seed, log) {
+      seed = seedText(seed);
+      if (!Array.isArray(log) || log.length > mahjongPairOrder.length)
+        throw Error('Invalid Mahjong replay.');
+      let s = this.initial(seed);
+      for (const action of log) {
+        if (
+          !action ||
+          typeof action !== 'object' ||
+          Object.keys(action).sort().join(',') !== 'a,b' ||
+          !integer(action.a, 0, mahjongLayout.length - 1) ||
+          !integer(action.b, 0, mahjongLayout.length - 1)
+        )
+          throw Error('Invalid Mahjong move.');
+        s = this.move(s, action.a, action.b);
+      }
+      return s;
+    },
+  };
   const types = ['home', 'garden', 'cafe', 'library', 'water'];
   const typeInfo = {
     home: {
@@ -1061,6 +1213,9 @@
     blockcabinet: blockCabinet,
     dominoes,
     domino: dominoes,
+    mahjongSolitaire,
+    mahjong: mahjongSolitaire,
+    mahjongsolitaire: mahjongSolitaire,
     borough,
     warehouse,
   };
