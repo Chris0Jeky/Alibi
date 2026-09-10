@@ -46,6 +46,16 @@ Independent review reproduced focus loss on the Room settings summary during bac
 refresh. A stable summary identity fixes it; the storage-event regression passes at both
 widths, and the scoped artwork checks and download budget remain green.
 
+### Recorded ambience candidate
+
+PR #84 is merged at `4d6feca`. PR #85 targets main after the focus fix. The next sound slice
+removes main-room procedural noise and game tones. Optional CC0 window rain and beach waves
+have checked-in sources, hashes and a reproducible FFmpeg recipe in `assets-source/ambience`.
+The two optimized recordings total about 220 KiB and are excluded from the initial shell.
+Play attempts to retain them for later offline use; unavailable audio stays silent. Volume,
+stop and secondary settings remain explicit. Source licences are recorded; human listening,
+physical-phone playback and hosted delivery are not yet verified.
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps

@@ -27,16 +27,10 @@
     scene = config.scenes[0],
     route = { page: 'home' },
     sound = false;
-  let context,
-    localGain,
-    oscillator,
-    noise,
-    recording,
-    transferTimer,
-    eventTimer,
-    filmDialog,
-    filmTimer,
-    lastCue = -Infinity;
+  let recording, transferTimer, eventTimer, filmDialog, filmTimer;
+  let ambience = 'rain',
+    volume = 0.25,
+    soundStatus = '';
   try {
     choice = byId.has(localStorage.getItem('alibi-room'))
       ? localStorage.getItem('alibi-room')
@@ -80,137 +74,77 @@
       : '';
   }
   function bar(quiet = false) {
-    return `<aside class="theatre-rail" aria-label="Room atmosphere"><span class="theatre-rail-title">${emblem(scene?.motif)}<span>${escape(scene?.title || 'The club')}<small>AN IMAGINED PLACE · YOUR OWN PACE</small></span></span><details class="theatre-settings" data-disclosure-key="room-settings"><summary id="room-settings-summary">Room settings</summary><div class="theatre-controls">${quiet ? '<a href="#/home">Choose a room ↗</a>' : `<button type="button" data-theatre-sound aria-pressed="${sound}">Room sound ${sound ? 'on' : 'off'}</button><button type="button" data-theatre-motion aria-pressed="${movement}">${movement ? 'Still the room' : 'Let it breathe'}</button><button type="button" data-theatre-data aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">${G.AlibiDelivery?.mode() === 'local' ? 'Painted edition' : 'Rich edition'}</button>`}</div></details></aside>`;
+    return `<aside class="theatre-rail" aria-label="Room atmosphere"><span class="theatre-rail-title">${emblem(scene?.motif)}<span>${escape(scene?.title || 'The club')}<small>AN IMAGINED PLACE · YOUR OWN PACE</small></span></span><details class="theatre-settings" data-disclosure-key="room-settings"><summary id="room-settings-summary">Room settings</summary><div class="theatre-controls">${quiet ? '<a href="#/home">Choose a room ↗</a>' : `<button type="button" data-theatre-sound aria-pressed="${sound}">Room sound ${sound ? 'on' : 'off'}</button><label>Sound <select id="room-sound-choice" data-theatre-ambience>${config.audio.map((a) => `<option value="${escape(a.id)}" ${a.id === ambience ? 'selected' : ''}>${escape(a.title)}</option>`).join('')}</select></label><label>Volume <input id="room-sound-volume" data-theatre-volume type="range" min="0" max="100" value="${Math.round(volume * 100)}"></label><span data-theatre-sound-status role="status">${escape(soundStatus)}</span><button type="button" data-theatre-motion aria-pressed="${movement}">${movement ? 'Still the room' : 'Let it breathe'}</button><button type="button" data-theatre-data aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">${G.AlibiDelivery?.mode() === 'local' ? 'Painted edition' : 'Rich edition'}</button>`}</div></details></aside>`;
   }
   function room(story) {
     const s = byId.get(choice) || byId.get(story) || scene || config.scenes[0];
     if (!s) return '';
-    return `<section class="theatre-room" aria-label="The listening room"><div class="theatre-heading"><div><span class="eyebrow">A CLUB WITH MANY MOODS</span><h2>Stay for the atmosphere.</h2></div><span class="theatre-ticket">ART · SOUND · LITTLE WORLDS</span></div><div class="theatre-stage" data-theatre-stage="${s.id}"><img data-adaptive-image="${s.detail || ''}" src="${escape(source(s))}" alt="${escape(s.title)} · atmospheric artwork" width="1400" height="935" loading="lazy" decoding="async">${layers(s)}<div class="theatre-stage-copy">${emblem(s.motif)}<h3>${escape(s.title)}</h3><p>${escape(s.subtitle)}</p><button type="button" data-theatre-moment>Notice a little detail ↗</button></div>${credit(s)}${s.curation ? `<span class="theatre-local-credit">Utagawa Hiroshige · The Met · Public Domain</span>` : ''}</div><div class="theatre-scene-list" aria-label="Choose a room"><button type="button" data-theatre-scene="follow" aria-pressed="${choice === 'follow'}">Follow my visit</button>${config.scenes.map((s) => `<button type="button" data-theatre-scene="${s.id}" aria-pressed="${choice === s.id}">${emblem(s.motif)}${escape(s.title)}</button>`).join('')}</div><p class="theatre-note">Choose a room to carry its mood with you, or let each visit set the scene. Art and a locally composed soundscape work offline. Room sound starts only when you choose it.</p><details class="theatre-screenings"><summary>Optional short films · ${config.films.length ? 'four short films' : 'hosted edition'}</summary><p>${config.films.length ? 'Original Alibi motion studies. Films stream on request;' : 'Short films are available in the hosted edition;'} you can still explore the rooms, games and local artwork without them.</p><div>${config.films.map((film, i) => `<button type="button" data-theatre-film="${film.id}"><span>0${i + 1} / SHORT FILM</span><strong>${escape(film.title.replace(/^Alibi [—–] /, ''))}</strong><small>${film.duration}s · Play film ↗</small></button>`).join('')}</div></details></section>`;
+    return `<section class="theatre-room" aria-label="The listening room"><div class="theatre-heading"><div><span class="eyebrow">A CLUB WITH MANY MOODS</span><h2>Stay for the atmosphere.</h2></div><span class="theatre-ticket">ART · SOUND · LITTLE WORLDS</span></div><div class="theatre-stage" data-theatre-stage="${s.id}"><img data-adaptive-image="${s.detail || ''}" src="${escape(source(s))}" alt="${escape(s.title)} · atmospheric artwork" width="1400" height="935" loading="lazy" decoding="async">${layers(s)}<div class="theatre-stage-copy">${emblem(s.motif)}<h3>${escape(s.title)}</h3><p>${escape(s.subtitle)}</p><button type="button" data-theatre-moment>Notice a little detail ↗</button></div>${credit(s)}${s.curation ? `<span class="theatre-local-credit">Utagawa Hiroshige · The Met · Public Domain</span>` : ''}</div><div class="theatre-scene-list" aria-label="Choose a room"><button type="button" data-theatre-scene="follow" aria-pressed="${choice === 'follow'}">Follow my visit</button>${config.scenes.map((s) => `<button type="button" data-theatre-scene="${s.id}" aria-pressed="${choice === s.id}">${emblem(s.motif)}${escape(s.title)}</button>`).join('')}</div><p class="theatre-note">Choose a room to carry its mood with you, or let each visit set the scene. Art works offline. Optional rain and waves download when played and remain available offline if your browser keeps them. Sound starts only when you choose it.</p><details class="theatre-screenings"><summary>Optional short films · ${config.films.length ? 'four short films' : 'hosted edition'}</summary><p>${config.films.length ? 'Original Alibi motion studies. Films stream on request;' : 'Short films are available in the hosted edition;'} you can still explore the rooms, games and local artwork without them.</p><div>${config.films.map((film, i) => `<button type="button" data-theatre-film="${film.id}"><span>0${i + 1} / SHORT FILM</span><strong>${escape(film.title.replace(/^Alibi [—–] /, ''))}</strong><small>${film.duration}s · Play film ↗</small></button>`).join('')}</div></details></section>`;
   }
   function stopSound() {
     clearTimeout(transferTimer);
+    soundStatus = '';
     if (recording) {
       recording.pause();
       recording.removeAttribute('src');
       recording.load();
       recording = null;
     }
-    try {
-      oscillator?.stop();
-      noise?.stop();
-    } catch {}
-    oscillator = noise = localGain = null;
-    context?.close().catch(() => {});
-    context = null;
   }
-  async function startSound() {
+  function startSound() {
     stopSound();
-    if (!sound || reduced() || document.hidden || !scene) return;
-    const AC = G.AudioContext || G.webkitAudioContext;
-    if (!AC) {
+    if (!sound || reduced() || document.hidden) return;
+    const asset = config.audio.find((a) => a.id === ambience);
+    if (!asset) {
       sound = false;
+      soundStatus = 'Recorded sound is available in the hosted edition.';
       refreshControls();
       return;
     }
-    const ctx = (context = new AC());
-    lastCue = -Infinity;
-    try {
-      await ctx.resume();
-    } catch {
-      sound = false;
-      refreshControls();
-      return;
-    }
-    if (context !== ctx || !sound || document.hidden) return;
-    // An original, scene-specific local bed is immediately usable even without media downloads.
-    localGain = ctx.createGain();
-    localGain.gain.value = 0.08;
-    localGain.connect(ctx.destination);
-    oscillator = ctx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.value = scene.notes[0] / 2;
-    const tone = ctx.createGain();
-    tone.gain.value = 0.16;
-    oscillator.connect(tone).connect(localGain);
-    oscillator.start();
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate),
-      samples = buffer.getChannelData(0);
-    let seed = scene.notes[0],
-      last = 0;
-    for (let i = 0; i < samples.length; i++) {
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      last = last * 0.96 + ((seed / 4294967296) * 2 - 1) * 0.04;
-      samples[i] = last;
-    }
-    noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    noise.loop = true;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = ['rain', 'tide'].includes(scene.motion) ? 900 : 300;
-    noise.connect(filter).connect(localGain);
-    noise.start();
-    const asset = config.audio.find((a) => a.id === scene.ambience);
-    if (
-      !asset ||
-      G.ALIBI_CONFIG?.standalone ||
-      G.navigator.onLine === false ||
-      G.AlibiDelivery.mode() === 'local' ||
-      G.navigator.connection?.saveData ||
-      /^(slow-)?2g$/.test(G.navigator.connection?.effectiveType || '')
-    )
-      return;
     const audio = (recording = new Audio(asset.url));
     audio.loop = true;
-    audio.volume = 0.18;
+    audio.volume = volume;
     audio.preload = 'none';
+    soundStatus = 'Loading recording…';
     const failed = () => {
       if (recording !== audio) return;
-      audio.pause();
-      audio.removeAttribute('src');
-      audio.load();
-      recording = null;
-      if (context === ctx && localGain) localGain.gain.setTargetAtTime(0.08, ctx.currentTime, 0.2);
+      sound = false;
+      stopSound();
+      soundStatus = 'Sound unavailable. Connect and try again; the room stays silent.';
+      refreshControls();
     };
     audio.onplaying = () => {
-      if (context === ctx && localGain) {
-        clearTimeout(transferTimer);
-        localGain.gain.setTargetAtTime(0, ctx.currentTime, 0.5);
-      }
+      if (recording !== audio) return;
+      clearTimeout(transferTimer);
+      soundStatus = 'Playing ' + asset.title.toLowerCase() + '.';
+      refreshControls();
+      // A deliberate play also keeps these small same-origin bytes for later offline visits.
+      // Cache failure never prevents playback, and only the two current recordings are retained.
+      if (G.caches)
+        void (async () => {
+          const cache = await caches.open('alibi-ambience-v1');
+          const urls = config.audio.map((a) => new URL(a.url, location.href).href);
+          for (const key of await cache.keys())
+            if (!urls.includes(key.url)) await cache.delete(key);
+          if (!(await cache.match(asset.url))) {
+            const response = await fetch(asset.url);
+            if (response.ok) await cache.put(asset.url, response);
+          }
+        })().catch(() => {});
     };
     audio.onerror = failed;
     audio.onwaiting = audio.onstalled = () => {
       clearTimeout(transferTimer);
-      transferTimer = setTimeout(failed, 4000);
+      transferTimer = setTimeout(failed, 8000);
     };
-    transferTimer = setTimeout(failed, 4000);
+    transferTimer = setTimeout(failed, 8000);
     audio.play().catch(failed);
-  }
-  function cue(kind) {
-    if (!sound || !context || document.hidden) return;
-    const ctx = context,
-      now = ctx.currentTime;
-    if (now - lastCue < 0.12) return;
-    lastCue = now;
-    const notes = kind === 'complete' ? scene.notes : [scene.notes[kind === 'place' ? 1 : 0]];
-    notes.forEach((frequency, i) => {
-      const o = ctx.createOscillator(),
-        g = ctx.createGain(),
-        t = now + i * 0.13;
-      o.frequency.value = frequency;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.045, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-      o.connect(g).connect(ctx.destination);
-      o.start(t);
-      o.stop(t + 0.5);
-      o.onended = () => {
-        o.disconnect();
-        g.disconnect();
-      };
-    });
+    refreshControls();
   }
   function refreshControls() {
+    document.querySelectorAll('[data-theatre-sound-status]').forEach((s) => {
+      s.textContent = soundStatus;
+    });
     document.querySelectorAll('[data-theatre-sound]').forEach((b) => {
       b.setAttribute('aria-pressed', String(sound));
       b.textContent = 'Room sound ' + (sound ? 'on' : 'off');
@@ -266,7 +200,6 @@
       clearTimeout(eventTimer);
       eventTimer = setTimeout(() => stage.classList.remove('theatre-event'), 2400);
     }
-    cue(kind === 'complete' ? 'complete' : 'place');
     if (kind === 'notice') {
       const target = document.querySelector('.theatre-stage-copy p');
       if (target)
@@ -342,6 +275,20 @@
       });
     }
   }
+  document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-theatre-ambience]')) {
+      ambience = config.audio.some((a) => a.id === event.target.value)
+        ? event.target.value
+        : 'rain';
+      if (sound) startSound();
+    }
+  });
+  document.addEventListener('input', (event) => {
+    if (event.target.matches('[data-theatre-volume]')) {
+      volume = Math.max(0, Math.min(1, Number(event.target.value) / 100));
+      if (recording) recording.volume = volume;
+    }
+  });
   document.addEventListener('click', (event) => {
     const b = event.target.closest('button');
     if (!b) return;
@@ -349,7 +296,11 @@
       sound = !sound;
       refreshControls();
       if (sound) void startSound();
-      else stopSound();
+      else {
+        stopSound();
+        soundStatus = '';
+        refreshControls();
+      }
     }
     if (b.hasAttribute('data-theatre-motion')) {
       movement = !movement;
@@ -381,8 +332,6 @@
     }
     if (b.hasAttribute('data-theatre-moment')) moment();
     if (b.hasAttribute('data-theatre-film')) film(b.dataset.theatreFilm);
-    if (['value', 'mark', 'club-build', 'club-place', 'undo', 'redo'].includes(b.dataset.action))
-      cue('place');
   });
   G.addEventListener('hashchange', () => {
     closeFilm();
@@ -408,8 +357,10 @@
       scene: scene?.id,
       choice,
       sound,
-      localAudio: !!context,
+      localAudio: false,
       streamingAudio: !!recording,
+      ambience,
+      volume,
       still: reduced(),
     }),
   };

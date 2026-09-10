@@ -36,6 +36,21 @@
   gap: 7px;
   flex-wrap: wrap;
 }
+.theatre-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.theatre-controls select,
+.theatre-controls input {
+  min-height: 44px;
+  max-width: 160px;
+}
+.theatre-controls [role='status'] {
+  flex-basis: 100%;
+  font-size: 12px;
+}
 .theatre-controls button,
 .theatre-stage-copy button {
   min-height: 44px;

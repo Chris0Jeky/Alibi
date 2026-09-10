@@ -139,9 +139,17 @@ function build() {
   write(path.join(DIST, media['club-reading-room']), readingRoom);
   const experience = require('./build-experience.cjs')(ROOT, DIST);
   const theatreSource = JSON.parse(read(path.join(ROOT, 'content/theatre.json')));
+  const ambience = JSON.parse(
+    read(path.join(ROOT, 'assets-source/ambience/catalogue.json')),
+  ).assets.map((a) => {
+    const bytes = fs.readFileSync(path.join(ROOT, a.file));
+    const url = `./assets/ambience-${a.id}.${hash(bytes)}.mp3`;
+    write(path.join(DIST, url), bytes);
+    return { id: a.id, title: a.title, url, loop: true, author: a.author, source: a.source };
+  });
   const theatre = {
     scenes: theatreSource.scenes,
-    audio: experience.manifest.audio.filter((a) => a.loop),
+    audio: ambience,
     films: experience.manifest.films.filter((a) => theatreSource.films.includes(a.id)),
   };
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
@@ -326,13 +334,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     castleBytes: quiet.castleBytes,
     experienceBytes: experience.bytes,
     enhancementBytes: delivery.bytes,
+    ambienceBytes: ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     experienceOfflineBytes: experience.manifest.bytes,
     coreOfflineBytes:
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
       quiet.castleBytes -
       experience.bytes -
-      delivery.bytes,
+      delivery.bytes -
+      ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
