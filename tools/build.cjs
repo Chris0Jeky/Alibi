@@ -169,6 +169,11 @@ function build() {
     workerURL = `./assets/validator.${hash(worker)}.js`,
     boot = read(path.join(SRC, 'boot.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
+  // The Observatory adapter is emitted verbatim as its own asset and loaded after the page's load event by
+  // src/observatory-loader.js. It is an online-only control: not in the initial bundle, not in the offline shell.
+  const observatory = read(path.join(ROOT, 'observatory/browser.js')),
+    observatoryURL = `./assets/observatory.${hash(observatory)}.js`;
+  write(path.join(DIST, observatoryURL), observatory);
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngineBundle);
   write(path.join(DIST, workerURL), worker);
@@ -199,7 +204,7 @@ function build() {
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
-    read(path.join(ROOT, 'observatory/browser.js')),
+    read(path.join(SRC, 'observatory-loader.js')),
   ].join('\n');
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
@@ -210,6 +215,7 @@ function build() {
         boot +
         worker +
         clubEngineBundle +
+        observatory +
         css +
         VERSION +
         template +
@@ -223,7 +229,7 @@ function build() {
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      `globalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
       require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -355,12 +361,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       quiet.castleBytes -
       experience.bytes -
       delivery.bytes -
-      ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
+      ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
+      Buffer.byteLength(observatory),
+    observatoryBytes: Buffer.byteLength(observatory),
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
     initialCodeAndContentGzipBytes: zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,
+    observatoryGzipBytes: zlib.gzipSync(observatory).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,
   };
   write(path.join(ROOT, 'build-info.json'), JSON.stringify(info, null, 2));
