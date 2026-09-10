@@ -744,7 +744,119 @@
       return { path: null, nodes: seen.size };
     },
   };
+  // Original reviewed region boards. Answers stay in the authoring source, not this engine.
+  const gardenLayouts = [
+    {
+      id: 'garden-1',
+      revision: 1,
+      title: 'Window boxes',
+      size: 6,
+      regions: [
+        1, 1, 0, 0, 0, 2, 1, 1, 1, 1, 1, 2, 3, 3, 3, 1, 1, 2, 3, 3, 3, 1, 1, 1, 4, 4, 4, 4, 1, 1, 4,
+        5, 4, 4, 4, 4,
+      ],
+    },
+    {
+      id: 'garden-2',
+      revision: 1,
+      title: 'The orchard gate',
+      size: 6,
+      regions: [
+        0, 0, 0, 0, 2, 2, 1, 0, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 1, 3, 3, 2, 2, 2, 1, 1, 4, 4, 2, 2, 1,
+        1, 4, 4, 5, 5,
+      ],
+    },
+    {
+      id: 'garden-3',
+      revision: 1,
+      title: 'The glass walk',
+      size: 6,
+      regions: [
+        1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 2, 4, 4, 4, 4, 2, 2, 4, 4, 4, 3, 3, 3, 4, 4, 5, 3, 5, 5, 4,
+        4, 5, 5, 5, 5,
+      ],
+    },
+    {
+      id: 'garden-4',
+      revision: 1,
+      title: 'After the rain',
+      size: 7,
+      regions: [
+        0, 0, 0, 1, 1, 1, 3, 0, 2, 0, 1, 1, 3, 3, 0, 2, 0, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 4, 4, 5, 5, 3, 3, 6, 6, 4, 5, 5, 3, 6, 6, 6, 4,
+      ],
+    },
+    {
+      id: 'garden-5',
+      revision: 1,
+      title: 'The walled garden',
+      size: 7,
+      regions: [
+        0, 0, 1, 1, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 4, 4, 4, 1, 2, 2, 2, 4, 4, 4, 4, 2, 2, 3, 4, 4, 4,
+        2, 2, 2, 2, 4, 4, 4, 5, 5, 5, 6, 4, 4, 5, 5, 5, 6, 6,
+      ],
+    },
+    {
+      id: 'garden-6',
+      revision: 1,
+      title: 'Lantern night',
+      size: 7,
+      regions: [
+        1, 0, 0, 0, 4, 2, 2, 1, 0, 5, 5, 4, 2, 2, 5, 5, 5, 3, 4, 4, 2, 5, 5, 5, 3, 4, 4, 4, 5, 5, 5,
+        5, 4, 4, 4, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 6, 6, 6, 4,
+      ],
+    },
+  ];
+  const regionGardens = {
+    layouts: gardenLayouts,
+    initial(level = 0) {
+      if (!integer(level, 0, gardenLayouts.length - 1)) throw Error('Unknown garden.');
+      return { level, marks: Array(gardenLayouts[level].size ** 2).fill(0), done: false };
+    },
+    conflicts(s) {
+      const p = gardenLayouts[s.level],
+        n = p.size;
+      const tokens = s.marks.flatMap((v, i) => (v === 1 ? [i] : [])),
+        bad = new Set();
+      for (let a = 0; a < tokens.length; a++)
+        for (let b = a + 1; b < tokens.length; b++) {
+          const i = tokens[a],
+            j = tokens[b],
+            x = i % n,
+            y = Math.floor(i / n),
+            xx = j % n,
+            yy = Math.floor(j / n);
+          if (
+            x === xx ||
+            y === yy ||
+            p.regions[i] === p.regions[j] ||
+            (Math.abs(x - xx) <= 1 && Math.abs(y - yy) <= 1)
+          ) {
+            bad.add(i);
+            bad.add(j);
+          }
+        }
+      return [...bad];
+    },
+    move(s, cell) {
+      if (s.done || !integer(cell, 0, s.marks.length - 1))
+        throw Error('Choose a square in an unfinished garden.');
+      const q = copy(s);
+      q.marks[cell] = (q.marks[cell] + 1) % 3;
+      q.done =
+        q.marks.filter((v) => v === 1).length === gardenLayouts[q.level].size &&
+        this.conflicts(q).length === 0;
+      return q;
+    },
+    replay(level, log) {
+      if (!Array.isArray(log) || log.length > 3000) throw Error('Invalid garden replay.');
+      let s = this.initial(level);
+      for (const cell of log) s = this.move(s, cell);
+      return s;
+    },
+  };
   const api = {
+    regionGardens,
     version: 1,
     hash,
     random,
