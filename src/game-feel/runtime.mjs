@@ -44,8 +44,11 @@ export class FrameLoop {
   }
   stats() {
     const values = [...this.samples].sort((a, b) => a - b);
-    return { samples: values.length, drawP95Ms: values[Math.floor((values.length - 1) * 0.95)] || 0,
-      scheduled: !!this.frame };
+    return {
+      samples: values.length,
+      drawP95Ms: values[Math.floor((values.length - 1) * 0.95)] || 0,
+      scheduled: !!this.frame,
+    };
   }
   dispose() {
     this.dead = true;
@@ -95,15 +98,26 @@ export function bindDrag(element, hooks) {
   listen(element, 'lostpointercapture', cancel);
   listen(globalThis, 'blur', cancel);
   listen(globalThis, 'resize', cancel);
-  listen(document, 'visibilitychange', () => { if (document.hidden) cancel(); });
-  return () => { cancel(); listeners.forEach((off) => off()); };
+  listen(document, 'visibilitychange', () => {
+    if (document.hidden) cancel();
+  });
+  return () => {
+    cancel();
+    listeners.forEach((off) => off());
+  };
 }
 
 /** Opt-in local sound; a native shell may inject impact(). Rejections cannot break a move. */
 export function createFeedback(native = null) {
-  let context = null, enabled = false, haptics = false, dead = false;
+  let context = null,
+    enabled = false,
+    haptics = false,
+    dead = false;
   return {
-    configure(options) { enabled = !!options.sound; haptics = !!options.haptics; },
+    configure(options) {
+      enabled = !!options.sound;
+      haptics = !!options.haptics;
+    },
     unlock() {
       if (dead || !enabled) return;
       try {
@@ -111,7 +125,9 @@ export function createFeedback(native = null) {
         if (!Audio) return;
         context ||= new Audio();
         if (context.state === 'suspended') context.resume().catch(() => {});
-      } catch { /* Sound remains optional. */ }
+      } catch {
+        /* Sound remains optional. */
+      }
     },
     play(kind = 'place', strength = 1) {
       if (dead) return;
@@ -119,22 +135,31 @@ export function createFeedback(native = null) {
         try {
           if (native?.impact) Promise.resolve(native.impact(kind)).catch(() => {});
           else globalThis.navigator?.vibrate?.(kind === 'clear' ? [10, 24, 10] : 6);
-        } catch { /* Missing hardware is an ordinary fallback. */ }
+        } catch {
+          /* Missing hardware is an ordinary fallback. */
+        }
       }
       if (!enabled || !context || context.state !== 'running') return;
       const now = context.currentTime;
       const frequencies = kind === 'clear' ? [392, 494, 587] : kind === 'reject' ? [130] : [294];
       frequencies.forEach((frequency, i) => {
-        const oscillator = context.createOscillator(), gain = context.createGain();
+        const oscillator = context.createOscillator(),
+          gain = context.createGain();
         oscillator.type = 'sine';
         oscillator.frequency.value = frequency * Math.min(1.5, 1 + (strength - 1) * 0.08);
         gain.gain.setValueAtTime(0, now + i * 0.035);
         gain.gain.linearRampToValueAtTime(0.035, now + i * 0.035 + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.035 + 0.16);
-        oscillator.connect(gain); gain.connect(context.destination);
-        oscillator.start(now + i * 0.035); oscillator.stop(now + i * 0.035 + 0.18);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now + i * 0.035);
+        oscillator.stop(now + i * 0.035 + 0.18);
       });
     },
-    dispose() { dead = true; context?.close().catch(() => {}); context = null; },
+    dispose() {
+      dead = true;
+      context?.close().catch(() => {});
+      context = null;
+    },
   };
 }
