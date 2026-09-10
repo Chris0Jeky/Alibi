@@ -21,7 +21,9 @@ def run():
             try:
                 first=context.pages[0]
                 first.goto(base+'#/quiet/castle/journal')
-                first.wait_for_function('() => globalThis.AlibiCastle?.diagnostics().mode==="local" && AlibiDiagnostics.getStatus().offlineReady && AlibiActivities.diagnostics().offline')
+                first.wait_for_function(
+                    '() => { const castle = globalThis.AlibiCastle?.diagnostics?.(); const diagnostics = globalThis.AlibiDiagnostics?.getStatus?.(); const activities = globalThis.AlibiActivities?.diagnostics?.(); return castle?.mode === "local" && diagnostics?.offlineReady === true && activities?.offline === true; }'
+                )
                 if not first.evaluate('!!navigator.serviceWorker.controller'):
                     first.reload()
                     first.locator('#notes').wait_for()
