@@ -34,8 +34,13 @@ possibilities but one connected solution. Native and independent solvers agree; 
 review found no blocker and all twelve Expert family boards render at 390/1440px. Mahjong's
 distinct matching-tile emblem passes 182 UI and 78 game checks, with both card sizes inspected.
 
-Measured initial JavaScript is 126,761 bytes gzipped, combined initial code/content 176,248 bytes,
-and the core offline shell 1,968,154 bytes. Recorded ambience adds 224,682 optional bytes after use.
+The witness action correction produces candidate `48a8bc3bc1ee`: formatting, build, 177 Node tests
+and supplementary suites pass. Statements, answer feedback and hints now describe retrieval,
+delivery or arranging the gathering; existing theft records retain their default wording.
+The generated app-script catalogue fingerprints were refreshed and their assertions pass.
+
+Measured initial JavaScript is 127,082 bytes gzipped, combined initial code/content 176,585 bytes,
+and the core offline shell 1,970,010 bytes. Recorded ambience adds 224,682 optional bytes after use.
 The current primary rollback reference is Worker version `41be47e1-31e2-47d9-a7fa-7b4a4141e947`;
 the fallback remains on saved version 12 until publication. No rollback was executed.
 
