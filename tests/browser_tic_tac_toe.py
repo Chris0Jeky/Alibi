@@ -108,6 +108,31 @@ with sync_playwright() as playwright:
     check(page.locator(".club-game-records").count() == 1, "Club journal renders completed Games Room records")
     check("Two at the table" in page.locator(".club-game-records").inner_text(), "Club journal names the completed Tic-Tac-Toe mode")
     check("X wins" in page.locator(".club-game-records").inner_text(), "Club journal labels the Tic-Tac-Toe outcome")
+    imported = page.evaluate(
+        """() => {
+            const value = AlibiClub.diagnostics().state;
+            value.records = [...value.records, {
+                id: 'imported-date',
+                type: 'tictactoe',
+                label: 'Imported record',
+                score: 0,
+                date: '<b>spoof</b>',
+            }];
+            return value;
+        }"""
+    )
+    page.evaluate("value => AlibiClub.reviewBackup(value)", imported)
+    check(page.locator("dialog[open]").count() == 1, "Imported Club save requires explicit confirmation")
+    action("club-restore-confirm")
+    page.wait_for_timeout(180)
+    check(
+        page.locator(".club-game-records .record-table small b").count() == 0,
+        "Imported record dates cannot create markup",
+    )
+    check(
+        any("<b>spoof" in text for text in page.locator(".club-game-records .record-table small").all_text_contents()),
+        "Imported record date remains visible as text",
+    )
     route("/salon/tictactoe")
     action("club-undo", '[data-id="tictactoe"]')
     check("X wins" not in page.locator(".tic-status").inner_text(), "Undo reopens a finished local match")
