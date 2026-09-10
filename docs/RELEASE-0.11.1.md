@@ -16,7 +16,8 @@ counts with pulseboard-observatory.commit-atlas.workers.dev. No document text, f
 values or browsing history is sent. Raw events expire after 14 days. Your choice lasts 90 days on
 this browser." and the checkbox "Share basic usage for this site". When ticked it sends event
 names (page view, error occurrence, and the registered puzzle start/completion/hint names once
-engine hooks exist), a bounded page area, the app version and a temporary page-session id. It
+engine hooks exist), a bounded page-area label (always `home` until the in-app hooks are wired),
+a release label (always `unattributed` in this build) and a temporary page-session id. It
 never sends puzzle answers, saves, notes, imported packs, workshop text or browsing history. It
 does not mount in standalone exports (`ALIBI_CONFIG.standalone`), under Do Not Track or Global
 Privacy Control, in automated browsers, or off the public origin. The in-app privacy page,
