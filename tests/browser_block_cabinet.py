@@ -45,6 +45,13 @@ with sync_playwright() as playwright:
             page.wait_for_timeout(180)
 
         route("/salon/blockcabinet")
+        # Switch to the retained simple controls through the real user-facing menu.
+        # The separate browser_block_motion suite exercises the enhanced surface.
+        page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+        menu = page.locator('.bc-host [data-command="menu"]')
+        if menu.is_visible():
+            menu.click()
+        page.locator('.bc-host [data-command="simple"]').click()
         check(
             page.locator(".block-cell").count() == 64,
             f"Block Cabinet renders an 8 by 8 board at {width}px",
