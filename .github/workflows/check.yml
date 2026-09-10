@@ -136,4 +136,8 @@ jobs:
             test-results/theatre/
             test-results/curation-check/
             test-results/challenges-replay.json
+            test-results/large-nonogram/
+            test-results/expert-browser/
+            test-results/tic-tac-toe/
+            test-results/player-qa/
           retention-days: 14

@@ -1,5 +1,20 @@
 [
   {
+    "version": "0.11.0",
+    "date": "2026-09-10",
+    "title": "A clearer table, more ways to play",
+    "tag": "v0.11.0",
+    "receipt": "docs/RELEASE-0.11.0.md",
+    "changes": [
+      "Keep earned puzzle completion after undo or restart, with consistent solved and in-progress lists.",
+      "Cycle scene placements, candidate initials, exclusions and general crosses without losing other notes. Hold a square or name for more actions.",
+      "Try 15×15 Nonograms with reversible completed-line crosses, plus new provisional Expert puzzles in every family.",
+      "Find games by their own board illustrations, keep room settings out of the way, and choose optional recorded rain or waves.",
+      "Follow eight original chapters in The unfinished invitation, with story pages between puzzles and a final epilogue.",
+      "Visit five new Games Room tables: Tic-Tac-Toe, Block Cabinet, Draw Dominoes, Lantern Gardens and Mahjong Solitaire."
+    ]
+  },
+  {
     "version": "0.10.1",
     "date": "2026-09-09",
     "title": "Smooth keyboard browsing",

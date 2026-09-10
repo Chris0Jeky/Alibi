@@ -1,6 +1,28 @@
 # Live development state
 
-Updated 2026-09-09. Git, CI and review threads take precedence over prose.
+Updated 2026-09-10. Git, CI and review threads take precedence over prose.
+
+## 0.11.0 integrated release candidate
+
+All requested September feature slices are implemented. The current source has 355 cabinet
+puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
+plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
+interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
+PRs #84, #85, #87, #88 and #91 are merged. The remaining reviewed stack is #92 → #94 → #95 →
+#97 → #98 → #99, followed by release preparation. Publication to both existing origins remains
+pending until required CI and ordered merges complete.
+
+Integrated `npm run verify` passes with 174 Node tests and supplementary suites. Browser
+verification is in progress against a settled 0.11.0 build. Fixed catalogue-count assertions now
+derive Sudoku, mystery-group and Binary totals from source registries as new content is added.
+These failures were stale test expectations, not lost puzzles or runtime regressions. Cloudflare
+dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
+narrative and difficulty acceptance remain open in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Non-blocking review follow-ups remain in #86, #89, #90, #93, #96 and #100, including large-Nonogram
+hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
+those limitations explicit. The dated slice notes below are historical candidate checkpoints;
+their smaller counts and publication status describe their own stage, not the current total.
 
 ## September feedback candidate, 2026-09-10
 

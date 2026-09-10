@@ -44,3 +44,10 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   Try larger text, TalkBack and offline reopening. Record where the story, uncertainty or next
   step becomes unclear, and whether the visit feels rewarding. Browser simulations do not close
   this item; track [issue #56](https://github.com/Chris0Jeky/Alibi/issues/56).
+
+- [ ] q-8 — Play the September additions on the affected phone: repeated scene tap cycles and
+  hold menus, 15×15 Nonogram panning/auto-cross, the eight-chapter invitation, and all five new
+  Games Room tables. Sample the fifteen provisional Expert puzzles across all thirteen families;
+  report any easy, guess-heavy or confusing entry before treating Expert as calibrated. The
+  region game uses one lantern per row/column/region with no touching, and Dominoes uses the
+  double-six draw variant. Confirm whether these interpretations match the player's intention.
