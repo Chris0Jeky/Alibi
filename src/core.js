@@ -623,6 +623,8 @@
       fail('Invalid title, subtitle or difficulty.');
     if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
       fail('Invalid difficulty status.');
+    if (p.difficultyEvidence !== undefined && !text(p.difficultyEvidence, 240))
+      fail('Invalid difficulty evidence.');
     if (!int(p.size, 4, p.type === 'scene' ? 5 : p.type === 'nonogram' ? 15 : 9))
       fail('Unsupported grid size.');
     const n = p.size,

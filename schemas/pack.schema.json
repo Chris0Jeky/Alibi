@@ -126,6 +126,11 @@
           "minLength": 1,
           "maxLength": 40
         },
+        "difficultyEvidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
         "size": {
           "type": "integer",
           "minimum": 3,

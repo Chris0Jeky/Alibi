@@ -166,6 +166,8 @@
       throw new Error('Invalid bridges header.');
     if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
       throw new Error('Invalid bridges difficulty status.');
+    if (p.difficultyEvidence !== undefined && !text(p.difficultyEvidence, 240))
+      throw new Error('Invalid bridges difficulty evidence.');
     if (
       !Array.isArray(p.islands) ||
       p.islands.length < 4 ||
