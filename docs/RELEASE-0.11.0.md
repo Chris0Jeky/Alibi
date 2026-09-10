@@ -38,6 +38,11 @@ The witness action correction produces candidate `48a8bc3bc1ee`: formatting, bui
 and supplementary suites pass. Statements, answer feedback and hints now describe retrieval,
 delivery or arranging the gathering; existing theft records retain their default wording.
 The generated app-script catalogue fingerprints were refreshed and their assertions pass.
+All feature PRs are now merged. The final main-based release gate remains pending. The integrated
+candidate passed full CI, 62 casebook browser assertions and visual inspection of the three
+witness boards at 390/1440px. A separate actual-control proof completes all twelve new Expert
+records at both widths, including wrong-witness rejection and Bridges undo (26 checks, no failures).
+The proof harness and receipt are retained under `test-results/expert-control-proof/`.
 
 Measured initial JavaScript is 127,082 bytes gzipped, combined initial code/content 176,585 bytes,
 and the core offline shell 1,970,010 bytes. Recorded ambience adds 224,682 optional bytes after use.

@@ -37,6 +37,10 @@ claim that every request is already delivered. Preserve published definitions an
 
 ## Verification and release
 
+All feature slices are merged; final release PR #101 and publication remain pending. Casebook
+action wording is corrected and the twelve new Expert definitions have direct control-completion
+evidence at phone and desktop widths. The current candidate is 0.11.0, build `48a8bc3bc1ee`.
+
 One writer per checkout, incremental commits, relevant Node and actual-control browser checks,
 phone/desktop visual inspection, real-origin checks for saved-state behavior. Independent review
 and CI precede merge. Hosted release and physical-device results must be recorded separately.

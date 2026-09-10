@@ -8,16 +8,21 @@ All requested September feature slices are implemented. The current source has 3
 puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
 plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
 interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
-PRs #84, #85, #87, #88, #91, #92 and #94 are merged. The remaining reviewed stack is #95 →
-#97 → #98 → #99 → #101. Publication to both existing origins remains
-pending until required CI and ordered merges complete.
+PRs #84, #85, #87, #88, #91, #92, #94, #95, #97, #98 and #99 are merged with green checks.
+The final release is PR #101. Publication to both existing origins remains pending its final
+main-based CI and merge. Merging the completed stack into the release changed no source files.
 
 Late PR #95 review identified theft wording in three non-theft witness chapters. The correction
 uses each record's authored action in statements, conclusions, validation and hints, retaining
 legacy defaults. Positive, negative and either/or statements have focused regressions. Candidate
 `48a8bc3bc1ee` passes formatting, build, all 177 Node tests and supplementary suites after refreshing
 the generated catalogue's app-script fingerprints. The earlier catalogue failure was a stale
-size/hash record, not a disabled assertion. PR #95's corrected head is awaiting CI.
+size/hash record, not a disabled assertion. The corrected casebook passes 62 actual-control
+browser assertions at 390/1440px; all three witness statement layouts were visually inspected
+with no horizontal overflow. The integrated release also passed full hosted CI before its final
+main merge. A further one-off control proof completes all twelve new Expert records at both
+widths, rejects a wrong witness answer and verifies Bridges undo: 26 checks, zero failures.
+Difficulty labels remain provisional; this proof establishes playable controls, not calibration.
 
 Integrated `npm run verify` passes with 176 Node tests and supplementary suites. The 32-suite
 local browser matrix passes. Review then found a Mahjong completion score omitted from persisted
