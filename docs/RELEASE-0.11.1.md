@@ -29,10 +29,11 @@ Privacy Control, in automated browsers, or off the public origin. The in-app pri
 ## Budgets and offline shell
 
 The adapter is an online-only asset: it is not in the initial bundle and not precached by the
-service worker, so the declared 125 KiB initial-JavaScript budget and 1.3 MiB offline-shell budget
-remain unchanged. The measured artifacts grew slightly from 0.11.0 (initial JavaScript 127,082 to
-127,227 bytes gzipped; core offline shell 1,970,010 to 1,970,977 bytes). `build-info.json` reports
-the adapter separately: 10,834 bytes, 4,013 gzipped. Offline,
+service worker, so the declared 125 KiB initial-JavaScript budget and 1.3 MiB code-and-shell budget
+excluding official content remain unchanged; the total core offline release cap is 2.3 MiB. The
+measured artifacts grew slightly from 0.11.0 (initial JavaScript 127,082 to 127,227 bytes gzipped;
+total core offline release 1,970,010 to 1,970,977 bytes). `build-info.json` reports the adapter
+separately: 10,834 bytes, 4,013 gzipped. Offline,
 the control does not appear, which is correct because nothing could be sent. The document policy
 gains the collector origin in `connect-src` only.
 
