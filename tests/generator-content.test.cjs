@@ -91,6 +91,7 @@ test('content generation preserves published order, headers and casebook framing
       ...structuredClone(editedBooks[1]),
       id: 'later-anthology',
       title: 'Later records',
+      format: 'anthology',
     });
     fs.writeFileSync(path.join(fixture, 'content/casebooks.json'), JSON.stringify(editedBooks));
 
@@ -140,7 +141,9 @@ test('content generation preserves published order, headers and casebook framing
     assert.equal(afterBooks[0].chapters.length, 6, 'Bellweather chronology remains six chapters');
     assert.ok(
       afterBooks
-        .filter((book) => book.id !== 'last-light-at-bellweather')
+        .filter(
+          (book) => !['last-light-at-bellweather', 'the-unfinished-invitation'].includes(book.id),
+        )
         .every((book) => book.format === 'anthology'),
       'the earlier and added anthologies retain their format',
     );

@@ -1146,7 +1146,7 @@
       p.type === 'scene'
         ? p.people.filter((x) => x.id !== p.victim).map((x) => ({ id: x.id, name: x.name }))
         : p.people.map((name, id) => ({ name, id }));
-    return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect the answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
+    return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect the answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' || p.questionContext ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
   }
   function playPage() {
     return AlibiClub.assistBar() + playPageInner();
@@ -1419,7 +1419,7 @@
         const id = C.murderer(p, current.state),
           who = p.people.find((x) => x.id === id),
           room = p.roomNames[p.rooms[current.state.placements[p.victim]]];
-        explanation = `${who.name} was the only suspect in the ${room} with the victim. Every person and clue fits the reconstructed scene.`;
+        explanation = `${who.name} was the only other person in the ${room} with ${p.people.find((x) => x.id === p.victim).name}. Every person and clue fits the reconstructed scene. The floor plan establishes who shared a room; the case narrative explains what that means.`;
       } else if (p.type === 'dossier') {
         const a = X.dossierAssignments(p, current.state),
           who = p.people[a.slice(p.size).indexOf(p.targetItem)];
@@ -1429,7 +1429,7 @@
           trues = p.statements
             .map((cl, i) => (X.truth(cl, current.state.accused) ? i + 1 : null))
             .filter((v) => v !== null);
-        explanation = `${who} is the only culprit who makes exactly ${p.trueCount} statements true. The true account${trues.length === 1 ? ' is' : 's are'} ${trues.join(', ')}.`;
+        explanation = `${who} is the only candidate who makes exactly ${p.trueCount} statements true. The true account${trues.length === 1 ? ' is' : 's are'} ${trues.join(', ')}.`;
       }
       dialog(
         mystery ? 'Case closed.' : 'That satisfying “aha”.',
