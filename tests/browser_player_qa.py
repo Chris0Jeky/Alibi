@@ -36,7 +36,7 @@ def assert_status_layout(card, expected_status):
 
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
-    for width in [360, 390, 1440]:
+    for width in [340, 360, 390, 1440]:
         context = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion='reduce')
         page = context.new_page()
         errors = []

@@ -859,3 +859,9 @@ html[data-theme='night'] .book-number {
     bottom: 4px;
   }
 }
+
+@media (max-width: 359px) {
+  .puzzle-grid {
+    grid-template-columns: 1fr;
+  }
+}
