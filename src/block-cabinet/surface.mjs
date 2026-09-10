@@ -541,9 +541,15 @@ export function mountSurface(root, adapter, options = {}) {
   }
   root.addEventListener('click', click);
   root.addEventListener('keydown', key);
+  let boardWidth = board.getBoundingClientRect().width;
   const resize = new ResizeObserver(() => {
-    pointer = null;
-    origin = -1;
+    const width = board.getBoundingClientRect().width;
+    // Status wrapping is not a cancelled gesture.
+    if (Math.abs(width - boardWidth) > 0.5) {
+      pointer = null;
+      origin = -1;
+    }
+    boardWidth = width;
     loop.invalidate();
   });
   resize.observe(stage);
