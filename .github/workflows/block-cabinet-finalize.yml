@@ -1,0 +1,163 @@
+name: Finalize Block Cabinet candidate
+on:
+  push:
+    branches: [codex/block-cabinet-delivery]
+    paths: [.github/workflows/block-cabinet-finalize.yml]
+permissions:
+  contents: write
+concurrency:
+  group: block-cabinet-finalize
+  cancel-in-progress: false
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: codex/block-cabinet-engine
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - name: Patch only the shared touch cancellation regression on both feature branches
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for branch in codex/block-cabinet-engine codex/block-cabinet-integration; do
+            git fetch origin "$branch"
+            git checkout -B "$branch" "origin/$branch"
+            python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/block-cabinet/surface.mjs');s=p.read_text()
+          old='  const resize = new ResizeObserver(() => {\n    pointer = null;\n    origin = -1;\n    loop.invalidate();\n  });'
+          new='  let boardWidth = board.getBoundingClientRect().width;\n  const resize = new ResizeObserver(() => {\n    const width = board.getBoundingClientRect().width;\n    // Status wrapping is not a cancelled gesture.\n    if (Math.abs(width - boardWidth) > 0.5) {\n      pointer = null;\n      origin = -1;\n    }\n    boardWidth = width;\n    loop.invalidate();\n  });'
+          if old in s:p.write_text(s.replace(old,new,1))
+          else:assert 'let boardWidth =' in s
+          PY
+            npx prettier --write src/block-cabinet/surface.mjs
+            git add src/block-cabinet/surface.mjs
+            if ! git diff --cached --quiet; then
+              git commit -m 'fix(game-feel): preserve captured touch when status text reflows'
+              git push origin "HEAD:refs/heads/$branch"
+            fi
+          done
+      - name: Compact the integrated phone game and add the real-touch regression
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/block-cabinet/integration.mjs');s=p.read_text()
+          if "document.body.classList.toggle('block-motion-active'" not in s:
+            s=s.replace('    simple = true;','    simple = true;\n    document.body.classList.remove(\'block-motion-active\');',1)
+            s=s.replace("    const target = document.querySelector('.block-panel');\n    if (!target)","    const target = document.querySelector('.block-panel');\n    document.body.classList.toggle('block-motion-active', !!target && !simple);\n    if (!target)",1)
+            marker='      else surface.refresh();'
+            assert marker in s
+            s=s.replace(marker,marker+'''\n      const kicker = host.querySelector('.bc-header .bc-kicker');
+                if (kicker && kicker.tagName !== 'A') {
+                  const back = document.createElement('a');
+                  back.className = 'bc-kicker bc-return';
+                  back.href = '#/salon';
+                  back.textContent = '← Games room';
+                  kicker.replaceWith(back);
+                }''',1)
+            s=s.replace('    dispose() {\n      observer.disconnect();',"    dispose() {\n      document.body.classList.remove('block-motion-active');\n      observer.disconnect();",1)
+            p.write_text(s)
+          p=Path('src/block-cabinet/style.css');s=p.read_text()
+          if 'body.block-motion-active' not in s:
+            p.write_text(s+'''
+          /* Integrated game focus: keep a real return link, not the surrounding web page chrome. */
+          .bc-return { text-decoration: none; display: inline-block; padding: 6px 0; }
+          .bc-return:focus-visible { outline: 3px solid #ffe0a0; outline-offset: 3px; }
+          body.block-motion-active .club-gameheading { display: none; }
+          @media (max-width: 760px) {
+            body.block-motion-active .topbar,
+            body.block-motion-active .theatre-rail,
+            body.block-motion-active .mobile-nav,
+            body.block-motion-active #main > .footer { display: none; }
+            body.block-motion-active .main-wrap,
+            body.block-motion-active #main { padding: 0; margin: 0; }
+            body.block-motion-active .bc-studio {
+              min-height: 100dvh; border-radius: 0; border: 0;
+              padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+            }
+            body.block-motion-active .bc-header { margin-bottom: 12px; }
+            body.block-motion-active .bc-header h2 { margin-top: 3px; }
+            body.block-motion-active .bc-scoreboard { padding-bottom: 10px; }
+            body.block-motion-active .bc-studio .bc-piece { height: 104px; }
+          }
+          ''')
+          p=Path('tests/browser_block_motion.py');s=p.read_text()
+          if 'from block_touch_cases import assert_touch_drag' not in s:
+            s=s.replace('from playwright.sync_api import sync_playwright','from playwright.sync_api import sync_playwright\nfrom block_touch_cases import assert_touch_drag',1)
+            marker="        tray = page.locator('.bc-host [data-piece=\"0\"]').bounding_box()"
+            assert marker in s
+            s=s.replace(marker,'        assert_touch_drag(page, context, check, width)\n'+marker,1)
+            p.write_text(s)
+          PY
+          npx prettier --write src/block-cabinet/integration.mjs src/block-cabinet/style.css tests/block-motion-delivery.test.cjs
+          git add src/block-cabinet/integration.mjs src/block-cabinet/style.css tests/block-motion-delivery.test.cjs tests/browser_block_motion.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(block-cabinet): compact phone playfield and prove lifted touch placement'
+            git push origin HEAD:refs/heads/codex/block-cabinet-integration
+          fi
+      - name: Install actual test dependencies
+        run: |
+          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -qq --yes --no-install-recommends ffmpeg
+          python -m pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+      - name: Verify and exercise the actual integrated application
+        run: |
+          mkdir -p test-results/block-motion
+          npm run verify > test-results/block-motion/verify.log 2>&1 || { tail -90 test-results/block-motion/verify.log; exit 1; }
+          npm start > test-results/block-motion/server.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_motion.py | tee test-results/block-motion/controls.log
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_cabinet.py | tee test-results/block-motion/legacy.log
+          python tests/browser_origin.py | tee test-results/block-motion/origin.log
+          python tests/browser_update.py | tee test-results/block-motion/update.log
+      - name: Record measured candidate evidence without claiming a deployment
+        run: |
+          python3 - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          info=json.loads(Path('build-info.json').read_text());qa=json.loads(Path('test-results/block-motion/acceptance.json').read_text());sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          text=f'''# Block Cabinet integration receipt
+
+          Candidate verified in GitHub Actions; not deployed. Physical Android not tested.
+
+          Source commit: `{sha}`. Build: `{info['build']}`. App version unchanged: `{info['version']}`.
+
+          - Full `npm run verify` passed: formatting, build, all Node tests and supplementary suites.
+          - Enhanced actual-control matrix: **{qa['checks']} checks** passed at 390 and 1280 CSS pixels, including successful lifted touch drops, touch cancellation, legacy rules/save preservation, undo/redo, keyboard focus, Cascade isolation, stale-tab rejection, offline reload and route disposal.
+          - Retained legacy Block Cabinet browser suite passed at 390 and 1440 pixels.
+          - Existing real-origin storage/offline suite and in-progress release-update suite passed.
+          - Optional game JS/CSS/art: **{info['blockMotionBytes']} bytes**, outside initial precache. Initial loader: **{info['blockMotionLoaderGzipBytes']} bytes gzip**. Main JS: **{info['javascriptGzipBytes']} bytes gzip**. Existing main and offline budget caps remain unchanged; new pack has a separate 64 KiB cap.
+
+          Art provenance and checksum are committed under `assets-source/block-cabinet/`. The live tiles, previews, particles and locally synthesized sounds are code, not baked UI screenshots.
+
+          The native-feedback adapter is an extension point, not an implemented native Android host. No APK, Play submission, physical latency or battery result is claimed. Cascade remains an experimental rule set with a separate export and no blanket solvability promise. Follow-ups: #118, #119, #120.
+
+          The temporary `codex/block-cabinet-delivery` branch runs scoped preparation only and is not part of either product PR. Merge/review #115 then #117; recheck current main and CI before merging. See engine architecture and acceptance documentation.
+          '''
+          Path('docs/BLOCK-CABINET-INTEGRATION-RECEIPT.md').write_text('\n'.join(line[10:] if line.startswith('          ') else line for line in text.splitlines())+'\n')
+          PY
+          git add docs/BLOCK-CABINET-INTEGRATION-RECEIPT.md
+          git commit -m 'docs(block-cabinet): record integrated browser, offline and replay evidence'
+          git push origin HEAD:refs/heads/codex/block-cabinet-integration
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: block-cabinet-final-evidence
+          path: |
+            build-info.json
+            test-results/block-motion/
+            test-results/browser-origin/
+            test-results/browser-update/
+            docs/BLOCK-CABINET-INTEGRATION-RECEIPT.md
+          retention-days: 14
