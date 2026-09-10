@@ -65,6 +65,20 @@ function setup(local = true, newer = false) {
     assertions++;
     ok((await s.get('runs', r.key)).rev === 1, 'stale write did not replace save');
     await s.put('meta', 'preferences', { seen: ['scene'], favorites: ['scene-01'] });
+    await s.put('packs', 'example-pack', { revision: 1 });
+    if (local) {
+      ok(items.has('alibi.v1.runs.scene-01@1'), 'run fallback keeps its prefixed key');
+      ok(items.has('alibi.v1.meta.preferences'), 'meta fallback keeps its prefixed key');
+      ok(items.has('alibi.v1.packs.example-pack'), 'pack fallback keeps its prefixed key');
+      ok(!items.has('alibi.v1.probe'), 'fallback probe is not retained as save data');
+      ok(
+        [...items.keys()].sort().join('|') ===
+          ['alibi.v1.meta.preferences', 'alibi.v1.packs.example-pack', 'alibi.v1.runs.scene-01@1']
+            .sort()
+            .join('|'),
+        'cabinet fallback key set matches the documented inventory',
+      );
+    }
     const backup = await s.export();
     ok(backup.format === 'alibi-backup' && backup.schemaVersion === 1, 'stable backup envelope');
     ok(backup.preferences.seen[0] === 'scene', 'preferences exported');
@@ -98,7 +112,7 @@ function setup(local = true, newer = false) {
         passed: true,
         assertions,
         scope:
-          'Node VM: session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
       },
       null,
       2,
