@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'september-feedback'
 OUT.mkdir(parents=True, exist_ok=True)
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8792')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8792').rstrip('/')
 puzzle = next(p for p in json.loads((ROOT / 'content/catalog.json').read_text())['puzzles'] if p['type'] == 'scene')
 free = [i for i in range(puzzle['size'] ** 2) if i not in [o['cell'] for o in puzzle['objects']]]
 with sync_playwright() as pw:
