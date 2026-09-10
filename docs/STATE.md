@@ -7,8 +7,9 @@ Updated 2026-09-10. Git, CI and review threads take precedence over prose.
 Published 2026-09-10 from `46a3eb1` (PR #83): the Observatory usage-sharing pilot, an opt-in control at
 the end of the page that sends content-free action counts to the maintainer's collector, plus the Block
 Cabinet origin-label accessibility fix from PR #105 that landed on `main` just before the deploy; nothing
-else changes. Loaded after the page as an online-only asset, so the initial-JavaScript and offline-shell
-budgets are untouched. [RELEASE-0.11.1.md](RELEASE-0.11.1.md) records the hosted checks, the first
+else changes. Loaded after the page as an online-only asset, so the declared initial-JavaScript and
+offline-shell budget caps remain unchanged even though the measured artifacts grew slightly.
+[RELEASE-0.11.1.md](RELEASE-0.11.1.md) records the hosted checks, the first
 consented payload and the withdrawal check on the Cloudflare primary; the Sites fallback stays on
 0.11.0. Follow-ups (route and release hooks, control coverage in the browser suites, the SUMMARY
 keydown exemption, the fallback wording of the privacy page) are in
