@@ -484,17 +484,15 @@
       inProgress = activeRun(r),
       fav = prefs.favorites.includes(p.id),
       openID = route.page === 'library' ? ` id="library-card-${esc(keyFor(p))}"` : '';
-    const highlight =
-      globalThis.ALIBI_MEDIA?.[globalThis.AlibiAssets.highlights[p.id]] ||
-      globalThis.AlibiCuration.cover?.(p);
-    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button${openID} class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art">${
-      highlight
-        ? `<img class="puzzle-highlight" src="${esc(highlight)}" width="320" height="240" alt="" loading="lazy" decoding="async">`
-        : AlibiClub.portrait(
-            p.type,
-            [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
-          )
-    }${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div></div></button></article>`;
+    const collection = globalThis.AlibiCuration.collections.find(
+      (c) => c.id === globalThis.AlibiCuration.get(p)?.venue,
+    );
+    const collectionCover = globalThis.AlibiCuration.cover?.(p);
+    return `<article class="puzzle-card"><button class="fav ${fav ? 'active' : ''}" data-action="favorite" data-id="${esc(p.id)}" aria-label="${fav ? 'Remove' : 'Add'} ${esc(p.title)} ${fav ? 'from' : 'to'} favorites" aria-pressed="${fav}">${icon('heart')}</button><button${openID} class="card-open" data-action="open" ${openAttrs(p)}><div class="card-art" data-family="${esc(p.type)}">${AlibiUI.art(
+      p.type,
+      p,
+      [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
+    )}<span class="card-family-symbol">${icon(M[p.type].icon)}</span>${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div>${collection ? `<span class="collection-stamp">${collectionCover ? `<img src="${esc(collectionCover)}" width="28" height="28" alt="" loading="lazy">` : ''}<span>${esc(collection.title)}</span></span>` : ''}</div></button></article>`;
   }
   function bookCard(b, i) {
     const count = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
@@ -1044,7 +1042,7 @@
         )
         .join(
           '',
-        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Choose a person, then repeat taps: place → letter note → excluded letter → X → place. The selected person stays selected.' : sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Candidates for placed people are hidden and return when removed. Hold a square to clear marks or a name for tools; Square actions and Person actions offer the same menus.</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Repeat taps: person → note → exclusion → X → person. Selection stays fixed.' : sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} Notes return when placements are removed. Hold a square to clear marks or a name for tools, or use the action buttons.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {

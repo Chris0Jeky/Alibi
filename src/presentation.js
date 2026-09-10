@@ -348,8 +348,6 @@
     amber: ['#f2e8d0', '#e4d4af', '#80693c', '#d99756'],
   };
   function art(type, p = null, variant = 0) {
-    if (type === 'bridges' && root.ALIBI_MEDIA?.cartographer)
-      return `<img class="puzzle-illustration" src="${root.ALIBI_MEDIA.cartographer}" width="1536" height="1024" alt="" loading="lazy" decoding="async">`;
     const d = data[type] || data.scene,
       col = palettes[d.color],
       fg = col[2];
@@ -358,7 +356,42 @@
         `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`,
       txt = (x, y, t, c = fg, size = 14) =>
         `<text x="${x}" y="${y}" font-size="${size}" font-family="system-ui,sans-serif" font-weight="500" text-anchor="middle" fill="${c}">${t}</text>`;
-    if (type === 'scene') {
+    if (type === 'sudoku') {
+      parts += '<g transform="translate(88,18)">';
+      for (let r = 0; r < 9; r++)
+        for (let c = 0; c < 9; c++) {
+          parts += `<rect x="${c * 16}" y="${r * 16}" width="16" height="16" fill="#fffaf0" stroke="${col[1]}" stroke-width=".5"/>`;
+          if ((r * 7 + c * 3 + variant) % 5 < 2)
+            parts += txt(
+              c * 16 + 8,
+              r * 16 + 12,
+              ((r * 3 + Math.floor(r / 3) + c) % 9) + 1,
+              fg,
+              11,
+            );
+        }
+      for (let i = 0; i <= 9; i += 3)
+        parts += line(i * 16, 0, i * 16, 144, fg, 2) + line(0, i * 16, 144, i * 16, fg, 2);
+      parts += '</g>';
+    } else if (type === 'bridges') {
+      parts +=
+        line(90, 42, 230, 42, fg, 2) +
+        line(90, 47, 230, 47, fg, 2) +
+        line(90, 45, 90, 140, fg, 2) +
+        line(230, 45, 230, 140, fg, 2) +
+        line(90, 140, 160, 140, fg, 2);
+      for (const [x, y, value] of [
+        [90, 45, 3],
+        [230, 45, 3],
+        [90, 140, 2],
+        [160, 140, 1],
+        [230, 140, 1],
+      ]) {
+        parts +=
+          `<circle cx="${x}" cy="${y}" r="17" fill="#fffaf0" stroke="${fg}" stroke-width="2"/>` +
+          txt(x, y + 5, value, fg, 15);
+      }
+    } else if (type === 'scene') {
       parts += `<g transform="translate(87,18) rotate(-7 75 75)"><rect x="3" y="5" width="151" height="151" rx="7" fill="${fg}" opacity=".12"/><rect width="150" height="150" rx="5" fill="#faf9f1" stroke="${fg}" stroke-width="2"/>`;
       const colors = ['#e6dccb', '#d0ddce', '#e1d1c7', '#d0dce2'];
       for (let r = 0; r < 5; r++)
