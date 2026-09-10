@@ -4,8 +4,11 @@ Built from the 0.11.0 release plus the Observatory pilot (PR #83). This point re
 thing: an opt-in **Usage sharing** control at the bottom of the page, off by default, that sends
 content-free action counts to the maintainer's own collector at
 `https://pulseboard-observatory.commit-atlas.workers.dev` (Pulseboard Observatory; owner
-decision 2026-09-10, notice approved). Nothing else in the game changes. Published puzzle IDs,
-revisions and saves are untouched.
+decision 2026-09-10, notice approved). The deployed tree also carries one small accessibility
+correction merged into `main` just before publication: occupied Block Cabinet cells now expose
+when they are legal piece origins (PR #105, `a7133be`). Nothing else in the game changes; the
+in-app "What's new" entry for 0.11.1 names only the usage-sharing control and gains that line at
+the next content rebuild (#106). Published puzzle IDs, revisions and saves are untouched.
 
 ## What the control does and does not do
 
