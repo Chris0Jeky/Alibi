@@ -33,6 +33,11 @@ with sync_playwright() as pw:
             page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id',arg=p['id'])
             if page.locator('dialog[open]').count(): page.keyboard.press('Escape')
             if p['type']=='witness':
+                action=p.get('action','took the missing object')
+                rule=page.locator('.witness-rule').inner_text()
+                statements=page.locator('.statement-list').inner_text()
+                check(f'One person {action}.' in rule,f'{width}: {p["id"]} uses its authored witness action')
+                check(action in statements and 'took it' not in statements,f'{width}: {p["id"]} statements use its authored witness action')
                 answer=p['solution']
             elif p['type']=='dossier':
                 n=p['size']
@@ -54,6 +59,8 @@ with sync_playwright() as pw:
             if p['type']!='nonogram':
                 page.locator(f'[data-action="choose-accuse"][data-id="{answer}"]').click()
                 page.locator('[data-action="submit-accuse"]').click()
+                if p['type']=='witness':
+                    check(action in page.locator('dialog[open]').inner_text(),f'{width}: {p["id"]} completion explains its authored action')
             page.wait_for_function('()=>!!AlibiDiagnostics.getCurrent()?.completedAt')
             page.locator('dialog[open] [data-action="next"]').click()
             page.wait_for_selector('.story-page')
@@ -74,4 +81,3 @@ with sync_playwright() as pw:
         context.close()
     browser.close()
 print('PASS',count,'invitation browser assertions')
-

@@ -7,6 +7,7 @@ const test = require('node:test'),
 
 require('../src/core.js');
 const C = require('../src/engines.js'),
+  insights = require('../src/insights.js'),
   root = path.join(__dirname, '..'),
   pack = JSON.parse(fs.readFileSync(path.join(root, 'content/extra/case-invitation.json'))),
   books = JSON.parse(fs.readFileSync(path.join(root, 'content/casebooks.json'))),
@@ -224,6 +225,54 @@ test('all eight records pass native and independent uniqueness checks', () => {
       `${puzzle.id} solution matches independent oracle`,
     );
   }
+});
+
+test('witness action wording follows the record and keeps legacy defaults', () => {
+  const witnesses = pack.puzzles.filter((puzzle) => puzzle.type === 'witness'),
+    expected = new Map([
+      ['invitation-witness-plate', 'retrieved the copper plate'],
+      ['invitation-witness-envelope', 'carried the envelope'],
+      ['invitation-witness-organizer', 'arranged the gathering'],
+    ]);
+  assert.equal(witnesses.length, expected.size);
+  for (const puzzle of witnesses) {
+    const action = expected.get(puzzle.id);
+    assert.equal(puzzle.action, action, `${puzzle.id} declares its authored action`);
+    assert.equal(
+      C.extras.witnessText(puzzle, { kind: 'is', suspects: [puzzle.solution] }),
+      `${puzzle.people[puzzle.solution]} ${action}.`,
+    );
+    assert.equal(
+      C.extras.witnessText(puzzle, { kind: 'not', suspects: [puzzle.solution] }),
+      `${puzzle.people[puzzle.solution]} was not the person who ${action}.`,
+    );
+    assert.equal(
+      C.extras.witnessText(puzzle, { kind: 'oneof', suspects: [0, 1] }),
+      `Either ${puzzle.people[0]} or ${puzzle.people[1]} ${action}.`,
+    );
+    const wrong = C.registry.witness.initial(puzzle);
+    wrong.accused = (puzzle.solution + 1) % puzzle.size;
+    assert.match(
+      C.registry.witness.validate(puzzle, wrong)[0].message,
+      new RegExp(`person who ${action}`),
+    );
+    const solved = C.registry.witness.initial(puzzle);
+    solved.accused = puzzle.solution;
+    assert.match(insights.recap(puzzle, solved)[0], new RegExp(`person who ${action}`));
+  }
+  const legacy = { ...witnesses[0] };
+  delete legacy.action;
+  assert.equal(C.extras.witnessText(legacy, { kind: 'is', suspects: [0] }), 'Orrin took it.');
+  assert.equal(
+    C.extras.witnessText(legacy, { kind: 'not', suspects: [0] }),
+    'Orrin did not take it.',
+  );
+  const legacyState = C.registry.witness.initial(legacy);
+  legacyState.accused = (legacy.solution + 1) % legacy.size;
+  assert.match(C.registry.witness.validate(legacy, legacyState)[0].message, /as the culprit/);
+  const legacySolved = C.registry.witness.initial(legacy);
+  legacySolved.accused = legacy.solution;
+  assert.match(insights.recap(legacy, legacySolved)[0], /is the culprit/);
 });
 
 test('registry, chronology and opportunity boundary remain explicit', () => {
