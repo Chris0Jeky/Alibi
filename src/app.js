@@ -3174,7 +3174,11 @@
   });
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented) return;
-    if (!current || $('#dialog').open || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName))
+    if (
+      !current ||
+      $('#dialog').open ||
+      ['INPUT', 'TEXTAREA', 'SELECT', 'SUMMARY'].includes(e.target.tagName)
+    )
       return;
     const p = current.puzzle;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {

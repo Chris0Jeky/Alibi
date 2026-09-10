@@ -52,6 +52,21 @@ with sync_playwright() as pw:
         assert page.locator('.theatre-screenings').evaluate('(e)=>e.getBoundingClientRect().top') > 900
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'overflow'
         page.screenshot(path=str(OUT/f'home-{width}.png'), full_page=True)
+        page.goto(URL + '/#/play/lightup-01')
+        page.locator('dialog[open] [data-action="close-dialog"]').click()
+        page.wait_for_function("()=>AlibiDiagnostics.getCurrent()?.puzzle.id==='lightup-01'")
+        cell = page.locator('button[data-action="cell"]:not([disabled])').first
+        before_cell_state = page.evaluate('()=>AlibiDiagnostics.getCurrent().state')
+        cell.click()
+        before_summary_state = page.evaluate('()=>AlibiDiagnostics.getCurrent().state')
+        assert before_summary_state != before_cell_state, 'enabled puzzle control changed state'
+        game_summary = page.locator('.theatre-settings > summary')
+        game_summary.focus()
+        game_summary.press('ArrowRight')
+        expect(game_summary).to_be_focused()
+        game_summary.press('Delete')
+        expect(game_summary).to_be_focused()
+        assert page.evaluate('()=>AlibiDiagnostics.getCurrent().state') == before_summary_state
         page.goto(URL + '/#/salon/borough')
         expect(page.locator('[data-action="club-build"]')).to_be_disabled()
         page.locator('.borough-cell:not(.built)').first.click()
