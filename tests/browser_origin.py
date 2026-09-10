@@ -20,6 +20,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 from typing import Any, Callable
 from urllib.parse import urljoin
 
@@ -127,7 +128,7 @@ def boot(page: Page, require_indexeddb: bool = True) -> None:
     )
     check(page.title().startswith("Alibi"), "application boots on real origin")
     counts = page.evaluate("AlibiDiagnostics.getCounts()")
-    check(counts["puzzles"] == 328, "real-origin catalogue has 328 puzzles")
+    check(counts["puzzles"] == OFFICIAL_COUNT, "real-origin catalogue matches the official registry")
     check(counts["types"] == 13, "real-origin catalogue has thirteen engines")
     if require_indexeddb:
         check(

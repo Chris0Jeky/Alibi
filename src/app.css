@@ -1104,6 +1104,9 @@ input[type='checkbox'] {
 .difficulty i:nth-child(3) {
   height: 11px;
 }
+.difficulty i:nth-child(4) {
+  height: 14px;
+}
 .difficulty i.on {
   background: #7a9271;
 }
@@ -1417,6 +1420,35 @@ input[type='checkbox'] {
 .grid-shell.nono-shell {
   grid-template-columns: var(--clue-width, 52px) repeat(var(--n), minmax(0, 1fr));
   grid-template-rows: var(--clue-height, 65px) repeat(var(--n), 1fr);
+}
+.board-scroll.zoomed .nono-shell {
+  min-width: calc(var(--n) * 48px + var(--clue-width));
+}
+.board-scroll.zoomed .nono-clue:not(.col) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--paper);
+}
+.board-wrap:has(.large-grid) {
+  max-width: 100%;
+}
+.board-scroll.large-grid.zoomed {
+  max-height: 60vh;
+}
+.large-grid .nono-clue {
+  font-size: 12px;
+}
+.large-grid.zoomed .nono-clue.col,
+.large-grid.zoomed .nono-shell > div:first-child {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--paper);
+}
+.large-grid.zoomed .nono-shell > div:first-child {
+  left: 0;
+  z-index: 3;
 }
 .axis {
   display: flex;

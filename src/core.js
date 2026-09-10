@@ -3,6 +3,7 @@
 (function (root) {
   'use strict';
   const TYPES = ['scene', 'sudoku', 'nonogram', 'binary', 'futoshiki'];
+  const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert'];
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const range = (n) => Array.from({ length: n }, (_, i) => i);
@@ -618,13 +619,12 @@
     const int = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
     if (!ident(p.id) || !TYPES.includes(p.type) || !int(p.revision, 1, 999999))
       fail('Invalid id, type or revision.');
-    if (
-      !text(p.title, 90) ||
-      !text(p.subtitle, 120) ||
-      !['Gentle', 'Steady', 'Tricky'].includes(p.difficulty)
-    )
+    if (!text(p.title, 90) || !text(p.subtitle, 120) || !DIFFICULTIES.includes(p.difficulty))
       fail('Invalid title, subtitle or difficulty.');
-    if (!int(p.size, 4, p.type === 'scene' ? 5 : 9)) fail('Unsupported grid size.');
+    if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
+      fail('Invalid difficulty status.');
+    if (!int(p.size, 4, p.type === 'scene' ? 5 : p.type === 'nonogram' ? 15 : 9))
+      fail('Unsupported grid size.');
     const n = p.size,
       N = n * n;
     if (p.type === 'scene') {
@@ -1029,6 +1029,7 @@
   }
   root.AlibiCore = {
     TYPES,
+    DIFFICULTIES,
     registry,
     clone,
     equal,

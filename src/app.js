@@ -362,12 +362,15 @@
   });
   function difficulty(level, p) {
     p = p || current?.puzzle;
-    const at = ['Gentle', 'Steady', 'Tricky'].indexOf(level);
+    const at = C.DIFFICULTIES.indexOf(level);
     const curationDifficulty = globalThis.AlibiCuration?.difficulty,
-      label =
-        (typeof curationDifficulty === 'function' && curationDifficulty(p)) ||
-        (p?.id?.startsWith('curated-') ? `${level} · provisional` : level);
-    return `<span class="difficulty"><span class="bars" aria-hidden="true">${range(3)
+      curationLabel = typeof curationDifficulty === 'function' ? curationDifficulty(p) : '',
+      label = curationLabel
+        ? `${curationLabel}${p?.difficultyStatus && !curationLabel.includes('·') ? ` · ${p.difficultyStatus}` : ''}`
+        : `${level}${p?.difficultyStatus ? ` · ${p.difficultyStatus}` : p?.id?.startsWith('curated-') ? ' · provisional' : ''}`;
+    return `<span class="difficulty"><span class="bars" aria-hidden="true">${range(
+      C.DIFFICULTIES.length,
+    )
       .map((i) => `<i class="${i <= at ? 'on' : ''}"></i>`)
       .join('')}</span>${esc(label)}</span>`;
   }
@@ -581,7 +584,7 @@
         (library.status === 'favorites' && prefs.favorites.includes(p.id))
       );
     });
-    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${['Gentle', 'Steady', 'Tricky'].map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
+    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
       ['started', 'In progress'],
@@ -937,7 +940,11 @@
             : `<div class="axis">${r + 1}</div>`;
       for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
     }
-    return `<div class="board-scroll ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Scroll sideways to pan the board.</p>' : ''}${boardLegend(p, s)}`;
+    const pan =
+      n > 9 && zoomed
+        ? `<div class="toolrow" aria-label="Pan large board">${B('Left', 'board-pan', '', 'secondary small', 'data-value="-1" aria-label="Move view left"')}${B('Right', 'board-pan', '', 'secondary small', 'data-value="1" aria-label="Move view right"')}${B('Up', 'board-pan', '', 'secondary small', 'data-value="-1" data-axis="y" aria-label="Move view up"')}${B('Down', 'board-pan', '', 'secondary small', 'data-value="1" data-axis="y" aria-label="Move view down"')}</div>`
+        : '';
+    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s)}`;
   }
   function boardLegend(p, s) {
     if (p.type === 'scene')
@@ -2600,6 +2607,15 @@
         zoomed = !zoomed;
         render();
         break;
+      case 'board-pan': {
+        const scroller = document.querySelector('[data-scroll-key="board"]');
+        if (scroller) {
+          const vertical = el.dataset.axis === 'y';
+          scroller[vertical ? 'scrollTop' : 'scrollLeft'] +=
+            Number(v) * (vertical ? scroller.clientHeight : scroller.clientWidth) * 0.75;
+        }
+        break;
+      }
       case 'pause':
         paused = !paused;
         enqueueSave();
@@ -3305,7 +3321,7 @@
         feedback = '';
         evidenceTab = 'clues';
         dossierTab = 0;
-        zoomed = false;
+        zoomed = p.size > 9;
         accuseChoice = current.state.accused ?? null;
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';

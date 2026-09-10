@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -98,7 +99,7 @@ def main():
                     first_new_index = expected_cards
                     page.locator("#library-show-more").focus()
                     page.keyboard.press("Enter")
-                    expected_cards = min(expected_cards + 24, 328)
+                    expected_cards = min(expected_cards + 24, OFFICIAL_COUNT)
                     expect(page.locator(".puzzle-card")).to_have_count(expected_cards)
                     first_new = page.locator('.puzzle-card').nth(first_new_index).locator('[data-action="open"]')
                     expect(first_new).to_be_focused()
@@ -184,7 +185,7 @@ def main():
                 )
                 scope_all.focus()
                 curation_page.keyboard.press("Enter")
-                expect(curation_page.locator(".filter-meta")).to_contain_text("328 puzzles")
+                expect(curation_page.locator(".filter-meta")).to_contain_text(f"{OFFICIAL_COUNT} puzzles")
                 check(
                     active_id(curation_page) == "library-filter-status",
                     f"Removed collection escape focuses status at {width}px",

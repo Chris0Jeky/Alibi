@@ -1,6 +1,7 @@
 """Real-control discovery and historical changelog acceptance; simulated viewports."""
 import json, os
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright, expect
 ROOT=Path(__file__).resolve().parents[1]
 RELEASES=json.loads((ROOT/'content/releases.json').read_text(encoding='utf-8'))
@@ -29,7 +30,7 @@ with sync_playwright() as pw:
             expect(page.locator('.puzzle-card')).to_have_count(24)
             check(page.locator('.filter-meta').inner_text().startswith('52 puzzles'),f'Invitation opens 52 {venue} puzzles at {width}')
             page.get_by_role('button',name='Show all collections',exact=True).click()
-            expect(page.locator('.filter-meta')).to_contain_text('328 puzzles')
+            expect(page.locator('.filter-meta')).to_contain_text(f'{OFFICIAL_COUNT} puzzles')
             page.locator('.footer [data-page="changelog"]').click()
             expect(page.locator('.release-entry')).to_have_count(len(RELEASES))
             page.get_by_role('button',name='Back to your desk',exact=True).click()
