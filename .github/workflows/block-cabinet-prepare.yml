@@ -1,0 +1,55 @@
+name: Prepare Block Cabinet candidate
+on:
+  push:
+    branches: [codex/block-cabinet-delivery]
+    paths: [.github/workflows/block-cabinet-prepare.yml]
+permissions:
+  contents: write
+concurrency:
+  group: block-cabinet-candidate-preparation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: codex/block-cabinet-engine
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Format only the new engine files
+        run: npx prettier --write 'src/game-feel/*.mjs' 'src/block-cabinet/*.mjs' src/block-cabinet/style.css tests/block-motion.test.mjs prototypes/block-cabinet/index.html
+      - name: Record candidate boundaries
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('docs/STATE.md');s=p.read_text();heading='## Block Cabinet engine candidate (not deployed)'
+          if heading not in s:
+            p.write_text(s.replace('# Live development state\n','# Live development state\n\n'+heading+'\n\nThe isolated engine/prototype branch adds tactile controls, deterministic Cascade rules and a separate experiment replay store. See [engine architecture](BLOCK-CABINET-ENGINE.md). Production build integration is a separate stacked PR. Existing Block Cabinet rules and saves are unchanged. This candidate is not a native APK and has not passed physical Android acceptance.\n',1))
+          p=Path('HUMAN_TODO.md');s=p.read_text()
+          if 'Block Cabinet tactile candidate' not in s:
+            p.write_text(s+'\n## Block Cabinet tactile candidate\n\n- Test actual Android touch drag, cancellation by OS gestures, TalkBack, large text, audio comfort and lifecycle resume.\n- Calibrate Cascade seeds and relic/rotation rules before promotion out of the lab. Export Cascade separately from the existing combined backup.\n- No native APK, Play publication or phone performance result is claimed. See docs/BLOCK-CABINET-ENGINE.md.\n')
+          PY
+      - name: Commit only this candidate, without changing main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/game-feel src/block-cabinet tests/block-motion.test.mjs prototypes/block-cabinet docs/STATE.md HUMAN_TODO.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore(block-cabinet): format engine and record device acceptance gates'
+            git push origin HEAD:refs/heads/codex/block-cabinet-engine
+          fi
+      - name: Verify candidate against the existing project
+        run: npm run verify
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: block-cabinet-engine-evidence
+          path: |
+            build-info.json
+            tests/*-results.json
+          retention-days: 14
