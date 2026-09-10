@@ -15,17 +15,18 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
 
 ## Open the cabinet
 
-- **324 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **355 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
-  chapter revelations. Three earlier anthology casebooks remain available.
+  chapter revelations. The unfinished invitation adds eight more continuous chapters; three earlier anthologies remain available.
+- **Eight Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, Draw Dominoes, Lantern Gardens and Mahjong Solitaire.
 - **Learn by doing:** every family includes a miniature interactive lesson. Selected number and
   picture games and Bridges explain a deduction from your current board without consulting the stored answer.
 - **Review the evidence:** completed mysteries explain the final placements, pairings or truth
   assignments. Reopen the record from a solved board.
 - **Keep your place:** automatic device-local saves, undo/redo, notes, favorites and JSON backups.
 - **Make it yours:** paper/evening themes, larger clues, reduced motion, optional sound and timer.
-- **Play offline:** installable PWA with a complete cached release, including the artwork.
+- **Play offline:** a complete cached core with real artwork and controls; sharper museum images load when available and retain compact offline equivalents. Optional activities have separate downloads. See [asset delivery](docs/ASSET-DELIVERY.md).
 - **Build a mystery:** edit a scene, verify a unique solution, then export or install a local pack.
 
 ## Run locally
@@ -123,3 +124,14 @@ Run `npm run assets:gallery` to inspect the source-backed production library at
 `http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
 realm modules and companion states, sound previews and authored motion. Large production files
 stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).
+
+The [theatrical edition](docs/THEATRICAL-EDITION.md) adds eight atmospheric rooms, locally composed
+sound, credited optional photography and short films. The [delivery strategy](docs/ASSET-DELIVERY.md)
+keeps complete artwork, controls and play available offline after installation.
+
+## Player feedback update
+
+Version 0.8.1 adds family-first browsing, clearer rules and cell notes, scene candidate letters and
+board crosses, dedicated casebook story pages, and four larger 8×8 Sun & Moon boards.
+Two real players enjoyed the game; structured physical-device and difficulty checks remain open.
+See [the QA plan and evidence](docs/PLAYER-QA.md).

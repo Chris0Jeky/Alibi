@@ -107,7 +107,9 @@ function setup(failInstall = false) {
           .filter(
             (n) =>
               !n.startsWith('folio-') &&
-              !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
+              !n.startsWith('ambience-') &&
+              !n.startsWith('enhanced-') &&
+              !/^quiet-(castle|activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
                 n,
               ),
           ).length,
@@ -118,7 +120,9 @@ function setup(failInstall = false) {
     .filter(
       (n) =>
         !n.startsWith('folio-') &&
-        !/^quiet-(activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
+        !n.startsWith('ambience-') &&
+        !n.startsWith('enhanced-') &&
+        !/^quiet-(castle|activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
           n,
         ),
     )) {

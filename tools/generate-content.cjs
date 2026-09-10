@@ -18,7 +18,11 @@ const pick = (a) => a[Math.floor(rnd() * a.length)],
       .sort((a, b) => a[0] - b[0])
       .map((x) => x[1]),
   range = C.range;
-const pack = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/legacy.json'), 'utf8'));
+const pack = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/legacy.json'), 'utf8')),
+  publishedCatalog = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/catalog.json'), 'utf8')),
+  publishedBooks = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/casebooks.json'), 'utf8')),
+  publishedById = new Map(publishedCatalog.puzzles.map((p) => [p.id, p])),
+  publishedIds = new Set(publishedCatalog.puzzles.map((p) => p.id));
 pack.version = 2;
 pack.title = 'Alibi · The complete cabinet';
 pack.author = 'Alibi';
@@ -396,7 +400,16 @@ for (let k = 0; k < 8; k++) {
   accept(p);
 }
 // Editorial metadata is additive; preserve old puzzle definitions/revisions for save compatibility.
-for (const p of pack.puzzles) {
+// The checked-in catalogue is the ordered base. Published definitions remain authoritative when a
+// generator rule changes, while genuinely new seeded puzzles can still be added by this tool.
+const generatedPuzzles = pack.puzzles.slice(),
+  generatedIds = new Set(generatedPuzzles.map((p) => p.id));
+if (generatedIds.size !== generatedPuzzles.length) throw Error('Duplicate generated puzzle ID');
+if (publishedById.size !== publishedCatalog.puzzles.length)
+  throw Error('Duplicate published puzzle ID');
+const orderedPuzzles = publishedCatalog.puzzles.slice();
+for (const p of generatedPuzzles) {
+  if (publishedIds.has(p.id)) continue;
   p.collection = ['scene', 'dossier', 'witness'].includes(p.type)
     ? 'mystery'
     : ['lightup', 'tents', 'aquarium', 'network', 'nonogram', 'trail'].includes(p.type)
@@ -406,9 +419,86 @@ for (const p of pack.puzzles) {
     p.type === 'witness'
       ? [3, 5, 7][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)]
       : [5, 10, 15][['Gentle', 'Steady', 'Tricky'].indexOf(p.difficulty)];
+  orderedPuzzles.push(p);
 }
-fs.writeFileSync(path.join(ROOT, 'content/catalog.json'), JSON.stringify(pack, null, 2) + '\n');
+if (new Set(orderedPuzzles.map((p) => p.id)).size !== orderedPuzzles.length)
+  throw Error('Duplicate published puzzle ID');
+const catalogue = { ...publishedCatalog, puzzles: orderedPuzzles };
+fs.writeFileSync(
+  path.join(ROOT, 'content/catalog.json'),
+  JSON.stringify(catalogue, null, 2) + '\n',
+);
 const books = [
+  {
+    id: 'last-light-at-bellweather',
+    title: 'The Last Light at Bellweather',
+    tagline: 'A dark lantern, a missing logbook, and a tide that keeps its own time.',
+    setting: 'An isolated tidal lighthouse and its signal house',
+    color: 'blue',
+    icon: 'lightup',
+    format: 'continuous',
+    cast: [
+      { name: 'Maren Vale', role: 'lighthouse keeper', status: 'victim' },
+      { name: 'Theo Finch', role: 'signalman' },
+      { name: 'Iris Bell', role: 'weather reader' },
+      { name: 'Elias Quill', role: 'archivist' },
+      { name: 'Rosa Hart', role: 'boatwright' },
+    ],
+    intro:
+      'The causeway will be underwater by morning. At Bellweather, the porch bell falls silent, a logbook disappears, and the lighthouse goes dark. Keeper Maren Vale is found dead. Six timed records lead from the first missing object to the final inventory. Reconstruct the evening before the tide erases the way back.',
+    chapters: [
+      {
+        id: 'bellweather-witness-03',
+        name: 'Before the fog bell',
+        time: '19:10',
+        brief: 'The porch bell has fallen silent. Compare the first accounts of the evening.',
+        revelation:
+          'Rosa Hart is the only person who makes exactly four of these five accounts true. She took the brass clapper before the squall.',
+      },
+      {
+        id: 'bellweather-witness-01',
+        name: 'Accounts before the squall',
+        time: '19:20',
+        brief: '19:20 · Count four account cards about the missing black logbook.',
+        revelation:
+          "Iris Bell is the only candidate who makes exactly two of the four accounts true, placing her with the logbook's removal before the blackout.",
+      },
+      {
+        id: 'bellweather-dossier-01',
+        name: 'The logbook trail',
+        time: '19:30',
+        brief: '19:30 · Match stations and evidence in the pre-squall inventory.',
+        revelation: 'The completed grid pairs Iris Bell with the black logbook at 19:30.',
+      },
+      {
+        id: 'bellweather-scene-01',
+        name: 'The dark lantern',
+        time: '19:40',
+        brief: '19:40 · Reconstruct the blackout and the last positions in the lantern room.',
+        revelation:
+          "Theo Finch is the only suspect sharing Maren's lantern-room space at the blackout; the floor plan establishes opportunity.",
+      },
+      {
+        id: 'bellweather-witness-02',
+        name: 'The moved lens key',
+        time: '20:10',
+        brief: '20:10 · Count the accounts about movement of the brass lens key.',
+        revelation:
+          'Theo Finch is the only candidate that makes exactly two of the five accounts true in the 20:10 movement record.',
+      },
+      {
+        id: 'bellweather-dossier-02',
+        name: 'The later inventory',
+        time: '20:30',
+        brief: '20:30 · Match the later inventory after the key has changed hands.',
+        revelation:
+          'At 20:30, Elias Quill carries the brass lens key. This later inventory does not change the earlier account that Theo removed it.',
+      },
+    ],
+    ending:
+      'The fog bell and the logbook explain two earlier disappearances: Rosa took the clapper, and Iris removed the logbook. The fatal floor plan tells a different story. Theo was the only suspect alone with Maren when the lantern went dark. He also removed the lens key, which Elias carried by the final inventory. With each event in its proper place, the Bellweather file can finally close.',
+    artwork: 'bellweather',
+  },
   {
     id: 'briar-house',
     title: 'The Briar House papers',
@@ -416,8 +506,9 @@ const books = [
     setting: 'An old country house, after dark',
     color: 'green',
     icon: 'scene',
+    format: 'anthology',
     intro:
-      'An envelope arrives with no return address. Inside: a floor plan, four witness accounts, a torn photograph and a note asking you to reconstruct the last evening at Briar House. The puzzles form an anthology investigation; each chapter teaches a different kind of deduction.',
+      'An envelope arrives with no return address. Inside: a floor plan, four witness accounts, a torn photograph and a note from Briar House. These four records are standalone deductions; open them in any order and keep each solved piece in the case file.',
     chapters: [
       {
         id: 'witness-01',
@@ -441,7 +532,7 @@ const books = [
       },
     ],
     ending:
-      'You have reconstructed the house’s four records: statements, possessions, a photograph and the final scene. The investigation is complete. Every puzzle remains available for another look.',
+      'The four Briar House records are filed: statements, possessions, a photograph and the final scene. Each remains available whenever you want another look.',
   },
   {
     id: 'night-train',
@@ -450,8 +541,9 @@ const books = [
     setting: 'An overnight train on the coast',
     color: 'blue',
     icon: 'network',
+    format: 'anthology',
     intro:
-      'The night train stops between stations. You have four records from the carriage and its signal box. Restore the signal, trace a route, compare the statements, then reconstruct the carriage. Each record is a standalone logic puzzle in this casebook.',
+      'A coastal night-train file contains four records from the carriage and its signal box. Restore the signal, trace a route, compare the statements, then reconstruct the carriage. Each record is a standalone deduction; open them in any order.',
     chapters: [
       {
         id: 'network-01',
@@ -475,7 +567,7 @@ const books = [
       },
     ],
     ending:
-      'The records are in order and the signal is clear. You have completed the midnight departure casebook.',
+      'The four records are filed: signal, route, accounts and carriage. Each remains available whenever you want to revisit the midnight departure file.',
   },
   {
     id: 'glasshouse',
@@ -484,8 +576,9 @@ const books = [
     setting: 'A botanical conservatory in winter',
     color: 'amber',
     icon: 'aquarium',
+    format: 'anthology',
     intro:
-      'The conservatory caretaker has left four puzzles among the records. The water levels and lighting plan are the first pieces. An inventory and a floor plan complete the file. Solve them in sequence or open any chapter.',
+      'The conservatory caretaker has left four records among the glass and winter plants. Water levels, a lighting plan, an inventory and a floor plan each offer a standalone deduction. Open any record in any order; your solved evidence stays in the file.',
     chapters: [
       {
         id: 'aquarium-02',
@@ -495,7 +588,7 @@ const books = [
       {
         id: 'lightup-03',
         name: 'Paper lanterns',
-        brief: 'Light every floor tile without crossing beams.',
+        brief: 'Light every floor tile without letting lanterns shine directly at one another.',
       },
       {
         id: 'dossier-03',
@@ -509,8 +602,20 @@ const books = [
       },
     ],
     ending:
-      'Water, light, inventory and floor plan: the conservatory file is complete. The casebook is ready to archive.',
+      'The four standalone records are filed: water, light, inventory and floor plan. The conservatory casebook is ready to archive and revisit.',
   },
 ];
-fs.writeFileSync(path.join(ROOT, 'content/casebooks.json'), JSON.stringify(books, null, 2) + '\n');
-console.log('TOTAL', pack.puzzles.length, 'TYPES', C.TYPES.length);
+const publishedBooksById = new Map(publishedBooks.map((book) => [book.id, book])),
+  publishedBookIds = new Set(publishedBooks.map((book) => book.id)),
+  seededBookIds = new Set(books.map((book) => book.id));
+if (publishedBooksById.size !== publishedBooks.length || seededBookIds.size !== books.length)
+  throw Error('Duplicate casebook ID');
+const preservedBooks = publishedBooks.slice();
+for (const book of books) if (!publishedBookIds.has(book.id)) preservedBooks.push(book);
+if (new Set(preservedBooks.map((book) => book.id)).size !== preservedBooks.length)
+  throw Error('Duplicate casebook ID');
+fs.writeFileSync(
+  path.join(ROOT, 'content/casebooks.json'),
+  JSON.stringify(preservedBooks, null, 2) + '\n',
+);
+console.log('TOTAL', catalogue.puzzles.length, 'TYPES', C.TYPES.length);

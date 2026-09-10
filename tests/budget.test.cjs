@@ -12,7 +12,7 @@ assert.ok(
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
-  '324 definitions and editorial data stay under 1 MiB',
+  'Official definitions and editorial data stay under 1 MiB',
 );
 assert.ok(
   info.coreOfflineBytes < 2.3 * 1024 * 1024,
@@ -24,7 +24,9 @@ assert.ok(
 );
 for (const [prefix, limit] of [
   ['club-engines.', 8 * 1024],
-  ['alibi.', 32 * 1024],
+  // Eight Games Room games: 33 KiB allows the measured 32.2 KiB stylesheet.
+  // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
+  ['alibi.', 33 * 1024],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))

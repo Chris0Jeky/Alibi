@@ -185,6 +185,7 @@
         await Promise.all([quietSave, A.challengeStore?.flush()]);
       }
       function styles() {
+        const motion = motionEnabled();
         const soundButton = $('[data-act="sound"]');
         if (soundButton) {
           soundButton.setAttribute(
@@ -193,7 +194,7 @@
           );
           soundButton.title = 'Sound ' + (A.state.settings.sound ? 'on' : 'off');
         }
-        if (!A.state.settings.sound) {
+        if (!A.state.settings.sound || !motion) {
           soundscape.stop();
           root.querySelectorAll('audio,video').forEach((media) => media.pause());
           A.ambience = '';
@@ -201,9 +202,27 @@
           if (selection) selection.value = '';
         }
         body.classList.toggle('zen', A.state.settings.zen);
-        body.classList.toggle('reduce', !A.state.settings.motion);
-        A.renderer?.setMotion?.(A.state.settings.motion);
-        A.petView?.setMotion(A.state.settings.motion);
+        body.classList.toggle('reduce', !motion);
+        A.renderer?.setMotion?.(motion);
+        A.petView?.setMotion(motion);
+      }
+      function motionEnabled() {
+        return (
+          !!A.state?.settings.motion &&
+          !A.rootPreferences?.reducedMotion &&
+          !G.matchMedia('(prefers-reduced-motion: reduce)').matches
+        );
+      }
+      function applyRootPreferences(preferences) {
+        A.rootPreferences = preferences ? { ...preferences } : null;
+        if (!A.state || !preferences) return;
+        const dark =
+          preferences.theme === 'night' ||
+          (preferences.theme === 'system' && G.matchMedia('(prefers-color-scheme: dark)').matches);
+        body.classList.toggle('night', dark);
+        body.classList.toggle('contrast', !!preferences.contrast);
+        body.classList.toggle('large', !!preferences.largeText);
+        styles();
       }
       function shell() {
         styles();
@@ -384,7 +403,7 @@
           zoom: A.state.scene.camera.zoom,
         });
         A.renderer.setScene(A.state.scene);
-        A.renderer.setMotion?.(A.state.settings.motion);
+        A.renderer.setMotion?.(motionEnabled());
         A.renderer.resize();
         A.resizeObs = new ResizeObserver(() => A.renderer?.resize());
         A.resizeObs.observe($('#realm'));
@@ -895,19 +914,22 @@
         };
         canvas.onkeydown = (e) => {
           const dirs = {
-            ArrowLeft: -1,
-            ArrowRight: 1,
-            ArrowUp: -A.state.scene.size,
-            ArrowDown: A.state.scene.size,
+            ArrowLeft: [-1, 0],
+            ArrowRight: [1, 0],
+            ArrowUp: [0, -1],
+            ArrowDown: [0, 1],
           };
           if (e.key in dirs) {
             e.preventDefault();
-            A.selection = E.clamp(
-              (A.selection < 0 ? Math.floor(A.state.scene.tiles.length / 2) : A.selection) +
-                dirs[e.key],
-              0,
-              A.state.scene.tiles.length - 1,
-            );
+            const size = A.state.scene.size;
+            const current =
+              A.selection < 0 ? Math.floor(A.state.scene.tiles.length / 2) : A.selection;
+            const x = current % size;
+            const y = Math.floor(current / size);
+            const [dx, dy] = dirs[e.key];
+            const nextX = E.clamp(x + dx, 0, size - 1);
+            const nextY = E.clamp(y + dy, 0, size - 1);
+            A.selection = nextY * size + nextX;
             preview();
           }
           if (e.key === 'Enter') {
@@ -992,7 +1014,7 @@
           $('#pet-portrait'),
           species,
           A.artURLs['pet-' + species],
-          A.state.settings.motion,
+          motionEnabled(),
         );
         $$('[data-species]').forEach(
           (b) =>
@@ -1628,8 +1650,14 @@
         run.state = s;
       }
       function playMove(action) {
-        let run = getClassic(),
-          r = E.classicMove(run.state, action);
+        let run = getClassic();
+        if (run.actions.length >= E.MAX_CLASSIC_ACTIONS) {
+          $('#classic-message').textContent =
+            `This classic has reached the ${E.MAX_CLASSIC_ACTIONS.toLocaleString()}-move save limit. Undo or start again before continuing.`;
+          feedback('erase');
+          return;
+        }
+        let r = E.classicMove(run.state, action);
         if (r.error) {
           $('#classic-message').textContent = r.error;
           feedback('erase');
@@ -1799,7 +1827,7 @@
           ).join('')}</div>`;
           $$('[data-cell]').forEach((t) => (t.onclick = () => playMove({ cell: +t.dataset.cell })));
         } else if (s.id === 'magic') {
-          b.innerHTML = `<div class="boardgrid" style="grid-template-columns:repeat(3,1fr);max-width:350px">${s.values.map((n, i) => `<button data-magic="${i}" class="${A.classicSelected === i ? 'picked' : ''}" style="font-size:40px;background:#e2ca91">${n}</button>`).join('')}</div>`;
+          b.innerHTML = `<div class="boardgrid" style="grid-template-columns:repeat(3,1fr);max-width:350px">${s.values.map((n, i) => `<button data-magic="${i}" class="${A.classicSelected === i ? 'picked' : ''}" aria-pressed="${A.classicSelected === i}" aria-label="Tile ${n}${A.classicSelected === i ? ', selected' : ''}" style="font-size:40px;background:#e2ca91">${n}</button>`).join('')}</div>`;
           $$('[data-magic]').forEach(
             (t) =>
               (t.onclick = () => {
@@ -2327,8 +2355,7 @@
         A.state = G.QWRetainedState || result.saved || E.newState(Date.now());
         if (!A.state.stats.views.includes(A.state.scene.camera.view))
           A.state.stats.views.push(A.state.scene.camera.view);
-        if (G.matchMedia('(prefers-reduced-motion: reduce)').matches)
-          A.state.settings.motion = false;
+        applyRootPreferences(context.preferences);
         A.dirty = G.QWRetainedDirty || false;
         go();
         if (result.blocked)
@@ -2357,6 +2384,14 @@
           }
         },
         flush,
+        setPreferences: applyRootPreferences,
+        focusDestination: () => {
+          if ($('#modal')?.open) return false;
+          const main = $('#main');
+          if (!main) return false;
+          main.focus({ preventScroll: true });
+          return root.activeElement === main;
+        },
         state: () => A.state,
         dispose() {
           disposed = true;

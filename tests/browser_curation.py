@@ -1,6 +1,7 @@
 """Real-origin curation controls and artwork; no physical-device certification."""
 import json, os
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results/curation-ui';OUT.mkdir(parents=True,exist_ok=True)
@@ -22,7 +23,8 @@ with sync_playwright() as p:
         page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(URL+'#/library');page.wait_for_function('()=>window.AlibiDiagnostics')
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
-        check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==324,'324 official puzzles load')
+        check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==OFFICIAL_COUNT,'All registered official puzzles load')
+        page.locator('[data-action="browse-all"]').click()
         page.locator('.curation-collections > summary').click()
         for venue in ('salt','copper','winter','nocturne'):
             page.locator(f'[data-action="curation-venue"][data-value="{venue}"]').click()
@@ -31,7 +33,8 @@ with sync_playwright() as p:
             check(all('provisional' in t for t in cards.locator('.difficulty').all_inner_texts()),'New difficulty is provisional '+venue)
             check(all('min' not in t for t in cards.locator('.card-meta').all_inner_texts()),'Unmeasured cards have no time estimate '+venue)
             check(page.evaluate("[...document.querySelectorAll('.puzzle-highlight')].every(i=>!i.src.includes('solution'))"),'No answer art in thumbnails')
-            page.locator('.curation-gallery > summary').click()
+            if page.locator('.curation-gallery').get_attribute('open') is None:
+                page.locator('.curation-gallery > summary').click()
             page.locator('.curation-gallery img').first.scroll_into_view_if_needed()
             page.wait_for_function("()=>[...document.querySelectorAll('.curation-gallery img')].every(i=>i.complete&&i.naturalWidth>0)")
             check(page.locator('.curation-gallery a').count()>=1,'Museum image has an object credit '+venue)

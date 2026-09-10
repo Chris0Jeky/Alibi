@@ -166,11 +166,18 @@ for (const type of ['lightup', 'tents']) {
   );
 }
 const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
-ok(books.length === 4, 'four casebooks');
+ok(books.length === 5, 'five casebooks');
+ok(books[0].format === 'continuous', 'Bellweather keeps continuous casebook framing');
+ok(
+  books.slice(1, 4).every((book) => book.format === 'anthology'),
+  'earlier casebooks keep standalone-record framing',
+);
 for (const b of books)
   for (const ch of b.chapters)
     ok(
-      pack.puzzles.some((p) => p.id === ch.id),
+      require('../tools/official-catalogue.cjs')
+        .load(undefined, false)
+        .puzzles.some((p) => p.id === ch.id),
       'casebook chapter resolves ' + ch.id,
     );
 const output = {

@@ -1,0 +1,189 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs'),
+  vm = require('node:vm'),
+  crypto = require('node:crypto');
+const source = fs.readFileSync(
+  require('node:path').join(__dirname, '../src/asset-delivery.js'),
+  'utf8',
+);
+const bytes = Buffer.from('fixture image bytes');
+const entry = {
+  urls: ['https://cdn.example/image.webp', './assets/enhanced-fixture.webp'],
+  bytes: bytes.length,
+  mime: 'image/webp',
+  sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+};
+const response = (body = bytes, status = 200, type = 'image/webp') =>
+  new Response(body, { status, headers: { 'Content-Type': type } });
+function setup(fetcher = async () => response(), opts = {}) {
+  const data = opts.sharedData || new Map(),
+    calls = [],
+    stored = new Map();
+  const testTimer = opts.shortTimeouts ? (fn, ms) => setTimeout(fn, Math.min(ms, 80)) : setTimeout;
+  const cache = {
+    match: async (key) => data.get(key)?.clone(),
+    keys: async () => [...data.keys()].map((url) => ({ url })),
+    delete: async (key) => data.delete(key.url || key),
+    put: async (key, value) => {
+      if (opts.quota) throw Error('Quota exceeded');
+      data.set(key, value);
+    },
+  };
+  const context = {
+    Blob,
+    Response,
+    URL,
+    AbortController,
+    Uint8Array,
+    crypto:
+      opts.hashDelayMs == null
+        ? crypto.webcrypto
+        : {
+            subtle: {
+              digest: async (...args) => {
+                await new Promise((resolve) => setTimeout(resolve, opts.hashDelayMs));
+                return crypto.webcrypto.subtle.digest(...args);
+              },
+            },
+          },
+    setTimeout: testTimer,
+    clearTimeout,
+    location: { href: 'https://app.example/' },
+    navigator: { onLine: true, connection: { addEventListener() {} } },
+    ALIBI_DELIVERY: { art: opts.entry || entry },
+    localStorage: {
+      getItem: (key) => stored.get(key),
+      setItem: (key, value) => stored.set(key, value),
+    },
+    caches: {
+      delete: async (name) => {
+        (opts.deleted || []).push(name);
+        if (opts.denied) throw Error('Denied');
+        return true;
+      },
+      open: async () => {
+        if (opts.denied) throw Error('Denied');
+        return cache;
+      },
+    },
+    fetch: async (url, options) => {
+      calls.push({ url, options });
+      return fetcher(url, options);
+    },
+  };
+  vm.runInNewContext(source, context);
+  return { api: context.AlibiDelivery, context, data, calls };
+}
+test('CDN bytes are verified, cached under a local fingerprint, and reused offline', async () => {
+  const x = setup();
+  assert.equal(await (await x.api.resolve('art')).text(), bytes.toString());
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(x.data.size, 1);
+  x.context.navigator.onLine = false;
+  assert.ok(await x.api.resolve('art'));
+  assert.equal(x.calls.length, 1);
+  assert.equal(x.calls[0].options.credentials, 'omit');
+  assert.equal(x.calls[0].options.mode, 'cors');
+  assert.equal(x.calls[0].options.redirect, 'error');
+});
+test('CDN bytes survive hash work longer than the fixture cancellation deadline', async () => {
+  const x = setup(undefined, { hashDelayMs: 120 });
+  assert.equal(await (await x.api.resolve('art')).text(), bytes.toString());
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(x.data.size, 1);
+});
+test('CDN errors fall through to same-origin bytes', async () => {
+  const x = setup(async (url) => {
+    if (url.startsWith('https:')) throw Error('CORS');
+    return response();
+  });
+  assert.ok(await x.api.resolve('art'));
+  assert.equal(x.calls.length, 2);
+});
+for (const [label, value] of [
+  ['HTML', () => response(bytes, 200, 'text/html')],
+  ['partial', () => response(bytes, 206)],
+  ['oversize', () => response(Buffer.alloc(100))],
+  ['wrong hash', () => response(Buffer.alloc(bytes.length))],
+  ['opaque', () => ({ ok: false, type: 'opaque' })],
+]) {
+  test(label + ' cannot replace or poison offline artwork', async () => {
+    const x = setup(async () => value());
+    assert.equal(await x.api.resolve('art'), null);
+    assert.equal(x.data.size, 0);
+  });
+}
+test('offline, save-data, slow connection, hidden and user preference skip new fetches', async () => {
+  for (const configure of [
+    (x) => (x.context.navigator.onLine = false),
+    (x) => (x.context.navigator.connection.saveData = true),
+    (x) => (x.context.navigator.connection.effectiveType = '2g'),
+    (x) => (x.context.document = { hidden: true }),
+    (x) => x.api.setMode('local'),
+    (x) => (x.context.ALIBI_CONFIG = { standalone: true }),
+  ]) {
+    const x = setup();
+    configure(x);
+    assert.equal(await x.api.resolve('art'), null);
+    assert.equal(x.calls.length, 0);
+  }
+});
+test('denied storage and quota retain online enhancement without breaking play', async () => {
+  for (const opts of [{ denied: true }, { quota: true }]) {
+    const x = setup(undefined, opts);
+    assert.ok(await x.api.resolve('art'));
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(x.data.size, 0);
+  }
+});
+test('hung network and route cancellation have bounded completion', async () => {
+  const x = setup(
+    (url, { signal }) =>
+      new Promise((_, reject) =>
+        signal.addEventListener('abort', () => reject(Error('Aborted')), { once: true }),
+      ),
+    { shortTimeouts: true },
+  );
+  assert.equal(await x.api.resolve('art'), null);
+  const controller = new AbortController();
+  const request = x.api.resolve('art', controller.signal);
+  controller.abort();
+  assert.equal(await request, null);
+});
+test('independent tabs racing writes stay within eight slots and never return another image', async () => {
+  const sharedData = new Map();
+  const tabs = Array.from({ length: 32 }, (_, i) => {
+    const body = Buffer.from('different image ' + i);
+    const image = {
+      ...entry,
+      bytes: body.length,
+      sha256: crypto.createHash('sha256').update(body).digest('hex'),
+    };
+    return { body, client: setup(async () => response(body), { sharedData, entry: image }) };
+  });
+  const results = await Promise.all(tabs.map((t) => t.client.api.resolve('art')));
+  for (let i = 0; i < tabs.length; i++)
+    assert.equal(await results[i].text(), tabs[i].body.toString());
+  await new Promise((r) => setTimeout(r, 30));
+  assert.ok(sharedData.size > 1 && sharedData.size <= 8);
+  let collisions = 0;
+  for (const { body, client } of tabs) {
+    client.context.navigator.onLine = false;
+    const cached = await client.api.resolve('art');
+    if (cached) assert.equal(await cached.text(), body.toString());
+    else collisions++;
+    assert.equal(client.calls.length, 1);
+  }
+  assert.ok(
+    collisions >= 24,
+    'overwritten slots fall back locally without returning the wrong picture',
+  );
+});
+
+test('retirement deletes only the known legacy image cache without delaying use', async () => {
+  const deleted = [];
+  const x = setup(undefined, { deleted });
+  assert.ok(await x.api.resolve('art'));
+  assert.deepEqual(deleted, ['alibi-enhanced-images-v1']);
+});

@@ -58,6 +58,25 @@ with tempfile.TemporaryDirectory(prefix="alibi-restart-") as profile, sync_playw
         page.locator('[data-action="club-recovery"]').click()
     recovery=json.loads(Path(download.value.path()).read_text(encoding='utf-8'))
     check(recovery==club_before,'Club restore atomically retains the previous save as a recovery download')
+    page.evaluate("""() => {
+      const native = IDBDatabase.prototype.transaction;
+      IDBDatabase.prototype.transaction = function(name, mode) {
+        if (window.__hangClubRecovery && name === 'club' && mode === 'readonly') {
+          const tx = {
+            listeners: {},
+            addEventListener(type, handler) { this.listeners[type] = handler; },
+            abort() { this.listeners.abort?.(); },
+            objectStore() { return { get() { return {}; } }; },
+          };
+          return tx;
+        }
+        return native.apply(this, arguments);
+      };
+      window.__hangClubRecovery = true;
+    }""")
+    page.locator('[data-action="club-recovery"]').click()
+    page.get_by_text('Club storage stopped responding. Export this session, close other Alibi windows and reload.', exact=True).wait_for(timeout=10000)
+    check(True,'Club recovery read aborts at the transaction watchdog deadline')
     ctx.close();ctx=launch();page=ctx.pages[0];page.goto(BASE);page.wait_for_function("() => !!globalThis.AlibiDiagnostics")
     check(page.evaluate("AlibiClub.diagnostics().state.settings.pinned") == 2,'Restored Club preferences survive process restart')
     check(page.evaluate("AlibiDiagnostics.getCounts().records")==len(puzzles),'All completed scenes survive browser process restart')

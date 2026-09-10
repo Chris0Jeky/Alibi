@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "scenes": [
+    {
+      "id": "bellweather",
+      "title": "The lighthouse",
+      "subtitle": "Rain on the causeway. A light that keeps returning.",
+      "art": "bellweather",
+      "detail": "hero-bellweather-photo",
+      "motion": "rain",
+      "ambience": "rain",
+      "notes": [
+        174,
+        261,
+        348
+      ],
+      "motif": "beacon",
+      "families": [
+        "scene",
+        "witness"
+      ],
+      "quiet": []
+    },
+    {
+      "id": "glasshouse",
+      "title": "Under glass",
+      "subtitle": "Warm windows. Leaves listening to the rain.",
+      "art": "glasshouse",
+      "detail": "hero-glasshouse-photo",
+      "motion": "pollen",
+      "ambience": "rain",
+      "notes": [
+        220,
+        330,
+        440
+      ],
+      "motif": "leaf",
+      "families": [
+        "tents",
+        "lightup",
+        "nonogram"
+      ],
+      "quiet": [
+        "garden",
+        "conservatory"
+      ]
+    },
+    {
+      "id": "night-train",
+      "title": "The midnight line",
+      "subtitle": "A carriage lamp. The rhythm of a journey still unfolding.",
+      "art": "night-train",
+      "detail": "hero-night-train-photo",
+      "motion": "tracks",
+      "ambience": "rain",
+      "notes": [
+        146,
+        220,
+        293
+      ],
+      "motif": "train",
+      "families": [
+        "trail",
+        "network"
+      ],
+      "quiet": []
+    },
+    {
+      "id": "cartographer",
+      "title": "The map room",
+      "subtitle": "A brass compass. Islands waiting for a connection.",
+      "art": "cartographer",
+      "detail": "hero-cartographer-photo",
+      "motion": "tide",
+      "ambience": "waves",
+      "notes": [
+        196,
+        294,
+        392
+      ],
+      "motif": "compass",
+      "families": [
+        "bridges",
+        "aquarium"
+      ],
+      "quiet": [
+        "realm"
+      ]
+    },
+    {
+      "id": "reading-room",
+      "title": "Lamplight & paper",
+      "subtitle": "The library settles. A fresh page waits by the lamp.",
+      "art": "club-reading-room",
+      "detail": "club-reading-room-photo",
+      "motion": "dust",
+      "ambience": "rain",
+      "notes": [
+        164,
+        246,
+        328
+      ],
+      "motif": "book",
+      "families": [
+        "sudoku",
+        "futoshiki",
+        "dossier"
+      ],
+      "quiet": [
+        "folio",
+        "journal",
+        "challenges",
+        "classics"
+      ]
+    },
+    {
+      "id": "briar-house",
+      "title": "The drawing room",
+      "subtitle": "A quiet house. Every small detail has a place.",
+      "art": "briar-house",
+      "motion": "dust",
+      "ambience": "rain",
+      "notes": [
+        130,
+        196,
+        261
+      ],
+      "motif": "key",
+      "families": [],
+      "quiet": [
+        "pets",
+        "companions"
+      ]
+    },
+    {
+      "id": "winter",
+      "title": "The winter gallery",
+      "subtitle": "Snow outside. An unhurried light within.",
+      "art": "met-kanbara",
+      "curation": true,
+      "detail": "met-kanbara",
+      "motion": "snow",
+      "ambience": "rain",
+      "notes": [
+        233,
+        349,
+        466
+      ],
+      "motif": "star",
+      "families": [
+        "binary"
+      ],
+      "quiet": [
+        "calm",
+        "gallery"
+      ]
+    },
+    {
+      "id": "harbour",
+      "title": "The little harbour",
+      "subtitle": "Distant water. A town shaped by your hands.",
+      "art": "quiet-town",
+      "motion": "tide",
+      "ambience": "waves",
+      "notes": [
+        185,
+        277,
+        370
+      ],
+      "motif": "harbour",
+      "families": [],
+      "quiet": [
+        "city"
+      ]
+    }
+  ],
+  "films": [
+    "alibi-quiet-wing-landscape",
+    "alibi-bridges-landscape",
+    "alibi-ambient-lamplight",
+    "alibi-ambient-earned-stamp"
+  ]
+}

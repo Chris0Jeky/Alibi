@@ -6,6 +6,7 @@
     "setting": "An isolated tidal lighthouse and its signal house",
     "color": "blue",
     "icon": "lightup",
+    "format": "continuous",
     "cast": [
       {
         "name": "Maren Vale",
@@ -84,7 +85,8 @@
     "setting": "An old country house, after dark",
     "color": "green",
     "icon": "scene",
-    "intro": "An envelope arrives with no return address. Inside: a floor plan, four witness accounts, a torn photograph and a note asking you to reconstruct the last evening at Briar House. The puzzles form an anthology investigation; each chapter teaches a different kind of deduction.",
+    "format": "anthology",
+    "intro": "An envelope arrives with no return address. Inside: a floor plan, four witness accounts, a torn photograph and a note from Briar House. These four records are standalone deductions; open them in any order and keep each solved piece in the case file.",
     "chapters": [
       {
         "id": "witness-01",
@@ -107,7 +109,7 @@
         "brief": "Place everyone on the floor plan, then name the murderer."
       }
     ],
-    "ending": "You have reconstructed the house’s four records: statements, possessions, a photograph and the final scene. The investigation is complete. Every puzzle remains available for another look."
+    "ending": "The four Briar House records are filed: statements, possessions, a photograph and the final scene. Each remains available whenever you want another look."
   },
   {
     "id": "night-train",
@@ -116,7 +118,8 @@
     "setting": "An overnight train on the coast",
     "color": "blue",
     "icon": "network",
-    "intro": "The night train stops between stations. You have four records from the carriage and its signal box. Restore the signal, trace a route, compare the statements, then reconstruct the carriage. Each record is a standalone logic puzzle in this casebook.",
+    "format": "anthology",
+    "intro": "A coastal night-train file contains four records from the carriage and its signal box. Restore the signal, trace a route, compare the statements, then reconstruct the carriage. Each record is a standalone deduction; open them in any order.",
     "chapters": [
       {
         "id": "network-01",
@@ -139,7 +142,7 @@
         "brief": "Rebuild the scene before the train departs."
       }
     ],
-    "ending": "The records are in order and the signal is clear. You have completed the midnight departure casebook."
+    "ending": "The four records are filed: signal, route, accounts and carriage. Each remains available whenever you want to revisit the midnight departure file."
   },
   {
     "id": "glasshouse",
@@ -148,7 +151,8 @@
     "setting": "A botanical conservatory in winter",
     "color": "amber",
     "icon": "aquarium",
-    "intro": "The conservatory caretaker has left four puzzles among the records. The water levels and lighting plan are the first pieces. An inventory and a floor plan complete the file. Solve them in sequence or open any chapter.",
+    "format": "anthology",
+    "intro": "The conservatory caretaker has left four records among the glass and winter plants. Water levels, a lighting plan, an inventory and a floor plan each offer a standalone deduction. Open any record in any order; your solved evidence stays in the file.",
     "chapters": [
       {
         "id": "aquarium-02",
@@ -171,6 +175,84 @@
         "brief": "Place the five people and close the case."
       }
     ],
-    "ending": "Water, light, inventory and floor plan: the conservatory file is complete. The casebook is ready to archive."
+    "ending": "The four standalone records are filed: water, light, inventory and floor plan. The conservatory casebook is ready to archive and revisit."
+  },
+  {
+    "id": "the-unfinished-invitation",
+    "title": "The unfinished invitation",
+    "tagline": "A tide-mark, a sealed claim, and a gathering nobody will own.",
+    "setting": "Pike & Tide, a coastal print shop before the harbour audit",
+    "color": "blue",
+    "icon": "dossier",
+    "format": "continuous",
+    "cast": [
+      {"name": "Iona Reed", "role": "former apprentice and designer", "status": "absent"},
+      {"name": "Orrin Pike", "role": "master printer"},
+      {"name": "Mara Voss", "role": "bookbinder"},
+      {"name": "Elias Bell", "role": "courier"},
+      {"name": "Celia Wren", "role": "harbour client"},
+      {"name": "Rowan Hale", "role": "shop clerk"}
+    ],
+    "intro": "An unsigned invitation brings former Pike & Tide staff back to the coast. Its tide-mark belongs to Iona Reed, an apprentice who left after the 2022 shop fire. One sealed envelope still sits in the drying room, addressed to Iona and never posted. Follow eight timed records to learn who arranged the gathering, why the old claim was hidden, and which facts are only opportunity.",
+    "chapters": [
+      {
+        "id": "invitation-witness-plate",
+        "name": "The plate under the press",
+        "time": "07:50",
+        "brief": "07:50 · Compare the accounts of who retrieved Iona's copper tide-mark plate.",
+        "revelation": "Mara Voss is the only candidate who makes exactly three of the four accounts true. She retrieved Iona's copper plate before the new invitation run."
+      },
+      {
+        "id": "invitation-dossier-stock",
+        "name": "The fresh stock",
+        "time": "08:05",
+        "brief": "08:05 · Match paper stock to batch marks and find the packet's courier.",
+        "revelation": "Elias Bell carries batch 12, the mark stamped on the fresh invitation packet. The stock is new, even though its tide-mark is Iona's."
+      },
+      {
+        "id": "invitation-nonogram-mark",
+        "name": "The tide-mark proof",
+        "time": "08:15",
+        "brief": "08:15 · Rebuild the five-by-five mark from the smudged proof sheet.",
+        "revelation": "The rebuilt mark is Iona Reed's distinctive tide symbol. It links the fresh invitations to her old copper plate without proving who commissioned the new run."
+      },
+      {
+        "id": "invitation-scene-drying-room",
+        "name": "The drying-room access",
+        "time": "08:40",
+        "brief": "08:40 · Reconstruct the positions around Celia's missing archive packet.",
+        "revelation": "Elias Bell is the only suspect sharing Celia Wren's room in the reconstruction. The floor plan establishes opportunity around the missing packet, not authorship or guilt."
+      },
+      {
+        "id": "invitation-witness-envelope",
+        "name": "The sealed envelope",
+        "time": "08:55",
+        "brief": "08:55 · Count the accounts about the sealed envelope's route to the post room.",
+        "revelation": "Elias Bell is the only candidate who makes exactly two accounts true. He carried the envelope toward the post room; the route still does not identify the gathering's organizer."
+      },
+      {
+        "id": "invitation-dossier-ledger",
+        "name": "The commission ledger",
+        "time": "09:10",
+        "brief": "09:10 · Match job numbers to ledger entries and identify the commission card's carrier.",
+        "revelation": "Orrin Pike carries the harbour commission card for the invitation run. The ledger connects him to the job that used Iona's mark."
+      },
+      {
+        "id": "invitation-nonogram-seal",
+        "name": "The old seal",
+        "time": "09:20",
+        "brief": "09:20 · Rebuild the four-wave seal pressed into Iona's unposted claim.",
+        "revelation": "The old four-wave seal belongs to the unposted claim Iona left after the 2022 fire. It predates batch 12 and separates her authorship from Orrin's later commission."
+      },
+      {
+        "id": "invitation-witness-organizer",
+        "name": "Who sent the invitations?",
+        "time": "09:35",
+        "brief": "09:35 · Use the recovered mark, route and commission before naming the organizer.",
+        "revelation": "Orrin Pike is the only candidate who makes exactly three of the four final accounts true. He arranged the gathering to control the old evidence."
+      }
+    ],
+    "ending": "In 2022, Iona Reed left a signed authorship claim in the drying room after the shop fire, before she left the coast. On 9 September 2026, Orrin Pike commissioned a fresh run using her copper plate and its tide-mark on a fresh harbour commission run. He staged the gathering so former staff would repeat his founding story and hand over old samples before the harbour audit could connect the mark to Iona. Elias Bell's route and the floor plan explain access to the envelope; they do not make Elias the organizer. The stock ledger and final accounts identify Orrin, while the sealed claim restores Iona's authorship.",
+    "artwork": "invitation"
   }
 ]

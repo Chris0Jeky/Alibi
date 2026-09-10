@@ -1,8 +1,423 @@
 # Live development state
 
-Updated 2026-09-09. Git, CI and review threads take precedence over prose.
+Updated 2026-09-10. Git, CI and review threads take precedence over prose.
 
-## Current deployment: Cloudflare primary, Sites fallback
+## 0.11.0 published
+
+All requested September feature slices are implemented. The current source has 355 cabinet
+puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
+plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
+interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
+PRs #84, #85, #87, #88, #91, #92, #94, #95, #97, #98 and #99 are merged with green checks.
+PR #101 merged at `f1e71a042822822a7ff5e8df688945fcfa152b29` after both final CI runs passed.
+Build `48a8bc3bc1ee` is published on both existing origins. The primary's 274 public files match
+exactly; the fallback's 270 non-HTML files match exactly, and four HTML pages differ only by its
+documented 938-byte hosting challenge. Each origin passes 92 storage/offline checks, the scene
+cycle/hold and Nonogram assistance matrix, and 78 Mahjong checks at phone/desktop widths.
+Actual 0.10.1-to-0.11.0 updates retain an extra pre-activation move, exact state and the pinned
+definition through offline reload on both origins. See the release receipt for deployment IDs.
+
+Late PR #95 review identified theft wording in three non-theft witness chapters. The correction
+uses each record's authored action in statements, conclusions, validation and hints, retaining
+legacy defaults. Positive, negative and either/or statements have focused regressions. Candidate
+`48a8bc3bc1ee` passes formatting, build, all 177 Node tests and supplementary suites after refreshing
+the generated catalogue's app-script fingerprints. The earlier catalogue failure was a stale
+size/hash record, not a disabled assertion. The corrected casebook passes 62 actual-control
+browser assertions at 390/1440px; all three witness statement layouts were visually inspected
+with no horizontal overflow. The integrated release also passed full hosted CI before its final
+main merge. A further one-off control proof completes all twelve new Expert records at both
+widths, rejects a wrong witness answer and verifies Bridges undo: 26 checks, zero failures.
+Difficulty labels remain provisional; this proof establishes playable controls, not calibration.
+
+An earlier integrated build passed 176 Node tests and supplementary suites. The 32-suite
+local browser matrix passed. Review then found a Mahjong completion score omitted from persisted
+records; the narrow fix passes 78 Mahjong browser checks, the original Club suite and 92
+real-origin checks against build `13fe27a36f2b`. Completion followed by offline reload now retains
+the finite record and another game's saved run. Fixed catalogue-count assertions now
+derive Sudoku, mystery-group and Binary totals from source registries as new content is added.
+These failures were stale test expectations, not lost puzzles or runtime regressions. Cloudflare
+dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
+narrative and difficulty acceptance remain open in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Earlier candidate `c50e19f8e184` also gives Mahjong its own matching-tile emblem (all nine Games
+Room/playground illustrations are distinct at 390/1440px), with 182 UI and 78 Mahjong checks
+passing after that change. Two unpublished Expert entries were strengthened: the Dossier target
+is indirect and uniquely deduced; Bridges has five degree-valid candidates narrowed to one by
+connectivity. Native and independent checks agree, independent review found no blocker, and all
+twelve Expert family entries render at both widths. Human calibration is still open.
+
+PR #94's first Quiet Wing keyboard-remount check timed out; the independent same-head push run
+passed the whole suite. Canonical local diagnostics and one bounded failed-run retry also passed;
+no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
+
+Non-blocking review follow-ups remain in #6, #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
+hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
+those limitations explicit. Sites still controls response headers/MIME and its injected challenge
+(#6); document CSP/referrer metadata remains intact. The dated slice notes below are historical candidate checkpoints;
+their smaller counts and publication status describe their own stage, not the current total.
+
+## September feedback candidate, 2026-09-10
+
+### Mahjong Solitaire candidate
+
+A small twenty-tile layered table adds the eighth Games Room game. Seeded deals are constructed
+with a solvable removal sequence; matching tiles must be uncovered and have an open horizontal
+side. Replay, undo/redo, restart and offline saves pass 66 actual-control checks at 390/1440px,
+including clearing all ten pairs and reopening a completed table. Integration preserves the
+Games Room index and its eight game cards plus the atlas. Tiles stay at least 44px wide; narrow
+screens pan the table. Full verify passes with 174 Node tests and supplementary suites.
+The stylesheet cap grows from 32 to 33 KiB for the measured 32.2 KiB stylesheet; JavaScript,
+engine, initial combined payload and total offline caps remain unchanged. Human/device playtesting
+is still open in [HUMAN_TODO.md](../HUMAN_TODO.md). This is an undeployed candidate.
+
+### Advanced family candidates
+
+Twelve new definitions extend the provisional Expert shelf to all thirteen cabinet families,
+alongside the three Expert Sudoku boards. The integrated catalogue has 355 unique puzzles.
+Every added family passes native and independent uniqueness checks, and all twelve render at
+390/1440px without page overflow. The Expert filter shows fifteen clearly provisional entries.
+Full verify passes: 171 Node tests and supplementary suites, including unchanged download budgets.
+Independent review found no HIGH blocker. Solver uniqueness is not human difficulty calibration;
+sampling remains open in [HUMAN_TODO.md](../HUMAN_TODO.md). No hosted release is claimed here.
+
+### Draw Dominoes candidate
+
+Classic double-six draw dominoes adds a seventh Games Room game. Each side starts with seven
+tiles, draws when blocked, passes only with an empty stock, and wins by emptying its hand or
+having fewer pips when both sides are blocked. The offline keeper is deterministic and simple.
+Independent review found no blocker; 1,000 seeded games conserved tiles and legal chains, and
+500 completed rounds replayed identically. Thirty integrated browser checks pass at 390/1440px,
+including undo, redo, seed confirmation and offline reload. All 169 other Node checks passed;
+the budget check then passed after serving the original invitation SVG instead of a raster
+derivative and simplifying tiny-screen Domino styles. Core/JS/CSS limits were not increased.
+Human playtesting remains in [HUMAN_TODO.md](../HUMAN_TODO.md). No deployment is claimed.
+
+### Longer casebook candidate
+
+The unfinished invitation adds eight original, independently unique records and a fifth book,
+bringing the cabinet to 343 puzzles. Its opening, chapter introductions, solved continuations
+and epilogue pass 44 actual-control browser assertions at 390/1440px, including offline reload.
+Original vector cover art is generated by `tools/invitation-art.cjs`; no external asset is used.
+The chronology separates access from guilt and identifies the plate retriever separately from
+the commissioner. Generic scene/witness completion text now reports the constraint result without
+calling every answer a culprit. Puzzle-specific questions keep this story's deductions explicit.
+Source validation and independent oracles cover all eight records. Human editorial/difficulty
+acceptance remains open in [HUMAN_TODO.md](../HUMAN_TODO.md); this candidate is not deployed.
+
+### Lantern Gardens candidate
+
+Six original 6×6/7×7 region boards add the requested row/column/colour placement game.
+Each has one lantern per row, column and lettered region, with no touching even diagonally.
+The full board is partitioned into regions; empty squares are intentional in this interpretation.
+Tap cycles lantern/exclusion/empty. Completion, undo/redo, level confirmation and offline saves
+use the Club replay contract. Runtime layouts omit authoring answers. Independent enumeration
+proves unique solutions and connected regions. Full source verify passes (162 Node tests plus
+supplementary suites); 30 browser assertions pass at 390/1440px including completion and offline
+reload. Physical-device and human difficulty acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+This brings the candidate to six Games Room games; it is not yet deployed.
+
+`codex/player-feedback-september` starts from `541ba1e`. The complete incremental queue is
+in [PLAYER-FEEDBACK-2026-09.md](PLAYER-FEEDBACK-2026-09.md). Scene taps now cycle placement,
+candidate, exclusion and board cross while preserving other annotations. Placed people's
+candidates are hidden without deleting them. Hold menus have visible button equivalents.
+Local evidence: full verify (150 Node tests plus supplementary suites), 182 original UI checks,
+player-feedback suite at 390/1440px, the new seven-tap/hold/undo/offline matrix at both widths,
+and 92 real-origin checks. Phone and desktop screenshots were inspected. The first origin run
+overlapped a build that replaces `dist` and encountered a 404 during startup; the rerun against
+the settled build passes. Do not rebuild the served output during browser suites.
+Progress accounting now uses earned completion consistently: solving then Undo or Restart
+retains Solved and excludes the record from In progress/Not started and the desk resume list.
+The actual-control feedback suite proves solve → Undo → reload → filters → Restart at both
+widths; the full Node gate passes. This is a local candidate, not a published release.
+Larger puzzles, sound, discovery, case content and Games Room additions remain queued.
+Nonograms now expose the existing reversible tidy projection beside Fill/Cross/Erase as
+“Auto-cross completed lines.” The new browser matrix proves row crosses, premise removal,
+manual-mark preservation, undo/redo and offline preference restoration. Scene menu labels
+escape custom names, with a markup-name browser regression. Independent Luna reviews approved
+progress and scene behavior after that escaping fix; an initially reported cycle-loop concern
+was withdrawn after a correct-build remeasurement. New regression coverage runs in CI.
+Human acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+### Family-first browsing candidate
+
+`codex/feedback-discovery` follows the first feedback slice in PR #84. Puzzle cards now lead
+with distinct family diagrams and symbols; a small collection stamp follows the details.
+Sudoku's 9×9 motif differs from Futoshiki, and Bridges depicts islands and links. No answer is
+read by the art renderer. Room sound/motion/edition controls are behind a keyboard-operable
+Room settings disclosure, whose open state survives background renders. Films remain farther
+down the home page under “Optional short films.” Pocket Borough's plot/build enabled-state
+transition passes; no specific functional defect was reproduced from the ambiguous report.
+
+Local evidence: full verify with unchanged download budgets, 182 UI checks, 90 theatre checks,
+library keyboard suite and new 390/1440px discovery/control matrix. Phone/desktop screenshots
+were inspected; collection stamps moved below the artwork after the phone preview showed
+they obscured the diagram. Audio quality is not addressed by this presentation slice; recorded
+ambience sourcing is underway separately. Tic-tac-toe and 15×15 Nonograms are in isolated worker
+checkouts. No new hosted release is claimed.
+Independent review reproduced focus loss on the Room settings summary during background
+refresh. A stable summary identity fixes it; the storage-event regression passes at both
+widths, and the scoped artwork checks and download budget remain green.
+Connector review also caught stale image assertions in the required asset browser suite and
+the Quiet Wing's separate render path. Asset checks now assert family diagrams and collection
+stamps; the Quiet Wing keeps its room link directly visible without a disclosure. The actual
+asset/gallery suite and phone/desktop discovery suite pass. CI's prior red run failed on the
+replaced image assertion; it was not a runtime or storage failure.
+
+### Recorded ambience candidate
+
+PR #84 is merged at `4d6feca`. PR #85 targets main after the focus fix. The next sound slice
+removes main-room procedural noise and game tones. Optional CC0 window rain and beach waves
+have checked-in sources, hashes and a reproducible FFmpeg recipe in `assets-source/ambience`.
+The two optimized recordings total about 220 KiB and are excluded from the initial shell.
+Play attempts to retain them for later offline use; unavailable audio stays silent. Volume,
+stop and secondary settings remain explicit. Source licences are recorded; human listening,
+physical-phone playback and hosted delivery are not yet verified.
+Local evidence: full verify (152 Node tests plus supplementary suites), 96 theatre browser
+checks and 92 real-origin checks. Rain/waves play, volume changes, downloaded offline playback
+and unavailable-audio silence pass. Phone and desktop controls were visually inspected.
+Independent review found no blocker; the standalone empty-selector/copy finding is tracked
+as [issue #86](https://github.com/Chris0Jeky/Alibi/issues/86).
+
+### Tic-Tac-Toe candidate
+
+The Games Room now includes Tic-Tac-Toe against an exhaustive offline opponent or another
+player on the same device. Legal replay validation, undo/redo, local records and backups extend
+the existing Club contract. Original engine source remains readable; hosted Club and validator
+worker bundles use the existing esbuild minifier to preserve the core download budget.
+Full verify passes (152 Node tests plus supplementary suites), including 22,792 Club assertions.
+The actual-control suite passes 17 checks with a real-origin offline reload; backup-worker
+checks pass. Phone/desktop boards were visually inspected. Independent review is underway;
+hosted delivery and physical-device acceptance remain pending in HUMAN_TODO.md.
+
+### Larger Nonogram candidate
+
+Four additive 15×15 boards bring the candidate catalogue to 332. Existing definitions and
+revisions are unchanged; size15 is permitted only for Nonograms, while other bounds remain.
+Independent row-pattern and production solvers prove uniqueness within the declared limits.
+Large boards open enlarged, offer four pan buttons and retain visible clue margins in a bounded
+scroll area. Phone/desktop controls, auto-crosses, undo and offline reload pass; screenshots were
+inspected and clue text enlarged after the first preview. Full verify passes 154 Node tests plus
+supplementary suites; the original 182 UI and 92 real-origin checks pass. Browser catalogue counts
+now derive from the checked-in registry, including the additional custom-puzzle assertion.
+The pure-engine review found no blocker. UI integration review and human difficulty sampling
+remain pending. PR #85 is merged; recorded ambience is PR #87 and Tic-Tac-Toe is PR #88.
+
+Three additive Expert 9×9 Sudoku boards bring the combined candidate to 335. Expert is a shared
+validated difficulty label, displayed with four bars and an explicit provisional qualifier.
+Independent uniqueness checks pass; production search uses 6,634–7,515 nodes versus 1,767 for
+the hardest existing Tricky Sudoku. This is comparative machine evidence, not human calibration.
+The integrated 155-test source gate, Expert filter/placement at 390/1440px, larger-grid regression
+and library keyboard suite pass. The original books and published puzzle definitions remain intact.
+
+### Block Cabinet candidate
+
+The fifth Games Room engine is an original seeded 8×8 block-placement game. Each placement
+draws a replacement tray piece; completed rows and columns clear together. No rotations,
+timer or promise of endlessly solvable seeds is implied. Strict Club replay validation, undo,
+redo and score records use the existing save contract. Full verify passes 159 Node tests plus
+supplementary suites; 32 actual-control checks pass, including phone/desktop offline reload.
+Both layouts were inspected, and backup-worker checks pass. Independent review and physical-device
+acceptance remain pending.
+
+## Focused QA 0.10.1 published
+
+The patch preserves focused library cards through background rerenders (#75) and keeps
+collection selectors usable from the keyboard, including the removed Show all escape (#71).
+A controlled storage event reproduces BUTTON-to-BODY focus loss in the published 0.9.1 build;
+the fixed build retains the same puzzle, viewport and Enter action. This isolates the rendering
+defect without claiming the original hosted service-worker event sequence is known.
+
+The authoring generator also preserves editorial puzzle/book order and complete catalogue
+headers while appending new seeds (#69). Disposable regressions cover reordering, middle
+insertion, custom metadata and duplicates. No published puzzle definition or save identity changes.
+The combined 0.10.0 base and 0.10.1 metadata pass source verification (148 Node tests), 182 UI
+checks, 53 library keyboard checks, 20 discovery checks and the narrow-layout matrix.
+Independent reviews found no blocker. PR #81 merged at `900816a`; build `3161ffd2958c` is
+published on both existing origins after all four final CI checks passed. Each origin passes
+92 storage/offline checks, 53 library keyboard checks and the actual 0.10.0-to-0.10.1 save/update/
+offline transition. The primary passes discovery and narrow-layout checks. Published file hashes
+match, allowing only the documented fallback HTML challenge insertion. Issues #69, #71 and #75
+are resolved; #72's focused CI artifact retention is verified and merged through PR #74.
+See [RELEASE-0.10.1.md](RELEASE-0.10.1.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Wrenmere 0.10.0 published
+
+PR #73 merged at `bcd95fdef4b47fb4b61a41b2c1385406aed57f2d`; build `5b0d056fe08b` is
+published on both existing origins. All eighteen original draft-stack commits (#39–42) survive
+alongside the 0.9.1 player fixes. Chapter I now has ten questions, twelve original scene
+SVGs, consistent map layers, nearby doors, visible objects, an optional captioned prologue,
+three museum label reviews and eight revisable evidence-linked hypotheses. The secret stair
+stays absent from the map, directory and search until its deduction.
+
+All 328 official puzzles feed thirteen room familiarity tracks with 39 starter links. Three
+first solves reveal a small room detail; hints count and restarting retains earlier completion.
+The adapter validates committed official definitions and passes metadata only. These discoveries
+never award story evidence or cross-game entitlements.
+
+Notebook import uses the bounded worker, reviewable merge/replace, an atomic pre-restore copy
+and stale-record checks. The actual Save & update control rejects a protected notebook until
+an exact export is explicitly acknowledged; the exported notes can then be recovered on the
+new release. Cabinet, Club, Quiet Wing, challenge and castle state remain separate.
+
+Full CI and independent review pass. Each hosted origin passes 92 storage/offline checks and
+all five castle suites, including the complete chapter, recovery, investigation, media and
+practice. Both actual 0.9.1 → 0.10.0 upgrades retain exact saved state and pinned definitions
+through activation and offline reload. All release files match, with the documented hosting
+challenge addition on fallback HTML. See [RELEASE-0.10.0.md](RELEASE-0.10.0.md). P2 follow-ups
+#79/#80 cover exact starter focus and repeated note-section deduplication; no data was lost.
+
+The supplied folder is mapped in [RESOURCES.md](castle/RESOURCES.md): 69 files, all 68 supplied
+checksums matching, with complete design references preserved. Start with the [strategy](castle/STRATEGY.md),
+[continuation records and proof graphs](castle/CONTINUATION.md), and [deferred pet/garden/city plan](castle/DEFERRED-REWARDS.md).
+Chapters II–V and creative reward connections remain planned. [HUMAN_TODO.md](../HUMAN_TODO.md)
+tracks physical Android, TalkBack, comfort and new-player acceptance, including castle q-7.
+
+## Small-screen and keyboard QA 0.9.1 published
+
+The 0.9.1 release addresses reproduced 320px large-text player overflow, tiny Desk assistant
+controls and library-action focus loss. The expanded layout matrix includes full-size Sudoku,
+scenes and aquariums, actual assistant controls and 44px targets. Player history includes the
+patch. PR #70 merged at `8641b3e`; build `efb6b034ac62` is published on both existing origins.
+Both full CI runs pass. Each host passes 92 storage/offline checks and the actual 0.9.0-to-0.9.1
+save/update/offline transition. The primary passes discovery and narrow-layout matrices.
+The hosted library pagination matrix exposed timing-dependent focus loss (#75); a controlled
+background-render regression confirms focus loss, while the original hosted event sequence
+remains unproven. Collection-settings
+focus (#71) and focused CI artifact retention (#72) are separate tracked follow-ups.
+See [RELEASE-0.9.1.md](RELEASE-0.9.1.md) for that historical release. Wrenmere 0.10.0 is recorded above.
+
+Generator follow-up (#66): the development generator preserves checked-in puzzle definitions
+and casebooks, including later editorial corrections and extra books absent from its seeds.
+A disposable regression deliberately changes a chapter brief and adds an anthology, then proves
+both survive generation. The runtime catalogue is unchanged. Hosted 0.9 release details follow.
+
+Future editorial order and catalogue-header preservation are tracked separately in #69.
+
+## Discovery and history 0.9.0 live; iterative QA continues
+
+PR #65 merged at `92565a4a064c02dae00dd3bd80678ecaaaf91cd4`. Build `f0b367c654a4` is published on
+both existing origins. Illustrated collection invitations, recent-feature cards and offline
+version history are available from the desk/library/footer. Bridges direction, inherited crop
+identifiers, Quiet Wing focus/motion and anthology framing fixes are integrated and published
+(#9, #15, #36, #61, #62). The scoped Sharp override resolves #58 and installs under the CI runner's
+npm 10.9.8 with zero audit findings. [CHANGELOG.md](../CHANGELOG.md) and GitHub releases include
+the historical public versions, retaining their original source identities and receipts.
+
+Both complete CI runs passed. Each live origin passed 92 storage/offline checks; the primary
+passed 20 actual-control discovery/history checks at phone/desktop widths. The real 0.8.2-to-0.9.0
+Save & update transition passed on both sites, preserving an extra move, exact state and pinned
+definition through offline reload. This resolves the previously unverified fallback transition
+tracked in #63; it does not establish the cause of the earlier timeout. See [RELEASE-0.9.0.md](RELEASE-0.9.0.md).
+
+The ongoing strategy and remaining acceptance are in [POLISH-QA.md](POLISH-QA.md). The generator
+follow-up above addresses #66. The separate active task **Explore Alibi castle expansion**
+owns Wrenmere implementation and its checkout; do not duplicate or mutate that task's work.
+Physical-device and owner acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Player-feedback QA 0.8.2 live
+
+The complete feedback slice and keyboard-focus follow-up are published on both existing origins.
+PR #60 merged at `c42a3886ac1ca87cb666fe57b246f51a3e185213`; build `d4e57ffe54f5` is live.
+Both complete exact-head CI runs pass. Each current live origin passes 92 storage/offline checks,
+and the primary passes the player-feedback matrix at phone/desktop widths. The primary live
+0.8.1-to-0.8.2 Save & update test preserves exact state and pinned definitions through offline reload.
+The fallback probe timed out waiting for its update-ready signal; its old-to-new transition is
+not certified. The initial fallback file sweep briefly received a 404 for the new app script;
+a complete recheck matches every non-HTML asset. The connection to the timeout is plausible but
+not proven by a worker trace. [Issue #63](https://github.com/Chris0Jeky/Alibi/issues/63) records this gap.
+See [RELEASE-0.8.2.md](RELEASE-0.8.2.md). Anthology framing (#61), Quiet Wing/native-link focus (#62)
+and physical-device acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remain open.
+
+CI recovery: repeated hosted attempts failed before app tests on a Google Chrome APT index
+checksum mismatch ([#59](https://github.com/Chris0Jeky/Alibi/issues/59)). The candidate workflow
+now pins Ubuntu 24.04 and uses its existing Ubuntu source definition for all APT calls, including
+Playwright's dependency installation. Package verification and every test remain required.
+Both complete exact-head runs passed, and [PR #57](https://github.com/Chris0Jeky/Alibi/pull/57)
+merged at `3a36ce255104ffff961a2fbdc4f5f3ea54632b5b`. Issue #59 is resolved.
+Build `653a01d17507` is published on both existing sites. Each passes 92 live-origin
+storage/offline checks. All 254 primary public files match; all 250 fallback non-HTML files
+match, and its four HTML files preserve the source plus the known 938-byte host challenge.
+The attempted live 0.8.0-to-0.8.1 upgrade probe ended without a final receipt, so that exact
+transition is not claimed verified. Full CI includes the two-release update suite.
+See [RELEASE-0.8.1.md](RELEASE-0.8.1.md) for publication evidence.
+
+The `codex/route-focus` 0.8.2 change gives internal page navigation a destination
+focus target while preserving first-play modal focus, search editing and direct-load behavior.
+Terra reproduced the defect and verified the fix at phone/desktop widths. Independent Luna review
+found no blocker; two adjacent P2 focus paths were explicitly retained in issue #62.
+
+`codex/player-qa` starts at `f3414f6`. Family-first browsing, visible collection-filter escape,
+clearer rules and cell-note controls, placed-digit feedback, saved scene candidate initials and
+independent board crosses, and dedicated casebook story pages address two players' feedback.
+Four new unique 8×8 Sun & Moon boards bring the aggregate to 328 puzzles (27 Sun & Moon).
+All earlier definitions, catalogue IDs/revisions and storage identities are preserved.
+
+The owner reports two real players loved the game: successful early qualitative playtesting.
+This does not certify the earlier Android incident or replace measured difficulty/accessibility
+acceptance. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for those specific checks.
+
+Plan and evidence: [PLAYER-QA.md](PLAYER-QA.md). Future narrative seed:
+[FUTURE-CASES.md](FUTURE-CASES.md). Separate Wrenmere PRs #39–42 are not integrated.
+
+## Theatrical edition 0.8.0 live
+
+PR #26 merged as `adb4f5d` after both exact-head CI runs passed. Build `c8ea40a83be7` is live on
+the existing Cloudflare primary and Sites fallback. Eight complete local
+rooms combine original painted artwork, line emblems, weather, procedural room sound, five
+source-verified photographic alternatives and four deliberately played films. The existing
+interactive Field notes library remains available through its own optional pack. Delivery uses
+nine verified enhancements and eight concurrent-safe cache slots. CSS minification preserves
+all existing core/JS/CSS/Wing budgets. No published puzzle definitions or save identities change.
+
+The 88 new theatre checks, 16 delivery checks, 182 puzzle UI checks, 92 real-origin checks,
+66 curation checks, 158 Quiet Wing checks, Field notes and After Hours suites pass locally.
+All five real photo endpoints returned the pinned WebP bytes through browser CORS checks.
+Independent reviews and bounded fixes are recorded on PR #26. Both live origins pass 92 storage/
+offline checks and the real 0.7-to-0.8 Save & update test with pinned puzzle state preserved.
+All 254 primary public files match exactly; all 250 fallback non-HTML files match exactly, and
+its four HTML files preserve the original content plus the host's challenge-script insertion.
+The primary passes 88 theatre checks. Five photo providers pass CORS/fingerprint checks from both hosts.
+The Sites fallback's missing response headers and generic WebP/Ogg/model MIME types remain #6;
+its same-origin enhanced image is correctly rejected when providers are blocked, retaining the painting.
+The corresponding primary-mirror theatre test is not claimed to pass on Sites.
+Document CSP/referrer policy provides the supported document-level protection.
+
+PR #26 closes #5, #12, #16, #18, #22, #23 and #28; #7 was superseded. Late nonblocking review
+follow-up #36 preserves the Wing's separate motion choice when the root setting permits motion.
+Root Reduce motion still suppresses animation. This limitation and physical-device acceptance
+remain open; see [RELEASE-0.8.0.md](RELEASE-0.8.0.md) for the exact deployment receipts.
+
+See [THEATRICAL-EDITION.md](THEATRICAL-EDITION.md), [ASSET-DELIVERY.md](ASSET-DELIVERY.md) and
+[ONLINE-ASSETS.md](ONLINE-ASSETS.md). [HUMAN_TODO.md](../HUMAN_TODO.md) remains open for physical
+Android, TalkBack, sensory quality, sustained performance, licensing and player judgement.
+
+All sections below are historical checkpoints. The live release and current limitations are above.
+
+## Adaptive delivery 0.7 source checkpoint (historical; merged in PR #27)
+
+`codex/adaptive-assets` starts from `ae5d127` and implements the policy in
+[ASSET-DELIVERY.md](ASSET-DELIVERY.md). Museum interludes retain complete 600px artwork in the
+core and progressively decode verified 1600px detail from optional release files. The loader
+supports one approved CORS mirror plus the same-origin copy, bounded requests/storage, a separate
+image cache and a persistent compact-only preference. No external mirror is configured.
+Quiet Wing pack downloads no longer hold the navigation/save-flush operation open.
+
+Local build `ca81380b205a`: core 1,863,504 bytes, initial JavaScript 102,444 bytes gzip,
+optional enhancement images 2,331,656 bytes; all existing budgets pass without increases.
+Local verification: full format/build/Node gate, 182 puzzle UI checks, 92 real-origin checks,
+66 curation checks, 18 two-tab update checks, and 16 new adaptive-delivery browser checks.
+Phone-sized and desktop gallery screenshots were visually inspected. Node regressions additionally
+cover CDN failure, invalid/oversized/partial responses, hashes, quota denial, timeouts and
+nonblocking activity disposal. Evidence is under `tests/delivery-*.log` and `test-results/delivery/`.
+
+The ready [PR #27](https://github.com/Chris0Jeky/Alibi/pull/27) contains two implementation/strategy
+commits plus review reconciliation. Independent read-only review found no blockers; its low-risk
+cross-tab optional-cache target race is tracked in [#28](https://github.com/Chris0Jeky/Alibi/issues/28).
+This is source/local acceptance, not a new production deployment. Hosted CI, actual external-mirror
+CORS and physical-device performance remain distinct gates. [HUMAN_TODO.md](../HUMAN_TODO.md),
+particularly q-2/q-4, remains open; no subjective owner checks have been closed.
+
+## Historical 0.7 deployment: Cloudflare primary, Sites fallback
 
 Owner decision 2026-09-09: the main play URL is
 **https://alibi-after-hours-preview.commit-atlas.workers.dev/**. The original
@@ -155,7 +570,7 @@ run passed. The single garden image now loads eagerly inside the already-lazy ac
 browser decode assertion has a ten-second deadline and failure diagnostics. No optional activity
 code or models are loaded on the cabinet by this change.
 
-## Quiet Wing expansion in progress
+## Quiet Wing expansion (historical; superseded by 0.6/0.7 releases)
 
 The owner has requested an end-to-end enhancement and deployment, beyond the source candidate.
 See [QUIET-WING-EXPANSION.md](QUIET-WING-EXPANSION.md) for the full outstanding scope.
@@ -206,7 +621,7 @@ with raised transitions to adjacent higher plots. Cliffs and row boundaries do n
 The new geometry regression, full verify, 28 city controls and 14 GPU/fallback checks pass.
 Postcard inputs now have the same readable sizing and 44-pixel minimum as other touch controls.
 
-## Quiet Wing source candidate
+## Quiet Wing source candidate (historical; superseded)
 
 - **0.6.0-lab.1**, build `ba0a721c3f89`, on `codex/quiet-wing`. Seven incremental implementation/test
   commits precede the handoff commit. See [QUIET-WING.md](QUIET-WING.md) for source disposition,
@@ -284,7 +699,7 @@ Postcard inputs now have the same readable sizing and 44-pixel minimum as other 
 - Hosted CI and public-origin results belong in the release receipt. Physical Android,
   iOS, TalkBack and human difficulty calibration remain unverified.
 
-## Follow-up
+## Earlier follow-up inventory (historical; current release status above)
 
 1. Human-playtest Bellweather and Bridges; see [BELLWEATHER-CURATION.md](BELLWEATHER-CURATION.md).
 2. [#1](https://github.com/Chris0Jeky/Alibi/issues/1): curate the earlier Briar House anthology.

@@ -95,3 +95,6 @@ Ignored local `release/` retains the Sites tar, deployment/rollback receipts, ho
 old-to-new upgrade profile/receipt, per-suite logs and final CI artifacts. `test-results/` retains
 browser reports/captures; these are generated disposable test data, not user saves or public assets.
 The complete deployment ZIP remains at the repository root. No credentials are stored with them.
+
+Storage provenance: this release adds `alibi-quiet-wing-v1` alongside `alibi-device` and
+`alibi-afterhours-v1`. All three retain IndexedDB version 1; application versions are separate.

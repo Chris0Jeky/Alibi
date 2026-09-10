@@ -1,8 +1,9 @@
 """Asset integration and production-gallery controls. Uses disposable browser profiles."""
 from pathlib import Path
-import json
+import json, os
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
+URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').rstrip('/')+'/'
 OUT=ROOT/'test-results/assets/acceptance';OUT.mkdir(parents=True,exist_ok=True)
 checks=[]
 def check(value,label):
@@ -12,21 +13,21 @@ with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     page=browser.new_page(viewport={'width':1440,'height':1000},reduced_motion='reduce')
     errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
-    page.goto('http://127.0.0.1:8787/#/library');page.wait_for_selector('.puzzle-card')
+    page.goto(URL+'#/library')
+    page.locator('[data-action="browse-all"]').click()
+    page.wait_for_selector('.puzzle-card')
     page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
     while page.locator('[data-action="show-more"]').count():
         page.locator('[data-action="show-more"]').click()
-    highlight_sources=page.evaluate('Object.values(AlibiAssets.highlights).map(key=>ALIBI_MEDIA[key])')
-    images=page.locator(','.join('img.puzzle-highlight[src='+json.dumps(src)+']' for src in highlight_sources))
-    check(images.count()==12,'Twelve original highlights remain on their collection cards')
-    check(page.locator('.puzzle-highlight').count()==220,'Original highlights and 208 safe curation covers appear')
-    for i in range(images.count()):
-        images.nth(i).scroll_into_view_if_needed();images.nth(i).evaluate('i=>i.decode()')
-        check(images.nth(i).get_attribute('alt')=='','Decorative highlight adds no spoken clue '+str(i))
+    check(page.locator('svg.puzzle-art').count()==page.locator('.puzzle-card').count(),'Every puzzle card leads with a family diagram')
+    check(page.locator('.collection-stamp').count()==208,'Reviewed collection stamps remain secondary metadata')
+    check(page.locator('.puzzle-highlight').count()==0,'Repeated cover images no longer replace family diagrams')
+    for art in page.locator('svg.puzzle-art').all():
+        check(art.get_attribute('aria-hidden')=='true','Family diagram is decorative alongside the readable category')
     for theme in ['light','night']:
-        page.goto('http://127.0.0.1:8787/#/settings');page.wait_for_selector('#theme-select')
+        page.goto(URL+'#/settings');page.wait_for_selector('#theme-select')
         page.locator('#theme-select').select_option(theme)
-        page.goto('http://127.0.0.1:8787/#/library/scene');page.wait_for_selector('.puzzle-highlight')
+        page.goto(URL+'#/library/scene');page.wait_for_selector('svg.puzzle-art')
         first=page.locator('.puzzle-card').first
         first.scroll_into_view_if_needed();page.keyboard.press('Tab');first.locator('.card-open').focus()
         first.screenshot(path=str(OUT/('highlight-focus-'+theme+'.png')))
@@ -34,13 +35,13 @@ with sync_playwright() as p:
     for width in [390,1440]:
         page.set_viewport_size({'width':width,'height':1000})
         for route in ['library/scene','library/witness','club','quiet/journal']:
-            page.goto('http://127.0.0.1:8787/#/'+route);page.wait_for_timeout(500)
+            page.goto(URL+'#/'+route);page.wait_for_timeout(500)
             check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),str(width)+' '+route+' fits')
             page.screenshot(path=str(OUT/(route.replace('/','-')+'-'+str(width)+'.png')))
-    page.goto('http://127.0.0.1:8787/#/club');page.wait_for_selector('.club-stamp')
+    page.goto(URL+'#/club');page.wait_for_selector('.club-stamp')
     check(page.locator('.club-stamp').count()==6,'Six real Club awards preserved')
     check(page.locator('.club-stamp.earned').count()==0,'Empty profile fabricates no Club achievements')
-    page.goto('http://127.0.0.1:8787/#/quiet/journal');page.wait_for_selector('.badge svg')
+    page.goto(URL+'#/quiet/journal');page.wait_for_selector('.badge svg')
     check(page.locator('.badge svg').count()==25,'All 25 Quiet Wing stamps use one accessible decorative SVG')
     page.goto('http://127.0.0.1:8790/');page.wait_for_selector('.asset')
     check(page.locator('.asset').count()>80,'Gallery renders actual produced catalogue')
@@ -62,3 +63,5 @@ with sync_playwright() as p:
     check(not errors,'No page errors during app or gallery navigation')
     (OUT/'results.json').write_text(json.dumps({'checks':checks,'errors':errors,'scope':'Local Chromium; no physical-device certification'},indent=2),encoding='utf8')
     browser.close()
+
+

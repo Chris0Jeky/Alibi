@@ -119,7 +119,16 @@
         throw Error('Invalid Club preferences.');
       for (const [key, r] of Object.entries(v.runs)) {
         if (
-          !['duel', 'borough', 'archive'].includes(key) ||
+          ![
+            'duel',
+            'borough',
+            'archive',
+            'tictactoe',
+            'blockcabinet',
+            'regiongardens',
+            'dominoes',
+            'mahjong',
+          ].includes(key) ||
           !r ||
           (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
           !Array.isArray(r.log) ||
@@ -133,6 +142,10 @@
           let s = E().reversi.initial();
           for (const i of [...r.log, ...r.redo.slice().reverse()]) s = E().reversi.move(s, i);
         }
+        if (key === 'tictactoe') {
+          if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
+          E().tictactoe.replay([...r.log, ...r.redo.slice().reverse()]);
+        }
         if (key === 'borough') E().borough.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
         if (key === 'archive') {
           let s = E().warehouse.initial(r.level);
@@ -142,13 +155,39 @@
             s = next;
           }
         }
+        if (key === 'regiongardens')
+          E().regionGardens.replay(r.level, [...r.log, ...r.redo.slice().reverse()]);
+        if (key === 'blockcabinet') {
+          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+            throw Error('Invalid Block Cabinet seed.');
+          E().blockCabinet.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
+        }
+        if (key === 'dominoes') {
+          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+            throw Error('Invalid domino seed.');
+          E().dominoes.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
+        }
+        if (key === 'mahjong') {
+          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+            throw Error('Invalid Mahjong seed.');
+          E().mahjong.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
+        }
       }
       for (const r of v.records)
         if (
           !r ||
           typeof r.id !== 'string' ||
           r.id.length > 100 ||
-          !['duel', 'borough', 'archive'].includes(r.type) ||
+          ![
+            'duel',
+            'borough',
+            'archive',
+            'tictactoe',
+            'blockcabinet',
+            'regiongardens',
+            'dominoes',
+            'mahjong',
+          ].includes(r.type) ||
           typeof r.label !== 'string' ||
           r.label.length > 100 ||
           !Number.isFinite(r.score) ||

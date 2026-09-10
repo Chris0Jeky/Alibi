@@ -16,6 +16,8 @@ const root = path.resolve(__dirname, '../dist'),
     '.ogg': 'audio/ogg',
     '.opus': 'audio/ogg',
     '.mp4': 'video/mp4',
+    '.vtt': 'text/vtt; charset=utf-8',
+    '.txt': 'text/plain; charset=utf-8',
     '.webmanifest': 'application/manifest+json',
     '.json': 'application/json',
   };
@@ -41,10 +43,8 @@ http
     res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader(
-      'Content-Security-Policy',
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
-    );
+    const headers = fs.readFileSync(path.join(root, '_headers'), 'utf8');
+    res.setHeader('Content-Security-Policy', headers.match(/Content-Security-Policy: (.+)/)[1]);
     if (!['GET', 'HEAD'].includes(req.method)) {
       res.writeHead(405).end();
       return;

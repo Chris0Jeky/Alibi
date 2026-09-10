@@ -350,6 +350,67 @@ def complete_bridges(page: Page) -> None:
         timeout=TIMEOUT_MS,
     )
     check(True, "bridges-01 ArrowRight moves across empty cells to the next island")
+    check(
+        page.locator(f'[data-action="cell"][data-cell="{first_cell}"]').get_attribute("aria-pressed") == "true",
+        "bridges-01 keyboard movement preserves the selected anchor",
+    )
+    page.keyboard.press("ArrowRight")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=second_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowRight stays at the right edge")
+    third_cell = p["islands"][3]["cell"]
+    page.keyboard.press("ArrowDown")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=third_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowDown moves within the same column")
+    page.keyboard.press("ArrowDown")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=third_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowDown stays at the bottom edge")
+    fourth_cell = p["islands"][2]["cell"]
+    page.keyboard.press("ArrowLeft")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=fourth_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowLeft moves within the same row")
+    page.keyboard.press("ArrowLeft")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=fourth_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowLeft stays at the left edge")
+    page.keyboard.press("ArrowUp")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=first_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowUp returns within the same column")
+    page.keyboard.press("ArrowUp")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=first_cell,
+        timeout=TIMEOUT_MS,
+    )
+    check(True, "bridges-01 ArrowUp stays at the top edge")
+    page.keyboard.press("ArrowRight")
+    wait_check(page,
+        "cell => Number(document.activeElement?.dataset.cell) === cell",
+        arg=second_cell,
+        timeout=TIMEOUT_MS,
+    )
     page.keyboard.press("Enter")
     wait_edge(page, 0, 1)
     check(state(page)["cells"][0] == 1, "bridges-01 Enter connects the selected pair")
@@ -542,10 +603,17 @@ def complete_bellweather(page: Page) -> None:
         if index < len(BELLWEATHER_IDS) - 1:
             next_id = BELLWEATHER_IDS[index + 1]
             page.locator('dialog[open] [data-action="next"]').click()
+            page.wait_for_selector('.story-page')
+            check(casebook['chapters'][index]['revelation'] in page.locator('.story-page').inner_text(), 'Completed chapter has a dedicated story page')
+            page.locator('[data-action="story-next"]').click()
+            page.locator('[data-action="story-play"]').click()
             wait_check(page, "id => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=next_id, timeout=TIMEOUT_MS)
             check(current(page)["puzzle"]["id"] == next_id, f"casebook advances to {next_id}")
         else:
             page.locator('dialog[open] [data-action="next"]').click()
+            page.wait_for_selector('.story-page')
+            check(casebook['ending'] in page.locator('.story-page').inner_text(), 'Final chapter opens the epilogue')
+            page.get_by_role('button', name='Back to case file', exact=True).click()
             wait_check(page, "path => location.hash.replace(/^#\\/?/, '').startsWith(path)", arg=f"casebooks/{BELLWEATHER_ID}", timeout=TIMEOUT_MS)
             page.wait_for_selector(".case-ending", timeout=TIMEOUT_MS)
             check(page.locator(".case-ending").count() == 1, "Bellweather casebook shows its final ending after six chapters")
