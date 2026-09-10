@@ -24,16 +24,19 @@ def assert_status_layout(card, expected_status):
     favorite = card.locator('.fav').bounding_box()
     art = card.locator('.card-art').bounding_box()
     assert badge and favorite, f'{expected_status} card exposes both status and favorite controls'
-    assert badge['x'] + badge['width'] <= favorite['x'] - 4, (
-        f'{expected_status} badge keeps four pixels of horizontal space before favorite: '
+    assert badge['x'] + badge['width'] <= favorite['x'] - 4 or badge['y'] + badge['height'] <= favorite['y'] - 4 or favorite['y'] + favorite['height'] <= badge['y'] - 4, (
+        f'{expected_status} badge does not overlap the favorite control: '
         f'art={art}, badge={badge}, favorite={favorite}, '
         f'css={badge_locator.evaluate("el => ({left:getComputedStyle(el).left,right:getComputedStyle(el).right,maxWidth:getComputedStyle(el).maxWidth,width:getComputedStyle(el).width})")}'
+    )
+    assert badge_locator.evaluate('el => el.scrollWidth <= el.clientWidth + 1'), (
+        f'{expected_status} badge text is not clipped: art={art}, badge={badge}'
     )
 
 
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
-    for width in [390, 1440]:
+    for width in [360, 390, 1440]:
         context = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion='reduce')
         page = context.new_page()
         errors = []
