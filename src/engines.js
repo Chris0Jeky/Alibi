@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const C = root.AlibiCore,
-    { clone, range, equal } = C,
+    { clone, range, equal, DIFFICULTIES } = C,
     legacy = {
       solve: C.solve,
       validateDefinition: C.validateDefinition,
@@ -783,10 +783,12 @@
       !int(p.revision, 1, 999999) ||
       !text(p.title, 90) ||
       !text(p.subtitle, 120) ||
-      !['Gentle', 'Steady', 'Tricky'].includes(p.difficulty) ||
+      !DIFFICULTIES.includes(p.difficulty) ||
       !int(p.size, 3, 7)
     )
       fail('Invalid puzzle header.');
+    if (p.difficultyStatus !== undefined && !text(p.difficultyStatus, 40))
+      fail('Invalid difficulty status.');
     if (p.story !== undefined && !text(p.story, 1600)) fail('Invalid story.');
     if (p.question !== undefined && !text(p.question, 200)) fail('Invalid final question.');
     if (p.questionContext !== undefined && !text(p.questionContext, 400))

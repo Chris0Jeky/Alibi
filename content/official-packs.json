@@ -16,6 +16,7 @@
     "curation/packs/trail.json",
     "curation/packs/witness.json",
     "extra/binary-large.json",
-    "extra/nonogram-large.json"
+    "extra/nonogram-large.json",
+    "extra/sudoku-expert.json"
   ]
 }
