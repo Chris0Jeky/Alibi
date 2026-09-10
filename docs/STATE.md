@@ -51,6 +51,21 @@ stamps; the Quiet Wing keeps its room link directly visible without a disclosure
 asset/gallery suite and phone/desktop discovery suite pass. CI's prior red run failed on the
 replaced image assertion; it was not a runtime or storage failure.
 
+### Recorded ambience candidate
+
+PR #84 is merged at `4d6feca`. PR #85 targets main after the focus fix. The next sound slice
+removes main-room procedural noise and game tones. Optional CC0 window rain and beach waves
+have checked-in sources, hashes and a reproducible FFmpeg recipe in `assets-source/ambience`.
+The two optimized recordings total about 220 KiB and are excluded from the initial shell.
+Play attempts to retain them for later offline use; unavailable audio stays silent. Volume,
+stop and secondary settings remain explicit. Source licences are recorded; human listening,
+physical-phone playback and hosted delivery are not yet verified.
+Local evidence: full verify (152 Node tests plus supplementary suites), 96 theatre browser
+checks and 92 real-origin checks. Rain/waves play, volume changes, downloaded offline playback
+and unavailable-audio silence pass. Phone and desktop controls were visually inspected.
+Independent review found no blocker; the standalone empty-selector/copy finding is tracked
+as [issue #86](https://github.com/Chris0Jeky/Alibi/issues/86).
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps

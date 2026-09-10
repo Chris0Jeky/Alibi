@@ -8,7 +8,7 @@
       "art": "bellweather",
       "detail": "hero-bellweather-photo",
       "motion": "rain",
-      "ambience": "ambience-coastal-window",
+      "ambience": "rain",
       "notes": [
         174,
         261,
@@ -28,7 +28,7 @@
       "art": "glasshouse",
       "detail": "hero-glasshouse-photo",
       "motion": "pollen",
-      "ambience": "ambience-glasshouse-garden",
+      "ambience": "rain",
       "notes": [
         220,
         330,
@@ -52,7 +52,7 @@
       "art": "night-train",
       "detail": "hero-night-train-photo",
       "motion": "tracks",
-      "ambience": "ambience-evening-club",
+      "ambience": "rain",
       "notes": [
         146,
         220,
@@ -72,7 +72,7 @@
       "art": "cartographer",
       "detail": "hero-cartographer-photo",
       "motion": "tide",
-      "ambience": "ambience-coastal-window",
+      "ambience": "waves",
       "notes": [
         196,
         294,
@@ -94,7 +94,7 @@
       "art": "club-reading-room",
       "detail": "club-reading-room-photo",
       "motion": "dust",
-      "ambience": "ambience-lamplight-library",
+      "ambience": "rain",
       "notes": [
         164,
         246,
@@ -119,7 +119,7 @@
       "subtitle": "A quiet house. Every small detail has a place.",
       "art": "briar-house",
       "motion": "dust",
-      "ambience": "ambience-lamplight-library",
+      "ambience": "rain",
       "notes": [
         130,
         196,
@@ -140,7 +140,7 @@
       "curation": true,
       "detail": "met-kanbara",
       "motion": "snow",
-      "ambience": "ambience-evening-club",
+      "ambience": "rain",
       "notes": [
         233,
         349,
@@ -161,7 +161,7 @@
       "subtitle": "Distant water. A town shaped by your hands.",
       "art": "quiet-town",
       "motion": "tide",
-      "ambience": "ambience-coastal-window",
+      "ambience": "waves",
       "notes": [
         185,
         277,

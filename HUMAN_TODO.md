@@ -34,6 +34,9 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
 The 0.8 theatrical edition adds an acceptance focus for q-4: compare Painted/Rich rooms, try
 Room sound and Still the room, background/return, and deliberately play a short film. Browser
 checks do not confirm loudness, comfort, battery use or sustained performance on the affected phone.
+The September sound candidate replaces the main-room synthetic bed with recorded rain and waves.
+For q-4, listen to both at low and normal volume, including several loop boundaries, and report
+any distracting voices, repetition or harshness. This acceptance remains open until heard by a person.
 
 - [ ] q-7 — Play Wrenmere Chapter I on the affected phone and with a new player: follow the
   grounds and nearby doors, inspect an object, try the museum label reviews, revise a notebook

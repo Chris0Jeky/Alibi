@@ -15,6 +15,32 @@ const js = fs.readFileSync(
 );
 const config = {};
 vm.runInNewContext(js.split('\n').slice(0, 8).join('\n'), config);
+test('recorded ambience is traceable, compact and excluded from the automatic shell download', () => {
+  const crypto = require('node:crypto');
+  const catalogue = require('../assets-source/ambience/catalogue.json');
+  const sw = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
+  assert.deepEqual(
+    catalogue.assets.map((a) => a.id),
+    ['rain', 'waves'],
+  );
+  let bytes = 0;
+  for (const a of catalogue.assets) {
+    const file = fs.readFileSync(path.join(root, a.file));
+    assert.equal(crypto.createHash('sha256').update(file).digest('hex'), a.sha256);
+    assert.equal(a.license, 'CC0-1.0');
+    assert.ok(a.duration > 8);
+    bytes += file.length;
+    const emitted = config.ALIBI_THEATRE.audio.find((item) => item.id === a.id);
+    assert.ok(emitted && !sw.includes(emitted.url), 'play gesture downloads optional recording');
+    assert.deepEqual(fs.readFileSync(path.join(root, 'dist', emitted.url)), file);
+  }
+  assert.ok(bytes < 250 * 1024);
+  const source = fs.readFileSync(path.join(root, 'src/theatre.js'), 'utf8');
+  assert.ok(
+    !/createOscillator|createBufferSource|AudioContext/.test(source),
+    'no synthetic fallback or unsolicited game tones',
+  );
+});
 test('every game family and Quiet Wing route has a complete offline room and existing optional media', () => {
   const theatre = config.ALIBI_THEATRE;
   assert.equal(theatre.scenes.length, 8);
