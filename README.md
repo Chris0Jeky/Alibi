@@ -1,6 +1,6 @@
 # Alibi
 
-**A little room to think.** Thirteen kinds of puzzle, four illustrated mystery casebooks, and a
+**A little room to think.** Thirteen kinds of puzzle, five illustrated mystery casebooks, and a
 workshop for making a case of your own. No account. No lives. No rush.
 
 [Play Alibi — primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
@@ -99,9 +99,10 @@ The source currently has no reuse license; the owner decision is pending.
 
 ## After Hours
 
-The new games room adds **Lantern Duel**, **Pocket Borough**, and six **Archive Heist** rooms.
-Choose reversible assistance, rotate or pin the illustrated desk, explore the living harbour,
-or enter Zen. The original 116 puzzles and four casebooks remain available with their saves.
+The games room now includes **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
+**Block Cabinet**, **Draw Dominoes**, **Lantern Gardens** and **Mahjong Solitaire**. Archive Heist
+has six rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
+harbour, or enter Zen. The original 116 puzzles and five casebooks remain available with their saves.
 
 [Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
 [Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
@@ -112,9 +113,9 @@ locally, but a static deployment does not enable public online play.
 
 The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
 classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
-home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies,
-bringing the core catalogue to 324. Difficulty remains provisional and missing times are not invented.
-Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
+home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies; later
+trusted packs bring the core catalogue to 355. Difficulty remains provisional and missing times are
+not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 
 ## Local asset library
