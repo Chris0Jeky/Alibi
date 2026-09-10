@@ -756,7 +756,9 @@
                 ? r.log.length
                 : id === 'dominoes'
                   ? E().dominoes.score(s)
-                  : s.pushes;
+                  : id === 'mahjong'
+                    ? E().mahjong.score(s)
+                    : s.pushes;
     state.records.unshift({
       id: key,
       type: id,

@@ -102,6 +102,16 @@ with sync_playwright() as playwright:
             page.locator('.club-gamecard[data-id="mahjong"]').count() == 1,
             f"Home advertises a distinct Mahjong Solitaire card at {width}px",
         )
+        route("/salon/blockcabinet")
+        page.locator('[data-action="club-block-piece"]').first.click()
+        page.locator(".block-cell.legal-origin").first.click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 1"
+        )
+        check(
+            page.evaluate("() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length") == 1,
+            f"Another Club run is saved before Mahjong completion at {width}px",
+        )
         route("/salon/mahjong")
         page.locator('[data-action="club-undo"][data-id="mahjong"]').click()
         page.wait_for_function(
@@ -142,6 +152,34 @@ with sync_playwright() as playwright:
             page.locator('.mahjong-tile.match-target').click()
         check(page.locator('.mahjong-tile').count()==0, f'All ten pairs clear through controls at {width}px')
         check('Every pair is clear' in page.locator('.mahjong-status').inner_text(), f'Completion is visible at {width}px')
+        if os.environ.get("ALIBI_URL"):
+            page.evaluate("() => AlibiClub.save()")
+            context.set_offline(True)
+            page.reload()
+            page.wait_for_selector(".mahjong-status")
+            page.wait_for_function(
+                "() => { const d = AlibiClub.diagnostics(); return d.saveError || d.state.runs.mahjong?.log?.length === 10; }"
+            )
+            check(
+                page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong?.log?.length") == 10,
+                f"Completed Mahjong replay survives an offline reload at {width}px",
+            )
+            check(
+                page.evaluate("() => { const r = AlibiClub.diagnostics().state.records.find((x) => x.type === 'mahjong'); return r?.score === 100 && Number.isFinite(r.score); }"),
+                f"Completed Mahjong record has a finite 100-point score after reload at {width}px",
+            )
+            check(
+                page.evaluate("() => AlibiClub.diagnostics().state.runs.blockcabinet?.log?.length === 1"),
+                f"Another Club run remains after the Mahjong completion reload at {width}px",
+            )
+            check(
+                page.evaluate("() => { const d = AlibiClub.diagnostics(); return d.storageMode === 'indexeddb' && !d.saveError; }"),
+                f"Club save remains available after completed Mahjong reload at {width}px",
+            )
+            check(
+                page.evaluate("async () => { try { await AlibiClub.validateBackup(AlibiClub.diagnostics().state); return true; } catch { return false; } }"),
+                f"Reloaded Club state passes save validation at {width}px",
+            )
         page.locator('[data-action="club-undo"][data-id="mahjong"]').click()
         check(page.locator('.mahjong-tile').count()==2, f'Undo reopens completed table at {width}px')
         page.locator('[data-action="club-redo"][data-id="mahjong"]').click()
