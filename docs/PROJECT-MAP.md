@@ -85,7 +85,7 @@ Two real players have enjoyed Alibi (owner report, 2026-09-09). Structured diffi
 ## After Hours
 
 See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md) and its per-file inventory for the full second bundle.
-`src/club-engines.js` adds four separately versioned games; `assist.js` adds reversible rules,
+`src/club-engines.js` adds five separately versioned games; `assist.js` adds reversible rules,
 `club.js` and `club.css` implement the new desk/games/journal/Zen, and `atlas.js` draws the harbour.
 `boot.js` supplies independent startup recovery. `optional-online/` is a separate, disabled-by-default
 room service. The original 116-puzzle count is unchanged; six Archive rooms are additional games-room
