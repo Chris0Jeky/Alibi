@@ -102,7 +102,8 @@ The source currently has no reuse license; the owner decision is pending.
 The games room now includes **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
 **Block Cabinet**, **Draw Dominoes**, **Lantern Gardens** and **Mahjong Solitaire**. Archive Heist
 has six rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
-harbour, or enter Zen. The original 116 puzzles and five casebooks remain available with their saves.
+harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
+their saves; the fifth invitation casebook extends the current catalogue.
 
 [Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
 [Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
