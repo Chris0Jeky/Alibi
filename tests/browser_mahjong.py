@@ -55,6 +55,9 @@ with sync_playwright() as playwright:
             page.locator(".mahjong-tile.free").count() > 0,
             f"Mahjong exposes free tiles at {width}px",
         )
+        check(page.locator('.mahjong-tile').first.bounding_box()['width'] >= 44, f'Mahjong tiles retain touch width at {width}px')
+        check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Mahjong has no page overflow at {width}px')
+        page.screenshot(path=str(ROOT/'test-results'/f'mahjong-play-{width}.png'),full_page=True)
         page.locator(".mahjong-tile.free").first.click()
         check(
             page.locator('.mahjong-tile[aria-pressed="true"]').count() == 1,
@@ -130,6 +133,22 @@ with sync_playwright() as playwright:
             page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong.log.length") == 0,
             f"Confirmed seed change starts a fresh replay at {width}px",
         )
+        for _ in range(10):
+            free = page.locator('.mahjong-tile.free')
+            faces = free.all_inner_texts()
+            face = next((face for face in faces if faces.count(face)==2), None)
+            check(face is not None, f'A free matching pair remains at {width}px')
+            free.nth(faces.index(face)).click()
+            page.locator('.mahjong-tile.match-target').click()
+        check(page.locator('.mahjong-tile').count()==0, f'All ten pairs clear through controls at {width}px')
+        check('Every pair is clear' in page.locator('.mahjong-status').inner_text(), f'Completion is visible at {width}px')
+        page.locator('[data-action="club-undo"][data-id="mahjong"]').click()
+        check(page.locator('.mahjong-tile').count()==2, f'Undo reopens completed table at {width}px')
+        page.locator('[data-action="club-redo"][data-id="mahjong"]').click()
+        check(page.locator('.mahjong-tile').count()==0, f'Redo completes table at {width}px')
+        route('/salon')
+        check(page.locator('.club-gamecard').count()==9, f'Games Room index preserves eight games and atlas at {width}px')
+        check(page.locator('.club-gamecard[data-id="mahjong"]').count()==1, f'Games Room includes Mahjong at {width}px')
         check(not errors, f"Mahjong controls produce no browser errors at {width}px")
         context.close()
     print("PASS", len(checks), "Mahjong browser assertions.")
