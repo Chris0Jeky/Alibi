@@ -107,6 +107,7 @@ with sync_playwright() as playwright:
     route("/club")
     check(page.locator(".club-game-records").count() == 1, "Club journal renders completed Games Room records")
     check("Two at the table" in page.locator(".club-game-records").inner_text(), "Club journal names the completed Tic-Tac-Toe mode")
+    check("X wins" in page.locator(".club-game-records").inner_text(), "Club journal labels the Tic-Tac-Toe outcome")
     route("/salon/tictactoe")
     action("club-undo", '[data-id="tictactoe"]')
     check("X wins" not in page.locator(".tic-status").inner_text(), "Undo reopens a finished local match")
