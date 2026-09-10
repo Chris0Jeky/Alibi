@@ -3,6 +3,7 @@
 import os
 import json
 from pathlib import Path
+from official_fixture import OFFICIAL_COUNT
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -30,7 +31,7 @@ def main() -> None:
             expect(page.locator('[data-practice-room="observatory"]')).to_contain_text('0 /')
             snapshot=page.evaluate('() => AlibiDiagnostics.getPracticeSnapshot()')
             assert snapshot['available'] and len(snapshot['rooms'])==13
-            assert sum(r['total'] for r in snapshot['rooms'].values())==328
+            assert sum(r['total'] for r in snapshot['rooms'].values())==OFFICIAL_COUNT
             def dismiss():
                 if page.locator('#dialog[open]').count():
                     finish=page.locator('#dialog [data-action="lesson-finish"]')

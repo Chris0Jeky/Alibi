@@ -937,7 +937,11 @@
             : `<div class="axis">${r + 1}</div>`;
       for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
     }
-    return `<div class="board-scroll ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Scroll sideways to pan the board.</p>' : ''}${boardLegend(p, s)}`;
+    const pan =
+      n > 9 && zoomed
+        ? `<div class="toolrow" aria-label="Pan large board">${B('Left', 'board-pan', '', 'secondary small', 'data-value="-1" aria-label="Move view left"')}${B('Right', 'board-pan', '', 'secondary small', 'data-value="1" aria-label="Move view right"')}${B('Up', 'board-pan', '', 'secondary small', 'data-value="-1" data-axis="y" aria-label="Move view up"')}${B('Down', 'board-pan', '', 'secondary small', 'data-value="1" data-axis="y" aria-label="Move view down"')}</div>`
+        : '';
+    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s)}`;
   }
   function boardLegend(p, s) {
     if (p.type === 'scene')
@@ -2600,6 +2604,15 @@
         zoomed = !zoomed;
         render();
         break;
+      case 'board-pan': {
+        const scroller = document.querySelector('[data-scroll-key="board"]');
+        if (scroller) {
+          const vertical = el.dataset.axis === 'y';
+          scroller[vertical ? 'scrollTop' : 'scrollLeft'] +=
+            Number(v) * (vertical ? scroller.clientHeight : scroller.clientWidth) * 0.75;
+        }
+        break;
+      }
       case 'pause':
         paused = !paused;
         enqueueSave();
@@ -3305,7 +3318,7 @@
         feedback = '';
         evidenceTab = 'clues';
         dossierTab = 0;
-        zoomed = false;
+        zoomed = p.size > 9;
         accuseChoice = current.state.accused ?? null;
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';

@@ -42,7 +42,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 328 puzzles across fifteen bounded packs |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 332 puzzles across sixteen bounded packs |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Four casebooks: Bellweather plus three earlier anthologies |
@@ -85,7 +85,7 @@ Two real players have enjoyed Alibi (owner report, 2026-09-09). Structured diffi
 ## After Hours
 
 See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md) and its per-file inventory for the full second bundle.
-`src/club-engines.js` adds three separately versioned games; `assist.js` adds reversible rules,
+`src/club-engines.js` adds four separately versioned games; `assist.js` adds reversible rules,
 `club.js` and `club.css` implement the new desk/games/journal/Zen, and `atlas.js` draws the harbour.
 `boot.js` supplies independent startup recovery. `optional-online/` is a separate, disabled-by-default
 room service. The original 116-puzzle count is unchanged; six Archive rooms are additional games-room
@@ -112,7 +112,7 @@ combined staging and subsequent section validation use its bounded worker. See R
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 59 additional classic/Club challenges are
-separate experiences, never core imports or additions to the 328-puzzle count.
+separate experiences, never core imports or additions to the 332-puzzle count.
 
 ## Adaptive asset delivery
 

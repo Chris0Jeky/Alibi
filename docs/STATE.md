@@ -77,6 +77,19 @@ The actual-control suite passes 17 checks with a real-origin offline reload; bac
 checks pass. Phone/desktop boards were visually inspected. Independent review is underway;
 hosted delivery and physical-device acceptance remain pending in HUMAN_TODO.md.
 
+### Larger Nonogram candidate
+
+Four additive 15×15 boards bring the candidate catalogue to 332. Existing definitions and
+revisions are unchanged; size15 is permitted only for Nonograms, while other bounds remain.
+Independent row-pattern and production solvers prove uniqueness within the declared limits.
+Large boards open enlarged, offer four pan buttons and retain visible clue margins in a bounded
+scroll area. Phone/desktop controls, auto-crosses, undo and offline reload pass; screenshots were
+inspected and clue text enlarged after the first preview. Full verify passes154 Node tests plus
+supplementary suites; the original182 UI and92 real-origin checks pass. Browser catalogue counts
+now derive from the checked-in registry, including the additional custom-puzzle assertion.
+The pure-engine review found no blocker. UI integration review and human difficulty sampling
+remain pending. PR #85 is merged; recorded ambience is PR #87 and Tic-Tac-Toe is PR #88.
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps
