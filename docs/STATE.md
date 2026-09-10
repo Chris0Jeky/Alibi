@@ -2,15 +2,20 @@
 
 Updated 2026-09-10. Git, CI and review threads take precedence over prose.
 
-## 0.11.0 integrated release candidate
+## 0.11.0 published
 
 All requested September feature slices are implemented. The current source has 355 cabinet
 puzzles in thirteen families and nineteen packs, five casebooks, and eight Games Room games
 plus the separate atlas. [The feedback queue](PLAYER-FEEDBACK-2026-09.md) records the adopted
 interpretations; [the release receipt](RELEASE-0.11.0.md) separates publication from local proof.
 PRs #84, #85, #87, #88, #91, #92, #94, #95, #97, #98 and #99 are merged with green checks.
-The final release is PR #101. Publication to both existing origins remains pending its final
-main-based CI and merge. Merging the completed stack into the release changed no source files.
+PR #101 merged at `f1e71a042822822a7ff5e8df688945fcfa152b29` after both final CI runs passed.
+Build `48a8bc3bc1ee` is published on both existing origins. The primary's 274 public files match
+exactly; the fallback's 270 non-HTML files match exactly, and four HTML pages differ only by its
+documented 938-byte hosting challenge. Each origin passes 92 storage/offline checks, the scene
+cycle/hold and Nonogram assistance matrix, and 78 Mahjong checks at phone/desktop widths.
+Actual 0.10.1-to-0.11.0 updates retain an extra pre-activation move, exact state and the pinned
+definition through offline reload on both origins. See the release receipt for deployment IDs.
 
 Late PR #95 review identified theft wording in three non-theft witness chapters. The correction
 uses each record's authored action in statements, conclusions, validation and hints, retaining
@@ -24,8 +29,8 @@ main merge. A further one-off control proof completes all twelve new Expert reco
 widths, rejects a wrong witness answer and verifies Bridges undo: 26 checks, zero failures.
 Difficulty labels remain provisional; this proof establishes playable controls, not calibration.
 
-Integrated `npm run verify` passes with 176 Node tests and supplementary suites. The 32-suite
-local browser matrix passes. Review then found a Mahjong completion score omitted from persisted
+An earlier integrated build passed 176 Node tests and supplementary suites. The 32-suite
+local browser matrix passed. Review then found a Mahjong completion score omitted from persisted
 records; the narrow fix passes 78 Mahjong browser checks, the original Club suite and 92
 real-origin checks against build `13fe27a36f2b`. Completion followed by offline reload now retains
 the finite record and another game's saved run. Fixed catalogue-count assertions now
@@ -34,7 +39,7 @@ These failures were stale test expectations, not lost puzzles or runtime regress
 dry-run validates 277 assets and no runtime bindings. Physical-phone, TalkBack, audio comfort,
 narrative and difficulty acceptance remain open in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
-Final candidate `c50e19f8e184` also gives Mahjong its own matching-tile emblem (all nine Games
+Earlier candidate `c50e19f8e184` also gives Mahjong its own matching-tile emblem (all nine Games
 Room/playground illustrations are distinct at 390/1440px), with 182 UI and 78 Mahjong checks
 passing after that change. Two unpublished Expert entries were strengthened: the Dossier target
 is indirect and uniquely deduced; Bridges has five degree-valid candidates narrowed to one by
@@ -42,12 +47,13 @@ connectivity. Native and independent checks agree, independent review found no b
 twelve Expert family entries render at both widths. Human calibration is still open.
 
 PR #94's first Quiet Wing keyboard-remount check timed out; the independent same-head push run
-passed the whole suite. Canonical local diagnostics also pass. One bounded failed-run retry is
-pending; no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
+passed the whole suite. Canonical local diagnostics and one bounded failed-run retry also passed;
+no runtime fix is inferred. Additional timeout diagnostics are tracked in #102.
 
-Non-blocking review follow-ups remain in #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
+Non-blocking review follow-ups remain in #6, #86, #89, #90, #93, #96, #100 and #102, including large-Nonogram
 hint latency and the widest clue layout's approximately 43px mobile cells. The release keeps
-those limitations explicit. The dated slice notes below are historical candidate checkpoints;
+those limitations explicit. Sites still controls response headers/MIME and its injected challenge
+(#6); document CSP/referrer metadata remains intact. The dated slice notes below are historical candidate checkpoints;
 their smaller counts and publication status describe their own stage, not the current total.
 
 ## September feedback candidate, 2026-09-10
