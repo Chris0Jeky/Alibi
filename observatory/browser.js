@@ -145,7 +145,7 @@ function mountObserver(config, create, runtime = globalThis) {
   return { track: observer.track, flush: observer.flush, flushOnHide: observer.flushOnHide, status: observer.status, dispose };
 }
 
-const config = {"id":"alibi","project":{"events":["page.view","app.ready","app.error","action.requested","action.completed","action.failed","duration.ms","puzzle.started","puzzle.completed","hint.requested"],"routes":["home","puzzle","castle","quiet-wing","other"],"releases":["unattributed"],"measurements":["duration.ms"]},"origin":"https://alibi-after-hours-preview.commit-atlas.workers.dev","endpoint":"","scopePath":"/","release":"unattributed","route":"home","clicks":[],"publicFlag":{"global":"ALIBI_CONFIG","key":"standalone","expected":false}};
+const config = {"id":"alibi","project":{"events":["page.view","app.ready","app.error","action.requested","action.completed","action.failed","duration.ms","puzzle.started","puzzle.completed","hint.requested"],"routes":["home","puzzle","castle","quiet-wing","other"],"releases":["unattributed"],"measurements":["duration.ms"]},"origin":"https://alibi-after-hours-preview.commit-atlas.workers.dev","endpoint":"https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi","scopePath":"/","release":"unattributed","route":"home","clicks":[],"publicFlag":{"global":"ALIBI_CONFIG","key":"standalone","expected":false}};
 function start() { globalThis.PulseboardUsage?.dispose(); globalThis.PulseboardUsage = mountObserver(config, createObserver); }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true }); else start();
 globalThis.addEventListener?.('pageshow', event => { if (event.persisted) start(); });
