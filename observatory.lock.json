@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "source": "Chris0Jeky/Pulseboard:observatory",
+  "installs": {
+    "observatory/browser.js": {
+      "project": "alibi",
+      "sha256": "cedd32490510e494b9329e9543f18f6b2f141de2e942d49652adc9dbed5c0f75"
+    }
+  }
+}

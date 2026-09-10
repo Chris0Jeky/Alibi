@@ -1,6 +1,6 @@
 # Alibi
 
-**A little room to think.** Thirteen kinds of puzzle, four illustrated mystery casebooks, and a
+**A little room to think.** Thirteen kinds of puzzle, five illustrated mystery casebooks, and a
 workshop for making a case of your own. No account. No lives. No rush.
 
 [Play Alibi — primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
@@ -88,8 +88,7 @@ human playtesting of Bellweather and the bridge charts, followed by deliberate c
 
 ## Privacy, provenance and limitations
 
-Progress stays in this browser on this device. There is no cloud sync, advertising, analytics SDK,
-account system or payment service. Export a backup before moving browsers, origins or devices.
+Progress stays in this browser on this device. There is no cloud sync, advertising, account system or payment service. Usage sharing is an opt-in control at the bottom of the page, off by default, sending only content-free action counts (see Settings → Privacy & credits). Export a backup before moving browsers, origins or devices.
 Hosting infrastructure may process ordinary request data; see [deployment](docs/DEPLOYMENT.md).
 
 Solutions ship with the app for offline checking and explicit reveals. Scores are not competitive
@@ -100,9 +99,11 @@ The source currently has no reuse license; the owner decision is pending.
 
 ## After Hours
 
-The new games room adds **Lantern Duel**, **Pocket Borough**, and six **Archive Heist** rooms.
-Choose reversible assistance, rotate or pin the illustrated desk, explore the living harbour,
-or enter Zen. The original 116 puzzles and four casebooks remain available with their saves.
+The games room now includes **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
+**Block Cabinet**, **Draw Dominoes**, **Lantern Gardens** and **Mahjong Solitaire**. Archive Heist
+has six rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
+harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
+their saves; the fifth invitation casebook extends the current catalogue.
 
 [Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
 [Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
@@ -113,9 +114,9 @@ locally, but a static deployment does not enable public online play.
 
 The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
 classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
-home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies,
-bringing the core catalogue to 324. Difficulty remains provisional and missing times are not invented.
-Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
+home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies; later
+trusted packs bring the core catalogue to 355. Difficulty remains provisional and missing times are
+not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 
 ## Local asset library

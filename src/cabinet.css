@@ -847,7 +847,21 @@ html[data-theme='night'] .book-number {
 }
 
 .card-art .badge {
-  top: 10px;
-  left: 54px;
-  bottom: auto;
+  top: auto;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  max-width: calc(100% - 24px);
+}
+
+@media (max-width: 700px) {
+  .card-art .badge {
+    bottom: 4px;
+  }
+}
+
+@media (max-width: 359px) {
+  .puzzle-grid {
+    grid-template-columns: 1fr;
+  }
 }

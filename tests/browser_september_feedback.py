@@ -17,6 +17,7 @@ with sync_playwright() as pw:
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.goto(URL + '/#/play/' + puzzle['id'])
         page.locator('dialog[open] [data-action="close-dialog"]').click()
+        page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id', arg=puzzle['id'])
         who, other = puzzle['people'][:2]
         cell, elsewhere = free[:2]
         target = page.locator(f'#cell-{cell}')
