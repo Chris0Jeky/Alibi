@@ -81,6 +81,12 @@ The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone
 Delete do not move focus into or erase the active puzzle; Observatory origin coverage and asset
 cache decisions remain separate follow-ups.
 
+Origin-migration follow-up #110 now has an explicit fallback inventory in DEPLOYMENT.md. The
+cabinet, Games Room and Quiet Wing contract suites assert their exact localStorage keys and
+preserve recovery bytes while retaining the existing refusal paths for blocked or newer storage.
+This records migration acceptance boundaries; it does not implement an origin migration or claim
+browser/Android acceptance.
+
 ## September feedback candidate, 2026-09-10
 
 ### Mahjong Solitaire candidate

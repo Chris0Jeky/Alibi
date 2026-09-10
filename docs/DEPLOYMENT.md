@@ -39,6 +39,24 @@ Player storage belongs to an origin and browser profile. Changing domain or brow
 migrate IndexedDB. Export on the old origin, import on the new one, and retain the old site long
 enough to recover data. A redirect alone cannot move browser saves.
 
+### Origin migration inventory
+
+Before any future origin migration, enumerate these records explicitly. This is the persistent
+save inventory; session-only data is intentionally not a migration input. Copying or replacing a
+fallback must not turn a blocked, newer or unreadable IndexedDB database into a writable older
+save.
+
+| Area | IndexedDB store | Persistent fallback | Recovery and migration constraint |
+| --- | --- | --- | --- |
+| Cabinet | `alibi-device` v1: `runs`, `packs`, `meta` | `localStorage` keys `alibi.v1.runs.<key>`, `alibi.v1.packs.<key>`, and `alibi.v1.meta.<key>` | If local storage is unavailable, the fallback is session-only memory. Version and blocked errors stay protected and create no competing fallback. |
+| Games Room | `alibi-afterhours-v1` v1, object store `club`, keys `state` and `recovery` | One `localStorage` envelope at `alibi-afterhours-v1` | The local fallback is single-tab. Its recovery copy is IndexedDB-only; `sessionStorage` key `alibi-club-room` is transient room UI state, not a save. |
+| Quiet Wing | `alibi-quiet-wing-v1` v1, object store `saves`, keys `state` and `recovery` | `localStorage` keys `alibi-quiet-wing-v1:fallback` and optional `alibi-quiet-wing-v1:fallback:recovery` | The local fallback is single-tab. Restore is refused there, so it must not synthesize a recovery record; raw export preserves either fallback byte string. |
+
+The fallback contract suites assert these exact keys, reload visibility and preservation behavior:
+`tests/storage.test.cjs`, `tests/club-storage.test.cjs`, and `tests/quiet-wing/contracts.cjs`.
+They use deterministic storage fixtures rather than claiming a browser-origin migration or
+physical-device acceptance.
+
 The active worker serves one coherent cached release. A new release waits for Save & update;
 other open pages are not forcibly reloaded. Worker caches never contain or delete game saves.
 A server rollback does not reverse IndexedDB or immediately replace all installed workers.
