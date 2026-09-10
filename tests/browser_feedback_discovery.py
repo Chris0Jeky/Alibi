@@ -19,6 +19,8 @@ with sync_playwright() as pw:
         summary = page.locator('.theatre-settings > summary')
         summary.focus()
         summary.press('Enter')
+        page.evaluate("window.dispatchEvent(new Event('alibi-storage-change'))")
+        expect(summary).to_be_focused()
         expect(page.locator('[data-theatre-sound]')).to_be_visible()
         page.locator('[data-theatre-data]').click()
         expect(page.locator('.theatre-settings')).to_have_attribute('open', '')

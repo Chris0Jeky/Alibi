@@ -42,6 +42,9 @@ were inspected; collection stamps moved below the artwork after the phone previe
 they obscured the diagram. Audio quality is not addressed by this presentation slice; recorded
 ambience sourcing is underway separately. Tic-tac-toe and 15×15 Nonograms are in isolated worker
 checkouts. No new hosted release is claimed.
+Independent review reproduced focus loss on the Room settings summary during background
+refresh. A stable summary identity fixes it; the storage-event regression passes at both
+widths, and the scoped artwork checks and download budget remain green.
 
 ## Focused QA 0.10.1 published
 
