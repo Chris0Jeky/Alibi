@@ -79,7 +79,7 @@ with sync_playwright() as pw:
         page.reload()
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('board cross.*candidates: ' + first_person['name']))
         page.screenshot(path=str(OUT / f'scene-{width}.png'), full_page=True)
-        cell.click()  # Place selected person after reload resets to Place people.
+        cell.click()  # Reload starts in Tap cycle; a board cross returns to placement.
         moves = page.evaluate('AlibiDiagnostics.getCurrent().moves')
         page.locator('[data-action="scene-mode"][data-value="candidate"]').click()
         cell.click()
@@ -89,6 +89,8 @@ with sync_playwright() as pw:
         expect(page.locator('#save-state')).to_contain_text('Saved on this device')
         context.set_offline(True)
         page.reload()
+        expect(cell).not_to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
+        cell.click()  # Placed person becomes a visible candidate again.
         expect(cell).to_have_attribute('aria-label', __import__('re').compile('candidates: ' + first_person['name']))
         context.set_offline(False)
         for puzzle_index, puzzle in enumerate(json.loads((ROOT / 'content/extra/binary-large.json').read_text())['puzzles']):

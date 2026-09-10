@@ -51,7 +51,7 @@
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
-    sceneMarkMode = 'place',
+    sceneMarkMode = 'cycle',
     pencil = false,
     brush = 1,
     paused = false,
@@ -737,7 +737,10 @@
         person = p.people.find((w) => s.placements[w.id] === i),
         obj = p.objects.find((o) => o.cell === i),
         ex = (s.notes[selectedPerson] || []).includes(i),
-        candidates = p.people.filter((person) => s.candidates?.[i]?.includes(person.id)),
+        candidates = p.people.filter(
+          (person) =>
+            s.placements[person.id] === undefined && s.candidates?.[i]?.includes(person.id),
+        ),
         exclusions = p.people.filter((person) => s.notes[person.id]?.includes(i)),
         crossed = s.crosses?.includes(i);
       cls += ' scene-cell';
@@ -1021,6 +1024,7 @@
         )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
     } else if (t === 'scene')
       content = `<div class="toolrow" aria-label="Scene marking mode">${[
+        ['cycle', 'Tap cycle'],
         ['place', 'Place people'],
         ['candidate', 'Letter notes'],
         ['exclude', 'Person exclusions'],
@@ -1037,7 +1041,7 @@
         )
         .join(
           '',
-        )}${tool('Remove selected', 'erase', 'erase')}</div><p class="control-note">${sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Notes beneath a person reappear when you remove them.</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Choose a person, then repeat taps: place → letter note → excluded letter → X → place. The selected person stays selected.' : sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} All marks are your working notes, not checked answers. Candidates for placed people are hidden and return when removed. Hold a square to clear marks or a name for tools; Square actions and Person actions offer the same menus.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
@@ -1143,13 +1147,15 @@
       name = p.people?.find?.((x) => x.id === selectedPerson)?.name,
       placement =
         p.type === 'scene'
-          ? sceneMarkMode === 'board-cross'
-            ? 'Tap an empty square to add or remove a board X.'
-            : sceneMarkMode === 'candidate'
-              ? `Mark possible squares for <strong>${esc(name)}</strong>.`
-              : pencil
-                ? `Rule out squares for <strong>${esc(name)}</strong>.`
-                : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
+          ? sceneMarkMode === 'cycle'
+            ? `<strong>${esc(name)}</strong> is selected. Repeat taps: place → note → exclusion → X.`
+            : sceneMarkMode === 'board-cross'
+              ? 'Tap an empty square to add or remove a board X.'
+              : sceneMarkMode === 'candidate'
+                ? `Mark possible squares for <strong>${esc(name)}</strong>.`
+                : pencil
+                  ? `Rule out squares for <strong>${esc(name)}</strong>.`
+                  : `<strong>${esc(name)}</strong> is selected. Tap an empty square to place them.`
           : p.type === 'trail'
             ? brush === -1
               ? 'Tap an editable number to erase it.'
@@ -1456,6 +1462,12 @@
         why = AlibiAssist.reason(p, s, action.cell, action.value);
       if (action.type === 'place' && s.placements[action.who] !== action.cell)
         why = AlibiAssist.reason(p, s, action.cell, null, action.who);
+      if (
+        action.type === 'cycle-mark' &&
+        s.placements[action.who] !== action.cell &&
+        E.scene.reduce(p, s, action).placements[action.who] === action.cell
+      )
+        why = AlibiAssist.reason(p, s, action.cell, null, action.who);
       if (p.type === 'dossier' && action.type === 'mark' && action.value === 1) {
         const projection = AlibiClub.projected(p, s);
         why = projection.derived[action.cell] || '';
@@ -1470,6 +1482,45 @@
       auto: false,
     });
     return commit(next, opts);
+  }
+  function sceneMenu(kind) {
+    if (current?.puzzle.type !== 'scene' || blocked()) return;
+    const person = current.puzzle.people.find((w) => w.id === selectedPerson);
+    if (kind === 'person') {
+      dialog(
+        person.name + ': marking tools',
+        '<p>Choose a tool, then tap a square. These choices are also below the board.</p>',
+        [
+          ['cycle', 'Tap cycle'],
+          ['place', 'Place people'],
+          ['candidate', 'Letter notes'],
+          ['exclude', 'Person exclusions'],
+          ['board-cross', 'Board X'],
+        ].map(([value, label]) => ({
+          label,
+          action: 'scene-mode',
+          attrs: `data-value="${value}"`,
+        })),
+      );
+    } else {
+      dialog(
+        'Square actions',
+        `<p>Row ${Math.floor(selectedCell / current.puzzle.size) + 1}, column ${String.fromCharCode(65 + (selectedCell % current.puzzle.size))}. Clearing is reversible with Undo.</p>`,
+        [
+          {
+            label: 'Clear ' + person.name + ' here',
+            action: 'scene-clear-marks',
+            attrs: 'data-value="selected"',
+          },
+          {
+            label: 'Clear everything here',
+            action: 'scene-clear-marks',
+            attrs: 'data-value="all"',
+            secondary: true,
+          },
+        ],
+      );
+    }
   }
   function nextTrail(s, p) {
     return (
@@ -1507,6 +1558,15 @@
     }
     if (t === 'scene') {
       const occupant = p.people.find((w) => s.placements[w.id] === index);
+      if (sceneMarkMode === 'cycle') {
+        if (occupant && occupant.id !== selectedPerson) {
+          selectedPerson = occupant.id;
+          render();
+          toast(occupant.name + ' selected. Tap again to make a letter note.');
+        } else act({ type: 'cycle-mark', who: selectedPerson, cell: index });
+        document.getElementById('cell-' + index)?.focus({ preventScroll: true });
+        return;
+      }
       if (occupant && (sceneMarkMode !== 'place' || pencil)) {
         toast('Choose an empty square for working notes.');
         return;
@@ -2402,7 +2462,21 @@
         if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
         render();
         break;
+      case 'scene-person-menu':
+        sceneMenu('person');
+        break;
+      case 'scene-cell-menu':
+        sceneMenu('cell');
+        break;
+      case 'scene-clear-marks':
+        if (!blocked()) {
+          closeDialog();
+          act({ type: 'clear-marks', who: selectedPerson, cell: selectedCell, all: v === 'all' });
+          document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
+        }
+        break;
       case 'scene-mode':
+        closeDialog();
         sceneMarkMode = v;
         pencil = v === 'exclude';
         render();
@@ -2840,7 +2914,56 @@
         break;
     }
   }
+  let sceneHold = null,
+    sceneHoldClickUntil = 0;
+  function cancelSceneHold() {
+    if (sceneHold) clearTimeout(sceneHold.timer);
+    sceneHold = null;
+  }
+  document.addEventListener('pointerdown', (e) => {
+    cancelSceneHold();
+    sceneHoldClickUntil = 0;
+    const el = e.target.closest('[data-action="person"], .scene-cell[data-cell]');
+    if (
+      !el ||
+      el.disabled ||
+      e.button !== 0 ||
+      current?.puzzle.type !== 'scene' ||
+      $('#dialog').open ||
+      blocked()
+    )
+      return;
+    const key = current.key;
+    sceneHold = {
+      x: e.clientX,
+      y: e.clientY,
+      timer: setTimeout(() => {
+        sceneHold = null;
+        if (current?.key !== key || route.page !== 'play' || $('#dialog').open || blocked()) return;
+        sceneHoldClickUntil = Date.now() + 1000;
+        if (el.dataset.action === 'person') selectedPerson = el.dataset.id;
+        else selectedCell = Number(el.dataset.cell);
+        render();
+        sceneMenu(el.dataset.action === 'person' ? 'person' : 'cell');
+      }, 550),
+    };
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (sceneHold && Math.hypot(e.clientX - sceneHold.x, e.clientY - sceneHold.y) > 10)
+      cancelSceneHold();
+  });
+  for (const event of ['pointerup', 'pointercancel', 'scroll'])
+    document.addEventListener(event, cancelSceneHold, true);
+  window.addEventListener('blur', cancelSceneHold);
   document.addEventListener('click', (e) => {
+    if (
+      e.detail &&
+      Date.now() < sceneHoldClickUntil &&
+      e.target.closest('[data-action="person"], .scene-cell[data-cell]')
+    ) {
+      e.preventDefault();
+      return;
+    }
     const skip = e.target.closest('.skip-link');
     if (skip) {
       e.preventDefault();
@@ -3169,7 +3292,7 @@
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
-        sceneMarkMode = 'place';
+        sceneMarkMode = 'cycle';
         pencil = false;
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;

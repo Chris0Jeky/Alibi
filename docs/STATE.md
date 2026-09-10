@@ -2,6 +2,21 @@
 
 Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
+## September feedback candidate, 2026-09-10
+
+`codex/player-feedback-september` starts from `541ba1e`. The complete incremental queue is
+in [PLAYER-FEEDBACK-2026-09.md](PLAYER-FEEDBACK-2026-09.md). Scene taps now cycle placement,
+candidate, exclusion and board cross while preserving other annotations. Placed people's
+candidates are hidden without deleting them. Hold menus have visible button equivalents.
+Local evidence: full verify (150 Node tests plus supplementary suites), 182 original UI checks,
+player-feedback suite at 390/1440px, the new seven-tap/hold/undo/offline matrix at both widths,
+and 92 real-origin checks. Phone and desktop screenshots were inspected. The first origin run
+overlapped a build that replaces `dist` and encountered a 404 during startup; the rerun against
+the settled build passes. Do not rebuild the served output during browser suites.
+This is a local candidate, not a published release. Progress accounting is the next slice;
+larger puzzles, sound, discovery, case content and Games Room additions remain queued.
+Human acceptance stays in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Focused QA 0.10.1 published
 
 The patch preserves focused library cards through background rerenders (#75) and keeps
