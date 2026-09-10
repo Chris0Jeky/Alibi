@@ -1052,9 +1052,14 @@ input[type='checkbox'] {
   position: absolute;
   bottom: 10px;
   left: 12px;
+  right: 12px;
+  max-width: calc(100% - 24px);
   background: #fffef1e8;
   color: #304638;
   box-shadow: 0 2px 8px #31473714;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .card-body {
   padding: 14px 15px 16px;
@@ -4486,8 +4491,10 @@ html[data-reduced='true'] *:after {
   }
   .card-art .badge {
     font-size: 8px;
-    bottom: 8px;
+    bottom: 4px;
     left: 9px;
+    right: 9px;
+    max-width: calc(100% - 18px);
     padding: 3px 6px;
   }
   .fav {
