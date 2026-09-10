@@ -4,6 +4,16 @@ Updated 2026-09-09. Git, CI and review threads take precedence over prose.
 
 ## September feedback candidate, 2026-09-10
 
+### Advanced family candidates
+
+Twelve new definitions extend the provisional Expert shelf to all thirteen cabinet families,
+alongside the three Expert Sudoku boards. The integrated catalogue has 355 unique puzzles.
+Every added family passes native and independent uniqueness checks, and all twelve render at
+390/1440px without page overflow. The Expert filter shows fifteen clearly provisional entries.
+Full verify passes: 171 Node tests and supplementary suites, including unchanged download budgets.
+Independent review found no HIGH blocker. Solver uniqueness is not human difficulty calibration;
+sampling remains open in [HUMAN_TODO.md](../HUMAN_TODO.md). No hosted release is claimed here.
+
 ### Draw Dominoes candidate
 
 Classic double-six draw dominoes adds a seventh Games Room game. Each side starts with seven
