@@ -141,6 +141,83 @@
       return { cell: best, value, nodes };
     },
   };
+  const ticTacToe = {
+    lines: [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ],
+    initial() {
+      return { board: Array(9).fill(0), turn: 1, ply: 0, winner: 0, done: false };
+    },
+    winner(s) {
+      for (const [a, b, c] of this.lines)
+        if (s.board[a] && s.board[a] === s.board[b] && s.board[a] === s.board[c]) return s.board[a];
+      return 0;
+    },
+    legal(s) {
+      return s.done ? [] : s.board.flatMap((v, i) => (v === 0 ? [i] : []));
+    },
+    move(s, cell) {
+      if (!s || s.done) throw Error('This match is finished.');
+      if (!integer(cell, 0, 8) || s.board[cell] !== 0) throw Error('Choose an empty square.');
+      const q = copy(s);
+      q.board[cell] = q.turn;
+      q.ply++;
+      q.winner = this.winner(q);
+      q.done = !!q.winner || q.ply === 9;
+      q.turn = q.done ? 0 : -q.turn;
+      return q;
+    },
+    best(s, depth = 9) {
+      const moves = this.legal(s);
+      if (!moves.length) return null;
+      const player = s.turn,
+        limit = Math.min(9, Math.max(1, Number.isInteger(depth) ? depth : 9));
+      let nodes = 0;
+      const memo = new Map();
+      const search = (q, d) => {
+        nodes++;
+        const winner = this.winner(q);
+        if (winner) return winner === player ? 100 - q.ply : -100 + q.ply;
+        if (q.ply === 9 || d === 0) return 0;
+        const key = q.board.join(',') + ':' + q.turn + ':' + d;
+        if (memo.has(key)) return memo.get(key);
+        const maximizing = q.turn === player;
+        let value = maximizing ? -Infinity : Infinity;
+        for (const cell of this.legal(q)) {
+          const score = search(this.move(q, cell), d - 1);
+          value = maximizing ? Math.max(value, score) : Math.min(value, score);
+        }
+        memo.set(key, value);
+        return value;
+      };
+      let best = moves[0],
+        value = -Infinity;
+      for (const cell of moves) {
+        const score = search(this.move(s, cell), limit - 1);
+        if (score > value) {
+          value = score;
+          best = cell;
+        }
+      }
+      return { cell: best, value, nodes };
+    },
+    replay(log) {
+      if (!Array.isArray(log) || log.length > 9) throw Error('Invalid tic-tac-toe replay.');
+      let s = this.initial();
+      for (const cell of log) {
+        if (!integer(cell, 0, 8)) throw Error('Invalid tic-tac-toe move.');
+        s = this.move(s, cell);
+      }
+      return s;
+    },
+  };
   const types = ['home', 'garden', 'cafe', 'library', 'water'];
   const typeInfo = {
     home: {
@@ -384,7 +461,19 @@
       return { path: null, nodes: seen.size };
     },
   };
-  const api = { version: 1, hash, random, seedText, neighbors, copy, reversi, borough, warehouse };
+  const api = {
+    version: 1,
+    hash,
+    random,
+    seedText,
+    neighbors,
+    copy,
+    reversi,
+    ticTacToe,
+    tictactoe: ticTacToe,
+    borough,
+    warehouse,
+  };
   root.AlibiClubEngines = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(globalThis);
