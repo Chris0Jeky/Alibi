@@ -1,13 +1,14 @@
 """Real-control discovery and historical changelog acceptance; simulated viewports."""
 import json, os
 from pathlib import Path
-from official_fixture import OFFICIAL_COUNT
+from official_fixture import OFFICIAL_COUNT, official_puzzles
 from playwright.sync_api import sync_playwright, expect
 ROOT=Path(__file__).resolve().parents[1]
 RELEASES=json.loads((ROOT/'content/releases.json').read_text(encoding='utf-8'))
 OUT=Path(os.environ.get('ALIBI_RESULTS',str(ROOT/'test-results/discovery'))); OUT.mkdir(parents=True,exist_ok=True)
 URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787').rstrip('/')
 checks=[]
+BINARY_COUNT=sum(puzzle.get('type')=='binary' for puzzle in official_puzzles())
 (OUT/'results.json').write_text(json.dumps({'passed':False,'status':'running'}))
 def check(value,label):
     assert value,label
@@ -36,14 +37,14 @@ with sync_playwright() as pw:
             page.get_by_role('button',name='Back to your desk',exact=True).click()
             expect(page.locator('.club-news')).to_be_visible()
         page.locator('.news-features [data-id="binary"]').click()
-        expect(page.locator('.filter-meta')).to_contain_text('27 puzzles')
+        expect(page.locator('.filter-meta')).to_contain_text(f'{BINARY_COUNT} puzzles')
         page.locator('.curation-collections > summary').click()
         page.locator('.collection-card[data-value="salt"]').click()
         expect(page.locator('.collection-card[data-value="salt"]')).to_have_attribute('aria-pressed','true')
         expect(page.locator('.filter-meta')).to_contain_text('4 puzzles')
         page.locator('.curation-collections').screenshot(path=str(OUT/f'collection-{width}.png'))
         page.get_by_role('button',name='Show all collections',exact=True).click()
-        expect(page.locator('.filter-meta')).to_contain_text('27 puzzles')
+        expect(page.locator('.filter-meta')).to_contain_text(f'{BINARY_COUNT} puzzles')
         page.locator('.footer [data-page="changelog"]').click()
         expect(page.get_by_role('heading',name='What’s new.')).to_be_visible()
         page.locator('[data-action="release-jump"][data-value="0.3.0"]').focus()
