@@ -11,8 +11,10 @@ else changes. Loaded after the page as an online-only asset, so the declared ini
 core offline-release budget caps remain unchanged even though the measured artifacts grew slightly.
 [RELEASE-0.11.1.md](RELEASE-0.11.1.md) records the hosted checks, the first
 consented payload and the withdrawal check on the Cloudflare primary; the Sites fallback stays on
-0.11.0. Follow-ups (route and release hooks, control coverage in the browser suites, the SUMMARY
-keydown exemption, the fallback wording of the privacy page) are in
+0.11.0. The source release data now also names the Block Cabinet accessibility correction from PR
+#105 for the next content rebuild; the documented primary still serves the earlier entry until
+deployment. Remaining follow-ups (route and release hooks, control coverage in the browser
+suites, the SUMMARY keydown exemption and the fallback wording of the privacy page) are in
 [issue #106](https://github.com/Chris0Jeky/Alibi/issues/106). Human acceptance items in
 [HUMAN_TODO.md](../HUMAN_TODO.md) are unchanged.
 

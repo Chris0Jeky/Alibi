@@ -11,6 +11,7 @@ These entries describe the versions when they arrived. The original 0.2 source b
 2026-09-10
 
 - Add an optional Usage sharing control at the bottom of the page. It stays off until you tick it, sends only a small set of content-free action counts to pulseboard-observatory.commit-atlas.workers.dev, never puzzles, answers, saves, imported packs or workshop text, and can be switched off at any time. Standalone exports stay silent.
+- Improve Block Cabinet accessibility: occupied cells now announce when they are also legal piece origins.
 
 [GitHub release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.1) · [Deployment receipt](docs/RELEASE-0.11.1.md)
 
