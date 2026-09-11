@@ -150,7 +150,9 @@ export function startIntegration() {
       if (!surface)
         surface = mountSurface(host, adapter, {
           onSwitch: openLab,
-          reducedMotion: !!club().diagnostics().state.settings.zen,
+          reducedMotion:
+            !!club().diagnostics().state.settings.zen ||
+            document.documentElement.dataset.reduced === 'true',
         });
       else surface.refresh();
       const kicker = host.querySelector('.bc-header .bc-kicker');
