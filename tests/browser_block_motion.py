@@ -57,6 +57,19 @@ with sync_playwright() as p:
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         boot(page)
+        zen = page.locator('[data-action="club-zen"]').first
+        if zen.is_visible():
+            zen.click()
+        else:
+            page.evaluate('AlibiClub.action({dataset: {action: "club-zen"}})')
+        page.wait_for_function("() => document.body.classList.contains('club-zen')")
+        check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen hides the enhanced aside')
+        menu = page.locator('.bc-host [data-command="menu"]')
+        if menu.is_visible():
+            menu.click()
+            check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen keeps the enhanced aside hidden from the menu')
+        page.locator('#zen-exit').click()
+        page.wait_for_function("() => !document.body.classList.contains('club-zen')")
         before = current(page)
         move(page)
         after = current(page)
