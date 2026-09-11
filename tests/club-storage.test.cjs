@@ -58,6 +58,14 @@ async function tab(storage) {
     a.AlibiClub.diagnostics().storageMode === 'local',
     'Falls back to local storage when IndexedDB is unavailable',
   );
+  check(
+    [...s.data.keys()].join(',') === 'alibi-afterhours-v1',
+    'Games Room fallback uses one origin-scoped save key',
+  );
+  check(
+    !s.data.has('alibi-afterhours-v1:recovery'),
+    'Games Room fallback does not invent an IndexedDB recovery key',
+  );
   check(a.AlibiClub.diagnostics().hero === 0, 'First visit starts with first edition');
   const b = await tab(s);
   check(b.AlibiClub.diagnostics().hero === 1, 'A new tab load rotates to next edition');
@@ -128,7 +136,7 @@ async function tab(storage) {
         passed: true,
         assertions: checks.length,
         scope:
-          'Separate Node VM sessions sharing a localStorage fixture. Tests rotation, pinning, fallback and sequential conflicts. Not real IndexedDB transactions or browser durability.',
+          'Separate Node VM sessions sharing a localStorage fixture. Tests the exact fallback key, rotation, pinning, fallback and sequential conflicts. Not real IndexedDB transactions or browser durability.',
         checks,
       },
       null,

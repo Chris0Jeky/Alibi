@@ -136,6 +136,16 @@ function fakeIDB() {
   const x = E.newState(Date.now());
   await a.s.write(x);
   ok(a.s.info().revision === 1, 'Revision increment');
+  ok(
+    [...ls.m.keys()].join(',') === 'alibi-quiet-wing-v1:fallback',
+    'Quiet Wing fallback writes its primary origin-scoped key',
+  );
+  ls.setItem('alibi-quiet-wing-v1:fallback:recovery', '{"sentinel":"preserve"}');
+  const rawFallback = await a.s.raw();
+  ok(
+    rawFallback.recovery === '{"sentinel":"preserve"}',
+    'Quiet Wing raw export preserves the optional fallback recovery bytes',
+  );
   const b = env(ls);
   const rb = await b.s.open();
   ok(rb.saved.scene.name === x.scene.name, 'Fallback reload');
@@ -158,6 +168,10 @@ function fakeIDB() {
   ok(
     JSON.parse(ls.getItem('alibi-quiet-wing-v1:fallback')).scene.name === 'Latest',
     'Fallback restore refused without changing data',
+  );
+  ok(
+    ls.getItem('alibi-quiet-wing-v1:fallback:recovery') === '{"sentinel":"preserve"}',
+    'Fallback restore refusal preserves the recovery bytes',
   );
   const malformed = local();
   malformed.setItem('alibi-quiet-wing-v1:fallback', '{"schema":999}');
@@ -236,7 +250,7 @@ function fakeIDB() {
     passed: true,
     assertions: checks,
     scope:
-      'Adapter exercised with localStorage and transactional IndexedDB fixtures, including conflicts, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
+      'Adapter exercised with exact local fallback and recovery keys plus transactional IndexedDB fixtures, including conflicts, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
   };
   fs.writeFileSync(
     require('node:path').join(__dirname, 'contract-results.json'),

@@ -34,6 +34,7 @@ with sync_playwright() as pw:
             expect(page.locator('.filter-meta')).to_contain_text(f'{OFFICIAL_COUNT} puzzles')
             page.locator('.footer [data-page="changelog"]').click()
             expect(page.locator('.release-entry')).to_have_count(len(RELEASES))
+            expect(page.locator('[id="release-0.11.1"]')).to_contain_text('Block Cabinet accessibility')
             page.get_by_role('button',name='Back to your desk',exact=True).click()
             expect(page.locator('.club-news')).to_be_visible()
         page.locator('.news-features [data-id="binary"]').click()
