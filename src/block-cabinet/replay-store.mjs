@@ -77,8 +77,10 @@ export async function openReplayStore() {
         : 'Session only. Export this Cascade replay before leaving.'),
     diagnostics: () => ({ mode, revision, protectedSave, warning }),
     canReplace: () => !!db && !protectedSave,
-    async commit(next) {
+    async commit(next, { persistent = false } = {}) {
       replay(next);
+      if (persistent && (!db || protectedSave))
+        throw Error('Replay replacement is unavailable while this device save is protected.');
       if (db) {
         try {
           await new Promise((resolve, reject) => {
@@ -115,8 +117,12 @@ export async function openReplayStore() {
           protectedSave = true;
           warning =
             'The device could not save. Current play is session-only; export before leaving.';
+          if (persistent)
+            throw Error('Replay replacement could not be saved. Export or reload first.');
         }
       }
+      if (persistent && (!db || protectedSave))
+        throw Error('Replay replacement could not be saved. Export or reload first.');
       value = copy(next);
     },
     close() {
