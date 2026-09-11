@@ -79,6 +79,12 @@ with sync_playwright() as p:
             check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen keeps the enhanced aside hidden from the menu')
         page.locator('#zen-exit').click()
         page.wait_for_function("() => !document.body.classList.contains('club-zen')")
+        page.wait_for_function(
+            """() => {
+              const host = document.querySelector('.bc-host'), d = AlibiBlockMotion.diagnostics();
+              return host?.isConnected && host.closest('.block-panel') && !d.scheduled;
+            }"""
+        )
         check(not page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: exiting Zen restores the device motion preference')
         before = current(page)
         move(page)
