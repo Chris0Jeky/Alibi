@@ -56,14 +56,16 @@ export function startIntegration() {
     const body = document.createElement('div');
     dialog.append(close, body);
     document.body.append(dialog);
-    lab = {
-      dialog,
-      adapter,
-      surface: mountSurface(body, adapter, {
-        onSwitch: closeLab,
-        reducedMotion: effectiveReducedMotion(),
-      }),
-    };
+    const surface = mountSurface(body, adapter, {
+      onSwitch: closeLab,
+      reducedMotion: effectiveReducedMotion(),
+    });
+    const title = body.querySelector('.bc-header h2');
+    if (title) {
+      title.id = 'cascade-cabinet-title';
+      dialog.setAttribute('aria-labelledby', title.id);
+    }
+    lab = { dialog, adapter, surface };
     close.addEventListener('click', closeLab);
     dialog.addEventListener('cancel', (e) => {
       e.preventDefault();

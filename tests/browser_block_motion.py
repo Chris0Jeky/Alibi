@@ -47,7 +47,11 @@ def lab(page, check_name=False):
     page.locator('.bc-host [data-command="switch"]').click()
     page.locator('.bc-modal .bc-cell').first.wait_for()
     if check_name:
-        check(page.locator('.bc-modal').get_attribute('aria-label') == 'Cascade Cabinet lab', 'Cascade dialog has an accessible name')
+        check(
+            page.locator('.bc-modal').get_attribute('aria-labelledby') == 'cascade-cabinet-title'
+            and page.locator('#cascade-cabinet-title').inner_text().strip().startswith('Cascade Cabinet'),
+            'Cascade dialog has an accessible name',
+        )
 
 
 with sync_playwright() as p:
@@ -77,6 +81,11 @@ with sync_playwright() as p:
         if menu.is_visible():
             menu.click()
             check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen keeps the enhanced aside hidden from the menu')
+        page.evaluate('location.hash="#/salon"')
+        page.wait_for_function("() => !document.querySelector('.block-panel')")
+        page.evaluate('location.hash="#/salon/blockcabinet"')
+        page.locator('.bc-host .bc-cell').first.wait_for()
+        check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: a surface mounted in Zen uses reduced motion')
         page.locator('#zen-exit').click()
         page.wait_for_function("() => !document.body.classList.contains('club-zen')")
         page.wait_for_function(
@@ -86,13 +95,24 @@ with sync_playwright() as p:
             }"""
         )
         check(not page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: exiting Zen restores the device motion preference')
+        menu = page.locator('.bc-host [data-command="menu"]')
+        if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
+            menu.click()
+        help_panel = page.locator('.bc-host .bc-help')
+        help_panel.locator('summary').click()
+        motion = help_panel.locator('[data-command="motion"]')
+        motion.click()
+        check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle enables the floor')
         before = current(page)
         move(page)
         after = current(page)
         check(len(after['log']) == len(before['log']) + 1, f'{width}: keyboard commits legacy replay')
+        check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion choice survives the Club rerender')
         expected = page.evaluate('AlibiClubEngines.blockCabinet.replay(AlibiClub.diagnostics().state.runs.blockcabinet.seed, AlibiClub.diagnostics().state.runs.blockcabinet.log).score')
         check(int(page.locator('.bc-host [data-score]').inner_text()) == expected, f'{width}: score equals legacy reducer')
         check(page.locator('.bc-host .bc-cell:focus').count() == 1, f'{width}: board keyboard focus restored')
+        motion.click()
+        check(not page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle can be cleared')
         page.locator('.bc-host [data-command="undo"]').focus()
         page.keyboard.press('Enter')
         page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n', arg=len(before['log']))
