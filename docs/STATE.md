@@ -6,9 +6,9 @@ A separately hashed optional surface now attaches to the original Club Block Cab
 
 ## Block Cabinet engine candidate (not deployed)
 
-The isolated engine/prototype branch adds tactile controls, deterministic Cascade rules and a separate experiment replay store. See [engine architecture](BLOCK-CABINET-ENGINE.md). Production build integration is a separate stacked PR. Existing Block Cabinet rules and saves are unchanged. This candidate is not a native APK and has not passed physical Android acceptance.
+The isolated engine/prototype branch adds tactile controls, deterministic Cascade rules and a separate experiment replay store. Its review fixes serialize experiment writes, protect fallback replacement imports, retain Classic demo state across lab switches, and keep semantic controls available without Canvas. See [engine architecture](BLOCK-CABINET-ENGINE.md). Production build integration is a separate stacked PR. Existing Block Cabinet rules and saves are unchanged. This candidate is not a native APK and has not passed physical Android acceptance.
 
-Updated 2026-09-10. Git, CI and review threads take precedence over prose.
+Updated 2026-09-11. Git, CI and review threads take precedence over prose.
 
 ## 0.11.1 published
 
@@ -19,10 +19,20 @@ else changes. Loaded after the page as an online-only asset, so the declared ini
 core offline-release budget caps remain unchanged even though the measured artifacts grew slightly.
 [RELEASE-0.11.1.md](RELEASE-0.11.1.md) records the hosted checks, the first
 consented payload and the withdrawal check on the Cloudflare primary; the Sites fallback stays on
-0.11.0. Follow-ups (route and release hooks, control coverage in the browser suites, the SUMMARY
-keydown exemption, the fallback wording of the privacy page) are in
+0.11.0. The source release data now also names the Block Cabinet accessibility correction from PR
+#105 for the next content rebuild; the documented primary still serves the earlier entry until
+deployment. Remaining follow-ups (route and release hooks, control coverage in the browser
+suites, the SUMMARY keydown exemption and the fallback wording of the privacy page) are in
 [issue #106](https://github.com/Chris0Jeky/Alibi/issues/106). Human acceptance items in
 [HUMAN_TODO.md](../HUMAN_TODO.md) are unchanged.
+
+The standalone preview now omits unavailable room-sound controls and says that recorded sound is
+available in the hosted edition; the hosted renderer still exposes the deliberate rain/waves
+choice. Remaining #86 wording and ambience-semantics follow-ups are not folded into this slice.
+
+The Games Room journal follow-up in issue #112 now shows every retained completed game on the
+device rather than only the 20 newest records; the existing save keeps up to 100. The actual-control
+browser matrix imports and renders 21 records, including the oldest entry beyond the former view.
 
 ## 0.11.0 published
 
@@ -88,6 +98,12 @@ The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone
 `<summary>` has focus. The two-width feedback-discovery browser matrix proves ArrowRight and
 Delete do not move focus into or erase the active puzzle; Observatory origin coverage and asset
 cache decisions remain separate follow-ups.
+
+Origin-migration follow-up #110 now has an explicit fallback inventory in DEPLOYMENT.md. The
+cabinet, Games Room and Quiet Wing contract suites assert their exact localStorage keys and
+preserve recovery bytes while retaining the existing refusal paths for blocked or newer storage.
+This records migration acceptance boundaries; it does not implement an origin migration or claim
+browser/Android acceptance.
 
 ## September feedback candidate, 2026-09-10
 

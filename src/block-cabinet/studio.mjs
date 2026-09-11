@@ -12,7 +12,45 @@ export function downloadReplay(value, name) {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-async function importReplay(current, validate) {
+export function validateReplayInWorker(text) {
+  if (typeof text !== 'string' || text.length > 32 * 1024)
+    throw Error('Replay must be smaller than 32 KiB.');
+  const WorkerCtor = globalThis.Worker;
+  if (typeof WorkerCtor !== 'function')
+    throw Error('This browser does not support background replay validation.');
+  return new Promise((resolve, reject) => {
+    const worker = new WorkerCtor(new URL('./replay-validation-worker.mjs', import.meta.url), {
+      type: 'module',
+    });
+    let settled = false;
+    const stop = () => {
+      worker.terminate();
+      clearTimeout(timer);
+    };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      stop();
+      reject(Error('Replay validation reached its safety limit.'));
+    }, 2500);
+    worker.onmessage = (event) => {
+      if (settled) return;
+      settled = true;
+      stop();
+      event.data?.ok
+        ? resolve(event.data.value)
+        : reject(Error(event.data?.error || 'Replay validation failed.'));
+    };
+    worker.onerror = (event) => {
+      if (settled) return;
+      settled = true;
+      stop();
+      reject(Error(event.message || 'The replay validation worker could not start.'));
+    };
+    worker.postMessage({ text });
+  });
+}
+async function importReplay(current) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -26,8 +64,7 @@ async function importReplay(current, validate) {
           return;
         }
         if (file.size > 32 * 1024) throw Error('Replay must be smaller than 32 KiB.');
-        const value = JSON.parse(await file.text());
-        validate(value);
+        const value = await validateReplayInWorker(await file.text());
         if (
           !confirm('Replace the current experiment? A recovery replay will be downloaded first.')
         ) {
@@ -46,10 +83,24 @@ async function importReplay(current, validate) {
 export async function cascadeAdapter() {
   const store = await openReplayStore();
   const run = () => store.read();
-  const update = async (fn) => {
-    const next = run();
-    fn(next);
-    await store.commit(next);
+  let queue = Promise.resolve();
+  const enqueue = (work) => {
+    const result = queue.then(work);
+    queue = result.catch(() => {});
+    return result;
+  };
+  const update = (fn) =>
+    enqueue(async () => {
+      const next = run();
+      fn(next);
+      await store.commit(next);
+    });
+  const importCurrent = () => {
+    if (!store.canReplace())
+      throw Error(
+        'Replay import is disabled while this device save is protected. Export or reload first.',
+      );
+    return importReplay(run());
   };
   return {
     advanced: true,
@@ -76,22 +127,26 @@ export async function cascadeAdapter() {
       });
     },
     async new() {
-      const seed = prompt('New Cascade seed (letters and numbers):', 'ATELIER-01');
-      if (seed === null) return;
-      Cascade.seedText(seed);
-      if (
-        run().log.length &&
-        !confirm('Start a new expedition? Export the current replay first to keep it.')
-      )
-        return;
-      await store.commit(Cascade.record(seed));
+      await enqueue(async () => {
+        const seed = prompt('New Cascade seed (letters and numbers):', 'ATELIER-01');
+        if (seed === null) return;
+        Cascade.seedText(seed);
+        if (
+          run().log.length &&
+          !confirm('Start a new expedition? Export the current replay first to keep it.')
+        )
+          return;
+        await store.commit(Cascade.record(seed));
+      });
     },
     export() {
       downloadReplay(run(), 'alibi-cascade-replay');
     },
     async import() {
-      const value = await importReplay(run(), Cascade.replay);
-      if (value) await store.commit(value);
+      await enqueue(async () => {
+        const value = await importCurrent();
+        if (value) await store.commit(value);
+      });
     },
     dispose: store.close,
   };
@@ -158,19 +213,20 @@ export function practiceAdapter() {
   };
 }
 export async function mountPrototype(root) {
-  let adapter = practiceAdapter(),
+  const classicAdapter = practiceAdapter();
+  let adapter = classicAdapter,
     surface = null,
     epoch = 0;
   async function switchMode() {
     const token = ++epoch,
       isAdvanced = !!adapter.advanced;
-    const next = isAdvanced ? practiceAdapter() : await cascadeAdapter();
+    const next = isAdvanced ? await cascadeAdapter() : classicAdapter;
     if (token !== epoch) {
       next.dispose?.();
       return;
     }
     surface?.dispose();
-    adapter.dispose?.();
+    if (adapter !== classicAdapter) adapter.dispose?.();
     adapter = next;
     surface = mountSurface(root, adapter, { onSwitch: switchMode });
     globalThis.BlockCabinetPrototype = { diagnostics: () => surface.diagnostics() };
