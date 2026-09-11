@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed",
+  "researchDate": "2026-09-11",
+  "repository": "Chris0Jeky/Alibi",
+  "baseSha": "f931d85162146e03fd85351e78dc16f48e305575",
+  "parentIssue": 120,
+  "nativeImplementationIncluded": false,
+  "productionApproved": false,
+  "identity": {
+    "publisher": null,
+    "applicationId": null,
+    "playAccountType": null,
+    "supportEndpoint": null,
+    "privacyEndpoint": null,
+    "signingCustodian": null,
+    "productionApprover": null
+  },
+  "architecture": {
+    "targets": ["web", "android"],
+    "androidOrigin": "https://localhost",
+    "androidServiceWorker": false,
+    "remoteMainDocument": false,
+    "otaExecutableUpdates": false,
+    "nativeTelemetry": false,
+    "initialAssetPolicy": "bundle-production-runtime-and-media",
+    "activeSaveAuthority": "existing-indexeddb-adapters",
+    "nativeRecovery": "post-commit-explicit-restore-vault",
+    "automaticBackupPolicy": "exclude-private-data-until-reviewed",
+    "preservedWebOrigins": [
+      "https://alibi-after-hours-preview.commit-atlas.workers.dev",
+      "https://alibi-puzzle-club.jeky-tck.chatgpt.site"
+    ]
+  },
+  "saveDomains": [
+    {"id": "cabinet", "database": "alibi-device", "source": "src/storage.js", "combinedBackup": true},
+    {"id": "club", "database": "alibi-afterhours-v1", "source": "src/club.js", "combinedBackup": true},
+    {"id": "quiet-wing", "database": "alibi-quiet-wing-v1", "source": "src/quiet-wing/storage.js", "combinedBackup": true},
+    {"id": "challenges", "database": "alibi-challenges-v1", "source": "src/challenge-storage.js", "combinedBackup": false},
+    {"id": "castle", "database": "alibi-castle-v1", "source": "src/castle/storage.mjs", "combinedBackup": true}
+  ],
+  "conditionalWork": [{"pullRequests": [115, 117], "issue": 119, "domain": "cascade", "inAuditedMain": false}],
+  "toolchainCandidates": {
+    "verifiedByNativeBuild": false,
+    "nodeMajor": 22,
+    "jdkMajorProposal": 21,
+    "minSdk": 24,
+    "compileSdk": 36,
+    "targetSdk": 36,
+    "agpMigrationBaseline": "8.13.0",
+    "gradleMigrationBaseline": "8.14.3",
+    "minimumWebViewCandidate": 120,
+    "packages": {
+      "@capacitor/core": "8.5.1",
+      "@capacitor/cli": "8.5.1",
+      "@capacitor/android": "8.5.1",
+      "@capacitor/app": "8.1.1",
+      "@capacitor/haptics": "8.0.2",
+      "@capacitor/filesystem": "8.1.3",
+      "@capacitor/share": "8.0.1",
+      "@capacitor/file-transfer": "2.0.5"
+    }
+  },
+  "workPackages": [
+    {"id": "CAP-01", "issue": 123, "title": "Publisher and identity", "dependsOn": [], "document": "ROADMAP.md"},
+    {"id": "CAP-02", "issue": 124, "title": "Dual-target build", "dependsOn": [], "document": "ARCHITECTURE.md"},
+    {"id": "CAP-03", "issue": 125, "title": "Platform ports", "dependsOn": [], "document": "ARCHITECTURE.md"},
+    {"id": "CAP-04", "issue": 126, "title": "Pinned Android host", "dependsOn": ["CAP-02", "CAP-03"], "document": "ARCHITECTURE.md"},
+    {"id": "CAP-05", "issue": 127, "title": "Save registry and recovery", "dependsOn": ["CAP-03", "CAP-04"], "document": "DATA-AND-MIGRATION.md"},
+    {"id": "CAP-06", "issue": 128, "title": "Documents and migration", "dependsOn": ["CAP-03", "CAP-04", "CAP-05"], "document": "DATA-AND-MIGRATION.md"},
+    {"id": "CAP-07", "issue": 129, "title": "Bundled assets and optional media", "dependsOn": ["CAP-02", "CAP-03", "CAP-04"], "document": "ASSETS-AND-UPDATES.md"},
+    {"id": "CAP-08", "issue": 130, "title": "Lifecycle and navigation", "dependsOn": ["CAP-03", "CAP-04", "CAP-05"], "document": "NATIVE-UX.md"},
+    {"id": "CAP-09", "issue": 131, "title": "Physical game quality", "dependsOn": ["CAP-04", "CAP-07", "CAP-08"], "document": "ACCEPTANCE.md"},
+    {"id": "CAP-10", "issue": 132, "title": "Security and privacy acceptance", "dependsOn": ["CAP-04", "CAP-05", "CAP-06", "CAP-07", "CAP-08"], "document": "SECURITY-AND-PRIVACY.md"},
+    {"id": "CAP-11", "issue": 133, "title": "Native CI", "dependsOn": ["CAP-02", "CAP-04"], "document": "CI-CD-AND-RELEASE.md"},
+    {"id": "CAP-12", "issue": 134, "title": "Signed delivery", "dependsOn": ["CAP-01", "CAP-10", "CAP-11"], "document": "CI-CD-AND-RELEASE.md"},
+    {"id": "CAP-13", "issue": 135, "title": "Beta and first launch", "dependsOn": ["CAP-01", "CAP-06", "CAP-07", "CAP-08", "CAP-09", "CAP-10", "CAP-11", "CAP-12", "CAP-14"], "document": "ROADMAP.md"},
+    {"id": "CAP-14", "issue": 136, "title": "Initial operations readiness and maintenance", "dependsOn": ["CAP-05", "CAP-10", "CAP-12"], "document": "CI-CD-AND-RELEASE.md"}
+  ],
+  "releaseGates": [
+    {"id": "identity", "status": "pending", "ownerIssue": 123, "evidence": null},
+    {"id": "runtime", "status": "pending", "ownerIssue": 126, "evidence": null},
+    {"id": "migration", "status": "pending", "ownerIssue": 128, "evidence": null},
+    {"id": "physical-quality", "status": "pending", "ownerIssue": 131, "evidence": null},
+    {"id": "security", "status": "pending", "ownerIssue": 132, "evidence": null},
+    {"id": "delivery", "status": "pending", "ownerIssue": 134, "evidence": null},
+    {"id": "play-approval", "status": "pending", "ownerIssue": 135, "evidence": null}
+  ],
+  "existingEvidenceIssues": [2, 11, 13, 118, 119, 106, 96, 102, 80, 30, 37, 48, 79],
+  "deliverables": [
+    "README.md", "SOURCE-AUDIT.md", "ARCHITECTURE.md", "DATA-AND-MIGRATION.md",
+    "ASSETS-AND-UPDATES.md", "NATIVE-UX.md", "SECURITY-AND-PRIVACY.md",
+    "CI-CD-AND-RELEASE.md", "ACCEPTANCE.md", "ROADMAP.md", "SOURCES.md",
+    "contracts/platform.d.ts", "examples/capacitor.config.json", "plan.json",
+    "validate-plan.mjs", "validate-plan.test.mjs", "VERIFICATION.md"
+  ]
+}
