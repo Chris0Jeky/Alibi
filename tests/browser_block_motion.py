@@ -99,6 +99,26 @@ with sync_playwright() as p:
         score = page.locator('.bc-modal [data-score]').inner_text()
         check(int(score) > 0, f'{width}: Cascade actual controls')
         check(current(page)['log'] == saved, f'{width}: Cascade cannot mutate Classic')
+        race_replay = json.dumps({'rules': 'cascade-cabinet-1', 'seed': 'RACE', 'log': [], 'redo': []})
+        menu = page.locator('.bc-modal [data-command="menu"]')
+        if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
+            menu.click()
+        page.once('dialog', lambda dialog: dialog.accept())
+        with page.expect_file_chooser() as chooser_info:
+            page.locator('.bc-modal [data-command="import"]').click()
+        page.evaluate('''async()=>await new Promise((resolve,reject)=>{
+          const request=indexedDB.deleteDatabase('alibi-block-studio');
+          request.onsuccess=resolve;
+          request.onerror=()=>reject(request.error);
+          request.onblocked=()=>reject(new Error('Replay database deletion stayed blocked.'));
+        })''')
+        chooser_info.value.set_files(
+            {'name': 'cascade-race.json', 'mimeType': 'application/json', 'buffer': race_replay.encode()}
+        )
+        page.wait_for_function("() => document.querySelector('.bc-modal .bc-status').textContent.includes('protected')")
+        check(page.locator('.bc-modal [data-score]').inner_text() == score, f'{width}: protected import race keeps the current replay')
+        page.locator('.bc-modal-close').click()
+        lab(page)
         menu = page.locator('.bc-modal [data-command="menu"]')
         if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
             menu.click()
