@@ -28,7 +28,8 @@ def boot(page):
 
 def move(page, prefix='.bc-host'):
     piece = page.locator(prefix + ' [data-piece="0"]')
-    piece.press('Enter')
+    piece.focus()
+    page.keyboard.press('Enter')
     page.wait_for_function(
         '(selector) => document.querySelector(selector)?.getAttribute("aria-pressed") === "true"',
         arg=prefix + ' [data-piece="0"]',
@@ -39,12 +40,14 @@ def move(page, prefix='.bc-host'):
     page.wait_for_timeout(1900)
 
 
-def lab(page):
+def lab(page, check_name=False):
     menu = page.locator('.bc-host [data-command="menu"]')
     if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
         menu.click()
     page.locator('.bc-host [data-command="switch"]').click()
     page.locator('.bc-modal .bc-cell').first.wait_for()
+    if check_name:
+        check(page.locator('.bc-modal').get_attribute('aria-label') == 'Cascade Cabinet lab', 'Cascade dialog has an accessible name')
 
 
 with sync_playwright() as p:
@@ -58,6 +61,7 @@ with sync_playwright() as p:
         context = browser.new_context(viewport={'width': width, 'height': 1000}, has_touch=True)
         page = context.new_page()
         page.set_default_timeout(10000)
+        page.emulate_media(reduced_motion='no-preference')
         errors = []
         page.on('pageerror', lambda error: errors.append(str(error)))
         boot(page)
@@ -68,12 +72,14 @@ with sync_playwright() as p:
             page.evaluate('AlibiClub.action({dataset: {action: "club-zen"}})')
         page.wait_for_function("() => document.body.classList.contains('club-zen')")
         check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen hides the enhanced aside')
+        check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: Zen enables reduced motion on the retained surface')
         menu = page.locator('.bc-host [data-command="menu"]')
         if menu.is_visible():
             menu.click()
             check(page.locator('.bc-host .bc-aside').is_visible() is False, f'{width}: Zen keeps the enhanced aside hidden from the menu')
         page.locator('#zen-exit').click()
         page.wait_for_function("() => !document.body.classList.contains('club-zen')")
+        check(not page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: exiting Zen restores the device motion preference')
         before = current(page)
         move(page)
         after = current(page)
@@ -117,7 +123,7 @@ with sync_playwright() as p:
         saved = current(page)['log']
         page.reload(); page.locator('.bc-host .bc-cell').first.wait_for()
         check(current(page)['log'] == saved, f'{width}: Classic survives reload')
-        lab(page)
+        lab(page, check_name=True)
         move(page, '.bc-modal')
         score = page.locator('.bc-modal [data-score]').inner_text()
         check(int(score) > 0, f'{width}: Cascade actual controls')

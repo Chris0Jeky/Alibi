@@ -47,6 +47,7 @@ export function startIntegration() {
     closeLab();
     const dialog = document.createElement('dialog');
     dialog.className = 'bc-modal';
+    dialog.setAttribute('aria-label', 'Cascade Cabinet lab');
     const close = document.createElement('button');
     close.type = 'button';
     close.className = 'bc-modal-close';
@@ -162,7 +163,8 @@ export function startIntegration() {
           onSwitch: openLab,
           reducedMotion: effectiveReducedMotion(),
         });
-      else surface.refresh();
+      else surface.setReducedMotion?.(effectiveReducedMotion());
+      lab?.surface?.setReducedMotion?.(effectiveReducedMotion());
       const kicker = host.querySelector('.bc-header .bc-kicker');
       if (kicker && kicker.tagName !== 'A') {
         const back = document.createElement('a');

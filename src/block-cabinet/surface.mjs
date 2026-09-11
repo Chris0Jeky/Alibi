@@ -186,6 +186,16 @@ export function mountSurface(root, adapter, options = {}) {
     announce(`${getShape().name} selected. Drag it, or choose a square.`);
     return true;
   }
+  function setReducedMotion(value) {
+    const next = !!value || !!options.reducedMotion || reduced.matches;
+    if (reduce === next) return;
+    reduce = next;
+    effects = null;
+    pending = false;
+    board.classList.remove('bc-resolving');
+    sync();
+    loop.invalidate();
+  }
   async function place(cell) {
     if (pending || selected === null) return;
     if (!legal(cell)) {
@@ -622,6 +632,7 @@ export function mountSurface(root, adapter, options = {}) {
   sync();
   return {
     refresh: sync,
+    setReducedMotion,
     diagnostics: () => ({
       ...loop.stats(),
       selected,
