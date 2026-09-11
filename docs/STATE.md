@@ -1,5 +1,9 @@
 # Live development state
 
+## Block Cabinet engine candidate (not deployed)
+
+The isolated engine/prototype branch adds tactile controls, deterministic Cascade rules and a separate experiment replay store. Its review fixes serialize experiment writes, protect fallback replacement imports, retain Classic demo state across lab switches, and keep semantic controls available without Canvas. See [engine architecture](BLOCK-CABINET-ENGINE.md). Production build integration is a separate stacked PR. Existing Block Cabinet rules and saves are unchanged. This candidate is not a native APK and has not passed physical Android acceptance.
+
 Updated 2026-09-11. Git, CI and review threads take precedence over prose.
 
 ## 0.11.1 published

@@ -51,3 +51,9 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   report any easy, guess-heavy or confusing entry before treating Expert as calibrated. The
   region game uses one lantern per row/column/region with no touching, and Dominoes uses the
   double-six draw variant. Confirm whether these interpretations match the player's intention.
+
+## Block Cabinet tactile candidate
+
+- Test actual Android touch drag, cancellation by OS gestures, TalkBack, large text, audio comfort and lifecycle resume.
+- Calibrate Cascade seeds and relic/rotation rules before promotion out of the lab. Export Cascade separately from the existing combined backup.
+- No native APK, Play publication or phone performance result is claimed. See docs/BLOCK-CABINET-ENGINE.md.
