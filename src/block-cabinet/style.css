@@ -455,6 +455,9 @@
   font-size: 23px;
   cursor: pointer;
 }
+.bc-modal .bc-header {
+  padding-right: 56px;
+}
 .bc-modal .bc-seal {
   visibility: hidden;
 }

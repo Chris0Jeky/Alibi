@@ -99,6 +99,19 @@ with sync_playwright() as p:
         score = page.locator('.bc-modal [data-score]').inner_text()
         check(int(score) > 0, f'{width}: Cascade actual controls')
         check(current(page)['log'] == saved, f'{width}: Cascade cannot mutate Classic')
+        menu = page.locator('.bc-modal [data-command="menu"]')
+        if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
+            menu.click()
+        replay = json.dumps({'rules': 'cascade-cabinet-1', 'seed': 'IMPORTED', 'log': [], 'redo': []})
+        page.once('dialog', lambda dialog: dialog.accept())
+        with page.expect_file_chooser() as chooser_info:
+            page.locator('.bc-modal [data-command="import"]').click()
+        chooser_info.value.set_files(
+            {'name': 'cascade.json', 'mimeType': 'application/json', 'buffer': replay.encode()}
+        )
+        page.wait_for_function("() => document.querySelector('.bc-modal [data-score]').textContent.trim() === '0'")
+        check(page.locator('.bc-modal [data-score]').inner_text() == '0', f'{width}: Cascade import uses the emitted worker')
+        score = '0'
         page.screenshot(path=str(OUT / f'cascade-{width}.png'), full_page=True)
         page.locator('.bc-modal-close').click()
         lab(page)

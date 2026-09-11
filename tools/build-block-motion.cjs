@@ -6,6 +6,14 @@ const crypto = require('node:crypto');
 const esbuild = require('esbuild');
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
 module.exports = function buildBlockMotion(root, dist) {
+  const worker = esbuild.buildSync({
+    entryPoints: [path.join(root, 'src/block-cabinet/replay-validation-worker.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'iife',
+    target: 'es2022',
+    write: false,
+  }).outputFiles[0].text;
   const source = esbuild.buildSync({
     entryPoints: [path.join(root, 'src/block-cabinet/integration.mjs')],
     bundle: true,
@@ -30,11 +38,13 @@ module.exports = function buildBlockMotion(root, dist) {
   }).code;
   const scriptURL = `./assets/block-motion.${hash(source).slice(0, 12)}.js`;
   const cssURL = `./assets/block-motion.${hash(css).slice(0, 12)}.css`;
+  const workerURL = `./assets/block-replay-worker.${hash(worker).slice(0, 12)}.js`;
   const artURL = './assets/' + artName;
   fs.mkdirSync(path.join(dist, 'assets'), { recursive: true });
   for (const [file, bytes] of [
     [scriptURL, source],
     [cssURL, css],
+    [workerURL, worker],
     [artURL, art],
   ])
     fs.writeFileSync(path.join(dist, file), bytes);
@@ -43,13 +53,16 @@ module.exports = function buildBlockMotion(root, dist) {
       build: hash(source + css).slice(0, 12),
       script: scriptURL,
       css: cssURL,
-      files: [scriptURL, cssURL, artURL],
+      replayWorker: workerURL,
+      files: [scriptURL, cssURL, workerURL, artURL],
     },
     standalone: {
       source,
       cssSource:
         cssBase + `\n.bc-studio{--bc-art:url('data:image/webp;base64,${art.toString('base64')}')}`,
+      replayWorkerSource: worker,
     },
-    bytes: Buffer.byteLength(source) + Buffer.byteLength(css) + art.length,
+    bytes:
+      Buffer.byteLength(source) + Buffer.byteLength(css) + Buffer.byteLength(worker) + art.length,
   };
 };

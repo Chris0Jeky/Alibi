@@ -107,7 +107,7 @@ test('replay import rejects oversized input before requiring a worker', () => {
   assert.throws(() => validateReplayInWorker('x'.repeat(32 * 1024 + 1)), /32 KiB/);
   assert.throws(
     () => validateReplayInWorker(JSON.stringify(C.record())),
-    /background replay validation/,
+    /background replay validation|worker is unavailable/,
   );
 });
 test('100 seeded trajectories preserve bounds, relic conservation and exact replay', () => {
