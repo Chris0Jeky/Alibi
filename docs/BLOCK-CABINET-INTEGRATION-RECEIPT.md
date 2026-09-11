@@ -2,13 +2,13 @@
 
 Candidate verified locally; the hosted workflow remains authoritative before merge. Not deployed. Physical Android not tested.
 
-Implementation commit: `e80c451236aaf3e4733bd4fe7dcbd8a6baf18680`. Build: `a44cef46b8e5`. App version unchanged: `0.11.1`.
+Reviewed tree: `2b1993f0b9c4099683df0b7534197c7cb16989d8` (integration fix `e80c4512`, parent race fix `9e69a0a`). Build: `234a711ad044`. App version unchanged: `0.11.1`.
 
 - Full `npm run verify` passed: formatting, build, all Node tests and supplementary suites.
-- Enhanced actual-control matrix: **46 checks** passed at 390 and 1280 CSS pixels, including successful lifted touch drops, touch cancellation, legacy rules/save preservation, undo/redo, keyboard focus, Cascade isolation, emitted-worker import, app-level and OS reduced-motion settings, stale-tab rejection, offline reload and route disposal.
+- Enhanced actual-control matrix: **48 checks** passed at 390 and 1280 CSS pixels, including successful lifted touch drops, touch cancellation, legacy rules/save preservation, undo/redo, keyboard focus, Cascade isolation, emitted-worker import, protected import races, app-level and OS reduced-motion settings, stale-tab rejection, offline reload and route disposal.
 - Retained legacy Block Cabinet browser suite passed **34 checks** at 390 and 1440 pixels.
 - Existing real-origin storage/offline suite passed **92 checks**; the broader application UI suite passed **182 checks**.
-- Optional game JS/CSS/worker/art: **48895 bytes**, outside initial precache. Initial loader: **842 bytes gzip**. Main JS: **127978 bytes gzip**. Existing main and offline budget caps remain unchanged; new pack has a separate 64 KiB cap.
+- Optional game JS/CSS/worker/art: **49207 bytes**, outside initial precache. Initial loader: **841 bytes gzip**. Main JS: **127977 bytes gzip**. Existing main and offline budget caps remain unchanged; new pack has a separate 64 KiB cap.
 
 Art provenance and checksum are committed under `assets-source/block-cabinet/`. The live tiles, previews, particles and locally synthesized sounds are code, not baked UI screenshots.
 
