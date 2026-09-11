@@ -27,8 +27,12 @@ def boot(page):
 
 
 def move(page, prefix='.bc-host'):
-    page.locator(prefix + ' [data-piece="0"]').focus()
-    page.keyboard.press('Enter')
+    piece = page.locator(prefix + ' [data-piece="0"]')
+    piece.press('Enter')
+    page.wait_for_function(
+        '(selector) => document.querySelector(selector)?.getAttribute("aria-pressed") === "true"',
+        arg=prefix + ' [data-piece="0"]',
+    )
     cell = page.locator(prefix + ' .bc-cell.legal').first
     cell.focus()
     page.keyboard.press('Enter')
