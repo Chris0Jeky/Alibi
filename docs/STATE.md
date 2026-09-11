@@ -17,6 +17,10 @@ suites, the SUMMARY keydown exemption and the fallback wording of the privacy pa
 [issue #106](https://github.com/Chris0Jeky/Alibi/issues/106). Human acceptance items in
 [HUMAN_TODO.md](../HUMAN_TODO.md) are unchanged.
 
+The standalone preview now omits unavailable room-sound controls and says that recorded sound is
+available in the hosted edition; the hosted renderer still exposes the deliberate rain/waves
+choice. Remaining #86 wording and ambience-semantics follow-ups are not folded into this slice.
+
 The Games Room journal follow-up in issue #112 now shows every retained completed game on the
 device rather than only the 20 newest records; the existing save keeps up to 100. The actual-control
 browser matrix imports and renders 21 records, including the oldest entry beyond the former view.
