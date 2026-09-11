@@ -802,7 +802,7 @@
         .filter((r) => r.type === 'borough')
         .slice()
         .sort((a, b) => b.score - a.score),
-      gameRecords = state.records.filter((r) => r.type !== 'borough').slice(0, 20),
+      gameRecords = state.records.filter((r) => r.type !== 'borough'),
       unique = new Map();
     for (const r of towns) if (!unique.has(r.label)) unique.set(r.label, r);
     const achievements = [

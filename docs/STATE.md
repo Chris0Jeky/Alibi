@@ -1,6 +1,6 @@
 # Live development state
 
-Updated 2026-09-10. Git, CI and review threads take precedence over prose.
+Updated 2026-09-11. Git, CI and review threads take precedence over prose.
 
 ## 0.11.1 published
 
@@ -15,6 +15,10 @@ consented payload and the withdrawal check on the Cloudflare primary; the Sites 
 keydown exemption, the fallback wording of the privacy page) are in
 [issue #106](https://github.com/Chris0Jeky/Alibi/issues/106). Human acceptance items in
 [HUMAN_TODO.md](../HUMAN_TODO.md) are unchanged.
+
+The Games Room journal follow-up in issue #112 now shows every retained completed game on the
+device rather than only the 20 newest records; the existing save keeps up to 100. The actual-control
+browser matrix imports and renders 21 records, including the oldest entry beyond the former view.
 
 ## 0.11.0 published
 
