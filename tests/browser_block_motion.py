@@ -195,8 +195,12 @@ with sync_playwright() as p:
         if page.locator('.bc-host [data-command="menu"]').is_visible():
             if page.locator('.bc-host [data-command="menu"]').get_attribute('aria-expanded') != 'true':
                 page.locator('.bc-host [data-command="menu"]').click()
-        page.locator('.bc-host [data-command="simple"]').click()
+        simple = page.locator('.bc-host [data-command="simple"]')
+        simple.focus()
+        page.keyboard.press('Enter')
         check(page.locator('.block-grid').is_visible(), f'{width}: simple controls remain playable')
+        page.wait_for_function("() => document.activeElement?.classList.contains('block-cell')")
+        check(page.locator('.block-grid .block-cell:focus').count() == 1, f'{width}: simple switch restores focus to the legacy board')
         page.locator('.bc-enable').click()
         page.locator('.bc-host .bc-cell').first.wait_for()
         check(current(page)['log'] == saved, f'{width}: switching controls preserves replay')

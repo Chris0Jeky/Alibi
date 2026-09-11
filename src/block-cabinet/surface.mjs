@@ -495,6 +495,8 @@ export function mountSurface(root, adapter, options = {}) {
       ['undo', 'redo'].includes(name) && document.activeElement?.dataset.command === name
         ? name
         : null;
+    const restoreSimpleFocus =
+      name === 'simple' && document.activeElement?.dataset.command === 'simple';
     const locks = ['undo', 'redo', 'new', 'export', 'import', 'simple'].includes(name);
     if (locks) {
       pending = true;
@@ -535,7 +537,7 @@ export function mountSurface(root, adapter, options = {}) {
       } else if (name === 'switch') {
         options.onSwitch?.();
       } else if (adapter[name]) {
-        await adapter[name]();
+        await adapter[name](restoreSimpleFocus);
         selected = null;
         rotation = 0;
         sync();

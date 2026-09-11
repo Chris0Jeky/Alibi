@@ -74,7 +74,7 @@ export function startIntegration() {
     dialog.showModal();
     close.focus();
   }
-  function restoreSimple() {
+  function restoreSimple(restoreFocus = false) {
     simple = true;
     document.body.classList.remove('block-motion-active');
     surface?.dispose();
@@ -84,6 +84,12 @@ export function startIntegration() {
     panel?.closest('.club-playlayout')?.classList.remove('bc-enhanced-layout');
     panel?.querySelectorAll('.bc-legacy').forEach((el) => el.classList.remove('bc-legacy'));
     installEnable();
+    if (restoreFocus) {
+      const target =
+        panel?.querySelector('.block-cell:not([disabled])') || panel?.querySelector('.bc-enable');
+      target?.focus({ preventScroll: true });
+      setTimeout(() => target?.isConnected && target.focus({ preventScroll: true }), 0);
+    }
   }
   function installEnable() {
     if (!panel || panel.querySelector('.bc-enable')) return;
