@@ -1998,6 +1998,7 @@ body.club-experiment {
 .club-zen .footer,
 .club-zen .club-gameheading,
 .club-zen .club-gameaside,
+.club-zen .bc-aside,
 .club-zen .play-header,
 .club-zen .play-end,
 .club-zen .play-head,
@@ -2023,6 +2024,13 @@ body.club-experiment {
 .club-zen .club-playlayout {
   display: block;
   max-width: 620px;
+  margin: auto;
+}
+.club-zen .bc-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.club-zen .bc-play {
+  max-width: 520px;
   margin: auto;
 }
 .club-zen .club-boardpanel {

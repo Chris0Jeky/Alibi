@@ -23,7 +23,9 @@ export function mountSurface(root, adapter, options = {}) {
     sound = false,
     haptics = false,
     restoreFocus = false;
-  let reduce = !!options.reducedMotion || reduced.matches,
+  let userReducedMotion = false,
+    externalReducedMotion = !!options.reducedMotion,
+    reduce = userReducedMotion || externalReducedMotion || reduced.matches,
     focusCell = 0;
   root.innerHTML = `<section class="bc-studio" aria-label="Block Cabinet tactile game">
     <header class="bc-header"><div><span class="bc-kicker">ALIBI / THE GAMES ROOM</span><h2></h2></div><button type="button" class="bc-menu-toggle" data-command="menu" aria-expanded="false" aria-label="Game menu">⋯</button><span class="bc-seal" aria-hidden="true">◇</span></header>
@@ -95,6 +97,13 @@ export function mountSurface(root, adapter, options = {}) {
   }
   function sync() {
     if (disposed) return;
+    const nextReduce = userReducedMotion || externalReducedMotion || reduced.matches;
+    if (reduce !== nextReduce) {
+      reduce = nextReduce;
+      effects = null;
+      pending = false;
+      board.classList.remove('bc-resolving');
+    }
     state = adapter.read();
     if (selected !== null && state.tray[selected] === null) selected = null;
     text($('[data-score]'), state.score);
@@ -117,7 +126,7 @@ export function mountSurface(root, adapter, options = {}) {
       adapter.saveLabel?.() || 'Device-local play. Export a replay to keep a separate backup.',
     );
     const motion = $('[data-command="motion"]'),
-      motionFloor = !!options.reducedMotion || reduced.matches;
+      motionFloor = externalReducedMotion || reduced.matches;
     motion.setAttribute('aria-pressed', String(reduce));
     motion.setAttribute(
       'aria-label',
@@ -185,6 +194,11 @@ export function mountSurface(root, adapter, options = {}) {
     feedback.unlock();
     announce(`${getShape().name} selected. Drag it, or choose a square.`);
     return true;
+  }
+  function setReducedMotion(value) {
+    externalReducedMotion = !!value;
+    sync();
+    loop.invalidate();
   }
   async function place(cell) {
     if (pending || selected === null) return;
@@ -477,6 +491,12 @@ export function mountSurface(root, adapter, options = {}) {
   });
   async function command(name) {
     if (pending) return;
+    const restoreCommand =
+      ['undo', 'redo'].includes(name) && document.activeElement?.dataset.command === name
+        ? name
+        : null;
+    const restoreSimpleFocus =
+      name === 'simple' && document.activeElement?.dataset.command === 'simple';
     const locks = ['undo', 'redo', 'new', 'export', 'import', 'simple'].includes(name);
     if (locks) {
       pending = true;
@@ -499,11 +519,10 @@ export function mountSurface(root, adapter, options = {}) {
         $('[data-command="haptics"]').setAttribute('aria-pressed', String(haptics));
         feedback.play();
       } else if (name === 'motion') {
-        if (!!options.reducedMotion || reduced.matches) {
-          reduce = true;
+        if (externalReducedMotion || reduced.matches) {
           announce('Reduced motion follows your device preference.');
         } else {
-          reduce = !reduce;
+          userReducedMotion = !userReducedMotion;
         }
         effects = null;
         pending = false;
@@ -518,7 +537,7 @@ export function mountSurface(root, adapter, options = {}) {
       } else if (name === 'switch') {
         options.onSwitch?.();
       } else if (adapter[name]) {
-        await adapter[name]();
+        await adapter[name](restoreSimpleFocus);
         selected = null;
         rotation = 0;
         sync();
@@ -529,6 +548,18 @@ export function mountSurface(root, adapter, options = {}) {
       if (locks) {
         pending = false;
         sync();
+        if (restoreCommand) {
+          const target = root.querySelector(`[data-command="${restoreCommand}"]`),
+            fallback = root.querySelector(
+              `[data-command="${restoreCommand === 'undo' ? 'redo' : 'undo'}"]`,
+            );
+          (target && !target.disabled
+            ? target
+            : fallback && !fallback.disabled
+              ? fallback
+              : cells[focusCell]
+          )?.focus({ preventScroll: true });
+        }
       }
     }
   }
@@ -599,13 +630,13 @@ export function mountSurface(root, adapter, options = {}) {
   };
   document.addEventListener('visibilitychange', visibility);
   const mediaChange = () => {
-    reduce = !!options.reducedMotion || reduced.matches;
-    loop.invalidate();
+    sync();
   };
   reduced.addEventListener('change', mediaChange);
   sync();
   return {
     refresh: sync,
+    setReducedMotion,
     diagnostics: () => ({
       ...loop.stats(),
       selected,

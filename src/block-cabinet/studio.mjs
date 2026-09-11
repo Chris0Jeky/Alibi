@@ -12,20 +12,36 @@ export function downloadReplay(value, name) {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-export function validateReplayInWorker(text) {
+export function validateReplayInWorker(text, options = {}) {
   if (typeof text !== 'string' || text.length > 32 * 1024)
     throw Error('Replay must be smaller than 32 KiB.');
   const WorkerCtor = globalThis.Worker;
   if (typeof WorkerCtor !== 'function')
     throw Error('This browser does not support background replay validation.');
+  const config = globalThis.ALIBI_BLOCK_MOTION || {},
+    source = options.workerSource || config.replayWorkerSource,
+    configuredURL = options.workerURL || config.replayWorker;
+  if (typeof source !== 'string' && typeof configuredURL !== 'string')
+    throw Error('The replay validation worker is unavailable.');
   return new Promise((resolve, reject) => {
-    const worker = new WorkerCtor(new URL('./replay-validation-worker.mjs', import.meta.url), {
-      type: 'module',
-    });
+    let worker,
+      blobURL = '';
+    try {
+      const workerURL =
+        typeof source === 'string'
+          ? (blobURL = URL.createObjectURL(new Blob([source], { type: 'text/javascript' })))
+          : configuredURL;
+      worker = new WorkerCtor(workerURL, { type: 'module' });
+    } catch (error) {
+      if (blobURL) URL.revokeObjectURL(blobURL);
+      reject(error);
+      return;
+    }
     let settled = false;
     const stop = () => {
       worker.terminate();
       clearTimeout(timer);
+      if (blobURL) URL.revokeObjectURL(blobURL);
     };
     const timer = setTimeout(() => {
       if (settled) return;
@@ -50,7 +66,7 @@ export function validateReplayInWorker(text) {
     worker.postMessage({ text });
   });
 }
-async function importReplay(current) {
+async function importReplay(current, workerOptions) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -64,7 +80,7 @@ async function importReplay(current) {
           return;
         }
         if (file.size > 32 * 1024) throw Error('Replay must be smaller than 32 KiB.');
-        const value = await validateReplayInWorker(await file.text());
+        const value = await validateReplayInWorker(await file.text(), workerOptions);
         if (
           !confirm('Replace the current experiment? A recovery replay will be downloaded first.')
         ) {
@@ -80,7 +96,7 @@ async function importReplay(current) {
     input.click();
   });
 }
-export async function cascadeAdapter() {
+export async function cascadeAdapter(workerOptions = {}) {
   const store = await openReplayStore();
   const run = () => store.read();
   let queue = Promise.resolve();
@@ -100,7 +116,7 @@ export async function cascadeAdapter() {
       throw Error(
         'Replay import is disabled while this device save is protected. Export or reload first.',
       );
-    return importReplay(run());
+    return importReplay(run(), workerOptions);
   };
   return {
     advanced: true,

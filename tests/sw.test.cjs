@@ -110,6 +110,9 @@ function setup(failInstall = false) {
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
               !n.startsWith('observatory.') &&
+              !n.startsWith('block-motion.') &&
+              !n.startsWith('block-replay-worker.') &&
+              !n.startsWith('block-atelier.') &&
               !/^quiet-(castle|activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
                 n,
               ),
@@ -124,6 +127,9 @@ function setup(failInstall = false) {
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&
         !n.startsWith('observatory.') &&
+        !n.startsWith('block-motion.') &&
+        !n.startsWith('block-replay-worker.') &&
+        !n.startsWith('block-atelier.') &&
         !/^quiet-(castle|activity|style|keeper|wave|portrait|bedroom|sunday|museum-rights|kenney-license|pet-cat|pet-fox|pet-owl)\./.test(
           n,
         ),

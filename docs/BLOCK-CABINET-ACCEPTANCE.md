@@ -4,14 +4,13 @@ Candidate evidence, 2026-09-11. This record distinguishes code tests, browser au
 
 ## Engine and source prototype
 
-- `node --test tests/block-motion.test.mjs`: 11 tests passed locally and again in GitHub Actions, including 100 seeded trajectories, replay equivalence, relic conservation, simultaneous crossings, gravity chains, rotations, illegal moves, bounds and idle-frame disposal.
+- `node --test tests/block-motion.test.mjs`: 12 tests passed locally, including 100 seeded trajectories, replay equivalence, relic conservation, simultaneous crossings, gravity chains, rotations, illegal moves, bounds, worker-import size gating and idle-frame disposal. The hosted workflow remains authoritative for the branch head.
 - The engine candidate now serializes Cascade adapter writes, retains the Classic demo across lab switches, preserves selected rotation during drag, keeps semantic controls available without Canvas, and validates replay imports in a dedicated module worker. Protected session fallback refuses destructive replay replacement; these UI and storage paths still need the integrated actual-control proof below.
-- Standalone Chromium control smoke: piece selection and legal placement changed the score, Cascade opened with eight relics, no horizontal overflow at 390px, and no uncaught JavaScript errors in that smoke. This is not a full accessibility audit or successful physical-touch test.
-- Formatted candidate `b6c57b6` built successfully as `79d9fb2c1fcf` and passed the repository's formatting gate. Its preparation job ran 189 Node tests: 188 passed; the one failure was an existing media test because that temporary job omitted the `ffprobe` executable. The normal repository workflow installs FFmpeg. Do not describe that preparation run as fully green.
+- The final integration fix at `8e2a83d` builds as `262c9c9d897c`, passes the formatting gate and keeps the optional pack below its 64 KiB cap. It includes the protected-import race fix from parent commit `9e69a0a`; the production bundle uses a delivered replay-worker asset, the standalone bundle embeds the same worker source, Classic and Cascade preserve the local motion choice while updating external motion floors, Zen hides the enhanced aside, the Cascade dialog is labelled by its rendered heading, Undo/Redo retain usable keyboard focus, and switching to Simple controls restores focus to the legacy board.
 
 ## Production integration
 
-The stacked integration layer adds actual-control tests for original Classic replay preservation, undo/redo, mouse drag, touch cancellation, keyboard focus, Cascade separation and persistence, stale-tab rejection, fallback controls, offline pack loading, route disposal and responsive layout. Its own workflow/check results take precedence over this architecture note. Merely adding those assertions does not establish that they have passed.
+The stacked integration layer adds actual-control tests for original Classic replay preservation, undo/redo, mouse drag, touch cancellation, keyboard focus, Cascade separation and persistence, stale-tab rejection, fallback controls, offline pack loading, route disposal, Zen presentation and responsive layout. The reviewed local matrix passes 73 checks at 390 and 1280 CSS pixels; its own workflow/check results still take precedence over this architecture note.
 
 ## Physical launch gates
 

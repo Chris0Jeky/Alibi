@@ -44,7 +44,16 @@ with sync_playwright() as playwright:
             page.evaluate("(value) => (location.hash = value)", path)
             page.wait_for_timeout(180)
 
+        def simple_controls():
+            # Exercise the real fallback menu; enhanced controls have their own suite.
+            page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+            menu = page.locator('.bc-host [data-command="menu"]')
+            if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
+                menu.click()
+            page.locator('.bc-host [data-command="simple"]').click()
+
         route("/salon/blockcabinet")
+        simple_controls()
         check(
             page.locator(".block-cell").count() == 64,
             f"Block Cabinet renders an 8 by 8 board at {width}px",
@@ -106,9 +115,13 @@ with sync_playwright() as playwright:
             f"Redo restores the placed piece at {width}px",
         )
         if os.environ.get('ALIBI_URL'):
-            page.wait_for_timeout(500)
+            page.wait_for_function('''async()=>{
+              const c=ALIBI_BLOCK_MOTION,pack=await caches.open('alibi-block-motion-'+c.build);
+              return (await Promise.all(c.files.map(url=>pack.match(url)))).every(Boolean);
+            }''')
             context.set_offline(True)
             page.reload()
+            simple_controls()
             page.wait_for_selector('.block-cell.filled')
             check(page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log.length') == 1, f'Placement survives offline reload at {width}px')
         page.locator("#block-seed").fill("A2")
