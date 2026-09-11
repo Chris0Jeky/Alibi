@@ -6,9 +6,8 @@ content-free action counts to the maintainer's own collector at
 `https://pulseboard-observatory.commit-atlas.workers.dev` (Pulseboard Observatory; owner
 decision 2026-09-10, notice approved). The deployed tree also carries one small accessibility
 correction merged into `main` just before publication: occupied Block Cabinet cells now expose
-when they are legal piece origins (PR #105, `a7133be`). Nothing else in the game changes; the
-in-app "What's new" entry for 0.11.1 names only the usage-sharing control and gains that line at
-the next content rebuild (#106). Published puzzle IDs, revisions and saves are untouched.
+when they are legal piece origins (PR #105, `a7133be`). The rebuilt in-app "What's new" entry
+names both changes. Published puzzle IDs, revisions and saves are untouched.
 
 ## What the control does and does not do
 
