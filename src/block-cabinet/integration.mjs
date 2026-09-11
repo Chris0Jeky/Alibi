@@ -15,6 +15,9 @@ export function startIntegration() {
   const engine = () => globalThis.AlibiClubEngines.blockCabinet;
   const run = () => club().diagnostics().state.runs.blockcabinet;
   const state = () => engine().replay(run().seed, run().log);
+  const effectiveReducedMotion = () =>
+    !!club().diagnostics().state.settings.zen ||
+    document.documentElement.dataset.reduced === 'true';
   const action = async (name, data = {}) => {
     busy++;
     try {
@@ -52,7 +55,14 @@ export function startIntegration() {
     const body = document.createElement('div');
     dialog.append(close, body);
     document.body.append(dialog);
-    lab = { dialog, adapter, surface: mountSurface(body, adapter, { onSwitch: closeLab }) };
+    lab = {
+      dialog,
+      adapter,
+      surface: mountSurface(body, adapter, {
+        onSwitch: closeLab,
+        reducedMotion: effectiveReducedMotion(),
+      }),
+    };
     close.addEventListener('click', closeLab);
     dialog.addEventListener('cancel', (e) => {
       e.preventDefault();
@@ -150,9 +160,7 @@ export function startIntegration() {
       if (!surface)
         surface = mountSurface(host, adapter, {
           onSwitch: openLab,
-          reducedMotion:
-            !!club().diagnostics().state.settings.zen ||
-            document.documentElement.dataset.reduced === 'true',
+          reducedMotion: effectiveReducedMotion(),
         });
       else surface.refresh();
       const kicker = host.querySelector('.bc-header .bc-kicker');
@@ -176,7 +184,13 @@ export function startIntegration() {
   globalThis.AlibiBlockMotion = {
     ...globalThis.AlibiBlockMotion,
     running: true,
-    diagnostics: () => ({ active: !!surface, simple, lab: !!lab, ...surface?.diagnostics() }),
+    diagnostics: () => ({
+      active: !!surface,
+      simple,
+      lab: !!lab,
+      ...surface?.diagnostics(),
+      labReducedMotion: lab?.surface?.diagnostics().reducedMotion ?? null,
+    }),
     dispose() {
       document.body.classList.remove('block-motion-active');
       observer.disconnect();

@@ -477,6 +477,10 @@ export function mountSurface(root, adapter, options = {}) {
   });
   async function command(name) {
     if (pending) return;
+    const restoreCommand =
+      ['undo', 'redo'].includes(name) && document.activeElement?.dataset.command === name
+        ? name
+        : null;
     const locks = ['undo', 'redo', 'new', 'export', 'import', 'simple'].includes(name);
     if (locks) {
       pending = true;
@@ -529,6 +533,18 @@ export function mountSurface(root, adapter, options = {}) {
       if (locks) {
         pending = false;
         sync();
+        if (restoreCommand) {
+          const target = root.querySelector(`[data-command="${restoreCommand}"]`),
+            fallback = root.querySelector(
+              `[data-command="${restoreCommand === 'undo' ? 'redo' : 'undo'}"]`,
+            );
+          (target && !target.disabled
+            ? target
+            : fallback && !fallback.disabled
+              ? fallback
+              : cells[focusCell]
+          )?.focus({ preventScroll: true });
+        }
       }
     }
   }
