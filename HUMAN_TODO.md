@@ -51,3 +51,27 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   report any easy, guess-heavy or confusing entry before treating Expert as calibrated. The
   region game uses one lantern per row/column/region with no touching, and Dominoes uses the
   double-six draw variant. Confirm whether these interpretations match the player's intention.
+
+## Capacitor transition: owner gates, not a request to stop planning
+
+The [Capacitor architecture package](docs/capacitor/README.md) and [program #120](https://github.com/Chris0Jeky/Alibi/issues/120)
+plan a shared PWA plus bundled Android edition. No native application, store release or new account
+is claimed by this planning PR. Build-target/port work and a visibly non-publishable preview can
+proceed without more animation choices, a new domain or store credentials.
+
+Before production registration, extend q-3 with the approved legal publisher, applicationId, Play
+account type/status, support/privacy endpoints, signing custodian and production approver:
+[CAP-01/#123](https://github.com/Chris0Jeky/Alibi/issues/123). Keep identity documents, tester addresses
+and key material private, not in this public repository. No fees or subscriptions are authorized
+by the architecture alone.
+
+Before native promotion, existing q-2/q-4 physical checks also cover native touch, TalkBack,
+interruption/process-recreation, document-provider transfer and sustained performance. Record
+actual results under [CAP-09/#131](https://github.com/Chris0Jeky/Alibi/issues/131) and existing #118.
+Applicable genuine closed testing and Google approval remain external gates under
+[CAP-13/#135](https://github.com/Chris0Jeky/Alibi/issues/135).
+
+The proposed native default excludes private progress from automatic cloud/device transfer and
+provides explicit export/import. Confirm any decision to change that privacy/recovery trade-off
+before release; platform/OEM behaviour still needs testing. All seven release gates remain pending
+in [plan.json](docs/capacitor/plan.json).
