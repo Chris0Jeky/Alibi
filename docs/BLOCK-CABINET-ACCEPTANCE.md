@@ -6,7 +6,7 @@ Candidate evidence, 2026-09-11. This record distinguishes code tests, browser au
 
 - `node --test tests/block-motion.test.mjs`: 13 tests passed locally, including 100 seeded trajectories, replay equivalence, relic conservation, simultaneous crossings, gravity chains, rotations, illegal moves, bounds, worker-import size gating and idle-frame disposal. The hosted workflow remains authoritative for the branch head.
 - The engine candidate now serializes Cascade adapter writes, retains the Classic demo across lab switches, preserves selected rotation during drag, keeps semantic controls available without Canvas, and validates replay imports in a dedicated module worker. Protected session fallback refuses destructive replay replacement; these UI and storage paths still need the integrated actual-control proof below.
-- The corrected integration build at `f9bced5ba9265472da9ba0a03eb238d3acad9771` is `175a39090ec7`, passes the formatting gate and keeps the optional pack below its 64 KiB cap. The production bundle uses a delivered replay-worker asset; the standalone bundle embeds the same worker source.
+- The corrected integration build at `e80c451236aaf3e4733bd4fe7dcbd8a6baf18680` is `a44cef46b8e5`, passes the formatting gate and keeps the optional pack below its 64 KiB cap. The production bundle uses a delivered replay-worker asset; the standalone bundle embeds the same worker source and the integration honors the app-level reduced-motion setting.
 
 ## Production integration
 
