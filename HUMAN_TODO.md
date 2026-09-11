@@ -75,3 +75,8 @@ The proposed native default excludes private progress from automatic cloud/devic
 provides explicit export/import. Confirm any decision to change that privacy/recovery trade-off
 before release; platform/OEM behaviour still needs testing. All seven release gates remain pending
 in [plan.json](docs/capacitor/plan.json).
+## Block Cabinet tactile candidate
+
+- Test actual Android touch drag, cancellation by OS gestures, TalkBack, large text, audio comfort and lifecycle resume.
+- Calibrate Cascade seeds and relic/rotation rules before promotion out of the lab. Export Cascade separately from the existing combined backup.
+- No native APK, Play publication or phone performance result is claimed. See docs/BLOCK-CABINET-ENGINE.md.
