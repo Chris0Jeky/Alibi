@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as C from '../src/block-cabinet/cascade.mjs';
 import { dropOrigin, FrameLoop } from '../src/game-feel/runtime.mjs';
+import { validateReplayInWorker } from '../src/block-cabinet/studio.mjs';
 
 test('deterministic deals, immutable shape definitions and distinct rules identity', () => {
   assert.deepEqual(C.initial('HELLO'), C.initial('HELLO'));
@@ -101,6 +102,13 @@ test('strict replay validation checks redo and bounded payloads', () => {
   assert.throws(() => C.replay({ ...r, redo: [{ slot: 0, cell: 64, rotation: 0 }] }));
   assert.throws(() => C.replay({ ...r, rules: 'future' }));
   assert.throws(() => C.replay({ ...r, log: Array(36).fill({}) }));
+});
+test('replay import rejects oversized input before requiring a worker', () => {
+  assert.throws(() => validateReplayInWorker('x'.repeat(32 * 1024 + 1)), /32 KiB/);
+  assert.throws(
+    () => validateReplayInWorker(JSON.stringify(C.record())),
+    /background replay validation/,
+  );
 });
 test('100 seeded trajectories preserve bounds, relic conservation and exact replay', () => {
   for (let n = 0; n < 100; n++) {

@@ -43,10 +43,11 @@ export function mountSurface(root, adapter, options = {}) {
     stage = $('.bc-stage'),
     tray = $('.bc-tray'),
     canvas = $('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    root.replaceChildren();
-    throw Error('Canvas unavailable. Use the original controls.');
+  let ctx = null;
+  try {
+    ctx = canvas.getContext('2d');
+  } catch {
+    /* Canvas is decorative; the semantic controls remain playable. */
   }
   const feedback = createFeedback(options.nativeFeedback);
   const cells = Array.from({ length: 64 }, (_, i) => {
@@ -115,6 +116,16 @@ export function mountSurface(root, adapter, options = {}) {
       $('[data-save]'),
       adapter.saveLabel?.() || 'Device-local play. Export a replay to keep a separate backup.',
     );
+    const motion = $('[data-command="motion"]'),
+      motionFloor = !!options.reducedMotion || reduced.matches;
+    motion.setAttribute('aria-pressed', String(reduce));
+    motion.setAttribute(
+      'aria-label',
+      reduce && motionFloor
+        ? 'Reduce motion on; follows your device preference'
+        : `Reduce motion ${reduce ? 'on' : 'off'}`,
+    );
+    text(motion, reduce ? 'Reduce motion: on' : 'Reduce motion: off');
     cells.forEach((el, i) => {
       el.classList.toggle('filled', !!state.board[i]);
       el.classList.toggle('relic', state.board[i] === 2 && advanced);
@@ -148,6 +159,8 @@ export function mountSurface(root, adapter, options = {}) {
     $('[data-command="undo"]').disabled = pending || !adapter.canUndo();
     $('[data-command="redo"]').disabled = pending || !adapter.canRedo();
     $('[data-command="rotate"]').disabled = pending || selected === null || !state.charges;
+    for (const command of ['new', 'export', 'import', 'simple'])
+      $('[data-command="' + command + '"]').disabled = pending;
     if (state.done)
       announce(
         advanced
@@ -164,8 +177,9 @@ export function mountSurface(root, adapter, options = {}) {
   }
   function select(slot) {
     if (pending || state.done || state.tray[slot] === null) return false;
+    const preserveRotation = selected === slot;
     selected = slot;
-    rotation = 0;
+    if (!preserveRotation) rotation = 0;
     origin = -1;
     sync();
     feedback.unlock();
@@ -218,16 +232,18 @@ export function mountSurface(root, adapter, options = {}) {
               },
             ]
           : [];
-      effects = {
-        start: performance.now(),
-        placed,
-        waves,
-        score: after.score - before.score,
-        duration: reduce ? 0 : waves.length ? Math.min(1800, waves.length * 300 + 220) : 220,
-      };
+      effects = ctx
+        ? {
+            start: performance.now(),
+            placed,
+            waves,
+            score: after.score - before.score,
+            duration: reduce ? 0 : waves.length ? Math.min(1800, waves.length * 300 + 220) : 220,
+          }
+        : null;
       selected = null;
       rotation = 0;
-      pending = effects.duration > 0;
+      pending = !!effects && effects.duration > 0;
       feedback.play(waves.length ? 'clear' : 'place', waves.length || 1);
       announce(
         waves.length
@@ -275,6 +291,7 @@ export function mountSurface(root, adapter, options = {}) {
     ctx.restore();
   }
   function draw(now) {
+    if (!ctx) return false;
     const d = dimensions(),
       w = d.stage.width,
       h = d.stage.height,
@@ -460,6 +477,11 @@ export function mountSurface(root, adapter, options = {}) {
   });
   async function command(name) {
     if (pending) return;
+    const locks = ['undo', 'redo', 'new', 'export', 'import', 'simple'].includes(name);
+    if (locks) {
+      pending = true;
+      sync();
+    }
     try {
       if (name === 'menu') {
         const open = $('.bc-studio').classList.toggle('bc-menu-open');
@@ -477,11 +499,16 @@ export function mountSurface(root, adapter, options = {}) {
         $('[data-command="haptics"]').setAttribute('aria-pressed', String(haptics));
         feedback.play();
       } else if (name === 'motion') {
-        reduce = !reduce;
+        if (!!options.reducedMotion || reduced.matches) {
+          reduce = true;
+          announce('Reduced motion follows your device preference.');
+        } else {
+          reduce = !reduce;
+        }
         effects = null;
         pending = false;
         board.classList.remove('bc-resolving');
-        $('[data-command="motion"]').setAttribute('aria-pressed', String(reduce));
+        sync();
         loop.invalidate();
       } else if (name === 'rotate' && advanced && selected !== null && state.charges) {
         rotation = (rotation + 1) % 4;
@@ -498,6 +525,11 @@ export function mountSurface(root, adapter, options = {}) {
       }
     } catch (error) {
       announce(error.message || 'The action could not complete.');
+    } finally {
+      if (locks) {
+        pending = false;
+        sync();
+      }
     }
   }
   function click(e) {

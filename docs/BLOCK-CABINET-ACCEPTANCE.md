@@ -5,6 +5,7 @@ Candidate evidence, 2026-09-11. This record distinguishes code tests, browser au
 ## Engine and source prototype
 
 - `node --test tests/block-motion.test.mjs`: 11 tests passed locally and again in GitHub Actions, including 100 seeded trajectories, replay equivalence, relic conservation, simultaneous crossings, gravity chains, rotations, illegal moves, bounds and idle-frame disposal.
+- The engine candidate now serializes Cascade adapter writes, retains the Classic demo across lab switches, preserves selected rotation during drag, keeps semantic controls available without Canvas, and validates replay imports in a dedicated module worker. Protected session fallback refuses destructive replay replacement; these UI and storage paths still need the integrated actual-control proof below.
 - Standalone Chromium control smoke: piece selection and legal placement changed the score, Cascade opened with eight relics, no horizontal overflow at 390px, and no uncaught JavaScript errors in that smoke. This is not a full accessibility audit or successful physical-touch test.
 - Formatted candidate `b6c57b6` built successfully as `79d9fb2c1fcf` and passed the repository's formatting gate. Its preparation job ran 189 Node tests: 188 passed; the one failure was an existing media test because that temporary job omitted the `ffprobe` executable. The normal repository workflow installs FFmpeg. Do not describe that preparation run as fully green.
 

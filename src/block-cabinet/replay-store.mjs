@@ -56,6 +56,7 @@ export async function openReplayStore() {
       db.close();
       db = null;
       mode = 'session';
+      protectedSave = true;
       warning = 'Storage changed in another tab. Export this session.';
     };
   } catch (error) {
@@ -75,6 +76,7 @@ export async function openReplayStore() {
         ? 'Cascade saves in its own device-local store. Export separately from the Club backup.'
         : 'Session only. Export this Cascade replay before leaving.'),
     diagnostics: () => ({ mode, revision, protectedSave, warning }),
+    canReplace: () => !!db && !protectedSave,
     async commit(next) {
       replay(next);
       if (db) {
@@ -90,6 +92,7 @@ export async function openReplayStore() {
                   'Another tab changed this Cascade replay. Export your current replay, then reload.',
                 );
                 reason.name = 'ConflictError';
+                protectedSave = true;
                 transaction.abort();
                 return;
               }
@@ -109,6 +112,7 @@ export async function openReplayStore() {
           db.close();
           db = null;
           mode = 'session';
+          protectedSave = true;
           warning =
             'The device could not save. Current play is session-only; export before leaving.';
         }

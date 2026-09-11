@@ -60,7 +60,7 @@ This introduces planning across tray order, space, relic position, rotation budg
 
 Classic calls existing `AlibiClub.action` controls and awaits its save queue; it never writes Club data directly. The old 500-action replay bound is retained and surfaced. Simple controls expose the existing seed and Club backup tools.
 
-Cascade validates bounded replay records rather than trusting imported board snapshots. Imports are capped at 32 KiB and create a recovery export before replacement. Its IndexedDB write checks the previously read revision in the same read-write transaction. A stale tab cannot overwrite the newer record. Unavailable, blocked, corrupt or future-version storage falls back to explicitly labelled session-only play without erasing the existing database.
+Cascade validates bounded replay records rather than trusting imported board snapshots. Replay JSON is parsed and validated in a dedicated module worker before the replacement confirmation is shown. Imports are capped at 32 KiB and create a recovery export before replacement. Its IndexedDB write checks the previously read revision in the same read-write transaction, and adapter writes are serialized so rapid commands cannot persist stale snapshots. A stale tab cannot overwrite the newer record. Unavailable, blocked, corrupt, future-version or changed storage falls back to explicitly labelled session-only play without erasing the existing database; replacement imports are refused while that save is protected.
 
 Cascade is **not included in Alibi's combined backup yet**. Its UI says to export separately. File-origin browser storage is not promised. The prototype's Classic demo is session-only with different demonstration deals; it is not a migration target for legacy saves.
 
