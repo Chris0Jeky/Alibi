@@ -6,8 +6,10 @@ content-free action counts to the maintainer's own collector at
 `https://pulseboard-observatory.commit-atlas.workers.dev` (Pulseboard Observatory; owner
 decision 2026-09-10, notice approved). The deployed tree also carries one small accessibility
 correction merged into `main` just before publication: occupied Block Cabinet cells now expose
-when they are legal piece origins (PR #105, `a7133be`). The rebuilt in-app "What's new" entry
-names both changes. Published puzzle IDs, revisions and saves are untouched.
+when they are legal piece origins (PR #105, `a7133be`). The source release data now has a matching
+in-app "What's new" entry ready for the next content rebuild; the documented primary still serves
+the earlier entry until that rebuild is deployed. Published puzzle IDs, revisions and saves are
+untouched.
 
 ## What the control does and does not do
 
