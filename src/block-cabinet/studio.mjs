@@ -161,7 +161,7 @@ export async function cascadeAdapter(workerOptions = {}) {
     async import() {
       await enqueue(async () => {
         const value = await importCurrent();
-        if (value) await store.commit(value);
+        if (value) await store.commit(value, { persistent: true });
       });
     },
     dispose: store.close,
