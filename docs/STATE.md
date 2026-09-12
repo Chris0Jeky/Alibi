@@ -1,8 +1,10 @@
 # Live development state
 
-## 0.11.3 Expert quality candidate, 2026-09-12 (not deployed)
+## Published 0.11.3 Expert quality release, 2026-09-12
 
-Build `01501bb6797b` combines the two explicit revision-2 content corrections below and permanent
+Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
+on both existing sites and [GitHub](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.3).
+It combines the two explicit revision-2 content corrections below and permanent
 actual-control coverage for all twelve records in the Expert family pack. Full verify passes
 245 Node tests plus supplementary suites; initial JavaScript is 127,530 gzip bytes within
 the unchanged limit. The combined real-origin checks pass 20 Aquarium, 33 Nonogram and 26 other
@@ -12,15 +14,22 @@ normal-board view on both phone-size and desktop screenshots.
 CI exposed a pre-existing Settings keyboard bug: a service-worker controller-change redraw
 removed focus from Quiet Wing recovery. The button now has a stable ID, and the focused browser
 suite forces that redraw before actual Enter navigation at both widths. Issue #146 records the
-causal experiment and correction; final hosted CI remains required before publication.
+causal experiment and correction. Both Castle and both full verification jobs passed at PR #143's
+final head before merge; the merged rebuild reproduced the validated release.
 
-Independent reviews of the Expert changes found no causal blocker. The non-blocking old-revision route test timing
-gap is tracked in [#144](https://github.com/Chris0Jeky/Alibi/issues/144); existing pinned snapshots
-and all solve/control assertions remain covered. The sites currently serve verified 0.11.2 below.
-Publication of this candidate and human calibration remain pending; see
-[RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+Every public file was verified on both HTTPS origins; each passes 92 real save/offline checks.
+Hosted Expert controls pass 20 Aquarium, 33 Nonogram and 26 other assertions, and Quiet Wing
+keyboard focus passes at both widths. Live sessions stayed open from 0.11.2 across deployment,
+accepted another Sudoku move, and preserved exact state and pinned definitions through deliberate
+Save & update and offline reload. The final local UI suite passes 182 assertions.
 
-## Bellweather beacon Nonogram curation candidate, 2026-09-12 (not deployed)
+Independent reviews found no causal blocker. The non-blocking old-revision route test timing
+gap remains in [#144](https://github.com/Chris0Jeky/Alibi/issues/144). The journal's aggregate
+solved total can count both completed revisions of one puzzle; [#147](https://github.com/Chris0Jeky/Alibi/issues/147)
+tracks that display correction without removing either save. Human calibration remains pending.
+See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
 lighthouse, raised lantern beam and sparse window/door gaps. Revision 1 remains frozen as a
@@ -34,7 +43,7 @@ assertions at 390/1440px for old-save continuation, targets/panning, fill/cross/
 reload and completion. This proves source and simulated viewport behavior, not physical-device
 accessibility or Expert calibration; [HUMAN_TODO.md](../HUMAN_TODO.md) q-8 remains open.
 
-## Expert Aquarium copy and controls candidate, 2026-09-12 (not deployed)
+## Expert Aquarium copy and controls in 0.11.3, 2026-09-12
 
 `expert-aquarium-01@2` corrects three descriptions from six reservoirs to seven. Its ID, tank
 layout, targets and solution are unchanged. A frozen revision-1 fixture and exact-field test
@@ -55,7 +64,7 @@ the new receipt directory. This proves interactions and outcomes, not human diff
 
 ## Published 0.11.2, 2026-09-12
 
-Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
+Published source `28e71ec9f434c404b4fff8e5468b66599b159c22`, build `840cdae3fee4`, combines the
 previous merged player fixes with completed Castle first-import deduplication (#141), cancelled
 return-focus expiry (#79), the two current gallery diagrams (#89), and Quiet Wing timeout
 diagnostics (#102). Standalone sound controls/copy (#86) were already implemented and are now
