@@ -32,6 +32,11 @@ Phone-size and desktop game/card/story screenshots were inspected. Independent r
 no remaining blocker; stale canonical gallery hashes found on the component branch were
 regenerated for the combined source and covered by the full verification pass.
 
+The first hosted Castle run exposed a test synchronization error: a deduplicated restore leaves
+the textarea value unchanged while its review dialog is still open. The browser check now waits
+for successful dialog closure before entering more notes; all nine recovery scenarios pass
+locally with that correction. No save logic or preservation assertion was changed.
+
 The malformed double-slash Quiet Wing test URL was a setup error, excluded from runtime
 evidence. The canonical URL passes; synthetic timeouts prove diagnostics preserve the original
 exception. CI now retains those diagnostics and both player-feedback report directories.
