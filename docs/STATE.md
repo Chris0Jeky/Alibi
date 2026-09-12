@@ -1,5 +1,20 @@
 # Live development state
 
+## 0.11.3 Expert quality candidate, 2026-09-12 (not deployed)
+
+Build `385bf9c30ce3` combines the two explicit revision-2 content corrections below and permanent
+actual-control coverage for all twelve records in the Expert family pack. Full verify passes
+245 Node tests plus supplementary suites; initial JavaScript remains 127,524 gzip bytes within
+the unchanged limit. The combined real-origin checks pass 20 Aquarium, 33 Nonogram and 26 other
+Expert assertions at 390/1440px. The complete lighthouse picture is visible in the existing
+normal-board view on both phone-size and desktop screenshots.
+
+Independent reviews found no causal blocker. The non-blocking old-revision route test timing
+gap is tracked in [#144](https://github.com/Chris0Jeky/Alibi/issues/144); existing pinned snapshots
+and all solve/control assertions remain covered. The sites currently serve verified 0.11.2 below.
+Publication of this candidate and human calibration remain pending; see
+[RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Bellweather beacon Nonogram curation candidate, 2026-09-12 (not deployed)
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather

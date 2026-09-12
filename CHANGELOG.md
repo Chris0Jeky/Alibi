@@ -6,6 +6,16 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.3 · A clearer Expert collection
+
+2026-09-12
+
+- Solve an original Bellweather lighthouse picture in the revised 15×15 Expert Nonogram.
+- Read accurate seven-reservoir guidance in the Expert Aquarium.
+- Continue existing saved versions of both puzzles with their original definitions. Expert difficulty remains provisional while player feedback is gathered.
+
+[Deployment receipt](docs/RELEASE-0.11.3.md)
+
 ## 0.11.2 · Faster hints, steadier controls
 
 2026-09-12
