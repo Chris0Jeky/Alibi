@@ -1,8 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'),
-  path = require('node:path'),
-  vm = require('node:vm');
+  path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const files = fs.readdirSync(path.join(root, 'dist/assets'));
 const js = fs.readFileSync(
@@ -13,8 +12,41 @@ const js = fs.readFileSync(
   ),
   'utf8',
 );
+const content = fs.readFileSync(
+  path.join(
+    root,
+    'dist/assets',
+    files.find((f) => /^official-content\..*\.js$/.test(f)),
+  ),
+  'utf8',
+);
 const config = {};
-vm.runInNewContext(js.split('\n').slice(0, 8).join('\n'), config);
+// Inspect named JSON assignments, not positional lines or executable application code.
+for (const [name, source] of [
+  ['ALIBI_THEATRE', content],
+  ['ALIBI_CURATION_MEDIA', js],
+  ['ALIBI_MEDIA', js],
+  ['ALIBI_DELIVERY', js],
+]) {
+  const assignment = source.match(new RegExp('globalThis\\.' + name + '=(.*);\\n'));
+  assert.ok(assignment, name + ' has a static emitted assignment');
+  config[name] = JSON.parse(assignment[1]);
+}
+test('editorial theatre data is loaded before its consumer and fully counted', () => {
+  const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
+  const zlib = require('node:zlib');
+  assert.ok(!js.includes('globalThis.ALIBI_THEATRE='));
+  const dataIndex = html.indexOf('src="./assets/official-content.');
+  const codeIndex = html.indexOf('src="./assets/alibi.');
+  assert.ok(dataIndex >= 0 && codeIndex > dataIndex);
+  assert.equal(info.officialContentBytes, Buffer.byteLength(content) + info.curationMediaBytes);
+  assert.equal(info.officialContentGzipBytes, zlib.gzipSync(content).length);
+  assert.equal(
+    info.initialCodeAndContentGzipBytes,
+    zlib.gzipSync(js).length + zlib.gzipSync(content).length + info.blockMotionLoaderGzipBytes,
+  );
+});
 test('recorded ambience is traceable, compact and excluded from the automatic shell download', () => {
   const crypto = require('node:crypto');
   const catalogue = require('../assets-source/ambience/catalogue.json');
