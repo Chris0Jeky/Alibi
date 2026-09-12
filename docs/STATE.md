@@ -1,5 +1,19 @@
 # Live development state
 
+## Bellweather beacon Nonogram curation candidate, 2026-09-12 (not deployed)
+
+`expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
+lighthouse, raised lantern beam and sparse window/door gaps. Revision 1 remains frozen as a
+fixture: an existing `@1` run continues from its saved definition, while an unsaved old route
+retains the revision-unavailable fallback. The exact-field assertion limits the revision to the
+picture, its clues and explanatory copy; no engine, save format or other Expert definition changed.
+
+The focused Node test, pack validation and independent Python enumerator agree on one solution;
+the bounded solver and independent checker each take 24 nodes. Real Edge controls pass 33
+assertions at 390/1440px for old-save continuation, targets/panning, fill/cross/erase, undo/redo,
+reload and completion. This proves source and simulated viewport behavior, not physical-device
+accessibility or Expert calibration; [HUMAN_TODO.md](../HUMAN_TODO.md) q-8 remains open.
+
 ## Expert Aquarium copy and controls candidate, 2026-09-12 (not deployed)
 
 `expert-aquarium-01@2` corrects three descriptions from six reservoirs to seven. Its ID, tank
