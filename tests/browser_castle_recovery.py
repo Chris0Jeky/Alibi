@@ -40,6 +40,21 @@ def run():
             event.value.save_as(path)
             exported = json.loads(path.read_text())
             assert exported['state']['notes'] == 'Original field note.'
+            page.locator('#notes').fill('')
+            assert flush(page) == 'ok'
+            first_import = '--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---'
+            import_data(page, exported)
+            click(page, 'restore-merge')
+            expect(page.locator('#notes')).to_have_value(first_import)
+            import_data(page, exported)
+            click(page, 'restore-merge')
+            expect(page.locator('#notes')).to_have_value(first_import)
+            page.locator('#notes').fill(first_import + '\n\nMy local thought after the first import.')
+            assert flush(page) == 'ok'
+            import_data(page, exported)
+            click(page, 'restore-merge')
+            expect(page.locator('#notes')).to_have_value(first_import + '\n\nMy local thought after the first import.')
+            record('empty-notebook imports retain a labelled provenance section through immediate and later repeats')
             page.locator('#notes').fill('A later observation.')
             assert flush(page) == 'ok'
             before = read(page)
