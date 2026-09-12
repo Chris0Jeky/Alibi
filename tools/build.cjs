@@ -206,11 +206,20 @@ function build() {
     read(path.join(SRC, 'app.js')),
     read(path.join(SRC, 'observatory-loader.js')),
   ].join('\n');
+  const blockMotion = require('./build-block-motion.cjs')(ROOT, DIST);
+  const blockLoader = require('esbuild').transformSync(
+    `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.config)};\n` +
+      read(path.join(SRC, 'block-motion-loader.js')),
+    { minify: true, target: 'es2022' },
+  ).code;
+  const blockLoaderURL = `./assets/block-motion-loader.${hash(blockLoader)}.js`;
+  write(path.join(DIST, blockLoaderURL), blockLoader);
   const fingerprint = files(path.join(SRC, 'icons'))
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
     release = hash(
       contentSource +
+        blockLoader +
         base +
         boot +
         worker +
@@ -272,7 +281,7 @@ function build() {
       .replace('<!-- HEAD -->', head)
       .replace(
         '<!-- SCRIPTS -->',
-        `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script>`,
+        `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
       ),
   );
   const assets = [
@@ -285,6 +294,7 @@ function build() {
     './' + jsName,
     './' + cssName,
     engineURL,
+    blockLoaderURL,
     bootURL,
     workerURL,
     contentURL,
@@ -322,7 +332,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}`;
+  const standalone = `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
@@ -362,12 +372,18 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       experience.bytes -
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
-      Buffer.byteLength(observatory),
+      Buffer.byteLength(observatory) -
+      blockMotion.bytes,
+    blockMotionBytes: blockMotion.bytes,
+    blockMotionLoaderGzipBytes: zlib.gzipSync(blockLoader).length,
     observatoryBytes: Buffer.byteLength(observatory),
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
-    initialCodeAndContentGzipBytes: zlib.gzipSync(js).length + zlib.gzipSync(contentSource).length,
+    initialCodeAndContentGzipBytes:
+      zlib.gzipSync(js).length +
+      zlib.gzipSync(contentSource).length +
+      zlib.gzipSync(blockLoader).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,
     observatoryGzipBytes: zlib.gzipSync(observatory).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,

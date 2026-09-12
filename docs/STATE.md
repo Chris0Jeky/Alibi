@@ -1,5 +1,9 @@
 # Live development state
 
+## Block Cabinet integration candidate (not deployed)
+
+A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.
+
 ## Block Cabinet engine candidate (not deployed)
 
 The isolated engine/prototype branch adds tactile controls, deterministic Cascade rules and a separate experiment replay store. Its review fixes serialize experiment writes, protect fallback replacement imports, retain Classic demo state across lab switches, and keep semantic controls available without Canvas. See [engine architecture](BLOCK-CABINET-ENGINE.md). Production build integration is a separate stacked PR. Existing Block Cabinet rules and saves are unchanged. This candidate is not a native APK and has not passed physical Android acceptance.

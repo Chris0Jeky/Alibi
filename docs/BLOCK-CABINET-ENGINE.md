@@ -66,7 +66,7 @@ Cascade is **not included in Alibi's combined backup yet**. Its UI says to expor
 
 ## Delivery and assets
 
-The production integration emits a small loader in the main bundle and loads the surface only on Block Cabinet. The optional pack has hashed JavaScript, CSS and a checksum-verified 3.6 KB WebP illustration. It is cached separately after loading and served by the existing service worker's same-origin asset fallback. Initial shell budgets exclude the separately measured pack; core budgets should not be raised merely to hide new work.
+The production integration emits a small separate loader in the initial shell and loads the surface only on Block Cabinet. The optional pack has hashed JavaScript, CSS and a checksum-verified 3.6 KB WebP illustration. It is cached separately after loading and served by the existing service worker's same-origin asset fallback. Initial shell budgets exclude the separately measured pack; core budgets should not be raised merely to hide new work.
 
 Artwork was generated through the Runway plugin and reduced to a low-detail background plate. Board cells, pieces, relic marks, highlights and particles are live authored geometry, not images of UI. Sound is synthesized locally. No runtime CDN, font download, generation API or external telemetry is added. See `assets-source/block-cabinet/PROVENANCE.json` in the integration layer.
 

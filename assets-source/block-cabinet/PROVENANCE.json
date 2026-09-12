@@ -1,0 +1,19 @@
+{
+  "id": "block-cabinet-atelier",
+  "purpose": "Optional low-detail background behind live game geometry",
+  "generatedAt": "2026-09-10",
+  "provider": "Runway plugin",
+  "model": "nano-banana-2",
+  "taskId": "c186e5e9-f634-4809-9677-e6dee9aaafba",
+  "prompt": "Original background illustration for a sophisticated tactile block puzzle in a quiet old castle atelier. Background art ONLY, no interface, no text, no lettering, no game board, no logos, no people. Cabinetmaker's walnut workbench at bottom, an arched blue-green twilight window in the top left, shadowy shelves with small geometric brass ornaments at top right, warm brass lamp light. The central 60 percent is very dark quiet petrol-green shadow with minimal detail, leaving room for an overlaid playable puzzle board. Premium illustrated game environment, careful wood and aged brass material detail, calm mysterious atmosphere, painterly edges, restrained teal and amber palette, cinematic but cozy. Ornament and interesting detail concentrated at extreme corners, middle mostly empty. Entirely original, not based on any existing game's assets.",
+  "derivative": {
+    "source": "atelier.webp.base64",
+    "encoding": "base64 of WebP bytes",
+    "width": 480,
+    "height": 270,
+    "bytes": 3632,
+    "sha256": "d86585f9454add30a42ae113260234cc9fb469fe18c03a58a116a5f5e8997343",
+    "processing": "Pillow RGB thumbnail, WebP quality 36, method 6, performed in Higgsfield sandbox"
+  },
+  "notes": "AI-generated background, not copied from the cited commercial games. No claim of exclusive copyright or trademark clearance. Board, pieces, effects and audio are authored rendering/synthesis code. Decode at build time; no external runtime requests. No animation was generated."
+}
