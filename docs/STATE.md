@@ -19,7 +19,7 @@ records. All 26 checks pass at 390/1440px, including actual-control completion, 
 incorrect Witness conclusion and Bridges undo. CI runs both Expert control suites and retains
 the new receipt directory. This proves interactions and outcomes, not human difficulty ratings.
 
-## 0.11.2 release candidate, 2026-09-12 (not deployed)
+## Published 0.11.2, 2026-09-12
 
 Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
 previous merged player fixes with completed Castle first-import deduplication (#141), cancelled
@@ -46,9 +46,13 @@ The malformed double-slash Quiet Wing test URL was a setup error, excluded from 
 evidence. The canonical URL passes; synthetic timeouts prove diagnostics preserve the original
 exception. CI now retains those diagnostics and both player-feedback report directories.
 
-The existing primary still serves 0.11.1 and the fallback 0.11.0. Disposable HTTPS test profiles
-on each origin contain a saved Binary move for post-publication update verification. Publication
-and hosted results remain pending in [RELEASE-0.11.2.md](RELEASE-0.11.2.md).
+Merged source `28e71ec9f434c404b4fff8e5468b66599b159c22` is published on both existing origins
+with the same build above. Each passes 92 hosted persistence/offline checks. All 282 public files
+match on primary; fallback has 278 exact non-HTML files and four exact HTML sources plus its
+known 938-byte platform insertion. Hosted primary Gardens/Dominoes/Mahjong checks pass
+177/281/84 assertions. Chromium contexts held open across publication preserve an additional
+Sudoku move and the pinned puzzle definition through deliberate Save & update and offline reload.
+Publication IDs, headers, rollback references and evidence are in [RELEASE-0.11.2.md](RELEASE-0.11.2.md).
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical-device and human acceptance items remain open.
 
 ## Games Room controls follow-up, 2026-09-12 (not deployed)
