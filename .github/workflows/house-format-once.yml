@@ -1,5 +1,5 @@
-# Temporary review-branch bootstrap. Remove before merging.
-name: Format mobile desk candidate once
+# Temporary exact-review-branch integration; the patch deletes this workflow before committing.
+name: Finalize mobile desk candidate once
 on:
   push:
     branches: ['codex/wrenmere-mobile-components']
@@ -21,14 +21,13 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Apply pinned formatter only to reviewed implementation paths
+      - name: Apply exact integration seams, format, remove one-use helpers and commit
         run: |
-          npx --no-install prettier --write src/house/*.js src/house/style.css src/house-loader.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house.test.cjs
-          git add src/house/ src/house-loader.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house.test.cjs
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'style: format mobile desk with pinned repository tooling'
-            git push origin HEAD:refs/heads/codex/wrenmere-mobile-components
-          fi
+          node .github/house-finalize.cjs
+          npx --no-install prettier --write src/house/*.js src/house/style.css src/house-loader.js src/activities.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house*.cjs tests/experience.test.cjs tests/sw.test.cjs
+          git add src/house/ src/house-loader.js src/activities.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house.test.cjs tests/house.delivery.test.cjs tests/experience.test.cjs tests/sw.test.cjs tests/browser_house.py docs/STATE.md .github/workflows/house.yml .github/workflows/house-format-once.yml .github/house-finalize.cjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(ux): isolate optional offline pack, preserve budgets and verify under strict CSP'
+          git push origin HEAD:refs/heads/codex/wrenmere-mobile-components
       - run: npm run verify
