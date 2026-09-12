@@ -1,6 +1,59 @@
 # Live development state
 
-## 0.11.2 release candidate, 2026-09-12 (not deployed)
+## 0.11.3 Expert quality candidate, 2026-09-12 (not deployed)
+
+Build `01501bb6797b` combines the two explicit revision-2 content corrections below and permanent
+actual-control coverage for all twelve records in the Expert family pack. Full verify passes
+245 Node tests plus supplementary suites; initial JavaScript is 127,530 gzip bytes within
+the unchanged limit. The combined real-origin checks pass 20 Aquarium, 33 Nonogram and 26 other
+Expert assertions at 390/1440px. The complete lighthouse picture is visible in the existing
+normal-board view on both phone-size and desktop screenshots.
+
+CI exposed a pre-existing Settings keyboard bug: a service-worker controller-change redraw
+removed focus from Quiet Wing recovery. The button now has a stable ID, and the focused browser
+suite forces that redraw before actual Enter navigation at both widths. Issue #146 records the
+causal experiment and correction; final hosted CI remains required before publication.
+
+Independent reviews of the Expert changes found no causal blocker. The non-blocking old-revision route test timing
+gap is tracked in [#144](https://github.com/Chris0Jeky/Alibi/issues/144); existing pinned snapshots
+and all solve/control assertions remain covered. The sites currently serve verified 0.11.2 below.
+Publication of this candidate and human calibration remain pending; see
+[RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Bellweather beacon Nonogram curation candidate, 2026-09-12 (not deployed)
+
+`expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
+lighthouse, raised lantern beam and sparse window/door gaps. Revision 1 remains frozen as a
+fixture: an existing `@1` run continues from its saved definition, while an unsaved old route
+retains the revision-unavailable fallback. The exact-field assertion limits the revision to the
+picture, its clues and explanatory copy; no engine, save format or other Expert definition changed.
+
+The focused Node test, pack validation and independent Python enumerator agree on one solution;
+the bounded solver and independent checker each take 24 nodes. Real Edge controls pass 33
+assertions at 390/1440px for old-save continuation, targets/panning, fill/cross/erase, undo/redo,
+reload and completion. This proves source and simulated viewport behavior, not physical-device
+accessibility or Expert calibration; [HUMAN_TODO.md](../HUMAN_TODO.md) q-8 remains open.
+
+## Expert Aquarium copy and controls candidate, 2026-09-12 (not deployed)
+
+`expert-aquarium-01@2` corrects three descriptions from six reservoirs to seven. Its ID, tank
+layout, targets and solution are unchanged. A frozen revision-1 fixture and exact-field test
+preserve the original definition; existing saved revision-1 runs continue from their pinned
+snapshots. An old revision-1 URL without a saved run retains the existing revision-unavailable
+message rather than silently starting a different definition.
+
+Full verify passes 244 Node tests and supplementary suites. The new real-origin browser check
+passes 20 assertions at 390/1440px: saved revision-1 continuation, revision-2 routing, setting,
+lowering and draining waterlines, and completion through actual controls. CI now runs that check;
+phone-size and desktop screenshots were inspected. Human difficulty and touch calibration remain
+open in [HUMAN_TODO.md](../HUMAN_TODO.md) q-8. This addresses another bounded part of #100.
+
+The retained one-off Expert proof is now a permanent browser suite for the other eleven pack
+records. All 26 checks pass at 390/1440px, including actual-control completion, rejection of an
+incorrect Witness conclusion and Bridges undo. CI runs both Expert control suites and retains
+the new receipt directory. This proves interactions and outcomes, not human difficulty ratings.
+
+## Published 0.11.2, 2026-09-12
 
 Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
 previous merged player fixes with completed Castle first-import deduplication (#141), cancelled
@@ -27,9 +80,13 @@ The malformed double-slash Quiet Wing test URL was a setup error, excluded from 
 evidence. The canonical URL passes; synthetic timeouts prove diagnostics preserve the original
 exception. CI now retains those diagnostics and both player-feedback report directories.
 
-The existing primary still serves 0.11.1 and the fallback 0.11.0. Disposable HTTPS test profiles
-on each origin contain a saved Binary move for post-publication update verification. Publication
-and hosted results remain pending in [RELEASE-0.11.2.md](RELEASE-0.11.2.md).
+Merged source `28e71ec9f434c404b4fff8e5468b66599b159c22` is published on both existing origins
+with the same build above. Each passes 92 hosted persistence/offline checks. All 282 public files
+match on primary; fallback has 278 exact non-HTML files and four exact HTML sources plus its
+known 938-byte platform insertion. Hosted primary Gardens/Dominoes/Mahjong checks pass
+177/281/84 assertions. Chromium contexts held open across publication preserve an additional
+Sudoku move and the pinned puzzle definition through deliberate Save & update and offline reload.
+Publication IDs, headers, rollback references and evidence are in [RELEASE-0.11.2.md](RELEASE-0.11.2.md).
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical-device and human acceptance items remain open.
 
 ## Games Room controls follow-up, 2026-09-12 (not deployed)
