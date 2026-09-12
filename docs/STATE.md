@@ -1,5 +1,26 @@
 # Live development state
 
+## Player-fix checkpoint, 2026-09-12 (not deployed)
+
+The mobile desk (#138) and Capacitor planning package (#137) are merged. The current player-fix
+candidate combines Nonogram hint performance and clue sizing (#96), conservative notebook merge
+deduplication (#80), normal Castle practice return focus (#79), and Lantern Gardens touch layout
+(part of #100). Each implementation remains a separate commit in the integration history.
+
+At source `2757111`, build `5a5dbe8bedc5` passes full verify: 242 Node tests and supplementary
+suites, with initial JavaScript 127,377 gzip bytes and unchanged numeric budgets. Independent
+enumeration matches all 4,178 clue profiles for lines of 1–15 cells. Integrated local-origin
+browser runs pass: 159 garden assertions, 182 original player assertions, 92 real IndexedDB/
+service-worker checks, all eight large-Nonogram board/width cases, Castle practice at 390/1280px,
+and all eight Castle recovery scenarios. The local browser runs use installed Edge; hosted CI
+runs the repository's Chromium matrix separately. No content definitions were regenerated.
+
+Two non-blocking navigation details remain tracked: interrupted Castle returns can leave a
+pending focus key (#79), and choosing another garden can retain the previous pan (#100). Legacy
+notebook sections without an end marker retain the conservative boundary described below.
+Physical-phone, TalkBack, comfort and difficulty acceptance remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md). These are source/local-origin results, not a new hosted release.
+
 ## Lantern Gardens touch layout follow-up (not deployed)
 
 Issue #100's narrow-screen garden board now reserves at least 44px per grid column and scrolls
