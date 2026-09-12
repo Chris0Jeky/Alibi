@@ -6,7 +6,8 @@ require('../src/core.js');
 require('../src/engines.js');
 const C = require('../src/bridges.js');
 
-const pack = JSON.parse(fs.readFileSync('content/extra/expert-families.json', 'utf8'));
+const pack = JSON.parse(fs.readFileSync('content/extra/expert-families.json', 'utf8')),
+  aquariumV1 = JSON.parse(fs.readFileSync('tests/fixtures/expert-aquarium-01-v1.json', 'utf8'));
 const expectedTypes = [
   'scene',
   'dossier',
@@ -56,6 +57,23 @@ test('dossier target is reached through indirect evidence', () => {
   const solutions = C.solve(dossier, null, 2).solutions;
   assert.equal(solutions.length, 1);
   assert.equal(solutions[0].slice(dossier.size).indexOf(dossier.targetItem), 1);
+});
+
+test('Expert Aquarium corrects its tank count in a new revision only', () => {
+  const aquarium = pack.puzzles.find((p) => p.id === 'expert-aquarium-01');
+  assert.ok(aquarium);
+  assert.equal(aquariumV1.revision, 1, 'fixture is the previously published snapshot');
+  assert.equal(aquarium.revision, 2, 'copy correction creates a new published revision');
+  assert.equal(new Set(aquarium.tanks).size, 7, 'layout contains seven tanks');
+  assert.match(aquarium.title, /seven/i);
+  assert.match(aquarium.story, /seven/i);
+  assert.match(aquarium.difficultyEvidence, /seven/i);
+  const changed = Object.keys({ ...aquariumV1, ...aquarium })
+    .filter((key) => JSON.stringify(aquarium[key]) !== JSON.stringify(aquariumV1[key]))
+    .sort();
+  assert.deepEqual(changed, ['difficultyEvidence', 'revision', 'story', 'title']);
+  C.validateDefinition(aquariumV1);
+  C.validateDefinition(aquarium);
 });
 
 test('bridges candidate has a real loop and connectivity deduction', () => {

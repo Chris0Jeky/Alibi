@@ -319,15 +319,15 @@
     },
     {
       "id": "expert-aquarium-01",
-      "revision": 1,
+      "revision": 2,
       "type": "aquarium",
-      "title": "The six glass reservoirs",
+      "title": "The seven glass reservoirs",
       "subtitle": "The Night Archive",
       "difficulty": "Expert",
       "difficultyStatus": "provisional",
-      "difficultyEvidence": "Six irregular tanks create overlapping row/column totals; the tank levels must be narrowed together rather than filled independently.",
+      "difficultyEvidence": "Seven irregular tanks create overlapping row/column totals; the tank levels must be narrowed together rather than filled independently.",
       "size": 6,
-      "story": "Set the waterlines in six connected reservoirs. Row and column totals reveal how high each tank can rise.",
+      "story": "Set the waterlines in seven connected reservoirs. Row and column totals reveal how high each tank can rise.",
       "tanks": [
         3, 3, 3, 3, 4, 4, 6, 1, 1, 1, 1, 4, 6, 6, 6, 1, 1, 1, 2, 6, 5, 5, 1, 0, 2, 5, 5, 5, 0, 0, 2,
         2, 5, 5, 0, 0
