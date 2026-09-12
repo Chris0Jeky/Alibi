@@ -131,6 +131,21 @@ test('merge adds distinct discoveries, keeps local settings and drafts, and neve
     multiple,
     'each exact labelled section deduplicates',
   );
+  const legacySuffix = note('My note.\n\n--- Imported notebook ---\nImported note.');
+  assert.equal(
+    mergeStates(legacySuffix, incoming).notes,
+    legacySuffix.notes,
+    'a pre-delimiter legacy imported suffix still deduplicates',
+  );
+  const ambiguousLegacy = note(
+    'My note.\n\n--- Imported notebook ---\nImported note.\n\nA later local thought.',
+  );
+  const retainedAmbiguous = mergeStates(ambiguousLegacy, incoming);
+  assert.match(
+    retainedAmbiguous.notes,
+    /A later local thought\.\n\n--- Imported notebook ---\nImported note\.\n--- End imported notebook ---/,
+    'an ambiguous legacy middle section is retained and imports a new bounded section',
+  );
   assert.throws(() => mergeStates(note('a'.repeat(12000)), incoming), /exceed/);
 });
 

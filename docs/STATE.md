@@ -4,8 +4,11 @@
 
 Castle restore merge now labels each imported notebook section with exact start/end delimiters.
 Repeating the same reviewed backup after later local notes keeps that section once, while changed
-imports and ordinary local prose remain distinct. The existing bounded worker, revision-conditional
-restore, atomic pre-restore recovery and 12,000-character refusal remain the save authority.
+imports and ordinary local prose remain distinct. A legacy start-only section is deduplicated only
+when it remains the notebook suffix; a legacy marker followed by later prose has no safe boundary,
+so that prose is retained and the reviewed import is added as a new exact section. The existing
+bounded worker, revision-conditional restore, atomic pre-restore recovery and 12,000-character
+refusal remain the save authority.
 
 ## Wrenmere Desk mobile-first candidate (not deployed)
 

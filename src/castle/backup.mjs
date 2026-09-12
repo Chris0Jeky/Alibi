@@ -39,6 +39,10 @@ function importedNotebookSection(notes) {
   return `${IMPORTED_NOTEBOOK_START}\n${notes}\n${IMPORTED_NOTEBOOK_END}`;
 }
 
+function legacyImportedNotebookSuffix(notes) {
+  return `${IMPORTED_NOTEBOOK_START}\n${notes}`;
+}
+
 // Merge discoveries without replacing a device's answers, unfinished boards or preferences.
 // Notes are never silently truncated to fit the bounded notebook.
 export function mergeStates(local, incoming) {
@@ -57,7 +61,8 @@ export function mergeStates(local, incoming) {
   next.labels = { ...added.labels, ...current.labels };
   if (added.notes && added.notes !== current.notes) {
     const section = importedNotebookSection(added.notes);
-    if (!current.notes.includes(section))
+    const legacySuffix = legacyImportedNotebookSuffix(added.notes);
+    if (!current.notes.includes(section) && !current.notes.endsWith(legacySuffix))
       next.notes = current.notes ? `${current.notes}\n\n${section}` : added.notes;
   }
   if (next.notes.length > 12000)
