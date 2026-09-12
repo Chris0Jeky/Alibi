@@ -55,7 +55,7 @@ the new receipt directory. This proves interactions and outcomes, not human diff
 
 ## Published 0.11.2, 2026-09-12
 
-Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
+Published source `28e71ec9f434c404b4fff8e5468b66599b159c22`, build `840cdae3fee4`, combines the
 previous merged player fixes with completed Castle first-import deduplication (#141), cancelled
 return-focus expiry (#79), the two current gallery diagrams (#89), and Quiet Wing timeout
 diagnostics (#102). Standalone sound controls/copy (#86) were already implemented and are now

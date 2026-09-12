@@ -1,17 +1,20 @@
 # Provisional Expert family pack
 
-`content/extra/expert-families.json` adds one original Expert candidate to each family that
-does not yet have an Expert entry. The pack is additive, so existing puzzle IDs and revisions are
-unchanged. Every entry carries `difficultyStatus: "provisional"` and a short
-`difficultyEvidence` note describing the intended deduction pressure; the label still needs human
-sampling before it becomes a calibrated difficulty claim.
+`content/extra/expert-families.json` initially added one original Expert candidate to each family
+that did not yet have an Expert entry. That v1 addition was additive. The current pack retains
+those stable IDs and includes two explicit revision-2 corrections: `expert-aquarium-01` corrects
+its guidance to seven reservoirs without changing its board, targets or solution, while
+`expert-nonogram-01` replaces its original constellation picture and clues with the Bellweather
+beacon. Saved revision-1 runs retain their stored definitions. Every current entry carries
+`difficultyStatus: "provisional"` and a short `difficultyEvidence` note; human sampling is still
+needed before the label becomes a calibrated difficulty claim.
 
 | Family    | Puzzle                |       Size | Intended pressure                                                                  |
 | --------- | --------------------- | ---------: | ---------------------------------------------------------------------------------- |
 | Scene     | `expert-scene-01`     |        5×5 | Room, furniture, row and column constraints converge on the shared-room deduction. |
 | Dossier   | `expert-dossier-01`   |        4×4 | Indirect links and exclusions place every non-key object before the target remains. |
 | Witness   | `expert-witness-01`   | 4 suspects | Five mixed statements must be tested against one exact true-count.                 |
-| Nonogram  | `expert-nonogram-01`  |      15×15 | Long and separated runs cross repeatedly between rows and columns.                 |
+| Nonogram  | `expert-nonogram-01`  |      15×15 | Lantern, tower, beam and shoreline runs form the Bellweather lighthouse.           |
 | Lightup   | `expert-lightup-01`   |        6×6 | Numbered walls and overlapping visibility corridors force lantern placement.       |
 | Tents     | `expert-tents-01`     |        5×5 | Line totals, diagonal no-touch exclusions and tree matching interact.              |
 | Aquarium  | `expert-aquarium-01`  |        6×6 | Irregular tank levels are narrowed together by row and column totals.              |
