@@ -101,10 +101,28 @@ test('castle backup validates known exports and refuses future, unknown and unbo
 });
 
 test('merge adds distinct discoveries, keeps local settings and drafts, and never truncates notes', () => {
+  const incoming = complete(note('Imported note.'), 'gate', [1, 3, 5], true).state;
+  const firstImported = mergeStates(note(''), incoming);
+  assert.equal(
+    firstImported.notes,
+    '--- Imported notebook ---\nImported note.\n--- End imported notebook ---',
+    'first import records bounded provenance',
+  );
+  assert.deepEqual(
+    mergeStates(firstImported, incoming),
+    firstImported,
+    'immediate repeat deduplicates',
+  );
+  const firstImportedWithLocalThought = clone(firstImported);
+  firstImportedWithLocalThought.notes += '\n\nA local thought after the first import.';
+  assert.deepEqual(
+    mergeStates(firstImportedWithLocalThought, incoming),
+    firstImportedWithLocalThought,
+    'repeat import survives later local prose after an empty notebook import',
+  );
   let current = note('My note.');
   current.drafts.gate = [2, 3, 4];
   current.preferences.sound = true;
-  const incoming = complete(note('Imported note.'), 'gate', [1, 3, 5], true).state;
   const merged = mergeStates(current, incoming);
   assert.equal(merged.preferences.sound, true);
   assert.equal(merged.completed.gate.guided, true);
@@ -146,7 +164,20 @@ test('merge adds distinct discoveries, keeps local settings and drafts, and neve
     /A later local thought\.\n\n--- Imported notebook ---\nImported note\.\n--- End imported notebook ---/,
     'an ambiguous legacy middle section is retained and imports a new bounded section',
   );
-  assert.throws(() => mergeStates(note('a'.repeat(12000)), incoming), /exceed/);
+  const nearLimit = note('a'.repeat(12000));
+  assert.throws(() => mergeStates(nearLimit, incoming), /exceed/);
+  assert.equal(
+    nearLimit.notes.length,
+    12000,
+    'refusing an over-limit merge never truncates local notes',
+  );
+  const emptyBeforeNearLimitImport = note('');
+  assert.throws(() => mergeStates(emptyBeforeNearLimitImport, note('b'.repeat(12000))), /exceed/);
+  assert.equal(
+    emptyBeforeNearLimitImport.notes,
+    '',
+    'provenance overhead refuses a max-length first import without altering the existing notebook',
+  );
 });
 
 test('restore commits recovery and replacement atomically, and leaves unrelated records alone', async () => {
