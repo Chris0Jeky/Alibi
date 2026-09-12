@@ -32,6 +32,15 @@ its two existing origins and their separate player data remain the current produ
 
 An opt-in `#/home?ux=house` presentation adds a single resume/start card, a labelled mobile dock, a compact finder with draft-based filter sheets, original SVG room components and an optional session-only deduction study. Existing game/save/preference owners remain unchanged. Includes the earlier unsubmitted desk foundation. See [UX entry point](ux/README.md), [component contracts](ux/MOBILE-COMPONENTS.md) and [verification limits](ux/VERIFICATION.md). Hosted checks and physical acceptance remain gates; this is not a production release or a canonical castle migration.
 
+## Castle practice return-focus candidate (not deployed)
+
+Returning to Wrenmere carries the originating puzzle key to the exact room shelf control once;
+a missing starter or a later history/direct visit falls back to the Castle landmark. The key
+is never persisted and does not alter saved-run data. The real-origin browser run at 390px and
+1280px covers keyboard entry, implemented and planned rooms, replay/restart and one-time
+consumption. Final combined verification is recorded with the player-fix checkpoint; the
+initial-JavaScript budget cap remains unchanged.
+
 ## Block Cabinet integration candidate (not deployed)
 
 A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.

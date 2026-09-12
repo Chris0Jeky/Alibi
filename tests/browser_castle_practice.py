@@ -38,7 +38,11 @@ def main() -> None:
                     (finish if finish.count() else page.locator('#dialog [data-action="close-dialog"]').first).click()
             for number in ['01','02','05']:
                 id='curated-binary-'+number
-                page.locator(f'[data-do="practice"][data-value="{id}"]').click()
+                starter=page.locator(f'[data-do="practice"][data-value="{id}"]')
+                starter.focus()
+                starter.press('Tab')
+                page.keyboard.press('Shift+Tab')
+                starter.press('Enter')
                 page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id',arg=id)
                 dismiss()
                 expect(page.locator('.practice-return')).to_contain_text('The Observatory')
@@ -51,6 +55,10 @@ def main() -> None:
                 dismiss()
                 page.locator('[data-action="return-to-castle"]').click()
                 expect(page.locator('#castle-main h1')).to_have_text('The Observatory')
+                assert page.locator('#quiet-host').evaluate(
+                    '(host,id)=>{const e=host.shadowRoot.activeElement;return e?.dataset.do==="practice"&&e.dataset.value===id}',
+                    id,
+                )
             expect(page.locator('.practice-detail')).to_contain_text('paper constellation')
             expect(page.locator('.score')).to_have_text('10 / 100 points')
             assert page.evaluate('() => AlibiDiagnostics.getPracticeSnapshot().then(s=>s.rooms.observatory.completed)')==3
@@ -67,13 +75,28 @@ def main() -> None:
             page.evaluate('location.hash="#/quiet/castle/directory"')
             panel=page.locator('[data-practice-room="number"]')
             expect(panel).to_contain_text('This room is planned')
-            panel.locator('[data-do="practice"]').first.click()
+            starter=panel.locator('[data-do="practice"]').first
+            starter.focus()
+            starter.press('Tab')
+            page.keyboard.press('Shift+Tab')
+            starter.press('Enter')
             page.wait_for_function('() => AlibiDiagnostics.getCurrent()?.puzzle.type==="sudoku"')
             dismiss()
             page.locator('[data-action="return-to-castle"]').click()
             expect(page.locator('#castle-main h1')).to_have_text('Room directory')
+            assert page.locator('#quiet-host').evaluate(
+                '(host,id)=>{const e=host.shadowRoot.activeElement;return e?.dataset.do==="practice"&&e.dataset.value===id}',
+                'curated-sudoku-01',
+            )
+            page.go_back()
+            page.wait_for_function('() => AlibiDiagnostics.getCurrent()?.puzzle.type==="sudoku"')
+            page.go_forward()
+            expect(page.locator('#castle-main h1')).to_have_text('Room directory')
+            assert page.locator('#quiet-host').evaluate(
+                'host=>host.shadowRoot.activeElement?.id==="castle-main"'
+            )
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-            report['checks'].append(f'{width}: planned-room shelves open actual puzzles and return to the directory without claiming a story unlock')
+            report['checks'].append(f'{width}: Enter/Tab opens room and planned-directory starters, returns focus exactly once, and direct history return uses the Castle landmark')
             context.close()
         browser.close()
         report['passed']=True
