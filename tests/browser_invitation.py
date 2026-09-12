@@ -12,7 +12,10 @@ def check(v,label):
     count+=1
     print('PASS',label,flush=True)
 with sync_playwright() as pw:
-    browser=pw.chromium.launch(headless=True)
+    launch={'headless':True}
+    if os.environ.get('CHROMIUM_PATH'):
+        launch['executable_path']=os.environ['CHROMIUM_PATH']
+    browser=pw.chromium.launch(**launch)
     for width in [390,1440]:
         context=browser.new_context(viewport={'width':width,'height':950})
         page=context.new_page()
@@ -20,6 +23,10 @@ with sync_playwright() as pw:
         page.on('pageerror',lambda e: errors.append(str(e)))
         page.goto(os.environ.get('ALIBI_URL','http://127.0.0.1:8792'))
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        page.evaluate("location.hash='/casebooks'")
+        page.wait_for_selector('.club-note')
+        casebook_copy=page.locator('.club-note').inner_text()
+        check('Bellweather and The unfinished invitation' in casebook_copy,f'{width}: both continuous casebooks are described')
         page.evaluate("location.hash='/casebooks/the-unfinished-invitation'")
         page.wait_for_selector('.chapter')
         check(page.locator('.chapter').count()==8,f'{width}: eight chapters')
@@ -33,6 +40,12 @@ with sync_playwright() as pw:
             page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id',arg=p['id'])
             if page.locator('dialog[open]').count(): page.keyboard.press('Escape')
             if p['type']=='witness':
+                if p['id']=='invitation-witness-plate':
+                    page.locator('.evidence-tab[data-value="rules"]').click()
+                    guide=page.locator('.evidence-card').inner_text()
+                    check('candidate fits the event in the record' in guide,f'{width}: witness guide is event-neutral')
+                    check('missing object' not in guide and 'same theft' not in guide,f'{width}: witness guide does not impose a theft')
+                    page.screenshot(path=str(ROOT/'test-results'/f'invitation-witness-guide-{width}.png'),full_page=True)
                 action=p.get('action','took the missing object')
                 rule=page.locator('.witness-rule').inner_text()
                 statements=page.locator('.statement-list').inner_text()
@@ -40,6 +53,10 @@ with sync_playwright() as pw:
                 check(action in statements and 'took it' not in statements,f'{width}: {p["id"]} statements use its authored witness action')
                 answer=p['solution']
             elif p['type']=='dossier':
+                if p['id']=='invitation-dossier-stock':
+                    summary=page.locator('.logic-summary').inner_text()
+                    check('Paper stock unknown' in summary and 'Batch mark unknown' in summary,f'{width}: dossier summary names its categories')
+                    page.screenshot(path=str(ROOT/'test-results'/f'invitation-dossier-summary-{width}.png'),full_page=True)
                 n=p['size']
                 for cat in range(2):
                     page.locator(f'[data-action="dossier-tab"][data-value="{cat}"]').click()
@@ -77,6 +94,11 @@ with sync_playwright() as pw:
         page.reload()
         page.wait_for_selector('.story-page')
         check('EPILOGUE' in page.locator('.story-page').inner_text(),f'{width}: epilogue survives offline reload')
+        context.set_offline(False)
+        page.evaluate("location.hash='/play/witness-01@1'")
+        page.wait_for_function("()=>AlibiDiagnostics.getCurrent()?.puzzle.id==='witness-01'")
+        if page.locator('dialog[open]').count(): page.keyboard.press('Escape')
+        check('One person took the missing object.' in page.locator('.witness-rule').inner_text(),f'{width}: legacy theft record keeps its authored action')
         check(not errors,f'{width}: no browser errors')
         context.close()
     browser.close()

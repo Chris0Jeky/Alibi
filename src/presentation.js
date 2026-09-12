@@ -71,20 +71,20 @@
       tag: 'Truth & lies',
       color: 'amber',
       icon: 'witness',
-      goal: 'Identify the only culprit who makes exactly the stated number of accounts true.',
+      goal: 'Identify the only candidate who makes exactly the stated number of accounts true.',
       gesture:
-        'Mark accounts as true or false while thinking. Select a suspect, then submit your conclusion.',
+        'Mark accounts as true or false while thinking. Select a candidate, then submit your conclusion.',
       rules: [
-        'Exactly one listed suspect took the missing object. There is no unlisted culprit.',
+        'Exactly one listed candidate fits the event in the record. There is no unlisted candidate.',
         'The file tells you exactly how many statements are true. The rest are false.',
-        'Evaluate what a statement says, not whether you trust the speaker. Statements all refer to the same theft.',
+        'Evaluate what a statement says, not whether you trust the speaker. Statements all refer to the same event.',
         'True/false marks are optional working notes. They do not change the facts or the final answer.',
       ],
-      tip: 'Assume one suspect took it. Count the true statements under that assumption. Repeat until only one suspect fits.',
+      tip: 'Assume each candidate fits the stated event. Count the true statements under that assumption. Repeat until only one candidate fits.',
       lesson:
-        'Exactly two statements are true: “Iris took it.” “Iris did not take it.” “Theo took it.” Who took it?',
+        'Exactly two statements are true: “Iris was responsible.” “Iris was not responsible.” “Theo was responsible.” Who fits the record?',
       lessonNote:
-        'The first two accounts always contribute one truth. The third must also be true, so Theo is the only possible culprit.',
+        'The first two accounts always contribute one truth. The third must also be true, so Theo is the only possible answer.',
     },
     sudoku: {
       title: 'Sudoku',
