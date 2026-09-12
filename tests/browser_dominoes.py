@@ -63,7 +63,8 @@ with sync_playwright() as playwright:
         )
         opening = page.locator('[data-action="club-domino-end"][data-value="start"]')
         check(opening.is_enabled(), f"The selected tile exposes an opening control at {width}px")
-        opening.click()
+        opening.focus()
+        page.keyboard.press('Enter')
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.dominoes.log.length === 1"
         )
@@ -75,6 +76,11 @@ with sync_playwright() as playwright:
             page.locator(".domino-chain-piece").count() >= 1,
             f"The board reflects the played chain at {width}px",
         )
+        check(page.locator('.domino-status').evaluate('e => e === document.activeElement'),
+              f'Keyboard play returns focus to the updated round status at {width}px')
+        page.keyboard.press('Tab')
+        check(page.locator('.domino-hand-tile').first.evaluate('e => e === document.activeElement'),
+              f'Tab from the round status reaches the remaining hand at {width}px')
         route("/home")
         check(
             "Draw Dominoes · DOMINO-01" in page.locator(".club-letter").inner_text(),
@@ -119,6 +125,56 @@ with sync_playwright() as playwright:
             f"Confirmed seed change starts a fresh round at {width}px",
         )
         page.screenshot(path=str(ROOT / "test-results" / f"dominoes-play-{width}.png"), full_page=True)
+        saw_pan = False
+        for seed, winner, blocked in [
+            ('OUTCOME-0', 'bot', True), ('OUTCOME-1', 'human', False),
+            ('OUTCOME-3', 'bot', False), ('OUTCOME-6', 'human', True),
+            ('OUTCOME-23', 'draw', True),
+        ]:
+            page.locator('#domino-seed').fill(seed)
+            page.locator('[data-action="club-domino-use-seed"]').click()
+            page.locator('[data-action="club-reset-confirm"]').click()
+            for turn in range(100):
+                move = page.evaluate('''() => {
+                    const E = AlibiClubEngines.dominoes, r = AlibiClub.diagnostics().state.runs.dominoes;
+                    const s = E.replay(r.seed, r.log), m = E.legalMoves(s)[0];
+                    return s.done ? {done:true, winner:s.winner, blocked:!!(s.human.length && s.bot.length)}
+                        : m ? {kind:'play', ...m} : {kind:s.stock.length ? 'draw' : 'pass'};
+                }''')
+                if move.get('done'):
+                    check(move['winner'] == winner and move['blocked'] == blocked,
+                          f'{seed} reaches the expected legal outcome at {width}px')
+                    break
+                if move['kind'] == 'play':
+                    chain = page.locator('.domino-chain')
+                    chain.evaluate('e => { e.scrollLeft = e.scrollWidth; }')
+                    pan = chain.evaluate('e => e.scrollLeft')
+                    tile = page.locator(f'[data-action="club-domino-tile"][data-value="{move["tile"]}"]')
+                    tile.focus()
+                    page.keyboard.press('Enter')
+                    if pan > 0:
+                        check(abs(chain.evaluate('e => e.scrollLeft') - pan) <= 1,
+                              f'{seed} turn {turn}: selecting a tile keeps the chain pan at {width}px')
+                        saw_pan = True
+                    page.locator(f'[data-action="club-domino-end"][data-value="{move["end"]}"]').focus()
+                else:
+                    page.locator(f'[data-action="club-domino-{move["kind"]}"]').focus()
+                page.keyboard.press('Enter')
+                check(page.locator('.domino-status').evaluate('e => e === document.activeElement'),
+                      f'{seed} turn {turn}: keyboard action retains round context at {width}px')
+            else:
+                raise AssertionError(f'{seed} did not finish within 100 legal actions')
+            outcome = page.locator('.domino-status').inner_text()
+            if blocked:
+                check('blocked' in outcome and 'empty' not in outcome,
+                      f'{seed} describes a blocked round accurately at {width}px')
+                check(('Equal pips' if winner == 'draw' else 'fewer pips') in outcome,
+                      f'{seed} explains the pip outcome at {width}px')
+            else:
+                check('empt' in outcome and 'blocked' not in outcome,
+                      f'{seed} describes an emptied hand accurately at {width}px')
+        if width == 390:
+            check(saw_pan, 'Phone play exercises an overflowing domino chain')
         route("/home")
         check(
             page.locator('.club-gamecard[data-id="dominoes"]').count() == 1,

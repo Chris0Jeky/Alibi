@@ -95,8 +95,31 @@ def main() -> None:
             assert page.locator('#quiet-host').evaluate(
                 'host=>host.shadowRoot.activeElement?.id==="castle-main"'
             )
+            page.locator('[data-do="practice"]').first.click()
+            page.wait_for_function('() => !!AlibiDiagnostics.getCurrent()')
+            dismiss()
+            page.wait_for_function('() => AlibiActivities.diagnostics().active===false')
+            page.locator('[data-action="return-to-castle"]').click()
+            page.evaluate('location.hash="#/home"')
+            page.wait_for_function('() => location.hash==="#/home"&&!document.documentElement.dataset.f')
+            page.evaluate('location.hash="#/quiet/castle/directory"')
+            expect(page.locator('#castle-main h1')).to_have_text('Room directory')
+            assert page.locator('#quiet-host').evaluate(
+                'host=>host.shadowRoot.activeElement?.id==="castle-main"'
+            )
+            page.evaluate('location.hash="#/home"')
+            page.wait_for_function('() => location.hash==="#/home"')
+            page.evaluate('''() => {
+                document.documentElement.dataset.f='removed-practice-starter@1'
+                document.documentElement.dataset.ft='#/quiet/castle/directory'
+                location.hash='#/quiet/castle/directory'
+            }''')
+            expect(page.locator('#castle-main h1')).to_have_text('Room directory')
+            assert page.locator('#quiet-host').evaluate(
+                'host=>host.shadowRoot.activeElement?.id==="castle-main"'
+            )
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-            report['checks'].append(f'{width}: Enter/Tab opens room and planned-directory starters, returns focus exactly once, and direct history return uses the Castle landmark')
+            report['checks'].append(f'{width}: Enter/Tab opens room and planned-directory starters, returns focus once, and cancelled, missing, direct and history routes use the Castle landmark')
             context.close()
         browser.close()
         report['passed']=True

@@ -6,6 +6,19 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.2 · Faster hints, steadier controls
+
+2026-09-12
+
+- Get clue-based Nonogram hints faster, with readable clues and larger squares on narrow screens.
+- Play Lantern Gardens with separated touch targets and contained panning. Choosing a different garden starts at its left edge.
+- Keep keyboard context after Dominoes moves and Mahjong pairs. Dominoes keeps the chain in view and explains blocked-round results.
+- Return from Castle practice to its original room control. Interrupted returns cannot redirect focus on a later visit.
+- Merge Castle notebook backups without repeating unchanged imported sections after adding local notes. Over-limit merges stop before changing the notebook.
+- Try the optional Wrenmere Desk with compact mobile navigation, a puzzle finder and a clear continue card.
+
+[Deployment receipt](docs/RELEASE-0.11.2.md)
+
 ## 0.11.1 · Optional usage sharing
 
 2026-09-10

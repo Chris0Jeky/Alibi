@@ -134,6 +134,7 @@ jobs:
             test-results/discovery/
             test-results/edge-layout/
             test-results/library-focus/
+            test-results/quiet-focus/
             test-results/delivery/
             test-results/theatre/
             test-results/curation-check/
@@ -142,5 +143,7 @@ jobs:
             test-results/expert-browser/
             test-results/tic-tac-toe/
             test-results/player-qa/
+            test-results/feedback-discovery/
+            test-results/september-feedback/
             test-results/block-motion/
           retention-days: 14

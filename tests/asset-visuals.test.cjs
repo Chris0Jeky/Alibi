@@ -1,6 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -28,6 +29,33 @@ test('Every puzzle family has distinct diagram art without reading answers', () 
     return result;
   });
   assert.equal(new Set(art).size, 13);
+});
+test('Sudoku and Bridges gallery cards exactly export their current live diagrams', () => {
+  const ui = {};
+  vm.createContext(ui);
+  vm.runInContext(fs.readFileSync(path.join(root, 'src/presentation.js'), 'utf8'), ui);
+  const ledger = JSON.parse(
+    fs.readFileSync(path.join(root, 'assets-source/library/visuals/generated.json'), 'utf8'),
+  );
+  const catalogue = JSON.parse(
+    fs.readFileSync(path.join(root, 'assets-source/library/visuals/catalogue.json'), 'utf8'),
+  );
+  for (const type of ['sudoku', 'bridges']) {
+    const cardPath = `assets-source/library/visuals/card-${type}.svg`;
+    const expected = ui.AlibiUI.art(type).replace(
+      '<svg ',
+      '<svg xmlns="http://www.w3.org/2000/svg" ',
+    );
+    const actual = fs.readFileSync(path.join(root, cardPath), 'utf8');
+    assert.equal(actual, expected, `${type} card export tracks the live diagram`);
+    assert.equal(
+      ledger[cardPath],
+      crypto.createHash('sha256').update(actual).digest('hex'),
+      `${type} card ledger hash tracks its exact bytes`,
+    );
+    const family = catalogue.find((entry) => entry.id === `family-${type}`);
+    assert.deepEqual(family?.derivatives, [cardPath]);
+  }
 });
 test('Every real stamp gets a distinct silhouette without changing award logic', () => {
   const actual = ctx.QWEngine.BADGES.map(([id]) => id);

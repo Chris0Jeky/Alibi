@@ -63,7 +63,7 @@ export function mergeStates(local, incoming) {
     const section = importedNotebookSection(added.notes);
     const legacySuffix = legacyImportedNotebookSuffix(added.notes);
     if (!current.notes.includes(section) && !current.notes.endsWith(legacySuffix))
-      next.notes = current.notes ? `${current.notes}\n\n${section}` : added.notes;
+      next.notes = current.notes ? `${current.notes}\n\n${section}` : section;
   }
   if (next.notes.length > 12000)
     throw Error(

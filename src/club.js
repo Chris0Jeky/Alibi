@@ -466,6 +466,7 @@
     selectedPlot = null;
     selectedBlockSlot = null;
     selectedDominoTile = null;
+    selectedMahjongTile = null;
     previewCell = null;
     botJob++;
     botPending = false;
@@ -606,7 +607,7 @@
       s = currentGame('regiongardens'),
       p = E().regionGardens.layouts[r.level],
       bad = new Set(E().regionGardens.conflicts(s));
-    return `${heading('Lantern Gardens.', 'THE GAMES ROOM', 'A place for each light. Room between neighbours.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><h2>${esc(p.title)}</h2><div class="region-board" data-scroll-key="region-garden" style="--garden-size:${p.size}" role="group" aria-label="Lantern Gardens board">${s.marks.map((v, i) => `<button id="garden-cell-${i}" class="region-cell ${bad.has(i) ? 'conflict' : ''}" style="--garden-color:var(--garden-${p.regions[i]})" data-action="club-garden-cell" data-cell="${i}" aria-pressed="${v === 1}" aria-label="Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}, garden ${String.fromCharCode(65 + p.regions[i])}: ${v === 1 ? 'lantern' : v === 2 ? 'excluded' : 'empty'}${bad.has(i) ? ', conflicts with another lantern' : ''}" ${s.done ? 'disabled' : ''}><small>${String.fromCharCode(65 + p.regions[i])}</small><span aria-hidden="true">${v === 1 ? '●' : v === 2 ? '×' : ''}</span></button>`).join('')}</div><p id="garden-status" tabindex="-1" role="status">${s.done ? 'All lanterns have a place. Garden complete.' : `${s.marks.filter((v) => v === 1).length} / ${p.size} lanterns placed. ${bad.size ? 'Outlined lanterns share a row, column or garden, or touch.' : 'Tap a square: lantern → exclusion → empty.'}`}</p>${toolbar('regiongardens', r)}</section><aside class="club-gameaside">${ruleDetails('<p>Place exactly one lantern in every row, column and lettered colour region. Lanterns must not touch, even at a corner. All squares belong to a region; most squares stay empty.</p><p>Tap a square to cycle lantern, exclusion cross and empty. Mistakes remain editable. Every garden has exactly one solution. Undo reopens a completed board.</p>', true)}<section class="panel"><h2>Choose a garden</h2>${E()
+    return `${heading('Lantern Gardens.', 'THE GAMES ROOM', 'A place for each light. Room between neighbours.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><h2>${esc(p.title)}</h2><div class="region-board" data-scroll-key="region-garden-${r.level}" style="--garden-size:${p.size}" role="group" aria-label="Lantern Gardens board">${s.marks.map((v, i) => `<button id="garden-cell-${i}" class="region-cell ${bad.has(i) ? 'conflict' : ''}" style="--garden-color:var(--garden-${p.regions[i]})" data-action="club-garden-cell" data-cell="${i}" aria-pressed="${v === 1}" aria-label="Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}, garden ${String.fromCharCode(65 + p.regions[i])}: ${v === 1 ? 'lantern' : v === 2 ? 'excluded' : 'empty'}${bad.has(i) ? ', conflicts with another lantern' : ''}" ${s.done ? 'disabled' : ''}><small>${String.fromCharCode(65 + p.regions[i])}</small><span aria-hidden="true">${v === 1 ? '●' : v === 2 ? '×' : ''}</span></button>`).join('')}</div><p id="garden-status" tabindex="-1" role="status">${s.done ? 'All lanterns have a place. Garden complete.' : `${s.marks.filter((v) => v === 1).length} / ${p.size} lanterns placed. ${bad.size ? 'Outlined lanterns share a row, column or garden, or touch.' : 'Tap a square: lantern → exclusion → empty.'}`}</p>${toolbar('regiongardens', r)}</section><aside class="club-gameaside">${ruleDetails('<p>Place exactly one lantern in every row, column and lettered colour region. Lanterns must not touch, even at a corner. All squares belong to a region; most squares stay empty.</p><p>Tap a square to cycle lantern, exclusion cross and empty. Mistakes remain editable. Every garden has exactly one solution. Undo reopens a completed board.</p>', true)}<section class="panel"><h2>Choose a garden</h2>${E()
       .regionGardens.layouts.map((g, i) =>
         B(
           `${esc(g.title)} · ${g.size}×${g.size}${state.records.some((x) => x.type === 'regiongardens' && x.label === g.title) ? ' · Solved' : ''}`,
@@ -629,13 +630,17 @@
       canPass = !s.done && !legal.length && !s.stock.length,
       outcome =
         s.winner === 'human'
-          ? 'You empty your hand first.'
+          ? s.human.length
+            ? 'The round is blocked. You win with fewer pips.'
+            : 'You empty your hand first.'
           : s.winner === 'bot'
-            ? 'The keeper empties its hand first.'
+            ? s.bot.length
+              ? 'The round is blocked. The keeper wins with fewer pips.'
+              : 'The keeper empties its hand first.'
             : s.winner === 'draw'
-              ? 'The round is blocked.'
+              ? 'The round is blocked. Equal pips make a draw.'
               : '';
-    return `${heading('Draw Dominoes.', 'THE GAMES ROOM / 04', 'Match the open ends. Draw carefully. Empty your hand first.')}${status()}<div class="club-playlayout"><section class="club-boardpanel domino-panel"><div class="domino-meta"><span class="seed-label">SEED / ${esc(s.seed)}</span><span>STOCK <strong>${s.stock.length}</strong></span><span>YOUR PIPS <strong>${E().dominoes.pips(s.human)}</strong></span><span>KEEPER <strong>${s.bot.length}</strong> tiles</span></div><div class="domino-chain-wrap"><div class="domino-end-row"><span class="eyebrow">OPEN ENDS</span>${s.chain.length ? `${B('← Place left', 'domino-end', `data-value="left" ${selectedMoves.some((move) => move.end === 'left') ? '' : 'disabled'}`, 'secondary small')}${B('Place right →', 'domino-end', `data-value="right" ${selectedMoves.some((move) => move.end === 'right') ? '' : 'disabled'}`, 'secondary small')}` : B('Open the chain', 'domino-end', `data-value="start" ${selectedMoves.some((move) => move.end === 'start') ? '' : 'disabled'}`, 'secondary small')}</div><div class="domino-chain" role="list" aria-label="Played domino chain">${s.chain.length ? s.chain.map((piece, i) => `<span class="domino-chain-piece" role="listitem" aria-label="Played ${piece.left} to ${piece.right}"><i>${piece.left}</i><b></b><i>${piece.right}</i></span>`).join('') : '<span class="domino-empty-chain">Choose a tile to begin.</span>'}</div></div><div class="domino-status" role="status">${s.done ? `<strong>${esc(outcome)}</strong> ${s.humanPips} pips in your hand; ${s.botPips} in the keeper’s.` : s.lastAction || (selected === null ? 'Select a tile, then choose an open end.' : 'Choose where the selected tile should go.')}</div><div class="domino-hand" role="list" aria-label="Your domino tiles">${s.human
+    return `${heading('Draw Dominoes.', 'THE GAMES ROOM / 04', 'Match the open ends. Draw carefully. Empty your hand first.')}${status()}<div class="club-playlayout"><section class="club-boardpanel domino-panel"><div class="domino-meta"><span class="seed-label">SEED / ${esc(s.seed)}</span><span>STOCK <strong>${s.stock.length}</strong></span><span>YOUR PIPS <strong>${E().dominoes.pips(s.human)}</strong></span><span>KEEPER <strong>${s.bot.length}</strong> tiles</span></div><div class="domino-chain-wrap"><div class="domino-end-row"><span class="eyebrow">OPEN ENDS</span>${s.chain.length ? `${B('← Place left', 'domino-end', `data-value="left" ${selectedMoves.some((move) => move.end === 'left') ? '' : 'disabled'}`, 'secondary small')}${B('Place right →', 'domino-end', `data-value="right" ${selectedMoves.some((move) => move.end === 'right') ? '' : 'disabled'}`, 'secondary small')}` : B('Open the chain', 'domino-end', `data-value="start" ${selectedMoves.some((move) => move.end === 'start') ? '' : 'disabled'}`, 'secondary small')}</div><div class="domino-chain" data-scroll-key="domino-${esc(s.seed)}" role="list" aria-label="Played domino chain">${s.chain.length ? s.chain.map((piece, i) => `<span class="domino-chain-piece" role="listitem" aria-label="Played ${piece.left} to ${piece.right}"><i>${piece.left}</i><b></b><i>${piece.right}</i></span>`).join('') : '<span class="domino-empty-chain">Choose a tile to begin.</span>'}</div></div><div id="domino-status" class="domino-status" role="status" tabindex="-1">${s.done ? `<strong>${esc(outcome)}</strong> ${s.humanPips} pips in your hand; ${s.botPips} in the keeper’s.` : s.lastAction || (selected === null ? 'Select a tile, then choose an open end.' : 'Choose where the selected tile should go.')}</div><div class="domino-hand" role="list" aria-label="Your domino tiles">${s.human
       .map((tileId) => {
         const tile = E().dominoes.tile(tileId),
           moves = legal.filter((move) => move.tile === tileId);
@@ -658,7 +663,7 @@
     ensureRun('mahjong');
     const r = state.runs.mahjong,
       s = currentGame('mahjong'),
-      selected = Number.isInteger(selectedMahjongTile) ? selectedMahjongTile : null,
+      selected = E().mahjong.free(s, selectedMahjongTile) ? selectedMahjongTile : null,
       selectedTile = selected === null ? null : s.tiles[selected],
       targets = new Set(
         selectedTile
@@ -685,7 +690,7 @@
           : targets.size
             ? `Selected ${esc(selectedTile.face)}. Choose the highlighted match.`
             : `Selected ${esc(selectedTile.face)}. That tile has no free match yet.`;
-    return `${heading('Mahjong Solitaire.', 'THE GAMES ROOM / 04', 'Clear the free pairs. Read the layers. Leave a little room.')}${status()}<div class="club-playlayout"><section class="club-boardpanel mahjong-panel"><div class="block-meta"><span class="seed-label">SEED / ${esc(s.seed)}</span><span><strong>${s.pairs}</strong> of ${E().mahjong.pairCount} pairs</span><span class="score-value"><strong>${E().mahjong.score(s)}</strong> points</span></div><div class="mahjong-scroll" tabindex="0" role="region" aria-label="Mahjong table, scroll sideways on narrow screens"><div class="mahjong-board" role="group" aria-label="Mahjong Solitaire layered table, twenty tiles">${tiles}</div></div><p class="control-note">On narrow screens, scroll sideways to see the whole table.</p><div class="block-status mahjong-status" role="status">${message}</div>${toolbar('mahjong', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE TABLE CARD</span><h2>Look above, then look beside.</h2><p>Remove matching letters only when both tiles are free. A tile must have nothing above it and at least one open horizontal side.</p></div>${ruleDetails('<p>Choose one free tile, then its matching free tile. A tile is free when no tile sits above it and at least one horizontal side is open.</p><p>This small layered table is dealt from the seed so every new table has a known solvable sequence. The same seed always deals the same letters. Undo and redo keep the move replay in the device-local Club save.</p>', true)}<section class="seed-control"><label for="mahjong-seed">Start another seeded table</label><input id="mahjong-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'mahjong-use-seed', '', 'secondary small')}</div></section><p class="club-local-note">Tiles are original letter marks. No network is required.</p></aside></div>`;
+    return `${heading('Mahjong Solitaire.', 'THE GAMES ROOM / 04', 'Clear the free pairs. Read the layers. Leave a little room.')}${status()}<div class="club-playlayout"><section class="club-boardpanel mahjong-panel"><div class="block-meta"><span class="seed-label">SEED / ${esc(s.seed)}</span><span><strong>${s.pairs}</strong> of ${E().mahjong.pairCount} pairs</span><span class="score-value"><strong>${E().mahjong.score(s)}</strong> points</span></div><div class="mahjong-scroll" tabindex="0" role="region" aria-label="Mahjong table, scroll sideways on narrow screens"><div class="mahjong-board" role="group" aria-label="Mahjong Solitaire layered table, twenty tiles">${tiles}</div></div><p class="control-note">On narrow screens, scroll sideways to see the whole table.</p><div class="block-status mahjong-status" role="status" tabindex="-1">${message}</div>${toolbar('mahjong', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE TABLE CARD</span><h2>Look above, then look beside.</h2><p>Remove matching letters only when both tiles are free. A tile must have nothing above it and at least one open horizontal side.</p></div>${ruleDetails('<p>Choose one free tile, then its matching free tile. A tile is free when no tile sits above it and at least one horizontal side is open.</p><p>This small layered table is dealt from the seed so every new table has a known solvable sequence. The same seed always deals the same letters. Undo and redo keep the move replay in the device-local Club save.</p>', true)}<section class="seed-control"><label for="mahjong-seed">Start another seeded table</label><input id="mahjong-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'mahjong-use-seed', '', 'secondary small')}</div></section><p class="club-local-note">Tiles are original letter marks. No network is required.</p></aside></div>`;
   }
   function boroughPage() {
     ensureRun('borough');
@@ -1124,15 +1129,18 @@
         }
         selectedDominoTile = null;
         await commitGame('dominoes', { kind: 'play', tile, end });
+        document.getElementById('domino-status')?.focus({ preventScroll: true });
       } else if (a === 'domino-draw') {
         if (!currentGame('dominoes')?.done) {
           selectedDominoTile = null;
           await commitGame('dominoes', { kind: 'draw' });
+          document.getElementById('domino-status')?.focus({ preventScroll: true });
         }
       } else if (a === 'domino-pass') {
         if (!currentGame('dominoes')?.done) {
           selectedDominoTile = null;
           await commitGame('dominoes', { kind: 'pass' });
+          document.getElementById('domino-status')?.focus({ preventScroll: true });
         }
       } else if (a === 'domino-use-seed') {
         const seed = E().seedText(document.getElementById('domino-seed').value),
@@ -1160,7 +1168,10 @@
           const pair = { a: selectedMahjongTile, b: tile };
           selectedMahjongTile = null;
           await commitGame('mahjong', pair);
-          document.getElementById('mahjong-tile-' + tile)?.focus({ preventScroll: true });
+          (
+            document.querySelector('.mahjong-tile.free:not(:disabled)') ||
+            document.querySelector('.mahjong-status')
+          )?.focus({ preventScroll: true });
         }
       } else if (a === 'mahjong-use-seed') {
         const seed = E().seedText(document.getElementById('mahjong-seed').value),
