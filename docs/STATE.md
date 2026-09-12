@@ -1,5 +1,32 @@
 # Live development state
 
+## 0.11.2 release candidate, 2026-09-12 (not deployed)
+
+Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
+previous merged player fixes with completed Castle first-import deduplication (#141), cancelled
+return-focus expiry (#79), the two current gallery diagrams (#89), and Quiet Wing timeout
+diagnostics (#102). Standalone sound controls/copy (#86) were already implemented and are now
+verified directly. Games Room keyboard/pan corrections and the casebook/witness/dossier copy
+pass address further parts of #100; that broader issue remains open.
+
+Full verify passes 243 Node tests and supplementary suites. Initial JavaScript is 127,524 gzip
+bytes; all numeric budgets remain unchanged. The integrated local Edge checks pass 182 player
+assertions, 92 real IndexedDB/service-worker assertions, Castle practice at 390/1280px, nine
+Castle recovery scenarios, 72 Invitation assertions at 390/1440px, and Quiet Wing route focus
+at 390/1440px. Component checks also pass 177 garden, 281 Dominoes and 84 Mahjong assertions.
+Phone-size and desktop game/card/story screenshots were inspected. Independent reviews found
+no remaining blocker; stale canonical gallery hashes found on the component branch were
+regenerated for the combined source and covered by the full verification pass.
+
+The malformed double-slash Quiet Wing test URL was a setup error, excluded from runtime
+evidence. The canonical URL passes; synthetic timeouts prove diagnostics preserve the original
+exception. CI now retains those diagnostics and both player-feedback report directories.
+
+The existing primary still serves 0.11.1 and the fallback 0.11.0. Disposable HTTPS test profiles
+on each origin contain a saved Binary move for post-publication update verification. Publication
+and hosted results remain pending in [RELEASE-0.11.2.md](RELEASE-0.11.2.md).
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical-device and human acceptance items remain open.
+
 ## Games Room controls follow-up, 2026-09-12 (not deployed)
 
 The next #100 slice gives each Lantern Garden its own transient pan key, preserves the
@@ -29,8 +56,9 @@ service-worker checks, all eight large-Nonogram board/width cases, Castle practi
 and all eight Castle recovery scenarios. The local browser runs use installed Edge; hosted CI
 runs the repository's Chromium matrix separately. No content definitions were regenerated.
 
-Two non-blocking navigation details remain tracked: interrupted Castle returns can leave a
-pending focus key (#79), and choosing another garden can retain the previous pan (#100). Legacy
+At that earlier checkpoint, two navigation details remained: interrupted Castle returns could
+leave a pending focus key (#79), and another garden could retain the previous pan (#100).
+The 0.11.2 candidate above addresses both. Legacy
 notebook sections without an end marker retain the conservative boundary described below.
 Physical-phone, TalkBack, comfort and difficulty acceptance remain in
 [HUMAN_TODO.md](../HUMAN_TODO.md). These are source/local-origin results, not a new hosted release.
