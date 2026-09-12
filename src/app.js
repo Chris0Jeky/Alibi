@@ -2416,6 +2416,7 @@
       }
       case 'return-to-castle': {
         const target = caseReturn?.target;
+        document.documentElement.dataset.f = caseReturn?.puzzleKey || '';
         caseReturn = null;
         if (target) location.hash = target;
         break;

@@ -1,5 +1,46 @@
 # Live development state
 
+## Player-fix checkpoint, 2026-09-12 (not deployed)
+
+The mobile desk (#138) and Capacitor planning package (#137) are merged. The current player-fix
+candidate combines Nonogram hint performance and clue sizing (#96), conservative notebook merge
+deduplication (#80), normal Castle practice return focus (#79), and Lantern Gardens touch layout
+(part of #100). Each implementation remains a separate commit in the integration history.
+
+At source `2757111`, build `5a5dbe8bedc5` passes full verify: 242 Node tests and supplementary
+suites, with initial JavaScript 127,377 gzip bytes and unchanged numeric budgets. Independent
+enumeration matches all 4,178 clue profiles for lines of 1–15 cells. Integrated local-origin
+browser runs pass: 159 garden assertions, 182 original player assertions, 92 real IndexedDB/
+service-worker checks, all eight large-Nonogram board/width cases, Castle practice at 390/1280px,
+and all eight Castle recovery scenarios. The local browser runs use installed Edge; hosted CI
+runs the repository's Chromium matrix separately. No content definitions were regenerated.
+
+Two non-blocking navigation details remain tracked: interrupted Castle returns can leave a
+pending focus key (#79), and choosing another garden can retain the previous pan (#100). Legacy
+notebook sections without an end marker retain the conservative boundary described below.
+Physical-phone, TalkBack, comfort and difficulty acceptance remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md). These are source/local-origin results, not a new hosted release.
+
+## Lantern Gardens touch layout follow-up (not deployed)
+
+Issue #100's narrow-screen garden board now reserves at least 44px per grid column and scrolls
+within its panel, preserving the pan through moves and undo. The previous layout could give
+buttons 44px bounds while placing them in narrower, overlapping tracks. All six boards pass
+target-size, non-overlap, right-edge play, undo and pan checks at 320/390/1440px. The expanded
+garden suite passes 159 assertions, the original player UI suite passes 182, and full source
+verification passes with unchanged delivery caps. Phone-size and desktop screenshots were
+inspected. Physical touch/TalkBack acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## Castle notebook merge candidate (not deployed)
+
+Castle restore merge now labels each imported notebook section with exact start/end delimiters.
+Repeating the same reviewed backup after later local notes keeps that section once, while changed
+imports and ordinary local prose remain distinct. A legacy start-only section is deduplicated only
+when it remains the notebook suffix; a legacy marker followed by later prose has no safe boundary,
+so that prose is retained and the reviewed import is added as a new exact section. The existing
+bounded worker, revision-conditional restore, atomic pre-restore recovery and 12,000-character
+refusal remain the save authority.
+
 ## Capacitor transition architecture (planned; not deployed)
 
 The proposed [Capacitor transition package](capacitor/README.md) records the Android-host route,
@@ -11,6 +52,15 @@ its two existing origins and their separate player data remain the current produ
 ## Wrenmere Desk mobile-first candidate (not deployed)
 
 An opt-in `#/home?ux=house` presentation adds a single resume/start card, a labelled mobile dock, a compact finder with draft-based filter sheets, original SVG room components and an optional session-only deduction study. Existing game/save/preference owners remain unchanged. Includes the earlier unsubmitted desk foundation. See [UX entry point](ux/README.md), [component contracts](ux/MOBILE-COMPONENTS.md) and [verification limits](ux/VERIFICATION.md). Hosted checks and physical acceptance remain gates; this is not a production release or a canonical castle migration.
+
+## Castle practice return-focus candidate (not deployed)
+
+Returning to Wrenmere carries the originating puzzle key to the exact room shelf control once;
+a missing starter or a later history/direct visit falls back to the Castle landmark. The key
+is never persisted and does not alter saved-run data. The real-origin browser run at 390px and
+1280px covers keyboard entry, implemented and planned rooms, replay/restart and one-time
+consumption. Final combined verification is recorded with the player-fix checkpoint; the
+initial-JavaScript budget cap remains unchanged.
 
 ## Block Cabinet integration candidate (not deployed)
 
@@ -99,12 +149,15 @@ origin now exposes both facts in its accessible label, with actual-control cover
 The Tic-Tac-Toe follow-up in #90 now guards unfinished winning-line highlights, exposes mode
 selection with `aria-pressed`, preserves keyboard focus through the keeper reply, confirms mode
 changes that would discard redo history, and renders completed game records in the Club journal.
-Other non-blocking review follow-ups remain in #6, #86, #89, #96, #100 and #102, including
-large-Nonogram hint latency and the widest clue layout's approximately 43px mobile cells. The
-release keeps those limitations explicit. Sites still controls response headers/MIME and its
-injected challenge (#6); document CSP/referrer metadata remains intact. The dated slice notes
-below are historical candidate checkpoints; their smaller counts and publication status describe
-their own stage, not the current total.
+The #96 Nonogram follow-up is implemented in current source: hint deduction and validation use
+cached clue-compatible placements without reading the solution, and mobile zoom retains
+clue-aware sizing. The all-four-board browser matrix proves 44px cells, panning, auto-cross,
+undo/redo and offline reload at 320px and 390px; physical-phone and difficulty calibration
+remain open in [HUMAN_TODO.md](../HUMAN_TODO.md). Other non-blocking review follow-ups remain
+in #6, #86, #89, #100 and #102. Sites still controls response headers/MIME and its injected
+challenge (#6); document CSP/referrer metadata remains intact. The dated slice notes below are
+historical candidate checkpoints; their smaller counts and publication status describe their own
+stage, not the current total.
 
 The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone while a native
 `<summary>` has focus. The two-width feedback-discovery browser matrix proves ArrowRight and

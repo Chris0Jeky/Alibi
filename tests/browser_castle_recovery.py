@@ -50,9 +50,16 @@ def run():
             assert read(page) == before
             record('export roundtrip is scoped; reviewing and cancelling import write nothing')
             import_data(page, exported)
+            expect(page.locator('#castle-dialog')).to_contain_text('Repeating the same reviewed file keeps that exact labelled section once')
             click(page, 'restore-merge')
-            expect(page.locator('#notes')).to_have_value('A later observation.\n\n--- Imported notebook ---\nOriginal field note.')
+            expect(page.locator('#notes')).to_have_value('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---')
             assert flush(page) == 'ok'
+            page.locator('#notes').fill('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---\n\nMy local thought after importing.')
+            assert flush(page) == 'ok'
+            import_data(page, exported)
+            click(page, 'restore-merge')
+            expect(page.locator('#notes')).to_have_value('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---\n\nMy local thought after importing.')
+            record('reviewed merge explains exact-section deduplication and preserves a later local thought')
             merged = read(page)
             import_data(page, exported)
             click(page, 'restore-replace')

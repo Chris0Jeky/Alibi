@@ -63,7 +63,8 @@ export async function mount({ root, preferences = null, practice = null }) {
     filmPlaying = false;
   let effective = preferences,
     objectURLs = new Set(),
-    timers = new Set();
+    timers = new Set(),
+    restoredPracticeFocus = false;
   root.innerHTML = `<style>${styles}${nativeStyle}</style><header></header><div id="warning" class="warning" role="status" hidden></div><main id="castle-main" tabindex="-1"></main><footer></footer><dialog id="castle-dialog" aria-labelledby="castle-title"></dialog><div class="live" role="status" aria-live="polite" id="castle-live"></div>`;
   const $ = (selector) => root.querySelector(selector);
   const dialog = $('#castle-dialog');
@@ -138,6 +139,16 @@ export async function mount({ root, preferences = null, practice = null }) {
               ? pages().directory()
               : pages().mapPage();
     updateStatus();
+  }
+  function focusPracticeStarter() {
+    const focus = document.documentElement.dataset.f?.split('@')[0];
+    delete document.documentElement.dataset.f;
+    if (!focus) return false;
+    const starter = [...root.querySelectorAll('[data-do="practice"]')].find(
+      (candidate) => candidate.dataset.value === focus,
+    );
+    (starter || $('#castle-main')).focus({ preventScroll: true });
+    return !!starter;
   }
   function visit(id) {
     const r = W.rooms.find((r) => r.id === id);
@@ -216,11 +227,13 @@ export async function mount({ root, preferences = null, practice = null }) {
     pendingRestore = { data, revision: store.state.revision };
     show(
       'Review castle restore',
-      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
+      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes in a labelled section. Repeating the same reviewed file keeps that exact labelled section once; ordinary local note text is never treated as an import. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
     );
   }
   async function restoreNotebook(replace) {
     if (!pendingRestore) throw Error('Review a castle backup before restoring.');
+    const beforeNotes = state.notes,
+      importedNotes = pendingRestore.data.state.notes;
     for (const control of dialog.querySelectorAll('button')) control.disabled = true;
     try {
       state = await store.restore(pendingRestore.data, {
@@ -229,7 +242,13 @@ export async function mount({ root, preferences = null, practice = null }) {
       });
       pendingRestore = null;
       close();
-      announce('Castle notebook restored. Its previous contents are available as a recovery copy.');
+      announce(
+        replace
+          ? 'Castle notebook replaced. Its previous contents are available as a recovery copy.'
+          : importedNotes && state.notes === beforeNotes
+            ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
+            : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
+      );
     } finally {
       for (const control of dialog.querySelectorAll('button')) control.disabled = false;
     }
@@ -781,7 +800,8 @@ export async function mount({ root, preferences = null, practice = null }) {
       else selected = r.id;
     }
     render();
-    $('#castle-main').focus({ preventScroll: true });
+    restoredPracticeFocus = focusPracticeStarter();
+    if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
     showStagedImport();
   }
   const reviewStaged = () => {
@@ -804,6 +824,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     },
     focusDestination() {
       if (disposed) return false;
+      if (restoredPracticeFocus) {
+        restoredPracticeFocus = false;
+        return true;
+      }
       $('#castle-main').focus({ preventScroll: true });
       return true;
     },

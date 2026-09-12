@@ -183,13 +183,29 @@
   }
   const patternCache = new Map();
   function patterns(n, clues) {
-    const key = n + ':' + clues.join(',');
+    const key = n + ':' + clues;
     if (patternCache.has(key)) return patternCache.get(key);
-    const out = [];
-    for (let mask = 0; mask < 2 ** n; mask++) {
-      const line = range(n).map((i) => (mask >> i) & 1);
-      if (equal(runs(line), clues)) out.push(line);
+    if (clues.length === 1 && clues[0] === 0) {
+      const out = [Array(n).fill(0)];
+      patternCache.set(key, out);
+      return out;
     }
+    const out = [];
+    function place(runIndex, start, mask, remaining) {
+      const length = clues[runIndex],
+        lastStart = n - remaining;
+      for (let offset = start; offset <= lastStart; offset++) {
+        const next = mask | (((1 << length) - 1) << offset);
+        if (runIndex === clues.length - 1) out.push(range(n).map((_, i) => (next >> i) & 1));
+        else place(runIndex + 1, offset + length + 1, next, remaining - length - 1);
+      }
+    }
+    place(
+      0,
+      0,
+      0,
+      clues.reduce((sum, run) => sum + run, clues.length - 1),
+    );
     patternCache.set(key, out);
     return out;
   }
@@ -1037,6 +1053,7 @@
     equal,
     range,
     runs,
+    nonogramPatterns: patterns,
     groups,
     clueText,
     sceneSingle,
