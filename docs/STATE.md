@@ -2,14 +2,19 @@
 
 ## 0.11.3 Expert quality candidate, 2026-09-12 (not deployed)
 
-Build `385bf9c30ce3` combines the two explicit revision-2 content corrections below and permanent
+Build `01501bb6797b` combines the two explicit revision-2 content corrections below and permanent
 actual-control coverage for all twelve records in the Expert family pack. Full verify passes
-245 Node tests plus supplementary suites; initial JavaScript remains 127,524 gzip bytes within
+245 Node tests plus supplementary suites; initial JavaScript is 127,530 gzip bytes within
 the unchanged limit. The combined real-origin checks pass 20 Aquarium, 33 Nonogram and 26 other
 Expert assertions at 390/1440px. The complete lighthouse picture is visible in the existing
 normal-board view on both phone-size and desktop screenshots.
 
-Independent reviews found no causal blocker. The non-blocking old-revision route test timing
+CI exposed a pre-existing Settings keyboard bug: a service-worker controller-change redraw
+removed focus from Quiet Wing recovery. The button now has a stable ID, and the focused browser
+suite forces that redraw before actual Enter navigation at both widths. Issue #146 records the
+causal experiment and correction; final hosted CI remains required before publication.
+
+Independent reviews of the Expert changes found no causal blocker. The non-blocking old-revision route test timing
 gap is tracked in [#144](https://github.com/Chris0Jeky/Alibi/issues/144); existing pinned snapshots
 and all solve/control assertions remain covered. The sites currently serve verified 0.11.2 below.
 Publication of this candidate and human calibration remain pending; see

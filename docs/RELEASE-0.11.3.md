@@ -13,4 +13,9 @@ Nonogram editing/panning/history, saved revisions, incorrect Witness conclusions
 Machine uniqueness and interaction checks do not calibrate human difficulty; both revised puzzles
 remain provisional, with physical-device and player acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+Quiet Wing recovery also retains keyboard focus when offline readiness redraws Settings. A
+deterministic browser regression forces the controller-change event between focus and Enter;
+the stable control ID preserves focus and navigation at 390/1440px. This corrects the pre-existing
+failure exposed by CI run 34701821332; it does not increase the test timeout.
+
 The final source/build and hosted delivery/update receipts will be recorded after publication.

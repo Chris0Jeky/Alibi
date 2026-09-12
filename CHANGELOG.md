@@ -12,6 +12,7 @@ These entries describe the versions when they arrived. The original 0.2 source b
 
 - Solve an original Bellweather lighthouse picture in the revised 15×15 Expert Nonogram.
 - Read accurate seven-reservoir guidance in the Expert Aquarium.
+- Keep keyboard focus on Quiet Wing recovery while offline setup finishes.
 - Continue existing saved versions of both puzzles with their original definitions. Expert difficulty remains provisional while player feedback is gathered.
 
 [Deployment receipt](docs/RELEASE-0.11.3.md)
