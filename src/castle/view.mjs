@@ -143,6 +143,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   function focusPracticeStarter() {
     const focus = document.documentElement.dataset.f?.split('@')[0];
     delete document.documentElement.dataset.f;
+    delete document.documentElement.dataset.ft;
     if (!focus) return false;
     const starter = [...root.querySelectorAll('[data-do="practice"]')].find(
       (candidate) => candidate.dataset.value === focus,
