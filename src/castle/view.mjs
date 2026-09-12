@@ -216,11 +216,13 @@ export async function mount({ root, preferences = null, practice = null }) {
     pendingRestore = { data, revision: store.state.revision };
     show(
       'Review castle restore',
-      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
+      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes in a labelled section. Repeating the same reviewed file keeps that exact labelled section once; ordinary local note text is never treated as an import. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
     );
   }
   async function restoreNotebook(replace) {
     if (!pendingRestore) throw Error('Review a castle backup before restoring.');
+    const beforeNotes = state.notes,
+      importedNotes = pendingRestore.data.state.notes;
     for (const control of dialog.querySelectorAll('button')) control.disabled = true;
     try {
       state = await store.restore(pendingRestore.data, {
@@ -229,7 +231,13 @@ export async function mount({ root, preferences = null, practice = null }) {
       });
       pendingRestore = null;
       close();
-      announce('Castle notebook restored. Its previous contents are available as a recovery copy.');
+      announce(
+        replace
+          ? 'Castle notebook replaced. Its previous contents are available as a recovery copy.'
+          : importedNotes && state.notes === beforeNotes
+            ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
+            : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
+      );
     } finally {
       for (const control of dialog.querySelectorAll('button')) control.disabled = false;
     }
