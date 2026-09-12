@@ -5,18 +5,6 @@
     X = C.extras;
   const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
   const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
-  function runs(line) {
-    const out = [];
-    let count = 0;
-    for (const value of [...line, 0]) {
-      if (value === 1) count++;
-      else if (count) {
-        out.push(count);
-        count = 0;
-      }
-    }
-    return out.length ? out : [0];
-  }
   function deduction(p, s) {
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
@@ -98,16 +86,9 @@
         for (let line = 0; line < n; line++) {
           const cells = C.range(n).map((k) => (axis ? k * n + line : line * n + k)),
             clues = (axis ? p.colClues : p.rowClues)[line],
-            patterns = [];
-          // At most 512 patterns for the supported 9-cell line.
-          for (let mask = 0; mask < 2 ** n; mask++) {
-            const values = cells.map((_, k) => (mask >> k) & 1);
-            if (
-              values.every((v, k) => s.cells[cells[k]] === -1 || s.cells[cells[k]] === v) &&
-              C.equal(runs(values), clues)
-            )
-              patterns.push(values);
-          }
+            patterns = C.nonogramPatterns(n, clues).filter((values) =>
+              values.every((v, k) => s.cells[cells[k]] === -1 || s.cells[cells[k]] === v),
+            );
           if (!patterns.length) continue;
           for (let k = 0; k < n; k++)
             if (s.cells[cells[k]] === -1 && patterns.every((v) => v[k] === patterns[0][k])) {

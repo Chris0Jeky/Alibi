@@ -3794,6 +3794,9 @@ html[data-reduced='true'] *:after {
   .board-scroll.zoomed .grid-shell {
     min-width: calc(var(--n) * 48px + 28px);
   }
+  .board-scroll.zoomed .nono-shell {
+    min-width: calc(var(--n) * 48px + var(--clue-width));
+  }
 }
 @media (max-width: 650px) {
   .player-grid {

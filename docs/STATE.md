@@ -128,12 +128,15 @@ origin now exposes both facts in its accessible label, with actual-control cover
 The Tic-Tac-Toe follow-up in #90 now guards unfinished winning-line highlights, exposes mode
 selection with `aria-pressed`, preserves keyboard focus through the keeper reply, confirms mode
 changes that would discard redo history, and renders completed game records in the Club journal.
-Other non-blocking review follow-ups remain in #6, #86, #89, #96, #100 and #102, including
-large-Nonogram hint latency and the widest clue layout's approximately 43px mobile cells. The
-release keeps those limitations explicit. Sites still controls response headers/MIME and its
-injected challenge (#6); document CSP/referrer metadata remains intact. The dated slice notes
-below are historical candidate checkpoints; their smaller counts and publication status describe
-their own stage, not the current total.
+The #96 Nonogram follow-up is implemented in current source: hint deduction and validation use
+cached clue-compatible placements without reading the solution, and mobile zoom retains
+clue-aware sizing. The all-four-board browser matrix proves 44px cells, panning, auto-cross,
+undo/redo and offline reload at 320px and 390px; physical-phone and difficulty calibration
+remain open in [HUMAN_TODO.md](../HUMAN_TODO.md). Other non-blocking review follow-ups remain
+in #6, #86, #89, #100 and #102. Sites still controls response headers/MIME and its injected
+challenge (#6); document CSP/referrer metadata remains intact. The dated slice notes below are
+historical candidate checkpoints; their smaller counts and publication status describe their own
+stage, not the current total.
 
 The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone while a native
 `<summary>` has focus. The two-width feedback-discovery browser matrix proves ArrowRight and
