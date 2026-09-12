@@ -3,7 +3,6 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const dist = path.join(root, 'dist');
 test('Optional field-notes exports stay outside the core shell and retain a bounded independent pack', () => {
@@ -17,7 +16,8 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
       info.ambienceBytes +
       info.enhancementBytes +
       info.observatoryBytes +
-      info.blockMotionBytes,
+      info.blockMotionBytes +
+      info.houseBytes,
   );
   assert.ok(info.experienceBytes < 30 * 1024 * 1024);
   assert.ok(info.experienceOfflineBytes < 9 * 1024 * 1024);
@@ -39,10 +39,9 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
     ),
     'utf8',
   );
-  const header = js.split('\n').slice(0, 5).join('\n');
-  const config = {};
-  vm.runInNewContext(header, config);
-  const quiet = config.ALIBI_QUIET_CONFIG;
+  const assignment = js.match(/globalThis\.ALIBI_QUIET_CONFIG=(.*);\n/);
+  assert.ok(assignment, 'A static Quiet Wing configuration is emitted');
+  const quiet = JSON.parse(assignment[1]);
   assert.equal(
     quiet.files.filter((f) => /folio-.*-room\./.test(f)).length,
     4,
