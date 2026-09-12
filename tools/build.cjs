@@ -301,8 +301,6 @@ function build() {
     bootURL,
     workerURL,
     contentURL,
-    house.config.script,
-    house.config.css,
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
@@ -378,7 +376,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
       Buffer.byteLength(observatory) -
-      blockMotion.bytes,
+      blockMotion.bytes -
+      house.bytes,
     houseBytes: house.bytes,
     houseScriptGzipBytes: house.scriptGzipBytes,
     houseCssGzipBytes: house.cssGzipBytes,

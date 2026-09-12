@@ -1,6 +1,7 @@
 """House navigation contract. Source mode is explicit; it is NOT an origin/SW test."""
 import json
 import os
+import time
 from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
@@ -19,11 +20,21 @@ def check(value, label):
     print("PASS", label, flush=True)
 
 
+def wait_js(page, expression, arg=None):
+    """CDP evaluation avoids page-side eval; keep the production CSP unchanged."""
+    deadline = time.monotonic() + 6
+    while time.monotonic() < deadline:
+        if page.evaluate(expression, arg):
+            return
+        page.wait_for_timeout(50)
+    raise AssertionError("Timed out: " + expression)
+
+
 def nav(page, view):
     selector = ".hx-mobile" if page.viewport_size["width"] <= 760 else ".hx-nav"
     names = {"desk": "Your desk", "puzzles": "Puzzles", "house": "The house", "notebook": "Notebook", "comfort": "Comfort"}
     page.locator(selector).get_by_role("link", name=names[view], exact=True).click()
-    page.wait_for_function("v => AlibiHouseModel.locationState(location.hash).view === v", arg=view)
+    wait_js(page, "v => AlibiHouseModel.locationState(location.hash).view === v", arg=view)
     page.wait_for_timeout(80)
 
 
@@ -58,7 +69,7 @@ def main():
             play.click()
             page.locator("#dialog").get_by_role("button", name="Start playing", exact=True).click()
             page.locator("#cell-0").click()
-            page.wait_for_function("AlibiDiagnostics.getCurrent().moves > 0")
+            wait_js(page, "() => AlibiDiagnostics.getCurrent().moves > 0")
             saved = page.evaluate("AlibiDiagnostics.getCurrent()")
             page.locator("#hx-return a").click()
             page.wait_for_timeout(120)
@@ -66,7 +77,7 @@ def main():
             check(page.locator(".hx-resume").inner_text().find("1 move") >= 0, f"{width}: real run appears on desk")
             play = page.locator(".hx-resume [data-house-action=play]")
             play.click()
-            page.wait_for_function("AlibiDiagnostics.getCurrent()?.key === 'binary-01@1'")
+            wait_js(page, "() => AlibiDiagnostics.getCurrent()?.key === 'binary-01@1'")
             check(page.evaluate("AlibiDiagnostics.getCurrent().state") == saved["state"], f"{width}: canonical board resumes")
             check(page.evaluate("AlibiDiagnostics.getCurrent().undo") == saved["undo"], f"{width}: undo history preserved")
             page.locator("#hx-return a").click()

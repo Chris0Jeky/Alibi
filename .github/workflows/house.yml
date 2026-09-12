@@ -50,6 +50,7 @@ jobs:
           curl --fail --silent http://127.0.0.1:8787/ > /dev/null
           ALIBI_RESULTS=test-results/house-origin python tests/browser_house.py
           ALIBI_RESULTS=test-results/house-mobile-origin python tests/browser_house_mobile.py
+          ALIBI_RESULTS=test-results/house-offline python tests/browser_house_offline.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

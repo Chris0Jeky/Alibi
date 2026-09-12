@@ -33,6 +33,7 @@
       return {
         roomAudioAvailable: !!G.ALIBI_THEATRE?.audio?.length,
         roomSound: !!G.AlibiTheatre?.diagnostics().sound,
+        offline: G.AlibiHouseLoader.offline,
         storage: G.AlibiDiagnostics?.getStatus()?.mode || 'unknown',
         resume: M.nextActivity(records, games),
         route,

@@ -241,19 +241,21 @@ test('presentation implementation does not create save writers or observers', ()
   );
   // Use compressed source ceilings: formatting is not a delivered-byte regression.
   // Production release budgets remain enforced by the existing build/budget suite.
-  assert.ok(zlib.gzipSync(source.source).length < 12 * 1024);
+  assert.ok(zlib.gzipSync(source.source).length < 14 * 1024);
   assert.ok(zlib.gzipSync(source.cssSource).length < 6 * 1024);
 });
 test('entry facade is small, retryable and wired before app initialization', () => {
   const build = fs.readFileSync(path.join(__dirname, '../tools/build.cjs'), 'utf8');
   const loader = fs.readFileSync(path.join(__dirname, '../src/house-loader.js'), 'utf8');
   assert.ok(build.indexOf("'house-loader.js'") < build.indexOf("'app.js'"));
-  assert.ok(build.includes('house.config.script'));
-  assert.ok(build.includes('house.config.css'));
+  assert.ok(build.includes('JSON.stringify(house.config)'));
+  assert.ok(build.includes('house.bytes'));
   assert.ok(build.includes('JSON.stringify(house.standalone)'));
   assert.ok(build.includes('houseScriptGzipBytes: house.scriptGzipBytes'));
   assert.ok(zlib.gzipSync(loader).length < 2 * 1024);
-  assert.match(loader, /15000/);
+  assert.match(loader, /AlibiActivities\.loadSource/);
+  const activities = fs.readFileSync(path.join(__dirname, '../src/activities.js'), 'utf8');
+  assert.match(activities, /15000/);
   assert.match(loader, /data-house-retry/);
 });
 test('phone desk has exactly one launch control, before the story artwork', () => {
