@@ -14,6 +14,11 @@ lowering and draining waterlines, and completion through actual controls. CI now
 phone-size and desktop screenshots were inspected. Human difficulty and touch calibration remain
 open in [HUMAN_TODO.md](../HUMAN_TODO.md) q-8. This addresses another bounded part of #100.
 
+The retained one-off Expert proof is now a permanent browser suite for the other eleven pack
+records. All 26 checks pass at 390/1440px, including actual-control completion, rejection of an
+incorrect Witness conclusion and Bridges undo. CI runs both Expert control suites and retains
+the new receipt directory. This proves interactions and outcomes, not human difficulty ratings.
+
 ## 0.11.2 release candidate, 2026-09-12 (not deployed)
 
 Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
