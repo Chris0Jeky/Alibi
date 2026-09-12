@@ -190,6 +190,8 @@
     return !!active?.focusDestination?.();
   }
   G.AlibiActivities = {
+    // Trusted build-time configuration only; shared by optional presentation packs.
+    loadSource,
     enter,
     leave,
     flush,

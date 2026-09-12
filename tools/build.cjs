@@ -159,6 +159,7 @@ function build() {
   };
   const quiet = require('./build-quiet.cjs')(ROOT, DIST, media, inlineMedia, experience);
   const curation = require('./build-curation.cjs')(ROOT, DIST);
+  const house = require('./build-house.cjs').build(ROOT, DIST);
   const delivery = require('./build-delivery.cjs')(ROOT, DIST, curation.media, media);
   const clubEngine = read(path.join(SRC, 'club-engines.js')),
     clubEngineBundle = require('esbuild').transformSync(clubEngine, {
@@ -179,7 +180,9 @@ function build() {
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
   editorial.artwork = curation.assets;
-  const contentSource = `globalThis.ALIBI_RELEASES=${JSON.stringify(JSON.parse(read(path.join(ROOT, 'content/releases.json'))))};\nglobalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\n`;
+  // Authored scene/media metadata belongs with the other official editorial data.
+  // This is still an initial download, counted in combined and offline delivery budgets.
+  const contentSource = `globalThis.ALIBI_RELEASES=${JSON.stringify(JSON.parse(read(path.join(ROOT, 'content/releases.json'))))};\nglobalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\n`;
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
   const base = [
@@ -201,6 +204,7 @@ function build() {
     read(path.join(SRC, 'atmosphere.js')),
     read(path.join(SRC, 'backup-validation.js')),
     read(path.join(SRC, 'club.js')),
+    read(path.join(SRC, 'house-loader.js')),
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
@@ -234,11 +238,12 @@ function build() {
         JSON.stringify(quiet.config) +
         JSON.stringify(curation.media) +
         JSON.stringify(delivery.entries) +
-        JSON.stringify(theatre),
+        JSON.stringify(theatre) +
+        JSON.stringify(house.config),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
       require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -332,7 +337,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
-  const standalone = `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
+  const standalone = `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
@@ -373,7 +378,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
       Buffer.byteLength(observatory) -
-      blockMotion.bytes,
+      blockMotion.bytes -
+      house.bytes,
+    houseBytes: house.bytes,
+    houseScriptGzipBytes: house.scriptGzipBytes,
+    houseCssGzipBytes: house.cssGzipBytes,
     blockMotionBytes: blockMotion.bytes,
     blockMotionLoaderGzipBytes: zlib.gzipSync(blockLoader).length,
     observatoryBytes: Buffer.byteLength(observatory),
