@@ -1,7 +1,9 @@
 """Keyboard route-focus regressions across the root and Quiet Wing shadow DOM."""
+import json
 import os
 from pathlib import Path
 
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import expect, sync_playwright
 
 
@@ -24,16 +26,39 @@ def quiet_focus(page):
     )
 
 
-with sync_playwright() as playwright:
-    browser = playwright.chromium.launch()
-    for width in [390, 1440]:
-        context = browser.new_context(
-            viewport={'width': width, 'height': 900}, reduced_motion='reduce'
-        )
-        page = context.new_page()
-        errors = []
-        page.on('pageerror', lambda error: errors.append(str(error)))
+def write_timeout_diagnostics(page, width, errors):
+    def evaluate(expression):
+        try:
+            return page.evaluate(expression)
+        except Exception as error:  # Preserve the original timeout if the page is already closing.
+            return {'captureError': str(error)}
 
+    (OUT / f'quiet-focus-timeout-{width}.json').write_text(
+        json.dumps(
+            {
+                'width': width,
+                'url': page.url,
+                'activity': evaluate('window.AlibiActivities?.diagnostics?.() || null'),
+                'route': evaluate('window.QWApp?.route || null'),
+                'shadowText': evaluate(
+                    "document.querySelector('#quiet-host')?.shadowRoot?.textContent || ''"
+                ),
+                'errors': errors,
+            },
+            indent=2,
+        ),
+        encoding='utf-8',
+    )
+
+
+def run_width(browser, width):
+    context = browser.new_context(
+        viewport={'width': width, 'height': 900}, reduced_motion='reduce'
+    )
+    page = context.new_page()
+    errors = []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    try:
         # Direct hashes and browser history deliberately do not claim keyboard focus.
         page.goto(URL + '/#/quiet/realm')
         wait_for_quiet(page)
@@ -91,7 +116,20 @@ with sync_playwright() as playwright:
         ), 'Quiet Wing dialog retains focus'
         page.locator('#quiet-host').locator('[data-close]').press('Enter')
         assert not errors, errors
+    except PlaywrightTimeoutError:
+        try:
+            write_timeout_diagnostics(page, width, errors)
+        except Exception as diagnostic_error:
+            print(f'Quiet Wing timeout diagnostics unavailable: {diagnostic_error}', flush=True)
+        raise
+    finally:
         context.close()
+
+
+with sync_playwright() as playwright:
+    browser = playwright.chromium.launch()
+    for width in [390, 1440]:
+        run_width(browser, width)
     browser.close()
 
 print('Quiet Wing keyboard route-focus checks pass at phone and desktop widths.')
