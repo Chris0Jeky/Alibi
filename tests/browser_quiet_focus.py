@@ -67,7 +67,10 @@ def run_width(browser, width):
         page.goto(URL + '/#/settings')
         entry = page.get_by_role('button', name='Quiet Wing recovery')
         entry.focus()
-        entry.press('Enter')
+        page.wait_for_function('()=>navigator.serviceWorker.controller')
+        page.evaluate("navigator.serviceWorker.dispatchEvent(new Event('controllerchange'))")
+        expect(page.locator('#quiet-recovery')).to_be_focused()
+        page.keyboard.press('Enter')
         wait_for_quiet(page)
         assert quiet_focus(page) == 'main', 'Keyboard button entry focuses Quiet Wing main'
 
