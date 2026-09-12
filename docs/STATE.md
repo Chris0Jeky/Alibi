@@ -1,5 +1,13 @@
 # Live development state
 
+## Capacitor transition architecture (planned; not deployed)
+
+The proposed [Capacitor transition package](capacitor/README.md) records the Android-host route,
+the five-domain first-transfer baseline, the separate integrated Cascade boundary and the required
+owner/device gates under [program #120](https://github.com/Chris0Jeky/Alibi/issues/120). It adds no
+active native project, SDK dependency, APK, store release or production identity. The browser PWA,
+its two existing origins and their separate player data remain the current product.
+
 ## Wrenmere Desk mobile-first candidate (not deployed)
 
 An opt-in `#/home?ux=house` presentation adds a single resume/start card, a labelled mobile dock, a compact finder with draft-based filter sheets, original SVG room components and an optional session-only deduction study. Existing game/save/preference owners remain unchanged. Includes the earlier unsubmitted desk foundation. See [UX entry point](ux/README.md), [component contracts](ux/MOBILE-COMPONENTS.md) and [verification limits](ux/VERIFICATION.md). Hosted checks and physical acceptance remain gates; this is not a production release or a canonical castle migration.
