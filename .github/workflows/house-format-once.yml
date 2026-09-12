@@ -1,0 +1,34 @@
+# Temporary review-branch bootstrap. Remove before merging.
+name: Format mobile desk candidate once
+on:
+  push:
+    branches: ['codex/wrenmere-mobile-components']
+permissions:
+  contents: read
+jobs:
+  format:
+    if: github.repository == 'Chris0Jeky/Alibi' && github.ref == 'refs/heads/codex/wrenmere-mobile-components'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: codex/wrenmere-mobile-components
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Apply pinned formatter only to reviewed implementation paths
+        run: |
+          npx --no-install prettier --write src/house/*.js src/house/style.css src/house-loader.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house.test.cjs
+          git add src/house/ src/house-loader.js tools/build-house.cjs tools/preview-house.cjs tools/build.cjs tests/house.test.cjs
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'style: format mobile desk with pinned repository tooling'
+            git push origin HEAD:refs/heads/codex/wrenmere-mobile-components
+          fi
+      - run: npm run verify
