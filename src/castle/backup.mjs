@@ -32,6 +32,13 @@ export function backup(state, mode = 'local', preservedRecord = null) {
   };
 }
 
+const IMPORTED_NOTEBOOK_START = '--- Imported notebook ---';
+const IMPORTED_NOTEBOOK_END = '--- End imported notebook ---';
+
+function importedNotebookSection(notes) {
+  return `${IMPORTED_NOTEBOOK_START}\n${notes}\n${IMPORTED_NOTEBOOK_END}`;
+}
+
 // Merge discoveries without replacing a device's answers, unfinished boards or preferences.
 // Notes are never silently truncated to fit the bounded notebook.
 export function mergeStates(local, incoming) {
@@ -49,8 +56,8 @@ export function mergeStates(local, incoming) {
   next.theories = mergeTheories(current.theories, added.theories);
   next.labels = { ...added.labels, ...current.labels };
   if (added.notes && added.notes !== current.notes) {
-    const section = `--- Imported notebook ---\n${added.notes}`;
-    if (!current.notes.endsWith(section))
+    const section = importedNotebookSection(added.notes);
+    if (!current.notes.includes(section))
       next.notes = current.notes ? `${current.notes}\n\n${section}` : added.notes;
   }
   if (next.notes.length > 12000)

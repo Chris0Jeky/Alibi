@@ -1,5 +1,12 @@
 # Live development state
 
+## Castle notebook merge candidate (not deployed)
+
+Castle restore merge now labels each imported notebook section with exact start/end delimiters.
+Repeating the same reviewed backup after later local notes keeps that section once, while changed
+imports and ordinary local prose remain distinct. The existing bounded worker, revision-conditional
+restore, atomic pre-restore recovery and 12,000-character refusal remain the save authority.
+
 ## Wrenmere Desk mobile-first candidate (not deployed)
 
 An opt-in `#/home?ux=house` presentation adds a single resume/start card, a labelled mobile dock, a compact finder with draft-based filter sheets, original SVG room components and an optional session-only deduction study. Existing game/save/preference owners remain unchanged. Includes the earlier unsubmitted desk foundation. See [UX entry point](ux/README.md), [component contracts](ux/MOBILE-COMPONENTS.md) and [verification limits](ux/VERIFICATION.md). Hosted checks and physical acceptance remain gates; this is not a production release or a canonical castle migration.

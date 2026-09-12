@@ -109,8 +109,28 @@ test('merge adds distinct discoveries, keeps local settings and drafts, and neve
   assert.equal(merged.preferences.sound, true);
   assert.equal(merged.completed.gate.guided, true);
   assert.equal(merged.drafts.gate, undefined);
-  assert.equal(merged.notes, 'My note.\n\n--- Imported notebook ---\nImported note.');
+  assert.equal(
+    merged.notes,
+    'My note.\n\n--- Imported notebook ---\nImported note.\n--- End imported notebook ---',
+  );
   assert.deepEqual(mergeStates(merged, incoming), merged);
+  const appended = clone(merged);
+  appended.notes += '\n\nA local thought after the import.';
+  assert.deepEqual(
+    mergeStates(appended, incoming),
+    appended,
+    'repeat import survives later local prose',
+  );
+  const ordinaryLocal = note('Imported note. is ordinary local prose, not a labelled import.');
+  assert.match(mergeStates(ordinaryLocal, incoming).notes, /--- Imported notebook ---/);
+  const revised = note('Imported note, revised.');
+  const multiple = mergeStates(mergeStates(appended, revised), note('A third field note.'));
+  assert.equal((multiple.notes.match(/--- Imported notebook ---/g) || []).length, 3);
+  assert.deepEqual(
+    mergeStates(multiple, revised),
+    multiple,
+    'each exact labelled section deduplicates',
+  );
   assert.throws(() => mergeStates(note('a'.repeat(12000)), incoming), /exceed/);
 });
 
@@ -138,6 +158,17 @@ test('restore commits recovery and replacement atomically, and leaves unrelated 
     /Disk full/,
   );
   assert.deepEqual([...d.records], before);
+  assert.equal(store.state.notes, 'After restore.');
+  const beforeMergeFailure = clone([...d.records]);
+  await assert.rejects(
+    store.restore(backup(note('b'.repeat(12000))), { replace: false }),
+    /exceed/,
+  );
+  assert.deepEqual(
+    [...d.records],
+    beforeMergeFailure,
+    'failed note merge preserves state and recovery',
+  );
   assert.equal(store.state.notes, 'After restore.');
 });
 
