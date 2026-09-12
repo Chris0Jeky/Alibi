@@ -1,5 +1,15 @@
 # Live development state
 
+## Lantern Gardens touch layout follow-up (not deployed)
+
+Issue #100's narrow-screen garden board now reserves at least 44px per grid column and scrolls
+within its panel, preserving the pan through moves and undo. The previous layout could give
+buttons 44px bounds while placing them in narrower, overlapping tracks. All six boards pass
+target-size, non-overlap, right-edge play, undo and pan checks at 320/390/1440px. The expanded
+garden suite passes 159 assertions, the original player UI suite passes 182, and full source
+verification passes with unchanged delivery caps. Phone-size and desktop screenshots were
+inspected. Physical touch/TalkBack acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Wrenmere Desk mobile-first candidate (not deployed)
 
 An opt-in `#/home?ux=house` presentation adds a single resume/start card, a labelled mobile dock, a compact finder with draft-based filter sheets, original SVG room components and an optional session-only deduction study. Existing game/save/preference owners remain unchanged. Includes the earlier unsubmitted desk foundation. See [UX entry point](ux/README.md), [component contracts](ux/MOBILE-COMPONENTS.md) and [verification limits](ux/VERIFICATION.md). Hosted checks and physical acceptance remain gates; this is not a production release or a canonical castle migration.

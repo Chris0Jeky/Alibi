@@ -13,8 +13,11 @@ def check(value, label):
     print('PASS', label, flush=True)
 
 with sync_playwright() as pw:
-    browser = pw.chromium.launch(headless=True)
-    for width, height in [(390,844),(1440,1000)]:
+    launch = {'headless': True}
+    if os.environ.get('CHROMIUM_PATH'):
+        launch['executable_path'] = os.environ['CHROMIUM_PATH']
+    browser = pw.chromium.launch(**launch)
+    for width, height in [(320,844),(390,844),(1440,1000)]:
         context = browser.new_context(viewport={'width':width,'height':height})
         page = context.new_page()
         errors = []
@@ -52,6 +55,23 @@ with sync_playwright() as pw:
         check(page.locator('.region-cell').count()==49, f'{width}: seven by seven board')
         check(page.locator('.region-cell').first.bounding_box()['width']>=44, f'{width}: touch target width')
         check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'{width}: no page overflow')
+        for level, puzzle in enumerate(puzzles):
+            page.locator(f'[data-action="club-garden-level"][data-value="{level}"]').click()
+            if page.locator('dialog[open]').count():
+                page.locator('[data-action="club-reset-confirm"]').click()
+            check(page.locator('.region-cell').evaluate_all('cells => cells.every(cell => { const r = cell.getBoundingClientRect(); return r.width >= 44 && r.height >= 44; })'), f'{width}: garden {level + 1} targets at least 44px')
+            check(page.locator('.region-cell').evaluate_all(f'cells => cells.every((cell, i) => i % {puzzle["size"]} === 0 || cell.getBoundingClientRect().left >= cells[i - 1].getBoundingClientRect().right + 1)'), f'{width}: garden {level + 1} cells do not overlap')
+            check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'{width}: garden {level + 1} contained')
+            right = page.locator(f'#garden-cell-{puzzle["size"] - 1}')
+            right.click()
+            check('lantern' in right.get_attribute('aria-label'), f'{width}: garden {level + 1} right edge playable')
+            board = page.locator('.region-board')
+            pan = board.evaluate('e => e.scrollLeft')
+            if board.evaluate('e => e.scrollWidth > e.clientWidth'):
+                check(pan > 0, f'{width}: garden {level + 1} pans to right edge')
+            page.locator('[data-action="club-undo"][data-id="regiongardens"]').click()
+            check('empty' in right.get_attribute('aria-label'), f'{width}: garden {level + 1} right edge undo')
+            check(abs(board.evaluate('e => e.scrollLeft') - pan) <= 1, f'{width}: garden {level + 1} keeps pan through undo')
         page.screenshot(path=str(ROOT/'test-results'/f'region-gardens-{width}.png'),full_page=True)
         check(not errors, f'{width}: no browser errors')
         context.close()

@@ -8,8 +8,9 @@
   --garden-5: #d4d8a9;
   --garden-6: #b7dadd;
   display: grid;
-  grid-template-columns: repeat(var(--garden-size), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--garden-size), minmax(44px, 1fr));
   width: min(100%, 440px);
+  overflow-x: auto;
   margin: auto;
   gap: 2px;
 }
