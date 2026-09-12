@@ -1,5 +1,9 @@
 # Live development state
 
+## Castle practice return-focus candidate (not deployed)
+
+Returning to Wrenmere now carries a transient, validated starter key: the exact room shelf control receives focus once, while a missing starter or a later history/direct visit falls back to the Castle landmark. The key is never persisted and does not alter saved-run data. Focused Node coverage and the real-origin browser run at 390px and 1280px prove keyboard entry, implemented and planned rooms, replay/restart, and one-time consumption. Full verification builds successfully, but its existing initial-JavaScript budget gate remains red at 128,052 gzip bytes against the 125KiB cap; no budget change is included here.
+
 ## Block Cabinet integration candidate (not deployed)
 
 A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.

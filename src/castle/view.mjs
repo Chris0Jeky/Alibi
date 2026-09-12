@@ -63,7 +63,8 @@ export async function mount({ root, preferences = null, practice = null }) {
     filmPlaying = false;
   let effective = preferences,
     objectURLs = new Set(),
-    timers = new Set();
+    timers = new Set(),
+    restoredPracticeFocus = false;
   root.innerHTML = `<style>${styles}${nativeStyle}</style><header></header><div id="warning" class="warning" role="status" hidden></div><main id="castle-main" tabindex="-1"></main><footer></footer><dialog id="castle-dialog" aria-labelledby="castle-title"></dialog><div class="live" role="status" aria-live="polite" id="castle-live"></div>`;
   const $ = (selector) => root.querySelector(selector);
   const dialog = $('#castle-dialog');
@@ -138,6 +139,16 @@ export async function mount({ root, preferences = null, practice = null }) {
               ? pages().directory()
               : pages().mapPage();
     updateStatus();
+  }
+  function focusPracticeStarter() {
+    const focus = document.documentElement.dataset.f?.split('@')[0];
+    delete document.documentElement.dataset.f;
+    if (!focus) return false;
+    const starter = [...root.querySelectorAll('[data-do="practice"]')].find(
+      (candidate) => candidate.dataset.value === focus,
+    );
+    (starter || $('#castle-main')).focus({ preventScroll: true });
+    return !!starter;
   }
   function visit(id) {
     const r = W.rooms.find((r) => r.id === id);
@@ -781,7 +792,8 @@ export async function mount({ root, preferences = null, practice = null }) {
       else selected = r.id;
     }
     render();
-    $('#castle-main').focus({ preventScroll: true });
+    restoredPracticeFocus = focusPracticeStarter();
+    if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
     showStagedImport();
   }
   const reviewStaged = () => {
@@ -804,6 +816,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     },
     focusDestination() {
       if (disposed) return false;
+      if (restoredPracticeFocus) {
+        restoredPracticeFocus = false;
+        return true;
+      }
       $('#castle-main').focus({ preventScroll: true });
       return true;
     },
