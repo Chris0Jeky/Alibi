@@ -82,7 +82,7 @@ Applicable tester periods, account verification, Google review and device availa
 
 Inspect the latest main and relevant open PRs, run the current tests, create bounded branches/worktrees, implement one work package, write fixtures, profile emulators, prepare metadata, and submit reviewable PRs with exact evidence. Keep one writer per checkout. Use package-locked tools and maintain current save/origin invariants. Stop on a confirmed data-loss or privileged-bridge defect rather than escalating scope to hide it.
 
-The next implementation session should start with CAP-02 and CAP-03, then CAP-04. Read AGENTS.md, current STATE.md, this plan and each issue. Reconcile newer repository changes first. Do not copy unmerged Block Cabinet branches wholesale or enable dormant room services.
+The next implementation session should start with CAP-02 and CAP-03, then CAP-04. Read AGENTS.md, current STATE.md, this plan and each issue. Reconcile newer repository changes first. Do not duplicate or alter the merged Block Cabinet/Cascade surface wholesale; retain its separate transfer boundary, and do not enable dormant room services.
 
 ## What cannot be invented by an agent
 

@@ -1,5 +1,13 @@
 # Live development state
 
+## Capacitor transition architecture (planned; not deployed)
+
+The proposed [Capacitor transition package](capacitor/README.md) records the Android-host route,
+the five-domain first-transfer baseline, the separate integrated Cascade boundary and the required
+owner/device gates under [program #120](https://github.com/Chris0Jeky/Alibi/issues/120). It adds no
+active native project, SDK dependency, APK, store release or production identity. The browser PWA,
+its two existing origins and their separate player data remain the current product.
+
 ## Block Cabinet integration candidate (not deployed)
 
 A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.

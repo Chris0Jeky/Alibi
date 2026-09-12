@@ -16,7 +16,7 @@ The first native version should run from packaged assets at `https://localhost`,
 
 | Document | What it answers |
 | --- | --- |
-| [Source audit](SOURCE-AUDIT.md) | What exists now, exact integration seams, five save domains and unmerged work |
+| [Source audit](SOURCE-AUDIT.md) | What exists now, exact integration seams, five-domain transfer baseline and separate Cascade boundary |
 | [Architecture](ARCHITECTURE.md) | Decisions, target graph, bootstrap and native/plugin boundaries |
 | [Data and migration](DATA-AND-MIGRATION.md) | Authority, native recovery checkpoints, transfers, partial restores and process death |
 | [Assets and updates](ASSETS-AND-UPDATES.md) | Bundle contents, optional packs, compatibility, memory and separate update lanes |
@@ -48,7 +48,7 @@ Do not copy the sample applicationId into a production project. No root Capacito
 
 Start with [CAP-02/#124](https://github.com/Chris0Jeky/Alibi/issues/124) and [CAP-03/#125](https://github.com/Chris0Jeky/Alibi/issues/125), then [CAP-04/#126](https://github.com/Chris0Jeky/Alibi/issues/126). Prove a real offline Android vertical slice before expanding native integrations. Keep the PWA green at every step. The roadmap sequences durability, migration, assets, lifecycle, security, CI and Play delivery after that.
 
-The Block Cabinet work in #115/#117 is open at audit time. It can consume the platform interfaces after its own merge/verification; this plan does not treat Cascade as a current main-branch save domain or a launch prerequisite. Existing physical issues #2/#11/#13/#118 remain visible and must not be closed by emulator screenshots.
+The Block Cabinet work in #115/#117 is merged into the reconciled base. Cascade is a current separate web save domain, excluded from the first native transfer and combined backup until CAP-05/CAP-06 define an explicit route that preserves its export and recovery behaviour. Existing physical issues #2/#11/#13/#118 remain visible and must not be closed by emulator screenshots.
 
 ## Owner decisions versus agent work
 

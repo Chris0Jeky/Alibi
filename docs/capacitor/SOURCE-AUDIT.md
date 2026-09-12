@@ -37,7 +37,11 @@ The existing condition in `src/app.js` is effectively `!standalone && serviceWor
 
 The `apply-update` implementation already understands save errors and queued activity work. The transition should reuse these contracts, not replace them with an unconditional WebView reload or an asynchronous save only at app exit.
 
-## The five current save domains
+## Five-domain native-transfer baseline
+
+The initial native transfer baseline covers the five existing player domains below. It is not a
+claim that these are the only IndexedDB databases in the reconciled main branch: the integrated
+Cascade boundary is deliberately preserved separately after this table.
 
 | Domain | Source adapter | IndexedDB identity / principal records | Export and fallback boundary |
 | --- | --- | --- | --- |
@@ -49,11 +53,13 @@ The `apply-update` implementation already understands save errors and queued act
 
 The adapters contain deadlines, revision checks and protected states. Cabinet, Club and Wing fallback details were explicitly documented in the #110 follow-up. Do not replace blocked/newer/unreadable storage with a writable empty fallback. Do not erase unknown records.
 
-The current combined backup is **four separately restored sections**, not one database transaction. A native transfer must also account for challenges and any future registered experiments. `sessionStorage` room credentials (`alibi-club-room`) are transient access material and must not enter exports. Session-only player edits may be exported for recovery with explicit labels; they are not evidence of a committed durable save.
+The current combined backup is **four separately restored sections**, not one database transaction. A native transfer must also account for challenges and the separately preserved Cascade experiment. `sessionStorage` room credentials (`alibi-club-room`) are transient access material and must not enter exports. Session-only player edits may be exported for recovery with explicit labels; they are not evidence of a committed durable save.
 
-## Open work, not assumed shipped
+## Integrated Block Cabinet/Cascade boundary
 
-At audit time, [#115](https://github.com/Chris0Jeky/Alibi/pull/115) and [#117](https://github.com/Chris0Jeky/Alibi/pull/117) are open. They propose the tactile Block Cabinet runtime/integration and a separate Cascade experiment. A possible `alibi-block-studio` store is therefore a **conditional sixth domain**, not part of this main-branch inventory. This plan does not merge, rebase or claim acceptance of either PR.
+[#115](https://github.com/Chris0Jeky/Alibi/pull/115) and [#117](https://github.com/Chris0Jeky/Alibi/pull/117) are merged into the reconciled main base. Cascade now has the separate `alibi-block-studio` v1 replay store at `src/block-cabinet/replay-store.mjs`, with its own export and protected session fallback. It is a sixth device-local domain, but is intentionally **excluded from the first native transfer and the current combined backup**.
+
+CAP-05/CAP-06 must preserve that exclusion: do not delete, coalesce or silently transfer Cascade data while adding the native save registry. A later native transfer needs an explicit separate export/import route that retains its recovery and refusal behaviour. This planning package still does not certify a native host, physical-device result or deployment for the merged web surface.
 
 [#120](https://github.com/Chris0Jeky/Alibi/issues/120) is the existing native-host umbrella. The new CAP work packages extend it. Reuse #2, #11, #13 and #118 for physical-device acceptance, #119 for Cascade's integration/calibration, #106 for Observatory, #96 for expensive hints, #102 for remount diagnostics and #80 for repeated castle merges. Do not close these based on planning work.
 

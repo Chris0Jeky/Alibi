@@ -39,7 +39,7 @@
     {"id": "challenges", "database": "alibi-challenges-v1", "source": "src/challenge-storage.js", "combinedBackup": false},
     {"id": "castle", "database": "alibi-castle-v1", "source": "src/castle/storage.mjs", "combinedBackup": true}
   ],
-  "conditionalWork": [{"pullRequests": [115, 117], "issue": 119, "domain": "cascade", "inAuditedMain": false}],
+  "integratedBoundary": [{"pullRequests": [115, 117], "issue": 119, "domain": "cascade", "inAuditedMain": true, "nativeTransfer": "excluded-until-CAP-05-CAP-06"}],
   "toolchainCandidates": {
     "verifiedByNativeBuild": false,
     "nodeMajor": 22,

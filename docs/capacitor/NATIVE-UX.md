@@ -8,7 +8,7 @@ Keep puzzle reducers deterministic and independent of animation. Use a retained 
 
 For Block Cabinet, the target behaviour is a piece that follows the finger, lifts enough to reveal the drop area, shows the complete candidate footprint and prospective clear, rejects illegal placements without consuming the piece, and settles with restrained visual/audio/haptic feedback. Tap-to-select/place and keyboard operations remain complete alternatives. Do not copy a competitor's art or interface assets.
 
-The native host should improve haptic availability, file handling and lifecycle integration. It will not automatically make HTML/CSS/Canvas faster. The unmerged #115/#117 work is a potential shared surface; integrate it after review rather than assuming it has shipped.
+The native host should improve haptic availability, file handling and lifecycle integration. It will not automatically make HTML/CSS/Canvas faster. The merged #115/#117 Block Cabinet surface is a shared web seam, but its separate Cascade replay store remains outside the first native transfer until the explicit CAP-05/CAP-06 route is verified.
 
 ## A single lifecycle owner
 

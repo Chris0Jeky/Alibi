@@ -129,6 +129,6 @@ Executable activity code is bundled for every feature advertised in the native l
 
 ## Incremental integration order
 
-First establish target-aware build and web-fallback ports. Then generate a non-publishable host and prove offline launch of a current game. Next add save registry/recovery and file transfer; then lifecycle, asset resolution and device feedback. Finally harden, measure, automate distribution and run the beta gates. #115/#117 can consume these interfaces after their own merge and verification; they are not a prerequisite for the architecture PR.
+First establish target-aware build and web-fallback ports. Then generate a non-publishable host and prove offline launch of a current game. Next add save registry/recovery and file transfer; then lifecycle, asset resolution and device feedback. Finally harden, measure, automate distribution and run the beta gates. The merged #115/#117 Cascade surface remains outside the first native transfer until CAP-05/CAP-06 define its separate preservation route; it is not a prerequisite for the architecture PR.
 
 Each slice keeps a working PWA. Each native release is reviewable without hidden external configuration. The [roadmap](ROADMAP.md) gives actual issue links and dependencies; the [acceptance matrix](ACCEPTANCE.md) defines what qualifies as evidence.

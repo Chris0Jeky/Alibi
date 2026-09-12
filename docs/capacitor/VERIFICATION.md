@@ -4,8 +4,8 @@ Date: **2026-09-11**. Scope: the Capacitor architecture package, not an Android 
 
 ## Confirmed inputs
 
-- Source inspection at main `f931d85162146e03fd85351e78dc16f48e305575`: current build/boot/update paths, five save domains, current backup coverage, native absence and existing web origins.
-- Repository reads confirm open Block Cabinet PRs #115/#117 and the existing Android umbrella #120. This pass does not merge or certify them.
+- Initial source inspection at main `f931d85162146e03fd85351e78dc16f48e305575`: current build/boot/update paths, five-domain transfer baseline, current backup coverage, native absence and existing web origins. Closeout reconciliation against `495f28d6ff6a7058d9e4f09c159652c4e99baa9d` records the separately preserved integrated Cascade boundary.
+- Repository reconciliation confirms Block Cabinet PRs #115/#117 are merged and #120 remains the Android umbrella. This pass does not certify their web candidate, a native host or any physical-device result.
 - Primary-source research and npm version queries are recorded in [SOURCES.md](SOURCES.md). Candidate package versions were observed, not installed or integration-tested as a native app.
 - Implementation issues #123–#136 were created and mapped to CAP-01–CAP-14; #120 was expanded as the parent program.
 
