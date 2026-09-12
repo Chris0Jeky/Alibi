@@ -15,6 +15,9 @@ def run():
         report['checks'].append(message)
     def click(page, action):
         page.locator(f'[data-do="{action}"]').first.click()
+    def complete_restore(page, action='restore-merge'):
+        click(page, action)
+        expect(page.locator('#castle-dialog')).not_to_be_visible()
     def flush(page):
         return page.evaluate('() => AlibiCastle.flush().then(() => "ok", error => error.message)')
     def read(page):
@@ -23,8 +26,10 @@ def run():
           try { return await new Promise((resolve,reject) => { const tx=db.transaction('records'); const r=tx.objectStore('records').get('chapter-one'); r.onsuccess=()=>resolve(r.result); tx.onerror=()=>reject(tx.error); }); }
           finally { db.close(); }
         }''')
-    def import_data(page, data):
+    def import_data(page, data, review=True):
         page.locator('#castle-import').set_input_files({'name': 'castle.json', 'mimeType': 'application/json', 'buffer': json.dumps(data).encode()})
+        if review:
+            expect(page.locator('#castle-title')).to_have_text('Review castle restore')
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -44,15 +49,15 @@ def run():
             assert flush(page) == 'ok'
             first_import = '--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---'
             import_data(page, exported)
-            click(page, 'restore-merge')
+            complete_restore(page)
             expect(page.locator('#notes')).to_have_value(first_import)
             import_data(page, exported)
-            click(page, 'restore-merge')
+            complete_restore(page)
             expect(page.locator('#notes')).to_have_value(first_import)
             page.locator('#notes').fill(first_import + '\n\nMy local thought after the first import.')
             assert flush(page) == 'ok'
             import_data(page, exported)
-            click(page, 'restore-merge')
+            complete_restore(page)
             expect(page.locator('#notes')).to_have_value(first_import + '\n\nMy local thought after the first import.')
             record('empty-notebook imports retain a labelled provenance section through immediate and later repeats')
             page.locator('#notes').fill('A later observation.')
@@ -66,13 +71,13 @@ def run():
             record('export roundtrip is scoped; reviewing and cancelling import write nothing')
             import_data(page, exported)
             expect(page.locator('#castle-dialog')).to_contain_text('Repeating the same reviewed file keeps that exact labelled section once')
-            click(page, 'restore-merge')
+            complete_restore(page)
             expect(page.locator('#notes')).to_have_value('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---')
             assert flush(page) == 'ok'
             page.locator('#notes').fill('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---\n\nMy local thought after importing.')
             assert flush(page) == 'ok'
             import_data(page, exported)
-            click(page, 'restore-merge')
+            complete_restore(page)
             expect(page.locator('#notes')).to_have_value('A later observation.\n\n--- Imported notebook ---\nOriginal field note.\n--- End imported notebook ---\n\nMy local thought after importing.')
             record('reviewed merge explains exact-section deduplication and preserves a later local thought')
             merged = read(page)
@@ -80,7 +85,7 @@ def run():
             click(page, 'restore-replace')
             expect(page.locator('#castle-title')).to_have_text('Replace this castle notebook?')
             assert read(page) == merged
-            click(page, 'restore-confirm')
+            complete_restore(page, 'restore-confirm')
             expect(page.locator('#notes')).to_have_value('Original field note.')
             with page.expect_download() as event:
                 click(page, 'recovery')
@@ -94,7 +99,7 @@ def run():
                 if kind == 'future': bad['state']['version'] = 100
                 elif kind == 'unknown': bad['state']['preferences']['unknown'] = True
                 else: bad['state']['drafts']['hanoi'] = [[0, 2], [0, 2]]
-                import_data(page, bad)
+                import_data(page, bad, review=False)
                 expect(page.locator('#castle-title')).to_have_text('Notebook needs attention')
                 assert read(page) == unchanged
                 click(page, 'close')
