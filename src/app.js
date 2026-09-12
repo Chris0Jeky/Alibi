@@ -2417,6 +2417,7 @@
       case 'return-to-castle': {
         const target = caseReturn?.target;
         document.documentElement.dataset.f = caseReturn?.puzzleKey || '';
+        document.documentElement.dataset.ft = target || '';
         caseReturn = null;
         if (target) location.hash = target;
         break;
@@ -3268,6 +3269,11 @@
   });
   async function loadRoute(focusSerial = 0) {
     const serial = ++routeSerial;
+    const focusTarget = document.documentElement.dataset.ft;
+    if (!focusTarget || focusTarget !== location.hash) {
+      delete document.documentElement.dataset.f;
+      delete document.documentElement.dataset.ft;
+    }
     bridgeAnchor = null;
     endPaint();
     clearTimeout(noteTimer);
