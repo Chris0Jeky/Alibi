@@ -236,7 +236,8 @@ function build() {
         JSON.stringify(quiet.config) +
         JSON.stringify(curation.media) +
         JSON.stringify(delivery.entries) +
-        JSON.stringify(theatre) + JSON.stringify(house.config),
+        JSON.stringify(theatre) +
+        JSON.stringify(house.config),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
