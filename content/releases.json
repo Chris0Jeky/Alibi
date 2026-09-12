@@ -1,5 +1,20 @@
 [
   {
+    "version": "0.11.2",
+    "date": "2026-09-12",
+    "title": "Faster hints, steadier controls",
+    "tag": "v0.11.2",
+    "receipt": "docs/RELEASE-0.11.2.md",
+    "changes": [
+      "Get clue-based Nonogram hints faster, with readable clues and larger squares on narrow screens.",
+      "Play Lantern Gardens with separated touch targets and contained panning. Choosing a different garden starts at its left edge.",
+      "Keep keyboard context after Dominoes moves and Mahjong pairs. Dominoes keeps the chain in view and explains blocked-round results.",
+      "Return from Castle practice to its original room control. Interrupted returns cannot redirect focus on a later visit.",
+      "Merge Castle notebook backups without repeating unchanged imported sections after adding local notes. Over-limit merges stop before changing the notebook.",
+      "Try the optional Wrenmere Desk with compact mobile navigation, a puzzle finder and a clear continue card."
+    ]
+  },
+  {
     "version": "0.11.1",
     "date": "2026-09-10",
     "title": "Optional usage sharing",

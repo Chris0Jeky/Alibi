@@ -1701,8 +1701,8 @@
         },
         {
           "path": "assets-source/library/visuals/card-bridges.svg",
-          "bytes": 2958,
-          "sha256": "22fba6d800cc425af6cd7b2dc18b44c42370f22a6611eb4d7679053e3b73806c"
+          "bytes": 1786,
+          "sha256": "3697acbe5381caf2400a2ea6744bb7430e2d0bf127f315441c5b0d1381500f2f"
         }
       ],
       "qa": {
@@ -1853,8 +1853,8 @@
         },
         {
           "path": "assets-source/library/visuals/card-sudoku.svg",
-          "bytes": 5209,
-          "sha256": "9b166e96cd18c9aba7343867e590bcdf2455fc754a731605db006632338661a4"
+          "bytes": 12985,
+          "sha256": "50f44ee93428344ffb839153a88011f6eef70f6f064848f56d0d3633a188c564"
         }
       ],
       "qa": {
@@ -10055,8 +10055,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/scene.png",
@@ -10088,8 +10088,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/sudoku.png",
@@ -10121,8 +10121,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/nonogram.png",
@@ -10154,8 +10154,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/binary.png",
@@ -10187,8 +10187,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/futoshiki.png",
@@ -10220,8 +10220,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/dossier.png",
@@ -10253,8 +10253,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/witness.png",
@@ -10286,8 +10286,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/lightup.png",
@@ -10319,8 +10319,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/tents.png",
@@ -10352,8 +10352,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/aquarium.png",
@@ -10385,8 +10385,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/network.png",
@@ -10418,8 +10418,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/trail.png",
@@ -10451,8 +10451,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 191183,
-          "sha256": "1fd4a8d5b3578352116ac6cf59272e92b86e17c93b0171bf643846a8d1abbdc8"
+          "bytes": 191318,
+          "sha256": "0d779d42a1c126cadf61f74c903d64488bb4cc4535f341df2431d7408173ba8f"
         },
         {
           "path": "assets-source/library/teaching/bridges.png",
