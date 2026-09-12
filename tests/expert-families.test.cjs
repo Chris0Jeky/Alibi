@@ -7,7 +7,8 @@ require('../src/engines.js');
 const C = require('../src/bridges.js');
 
 const pack = JSON.parse(fs.readFileSync('content/extra/expert-families.json', 'utf8')),
-  aquariumV1 = JSON.parse(fs.readFileSync('tests/fixtures/expert-aquarium-01-v1.json', 'utf8'));
+  aquariumV1 = JSON.parse(fs.readFileSync('tests/fixtures/expert-aquarium-01-v1.json', 'utf8')),
+  nonogramV1 = JSON.parse(fs.readFileSync('tests/fixtures/expert-nonogram-01-v1.json', 'utf8'));
 const expectedTypes = [
   'scene',
   'dossier',
@@ -74,6 +75,36 @@ test('Expert Aquarium corrects its tank count in a new revision only', () => {
   assert.deepEqual(changed, ['difficultyEvidence', 'revision', 'story', 'title']);
   C.validateDefinition(aquariumV1);
   C.validateDefinition(aquarium);
+});
+
+test('Expert Nonogram replaces its dense picture in a new revision only', () => {
+  const nonogram = pack.puzzles.find((p) => p.id === 'expert-nonogram-01');
+  assert.ok(nonogram);
+  assert.equal(nonogramV1.revision, 1, 'fixture is the previously published snapshot');
+  assert.equal(nonogram.revision, 2, 'curation creates a new published revision');
+  assert.equal(nonogram.title, 'The Bellweather beacon');
+  assert.equal(
+    nonogram.solution.filter(Boolean).length,
+    87,
+    'beacon keeps readable negative space',
+  );
+  const changed = Object.keys({ ...nonogramV1, ...nonogram })
+    .filter((key) => JSON.stringify(nonogram[key]) !== JSON.stringify(nonogramV1[key]))
+    .sort();
+  assert.deepEqual(changed, [
+    'colClues',
+    'difficultyEvidence',
+    'revision',
+    'rowClues',
+    'solution',
+    'story',
+    'title',
+  ]);
+  C.validateDefinition(nonogramV1);
+  C.validateDefinition(nonogram);
+  const result = C.solve(nonogram, null, 2, 250000);
+  assert.deepEqual(result.solutions, [nonogram.solution]);
+  assert.equal(result.nodes, 24, 'published solver evidence remains reproducible');
 });
 
 test('bridges candidate has a real loop and connectivity deduction', () => {
