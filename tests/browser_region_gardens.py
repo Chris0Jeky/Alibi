@@ -56,9 +56,11 @@ with sync_playwright() as pw:
         check(page.locator('.region-cell').first.bounding_box()['width']>=44, f'{width}: touch target width')
         check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'{width}: no page overflow')
         for level, puzzle in enumerate(puzzles):
+            page.locator('.region-board').evaluate('e => { e.scrollLeft = e.scrollWidth; }')
             page.locator(f'[data-action="club-garden-level"][data-value="{level}"]').click()
             if page.locator('dialog[open]').count():
                 page.locator('[data-action="club-reset-confirm"]').click()
+            check(page.locator('.region-board').evaluate('e => e.scrollLeft') == 0, f'{width}: garden {level + 1} starts at left edge after switching')
             check(page.locator('.region-cell').evaluate_all('cells => cells.every(cell => { const r = cell.getBoundingClientRect(); return r.width >= 44 && r.height >= 44; })'), f'{width}: garden {level + 1} targets at least 44px')
             check(page.locator('.region-cell').evaluate_all(f'cells => cells.every((cell, i) => i % {puzzle["size"]} === 0 || cell.getBoundingClientRect().left >= cells[i - 1].getBoundingClientRect().right + 1)'), f'{width}: garden {level + 1} cells do not overlap')
             check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'{width}: garden {level + 1} contained')

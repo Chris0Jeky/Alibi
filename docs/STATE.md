@@ -1,5 +1,19 @@
 # Live development state
 
+## Games Room controls follow-up, 2026-09-12 (not deployed)
+
+The next #100 slice gives each Lantern Garden its own transient pan key, preserves the
+Dominoes chain pan while selecting a tile, and restores keyboard context after Dominoes moves
+and Mahjong pair removal. Mahjong selection clears on route/state replacement. Blocked
+Dominoes rounds now describe the lower-pip winner or equal-pip draw accurately.
+
+The three new browser regressions fail against the previous build and pass after the changes:
+177 garden assertions at 320/390/1440px, 281 Dominoes assertions including five complete legal
+outcomes, and 84 Mahjong assertions at 390/1440px. These local Edge runs include offline saves;
+phone-size and desktop screenshots were inspected. Build and Node suites pass at this slice.
+The broader editorial/content follow-ups in #100 and physical acceptance in
+[HUMAN_TODO.md](../HUMAN_TODO.md) remain open. No game definition or saved format changed.
+
 ## Player-fix checkpoint, 2026-09-12 (not deployed)
 
 The mobile desk (#138) and Capacitor planning package (#137) are merged. The current player-fix

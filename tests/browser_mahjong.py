@@ -67,7 +67,8 @@ with sync_playwright() as playwright:
             page.locator(".mahjong-tile.match-target").count() == 1,
             f"Selecting a tile highlights its matching pair at {width}px",
         )
-        page.locator(".mahjong-tile.match-target").click()
+        page.locator(".mahjong-tile.match-target").focus()
+        page.keyboard.press('Enter')
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.mahjong.log.length === 1"
         )
@@ -75,6 +76,8 @@ with sync_playwright() as playwright:
             page.locator(".mahjong-tile").count() == 18,
             f"A matching pair clears through an actual tile tap at {width}px",
         )
+        check(page.locator('.mahjong-tile.free').first.evaluate('e => e === document.activeElement'),
+              f'Keyboard pair removal focuses a surviving free tile at {width}px')
         check(
             page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong.log[0].a")
             != page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong.log[0].b"),
@@ -113,6 +116,11 @@ with sync_playwright() as playwright:
             f"Another Club run is saved before Mahjong completion at {width}px",
         )
         route("/salon/mahjong")
+        page.locator('.mahjong-tile.free').first.click()
+        route('/home')
+        route('/salon/mahjong')
+        check(page.locator('.mahjong-tile[aria-pressed="true"]').count() == 0,
+              f'An unrelated route clears the transient tile selection at {width}px')
         page.locator('[data-action="club-undo"][data-id="mahjong"]').click()
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.mahjong.log.length === 0"
@@ -152,6 +160,8 @@ with sync_playwright() as playwright:
             page.locator('.mahjong-tile.match-target').click()
         check(page.locator('.mahjong-tile').count()==0, f'All ten pairs clear through controls at {width}px')
         check('Every pair is clear' in page.locator('.mahjong-status').inner_text(), f'Completion is visible at {width}px')
+        check(page.locator('.mahjong-status').evaluate('e => e === document.activeElement'),
+              f'The final removed pair moves focus to completion status at {width}px')
         if os.environ.get("ALIBI_URL"):
             page.evaluate("() => AlibiClub.save()")
             context.set_offline(True)
