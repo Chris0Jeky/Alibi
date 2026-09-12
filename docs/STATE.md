@@ -1,5 +1,19 @@
 # Live development state
 
+## Expert Aquarium copy and controls candidate, 2026-09-12 (not deployed)
+
+`expert-aquarium-01@2` corrects three descriptions from six reservoirs to seven. Its ID, tank
+layout, targets and solution are unchanged. A frozen revision-1 fixture and exact-field test
+preserve the original definition; existing saved revision-1 runs continue from their pinned
+snapshots. An old revision-1 URL without a saved run retains the existing revision-unavailable
+message rather than silently starting a different definition.
+
+Full verify passes 244 Node tests and supplementary suites. The new real-origin browser check
+passes 20 assertions at 390/1440px: saved revision-1 continuation, revision-2 routing, setting,
+lowering and draining waterlines, and completion through actual controls. CI now runs that check;
+phone-size and desktop screenshots were inspected. Human difficulty and touch calibration remain
+open in [HUMAN_TODO.md](../HUMAN_TODO.md) q-8. This addresses another bounded part of #100.
+
 ## 0.11.2 release candidate, 2026-09-12 (not deployed)
 
 Source `030f1c746275111c7e0dabf935453cedcf8447fc`, build `840cdae3fee4`, combines the
