@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const inside = (base, target) => target === base || target.startsWith(base + path.sep);
-const requiredGates = ['identity', 'runtime', 'migration', 'physical-quality', 'security', 'delivery', 'play-approval'];
+const requiredGates = [
+  'identity',
+  'runtime',
+  'migration',
+  'physical-quality',
+  'security',
+  'delivery',
+  'play-approval',
+];
 const requiredDomains = ['cabinet', 'club', 'quiet-wing', 'challenges', 'castle'];
 const requiredWorkPackages = new Map(
   Array.from({ length: 14 }, (_, index) => [
@@ -48,10 +56,7 @@ export function validatePlan(plan, config, { release = false } = {}) {
   need(plan.repository === 'Chris0Jeky/Alibi', 'Unexpected repository.');
   need(/^[a-f0-9]{40}$/.test(plan.baseSha || ''), 'Audit must identify a full Git SHA.');
   need(/^\d{4}-\d{2}-\d{2}$/.test(plan.researchDate || ''), 'Research date is required.');
-  need(
-    Number.isSafeInteger(plan.parentIssue) && plan.parentIssue > 0,
-    'Parent issue is required.',
-  );
+  need(Number.isSafeInteger(plan.parentIssue) && plan.parentIssue > 0, 'Parent issue is required.');
 
   const architecture = object(plan.architecture) ? plan.architecture : {};
   for (const key of [
@@ -96,10 +101,7 @@ export function validatePlan(plan, config, { release = false } = {}) {
     need(Number.isSafeInteger(item.issue) && item.issue > 0, `Invalid issue for ${item.id}.`);
     need(!issues.has(item.issue), `Duplicate issue: ${item.issue}.`);
     issues.add(item.issue);
-    need(
-      typeof item.title === 'string' && item.title.length > 0,
-      `Missing title for ${item.id}.`,
-    );
+    need(typeof item.title === 'string' && item.title.length > 0, `Missing title for ${item.id}.`);
     need(
       typeof item.document === 'string' && item.document.endsWith('.md'),
       `Missing document for ${item.id}.`,
@@ -133,8 +135,7 @@ export function validatePlan(plan, config, { release = false } = {}) {
       return;
     }
     visiting.add(id);
-    for (const dependency of Array.isArray(item.dependsOn) ? item.dependsOn : [])
-      visit(dependency);
+    for (const dependency of Array.isArray(item.dependsOn) ? item.dependsOn : []) visit(dependency);
     visiting.delete(id);
     visited.add(id);
   }
@@ -146,10 +147,7 @@ export function validatePlan(plan, config, { release = false } = {}) {
     'Inventory must cover exactly the five audited main-branch domains.',
   );
   for (const id of requiredDomains)
-    need(
-      domains.filter((d) => d?.id === id).length === 1,
-      `Missing or repeated domain: ${id}.`,
-    );
+    need(domains.filter((d) => d?.id === id).length === 1, `Missing or repeated domain: ${id}.`);
   need(
     domains.find((d) => d?.id === 'challenges')?.combinedBackup === false,
     'Do not invent challenge coverage in the current combined backup.',
@@ -168,17 +166,22 @@ export function validatePlan(plan, config, { release = false } = {}) {
       object(cascade) &&
       Object.keys(cascade).sort().join(',') ===
         Object.keys(requiredCascadeBoundary).sort().join(',') &&
-      JSON.stringify(cascade) === JSON.stringify(requiredCascadeBoundary),
+      Array.isArray(cascade.pullRequests) &&
+      cascade.pullRequests.length === requiredCascadeBoundary.pullRequests.length &&
+      cascade.pullRequests.every(
+        (pullRequest, index) => pullRequest === requiredCascadeBoundary.pullRequests[index],
+      ) &&
+      cascade.issue === requiredCascadeBoundary.issue &&
+      cascade.domain === requiredCascadeBoundary.domain &&
+      cascade.inAuditedMain === requiredCascadeBoundary.inAuditedMain &&
+      cascade.nativeTransfer === requiredCascadeBoundary.nativeTransfer,
     'Integrated Cascade boundary must preserve PRs #115/#117, issue #119, audited-main inclusion and the CAP-05/CAP-06 native-transfer exclusion.',
   );
 
   const gates = Array.isArray(plan.releaseGates) ? plan.releaseGates : [];
   need(gates.length === requiredGates.length, 'Release gate inventory is incomplete.');
   for (const id of requiredGates)
-    need(
-      gates.filter((g) => g?.id === id).length === 1,
-      `Missing or repeated gate: ${id}.`,
-    );
+    need(gates.filter((g) => g?.id === id).length === 1, `Missing or repeated gate: ${id}.`);
   for (const gate of gates) {
     need(
       object(gate) && gate.status === 'pending' && gate.evidence === null,
