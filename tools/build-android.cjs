@@ -31,6 +31,7 @@ const NATIVE_CSP = [
   "base-uri 'self'",
   "form-action 'self'",
 ].join('; ');
+const TEXT_EXTENSIONS = new Set(['.css', '.html', '.js', '.json', '.mjs', '.mtl', '.obj', '.svg', '.txt']);
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -73,17 +74,47 @@ function mime(filename) {
       '.mjs': 'text/javascript',
       '.mp3': 'audio/mpeg',
       '.mp4': 'video/mp4',
+      '.mtl': 'text/plain',
+      '.obj': 'text/plain',
       '.png': 'image/png',
       '.svg': 'image/svg+xml',
+      '.txt': 'text/plain',
+      '.wasm': 'application/wasm',
       '.webp': 'image/webp',
       '.woff2': 'font/woff2',
+      '.zip': 'application/zip',
     }[extension] || 'application/octet-stream'
   );
 }
 
+function cost(pathname, bytes) {
+  const extension = path.extname(pathname).toLowerCase();
+  const measurable = TEXT_EXTENSIONS.has(extension);
+  return {
+    payloadBytes: bytes,
+    installBytes: bytes,
+    download: {
+      status: 'pending-CAP-04-package',
+      bytes: null,
+    },
+    decodedMemory: measurable
+      ? {
+          status: 'lower-bound',
+          bytes,
+          basis: 'encoded text bytes; parser/runtime overhead excluded',
+        }
+      : {
+          status: 'measurement-required-CAP-09',
+          bytes: null,
+          basis: 'compressed media/model bytes are not resident-memory evidence',
+        },
+  };
+}
+
 function sourceSha(root = ROOT) {
   const supplied = process.env.ALIBI_SOURCE_SHA || '';
-  const value = supplied || execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  const value =
+    supplied || execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   if (!/^[0-9a-f]{40}$/.test(value)) throw new Error('Android builds require a full source SHA.');
   return value;
 }
@@ -134,11 +165,35 @@ function writeAssetManifest(directory) {
         bytes: bytes.length,
         sha256: sha256(bytes),
         mime: mime(entry.path),
+        cost: cost(entry.path, bytes.length),
       };
     });
+  const lowerBound = entries.filter((entry) => entry.cost.decodedMemory.bytes !== null);
+  const unresolved = entries.filter((entry) => entry.cost.decodedMemory.bytes === null);
+  const costs = {
+    payloadBytes: entries.reduce((total, entry) => total + entry.cost.payloadBytes, 0),
+    installBytes: entries.reduce((total, entry) => total + entry.cost.installBytes, 0),
+    download: {
+      status: 'pending-CAP-04-package',
+      bytes: null,
+      files: entries.length,
+    },
+    decodedMemory: {
+      status: unresolved.length ? 'lower-bound-with-CAP-09-measurement-required' : 'lower-bound',
+      lowerBoundBytes: lowerBound.reduce(
+        (total, entry) => total + entry.cost.decodedMemory.bytes,
+        0,
+      ),
+      measurementRequiredFiles: unresolved.length,
+      measurementRequiredInstallBytes: unresolved.reduce(
+        (total, entry) => total + entry.cost.installBytes,
+        0,
+      ),
+    },
+  };
   fs.writeFileSync(
     manifestPath,
-    `${JSON.stringify({ schemaVersion: 1, target: 'android', files: entries }, null, 2)}\n`,
+    `${JSON.stringify({ schemaVersion: 1, target: 'android', costs, files: entries }, null, 2)}\n`,
   );
   return entries;
 }
@@ -161,7 +216,9 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
 
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   const webInfo = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json'), 'utf8'));
-  const content = assets.find((entry) => /^assets\/official-content\.[0-9a-f]{12}\.js$/.test(entry.path));
+  const content = assets.find((entry) =>
+    /^assets\/official-content\.[0-9a-f]{12}\.js$/.test(entry.path),
+  );
   if (!content) throw new Error('Android payload is missing official content.');
   const identity = {
     schemaVersion: 1,
@@ -205,8 +262,10 @@ module.exports = {
   NATIVE_CSP,
   RULE_SOURCES,
   buildAndroid,
+  cost,
   deriveAndroidPayload,
   files,
+  mime,
   sourceDigest,
   treeDigest,
 };
