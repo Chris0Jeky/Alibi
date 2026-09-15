@@ -95,14 +95,17 @@ function verifyDocument(root, relative) {
   }
   const repository = fs.realpathSync(root);
   const filename = path.resolve(repository, normalized);
-  if (
-    !filename.startsWith(repository + path.sep) ||
-    !fs.existsSync(filename) ||
-    !fs.statSync(filename).isFile()
-  ) {
+  if (!filename.startsWith(repository + path.sep) || !fs.existsSync(filename)) {
     return [`Changed publication document is missing: ${normalized}.`];
   }
-  const text = fs.readFileSync(filename, 'utf8');
+  if (!fs.lstatSync(filename).isFile()) {
+    return [`Changed publication document must be a regular file: ${normalized}.`];
+  }
+  const real = fs.realpathSync(filename);
+  if (!real.startsWith(repository + path.sep)) {
+    return [`Changed publication document escapes the repository: ${normalized}.`];
+  }
+  const text = fs.readFileSync(real, 'utf8');
   if (!text.trim()) errors.push(`Publication document is empty: ${normalized}.`);
   if (/^docs\/RELEASE-/.test(normalized) && /\bPublished\b/i.test(text)) {
     if (!FULL_SHA.test(text)) {
@@ -129,9 +132,13 @@ function verifyDocument(root, relative) {
       continue;
     }
     if (!decoded) continue;
-    const resolved = path.resolve(path.dirname(filename), decoded);
+    const resolved = path.resolve(path.dirname(real), decoded);
     if (!resolved.startsWith(repository + path.sep) || !fs.existsSync(resolved)) {
       errors.push(`${normalized} links to a missing local target: ${target}.`);
+      continue;
+    }
+    if (!fs.realpathSync(resolved).startsWith(repository + path.sep)) {
+      errors.push(`${normalized} links outside the repository: ${target}.`);
     }
   }
   return errors;
