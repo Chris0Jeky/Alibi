@@ -182,10 +182,11 @@ jobs:
           PATCH
           git apply --check /tmp/pr-157-hardening.patch
           git apply /tmp/pr-157-hardening.patch
-      - name: Format and verify
+      - name: Format and focused verification
         run: |
           npx prettier --write src/discovery-entitlements.js tests/discovery-entitlements.test.cjs
-          npm run verify
+          node --check src/discovery-entitlements.js
+          node --test tests/discovery-entitlements.test.cjs
       - name: Commit formatted hardening
         run: |
           git add src/discovery-entitlements.js tests/discovery-entitlements.test.cjs
@@ -198,3 +199,21 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'fix(core): harden receipt convergence'
           git push origin "HEAD:${GITHUB_REF_NAME}"
+      - name: Run full repository verification
+        run: |
+          set +e
+          npm run verify 2>&1 | tee verify-pr157.log
+          status=${PIPESTATUS[0]}
+          set -e
+          printf '%s\n' "$status" > verify-pr157.status
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pr-157-verification
+          path: |
+            verify-pr157.log
+            verify-pr157.status
+          if-no-files-found: error
+      - name: Require full verification
+        run: test "$(cat verify-pr157.status)" = '0'
