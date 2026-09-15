@@ -8,7 +8,9 @@ const {
   ANDROID_DIST,
   HOST_ONLY,
   NATIVE_CSP,
+  cost: expectedCost,
   files,
+  mime: expectedMime,
   sourceDigest,
   treeDigest,
 } = require('./build-android.cjs');
@@ -22,31 +24,6 @@ function sha256(value) {
 
 function relative(directory, filename) {
   return path.relative(directory, filename).split(path.sep).join('/');
-}
-
-function expectedMime(filename) {
-  const extension = path.extname(filename).toLowerCase();
-  return (
-    {
-      '.css': 'text/css',
-      '.glb': 'model/gltf-binary',
-      '.html': 'text/html',
-      '.js': 'text/javascript',
-      '.json': 'application/json',
-      '.mjs': 'text/javascript',
-      '.mp3': 'audio/mpeg',
-      '.mp4': 'video/mp4',
-      '.mtl': 'text/plain',
-      '.obj': 'text/plain',
-      '.png': 'image/png',
-      '.svg': 'image/svg+xml',
-      '.txt': 'text/plain',
-      '.wasm': 'application/wasm',
-      '.webp': 'image/webp',
-      '.woff2': 'font/woff2',
-      '.zip': 'application/zip',
-    }[extension] || 'application/octet-stream'
-  );
 }
 
 function readJson(filename, errors) {
@@ -83,6 +60,32 @@ function checkLocalReferences(directory, html, errors) {
       errors.push(`index.html references a missing local file: ${reference}.`);
     }
   }
+}
+
+function expectedCosts(entries) {
+  const lowerBound = entries.filter((entry) => entry.cost.decodedMemory.bytes !== null);
+  const unresolved = entries.filter((entry) => entry.cost.decodedMemory.bytes === null);
+  return {
+    payloadBytes: entries.reduce((total, entry) => total + entry.cost.payloadBytes, 0),
+    installBytes: entries.reduce((total, entry) => total + entry.cost.installBytes, 0),
+    download: {
+      status: 'pending-CAP-04-package',
+      bytes: null,
+      files: entries.length,
+    },
+    decodedMemory: {
+      status: unresolved.length ? 'lower-bound-with-CAP-09-measurement-required' : 'lower-bound',
+      lowerBoundBytes: lowerBound.reduce(
+        (total, entry) => total + entry.cost.decodedMemory.bytes,
+        0,
+      ),
+      measurementRequiredFiles: unresolved.length,
+      measurementRequiredInstallBytes: unresolved.reduce(
+        (total, entry) => total + entry.cost.installBytes,
+        0,
+      ),
+    },
+  };
 }
 
 function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) {
@@ -158,12 +161,22 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
     need(entry.bytes === bytes.length, `Byte count differs for ${name}.`);
     need(entry.sha256 === sha256(bytes), `SHA-256 differs for ${name}.`);
     need(entry.mime === expectedMime(name), `MIME type differs for ${name}.`);
+    need(
+      JSON.stringify(entry.cost) === JSON.stringify(expectedCost(name, bytes.length)),
+      `Cost inventory differs for ${name}.`,
+    );
   }
   for (const name of actualPaths)
-    if (!MANIFESTS.has(name) && !listed.has(name)) errors.push(`Android asset is not inventoried: ${name}.`);
+    if (!MANIFESTS.has(name) && !listed.has(name))
+      errors.push(`Android asset is not inventoried: ${name}.`);
   for (const name of listed.keys())
     if (!actualPaths.includes(name)) errors.push(`Manifest contains a missing Android asset: ${name}.`);
 
+  const listedEntries = [...listed.values()];
+  need(
+    JSON.stringify(manifest.costs) === JSON.stringify(expectedCosts(listedEntries)),
+    'Android aggregate cost inventory is stale.',
+  );
   need(identity.files === actualPaths.length, 'Build identity file count is stale.');
   need(
     identity.payloadSha256 === treeDigest(directory, new Set(['android-build-identity.json'])),
@@ -205,8 +218,12 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
     );
   }
 
-  const houseScripts = actualPaths.filter((name) => /^assets\/house\.[0-9a-f]{12}\.js$/.test(name));
-  const houseStyles = actualPaths.filter((name) => /^assets\/house\.[0-9a-f]{12}\.css$/.test(name));
+  const houseScripts = actualPaths.filter((name) =>
+    /^assets\/house\.[0-9a-f]{12}\.js$/.test(name),
+  );
+  const houseStyles = actualPaths.filter((name) =>
+    /^assets\/house\.[0-9a-f]{12}\.css$/.test(name),
+  );
   need(houseScripts.length === 1, 'Android payload needs exactly one Wrenmere script.');
   need(houseStyles.length === 1, 'Android payload needs exactly one Wrenmere stylesheet.');
   const applicationScripts = actualPaths
@@ -217,14 +234,23 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
     'Android bootstrap is missing Wrenmere configuration.',
   );
   need(
-    actualPaths.some((name) => /^assets\/quiet-wing\./.test(name)),
-    'Android payload is missing Quiet Wing executable assets.',
+    applicationScripts.some((source) => source.includes('Classic desk')),
+    'Android application is missing the Wrenmere Classic fallback.',
+  );
+  need(
+    actualPaths.some((name) => /^assets\/quiet-activity\.[0-9a-f]{12}\.js$/.test(name)),
+    'Android payload is missing the Quiet Wing executable.',
+  );
+  need(
+    actualPaths.some((name) => /^assets\/quiet-style\.[0-9a-f]{12}\.css$/.test(name)),
+    'Android payload is missing the Quiet Wing stylesheet.',
   );
 
   return {
     errors,
     files: actualPaths.length,
     bytes: actualFiles.reduce((total, filename) => total + fs.statSync(filename).size, 0),
+    costs: manifest.costs || null,
     payloadSha256: identity.payloadSha256 || '',
     webBuild: identity.webBuild || '',
     sourceSha: identity.sourceSha || '',
@@ -237,4 +263,4 @@ if (require.main === module) {
   process.exitCode = result.errors.length ? 1 : 0;
 }
 
-module.exports = { expectedMime, inspectAndroidArtifact };
+module.exports = { inspectAndroidArtifact };
