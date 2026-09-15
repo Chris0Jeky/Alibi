@@ -28,11 +28,7 @@ test('solver capabilities identify only aquarium and network as definition-only'
   for (const type of C.TYPES) {
     const capabilities = C.solverCapabilities(type);
     assert.equal(capabilities.definition, true, type);
-    assert.equal(
-      capabilities.stateConstraints,
-      !['aquarium', 'network'].includes(type),
-      type,
-    );
+    assert.equal(capabilities.stateConstraints, !['aquarium', 'network'].includes(type), type);
   }
 });
 
@@ -74,8 +70,5 @@ test('state-constrained solving validates and narrows supported families', () =>
 test('state-constrained solving requires a validated state object', () => {
   const current = puzzle('sudoku');
   assert.throws(() => C.solveState(current, null), /state object/i);
-  assert.throws(
-    () => C.solveState(current, { cells: [], notes: {} }),
-    /Invalid grid save/,
-  );
+  assert.throws(() => C.solveState(current, { cells: [], notes: {} }), /Invalid grid save/);
 });

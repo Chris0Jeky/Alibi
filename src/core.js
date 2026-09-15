@@ -786,7 +786,7 @@
     if (new Set(ids).size !== ids.length) throw new Error('Duplicate puzzle IDs in the pack.');
     if (checkUnique)
       for (const p of puzzles) {
-        const result = solve(p);
+        const result = solveDefinition(p);
         if (result.solutions.length !== 1)
           throw new Error(
             `${p.title}: expected one solution, found ${result.solutions.length === 2 ? 'at least 2' : 0}.`,
@@ -1045,6 +1045,31 @@
       throw new Error('Could not produce a unique draft. Try another seed.');
     return p;
   }
+  function solverCapabilities(input) {
+    const type = typeof input === 'string' ? input : input?.type;
+    if (!TYPES.includes(type)) throw new Error(`Unknown puzzle type: ${type || 'missing'}.`);
+    const stateConstraints = !['aquarium', 'network'].includes(type);
+    return {
+      definition: true,
+      stateConstraints,
+      mode: stateConstraints ? 'state-constrained' : 'definition-only',
+    };
+  }
+  function solveDefinition(p, limit = 2, maxNodes) {
+    return root.AlibiCore.solve(p, null, limit, maxNodes);
+  }
+  function solveState(p, state, limit = 2, maxNodes) {
+    if (!state || typeof state !== 'object' || Array.isArray(state))
+      throw new Error('State-constrained solving requires a saved state object.');
+    const capabilities = solverCapabilities(p);
+    if (!capabilities.stateConstraints)
+      throw new Error(
+        `The ${p.type} solver is definition-only and cannot apply saved state constraints.`,
+      );
+    root.AlibiCore.validateDefinition(p);
+    root.AlibiCore.validateState(p, state);
+    return root.AlibiCore.solve(p, state, limit, maxNodes);
+  }
   root.AlibiCore = {
     TYPES,
     DIFFICULTIES,
@@ -1061,6 +1086,9 @@
     sceneComplete,
     murderer,
     solve,
+    solveDefinition,
+    solveState,
+    solverCapabilities,
     hint,
     validateDefinition,
     validateSceneDraft,

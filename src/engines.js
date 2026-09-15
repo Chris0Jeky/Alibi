@@ -1025,7 +1025,7 @@
       throw new Error('Duplicate puzzle IDs.');
     if (checkUnique)
       for (const p of puzzles)
-        if (C.solve(p).solutions.length !== 1)
+        if (C.solveDefinition(p).solutions.length !== 1)
           throw new Error(`${p.title}: the rules do not identify exactly one solution.`);
     return {
       schemaVersion: 1,

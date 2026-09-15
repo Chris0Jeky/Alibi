@@ -4,7 +4,8 @@ See ../ROADMAP.md for the active product roadmap and STATE.md for current measur
 The first follow-up is a human-playtested, carefully curated casebook. Keep account sync,
 monetization and native store packaging separate from the browser launch.
 
-API note: `C.solve(p, state)` is not a general state-constrained API across every family.
-Aquarium/network currently solve the definition independently of the supplied state; all current
-production callers use definition-only solving. Do not build a future hint or correctness feature
-on state-constrained behavior without implementing and testing that contract first.
+Solver API: use `C.solveDefinition(p, limit, maxNodes)` for catalogue, authoring and
+uniqueness work. Use `C.solveState(p, state, limit, maxNodes)` only when
+`C.solverCapabilities(p).stateConstraints` is true. Aquarium and Network fail closed because their
+current zero-valued initial states do not encode an unknown constraint. See
+[SOLVER-CONTRACT.md](SOLVER-CONTRACT.md).
