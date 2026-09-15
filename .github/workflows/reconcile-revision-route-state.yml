@@ -1,0 +1,44 @@
+name: Reconcile revision-route live state
+on:
+  push:
+    branches:
+      - fix/deterministic-revision-routing-144
+permissions:
+  contents: write
+jobs:
+  reconcile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: fix/deterministic-revision-routing-144
+      - name: Record the deterministic route closeout
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const filename = 'docs/STATE.md';
+          const before = fs.readFileSync(filename, 'utf8');
+          const stale = `Independent reviews found no causal blocker. The non-blocking old-revision route test timing
+          gap remains in [#144](https://github.com/Chris0Jeky/Alibi/issues/144). The journal's aggregate
+          solved total can count both completed revisions of one puzzle; [#147](https://github.com/Chris0Jeky/Alibi/issues/147)`.replace(/^          /gm, '');
+          const current = `Independent reviews found no causal blocker. The #144 old-revision route timing gap is corrected
+          in current source: Aquarium and Nonogram browser tests now wait for the observable Library fallback
+          heading, exact unavailable-revision notice and absent active run, and reject the pre-navigation null
+          state that made the former fixed delay pass early. The focused predicate regression and comprehensive
+          real-origin Chromium workflow pass at both widths; hosted publication and physical-device behaviour
+          are unchanged. The journal's aggregate solved total can count both completed revisions of one puzzle;
+          [#147](https://github.com/Chris0Jeky/Alibi/issues/147)`.replace(/^          /gm, '');
+          const occurrences = before.split(stale).length - 1;
+          if (occurrences !== 1) throw new Error(`Expected one stale route paragraph, found ${occurrences}.`);
+          fs.writeFileSync(filename, before.replace(stale, current));
+          NODE
+          git diff --check
+      - name: Commit the live-state closeout
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/STATE.md
+          git commit -m "docs(state): close revision-route timing gap"
+          git push
