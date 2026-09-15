@@ -61,6 +61,7 @@ jobs:
           npm start > /tmp/alibi-server.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
+          python tests/browser_observatory.py
           python tests/browser_curation.py
           python tests/browser_discovery.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_narrow_layout.py
