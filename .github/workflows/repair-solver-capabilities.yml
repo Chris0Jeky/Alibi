@@ -1,0 +1,185 @@
+name: Repair solver capability contract
+on:
+  push:
+    branches:
+      - feat/explicit-solver-contract-3
+permissions:
+  contents: write
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/explicit-solver-contract-3
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Add capability regressions and prove they fail
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          filename = Path('tests/solver-contract.test.cjs')
+          text = filename.read_text()
+          text = text.replace(
+              "const C = require('../src/bridges.js');\n",
+              "const C = require('../src/bridges.js');\nconst DEFINITION_ONLY = ['scene', 'dossier', 'bridges', 'aquarium', 'network'];\n",
+          )
+          old = '''test('solver capabilities identify only aquarium and network as definition-only', () => {
+            for (const type of C.TYPES) {
+              const capabilities = C.solverCapabilities(type);
+              assert.equal(capabilities.definition, true, type);
+              assert.equal(capabilities.stateConstraints, !['aquarium', 'network'].includes(type), type);
+            }
+          });
+
+          test('aquarium and network reject state-constrained solving instead of ignoring state', () => {
+            for (const type of ['aquarium', 'network']) {
+              const current = puzzle(type);
+              const state = C.registry[type].initial(current);
+              const snapshot = C.clone(state);
+              assert.throws(
+                () => C.solveState(current, state),
+                new RegExp(`${type}.*definition-only.*state constraints`, 'i'),
+              );
+              assert.deepEqual(state, snapshot, `${type} state remains immutable`);
+              assert.equal(C.solveDefinition(current).solutions.length, 1, type);
+            }
+          });
+          '''.replace('          ', '')
+          new = '''test('solver capabilities expose state constraints only when the full saved semantics are honored', () => {
+            for (const type of C.TYPES) {
+              const capabilities = C.solverCapabilities(type);
+              assert.equal(capabilities.definition, true, type);
+              assert.equal(capabilities.stateConstraints, !DEFINITION_ONLY.includes(type), type);
+            }
+          });
+
+          test('definition-only families reject state-constrained solving instead of partially honoring state', () => {
+            for (const type of DEFINITION_ONLY) {
+              const current = puzzle(type);
+              const state = C.registry[type].initial(current);
+              const snapshot = C.clone(state);
+              assert.throws(
+                () => C.solveState(current, state),
+                new RegExp(`${type}.*definition-only.*state constraints`, 'i'),
+              );
+              assert.deepEqual(state, snapshot, `${type} state remains immutable`);
+              assert.equal(C.solveDefinition(current).solutions.length, 1, type);
+            }
+          });
+
+          test('Bridges zero values are not advertised as complete saved-state constraints', () => {
+            const current = puzzle('bridges');
+            const state = C.registry.bridges.initial(current);
+            const solution = C.solveDefinition(current).solutions[0];
+            assert.ok(
+              solution.some((value, index) => value > 0 && state.cells[index] === 0),
+              'initial zero edges include undecided bridges used by the solution',
+            );
+            assert.throws(() => C.solveState(current, state), /bridges.*definition-only/i);
+          });
+
+          test('Scene and Dossier wrong accusations cannot be treated as satisfiable state constraints', () => {
+            const scene = puzzle('scene');
+            const sceneState = C.registry.scene.initial(scene);
+            sceneState.placements = C.clone(scene.solution);
+            const culprit = C.murderer(scene, sceneState);
+            sceneState.accused = scene.people.find(
+              (person) => person.id !== scene.victim && person.id !== culprit,
+            ).id;
+            assert.equal(C.registry.scene.complete(scene, sceneState), false);
+            assert.throws(() => C.solveState(scene, sceneState), /scene.*definition-only/i);
+
+            const dossier = puzzle('dossier');
+            const dossierState = C.registry.dossier.initial(dossier);
+            const n = dossier.size;
+            for (let category = 0; category < 2; category += 1) {
+              for (let person = 0; person < n; person += 1) {
+                const answer = dossier.solution[category * n + person];
+                for (let value = 0; value < n; value += 1) {
+                  dossierState.marks[category * n * n + person * n + value] =
+                    value === answer ? 1 : 0;
+                }
+              }
+            }
+            const carrier = dossier.solution.slice(n).indexOf(dossier.targetItem);
+            dossierState.accused = (carrier + 1) % n;
+            assert.equal(C.registry.dossier.complete(dossier, dossierState), false);
+            assert.throws(() => C.solveState(dossier, dossierState), /dossier.*definition-only/i);
+          });
+          '''.replace('          ', '')
+          if old not in text:
+              raise SystemExit('Existing capability tests were not found.')
+          filename.write_text(text.replace(old, new))
+          PY
+          if node --test --test-name-pattern='capabilities expose|definition-only families|Bridges zero|wrong accusations' tests/solver-contract.test.cjs; then
+            echo 'Capability regressions unexpectedly passed before implementation.' >&2
+            exit 1
+          fi
+      - name: Make capability claims match implemented semantics
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          core = Path('src/core.js')
+          text = core.read_text()
+          old = "    const stateConstraints = !['aquarium', 'network'].includes(type);"
+          new = "    const stateConstraints = !['scene', 'dossier', 'bridges', 'aquarium', 'network'].includes(type);"
+          if text.count(old) != 1:
+              raise SystemExit('solverCapabilities replacement marker not found exactly once.')
+          core.write_text(text.replace(old, new))
+
+          contract = Path('docs/SOLVER-CONTRACT.md')
+          text = contract.read_text()
+          old = '''Aquarium and Network are deliberately **definition-only**. Their current saved values are all valid
+          player choices: Aquarium starts every tank at level `0`, and Network starts every tile at rotation
+          `0`. Neither schema has an “unknown/unconstrained” sentinel. Treating an initial save as a partial
+          constraint would therefore force every zero rather than mean “not decided”. `solveState` rejects
+          these families until a separately versioned constraint representation and migration are designed.
+          '''.replace('          ', '')
+          new = '''Bridges, Aquarium and Network are deliberately **definition-only**. Their current saved zero values
+          are valid player choices as well as the initial representation: no bridge, an empty tank level or an
+          unrotated tile. None has an “unknown/unconstrained” sentinel. Treating an initial save as a partial
+          constraint would therefore either force every zero or silently ignore committed zero choices.
+
+          Scene and Dossier are also definition-only for state solving. Their current search routines constrain
+          placements or matrix marks but do not constrain the decisive final accusation. Advertising full state
+          support would let a solved board with a wrong accusation appear satisfiable. `solveState` rejects all
+          five families until versioned constraint representations and complete search semantics are designed.
+          '''.replace('          ', '')
+          if text.count(old) != 1:
+              raise SystemExit('Solver-contract paragraph was not found exactly once.')
+          contract.write_text(text.replace(old, new))
+
+          next_dev = Path('docs/NEXT-DEVELOPMENT.md')
+          text = next_dev.read_text()
+          old = '''`C.solverCapabilities(p).stateConstraints` is true. Aquarium and Network fail closed because their
+          current zero-valued initial states do not encode an unknown constraint. See
+          [SOLVER-CONTRACT.md](SOLVER-CONTRACT.md).
+          '''.replace('          ', '')
+          new = '''`C.solverCapabilities(p).stateConstraints` is true. Bridges, Aquarium and Network fail closed because
+          their zero-valued initial states do not encode an unknown constraint. Scene and Dossier fail closed
+          because their current solvers do not constrain the final accusation. See
+          [SOLVER-CONTRACT.md](SOLVER-CONTRACT.md).
+          '''.replace('          ', '')
+          if text.count(old) != 1:
+              raise SystemExit('Development-note paragraph was not found exactly once.')
+          next_dev.write_text(text.replace(old, new))
+          PY
+          node --test tests/solver-contract.test.cjs
+          npx prettier --write src/core.js tests/solver-contract.test.cjs docs/SOLVER-CONTRACT.md docs/NEXT-DEVELOPMENT.md
+          node --test tests/solver-contract.test.cjs
+          git diff --check
+      - name: Commit the reviewed capability contract
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/core.js tests/solver-contract.test.cjs docs/SOLVER-CONTRACT.md docs/NEXT-DEVELOPMENT.md
+          git commit -m "fix(solver): withhold partial state capabilities"
+          git push
