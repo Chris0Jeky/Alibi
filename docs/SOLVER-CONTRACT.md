@@ -17,11 +17,15 @@ state before searching. It may only be used when `AlibiCore.solverCapabilities(p
 is true. A rejected or malformed state fails before search; callers must not silently fall back to a
 definition solve.
 
-Aquarium and Network are deliberately **definition-only**. Their current saved values are all valid
-player choices: Aquarium starts every tank at level `0`, and Network starts every tile at rotation
-`0`. Neither schema has an “unknown/unconstrained” sentinel. Treating an initial save as a partial
-constraint would therefore force every zero rather than mean “not decided”. `solveState` rejects
-these families until a separately versioned constraint representation and migration are designed.
+Bridges, Aquarium and Network are deliberately **definition-only**. Their current saved zero values
+are valid player choices as well as the initial representation: no bridge, an empty tank level or an
+unrotated tile. None has an “unknown/unconstrained” sentinel. Treating an initial save as a partial
+constraint would therefore either force every zero or silently ignore committed zero choices.
+
+Scene and Dossier are also definition-only for state solving. Their current search routines constrain
+placements or matrix marks but do not constrain the decisive final accusation. Advertising full state
+support would let a solved board with a wrong accusation appear satisfiable. `solveState` rejects all
+five families until versioned constraint representations and complete search semantics are designed.
 
 ## Compatibility API
 

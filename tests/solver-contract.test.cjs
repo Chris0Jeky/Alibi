@@ -8,6 +8,7 @@ const path = require('node:path');
 require('../src/core.js');
 require('../src/engines.js');
 const C = require('../src/bridges.js');
+const DEFINITION_ONLY = ['scene', 'dossier', 'bridges', 'aquarium', 'network'];
 const catalogue = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../content/catalog.json'), 'utf8'),
 );
@@ -24,16 +25,16 @@ test('definition solving is explicit and retains published uniqueness', () => {
   }
 });
 
-test('solver capabilities identify only aquarium and network as definition-only', () => {
+test('solver capabilities expose state constraints only when the full saved semantics are honored', () => {
   for (const type of C.TYPES) {
     const capabilities = C.solverCapabilities(type);
     assert.equal(capabilities.definition, true, type);
-    assert.equal(capabilities.stateConstraints, !['aquarium', 'network'].includes(type), type);
+    assert.equal(capabilities.stateConstraints, !DEFINITION_ONLY.includes(type), type);
   }
 });
 
-test('aquarium and network reject state-constrained solving instead of ignoring state', () => {
-  for (const type of ['aquarium', 'network']) {
+test('definition-only families reject state-constrained solving instead of partially honoring state', () => {
+  for (const type of DEFINITION_ONLY) {
     const current = puzzle(type);
     const state = C.registry[type].initial(current);
     const snapshot = C.clone(state);
@@ -44,6 +45,45 @@ test('aquarium and network reject state-constrained solving instead of ignoring 
     assert.deepEqual(state, snapshot, `${type} state remains immutable`);
     assert.equal(C.solveDefinition(current).solutions.length, 1, type);
   }
+});
+
+test('Bridges zero values are not advertised as complete saved-state constraints', () => {
+  const current = puzzle('bridges');
+  const state = C.registry.bridges.initial(current);
+  const solution = C.solveDefinition(current).solutions[0];
+  assert.ok(
+    solution.some((value, index) => value > 0 && state.cells[index] === 0),
+    'initial zero edges include undecided bridges used by the solution',
+  );
+  assert.throws(() => C.solveState(current, state), /bridges.*definition-only/i);
+});
+
+test('Scene and Dossier wrong accusations cannot be treated as satisfiable state constraints', () => {
+  const scene = puzzle('scene');
+  const sceneState = C.registry.scene.initial(scene);
+  sceneState.placements = C.clone(scene.solution);
+  const culprit = C.murderer(scene, sceneState);
+  sceneState.accused = scene.people.find(
+    (person) => person.id !== scene.victim && person.id !== culprit,
+  ).id;
+  assert.equal(C.registry.scene.complete(scene, sceneState), false);
+  assert.throws(() => C.solveState(scene, sceneState), /scene.*definition-only/i);
+
+  const dossier = puzzle('dossier');
+  const dossierState = C.registry.dossier.initial(dossier);
+  const n = dossier.size;
+  for (let category = 0; category < 2; category += 1) {
+    for (let person = 0; person < n; person += 1) {
+      const answer = dossier.solution[category * n + person];
+      for (let value = 0; value < n; value += 1) {
+        dossierState.marks[category * n * n + person * n + value] = value === answer ? 1 : 0;
+      }
+    }
+  }
+  const carrier = dossier.solution.slice(n).indexOf(dossier.targetItem);
+  dossierState.accused = (carrier + 1) % n;
+  assert.equal(C.registry.dossier.complete(dossier, dossierState), false);
+  assert.throws(() => C.solveState(dossier, dossierState), /dossier.*definition-only/i);
 });
 
 test('state-constrained solving validates and narrows supported families', () => {

@@ -1048,7 +1048,7 @@
   function solverCapabilities(input) {
     const type = typeof input === 'string' ? input : input?.type;
     if (!TYPES.includes(type)) throw new Error(`Unknown puzzle type: ${type || 'missing'}.`);
-    const stateConstraints = !['aquarium', 'network'].includes(type);
+    const stateConstraints = !['scene', 'dossier', 'bridges', 'aquarium', 'network'].includes(type);
     return {
       definition: true,
       stateConstraints,
