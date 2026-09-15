@@ -1,0 +1,48 @@
+name: Refresh branch asset provenance
+on:
+  push:
+    branches:
+      - fix/journal-unique-solved-count-147
+permissions:
+  contents: write
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: fix/journal-unique-solved-count-147
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Refresh src/app.js catalogue records
+        run: |
+          node <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const source = fs.readFileSync('src/app.js');
+          const filename = 'assets-source/library/catalogue.json';
+          const catalogue = JSON.parse(fs.readFileSync(filename, 'utf8'));
+          const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+          let updated = 0;
+          for (const asset of catalogue.assets) {
+            for (const file of asset.files) {
+              if (file.path !== 'src/app.js') continue;
+              file.bytes = source.length;
+              file.sha256 = sha256;
+              updated += 1;
+            }
+          }
+          if (!updated) throw new Error('No src/app.js catalogue entries were found.');
+          fs.writeFileSync(filename, JSON.stringify(catalogue, null, 2) + '\n');
+          console.log(`Updated ${updated} records: ${source.length} bytes, ${sha256}`);
+          NODE
+      - name: Commit generated provenance
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add assets-source/library/catalogue.json
+          git diff --cached --quiet || git commit -m "chore(assets): refresh app provenance"
+          git push
