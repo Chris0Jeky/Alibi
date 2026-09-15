@@ -26,29 +26,23 @@ jobs:
 
           filename = Path('tests/ci-scope.test.cjs')
           text = filename.read_text()
-          old = """  const broken = fixture({
-            'docs/STATE.md': '# State\\nSee [receipt][missing].\\n\\n[missing]: missing.md\\n',
+          marker = "test('comparison environment accepts real non-zero SHAs only', () => {"
+          regression = r"""test('publication verification validates continued reference definitions', () => {
+            const root = fixture({
+              'docs/STATE.md': '# State\nSee [receipt][details].\n\n[details]:\n  missing.md\n',
+            });
+            assert.match(
+              verifyDocuments(root, ['docs/STATE.md']).join('\n'),
+              /missing local target/,
+            );
           });
-          assert.match(verifyDocuments(broken, ['docs/STATE.md']).join('\\n'), /missing local target/);
-          """.replace('          ', '')
-          new = """  const broken = fixture({
-            'docs/STATE.md': '# State\\nSee [receipt][missing].\\n\\n[missing]: missing.md\\n',
-          });
-          assert.match(verifyDocuments(broken, ['docs/STATE.md']).join('\\n'), /missing local target/);
 
-          const multiline = fixture({
-            'docs/STATE.md': '# State\\nSee [receipt][details].\\n\\n[details]:\\n  missing.md\\n',
-          });
-          assert.match(
-            verifyDocuments(multiline, ['docs/STATE.md']).join('\\n'),
-            /missing local target/,
-          );
-          """.replace('          ', '')
-          if text.count(old) != 1:
-              raise SystemExit('Reference-test insertion marker not found exactly once.')
-          filename.write_text(text.replace(old, new))
+          """
+          if text.count(marker) != 1:
+              raise SystemExit('Comparison-test insertion marker not found exactly once.')
+          filename.write_text(text.replace(marker, regression + marker))
           PY
-          if node --test --test-name-pattern='reference-style link definitions' tests/ci-scope.test.cjs; then
+          if node --test --test-name-pattern='continued reference definitions' tests/ci-scope.test.cjs; then
             echo 'Multiline reference regression unexpectedly passed before the parser fix.' >&2
             exit 1
           fi
