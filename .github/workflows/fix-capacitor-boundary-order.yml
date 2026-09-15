@@ -1,0 +1,80 @@
+name: Repair Capacitor boundary comparison
+on:
+  push:
+    branches:
+      - fix/capacitor-plan-invariants-139
+permissions:
+  contents: write
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: fix/capacitor-plan-invariants-139
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Add the property-order regression and prove it fails
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const filename = 'docs/capacitor/validate-plan.test.mjs';
+          const before = fs.readFileSync(filename, 'utf8');
+          const marker = "test('unapproved release and fabricated acceptance claims are rejected', () => {";
+          const regression = `test('integrated Cascade boundary ignores JSON property order', () => {
+            const plan = copy(originalPlan);
+            const config = copy(originalConfig);
+            const boundary = plan.integratedBoundary[0];
+            plan.integratedBoundary[0] = {
+              nativeTransfer: boundary.nativeTransfer,
+              inAuditedMain: boundary.inAuditedMain,
+              domain: boundary.domain,
+              issue: boundary.issue,
+              pullRequests: boundary.pullRequests,
+            };
+            assert.deepEqual(validatePlan(plan, config).errors, []);
+          });
+
+          `.replace(/^          /gm, '');
+          if (!before.includes(marker)) throw new Error('Test insertion marker not found.');
+          fs.writeFileSync(filename, before.replace(marker, regression + marker));
+          NODE
+          if node --test --test-name-pattern='ignores JSON property order' docs/capacitor/validate-plan.test.mjs; then
+            echo 'Regression unexpectedly passed before the implementation change.' >&2
+            exit 1
+          fi
+      - name: Compare the boundary semantically and prove the suite passes
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const filename = 'docs/capacitor/validate-plan.mjs';
+          const before = fs.readFileSync(filename, 'utf8');
+          const stale = `      JSON.stringify(cascade) === JSON.stringify(requiredCascadeBoundary),`;
+          const current = `      Array.isArray(cascade.pullRequests) &&
+                cascade.pullRequests.length === requiredCascadeBoundary.pullRequests.length &&
+                cascade.pullRequests.every(
+                  (pullRequest, index) =>
+                    pullRequest === requiredCascadeBoundary.pullRequests[index],
+                ) &&
+                cascade.issue === requiredCascadeBoundary.issue &&
+                cascade.domain === requiredCascadeBoundary.domain &&
+                cascade.inAuditedMain === requiredCascadeBoundary.inAuditedMain &&
+                cascade.nativeTransfer === requiredCascadeBoundary.nativeTransfer,`.replace(/^              /gm, '      ');
+          const occurrences = before.split(stale).length - 1;
+          if (occurrences !== 1) throw new Error(`Expected one ordered comparison, found ${occurrences}.`);
+          fs.writeFileSync(filename, before.replace(stale, current));
+          NODE
+          node --test docs/capacitor/validate-plan.test.mjs
+          npx --yes prettier@3.8.2 --write docs/capacitor/validate-plan.mjs docs/capacitor/validate-plan.test.mjs
+          node --test docs/capacitor/validate-plan.test.mjs
+          git diff --check
+      - name: Commit the reviewed fix
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/capacitor/validate-plan.mjs docs/capacitor/validate-plan.test.mjs
+          git commit -m "fix(capacitor): compare Cascade boundary semantically"
+          git push
