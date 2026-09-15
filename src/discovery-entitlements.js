@@ -32,6 +32,10 @@
 
   const copy = (value) => JSON.parse(JSON.stringify(value));
 
+  function compareText(left, right) {
+    return left < right ? -1 : left > right ? 1 : 0;
+  }
+
   function object(value, label) {
     if (!value || typeof value !== 'object' || Array.isArray(value))
       throw Error(`${label} must be an object.`);
@@ -181,7 +185,7 @@
   function validateSources(values) {
     if (!Array.isArray(values)) throw Error('Sources must be an array.');
     if (values.length > LIMITS.sources) throw Error('Too many sources.');
-    const list = values.map(validateSource).sort((a, b) => a.sourceKey.localeCompare(b.sourceKey));
+    const list = values.map(validateSource).sort((a, b) => compareText(a.sourceKey, b.sourceKey));
     const byKey = new Map();
     const contentKeys = new Set();
     const bootstrap = new Map();
@@ -191,7 +195,11 @@
       for (const revision of source.revisions) {
         if (contentKeys.has(revision.contentKey)) throw Error('A content key is registered twice.');
         contentKeys.add(revision.contentKey);
-        if (source.kind === 'catalogue' && source.rewardEligible) {
+        if (
+          source.kind === 'catalogue' &&
+          source.authority === 'official' &&
+          source.rewardEligible
+        ) {
           const key = [source.contentId, revision.revision, revision.definitionFingerprint].join(
             '\u0000',
           );
@@ -241,10 +249,10 @@
 
   function receiptOrder(left, right) {
     return (
-      left.occurredAt.localeCompare(right.occurredAt) ||
+      compareText(left.occurredAt, right.occurredAt) ||
       left.revision - right.revision ||
-      left.contentKey.localeCompare(right.contentKey) ||
-      left.evidence.recordKey.localeCompare(right.evidence.recordKey) ||
+      compareText(left.contentKey, right.contentKey) ||
+      compareText(left.evidence.recordKey, right.evidence.recordKey) ||
       EVIDENCE_ORDER.get(left.evidence.kind) - EVIDENCE_ORDER.get(right.evidence.kind)
     );
   }
@@ -258,7 +266,7 @@
       const previous = byKey.get(value.receiptKey);
       if (!previous || receiptOrder(value, previous) < 0) byKey.set(value.receiptKey, value);
     }
-    return [...byKey.values()].sort((a, b) => a.receiptKey.localeCompare(b.receiptKey));
+    return [...byKey.values()].sort((a, b) => compareText(a.receiptKey, b.receiptKey));
   }
 
   function validateExpression(value, depth = 0) {
@@ -290,9 +298,21 @@
       schema: SCHEMA,
       op: value.op,
       terms: [...unique.entries()]
-        .sort(([left], [right]) => left.localeCompare(right))
+        .sort(([left], [right]) => compareText(left, right))
         .map(([, term]) => term),
     };
+  }
+
+  function witnessUpperBound(expression) {
+    if (expression.op === 'source') return 1;
+    const counts = expression.terms.map(witnessUpperBound);
+    if (expression.op === 'any') return Math.max(...counts);
+    let total = 0;
+    for (const count of counts) {
+      total += count;
+      if (total > LIMITS.prerequisiteTerms) return LIMITS.prerequisiteTerms + 1;
+    }
+    return total;
   }
 
   function validateDefinition(value) {
@@ -300,11 +320,14 @@
     schema(value.schema, 'entitlement');
     const category = text(value.category, 'Entitlement category');
     if (!CATEGORIES.has(category)) throw Error('Entitlement category is unsupported.');
+    const prerequisite = validateExpression(value.prerequisite);
+    if (witnessUpperBound(prerequisite) > LIMITS.prerequisiteTerms)
+      throw Error('A prerequisite can require too many receipts.');
     return {
       schema: SCHEMA,
       entitlementKey: semanticKey(value.entitlementKey, 'Entitlement key', 'grant:'),
       category,
-      prerequisite: validateExpression(value.prerequisite),
+      prerequisite,
     };
   }
 
@@ -313,7 +336,7 @@
     if (values.length > LIMITS.definitions) throw Error('Too many entitlement definitions.');
     const list = values
       .map(validateDefinition)
-      .sort((a, b) => a.entitlementKey.localeCompare(b.entitlementKey));
+      .sort((a, b) => compareText(a.entitlementKey, b.entitlementKey));
     const keys = new Set();
     for (const value of list) {
       if (keys.has(value.entitlementKey)) throw Error('An entitlement key is duplicated.');
@@ -361,7 +384,7 @@
     if (value.receipts.length > LIMITS.receipts) throw Error('Too many receipts.');
     const receipts = value.receipts
       .map(validateReceipt)
-      .sort((a, b) => a.receiptKey.localeCompare(b.receiptKey));
+      .sort((a, b) => compareText(a.receiptKey, b.receiptKey));
     if (new Set(receipts.map((item) => item.receiptKey)).size !== receipts.length)
       throw Error('State contains duplicate receipts.');
     if (!Array.isArray(value.owned) || !Array.isArray(value.outbox))
@@ -370,10 +393,10 @@
       throw Error('State contains too many grants.');
     const owned = value.owned
       .map((item) => validateGrant(item, 'owned grant'))
-      .sort((a, b) => a.entitlementKey.localeCompare(b.entitlementKey));
+      .sort((a, b) => compareText(a.entitlementKey, b.entitlementKey));
     const outbox = value.outbox
       .map((item) => validateGrant(item, 'outbox grant'))
-      .sort((a, b) => a.grantId.localeCompare(b.grantId));
+      .sort((a, b) => compareText(a.grantId, b.grantId));
     const ownedKeys = new Set();
     const ownedIds = new Set();
     for (const grant of owned) {
@@ -443,7 +466,7 @@
     const choices = results
       .filter((result) => result.satisfied)
       .sort((left, right) =>
-        left.receiptKeys.join('\u0000').localeCompare(right.receiptKeys.join('\u0000')),
+        compareText(left.receiptKeys.join('\u0000'), right.receiptKeys.join('\u0000')),
       );
     return choices[0] || { satisfied: false, receiptKeys: [] };
   }

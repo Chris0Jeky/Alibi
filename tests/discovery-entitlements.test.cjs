@@ -141,6 +141,24 @@ test('bootstrap emits only exact registered first completions and deduplicates r
   assert.equal(receipts[1].evidence.recordKey, 'scene-01@1');
 });
 
+test('legacy bootstrap accepts only official catalogue authority', () => {
+  const definition = puzzle('registered-scene');
+  const registration = source(definition, {
+    sourceKey: 'catalogue:registered-scene',
+    authority: 'registered',
+  });
+  const runs = [
+    {
+      schemaVersion: 1,
+      key: 'registered-scene@1',
+      puzzle: definition,
+      firstCompletedAt: '2026-09-01T09:00:00Z',
+      completedAt: '2026-09-01T09:00:00Z',
+    },
+  ];
+  assert.deepEqual(D.bootstrapCatalogueReceipts(runs, [registration]), []);
+});
+
 test('a trusted receipt creates one category-separated grant and durable outbox item', () => {
   const definition = puzzle('scene-01');
   const registration = source(definition);
@@ -210,6 +228,29 @@ test('any prerequisites choose a deterministic satisfied witness', () => {
   const state = apply(D.emptyState(), [a, b], [reward], [ra, rb]).state;
   assert.deepEqual(state.owned[0].receiptKeys, [ra.receiptKey]);
   assert.equal(state.owned[0].grantedAt, '2026-09-02T09:00:00.000Z');
+});
+
+test('canonical ordering does not depend on host locale collation', () => {
+  const upper = source(puzzle('A'), { sourceKey: 'catalogue:A' });
+  const lower = source(puzzle('a'), { sourceKey: 'catalogue:a' });
+  const upperReceipt = receipt(upper, '2026-09-01T09:00:00Z');
+  const lowerReceipt = receipt(lower, '2026-09-01T09:00:00Z');
+  const reward = entitlement(
+    'skill:locale-independent',
+    'skill-progress',
+    any(requires(lower.sourceKey), requires(upper.sourceKey)),
+  );
+  const originalLocaleCompare = String.prototype.localeCompare;
+  let state;
+  String.prototype.localeCompare = () => {
+    throw Error('Host locale collation was used.');
+  };
+  try {
+    state = apply(D.emptyState(), [lower, upper], [reward], [lowerReceipt, upperReceipt]).state;
+  } finally {
+    String.prototype.localeCompare = originalLocaleCompare;
+  }
+  assert.deepEqual(state.owned[0].receiptKeys, [upperReceipt.receiptKey]);
 });
 
 test('sequential any receipts converge regardless of arrival order', () => {
@@ -434,6 +475,22 @@ test('duplicate replay remains idempotent at the receipt capacity boundary', () 
   assert.equal(replay.state.generation, state.generation);
   assert.equal(replay.state.receipts.length, D.LIMITS.receipts);
   assert.deepEqual(replay.grants, []);
+});
+
+test('nested prerequisites cannot exceed the aggregate grant receipt bound', () => {
+  const left = Array.from({ length: 20 }, (_, index) => requires(`catalogue:left-${index}`));
+  const right = Array.from({ length: 13 }, (_, index) => requires(`catalogue:right-${index}`));
+  const prerequisite = all(all(...left), all(...right));
+  assert.throws(
+    () =>
+      apply(
+        D.emptyState(),
+        [],
+        [entitlement('room:too-many-witnesses', 'room-access', prerequisite)],
+        [],
+      ),
+    /prerequisite can require too many receipts/i,
+  );
 });
 
 test('bounds and expression depth fail before mutating the caller state', () => {

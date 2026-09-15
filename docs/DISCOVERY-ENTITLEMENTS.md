@@ -67,9 +67,11 @@ Each revision carries a build-generated content key and a deterministic definiti
 ```
 
 `authority: "local"` and `kind: "local-import"` are always ineligible. A local pack may retain its
-own receipt for history, but it cannot satisfy an official entitlement. The fingerprint prevents an
-edited local copy with a reused ID and revision from passing legacy bootstrap. It is an integrity
-and identity check, not a secret or competitive anti-tamper mechanism; Alibi is a static local app.
+own receipt for history, but it cannot satisfy an official entitlement. Legacy catalogue bootstrap
+also requires `authority: "official"`; registered challenge or story sources need their own committed
+receipts. The fingerprint prevents an edited local copy with a reused ID and revision from passing
+bootstrap. It is an integrity and identity check, not a secret or competitive anti-tamper mechanism;
+Alibi is a static local app.
 
 ### Discovery receipt
 
@@ -148,8 +150,9 @@ entitlement once, and adds ownership plus an identical outbox grant in the same 
 acknowledgement, source retirement or definition removal.
 
 The deterministic grant timestamp is the latest timestamp among the prerequisite receipts that
-actually satisfied the definition. An `any` prerequisite chooses the lexicographically smallest
-satisfied witness, so input ordering cannot alter the state.
+actually satisfied the definition. An `any` prerequisite chooses the smallest satisfied witness by
+explicit UTF-16 code-unit order, so browser locale and input ordering cannot alter the state. The
+maximum aggregate witness is bounded to the same 32 receipts accepted by a grant.
 
 ## Proposed persistence sequence
 
@@ -192,7 +195,7 @@ copies are skipped without modifying their saves.
 ## Bounded behaviour
 
 Version 1 caps source registrations, source revisions, receipts, definitions, grants, prerequisite
-width/depth and bootstrap runs. It rejects malformed provenance, duplicate identities, stale
+width, depth, aggregate witnesses and bootstrap runs. It rejects malformed provenance, duplicate identities, stale
 expected generations, mismatched outbox entries, future schemas and unknown fields before changing
 the caller's objects.
 
