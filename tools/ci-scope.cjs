@@ -13,10 +13,17 @@ const PUBLICATION_PATHS = [
 const FULL_SHA = /\b[0-9a-f]{40}\b/;
 const BUILD_ID = /\bbuild\s+`?[0-9a-f]{12}`?/i;
 const LINK = /!?\[[^\]]*\]\(([^)]+)\)/g;
+const REFERENCE_LINK = /^[ \t]{0,3}\[[^\]\r\n]+\]:[ \t]*(?:<([^>\r\n]+)>|(\S+))/gm;
 
 function normalizePath(value) {
-  if (typeof value !== 'string' || value.length === 0 || value.includes('\0')) return null;
-  const normalized = value.replaceAll('\\', '/').replace(/^\.\//, '');
+  if (
+    typeof value !== 'string' ||
+    value.length === 0 ||
+    value.includes('\0') ||
+    value.includes('\\')
+  )
+    return null;
+  const normalized = value.replace(/^\.\//, '');
   if (path.posix.isAbsolute(normalized)) return null;
   const parts = normalized.split('/');
   if (parts.some((part) => part === '..' || part === '')) return null;
@@ -116,31 +123,33 @@ function verifyDocument(root, relative) {
     }
   }
   const visible = stripCode(text);
-  for (const match of visible.matchAll(LINK)) {
-    const target = linkTarget(match[1]);
-    if (!target || target.startsWith('#')) continue;
-    if (/^https:\/\//i.test(target) || /^mailto:/i.test(target)) continue;
+  function validateLink(raw) {
+    const target = linkTarget(raw);
+    if (!target || target.startsWith('#')) return;
+    if (/^https:\/\//i.test(target) || /^mailto:/i.test(target)) return;
     if (/^[a-z][a-z0-9+.-]*:/i.test(target)) {
       errors.push(`${normalized} uses a non-HTTPS or unsupported link: ${target}.`);
-      continue;
+      return;
     }
     let decoded;
     try {
       decoded = decodeURIComponent(target.split('#')[0]);
     } catch {
       errors.push(`${normalized} contains an invalid encoded link: ${target}.`);
-      continue;
+      return;
     }
-    if (!decoded) continue;
+    if (!decoded) return;
     const resolved = path.resolve(path.dirname(real), decoded);
     if (!resolved.startsWith(repository + path.sep) || !fs.existsSync(resolved)) {
       errors.push(`${normalized} links to a missing local target: ${target}.`);
-      continue;
+      return;
     }
     if (!fs.realpathSync(resolved).startsWith(repository + path.sep)) {
       errors.push(`${normalized} links outside the repository: ${target}.`);
     }
   }
+  for (const match of visible.matchAll(LINK)) validateLink(match[1]);
+  for (const match of visible.matchAll(REFERENCE_LINK)) validateLink(match[1] || match[2]);
   return errors;
 }
 

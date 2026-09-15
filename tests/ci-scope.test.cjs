@@ -62,6 +62,24 @@ test('manual, unknown-base, empty and malformed comparisons stay full', () => {
   assert.equal(normalizePath('/docs/STATE.md'), null);
 });
 
+test('literal backslashes never alias allowlisted Git paths', () => {
+  assert.equal(normalizePath('docs\\STATE.md'), null);
+  assert.equal(classifyPaths(['docs\\STATE.md']).mode, 'full');
+});
+
+test('publication verification validates reference-style link definitions', () => {
+  const valid = fixture({
+    'docs/STATE.md': '# State\nSee [release][details].\n\n[details]: RELEASE-0.11.3.md\n',
+    'docs/RELEASE-0.11.3.md': '# Release\n',
+  });
+  assert.deepEqual(verifyDocuments(valid, ['docs/STATE.md']), []);
+
+  const broken = fixture({
+    'docs/STATE.md': '# State\nSee [receipt][missing].\n\n[missing]: missing.md\n',
+  });
+  assert.match(verifyDocuments(broken, ['docs/STATE.md']).join('\n'), /missing local target/);
+});
+
 test('comparison environment accepts real non-zero SHAs only', () => {
   assert.equal(resolveComparison({ ALIBI_BASE_SHA: sha, ALIBI_HEAD_SHA: head }).baseKnown, true);
   assert.equal(
