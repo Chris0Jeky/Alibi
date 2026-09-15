@@ -18,6 +18,9 @@
   const AUTHORITIES = new Set(['official', 'registered', 'local']);
   const CATEGORIES = new Set(['evidence', 'room-access', 'cosmetic', 'skill-progress']);
   const EVIDENCE_KINDS = new Set(['first-completion', 'completion', 'registered-event']);
+  const EVIDENCE_ORDER = new Map(
+    ['first-completion', 'completion', 'registered-event'].map((kind, index) => [kind, index]),
+  );
   const ID = /^[A-Za-z0-9][A-Za-z0-9._:/@-]*$/;
 
   class ConflictError extends Error {
@@ -110,18 +113,11 @@
   }
 
   function validateRevision(value) {
-    exact(
-      value,
-      ['schema', 'revision', 'contentKey', 'definitionFingerprint'],
-      'source revision',
-    );
+    exact(value, ['schema', 'revision', 'contentKey', 'definitionFingerprint'], 'source revision');
     schema(value.schema, 'source revision');
     if (!Number.isInteger(value.revision) || value.revision < 1)
       throw Error('Source revision must be a positive integer.');
-    const definitionFingerprint = text(
-      value.definitionFingerprint,
-      'Definition fingerprint',
-    );
+    const definitionFingerprint = text(value.definitionFingerprint, 'Definition fingerprint');
     if (!/^[0-9a-f]{32}$/.test(definitionFingerprint))
       throw Error('Definition fingerprint is invalid.');
     return {
@@ -196,11 +192,9 @@
         if (contentKeys.has(revision.contentKey)) throw Error('A content key is registered twice.');
         contentKeys.add(revision.contentKey);
         if (source.kind === 'catalogue' && source.rewardEligible) {
-          const key = [
-            source.contentId,
-            revision.revision,
-            revision.definitionFingerprint,
-          ].join('\u0000');
+          const key = [source.contentId, revision.revision, revision.definitionFingerprint].join(
+            '\u0000',
+          );
           if (bootstrap.has(key)) throw Error('A catalogue definition is registered twice.');
           bootstrap.set(key, { source, revision });
         }
@@ -224,15 +218,7 @@
   function validateReceipt(value) {
     exact(
       value,
-      [
-        'schema',
-        'receiptKey',
-        'sourceKey',
-        'contentKey',
-        'revision',
-        'occurredAt',
-        'evidence',
-      ],
+      ['schema', 'receiptKey', 'sourceKey', 'contentKey', 'revision', 'occurredAt', 'evidence'],
       'receipt',
     );
     schema(value.schema, 'receipt');
@@ -256,8 +242,10 @@
   function receiptOrder(left, right) {
     return (
       left.occurredAt.localeCompare(right.occurredAt) ||
+      left.revision - right.revision ||
       left.contentKey.localeCompare(right.contentKey) ||
-      left.evidence.recordKey.localeCompare(right.evidence.recordKey)
+      left.evidence.recordKey.localeCompare(right.evidence.recordKey) ||
+      EVIDENCE_ORDER.get(left.evidence.kind) - EVIDENCE_ORDER.get(right.evidence.kind)
     );
   }
 
@@ -337,14 +325,7 @@
   function validateGrant(value, label) {
     exact(
       value,
-      [
-        'schema',
-        'grantId',
-        'entitlementKey',
-        'category',
-        'receiptKeys',
-        'grantedAt',
-      ],
+      ['schema', 'grantId', 'entitlementKey', 'category', 'receiptKeys', 'grantedAt'],
       label,
     );
     schema(value.schema, label);
@@ -378,9 +359,9 @@
       throw Error('State generation is invalid.');
     if (!Array.isArray(value.receipts)) throw Error('State receipts must be an array.');
     if (value.receipts.length > LIMITS.receipts) throw Error('Too many receipts.');
-    const receipts = value.receipts.map(validateReceipt).sort((a, b) =>
-      a.receiptKey.localeCompare(b.receiptKey),
-    );
+    const receipts = value.receipts
+      .map(validateReceipt)
+      .sort((a, b) => a.receiptKey.localeCompare(b.receiptKey));
     if (new Set(receipts.map((item) => item.receiptKey)).size !== receipts.length)
       throw Error('State contains duplicate receipts.');
     if (!Array.isArray(value.owned) || !Array.isArray(value.outbox))
@@ -439,7 +420,8 @@
   }
 
   function mergeReceipts(current, incoming) {
-    const merged = normalizeReceipts([...current, ...incoming]);
+    const merged = normalizeReceipts([...current, ...incoming], LIMITS.receipts * 2);
+    if (merged.length > LIMITS.receipts) throw Error('Too many receipts.');
     return { receipts: merged, changed: stable(merged) !== stable(current) };
   }
 
@@ -452,8 +434,7 @@
     }
     const results = expression.terms.map((term) => evaluate(term, available));
     if (expression.op === 'all') {
-      if (results.some((result) => !result.satisfied))
-        return { satisfied: false, receiptKeys: [] };
+      if (results.some((result) => !result.satisfied)) return { satisfied: false, receiptKeys: [] };
       return {
         satisfied: true,
         receiptKeys: [...new Set(results.flatMap((result) => result.receiptKeys))].sort(),
@@ -516,7 +497,9 @@
       const ownedIndex = ownedByKey.get(definition.entitlementKey);
       if (ownedIndex !== undefined) {
         const previous = owned[ownedIndex];
-        if (previous.category === definition.category && stable(previous) !== stable(grant)) {
+        if (previous.category !== definition.category)
+          throw Error('An owned entitlement cannot change category.');
+        if (stable(previous) !== stable(grant)) {
           owned[ownedIndex] = grant;
           const outboxIndex = outboxById.get(grant.grantId);
           if (outboxIndex !== undefined) outbox[outboxIndex] = copy(grant);
@@ -594,6 +577,7 @@
       } catch {
         continue;
       }
+      if (recordKey !== `${definition.id}@${definition.revision}`) continue;
       receipts.push({
         schema: SCHEMA,
         receiptKey: `receipt:${match.source.sourceKey}`,

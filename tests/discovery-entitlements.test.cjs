@@ -96,6 +96,13 @@ test('bootstrap emits only exact registered first completions and deduplicates r
     },
     {
       schemaVersion: 1,
+      key: 'wrong-key@1',
+      puzzle: sceneV1,
+      firstCompletedAt: '2026-08-01T08:00:00Z',
+      completedAt: '2026-08-01T08:00:00Z',
+    },
+    {
+      schemaVersion: 1,
       key: 'bridge-01@1',
       puzzle: bridge,
       firstCompletedAt: null,
@@ -147,9 +154,7 @@ test('a trusted receipt creates one category-separated grant and durable outbox 
   const result = apply(before, [registration], [reward], [event]);
   assert.deepEqual(before, D.emptyState());
   assert.equal(result.state.generation, 1);
-  assert.deepEqual(result.state.receipts, [
-    { ...event, occurredAt: '2026-09-01T09:00:00.000Z' },
-  ]);
+  assert.deepEqual(result.state.receipts, [{ ...event, occurredAt: '2026-09-01T09:00:00.000Z' }]);
   assert.equal(result.state.owned.length, 1);
   assert.equal(result.state.owned[0].category, 'cosmetic');
   assert.equal(result.state.outbox.length, 1);
@@ -178,6 +183,20 @@ test('receipt order and prerequisite term order cannot change a grant', () => {
   assert.deepEqual(first.owned[0].receiptKeys, [ra.receiptKey, rb.receiptKey]);
 });
 
+test('duplicate receipts use a total evidence tie-breaker', () => {
+  const registration = source(puzzle('scene-01'));
+  const first = receipt(registration, '2026-09-01T09:00:00Z');
+  const completion = {
+    ...first,
+    evidence: { ...first.evidence, kind: 'completion' },
+  };
+  const reward = entitlement('evidence:scene', 'evidence', requires(registration.sourceKey));
+  const left = apply(D.emptyState(), [registration], [reward], [completion, first]).state;
+  const right = apply(D.emptyState(), [registration], [reward], [first, completion]).state;
+  assert.deepEqual(left, right);
+  assert.equal(left.receipts[0].evidence.kind, 'first-completion');
+});
+
 test('any prerequisites choose a deterministic satisfied witness', () => {
   const a = source(puzzle('a'));
   const b = source(puzzle('b'));
@@ -204,10 +223,7 @@ test('sequential any receipts converge regardless of arrival order', () => {
     any(requires(b.sourceKey), requires(a.sourceKey)),
   );
   const reduce = (events) =>
-    events.reduce(
-      (state, event) => apply(state, [a, b], [reward], [event]).state,
-      D.emptyState(),
-    );
+    events.reduce((state, event) => apply(state, [a, b], [reward], [event]).state, D.emptyState());
   const first = reduce([ra, rb]);
   const second = reduce([rb, ra]);
   assert.deepEqual(first, second);
@@ -226,11 +242,7 @@ test('acknowledged any grants reconcile evidence without reopening delivery', ()
     any(requires(b.sourceKey), requires(a.sourceKey)),
   );
   const initial = apply(D.emptyState(), [a, b], [reward], [rb]).state;
-  const acknowledged = D.acknowledge(
-    initial,
-    [initial.outbox[0].grantId],
-    initial.generation,
-  );
+  const acknowledged = D.acknowledge(initial, [initial.outbox[0].grantId], initial.generation);
   const reconciled = apply(acknowledged, [a, b], [reward], [ra]).state;
   assert.deepEqual(reconciled.owned[0].receiptKeys, [ra.receiptKey]);
   assert.equal(reconciled.outbox.length, 0);
@@ -246,12 +258,7 @@ test('local imports can be recorded but cannot satisfy reward prerequisites', ()
     rewardEligible: false,
   });
   const reward = entitlement('cosmetic:local-copy', 'cosmetic', requires(local.sourceKey));
-  const result = apply(
-    D.emptyState(),
-    [local],
-    [reward],
-    [receipt(local, '2026-09-01T09:00:00Z')],
-  );
+  const result = apply(D.emptyState(), [local], [reward], [receipt(local, '2026-09-01T09:00:00Z')]);
   assert.equal(result.state.receipts.length, 1);
   assert.equal(result.state.owned.length, 0);
   assert.throws(
@@ -264,6 +271,25 @@ test('local imports can be recorded but cannot satisfy reward prerequisites', ()
       ),
     /local sources cannot grant entitlements/i,
   );
+});
+
+test('an owned entitlement cannot be redefined into another category', () => {
+  const registration = source(puzzle('scene-01'));
+  const original = entitlement('keepsake:scene', 'cosmetic', requires(registration.sourceKey));
+  const receiptValue = receipt(registration, '2026-09-01T09:00:00Z');
+  const state = apply(D.emptyState(), [registration], [original], [receiptValue]).state;
+  const before = JSON.stringify(state);
+  assert.throws(
+    () =>
+      apply(
+        state,
+        [registration],
+        [entitlement('keepsake:scene', 'room-access', requires(registration.sourceKey))],
+        [],
+      ),
+    /cannot change category/i,
+  );
+  assert.equal(JSON.stringify(state), before);
 });
 
 test('a later completion revision cannot mint the same entitlement twice', () => {
@@ -346,11 +372,7 @@ test('removed content and definitions never revoke an existing entitlement', () 
     [reward],
     [receipt(registration, '2026-09-01T09:00:00Z')],
   ).state;
-  const acknowledged = D.acknowledge(
-    applied,
-    [applied.outbox[0].grantId],
-    applied.generation,
-  );
+  const acknowledged = D.acknowledge(applied, [applied.outbox[0].grantId], applied.generation);
   const afterRemoval = apply(acknowledged, [], [], [], acknowledged.generation);
   assert.deepEqual(afterRemoval.state, acknowledged);
   assert.equal(afterRemoval.state.owned[0].entitlementKey, 'room:study');
@@ -382,6 +404,36 @@ test('future schemas, unknown fields and tampered provenance are preserved by re
       ),
     /receipt provenance does not match/i,
   );
+});
+
+test('duplicate replay remains idempotent at the receipt capacity boundary', () => {
+  const registration = source(puzzle('scene-01'));
+  const event = receipt(registration, '2026-09-01T09:00:00Z');
+  const receipts = [event];
+  for (let index = 1; index < D.LIMITS.receipts; index++) {
+    const sourceKey = `retired:item-${index}`;
+    receipts.push({
+      schema: 1,
+      receiptKey: `receipt:${sourceKey}`,
+      sourceKey,
+      contentKey: `retired-pack:item-${index}@1`,
+      revision: 1,
+      occurredAt: '2026-08-01T00:00:00.000Z',
+      evidence: {
+        schema: 1,
+        kind: 'registered-event',
+        recordKey: `retired:item-${index}`,
+      },
+    });
+  }
+  const state = D.validateState({
+    ...D.emptyState(),
+    receipts,
+  });
+  const replay = apply(state, [registration], [], [event]);
+  assert.equal(replay.state.generation, state.generation);
+  assert.equal(replay.state.receipts.length, D.LIMITS.receipts);
+  assert.deepEqual(replay.grants, []);
 });
 
 test('bounds and expression depth fail before mutating the caller state', () => {
