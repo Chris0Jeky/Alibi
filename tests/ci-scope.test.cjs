@@ -108,3 +108,10 @@ test('publication verification rejects unsupported schemes and deleted allowlist
   assert.match(errors.join('\n'), /non-HTTPS or unsupported link: file:/);
   assert.match(errors.join('\n'), /document is missing/);
 });
+
+test('publication verification rejects symlinked allowlisted documents', () => {
+  const root = fixture({ 'outside.md': '# Outside\n' });
+  fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
+  fs.symlinkSync(path.join(root, 'outside.md'), path.join(root, 'docs/STATE.md'));
+  assert.match(verifyDocuments(root, ['docs/STATE.md']).join('\n'), /must be a regular file/);
+});
