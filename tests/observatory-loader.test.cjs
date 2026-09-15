@@ -12,11 +12,13 @@ function run({
   hash = '#/home',
   readyState = 'complete',
   standalone = false,
+  target = 'web',
   url = 'assets/observatory.test.js',
 } = {}) {
   const listeners = new Map();
   const scripts = [];
   const context = {
+    ALIBI_BUILD_TARGET: target,
     ALIBI_CONFIG: { standalone, version: '0.11.3' },
     ALIBI_OBSERVATORY_URL: url,
     location: { hash },
@@ -96,8 +98,8 @@ test('loading documents defer injection until load without duplicating route lis
   assert.equal(harness.scripts.length, 1);
 });
 
-test('standalone and unconfigured builds stay completely inert', () => {
-  for (const options of [{ standalone: true }, { url: '' }]) {
+test('standalone, Android and unconfigured builds stay completely inert', () => {
+  for (const options of [{ standalone: true }, { target: 'android' }, { url: '' }]) {
     const harness = run(options);
     assert.equal(harness.scripts.length, 0);
     assert.equal(harness.listenerCount('hashchange'), 0);
