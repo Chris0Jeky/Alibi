@@ -158,11 +158,11 @@ function changedPaths(base, head, cwd = process.cwd()) {
   if (!validSha(base) || !validSha(head)) {
     throw new Error('A valid base and head SHA are required.');
   }
-  const output = execFileSync(
-    'git',
-    ['diff', '--name-only', '--no-renames', '-z', base, head],
-    { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-  );
+  const output = execFileSync('git', ['diff', '--name-only', '--no-renames', '-z', base, head], {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
   return output.split('\0').filter(Boolean);
 }
 

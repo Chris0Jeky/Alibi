@@ -68,7 +68,10 @@ test('comparison environment accepts real non-zero SHAs only', () => {
     resolveComparison({ ALIBI_BASE_SHA: '0'.repeat(40), ALIBI_HEAD_SHA: head }).baseKnown,
     false,
   );
-  assert.equal(resolveComparison({ ALIBI_BASE_SHA: 'short', ALIBI_HEAD_SHA: head }).baseKnown, false);
+  assert.equal(
+    resolveComparison({ ALIBI_BASE_SHA: 'short', ALIBI_HEAD_SHA: head }).baseKnown,
+    false,
+  );
 });
 
 test('publication document checks local links and published claim shape', () => {
