@@ -80,6 +80,13 @@ test('publication verification validates reference-style link definitions', () =
   assert.match(verifyDocuments(broken, ['docs/STATE.md']).join('\n'), /missing local target/);
 });
 
+test('publication verification validates continued reference definitions', () => {
+  const root = fixture({
+    'docs/STATE.md': '# State\nSee [receipt][details].\n\n[details]:\n  missing.md\n',
+  });
+  assert.match(verifyDocuments(root, ['docs/STATE.md']).join('\n'), /missing local target/);
+});
+
 test('comparison environment accepts real non-zero SHAs only', () => {
   assert.equal(resolveComparison({ ALIBI_BASE_SHA: sha, ALIBI_HEAD_SHA: head }).baseKnown, true);
   assert.equal(

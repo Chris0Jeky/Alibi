@@ -13,7 +13,8 @@ const PUBLICATION_PATHS = [
 const FULL_SHA = /\b[0-9a-f]{40}\b/;
 const BUILD_ID = /\bbuild\s+`?[0-9a-f]{12}`?/i;
 const LINK = /!?\[[^\]]*\]\(([^)]+)\)/g;
-const REFERENCE_LINK = /^[ \t]{0,3}\[[^\]\r\n]+\]:[ \t]*(?:<([^>\r\n]+)>|(\S+))/gm;
+const REFERENCE_LINK =
+  /^[ \t]{0,3}\[[^\]\r\n]+\]:[ \t]*(?:\r?\n[ \t]{0,3})?(?:<([^>\r\n]+)>|(\S+))/gm;
 
 function normalizePath(value) {
   if (
