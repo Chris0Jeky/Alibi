@@ -1,0 +1,115 @@
+name: Prepare Observatory follow-ups
+on:
+  push:
+    branches:
+      - fix/observatory-pilot-followups-106
+permissions:
+  contents: write
+jobs:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: fix/observatory-pilot-followups-106
+          fetch-depth: 0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Chris0Jeky/Pulseboard
+          ref: feat/alibi-observatory-context-106
+          path: .pulseboard-observatory
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Apply bounded Alibi integration changes
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          def replace_once(filename, old, new):
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{filename}: expected one match, found {count}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+
+          replace_once(
+              '.github/workflows/check.yml',
+              '          python tests/browser_origin.py\n',
+              '          python tests/browser_origin.py\n          python tests/browser_observatory.py\n',
+          )
+          replace_once(
+              'src/app.js',
+              'a page-area label (always ‘home’ until the in-app hooks are wired), a release label (currently ‘unattributed’, not your version)',
+              'a page-area label derived from the current Alibi section, a release label for the current Alibi version',
+          )
+          replace_once(
+              'docs/DEPLOYMENT.md',
+              'A server rollback does not reverse IndexedDB or immediately replace all installed workers.\n\nThe app requests no remote player data, analytics, ads or fonts.',
+              '''A server rollback does not reverse IndexedDB or immediately replace all installed workers.\n\n### Observatory adapter rollout\n\nThe optional Observatory adapter is a content-hashed online-only asset outside the service-worker\nshell. A browser still running the previous cached shell can therefore request the previous adapter\nname after a host has removed it. This fails closed: the Usage sharing control disappears and no\nevents are sent until the player applies the coherent app update. During an adapter rollout, retain\nthe previous `observatory.<hash>.js` when the host supports immutable-asset retention, or explicitly\nverify the old-shell/new-host case and record the accepted temporary disappearance. Never add the\nadapter to the offline shell merely to hide this condition without rechecking the shell budget.\n\nThe app requests no remote player data, analytics, ads or fonts.''',
+          )
+          replace_once(
+              'observatory/README.md',
+              'Baseline active signals are opted-in page views and content-free error occurrence counts.',
+              'Baseline active signals are opted-in page views and content-free error occurrence counts. Page views now use a closed route label derived from the current Alibi hash and the registered Alibi release; invalid host context falls back to the adapter defaults.',
+          )
+          replace_once(
+              'observatory/README.md',
+              'Hosted verification — deployment, real-browser consent, the first accepted payload and withdrawal — is still outstanding and cannot be closed from local checks.',
+              'CI now exercises rendering, consent persistence, route/release labels, withdrawal and summary-key containment in Chromium while serving the build under the exact public origin. Actual deployed collector acceptance and production publication remain separate evidence and cannot be inferred from interception-based tests.',
+          )
+          PY
+      - name: Regenerate the locked Observatory adapter
+        run: >-
+          node .pulseboard-observatory/observatory/adapters/build-embed.mjs
+          alibi "$GITHUB_WORKSPACE" observatory/browser.js
+          https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi
+      - name: Refresh app provenance records
+        run: |
+          node <<'NODE'
+          const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const source = fs.readFileSync('src/app.js');
+          const filename = 'assets-source/library/catalogue.json';
+          const catalogue = JSON.parse(fs.readFileSync(filename, 'utf8'));
+          const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+          let updated = 0;
+          for (const asset of catalogue.assets) {
+            for (const file of asset.files) {
+              if (file.path !== 'src/app.js') continue;
+              file.bytes = source.length;
+              file.sha256 = sha256;
+              updated += 1;
+            }
+          }
+          if (!updated) throw new Error('No src/app.js catalogue entries were found.');
+          fs.writeFileSync(filename, JSON.stringify(catalogue, null, 2) + '\n');
+          console.log(`Updated ${updated} records: ${source.length} bytes, ${sha256}`);
+          NODE
+      - name: Verify generated and host integration slices
+        run: |
+          node --test tests/observatory-loader.test.cjs
+          python -m py_compile tests/browser_observatory.py
+          npm run build
+          node observatory/check.mjs
+          git diff --check
+      - name: Commit prepared changes
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            .github/workflows/check.yml \
+            assets-source/library/catalogue.json \
+            docs/DEPLOYMENT.md \
+            observatory/README.md \
+            observatory.lock.json \
+            observatory/browser.js \
+            src/app.js
+          git diff --cached --quiet || git commit -m "feat(observatory): complete pilot follow-up integration"
+          git push
