@@ -1,0 +1,200 @@
+name: Apply PR 157 hardening
+
+on:
+  push:
+    branches:
+      - feat/discovery-entitlement-contract-30
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Apply reviewed receipt hardening
+        run: |
+          cat > /tmp/pr-157-hardening.patch <<'PATCH'
+          --- a/src/discovery-entitlements.js
+          +++ b/src/discovery-entitlements.js
+          @@ -18,6 +18,9 @@
+             const AUTHORITIES = new Set(['official', 'registered', 'local']);
+             const CATEGORIES = new Set(['evidence', 'room-access', 'cosmetic', 'skill-progress']);
+             const EVIDENCE_KINDS = new Set(['first-completion', 'completion', 'registered-event']);
+          +  const EVIDENCE_ORDER = new Map(
+          +    ['first-completion', 'completion', 'registered-event'].map((kind, index) => [kind, index]),
+          +  );
+             const ID = /^[A-Za-z0-9][A-Za-z0-9._:/@-]*$/;
+           
+             class ConflictError extends Error {
+          @@ -256,8 +259,10 @@
+             function receiptOrder(left, right) {
+               return (
+                 left.occurredAt.localeCompare(right.occurredAt) ||
+          +      left.revision - right.revision ||
+                 left.contentKey.localeCompare(right.contentKey) ||
+          -      left.evidence.recordKey.localeCompare(right.evidence.recordKey)
+          +      left.evidence.recordKey.localeCompare(right.evidence.recordKey) ||
+          +      EVIDENCE_ORDER.get(left.evidence.kind) - EVIDENCE_ORDER.get(right.evidence.kind)
+               );
+             }
+           
+          @@ -439,7 +444,11 @@
+             }
+           
+             function mergeReceipts(current, incoming) {
+          -    const merged = normalizeReceipts([...current, ...incoming]);
+          +    const merged = normalizeReceipts(
+          +      [...current, ...incoming],
+          +      LIMITS.receipts * 2,
+          +    );
+          +    if (merged.length > LIMITS.receipts) throw Error('Too many receipts.');
+               return { receipts: merged, changed: stable(merged) !== stable(current) };
+             }
+           
+          @@ -516,7 +525,9 @@
+                 const ownedIndex = ownedByKey.get(definition.entitlementKey);
+                 if (ownedIndex !== undefined) {
+                   const previous = owned[ownedIndex];
+          -        if (previous.category === definition.category && stable(previous) !== stable(grant)) {
+          +        if (previous.category !== definition.category)
+          +          throw Error('An owned entitlement cannot change category.');
+          +        if (stable(previous) !== stable(grant)) {
+                     owned[ownedIndex] = grant;
+                     const outboxIndex = outboxById.get(grant.grantId);
+                     if (outboxIndex !== undefined) outbox[outboxIndex] = copy(grant);
+          @@ -594,6 +605,7 @@
+                 } catch {
+                   continue;
+                 }
+          +      if (recordKey !== `${definition.id}@${definition.revision}`) continue;
+                 receipts.push({
+                   schema: SCHEMA,
+                   receiptKey: `receipt:${match.source.sourceKey}`,
+          --- a/tests/discovery-entitlements.test.cjs
+          +++ b/tests/discovery-entitlements.test.cjs
+          @@ -96,6 +96,13 @@
+               },
+               {
+                 schemaVersion: 1,
+          +      key: 'wrong-key@1',
+          +      puzzle: sceneV1,
+          +      firstCompletedAt: '2026-08-01T08:00:00Z',
+          +      completedAt: '2026-08-01T08:00:00Z',
+          +    },
+          +    {
+          +      schemaVersion: 1,
+                 key: 'bridge-01@1',
+                 puzzle: bridge,
+                 firstCompletedAt: null,
+          @@ -178,6 +185,20 @@
+             assert.deepEqual(first.owned[0].receiptKeys, [ra.receiptKey, rb.receiptKey]);
+           });
+           
+          +test('duplicate receipts use a total evidence tie-breaker', () => {
+          +  const registration = source(puzzle('scene-01'));
+          +  const first = receipt(registration, '2026-09-01T09:00:00Z');
+          +  const completion = {
+          +    ...first,
+          +    evidence: { ...first.evidence, kind: 'completion' },
+          +  };
+          +  const reward = entitlement('evidence:scene', 'evidence', requires(registration.sourceKey));
+          +  const left = apply(D.emptyState(), [registration], [reward], [completion, first]).state;
+          +  const right = apply(D.emptyState(), [registration], [reward], [first, completion]).state;
+          +  assert.deepEqual(left, right);
+          +  assert.equal(left.receipts[0].evidence.kind, 'first-completion');
+          +});
+          +
+           test('any prerequisites choose a deterministic satisfied witness', () => {
+             const a = source(puzzle('a'));
+             const b = source(puzzle('b'));
+          @@ -266,6 +287,25 @@
+             );
+           });
+           
+          +test('an owned entitlement cannot be redefined into another category', () => {
+          +  const registration = source(puzzle('scene-01'));
+          +  const original = entitlement('keepsake:scene', 'cosmetic', requires(registration.sourceKey));
+          +  const receiptValue = receipt(registration, '2026-09-01T09:00:00Z');
+          +  const state = apply(D.emptyState(), [registration], [original], [receiptValue]).state;
+          +  const before = JSON.stringify(state);
+          +  assert.throws(
+          +    () =>
+          +      apply(
+          +        state,
+          +        [registration],
+          +        [entitlement('keepsake:scene', 'room-access', requires(registration.sourceKey))],
+          +        [],
+          +      ),
+          +    /cannot change category/i,
+          +  );
+          +  assert.equal(JSON.stringify(state), before);
+          +});
+          +
+           test('a later completion revision cannot mint the same entitlement twice', () => {
+             const v1 = puzzle('scene-01', 1);
+             const v2 = puzzle('scene-01', 2, { title: 'Reviewed scene' });
+          @@ -384,6 +424,36 @@
+             );
+           });
+           
+          +test('duplicate replay remains idempotent at the receipt capacity boundary', () => {
+          +  const registration = source(puzzle('scene-01'));
+          +  const event = receipt(registration, '2026-09-01T09:00:00Z');
+          +  const receipts = [event];
+          +  for (let index = 1; index < D.LIMITS.receipts; index++) {
+          +    const sourceKey = `retired:item-${index}`;
+          +    receipts.push({
+          +      schema: 1,
+          +      receiptKey: `receipt:${sourceKey}`,
+          +      sourceKey,
+          +      contentKey: `retired-pack:item-${index}@1`,
+          +      revision: 1,
+          +      occurredAt: '2026-08-01T00:00:00.000Z',
+          +      evidence: {
+          +        schema: 1,
+          +        kind: 'registered-event',
+          +        recordKey: `retired:item-${index}`,
+          +      },
+          +    });
+          +  }
+          +  const state = D.validateState({
+          +    ...D.emptyState(),
+          +    receipts,
+          +  });
+          +  const replay = apply(state, [registration], [], [event]);
+          +  assert.equal(replay.state.generation, state.generation);
+          +  assert.equal(replay.state.receipts.length, D.LIMITS.receipts);
+          +  assert.deepEqual(replay.grants, []);
+          +});
+          +
+           test('bounds and expression depth fail before mutating the caller state', () => {
+             const state = D.emptyState();
+             state.receipts = Array(D.LIMITS.receipts + 1).fill(null);
+          PATCH
+          git apply --check /tmp/pr-157-hardening.patch
+          git apply /tmp/pr-157-hardening.patch
+      - name: Format and verify
+        run: |
+          npx prettier --write src/discovery-entitlements.js tests/discovery-entitlements.test.cjs
+          npm run verify
+      - name: Commit formatted hardening
+        run: |
+          git add src/discovery-entitlements.js tests/discovery-entitlements.test.cjs
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'No hardening changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(core): harden receipt convergence'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
