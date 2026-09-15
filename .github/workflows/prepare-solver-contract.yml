@@ -1,0 +1,133 @@
+name: Prepare solver contract
+on:
+  push:
+    branches:
+      - feat/explicit-solver-contract-3
+permissions:
+  contents: write
+jobs:
+  prepare:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/explicit-solver-contract-3
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Add explicit definition and state solver APIs
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          def replace_once(filename, old, new):
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{filename}: expected one match, found {count}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+
+          replace_once(
+              'src/core.js',
+              '        const result = solve(p);',
+              '        const result = solveDefinition(p);',
+          )
+          replace_once(
+              'src/core.js',
+              '  root.AlibiCore = {',
+              '''  function solverCapabilities(input) {
+    const type = typeof input === 'string' ? input : input?.type;
+    if (!TYPES.includes(type)) throw new Error(`Unknown puzzle type: ${type || 'missing'}.`);
+    const stateConstraints = !['aquarium', 'network'].includes(type);
+    return {
+      definition: true,
+      stateConstraints,
+      mode: stateConstraints ? 'state-constrained' : 'definition-only',
+    };
+  }
+  function solveDefinition(p, limit = 2, maxNodes) {
+    return root.AlibiCore.solve(p, null, limit, maxNodes);
+  }
+  function solveState(p, state, limit = 2, maxNodes) {
+    if (!state || typeof state !== 'object' || Array.isArray(state))
+      throw new Error('State-constrained solving requires a saved state object.');
+    const capabilities = solverCapabilities(p);
+    if (!capabilities.stateConstraints)
+      throw new Error(
+        `The ${p.type} solver is definition-only and cannot apply saved state constraints.`,
+      );
+    root.AlibiCore.validateDefinition(p);
+    root.AlibiCore.validateState(p, state);
+    return root.AlibiCore.solve(p, state, limit, maxNodes);
+  }
+  root.AlibiCore = {''',
+          )
+          replace_once(
+              'src/core.js',
+              '    murderer,\n    solve,\n    hint,',
+              '    murderer,\n    solve,\n    solveDefinition,\n    solveState,\n    solverCapabilities,\n    hint,',
+          )
+          replace_once(
+              'src/engines.js',
+              '        if (C.solve(p).solutions.length !== 1)',
+              '        if (C.solveDefinition(p).solutions.length !== 1)',
+          )
+          replace_once(
+              'src/validator-worker.js',
+              '      const result = AlibiCore.solve(p, null, 2, 250000);',
+              '      const result = AlibiCore.solveDefinition(p, 2, 250000);',
+          )
+          replace_once(
+              'tools/generate-content.cjs',
+              '    return C.solve(p, null, 2, max).solutions.length === 1;',
+              '    return C.solveDefinition(p, 2, max).solutions.length === 1;',
+          )
+          replace_once(
+              'docs/NEXT-DEVELOPMENT.md',
+              '''API note: `C.solve(p, state)` is not a general state-constrained API across every family.
+Aquarium/network currently solve the definition independently of the supplied state; all current
+production callers use definition-only solving. Do not build a future hint or correctness feature
+on state-constrained behavior without implementing and testing that contract first.''',
+              '''Solver API: use `C.solveDefinition(p, limit, maxNodes)` for catalogue, authoring and
+uniqueness work. Use `C.solveState(p, state, limit, maxNodes)` only when
+`C.solverCapabilities(p).stateConstraints` is true. Aquarium and Network fail closed because their
+current zero-valued initial states do not encode an unknown constraint. See
+[SOLVER-CONTRACT.md](SOLVER-CONTRACT.md).''',
+          )
+          PY
+      - name: Format and refresh provenance
+        run: |
+          npx prettier --write \
+            src/core.js \
+            src/engines.js \
+            src/validator-worker.js \
+            tools/generate-content.cjs \
+            tests/solver-contract.test.cjs
+          node tools/assets/catalogue.cjs
+      - name: Verify contract and unchanged catalogue behaviour
+        run: |
+          node --test tests/solver-contract.test.cjs
+          node tests/core.test.cjs
+          npm run build
+          npm run format:check
+          git diff --check
+      - name: Commit prepared changes
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add \
+            assets-source/library/catalogue.json \
+            docs/NEXT-DEVELOPMENT.md \
+            src/core.js \
+            src/engines.js \
+            src/validator-worker.js \
+            tests/solver-contract.test.cjs \
+            tools/generate-content.cjs
+          git diff --cached --quiet || git commit -m "feat(core): make solver state support explicit"
+          git push
