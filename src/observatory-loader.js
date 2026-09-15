@@ -22,9 +22,7 @@
     return { route, release: globalThis.ALIBI_CONFIG?.version };
   }
   globalThis.ALIBI_OBSERVATORY_CONTEXT = routeContext;
-  globalThis.addEventListener('hashchange', () =>
-    globalThis.PulseboardUsage?.track?.('page.view'),
-  );
+  globalThis.addEventListener('hashchange', () => globalThis.PulseboardUsage?.track?.('page.view'));
   const inject = () => {
     const tag = document.createElement('script');
     tag.src = url;
