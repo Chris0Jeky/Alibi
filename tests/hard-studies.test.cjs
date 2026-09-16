@@ -8,7 +8,8 @@ function linePatterns(size, clues) {
   const out = [];
   function place(at, start, line) {
     const run = clues[at],
-      remaining = clues.slice(at + 1).reduce((sum, value) => sum + value, 0) +
+      remaining =
+        clues.slice(at + 1).reduce((sum, value) => sum + value, 0) +
         Math.max(0, clues.length - at - 1),
       last = size - run - remaining;
     for (let offset = start; offset <= last; offset++) {
@@ -97,7 +98,11 @@ function countNonogram(p, limit = 2) {
       if (count >= limit) return;
     }
   }
-  search(rows, cols, Array.from({ length: n }, () => Array(n).fill(-1)));
+  search(
+    rows,
+    cols,
+    Array.from({ length: n }, () => Array(n).fill(-1)),
+  );
   return { count, first };
 }
 
@@ -128,7 +133,9 @@ function countSudoku(p, limit = 2) {
       const row = Math.floor(at / 9),
         col = at % 9,
         box = Math.floor(row / 3) * 3 + Math.floor(col / 3),
-        values = [...rows[row]].filter((value) => cols[col].has(value) && boxes[box].has(value));
+        values = [...rows[row]].filter(
+          (value) => cols[col].has(value) && boxes[box].has(value),
+        );
       if (!values.length) return;
       if (!candidates || values.length < candidates.length) {
         cell = at;
@@ -171,6 +178,10 @@ test('hard studies are additive, provisional and independently unique', () => {
     assert.equal(puzzle.difficultyStatus, 'provisional');
     const result = puzzle.type === 'nonogram' ? countNonogram(puzzle) : countSudoku(puzzle);
     assert.equal(result.count, 1, `${puzzle.id} must have one solution`);
-    assert.deepEqual(result.first, puzzle.solution, `${puzzle.id} solution must match the oracle`);
+    assert.deepEqual(
+      result.first,
+      puzzle.solution,
+      `${puzzle.id} solution must match the oracle`,
+    );
   }
 });
