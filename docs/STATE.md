@@ -31,8 +31,9 @@ See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md)
 
 ## Journal identity-count candidate after 0.11.3, 2026-09-15
 
-Current source corrects the journal's aggregate **Puzzles solved** total to count unique published
-puzzle IDs rather than completed revision records. Saved revision snapshots remain separate and
+Current source corrects the journal's aggregate **Puzzles solved** total to count unique puzzle IDs
+rather than completed revision records, including locally imported records when present. Saved
+revision snapshots remain separate and
 reopenable: the real-origin regression stores completed Aquarium revisions 1 and 2 plus one
 separate completed Aquarium, retains all three records, and reports two solved puzzle identities.
 The refreshed asset catalogue matches the edited application source. The current-head comprehensive
