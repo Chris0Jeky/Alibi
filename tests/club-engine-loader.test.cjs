@@ -15,6 +15,7 @@ test('a silent Games Room engine download times out, cleans up and remains retry
     clearTimeout,
     console,
     document: {
+      addEventListener() {},
       createElement() {
         return {
           removed: false,
