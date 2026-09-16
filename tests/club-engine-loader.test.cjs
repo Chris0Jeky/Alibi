@@ -34,10 +34,7 @@ test('a silent Games Room engine download times out, cleans up and remains retry
   };
   context.globalThis = context;
   vm.createContext(context);
-  vm.runInContext(
-    fs.readFileSync(path.join(__dirname, '../src/club.js'), 'utf8'),
-    context,
-  );
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/club.js'), 'utf8'), context);
 
   const first = await Promise.race([
     context.AlibiClub.engine().then(
