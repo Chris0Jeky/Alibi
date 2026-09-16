@@ -21,11 +21,7 @@
     }
     function validateRecord(record, id) {
       try {
-        if (
-          record.schema !== 1 ||
-          !Number.isSafeInteger(record.revision) ||
-          record.revision < 1
-        )
+        if (record.schema !== 1 || !Number.isSafeInteger(record.revision) || record.revision < 1)
           throw Error('Unsupported record');
         const run = registry.validateRun(record.run);
         if (run.challengeId !== id) throw Error('Record key mismatch');
