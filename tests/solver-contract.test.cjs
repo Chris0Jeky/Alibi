@@ -107,6 +107,17 @@ test('state-constrained solving validates and narrows supported families', () =>
   assert.equal(C.solveState(current, invalid).solutions.length, 0);
 });
 
+test('Witness state constraints honor committed statement marks', () => {
+  const current = puzzle('witness');
+  const state = C.registry.witness.initial(current);
+  const solution = C.solveDefinition(current).solutions[0];
+  const truths = current.statements.map((statement) => Number(C.extras.truth(statement, solution)));
+  const marked = truths.findIndex((value) => value === 0 || value === 1);
+  assert.notEqual(marked, -1, 'fixture exposes at least one statement truth value');
+  state.marks[marked] = truths[marked] === 1 ? 0 : 1;
+  assert.equal(C.solveState(current, state).solutions.length, 0);
+});
+
 test('state-constrained solving requires a validated state object', () => {
   const current = puzzle('sudoku');
   assert.throws(() => C.solveState(current, null), /state object/i);
