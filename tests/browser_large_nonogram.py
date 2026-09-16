@@ -84,6 +84,13 @@ with sync_playwright() as pw:
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'auto-crossed compact board'))
                 page.evaluate("document.documentElement.dataset.large='true'")
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'large-text compact board'))
+                page.emulate_media(forced_colors='active')
+                assert page.locator('.nono-cell .cross').count() > 0
+                assert page.evaluate('''() => {
+                    const style = getComputedStyle(document.querySelector('.nono-cell .cross'), '::before');
+                    return style.borderLeftStyle != 'none' && style.borderLeftWidth != '0px';
+                }'''), 'forced-colors keeps compact crosses visible'
+                page.emulate_media(forced_colors='none')
                 page.locator('[data-action="undo"]').first.click()
                 page.locator('[data-action="redo"]').first.click()
                 expect(page.locator(f'#cell-{filled[-1]}')).to_have_class(__import__('re').compile('filled'))
