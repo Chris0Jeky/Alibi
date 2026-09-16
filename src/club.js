@@ -110,16 +110,40 @@
       return Promise.resolve(E());
     }
     if (loading) return loading;
-    loading = new Promise((resolve, reject) => {
+    const configuredTimeout = Number(cfg().engineTimeout);
+    const timeout = Number.isFinite(configuredTimeout)
+      ? Math.min(30000, Math.max(1, configuredTimeout))
+      : 15000;
+    let promise;
+    promise = new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = cfg().engine;
-      s.onload = () => resolve(E());
-      s.onerror = () => {
-        loading = null;
-        reject(Error('The games room did not finish loading. Reconnect and try again.'));
+      let settled = false;
+      const finish = (error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        s.onload = null;
+        s.onerror = null;
+        s.remove?.();
+        if (loading === promise) loading = null;
+        if (error) reject(error);
+        else {
+          const engines = E();
+          if (engines) resolve(engines);
+          else reject(Error('The games room did not finish loading. Reconnect and try again.'));
+        }
       };
+      const timer = setTimeout(
+        () => finish(Error('The games room did not finish loading. Reconnect and try again.')),
+        timeout,
+      );
+      s.src = cfg().engine;
+      s.onload = () => finish();
+      s.onerror = () =>
+        finish(Error('The games room did not finish loading. Reconnect and try again.'));
       document.head.append(s);
     });
+    loading = promise;
     return loading;
   }
   function notify(text, bad = false) {
