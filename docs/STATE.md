@@ -29,6 +29,15 @@ solved total can count both completed revisions of one puzzle; [#147](https://gi
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## After Hours hard studies candidate, 2026-09-16
+
+The trusted source registry now includes six additional provisional Expert studies in
+after-hours-hard-studies.json, taking the current source catalogue to 361 puzzles across twenty
+packs. Three new 15×15 Nonograms and three new Sudoku layouts are distinct from the existing
+definitions, and each has exactly one solution under the independent hard-studies oracle. The
+published 0.11.3 origins remain at 355 puzzles; this candidate is not deployed and still needs the
+human difficulty/curation gates in HUMAN_TODO.md.
+
 ## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
