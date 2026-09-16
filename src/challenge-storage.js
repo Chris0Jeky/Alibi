@@ -13,9 +13,19 @@
       queue = Promise.resolve();
     const revisions = new Map();
     const protectedIds = new Set();
+    function revisionLimit(id) {
+      protectedIds.add(id);
+      return Error(
+        'This challenge save reached the revision limit and is protected. Export or reload before writing.',
+      );
+    }
     function validateRecord(record, id) {
       try {
-        if (record.schema !== 1 || !Number.isInteger(record.revision) || record.revision < 1)
+        if (
+          record.schema !== 1 ||
+          !Number.isSafeInteger(record.revision) ||
+          record.revision < 1
+        )
           throw Error('Unsupported record');
         const run = registry.validateRun(record.run);
         if (run.challengeId !== id) throw Error('Record key mismatch');
@@ -135,10 +145,11 @@
           if (protectedMode)
             throw Error('Challenge storage is protected. Export or reload before writing.');
           const id = checked.challengeId,
-            expected = revisions.get(id) || 0,
-            record = { schema: 1, revision: expected + 1, run: checked };
+            expected = revisions.get(id) || 0;
           if (protectedIds.has(id))
             throw Error('This challenge save is protected and was preserved.');
+          if (expected >= Number.MAX_SAFE_INTEGER) throw revisionLimit(id);
+          const record = { schema: 1, revision: expected + 1, run: checked };
           if (mode === 'indexeddb') await cas(id, record, expected, restoring);
           else {
             if (restoring) throw Error('Restore requires transactional challenge storage.');
@@ -190,6 +201,11 @@
                 validateRecord(read.result, id);
               } catch (error) {
                 protectedError = error;
+                tx.abort();
+                return;
+              }
+              if (read.result.revision >= Number.MAX_SAFE_INTEGER) {
+                protectedError = revisionLimit(id);
                 tx.abort();
                 return;
               }
