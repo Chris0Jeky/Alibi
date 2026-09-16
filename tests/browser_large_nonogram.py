@@ -8,6 +8,9 @@ OUT = ROOT/'test-results/large-nonogram'
 OUT.mkdir(parents=True, exist_ok=True)
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
 pack = json.loads((ROOT/'content/extra/nonogram-large.json').read_text())['puzzles']
+COMPACT_STYLE_MARKER = 'Compact 15×15 Nonograms need content-neutral row geometry.'
+assert COMPACT_STYLE_MARKER in (ROOT/'src/app.css').read_text()
+assert COMPACT_STYLE_MARKER not in (ROOT/'src/index.html').read_text()
 
 
 def assert_compact_geometry(page, size, label):
