@@ -1,0 +1,52 @@
+name: Patch service-worker cache ownership
+
+on:
+  push:
+    branches:
+      - fix/sw-owned-cache-fallback
+    paths:
+      - tests/sw-cache-isolation.test.cjs
+      - .github/workflows/patch-sw-cache.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/sw-owned-cache-fallback
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply exact source correction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('tools/build.cjs')
+          text = path.read_text(encoding='utf-8')
+          message = "self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});\n"
+          helper = message + "async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key.startsWith(PREFIX)&&key!==CACHE);for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}\n"
+          old = "const prior=await caches.match(r);if(prior)return prior;"
+          new = "const prior=await priorRelease(r);if(prior)return prior;"
+          if text.count(message) != 1:
+              raise SystemExit('service-worker message anchor changed')
+          if text.count(old) != 1:
+              raise SystemExit('service-worker fallback anchor changed')
+          path.write_text(text.replace(message, helper).replace(old, new), encoding='utf-8')
+          PY
+      - run: npx prettier --write tools/build.cjs
+      - run: npm run build
+      - run: node --test tests/sw-cache-isolation.test.cjs tests/sw.test.cjs
+      - name: Commit correction
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tools/build.cjs
+          git commit -m "fix(sw): isolate old-release cache fallback"
+          git push origin HEAD:fix/sw-owned-cache-fallback
