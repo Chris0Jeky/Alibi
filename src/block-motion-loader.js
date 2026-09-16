@@ -1,8 +1,7 @@
 /* Optional tactile controls. Failure leaves the original Block Cabinet fully playable. */
 (function (G) {
   'use strict';
-  let loading = null,
-    controlsObserver = null;
+  let loading = null;
   async function cache(c) {
     if (!G.caches || !c.files) return;
     const name = 'alibi-block-motion-' + c.build;
@@ -49,23 +48,6 @@
       document.head.append(node);
     });
   }
-  function installRestart() {
-    const controls = document.querySelector('.bc-host .bc-controls');
-    if (!controls || controls.querySelector('[data-bc-restart]')) return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.action = 'club-restart';
-    button.dataset.id = 'blockcabinet';
-    button.dataset.bcRestart = '';
-    button.innerHTML = '↻ <span>Start again</span>';
-    controls.insertBefore(button, controls.querySelector('[data-command="sound"]'));
-  }
-  function observeControls() {
-    installRestart();
-    if (controlsObserver) return;
-    controlsObserver = new MutationObserver(installRestart);
-    controlsObserver.observe(document.body, { childList: true, subtree: true });
-  }
   function check() {
     if (loading || !document.querySelector('.block-panel') || !G.ALIBI_BLOCK_MOTION) return;
     const c = G.ALIBI_BLOCK_MOTION;
@@ -76,7 +58,6 @@
       .then(() => {
         G.AlibiBlockMotion.start();
         observer.disconnect();
-        observeControls();
         cache(c);
       })
       .catch(() => {
