@@ -212,7 +212,7 @@
             : 'Club progress is kept only in this tab. Export before closing it.';
         }
     }
-    state.visit++;
+    state.visit = Math.min(Number.MAX_SAFE_INTEGER, state.visit + 1);
     hero = state.settings.pinned ?? (state.lastHero + 1) % stories.length;
     state.lastHero = hero;
     await persist();
