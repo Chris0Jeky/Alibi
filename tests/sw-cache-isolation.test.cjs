@@ -119,3 +119,22 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   );
   assert.equal(worker.calls.network, 1);
 });
+
+test('hashed fallback reads retained first-party ambience caches', async () => {
+  const worker = serviceWorker();
+  const ambienceUrl = 'https://test.invalid/assets/ambience-waves.abcdef123456.mp3';
+  const ambienceCache = new Map();
+  ambienceCache.set(ambienceUrl, {
+    owner: 'alibi-ambience-v1',
+    url: ambienceUrl,
+  });
+  worker.data.set('alibi-ambience-v1', ambienceCache);
+
+  const ambience = await worker.request(ambienceUrl);
+  assert.equal(
+    ambience.owner,
+    'alibi-ambience-v1',
+    'the retained Alibi ambience cache remains eligible for offline playback',
+  );
+  assert.equal(worker.calls.network, 0);
+});
