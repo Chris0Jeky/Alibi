@@ -24,7 +24,7 @@
         r.schemaVersion !== 1 ||
         typeof r.key !== 'string' ||
         r.key.length > 110 ||
-        !Number.isInteger(r.rev) ||
+        !Number.isSafeInteger(r.rev) ||
         r.rev < 0
       )
         throw Error('Unsupported saved-game format.');
