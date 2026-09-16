@@ -88,7 +88,9 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   const foreignUrl = 'https://test.invalid/assets/foreign.123456789abc.js';
   worker.data.set(
     'another-application-cache',
-    new Map([[foreignUrl, { owner: 'another-application-cache', url: foreignUrl }]]),
+    new Map([
+      [foreignUrl, { owner: 'another-application-cache', url: foreignUrl }],
+    ]),
   );
 
   const foreign = await worker.request(foreignUrl);
