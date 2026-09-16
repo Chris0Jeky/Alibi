@@ -15,7 +15,7 @@ and Quiet Wing backup, plus each challenge you want to keep, then import at the 
 
 ## Open the cabinet
 
-- **355 puzzles, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
+- **361 puzzles in the current source catalogue, thirteen families:** crime scenes, logic grids, witness deductions, nonograms,
   tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles and Futoshiki.
 - **The Last Light at Bellweather:** six original timed records, a consistent cast, and earned
   chapter revelations. The unfinished invitation adds eight more continuous chapters; three earlier anthologies remain available.
@@ -115,7 +115,8 @@ locally, but a static deployment does not enable public online play.
 The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
 classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
 home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies; later
-trusted packs bring the core catalogue to 355. Difficulty remains provisional and missing times are
+trusted packs bring the current source catalogue to 361. The published 0.11.3 origins remain at 355
+until a future release. Difficulty remains provisional and missing times are
 not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 
