@@ -53,6 +53,25 @@ with sync_playwright() as playwright:
             page.locator('.bc-host [data-command="simple"]').click()
 
         route("/salon/blockcabinet")
+        page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+        restart = page.get_by_role('button', name='Start again', exact=True)
+        check(restart.is_visible(), f"Enhanced Block Cabinet exposes Start again at {width}px")
+        original_seed = page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed")
+        page.locator('.bc-host [data-piece="0"]').click()
+        page.locator('.bc-host .bc-cell.legal').first.click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 1"
+        )
+        restart.click()
+        check(page.locator('dialog[open]').count() == 1, f"Enhanced restart asks before clearing at {width}px")
+        page.locator('[data-action="club-reset-confirm"]').click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 0"
+        )
+        check(
+            page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed") == original_seed,
+            f"Enhanced restart keeps the current seed at {width}px",
+        )
         simple_controls()
         check(
             page.locator(".block-cell").count() == 64,
