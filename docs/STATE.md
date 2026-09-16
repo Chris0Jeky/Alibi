@@ -29,6 +29,14 @@ solved total can count both completed revisions of one puzzle; [#147](https://gi
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## Compact large Nonogram controls candidate, 2026-09-16
+
+PR #162 adds permanent browser coverage for the existing 15×15 Nonogram pack in compact mode.
+The source test measures square cells, contiguous rows and columns, clue-margin panning, actual
+marking, undo/redo and offline reload at 320/360/390/430px; it also checks the larger-clue setting.
+This is simulated browser evidence, not physical-phone or assistive-technology acceptance. No puzzle
+IDs, revisions or save formats change.
+
 ## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather

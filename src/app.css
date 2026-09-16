@@ -1665,6 +1665,18 @@ input[type='checkbox'] {
 .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
   transform: translateX(-50%) rotate(-45deg);
 }
+@media (forced-colors: active) {
+  .board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+  .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
+  .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+    width: 0;
+    background: none;
+    border-left: 2px solid CanvasText;
+  }
+}
 .paint-cell {
   touch-action: none;
 }
