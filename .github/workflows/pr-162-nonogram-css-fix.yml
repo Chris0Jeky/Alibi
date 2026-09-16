@@ -1,0 +1,130 @@
+name: Apply compact Nonogram CSS review fix
+
+on:
+  push:
+    branches:
+      - codex/nonogram-compact-grid
+    paths:
+      - .github/workflows/pr-162-nonogram-css-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply-review-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/nonogram-compact-grid
+          fetch-depth: 0
+      - name: Move component rules into app.css
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          index = Path('src/index.html')
+          html = index.read_text()
+          inline = '''    <style>
+      /* Compact 15×15 Nonograms need content-neutral row geometry. Text crosses and row clues
+         remain semantic, but cannot enlarge a grid track beyond its square cell width. */
+      .board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
+        min-height: 0;
+        overflow: hidden;
+        gap: 4px;
+        padding-right: 4px;
+        font-size: 9px;
+        line-height: 1;
+      }
+      .board-scroll.large-grid:not(.zoomed) .nono-cell {
+        min-height: 0;
+        overflow: hidden;
+      }
+      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
+        position: absolute;
+        inset: 23%;
+        color: #89917e;
+        font-size: 0;
+        line-height: 0;
+        pointer-events: none;
+      }
+      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
+      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 1.5px;
+        height: 100%;
+        border-radius: 999px;
+        background: currentColor;
+        transform: translateX(-50%) rotate(45deg);
+      }
+      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+        transform: translateX(-50%) rotate(-45deg);
+      }
+    </style>
+'''
+          if html.count(inline) != 1:
+              raise SystemExit(f'expected one inline Nonogram style block, found {html.count(inline)}')
+          index.write_text(html.replace(inline, ''))
+
+          css_path = Path('src/app.css')
+          css = css_path.read_text()
+          anchor = '''.nono-cell .cross {
+  font-size: 21px;
+}
+'''
+          rules = '''.nono-cell .cross {
+  font-size: 21px;
+}
+/* Compact 15×15 Nonograms need content-neutral row geometry. Text crosses and row clues
+   remain semantic, but cannot enlarge a grid track beyond its square cell width. */
+.board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
+  min-height: 0;
+  overflow: hidden;
+  gap: 4px;
+  padding-right: 4px;
+  font-size: 9px;
+  line-height: 1;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell {
+  min-height: 0;
+  overflow: hidden;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
+  position: absolute;
+  inset: 23%;
+  color: #89917e;
+  font-size: 0;
+  line-height: 0;
+  pointer-events: none;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateX(-50%) rotate(45deg);
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+  transform: translateX(-50%) rotate(-45deg);
+}
+'''
+          if css.count(anchor) != 1:
+              raise SystemExit(f'expected one canonical cross rule, found {css.count(anchor)}')
+          css_path.write_text(css.replace(anchor, rules))
+          PY
+          rm .github/workflows/pr-162-nonogram-css-fix.yml
+      - name: Commit reviewed placement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/index.html src/app.css .github/workflows/pr-162-nonogram-css-fix.yml
+          git commit -m "refactor(nonogram): keep compact-grid rules in app stylesheet"
+          git push origin HEAD:codex/nonogram-compact-grid
