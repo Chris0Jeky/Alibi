@@ -173,6 +173,14 @@
       return value;
     }
     async saveRun(record, expectedRevision) {
+      if (
+        !Number.isSafeInteger(expectedRevision) ||
+        expectedRevision < 0 ||
+        expectedRevision >= Number.MAX_SAFE_INTEGER
+      )
+        throw new Error(
+          'Saved-game revision limit reached. Export this run before continuing.',
+        );
       const next = AlibiCore.clone(record);
       next.rev = expectedRevision + 1;
       next.updatedAt = new Date().toISOString();
