@@ -62,10 +62,7 @@ function serviceWorker() {
       },
     },
   };
-  vm.runInNewContext(
-    fs.readFileSync(path.join(__dirname, '../dist/sw.js'), 'utf8'),
-    context,
-  );
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/sw.js'), 'utf8'), context);
   async function request(url) {
     let pending;
     handlers.fetch({
@@ -94,11 +91,7 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   worker.data.set('another-application-cache', foreignCache);
 
   const foreign = await worker.request(foreignUrl);
-  assert.equal(
-    foreign.network,
-    true,
-    'a foreign cache entry must not satisfy an Alibi request',
-  );
+  assert.equal(foreign.network, true, 'a foreign cache entry must not satisfy an Alibi request');
   assert.equal(worker.calls.network, 1);
 
   const priorUrl = 'https://test.invalid/assets/alibi-old.abcdef123456.js';
@@ -107,10 +100,6 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   worker.data.set('alibi-shell-previous', priorCache);
 
   const prior = await worker.request(priorUrl);
-  assert.equal(
-    prior.owner,
-    'alibi-shell-previous',
-    'the retained Alibi release remains eligible',
-  );
+  assert.equal(prior.owner, 'alibi-shell-previous', 'the retained Alibi release remains eligible');
   assert.equal(worker.calls.network, 1);
 });
