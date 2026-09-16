@@ -1,0 +1,36 @@
+name: Format Club loader regression
+
+on:
+  push:
+    branches:
+      - fix/club-engine-loader-timeout
+    paths:
+      - tests/club-engine-loader.test.cjs
+      - .github/workflows/format-club-loader.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/club-engine-loader-timeout
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write tests/club-engine-loader.test.cjs
+      - name: Commit formatting
+        run: |
+          if git diff --quiet -- tests/club-engine-loader.test.cjs; then
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tests/club-engine-loader.test.cjs
+          git commit -m "style(club): format engine loader regression"
+          git push origin HEAD:fix/club-engine-loader-timeout
