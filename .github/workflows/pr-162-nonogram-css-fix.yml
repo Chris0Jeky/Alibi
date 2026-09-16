@@ -22,103 +22,30 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          from textwrap import dedent
 
           index = Path('src/index.html')
           html = index.read_text()
-          inline = '''    <style>
-      /* Compact 15×15 Nonograms need content-neutral row geometry. Text crosses and row clues
-         remain semantic, but cannot enlarge a grid track beyond its square cell width. */
-      .board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
-        min-height: 0;
-        overflow: hidden;
-        gap: 4px;
-        padding-right: 4px;
-        font-size: 9px;
-        line-height: 1;
-      }
-      .board-scroll.large-grid:not(.zoomed) .nono-cell {
-        min-height: 0;
-        overflow: hidden;
-      }
-      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
-        position: absolute;
-        inset: 23%;
-        color: #89917e;
-        font-size: 0;
-        line-height: 0;
-        pointer-events: none;
-      }
-      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
-      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 1.5px;
-        height: 100%;
-        border-radius: 999px;
-        background: currentColor;
-        transform: translateX(-50%) rotate(45deg);
-      }
-      .board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
-        transform: translateX(-50%) rotate(-45deg);
-      }
-    </style>
-'''
-          if html.count(inline) != 1:
-              raise SystemExit(f'expected one inline Nonogram style block, found {html.count(inline)}')
-          index.write_text(html.replace(inline, ''))
+          marker = 'Compact 15×15 Nonograms need content-neutral row geometry.'
+          marker_at = html.find(marker)
+          if marker_at < 0:
+              raise SystemExit('compact Nonogram style marker is missing')
+          start = html.rfind('    <style>', 0, marker_at)
+          end = html.find('    </style>', marker_at)
+          if start < 0 or end < 0:
+              raise SystemExit('compact Nonogram style wrapper is missing')
+          end += len('    </style>\n')
+          inline = html[start:end]
+          body = inline.split('<style>', 1)[1].rsplit('</style>', 1)[0]
+          rules = dedent(body).strip() + '\n'
+          index.write_text(html[:start] + html[end:])
 
           css_path = Path('src/app.css')
           css = css_path.read_text()
-          anchor = '''.nono-cell .cross {
-  font-size: 21px;
-}
-'''
-          rules = '''.nono-cell .cross {
-  font-size: 21px;
-}
-/* Compact 15×15 Nonograms need content-neutral row geometry. Text crosses and row clues
-   remain semantic, but cannot enlarge a grid track beyond its square cell width. */
-.board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
-  min-height: 0;
-  overflow: hidden;
-  gap: 4px;
-  padding-right: 4px;
-  font-size: 9px;
-  line-height: 1;
-}
-.board-scroll.large-grid:not(.zoomed) .nono-cell {
-  min-height: 0;
-  overflow: hidden;
-}
-.board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
-  position: absolute;
-  inset: 23%;
-  color: #89917e;
-  font-size: 0;
-  line-height: 0;
-  pointer-events: none;
-}
-.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
-.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 1.5px;
-  height: 100%;
-  border-radius: 999px;
-  background: currentColor;
-  transform: translateX(-50%) rotate(45deg);
-}
-.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
-  transform: translateX(-50%) rotate(-45deg);
-}
-'''
+          anchor = '.nono-cell .cross {\n  font-size: 21px;\n}\n'
           if css.count(anchor) != 1:
               raise SystemExit(f'expected one canonical cross rule, found {css.count(anchor)}')
-          css_path.write_text(css.replace(anchor, rules))
+          css_path.write_text(css.replace(anchor, anchor + rules))
           PY
           rm .github/workflows/pr-162-nonogram-css-fix.yml
       - name: Commit reviewed placement
