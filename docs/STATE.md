@@ -23,9 +23,13 @@ keyboard focus passes at both widths. Live sessions stayed open from 0.11.2 acro
 accepted another Sudoku move, and preserved exact state and pinned definitions through deliberate
 Save & update and offline reload. The final local UI suite passes 182 assertions.
 
-Independent reviews found no causal blocker. The non-blocking old-revision route test timing
-gap remains in [#144](https://github.com/Chris0Jeky/Alibi/issues/144). The journal's aggregate
-solved total can count both completed revisions of one puzzle; [#147](https://github.com/Chris0Jeky/Alibi/issues/147)
+Independent reviews found no causal blocker. The #144 old-revision route timing gap is corrected
+in current source: Aquarium and Nonogram browser tests now wait for the observable Library fallback
+heading, exact unavailable-revision notice and absent active run, and reject the pre-navigation null
+state that made the former fixed delay pass early. The focused predicate regression and comprehensive
+real-origin Chromium workflow pass at both widths; hosted publication and physical-device behaviour
+are unchanged. The journal's aggregate solved total can count both completed revisions of one puzzle;
+[#147](https://github.com/Chris0Jeky/Alibi/issues/147)
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 

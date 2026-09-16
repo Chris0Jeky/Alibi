@@ -4,6 +4,12 @@ import os
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
+from revision_route import (
+    UNAVAILABLE_HEADING,
+    UNAVAILABLE_NOTICE,
+    unavailable_route_complete,
+    wait_for_unavailable_revision,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
@@ -21,6 +27,27 @@ def check(value, label):
     assert value, label
     checks += 1
     print('PASS', label, flush=True)
+
+
+settled_unavailable = {
+    'currentKey': None,
+    'heading': UNAVAILABLE_HEADING,
+    'notice': UNAVAILABLE_NOTICE,
+}
+check(
+    not unavailable_route_complete({'currentKey': None, 'heading': '', 'notice': ''}),
+    'unavailable-revision probe ignores a pre-navigation null run',
+)
+check(
+    unavailable_route_complete(settled_unavailable),
+    'unavailable-revision probe accepts the settled Library fallback',
+)
+check(
+    not unavailable_route_complete(
+        {**settled_unavailable, 'currentKey': 'expert-aquarium-01@2'}
+    ),
+    'unavailable-revision probe rejects an incorrectly loaded newer revision',
+)
 
 
 def dismiss(page):
@@ -94,10 +121,13 @@ with sync_playwright() as pw:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(BASE)
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
-        page.evaluate("location.hash='/play/expert-aquarium-01@1'")
-        page.wait_for_timeout(250)
+        page.evaluate(
+            "(key) => setTimeout(() => { location.hash = '/play/' + key; }, 350)",
+            'expert-aquarium-01@1',
+        )
+        snapshot = wait_for_unavailable_revision(page)
         check(
-            page.evaluate("()=>AlibiDiagnostics.getCurrent()") is None,
+            snapshot['currentKey'] is None,
             f'{width}: unsaved v1 URL does not invent a legacy definition',
         )
         seed_v1_run(page)
