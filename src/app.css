@@ -1628,6 +1628,43 @@ input[type='checkbox'] {
 .nono-cell .cross {
   font-size: 21px;
 }
+/* Compact 15×15 Nonograms need content-neutral row geometry. Text crosses and row clues
+   remain semantic, but cannot enlarge a grid track beyond its square cell width. */
+.board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
+  min-height: 0;
+  overflow: hidden;
+  gap: 4px;
+  padding-right: 4px;
+  font-size: 9px;
+  line-height: 1;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell {
+  min-height: 0;
+  overflow: hidden;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross {
+  position: absolute;
+  inset: 23%;
+  color: #89917e;
+  font-size: 0;
+  line-height: 0;
+  pointer-events: none;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::before,
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5px;
+  height: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateX(-50%) rotate(45deg);
+}
+.board-scroll.large-grid:not(.zoomed) .nono-cell .cross::after {
+  transform: translateX(-50%) rotate(-45deg);
+}
 .paint-cell {
   touch-action: none;
 }
