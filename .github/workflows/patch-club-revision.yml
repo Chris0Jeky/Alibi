@@ -1,0 +1,79 @@
+name: Apply Club revision precision correction
+
+on:
+  push:
+    branches:
+      - fix/club-revision-precision
+    paths:
+      - .github/workflows/patch-club-revision.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/club-revision-precision
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply exact source correction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/club.js')
+          text = path.read_text(encoding='utf-8')
+          old_load = """          const raw = localStorage.getItem('alibi-afterhours-v1');
+          if (raw) {
+            foundSave = true;
+            await engine();
+            const v = JSON.parse(raw);
+            state = validateSave(v.data);
+            rev = v.rev;
+          }
+"""
+          new_load = """          const raw = localStorage.getItem('alibi-afterhours-v1');
+          if (raw) {
+            foundSave = true;
+            const v = JSON.parse(raw);
+            if (!Number.isSafeInteger(v.rev) || v.rev < 1)
+              throw Error('Unsupported Club save revision.');
+            await engine();
+            state = validateSave(v.data);
+            rev = v.rev;
+          }
+"""
+          old_write = """      .then(async () => {
+        if (saveError && storageMode !== 'session') return;
+        if (storageMode === 'indexeddb')
+"""
+          new_write = """      .then(async () => {
+        if (saveError && storageMode !== 'session') return;
+        if (
+          storageMode !== 'session' &&
+          (!Number.isSafeInteger(rev) || rev < 0 || rev >= Number.MAX_SAFE_INTEGER)
+        )
+          throw Error('Club save revision limit reached. Export before continuing.');
+        if (storageMode === 'indexeddb')
+"""
+          if text.count(old_load) != 1:
+              raise SystemExit('local fallback anchor changed')
+          if text.count(old_write) != 1:
+              raise SystemExit('persist anchor changed')
+          path.write_text(text.replace(old_load, new_load).replace(old_write, new_write), encoding='utf-8')
+          PY
+      - run: npx prettier --write src/club.js
+      - run: node --test tests/club-revision.test.cjs tests/club-storage.test.cjs
+      - name: Commit correction
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/club.js
+          git commit -m "fix(club): preserve fallback revision precision"
+          git push origin HEAD:fix/club-revision-precision
