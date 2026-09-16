@@ -55,69 +55,73 @@ test('a silent initial replay read aborts and opens a protected bounded session'
     mode: 'session',
     revision: 0,
     protectedSave: true,
-    warning: 'Storage unavailable or an existing replay is protected. Session only; export to keep it.',
+    warning:
+      'Storage unavailable or an existing replay is protected. Session only; export to keep it.',
   });
 });
 
-test('a silent replay save aborts, protects the session and rejects persistent replacement', async (t) => {
-  let transactions = 0;
-  let writeAborted = false;
-  let closed = 0;
-  const db = {
-    transaction(_name, mode) {
-      transactions += 1;
-      if (mode === 'readonly') {
-        const request = {};
-        const transaction = {
-          objectStore: () => ({
-            get() {
-              queueMicrotask(() => {
-                request.result = undefined;
-                request.onsuccess?.();
-                transaction.oncomplete?.();
-              });
-              return request;
+test(
+  'a silent replay save aborts, protects the session and rejects persistent replacement',
+  async (t) => {
+    let transactions = 0;
+    let writeAborted = false;
+    let closed = 0;
+    const db = {
+      transaction(_name, mode) {
+        transactions += 1;
+        if (mode === 'readonly') {
+          const request = {};
+          const transaction = {
+            objectStore: () => ({
+              get() {
+                queueMicrotask(() => {
+                  request.result = undefined;
+                  request.onsuccess?.();
+                  transaction.oncomplete?.();
+                });
+                return request;
+              },
+            }),
+            abort() {
+              this.onabort?.();
             },
-          }),
+          };
+          return transaction;
+        }
+        return {
+          objectStore: () => ({ get: () => ({}), put() {} }),
           abort() {
+            writeAborted = true;
             this.onabort?.();
           },
         };
-        return transaction;
-      }
-      return {
-        objectStore: () => ({ get: () => ({}), put() {} }),
-        abort() {
-          writeAborted = true;
-          this.onabort?.();
-        },
-      };
-    },
-    close() {
-      closed += 1;
-    },
-  };
-  installIndexedDB(t, () => successfulOpen(db));
-  const store = await openReplayStore({ timeout: 10 });
-  assert.equal(store.diagnostics().mode, 'indexeddb');
+      },
+      close() {
+        closed += 1;
+      },
+    };
+    installIndexedDB(t, () => successfulOpen(db));
+    const store = await openReplayStore({ timeout: 10 });
+    assert.equal(store.diagnostics().mode, 'indexeddb');
 
-  const outcome = await Promise.race([
-    store.commit(store.read(), { persistent: true }).then(
-      () => ({ resolved: true }),
-      (error) => ({ error }),
-    ),
-    delay(80),
-  ]);
+    const outcome = await Promise.race([
+      store.commit(store.read(), { persistent: true }).then(
+        () => ({ resolved: true }),
+        (error) => ({ error }),
+      ),
+      delay(80),
+    ]);
 
-  assert.equal(outcome.hung, undefined, 'save must have bounded completion');
-  assert.match(outcome.error?.message || '', /could not be saved/i);
-  assert.equal(writeAborted, true, 'the stalled readwrite transaction is aborted');
-  assert.equal(closed, 1, 'the ambiguous connection is closed');
-  assert.equal(transactions, 2, 'one initial read and one attempted write');
-  assert.deepEqual(store.diagnostics(), {
-    mode: 'session',
-    revision: 0,
-    protectedSave: true,
-    warning: 'The device could not save. Current play is session-only; export before leaving.',
-  });
-});
+    assert.equal(outcome.hung, undefined, 'save must have bounded completion');
+    assert.match(outcome.error?.message || '', /could not be saved/i);
+    assert.equal(writeAborted, true, 'the stalled readwrite transaction is aborted');
+    assert.equal(closed, 1, 'the ambiguous connection is closed');
+    assert.equal(transactions, 2, 'one initial read and one attempted write');
+    assert.deepEqual(store.diagnostics(), {
+      mode: 'session',
+      revision: 0,
+      protectedSave: true,
+      warning: 'The device could not save. Current play is session-only; export before leaving.',
+    });
+  },
+);
