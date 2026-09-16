@@ -29,6 +29,14 @@ solved total can count both completed revisions of one puzzle; [#147](https://gi
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## Save revision precision candidate, 2026-09-16
+
+PR #168 keeps persisted cabinet revisions within JavaScript's safe-integer range, rejects unsafe
+imports without normalization, and refuses to advance the final safe revision so the existing record
+remains readable and exportable. Focused storage and backup-validation tests cover the terminal and
+penultimate transitions. This is a source candidate, not a deployed release; the existing device-local
+save and physical-device acceptance gates remain unchanged.
+
 ## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
