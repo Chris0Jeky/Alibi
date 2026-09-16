@@ -87,6 +87,9 @@ export function mountSurface(root, adapter, options = {}) {
   $('.bc-next p').textContent = advanced
     ? 'A quiet, endless board. Your classic game remains separate and unchanged.'
     : 'Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.';
+  const restart = $('[data-command="new"]');
+  restart.setAttribute('aria-label', advanced ? 'Start a new Cascade seed' : 'Start again');
+  text(restart.querySelector('span'), advanced ? 'New seed' : 'Start again');
   for (const command of ['new', 'export', 'import', 'simple'])
     $('[data-command="' + command + '"]').hidden = !adapter[command];
   const getShape = (slot = selected) =>
