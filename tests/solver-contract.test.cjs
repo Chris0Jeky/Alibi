@@ -114,8 +114,12 @@ test('Witness state constraints honor committed statement marks', () => {
   const truths = current.statements.map((statement) => Number(C.extras.truth(statement, solution)));
   const marked = truths.findIndex((value) => value === 0 || value === 1);
   assert.notEqual(marked, -1, 'fixture exposes at least one statement truth value');
+
   state.marks[marked] = truths[marked] === 1 ? 0 : 1;
   assert.equal(C.solveState(current, state).solutions.length, 0);
+
+  state.marks[marked] = truths[marked];
+  assert.deepEqual(C.solveState(current, state).solutions, [solution]);
 });
 
 test('state-constrained solving requires a validated state object', () => {
