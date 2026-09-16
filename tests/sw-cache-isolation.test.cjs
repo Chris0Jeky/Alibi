@@ -103,4 +103,19 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   const prior = await worker.request(priorUrl);
   assert.equal(prior.owner, 'alibi-shell-previous', 'the retained Alibi release remains eligible');
   assert.equal(worker.calls.network, 1);
+
+  const optionalUrl = 'https://test.invalid/assets/block-motion-old.js';
+  const optionalCache = new Map();
+  optionalCache.set(optionalUrl, {
+    owner: 'alibi-block-motion-previous',
+    url: optionalUrl,
+  });
+  worker.data.set('alibi-block-motion-previous', optionalCache);
+  const optional = await worker.request(optionalUrl);
+  assert.equal(
+    optional.owner,
+    'alibi-block-motion-previous',
+    'an Alibi optional release cache remains eligible',
+  );
+  assert.equal(worker.calls.network, 1);
 });
