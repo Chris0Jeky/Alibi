@@ -92,7 +92,11 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   );
 
   const foreign = await worker.request(foreignUrl);
-  assert.equal(foreign.network, true, 'a foreign cache entry must not satisfy an Alibi request');
+  assert.equal(
+    foreign.network,
+    true,
+    'a foreign cache entry must not satisfy an Alibi request',
+  );
   assert.equal(worker.calls.network, 1);
 
   const priorUrl = 'https://test.invalid/assets/alibi-old.abcdef123456.js';
@@ -102,6 +106,10 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   );
 
   const prior = await worker.request(priorUrl);
-  assert.equal(prior.owner, 'alibi-shell-previous', 'the retained Alibi release remains eligible');
+  assert.equal(
+    prior.owner,
+    'alibi-shell-previous',
+    'the retained Alibi release remains eligible',
+  );
   assert.equal(worker.calls.network, 1);
 });
