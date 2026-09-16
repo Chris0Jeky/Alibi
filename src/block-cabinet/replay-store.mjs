@@ -2,10 +2,7 @@ import { record, replay } from './cascade.mjs';
 
 /** A separate, revision-checked IndexedDB store. Never opens or changes alibi-device. */
 export async function openReplayStore({ timeout = 2500 } = {}) {
-  timeout =
-    Number.isFinite(timeout) && timeout >= 1
-      ? Math.min(Math.floor(timeout), 30000)
-      : 2500;
+  timeout = Number.isFinite(timeout) && timeout >= 1 ? Math.min(Math.floor(timeout), 30000) : 2500;
   let db = null,
     revision = 0,
     value = record(),
@@ -131,6 +128,20 @@ export async function openReplayStore({ timeout = 2500 } = {}) {
       replay(next);
       if (persistent && (!db || protectedSave))
         throw Error('Replay replacement is unavailable while this device save is protected.');
+      if (
+        db &&
+        (!Number.isSafeInteger(revision) || revision < 0 || revision >= Number.MAX_SAFE_INTEGER)
+      ) {
+        db.close();
+        db = null;
+        mode = 'session';
+        protectedSave = true;
+        warning = 'Replay revision limit reached. Export this session before leaving.';
+        if (persistent)
+          throw Error('Replay replacement could not be saved. Export or reload first.');
+        value = copy(next);
+        return;
+      }
       if (db) {
         try {
           let reason = null;
