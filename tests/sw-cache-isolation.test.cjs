@@ -138,3 +138,34 @@ test('hashed fallback reads retained first-party ambience caches', async () => {
   );
   assert.equal(worker.calls.network, 0);
 });
+
+test('source-ledger fallback reads only Alibi-owned caches', async () => {
+  const worker = serviceWorker();
+  const foreignUrl = 'https://test.invalid/quiet-wing-sources.html';
+  const foreignCache = new Map();
+  foreignCache.set(foreignUrl, {
+    owner: 'another-application-cache',
+    url: foreignUrl,
+  });
+  worker.data.set('another-application-cache', foreignCache);
+
+  const foreign = await worker.request(foreignUrl);
+  assert.equal(foreign.network, true, 'a foreign cache entry must not satisfy source credits');
+  assert.equal(worker.calls.network, 1);
+
+  const priorUrl = 'https://test.invalid/quiet-wing-sources.abcdef123456.html';
+  const priorCache = new Map();
+  priorCache.set(priorUrl, {
+    owner: 'alibi-quiet-wing-pack-previous',
+    url: priorUrl,
+  });
+  worker.data.set('alibi-quiet-wing-pack-previous', priorCache);
+
+  const prior = await worker.request(priorUrl);
+  assert.equal(
+    prior.owner,
+    'alibi-quiet-wing-pack-previous',
+    'a retained Alibi Quiet Wing source page remains eligible',
+  );
+  assert.equal(worker.calls.network, 1);
+});
