@@ -34,7 +34,6 @@ The product direction is not “add every possible minigame.” It is to build a
 - **Durable local play:** automatic device-local saves, revision-pinned continuations, undo/redo, notes, favorites, recovery checks, and JSON backups.
 - **Offline installation:** the complete core remains usable after installation. Optional room and media packs are delivered separately so they do not inflate the critical path.
 - **Local authoring:** create and validate a mystery, verify uniqueness where the family contract supports it, and export or install a local pack.
-- **Mobile-first Wrenmere Desk:** an opt-in house interface with room navigation, accessible launch controls, original assets, and bounded optional delivery.
 - **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections.
 
 ## Direction
@@ -44,6 +43,7 @@ The next work is less about raw catalogue size and more about making the existin
 ### Now: player evidence and content quality
 
 - Human-playtest representative puzzles in every family and record real instruction ambiguity, solve time, difficulty, comfort, and story response.
+- Evaluate the opt-in Wrenmere Desk source candidate; it is not part of the deployed 0.11.3 baseline until hosted and physical-device gates pass.
 - Curate definitions deliberately while preserving old revisions for existing saves.
 - Improve deterministic browser acceptance, publication receipts, update recovery, keyboard behavior, and narrow-screen interaction.
 - Keep optional usage sharing consented, content-free, reversible, and visibly separate from puzzle progress.

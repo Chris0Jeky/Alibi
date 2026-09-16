@@ -14,11 +14,11 @@ The current public browser/PWA product includes:
 - five illustrated casebooks, including Bellweather and the invitation sequence;
 - interactive lessons, selected current-board deductions, and reopenable completion explanations;
 - revision-pinned saves, notes, undo/redo, favorites, recovery, and JSON backup paths;
-- the Games Room, tactile Block Cabinet, experimental Cascade store, Quiet Wing, Curation Cabinet, gardens, companions, and the local asset gallery;
-- the opt-in Wrenmere mobile desk and optional room/media delivery;
+- the Games Room, tactile Block Cabinet, experimental Cascade store, Quiet Wing, Curation Cabinet, gardens, companions, and optional room/media delivery;
+- the local asset gallery as a developer-only source preview (`npm run assets:gallery`), not as a public app surface;
 - local authoring, uniqueness checks where supported, pack export, and stable content IDs/revisions;
 - a complete offline core, two verified public origins, release archives, deployment receipts, and real-browser save/update coverage;
-- an approved source-level Capacitor transition architecture and package map, but no native application claim.
+- a proposed source-level Capacitor transition architecture and package map, but no native application claim.
 
 The release record and deployment receipts are the source of truth for published versions. Open pull requests may refine this baseline; they do not change it until merged, released, and verified.
 
