@@ -15,7 +15,7 @@ with sync_playwright() as pw:
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
         page.locator('[data-action="browse-all"]').click()
         page.locator('#difficulty-filter').select_option('Expert')
-        expect(page.locator('.puzzle-card')).to_have_count(15)
+        expect(page.locator('.puzzle-card')).to_have_count(21)
         page.screenshot(path=str(ROOT/'test-results'/f'expert-families-{width}.png'),full_page=True)
         for p in puzzles:
             page.evaluate('(id)=>location.hash="/play/"+id',p['id'])
