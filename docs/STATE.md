@@ -33,6 +33,18 @@ are unchanged. The journal's aggregate solved total can count both completed rev
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## Journal identity-count candidate after 0.11.3, 2026-09-15
+
+Current source corrects the journal's aggregate **Puzzles solved** total to count unique puzzle IDs
+rather than completed revision records, including locally imported records when present. Saved
+revision snapshots remain separate and
+reopenable: the real-origin regression stores completed Aquarium revisions 1 and 2 plus one
+separate completed Aquarium, retains all three records, and reports two solved puzzle identities.
+The refreshed asset catalogue matches the edited application source. The current-head comprehensive
+and Wrenmere workflows passed before this documentation closeout. Release 0.11.3 remains unchanged
+and still accurately records the deployed limitation; no hosted publication or physical-device
+acceptance is claimed by this source candidate.
+
 ## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
 `expert-nonogram-01@2` replaces the dense constellation with an original 15×15 Bellweather
