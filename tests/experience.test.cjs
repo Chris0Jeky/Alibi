@@ -22,7 +22,9 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
   assert.ok(info.experienceBytes < 30 * 1024 * 1024);
   assert.ok(info.experienceOfflineBytes < 9 * 1024 * 1024);
   const sw = fs.readFileSync(path.join(dist, 'sw.js'), 'utf8');
-  assert.ok(!sw.includes('folio-'), 'No folio downloads at service-worker installation');
+  const shell = sw.match(/SHELL=(\[[^;]+\]);/);
+  assert.ok(shell, 'Service worker declares its install shell');
+  assert.ok(!shell[1].includes('folio-'), 'No folio downloads at service-worker installation');
   const files = fs.readdirSync(path.join(dist, 'assets'));
   assert.equal(files.filter((f) => /^folio-.*\.glb$/.test(f)).length, 46);
   assert.equal(files.filter((f) => /^folio-.*\.mp4$/.test(f)).length, 8);
