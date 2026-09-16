@@ -86,12 +86,12 @@ function serviceWorker() {
 test('hashed fallback reads only Alibi-owned release caches', async () => {
   const worker = serviceWorker();
   const foreignUrl = 'https://test.invalid/assets/foreign.123456789abc.js';
-  worker.data.set(
-    'another-application-cache',
-    new Map([
-      [foreignUrl, { owner: 'another-application-cache', url: foreignUrl }],
-    ]),
-  );
+  const foreignCache = new Map();
+  foreignCache.set(foreignUrl, {
+    owner: 'another-application-cache',
+    url: foreignUrl,
+  });
+  worker.data.set('another-application-cache', foreignCache);
 
   const foreign = await worker.request(foreignUrl);
   assert.equal(
@@ -102,10 +102,9 @@ test('hashed fallback reads only Alibi-owned release caches', async () => {
   assert.equal(worker.calls.network, 1);
 
   const priorUrl = 'https://test.invalid/assets/alibi-old.abcdef123456.js';
-  worker.data.set(
-    'alibi-shell-previous',
-    new Map([[priorUrl, { owner: 'alibi-shell-previous', url: priorUrl }]]),
-  );
+  const priorCache = new Map();
+  priorCache.set(priorUrl, { owner: 'alibi-shell-previous', url: priorUrl });
+  worker.data.set('alibi-shell-previous', priorCache);
 
   const prior = await worker.request(priorUrl);
   assert.equal(
