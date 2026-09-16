@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
+// The origin may host unrelated applications; only Alibi release caches may supply old assets.
 function serviceWorker() {
   const handlers = {};
   const data = new Map();
