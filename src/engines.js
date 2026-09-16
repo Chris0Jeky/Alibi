@@ -538,7 +538,12 @@
         tick();
         if (
           p.statements.filter((c) => truth(c, i)).length === p.trueCount &&
-          (state?.accused == null || state.accused === i)
+          (state?.accused == null || state.accused === i) &&
+          (state?.marks == null ||
+            state.marks.every(
+              (mark, statement) =>
+                mark === -1 || mark === Number(truth(p.statements[statement], i)),
+            ))
         )
           add(i);
         if (solutions.length >= limit) break;
