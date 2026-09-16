@@ -137,6 +137,7 @@ export function startIntegration() {
     },
     undo: () => action('undo', { id: 'blockcabinet' }),
     redo: () => action('redo', { id: 'blockcabinet' }),
+    new: () => action('restart', { id: 'blockcabinet' }),
     simple: restoreSimple,
   };
   function attach() {
