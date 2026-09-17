@@ -1,6 +1,6 @@
-# Temporary branch-only workflow: apply a compact canonical tier representation,
-# verify the strict existing budgets and contract, then remove itself and its
-# superseded diagnostic helper.
+# Temporary branch-only workflow: remove an unreferenced core helper, verify the
+# strict existing budgets and tier contract, then remove itself and the superseded
+# diagnostic helper.
 name: Apply difficulty budget correction
 
 on:
@@ -32,10 +32,15 @@ jobs:
           const fs = require('node:fs');
           const filename = 'src/core.js';
           const source = fs.readFileSync(filename, 'utf8');
-          const before = "const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];";
-          const after = "const DIFFICULTIES = 'Gentle,Steady,Tricky,Expert,Master,Grandmaster'.split(',');";
-          if (!source.includes(before)) throw new Error('Expected canonical tier declaration was not found.');
-          fs.writeFileSync(filename, source.replace(before, after));
+          const dead = '  const colOf = (cell, n) => cell % n;\n';
+          if (source.split(dead).length !== 2) {
+            throw new Error('Expected exactly one unreferenced colOf declaration.');
+          }
+          const remaining = source.replace(dead, '');
+          if (/\bcolOf\b/.test(remaining)) {
+            throw new Error('colOf is referenced and cannot be removed as dead code.');
+          }
+          fs.writeFileSync(filename, remaining);
           NODE
           npx prettier --write src/core.js tests/difficulty-tiers.test.cjs
           npm run build
