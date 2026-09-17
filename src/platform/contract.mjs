@@ -11,6 +11,7 @@ const FAILURE_CODES = new Set([
 ]);
 const DOMAIN_IDS = new Set(['cabinet', 'club', 'quiet-wing', 'challenges', 'castle']);
 const TARGETS = new Set(['web', 'android']);
+const SOURCE_SHA = /^[a-f0-9]{40}$/i;
 const SHA256 = /^[a-f0-9]{64}$/i;
 const HANDLE_ID = /^[a-z0-9][a-z0-9._:-]{0,127}$/i;
 const OPERATION_ID = /^[a-z0-9][a-z0-9._:-]{0,127}$/i;
@@ -53,8 +54,8 @@ export function assertBuildIdentity(value, target) {
     throw new TypeError('A valid platform build identity is required.');
   if (target && value.target !== target)
     throw new TypeError(`Expected a ${target} build identity.`);
-  if (typeof value.sourceSha !== 'string' || !value.sourceSha.trim())
-    throw new TypeError('Build sourceSha is required.');
+  if (!SOURCE_SHA.test(value.sourceSha || ''))
+    throw new TypeError('Build sourceSha must be a full commit SHA.');
   if (!isSha256(value.payloadSha256)) throw new TypeError('Build payloadSha256 must be SHA-256.');
   if (typeof value.appVersion !== 'string' || !value.appVersion.trim())
     throw new TypeError('Build appVersion is required.');
@@ -76,7 +77,7 @@ export function assertBuildIdentity(value, target) {
   );
   return Object.freeze({
     target: value.target,
-    sourceSha: value.sourceSha,
+    sourceSha: value.sourceSha.toLowerCase(),
     payloadSha256: value.payloadSha256.toLowerCase(),
     appVersion: value.appVersion,
     ...(value.versionCode === undefined ? {} : { versionCode: value.versionCode }),
@@ -107,8 +108,16 @@ function errorResult(error, fallbackCode, fallbackMessage) {
   return failure(fallbackCode, fallbackMessage);
 }
 
+function cancellationError(type) {
+  return type === 'timeout'
+    ? new PlatformFailure('timeout', 'The operation timed out.')
+    : new PlatformFailure('cancelled', 'The operation was cancelled.');
+}
+
 /** Execute one platform operation with a deadline and an optional AbortSignal.
- * Late resolution is observed but ignored, preventing unhandled rejections and state mutation after timeout.
+ * The action receives a guard. It must check the guard before side effects and call commit()
+ * immediately before an irreversible provider action. Once committed, cancellation no longer wins
+ * the race and the caller waits for the provider's definitive result.
  */
 export async function runBounded(action, options, host = globalThis, fallback = {}) {
   const validated = validateOperationOptions(options);
@@ -116,29 +125,60 @@ export async function runBounded(action, options, host = globalThis, fallback = 
   if (options.signal?.aborted) return failure('cancelled', 'The operation was cancelled.');
   const setTimer = host.setTimeout?.bind(host) || setTimeout;
   const clearTimer = host.clearTimeout?.bind(host) || clearTimeout;
+  const Controller = host.AbortController || globalThis.AbortController;
+  const controller = typeof Controller === 'function' ? new Controller() : null;
   let timer = 0;
   let abort = null;
+  let cancellation = null;
+  let committed = false;
+  let resolveCancellation;
+  const cancelled = new Promise((resolve) => {
+    resolveCancellation = resolve;
+  });
+  const cancel = (type) => {
+    if (committed || cancellation) return;
+    cancellation = type;
+    controller?.abort(type);
+    resolveCancellation({ type });
+  };
+  const guard = Object.freeze({
+    get signal() {
+      return controller?.signal;
+    },
+    get committed() {
+      return committed;
+    },
+    throwIfCancelled() {
+      if (cancellation) throw cancellationError(cancellation);
+    },
+    commit() {
+      if (cancellation) throw cancellationError(cancellation);
+      if (committed) return;
+      committed = true;
+      if (timer) {
+        clearTimer(timer);
+        timer = 0;
+      }
+      if (abort) {
+        options.signal.removeEventListener('abort', abort);
+        abort = null;
+      }
+    },
+  });
   const work = Promise.resolve()
-    .then(action)
+    .then(() => action(guard))
     .then(
       (value) => ({ type: 'value', value }),
       (error) => ({ type: 'error', error }),
     );
-  const races = [work];
-  races.push(
-    new Promise((resolve) => {
-      timer = setTimer(() => resolve({ type: 'timeout' }), options.timeoutMs);
-    }),
-  );
-  if (options.signal)
-    races.push(
-      new Promise((resolve) => {
-        abort = () => resolve({ type: 'cancelled' });
-        options.signal.addEventListener('abort', abort, { once: true });
-      }),
-    );
-  const result = await Promise.race(races);
-  clearTimer(timer);
+  timer = setTimer(() => cancel('timeout'), options.timeoutMs);
+  if (options.signal) {
+    abort = () => cancel('cancelled');
+    options.signal.addEventListener('abort', abort, { once: true });
+    if (options.signal.aborted) abort();
+  }
+  const result = await Promise.race([work, cancelled]);
+  if (timer) clearTimer(timer);
   if (abort) options.signal.removeEventListener('abort', abort);
   if (result.type === 'value') return ok(result.value);
   if (result.type === 'timeout') return failure('timeout', 'The operation timed out.');
