@@ -305,10 +305,16 @@ challenge (#6); document CSP/referrer metadata remains intact. The dated slice n
 historical candidate checkpoints; their smaller counts and publication status describe their own
 stage, not the current total.
 
-The summary-keyboard follow-up in #106 now leaves puzzle keyboard handling alone while a native
-`<summary>` has focus. The two-width feedback-discovery browser matrix proves ArrowRight and
-Delete do not move focus into or erase the active puzzle; Observatory origin coverage and asset
-cache decisions remain separate follow-ups.
+The #106 Observatory follow-ups are implemented in current source. Puzzle keyboard handling now
+leaves a native `<summary>` alone while it has focus. Exact-public-origin Chromium coverage proves
+the optional Usage sharing control renders off by default, persists and withdraws consent, reports
+only closed SPA route labels plus the registered Alibi release label, and contains Arrow/Delete
+handling inside the summary control. The content-hashed adapter intentionally remains online-only
+and outside the service-worker shell; an older cached shell can therefore lose the control after an
+adapter-only publication until the application update is applied, failing closed rather than
+sending through stale code. Interception-based browser tests do not prove the deployed collector,
+actual hosted cache retention, publication payload or physical-device behaviour; those remain
+explicit release evidence.
 
 Origin-migration follow-up #110 now has an explicit fallback inventory in DEPLOYMENT.md. The
 cabinet, Games Room and Quiet Wing contract suites assert their exact localStorage keys and
