@@ -1,6 +1,7 @@
-# Temporary branch-only workflow: apply the repository formatter, verify the bounded
-# difficulty contract, then remove itself and its superseded diagnostic helper.
-name: Apply difficulty formatting correction
+# Temporary branch-only workflow: apply a compact canonical tier representation,
+# verify the strict existing budgets and contract, then remove itself and its
+# superseded diagnostic helper.
+name: Apply difficulty budget correction
 
 on:
   push:
@@ -25,8 +26,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Format and verify the bounded correction
+      - name: Apply, format and verify the bounded correction
         run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const filename = 'src/core.js';
+          const source = fs.readFileSync(filename, 'utf8');
+          const before = "const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];";
+          const after = "const DIFFICULTIES = 'Gentle,Steady,Tricky,Expert,Master,Grandmaster'.split(',');";
+          if (!source.includes(before)) throw new Error('Expected canonical tier declaration was not found.');
+          fs.writeFileSync(filename, source.replace(before, after));
+          NODE
           npx prettier --write src/core.js tests/difficulty-tiers.test.cjs
           npm run build
           node --test tests/difficulty-tiers.test.cjs tests/budget.test.cjs
