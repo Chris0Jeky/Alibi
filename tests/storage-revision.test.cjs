@@ -77,6 +77,18 @@ test('the final safe cabinet revision stays readable but cannot overflow on save
   assert.equal(store.memory.runs[record.key].rev, Number.MAX_SAFE_INTEGER);
 });
 
+test('invalid expected revisions are rejected before the stored run can change', async () => {
+  const Store = loadStorage();
+  for (const revision of [-1, 0.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+    const store = new Store();
+    const record = savedRun(0);
+    store.memory.runs[record.key] = structuredClone(record);
+
+    await assert.rejects(store.saveRun(record, revision), /Revision limit/i);
+    assert.equal(store.memory.runs[record.key].rev, 0);
+  }
+});
+
 test('the penultimate cabinet revision can advance exactly to the safe limit', async () => {
   const Store = loadStorage();
   const store = new Store();
