@@ -104,6 +104,7 @@ with sync_playwright() as pw:
     page.locator('#pulseboard-usage-sharing').wait_for()
 
     checkbox = open_consent(page)
+    app_release = page.evaluate('() => ALIBI_CONFIG.version')
     check(not checkbox.is_checked(), 'usage sharing starts off')
     check(observed == [], 'no Observatory request occurs before consent')
 
@@ -111,7 +112,7 @@ with sync_playwright() as pw:
     wait_for_events(page, observed, 1)
     check(observed[0]['event'] == 'page.view', 'granting consent reports one page view')
     check(observed[0]['route'] == 'home', 'initial page view uses the current Alibi route')
-    check(observed[0]['release'] == '0.11.3', 'initial page view uses the registered app release')
+    check(observed[0]['release'] == app_release, 'initial page view uses the registered app release')
 
     page.reload()
     page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
@@ -122,7 +123,7 @@ with sync_playwright() as pw:
         'consent persists across reload',
     )
     check(observed[1]['route'] == 'home', 'restored consent reports the reloaded route')
-    check(observed[1]['release'] == '0.11.3', 'restored consent keeps the release label')
+    check(observed[1]['release'] == app_release, 'restored consent keeps the release label')
 
     key = page.evaluate(
         """() => {
@@ -137,7 +138,7 @@ with sync_playwright() as pw:
     )
     wait_for_events(page, observed, 3)
     check(observed[2]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
-    check(observed[2]['release'] == '0.11.3', 'SPA navigation keeps the release label')
+    check(observed[2]['release'] == app_release, 'SPA navigation keeps the release label')
     dismiss_dialog(page)
 
     editable = page.evaluate(
