@@ -15,7 +15,7 @@ Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and lo
 
 ## What Alibi has become
 
-Alibi started as a compact puzzle club. It is now developing along three connected product lines:
+ Alibi started as a compact puzzle club. It is now developing along three connected product lines:
 
 1. **The Cabinet** — a large, versioned catalogue of logic puzzles and illustrated casebooks with lessons, notes, undo/redo, reasoning hints, completion explanations, favorites, and local backups.
 2. **The House** — Wrenmere, the Games Room, Quiet Wing, gardens, companions, small creative systems, and optional atmospheric experiences that make the project somewhere to revisit rather than a menu of disposable levels.
@@ -34,7 +34,7 @@ The product direction is not “add every possible minigame.” It is to build a
 - **Durable local play:** automatic device-local saves, revision-pinned continuations, undo/redo, notes, favorites, recovery checks, and JSON backups.
 - **Offline installation:** the complete core remains usable after installation. Optional room and media packs are delivered separately so they do not inflate the critical path.
 - **Local authoring:** create and validate a mystery, verify uniqueness where the family contract supports it, and export or install a local pack.
-- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections.
+- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. The current source also contains six provisional Expert studies; they are not part of the published 0.11.3 baseline until the difficulty and curation gates pass.
 
 ## Direction
 
@@ -127,4 +127,42 @@ Progress stays in this browser on this device. There is no mandatory account, cl
 
 Solutions ship with the application for offline checking and explicit reveals. Scores are not competitive or tamper-resistant. Difficulty and time estimates remain provisional until human calibration. Physical-device accessibility and Android acceptance remain open gates. The source currently has no reuse licence; that owner decision is still pending.
 
+The games room now includes **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
+**Block Cabinet**, **Draw Dominoes**, **Lantern Gardens** and **Mahjong Solitaire**. Archive Heist
+has six rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
+harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
+their saves; the fifth invitation casebook extends the current catalogue.
+
+[Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
+[Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
+challenge exports remain separate. Export before moving to another website address. Optional private-room server source is included and tested
+locally, but a static deployment does not enable public online play.
+
+## Quiet Wing and Curation Cabinet
+
+The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
+classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
+home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies; later
+trusted packs bring the current source catalogue to 361. The published 0.11.3 origins remain at 355
+until a future release. Difficulty remains provisional and missing times are
+not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
+See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
+
+## Local asset library
+
+Run `npm run assets:gallery` to inspect the source-backed production library at
+`http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
+realm modules and companion states, sound previews and authored motion. Large production files
+stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).
+
+The [theatrical edition](docs/THEATRICAL-EDITION.md) adds eight atmospheric rooms, locally composed
+sound, credited optional photography and short films. The [delivery strategy](docs/ASSET-DELIVERY.md)
+keeps complete artwork, controls and play available offline after installation.
+
+## Player feedback update
+
+Version 0.8.1 adds family-first browsing, clearer rules and cell notes, scene candidate letters and
+board crosses, dedicated casebook story pages, and four larger 8×8 Sun & Moon boards.
+Two real players enjoyed the game; structured physical-device and difficulty checks remain open.
+See [the QA plan and evidence](docs/PLAYER-QA.md).
 Read [security and privacy](docs/SECURITY-AND-PRIVACY.md), [asset provenance](docs/ASSETS.md), [NOTICE.md](NOTICE.md), and [owner/device follow-up](HUMAN_TODO.md) before making stronger public claims.
