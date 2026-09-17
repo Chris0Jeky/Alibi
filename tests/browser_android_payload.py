@@ -72,8 +72,15 @@ with sync_playwright() as pw:
         'Android document has no web-app manifest',
     )
     check(
-        page.locator('[data-action="install"]').count() == 0,
-        'Android UI hides PWA install controls',
+        page.locator('[data-action="install"]:visible, [data-action="check-update"]:visible').count()
+        == 0,
+        'Android UI hides PWA install and update controls',
+    )
+    page.evaluate("location.hash='/settings'")
+    page.wait_for_function("()=>location.hash === '#/settings'")
+    check(
+        page.locator('.settings-grid > .panel:has([data-action="install"]):visible').count() == 0,
+        'Android settings hide the browser-install panel from users and assistive technology',
     )
     check(
         page.locator('#pulseboard-usage-sharing').count() == 0,
