@@ -89,7 +89,7 @@ jobs:
                 "Unwired discovery CAS stays outside the core offline shell",
             )
             lazy_url = URL + "/" + lazy_asset.removeprefix("./")
-'''.splitlines(keepends=True)
+          '''.splitlines(keepends=True)
           lines[starts[0]:ends[0] + 1] = replacement_lines
           browser.write_text(''.join(lines), encoding='utf-8')
 
