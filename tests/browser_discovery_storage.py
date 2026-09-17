@@ -97,16 +97,24 @@ async def main():
                 page_b.evaluate("typeof globalThis.AlibiDiscoveryStorage === 'undefined'"),
             )
             check(all(initially_absent), "Discovery CAS is absent from the initial JavaScript")
-            lazy_asset = await page_a.evaluate(
-                """async () => {
-                  const response = await fetch('/sw.js', {cache: 'no-store'});
-                  const source = await response.text();
-                  return source.match(/\.\/assets\/discovery-storage\.[a-f0-9]{12}\.js/)?.[0] || null;
-                }"""
+            lazy_assets = sorted(
+                (ROOT / "dist" / "assets").glob("discovery-storage.*.js")
             )
             check(
+                len(lazy_assets) == 1,
+                "Exactly one hashed discovery CAS asset is emitted",
+            )
+            lazy_asset = "./assets/" + lazy_assets[0].name
+            precached = await page_a.evaluate(
+                """async (asset) => {
+                  const response = await fetch('/sw.js', {cache: 'no-store'});
+                  return (await response.text()).includes(asset);
+                }""",
                 lazy_asset,
-                "Hashed discovery CAS asset is present in the offline release",
+            )
+            check(
+                not precached,
+                "Unwired discovery CAS stays outside the core offline shell",
             )
             lazy_url = URL + "/" + lazy_asset.removeprefix("./")
             await asyncio.gather(

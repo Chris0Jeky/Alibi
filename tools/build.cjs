@@ -172,6 +172,8 @@ function build() {
     bootURL = `./assets/boot.${hash(boot)}.js`;
   // The Observatory adapter is emitted verbatim as its own asset and loaded after the page's load event by
   // src/observatory-loader.js. It is an online-only control: not in the initial bundle, not in the offline shell.
+  // Discovery storage is likewise emitted as a deferred distribution asset. It remains unwired,
+  // so it is neither advertised by the initial bootstrap nor installed in the core offline shell.
   const observatory = read(path.join(ROOT, 'observatory/browser.js')),
     observatoryURL = `./assets/observatory.${hash(observatory)}.js`,
     discoveryStorage = require('esbuild').transformSync(
@@ -249,7 +251,9 @@ function build() {
         JSON.stringify(house.config),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
-  const js = require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
+  const js =
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
+      require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
   write(path.join(DIST, jsName), js);
@@ -307,7 +311,6 @@ function build() {
     blockLoaderURL,
     bootURL,
     workerURL,
-    discoveryStorageURL,
     contentURL,
     ...Object.values(curation.media),
     ...Object.values(media),
@@ -386,6 +389,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
       Buffer.byteLength(observatory) -
+      Buffer.byteLength(discoveryStorage) -
       blockMotion.bytes -
       house.bytes,
     houseBytes: house.bytes,

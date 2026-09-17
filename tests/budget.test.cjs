@@ -5,6 +5,38 @@ const zlib = require('node:zlib');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
+const assetNames = fs.readdirSync(path.join(root, 'dist/assets'));
+const initialScriptName = assetNames.find((name) => /^alibi\.[a-f0-9]{12}\.js$/.test(name));
+assert.ok(initialScriptName, 'Initial JavaScript is emitted');
+const initialScript = fs.readFileSync(path.join(root, 'dist/assets', initialScriptName), 'utf8');
+for (const globalName of [
+  'ALIBI_HOUSE_CONFIG',
+  'ALIBI_DELIVERY',
+  'ALIBI_CURATION_MEDIA',
+  'ALIBI_CONFIG',
+  'ALIBI_QUIET_CONFIG',
+  'ALIBI_MEDIA',
+  'ALIBI_WORKER_URL',
+  'ALIBI_CLUB_CONFIG',
+  'ALIBI_OBSERVATORY_URL',
+])
+  assert.ok(
+    initialScript.includes(`globalThis.${globalName}=`),
+    `${globalName} remains in the initial configuration preamble`,
+  );
+assert.ok(
+  !initialScript.includes('ALIBI_DISCOVERY_STORAGE_URL'),
+  'Unwired discovery storage stays out of the initial JavaScript',
+);
+const discoveryAssets = assetNames.filter((name) =>
+  /^discovery-storage\.[a-f0-9]{12}\.js$/.test(name),
+);
+assert.equal(discoveryAssets.length, 1, 'One hashed discovery storage asset is emitted');
+const serviceWorker = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
+assert.ok(
+  !serviceWorker.includes(`./assets/${discoveryAssets[0]}`),
+  'Unwired discovery storage stays outside the core offline shell',
+);
 assert.ok(info.javascriptGzipBytes < 125 * 1024, 'Initial JavaScript stays under 125 KiB gzip');
 assert.ok(
   info.coreOfflineBytes - info.officialContentBytes < 1.3 * 1024 * 1024,
