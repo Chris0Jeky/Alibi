@@ -27,64 +27,43 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          def replace_once(path, old, new):
-              file = Path(path)
-              source = file.read_text(encoding='utf-8')
-              count = source.count(old)
-              if count != 1:
-                  raise SystemExit(f'Expected one fragment in {path}, found {count}: {old[:100]!r}')
-              file.write_text(source.replace(old, new, 1), encoding='utf-8')
+          build = Path('tools/build.cjs')
+          build_lines = build.read_text(encoding='utf-8').splitlines(keepends=True)
+          pointer = 'globalThis.ALIBI_DISCOVERY_STORAGE_URL='
+          matches = [line for line in build_lines if pointer in line]
+          if len(matches) != 1:
+              raise SystemExit(f'Expected one discovery bootstrap pointer, found {len(matches)}')
+          build.write_text(''.join(line for line in build_lines if pointer not in line), encoding='utf-8')
 
-          replace_once(
-              'tools/build.cjs',
-              (
-                  "globalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\\\n"
-                  "globalThis.ALIBI_DISCOVERY_STORAGE_URL=${JSON.stringify(discoveryStorageURL)};\\\n"
-                  "` +"
-              ),
-              (
-                  "globalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\\\n"
-                  "` +"
-              ),
-          )
+          browser = Path('tests/browser_discovery_storage.py')
+          browser_lines = browser.read_text(encoding='utf-8').splitlines(keepends=True)
+          lazy_field = 'lazyAsset: ALIBI_DISCOVERY_STORAGE_URL,'
+          field_matches = [line for line in browser_lines if lazy_field in line]
+          if len(field_matches) != 1:
+              raise SystemExit(f'Expected one browser lazy asset field, found {len(field_matches)}')
+          browser_lines = [line for line in browser_lines if lazy_field not in line]
 
-          replace_once(
-              'tests/browser_discovery_storage.py',
-              '''            runtime = await page_a.evaluate(
-                          """({
-                            version: ALIBI_CONFIG.version,
-                            build: ALIBI_CONFIG.build,
-                            lazyAsset: ALIBI_DISCOVERY_STORAGE_URL,
-                          })"""
-                      )
-          '''.replace('          ', ''),
-              '''            runtime = await page_a.evaluate(
-                          """({
-                            version: ALIBI_CONFIG.version,
-                            build: ALIBI_CONFIG.build,
-                          })"""
-                      )
-          '''.replace('          ', ''),
-          )
-
-          replace_once(
-              'tests/browser_discovery_storage.py',
-              '''            lazy_url = URL + "/" + runtime["lazyAsset"].removeprefix("./")
-          '''.replace('          ', ''),
-              '''            lazy_asset = await page_a.evaluate(
-                          """async () => {
-                            const response = await fetch('/sw.js', {cache: 'no-store'});
-                            const source = await response.text();
-                            return source.match(/\\.\\/assets\\/discovery-storage\\.[a-f0-9]{12}\\.js/)?.[0] || null;
-                          }"""
-                      )
-                      check(
-                          lazy_asset,
-                          "Hashed discovery CAS asset is present in the offline release",
-                      )
-                      lazy_url = URL + "/" + lazy_asset.removeprefix("./")
-          '''.replace('          ', ''),
-          )
+          lookup = 'lazy_url = URL + "/" + runtime["lazyAsset"].removeprefix("./")'
+          lookup_matches = [index for index, line in enumerate(browser_lines) if lookup in line]
+          if len(lookup_matches) != 1:
+              raise SystemExit(f'Expected one browser lazy asset lookup, found {len(lookup_matches)}')
+          index = lookup_matches[0]
+          indent = browser_lines[index][:len(browser_lines[index]) - len(browser_lines[index].lstrip())]
+          block = f'''{indent}lazy_asset = await page_a.evaluate(
+          {indent}    """async () => {{
+          {indent}      const response = await fetch('/sw.js', {{cache: 'no-store'}});
+          {indent}      const source = await response.text();
+          {indent}      return source.match(/\\.\\/assets\\/discovery-storage\\.[a-f0-9]{{12}}\\.js/)?.[0] || null;
+          {indent}    }}"""
+          {indent})
+          {indent}check(
+          {indent}    lazy_asset,
+          {indent}    "Hashed discovery CAS asset is present in the offline release",
+          {indent})
+          {indent}lazy_url = URL + "/" + lazy_asset.removeprefix("./")
+          '''
+          browser_lines[index:index + 1] = [block]
+          browser.write_text(''.join(browser_lines), encoding='utf-8')
           PY
           npx prettier --write tools/build.cjs
           python -m py_compile tests/browser_discovery_storage.py
