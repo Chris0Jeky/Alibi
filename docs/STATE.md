@@ -229,6 +229,12 @@ is never persisted and does not alter saved-run data. The real-origin browser ru
 consumption. Final combined verification is recorded with the player-fix checkpoint; the
 initial-JavaScript budget cap remains unchanged.
 
+## Block Cabinet phone action hierarchy candidate, 2026-09-17 (not deployed)
+
+PR #176 keeps Undo, Redo, Rotate, Cancel and restart/new-seed together as the primary phone action set while sound, haptics, motion and replay/display tools remain reachable as secondary options. A persistent selected-piece summary reports dimensions, occupied squares, orientation and legal origins. Invalid placements preserve the selection and explain the rejection; Cancel and Escape clear it with deterministic focus recovery. The phone action group remains inside the viewport while the page scrolls.
+
+The exact-head Chromium suite exercises phone and desktop widths, primary and secondary hierarchy, selection details, legal origins, invalid-placement persistence, cancellation, focus recovery, restart confirmation and phone scrolling. The original Block Cabinet rules, replay reducer and save owner are unchanged. This remains simulated browser evidence: physical Android touch, TalkBack, comfort review and human acceptance stay open in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Block Cabinet integration candidate (not deployed)
 
 A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.
