@@ -5,10 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const {
-  ANDROID_DIST,
-  deriveAndroidPayload,
-} = require('../tools/build-android.cjs');
+const { ANDROID_DIST, deriveAndroidPayload } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -40,7 +37,9 @@ test('web output remains intact while Android output excludes hosting controls',
   assert.doesNotMatch(index, /rel="manifest"|https?:\/\//);
   assert.match(index, /assets\/alibi-target\.[0-9a-f]{12}\.js/);
   assert.equal(
-    fs.readdirSync(path.join(ANDROID_DIST, 'assets')).some((name) => name.startsWith('observatory.')),
+    fs
+      .readdirSync(path.join(ANDROID_DIST, 'assets'))
+      .some((name) => name.startsWith('observatory.')),
     false,
   );
 });
