@@ -113,8 +113,11 @@
             v.settings.pinned >= 0 &&
             v.settings.pinned < storyCount)
         ) ||
-        !Number.isInteger(v.visit) ||
-        !Number.isInteger(v.lastHero)
+        !Number.isSafeInteger(v.visit) ||
+        v.visit < 0 ||
+        !Number.isSafeInteger(v.lastHero) ||
+        v.lastHero < -1 ||
+        v.lastHero >= storyCount
       )
         throw Error('Invalid Club preferences.');
       for (const [key, r] of Object.entries(v.runs)) {
