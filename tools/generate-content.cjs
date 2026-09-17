@@ -121,7 +121,7 @@ function base(type, k, size) {
 }
 function unique(p, max = 180000) {
   try {
-    return C.solve(p, null, 2, max).solutions.length === 1;
+    return C.solveDefinition(p, 2, max).solutions.length === 1;
   } catch {
     return false;
   }
