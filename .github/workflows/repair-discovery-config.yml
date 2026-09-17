@@ -137,8 +137,21 @@ jobs:
           );
           """
           budget.write_text(source.replace(anchor, anchor + guard, 1), encoding='utf-8')
+
+          sw_test = Path('tests/sw.test.cjs')
+          sw_source = sw_test.read_text(encoding='utf-8')
+          sw_anchor = "              !n.startsWith('observatory.') &&\n"
+          if sw_source.count(sw_anchor) != 2:
+              raise SystemExit(f'Expected two optional-asset filters, found {sw_source.count(sw_anchor)}')
+          sw_test.write_text(
+              sw_source.replace(
+                  sw_anchor,
+                  sw_anchor + "              !n.startsWith('discovery-storage.') &&\n",
+              ),
+              encoding='utf-8',
+          )
           PY
-          npx prettier --write tools/build.cjs tests/budget.test.cjs
+          npx prettier --write tools/build.cjs tests/budget.test.cjs tests/sw.test.cjs
           python -m py_compile tests/browser_discovery_storage.py
           node --check src/discovery-storage.js
           npm run format:check
@@ -148,6 +161,6 @@ jobs:
           git rm .github/workflows/repair-discovery-config.yml
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add tools/build.cjs tests/budget.test.cjs tests/browser_discovery_storage.py
+          git add tools/build.cjs tests/budget.test.cjs tests/browser_discovery_storage.py tests/sw.test.cjs
           git commit -m "fix(discovery): preserve the release bootstrap contract"
           git push origin HEAD:feat/discovery-meta-cas-30
