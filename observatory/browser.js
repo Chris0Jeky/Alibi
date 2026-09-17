@@ -120,10 +120,9 @@ function mountObserver(config, create, runtime = globalThis) {
     } catch { return {}; }
   }
   const track = (event, options = {}) => {
-    // Keep host context and caller options lazy: a rejected event must not inspect either.
-    if (!observer.status().active) return observer.track(event, options);
-    return observer.track(event, { ...hostContext(), ...options });
-  };
+  if (!observer.status().active) return observer.track(event, options);
+  return observer.track(event, { ...hostContext(), ...options });
+};
   const key = 'pulseboard:consent:v1:' + config.id + ':' + config.endpoint, CONSENT_MS = 90 * 86400000;
   let granted = false, overdue = false;
   // A stored expiry is never trusted past 90 days from now; a tampered or corrupt one cannot grant indefinite consent.
@@ -159,7 +158,7 @@ function mountObserver(config, create, runtime = globalThis) {
   runtime.addEventListener('pagehide', () => { observer.flushOnHide(); dispose(); }, { once: true });
   return { track, flush: observer.flush, flushOnHide: observer.flushOnHide, status: observer.status, dispose };
 }
-const config = {"id":"alibi","project":{"events":["page.view","app.ready","app.error","action.requested","action.completed","action.failed","duration.ms","puzzle.started","puzzle.completed","hint.requested"],"routes":["home","puzzle","castle","quiet-wing","other"],"releases":["unattributed","0.11.3"],"measurements":["duration.ms"]},"origin":"https://alibi-after-hours-preview.commit-atlas.workers.dev","endpoint":"https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi","scopePath":"/","release":"unattributed","route":"home","clicks":[],"contextGlobal":"ALIBI_OBSERVATORY_CONTEXT","publicFlag":{"global":"ALIBI_CONFIG","key":"standalone","expected":false}};
+const config = {"id":"alibi","project":{"events":["page.view","app.ready","app.error","action.requested","action.completed","action.failed","duration.ms","puzzle.started","puzzle.completed","hint.requested"],"routes":["home","puzzle","castle","quiet-wing","other"],"releases":["unattributed","0.11.3","0.11.4"],"measurements":["duration.ms"]},"origin":"https://alibi-after-hours-preview.commit-atlas.workers.dev","endpoint":"https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi","scopePath":"/","release":"unattributed","route":"home","clicks":[],"contextGlobal":"ALIBI_OBSERVATORY_CONTEXT","publicFlag":{"global":"ALIBI_CONFIG","key":"standalone","expected":false}};
 function start() { globalThis.PulseboardUsage?.dispose(); globalThis.PulseboardUsage = mountObserver(config, createObserver); }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true }); else start();
 globalThis.addEventListener?.('pageshow', event => { if (event.persisted) start(); });
