@@ -17,6 +17,15 @@ const operation = (overrides = {}) => ({
   timeoutMs: 100,
   ...overrides,
 });
+const turn = () => new Promise((resolve) => setImmediate(resolve));
+
+async function waitUntil(predicate, label) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    if (predicate()) return;
+    await turn();
+  }
+  throw new Error(`Timed out waiting for ${label}.`);
+}
 
 function hostFixture(overrides = {}) {
   const host = new EventTarget();
@@ -53,6 +62,31 @@ test('web is the explicit default; Android-looking UA and localhost never imply 
     () => createWebPlatform({ host: hostFixture(), build: { ...BUILD, target: 'android' } }),
     /web build identity/i,
   );
+  assert.throws(
+    () => createWebPlatform({ host: hostFixture(), build: { ...BUILD, sourceSha: 'unresolved' } }),
+    /sourceSha/i,
+  );
+});
+
+test('default web fallback rejects incomplete identity instead of fabricating valid-looking hashes', () => {
+  __resetPlatformForTests();
+  const incomplete = hostFixture({
+    ALIBI_CONFIG: { version: '0.11.4', build: 'release-only', standalone: false },
+  });
+  assert.throws(() => getPlatform({ host: incomplete }), /sourceSha/i);
+
+  __resetPlatformForTests();
+  const complete = hostFixture({
+    ALIBI_CONFIG: {
+      version: BUILD.appVersion,
+      sourceSha: BUILD.sourceSha,
+      payloadSha256: BUILD.payloadSha256,
+      contentManifestRevision: BUILD.contentManifestRevision,
+      rulesCompatibility: BUILD.rulesCompatibility,
+    },
+  });
+  assert.deepEqual(getPlatform({ host: complete }).build, BUILD);
+  __resetPlatformForTests();
 });
 
 test('unsupported document and recovery operations return bounded failures instead of throwing', async () => {
@@ -157,6 +191,99 @@ test('picker cancellation, denial, malformed responses and timeout stay distinct
     (await slow.documents.pickBackup(operation({ operationId: 'slow-pick', timeoutMs: 5 }))).code,
     'timeout',
   );
+});
+
+test('a cancelled backup write cannot continue after the caller receives failure', async () => {
+  const payload = '{"cabinet":true}';
+  const digest = createHash('sha256').update(payload).digest('hex');
+  const controller = new AbortController();
+  let resolveWritable;
+  let writes = 0;
+  let closes = 0;
+  let aborts = 0;
+  const host = hostFixture({
+    showSaveFilePicker: async () => ({
+      createWritable() {
+        return new Promise((resolve) => {
+          resolveWritable = resolve;
+        });
+      },
+    }),
+  });
+  const pending = createWebPlatform({ host, build: BUILD }).documents.writeBackup(
+    { suggestedName: 'alibi-backup.json', utf8Payload: payload, digest },
+    operation({ operationId: 'cancel-write', timeoutMs: 1000, signal: controller.signal }),
+  );
+  await waitUntil(() => typeof resolveWritable === 'function', 'document provider stream');
+  controller.abort();
+  assert.equal((await pending).code, 'cancelled');
+  resolveWritable({
+    async write() {
+      writes++;
+    },
+    async close() {
+      closes++;
+    },
+    async abort() {
+      aborts++;
+    },
+  });
+  await waitUntil(() => aborts === 1, 'late stream cleanup');
+  assert.equal(writes, 0);
+  assert.equal(closes, 0);
+});
+
+test('a provider write is no longer reported cancelled after bytes can change', async () => {
+  const payload = '{"club":true}';
+  const digest = createHash('sha256').update(payload).digest('hex');
+  const writes = [];
+  let resolveWrite;
+  let writeStarted;
+  const started = new Promise((resolve) => {
+    writeStarted = resolve;
+  });
+  const host = hostFixture({
+    showSaveFilePicker: async () => ({
+      async createWritable() {
+        return {
+          write(value) {
+            writes.push(value);
+            writeStarted();
+            return new Promise((resolve) => {
+              resolveWrite = resolve;
+            });
+          },
+          async close() {},
+          async abort() {},
+        };
+      },
+      async getFile() {
+        return { size: Buffer.byteLength(payload), text: async () => payload };
+      },
+    }),
+  });
+  let settled = false;
+  const pending = createWebPlatform({ host, build: BUILD }).documents.writeBackup(
+    { suggestedName: 'alibi-backup.json', utf8Payload: payload, digest },
+    operation({ operationId: 'committed-write', timeoutMs: 5 }),
+  );
+  void pending.then(
+    () => {
+      settled = true;
+    },
+    () => {
+      settled = true;
+    },
+  );
+  await started;
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.equal(settled, false, 'the caller still waits after the irreversible write begins');
+  resolveWrite();
+  assert.deepEqual(await pending, {
+    ok: true,
+    value: { verifiedReadback: true, bytes: Buffer.byteLength(payload) },
+  });
+  assert.deepEqual(writes, [payload]);
 });
 
 test('save writes close the provider stream and report only verified bytes', async () => {
