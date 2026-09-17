@@ -198,8 +198,10 @@
           const raw = localStorage.getItem('alibi-afterhours-v1');
           if (raw) {
             foundSave = true;
-            await engine();
             const v = JSON.parse(raw);
+            if (!Number.isSafeInteger(v.rev) || v.rev < 1)
+              throw Error('Unsupported Club save revision.');
+            await engine();
             state = validateSave(v.data);
             rev = v.rev;
           }
@@ -212,7 +214,7 @@
             : 'Club progress is kept only in this tab. Export before closing it.';
         }
     }
-    state.visit++;
+    state.visit = Math.min(Number.MAX_SAFE_INTEGER, state.visit + 1);
     hero = state.settings.pinned ?? (state.lastHero + 1) % stories.length;
     state.lastHero = hero;
     await persist();
@@ -288,6 +290,11 @@
     saveQueue = saveQueue
       .then(async () => {
         if (saveError && storageMode !== 'session') return;
+        if (
+          storageMode !== 'session' &&
+          (!Number.isSafeInteger(rev) || rev < 0 || rev >= Number.MAX_SAFE_INTEGER)
+        )
+          throw Error('Club save revision limit reached. Export before continuing.');
         if (storageMode === 'indexeddb')
           await new Promise((resolve, reject) => {
             const tx = db.transaction('club', 'readwrite'),
