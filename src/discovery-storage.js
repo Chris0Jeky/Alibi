@@ -1,4 +1,5 @@
-/* Atomic persistence for the unwired discovery-entitlement state. Loaded on demand. */
+// Atomic persistence for the unwired discovery-entitlement state.
+// Emitted as a deferred, non-precache asset until a presenter owns loading.
 /* The build emits this as a hashed offline asset; the initial cabinet never evaluates it. */
 (function (root) {
   'use strict';

@@ -170,11 +170,12 @@ IndexedDB, explicitly loads the adapter, races generation-two writers, proves ex
 then verifies stale retries, future-schema records and malformed records cannot replace the committed
 bytes. The Node fallback contract proves a refused CAS does not create central state.
 
-`src/discovery-storage.js` is minified into a content-hashed asset, included in the release fingerprint
-and offline service-worker shell, and exposed through `ALIBI_DISCOVERY_STORAGE_URL`. It is deliberately
-absent from the initial JavaScript bundle, preserving the cabinet's startup budget while the feature
-has no runtime consumer. The standalone HTML does not load this adapter yet and must not be described
-as discovery-ready.
+`src/discovery-storage.js` is minified into a content-hashed distribution asset and included in the
+release fingerprint. Because the feature has no runtime consumer, the hosted build does not advertise
+its URL in the initial JavaScript and the core service worker does not install it. Browser acceptance
+resolves the exact hashed file from the built distribution and deliberately loads it from the same
+origin. The standalone HTML does not load this adapter. This keeps both startup and core-offline
+budgets unchanged until a reviewed presenter owns loading and an explicit offline policy.
 
 This remains a generic storage adapter. It does not choose the production metadata key, run the
 discovery reducer, derive receipts or deliver grants.
