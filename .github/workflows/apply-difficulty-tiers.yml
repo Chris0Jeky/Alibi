@@ -1,0 +1,38 @@
+name: Apply difficulty tier migration
+
+on:
+  push:
+    branches:
+      - feat/difficulty-tiers-161
+    paths:
+      - '.github/workflows/apply-difficulty-tiers.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feat/difficulty-tiers-161
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply and format the bounded migration
+        run: |
+          node tools/apply-difficulty-tiers.cjs
+          npx prettier --write src/core.js src/house/model.js src/house/view.js tests/difficulty-tiers.test.cjs
+          rm tools/apply-difficulty-tiers.cjs .github/workflows/apply-difficulty-tiers.yml
+      - name: Commit the implementation without helper files
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/core.js src/house/model.js src/house/view.js schemas/pack.schema.json tests/difficulty-tiers.test.cjs
+          git add -u tools/apply-difficulty-tiers.cjs .github/workflows/apply-difficulty-tiers.yml
+          git commit -m "feat(difficulty): add Master and Grandmaster tiers"
+          git push origin HEAD:feat/difficulty-tiers-161
