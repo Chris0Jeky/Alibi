@@ -67,7 +67,7 @@
       )}</div></section><a class="hx-quiet-link" href="#/quiet">${icon('moon')}<span><strong>Somewhere quieter</strong><small>Visit the Quiet Wing</small></span>${icon('arrow')}</a>`;
   }
   function filters(d) {
-    return `<form id="hx-filter-form" class="hx-filter-fields"><p>Choose what suits you. Changes apply only when you confirm.</p><input type="hidden" name="q" value="${esc(d.route.q)}"><label>Puzzle family<select name="family"><option value="">Every family</option>${M.families.map((f) => `<option value="${f}" ${f === d.route.family ? 'selected' : ''}>${esc(d.names[f] || f)}</option>`).join('')}</select></label><label>Difficulty<select name="level"><option value="">Any difficulty</option>${['Gentle', 'Steady', 'Tricky', 'Expert'].map((v) => `<option ${d.route.level === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label><label>Progress<select name="progress"><option value="">Any progress</option>${[
+    return `<form id="hx-filter-form" class="hx-filter-fields"><p>Choose what suits you. Changes apply only when you confirm.</p><input type="hidden" name="q" value="${esc(d.route.q)}"><label>Puzzle family<select name="family"><option value="">Every family</option>${M.families.map((f) => `<option value="${f}" ${f === d.route.family ? 'selected' : ''}>${esc(d.names[f] || f)}</option>`).join('')}</select></label><label>Difficulty<select name="level"><option value="">Any difficulty</option>${M.levels.map((v) => `<option ${d.route.level === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label><label>Progress<select name="progress"><option value="">Any progress</option>${[
       ['new', 'Not started'],
       ['active', 'In progress'],
       ['solved', 'Solved'],
