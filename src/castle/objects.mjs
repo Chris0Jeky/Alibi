@@ -51,11 +51,7 @@ function visibility(value) {
 function detailAsset(value) {
   if (value === null) return null;
   exactFields(value, ASSET_FIELDS, 'Inspectable detail asset');
-  if (
-    typeof value.src !== 'string' ||
-    !LOCAL_ASSET.test(value.src) ||
-    value.src.includes('..')
-  )
+  if (typeof value.src !== 'string' || !LOCAL_ASSET.test(value.src) || value.src.includes('..'))
     throw Error('Inspectable detail artwork must name a local asset under ./assets/.');
   return Object.freeze({
     src: value.src,

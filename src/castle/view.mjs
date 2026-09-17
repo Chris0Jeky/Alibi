@@ -546,14 +546,26 @@ export async function mount({ root, preferences = null, practice = null }) {
   function inspect(id) {
     const object = inspectObject(id, selected);
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
+    const detail = object.detailAsset
+      ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
+      : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
+    const noteAction = object.actions.includes('note')
+      ? button('Keep a note', 'keep-observation', id)
+      : '';
     show(
       object.title,
-      `<p>${escape(object.text)}</p>${button('Keep a note', 'keep-observation', id)}<p class="small" id="observation-result" role="status"></p>`,
+      `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,
     );
   }
   function keepObservation(id) {
     const object = inspectObject(id, selected);
-    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
+    if (
+      !object ||
+      view !== 'room' ||
+      !E.roomStatus(state, room()).open ||
+      !object.actions.includes('note')
+    )
+      return;
     const result = appendObservation(state.notes, object);
     if (result.added)
       mutate((next) => {
