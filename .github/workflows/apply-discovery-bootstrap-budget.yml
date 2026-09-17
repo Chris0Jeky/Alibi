@@ -1,0 +1,101 @@
+name: Apply discovery bootstrap budget fix
+on:
+  push:
+    branches:
+      - feat/discovery-meta-cas-30
+permissions:
+  contents: write
+concurrency:
+  group: discovery-bootstrap-budget-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/discovery-meta-cas-30
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Remove unwired bootstrap pointer and preserve acceptance coverage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              file = Path(path)
+              source = file.read_text(encoding='utf-8')
+              count = source.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one fragment in {path}, found {count}: {old[:100]!r}')
+              file.write_text(source.replace(old, new, 1), encoding='utf-8')
+
+          replace_once(
+              'tools/build.cjs',
+              (
+                  "globalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\\\n"
+                  "globalThis.ALIBI_DISCOVERY_STORAGE_URL=${JSON.stringify(discoveryStorageURL)};\\\n"
+                  "` +"
+              ),
+              (
+                  "globalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\\\n"
+                  "` +"
+              ),
+          )
+
+          replace_once(
+              'tests/browser_discovery_storage.py',
+              '''            runtime = await page_a.evaluate(
+                          """({
+                            version: ALIBI_CONFIG.version,
+                            build: ALIBI_CONFIG.build,
+                            lazyAsset: ALIBI_DISCOVERY_STORAGE_URL,
+                          })"""
+                      )
+          '''.replace('          ', ''),
+              '''            runtime = await page_a.evaluate(
+                          """({
+                            version: ALIBI_CONFIG.version,
+                            build: ALIBI_CONFIG.build,
+                          })"""
+                      )
+          '''.replace('          ', ''),
+          )
+
+          replace_once(
+              'tests/browser_discovery_storage.py',
+              '''            lazy_url = URL + "/" + runtime["lazyAsset"].removeprefix("./")
+          '''.replace('          ', ''),
+              '''            lazy_asset = await page_a.evaluate(
+                          """async () => {
+                            const response = await fetch('/sw.js', {cache: 'no-store'});
+                            const source = await response.text();
+                            return source.match(/\\.\\/assets\\/discovery-storage\\.[a-f0-9]{12}\\.js/)?.[0] || null;
+                          }"""
+                      )
+                      check(
+                          lazy_asset,
+                          "Hashed discovery CAS asset is present in the offline release",
+                      )
+                      lazy_url = URL + "/" + lazy_asset.removeprefix("./")
+          '''.replace('          ', ''),
+          )
+          PY
+          npx prettier --write tools/build.cjs
+          python -m py_compile tests/browser_discovery_storage.py
+          node --check src/discovery-storage.js
+          npm run build
+          node tests/budget.test.cjs
+          node --test tests/discovery-entitlements.test.cjs
+          ! grep -R "ALIBI_DISCOVERY_STORAGE_URL" tools/build.cjs tests/browser_discovery_storage.py
+          git rm .github/workflows/apply-discovery-bootstrap-budget.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tools/build.cjs tests/browser_discovery_storage.py
+          git commit -m "fix(discovery): keep lazy storage out of bootstrap"
+          git push origin HEAD:feat/discovery-meta-cas-30
