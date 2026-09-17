@@ -24,5 +24,8 @@ test('the phone action surface keeps the overflow prerequisite for viewport stic
 test('the verified phone-action candidate remains recorded with its human evidence limits', () => {
   const state = fs.readFileSync(path.join(ROOT, 'docs/STATE.md'), 'utf8');
   assert.match(state, /Block Cabinet phone action hierarchy candidate, 2026-09-17/);
-  assert.match(state, /physical Android touch, TalkBack, comfort review and human acceptance stay open/);
+  assert.match(
+    state,
+    /physical Android touch, TalkBack, comfort review and human acceptance stay open/,
+  );
 });
