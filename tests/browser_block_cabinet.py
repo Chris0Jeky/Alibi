@@ -75,6 +75,40 @@ with sync_playwright() as playwright:
             selection.locator('[data-selection-title]').inner_text().strip() == 'Select a tray piece',
             f"Enhanced Block Cabinet starts with a clear next action at {width}px",
         )
+        if width <= 760:
+            menu = page.locator('.bc-host [data-command="menu"]')
+            if menu.get_attribute('aria-expanded') != 'true':
+                menu.click()
+            position = actions.evaluate(
+                """el => {
+                  const rect = el.getBoundingClientRect();
+                  return {
+                    top: rect.top + scrollY,
+                    height: rect.height,
+                    max: document.documentElement.scrollHeight - innerHeight,
+                  };
+                }"""
+            )
+            scroll_target = min(
+                position['top'] + position['height'] + 80,
+                position['max'] - 1,
+            )
+            check(
+                scroll_target > position['top'],
+                f"Phone fixture scrolls beyond the primary actions at {width}px",
+            )
+            page.evaluate("y => scrollTo(0, y)", scroll_target)
+            page.wait_for_timeout(100)
+            action_box = actions.bounding_box()
+            check(
+                action_box is not None
+                and action_box['y'] >= 0
+                and action_box['y'] + action_box['height'] <= height + 1,
+                f"Primary actions remain in the phone viewport while scrolling at {width}px",
+            )
+            page.evaluate("scrollTo(0, 0)")
+            if menu.get_attribute('aria-expanded') == 'true':
+                menu.click()
         original_seed = page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed")
         piece = page.locator('.bc-host [data-piece="0"]')
         piece.click()
