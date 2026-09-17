@@ -13,7 +13,7 @@ The merged #172 head passed 313 Node tests, 581,847 assertions and 27 private-ro
 assertions locally, plus both hosted Verify workflows with real IndexedDB/offline, release-update,
 mobile UI and local Cloudflare-runtime exercises. This is source and simulated/hosted evidence;
 physical-device, TalkBack and human playtesting acceptance remain tracked in `HUMAN_TODO.md`.
-No open pull requests remain in the repository at this checkpoint.
+After this state update lands, no open pull requests should remain in the repository at this checkpoint.
 
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
