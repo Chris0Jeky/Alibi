@@ -69,27 +69,29 @@ jobs:
           ends = [i for i, line in enumerate(lines) if '            lazy_url = URL + "/" + lazy_asset.removeprefix("./")' in line]
           if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
               raise SystemExit(f'Unexpected deferred browser block: starts={starts}, ends={ends}')
-          replacement_lines = '''            lazy_assets = sorted(
-                (ROOT / "dist" / "assets").glob("discovery-storage.*.js")
-            )
-            check(
-                len(lazy_assets) == 1,
-                "Exactly one hashed discovery CAS asset is emitted",
-            )
-            lazy_asset = "./assets/" + lazy_assets[0].name
-            precached = await page_a.evaluate(
-                """async (asset) => {
-                  const response = await fetch('/sw.js', {cache: 'no-store'});
-                  return (await response.text()).includes(asset);
-                }""",
-                lazy_asset,
-            )
-            check(
-                not precached,
-                "Unwired discovery CAS stays outside the core offline shell",
-            )
-            lazy_url = URL + "/" + lazy_asset.removeprefix("./")
-          '''.splitlines(keepends=True)
+          indent = '            '
+          replacement_lines = [
+              indent + 'lazy_assets = sorted(\n',
+              indent + '    (ROOT / "dist" / "assets").glob("discovery-storage.*.js")\n',
+              indent + ')\n',
+              indent + 'check(\n',
+              indent + '    len(lazy_assets) == 1,\n',
+              indent + '    "Exactly one hashed discovery CAS asset is emitted",\n',
+              indent + ')\n',
+              indent + 'lazy_asset = "./assets/" + lazy_assets[0].name\n',
+              indent + 'precached = await page_a.evaluate(\n',
+              indent + '    """async (asset) => {\n',
+              indent + "      const response = await fetch('/sw.js', {cache: 'no-store'});\n",
+              indent + '      return (await response.text()).includes(asset);\n',
+              indent + '    }""",\n',
+              indent + '    lazy_asset,\n',
+              indent + ')\n',
+              indent + 'check(\n',
+              indent + '    not precached,\n',
+              indent + '    "Unwired discovery CAS stays outside the core offline shell",\n',
+              indent + ')\n',
+              indent + 'lazy_url = URL + "/" + lazy_asset.removeprefix("./")\n',
+          ]
           lines[starts[0]:ends[0] + 1] = replacement_lines
           browser.write_text(''.join(lines), encoding='utf-8')
 
