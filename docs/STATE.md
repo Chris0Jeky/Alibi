@@ -1,18 +1,25 @@
 # Live development state
 
-## 0.11.4 release candidate, 2026-09-17 (not deployed)
+## Published 0.11.4, 2026-09-17
 
-The candidate follows the completed PR sweep at main merge `ce9e990f68ef93823cd8ce59410dc978bb8c7071`.
+Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on
+both existing origins and [GitHub](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.4).
 It promotes six additive provisional Expert studies, taking the source catalogue from 355 to 361
 puzzles across twenty packs, and includes the compact 15×15 Nonogram controls, unique journal
 identity count, consent-gated Observatory context, revision-safe save/replay boundaries and
 optional-cache isolation. Published definitions, IDs and revisions remain unchanged.
 
-The merged source baseline passes 313 Node tests, 581,847 assertions, 89 private-room protocol
-assertions and 27 Quiet Wing adapter contract assertions locally. This is source and
-simulated/hosted evidence; physical-device, TalkBack and human playtesting acceptance remain
-tracked in `HUMAN_TODO.md`. The final source/build and hosted publication evidence will be
-recorded in [RELEASE-0.11.4.md](RELEASE-0.11.4.md).
+The primary Cloudflare Worker is version `ef512e73-7e2d-4864-a90d-e938d468bdc9`; the existing
+public Sites fallback is version 16 with deployment
+`appgdep_6aabac35f2f48191b5aa2f3e59150239`. Both origins pass 92 hosted real-origin checks with
+version/build identity `0.11.4` / `159f34ae5948`. Cloudflare emits the repository security
+headers; Sites retains the known provider header limitation tracked in issue #6.
+
+The merged source passes 313 Node tests, 581,847 assertions, 89 private-room protocol assertions
+and 27 Quiet Wing adapter contract assertions locally. The required push and pull-request CI runs
+passed at the exact head. Full publication evidence, archives and rollback references are in
+[RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
+remain tracked in `HUMAN_TODO.md`.
 
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
