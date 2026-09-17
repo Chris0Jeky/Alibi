@@ -47,7 +47,8 @@ function safeInvoke(listener, value) {
 function tokenFactory(host) {
   let fallback = 0;
   return () => {
-    const id = host.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${(++fallback).toString(36)}`;
+    const id =
+      host.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${(++fallback).toString(36)}`;
     return `web-document:${String(id).toLowerCase()}`;
   };
 }
@@ -62,7 +63,10 @@ async function sha256(host, text) {
 function validateLocalAssetUrl(value) {
   if (typeof value !== 'string' || !value.startsWith('./') || value.includes('\\')) return false;
   const segments = value.slice(2).split('/');
-  return segments.length > 1 && segments.every((segment) => segment && segment !== '.' && segment !== '..');
+  return (
+    segments.length > 1 &&
+    segments.every((segment) => segment && segment !== '.' && segment !== '..')
+  );
 }
 
 function assetRegistry(entries) {
@@ -94,7 +98,8 @@ function assetRegistry(entries) {
 function externalRegistry(entries) {
   const registry = new Map();
   for (const [purpose, value] of Object.entries(entries || {})) {
-    if (!isHandleId(purpose)) throw new TypeError('External purpose must be an allowlisted handle.');
+    if (!isHandleId(purpose))
+      throw new TypeError('External purpose must be an allowlisted handle.');
     let url;
     try {
       url = new URL(value);
@@ -116,7 +121,8 @@ function createFeedback(host) {
     emit(kind) {
       if (disposed || suspended || !FEEDBACK_KINDS.has(kind) || !preferences.haptics) return;
       try {
-        const pattern = kind === 'clear' || kind === 'complete' ? [10, 24, 10] : kind === 'invalid' ? 10 : 6;
+        const pattern =
+          kind === 'clear' || kind === 'complete' ? [10, 24, 10] : kind === 'invalid' ? 10 : 6;
         host.navigator?.vibrate?.(pattern);
       } catch {
         /* Feedback is optional and never escapes into game logic. */
@@ -235,8 +241,15 @@ function createDocuments(host) {
           if (!handle || typeof handle.createWritable !== 'function')
             throw new PlatformFailure('invalid', 'The document picker returned an invalid handle.');
           const writable = await handle.createWritable();
-          if (!writable || typeof writable.write !== 'function' || typeof writable.close !== 'function')
-            throw new PlatformFailure('invalid', 'The document provider returned an invalid stream.');
+          if (
+            !writable ||
+            typeof writable.write !== 'function' ||
+            typeof writable.close !== 'function'
+          )
+            throw new PlatformFailure(
+              'invalid',
+              'The document provider returned an invalid stream.',
+            );
           try {
             await writable.write(request.utf8Payload);
             await writable.close();
@@ -255,7 +268,8 @@ function createDocuments(host) {
             if (file && typeof file.text === 'function' && file.size === bytes) {
               const readback = await file.text();
               verifiedReadback =
-                typeof readback === 'string' && (await sha256(host, readback)) === request.digest.toLowerCase();
+                typeof readback === 'string' &&
+                (await sha256(host, readback)) === request.digest.toLowerCase();
             }
           }
           return { verifiedReadback, bytes };
@@ -297,7 +311,8 @@ export function createWebPlatform(options = {}) {
     target: 'web',
     nativeFeedback: false,
     userDocuments:
-      typeof host.showOpenFilePicker === 'function' && typeof host.showSaveFilePicker === 'function',
+      typeof host.showOpenFilePicker === 'function' &&
+      typeof host.showSaveFilePicker === 'function',
     recoveryVault: false,
     remoteTelemetry: false,
   });
@@ -344,7 +359,8 @@ export function createWebPlatform(options = {}) {
           if (typeof host.open !== 'function')
             throw new PlatformFailure('unavailable', 'External navigation is unavailable.');
           const opened = host.open(externalLinks.get(purposeId), '_blank', 'noopener,noreferrer');
-          if (!opened) throw new PlatformFailure('denied', 'The browser blocked the external window.');
+          if (!opened)
+            throw new PlatformFailure('denied', 'The browser blocked the external window.');
           try {
             opened.opener = null;
           } catch {
