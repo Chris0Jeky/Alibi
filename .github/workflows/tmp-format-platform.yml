@@ -1,0 +1,29 @@
+name: Temporary platform format capture
+
+on:
+  push:
+    branches:
+      - tmp/format-platform-125
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format and print exact sources
+        run: |
+          npx prettier --write src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs
+          for file in src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs; do
+            echo "FORMAT-BEGIN:${file}"
+            base64 -w0 "${file}"
+            echo
+            echo "FORMAT-END:${file}"
+          done
