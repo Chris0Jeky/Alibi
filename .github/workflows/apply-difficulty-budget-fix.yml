@@ -1,0 +1,41 @@
+name: Apply difficulty budget correction
+
+on:
+  push:
+    branches:
+      - feat/difficulty-tiers-161
+    paths:
+      - '.github/workflows/apply-difficulty-budget-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feat/difficulty-tiers-161
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply and verify the bounded correction
+        run: |
+          node tools/apply-difficulty-budget-fix.cjs
+          npx prettier --write src/core.js tests/difficulty-tiers.test.cjs
+          npm run build
+          node --test tests/difficulty-tiers.test.cjs tests/budget.test.cjs
+      - name: Remove temporary migration files
+        run: rm tools/apply-difficulty-budget-fix.cjs .github/workflows/apply-difficulty-budget-fix.yml
+      - name: Commit verified source changes
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/core.js tests/difficulty-tiers.test.cjs
+          git add -u tools/apply-difficulty-budget-fix.cjs .github/workflows/apply-difficulty-budget-fix.yml
+          git commit -m "fix(difficulty): preserve the initial bundle budget"
+          git push origin HEAD:feat/difficulty-tiers-161
