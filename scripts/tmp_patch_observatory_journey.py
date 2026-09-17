@@ -15,13 +15,41 @@ def replace_once(old: str, new: str, label: str) -> None:
 
 
 replace_once(
+    """    routeSerial = 0,
+    rendering = false;
+  let caseReturn = null,
+""",
+    """    routeSerial = 0,
+    rendering = false;
+  // Observatory journey helper start.
+  let observedRun = null,
+    observedAttempt = false;
+  function observeJourney(event = 'puzzle.started') {
+    const observer = globalThis.PulseboardUsage;
+    if (observedRun !== current) {
+      observedRun = current;
+      observedAttempt = false;
+    }
+    if (!observer?.status?.().active) return (observedAttempt = false);
+    if (!observedAttempt && !(observedAttempt = observer.track('puzzle.started'))) return false;
+    if (event === 'puzzle.started') return true;
+    const sent = observer.track(event);
+    if (sent && event !== 'hint.requested') observedAttempt = false;
+    return sent;
+  }
+  // Observatory journey helper end.
+  let caseReturn = null,
+""",
+    'journey helper',
+)
+replace_once(
     """  function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
     if (history) {
 """,
     """  function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
-    globalThis.ALIBI_OBSERVATORY_JOURNEY?.begin?.();
+    observeJourney();
     if (history) {
 """,
     'commit begin',
@@ -33,7 +61,7 @@ replace_once(
 """,
     """      current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
-      globalThis.ALIBI_OBSERVATORY_JOURNEY?.complete?.();
+      observeJourney('puzzle.completed');
       globalThis.AlibiTheatre.moment('complete');
 """,
     'completion terminal',
@@ -46,7 +74,7 @@ replace_once(
     else if (E[p.type].complete(p, current.state)) feedback = 'Solved. Every rule is satisfied.';
 """,
     """    if (issues.length) {
-      globalThis.ALIBI_OBSERVATORY_JOURNEY?.fail?.();
+      observeJourney('puzzle.failed');
       feedback =
         issues[0].message +
         (issues.length > 1 ? ` (${issues.length} rule conflicts to revisit.)` : '');
@@ -62,7 +90,7 @@ replace_once(
 """,
     """  function showHint() {
     if (!current) return;
-    globalThis.ALIBI_OBSERVATORY_JOURNEY?.hint?.();
+    observeJourney('hint.requested');
     const hint = C.insights.deduction(current.puzzle, current.state);
 """,
     'hint event',
@@ -74,6 +102,7 @@ subprocess.run(
     cwd=root,
     check=True,
 )
+subprocess.run(['npm', 'run', 'assets:catalogue'], cwd=root, check=True)
 subprocess.run(['node', '--test', 'tests/observatory-journey.test.cjs'], cwd=root, check=True)
 subprocess.run(['npm', 'run', 'verify'], cwd=root, check=True)
 subprocess.run(['git', 'diff', '--check'], cwd=root, check=True)
