@@ -116,7 +116,10 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
   const packageJson = readJson(path.join(root, 'package.json'), errors);
   const webInfo = readJson(path.join(root, 'build-info.json'), errors);
   need(identity.appVersion === packageJson.version, 'Android and package versions differ.');
-  need(identity.webBuild === webInfo.build, 'Android identity is not tied to the current web build.');
+  need(
+    identity.webBuild === webInfo.build,
+    'Android identity is not tied to the current web build.',
+  );
   need(identity.rulesCompatibility === sourceDigest(root), 'Rules compatibility digest is stale.');
   need(identity.assetManifest === 'android-assets.json', 'Unexpected asset-manifest path.');
   need(
@@ -173,7 +176,8 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
     if (!MANIFESTS.has(name) && !listed.has(name))
       errors.push(`Android asset is not inventoried: ${name}.`);
   for (const name of listed.keys())
-    if (!actualPaths.includes(name)) errors.push(`Manifest contains a missing Android asset: ${name}.`);
+    if (!actualPaths.includes(name))
+      errors.push(`Manifest contains a missing Android asset: ${name}.`);
 
   const listedEntries = [...listed.values()];
   need(
@@ -233,16 +237,15 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
       source.includes('globalThis.ALIBI_OBSERVATORY_URL=""'),
       'Android application did not disable Observatory.',
     );
-    need(source.includes('ALIBI_HOUSE_CONFIG'), 'Android bootstrap is missing Wrenmere configuration.');
+    need(
+      source.includes('ALIBI_HOUSE_CONFIG'),
+      'Android bootstrap is missing Wrenmere configuration.',
+    );
     need(source.includes('Classic desk'), 'Android application is missing the Wrenmere fallback.');
   }
 
-  const houseScripts = actualPaths.filter((name) =>
-    /^assets\/house\.[0-9a-f]{12}\.js$/.test(name),
-  );
-  const houseStyles = actualPaths.filter((name) =>
-    /^assets\/house\.[0-9a-f]{12}\.css$/.test(name),
-  );
+  const houseScripts = actualPaths.filter((name) => /^assets\/house\.[0-9a-f]{12}\.js$/.test(name));
+  const houseStyles = actualPaths.filter((name) => /^assets\/house\.[0-9a-f]{12}\.css$/.test(name));
   need(houseScripts.length === 1, 'Android payload needs exactly one Wrenmere script.');
   need(houseStyles.length === 1, 'Android payload needs exactly one Wrenmere stylesheet.');
   need(
