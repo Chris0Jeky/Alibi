@@ -33,13 +33,13 @@ test('house filters expose every ordered tier and filter advanced studies exactl
     route: { q: '', family: '', progress: '', level: 'Master' },
     names: {},
   });
-  const labels = [...html.matchAll(/<option(?: selected)?>([^<]+)<\/option>/g)].map(
+  const labels = [...html.matchAll(/<option\b[^>]*>([^<]+)<\/option>/g)].map(
     (match) => match[1],
   );
   for (const tier of TIERS) assert.equal(labels.includes(tier), true, `${tier} option`);
   assert.ok(labels.indexOf('Expert') < labels.indexOf('Master'));
   assert.ok(labels.indexOf('Master') < labels.indexOf('Grandmaster'));
-  assert.match(html, /<option selected>Master<\/option>/);
+  assert.match(html, /<option\b[^>]*\bselected\b[^>]*>Master<\/option>/);
 
   const puzzles = TIERS.map((difficulty, index) => ({
     id: `tier-${index}`,
