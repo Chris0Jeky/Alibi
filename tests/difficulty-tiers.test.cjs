@@ -18,7 +18,7 @@ test('difficulty tiers have one canonical order across runtime and pack schema',
   const schema = JSON.parse(
     fs.readFileSync(path.join(__dirname, '../schemas/pack.schema.json'), 'utf8'),
   );
-  assert.deepEqual(schema.$defs.puzzle.properties.difficulty.enum, TIERS);
+  assert.deepEqual(schema.$defs.common.properties.difficulty.enum, TIERS);
 });
 
 test('house routes accept the two advanced tiers and reject unknown values', () => {
