@@ -23,35 +23,35 @@ jobs:
           from pathlib import Path
 
           path = Path('.github/workflows/repair-discovery-config.yml')
-          source = path.read_text(encoding='utf-8')
-          old = '''          sw_anchor = "              !n.startsWith('observatory.') &&\\n"
-          if sw_source.count(sw_anchor) != 2:
-              raise SystemExit(f'Expected two optional-asset filters, found {sw_source.count(sw_anchor)}')
-          sw_test.write_text(
-              sw_source.replace(
-                  sw_anchor,
-                  sw_anchor + "              !n.startsWith('discovery-storage.') &&\\n",
-              ),
-              encoding='utf-8',
-          )
-          '''
-          new = '''          sw_lines = sw_source.splitlines(keepends=True)
-          observatory_filters = [
-              index
-              for index, line in enumerate(sw_lines)
-              if "!n.startsWith('observatory.') &&" in line
+          lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
+          starts = [
+              index for index, line in enumerate(lines) if '          sw_anchor =' in line
           ]
-          if len(observatory_filters) != 2:
-              raise SystemExit(f'Expected two optional-asset filters, found {len(observatory_filters)}')
-          for index in reversed(observatory_filters):
-              line = sw_lines[index]
-              indent = line[: len(line) - len(line.lstrip())]
-              sw_lines.insert(index + 1, indent + "!n.startsWith('discovery-storage.') &&\\n")
-          sw_test.write_text(''.join(sw_lines), encoding='utf-8')
-          '''
-          if source.count(old) != 1:
-              raise SystemExit(f'Expected one repair guard block, found {source.count(old)}')
-          path.write_text(source.replace(old, new, 1), encoding='utf-8')
+          ends = [
+              index for index, line in enumerate(lines) if index > (starts[0] if starts else -1) and line.strip() == 'PY'
+          ]
+          if len(starts) != 1 or len(ends) != 1 or starts[0] >= ends[0]:
+              raise SystemExit(f'Unexpected repair guard boundaries: starts={starts}, ends={ends}')
+          replacement = [
+              "          sw_lines = sw_source.splitlines(keepends=True)\n",
+              "          observatory_filters = [\n",
+              "              index\n",
+              "              for index, line in enumerate(sw_lines)\n",
+              "              if \"!n.startsWith('observatory.') &&\" in line\n",
+              "          ]\n",
+              "          if len(observatory_filters) != 2:\n",
+              "              raise SystemExit(f'Expected two optional-asset filters, found {len(observatory_filters)}')\n",
+              "          for index in reversed(observatory_filters):\n",
+              "              line = sw_lines[index]\n",
+              "              indent = line[: len(line) - len(line.lstrip())]\n",
+              "              sw_lines.insert(\n",
+              "                  index + 1,\n",
+              "                  indent + \"!n.startsWith('discovery-storage.') &&\\\\n\",\n",
+              "              )\n",
+              "          sw_test.write_text(''.join(sw_lines), encoding='utf-8')\n",
+          ]
+          lines[starts[0]:ends[0]] = replacement
+          path.write_text(''.join(lines), encoding='utf-8')
           PY
           git rm .github/workflows/fix-repair-guard.yml
           git config user.name github-actions[bot]
