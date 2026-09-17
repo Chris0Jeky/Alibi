@@ -1,5 +1,6 @@
-# Iteration 3 reports source-level declarations with exactly one lexical occurrence.
-name: Apply difficulty budget correction
+# Temporary branch-only workflow: apply the repository formatter, verify the bounded
+# difficulty contract, then remove itself and its superseded diagnostic helper.
+name: Apply difficulty formatting correction
 
 on:
   push:
@@ -24,9 +25,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Apply and verify the bounded correction
+      - name: Format and verify the bounded correction
         run: |
-          node tools/apply-difficulty-budget-fix.cjs
           npx prettier --write src/core.js tests/difficulty-tiers.test.cjs
           npm run build
           node --test tests/difficulty-tiers.test.cjs tests/budget.test.cjs
