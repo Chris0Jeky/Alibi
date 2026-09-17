@@ -49,11 +49,17 @@ function setup(local = true, newer = false) {
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/core.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), ctx);
-  return { Store: ctx.AlibiStorage.Store, items, ls };
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/discovery-storage.js'), 'utf8'), ctx);
+  return {
+    Store: ctx.AlibiStorage.Store,
+    compareAndSwapMeta: ctx.AlibiDiscoveryStorage.compareAndSwapMeta,
+    items,
+    ls,
+  };
 }
 (async () => {
   for (const local of [true, false]) {
-    const { Store, items, ls } = setup(local),
+    const { Store, compareAndSwapMeta, items, ls } = setup(local),
       s = await new Store().init();
     ok(s.mode === (local ? 'local' : 'session'), 'honest ' + s.mode + ' mode');
     const r = { key: 'scene-01@1', rev: 0, state: { placements: {} }, schemaVersion: 1 };
@@ -87,12 +93,12 @@ function setup(local = true, newer = false) {
       outbox: [],
     };
     await assert.rejects(
-      s.compareAndSwapMeta('discovery-entitlements', -1, entitlementState),
+      compareAndSwapMeta(s, 'discovery-entitlements', -1, entitlementState),
       /generation/i,
     );
     assertions++;
     await assert.rejects(
-      s.compareAndSwapMeta('discovery-entitlements', 0, {
+      compareAndSwapMeta(s, 'discovery-entitlements', 0, {
         ...entitlementState,
         generation: 2,
       }),
@@ -100,7 +106,7 @@ function setup(local = true, newer = false) {
     );
     assertions++;
     await assert.rejects(
-      s.compareAndSwapMeta('discovery-entitlements', 0, entitlementState),
+      compareAndSwapMeta(s, 'discovery-entitlements', 0, entitlementState),
       /requires IndexedDB/,
     );
     assertions++;
@@ -141,7 +147,7 @@ function setup(local = true, newer = false) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, guarded metadata CAS fallback refusal, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, lazy metadata CAS fallback refusal, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
       },
       null,
       2,
