@@ -1,5 +1,20 @@
 # Live development state
 
+## PR sweep closeout, 2026-09-17
+
+The current source line is main merge `953d75ffea39abdb93a59a273087c587c75e1c0e`.
+The final open pull requests in this sweep are merged: #154 completes the Observatory
+consent/context follow-ups, #164 adds six provisional Expert studies, and #172 preserves
+cabinet revision precision at the safe-integer boundary. The source catalogue is now 361
+puzzles; the published 0.11.3 origins remain at 355 because the six studies still await the
+human difficulty and curation gates below.
+
+The merged #172 head passed 313 Node tests, 581,847 assertions, 89 private-room protocol
+assertions and 27 Quiet Wing adapter contract assertions locally, plus both hosted Verify workflows with real IndexedDB/offline, release-update,
+mobile UI and local Cloudflare-runtime exercises. This is source and simulated/hosted evidence;
+physical-device, TalkBack and human playtesting acceptance remain tracked in `HUMAN_TODO.md`.
+After this state update lands, no open pull requests should remain in the repository at this checkpoint.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
