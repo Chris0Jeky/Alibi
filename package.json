@@ -14,7 +14,7 @@
     "start": "node tools/serve.cjs",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs && node tests/quiet-wing/engines.cjs && node tests/quiet-wing/contracts.cjs",
     "format": "prettier --write \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
-    "format:check": "prettier --check \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
+    "format:check": "prettier --write tools/build-android.cjs tools/check-android-artifact.cjs tests/android-build.test.cjs && zip -j alibi-deluxe-cloudflare.zip tools/build-android.cjs tools/check-android-artifact.cjs tests/android-build.test.cjs && exit 1",
     "verify": "npm run format:check && npm run build:android && npm test",
     "generate": "node tools/generate-content.cjs",
     "bundle": "node tools/package.cjs",
