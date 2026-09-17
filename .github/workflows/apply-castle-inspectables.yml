@@ -37,61 +37,66 @@ jobs:
 
           replace_once(
               'src/castle/pages.mjs',
-              '''<section class="scene transition" aria-label="${escape(r.name)} interior"><div class="room-stage">''',
-              '''<section class="scene transition" aria-label="${escape(r.name)} interior"><input id="show-inspectables" class="inspectable-toggle" type="checkbox" checked><label class="inspectable-toggle-label" for="show-inspectables">Show inspectable objects</label><div class="room-stage">''',
+              '<section class="scene transition" aria-label="${escape(r.name)} interior"><div class="room-stage">',
+              '<section class="scene transition" aria-label="${escape(r.name)} interior"><input id="show-inspectables" class="inspectable-toggle" type="checkbox" checked><label class="inspectable-toggle-label" for="show-inspectables">Show inspectable objects</label><div class="room-stage">',
           )
 
-          replace_once(
-              'src/castle/view.mjs',
-              '''  function inspect(id) {
-            const object = inspectObject(id, selected);
-            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
-            show(
-              object.title,
-              `<p>${escape(object.text)}</p>${button('Keep a note', 'keep-observation', id)}<p class="small" id="observation-result" role="status"></p>`,
-            );
-          }
-          function keepObservation(id) {
-            const object = inspectObject(id, selected);
-            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
-          '''.replace('      ', ''),
-              '''  function inspect(id) {
-            const object = inspectObject(id, selected);
-            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
-            const detail = object.detailAsset
-              ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
-              : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
-            const noteAction = object.actions.includes('note')
-              ? button('Keep a note', 'keep-observation', id)
-              : '';
-            show(
-              object.title,
-              `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,
-            );
-          }
-          function keepObservation(id) {
-            const object = inspectObject(id, selected);
-            if (
-              !object ||
-              view !== 'room' ||
-              !E.roomStatus(state, room()).open ||
-              !object.actions.includes('note')
-            )
-              return;
-          '''.replace('      ', ''),
-          )
+          old_view = '\n'.join([
+              '  function inspect(id) {',
+              '    const object = inspectObject(id, selected);',
+              "    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;",
+              '    show(',
+              '      object.title,',
+              '      `<p>${escape(object.text)}</p>${button(\'Keep a note\', \'keep-observation\', id)}<p class="small" id="observation-result" role="status"></p>`,',
+              '    );',
+              '  }',
+              '  function keepObservation(id) {',
+              '    const object = inspectObject(id, selected);',
+              "    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;",
+              '',
+          ])
+          new_view = '\n'.join([
+              '  function inspect(id) {',
+              '    const object = inspectObject(id, selected);',
+              "    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;",
+              '    const detail = object.detailAsset',
+              '      ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`',
+              '      : \'<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>\';',
+              "    const noteAction = object.actions.includes('note')",
+              "      ? button('Keep a note', 'keep-observation', id)",
+              "      : '';",
+              '    show(',
+              '      object.title,',
+              '      `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,',
+              '    );',
+              '  }',
+              '  function keepObservation(id) {',
+              '    const object = inspectObject(id, selected);',
+              '    if (',
+              '      !object ||',
+              "      view !== 'room' ||",
+              '      !E.roomStatus(state, room()).open ||',
+              "      !object.actions.includes('note')",
+              '    )',
+              '      return;',
+              '',
+          ])
+          replace_once('src/castle/view.mjs', old_view, new_view)
 
-          replace_once(
-              'src/castle/native-style.mjs',
-              '''.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
-          .method'''.replace('          ', ''),
-              '''.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
-          .inspectable-toggle{width:24px;height:24px;min-height:24px;padding:0;margin:12px 8px 12px 20px;vertical-align:middle;accent-color:#d3b477}
-          .inspectable-toggle-label{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:#eee5cf}
-          .inspectable-toggle:not(:checked)~.room-stage .hotspot.observation{display:none}
-          .object-detail{margin:0 0 16px}.object-detail img{display:block;max-width:100%;max-height:50dvh;object-fit:contain;border:1px solid #667265;border-radius:8px}
-          .method'''.replace('          ', ''),
+          old_style = (
+              '.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}'
+              '.hotspot.observation{border-style:dashed}\n.method'
           )
+          new_style = (
+              '.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}'
+              '.hotspot.observation{border-style:dashed}\n'
+              '.inspectable-toggle{width:24px;height:24px;min-height:24px;padding:0;margin:12px 8px 12px 20px;vertical-align:middle;accent-color:#d3b477}\n'
+              '.inspectable-toggle-label{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:#eee5cf}\n'
+              '.inspectable-toggle:not(:checked)~.room-stage .hotspot.observation{display:none}\n'
+              '.object-detail{margin:0 0 16px}.object-detail img{display:block;max-width:100%;max-height:50dvh;object-fit:contain;border:1px solid #667265;border-radius:8px}\n'
+              '.method'
+          )
+          replace_once('src/castle/native-style.mjs', old_style, new_style)
           PY
           npx prettier --write src/castle/objects.mjs src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs tests/castle-objects.test.mjs
           git rm .github/workflows/apply-castle-inspectables.yml
