@@ -193,10 +193,7 @@
         throw Error('Metadata value must be an object.');
       if (!Number.isSafeInteger(value.schema) || value.schema < 1)
         throw Error('Metadata schema must be a positive safe integer.');
-      if (
-        !Number.isSafeInteger(value.generation) ||
-        value.generation !== expectedGeneration + 1
-      )
+      if (!Number.isSafeInteger(value.generation) || value.generation !== expectedGeneration + 1)
         throw Error('Metadata next generation must advance exactly once.');
 
       // Clone before opening an asynchronous transaction so later caller mutation
