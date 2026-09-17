@@ -1,0 +1,102 @@
+name: Apply Castle inspectable controls
+on:
+  push:
+    branches:
+      - feat/castle-inspectable-controls-47
+permissions:
+  contents: write
+concurrency:
+  group: castle-inspectables-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/castle-inspectable-controls-47
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Apply the bounded room-control slice
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              file = Path(path)
+              source = file.read_text(encoding='utf-8')
+              count = source.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one fragment in {path}, found {count}: {old[:90]!r}')
+              file.write_text(source.replace(old, new, 1), encoding='utf-8')
+
+          replace_once(
+              'src/castle/pages.mjs',
+              '''<section class="scene transition" aria-label="${escape(r.name)} interior"><div class="room-stage">''',
+              '''<section class="scene transition" aria-label="${escape(r.name)} interior"><input id="show-inspectables" class="inspectable-toggle" type="checkbox" checked><label class="inspectable-toggle-label" for="show-inspectables">Show inspectable objects</label><div class="room-stage">''',
+          )
+
+          replace_once(
+              'src/castle/view.mjs',
+              '''  function inspect(id) {
+            const object = inspectObject(id, selected);
+            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
+            show(
+              object.title,
+              `<p>${escape(object.text)}</p>${button('Keep a note', 'keep-observation', id)}<p class="small" id="observation-result" role="status"></p>`,
+            );
+          }
+          function keepObservation(id) {
+            const object = inspectObject(id, selected);
+            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
+          '''.replace('      ', ''),
+              '''  function inspect(id) {
+            const object = inspectObject(id, selected);
+            if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
+            const detail = object.detailAsset
+              ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
+              : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
+            const noteAction = object.actions.includes('note')
+              ? button('Keep a note', 'keep-observation', id)
+              : '';
+            show(
+              object.title,
+              `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,
+            );
+          }
+          function keepObservation(id) {
+            const object = inspectObject(id, selected);
+            if (
+              !object ||
+              view !== 'room' ||
+              !E.roomStatus(state, room()).open ||
+              !object.actions.includes('note')
+            )
+              return;
+          '''.replace('      ', ''),
+          )
+
+          replace_once(
+              'src/castle/native-style.mjs',
+              '''.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
+          .method'''.replace('          ', ''),
+              '''.hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
+          .inspectable-toggle{width:24px;height:24px;min-height:24px;padding:0;margin:12px 8px 12px 20px;vertical-align:middle;accent-color:#d3b477}
+          .inspectable-toggle-label{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:#eee5cf}
+          .inspectable-toggle:not(:checked)~.room-stage .hotspot.observation{display:none}
+          .object-detail{margin:0 0 16px}.object-detail img{display:block;max-width:100%;max-height:50dvh;object-fit:contain;border:1px solid #667265;border-radius:8px}
+          .method'''.replace('          ', ''),
+          )
+          PY
+          npx prettier --write src/castle/objects.mjs src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs tests/castle-objects.test.mjs
+          git rm .github/workflows/apply-castle-inspectables.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/castle/objects.mjs src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs tests/castle-objects.test.mjs
+          git commit -m "feat(castle): add inspectable marker controls"
+          git push origin HEAD:feat/castle-inspectable-controls-47
