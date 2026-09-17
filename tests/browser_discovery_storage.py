@@ -54,10 +54,16 @@ async def attempt(page, key, expected_generation, value):
     )
 
 
+async def read_meta(page, key):
+    return await page.evaluate(
+        "(recordKey) => window.__casStore.get('meta', recordKey)", key
+    )
+
+
 async def main():
     runtime = None
     final_state = None
-    with await async_playwright().start() as pw:
+    async with async_playwright() as pw:
         launch = {"headless": True, "args": ["--no-sandbox"]}
         if os.environ.get("CHROMIUM_PATH"):
             launch["executable_path"] = os.environ["CHROMIUM_PATH"]
@@ -171,9 +177,7 @@ async def main():
                 rejected[0]["name"] == "GenerationConflictError",
                 "The stale tab receives a typed generation conflict",
             )
-            final_state = await page_a.evaluate(
-                "window.__casStore.get('meta', arguments[0])", KEY
-            )
+            final_state = await read_meta(page_a, KEY)
             check(
                 final_state == fulfilled[0]["value"]
                 and final_state["generation"] == 2,
@@ -195,9 +199,7 @@ async def main():
                 and stale["name"] == "GenerationConflictError",
                 "A later stale retry remains rejected",
             )
-            unchanged = await page_a.evaluate(
-                "window.__casStore.get('meta', arguments[0])", KEY
-            )
+            unchanged = await read_meta(page_a, KEY)
             check(unchanged == final_state, "A rejected retry leaves bytes unchanged")
 
             await page_a.evaluate(
@@ -220,9 +222,7 @@ async def main():
                 and future["name"] == "ProtectedRecordError",
                 "A future-schema record is protected from an older writer",
             )
-            future_stored = await page_a.evaluate(
-                "window.__casStore.get('meta', arguments[0])", FUTURE_KEY
-            )
+            future_stored = await read_meta(page_a, FUTURE_KEY)
             check(
                 future_stored == {"schema": 2, "generation": 7, "future": True},
                 "Future metadata is preserved exactly",
@@ -248,9 +248,7 @@ async def main():
                 and malformed["name"] == "ProtectedRecordError",
                 "Malformed existing metadata is protected rather than treated as empty",
             )
-            malformed_stored = await page_a.evaluate(
-                "window.__casStore.get('meta', arguments[0])", MALFORMED_KEY
-            )
+            malformed_stored = await read_meta(page_a, MALFORMED_KEY)
             check(
                 malformed_stored
                 == {"schema": 1, "generation": "seven", "payload": "keep"},
