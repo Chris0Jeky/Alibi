@@ -20,11 +20,11 @@ function fallbackBuild(host) {
   const config = host.ALIBI_CONFIG || {};
   return {
     target: 'web',
-    sourceSha: config.sourceSha || 'unresolved-web-source',
-    payloadSha256: isSha256(config.payloadSha256) ? config.payloadSha256 : '0'.repeat(64),
-    appVersion: String(config.version || '0.0.0-unresolved'),
-    contentManifestRevision: String(config.contentManifestRevision || config.build || 'unresolved'),
-    rulesCompatibility: config.rulesCompatibility || {},
+    sourceSha: config.sourceSha,
+    payloadSha256: config.payloadSha256,
+    appVersion: config.appVersion ?? config.version,
+    contentManifestRevision: config.contentManifestRevision,
+    rulesCompatibility: config.rulesCompatibility,
   };
 }
 
@@ -225,8 +225,9 @@ function createDocuments(host) {
       )
         return failure('invalid', 'The backup write request is invalid.');
       return runBounded(
-        async () => {
+        async (operation) => {
           const actualDigest = await sha256(host, request.utf8Payload);
+          operation.throwIfCancelled();
           if (actualDigest !== request.digest.toLowerCase())
             throw new PlatformFailure('invalid', 'The backup digest does not match its payload.');
           const handle = await host.showSaveFilePicker({
@@ -238,24 +239,28 @@ function createDocuments(host) {
               },
             ],
           });
+          operation.throwIfCancelled();
           if (!handle || typeof handle.createWritable !== 'function')
             throw new PlatformFailure('invalid', 'The document picker returned an invalid handle.');
-          const writable = await handle.createWritable();
-          if (
-            !writable ||
-            typeof writable.write !== 'function' ||
-            typeof writable.close !== 'function'
-          )
-            throw new PlatformFailure(
-              'invalid',
-              'The document provider returned an invalid stream.',
-            );
+          let writable;
           try {
+            writable = await handle.createWritable();
+            if (
+              !writable ||
+              typeof writable.write !== 'function' ||
+              typeof writable.close !== 'function'
+            )
+              throw new PlatformFailure(
+                'invalid',
+                'The document provider returned an invalid stream.',
+              );
+            operation.throwIfCancelled();
+            operation.commit();
             await writable.write(request.utf8Payload);
             await writable.close();
           } catch (error) {
             try {
-              await writable.abort?.();
+              await writable?.abort?.();
             } catch {
               /* Preserve the original provider failure. */
             }
@@ -355,9 +360,10 @@ export function createWebPlatform(options = {}) {
       if (!isHandleId(purposeId) || !externalLinks.has(purposeId))
         return failure('invalid', 'The external destination is not approved.');
       return runBounded(
-        () => {
+        (operation) => {
           if (typeof host.open !== 'function')
             throw new PlatformFailure('unavailable', 'External navigation is unavailable.');
+          operation.commit();
           const opened = host.open(externalLinks.get(purposeId), '_blank', 'noopener,noreferrer');
           if (!opened)
             throw new PlatformFailure('denied', 'The browser blocked the external window.');
