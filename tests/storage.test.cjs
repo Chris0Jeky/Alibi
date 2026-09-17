@@ -49,7 +49,10 @@ function setup(local = true, newer = false) {
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/core.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), ctx);
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/discovery-storage.js'), 'utf8'), ctx);
+  vm.runInContext(
+    fs.readFileSync(path.join(__dirname, '../src/discovery-storage.js'), 'utf8'),
+    ctx,
+  );
   return {
     Store: ctx.AlibiStorage.Store,
     compareAndSwapMeta: ctx.AlibiDiscoveryStorage.compareAndSwapMeta,
