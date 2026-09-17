@@ -57,12 +57,12 @@ jobs:
               """        clubEngineBundle +
                     observatory +
                     css +
-          """,
+          """.replace('          observatory', '        observatory').replace('          css', '        css'),
               """        clubEngineBundle +
                     observatory +
                     discoveryStorage +
                     css +
-          """,
+          """.replace('          observatory', '        observatory').replace('          discoveryStorage', '        discoveryStorage').replace('          css', '        css'),
           )
           replace_once(
               """globalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\\n` +
@@ -73,21 +73,21 @@ jobs:
           replace_once(
               """    workerURL,
                 contentURL,
-          """,
+          """.replace('      contentURL', '    contentURL'),
               """    workerURL,
                 discoveryStorageURL,
                 contentURL,
-          """,
+          """.replace('      discoveryStorageURL', '    discoveryStorageURL').replace('      contentURL', '    contentURL'),
           )
           replace_once(
               """    observatoryBytes: Buffer.byteLength(observatory),
                 officialContentBytes:
-          """,
+          """.replace('      officialContentBytes', '    officialContentBytes'),
               """    observatoryBytes: Buffer.byteLength(observatory),
                 discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
                 discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
                 officialContentBytes:
-          """,
+          """.replace('      discoveryStorageBytes', '    discoveryStorageBytes').replace('      discoveryStorageGzipBytes', '    discoveryStorageGzipBytes').replace('      officialContentBytes', '    officialContentBytes'),
           )
           path.write_text(source, encoding='utf-8')
           PY
