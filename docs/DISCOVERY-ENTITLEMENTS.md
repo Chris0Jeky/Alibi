@@ -1,7 +1,8 @@
 # Discovery receipts and cross-game entitlements
 
-Status: pure contract candidate for issue #30. Nothing in this document is wired into a player
-save, backup, route, reward surface or release yet.
+Status: pure reducer contract plus an unwired central IndexedDB compare-and-swap primitive for
+issue #30. Nothing in this document is wired into a player save, backup, route, reward surface or
+release yet.
 
 ## Why this boundary exists
 
@@ -154,12 +155,28 @@ actually satisfied the definition. An `any` prerequisite chooses the smallest sa
 explicit UTF-16 code-unit order, so browser locale and input ordering cannot alter the state. The
 maximum aggregate witness is bounded to the same 32 receipts accepted by a grant.
 
+## Central metadata compare-and-swap
+
+`Store.compareAndSwapMeta` is the transaction owner for one versioned record in the existing
+`alibi-device` `meta` store. It clones the proposed value before asynchronous work, then performs the
+read, schema/generation comparison and replacement inside one IndexedDB `readwrite` transaction.
+A stale tab receives `GenerationConflictError`; a malformed or differently versioned existing
+record receives `ProtectedRecordError` and remains unchanged.
+
+The operation refuses the local-storage and in-memory fallbacks instead of presenting a sequential
+read/write as cross-tab safety. Real-browser acceptance opens two same-origin tabs against the same
+IndexedDB, races generation-two writers, proves exactly one commit, then verifies stale retries,
+future-schema records and malformed records cannot replace the committed bytes. The Node fallback
+contract proves a refused CAS does not create central state.
+
+This is deliberately a generic storage primitive. It does not choose the production metadata key,
+run the discovery reducer, derive receipts or deliver grants.
+
 ## Proposed persistence sequence
 
-The likely central owner is a versioned record in the existing `alibi-device` `meta` store. This
-avoids another database, object-store upgrade or service worker, but the current generic `put`
-method is not sufficient because it has no compare-and-swap check. Runtime wiring should land only
-with a dedicated CAS operation and backup/restore coverage.
+The central owner should be a versioned discovery record in the existing `alibi-device` `meta` store.
+The dedicated compare-and-swap operation now supplies the required single-database transaction, but
+runtime wiring should land only with backup/restore coverage and a proven idempotent target adapter.
 
 A delivery adapter should follow this sequence:
 
@@ -195,9 +212,9 @@ copies are skipped without modifying their saves.
 ## Bounded behaviour
 
 Version 1 caps source registrations, source revisions, receipts, definitions, grants, prerequisite
-width, depth, aggregate witnesses and bootstrap runs. It rejects malformed provenance, duplicate identities, stale
-expected generations, mismatched outbox entries, future schemas and unknown fields before changing
-the caller's objects.
+width, depth, aggregate witnesses and bootstrap runs. It rejects malformed provenance, duplicate
+identities, stale expected generations, mismatched outbox entries, future schemas and unknown fields
+before changing the caller's objects.
 
 The focused contract suite covers:
 
@@ -208,13 +225,14 @@ The focused contract suite covers:
 - category separation and local-source ineligibility;
 - stale-tab conflicts and idempotent acknowledgement;
 - removed content without revocation;
-- future-schema, unknown-field and provenance rejection; and
-- input and expression bounds with caller immutability.
+- future-schema, unknown-field and provenance rejection;
+- input and expression bounds with caller immutability; and
+- real two-tab IndexedDB CAS, unsafe-fallback refusal and protected-record preservation.
 
 ## Work still required before player use
 
-This foundation deliberately does not close issue #30. A follow-up must generate the official
-source registry from the build catalogue, register challenge/story sources, add the central CAS
-adapter, include the state in bounded backup and restore, fault-inject real IndexedDB quota and
-interruption cases, and implement at least one idempotent target-domain delivery. UI, rewards and
+This foundation deliberately does not close issue #30. Follow-ups must generate the official source
+registry from the build catalogue, register challenge/story sources, choose and wire the central
+record key, include discovery state in bounded backup and restore, fault-inject real IndexedDB quota
+and interruption cases, and implement at least one idempotent target-domain delivery. UI, rewards and
 narrative content should wait until those persistence proofs pass.
