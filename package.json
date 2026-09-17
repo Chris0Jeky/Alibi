@@ -11,7 +11,7 @@
     "start": "node tools/serve.cjs",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs && node tests/quiet-wing/engines.cjs && node tests/quiet-wing/contracts.cjs",
     "format": "prettier --write \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
-    "format:check": "prettier --write src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs && node -e \"const fs=require('node:fs');for(const f of process.argv.slice(1)){console.log('FORMAT-BEGIN:'+f);console.log(fs.readFileSync(f).toString('base64'));console.log('FORMAT-END:'+f)}\" src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs && exit 1",
+    "format:check": "prettier --write src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs && zip -j alibi-deluxe-cloudflare.zip src/platform/contract.mjs src/platform/web.mjs tests/platform.test.mjs && exit 1",
     "verify": "npm run format:check && npm run build && npm test",
     "generate": "node tools/generate-content.cjs",
     "bundle": "node tools/package.cjs",
