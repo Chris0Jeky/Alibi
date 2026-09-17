@@ -81,12 +81,12 @@ jobs:
           )
           replace_once(
               """    observatoryBytes: Buffer.byteLength(observatory),
-                officialContentBytes:
+                officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
           """.replace('      officialContentBytes', '    officialContentBytes'),
               """    observatoryBytes: Buffer.byteLength(observatory),
                 discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
                 discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
-                officialContentBytes:
+                officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
           """.replace('      discoveryStorageBytes', '    discoveryStorageBytes').replace('      discoveryStorageGzipBytes', '    discoveryStorageGzipBytes').replace('      officialContentBytes', '    officialContentBytes'),
           )
           path.write_text(source, encoding='utf-8')
