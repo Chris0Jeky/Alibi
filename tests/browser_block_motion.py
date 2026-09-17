@@ -52,6 +52,10 @@ def lab(page, check_name=False):
             and page.locator('#cascade-cabinet-title').inner_text().strip().startswith('Cascade Cabinet'),
             'Cascade dialog has an accessible name',
         )
+        check(
+            page.get_by_role('button', name='Start a new Cascade seed', exact=True).is_visible(),
+            'Cascade restart names its new-seed action',
+        )
 
 
 with sync_playwright() as p:

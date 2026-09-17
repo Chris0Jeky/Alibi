@@ -23,9 +23,13 @@ keyboard focus passes at both widths. Live sessions stayed open from 0.11.2 acro
 accepted another Sudoku move, and preserved exact state and pinned definitions through deliberate
 Save & update and offline reload. The final local UI suite passes 182 assertions.
 
-Independent reviews found no causal blocker. The non-blocking old-revision route test timing
-gap remains in [#144](https://github.com/Chris0Jeky/Alibi/issues/144). The journal's aggregate
-solved total can count both completed revisions of one puzzle; [#147](https://github.com/Chris0Jeky/Alibi/issues/147)
+Independent reviews found no causal blocker. The #144 old-revision route timing gap is corrected
+in current source: Aquarium and Nonogram browser tests now wait for the observable Library fallback
+heading, exact unavailable-revision notice and absent active run, and reject the pre-navigation null
+state that made the former fixed delay pass early. The focused predicate regression and comprehensive
+real-origin Chromium workflow pass at both widths; hosted publication and physical-device behaviour
+are unchanged. The journal's aggregate solved total can count both completed revisions of one puzzle;
+[#147](https://github.com/Chris0Jeky/Alibi/issues/147)
 tracks that display correction without removing either save. Human calibration remains pending.
 See [RELEASE-0.11.3.md](RELEASE-0.11.3.md) and [HUMAN_TODO.md](../HUMAN_TODO.md).
 
@@ -37,6 +41,26 @@ packs. Three new 15×15 Nonograms and three new Sudoku layouts are distinct from
 definitions, and each has exactly one solution under the independent hard-studies oracle. The
 published 0.11.3 origins remain at 355 puzzles; this candidate is not deployed and still needs the
 human difficulty/curation gates in HUMAN_TODO.md.
+
+## Compact large Nonogram controls candidate, 2026-09-16
+
+PR #162 adds permanent browser coverage for the existing 15×15 Nonogram pack in compact mode.
+The source test measures square cells, contiguous rows and columns, clue-margin panning, actual
+marking, undo/redo and offline reload at 320/360/390/430px; it also checks the larger-clue setting.
+This is simulated browser evidence, not physical-phone or assistive-technology acceptance. No puzzle
+IDs, revisions or save formats change.
+
+## Journal identity-count candidate after 0.11.3, 2026-09-15
+
+Current source corrects the journal's aggregate **Puzzles solved** total to count unique puzzle IDs
+rather than completed revision records, including locally imported records when present. Saved
+revision snapshots remain separate and
+reopenable: the real-origin regression stores completed Aquarium revisions 1 and 2 plus one
+separate completed Aquarium, retains all three records, and reports two solved puzzle identities.
+The refreshed asset catalogue matches the edited application source. The current-head comprehensive
+and Wrenmere workflows passed before this documentation closeout. Release 0.11.3 remains unchanged
+and still accurately records the deployed limitation; no hosted publication or physical-device
+acceptance is claimed by this source candidate.
 
 ## Bellweather beacon Nonogram curation in 0.11.3, 2026-09-12
 
