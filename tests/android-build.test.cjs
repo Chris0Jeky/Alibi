@@ -19,6 +19,10 @@ function readJson(filename) {
   return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
+function writeJson(filename, value) {
+  fs.writeFileSync(filename, `${JSON.stringify(value, null, 2)}\n`);
+}
+
 test('generated Android payload satisfies the closed artifact contract', () => {
   const result = inspectAndroidArtifact();
   assert.deepEqual(result.errors, []);
@@ -42,6 +46,28 @@ test('web output remains intact while Android output excludes hosting controls',
       .some((name) => name.startsWith('observatory.')),
     false,
   );
+});
+
+test('Android keeps the full bundled experience while the native target suppresses web lifecycle', () => {
+  const manifest = readJson(path.join(ANDROID_DIST, 'android-assets.json'));
+  const application = manifest.files.find((entry) =>
+    /^assets\/alibi\.[0-9a-f]{12}\.js$/.test(entry.path),
+  );
+  assert.ok(application, 'fixture contains the application bundle');
+  const bundle = fs.readFileSync(path.join(ANDROID_DIST, ...application.path.split('/')), 'utf8');
+  assert.match(bundle, /"standalone":false/);
+  assert.doesNotMatch(bundle, /"standalone":true/);
+
+  const app = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
+  assert.match(
+    app,
+    /globalThis\.ALIBI_BUILD_TARGET\s*!==\s*'android'[\s\S]{0,160}'serviceWorker' in navigator/,
+  );
+});
+
+test('generated Android output is ignored by Git', () => {
+  const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
+  assert.match(ignore, /^dist-android\/$/m);
 });
 
 test('deriving twice from one shared graph is byte-for-byte deterministic', () => {
@@ -80,6 +106,29 @@ test('tampering with one bundled file invalidates its receipt and payload digest
     const errors = inspectAndroidArtifact({ directory: target }).errors.join('\n');
     assert.match(errors, /Byte count differs|SHA-256 differs/);
     assert.match(errors, /payload digest is stale/i);
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test('tampering with source or content provenance invalidates the identity receipt', () => {
+  const target = temporaryDirectory('alibi-android-provenance-');
+  try {
+    deriveAndroidPayload({ target });
+    const identityPath = path.join(target, 'android-build-identity.json');
+    const identity = readJson(identityPath);
+
+    writeJson(identityPath, { ...identity, sourceSha: '0'.repeat(40) });
+    assert.match(inspectAndroidArtifact({ directory: target }).errors.join('\n'), /source SHA is stale/i);
+
+    writeJson(identityPath, {
+      ...identity,
+      contentManifestRevision: '0'.repeat(64),
+    });
+    assert.match(
+      inspectAndroidArtifact({ directory: target }).errors.join('\n'),
+      /content manifest revision is stale/i,
+    );
   } finally {
     fs.rmSync(target, { recursive: true, force: true });
   }
