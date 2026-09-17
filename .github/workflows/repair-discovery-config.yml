@@ -1,0 +1,88 @@
+name: Repair discovery build configuration
+on:
+  push:
+    branches:
+      - feat/discovery-meta-cas-30
+permissions:
+  contents: write
+concurrency:
+  group: repair-discovery-config-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/discovery-meta-cas-30
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Restore the build preamble and remove only the unwired pointer
+        run: |
+          git show deeee10bfca344544c0496998c15ff8a84ba9da4:tools/build.cjs > /tmp/build.cjs
+          python - <<'PY'
+          from pathlib import Path
+
+          build = Path('/tmp/build.cjs').read_text(encoding='utf-8')
+          pointer = 'globalThis.ALIBI_DISCOVERY_STORAGE_URL=${JSON.stringify(discoveryStorageURL)};\\n'
+          if build.count(pointer) != 1:
+              raise SystemExit(f'Expected one discovery pointer in parent build, found {build.count(pointer)}')
+          Path('tools/build.cjs').write_text(build.replace(pointer, '', 1), encoding='utf-8')
+
+          budget = Path('tests/budget.test.cjs')
+          source = budget.read_text(encoding='utf-8')
+          anchor = "const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));\n"
+          if source.count(anchor) != 1:
+              raise SystemExit(f'Expected one budget anchor, found {source.count(anchor)}')
+          guard = """const initialScriptName = fs
+            .readdirSync(path.join(root, 'dist/assets'))
+            .find((name) => /^alibi\\.[a-f0-9]{12}\\.js$/.test(name));
+          assert.ok(initialScriptName, 'Initial JavaScript is emitted');
+          const initialScript = fs.readFileSync(
+            path.join(root, 'dist/assets', initialScriptName),
+            'utf8',
+          );
+          for (const globalName of [
+            'ALIBI_HOUSE_CONFIG',
+            'ALIBI_DELIVERY',
+            'ALIBI_CURATION_MEDIA',
+            'ALIBI_CONFIG',
+            'ALIBI_QUIET_CONFIG',
+            'ALIBI_MEDIA',
+            'ALIBI_WORKER_URL',
+            'ALIBI_CLUB_CONFIG',
+            'ALIBI_OBSERVATORY_URL',
+          ])
+            assert.ok(
+              initialScript.includes(`globalThis.${globalName}=`),
+              `${globalName} remains in the initial configuration preamble`,
+            );
+          assert.ok(
+            !initialScript.includes('ALIBI_DISCOVERY_STORAGE_URL'),
+            'Unwired discovery storage stays out of the initial JavaScript',
+          );
+          const serviceWorker = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
+          assert.match(
+            serviceWorker,
+            /\\.\\/assets\\/discovery-storage\\.[a-f0-9]{12}\\.js/,
+            'Discovery storage remains a hashed offline release asset',
+          );
+          """
+          budget.write_text(source.replace(anchor, anchor + guard, 1), encoding='utf-8')
+          PY
+          npx prettier --write tools/build.cjs tests/budget.test.cjs
+          python -m py_compile tests/browser_discovery_storage.py
+          node --check src/discovery-storage.js
+          npm run verify
+          ! grep -q "ALIBI_DISCOVERY_STORAGE_URL" tools/build.cjs
+          git rm .github/workflows/repair-discovery-config.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tools/build.cjs tests/budget.test.cjs tests/browser_discovery_storage.py
+          git commit -m "fix(discovery): preserve the release bootstrap contract"
+          git push origin HEAD:feat/discovery-meta-cas-30
