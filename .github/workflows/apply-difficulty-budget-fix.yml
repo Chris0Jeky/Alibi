@@ -1,6 +1,6 @@
-# Temporary branch-only workflow: remove an unreferenced core helper, verify the
-# strict existing budgets and tier contract, then remove itself and the superseded
-# diagnostic helper.
+# Temporary branch-only workflow: share the canonical runtime tier registry with the
+# house, remove one unreferenced core helper, verify strict budgets and contracts,
+# then remove itself and the superseded diagnostic helper.
 name: Apply difficulty budget correction
 
 on:
@@ -30,28 +30,43 @@ jobs:
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
-          const filename = 'src/core.js';
-          const source = fs.readFileSync(filename, 'utf8');
-          const dead = '  const colOf = (cell, n) => cell % n;\n';
-          if (source.split(dead).length !== 2) {
-            throw new Error('Expected exactly one unreferenced colOf declaration.');
+
+          function replaceOnce(filename, before, after) {
+            const source = fs.readFileSync(filename, 'utf8');
+            const parts = source.split(before);
+            if (parts.length !== 2) {
+              throw new Error(`${filename}: expected one correction anchor; found ${parts.length - 1}.`);
+            }
+            fs.writeFileSync(filename, parts.join(after));
           }
-          const remaining = source.replace(dead, '');
-          if (/\bcolOf\b/.test(remaining)) {
-            throw new Error('colOf is referenced and cannot be removed as dead code.');
-          }
-          fs.writeFileSync(filename, remaining);
+
+          replaceOnce('src/core.js', '  const colOf = (cell, n) => cell % n;\n', '');
+          replaceOnce(
+            'src/house/model.js',
+            "  const levels = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];\n",
+            '  const levels = G.AlibiCore.DIFFICULTIES;\n',
+          );
+          replaceOnce(
+            'tests/house.test.cjs',
+            "const zlib = require('node:zlib');\nconst M = require('../src/house/model.js');\n",
+            "const zlib = require('node:zlib');\nrequire('../src/core.js');\nconst M = require('../src/house/model.js');\n",
+          );
+          replaceOnce(
+            'tests/difficulty-tiers.test.cjs',
+            '  assert.deepEqual(Model.levels, TIERS);\n',
+            '  assert.equal(Model.levels, Core.DIFFICULTIES);\n',
+          );
           NODE
-          npx prettier --write src/core.js tests/difficulty-tiers.test.cjs
+          npx prettier --write src/core.js src/house/model.js tests/house.test.cjs tests/difficulty-tiers.test.cjs
           npm run build
-          node --test tests/difficulty-tiers.test.cjs tests/budget.test.cjs
+          node --test tests/difficulty-tiers.test.cjs tests/house.test.cjs tests/budget.test.cjs
       - name: Remove temporary migration files
         run: rm tools/apply-difficulty-budget-fix.cjs .github/workflows/apply-difficulty-budget-fix.yml
       - name: Commit verified source changes
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add src/core.js tests/difficulty-tiers.test.cjs
+          git add src/core.js src/house/model.js tests/house.test.cjs tests/difficulty-tiers.test.cjs
           git add -u tools/apply-difficulty-budget-fix.cjs .github/workflows/apply-difficulty-budget-fix.yml
-          git commit -m "fix(difficulty): preserve the initial bundle budget"
+          git commit -m "fix(difficulty): share tiers and preserve bundle budget"
           git push origin HEAD:feat/difficulty-tiers-161
