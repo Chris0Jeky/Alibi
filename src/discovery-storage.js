@@ -1,4 +1,5 @@
 /* Atomic persistence for the unwired discovery-entitlement state. Loaded on demand. */
+/* The build emits this as a hashed offline asset; the initial cabinet never evaluates it. */
 (function (root) {
   'use strict';
   class GenerationConflictError extends Error {
