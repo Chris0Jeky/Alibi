@@ -9,8 +9,8 @@ cabinet revision precision at the safe-integer boundary. The source catalogue is
 puzzles; the published 0.11.3 origins remain at 355 because the six studies still await the
 human difficulty and curation gates below.
 
-The merged #172 head passed 313 Node tests, 581,847 assertions and 27 private-room contract
-assertions locally, plus both hosted Verify workflows with real IndexedDB/offline, release-update,
+The merged #172 head passed 313 Node tests, 581,847 assertions, 89 private-room protocol
+assertions and 27 Quiet Wing adapter contract assertions locally, plus both hosted Verify workflows with real IndexedDB/offline, release-update,
 mobile UI and local Cloudflare-runtime exercises. This is source and simulated/hosted evidence;
 physical-device, TalkBack and human playtesting acceptance remain tracked in `HUMAN_TODO.md`.
 After this state update lands, no open pull requests should remain in the repository at this checkpoint.
