@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/android-payload.yml'
+      - 'docs/capacitor/BUILD-TARGETS.md'
       - 'package.json'
       - 'package-lock.json'
       - 'src/**'
@@ -17,6 +18,7 @@ on:
       - main
     paths:
       - '.github/workflows/android-payload.yml'
+      - 'docs/capacitor/BUILD-TARGETS.md'
       - 'package.json'
       - 'package-lock.json'
       - 'src/**'
@@ -44,6 +46,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check repository formatting
+        run: npm run format:check
       - name: Derive Android payload
         run: npm run build:android
       - name: Audit Android artifact
