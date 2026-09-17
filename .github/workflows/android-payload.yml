@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - main
+      - feat/android-build-target-124-v2
     paths:
       - '.github/workflows/android-payload.yml'
       - 'docs/capacitor/BUILD-TARGETS.md'
@@ -29,14 +30,100 @@ on:
       - 'tests/browser_android_payload.py'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-payload-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  apply-review-fixes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/android-build-target-124-v2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feat/android-build-target-124-v2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply review corrections
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+
+          function replaceOnce(filename, before, after) {
+            const source = fs.readFileSync(filename, 'utf8');
+            const parts = source.split(before);
+            if (parts.length !== 2) {
+              throw new Error(`${filename}: expected exactly one review-fix anchor; found ${parts.length - 1}.`);
+            }
+            fs.writeFileSync(filename, parts.join(after));
+          }
+
+          replaceOnce('.gitignore', 'dist/\n', 'dist/\ndist-android/\n');
+          replaceOnce(
+            'src/app.js',
+            "  if (\n    !cfg.standalone &&\n    'serviceWorker' in navigator &&",
+            "  if (\n    !cfg.standalone &&\n    globalThis.ALIBI_BUILD_TARGET !== 'android' &&\n    'serviceWorker' in navigator &&",
+          );
+          replaceOnce(
+            'tools/build-android.cjs',
+            `  source = replaceExactly(\n    source,\n    /"standalone":false/,\n    '"standalone":true',\n    'Android standalone configuration',\n  );\n`,
+            '',
+          );
+          replaceOnce(
+            'tools/build-android.cjs',
+            '  sourceDigest,\n  treeDigest,\n};\n',
+            '  sourceDigest,\n  sourceSha,\n  treeDigest,\n};\n',
+          );
+          replaceOnce(
+            'tools/check-android-artifact.cjs',
+            '  sourceDigest,\n  treeDigest,\n',
+            '  sourceDigest,\n  sourceSha,\n  treeDigest,\n',
+          );
+          replaceOnce(
+            'tools/check-android-artifact.cjs',
+            "  need(identity.rulesCompatibility === sourceDigest(root), 'Rules compatibility digest is stale.');\n",
+            "  need(identity.rulesCompatibility === sourceDigest(root), 'Rules compatibility digest is stale.');\n  need(identity.sourceSha === sourceSha(root), 'Android source SHA is stale.');\n",
+          );
+          replaceOnce(
+            'tools/check-android-artifact.cjs',
+            '  const listedEntries = [...listed.values()];\n',
+            `  const listedEntries = [...listed.values()];\n  const content = listedEntries.find((entry) =>\n    /^assets\\/official-content\\.[0-9a-f]{12}\\.js$/.test(entry.path),\n  );\n  need(!!content, 'Android asset manifest is missing official content.');\n  need(\n    identity.contentManifestRevision === content?.sha256,\n    'Android content manifest revision is stale.',\n  );\n`,
+          );
+          replaceOnce(
+            'tools/check-android-artifact.cjs',
+            `    need(source.includes('"standalone":true'), 'Android application is not in standalone mode.');\n    need(!source.includes('"standalone":false'), 'Web standalone=false leaked into Android.');\n`,
+            `    need(\n      source.includes('"standalone":false'),\n      'Android application must retain the full bundled experience mode.',\n    );\n    need(\n      !source.includes('"standalone":true'),\n      'Single-file preview mode leaked into Android.',\n    );\n`,
+          );
+          replaceOnce(
+            'docs/STATE.md',
+            '## Capacitor transition architecture (planned; not deployed)\n',
+            `## Android bundled payload candidate (not deployed)\n\nPR #180 implements the CAP-02 derived Android asset target without adding Capacitor, an Android\nproject or a production application identity. The payload is rebuilt from the reviewed web graph,\nremoves browser-host files and online Observatory code, keeps the full bundled Quiet Wing/theatre\nexperience, inventories every file with byte, MIME and SHA-256 evidence, and binds its identity to\nthe exact source SHA, web build, official-content digest and rules digest. The focused Node contract\nand local Chromium payload route verify deterministic derivation, local-only references, native\ntarget diagnostics, Wrenmere/Quiet Wing execution and the absence of web install/update controls.\nThis is browser-level evidence only: Gradle/Capacitor integration, signed packaging, physical-device\nlifecycle, WebView storage persistence, accessibility, performance and store acceptance remain\nopen under #120 and its downstream gates.\n\n## Capacitor transition architecture (planned; not deployed)\n`,
+          );
+          NODE
+          npx prettier --write src/app.js tools/build-android.cjs tools/check-android-artifact.cjs tests/android-build.test.cjs
+      - name: Verify corrected target
+        run: npm run verify
+      - name: Restore normal workflow and remove one-shot helper
+        run: |
+          git show 7c09b2dbb70e8c83ed8dead1c93147743319d14d:.github/workflows/android-payload.yml > .github/workflows/android-payload.yml
+          rm .github/workflows/apply-android-review-fixes.yml
+      - name: Commit verified corrections
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .gitignore .github/workflows/android-payload.yml docs/STATE.md src/app.js tests/android-build.test.cjs tools/build-android.cjs tools/check-android-artifact.cjs
+          git add -u .github/workflows/apply-android-review-fixes.yml
+          git commit -m "fix(android): preserve rich mode and bind provenance"
+          git push origin HEAD:feat/android-build-target-124-v2
+
   verify:
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
