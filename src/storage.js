@@ -4,7 +4,9 @@
   'use strict';
   const PREFIX = 'alibi.v1.',
     DB = 'alibi-device',
-    VERSION = 1;
+    VERSION = 1,
+    blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
+    aborted = () => Error('Storage transaction aborted.');
   class ConflictError extends Error {
     constructor() {
       super('This puzzle changed in another tab. Reload its latest save or export this session.');
@@ -21,18 +23,15 @@
     }
     async init() {
       try {
-        if (!root.indexedDB) throw new Error('IndexedDB is unavailable.');
+        if (!root.indexedDB) throw Error('IndexedDB is unavailable.');
         this.db = await new Promise((resolve, reject) => {
           const request = indexedDB.open(DB, VERSION);
           let abandoned = false;
           const timer = setTimeout(() => {
             abandoned = true;
             reject(
-              Object.assign(
-                new Error(
-                  'Opening saved progress timed out. Close other Alibi windows and reload. Your existing saves have not been changed.',
-                ),
-                { name: 'BlockedError' },
+              blocked(
+                'Opening saved progress timed out. Close other Alibi windows and reload. Your existing saves have not been changed.',
               ),
             );
           }, 8000);
@@ -57,12 +56,7 @@
           request.onblocked = () => {
             clearTimeout(timer);
             abandoned = true;
-            reject(
-              Object.assign(
-                new Error('Close another Alibi tab to finish opening storage, then reload.'),
-                { name: 'BlockedError' },
-              ),
-            );
+            reject(blocked('Close another Alibi tab to finish opening storage, then reload.'));
           };
         });
         this.db.onversionchange = () => {
@@ -93,7 +87,7 @@
     }
     watch(tx, reject) {
       const timer = setTimeout(() => {
-        const error = new Error(
+        const error = Error(
           'Saved progress stopped responding. Export your current session, close other Alibi windows, and reload.',
         );
         reject(error);
@@ -110,7 +104,7 @@
         'abort',
         () => {
           finish();
-          if (!tx.onabort) reject(tx.error || new Error('Storage transaction aborted.'));
+          if (!tx.onabort) reject(tx.error || aborted());
         },
         { once: true },
       );
@@ -132,7 +126,7 @@
             try {
               out.push(JSON.parse(localStorage.getItem(key)));
             } catch (e) {
-              throw new Error(
+              throw Error(
                 'A saved record is damaged. Export browser data before resetting anything.',
               );
             }
@@ -165,7 +159,7 @@
           tx.objectStore(store).put({ key, value });
           tx.oncomplete = () => resolve(value);
           tx.onerror = () => reject(tx.error);
-          tx.onabort = () => reject(tx.error || new Error('Storage transaction aborted.'));
+          tx.onabort = () => reject(tx.error || aborted());
         });
       if (this.mode === 'local')
         localStorage.setItem(PREFIX + store + '.' + key, JSON.stringify(value));
@@ -173,6 +167,13 @@
       return value;
     }
     async saveRun(record, expectedRevision) {
+      // Validate the input and its increment before cloning or writing an unsafe revision.
+      if (
+        !Number.isInteger(expectedRevision) ||
+        !Number.isSafeInteger(expectedRevision + 1) ||
+        expectedRevision < 0
+      )
+        throw Error('Revision limit.');
       const next = AlibiCore.clone(record);
       next.rev = expectedRevision + 1;
       next.updatedAt = new Date().toISOString();
@@ -192,7 +193,7 @@
           tx.oncomplete = () => resolve(next);
           tx.onerror = () => reject(tx.error);
           tx.onabort = () =>
-            reject(conflict ? new ConflictError() : tx.error || new Error('Save aborted.'));
+            reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
         });
       const old = await this.get('runs', record.key);
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
@@ -227,11 +228,11 @@
           meta.put({ key: 'preferences', value: backup.preferences || {} });
           tx.oncomplete = () => resolve();
           tx.onabort = () =>
-            reject(tx.error || new Error('Restore cancelled. Previous data is unchanged.'));
+            reject(tx.error || Error('Restore cancelled. Previous data is unchanged.'));
           tx.onerror = () => reject(tx.error);
         });
       // Fallback cannot offer atomic multi-key replacement, so refuse destructive restores.
-      throw new Error(
+      throw Error(
         'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
       );
     }
