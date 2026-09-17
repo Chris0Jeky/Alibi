@@ -1,19 +1,18 @@
 # Live development state
 
-## PR sweep closeout, 2026-09-17
+## 0.11.4 release candidate, 2026-09-17 (not deployed)
 
-The current source line is main merge `953d75ffea39abdb93a59a273087c587c75e1c0e`.
-The final open pull requests in this sweep are merged: #154 completes the Observatory
-consent/context follow-ups, #164 adds six provisional Expert studies, and #172 preserves
-cabinet revision precision at the safe-integer boundary. The source catalogue is now 361
-puzzles; the published 0.11.3 origins remain at 355 because the six studies still await the
-human difficulty and curation gates below.
+The candidate follows the completed PR sweep at main merge `ce9e990f68ef93823cd8ce59410dc978bb8c7071`.
+It promotes six additive provisional Expert studies, taking the source catalogue from 355 to 361
+puzzles across twenty packs, and includes the compact 15×15 Nonogram controls, unique journal
+identity count, consent-gated Observatory context, revision-safe save/replay boundaries and
+optional-cache isolation. Published definitions, IDs and revisions remain unchanged.
 
-The merged #172 head passed 313 Node tests, 581,847 assertions, 89 private-room protocol
-assertions and 27 Quiet Wing adapter contract assertions locally, plus both hosted Verify workflows with real IndexedDB/offline, release-update,
-mobile UI and local Cloudflare-runtime exercises. This is source and simulated/hosted evidence;
-physical-device, TalkBack and human playtesting acceptance remain tracked in `HUMAN_TODO.md`.
-After this state update lands, no open pull requests should remain in the repository at this checkpoint.
+The merged source baseline passes 313 Node tests, 581,847 assertions, 89 private-room protocol
+assertions and 27 Quiet Wing adapter contract assertions locally. This is source and
+simulated/hosted evidence; physical-device, TalkBack and human playtesting acceptance remain
+tracked in `HUMAN_TODO.md`. The final source/build and hosted publication evidence will be
+recorded in [RELEASE-0.11.4.md](RELEASE-0.11.4.md).
 
 ## Published 0.11.3 Expert quality release, 2026-09-12
 

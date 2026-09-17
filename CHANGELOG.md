@@ -6,6 +6,17 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.4 · A deeper Expert collection
+
+2026-09-17
+
+- Try six new provisional Expert studies: three 15×15 Nonograms and three Sudoku layouts, bringing the source catalogue to 361 puzzles across twenty packs.
+- Use compact 15×15 Nonograms on narrow screens with square, contiguous controls, local panning, larger clues, undo/redo and offline reload.
+- Keep journal totals focused on unique puzzle identities while revision-specific saved records remain separate and reopenable.
+- Keep optional usage sharing consent-gated, and protect device-local saves and optional activity caches across revision, replay and update boundaries.
+
+[Deployment receipt](docs/RELEASE-0.11.4.md)
+
 ## 0.11.3 · A clearer Expert collection
 
 2026-09-12
