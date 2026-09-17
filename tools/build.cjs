@@ -173,8 +173,14 @@ function build() {
   // The Observatory adapter is emitted verbatim as its own asset and loaded after the page's load event by
   // src/observatory-loader.js. It is an online-only control: not in the initial bundle, not in the offline shell.
   const observatory = read(path.join(ROOT, 'observatory/browser.js')),
-    observatoryURL = `./assets/observatory.${hash(observatory)}.js`;
+    observatoryURL = `./assets/observatory.${hash(observatory)}.js`,
+    discoveryStorage = require('esbuild').transformSync(
+      read(path.join(SRC, 'discovery-storage.js')),
+      { minify: true, target: 'es2022' },
+    ).code,
+    discoveryStorageURL = `./assets/discovery-storage.${hash(discoveryStorage)}.js`;
   write(path.join(DIST, observatoryURL), observatory);
+  write(path.join(DIST, discoveryStorageURL), discoveryStorage);
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngineBundle);
   write(path.join(DIST, workerURL), worker);
@@ -229,6 +235,7 @@ function build() {
         worker +
         clubEngineBundle +
         observatory +
+        discoveryStorage +
         css +
         VERSION +
         template +
@@ -243,7 +250,7 @@ function build() {
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\nglobalThis.ALIBI_DISCOVERY_STORAGE_URL=${JSON.stringify(discoveryStorageURL)};\n` +
       require('esbuild').transformSync(base, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -302,6 +309,7 @@ function build() {
     blockLoaderURL,
     bootURL,
     workerURL,
+    discoveryStorageURL,
     contentURL,
     ...Object.values(curation.media),
     ...Object.values(media),
@@ -388,6 +396,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     blockMotionBytes: blockMotion.bytes,
     blockMotionLoaderGzipBytes: zlib.gzipSync(blockLoader).length,
     observatoryBytes: Buffer.byteLength(observatory),
+    discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
+    discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
