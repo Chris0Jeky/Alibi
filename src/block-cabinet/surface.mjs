@@ -33,12 +33,12 @@ export function mountSurface(root, adapter, options = {}) {
     <div class="bc-stage"><div class="bc-board" role="group" aria-label="Eight by eight block puzzle board"></div>
     <div class="bc-status" role="status" aria-live="polite">Drag a piece onto the board, or select it and tap a square.</div>
     <div class="bc-tray" role="group" aria-label="Three available pieces"></div><canvas class="bc-fx" aria-hidden="true"></canvas></div>
-    <div class="bc-controls"><button type="button" data-command="undo">↶ <span>Undo</span></button><button type="button" data-command="redo">↷ <span>Redo</span></button><button type="button" data-command="rotate" hidden>⟳ <span>Rotate</span></button><button type="button" data-command="new" data-bc-restart aria-label="Start again">↻ <span>Start again</span></button><button type="button" data-command="sound" aria-pressed="false">Sound off</button><button type="button" data-command="haptics" aria-pressed="false">Haptics off</button></div>
+    <div class="bc-selection" data-selection aria-atomic="true"><span class="bc-selection-label" data-selection-label>NEXT MOVE</span><strong data-selection-title>Select a tray piece</strong><span data-selection-detail>Legal origins will be marked on the board.</span></div>
+    <div class="bc-controls" role="group" aria-label="Game actions"><button type="button" data-command="undo">↶ <span>Undo</span></button><button type="button" data-command="redo">↷ <span>Redo</span></button><button type="button" data-command="rotate" hidden>⟳ <span>Rotate</span></button><button type="button" data-command="cancel" aria-label="Cancel piece">× <span>Cancel piece</span></button><button type="button" data-command="new" data-bc-restart aria-label="Start again">↻ <span>Start again</span></button></div>
     <p class="bc-save" data-save></p></div>
     <aside class="bc-aside"><div class="bc-note"><span class="bc-kicker">THE CABINETMAKER'S TABLE</span><h3>One good fit.<br>A little more room.</h3><p data-rules></p><div class="bc-illustration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
-    <div class="bc-next"><span class="bc-kicker">BEYOND THE CLASSIC</span><h3>Cascade Cabinet</h3><p>Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.</p><button type="button" data-command="switch">Open the Cascade lab ↗</button></div>
-    <details class="bc-help"><summary>Controls & comfort</summary><p>Drag with a finger, mouse or pen. Touch pieces lift above your finger. Tap a piece and then a square for precise placement. Tab to the board; arrow keys move between squares. Escape cancels a selection.</p><p>Sound and vibration are optional. Your device may not support vibration. Reduced-motion settings remove the particles and movement.</p><button type="button" data-command="motion" aria-pressed="false">Reduce motion</button><p data-diagnostics></p></details>
-    <div class="bc-tools"><button type="button" data-command="export">Export replay</button><button type="button" data-command="import">Import replay</button><button type="button" data-command="simple" hidden>Simple controls</button></div>
+    <div class="bc-next"><span class="bc-kicker">OTHER MODE</span><h3>Cascade Cabinet</h3><p>Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.</p><button type="button" data-command="switch">Open the Cascade lab ↗</button></div>
+    <details class="bc-help"><summary>Options & replay</summary><p>Drag with a finger, mouse or pen. Touch pieces lift above your finger. Tap a piece and then a square for precise placement. Tab to the board; arrow keys move between squares. Escape or Cancel piece clears a selection.</p><p>Sound and vibration are optional. Your device may not support vibration. Reduced-motion settings remove the particles and movement.</p><div class="bc-options" role="group" aria-label="Comfort options"><button type="button" data-command="sound" aria-pressed="false">Sound off</button><button type="button" data-command="haptics" aria-pressed="false">Haptics off</button><button type="button" data-command="motion" aria-pressed="false">Reduce motion</button></div><div class="bc-tools" role="group" aria-label="Replay and display options"><button type="button" data-command="export">Export replay</button><button type="button" data-command="import">Import replay</button><button type="button" data-command="simple" hidden>Simple controls</button></div><p data-diagnostics></p></details>
     <p class="bc-footnote">Original Alibi artwork. No lives, ads, countdowns or pretend opponents.</p></aside></div></section>`;
   const $ = (selector) => root.querySelector(selector);
   const board = $('.bc-board'),
@@ -109,6 +109,11 @@ export function mountSurface(root, adapter, options = {}) {
     }
     state = adapter.read();
     if (selected !== null && state.tray[selected] === null) selected = null;
+    const selectedShape = getShape(),
+      selectedSize = selectedShape ? extent(selectedShape.cells) : null,
+      legalOrigins = selectedShape ? cells.map((_, i) => legal(i)) : cells.map(() => false),
+      legalCount = legalOrigins.filter(Boolean).length;
+    $('.bc-studio').classList.toggle('bc-has-selection', selected !== null);
     text($('[data-score]'), state.score);
     text(
       $('[data-objective-label]'),
@@ -128,6 +133,18 @@ export function mountSurface(root, adapter, options = {}) {
       $('[data-save]'),
       adapter.saveLabel?.() || 'Device-local play. Export a replay to keep a separate backup.',
     );
+    if (selectedShape) {
+      text($('[data-selection-label]'), 'SELECTED PIECE');
+      text($('[data-selection-title]'), selectedShape.name);
+      text(
+        $('[data-selection-detail]'),
+        `${selectedSize.w} × ${selectedSize.h} cells · ${selectedShape.cells.length} squares · ${advanced ? rotation * 90 + '° orientation' : 'fixed orientation'} · ${legalCount} legal ${legalCount === 1 ? 'origin' : 'origins'}`,
+      );
+    } else {
+      text($('[data-selection-label]'), 'NEXT MOVE');
+      text($('[data-selection-title]'), 'Select a tray piece');
+      text($('[data-selection-detail]'), 'Legal origins will be marked on the board.');
+    }
     const motion = $('[data-command="motion"]'),
       motionFloor = externalReducedMotion || reduced.matches;
     motion.setAttribute('aria-pressed', String(reduce));
@@ -139,13 +156,14 @@ export function mountSurface(root, adapter, options = {}) {
     );
     text(motion, reduce ? 'Reduce motion: on' : 'Reduce motion: off');
     cells.forEach((el, i) => {
+      const isLegal = legalOrigins[i];
       el.classList.toggle('filled', !!state.board[i]);
       el.classList.toggle('relic', state.board[i] === 2 && advanced);
-      el.classList.toggle('legal', selected !== null && legal(i));
+      el.classList.toggle('legal', isLegal);
       el.disabled = pending || state.done;
       el.setAttribute(
         'aria-label',
-        `Row ${Math.floor(i / 8) + 1}, column ${(i % 8) + 1}: ${state.board[i] === 2 && advanced ? 'brass relic' : state.board[i] ? 'filled' : 'empty'}${selected === null ? ', select a piece' : legal(i) ? ', legal origin for ' + getShape().name : ', unavailable for selected piece'}`,
+        `Row ${Math.floor(i / 8) + 1}, column ${(i % 8) + 1}: ${state.board[i] === 2 && advanced ? 'brass relic' : state.board[i] ? 'filled' : 'empty'}${selected === null ? ', select a piece' : isLegal ? ', legal origin for ' + selectedShape.name : ', unavailable for selected piece'}`,
       );
     });
     slots.forEach((el, i) => {
@@ -165,12 +183,13 @@ export function mountSurface(root, adapter, options = {}) {
       text(el.querySelector('.bc-piece-name'), shape.name);
       el.setAttribute(
         'aria-label',
-        `Piece ${i + 1}: ${shape.name}, ${shape.cells.length} squares${i === selected ? ', selected' : ''}`,
+        `Piece ${i + 1}: ${shape.name}, ${size.w} by ${size.h} cells, ${shape.cells.length} squares${i === selected ? `, selected, ${advanced ? rotation * 90 + ' degree orientation' : 'fixed orientation'}` : ''}`,
       );
     });
     $('[data-command="undo"]').disabled = pending || !adapter.canUndo();
     $('[data-command="redo"]').disabled = pending || !adapter.canRedo();
     $('[data-command="rotate"]').disabled = pending || selected === null || !state.charges;
+    $('[data-command="cancel"]').disabled = pending || selected === null;
     for (const command of ['new', 'export', 'import', 'simple'])
       $('[data-command="' + command + '"]').disabled = pending;
     if (state.done)
@@ -195,8 +214,25 @@ export function mountSurface(root, adapter, options = {}) {
     origin = -1;
     sync();
     feedback.unlock();
-    announce(`${getShape().name} selected. Drag it, or choose a square.`);
+    const shape = getShape(),
+      size = extent(shape.cells);
+    announce(
+      `${shape.name} selected, ${size.w} by ${size.h} cells. Choose a highlighted origin or cancel.`,
+    );
     return true;
+  }
+  function cancelSelection({ restore = true, speak = true } = {}) {
+    const slot = selected,
+      hadSelection = slot !== null || pointer !== null;
+    selected = null;
+    rotation = 0;
+    pointer = null;
+    origin = -1;
+    sync();
+    if (speak && hadSelection) announce('Selection cancelled. Choose another tray piece.');
+    if (restore && slot !== null && !slots[slot].disabled)
+      slots[slot].focus({ preventScroll: true });
+    return hadSelection;
   }
   function setReducedMotion(value) {
     externalReducedMotion = !!value;
@@ -207,7 +243,9 @@ export function mountSurface(root, adapter, options = {}) {
     if (pending || selected === null) return;
     if (!legal(cell)) {
       feedback.play('reject');
-      announce('That piece does not fit there. Try another square.');
+      announce(
+        `The selected ${getShape().name} does not fit there. Choose another highlighted origin or cancel.`,
+      );
       pointer = null;
       origin = -1;
       loop.invalidate();
@@ -509,6 +547,8 @@ export function mountSurface(root, adapter, options = {}) {
       if (name === 'menu') {
         const open = $('.bc-studio').classList.toggle('bc-menu-open');
         $('[data-command="menu"]').setAttribute('aria-expanded', String(open));
+      } else if (name === 'cancel') {
+        cancelSelection();
       } else if (name === 'sound') {
         sound = !sound;
         feedback.configure({ sound, haptics });
@@ -583,14 +623,10 @@ export function mountSurface(root, adapter, options = {}) {
   }
   function key(e) {
     if (e.target.closest('input,textarea,select')) return;
-    if (e.key === 'Escape') {
-      selected = null;
-      rotation = 0;
-      pointer = null;
-      origin = -1;
-      sync();
-      announce('Selection cancelled.');
+    if (e.key === 'Escape' && (selected !== null || pointer !== null)) {
+      e.preventDefault();
       e.stopPropagation();
+      cancelSelection();
       return;
     }
     const cell = e.target.closest('[data-cell]');
