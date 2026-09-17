@@ -140,16 +140,22 @@ jobs:
 
           sw_test = Path('tests/sw.test.cjs')
           sw_source = sw_test.read_text(encoding='utf-8')
-          sw_anchor = "              !n.startsWith('observatory.') &&\n"
-          if sw_source.count(sw_anchor) != 2:
-              raise SystemExit(f'Expected two optional-asset filters, found {sw_source.count(sw_anchor)}')
-          sw_test.write_text(
-              sw_source.replace(
-                  sw_anchor,
-                  sw_anchor + "              !n.startsWith('discovery-storage.') &&\n",
-              ),
-              encoding='utf-8',
-          )
+          sw_lines = sw_source.splitlines(keepends=True)
+          observatory_filters = [
+              index
+              for index, line in enumerate(sw_lines)
+              if "!n.startsWith('observatory.') &&" in line
+          ]
+          if len(observatory_filters) != 2:
+              raise SystemExit(f'Expected two optional-asset filters, found {len(observatory_filters)}')
+          for index in reversed(observatory_filters):
+              line = sw_lines[index]
+              indent = line[: len(line) - len(line.lstrip())]
+              sw_lines.insert(
+                  index + 1,
+                  indent + "!n.startsWith('discovery-storage.') &&\n",
+              )
+          sw_test.write_text(''.join(sw_lines), encoding='utf-8')
           PY
           npx prettier --write tools/build.cjs tests/budget.test.cjs tests/sw.test.cjs
           python -m py_compile tests/browser_discovery_storage.py
