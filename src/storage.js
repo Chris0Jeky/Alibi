@@ -326,10 +326,5 @@
       );
     }
   }
-  root.AlibiStorage = {
-    Store,
-    ConflictError,
-    GenerationConflictError,
-    ProtectedRecordError,
-  };
+  root.AlibiStorage = { Store, ConflictError, GenerationConflictError, ProtectedRecordError };
 })(globalThis);
