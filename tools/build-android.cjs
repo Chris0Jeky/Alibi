@@ -152,8 +152,13 @@ function treeDigest(directory, ignored = new Set()) {
 }
 
 function replaceExactly(source, matcher, replacement, label) {
-  const matches = [...source.matchAll(new RegExp(matcher.source, matcher.flags.includes('g') ? matcher.flags : matcher.flags + 'g'))];
-  if (matches.length !== 1) throw new Error(`${label} expected exactly one match; found ${matches.length}.`);
+  const matches = [
+    ...source.matchAll(
+      new RegExp(matcher.source, matcher.flags.includes('g') ? matcher.flags : matcher.flags + 'g'),
+    ),
+  ];
+  if (matches.length !== 1)
+    throw new Error(`${label} expected exactly one match; found ${matches.length}.`);
   return source.replace(matcher, replacement);
 }
 
