@@ -1,4 +1,4 @@
-# Iteration 2 removes a source-level dead helper after an exact occurrence check.
+# Iteration 3 reports source-level declarations with exactly one lexical occurrence.
 name: Apply difficulty budget correction
 
 on:
