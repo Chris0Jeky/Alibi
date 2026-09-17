@@ -62,6 +62,16 @@ The active worker serves one coherent cached release. A new release waits for Sa
 other open pages are not forcibly reloaded. Worker caches never contain or delete game saves.
 A server rollback does not reverse IndexedDB or immediately replace all installed workers.
 
+### Observatory adapter rollout
+
+The optional Observatory adapter is a content-hashed online-only asset outside the service-worker
+shell. A browser still running the previous cached shell can therefore request the previous adapter
+name after a host has removed it. This fails closed: the Usage sharing control disappears and no
+events are sent until the player applies the coherent app update. During an adapter rollout, retain
+the previous `observatory.<hash>.js` when the host supports immutable-asset retention, or explicitly
+verify the old-shell/new-host case and record the accepted temporary disappearance. Never add the
+adapter to the offline shell merely to hide this condition without rechecking the shell budget.
+
 The app requests no remote player data, analytics, ads or fonts. The hosting platform may still
 process ordinary request logs and browser/security cookies. On-site privacy copy must distinguish
 the game's device-local behavior from the host's infrastructure.
