@@ -100,7 +100,7 @@ self.onmessage = (e) => {
             'Each room must be a connected area. Join its painted squares before verifying.',
           );
       }
-      const result = AlibiCore.solve(p, null, 2, 250000);
+      const result = AlibiCore.solveDefinition(p, 2, 250000);
       if (result.solutions.length === 0)
         throw Error('No solution fits this draft. Revisit the room layout, furniture or clues.');
       if (result.solutions.length > 1)
