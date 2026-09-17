@@ -90,7 +90,6 @@ async def main():
                 """({
                   version: ALIBI_CONFIG.version,
                   build: ALIBI_CONFIG.build,
-                  lazyAsset: ALIBI_DISCOVERY_STORAGE_URL,
                 })"""
             )
             initially_absent = await asyncio.gather(
@@ -98,7 +97,18 @@ async def main():
                 page_b.evaluate("typeof globalThis.AlibiDiscoveryStorage === 'undefined'"),
             )
             check(all(initially_absent), "Discovery CAS is absent from the initial JavaScript")
-            lazy_url = URL + "/" + runtime["lazyAsset"].removeprefix("./")
+            lazy_asset = await page_a.evaluate(
+                """async () => {
+                  const response = await fetch('/sw.js', {cache: 'no-store'});
+                  const source = await response.text();
+                  return source.match(/\.\/assets\/discovery-storage\.[a-f0-9]{12}\.js/)?.[0] || null;
+                }"""
+            )
+            check(
+                lazy_asset,
+                "Hashed discovery CAS asset is present in the offline release",
+            )
+            lazy_url = URL + "/" + lazy_asset.removeprefix("./")
             await asyncio.gather(
                 page_a.add_script_tag(url=lazy_url),
                 page_b.add_script_tag(url=lazy_url),
