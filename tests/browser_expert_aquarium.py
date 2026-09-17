@@ -1,9 +1,15 @@
-"""Exercise Expert Aquarium revisions and waterline controls on a real origin."""
+"""Exercise Expert Aquarium revisions, journal identity counts and waterline controls."""
 import json
 import os
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
+from revision_route import (
+    UNAVAILABLE_HEADING,
+    UNAVAILABLE_NOTICE,
+    unavailable_route_complete,
+    wait_for_unavailable_revision,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
@@ -13,6 +19,11 @@ V2 = next(
     for puzzle in json.loads((ROOT / 'content/extra/expert-families.json').read_text())['puzzles']
     if puzzle['id'] == 'expert-aquarium-01'
 )
+DISTINCT = next(
+    puzzle
+    for puzzle in json.loads((ROOT / 'content/catalog.json').read_text())['puzzles']
+    if puzzle['type'] == 'aquarium' and puzzle['id'] != V1['id']
+)
 checks = 0
 
 
@@ -21,6 +32,27 @@ def check(value, label):
     assert value, label
     checks += 1
     print('PASS', label, flush=True)
+
+
+settled_unavailable = {
+    'currentKey': None,
+    'heading': UNAVAILABLE_HEADING,
+    'notice': UNAVAILABLE_NOTICE,
+}
+check(
+    not unavailable_route_complete({'currentKey': None, 'heading': '', 'notice': ''}),
+    'unavailable-revision probe ignores a pre-navigation null run',
+)
+check(
+    unavailable_route_complete(settled_unavailable),
+    'unavailable-revision probe accepts the settled Library fallback',
+)
+check(
+    not unavailable_route_complete(
+        {**settled_unavailable, 'currentKey': 'expert-aquarium-01@2'}
+    ),
+    'unavailable-revision probe rejects an incorrectly loaded newer revision',
+)
 
 
 def dismiss(page):
@@ -37,35 +69,43 @@ def route(page, key):
     dismiss(page)
 
 
-def seed_v1_run(page):
-    run = {
+def completed_run(puzzle, completed_at):
+    return {
         'schemaVersion': 1,
-        'key': 'expert-aquarium-01@1',
+        'key': f"{puzzle['id']}@{puzzle['revision']}",
         'rev': 0,
-        'puzzle': V1,
-        'state': {'levels': [0] * len(V1['solution']), 'notes': {}},
+        'puzzle': puzzle,
+        'state': {'levels': list(puzzle['solution']), 'notes': {}},
         'undo': [],
         'redo': [],
-        'moves': 0,
+        'moves': 1,
         'hints': 0,
-        'elapsed': 0,
-        'completedAt': None,
-        'firstCompletedAt': None,
-        'updatedAt': '2026-09-12T00:00:00.000Z',
+        'elapsed': 1,
+        'completedAt': completed_at,
+        'firstCompletedAt': completed_at,
+        'updatedAt': completed_at,
         'note': '',
     }
+
+
+def seed_completed_runs(page):
+    runs = [
+        completed_run(V1, '2026-09-12T00:00:00.000Z'),
+        completed_run(DISTINCT, '2026-09-12T00:01:00.000Z'),
+    ]
     page.evaluate(
-        """(run) => new Promise((resolve, reject) => {
+        """(runs) => new Promise((resolve, reject) => {
           const request = indexedDB.open('alibi-device');
           request.onerror = () => reject(request.error || new Error('IndexedDB open failed'));
           request.onsuccess = () => {
             const tx = request.result.transaction('runs', 'readwrite');
-            tx.objectStore('runs').put({key: run.key, value: run});
+            const store = tx.objectStore('runs');
+            for (const run of runs) store.put({key: run.key, value: run});
             tx.oncomplete = () => { request.result.close(); resolve(); };
             tx.onerror = () => reject(tx.error || new Error('IndexedDB write failed'));
           };
         })""",
-        run,
+        runs,
     )
 
 
@@ -94,19 +134,26 @@ with sync_playwright() as pw:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.goto(BASE)
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
-        page.evaluate("location.hash='/play/expert-aquarium-01@1'")
-        page.wait_for_timeout(250)
+        page.evaluate(
+            "(key) => setTimeout(() => { location.hash = '/play/' + key; }, 350)",
+            'expert-aquarium-01@1',
+        )
+        snapshot = wait_for_unavailable_revision(page)
         check(
-            page.evaluate("()=>AlibiDiagnostics.getCurrent()") is None,
+            snapshot['currentKey'] is None,
             f'{width}: unsaved v1 URL does not invent a legacy definition',
         )
-        seed_v1_run(page)
+        seed_completed_runs(page)
         page.reload()
         page.wait_for_function('()=>window.AlibiDiagnostics')
         route(page, 'expert-aquarium-01@1')
         check(
             page.locator('.play-title h1').inner_text() == V1['title'],
-            f'{width}: saved v1 snapshot continues at its explicit route',
+            f'{width}: completed v1 snapshot remains reopenable at its explicit route',
+        )
+        check(
+            page.evaluate('()=>AlibiDiagnostics.getCurrent().completedAt') is not None,
+            f'{width}: completed v1 history remains intact',
         )
         route(page, 'expert-aquarium-01@2')
         check(
@@ -146,6 +193,25 @@ with sync_playwright() as pw:
             f'{width}: Expert Aquarium completes through waterline controls',
         )
         check(page.locator('dialog[open]').count() == 1, f'{width}: completion is shown after the solved board')
+        dismiss(page)
+
+        page.evaluate("location.hash='/journal'")
+        page.get_by_role('heading', name='Your journal.').wait_for()
+        solved_total = (
+            page.locator('.stat-card')
+            .filter(has_text='Puzzles solved')
+            .locator('strong')
+            .inner_text()
+            .strip()
+        )
+        check(
+            solved_total == '2',
+            f'{width}: journal counts two unique puzzle IDs across three completed revision records',
+        )
+        check(
+            page.evaluate('()=>AlibiDiagnostics.getCounts().records') == 3,
+            f'{width}: both Aquarium revisions and the distinct completed puzzle remain stored',
+        )
         check(not errors, f'{width}: no browser errors')
         context.close()
     browser.close()

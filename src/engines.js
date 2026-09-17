@@ -538,7 +538,12 @@
         tick();
         if (
           p.statements.filter((c) => truth(c, i)).length === p.trueCount &&
-          (state?.accused == null || state.accused === i)
+          (state?.accused == null || state.accused === i) &&
+          (state?.marks == null ||
+            state.marks.every(
+              (mark, statement) =>
+                mark === -1 || mark === Number(truth(p.statements[statement], i)),
+            ))
         )
           add(i);
         if (solutions.length >= limit) break;
@@ -1025,7 +1030,7 @@
       throw new Error('Duplicate puzzle IDs.');
     if (checkUnique)
       for (const p of puzzles)
-        if (C.solve(p).solutions.length !== 1)
+        if (C.solveDefinition(p).solutions.length !== 1)
           throw new Error(`${p.title}: the rules do not identify exactly one solution.`);
     return {
       schemaVersion: 1,

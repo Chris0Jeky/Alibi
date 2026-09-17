@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
+from revision_route import wait_for_unavailable_revision
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'expert-nonogram'
@@ -84,10 +85,13 @@ with sync_playwright() as pw:
         page.goto(BASE)
         page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
 
-        page.evaluate("location.hash='/play/expert-nonogram-01@1'")
-        page.wait_for_timeout(250)
+        page.evaluate(
+            "(key) => setTimeout(() => { location.hash = '/play/' + key; }, 350)",
+            'expert-nonogram-01@1',
+        )
+        snapshot = wait_for_unavailable_revision(page)
         check(
-            page.evaluate('()=>AlibiDiagnostics.getCurrent()') is None,
+            snapshot['currentKey'] is None,
             f'{width}: unsaved v1 URL does not invent a legacy definition',
         )
         seed_v1_run(page)

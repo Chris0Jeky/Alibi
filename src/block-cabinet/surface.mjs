@@ -33,12 +33,12 @@ export function mountSurface(root, adapter, options = {}) {
     <div class="bc-stage"><div class="bc-board" role="group" aria-label="Eight by eight block puzzle board"></div>
     <div class="bc-status" role="status" aria-live="polite">Drag a piece onto the board, or select it and tap a square.</div>
     <div class="bc-tray" role="group" aria-label="Three available pieces"></div><canvas class="bc-fx" aria-hidden="true"></canvas></div>
-    <div class="bc-controls"><button type="button" data-command="undo">↶ <span>Undo</span></button><button type="button" data-command="redo">↷ <span>Redo</span></button><button type="button" data-command="rotate" hidden>⟳ <span>Rotate</span></button><button type="button" data-command="sound" aria-pressed="false">Sound off</button><button type="button" data-command="haptics" aria-pressed="false">Haptics off</button></div>
+    <div class="bc-controls"><button type="button" data-command="undo">↶ <span>Undo</span></button><button type="button" data-command="redo">↷ <span>Redo</span></button><button type="button" data-command="rotate" hidden>⟳ <span>Rotate</span></button><button type="button" data-command="new" data-bc-restart aria-label="Start again">↻ <span>Start again</span></button><button type="button" data-command="sound" aria-pressed="false">Sound off</button><button type="button" data-command="haptics" aria-pressed="false">Haptics off</button></div>
     <p class="bc-save" data-save></p></div>
     <aside class="bc-aside"><div class="bc-note"><span class="bc-kicker">THE CABINETMAKER'S TABLE</span><h3>One good fit.<br>A little more room.</h3><p data-rules></p><div class="bc-illustration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="bc-next"><span class="bc-kicker">BEYOND THE CLASSIC</span><h3>Cascade Cabinet</h3><p>Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.</p><button type="button" data-command="switch">Open the Cascade lab ↗</button></div>
     <details class="bc-help"><summary>Controls & comfort</summary><p>Drag with a finger, mouse or pen. Touch pieces lift above your finger. Tap a piece and then a square for precise placement. Tab to the board; arrow keys move between squares. Escape cancels a selection.</p><p>Sound and vibration are optional. Your device may not support vibration. Reduced-motion settings remove the particles and movement.</p><button type="button" data-command="motion" aria-pressed="false">Reduce motion</button><p data-diagnostics></p></details>
-    <div class="bc-tools"><button type="button" data-command="new">New seeded game</button><button type="button" data-command="export">Export replay</button><button type="button" data-command="import">Import replay</button><button type="button" data-command="simple" hidden>Simple controls</button></div>
+    <div class="bc-tools"><button type="button" data-command="export">Export replay</button><button type="button" data-command="import">Import replay</button><button type="button" data-command="simple" hidden>Simple controls</button></div>
     <p class="bc-footnote">Original Alibi artwork. No lives, ads, countdowns or pretend opponents.</p></aside></div></section>`;
   const $ = (selector) => root.querySelector(selector);
   const board = $('.bc-board'),
@@ -87,6 +87,9 @@ export function mountSurface(root, adapter, options = {}) {
   $('.bc-next p').textContent = advanced
     ? 'A quiet, endless board. Your classic game remains separate and unchanged.'
     : 'Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.';
+  const restart = $('[data-command="new"]');
+  restart.setAttribute('aria-label', advanced ? 'Start a new Cascade seed' : 'Start again');
+  text(restart.querySelector('span'), advanced ? 'New seed' : 'Start again');
   for (const command of ['new', 'export', 'import', 'simple'])
     $('[data-command="' + command + '"]').hidden = !adapter[command];
   const getShape = (slot = selected) =>
