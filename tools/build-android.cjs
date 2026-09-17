@@ -34,6 +34,11 @@ const NATIVE_CSP = [
   "base-uri 'self'",
   "form-action 'self'",
 ].join('; ');
+const NATIVE_UI_CSS = `${[
+  'html[data-alibi-target="android"] [data-action="install"]',
+  'html[data-alibi-target="android"] [data-action="check-update"]',
+  'html[data-alibi-target="android"] .settings-grid > .panel:has([data-action="install"])',
+].join(',')}{display:none!important}`;
 const TEXT_EXTENSIONS = new Set([
   '.css',
   '.html',
@@ -167,6 +172,7 @@ function makeTargetSource() {
 (() => {
   const g = globalThis;
   g.ALIBI_BUILD_TARGET = 'android';
+  document.documentElement.dataset.alibiTarget = 'android';
   const wrap = (value) => {
     if (!value || typeof value.getStatus !== 'function') return value;
     const getStatus = value.getStatus.bind(value);
@@ -230,7 +236,7 @@ function rewriteIndex(directory, targetScript, application) {
   html = replaceExactly(
     html,
     /<meta http-equiv="Content-Security-Policy" content="[^"]*">/,
-    `<meta http-equiv="Content-Security-Policy" content="${NATIVE_CSP}">`,
+    `<meta http-equiv="Content-Security-Policy" content="${NATIVE_CSP}"><style id="alibi-native-ui">${NATIVE_UI_CSS}</style>`,
     'Content Security Policy',
   );
   html = replaceExactly(
@@ -354,6 +360,7 @@ module.exports = {
   ANDROID_DIST,
   HOST_ONLY,
   NATIVE_CSP,
+  NATIVE_UI_CSS,
   RULE_SOURCES,
   buildAndroid,
   cost,
