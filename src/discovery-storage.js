@@ -1,6 +1,6 @@
 // Atomic persistence for the unwired discovery-entitlement state.
 // Emitted as a deferred, non-precache asset until a presenter owns loading.
-/* The build emits this as a hashed distribution asset; the initial cabinet never evaluates or precaches it. */
+/* The hashed build asset is neither evaluated nor precached by the initial cabinet. */
 (function (root) {
   'use strict';
   class GenerationConflictError extends Error {
