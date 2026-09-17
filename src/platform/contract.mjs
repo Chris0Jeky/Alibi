@@ -166,7 +166,8 @@ function method(value, name) {
 }
 
 export function assertPlatform(value) {
-  if (!value || typeof value !== 'object') throw new TypeError('A platform implementation is required.');
+  if (!value || typeof value !== 'object')
+    throw new TypeError('A platform implementation is required.');
   assertBuildIdentity(value.build);
   method(value, 'capabilities');
   method(value, 'subscribeLifecycle');
