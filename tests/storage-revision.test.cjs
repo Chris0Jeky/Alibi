@@ -79,7 +79,16 @@ test('the final safe cabinet revision stays readable but cannot overflow on save
 
 test('invalid expected revisions are rejected before the stored run can change', async () => {
   const Store = loadStorage();
-  for (const revision of [-1, 0.5, Number.MIN_VALUE, Number.NaN, Number.POSITIVE_INFINITY]) {
+  for (const revision of [
+    -1,
+    0.5,
+    Number.MIN_VALUE,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    false,
+    null,
+    '0',
+  ]) {
     const store = new Store();
     const record = savedRun(0);
     store.memory.runs[record.key] = structuredClone(record);

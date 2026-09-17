@@ -169,9 +169,9 @@
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.
       if (
+        !Number.isInteger(expectedRevision) ||
         !Number.isSafeInteger(expectedRevision + 1) ||
-        expectedRevision < 0 ||
-        expectedRevision % 1
+        expectedRevision < 0
       )
         throw Error('Revision limit.');
       const next = AlibiCore.clone(record);
