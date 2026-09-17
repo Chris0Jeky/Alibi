@@ -2,11 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createWebPlatform } from '../src/platform/web.mjs';
-import {
-  getPlatform,
-  installPlatform,
-  __resetPlatformForTests,
-} from '../src/platform/index.mjs';
+import { getPlatform, installPlatform, __resetPlatformForTests } from '../src/platform/index.mjs';
 
 const BUILD = Object.freeze({
   target: 'web',
@@ -118,7 +114,10 @@ test('document handles stay opaque, bounded and invalid after release', async ()
     value: payload,
   });
   assert.equal((await documents.readLimited(selected.value, 2, operation())).code, 'protected');
-  assert.equal((await documents.readLimited('web-document:forged', 1024, operation())).code, 'invalid');
+  assert.equal(
+    (await documents.readLimited('web-document:forged', 1024, operation())).code,
+    'invalid',
+  );
   await documents.release(selected.value);
   assert.equal((await documents.readLimited(selected.value, 1024, operation())).code, 'invalid');
 });
@@ -242,9 +241,15 @@ test('assets and external destinations are resolved only through reviewed allowl
     ],
     externalLinks: { privacy: 'https://example.test/privacy' },
   });
-  assert.equal((await platform.assets.resolve('castle.prologue.poster', '1', operation())).ok, true);
+  assert.equal(
+    (await platform.assets.resolve('castle.prologue.poster', '1', operation())).ok,
+    true,
+  );
   assert.equal((await platform.assets.resolve('../private', '1', operation())).code, 'invalid');
-  assert.equal((await platform.assets.resolve('castle.prologue.poster', '2', operation())).code, 'unavailable');
+  assert.equal(
+    (await platform.assets.resolve('castle.prologue.poster', '2', operation())).code,
+    'unavailable',
+  );
   assert.equal((await platform.openExternal('unknown', operation())).code, 'invalid');
   assert.equal((await platform.openExternal('privacy', operation())).ok, true);
   assert.deepEqual(opened, [
