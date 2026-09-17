@@ -42,7 +42,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 355 puzzles across nineteen bounded packs |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 361 puzzles across twenty bounded packs |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
@@ -114,7 +114,7 @@ combined staging and subsequent section validation use its bounded worker. See R
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 59 additional classic/Club challenges are
-separate experiences, never core imports or additions to the 355-puzzle count.
+separate experiences, never core imports or additions to the 361-puzzle count.
 
 ## Adaptive asset delivery
 
