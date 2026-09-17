@@ -32,7 +32,8 @@ async def attempt(page, key, expected_generation, value):
     return await page.evaluate(
         """async ({key, expectedGeneration, value}) => {
           try {
-            const saved = await window.__casStore.compareAndSwapMeta(
+            const saved = await AlibiDiscoveryStorage.compareAndSwapMeta(
+              window.__casStore,
               key,
               expectedGeneration,
               value,
@@ -86,8 +87,31 @@ async def main():
                 page_b.locator("#main").wait_for(state="visible"),
             )
             runtime = await page_a.evaluate(
-                "({version: ALIBI_CONFIG.version, build: ALIBI_CONFIG.build})"
+                """({
+                  version: ALIBI_CONFIG.version,
+                  build: ALIBI_CONFIG.build,
+                  lazyAsset: ALIBI_DISCOVERY_STORAGE_URL,
+                })"""
             )
+            initially_absent = await asyncio.gather(
+                page_a.evaluate("typeof globalThis.AlibiDiscoveryStorage === 'undefined'"),
+                page_b.evaluate("typeof globalThis.AlibiDiscoveryStorage === 'undefined'"),
+            )
+            check(all(initially_absent), "Discovery CAS is absent from the initial JavaScript")
+            lazy_url = URL + "/" + runtime["lazyAsset"].removeprefix("./")
+            await asyncio.gather(
+                page_a.add_script_tag(url=lazy_url),
+                page_b.add_script_tag(url=lazy_url),
+            )
+            loaded = await asyncio.gather(
+                page_a.evaluate(
+                    "typeof globalThis.AlibiDiscoveryStorage?.compareAndSwapMeta === 'function'"
+                ),
+                page_b.evaluate(
+                    "typeof globalThis.AlibiDiscoveryStorage?.compareAndSwapMeta === 'function'"
+                ),
+            )
+            check(all(loaded), "Both tabs load the hashed discovery CAS asset")
             modes = await asyncio.gather(
                 page_a.evaluate(
                     """async () => {
@@ -127,7 +151,12 @@ async def main():
                     owned: [],
                     outbox: [],
                   };
-                  const pending = window.__casStore.compareAndSwapMeta(key, 0, candidate);
+                  const pending = AlibiDiscoveryStorage.compareAndSwapMeta(
+                    window.__casStore,
+                    key,
+                    0,
+                    candidate,
+                  );
                   candidate.receipts.push('mutated-after-call');
                   const saved = await pending;
                   const stored = await window.__casStore.get('meta', key);
