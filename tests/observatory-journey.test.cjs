@@ -10,22 +10,11 @@ const loaderSource = fs.readFileSync(path.join(root, 'src/observatory-loader.js'
 const appSource = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
 
 function harness() {
-  const listeners = new Map(),
-    events = [],
-    appended = [];
+  const block = /\/\/ Observatory journey helper start\.\n([\s\S]*?)  \/\/ Observatory journey helper end\./.exec(appSource);
+  assert.ok(block, 'app must contain the bounded journey helper block');
+  const events = [];
   let active = false;
   const context = {
-    ALIBI_OBSERVATORY_URL: './observer.js',
-    ALIBI_CONFIG: { standalone: false, version: '0.11.4' },
-    location: { hash: '#/play/curated-aquarium-01' },
-    document: {
-      readyState: 'loading',
-      createElement: () => ({}),
-      head: { append: (tag) => appended.push(tag) },
-    },
-    addEventListener(type, listener) {
-      listeners.set(type, listener);
-    },
     PulseboardUsage: {
       status: () => ({ active }),
       track(event) {
@@ -36,34 +25,33 @@ function harness() {
     },
   };
   context.globalThis = context;
-  vm.runInNewContext(loaderSource, context, { filename: 'observatory-loader.js' });
-  return {
+  vm.runInNewContext(
+    `let current = { key: 'first' };\n${block[1]}\nglobalThis.__journey = { call: observeJourney, change: value => { current = value; } };`,
     context,
+    { filename: 'observatory-journey-helper.js' },
+  );
+  return {
     events,
-    appended,
-    listeners,
+    call: context.__journey.call,
+    change: context.__journey.change,
     setActive(value) {
       active = value;
     },
   };
 }
 
-test('journey adapter emits only bounded events while consent is active', () => {
+test('fixed journey events are emitted only while consent is active', () => {
   const h = harness();
-  const journey = h.context.ALIBI_OBSERVATORY_JOURNEY;
-  assert.ok(journey, 'loader must publish the bounded journey adapter');
-  assert.deepEqual(Object.keys(journey).sort(), ['begin', 'complete', 'fail', 'hint', 'reset']);
-
-  assert.equal(journey.begin(), false);
+  assert.equal(h.call(), false);
   assert.deepEqual(h.events, []);
 
   h.setActive(true);
-  assert.equal(journey.begin(), true);
-  assert.equal(journey.begin(), true, 'an already-open attempt is stable, not another start');
-  assert.equal(journey.hint(), true);
-  assert.equal(journey.fail(), true);
-  assert.equal(journey.begin(), true);
-  assert.equal(journey.complete(), true);
+  assert.equal(h.call(), true);
+  assert.equal(h.call(), true, 'an already-open attempt is stable, not another start');
+  assert.equal(h.call('hint.requested'), true);
+  assert.equal(h.call('puzzle.failed'), true);
+  assert.equal(h.call(), true);
+  assert.equal(h.call('puzzle.completed'), true);
   assert.deepEqual(h.events, [
     'puzzle.started',
     'hint.requested',
@@ -73,50 +61,41 @@ test('journey adapter emits only bounded events while consent is active', () => 
   ]);
 });
 
-test('withdrawal and route changes clear local attempt state', () => {
-  const h = harness(),
-    journey = h.context.ALIBI_OBSERVATORY_JOURNEY;
+test('withdrawal and puzzle changes reset local attempt state', () => {
+  const h = harness();
   h.setActive(true);
-  journey.begin();
+  h.call();
   h.setActive(false);
-  assert.equal(journey.hint(), false);
+  assert.equal(h.call('hint.requested'), false);
   h.setActive(true);
-  assert.equal(
-    journey.complete(),
-    true,
-    'completion after re-consent begins a fresh bounded attempt',
-  );
+  assert.equal(h.call('puzzle.completed'), true, 're-consent begins a fresh bounded attempt');
   assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
 
-  h.context.location.hash = '#/home';
-  h.listeners.get('hashchange')();
-  h.context.location.hash = '#/play/another';
-  h.listeners.get('hashchange')();
-  journey.fail();
-  assert.deepEqual(h.events.slice(-4), [
-    'page.view',
-    'page.view',
-    'puzzle.started',
-    'puzzle.failed',
-  ]);
+  h.call();
+  h.change({ key: 'second' });
+  h.call('puzzle.failed');
+  assert.deepEqual(h.events.slice(-3), ['puzzle.started', 'puzzle.started', 'puzzle.failed']);
 });
 
-test('application lifecycle calls the adapter without passing product data', () => {
+test('application lifecycle calls the helper with fixed event names only', () => {
+  assert.match(appSource, /observeJourney\(\);[\s\S]*current\.state = next;/);
+  assert.match(appSource, /issues\.length\)[\s\S]*observeJourney\('puzzle\.failed'\)/);
   assert.match(
     appSource,
-    /ALIBI_OBSERVATORY_JOURNEY\?\.begin\?\.\(\);[\s\S]*current\.state = next;/,
-  );
-  assert.match(appSource, /issues\.length\)[\s\S]*ALIBI_OBSERVATORY_JOURNEY\?\.fail\?\.\(\)/);
-  assert.match(
-    appSource,
-    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*globalThis\.ALIBI_OBSERVATORY_JOURNEY\?\.complete\?\.\(\);/,
+    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*observeJourney\('puzzle\.completed'\);/,
   );
   assert.match(
     appSource,
-    /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.ALIBI_OBSERVATORY_JOURNEY\?\.hint\?\.\(\);/,
+    /function showHint\(\) \{\s*if \(!current\) return;\s*observeJourney\('hint\.requested'\);/,
   );
-  assert.doesNotMatch(
-    appSource,
-    /ALIBI_OBSERVATORY_JOURNEY[^;]*(?:puzzle|current|state|answer|id)\s*[,)]/i,
+  const calls = [...appSource.matchAll(/(?<!function )observeJourney\(([^)]*)\)/g)].map((match) =>
+    match[1].trim(),
   );
+  assert.deepEqual(calls.sort(), [
+    '',
+    "'hint.requested'",
+    "'puzzle.completed'",
+    "'puzzle.failed'",
+  ]);
+  assert.doesNotMatch(loaderSource, /ALIBI_OBSERVATORY_JOURNEY/);
 });
