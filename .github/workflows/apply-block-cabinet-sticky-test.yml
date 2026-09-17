@@ -1,0 +1,35 @@
+name: Apply Block Cabinet sticky regression
+
+on:
+  push:
+    branches:
+      - fix/block-cabinet-phone-actions-160
+    paths:
+      - '.github/workflows/apply-block-cabinet-sticky-test.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/block-cabinet-phone-actions-160
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Apply the browser regression first
+        run: |
+          node tools/apply-block-cabinet-sticky-test.cjs
+          rm tools/apply-block-cabinet-sticky-test.cjs .github/workflows/apply-block-cabinet-sticky-test.yml
+      - name: Commit only the regression
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add tests/browser_block_cabinet.py
+          git add -u tools/apply-block-cabinet-sticky-test.cjs .github/workflows/apply-block-cabinet-sticky-test.yml
+          git commit -m "test(block-cabinet): cover scrolling phone actions"
+          git push origin HEAD:fix/block-cabinet-phone-actions-160
