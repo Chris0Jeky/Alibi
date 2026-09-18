@@ -13,6 +13,10 @@ export default `
 .room-stage{position:relative;aspect-ratio:1000/660;width:100%}
 .hotspot{position:absolute;transform:translate(-50%,-50%);width:44px;min-height:44px;padding:0;border-radius:50%;border:2px solid #e4c894;background:#193333ed;color:#f9dfac;box-shadow:0 2px 14px #10242477;font-size:26px;line-height:1}
 .hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
+.inspectable-toggle{width:24px;height:24px;min-height:24px;padding:0;margin:12px 8px 12px 20px;vertical-align:middle;accent-color:#d3b477}
+.inspectable-toggle-label{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:#eee5cf}
+.inspectable-toggle:not(:checked)~.room-stage .hotspot.observation{display:none}
+.object-detail{margin:0 0 16px}.object-detail img{display:block;max-width:100%;max-height:50dvh;object-fit:contain;border:1px solid #667265;border-radius:8px}
 .method{border-top:1px solid #536357;padding-top:16px;font:italic 19px/1.6 Georgia,serif;color:#e0c89c}
 .thread-guide{margin-bottom:30px;padding:22px;border-left:3px solid #d3b477;background:#29453e}.thread-guide p{margin:8px 0 14px;max-width:68ch}
 .castle-objects{padding:20px 28px;border-top:1px solid #667265;display:flex;gap:14px;align-items:center;flex-wrap:wrap}.castle-objects p{margin:0}.castle-objects small{display:block}
