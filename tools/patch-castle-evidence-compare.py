@@ -20,7 +20,7 @@ pages.write_text(source, encoding='utf-8')
 
 view = Path('src/castle/view.mjs')
 source = view.read_text(encoding='utf-8')
-old = "import { theoryForm, labelQuestions } from './investigation-view.mjs';"
+old = "import { theoryForm } from './investigation-view.mjs';"
 new = old + "\nimport { evidenceComparison } from './evidence-view.mjs';"
 if source.count(old) != 1:
     raise SystemExit('Expected one view import anchor.')
