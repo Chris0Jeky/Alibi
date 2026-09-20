@@ -38,9 +38,29 @@ def run():
                 assert page.locator('.castle-plan img').get_attribute('src')!=today
                 assert page.locator('.secret-route').count()==0
                 expect(page.locator('.scene-heading')).not_to_contain_text('service stair')
+                zoom_status=page.locator('.map-zoom-status')
+                expect(zoom_status).to_have_text('100%')
+                map_scroll=page.locator('.map-scroll')
+                initial_width=page.locator('.map-stage').bounding_box()['width']
+                zoom_in=page.locator('[data-do="map-zoom"][data-value="in"]')
+                zoom_in.focus()
+                zoom_in.press('Enter')
+                expect(zoom_status).to_have_text('125%')
+                expect(zoom_in).to_be_focused()
+                zoomed_width=page.locator('.map-stage').bounding_box()['width']
+                assert zoomed_width>initial_width*1.2
+                local_overflow=map_scroll.evaluate('(e)=>({client:e.clientWidth,scroll:e.scrollWidth})')
+                assert local_overflow['scroll']>local_overflow['client']
+                expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
+                page.locator('[data-do="map-zoom"][data-value="reset"]').click()
+                expect(zoom_status).to_have_text('100%')
+                expect(zoom_in).to_be_focused()
+                reset_width=page.locator('.map-stage').bounding_box()['width']
+                assert abs(reset_width-initial_width)<1
+                assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
                 page.evaluate('window.scrollTo(0,0)')
                 page.screenshot(path=str(OUT/f'grounds-{width}.png'),full_page=True)
-                report['checks'].append(f'{width}: original era maps, aligned 44px doors, no early secret or movie download')
+                report['checks'].append(f'{width}: original era maps, aligned 44px doors, keyboard zoom and local panning preserve the selected room')
                 page.evaluate('location.hash="#/quiet/castle/directory"')
                 page.locator('#search').fill('Unrecorded')
                 expect(page.locator('#results-count')).to_have_text('0 rooms')
