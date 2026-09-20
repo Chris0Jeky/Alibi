@@ -1,4 +1,5 @@
 name: Apply Castle evidence comparison
+# One-shot branch patch; the successful job removes this workflow.
 on:
   push:
     branches:
