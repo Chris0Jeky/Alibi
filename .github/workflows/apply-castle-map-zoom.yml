@@ -1,0 +1,34 @@
+name: Apply Castle evidence comparison
+on:
+  push:
+    branches:
+      - feat/castle-evidence-compare-51
+permissions:
+  contents: write
+concurrency:
+  group: castle-evidence-compare-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feat/castle-evidence-compare-51
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Wire the bounded comparison slice
+        run: |
+          python tools/patch-castle-evidence-compare.py
+          npx prettier --write src/castle/evidence-view.mjs src/castle/pages.mjs src/castle/view.mjs tests/castle-evidence-view.test.mjs
+          git rm .github/workflows/apply-castle-map-zoom.yml .github/workflows/apply-castle-evidence-compare.yml tools/patch-castle-evidence-compare.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/castle/evidence-view.mjs src/castle/pages.mjs src/castle/view.mjs tests/castle-evidence-view.test.mjs
+          git commit -m "feat(castle): compare collected evidence records"
+          git push origin HEAD:feat/castle-evidence-compare-51
