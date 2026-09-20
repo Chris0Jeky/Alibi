@@ -108,8 +108,6 @@
       tictactoe: ['Tic-Tac-Toe', (r) => E.tictactoe.replay(r.log)],
       blockcabinet: ['Block Cabinet', (r) => E.blockCabinet.replay(r.seed, r.log)],
       regiongardens: ['Lantern Gardens', (r) => E.regionGardens.replay(r.level, r.log)],
-      dominoes: ['Draw Dominoes', (r) => E.dominoes.replay(r.seed, r.log)],
-      mahjong: ['Mahjong Solitaire', (r) => E.mahjong.replay(r.seed, r.log)],
       borough: ['Pocket Borough', (r) => E.borough.replay(r.seed, r.log)],
       duel: [
         'Lantern Duel',
