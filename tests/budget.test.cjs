@@ -24,7 +24,7 @@ assert.ok(
 );
 for (const [prefix, limit] of [
   ['club-engines.', 8 * 1024],
-  // Eight Games Room games: 33 KiB allows the measured 32.2 KiB stylesheet.
+  // Six offered Games Room games plus retained legacy compatibility surfaces: 33 KiB allows the measured 32.2 KiB stylesheet.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
   ['alibi.', 33 * 1024],
 ]) {
