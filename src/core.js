@@ -369,7 +369,11 @@
       t.cells[a.cell] = a.value;
       delete t.notes[a.cell];
       if (p.type === 'sudoku' && a.value > 0)
-        for (const i of new Set(groups(p).filter((g) => g.includes(a.cell)).flat()))
+        for (const i of new Set(
+          groups(p)
+            .filter((g) => g.includes(a.cell))
+            .flat(),
+        ))
           if (t.notes[i]) {
             t.notes[i] = t.notes[i].filter((v) => v !== a.value);
             if (!t.notes[i].length) delete t.notes[i];
