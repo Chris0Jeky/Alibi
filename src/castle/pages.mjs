@@ -4,6 +4,7 @@ import * as Art from './art.mjs';
 import { roomObjects } from './objects.mjs';
 import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
+import { evidenceBoard } from './evidence-view.mjs';
 import { atmosphere, nearby, nextThread, listed } from './exploration.mjs';
 import { practicePanel } from './practice.mjs';
 export function createPages({ state, view, selected, era, search, filter, practiceSnapshot }) {
@@ -56,16 +57,11 @@ export function createPages({ state, view, selected, era, search, filter, practi
     )}</section>`;
   }
   function notebook() {
-    return `<section class="page"><h1>Castle notebook</h1><div class="row">${button('Export castle save', 'export')}${button('Review castle backup', 'import')}${button('Export recovery copy', 'recovery')}</div><input id="castle-import" type="file" accept="application/json,.json" hidden><p class="small">This export contains Wrenmere Chapter I only. Settings can export the castle alongside Cabinet, Club and Quiet Wing; challenge replays remain separate. Review imports before merging or replacing. Each restore keeps a recovery copy.</p><label for="notes">Your notes</label><textarea id="notes" maxlength="12000" placeholder="What have you established? What still needs checking?">${escape(state.notes)}</textarea><p class="small" id="notes-count">${state.notes.length} / 12,000 characters</p><h2>Collected records</h2><div class="directory">${
+    return `<section class="page"><h1>Castle notebook</h1><div class="row">${button('Export castle save', 'export')}${button('Review castle backup', 'import')}${button('Export recovery copy', 'recovery')}</div><input id="castle-import" type="file" accept="application/json,.json" hidden><p class="small">This export contains Wrenmere Chapter I only. Settings can export the castle alongside Cabinet, Club and Quiet Wing; challenge replays remain separate. Review imports before merging or replacing. Each restore keeps a recovery copy.</p><label for="notes">Your notes</label><textarea id="notes" maxlength="12000" placeholder="What have you established? What still needs checking?">${escape(state.notes)}</textarea><p class="small" id="notes-count">${state.notes.length} / 12,000 characters</p>${
       state.preferences.story
-        ? E.evidence(state)
-            .map(
-              (x) =>
-                `<article class="card evidence"><small>${escape(x.kind)} · ${escape(x.from)}</small><h3>${escape(x.title)}</h3><p>${escape(x.text)}</p><p><em>${escape(x.question)}</em></p></article>`,
-            )
-            .join('') || '<p>The library is a useful place to start looking.</p>'
-        : '<p>Story records are hidden. Turn the story back on in Preferences to read them.</p>'
-    }</div>${theoryBoard(state)}</section>`;
+        ? evidenceBoard(E.evidence(state))
+        : '<h2>Collected records</h2><p>Story records are hidden. Turn the story back on in Preferences to read them.</p>'
+    }${theoryBoard(state)}</section>`;
   }
   function directory() {
     const rooms = W.rooms.filter(

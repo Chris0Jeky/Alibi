@@ -14,7 +14,8 @@ function recordCard(record, selectable) {
 export function evidenceBoard(records) {
   if (!Array.isArray(records) || records.length > W.evidence.length)
     throw Error('Collected evidence must be a bounded record list.');
-  if (!records.length) return '<h2>Collected records</h2><p>The library is a useful place to start looking.</p>';
+  if (!records.length)
+    return '<h2>Collected records</h2><p>The library is a useful place to start looking.</p>';
   return `<section class="evidence-board" aria-label="Collected records"><div class="row"><h2>Collected records</h2>${button('Compare selected', 'compare-records', '', 'disabled')}</div><p class="small" id="compare-status" role="status">Choose two or three collected records to compare.</p><div class="directory">${records.map((record) => recordCard(record, true)).join('')}</div></section>`;
 }
 

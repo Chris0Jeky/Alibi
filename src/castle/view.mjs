@@ -8,6 +8,7 @@ import { inspectObject, appendObservation } from './objects.mjs';
 import { CastleStore } from './storage.mjs';
 import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
+import { evidenceComparison } from './evidence-view.mjs';
 import { labelQuestions } from './investigation.mjs';
 import { listed } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
@@ -562,6 +563,19 @@ export async function mount({ root, preferences = null, practice = null }) {
     if ($('#observation-result')) $('#observation-result').textContent = result.message;
     announce(result.message);
   }
+  function compareRecords() {
+    const ids = [...root.querySelectorAll('[data-compare-record]:checked')].map(
+        (input) => input.value,
+      ),
+      records = E.evidence(state).filter((record) => ids.includes(record.id));
+    if (records.length !== ids.length || records.length < 2 || records.length > 3) {
+      const message = 'Choose two or three collected records to compare.';
+      if ($('#compare-status')) $('#compare-status').textContent = message;
+      announce(message);
+      return;
+    }
+    show('Compare collected records', evidenceComparison(records));
+  }
   function editTheory(id) {
     if (!state.preferences.story) return;
     active = null;
@@ -617,7 +631,8 @@ export async function mount({ root, preferences = null, practice = null }) {
           'Practice shelf unavailable',
           '<p>This official puzzle could not be opened. Return to the collection or try again after reopening the castle.</p>',
         );
-    } else if (name === 'theory-edit') editTheory(value);
+    } else if (name === 'compare-records') compareRecords();
+    else if (name === 'theory-edit') editTheory(value);
     else if (name === 'theory-save') saveTheory(value);
     else if (name === 'theory-remove')
       show(
@@ -748,7 +763,23 @@ export async function mount({ root, preferences = null, practice = null }) {
     (event) => {
       const el = event.target;
       if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
-      else if (el.dataset.wheel !== undefined && active === 'gate') {
+      else if (el.dataset.compareRecord !== undefined) {
+        const selected = [...root.querySelectorAll('[data-compare-record]:checked')];
+        if (selected.length > 3) {
+          el.checked = false;
+          if ($('#compare-status'))
+            $('#compare-status').textContent = 'Compare up to three records at a time.';
+        } else {
+          const count = selected.length;
+          if ($('#compare-status'))
+            $('#compare-status').textContent = count
+              ? `${count} record${count === 1 ? '' : 's'} selected. Choose two or three.`
+              : 'Choose two or three collected records to compare.';
+        }
+        const count = root.querySelectorAll('[data-compare-record]:checked').length,
+          control = root.querySelector('[data-do="compare-records"]');
+        if (control) control.disabled = count < 2 || count > 3;
+      } else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
         next[i] = Number(el.value);
