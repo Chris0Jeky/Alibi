@@ -965,12 +965,12 @@
     {
       name: 'The last delivery',
       subtitle: 'Three records, one evening.',
-      map: ['########', '# . . .#', '#      #', '# $$  #', '#   @  #', '#      #', '########'],
+      map: ['########', '# . . .#', '#      #', '# $$$  #', '#   @  #', '#      #', '########'],
     },
     {
       name: 'The catalogue turn',
       subtitle: 'Two crates. The route back matters.',
-      map: ['########', '#     ##', '# #    #', '#    $#', '#      #', '#      #', '#   .@.#', '########'],
+      map: ['########', '#     ##', '# #    #', '#    $$#', '#      #', '#      #', '#   .@.#', '########'],
     },
     {
       name: 'The interrupted aisle',
