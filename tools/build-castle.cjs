@@ -55,7 +55,9 @@ module.exports = function buildCastle(root, dist) {
   const scriptBytes = Buffer.from(source);
   const bytes = scriptBytes.byteLength;
   if (bytes > SCRIPT_BUDGET)
-    throw Error(`Castle activity is ${bytes} bytes; its separate budget is ${SCRIPT_BUDGET} bytes.`);
+    throw Error(
+      `Castle activity is ${bytes} bytes; its separate budget is ${SCRIPT_BUDGET} bytes.`,
+    );
   fs.mkdirSync(path.join(dist, 'assets'), { recursive: true });
   const script = writeAsset(dist, 'quiet-castle', scriptBytes, 'js');
 
