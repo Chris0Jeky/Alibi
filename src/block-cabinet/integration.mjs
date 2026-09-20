@@ -18,7 +18,25 @@ export function startIntegration() {
   const effectiveReducedMotion = () =>
     !!club().diagnostics().state.settings.zen ||
     document.documentElement.dataset.reduced === 'true';
+  const parkHost = () => {
+    if (!host?.isConnected) return () => {};
+    const rect = host.getBoundingClientRect();
+    const cssText = host.style.cssText;
+    host.style.position = 'fixed';
+    host.style.left = rect.left + 'px';
+    host.style.top = rect.top + 'px';
+    host.style.width = rect.width + 'px';
+    host.style.height = rect.height + 'px';
+    host.style.zIndex = '2147483000';
+    host.style.overflow = 'hidden';
+    host.style.pointerEvents = 'none';
+    document.body.append(host);
+    return () => {
+      host.style.cssText = cssText;
+    };
+  };
   const action = async (name, data = {}) => {
+    const restoreParkedHost = parkHost();
     busy++;
     try {
       await club().action({ dataset: { action: 'club-' + name, ...data } });
@@ -26,6 +44,7 @@ export function startIntegration() {
     } finally {
       busy--;
       attach();
+      restoreParkedHost();
     }
   };
   function closeLab() {
