@@ -6,7 +6,7 @@ export default `
 .castle-paper{background:linear-gradient(145deg,#52654b,#213a40)}
 .map-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-color:#a7986c #203739}
 .map-stage{position:relative;width:100%;min-width:560px;aspect-ratio:1200/760}
-.map-help{margin:0;padding:12px 20px}.scene-controls{position:static;padding:14px 20px;align-items:center;border-block:1px solid #536357;background:#203739}
+.map-help{margin:0;padding:12px 20px}.map-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.map-zoom button{padding-inline:10px}.map-zoom-status{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#eee5cf}.scene-controls{position:static;padding:14px 20px;align-items:center;border-block:1px solid #536357;background:#203739}
 .scene-controls a{min-height:44px;display:flex;align-items:center}
 .secret-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .pin{border:2px solid #d9bd88;box-shadow:0 3px 14px #061b24aa}.pin.completed{border-style:double;border-width:4px}
