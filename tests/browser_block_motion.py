@@ -108,7 +108,25 @@ with sync_playwright() as p:
         motion.click()
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle enables the floor')
         before = current(page)
+        page.evaluate('''() => {
+          const host = document.querySelector('.bc-host');
+          window.__bcHostContinuity = {host, detached: false, stopped: false};
+          const sample = () => {
+            const watch = window.__bcHostContinuity;
+            if (!watch || watch.stopped) return;
+            if (!watch.host.isConnected || watch.host.getBoundingClientRect().width === 0)
+              watch.detached = true;
+            requestAnimationFrame(sample);
+          };
+          requestAnimationFrame(sample);
+        }''')
         move(page)
+        continuity = page.evaluate('''() => {
+          const watch = window.__bcHostContinuity;
+          watch.stopped = true;
+          return {detached: watch.detached, same: watch.host === document.querySelector('.bc-host')};
+        }''')
+        check(not continuity['detached'] and continuity['same'], f'{width}: tactile host stays continuously mounted during commit')
         after = current(page)
         check(len(after['log']) == len(before['log']) + 1, f'{width}: keyboard commits legacy replay')
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion choice survives the Club rerender')
