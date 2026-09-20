@@ -177,8 +177,8 @@ with sync_playwright() as playwright:
             check(saw_pan, 'Phone play exercises an overflowing domino chain')
         route("/home")
         check(
-            page.locator('.club-gamecard[data-id="dominoes"]').count() == 1,
-            f"Home advertises a distinct Draw Dominoes card at {width}px",
+            page.locator('.club-gamecard[data-id="dominoes"]').count() == 0,
+            f"Home no longer advertises Draw Dominoes at {width}px",
         )
         page.screenshot(path=str(ROOT / "test-results" / f"dominoes-home-{width}.png"), full_page=True)
         check(not errors, f"Draw Dominoes controls produce no browser errors at {width}px")
