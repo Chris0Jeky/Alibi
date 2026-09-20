@@ -368,24 +368,12 @@
     } else {
       t.cells[a.cell] = a.value;
       delete t.notes[a.cell];
-      if (p.type === 'sudoku' && a.value > 0) {
-        const row = Math.floor(a.cell / p.size),
-          col = a.cell % p.size,
-          boxRow = Math.floor(row / p.boxRows),
-          boxCol = Math.floor(col / p.boxCols);
-        for (const [cellKey, values] of Object.entries(t.notes)) {
-          const cell = Number(cellKey),
-            peerRow = Math.floor(cell / p.size),
-            peerCol = cell % p.size,
-            sameBox =
-              Math.floor(peerRow / p.boxRows) === boxRow &&
-              Math.floor(peerCol / p.boxCols) === boxCol;
-          if (peerRow !== row && peerCol !== col && !sameBox) continue;
-          const next = values.filter((value) => value !== a.value);
-          if (next.length) t.notes[cell] = next;
-          else delete t.notes[cell];
-        }
-      }
+      if (p.type === 'sudoku' && a.value > 0)
+        for (const i of new Set(groups(p).filter((g) => g.includes(a.cell)).flat()))
+          if (t.notes[i]) {
+            t.notes[i] = t.notes[i].filter((v) => v !== a.value);
+            if (!t.notes[i].length) delete t.notes[i];
+          }
     }
     return t;
   }
