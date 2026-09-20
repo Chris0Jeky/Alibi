@@ -122,7 +122,7 @@
         const out = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key.startsWith(PREFIX + store + '.')) {
+          if (key && key.startsWith(PREFIX + store + '.')) {
             try {
               out.push(JSON.parse(localStorage.getItem(key)));
             } catch (e) {
@@ -147,7 +147,12 @@
         });
       if (this.mode === 'local') {
         const v = localStorage.getItem(PREFIX + store + '.' + key);
-        return v ? JSON.parse(v) : undefined;
+        if (!v) return undefined;
+        try {
+          return JSON.parse(v);
+        } catch (e) {
+          throw Error('A saved record is damaged. Export browser data before resetting anything.');
+        }
       }
       return this.memory[store][key];
     }

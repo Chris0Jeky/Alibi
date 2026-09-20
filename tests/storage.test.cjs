@@ -98,6 +98,14 @@ function setup(local = true, newer = false) {
       await assert.rejects(s.getAll('runs'), /damaged/);
       assertions++;
       ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+      await assert.rejects(s.get('runs', 'bad'), /damaged/);
+      assertions++;
+      ok(items.has('alibi.v1.runs.bad'), 'corrupt single read preserves the record');
+      ls.removeItem('alibi.v1.runs.bad');
+      const realKey = ls.key;
+      ls.key = (i) => (i === 1 ? null : realKey(i));
+      ok((await s.getAll('runs')).length === 1, 'null storage key skipped without crashing');
+      ls.key = realKey;
     }
   }
   const { Store } = setup(true, true),
@@ -112,7 +120,7 @@ function setup(local = true, newer = false) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, export, corruption preservation, single-read corruption message, null-key iteration, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
       },
       null,
       2,
