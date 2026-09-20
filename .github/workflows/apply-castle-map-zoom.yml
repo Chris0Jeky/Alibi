@@ -26,9 +26,11 @@ jobs:
         run: |
           python tools/patch-castle-evidence-compare.py
           npx prettier --write src/castle/evidence-view.mjs src/castle/pages.mjs src/castle/view.mjs tests/castle-evidence-view.test.mjs
+          git fetch origin main
+          git show origin/main:.github/workflows/castle.yml > .github/workflows/castle.yml
           git rm .github/workflows/apply-castle-map-zoom.yml .github/workflows/apply-castle-evidence-compare.yml tools/patch-castle-evidence-compare.py
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add src/castle/evidence-view.mjs src/castle/pages.mjs src/castle/view.mjs tests/castle-evidence-view.test.mjs
+          git add .github/workflows/castle.yml src/castle/evidence-view.mjs src/castle/pages.mjs src/castle/view.mjs tests/castle-evidence-view.test.mjs
           git commit -m "feat(castle): compare collected evidence records"
           git push origin HEAD:feat/castle-evidence-compare-51
