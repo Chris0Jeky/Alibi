@@ -61,6 +61,8 @@ function detailAsset(value) {
   });
 }
 
+// Exported for authoring/build verification. The Castle runtime imports only the
+// query helpers below, so the generic validator is tree-shaken from the player bundle.
 export function validateInspectableObject(value) {
   exactFields(value, OBJECT_FIELDS, 'Inspectable object');
   if (value.schema !== 1) throw Error('Inspectable object schema must be 1.');
@@ -83,12 +85,6 @@ export function validateInspectableObject(value) {
   });
 }
 
-const COMMON = {
-  schema: 1,
-  visibility: ROOM_OPEN,
-  detailAsset: null,
-  actions: NOTE,
-};
 const objects = Object.freeze(
   [
     [
@@ -146,7 +142,16 @@ const objects = Object.freeze(
       'Its point is uneven. The keeper has left the shavings in a saucer rather than interrupt a conversation to find a bin.',
     ],
   ].map(([id, room, title, description]) =>
-    validateInspectableObject({ ...COMMON, id, room, title, description }),
+    Object.freeze({
+      schema: 1,
+      id,
+      room,
+      title,
+      visibility: ROOM_OPEN,
+      detailAsset: null,
+      description,
+      actions: NOTE,
+    }),
   ),
 );
 
