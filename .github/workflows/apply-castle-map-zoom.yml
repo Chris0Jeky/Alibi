@@ -1,0 +1,100 @@
+name: Apply Castle map zoom
+on:
+  push:
+    branches:
+      - feat/castle-map-zoom-45
+permissions:
+  contents: write
+concurrency:
+  group: castle-map-zoom-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feat/castle-map-zoom-45
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Wire zoom state and preserve the map viewport
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/castle/view.mjs')
+          source = path.read_text(encoding='utf-8')
+
+          def replace_once(old, new):
+              global source
+              count = source.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one view fragment, found {count}: {old[:100]!r}')
+              source = source.replace(old, new, 1)
+
+          replace_once(
+              """    era = 'today',
+              search = '',
+              filter = 'all';""".replace('      ', ''),
+              """    era = 'today',
+              mapZoom = 1,
+              search = '',
+              filter = 'all';""".replace('      ', ''),
+          )
+          replace_once(
+              "  const pages = () => createPages({ state, view, selected, era, search, filter, practiceSnapshot });",
+              "  const pages = () =>\n    createPages({ state, view, selected, era, mapZoom, search, filter, practiceSnapshot });",
+          )
+          replace_once(
+              "  async function action(event) {",
+              """  function zoomMap(direction) {
+            const scroller = $('.map-scroll'),
+              center = scroller
+                ? (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth
+                : 0.5,
+              next =
+                direction === 'in'
+                  ? Math.min(1.75, mapZoom + 0.25)
+                  : direction === 'out'
+                    ? Math.max(1, mapZoom - 0.25)
+                    : 1;
+            if (next === mapZoom) return;
+            mapZoom = next;
+            render();
+            const current = $('.map-scroll');
+            if (current)
+              current.scrollLeft = Math.max(
+                0,
+                center * current.scrollWidth - current.clientWidth / 2,
+              );
+            const focus =
+              direction === 'reset' || (direction === 'out' && mapZoom === 1)
+                ? 'in'
+                : direction === 'in' && mapZoom === 1.75
+                  ? 'out'
+                  : direction;
+            root
+              .querySelector(`[data-do="map-zoom"][data-value="${focus}"]`)
+              ?.focus({ preventScroll: true });
+            announce(`Estate map zoom ${Math.round(mapZoom * 100)} percent.`);
+          }
+          async function action(event) {""".replace('      ', ''),
+          )
+          replace_once(
+              "    } else if (name === 'object') inspect(value);",
+              "    } else if (name === 'map-zoom') zoomMap(value);\n    else if (name === 'object') inspect(value);",
+          )
+          path.write_text(source, encoding='utf-8')
+          PY
+          npx prettier --write src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs
+          git rm .github/workflows/apply-castle-map-zoom.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs
+          git commit -m "feat(castle): preserve viewport across map zoom"
+          git push origin HEAD:feat/castle-map-zoom-45
