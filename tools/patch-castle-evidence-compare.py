@@ -43,8 +43,8 @@ block = """  function compareRecords() {
 if source.count(anchor) != 1:
     raise SystemExit('Expected one comparison insertion anchor.')
 source = source.replace(anchor, block + anchor, 1)
-old = "    else if (name === 'theory-edit') editTheory(value);"
-new = "    else if (name === 'compare-records') compareRecords();\n" + old
+old = "    } else if (name === 'theory-edit') editTheory(value);"
+new = "    } else if (name === 'compare-records') compareRecords();\n    else if (name === 'theory-edit') editTheory(value);"
 if source.count(old) != 1:
     raise SystemExit('Expected one comparison action anchor.')
 source = source.replace(old, new, 1)
