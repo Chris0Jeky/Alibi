@@ -98,12 +98,16 @@ with sync_playwright() as playwright:
             )
         route("/home")
         check(
-            "Mahjong Solitaire · MAHJONG-01" in page.locator(".club-letter").inner_text(),
-            f"The active run card names Mahjong Solitaire at {width}px",
+            "Mahjong Solitaire · MAHJONG-01" not in page.locator(".club-letter").inner_text(),
+            f"Retired Mahjong is not offered as an active home run at {width}px",
         )
         check(
-            page.locator('.club-gamecard[data-id="mahjong"]').count() == 1,
-            f"Home advertises a distinct Mahjong Solitaire card at {width}px",
+            page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong.log.length") == 1,
+            f"Retired Mahjong run remains saved after home navigation at {width}px",
+        )
+        check(
+            page.locator('.club-gamecard[data-id="mahjong"]').count() == 0,
+            f"Home no longer advertises Mahjong Solitaire at {width}px",
         )
         route("/salon/blockcabinet")
         page.locator('[data-action="club-block-piece"]').first.click()
@@ -195,8 +199,8 @@ with sync_playwright() as playwright:
         page.locator('[data-action="club-redo"][data-id="mahjong"]').click()
         check(page.locator('.mahjong-tile').count()==0, f'Redo completes table at {width}px')
         route('/salon')
-        check(page.locator('.club-gamecard').count()==9, f'Games Room index preserves eight games and atlas at {width}px')
-        check(page.locator('.club-gamecard[data-id="mahjong"]').count()==1, f'Games Room includes Mahjong at {width}px')
+        check(page.locator('.club-gamecard').count()==7, f'Games Room index offers six games and atlas at {width}px')
+        check(page.locator('.club-gamecard[data-id="mahjong"]').count()==0, f'Games Room no longer advertises Mahjong at {width}px')
         check(not errors, f"Mahjong controls produce no browser errors at {width}px")
         context.close()
     print("PASS", len(checks), "Mahjong browser assertions.")
