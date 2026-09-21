@@ -13,9 +13,7 @@ function boot(target) {
   let recovery = null;
   const app = {
     insertAdjacentHTML(_position, html) {
-      const labels = [...html.matchAll(/<button[^>]*>([^<]+)<\/button>/g)].map(
-        (match) => match[1],
-      );
+      const labels = [...html.matchAll(/<button[^>]*>([^<]+)<\/button>/g)].map((match) => match[1]);
       const note = {
         textContent: html.match(/<p>([^<]*)<\/p>/)?.[1] || '',
       };
