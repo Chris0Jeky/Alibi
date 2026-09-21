@@ -39,11 +39,11 @@ class MobileQA(unittest.TestCase):
         page.set_default_timeout(7000)
         if os.environ.get('ALIBI_QA_HTML'):
             page.set_content(Path(os.environ['ALIBI_QA_HTML']).read_text(), wait_until='domcontentloaded')
-            page.wait_for_function('window.AlibiDiagnostics')
+            page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
             page.evaluate('(route) => location.hash = "#/" + route', route)
         else:
             page.goto(URL + '/#/' + route, wait_until='domcontentloaded')
-            page.wait_for_function('window.AlibiDiagnostics')
+            page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
         return page
 
     def dismiss_lesson(self, page):
@@ -91,7 +91,25 @@ class MobileQA(unittest.TestCase):
                 expect(page.locator('#setting-contrast')).to_be_visible()
                 for name in ['contrast', 'largeText', 'reducedMotion', 'timer', 'sound', 'haptics']:
                     control = page.locator('#setting-' + name)
-                    size = control.bounding_box()
+                    expect(control).to_be_visible()
+                    control_id = 'setting-' + name
+                    page.wait_for_function(
+                        '''id => {
+                            const el = document.getElementById(id);
+                            const rect = el?.getBoundingClientRect();
+                            return Boolean(rect && rect.width >= 44 && rect.height >= 44);
+                        }''',
+                        arg=control_id,
+                    )
+                    page.evaluate('(id) => document.getElementById(id)?.scrollIntoView({block: "center"})', control_id)
+                    size = page.evaluate(
+                        '''id => {
+                            const rect = document.getElementById(id)?.getBoundingClientRect();
+                            return rect ? {width: rect.width, height: rect.height} : null;
+                        }''',
+                        arg=control_id,
+                    )
+                    self.assertIsNotNone(size, name)
                     self.assertGreaterEqual(size['width'], 44, name)
                     self.assertGreaterEqual(size['height'], 44, name)
                     before = control.is_checked()
@@ -105,6 +123,14 @@ class MobileQA(unittest.TestCase):
         before = page.locator('.bridge-map').bounding_box()
         target = page.locator('.island').first.bounding_box()
         page.get_by_role('button', name='Enlarge board', exact=True).click()
+        page.wait_for_function(
+            '''expected => {
+                const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
+                const island = document.querySelector('.island')?.getBoundingClientRect();
+                return Boolean(map && island && map.width > expected.map && island.width > expected.island);
+            }''',
+            arg={'map': before['width'], 'island': target['width']},
+        )
         self.assertGreater(page.locator('.bridge-map').bounding_box()['width'], before['width'])
         self.assertGreater(page.locator('.island').first.bounding_box()['width'], target['width'])
         self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), 391)
