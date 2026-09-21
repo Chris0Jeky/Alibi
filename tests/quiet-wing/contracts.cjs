@@ -162,6 +162,20 @@ function fakeIDB() {
     JSON.parse(ls.getItem('alibi-quiet-wing-v1:fallback')).scene.name === 'Latest',
     'Conflict kept newer value',
   );
+  const ps = local(),
+    pw = env(ps);
+  await pw.s.open();
+  await pw.s.write(E.newState(Date.now()));
+  ps.setItem('alibi-quiet-wing-v1:fallback', '{broken');
+  await assert.rejects(pw.s.write(E.newState(Date.now())), /could not be read/);
+  ok(
+    ps.getItem('alibi-quiet-wing-v1:fallback') === '{broken',
+    'Failed persist preserves the unreadable record',
+  );
+  ok(
+    pw.statuses.some((s) => s.text.includes('could not be read')),
+    'Corrupt fallback persist reports a plain-language error',
+  );
   const c = env(ls);
   await c.s.open();
   await assert.rejects(c.s.replace(E.newState(Date.now())), /Restore requires IndexedDB/);
@@ -250,7 +264,7 @@ function fakeIDB() {
     passed: true,
     assertions: checks,
     scope:
-      'Adapter exercised with exact local fallback and recovery keys plus transactional IndexedDB fixtures, including conflicts, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
+      'Adapter exercised with exact local fallback and recovery keys plus transactional IndexedDB fixtures, including conflicts, corrupt persist message, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
   };
   fs.writeFileSync(
     require('node:path').join(__dirname, 'contract-results.json'),
