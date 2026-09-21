@@ -120,18 +120,15 @@
     return out;
   }
   function groups(p) {
-    const n = p.size;
-    const gs = [];
-    for (let r = 0; r < n; r++) gs.push(range(n).map((c) => r * n + c));
-    for (let c = 0; c < n; c++) gs.push(range(n).map((r) => r * n + c));
+    const n = p.size,
+      cells = range(n),
+      gs = [];
+    for (const r of cells) gs.push(cells.map((c) => c + r * n));
+    for (const c of cells) gs.push(cells.map((r) => r * n + c));
     if (p.type === 'sudoku')
       for (let r = 0; r < n; r += p.boxRows)
         for (let c = 0; c < n; c += p.boxCols)
-          gs.push(
-            range(p.boxRows * p.boxCols).map(
-              (i) => (r + Math.floor(i / p.boxCols)) * n + c + (i % p.boxCols),
-            ),
-          );
+          gs.push(cells.map((i) => c + ((r + i / p.boxCols) | 0) * n + (i % p.boxCols)));
     return gs;
   }
   function validateLatin(p, s) {
@@ -367,6 +364,14 @@
     } else {
       t.cells[a.cell] = a.value;
       delete t.notes[a.cell];
+      if (p.type === 'sudoku' && a.value)
+        for (const i of groups(p)
+          .filter((g) => g.includes(a.cell))
+          .flat())
+          if (t.notes[i]) {
+            t.notes[i] = t.notes[i].filter((v) => v !== a.value);
+            if (!t.notes[i].length) delete t.notes[i];
+          }
     }
     return t;
   }
