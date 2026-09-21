@@ -18,6 +18,9 @@ remain in history. Start with [STRATEGY.md](STRATEGY.md).
 - `investigation.mjs`, `investigation-view.mjs`: eight revisable hypotheses with collected-record
   references, three curatorial label exercises and the exhibition drawer. Player assessments
   never manufacture evidence. Sources and editorial boundaries are in [MUSEUM-SOURCES.md](MUSEUM-SOURCES.md).
+- `evidence-view.mjs`: source-ordered collected-record cards, room-return links and a bounded
+  two-or-three-record comparison. Selection is temporary and does not change evidence, score,
+  hypotheses or the save schema.
 - `art.mjs`, `exploration.mjs`: the original Wrenmere illustrations, a consistent estate map,
   room moods/methods, inspectable details and nearby doors. [ASSETS.md](ASSETS.md) records provenance,
   budgets and the optional media contract. Named controls provide the same actions as hotspots.
@@ -39,6 +42,13 @@ protected modes refuse restore. Stale revisions and unknown stored fields abort 
 Settings exports a castle section alongside available Cabinet/Club/Quiet Wing sections; its
 manifest and warnings identify omissions. Each section restores separately, never atomically
 across stores. Legacy combined exports remain readable. Challenge replays remain separate.
+
+Collected-record comparison exposes only evidence already returned by the chapter engine. It
+preserves that canonical source order, links each record back to its originating room and accepts
+at most three distinct records. A fourth selection is immediately cleared before comparison.
+Checkbox selection and the comparison dialog are session UI only; there is no parallel evidence
+store, board-layout state or score effect. Persistent spatial layout, links between records,
+grouping history and personal board annotations remain work under #51.
 
 A dirty or protected notebook blocks updates until the player explicitly confirms saving an
 export of that exact session. Initiating or cancelling a download does not acknowledge it.
@@ -62,7 +72,7 @@ expansion remain planned work.
 
 ## Verification
 
-`node --test tests/castle*.test.mjs` exercises rules, unknown-state protection, simulated storage failure/CAS, observations, effects and optional cache boundaries. Local Chromium control runs are isolated documents and do not prove IndexedDB or offline operation. Both the 390- and 1280-pixel control runs completed all ten questions, including observations and focus restoration.
+`node --test tests/castle*.test.mjs` exercises rules, unknown-state protection, simulated storage failure/CAS, observations, evidence presentation bounds, effects and optional cache boundaries. Local Chromium control runs are isolated documents and do not prove IndexedDB or offline operation. Both the 390- and 1280-pixel control runs completed all ten questions, including observations and focus restoration.
 
 `python tests/browser_castle.py` runs against the built native origin. It covers actual controls, real reloads, a stale second tab and offline loading. Its dedicated workflow uploads reports/screenshots and build metadata. Read the report for the actual head before claiming a pass. Early runs exposed a test predicate incompatible with the existing CSP, then dependency-installation failures; neither was treated as a successful native acceptance.
 
@@ -71,11 +81,12 @@ the pre-restore copy, malformed/future imports, stale tabs, combined manifests a
 quota/interruption in real IndexedDB. `tests/castle-backup.test.mjs` covers atomicity, bounds,
 future records, revision races and exact export acknowledgement with deterministic fixtures.
 
-`python tests/browser_castle_investigation.py` checks hypotheses, citations and the three label
-revisions on a validated synthetic save. `python tests/browser_castle_exploration.py` checks both
-screen sizes, pin geometry, keyboard zoom and focus, map-local panning, selected-room retention,
-hotspots, locked exits, deliberate film playback/caption loading, source release and actual offline
-scene decoding. Reports distinguish fixtures from playthroughs.
+`python tests/browser_castle_investigation.py` checks hypotheses, citations, source-ordered
+collected evidence, room-return links, bounded comparison and the three label revisions on a
+validated synthetic save at phone and desktop widths. `python tests/browser_castle_exploration.py`
+checks both screen sizes, pin geometry, keyboard zoom and focus, map-local panning, selected-room
+retention, hotspots, locked exits, deliberate film playback/caption loading, source release and
+actual offline scene decoding. Reports distinguish fixtures from playthroughs.
 
 PR #73 passes the full repository and castle CI gates. Both actual hosts pass all five castle suites and 92 origin checks; the actual saved-game release update passes on each. Keep #2, #11, #13 and #56 open for physical Android, TalkBack and human acceptance. The release does not close those gates.
 
