@@ -129,7 +129,7 @@ Solutions ship with the application for offline checking and explicit reveals. S
 
 The games room now offers **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
 **Block Cabinet** and **Lantern Gardens**. Legacy Draw Dominoes and Mahjong Solitaire engines remain
-available only for existing-save compatibility. Archive Heist has six rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
+available only for existing-save compatibility. Archive Heist has nine rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
 harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
 their saves; the fifth invitation casebook extends the current catalogue.
 

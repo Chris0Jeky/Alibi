@@ -10,7 +10,7 @@ const C = require('../src/bridges.js');
 require('../src/backup-validation.js');
 
 test('Every published garden has connected regions, one solution and answer-free runtime data', () => {
-  assert.equal(puzzles.length, 6);
+  assert.equal(puzzles.length, 9);
   puzzles.forEach((p, level) => {
     const { solution, ...publicBoard } = p;
     assert.deepEqual(G.layouts[level], publicBoard);
@@ -53,7 +53,7 @@ test('Garden marks cycle without mutation and conflicts do not erase choices', (
   assert.deepEqual(G.conflicts(conflict), [0, 1]);
   assert.equal(conflict.done, false);
   for (const bad of [-1, 36, 0.5, '0', null]) assert.throws(() => G.move(empty, bad));
-  assert.throws(() => G.replay(6, []));
+  assert.throws(() => G.replay(puzzles.length, []));
   assert.throws(() => G.replay(0, Array(3001).fill(0)));
 });
 

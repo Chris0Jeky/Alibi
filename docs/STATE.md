@@ -1,25 +1,5 @@
 # Live development state
 
-## Mobile play and shell QA candidate, 2026-09-21
-
-The `fix/phone-play-qa-214` candidate addresses QA tracker #218: board-first play and usable
-Bridges zoom (#214/#215), 44px control hit areas (#216/#217), route-owned lessons and modal
-keyboard/focus continuity (#208/#209), meaningful navigation/card names (#210/#211), stable
-search metadata (#212), and readable mobile tabs/edition text (#222/#223). Story, room controls
-and assistance remain available in a disclosure after the board; clues and recovery warnings
-are not removed. Puzzle IDs/revisions and device-local save schemas are unchanged.
-
-Local DOM regression checks use the current source and built HTTP origin. Seven focused browser
-scenarios pass, including five viewport geometries and real control interactions; the baseline
-failed 15 subchecks. The candidate build is `971b3d96ac94`; `npm run verify` passes 322 tests
-with 581,847 assertions. These are simulated Chromium checks, not physical-phone or production
-deployment evidence.
-
-The required workflow runs `tests/browser_mobile_qa.py` against its freshly built HTTP origin
-and retains `test-results/mobile-qa/` screenshots/metrics. Exact published-head CI and
-physical-device/TalkBack acceptance remain separate gates. See
-[UX QA handoff](ux/MOBILE-QA-2026-09-21.md) and `HUMAN_TODO.md`. No release/deployment is claimed.
-
 ## Published 0.11.4, 2026-09-17
 
 Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on
@@ -40,6 +20,21 @@ and 27 Quiet Wing adapter contract assertions locally. The required push and pul
 passed at the exact head. Full publication evidence, archives and rollback references are in
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
+
+## Advanced puzzle candidates, 2026-09-21 (not deployed)
+
+Open PR #226 adds six additive revision-1 Crime Scene studies with provisional Master and
+Grandmaster labels. The independent bounded solver and focused contracts pass, while the
+records remain `humanPlaytested: false`. The named room and furniture calibration notes are
+bound to their encoded clues; physical-device, TalkBack, comfort, variety and human difficulty
+acceptance remain open in `HUMAN_TODO.md` q-8.
+
+Stacked PR #229 adds nine additive revision-1 Master and Grandmaster studies across Nonogram,
+Binary, Futoshiki, Light Up, Tents, Aquarium, Network, Trail and Bridges. Its representative
+Chromium control workflow covers simulated phone and desktop hit-testing, state mutation and
+undo; physical touch, TalkBack, comfort, sustained performance and human calibration remain
+open in `HUMAN_TODO.md` q-8. Neither open candidate is deployed or store-published. See
+`docs/ADVANCED-PUZZLE-CANDIDATES.md` for the evidence boundary.
 
 ## Castle map viewport candidate, 2026-09-21 (not deployed)
 

@@ -20,6 +20,8 @@
     "extra/sudoku-expert.json",
     "extra/case-invitation.json",
     "extra/expert-families.json",
-    "extra/after-hours-hard-studies.json"
+    "extra/after-hours-hard-studies.json",
+    "extra/crime-scene-variations.json",
+    "extra/master-grandmaster-studies.json"
   ]
 }
