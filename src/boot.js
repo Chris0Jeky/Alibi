@@ -1,6 +1,32 @@
 /* Keep startup failures recoverable without clearing device-local progress. */
 (function () {
   'use strict';
+
+  const routeAliases = Object.freeze({
+    games: (tail) => ['salon', ...tail],
+    space: () => ['settings'],
+    wing: (tail) => ['quiet', ...tail],
+    castle: (tail) => ['quiet', 'castle', ...(tail.length ? tail : ['map'])],
+    wrenmere: (tail) => ['quiet', 'castle', ...(tail.length ? tail : ['map'])],
+  });
+
+  function normalizeHashAlias() {
+    const raw = String(location.hash || '').replace(/^#\/?/, ''),
+      [path, ...queryParts] = raw.split('?'),
+      parts = path.split('/').filter(Boolean),
+      alias = routeAliases[parts[0]?.toLowerCase()];
+    if (!alias) return false;
+    const targetParts = alias(parts.slice(1)),
+      query = queryParts.length ? `?${queryParts.join('?')}` : '',
+      target = `#/${targetParts.join('/')}${query}`;
+    if (target === location.hash) return false;
+    history.replaceState(history.state, '', target);
+    return true;
+  }
+
+  normalizeHashAlias();
+  globalThis.addEventListener?.('hashchange', normalizeHashAlias);
+
   const timer = setTimeout(() => {
     if (globalThis.AlibiDiagnostics) return;
     const app = document.getElementById('app');
