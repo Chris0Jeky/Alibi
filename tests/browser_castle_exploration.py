@@ -42,6 +42,7 @@ def run():
                 expect(zoom_status).to_have_text('100%')
                 map_scroll=page.locator('.map-scroll')
                 initial_width=page.locator('.map-stage').bounding_box()['width']
+                # The native range keeps one keyboard target while retaining 25% zoom steps.
                 zoom_control=page.get_by_label('Map zoom')
                 zoom_control.focus()
                 zoom_control.press('ArrowRight')
