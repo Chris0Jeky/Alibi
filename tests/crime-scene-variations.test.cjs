@@ -140,6 +140,25 @@ function normalizedGeometry(rooms, size) {
   return transforms.sort()[0];
 }
 
+function editorialText(id) {
+  const note = notes.cases.find((candidate) => candidate.id === id);
+  assert.ok(note, `${id} has an editorial curation note`);
+  return [note.structuralDistinction, ...note.intendedReasoningPath].join(' ');
+}
+
+function clueTargetName(puzzle, kind, who) {
+  const clue = puzzle.clues.find(
+    (candidate) => candidate.kind === kind && candidate.who === who,
+  );
+  assert.ok(clue, `${puzzle.id} has the expected ${kind} clue for ${who}`);
+  if (kind === 'near') {
+    const object = puzzle.objects.find((candidate) => candidate.cell === clue.value);
+    assert.ok(object, `${puzzle.id} near clue points to an authored object`);
+    return object.name;
+  }
+  return puzzle.roomNames[clue.value];
+}
+
 const profileChecks = {
   'room-relationship-chain': (kinds) =>
     (kinds.sameRoom || 0) + (kinds.differentRoom || 0) >= 3 && !kinds.row && !kinds.col,
@@ -204,6 +223,49 @@ test('crime-scene expansion adds six structurally distinct provisional cases', (
       ),
     );
     assert.equal(profileChecks[note.profile](kinds), true, `${puzzle.id} realizes ${note.profile}`);
+  }
+});
+
+test('crime-scene calibration copy names the encoded clue targets', () => {
+  const puzzles = new Map(pack.puzzles.map((puzzle) => [puzzle.id, puzzle]));
+  const dividedGallery = puzzles.get('variation-scene-01');
+  assert.ok(dividedGallery);
+  assert.match(dividedGallery.difficultyEvidence, /left-of/i);
+  assert.doesNotMatch(dividedGallery.difficultyEvidence, /vertical/i);
+
+  for (const expectation of [
+    {
+      id: 'variation-scene-02',
+      kind: 'near',
+      who: 'person-1',
+      target: 'tariff shelf',
+      stale: /signal lamp/i,
+    },
+    {
+      id: 'variation-scene-05',
+      kind: 'room',
+      who: 'person-4',
+      target: 'heated gallery',
+      stale: /fern house/i,
+    },
+    {
+      id: 'variation-scene-06',
+      kind: 'near',
+      who: 'person-2',
+      target: 'courtyard fern',
+      stale: /card cabinet/i,
+    },
+  ]) {
+    const puzzle = puzzles.get(expectation.id);
+    assert.ok(puzzle, expectation.id);
+    assert.equal(
+      clueTargetName(puzzle, expectation.kind, expectation.who),
+      expectation.target,
+      `${expectation.id} encodes ${expectation.target}`,
+    );
+    const copy = editorialText(expectation.id);
+    assert.ok(copy.includes(expectation.target), `${expectation.id} names its encoded clue target`);
+    assert.doesNotMatch(copy, expectation.stale, `${expectation.id} omits the stale clue target`);
   }
 });
 

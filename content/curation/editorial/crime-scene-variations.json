@@ -19,7 +19,7 @@
       "profile": "furniture-exclusion",
       "structuralDistinction": "No pairwise ordering clue is provided. The case is driven by two different furniture adjacencies, an interior-only placement, one room exclusion and one positive room assignment across six compact rooms.",
       "intendedReasoningPath": [
-        "Anchor Nessa beside the signal lamp and Elias beside the quayside planter; each adjacency still leaves more than one legal square.",
+        "Anchor Nessa beside the tariff shelf and Elias beside the quayside planter; each adjacency still leaves more than one legal square.",
         "Use Jonah’s interior position and Nessa’s room exclusion to remove the tempting mirrored placements.",
         "Place Mirelle in the quay room; row/column uniqueness then forces Arun and Jonah, leaving exactly one suspect in Elias’s room."
       ],
@@ -52,7 +52,7 @@
       "profile": "edge-and-room-pressure",
       "structuralDistinction": "Three people are known only to be somewhere on the perimeter. Positive and negative room evidence must be combined with one vertical relationship, so edge facts act as a coupled constraint rather than isolated placements.",
       "intendedReasoningPath": [
-        "Separate the three perimeter candidates using Theo’s fern-house room and Anya’s exclusion from the potting passage.",
+        "Separate the three perimeter candidates using Theo’s heated-gallery room and Anya’s exclusion from the potting passage.",
         "Place Suri in the seed room; the irregular room boundaries remove edge squares that initially appear interchangeable.",
         "Use Felix-above-Iris and row/column uniqueness to settle the remaining edge cells and expose the shared-room suspect."
       ],
@@ -64,7 +64,7 @@
       "structuralDistinction": "Each clue uses a different mechanism. The sole same-room clue links two suspects who are not with the victim, forcing the player to distinguish a useful room relationship from the final culprit condition.",
       "intendedReasoningPath": [
         "Keep Cass and Dima together while respecting Cass’s row and room exclusion; this pair is deliberately not the victim pair.",
-        "Anchor Oren’s column and Vera’s adjacency to the card cabinet, then apply Vera-left-of-Dima.",
+        "Anchor Oren’s column and Vera’s adjacency to the courtyard fern, then apply Vera-left-of-Dima.",
         "Row/column uniqueness leaves June’s room with exactly one remaining suspect; verify that the Cass/Dima pair occupies a different room before accusing."
       ],
       "humanPlaytested": false
