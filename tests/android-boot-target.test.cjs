@@ -92,13 +92,13 @@ function labels(recovery) {
 
 test('Android recovery offers retry without browser shell repair', () => {
   const recovery = boot('android');
-  assert.deepEqual(labels(recovery), ['Retry']);
+  assert.deepEqual(labels(recovery), ['Retry opening']);
   assert.match(recovery.html, /bundled Android app/i);
   assert.doesNotMatch(recovery.html, /refresh app files|go online|service worker/i);
 });
 
 test('web recovery retains explicit service-worker shell repair', () => {
   const recovery = boot(undefined);
-  assert.deepEqual(labels(recovery), ['Retry', 'Refresh app files']);
+  assert.deepEqual(labels(recovery), ['Retry opening', 'Refresh app files']);
   assert.match(recovery.html, /Refresh app files/);
 });
