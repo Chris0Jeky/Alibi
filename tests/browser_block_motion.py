@@ -259,11 +259,12 @@ with sync_playwright() as p:
         check(current(page)['log'] == saved, f'{width}: optional surface and Classic reload offline')
         context.set_offline(False)
         page.evaluate('''() => {
-          const save = AlibiClub.save;
-          AlibiClub.save = async (...args) => {
+          const originalFlush = AlibiClub.flush;
+          window.__bcOriginalFlush = originalFlush;
+          AlibiClub.flush = async (...args) => {
             window.__bcSaveStarted = true;
             await new Promise((resolve) => setTimeout(resolve, 400));
-            return save(...args);
+            return originalFlush(...args);
           };
         }''')
         page.locator('.bc-host [data-command="undo"]').click()
@@ -274,6 +275,7 @@ with sync_playwright() as p:
         check(not errors, f'{width}: route exit during a queued save does not throw')
         check(not page.evaluate('AlibiBlockMotion.diagnostics().active'), f'{width}: route exit disposes surface')
         check(not errors, f'{width}: no uncaught browser errors: {errors}')
+        page.evaluate('AlibiClub.flush = window.__bcOriginalFlush')
         context.close()
     context = browser.new_context(viewport={'width':1280,'height':1000})
     a=context.new_page(); b=context.new_page()
