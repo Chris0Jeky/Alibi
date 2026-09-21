@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { ANDROID_DIST, deriveAndroidPayload } = require('../tools/build-android.cjs');
+const { execFileSync } = require('node:child_process');
+const { ANDROID_DIST, deriveAndroidPayload, sourceSha } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -138,6 +139,27 @@ test('tampering with source or content provenance invalidates the identity recei
     );
   } finally {
     fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test('source provenance rejects dirty embedded application inputs', () => {
+  const root = temporaryDirectory('alibi-android-dirty-source-');
+  const source = path.join(root, 'src', 'app.js');
+  try {
+    fs.mkdirSync(path.dirname(source), { recursive: true });
+    fs.writeFileSync(source, 'globalThis.Alibi = true;\n');
+    execFileSync('git', ['init', '-q'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'test@example.invalid'], {
+      cwd: root,
+      stdio: 'ignore',
+    });
+    execFileSync('git', ['config', 'user.name', 'Alibi test'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['add', '.'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['commit', '-q', '-m', 'fixture'], { cwd: root, stdio: 'ignore' });
+    fs.appendFileSync(source, 'globalThis.dirty = true;\n');
+    assert.throws(() => sourceSha(root), /clean source tree/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });
 
