@@ -64,10 +64,7 @@
   globalThis.AlibiBootReady = () => {
     clearTimeout(timer);
     $('boot-recovery')?.remove();
-    new MutationObserver(show).observe(document, {
-      childList: true,
-      subtree: true,
-    });
+    new MutationObserver(show).observe($('app'), { childList: true });
     show();
   };
 })();
