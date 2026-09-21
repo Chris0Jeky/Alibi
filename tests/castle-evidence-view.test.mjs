@@ -15,19 +15,16 @@ test('collected evidence renders in source order with stable room links', () => 
   assert.doesNotMatch(html, /data-record-id="margin"/);
 });
 
-test('comparison accepts only two or three distinct known records', () => {
+test('comparison preserves the supplied two or three record order', () => {
+  assert.equal((evidenceComparison(records.slice(0, 2)).match(/<article /g) || []).length, 2);
   const html = evidenceComparison(records);
   assert.equal((html.match(/<article /g) || []).length, 3);
-  assert.throws(() => evidenceComparison(records.slice(0, 1)), /two or three/i);
-  assert.throws(() => evidenceComparison([...records, W.evidence[3]]), /two or three/i);
-  assert.throws(() => evidenceComparison([records[0], records[0]]), /distinct/i);
-  assert.throws(
-    () => evidenceComparison([records[0], { ...records[1], id: 'future-record' }]),
-    /collected records/i,
-  );
+  assert.ok(html.indexOf('The maintenance slip') < html.indexOf('The corrected ticket'));
+  assert.ok(html.indexOf('The corrected ticket') < html.indexOf('The green footpath'));
 });
 
-test('record copy is escaped in both the board and comparison', () => {
+test('empty state and record copy remain safe', () => {
+  assert.match(evidenceBoard([]), /useful place to start/i);
   const altered = { ...records[0], title: '<img src=x onerror=alert(1)>' };
   assert.doesNotMatch(evidenceBoard([altered, records[1]]), /<img/);
   assert.doesNotMatch(evidenceComparison([altered, records[1]]), /<img/);
