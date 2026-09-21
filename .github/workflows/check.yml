@@ -92,6 +92,7 @@ jobs:
           python tests/browser_observatory.py
           python tests/browser_curation.py
           python tests/browser_discovery.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_discovery_storage.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_narrow_layout.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_library_focus.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_focus.py
@@ -167,6 +168,7 @@ jobs:
             test-results/atmosphere/
             test-results/curation-ui/
             test-results/discovery/
+            test-results/discovery-storage/
             test-results/edge-layout/
             test-results/library-focus/
             test-results/quiet-focus/

@@ -457,10 +457,7 @@
         ...Object.entries(state.runs)
           .filter(
             ([id, r]) =>
-              E() &&
-              r.log.length &&
-              !['dominoes', 'mahjong'].includes(id) &&
-              !currentGame(id).done,
+              E() && r.log.length && !['dominoes', 'mahjong'].includes(id) && !currentGame(id).done,
           )
           .map(([id, r]) => ({
             clubId: id,
