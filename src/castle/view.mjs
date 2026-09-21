@@ -45,6 +45,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     view = 'map',
     selected = 'gatehouse',
     era = 'today',
+    mapZoom = 4,
     search = '',
     filter = 'all',
     inspectablesVisible = true;
@@ -129,6 +130,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       view,
       selected,
       era,
+      mapZoom,
       search,
       filter,
       practiceSnapshot,
@@ -559,7 +561,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
     const detail = object.detailAsset
       ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
-      : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
+      : '<p class="small object-detail-fallback">No close-up artwork.</p>';
     const noteAction = object.actions.includes('note')
       ? button('Keep a note', 'keep-observation', id)
       : '';
@@ -628,6 +630,14 @@ export async function mount({ root, preferences = null, practice = null }) {
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
   }
+  function redraw(s = '#map-zoom') {
+    let m = $('.map-scroll');
+    const x = (m.scrollLeft + m.clientWidth / 2) / m.scrollWidth;
+    render();
+    m = $('.map-scroll');
+    m.scrollLeft = x * m.scrollWidth - m.clientWidth / 2;
+    $(s).focus({ preventScroll: true });
+  }
   async function action(event) {
     const target = event.target.closest?.('[data-do]');
     if (!target) return;
@@ -672,16 +682,13 @@ export async function mount({ root, preferences = null, practice = null }) {
               quietLinks(),
       );
     else if (name === 'visit') visit(value);
-    else if (name === 'select') {
-      selected = value;
-      render();
-      for (const el of root.querySelectorAll('[data-do="select"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
-    } else if (name === 'era') {
-      era = value;
-      render();
-      for (const el of root.querySelectorAll('[data-do="era"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
+    else if (name === 'select' || name === 'era') {
+      if (name === 'select') selected = value;
+      else era = value;
+      redraw(`[data-do="${name}"][data-value="${value}"]`);
+    } else if (name === 'map-reset') {
+      mapZoom = 4;
+      redraw();
     } else if (name === 'object') inspect(value);
     else if (name === 'room-puzzle') {
       if (value === 'rest') rest();
@@ -759,6 +766,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         );
         $('#room-results').innerHTML = matches.map(roomCard).join('');
         $('#results-count').textContent = `${matches.length} rooms`;
+      } else if (el.id === 'map-zoom') {
+        mapZoom = +el.value;
       } else if (el.id === 'clock-answer' && active === 'clock') {
         answer = el.value;
         persist();
@@ -784,6 +793,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         });
       } else if (el.id === 'show-inspectables') {
         inspectablesVisible = el.checked;
+      } else if (el.id === 'map-zoom') {
+        redraw();
       } else if (el.id === 'filter') {
         filter = el.value;
         render();
