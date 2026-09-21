@@ -71,6 +71,11 @@ marking, undo/redo and offline reload at 320/360/390/430px; it also checks the l
 This is simulated browser evidence, not physical-phone or assistive-technology acceptance. No puzzle
 IDs, revisions or save formats change.
 
+The 2026-09-21 review fix scopes the compact 9px rule to row clues, keeps compact and expanded
+column clues at the 12px baseline, and retains a compact line-height containment rule so clue glyphs
+stay visible. The focused Chromium suite passes all four pack records at 320/360/390/430px; its
+320px larger-text measurement reports `compactColumn: 12px`, `compactRow: 9px` and no page overflow.
+
 ## Journal identity-count candidate after 0.11.3, 2026-09-15
 
 Current source corrects the journal's aggregate **Puzzles solved** total to count unique puzzle IDs

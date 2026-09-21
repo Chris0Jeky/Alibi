@@ -1637,8 +1637,11 @@ input[type='checkbox'] {
 .board-scroll.large-grid:not(.zoomed) .nono-shell {
   min-width: calc(var(--n) * 12px + var(--clue-width));
 }
-.board-scroll.large-grid:not(.zoomed) .nono-clue {
+.board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {
   font-size: 9px;
+  line-height: 1;
+}
+.board-scroll.large-grid:not(.zoomed) .nono-clue.col {
   line-height: 1;
 }
 .board-scroll.large-grid:not(.zoomed) .nono-clue:not(.col) {

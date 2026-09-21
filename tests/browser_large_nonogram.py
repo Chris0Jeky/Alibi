@@ -35,6 +35,14 @@ def assert_clues_not_clipped(page, label):
     assert not clipped, (label, 'clue glyph clipped', clipped[:5])
 
 
+def assert_compact_large_text_column_size(page, label):
+    sizes = page.locator('.nono-clue.col').evaluate_all(
+        """clues => clues.map(clue => getComputedStyle(clue).fontSize)"""
+    )
+    assert sizes and set(sizes) == {'12px'}, (label, 'unexpected compact column-clue size', sizes)
+    return sizes[0]
+
+
 def assert_compact_geometry(page, size, label):
     boxes = page.locator('.nono-cell').evaluate_all(
         """cells => cells.map((cell) => {
@@ -107,6 +115,11 @@ with sync_playwright() as pw:
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'auto-crossed compact board'))
                 page.evaluate("document.documentElement.dataset.large='true'")
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'large-text compact board'))
+                if width == 320:
+                    size = assert_compact_large_text_column_size(
+                        page, (puzzle['id'], width, 'large-text compact clues')
+                    )
+                    print(f'PASS computed compact column-clue size at {width}px: {size}', flush=True)
                 assert_clues_not_clipped(page, (puzzle['id'], width, 'large-text compact clues'))
                 page.emulate_media(forced_colors='active')
                 assert page.locator('.nono-cell .cross').count() > 0
