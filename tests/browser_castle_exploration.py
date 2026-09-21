@@ -38,9 +38,50 @@ def run():
                 assert page.locator('.castle-plan img').get_attribute('src')!=today
                 assert page.locator('.secret-route').count()==0
                 expect(page.locator('.scene-heading')).not_to_contain_text('service stair')
+                zoom_status=page.locator('.map-zoom-status')
+                expect(zoom_status).to_have_text('100%')
+                map_scroll=page.locator('.map-scroll')
+                initial_width=page.locator('.map-stage').bounding_box()['width']
+                # The native range keeps one keyboard target while retaining 25% zoom steps.
+                zoom_control=page.get_by_label('Map zoom')
+                zoom_control.focus()
+                zoom_control.press('ArrowRight')
+                expect(zoom_status).to_have_text('125%')
+                expect(zoom_control).to_be_focused()
+                zoomed_width=page.locator('.map-stage').bounding_box()['width']
+                assert zoomed_width>initial_width*1.2
+                local_overflow=map_scroll.evaluate('(e)=>({client:e.clientWidth,scroll:e.scrollWidth})')
+                assert local_overflow['scroll']>local_overflow['client']
+                slider_box=zoom_control.bounding_box()
+                page.mouse.move(slider_box['x']+slider_box['width']/2, slider_box['y']+slider_box['height']/2)
+                page.mouse.down()
+                page.mouse.move(slider_box['x']+slider_box['width']-1, slider_box['y']+slider_box['height']/2, steps=4)
+                page.mouse.up()
+                expect(zoom_status).to_have_text('175%')
+                assert page.locator('.map-stage').bounding_box()['width']>zoomed_width
+                expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
+                map_scroll.evaluate('(e)=>{e.scrollLeft=e.scrollWidth-e.clientWidth}')
+                panned_left=map_scroll.evaluate('(e)=>e.scrollLeft')
+                selected_pin=page.locator('[data-do="select"][data-value="orangery"]')
+                selected_pin.click()
+                expect(page.locator('.rail h2')).to_have_text('The Glass Orangery')
+                expect(selected_pin).to_be_focused()
+                assert map_scroll.evaluate('(e)=>e.scrollLeft')==panned_left
+                era_today=page.locator('[data-do="era"][data-value="today"]')
+                era_today.click()
+                expect(era_today).to_be_focused()
+                assert map_scroll.evaluate('(e)=>e.scrollLeft')==panned_left
+                expect(page.locator('.rail h2')).to_have_text('The Glass Orangery')
+                report['checks'].append(f'{width}: panning survives pin selection and era switching with room selection and focus intact')
+                page.locator('[data-do="map-reset"]').click()
+                expect(zoom_status).to_have_text('100%')
+                expect(zoom_control).to_be_focused()
+                reset_width=page.locator('.map-stage').bounding_box()['width']
+                assert abs(reset_width-initial_width)<1
+                assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
                 page.evaluate('window.scrollTo(0,0)')
                 page.screenshot(path=str(OUT/f'grounds-{width}.png'),full_page=True)
-                report['checks'].append(f'{width}: original era maps, aligned 44px doors, no early secret or movie download')
+                report['checks'].append(f'{width}: original era maps, aligned 44px doors, keyboard zoom and local panning preserve the selected room')
                 page.evaluate('location.hash="#/quiet/castle/directory"')
                 page.locator('#search').fill('Unrecorded')
                 expect(page.locator('#results-count')).to_have_text('0 rooms')
@@ -62,7 +103,7 @@ def run():
                 text_control.focus()
                 text_control.press('Enter')
                 expect(page.locator('#castle-dialog')).to_contain_text('pencilled correction')
-                expect(page.locator('#castle-dialog')).to_contain_text('No close-up artwork is available')
+                expect(page.locator('#castle-dialog')).to_contain_text('No close-up artwork.')
                 page.keyboard.press('Escape')
                 expect(text_control).to_be_focused()
                 toggle.uncheck()
