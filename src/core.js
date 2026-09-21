@@ -869,7 +869,7 @@
       if (p.givens && !p.givens.every((v, i) => v === lo || v === s.cells[i]))
         throw new Error('A save changes a fixed clue.');
       for (const [id, values] of Object.entries(s.notes))
-        if (!/^\d+$/.test(id) || Number(id) >= N || !ints(values, 1, n))
+        if (!/^(0|[1-9]\d*)$/.test(id) || Number(id) >= N || !ints(values, 1, n))
           throw new Error('Invalid number notes.');
     }
     return clone(s);

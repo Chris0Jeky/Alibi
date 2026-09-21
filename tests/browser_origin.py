@@ -48,6 +48,7 @@ ORIGIN_SCENARIOS = (
     "keyboard",
     "offline",
     "malformed_draft",
+    "malformed_persisted",
     "newer_database",
 )
 
@@ -758,6 +759,68 @@ def scenario_malformed_draft(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_malformed_persisted(pw: Any, root: Path) -> None:
+    profile = root / "malformed-persisted"
+    context = launch_profile(pw, profile)
+    context.add_init_script(
+        "Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: undefined });"
+    )
+    malformed_run_key = "alibi.v1.runs.malformed"
+    malformed_run = "{malformed-run"
+    malformed_settings_key = "alibi.v1.meta.settings"
+    malformed_settings = "{malformed-settings"
+    try:
+        seed = new_page(context, "malformed-persisted-seed-run")
+        seed.goto(SEED_PAGE, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        seed.evaluate(
+            "({key, value}) => localStorage.setItem(key, value)",
+            {"key": malformed_run_key, "value": malformed_run},
+        )
+        seed.close()
+
+        page = new_page(context, "malformed-persisted-run")
+        boot(page, require_indexeddb=False)
+        check(page.evaluate("AlibiDiagnostics.storage") == "local", "malformed fallback uses localStorage")
+        check(
+            "A saved record is damaged. Export browser data before resetting anything." in page_text(page),
+            "malformed persisted run is reported without crashing the app",
+        )
+        check(
+            page.evaluate("(key) => localStorage.getItem(key)", malformed_run_key) == malformed_run,
+            "malformed persisted run bytes remain untouched",
+        )
+        page.close()
+
+        seed = new_page(context, "malformed-persisted-seed-settings")
+        seed.goto(SEED_PAGE, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        seed.evaluate(
+            "({runKey, settingsKey, settings}) => { localStorage.removeItem(runKey); localStorage.setItem(settingsKey, settings); }",
+            {
+                "runKey": malformed_run_key,
+                "settingsKey": malformed_settings_key,
+                "settings": malformed_settings,
+            },
+        )
+        seed.close()
+
+        page = new_page(context, "malformed-persisted-settings")
+        boot(page, require_indexeddb=False)
+        check(
+            "A saved record is damaged. Export browser data before resetting anything." in page_text(page),
+            "malformed persisted settings are reported without crashing the app",
+        )
+        check(
+            page.evaluate("(key) => localStorage.getItem(key)", malformed_settings_key)
+            == malformed_settings,
+            "malformed persisted settings bytes remain untouched",
+        )
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -818,6 +881,7 @@ def run() -> int:
                 scenario_keyboard,
                 scenario_offline,
                 scenario_malformed_draft,
+                scenario_malformed_persisted,
                 scenario_newer_database,
             ]
             only = os.environ.get("ALIBI_ONLY")

@@ -111,6 +111,19 @@ async function tab(storage) {
     corrupt.AlibiClub.diagnostics().storageMode === 'session',
     'Unreadable save switches new work to temporary session',
   );
+  const ps = store(),
+    writer = await tab(ps);
+  await writer.AlibiClub.save();
+  ps.setItem('alibi-afterhours-v1', '{broken');
+  await writer.AlibiClub.save();
+  check(
+    writer.AlibiClub.diagnostics().saveError.includes('could not be read'),
+    'Corrupt fallback surfaces a plain-language persist error',
+  );
+  check(
+    ps.getItem('alibi-afterhours-v1') === '{broken',
+    'Failed persist does not overwrite the unreadable record',
+  );
   const denied = {
     getItem() {
       throw Error('denied');
