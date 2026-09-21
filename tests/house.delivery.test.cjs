@@ -40,6 +40,7 @@ test('optional pack bytes remain part of the complete distribution accounting', 
     'ambienceBytes',
     'enhancementBytes',
     'observatoryBytes',
+    'discoveryStorageBytes',
     'blockMotionBytes',
     'houseBytes',
   ];
