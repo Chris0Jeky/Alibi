@@ -1,4 +1,4 @@
-"""Exercise representative Master/Grandmaster studies through real browser controls."""
+"""Complete every Master/Grandmaster study through real browser controls."""
 import json
 import math
 import os
@@ -13,16 +13,15 @@ URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
 PACK = json.loads(
     (ROOT / 'content' / 'extra' / 'master-grandmaster-studies.json').read_text(encoding='utf-8')
 )
-PUZZLES = {puzzle['id']: puzzle for puzzle in PACK['puzzles']}
-CASES = (
-    'master-study-nonogram-01',
-    'master-study-bridges-01',
-    'master-study-lightup-01',
-)
+PUZZLES = PACK['puzzles']
 
 
 def action(page, name, extra=''):
     page.locator(f'[data-action="{name}"]{extra}').first.click()
+
+
+def cell(page, index):
+    action(page, 'cell', f'[data-cell="{index}"]')
 
 
 def current(page):
@@ -37,14 +36,16 @@ def dismiss_lesson(page):
     if close.count():
         close.click()
     else:
-        dialog.locator('button').first.click()
+        page.keyboard.press('Escape')
+    if page.locator('dialog[open]').count():
+        page.locator('dialog[open] button').first.click()
     expect(page.locator('dialog[open]')).to_have_count(0)
 
 
 def assert_cell_hit_target(page, index, checks, label):
     locator = page.locator(f'[data-action="cell"][data-cell="{index}"]').first
     expect(locator).to_be_visible()
-    locator.evaluate('(element) => element.scrollIntoView({block: \'center\', inline: \'center\'})')
+    locator.evaluate('(element) => element.scrollIntoView({block: "center", inline: "center"})')
     box = locator.bounding_box()
     if not box:
         raise AssertionError(f'{label} cell {index} has no rendered box')
@@ -66,51 +67,150 @@ def assert_cell_hit_target(page, index, checks, label):
     checks.append(f'{label} cell {index} has finite geometry and correct pointer mapping')
 
 
-def exercise_nonogram(page, puzzle, checks):
-    probes = (0, puzzle['size'] * (puzzle['size'] // 2) + puzzle['size'] // 2, puzzle['size'] ** 2 - 1)
+def aquarium_cell_for(puzzle, tank, level):
+    rows = sorted(
+        {
+            index // puzzle['size']
+            for index, value in enumerate(puzzle['tanks'])
+            if value == tank
+        },
+        reverse=True,
+    )
+    if not 1 <= level <= len(rows):
+        raise AssertionError(f"tank {tank} cannot use water level {level}")
+    row = rows[level - 1]
+    return next(
+        index
+        for index, value in enumerate(puzzle['tanks'])
+        if value == tank and index // puzzle['size'] == row
+    )
+
+
+def operable_cells(page, puzzle):
+    puzzle_type = puzzle['type']
+    if puzzle_type == 'nonogram':
+        return [
+            0,
+            puzzle['size'] * (puzzle['size'] // 2) + puzzle['size'] // 2,
+            puzzle['size'] ** 2 - 1,
+        ]
+    if puzzle_type == 'binary':
+        return [index for index, value in enumerate(puzzle['givens']) if value == -1]
+    if puzzle_type in {'futoshiki', 'trail'}:
+        return [index for index, value in enumerate(puzzle['givens']) if value == 0]
+    if puzzle_type == 'lightup':
+        return [index for index, wall in enumerate(puzzle['walls']) if wall == -2]
+    if puzzle_type == 'tents':
+        return [index for index, value in enumerate(puzzle['solution']) if value == 1]
+    if puzzle_type == 'aquarium':
+        return [
+            aquarium_cell_for(puzzle, tank, 1)
+            for tank in sorted(set(puzzle['tanks']))
+        ]
+    if puzzle_type == 'network':
+        return list(range(puzzle['size'] ** 2))
+    if puzzle_type == 'bridges':
+        return [island['cell'] for island in puzzle['islands']]
+    raise AssertionError(f'unhandled puzzle type: {puzzle_type}')
+
+
+def probe_geometry(page, puzzle, checks):
+    cells = operable_cells(page, puzzle)
+    probes = tuple(dict.fromkeys((cells[0], cells[len(cells) // 2], cells[-1])))
     for index in probes:
         assert_cell_hit_target(page, index, checks, puzzle['id'])
+
+
+def mutate_once(page, puzzle):
+    puzzle_type = puzzle['type']
+    if puzzle_type in {'nonogram', 'lightup', 'tents'}:
+        index = operable_cells(page, puzzle)[0]
+        cell(page, index)
+        return
+    if puzzle_type == 'binary':
+        index = operable_cells(page, puzzle)[0]
+        action(page, 'symbol', f'[data-value="{puzzle["solution"][index]}"]')
+        cell(page, index)
+        return
+    if puzzle_type == 'futoshiki':
+        index = operable_cells(page, puzzle)[0]
+        cell(page, index)
+        action(page, 'value', f'[data-value="{puzzle["solution"][index]}"]')
+        return
+    if puzzle_type == 'aquarium':
+        tank = next(index for index, level in enumerate(puzzle['solution']) if level)
+        action(page, 'brush', '[data-value="1"]')
+        cell(page, aquarium_cell_for(puzzle, tank, 1))
+        return
+    if puzzle_type == 'network':
+        index = next(index for index, turns in enumerate(puzzle['solution']) if turns)
+        cell(page, index)
+        return
+    if puzzle_type == 'trail':
+        index = operable_cells(page, puzzle)[0]
+        action(page, 'trail-value', f'[data-value="{puzzle["solution"][index]}"]')
+        cell(page, index)
+        return
+    if puzzle_type == 'bridges':
+        graph = page.evaluate('(p) => AlibiCore.bridges.graph(p)', puzzle)
+        edge_index = next(index for index, value in enumerate(puzzle['solution']) if value)
+        edge = graph['edges'][edge_index]
+        cell(page, puzzle['islands'][edge['a']]['cell'])
+        cell(page, puzzle['islands'][edge['b']]['cell'])
+        return
+    raise AssertionError(f'unhandled puzzle type: {puzzle_type}')
+
+
+def assert_mutation_and_undo(page, puzzle, checks, width):
     before = current(page)['state']
-    page.locator('[data-action="cell"][data-cell="0"]').click(position={'x': 6, 'y': 6})
+    mutate_once(page, puzzle)
     if current(page)['state'] == before:
-        raise AssertionError('Nonogram cell control did not mutate the board')
+        raise AssertionError(f'{puzzle["type"]} controls did not mutate the board')
     action(page, 'undo')
     if current(page)['state'] != before:
-        raise AssertionError('Nonogram undo did not restore the board')
-    checks.append('15×15 Nonogram actual cell control mutates and undoes state')
+        raise AssertionError(f'{puzzle["type"]} undo did not restore the board')
+    checks.append(f'{width}px {puzzle["id"]} mutates and undoes through actual controls')
 
 
-def exercise_lightup(page, puzzle, checks):
-    open_cells = [index for index, wall in enumerate(puzzle['walls']) if wall == -2]
-    probes = (open_cells[0], open_cells[len(open_cells) // 2], open_cells[-1])
-    for index in probes:
-        assert_cell_hit_target(page, index, checks, puzzle['id'])
-    before = current(page)['state']
-    page.locator(f'[data-action="cell"][data-cell="{open_cells[0]}"]').click()
-    if current(page)['state'] == before:
-        raise AssertionError('Light Up cell control did not mutate the board')
-    action(page, 'undo')
-    if current(page)['state'] != before:
-        raise AssertionError('Light Up undo did not restore the board')
-    checks.append('7×7 Light Up actual cell control mutates and undoes state')
-
-
-def exercise_bridges(page, puzzle, checks):
-    graph = page.evaluate('(p) => AlibiCore.bridges.graph(p)', puzzle)
-    edge_index = next(index for index, value in enumerate(puzzle['solution']) if value > 0)
-    edge = graph['edges'][edge_index]
-    endpoints = (puzzle['islands'][edge['a']]['cell'], puzzle['islands'][edge['b']]['cell'])
-    for index in endpoints:
-        assert_cell_hit_target(page, index, checks, puzzle['id'])
-    before = current(page)['state']
-    for index in endpoints:
-        page.locator(f'[data-action="cell"][data-cell="{index}"]').click()
-    if current(page)['state'] == before:
-        raise AssertionError('Bridges endpoint controls did not create a bridge')
-    action(page, 'undo')
-    if current(page)['state'] != before:
-        raise AssertionError('Bridges undo did not restore the board')
-    checks.append('9×9 Bridges endpoint controls create and undo a bridge')
+def solve(page, puzzle):
+    puzzle_type = puzzle['type']
+    solution = puzzle['solution']
+    if puzzle_type in {'nonogram', 'lightup', 'tents'}:
+        for index, value in enumerate(solution):
+            if value == 1:
+                cell(page, index)
+    elif puzzle_type == 'binary':
+        for index, value in enumerate(solution):
+            if puzzle['givens'][index] == -1:
+                action(page, 'symbol', f'[data-value="{value}"]')
+                cell(page, index)
+    elif puzzle_type == 'futoshiki':
+        for index, value in enumerate(solution):
+            if not puzzle['givens'][index]:
+                cell(page, index)
+                action(page, 'value', f'[data-value="{value}"]')
+    elif puzzle_type == 'aquarium':
+        action(page, 'brush', '[data-value="1"]')
+        for tank, level in enumerate(solution):
+            if level:
+                cell(page, aquarium_cell_for(puzzle, tank, level))
+    elif puzzle_type == 'network':
+        for index, turns in enumerate(solution):
+            for _ in range(turns):
+                cell(page, index)
+    elif puzzle_type == 'trail':
+        for index, value in enumerate(solution):
+            if not puzzle['givens'][index]:
+                action(page, 'trail-value', f'[data-value="{value}"]')
+                cell(page, index)
+    elif puzzle_type == 'bridges':
+        edges = page.evaluate('(p) => AlibiCore.bridges.graph(p).edges', puzzle)
+        for edge, value in zip(edges, solution):
+            for _ in range(value):
+                cell(page, puzzle['islands'][edge['a']]['cell'])
+                cell(page, puzzle['islands'][edge['b']]['cell'])
+    else:
+        raise AssertionError(f'unhandled puzzle type: {puzzle_type}')
 
 
 def run():
@@ -125,7 +225,7 @@ def run():
                     viewport={'width': width, 'height': 1000}, reduced_motion='reduce'
                 )
                 page = context.new_page()
-                page.set_default_timeout(7000)
+                page.set_default_timeout(10000)
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 page.goto(URL + '/#/library')
@@ -133,29 +233,32 @@ def run():
                     '() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
                     timeout=30000,
                 )
-                for puzzle_id in CASES:
-                    puzzle = PUZZLES[puzzle_id]
+                for puzzle in PUZZLES:
+                    puzzle_id = puzzle['id']
                     try:
                         page.goto(URL + f'/#/play/{puzzle_id}@{puzzle["revision"]}')
                         page.wait_for_function(
-                            '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id', arg=puzzle_id
+                            '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id',
+                            arg=puzzle_id,
                         )
                         dismiss_lesson(page)
                         expect(page.locator('.board-card')).to_be_visible()
                         if page.evaluate('document.documentElement.scrollWidth > innerWidth'):
                             raise AssertionError('page has horizontal overflow')
-                        if puzzle['type'] == 'nonogram':
-                            exercise_nonogram(page, puzzle, checks)
-                        elif puzzle['type'] == 'bridges':
-                            exercise_bridges(page, puzzle, checks)
-                        elif puzzle['type'] == 'lightup':
-                            exercise_lightup(page, puzzle, checks)
-                        else:
-                            raise AssertionError(f'unhandled representative type: {puzzle["type"]}')
+                        probe_geometry(page, puzzle, checks)
+                        assert_mutation_and_undo(page, puzzle, checks, width)
+                        solve(page, puzzle)
+                        page.wait_for_function(
+                            '() => Boolean(AlibiDiagnostics.getCurrent()?.completedAt)',
+                            timeout=30000,
+                        )
+                        snapshot = current(page)
+                        if snapshot['puzzle']['id'] != puzzle_id or not snapshot['completedAt']:
+                            raise AssertionError('completion did not retain the active study')
+                        checks.append(f'{width}px actual controls complete {puzzle_id}')
                         page.screenshot(
                             path=str(OUT / f'{puzzle_id}-{width}.png'), full_page=True
                         )
-                        checks.append(f'{width}px actual-control pass for {puzzle_id}')
                     except Exception as error:
                         screenshot = OUT / f'failure-{width}-{puzzle_id}.png'
                         page.screenshot(path=str(screenshot), full_page=True)
@@ -179,10 +282,11 @@ def run():
         'checks': checks,
         'failures': failures,
         'widths': [390, 1440],
-        'puzzles': list(CASES),
+        'puzzles': [puzzle['id'] for puzzle in PUZZLES],
         'scope': (
-            'Real Chromium DOM controls and pointer hit-testing in simulated phone and desktop '
-            'viewports; not a physical-device or human difficulty calibration.'
+            'Every new study is completed through real Chromium DOM controls after an independent '
+            'mutation/undo and pointer-hit test in simulated phone and desktop viewports; this is '
+            'not a physical-device or human difficulty calibration.'
         ),
         'url': URL,
     }
