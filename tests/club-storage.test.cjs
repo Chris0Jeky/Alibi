@@ -10,6 +10,18 @@ const check = (ok, label) => {
   assert.ok(ok, label);
   checks.push(label);
 };
+const blockIntegration = fs.readFileSync(
+  path.join(root, 'src/block-cabinet/integration.mjs'),
+  'utf8',
+);
+check(
+  blockIntegration.includes('await club().flush();'),
+  'Block Cabinet integration flushes the Club queue after actions',
+);
+check(
+  !blockIntegration.includes('await club().save();'),
+  'Block Cabinet integration does not enqueue a duplicate Club CAS write',
+);
 function store() {
   const data = new Map();
   return {
