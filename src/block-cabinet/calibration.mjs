@@ -12,7 +12,7 @@ function positiveInteger(name, value, maximum) {
 function options(value = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw Error('Calibration options must be an object.');
-  const unknown = Object.keys(value).filter((key) => !(key in DEFAULTS));
+  const unknown = Object.keys(value).filter((key) => !Object.hasOwn(DEFAULTS, key));
   if (unknown.length) throw Error(`Unknown calibration option: ${unknown[0]}.`);
   return Object.freeze({
     maxNodes: positiveInteger('maxNodes', value.maxNodes ?? DEFAULTS.maxNodes, LIMITS.maxNodes),
