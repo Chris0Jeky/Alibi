@@ -43,6 +43,15 @@ store publication, and TalkBack/large-text acceptance remain open in `HUMAN_TODO
 q-3, q-4 and the related Capacitor gates). No APK/AAB, credentials, signing material, secrets or
 generated `dist`/`dist-android` output is tracked.
 
+## Games Room retirement candidate, 2026-09-21 (PR #199)
+
+The Games Room now offers six games: Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe,
+Block Cabinet and Lantern Gardens. Dominoes and Mahjong remain direct legacy routes with their
+engines, existing saves, replay, undo/redo and backup validation intact, but no longer appear as
+discovery cards or Home resume suggestions. The focused browser suites assert both sides of that
+boundary: retired runs remain readable after Home navigation, while the retired games are absent
+from discovery. Physical-device, TalkBack and difficulty acceptance remain open in `HUMAN_TODO.md`
+q-8. This is a source candidate and is not a new hosted publication.
 ## Six-tier difficulty contract candidate, 2026-09-21
 
 PR #182's round-2 candidate keeps the canonical order `Gentle`, `Steady`, `Tricky`, `Expert`,
