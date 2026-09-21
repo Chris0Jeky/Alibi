@@ -8,35 +8,36 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const loaderSource = fs.readFileSync(path.join(root, 'src/observatory-loader.js'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
+const browserSource = fs.readFileSync(path.join(root, 'observatory/browser.js'), 'utf8');
 
 function harness() {
-  const block =
-    /\/\/ Observatory journey helper start\.\n([\s\S]*?)  \/\/ Observatory journey helper end\./.exec(
-      appSource,
-    );
-  assert.ok(block, 'app must contain the bounded journey helper block');
+  const block = /\/\/ Alibi journey helper start\.\n([\s\S]*?)\/\/ Alibi journey helper end\./.exec(
+    browserSource,
+  );
+  assert.ok(block, 'adapter must contain the bounded journey helper block');
   const events = [];
   let active = false;
   const context = {
-    PulseboardUsage: {
-      status: () => ({ active }),
-      track(event) {
-        if (!active) return false;
-        events.push(event);
-        return true;
-      },
+    track(event) {
+      if (!active) return false;
+      events.push(event);
+      return true;
     },
+    active: () => active,
   };
   context.globalThis = context;
-  vm.runInNewContext(
-    `let current = { key: 'first' };\n${block[1]}\nglobalThis.__journey = { call: observeJourney, change: value => { current = value; }, reset: resetJourney };`,
-    context,
-    { filename: 'observatory-journey-helper.js' },
-  );
+  vm.runInNewContext(`${block[1]}\nglobalThis.__journey = createJourney(track, active);`, context, {
+    filename: 'observatory-journey-helper.js',
+  });
+  let current = { key: 'first' };
   return {
     events,
-    call: context.__journey.call,
-    change: context.__journey.change,
+    call(event) {
+      return context.__journey.observe(current, event);
+    },
+    change(value) {
+      current = value;
+    },
     reset: context.__journey.reset,
     setActive(value) {
       active = value;
@@ -94,23 +95,24 @@ test('route resets require a fresh start without buffering', () => {
 });
 
 test('application lifecycle calls the helper with fixed event names only', () => {
-  assert.match(appSource, /observeJourney\(\);[\s\S]*current\.state = next;/);
-  assert.match(appSource, /issues\.length\)[\s\S]*observeJourney\('puzzle\.failed'\)/);
   assert.match(
     appSource,
-    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*observeJourney\('puzzle\.completed'\);/,
-  );
-  assert.match(
-    appSource,
-    /function showHint\(\) \{\s*if \(!current\) return;\s*observeJourney\('hint\.requested'\);/,
+    /PulseboardUsage\?\.journey\?\.\(current\);[\s\S]*current\.state = next;/,
   );
   assert.match(
     appSource,
-    /async function loadRoute\(focusSerial = 0\) \{\s*const serial = \+\+routeSerial;\s*resetJourney\(\);/,
+    /issues\.length\)[\s\S]*PulseboardUsage\?\.journey\?\.\(current, 'puzzle\.failed'\)/,
   );
-  const calls = [...appSource.matchAll(/(?<!function )observeJourney\(([^)]*)\)/g)].map((match) =>
-    match[1].trim(),
+  assert.match(
+    appSource,
+    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*globalThis\.PulseboardUsage\?\.journey\?\.\(current, 'puzzle\.completed'\);/,
   );
-  assert.deepEqual(calls.sort(), ['', "'hint.requested'", "'puzzle.completed'", "'puzzle.failed'"]);
+  assert.match(
+    appSource,
+    /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.PulseboardUsage\?\.journey\?\.\(current, 'hint\.requested'\);/,
+  );
+  assert.match(loaderSource, /PulseboardUsage\?\.resetJourney\?\.\(\);/);
+  assert.equal((appSource.match(/globalThis\.PulseboardUsage\?\.journey\?\./g) || []).length, 4);
+  assert.doesNotMatch(appSource, /observeJourney|resetJourney/);
   assert.doesNotMatch(loaderSource, /ALIBI_OBSERVATORY_JOURNEY/);
 });

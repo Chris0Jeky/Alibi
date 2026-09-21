@@ -37,7 +37,7 @@ function element(tag) {
   return node;
 }
 
-function run() {
+function run({ contextProvider = true } = {}) {
   const created = [];
   const windowListeners = {};
   const document = element('document');
@@ -84,12 +84,13 @@ function run() {
     emit(type, event = {}) {
       for (const listener of [...(windowListeners[type] || [])]) listener(event);
     },
-    ALIBI_CONFIG: { standalone: false },
-    ALIBI_OBSERVATORY_CONTEXT() {
+    ALIBI_CONFIG: { standalone: false, version: '0.11.3' },
+  };
+  if (contextProvider)
+    context.ALIBI_OBSERVATORY_CONTEXT = () => {
       contextReads += 1;
       return { route: 'home', release: '0.11.3' };
-    },
-  };
+    };
   context.globalThis = context;
   vm.createContext(context);
   vm.runInContext(source, context, { filename: 'observatory/browser.js' });
@@ -135,4 +136,23 @@ test('generated Alibi adapter does not inspect host context without active conse
   harness.context.emit('error');
   assert.equal(harness.contextReads(), afterWithdrawal);
   assert.equal(optionReads, 0);
+});
+
+test('deferred adapter maps Alibi hashes to the closed Observatory vocabulary', () => {
+  const harness = run({ contextProvider: false });
+  const cases = [
+    ['', 'home'],
+    ['#/home', 'home'],
+    ['#/play/expert-sudoku-01@2', 'puzzle'],
+    ['#/story/chapter@1?book=bellweather', 'puzzle'],
+    ['#/quiet/castle/room/library', 'castle'],
+    ['#/quiet/realm', 'quiet-wing'],
+    ['#/library/sudoku', 'other'],
+  ];
+  for (const [hash, expected] of cases) {
+    harness.context.location.hash = hash;
+    const value = harness.context.ALIBI_OBSERVATORY_CONTEXT();
+    assert.equal(value.route, expected, hash || '(empty hash)');
+    assert.equal(value.release, '0.11.3');
+  }
 });

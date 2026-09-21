@@ -51,23 +51,9 @@ function run({
   };
 }
 
-test('route context maps Alibi hashes to the closed Observatory vocabulary', () => {
+test('the loader leaves route context to the deferred adapter', () => {
   const harness = run();
-  const cases = [
-    ['', 'home'],
-    ['#/home', 'home'],
-    ['#/play/expert-sudoku-01@2', 'puzzle'],
-    ['#/story/chapter@1?book=bellweather', 'puzzle'],
-    ['#/quiet/castle/room/library', 'castle'],
-    ['#/quiet/realm', 'quiet-wing'],
-    ['#/library/sudoku', 'other'],
-  ];
-  for (const [hash, expected] of cases) {
-    harness.context.location.hash = hash;
-    const value = harness.context.ALIBI_OBSERVATORY_CONTEXT();
-    assert.equal(value.route, expected, hash || '(empty hash)');
-    assert.equal(value.release, '0.11.3');
-  }
+  assert.equal(harness.context.ALIBI_OBSERVATORY_CONTEXT, undefined);
 });
 
 test('the deferred asset is injected once and route changes report a fresh page view', () => {
@@ -77,14 +63,19 @@ test('the deferred asset is injected once and route changes report a fresh page 
   assert.equal(harness.scripts[0].src, 'assets/observatory.test.js');
   assert.equal(harness.listenerCount('hashchange'), 1);
   const events = [];
+  let resets = 0;
   harness.context.PulseboardUsage = {
+    resetJourney() {
+      resets++;
+    },
     track(event) {
-      events.push([event, harness.context.ALIBI_OBSERVATORY_CONTEXT().route]);
+      events.push(event);
     },
   };
   harness.context.location.hash = '#/quiet/castle';
   harness.emit('hashchange');
-  assert.deepEqual(events, [['page.view', 'castle']]);
+  assert.equal(resets, 1);
+  assert.deepEqual(events, ['page.view']);
 });
 
 test('loading documents defer injection until load without duplicating route listeners', () => {

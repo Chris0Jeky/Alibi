@@ -5,21 +5,10 @@
   const g = globalThis,
     url = g.ALIBI_OBSERVATORY_URL;
   if (!url || g.ALIBI_CONFIG?.standalone !== false || typeof document === 'undefined') return;
-  g.ALIBI_OBSERVATORY_CONTEXT = () => {
-    const [page = '', section = ''] = (g.location?.hash || '').slice(2).split(/[/?]/);
-    const route =
-      !page || page === 'home'
-        ? 'home'
-        : page === 'play' || page === 'story'
-          ? 'puzzle'
-          : page === 'quiet'
-            ? section === 'castle'
-              ? 'castle'
-              : 'quiet-wing'
-            : 'other';
-    return { route, release: g.ALIBI_CONFIG?.version };
-  };
-  g.addEventListener('hashchange', () => g.PulseboardUsage?.track?.('page.view'));
+  g.addEventListener('hashchange', () => {
+    g.PulseboardUsage?.resetJourney?.();
+    g.PulseboardUsage?.track?.('page.view');
+  });
   const inject = () => {
     const tag = document.createElement('script');
     tag.src = url;

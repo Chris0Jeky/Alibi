@@ -99,6 +99,27 @@ function createObserver(config, runtime = globalThis) {
   function dispose() { consent = false; disposed = true; clear(); }
   return { setConsent, track, flush, flushOnHide, dispose, status: () => ({ active: consent && eligible(), queued: queue.length, requests, ...stats }) };
 }
+// Alibi journey helper start.
+function createJourney(track, active) {
+  let observedRun,
+    observedAttempt = false;
+  function reset() {
+    observedRun = null;
+    observedAttempt = false;
+  }
+  function observe(run, event) {
+    if (observedRun !== run) ((observedRun = run), (observedAttempt = false));
+    if (!active()) return (reset(), false);
+    if (event && !/^(puzzle\.(started|failed|completed)|hint\.requested)$/.test(event))
+      return false;
+    if (!observedAttempt && !(observedAttempt = track('puzzle.started'))) return false;
+    if (!event || event === 'puzzle.started') return true;
+    if (event !== 'hint.requested') observedAttempt = false;
+    return track(event);
+  }
+  return { observe, reset };
+}
+// Alibi journey helper end.
 /** Optional UI facade. Loaded scripts stay inert until deployment configuration exists. */
 function mountObserver(config, create, runtime = globalThis) {
   const { document, location, navigator } = runtime;
@@ -123,6 +144,21 @@ function mountObserver(config, create, runtime = globalThis) {
   if (!observer.status().active) return observer.track(event, options);
   return observer.track(event, { ...hostContext(), ...options });
 };
+  if (!runtime.ALIBI_OBSERVATORY_CONTEXT) runtime.ALIBI_OBSERVATORY_CONTEXT = () => {
+    const [page = '', section = ''] = (runtime.location?.hash || '').slice(2).split(/[/?]/);
+    const route =
+      !page || page === 'home'
+        ? 'home'
+        : page === 'play' || page === 'story'
+          ? 'puzzle'
+          : page === 'quiet'
+            ? section === 'castle'
+              ? 'castle'
+              : 'quiet-wing'
+            : 'other';
+    return { route, release: runtime.ALIBI_CONFIG?.version };
+  };
+  const journey = createJourney(track, () => observer.status().active);
   const key = 'pulseboard:consent:v1:' + config.id + ':' + config.endpoint, CONSENT_MS = 90 * 86400000;
   let granted = false, overdue = false;
   // A stored expiry is never trusted past 90 days from now; a tampered or corrupt one cannot grant indefinite consent.
@@ -156,7 +192,7 @@ function mountObserver(config, create, runtime = globalThis) {
   const dispose = () => { observer.dispose(); runtime.removeEventListener('error', error); runtime.removeEventListener('unhandledrejection', error); document.removeEventListener('click', click); details.remove(); };
   // A tracked click that navigates would otherwise be discarded by dispose(); hand the queue over first.
   runtime.addEventListener('pagehide', () => { observer.flushOnHide(); dispose(); }, { once: true });
-  return { track, flush: observer.flush, flushOnHide: observer.flushOnHide, status: observer.status, dispose };
+  return { track, journey: journey.observe, resetJourney: journey.reset, flush: observer.flush, flushOnHide: observer.flushOnHide, status: observer.status, dispose };
 }
 const config = {"id":"alibi","project":{"events":["page.view","app.ready","app.error","action.requested","action.completed","action.failed","duration.ms","puzzle.started","puzzle.completed","hint.requested"],"routes":["home","puzzle","castle","quiet-wing","other"],"releases":["unattributed","0.11.3","0.11.4"],"measurements":["duration.ms"]},"origin":"https://alibi-after-hours-preview.commit-atlas.workers.dev","endpoint":"https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi","scopePath":"/","release":"unattributed","route":"home","clicks":[],"contextGlobal":"ALIBI_OBSERVATORY_CONTEXT","publicFlag":{"global":"ALIBI_CONFIG","key":"standalone","expected":false}};
 function start() { globalThis.PulseboardUsage?.dispose(); globalThis.PulseboardUsage = mountObserver(config, createObserver); }
