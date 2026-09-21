@@ -1,13 +1,6 @@
 /* Cozy mystery visual overrides. Puzzle logic and save contracts remain untouched. */
 :root {
-  --club-midnight: #102d35;
-  --club-midnight-2: #173e45;
   --club-brass: #c49a55;
-  --club-brass-light: #e5c482;
-  --club-parchment: #f4ecdc;
-  --club-parchment-deep: #e8dcc6;
-  --club-walnut: #4d382b;
-  --club-moss: #607968;
   --club-shadow: 0 24px 70px rgba(20, 42, 42, 0.14);
   --club-soft-shadow: 0 12px 34px rgba(27, 43, 38, 0.11);
 }
@@ -144,6 +137,7 @@ body.club-experiment {
   padding: 18px 36px 31px;
 }
 .hero-copy h2 {
+  font-size: clamp(24px, 2.6vw, 40px);
   max-width: 650px;
   text-wrap: balance;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.26);
@@ -764,6 +758,13 @@ html[data-reduced='true'] .club-experiment *:hover {
     font-size: 24px;
   }
   .play-title .eyebrow {
+    font-size: 11px;
+  }
+  .play-title .row,
+  .play-title .difficulty {
+    font-size: 12px;
+  }
+  .board-heading .eyebrow {
     font-size: 11px;
   }
   .play-title .row {
