@@ -4,6 +4,7 @@ const test = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');
+require('../src/core.js');
 const M = require('../src/house/model.js');
 require('../src/house/components.js');
 require('../src/house/view.js');
