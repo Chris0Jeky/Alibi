@@ -52,13 +52,18 @@ def run():
                 for id in ['maintenance','ticket','path']:
                     page.locator(f'[data-compare-record][value="{id}"]').check()
                 compare=page.locator('[data-do="compare-records"]')
-                compare.click()
+                expect(compare).to_be_enabled()
+                expect(page.locator('.evidence-board')).to_have_attribute('aria-label','Collected records')
+                compare.press('Enter')
                 expect(page.locator('.evidence-comparison article')).to_have_count(3)
                 assert page.locator('.evidence-comparison h3').all_text_contents()==[
                     'The maintenance slip','The corrected ticket','The green footpath']
                 expect(page.locator('#castle-dialog')).not_to_contain_text('margin under the stairs')
-                page.locator('[data-do="close"]').click()
-                expect(compare).to_be_focused()
+                expect(page.locator('#castle-dialog')).to_have_attribute('aria-labelledby','castle-title')
+                expect(page.locator('#castle-dialog .close')).to_be_focused()
+                page.keyboard.press('Escape')
+                expect(page.locator('#castle-dialog')).not_to_be_visible()
+                expect(page.locator('#castle-main')).to_be_focused()
                 assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
                 page.screenshot(path=str(OUT/f'notebook-{width}.png'),full_page=True)
                 report['checks'].append(f'{width}: hypotheses persist; three encountered records compare in source order with room links and no future evidence')

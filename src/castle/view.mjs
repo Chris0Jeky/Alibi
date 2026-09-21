@@ -192,7 +192,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (dialog.open) dialog.close();
     dialog.replaceChildren();
     render();
-    const candidates = [...root.querySelectorAll('button,a')].filter((el) =>
+    const candidates = [...root.querySelectorAll('button:not(:disabled),a')].filter((el) =>
       opener?.dataset?.do
         ? el.dataset.do === opener.dataset.do && el.dataset.value === opener.dataset.value
         : opener?.href && el.href === opener.href,

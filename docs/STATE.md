@@ -21,6 +21,19 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Castle evidence comparison focus correction, 2026-09-21 (not deployed)
+
+PR #207 adds a session-only comparison view for two or three already-collected Castle records.
+The incoming head `0507aa0` reproduced a hosted-style browser failure after closing that view:
+the notebook rerender cleared the temporary selection, leaving the comparison trigger disabled,
+while the generic dialog close path attempted to restore focus to it. Playwright consequently
+reported the locator as inactive. The correction skips disabled restoration candidates and returns
+focus to the Castle main landmark when the trigger is no longer available. Enter opens the named
+dialog and Escape closes it through the same path. Source order, room links, escaping, the
+three-record bound, no-future-evidence rule, overflow check and offline/static semantics remain
+unchanged; comparison still changes no save, privacy, reward or evidence state. This candidate is
+not deployed; a fresh hosted Castle run at the post-fix head is still required.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
