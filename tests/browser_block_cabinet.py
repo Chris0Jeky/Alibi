@@ -54,7 +54,7 @@ with sync_playwright() as playwright:
 
         route("/salon/blockcabinet")
         page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
-        restart = page.get_by_role('button', name='Start again', exact=True)
+        restart = page.locator('.bc-host').get_by_role('button', name='Start again', exact=True)
         check(restart.is_visible(), f"Enhanced Block Cabinet exposes Start again at {width}px")
         actions = page.locator('.bc-host .bc-controls')
         check(
