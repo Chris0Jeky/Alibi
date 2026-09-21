@@ -42,8 +42,8 @@
       app.insertAdjacentHTML(
         'beforeend',
         isAndroidTarget
-          ? '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close and reopen the bundled Android app, then retry. Your saves are unchanged.</p><button class="btn">Retry</button></section>'
-          : '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close other Alibi windows and retry. Your saves are unchanged. Refresh app files online if this continues.</p><button class="btn">Retry</button><button class="btn secondary">Refresh app files</button></section>',
+          ? '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close and reopen the bundled Android app, then retry. Your saves are unchanged.</p><button class="btn">Retry opening</button></section>'
+          : '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close other Alibi windows and retry. Your saves are unchanged. Refresh app files online if this continues.</p><button class="btn">Retry opening</button><button class="btn secondary">Refresh app files</button></section>',
       );
       const panel = $('boot-recovery'),
         [retry, refresh] = panel.querySelectorAll('button');
