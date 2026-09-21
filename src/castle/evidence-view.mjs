@@ -9,7 +9,7 @@ function card(record, selectable) {
 export function evidenceBoard(records) {
   return records.length
     ? `<section class="evidence-board" aria-label="Collected records"><div class="row"><h2>Collected records</h2>${button('Compare', 'compare-records')}</div><div class="directory">${records.map((record) => card(record, true)).join('')}</div></section>`
-    : '<h2>Collected records</h2><p>Collect a record in the library.</p>';
+    : '<h2>Collected records</h2><p>The library is a useful place to start looking.</p>';
 }
 
 export function evidenceComparison(records) {
