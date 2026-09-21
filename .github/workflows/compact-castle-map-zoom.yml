@@ -110,18 +110,16 @@ jobs:
 
           browser = Path('tests/browser_castle_exploration.py')
           text = browser.read_text(encoding='utf-8')
-          old = '''                zoom_in=page.locator('[data-do="map-zoom"][data-value="in"]')
-                zoom_in.focus()
-                zoom_in.press('Enter')'''
-          new = '''                zoom_control=page.get_by_label('Map zoom')
-                zoom_control.focus()
-                zoom_control.press('ArrowRight')'''
+          if text.count('zoom_in') != 5:
+              raise SystemExit(f'Expected five zoom_in references, found {text.count("zoom_in")}.')
+          text = text.replace('zoom_in', 'zoom_control')
+          old = 'zoom_control=page.locator(\'[data-do="map-zoom"][data-value="in"]\')'
           if text.count(old) != 1:
-              raise SystemExit('Castle zoom browser setup changed unexpectedly.')
-          text = text.replace(old, new, 1)
-          if text.count('expect(zoom_in).to_be_focused()') != 2:
-              raise SystemExit('Castle zoom focus assertions changed unexpectedly.')
-          text = text.replace('expect(zoom_in).to_be_focused()', 'expect(zoom_control).to_be_focused()')
+              raise SystemExit('Castle zoom locator changed unexpectedly.')
+          text = text.replace(old, "zoom_control=page.get_by_label('Map zoom')", 1)
+          if text.count("zoom_control.press('Enter')") != 1:
+              raise SystemExit('Castle zoom keyboard action changed unexpectedly.')
+          text = text.replace("zoom_control.press('Enter')", "zoom_control.press('ArrowRight')", 1)
           old = 'page.locator(\'[data-do="map-zoom"][data-value="reset"]\').click()'
           if text.count(old) != 1:
               raise SystemExit('Castle zoom reset control changed unexpectedly.')
