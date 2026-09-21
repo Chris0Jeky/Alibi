@@ -21,6 +21,15 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Games Room expansion candidate, 2026-09-21 (not deployed)
+
+PR #201 expands Lantern Gardens and Archive Heist with additive, versioned content: the Games Room
+now describes nine Archive rooms while preserving the earlier engines, saves and replay boundaries.
+The candidate updates the delivery map and authoritative project map together. Node engine and
+content contracts plus the focused Club and Gardens browser checks are required before merge;
+physical-device interaction, TalkBack, difficulty and comfort acceptance remain open in
+`HUMAN_TODO.md`.
+
 ## Castle map viewport candidate, 2026-09-21 (not deployed)
 
 PR #206 now preserves the Castle map viewport when selecting a numbered room or switching between

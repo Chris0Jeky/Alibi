@@ -90,7 +90,7 @@ See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md) and its per-file inventory for the 
 `src/club-engines.js` retains eight separately versioned engines for compatibility; six are currently offered in the Games Room. `assist.js` adds reversible rules,
 `club.js` and `club.css` implement the new desk/games/journal/Zen, and `atlas.js` draws the harbour.
 `boot.js` supplies independent startup recovery. `optional-online/` is a separate, disabled-by-default
-room service. The original 116-puzzle count is unchanged; six Archive rooms are additional games-room
+room service. The original 116-puzzle count is unchanged; nine Archive rooms are additional games-room
 content, and Borough/Duel are procedural/adversarial games rather than fabricated puzzle counts.
 
 ## Quiet Wing
