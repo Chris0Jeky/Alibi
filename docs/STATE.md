@@ -23,15 +23,15 @@ remain tracked in `HUMAN_TODO.md`.
 
 ## Android bundled payload candidate, 2026-09-21
 
-At PR #180 implementation head `f36a5935f4f999729a057e5317edfee48bd02a3c`, the round-2 repair rebuilt the
+At PR #180 implementation head `4d6cbe7a765523bee2dbdfe07b9be7cdaa0f50a5`, the round-2 repair rebuilt the
 shared web graph and derived the Android-only payload without changing the copied application
 configuration: it retains `standalone: false`, while the injected `ALIBI_BUILD_TARGET='android'`
 marker suppresses the service-worker/update and browser-install paths. Quiet Wing and theatre
-assets remain in the payload. `npm.cmd run build:android` measured web build `67bc3a0f3951`,
-initial JavaScript `126855` gzip bytes, and content manifest revision
+assets remain in the payload. `npm.cmd run build:android` measured web build `0435d84e9659`,
+initial JavaScript `126790` gzip bytes, and content manifest revision
 `9fb7e17fc949b098de2ad30b85abbc83092c279da5cc47fe46f0dd9d64b6fb14`; the Android identity
 receipt recorded payload SHA-256
-`3372d1b8f5d5ca5ca824b7747a960a68c950ddf72940586f5e54f1a95101b09f`.
+`bc75910ad3a451127ef8a7402311121964ff2e3acab046e224f7983ce8978ac1`.
 
 `npm.cmd run check:android` passed with deterministic source/content provenance checks,
 `node --test tests/android-build.test.cjs` passed 8/8 including source/content tamper rejection,
