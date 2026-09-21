@@ -6,7 +6,17 @@ import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
 import { atmosphere, nearby, nextThread, listed } from './exploration.mjs';
 import { practicePanel } from './practice.mjs';
-export function createPages({ state, view, selected, era, search, filter, practiceSnapshot }) {
+export function createPages({
+  state,
+  view,
+  selected,
+  era,
+  mapZoom: zoomStep,
+  search,
+  filter,
+  practiceSnapshot,
+  inspectablesVisible = true,
+}) {
   const room = () => W.rooms.find((r) => r.id === selected) || W.rooms[0];
   const practice = (r) =>
     practiceSnapshot?.rooms?.[r.id] ? practicePanel(r, practiceSnapshot) : '';
@@ -35,15 +45,16 @@ export function createPages({ state, view, selected, era, search, filter, practi
   }
   function mapPage() {
     const visible = W.rooms.filter(
-      (r) => r.implemented && (r.id !== 'west-stair' || E.has(state, 'inference')),
-    );
-    return `<section class="scene-heading"><span class="eyebrow">A house of unfinished questions · Chapter I</span><h1>Wrenmere Castle</h1><p>Step through a door. Handle a question. Follow what the house has kept.</p></section><div class="layout"><section class="scene" aria-label="Castle grounds"><div class="scene-controls"><div class="row">${button('Today', 'era', 'today', `aria-pressed="${era === 'today'}"`)}${button('1911 survey', 'era', '1911', `aria-pressed="${era === '1911'}"`)}</div>${link('All rooms', 'directory')}</div><div class="map-scroll" tabindex="0" role="region" aria-label="Estate map, scroll across to explore"><div class="map-stage">${Art.estate(era, E.has(state, 'inference'))}${visible.map((r) => button(String(r.number).padStart(2, '0'), 'select', r.id, `class="pin${E.has(state, r.puzzle) ? ' completed' : ''}" style="left:${r.x}%;top:${r.y}%" aria-label="${escape(r.name)}, ${E.roomStatus(state, r).open ? 'open' : 'clue required'}" aria-pressed="${selected === r.id}"`)).join('')}</div></div><p class="map-help small">Select a numbered door, or choose a named entrance below. On a small screen you can move across the grounds.</p></section>${rail(room())}</div><section class="page"><section class="thread-guide"><span class="eyebrow">A thread to follow</span>${nextThread(state)}</section><h2>The doors of Wrenmere</h2><div class="directory">${visible.map(roomCard).join('')}</div><details><summary>Survey description</summary><p>${era === '1911' ? 'The fictional 1911 survey draws a footpath toward the orchard. Compare the shape of the path with the present-day grounds; the Map Room contains the measurements needed for the question.' : 'The present-day grounds show the castle, glasshouse, gardens and river. The numbered doors are a guide to your visit.'}${E.has(state, 'inference') ? ' A newly marked passage links the study to the unrecorded stair. Its existence makes another route possible; it does not identify who used it.' : ''}</p></details></section>`;
+        (r) => r.implemented && (r.id !== 'west-stair' || E.has(state, 'inference')),
+      ),
+      zoom = zoomStep * 25;
+    return `<section class="scene-heading"><span class="eyebrow">A house of unfinished questions · Chapter I</span><h1>Wrenmere Castle</h1><p>Step through a door. Handle a question. Follow what the house has kept.</p></section><div class="layout"><section class="scene" aria-label="Castle grounds"><div class="scene-controls"><div class="row">${button('Today', 'era', 'today', `aria-pressed="${era === 'today'}"`)}${button('1911 survey', 'era', '1911', `aria-pressed="${era === '1911'}"`)}</div><div class="row"><input id="map-zoom" type="range" min="4" max="7" value="${zoomStep}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', zoomStep === 4 ? 'disabled' : '')}</div>${link('All rooms', 'directory')}</div><div class="map-scroll" tabindex="0" role="region" aria-label="Estate map ${zoom}%"><div class="map-stage" style="width:${zoom}%;min-width:${140 * zoomStep}px">${Art.estate(era, E.has(state, 'inference'))}${visible.map((r) => button(String(r.number).padStart(2, '0'), 'select', r.id, `class="pin${E.has(state, r.puzzle) ? ' completed' : ''}" style="left:${r.x}%;top:${r.y}%" aria-label="${escape(r.name)}, ${E.roomStatus(state, r).open ? 'open' : 'clue required'}" aria-pressed="${selected === r.id}"`)).join('')}</div></div><p class="map-help small">Choose a door. Pan or zoom.</p></section>${rail(room())}</div><section class="page"><section class="thread-guide"><span class="eyebrow">A thread to follow</span>${nextThread(state)}</section><h2>The doors of Wrenmere</h2><div class="directory">${visible.map(roomCard).join('')}</div><details><summary>Survey description</summary><p>${era === '1911' ? 'The fictional 1911 survey draws a footpath toward the orchard. Compare the shape of the path with the present-day grounds; the Map Room contains the measurements needed for the question.' : 'The present-day grounds show the castle, glasshouse, gardens and river. The numbered doors are a guide to your visit.'}${E.has(state, 'inference') ? ' A newly marked passage links the study to the unrecorded stair. Its existence makes another route possible; it does not identify who used it.' : ''}</p></details></section>`;
   }
   function roomPage() {
     const r = room();
     const mood = atmosphere(r.id);
     const objects = roomObjects(r.id);
-    return `<section class="scene-heading"><span class="eyebrow">${escape(r.wing)}</span><h1>${escape(r.name)}</h1><p>${escape(mood.ambience)}</p></section><div class="layout"><section class="scene transition" aria-label="${escape(r.name)} interior"><div class="room-stage">${Art.interior(r, era)}${button('◇', 'room-puzzle', r.puzzle, `class="hotspot" style="left:${mood.puzzle[0]}%;top:${mood.puzzle[1]}%" aria-label="${r.puzzle === 'rest' ? 'Open the guest book' : r.puzzle === 'reveal' ? 'Read the margin' : 'Inspect the room question'}"`)}${objects.map((object) => button('+', 'object', object.id, `class="hotspot observation" style="left:${mood.object[0]}%;top:${mood.object[1]}%" aria-label="Observe ${escape(object.title)}"`)).join('')}</div><div class="scene-controls">${link('Return to the grounds', 'map')}${button('Notebook', 'notebook')}</div></section>${rail(r)}</div><section class="castle-objects" aria-label="Room details"><p>On a closer look<small>Optional observations. No points or hidden timer.</small></p>${roomObjects(
+    return `<section class="scene-heading"><span class="eyebrow">${escape(r.wing)}</span><h1>${escape(r.name)}</h1><p>${escape(mood.ambience)}</p></section><div class="layout"><section class="scene transition" aria-label="${escape(r.name)} interior"><input id="show-inspectables" class="inspectable-toggle" type="checkbox"${inspectablesVisible ? ' checked' : ''}><label class="inspectable-toggle-label" for="show-inspectables">Show inspectable objects</label><div class="room-stage">${Art.interior(r, era)}${button('◇', 'room-puzzle', r.puzzle, `class="hotspot" style="left:${mood.puzzle[0]}%;top:${mood.puzzle[1]}%" aria-label="${r.puzzle === 'rest' ? 'Open the guest book' : r.puzzle === 'reveal' ? 'Read the margin' : 'Inspect the room question'}"`)}${objects.map((object) => button('+', 'object', object.id, `class="hotspot observation" style="left:${mood.object[0]}%;top:${mood.object[1]}%" aria-label="Observe ${escape(object.title)}"`)).join('')}</div><div class="scene-controls">${link('Return to the grounds', 'map')}${button('Notebook', 'notebook')}</div></section>${rail(r)}</div><section class="castle-objects" aria-label="Room details"><p>On a closer look<small>Optional observations. No points or hidden timer.</small></p>${roomObjects(
       r.id,
     )
       .map((object) => button(escape(object.title), 'object', object.id))
