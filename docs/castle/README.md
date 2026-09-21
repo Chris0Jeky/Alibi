@@ -45,9 +45,10 @@ across stores. Legacy combined exports remain readable. Challenge replays remain
 
 Collected-record comparison exposes only evidence already returned by the chapter engine. It
 preserves that canonical source order, links each record back to its originating room and accepts
-at most three distinct records. Checkbox selection and the comparison dialog are session UI only;
-there is no parallel evidence store, board-layout state or score effect. Persistent spatial layout,
-links between records, grouping history and personal board annotations remain work under #51.
+at most three distinct records. A fourth selection is immediately cleared before comparison.
+Checkbox selection and the comparison dialog are session UI only; there is no parallel evidence
+store, board-layout state or score effect. Persistent spatial layout, links between records,
+grouping history and personal board annotations remain work under #51.
 
 A dirty or protected notebook blocks updates until the player explicitly confirms saving an
 export of that exact session. Initiating or cancelling a download does not acknowledge it.
