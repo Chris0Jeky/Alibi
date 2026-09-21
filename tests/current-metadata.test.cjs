@@ -7,7 +7,7 @@ const { test } = require('node:test');
 const root = path.resolve(__dirname, '..');
 
 function metaContent(html, key, value) {
-  for (const match of html.matchAll(/<meta\s+([^>]+)>/gsi)) {
+  for (const match of html.matchAll(/<meta\s+([^>]+)>/gis)) {
     const attributes = Object.fromEntries(
       [...match[1].matchAll(/([\w:-]+)="([^"]*)"/g)].map((attribute) => [
         attribute[1],
@@ -28,10 +28,7 @@ test('public page descriptions use expansion-safe current copy', () => {
   );
   assert.equal(metaContent(html, 'property', 'og:description'), description);
   assert.equal(metaContent(html, 'name', 'twitter:description'), description);
-  assert.equal(
-    metaContent(html, 'property', 'og:title'),
-    'Alibi · After hours at the puzzle club',
-  );
+  assert.equal(metaContent(html, 'property', 'og:title'), 'Alibi · After hours at the puzzle club');
   assert.equal(
     metaContent(html, 'name', 'twitter:title'),
     'Alibi · After hours at the puzzle club',
@@ -43,9 +40,7 @@ test('install metadata retains the exact build-time catalogue count', () => {
     fs.readFileSync(path.join(root, 'content/official-packs.json'), 'utf8'),
   );
   const puzzleCount = registry.packs.reduce((count, relativePath) => {
-    const pack = JSON.parse(
-      fs.readFileSync(path.join(root, 'content', relativePath), 'utf8'),
-    );
+    const pack = JSON.parse(fs.readFileSync(path.join(root, 'content', relativePath), 'utf8'));
     return count + pack.puzzles.length;
   }, 0);
   const manifest = JSON.parse(
