@@ -65,7 +65,7 @@ jobs:
           replace_once(
               'src/castle/view.mjs',
               'No close-up artwork is available for this object. Its complete description is below.',
-              'No close-up artwork. Description follows.',
+              'No close-up artwork.',
           )
           view = Path('src/castle/view.mjs')
           text = view.read_text(encoding='utf-8')
