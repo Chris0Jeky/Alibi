@@ -344,7 +344,12 @@
               );
           });
         else if (storageMode === 'local') {
-          const latest = JSON.parse(localStorage.getItem('alibi-afterhours-v1') || 'null');
+          let latest = null;
+          try {
+            latest = JSON.parse(localStorage.getItem('alibi-afterhours-v1') || 'null');
+          } catch {
+            throw Error('The saved Club record could not be read. It was left untouched.');
+          }
           if ((latest?.rev || 0) !== rev)
             throw Error('Club progress changed in another tab. Export and reload.');
           localStorage.setItem(
@@ -1875,7 +1880,8 @@
     portrait,
     emblem,
     engine,
-    save: () => saveQueue,
+    save,
+    flush: () => saveQueue,
     diagnostics: () => ({
       storageMode,
       saveError,
