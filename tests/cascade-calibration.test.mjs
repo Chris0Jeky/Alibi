@@ -26,8 +26,7 @@ test('calibration keys separate every future-relevant Cascade value', () => {
   const key = stateKey(state);
   assert.equal(typeof key, 'string');
   assert.ok(key.length < 256);
-  for (const patch of mutations)
-    assert.notEqual(stateKey({ ...state, ...patch }), key);
+  for (const patch of mutations) assert.notEqual(stateKey({ ...state, ...patch }), key);
 });
 
 test('bounded search is deterministic and never presents an unresolved seed as impossible', () => {
@@ -60,25 +59,10 @@ test('batch calibration retains seed order and verifies every solved reference e
 });
 
 test('reference verification and search limits fail closed', () => {
-  assert.throws(
-    () => verifyReference(Cascade.record('NOT-WON')),
-    /winning Cascade replay/,
-  );
-  assert.throws(
-    () => searchSeed('CALIBRATE-0', { ...tinyBudget, maxNodes: 0 }),
-    /maxNodes/,
-  );
-  assert.throws(
-    () => searchSeed('CALIBRATE-0', { ...tinyBudget, beamWidth: 0 }),
-    /beamWidth/,
-  );
-  assert.throws(
-    () => searchSeed('CALIBRATE-0', { ...tinyBudget, branchWidth: 0 }),
-    /branchWidth/,
-  );
+  assert.throws(() => verifyReference(Cascade.record('NOT-WON')), /winning Cascade replay/);
+  assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, maxNodes: 0 }), /maxNodes/);
+  assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, beamWidth: 0 }), /beamWidth/);
+  assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, branchWidth: 0 }), /branchWidth/);
   assert.throws(() => calibrateSeeds([], tinyBudget), /seed/);
-  assert.throws(
-    () => calibrateSeeds(['CALIBRATE-0', 'CALIBRATE-0'], tinyBudget),
-    /duplicate/i,
-  );
+  assert.throws(() => calibrateSeeds(['CALIBRATE-0', 'CALIBRATE-0'], tinyBudget), /duplicate/i);
 });
