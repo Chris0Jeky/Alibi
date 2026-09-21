@@ -110,6 +110,7 @@ function setup(failInstall = false) {
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
               !n.startsWith('observatory.') &&
+              !n.startsWith('discovery-storage.') &&
               !n.startsWith('house.') &&
               !n.startsWith('block-motion.') &&
               !n.startsWith('block-replay-worker.') &&
@@ -128,6 +129,7 @@ function setup(failInstall = false) {
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&
         !n.startsWith('observatory.') &&
+        !n.startsWith('discovery-storage.') &&
         !n.startsWith('house.') &&
         !n.startsWith('block-motion.') &&
         !n.startsWith('block-replay-worker.') &&
