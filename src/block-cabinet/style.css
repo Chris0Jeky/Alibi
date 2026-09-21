@@ -791,6 +791,8 @@ body.block-motion-active .club-gameheading {
   body.block-motion-active .bc-controls {
     position: sticky;
     z-index: 4;
+    /* Bottom-only sticky positioning releases when the document scrolls past this group. */
+    top: max(8px, env(safe-area-inset-top));
     bottom: max(8px, env(safe-area-inset-bottom));
     padding: 8px;
     border: 1px solid #77917d66;

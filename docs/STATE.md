@@ -229,6 +229,20 @@ is never persisted and does not alter saved-run data. The real-origin browser ru
 consumption. Final combined verification is recorded with the player-fix checkpoint; the
 initial-JavaScript budget cap remains unchanged.
 
+## Block Cabinet phone action sticky correction, 2026-09-21 (not deployed)
+
+Round-2 PR #176 keeps the document as the scroll owner (`overflow: clip`) and pairs the phone
+primary action group's safe-area-aware top and bottom sticky insets. The previous bottom-only
+constraint released the group when the document scrolled downward past its normal position; no DOM,
+game-rule, save, menu, reduced-motion or forced-colors owner changed.
+
+Local evidence: build `eec268daf36d`; the focused phone-action Node regression passes 2/2. Browser
+evidence: the Block Cabinet Chromium suite passes 68 assertions at 390/1440px, the Block motion
+suite passes 75 assertions at 390/1280px, and a forced-colors/reduced-motion 390px smoke check
+passes with no horizontal overflow or browser errors. These are local simulated-browser results;
+physical Android touch, TalkBack, comfort review and human acceptance remain open under the existing
+[HUMAN_TODO.md](../HUMAN_TODO.md) gates.
+
 ## Block Cabinet phone action hierarchy candidate, 2026-09-17 (not deployed)
 
 PR #176 keeps Undo, Redo, Rotate, Cancel and restart/new-seed together as the primary phone action set while sound, haptics, motion and replay/display tools remain reachable as secondary options. A persistent selected-piece summary reports dimensions, occupied squares, orientation and legal origins. Invalid placements preserve the selection and explain the rejection; Cancel and Escape clear it with deterministic focus recovery. The phone action group remains inside the viewport while the page scrolls.

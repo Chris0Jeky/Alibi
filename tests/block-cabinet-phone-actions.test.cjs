@@ -7,7 +7,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 
-test('the phone action surface keeps the overflow prerequisite for viewport stickiness', () => {
+test('the phone action surface keeps document scrolling and two-sided viewport stickiness', () => {
   const css = fs.readFileSync(path.join(ROOT, 'src/block-cabinet/style.css'), 'utf8');
   assert.match(
     css,
@@ -18,6 +18,11 @@ test('the phone action surface keeps the overflow prerequisite for viewport stic
     css,
     /\.bc-studio\s*\{[\s\S]*?overflow:\s*(?:hidden|auto|scroll);/,
     'hidden or scrolling overflow would trap the sticky controls inside the component',
+  );
+  assert.match(
+    css,
+    /body\.block-motion-active \.bc-controls\s*\{[\s\S]*?position:\s*sticky;[\s\S]*?top:\s*max\(8px, env\(safe-area-inset-top\)\);[\s\S]*?bottom:\s*max\(8px, env\(safe-area-inset-bottom\)\);/,
+    'the phone action group needs top and bottom constraints while the document remains the scroller',
   );
 });
 
