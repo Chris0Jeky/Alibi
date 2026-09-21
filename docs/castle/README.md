@@ -45,13 +45,14 @@ export of that exact session. Initiating or cancelling a download does not ackno
 Further edits invalidate the acknowledgement. Confirmation never makes protected storage writable.
 
 The map uses the supplied 1200×760 estate illustration and matching numbered positions. Both
-era layers keep that geometry. Explicit 100–175% controls enlarge only the estate stage in 25%
-steps, retain its horizontal centre where possible and keep overflow inside the labelled map
-scroller. Keyboard focus moves to an enabled zoom control after each rerender. Named entrances
-and the selected-room panel remain available at every zoom level. A secret route appears only
-after its deduction. The ten room illustrations use their own 1000×660 coordinates. Inspecting
-a locked nearby door preserves the current room. Floor/wing-specific views and the wider atlas
-remain navigation work under #45.
+era layers keep that geometry. A native range exposes 100–175% zoom in 25% steps; Reset returns
+to 100%. Enlargement stays inside the labelled map scroller, retains its horizontal centre where
+possible, and survives numbered-room selection plus Today/1911 rerenders. Keyboard focus returns
+to the zoom control or the room/era control that triggered the rerender. Named entrances and the
+selected-room panel remain available at every level. The reconciled implementation still fits the
+unchanged 96 KiB Castle source-bundle limit. A secret route appears only after its deduction. The
+ten room illustrations use their own 1000×660 coordinates. Inspecting a locked nearby door preserves
+the current room. Floor/wing-specific views and the wider atlas remain navigation work under #45.
 
 The supplied 18-second silent film has native playback controls, captions and a complete text
 alternative. It never autoplays or downloads with the activity. Closing or leaving releases its
