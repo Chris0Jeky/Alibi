@@ -1,7 +1,6 @@
 # Local working material and reproducible outputs
 alibi-deluxe-publish-bundle/
 dist/
-dist-android/
 release/
 build-info.json
 alibi-deluxe-play.html
@@ -33,4 +32,4 @@ tests/quiet-wing/*-results.json
 alibi-curation/
 alibi-castle/
 .curation-worktrees/
-/.idea
+/.worktrees
