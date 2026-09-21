@@ -1,5 +1,25 @@
 # Live development state
 
+## Mobile play and shell QA candidate, 2026-09-21
+
+The `fix/phone-play-qa-214` candidate addresses QA tracker #218: board-first play and usable
+Bridges zoom (#214/#215), 44px control hit areas (#216/#217), route-owned lessons and modal
+keyboard/focus continuity (#208/#209), meaningful navigation/card names (#210/#211), stable
+search metadata (#212), and readable mobile tabs/edition text (#222/#223). Story, room controls
+and assistance remain available in a disclosure after the board; clues and recovery warnings
+are not removed. Puzzle IDs/revisions and device-local save schemas are unchanged.
+
+Local DOM regression checks use the current source and built HTTP origin. Seven focused browser
+scenarios pass, including five viewport geometries and real control interactions; the baseline
+failed 15 subchecks. The candidate build is `971b3d96ac94`; `npm run verify` passes 322 tests
+with 581,847 assertions. These are simulated Chromium checks, not physical-phone or production
+deployment evidence.
+
+The required workflow runs `tests/browser_mobile_qa.py` against its freshly built HTTP origin
+and retains `test-results/mobile-qa/` screenshots/metrics. Exact published-head CI and
+physical-device/TalkBack acceptance remain separate gates. See
+[UX QA handoff](ux/MOBILE-QA-2026-09-21.md) and `HUMAN_TODO.md`. No release/deployment is claimed.
+
 ## Published 0.11.4, 2026-09-17
 
 Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on
