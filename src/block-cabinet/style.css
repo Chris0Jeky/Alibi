@@ -14,7 +14,7 @@
     sans-serif;
   isolation: isolate;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
 }
 .bc-studio::before {
   content: '';
@@ -138,6 +138,14 @@
   aspect-ratio: 1;
   position: relative;
 }
+.bc-has-selection .bc-board {
+  border-color: #d6b67c99;
+  box-shadow:
+    inset 0 3px 9px #0007,
+    0 0 0 2px #d6b67c1f,
+    0 5px 0 #081915,
+    0 14px 28px #0003;
+}
 .bc-studio .bc-cell {
   min-width: 0;
   min-height: 0;
@@ -196,15 +204,22 @@
 .bc-resolving .bc-block {
   opacity: 0 !important;
 }
+.bc-cell.legal {
+  box-shadow:
+    inset 0 0 0 2px #e5cf91,
+    inset 0 1px 2px #0003;
+}
 .bc-cell.legal::after {
   content: '';
   position: absolute;
-  width: 5px;
-  height: 5px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #102c24;
   border-radius: 50%;
-  background: #cadab97a;
-  left: calc(50% - 2px);
-  top: calc(50% - 2px);
+  background: #f1d994;
+  box-shadow: 0 0 0 2px #f1d99433;
+  left: calc(50% - 4.5px);
+  top: calc(50% - 4.5px);
 }
 .bc-status {
   min-height: 48px;
@@ -235,13 +250,30 @@
   color: #e6e4cf;
   touch-action: none;
   box-shadow: 0 3px 0 #091b16;
+  position: relative;
 }
 .bc-studio .bc-piece.selected {
-  background: linear-gradient(#526246aa, #3c4a3288);
-  border-color: #e7cb83;
+  background: linear-gradient(#6b7049dd, #35472fdd);
+  border-color: #f1d994;
   box-shadow:
-    0 0 0 2px #e7cb8322,
-    0 4px 0 #091b16;
+    0 0 0 3px #e7cb8338,
+    0 7px 0 #091b16,
+    0 12px 24px #0004;
+  transform: translateY(-3px);
+}
+.bc-studio .bc-piece.selected::after {
+  content: 'Selected';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #f1d994;
+  color: #173027;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .bc-piece-shape {
   display: grid;
@@ -275,16 +307,47 @@
   pointer-events: none;
   z-index: 3;
 }
+.bc-selection {
+  display: grid;
+  gap: 2px;
+  min-height: 70px;
+  margin-top: 12px;
+  padding: 11px 13px;
+  border: 1px solid #77917d55;
+  border-radius: 11px;
+  background: #0d2923b8;
+}
+.bc-selection-label {
+  color: var(--bc-gold);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+.bc-selection strong {
+  color: #f1ead4;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.bc-selection [data-selection-detail] {
+  color: #b7c8bb;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.bc-has-selection .bc-selection {
+  border-color: #e7cb8388;
+  background: linear-gradient(135deg, #203d2e, #112c25);
+  box-shadow: inset 3px 0 0 #d6b67c;
+}
 .bc-controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 7px;
-  margin: 17px 0 0;
+  margin: 10px 0 0;
 }
 .bc-studio .bc-controls button,
 .bc-studio .bc-tools button,
-.bc-studio .bc-help button {
+.bc-studio .bc-options button,
+.bc-studio .bc-help > button {
   border: 1px solid #8ba08455;
   background: #12342b;
   color: #dfe8d8;
@@ -292,6 +355,14 @@
   padding: 10px 13px;
   min-height: 44px;
   font-size: 12px;
+}
+.bc-studio .bc-controls button {
+  width: 100%;
+}
+.bc-studio .bc-controls [data-command='cancel']:not(:disabled) {
+  border-color: #d6b67c99;
+  background: #3d3a24;
+  color: #f6e4b0;
 }
 .bc-save {
   margin: 12px 0 0;
@@ -416,10 +487,12 @@
   font-size: 12px;
   line-height: 1.75;
 }
+.bc-options,
 .bc-tools {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
   gap: 8px;
+  margin-top: 10px;
 }
 .bc-footnote {
   color: #a1b39e;
@@ -537,10 +610,11 @@
     padding: 5px;
   }
   .bc-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
   }
   .bc-studio .bc-controls button {
-    padding: 9px 11px;
+    padding: 9px 8px;
   }
   .bc-piece-shape {
     grid-template-columns: repeat(var(--pw), 19px);
@@ -552,6 +626,10 @@
   .bc-status {
     font-size: 11px;
     min-height: 46px;
+  }
+  .bc-selection {
+    min-height: 68px;
+    padding: 10px 11px;
   }
 }
 @media (max-width: 370px) {
@@ -590,6 +668,9 @@
     animation: none !important;
     transition: none !important;
   }
+  .bc-studio .bc-piece.selected {
+    transform: none;
+  }
 }
 @media (forced-colors: active) {
   .bc-cell.filled {
@@ -598,14 +679,25 @@
   .bc-cell.relic {
     outline: 3px double CanvasText;
   }
+  .bc-cell.legal {
+    outline: 3px solid Highlight;
+    outline-offset: -4px;
+  }
   .bc-cell.legal::after {
     background: CanvasText;
+    border-color: Canvas;
   }
   .bc-block {
     forced-color-adjust: auto;
   }
   .bc-piece-shape i {
     background: ButtonText !important;
+  }
+  .bc-piece.selected {
+    outline: 3px solid Highlight;
+  }
+  .bc-selection {
+    border: 2px solid CanvasText;
   }
   .bc-fx {
     display: none;
@@ -643,7 +735,7 @@
     grid-column: 1/-1;
   }
   .bc-controls {
-    margin-top: 12px;
+    margin-top: 10px;
   }
   .bc-status {
     min-height: 42px;
@@ -683,6 +775,20 @@ body.block-motion-active .club-gameheading {
     border-radius: 0;
     border: 0;
     padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+    /* The document must own sticky positioning; keep the artwork clipped on its pseudo-layer. */
+    overflow: visible;
+  }
+  body.block-motion-active .bc-studio::before {
+    clip-path: inset(0);
+  }
+  body.block-motion-active .bc-layout {
+    gap: 0;
+  }
+  body.block-motion-active .bc-play {
+    display: contents;
+  }
+  body.block-motion-active .bc-aside {
+    margin-top: 22px;
   }
   body.block-motion-active .bc-header {
     margin-bottom: 12px;
@@ -695,5 +801,17 @@ body.block-motion-active .club-gameheading {
   }
   body.block-motion-active .bc-studio .bc-piece {
     height: 104px;
+  }
+  body.block-motion-active .bc-controls {
+    position: sticky;
+    z-index: 4;
+    /* Bottom-only sticky positioning releases when the document scrolls past this group. */
+    top: max(8px, env(safe-area-inset-top));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 8px;
+    border: 1px solid #77917d66;
+    border-radius: 12px;
+    background: #102c24f2;
+    box-shadow: 0 10px 28px #0007;
   }
 }
