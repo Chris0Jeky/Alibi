@@ -31,11 +31,7 @@ assert.ok(
 const serviceWorker = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
 const deferredAssets = [
   ['Observatory', /^observatory\.[a-f0-9]{12}\.js$/, info.observatoryBytes],
-  [
-    'Discovery storage',
-    /^discovery-storage\.[a-f0-9]{12}\.js$/,
-    info.discoveryStorageBytes,
-  ],
+  ['Discovery storage', /^discovery-storage\.[a-f0-9]{12}\.js$/, info.discoveryStorageBytes],
 ];
 for (const [label, pattern, reportedBytes] of deferredAssets) {
   const matches = assetNames.filter((name) => pattern.test(name));
@@ -62,10 +58,7 @@ assert.ok(
   info.officialContentBytes < 1024 * 1024,
   'Official definitions and editorial data stay under 1 MiB',
 );
-assert.ok(
-  coreOfflineBytes < 2.3 * 1024 * 1024,
-  'Total core offline release stays under 2.3 MiB',
-);
+assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stays under 2.3 MiB');
 assert.ok(
   info.initialCodeAndContentGzipBytes < 200 * 1024,
   'Initial code plus official data stays under 200 KiB gzip',
