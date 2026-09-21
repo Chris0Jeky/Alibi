@@ -2,7 +2,7 @@
 (function (G) {
   'use strict';
   const views = ['desk', 'puzzles', 'house', 'notebook', 'comfort'];
-  const levels = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];
+  const levels = G.AlibiCore.DIFFICULTIES;
   const families = [
     'scene',
     'dossier',

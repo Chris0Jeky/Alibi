@@ -14,7 +14,7 @@ const View = globalThis.AlibiHouseView;
 
 test('difficulty tiers have one canonical order across runtime and pack schema', () => {
   assert.deepEqual(Core.DIFFICULTIES, TIERS);
-  assert.deepEqual(Model.levels, TIERS);
+  assert.equal(Model.levels, Core.DIFFICULTIES);
   const schema = JSON.parse(
     fs.readFileSync(path.join(__dirname, '../schemas/pack.schema.json'), 'utf8'),
   );
@@ -23,7 +23,14 @@ test('difficulty tiers have one canonical order across runtime and pack schema',
 
 test('house routes accept the two advanced tiers and reject unknown values', () => {
   for (const level of ['Master', 'Grandmaster']) {
-    assert.equal(Model.locationState(`#/home?ux=house&view=puzzles&level=${level}`).level, level);
+    assert.deepEqual(Model.locationState(Model.url({ view: 'puzzles', level })), {
+      active: true,
+      view: 'puzzles',
+      q: '',
+      family: '',
+      progress: '',
+      level,
+    });
   }
   assert.equal(Model.locationState('#/home?ux=house&view=puzzles&level=Impossible').level, '');
 });
@@ -33,9 +40,7 @@ test('house filters expose every ordered tier and filter advanced studies exactl
     route: { q: '', family: '', progress: '', level: 'Master' },
     names: {},
   });
-  const labels = [...html.matchAll(/<option\b[^>]*>([^<]+)<\/option>/g)].map(
-    (match) => match[1],
-  );
+  const labels = [...html.matchAll(/<option\b[^>]*>([^<]+)<\/option>/g)].map((match) => match[1]);
   for (const tier of TIERS) assert.equal(labels.includes(tier), true, `${tier} option`);
   assert.ok(labels.indexOf('Expert') < labels.indexOf('Master'));
   assert.ok(labels.indexOf('Master') < labels.indexOf('Grandmaster'));

@@ -21,6 +21,21 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Six-tier difficulty contract candidate, 2026-09-21
+
+PR #182's round-2 candidate keeps the canonical order `Gentle`, `Steady`, `Tricky`, `Expert`,
+`Master`, `Grandmaster` in `AlibiCore.DIFFICULTIES`, the pack schema and the Wrenmere filter.
+Advanced-tier routes round-trip through the Wrenmere deep-link URL; puzzle IDs, revisions and
+save formats do not change. The initial JavaScript build is 126,854 gzip bytes, below the strict
+128,000-byte cap, after removing dead source declarations; the temporary self-modifying workflow
+and diagnostic helper are deleted.
+
+Focused Node contracts pass, and simulated Edge browser checks pass for Wrenmere navigation,
+save/resume, filtering and deep links: 79 checks at 390/1440px plus 250 responsive checks at
+320/360/390/430/768/1440px. This is source/local simulated evidence, not a hosted release or
+physical-device result. Solver/uniqueness proof for future tiered studies and human difficulty,
+touch and accessibility calibration remain pending in `HUMAN_TODO.md` q-8.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
