@@ -104,7 +104,7 @@
     return all().find((p) => p.id === id);
   }
   function rec(p) {
-    return records.get(keyFor(p));
+    return p ? records.get(keyFor(p)) : undefined;
   }
   function solved(r) {
     return !!(r?.firstCompletedAt || r?.completedAt);
@@ -513,16 +513,6 @@
       ps = all().filter((p) => p.type === t);
     return `<button class="family-card ${m.color}" data-action="navigate" data-page="library" data-id="${t}"><span class="family-icon">${icon(m.icon)}</span><span class="family-count">${ps.length} puzzles</span><h3>${m.title}</h3><p>${m.line}</p></button>`;
   }
-  function daily() {
-    const d = new Date(),
-      str = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-    let h = 0;
-    for (const c of str) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-    return ['mystery', 'visual', 'classic'].map((g, i) => {
-      const ps = starter.puzzles.filter((p) => M[p.type].group === g);
-      return ps[(h + i * 19) % ps.length];
-    });
-  }
   function home() {
     return AlibiClub.home();
   }
@@ -602,16 +592,20 @@
       return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every part of a casebook is yours to open.</h3><p>Follow the continuous investigations in Bellweather and The unfinished invitation in order, or follow your curiosity through the standalone records.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
       next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0],
+      nextPuzzle = next ? find(next.id) : undefined,
+      nextAttrs = nextPuzzle ? openAttrs(nextPuzzle, b.id) : 'disabled',
       anthology = b.format === 'anthology',
       units = anthology ? 'records' : 'chapters';
     const chapterTimes = b.chapters.map((c) => find(c.id)).map(timing),
       caseTime = chapterTimes.every(Boolean)
         ? `${chapterTimes.reduce((sum, label) => sum + Number.parseInt(label, 10), 0)} minute estimate`
         : '';
-    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? (anthology ? 'Continue to the next record' : 'Continue the casebook') : anthology ? 'Open the first record' : 'Open the first chapter', 'open', 'arrow', 'cream', openAttrs(find(next.id), b.id))}<span class="case-duration">${b.chapters.length} ${units}${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>${anthology ? 'The records.' : 'The case file.'}</h2><span class="tag">${done} / ${b.chapters.length} ${units} complete</span></div><div class="chapter-list">${b.chapters
+    return `${B('All casebooks', 'navigate', 'back', 'ghost small', 'data-page="casebooks"')}<div class="case-header cinematic-case"><div class="case-illustration">${caseArt(b.id, true)}</div><div class="case-opening"><div class="eyebrow">${esc(b.setting)}</div><h1>${esc(b.title)}.</h1><p>${esc(b.intro)}</p>${B(done === b.chapters.length ? 'Revisit the casebook' : done ? (anthology ? 'Continue to the next record' : 'Continue the casebook') : anthology ? 'Open the first record' : 'Open the first chapter', 'open', 'arrow', 'cream', nextAttrs)}<span class="case-duration">${b.chapters.length} ${units}${caseTime ? ` · ${caseTime}` : ''}</span></div></div>${b.cast?.length ? `<section class="cast-file"><div><div class="eyebrow">PEOPLE IN THE FILE</div><h2>Everyone has a place.</h2></div><div class="cast-list">${b.cast.map((person) => `<div class="cast-person"><span class="cast-initial" aria-hidden="true">${esc(person.name.slice(0, 1))}</span><div><strong>${esc(person.name)}</strong><small>${esc(person.role)}</small></div></div>`).join('')}</div></section>` : ''}<div class="section-head"><h2>${anthology ? 'The records.' : 'The case file.'}</h2><span class="tag">${done} / ${b.chapters.length} ${units} complete</span></div><div class="chapter-list">${b.chapters
       .map((c, i) => {
         const p = find(c.id),
           finished = solved(rec(p));
+        if (!p)
+          return `<article class="chapter-entry"><div class="chapter" aria-disabled="true"><span class="chapter-num">${String(i + 1).padStart(2, '0')}</span><span class="chapter-copy"><small>Unavailable in this collection</small><strong>${esc(c.name)}</strong><span>${esc(c.brief)}</span></span></div></article>`;
         return `<article class="chapter-entry ${finished ? 'finished' : ''}"><button class="chapter" data-action="open" ${openAttrs(p, b.id)}><span class="chapter-num">${finished ? icon('check') : String(i + 1).padStart(2, '0')}</span><span class="chapter-copy"><small>${esc(c.time || M[p.type].title)}${timing(p) ? ` · ${timing(p)}` : ''}</small><strong>${esc(c.name)}</strong><span>${esc(c.brief)}</span></span>${icon('arrow')}</button>${finished && c.revelation ? `<div class="chapter-revelation"><span class="eyebrow">EVIDENCE ESTABLISHED</span><p>${esc(c.revelation)}</p></div>` : ''}</article>`;
       })
       .join(
@@ -637,8 +631,10 @@
       chapter = book?.chapters.find((c) => c.id === route.id.split('@')[0]);
     if (!chapter)
       return `<div class="empty"><h1>Choose a casebook.</h1>${B('Casebooks', 'navigate', 'book', '', 'data-page="casebooks"')}</div>`;
-    const puzzle = find(chapter.id),
-      done = solved(rec(puzzle)),
+    const puzzle = find(chapter.id);
+    if (!puzzle)
+      return `<div class="empty"><h1>This chapter is unavailable.</h1><p>Its puzzle is not in this collection. Your other progress is unchanged.</p>${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}</div>`;
+    const done = solved(rec(puzzle)),
       finished = book.chapters.every((c) => solved(rec(find(c.id)))),
       index = book.chapters.indexOf(chapter),
       anthology = book.format === 'anthology',
@@ -1991,7 +1987,7 @@
   async function exportAll() {
     const cabinet = await cabinetBackup();
     const warnings = [];
-    await AlibiClub.save().catch((e) =>
+    await AlibiClub.flush().catch((e) =>
       warnings.push('Club save could not be flushed: ' + e.message),
     );
     let quiet = null,
@@ -2188,7 +2184,12 @@
   }
   async function importPack(file) {
     if (file.size > 3 * 1024 * 1024) throw Error('Pack exceeds 3 MB.');
-    const data = JSON.parse(await file.text());
+    let data = null;
+    try {
+      data = JSON.parse(await file.text());
+    } catch {
+      throw Error('That file is not a readable puzzle pack. Choose a JSON pack file.');
+    }
     dialog(
       'Checking the collection.',
       `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
@@ -2388,7 +2389,8 @@
           book &&
           (book.chapters.slice(index + 1).find((c) => !solved(rec(find(c.id)))) ||
             book.chapters.find((c) => !solved(rec(find(c.id)))));
-        if (next) navigate('story', keyFor(find(next.id)), book.id);
+        const nextPuzzle = next ? find(next.id) : undefined;
+        if (nextPuzzle) navigate('story', keyFor(nextPuzzle), book.id);
         else navigate('casebooks', book?.id || '');
         break;
       }
@@ -2798,7 +2800,7 @@
         break;
       case 'apply-update':
         await AlibiActivities.flush();
-        await AlibiClub.save();
+        await AlibiClub.flush();
         if (AlibiClub.diagnostics().saveError)
           throw Error('Export or resolve the Club save problem before updating.');
         await enqueueSave();
