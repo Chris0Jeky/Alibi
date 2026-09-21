@@ -761,7 +761,8 @@ html[data-reduced='true'] .club-experiment *:hover {
     font-size: 11px;
   }
   .play-title .row,
-  .play-title .difficulty {
+  .play-title .difficulty,
+  .play-title .save-state {
     font-size: 12px;
   }
   .board-heading .eyebrow {

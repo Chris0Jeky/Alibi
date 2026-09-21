@@ -244,7 +244,7 @@ class MobileQA(unittest.TestCase):
                 page = self.open_page(width, height, 'play/bridges-01@1')
                 self.dismiss_lesson(page)
                 for selector, minimum in [('.play-title .row', 12), ('.play-title .difficulty', 12),
-                                          ('.board-heading .eyebrow', 11)]:
+                                          ('.play-title .save-state', 12), ('.board-heading .eyebrow', 11)]:
                     label = page.locator(selector)
                     expect(label).to_be_visible()
                     self.assertGreaterEqual(label.evaluate('el => parseFloat(getComputedStyle(el).fontSize)'),
