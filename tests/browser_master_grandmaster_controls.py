@@ -44,7 +44,7 @@ def dismiss_lesson(page):
 def assert_cell_hit_target(page, index, checks, label):
     locator = page.locator(f'[data-action="cell"][data-cell="{index}"]').first
     expect(locator).to_be_visible()
-    locator.scroll_into_view_if_needed()
+    locator.evaluate('(element) => element.scrollIntoView({block: \'center\', inline: \'center\'})')
     box = locator.bounding_box()
     if not box:
         raise AssertionError(f'{label} cell {index} has no rendered box')
