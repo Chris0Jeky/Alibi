@@ -52,7 +52,7 @@
       "profile": "edge-and-room-pressure",
       "structuralDistinction": "Three people are known only to be somewhere on the perimeter. Positive and negative room evidence must be combined with one vertical relationship, so edge facts act as a coupled constraint rather than isolated placements.",
       "intendedReasoningPath": [
-        "Separate the three perimeter candidates using Theo’s heated-gallery room and Anya’s exclusion from the potting passage.",
+        "Separate the three perimeter candidates using Theo’s heated gallery room and Anya’s exclusion from the potting passage.",
         "Place Suri in the seed room; the irregular room boundaries remove edge squares that initially appear interchangeable.",
         "Use Felix-above-Iris and row/column uniqueness to settle the remaining edge cells and expose the shared-room suspect."
       ],
