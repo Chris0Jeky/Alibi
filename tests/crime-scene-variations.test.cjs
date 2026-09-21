@@ -147,9 +147,7 @@ function editorialText(id) {
 }
 
 function clueTargetName(puzzle, kind, who) {
-  const clue = puzzle.clues.find(
-    (candidate) => candidate.kind === kind && candidate.who === who,
-  );
+  const clue = puzzle.clues.find((candidate) => candidate.kind === kind && candidate.who === who);
   assert.ok(clue, `${puzzle.id} has the expected ${kind} clue for ${who}`);
   if (kind === 'near') {
     const object = puzzle.objects.find((candidate) => candidate.cell === clue.value);
