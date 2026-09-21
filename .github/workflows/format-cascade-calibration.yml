@@ -1,0 +1,33 @@
+name: Format Cascade calibration contracts
+on:
+  push:
+    branches:
+      - feat/cascade-calibration-harness-119
+permissions:
+  contents: write
+concurrency:
+  group: format-cascade-calibration-119
+  cancel-in-progress: false
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/cascade-calibration-harness-119
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write tests/cascade-calibration.test.mjs
+      - run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/format-cascade-calibration.yml
+          git add tests/cascade-calibration.test.mjs
+          git diff --cached --check
+          git commit -m "style(cascade): apply canonical calibration formatting"
+          git push origin HEAD:feat/cascade-calibration-harness-119
