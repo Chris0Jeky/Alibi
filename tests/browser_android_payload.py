@@ -68,6 +68,10 @@ with sync_playwright() as pw:
         'bundled payload reports offline readiness without a worker',
     )
     check(
+        'Offline ready' in page.locator('.device-status').inner_text(),
+        'visible shell reports offline readiness without a worker',
+    )
+    check(
         page.locator('link[rel="manifest"]').count() == 0,
         'Android document has no web-app manifest',
     )
@@ -81,6 +85,10 @@ with sync_playwright() as pw:
     check(
         page.locator('.settings-grid > .panel:has([data-action="install"]):visible').count() == 0,
         'Android settings hide the browser-install panel from users and assistive technology',
+    )
+    check(
+        page.locator('.data-list strong').filter(has_text='Ready').count() >= 1,
+        'Android settings report bundled offline files as ready',
     )
     check(
         page.locator('#pulseboard-usage-sharing').count() == 0,

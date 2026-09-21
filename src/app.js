@@ -75,7 +75,7 @@
     pendingBackup = null,
     installEvent = null,
     registration = null,
-    offlineReady = false,
+    offlineReady = !!globalThis.ALIBI_BUILD_TARGET,
     waitingUpdate = false,
     updateRequested = false,
     toastTimer = null,

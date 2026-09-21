@@ -130,6 +130,12 @@ function cost(pathname, bytes) {
 }
 
 function sourceSha(root = ROOT) {
+  const dirty = execFileSync(
+    'git',
+    ['status', '--porcelain=v1', '--untracked-files=all', '--', ...RULE_SOURCES],
+    { cwd: root, encoding: 'utf8' },
+  ).trim();
+  if (dirty) throw new Error('Android builds require a clean source tree.');
   const value = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   if (!/^[0-9a-f]{40}$/.test(value)) throw new Error('Android builds require a full source SHA.');
   return value;
