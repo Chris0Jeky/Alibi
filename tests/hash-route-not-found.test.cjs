@@ -22,6 +22,34 @@ class FakeElement {
     this.tabIndex = -1;
   }
 
+  set innerHTML(html) {
+    this.replaceChildren();
+    const stack = [this],
+      tokens = /<(\/?)([\w-]+)([^>]*)>|([^<]+)/g;
+    let token;
+    while ((token = tokens.exec(html))) {
+      if (token[4]) {
+        stack.at(-1).textContent += token[4];
+        continue;
+      }
+      if (token[1]) {
+        stack.pop();
+        continue;
+      }
+      const element = this.ownerDocument.createElement(token[2]);
+      for (const attribute of token[3].matchAll(/([\w-]+)(?:="([^"]*)"|=([^\s>]+))?/g)) {
+        const name = attribute[1],
+          value = attribute[2] ?? attribute[3] ?? '';
+        if (name === 'id') element.id = value;
+        else if (name === 'class') element.className = value;
+        else if (name === 'href') element.href = value;
+        else element.setAttribute(name, value);
+      }
+      stack.at(-1).append(element);
+      if (!['br', 'hr', 'img', 'input', 'link', 'meta'].includes(token[2])) stack.push(element);
+    }
+  }
+
   append(...children) {
     for (const child of children) {
       child.parentNode = this;
