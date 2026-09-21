@@ -42,6 +42,15 @@ physical-device installation and relaunch, process/lifecycle and backup transfer
 store publication, and TalkBack/large-text acceptance remain open in `HUMAN_TODO.md` (q-2,
 q-3, q-4 and the related Capacitor gates). No APK/AAB, credentials, signing material, secrets or
 generated `dist`/`dist-android` output is tracked.
+## PR #198 round-2 Sudoku budget candidate, 2026-09-21
+
+The source candidate at implementation head `d227475` keeps Sudoku placement pruning limited to row, column and box peer notes;
+pencil entries and Futoshiki notes remain unchanged. It removes redundant peer deduplication work
+and reuses bounded row, column and box-group construction. The local build reports
+`javascriptGzipBytes=126816`,
+strictly below the 128000-byte initial-JavaScript contract, and the focused Sudoku/budget tests
+pass. No puzzle IDs, save formats or deployed origins change. Hosted CI, physical-device,
+TalkBack and human difficulty/comfort acceptance remain separate and unverified here.
 
 ## Games Room retirement candidate, 2026-09-21 (PR #199)
 
