@@ -33,6 +33,21 @@ dialog and Escape closes it through the same path. Source order, room links, esc
 three-record bound, no-future-evidence rule, overflow check and offline/static semantics remain
 unchanged; comparison still changes no save, privacy, reward or evidence state. This candidate is
 not deployed; a fresh hosted Castle run at the post-fix head is still required.
+## Six-tier difficulty contract candidate, 2026-09-21
+
+PR #182's round-2 candidate keeps the canonical order `Gentle`, `Steady`, `Tricky`, `Expert`,
+`Master`, `Grandmaster` in `AlibiCore.DIFFICULTIES`, the pack schema and the Wrenmere filter.
+Advanced-tier routes round-trip through the Wrenmere deep-link URL; puzzle IDs, revisions and
+save formats do not change. The initial JavaScript build is 126,854 gzip bytes, below the strict
+128,000-byte cap, after removing dead source declarations; the temporary self-modifying workflow
+and diagnostic helper are deleted.
+
+Focused Node contracts pass, and simulated Edge browser checks pass for Wrenmere navigation,
+save/resume, filtering and deep links: 79 checks at 390/1440px plus 250 responsive checks at
+320/360/390/430/768/1440px. This is source/local simulated evidence, not a hosted release or
+physical-device result. Solver/uniqueness proof for future tiered studies and human difficulty,
+touch and accessibility calibration remain pending in `HUMAN_TODO.md` q-8.
+
 ## Castle inspectable-object round-2 review fix, 2026-09-21 (not deployed)
 
 The PR #184 candidate preserves the room’s inspectable-marker toggle when a named object
