@@ -37,16 +37,13 @@ jobs:
 
           replace_once(
               'src/castle/pages.mjs',
-              '''  mapZoom,
-          search,'''.replace('          ', ''),
-              '''  mapZoom: zoomStep,
-          search,'''.replace('          ', ''),
+              '  mapZoom,\n  search,',
+              '  mapZoom: zoomStep,\n  search,',
           )
           replace_once(
               'src/castle/pages.mjs',
-              '''      zoom = Math.round(mapZoom * 100),
-                stageWidth = Math.round(560 * mapZoom);'''.replace('        ', ''),
-              '''      zoom = zoomStep * 25;'''.replace('        ', ''),
+              '      zoom = Math.round(mapZoom * 100),\n      stageWidth = Math.round(560 * mapZoom);',
+              '      zoom = zoomStep * 25;',
           )
           replace_once(
               'src/castle/pages.mjs',
@@ -55,8 +52,8 @@ jobs:
           )
           replace_once(
               'src/castle/pages.mjs',
-              '''aria-label="Estate map at ${zoom} percent, scroll across to explore"><div class="map-stage" style="width:${zoom}%;min-width:${stageWidth}px">''',
-              '''aria-label="Estate map ${zoom}%"><div class="map-stage" style="width:${zoom}%;min-width:${140 * zoomStep}px">''',
+              'aria-label="Estate map at ${zoom} percent, scroll across to explore"><div class="map-stage" style="width:${zoom}%;min-width:${stageWidth}px">',
+              'aria-label="Estate map ${zoom}%"><div class="map-stage" style="width:${zoom}%;min-width:${140 * zoomStep}px">',
           )
           replace_once(
               'src/castle/pages.mjs',
@@ -75,47 +72,32 @@ jobs:
           start = text.index('  function captureMapViewport() {')
           end = text.index('  async function action(event) {', start)
           text = text[:start] + '''  function redrawMap(focus) {
-            const left = $('.map-scroll').scrollLeft;
+            let map = $('.map-scroll');
+            const centre = (map.scrollLeft + map.clientWidth / 2) / map.scrollWidth;
             render();
-            $('.map-scroll').scrollLeft = left;
+            map = $('.map-scroll');
+            map.scrollLeft = centre * map.scrollWidth - map.clientWidth / 2;
             $(focus).focus({ preventScroll: true });
           }
           '''.replace('          ', '') + text[end:]
-          old = '''    else if (name === 'visit') visit(value);
-          else if (name === 'select') {
-            const viewport = captureMapViewport();
-            selected = value;
-            render();
-            restoreMapViewport(viewport);
-            for (const el of root.querySelectorAll('[data-do="select"]'))
-              if (el.dataset.value === value) el.focus({ preventScroll: true });
-          } else if (name === 'era') {
-            const viewport = captureMapViewport();
-            era = value;
-            render();
-            restoreMapViewport(viewport);
-            for (const el of root.querySelectorAll('[data-do="era"]'))
-              if (el.dataset.value === value) el.focus({ preventScroll: true });
-          } else if (name === 'map-zoom') zoomMap(value);
-          else if (name === 'object') inspect(value);'''.replace('          ', '')
-          new = '''    else if (name === 'visit') visit(value);
+          action_start = text.index("    else if (name === 'visit') visit(value);")
+          action_end_marker = "    else if (name === 'object') inspect(value);"
+          action_end = text.index(action_end_marker, action_start) + len(action_end_marker)
+          text = text[:action_start] + '''    else if (name === 'visit') visit(value);
           else if (name === 'select' || name === 'era') {
             if (name === 'select') selected = value;
             else era = value;
-            redrawMap(`[data-value="${value}"]`);
+            redrawMap(`[data-do="${name}"][data-value="${value}"]`);
           } else if (name === 'map-reset') {
             mapZoom = 4;
             redrawMap('#map-zoom');
-          } else if (name === 'object') inspect(value);'''.replace('          ', '')
-          if text.count(old) != 1:
-              raise SystemExit('Castle map action block changed unexpectedly.')
-          text = text.replace(old, new, 1)
-          marker = "      } else if (el.id === 'show-inspectables') {"
+          } else if (name === 'object') inspect(value);'''.replace('          ', '') + text[action_end:]
+          marker = "      } else if (el.id === 'clock-answer' && active === 'clock') {"
           if text.count(marker) != 1:
-              raise SystemExit('Castle change handler changed unexpectedly.')
+              raise SystemExit('Castle input handler changed unexpectedly.')
           text = text.replace(
               marker,
-              "      } else if (el.id === 'map-zoom') {\n        mapZoom = +el.value;\n        redrawMap('#map-zoom');\n      } else if (el.id === 'show-inspectables') {",
+              "      } else if (el.id === 'map-zoom') {\n        mapZoom = +el.value;\n        redrawMap('#map-zoom');\n      } else if (el.id === 'clock-answer' && active === 'clock') {",
               1,
           )
           view.write_text(text, encoding='utf-8')
@@ -126,29 +108,25 @@ jobs:
               '',
           )
 
-          replace_once(
-              'tests/browser_castle_exploration.py',
-              '''                zoom_in=page.locator('[data-do="map-zoom"][data-value="in"]')
-                          zoom_in.focus()
-                          zoom_in.press('Enter')'''.replace('          ', ''),
-              '''                zoom_control=page.get_by_label('Map zoom')
-                          zoom_control.focus()
-                          zoom_control.press('ArrowRight')'''.replace('          ', ''),
-          )
-          replace_once(
-              'tests/browser_castle_exploration.py',
-              '                expect(zoom_in).to_be_focused()',
-              '                expect(zoom_control).to_be_focused()',
-          )
-          replace_once(
-              'tests/browser_castle_exploration.py',
-              '''                page.locator('[data-do="map-zoom"][data-value="reset"]').click()
-                          expect(zoom_status).to_have_text('100%')
-                          expect(zoom_in).to_be_focused()'''.replace('          ', ''),
-              '''                page.locator('[data-do="map-reset"]').click()
-                          expect(zoom_status).to_have_text('100%')
-                          expect(zoom_control).to_be_focused()'''.replace('          ', ''),
-          )
+          browser = Path('tests/browser_castle_exploration.py')
+          text = browser.read_text(encoding='utf-8')
+          old = '''                zoom_in=page.locator('[data-do="map-zoom"][data-value="in"]')
+                zoom_in.focus()
+                zoom_in.press('Enter')'''
+          new = '''                zoom_control=page.get_by_label('Map zoom')
+                zoom_control.focus()
+                zoom_control.press('ArrowRight')'''
+          if text.count(old) != 1:
+              raise SystemExit('Castle zoom browser setup changed unexpectedly.')
+          text = text.replace(old, new, 1)
+          if text.count('expect(zoom_in).to_be_focused()') != 2:
+              raise SystemExit('Castle zoom focus assertions changed unexpectedly.')
+          text = text.replace('expect(zoom_in).to_be_focused()', 'expect(zoom_control).to_be_focused()')
+          old = 'page.locator(\'[data-do="map-zoom"][data-value="reset"]\').click()'
+          if text.count(old) != 1:
+              raise SystemExit('Castle zoom reset control changed unexpectedly.')
+          text = text.replace(old, 'page.locator(\'[data-do="map-reset"]\').click()', 1)
+          browser.write_text(text, encoding='utf-8')
           PY
           npx prettier --write src/castle/pages.mjs src/castle/view.mjs src/castle/native-style.mjs
           git config user.name github-actions[bot]
