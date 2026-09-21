@@ -23,15 +23,15 @@ remain tracked in `HUMAN_TODO.md`.
 
 ## Android bundled payload candidate, 2026-09-21
 
-At PR #180 head `918c9ea6275233bd8b1c461647e8d5d7f7cf0c25`, the round-2 repair rebuilt the
+At PR #180 implementation head `f36a5935f4f999729a057e5317edfee48bd02a3c`, the round-2 repair rebuilt the
 shared web graph and derived the Android-only payload without changing the copied application
 configuration: it retains `standalone: false`, while the injected `ALIBI_BUILD_TARGET='android'`
 marker suppresses the service-worker/update and browser-install paths. Quiet Wing and theatre
-assets remain in the payload. `npm.cmd run build:android` measured web build `7f9a8b110af8`,
-initial JavaScript `127990` gzip bytes, and content manifest revision
+assets remain in the payload. `npm.cmd run build:android` measured web build `67bc3a0f3951`,
+initial JavaScript `126855` gzip bytes, and content manifest revision
 `9fb7e17fc949b098de2ad30b85abbc83092c279da5cc47fe46f0dd9d64b6fb14`; the Android identity
 receipt recorded payload SHA-256
-`b82aa062e70918fec7edfc9915d34f436812001167ab99f29f6cb4e21b880791`.
+`3372d1b8f5d5ca5ca824b7747a960a68c950ddf72940586f5e54f1a95101b09f`.
 
 `npm.cmd run check:android` passed with deterministic source/content provenance checks,
 `node --test tests/android-build.test.cjs` passed 8/8 including source/content tamper rejection,
@@ -42,6 +42,21 @@ physical-device installation and relaunch, process/lifecycle and backup transfer
 store publication, and TalkBack/large-text acceptance remain open in `HUMAN_TODO.md` (q-2,
 q-3, q-4 and the related Capacitor gates). No APK/AAB, credentials, signing material, secrets or
 generated `dist`/`dist-android` output is tracked.
+
+## Six-tier difficulty contract candidate, 2026-09-21
+
+PR #182's round-2 candidate keeps the canonical order `Gentle`, `Steady`, `Tricky`, `Expert`,
+`Master`, `Grandmaster` in `AlibiCore.DIFFICULTIES`, the pack schema and the Wrenmere filter.
+Advanced-tier routes round-trip through the Wrenmere deep-link URL; puzzle IDs, revisions and
+save formats do not change. The initial JavaScript build is 126,854 gzip bytes, below the strict
+128,000-byte cap, after removing dead source declarations; the temporary self-modifying workflow
+and diagnostic helper are deleted.
+
+Focused Node contracts pass, and simulated Edge browser checks pass for Wrenmere navigation,
+save/resume, filtering and deep links: 79 checks at 390/1440px plus 250 responsive checks at
+320/360/390/430/768/1440px. This is source/local simulated evidence, not a hosted release or
+physical-device result. Solver/uniqueness proof for future tiered studies and human difficulty,
+touch and accessibility calibration remain pending in `HUMAN_TODO.md` q-8.
 
 ## Castle inspectable-object round-2 review fix, 2026-09-21 (not deployed)
 

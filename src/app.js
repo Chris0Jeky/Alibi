@@ -526,28 +526,6 @@
   function home() {
     return AlibiClub.home();
   }
-  function legacyHome() {
-    const r = activeRecords()[0],
-      p = r?.puzzle || find('scene-01');
-    const featured = books.find((b) => b.id === 'last-light-at-bellweather') || books[0],
-      chapter = featured.chapters.find((c) => !solved(rec(find(c.id)))) || featured.chapters[0];
-    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-    const completed = [...records.values()].filter(solved).length;
-    return `<div class="welcome"><div><div class="eyebrow">THE PUZZLE CABINET</div><h1>${r ? 'A thread to pick up.' : 'What will you uncover?'}</h1></div><span class="date">${esc(date)}<small>${completed ? completed + ' puzzles solved' : 'Take your time. Find your way.'}</small></span></div>
-    <section class="hero-row"><div class="hero case-feature"><div class="feature-image">${caseArt(featured.id, true)}</div><div class="feature-copy"><div class="eyebrow"><span class="dot"></span> NEW / THE BELLWEATHER FILE</div><h2>The last light<br>at Bellweather.</h2><p>A storm beyond the causeway.<br>A keeper’s secret waiting in the dark.</p><div class="feature-actions">${B('Explore the case', 'navigate', 'arrow', 'cream', `data-page="casebooks" data-id="${featured.id}"`)}<span>${featured.chapters.length} chapters · Mystery & deduction</span></div></div></div>
-    <div class="resume-card"><div class="eyebrow">${r ? 'YOUR OPEN CASE' : 'YOUR FIRST CASE'}</div><div class="resume-icon">${icon(r ? M[p.type].icon : 'compass')}</div><h3>${r ? esc(p.title) : 'Five people.<br> One missing alibi.'}</h3><p>${r ? 'Your board and notes are right where you left them.' : 'Place the guests. Follow the evidence. Find who was in the wrong room.'}</p><div class="resume-meta">${r ? r.moves + ' moves · ' + esc(M[p.type].title) : 'A gentle introduction · Guided lesson'}</div>${B(r ? 'Continue puzzle' : 'Start a case', 'open', 'arrow', '', openAttrs(p))}</div></section>
-    <div class="home-facts"><span>${icon('library')}<strong>${all().length}</strong> puzzles</span><span>${icon('compass')}<strong>${C.TYPES.length}</strong> ways to think</span><span>${icon('device')}Play offline</span></div>
-    <div class="section-head"><div><div class="eyebrow">CHOOSE YOUR ATMOSPHERE</div><h2>Where shall we go?</h2></div></div><div class="destination-grid"><button class="destination" data-action="navigate" data-page="library" data-id="bridges"><img src="${esc(globalThis.ALIBI_MEDIA.cartographer)}" alt="" width="1536" height="1024" loading="lazy"><div><span class="eyebrow">NEW / EIGHT ISLAND MAPS</span><h3>The cartographer’s desk</h3><p>Count the crossings. Connect a world.</p><span class="destination-link">Play Tidal bridges ${icon('arrow')}</span></div></button><button class="destination" data-action="navigate" data-page="library" data-id="lightup"><img src="${esc(globalThis.ALIBI_MEDIA['quiet-town'])}" alt="" width="1536" height="1024" loading="lazy"><div><span class="eyebrow">A QUIETER KIND OF DISCOVERY</span><h3>When the town goes still</h3><p>A little light, a little logic. No hurry.</p><span class="destination-link">Explore Lanterns ${icon('arrow')}</span></div></button></div>
-    <div class="section-head"><div><div class="eyebrow">A LITTLE DISCOVERY, EVERY DAY</div><h2>Your daily three.</h2></div>${B('All puzzles', 'navigate', 'arrow', 'ghost', 'data-page="library"')}</div><div class="daily-grid">${daily()
-      .map(
-        (p, i) =>
-          `<button class="daily-card" data-action="open" ${openAttrs(p)}><div class="daily-art">${art(p.type, p)}</div><div><div class="tag">${['The deduction', 'The picture', 'The pattern'][i]}</div><h3>${esc(p.title)}</h3><small>${esc(M[p.type].title)}${timing(p) ? ` · ${timing(p)}` : ''}${solved(rec(p)) ? ' · Solved' : ''}</small></div>${icon('chevron')}</button>`,
-      )
-      .join('')}</div>
-    <div class="section-head"><div><div class="eyebrow">SETTLE INTO A CASE FILE</div><h2>Every detail tells a story.</h2><p>${books.length} casebooks. Follow a longer thread, one discovery at a time.</p></div>${B('All casebooks', 'navigate', 'arrow', 'ghost', 'data-page="casebooks"')}</div><div class="book-grid">${books.map(bookCard).join('')}</div>
-    <div class="section-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h2>${C.TYPES.length} ways to think.</h2></div></div><div class="family-grid">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map(familyCard).join('')}</div>
-    <div class="club-note">${icon('workshop')}<div><h3>A case of your own.</h3><p>Build a floor plan, write the clues, and test your mystery in the workshop.</p></div>${B('Open workshop', 'navigate', 'arrow', 'ghost', 'data-page="workshop"')}</div>`;
-  }
   function libraryPage() {
     const type = route.id,
       m = M[type];
