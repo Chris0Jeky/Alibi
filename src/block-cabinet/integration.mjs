@@ -18,14 +18,40 @@ export function startIntegration() {
   const effectiveReducedMotion = () =>
     !!club().diagnostics().state.settings.zen ||
     document.documentElement.dataset.reduced === 'true';
+  const parkHost = () => {
+    const parkedHost = host;
+    if (!parkedHost?.isConnected) return () => {};
+    const rect = parkedHost.getBoundingClientRect();
+    const cssText = parkedHost.style.cssText;
+    parkedHost.style.position = 'fixed';
+    parkedHost.style.left = rect.left + 'px';
+    parkedHost.style.top = rect.top + 'px';
+    parkedHost.style.width = rect.width + 'px';
+    parkedHost.style.height = rect.height + 'px';
+    parkedHost.style.zIndex = '2147483000';
+    parkedHost.style.overflow = 'hidden';
+    parkedHost.style.pointerEvents = 'none';
+    document.body.append(parkedHost);
+    return () => {
+      // Route disposal can clear the live host before the queued save settles.
+      parkedHost.style.cssText = cssText;
+    };
+  };
+  const reattachHost = () => {
+    const target = document.querySelector('.block-panel');
+    if (target && host && host.parentElement !== target) target.append(host);
+  };
   const action = async (name, data = {}) => {
+    const restoreParkedHost = parkHost();
     busy++;
     try {
       await club().action({ dataset: { action: 'club-' + name, ...data } });
       await club().flush();
     } finally {
       busy--;
-      attach();
+      restoreParkedHost();
+      if (busy) reattachHost();
+      else attach();
     }
   };
   function closeLab() {
