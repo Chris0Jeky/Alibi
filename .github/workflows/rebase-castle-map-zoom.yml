@@ -80,11 +80,13 @@ jobs:
           current = current.replace('  mapZoom,\n', '  mapZoom: z,\n', 1)
           old = '      zoom = Math.round(mapZoom * 100),\n      stageWidth = Math.round(560 * mapZoom);'
           if old not in current:
-              raise SystemExit('Castle map sizing changed while compacting zoom.')
+              raise SystemExit('Castle map sizing changed while reconciling zoom.')
           current = current.replace(old, '      zoom = z * 100;', 1)
-          current = current.replace('mapZoom <= 1', 'z === 1')
-          current = current.replace('mapZoom >= 1.75', 'z === 1.75')
-          current = current.replace('mapZoom === 1', 'z === 1')
+          old_controls = '''${button('Zoom out', 'map-zoom', 'out', mapZoom <= 1 ? 'disabled' : '')}<output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Zoom in', 'map-zoom', 'in', mapZoom >= 1.75 ? 'disabled' : '')}${button('Reset', 'map-zoom', 'reset', mapZoom === 1 ? 'disabled' : '')}'''
+          new_controls = '''<span>Zoom</span><input id="map-zoom" type="range" min="100" max="175" step="25" value="${zoom}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', z === 1 ? 'disabled' : '')}'''
+          if old_controls not in current:
+              raise SystemExit('Castle map controls changed while compacting zoom.')
+          current = current.replace(old_controls, new_controls, 1)
           current = current.replace('min-width:${stageWidth}px', 'min-width:${5.6 * zoom}px')
           current = current.replace(
               'Estate map at ${zoom} percent, scroll across to explore',
@@ -94,7 +96,6 @@ jobs:
               'Select a numbered door, or choose a named entrance below. On a small screen you can move across the grounds. Zoom changes only this map, not the page.',
               'Choose a numbered door or named entrance. Move or zoom the map on a small screen.',
           )
-          current = current.replace(' aria-live="polite">${zoom}%', '>${zoom}%')
           path.write_text(current, encoding='utf-8')
 
           path = Path('src/castle/view.mjs')
@@ -146,20 +147,6 @@ jobs:
             map.scrollLeft = x * map.scrollWidth - map.clientWidth / 2;
             root.querySelector(selector)?.focus({ preventScroll: true });
           }
-          function zoomMap(action) {
-            const next =
-              action === 'in'
-                ? Math.min(1.75, zoom + 0.25)
-                : action === 'out'
-                  ? Math.max(1, zoom - 0.25)
-                  : 1;
-            if (next === zoom) return;
-            zoom = next;
-            redraw(
-              `[data-do="map-zoom"][data-value="${zoom === 1 ? 'in' : zoom === 1.75 ? 'out' : action}"]`,
-            );
-            announce(`Map zoom ${zoom * 100} percent.`);
-          }
           '''.replace('          ', '') + current[end:]
           start = current.index("    else if (name === 'visit') visit(value);")
           end = current.index("    else if (name === 'object') inspect(value);", start)
@@ -168,8 +155,19 @@ jobs:
             if (name === 'select') selected = value;
             else era = value;
             redraw(`[data-do="${name}"][data-value="${value}"]`);
-          } else if (name === 'map-zoom') zoomMap(value);
+          } else if (name === 'map-reset') {
+            zoom = 1;
+            redraw('#map-zoom');
+          }
           '''.replace('          ', '') + current[end:]
+          marker = "      } else if (el.id === 'show-inspectables') {"
+          if marker not in current:
+              raise SystemExit('Castle change handler changed while wiring range zoom.')
+          current = current.replace(
+              marker,
+              "      } else if (el.id === 'map-zoom') {\n        zoom = Number(el.value) / 100;\n        redraw('#map-zoom');\n      } else if (el.id === 'show-inspectables') {",
+              1,
+          )
           path.write_text(current, encoding='utf-8')
 
           path = Path('src/castle/native-style.mjs')
@@ -182,9 +180,13 @@ jobs:
               if marker not in current:
                   raise SystemExit('Castle native style changed while reconciling zoom.')
               current = current.replace(marker, main[source_start:source_end] + marker, 1)
+          old = '.map-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.map-zoom button{padding-inline:10px}.map-zoom-status{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#eee5cf}'
+          if old not in current:
+              raise SystemExit('Castle map zoom style changed while compacting controls.')
           current = current.replace(
-              '.map-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.map-zoom button{padding-inline:10px}.map-zoom-status{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#eee5cf}',
-              '.map-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.map-zoom button{padding-inline:10px}.map-zoom-status{min-width:4ch;text-align:center}',
+              old,
+              '.map-zoom{display:flex;align-items:center;gap:6px}.map-zoom input{width:110px}.map-zoom-status{min-width:4ch}',
+              1,
           )
           path.write_text(current, encoding='utf-8')
 
@@ -209,6 +211,17 @@ jobs:
               source_end = main.index(source_end_marker, source_start)
               target = current.index(source_end_marker)
               current = current[:target] + main[source_start:source_end] + current[target:]
+          current = current.replace(
+              "zoom_in=page.locator('[data-do=\"map-zoom\"][data-value=\"in\"]')",
+              "zoom_control=page.get_by_label('Map zoom')",
+          )
+          current = current.replace('zoom_in.focus()', 'zoom_control.focus()')
+          current = current.replace("zoom_in.press('Enter')", "zoom_control.press('ArrowRight')")
+          current = current.replace('expect(zoom_in).to_be_focused()', 'expect(zoom_control).to_be_focused()')
+          current = current.replace(
+              "page.locator('[data-do=\"map-zoom\"][data-value=\"reset\"]').click()",
+              "page.locator('[data-do=\"map-reset\"]').click()",
+          )
           path.write_text(current, encoding='utf-8')
           PY
           npx prettier --write src/castle/native-style.mjs src/castle/pages.mjs src/castle/view.mjs
