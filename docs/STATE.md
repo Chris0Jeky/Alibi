@@ -1,5 +1,17 @@
 # Live development state
 
+## Observatory puzzle journey round-2 candidate, 2026-09-21
+
+PR #183 now contains a host-side, consent-gated journey adapter for the fixed
+`puzzle.started`, `puzzle.failed`, `puzzle.completed` and `hint.requested` names. It starts only
+on a real board mutation or journey action, closes on failed/completed checks, resets on route
+changes and withdrawal, and forwards no puzzle, answer, board, text or URL data. The focused
+Node evidence is local source behavior only; the generated Observatory event registration for
+`puzzle.failed` remains unverified. This candidate is not deployed and claims no remote
+collection, hosted acceptance or physical-device acceptance. The full local verify currently
+reaches 316/317 Node tests; its only failure is the 125 KiB initial-JavaScript budget at 128,170
+gzip bytes. Remaining owner/device gates stay in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Published 0.11.4, 2026-09-17
 
 Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on

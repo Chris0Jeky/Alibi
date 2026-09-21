@@ -10,7 +10,10 @@ const loaderSource = fs.readFileSync(path.join(root, 'src/observatory-loader.js'
 const appSource = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
 
 function harness() {
-  const block = /\/\/ Observatory journey helper start\.\n([\s\S]*?)  \/\/ Observatory journey helper end\./.exec(appSource);
+  const block =
+    /\/\/ Observatory journey helper start\.\n([\s\S]*?)  \/\/ Observatory journey helper end\./.exec(
+      appSource,
+    );
   assert.ok(block, 'app must contain the bounded journey helper block');
   const events = [];
   let active = false;
@@ -26,7 +29,7 @@ function harness() {
   };
   context.globalThis = context;
   vm.runInNewContext(
-    `let current = { key: 'first' };\n${block[1]}\nglobalThis.__journey = { call: observeJourney, change: value => { current = value; } };`,
+    `let current = { key: 'first' };\n${block[1]}\nglobalThis.__journey = { call: observeJourney, change: value => { current = value; }, reset: resetJourney };`,
     context,
     { filename: 'observatory-journey-helper.js' },
   );
@@ -34,6 +37,7 @@ function harness() {
     events,
     call: context.__journey.call,
     change: context.__journey.change,
+    reset: context.__journey.reset,
     setActive(value) {
       active = value;
     },
@@ -77,6 +81,18 @@ test('withdrawal and puzzle changes reset local attempt state', () => {
   assert.deepEqual(h.events.slice(-3), ['puzzle.started', 'puzzle.started', 'puzzle.failed']);
 });
 
+test('route resets require a fresh start without buffering', () => {
+  const h = harness();
+  h.setActive(true);
+  assert.equal(h.call('puzzle.unknown'), false);
+  assert.deepEqual(h.events, []);
+
+  h.call();
+  h.reset();
+  assert.equal(h.call('puzzle.completed'), true);
+  assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
+});
+
 test('application lifecycle calls the helper with fixed event names only', () => {
   assert.match(appSource, /observeJourney\(\);[\s\S]*current\.state = next;/);
   assert.match(appSource, /issues\.length\)[\s\S]*observeJourney\('puzzle\.failed'\)/);
@@ -88,14 +104,13 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     appSource,
     /function showHint\(\) \{\s*if \(!current\) return;\s*observeJourney\('hint\.requested'\);/,
   );
+  assert.match(
+    appSource,
+    /async function loadRoute\(focusSerial = 0\) \{\s*const serial = \+\+routeSerial;\s*resetJourney\(\);/,
+  );
   const calls = [...appSource.matchAll(/(?<!function )observeJourney\(([^)]*)\)/g)].map((match) =>
     match[1].trim(),
   );
-  assert.deepEqual(calls.sort(), [
-    '',
-    "'hint.requested'",
-    "'puzzle.completed'",
-    "'puzzle.failed'",
-  ]);
+  assert.deepEqual(calls.sort(), ['', "'hint.requested'", "'puzzle.completed'", "'puzzle.failed'"]);
   assert.doesNotMatch(loaderSource, /ALIBI_OBSERVATORY_JOURNEY/);
 });

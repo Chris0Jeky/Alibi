@@ -1409,6 +1409,7 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
+      observeJourney('puzzle.completed');
       globalThis.AlibiTheatre.moment('complete');
       paused = false;
       render();
@@ -1450,6 +1451,7 @@
   }
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
+    observeJourney();
     if (history) {
       current.undo.push(C.clone(current.state));
       current.undo = current.undo.slice(-80);
@@ -1674,11 +1676,12 @@
     checking = true;
     const p = current.puzzle,
       issues = E[p.type].validate(p, current.state);
-    if (issues.length)
+    if (issues.length) {
+      observeJourney('puzzle.failed');
       feedback =
         issues[0].message +
         (issues.length > 1 ? ` (${issues.length} rule conflicts to revisit.)` : '');
-    else if (E[p.type].complete(p, current.state)) feedback = 'Solved. Every rule is satisfied.';
+    } else if (E[p.type].complete(p, current.state)) feedback = 'Solved. Every rule is satisfied.';
     else if (p.type === 'scene' && C.sceneComplete(p, current.state))
       feedback = 'Every placement fits. Now identify the suspect in the victim’s room.';
     else if (p.type === 'dossier' && X.dossierReady(p, current.state))
@@ -1690,6 +1693,7 @@
   }
   function showHint() {
     if (!current) return;
+    observeJourney('hint.requested');
     const hint = C.insights.deduction(current.puzzle, current.state);
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
@@ -3267,8 +3271,28 @@
       lesson = null;
     }
   });
+  // Observatory journey helper start.
+  let observedRun,
+    observedAttempt = false;
+  function resetJourney() {
+    observedRun = null;
+    observedAttempt = false;
+  }
+  function observeJourney(event) {
+    const observer = globalThis.PulseboardUsage;
+    if (observedRun !== current) ((observedRun = current), (observedAttempt = false));
+    if (!observer?.status?.().active) return (resetJourney(), false);
+    if (event && !/^(puzzle\.(started|failed|completed)|hint\.requested)$/.test(event))
+      return false;
+    if (!observedAttempt && !(observedAttempt = observer.track('puzzle.started'))) return false;
+    if (!event || event === 'puzzle.started') return true;
+    if (event !== 'hint.requested') observedAttempt = false;
+    return observer.track(event);
+  }
+  // Observatory journey helper end.
   async function loadRoute(focusSerial = 0) {
     const serial = ++routeSerial;
+    resetJourney();
     const focusTarget = document.documentElement.dataset.ft;
     if (!focusTarget || focusTarget !== location.hash) {
       delete document.documentElement.dataset.f;
