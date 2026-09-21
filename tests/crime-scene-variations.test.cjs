@@ -149,8 +149,7 @@ const profileChecks = {
     (kinds.left || 0) + (kinds.above || 0) >= 5 && !kinds.row && !kinds.col,
   'coordinate-crossfire': (kinds) => (kinds.row || 0) >= 2 && (kinds.col || 0) >= 2,
   'edge-and-room-pressure': (kinds) =>
-    (kinds.edge || 0) + (kinds.notEdge || 0) >= 3 &&
-    (kinds.room || 0) + (kinds.notRoom || 0) >= 2,
+    (kinds.edge || 0) + (kinds.notEdge || 0) >= 3 && (kinds.room || 0) + (kinds.notRoom || 0) >= 2,
   'mixed-late-room-deduction': (kinds) =>
     Object.keys(kinds).length >= 6 && (kinds.sameRoom || 0) + (kinds.differentRoom || 0) >= 1,
 };
@@ -179,7 +178,11 @@ test('crime-scene expansion adds six structurally distinct provisional cases', (
 
     const geometry = normalizedGeometry(puzzle.rooms, puzzle.size);
     assert.equal(previousGeometries.has(geometry), false, `${puzzle.id} has new floor geometry`);
-    assert.equal(newGeometries.has(geometry), false, `${puzzle.id} geometry is not a sibling reskin`);
+    assert.equal(
+      newGeometries.has(geometry),
+      false,
+      `${puzzle.id} geometry is not a sibling reskin`,
+    );
     newGeometries.add(geometry);
 
     const note = notes.cases.find((candidate) => candidate.id === puzzle.id);
@@ -187,7 +190,10 @@ test('crime-scene expansion adds six structurally distinct provisional cases', (
     assert.match(note.structuralDistinction, /^.{20,400}$/s, puzzle.id);
     assert.ok(Array.isArray(note.intendedReasoningPath), puzzle.id);
     assert.ok(note.intendedReasoningPath.length >= 3, puzzle.id);
-    assert.ok(note.intendedReasoningPath.every((step) => /^.{10,240}$/s.test(step)), puzzle.id);
+    assert.ok(
+      note.intendedReasoningPath.every((step) => /^.{10,240}$/s.test(step)),
+      puzzle.id,
+    );
     assert.ok(profileChecks[note.profile], `${puzzle.id} uses a known design profile`);
     const kinds = Object.fromEntries(
       Object.entries(
@@ -209,8 +215,7 @@ test('crime-scene expansion is independently unique and matches the native solve
     assert.equal(
       puzzle.clues.some(
         (clue) =>
-          clue.kind === 'sameRoom' &&
-          (clue.who === puzzle.victim || clue.other === puzzle.victim),
+          clue.kind === 'sameRoom' && (clue.who === puzzle.victim || clue.other === puzzle.victim),
       ),
       false,
       `${puzzle.id} does not disclose the culprit through a victim same-room clue`,
