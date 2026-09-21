@@ -4,7 +4,7 @@ import { createPages } from './pages.mjs';
 import { renderBoard } from './boards.mjs';
 import styles from './style.mjs';
 import nativeStyle from './native-style.mjs';
-import { inspectObject, appendObservation } from './objects.mjs';
+import { inspectObject, appendObservation } from './objects-runtime.mjs';
 import { CastleStore } from './storage.mjs';
 import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
@@ -48,7 +48,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     era = 'today',
     search = '',
     filter = 'all',
-    inspectablesVisible = true;
+    m = true;
   let active = null,
     answer,
     history = [],
@@ -118,6 +118,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   function room() {
     return W.rooms.find((r) => r.id === selected) || W.rooms[0];
   }
+  const roomOpen = () => view === 'room' && E.roomStatus(state, room()).open;
   function header() {
     $('header').innerHTML =
       `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">${E.score(state)} / 100 points</span>`;
@@ -133,7 +134,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       search,
       filter,
       practiceSnapshot,
-      inspectablesVisible,
+      m,
     });
   const roomCard = (r) => pages().roomCard(r);
   function render() {
@@ -557,33 +558,21 @@ export async function mount({ root, preferences = null, practice = null }) {
   }
   function inspect(id) {
     const object = inspectObject(id, selected);
-    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
-    const detail = object.detailAsset
-      ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
-      : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
-    const noteAction = object.actions.includes('note')
-      ? button('Keep a note', 'keep-observation', id)
-      : '';
+    if (!object || !roomOpen()) return;
     show(
-      object.title,
-      `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,
+      object.n,
+      `<p>No close-up artwork is available</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class=small id=observation-result role=status></p>`,
     );
   }
   function keepObservation(id) {
     const object = inspectObject(id, selected);
-    if (
-      !object ||
-      view !== 'room' ||
-      !E.roomStatus(state, room()).open ||
-      !object.actions.includes('note')
-    )
-      return;
+    if (!object || !roomOpen() || !object.a) return;
     const result = appendObservation(state.notes, object);
     if (result.added)
       mutate((next) => {
         next.notes = result.notes;
       });
-    if ($('#observation-result')) $('#observation-result').textContent = result.message;
+    $('#observation-result').textContent = result.message;
     announce(result.message);
   }
   function compareRecords() {
@@ -801,8 +790,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         mutate((n) => {
           n.preferences[key] = el.checked;
         });
-      } else if (el.id === 'show-inspectables') {
-        inspectablesVisible = el.checked;
+      } else if (el.id === 'i') {
+        m = el.checked;
       } else if (el.id === 'filter') {
         filter = el.value;
         render();

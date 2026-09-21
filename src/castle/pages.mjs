@@ -1,7 +1,7 @@
 import W from './content.mjs';
 import * as E from './engine.mjs';
 import * as Art from './art.mjs';
-import { roomObjects } from './objects.mjs';
+import { roomObjects } from './objects-runtime.mjs';
 import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
 import { evidenceBoard } from './evidence-view.mjs';
@@ -15,7 +15,7 @@ export function createPages({
   search,
   filter,
   practiceSnapshot,
-  inspectablesVisible = true,
+  m = true,
 }) {
   const room = () => W.rooms.find((r) => r.id === selected) || W.rooms[0];
   const practice = (r) =>
@@ -53,10 +53,10 @@ export function createPages({
     const r = room();
     const mood = atmosphere(r.id);
     const objects = roomObjects(r.id);
-    return `<section class="scene-heading"><span class="eyebrow">${escape(r.wing)}</span><h1>${escape(r.name)}</h1><p>${escape(mood.ambience)}</p></section><div class="layout"><section class="scene transition" aria-label="${escape(r.name)} interior"><input id="show-inspectables" class="inspectable-toggle" type="checkbox"${inspectablesVisible ? ' checked' : ''}><label class="inspectable-toggle-label" for="show-inspectables">Show inspectable objects</label><div class="room-stage">${Art.interior(r, era)}${button('◇', 'room-puzzle', r.puzzle, `class="hotspot" style="left:${mood.puzzle[0]}%;top:${mood.puzzle[1]}%" aria-label="${r.puzzle === 'rest' ? 'Open the guest book' : r.puzzle === 'reveal' ? 'Read the margin' : 'Inspect the room question'}"`)}${objects.map((object) => button('+', 'object', object.id, `class="hotspot observation" style="left:${mood.object[0]}%;top:${mood.object[1]}%" aria-label="Observe ${escape(object.title)}"`)).join('')}</div><div class="scene-controls">${link('Return to the grounds', 'map')}${button('Notebook', 'notebook')}</div></section>${rail(r)}</div><section class="castle-objects" aria-label="Room details"><p>On a closer look<small>Optional observations. No points or hidden timer.</small></p>${roomObjects(
+    return `<section class="scene-heading"><span class="eyebrow">${escape(r.wing)}</span><h1>${escape(r.name)}</h1><p>${escape(mood.ambience)}</p></section><div class="layout"><section class="scene transition" aria-label="${escape(r.name)} interior"><input id=i type=checkbox${m ? ' checked' : ''}><label for=i>Show inspectable objects</label><div class="room-stage">${Art.interior(r, era)}${button('◇', 'room-puzzle', r.puzzle, `class="hotspot" style="left:${mood.puzzle[0]}%;top:${mood.puzzle[1]}%" aria-label="${r.puzzle === 'rest' ? 'Open the guest book' : r.puzzle === 'reveal' ? 'Read the margin' : 'Inspect the room question'}"`)}${objects.map((object) => button('+', 'object', object.id, `class="hotspot observation" style="left:${mood.object[0]}%;top:${mood.object[1]}%" aria-label="Observe ${escape(object.n)}"`)).join('')}</div><div class="scene-controls">${link('Return to the grounds', 'map')}${button('Notebook', 'notebook')}</div></section>${rail(r)}</div><section class="objects"><p>On a closer look<small>Optional observations. No points or hidden timer.</small></p>${roomObjects(
       r.id,
     )
-      .map((object) => button(escape(object.title), 'object', object.id))
+      .map((object) => button(escape(object.n), 'object', object.id))
       .join('')}</section>${practice(r)}${nearby(r, state)}`;
   }
   function museumPage() {
