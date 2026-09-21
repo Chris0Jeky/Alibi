@@ -55,6 +55,10 @@ def open_puzzle(page, puzzle_id):
         arg=puzzle_id,
     )
     close_lesson(page)
+    # Measure and use optional assistance through its player-visible disclosure.
+    context = page.locator('details[data-disclosure-key="play-context"]')
+    if not context.evaluate('(el) => el.open'):
+        context.locator('#play-context-summary').click()
 
 
 with sync_playwright() as playwright:
