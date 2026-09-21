@@ -52,6 +52,13 @@ def run():
                 assert zoomed_width>initial_width*1.2
                 local_overflow=map_scroll.evaluate('(e)=>({client:e.clientWidth,scroll:e.scrollWidth})')
                 assert local_overflow['scroll']>local_overflow['client']
+                slider_box=zoom_control.bounding_box()
+                page.mouse.move(slider_box['x']+slider_box['width']/2, slider_box['y']+slider_box['height']/2)
+                page.mouse.down()
+                page.mouse.move(slider_box['x']+slider_box['width']-1, slider_box['y']+slider_box['height']/2, steps=4)
+                page.mouse.up()
+                expect(zoom_status).to_have_text('175%')
+                assert page.locator('.map-stage').bounding_box()['width']>zoomed_width
                 expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
                 map_scroll.evaluate('(e)=>{e.scrollLeft=e.scrollWidth-e.clientWidth}')
                 panned_left=map_scroll.evaluate('(e)=>e.scrollLeft')

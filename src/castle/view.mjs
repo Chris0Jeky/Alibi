@@ -630,7 +630,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
   }
-  function redraw(s) {
+  function redraw(s = '#map-zoom') {
     let m = $('.map-scroll');
     const x = (m.scrollLeft + m.clientWidth / 2) / m.scrollWidth;
     render();
@@ -688,7 +688,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       redraw(`[data-do="${name}"][data-value="${value}"]`);
     } else if (name === 'map-reset') {
       mapZoom = 4;
-      redraw('#map-zoom');
+      redraw();
     } else if (name === 'object') inspect(value);
     else if (name === 'room-puzzle') {
       if (value === 'rest') rest();
@@ -768,7 +768,6 @@ export async function mount({ root, preferences = null, practice = null }) {
         $('#results-count').textContent = `${matches.length} rooms`;
       } else if (el.id === 'map-zoom') {
         mapZoom = +el.value;
-        redraw('#map-zoom');
       } else if (el.id === 'clock-answer' && active === 'clock') {
         answer = el.value;
         persist();
@@ -794,6 +793,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         });
       } else if (el.id === 'show-inspectables') {
         inspectablesVisible = el.checked;
+      } else if (el.id === 'map-zoom') {
+        redraw();
       } else if (el.id === 'filter') {
         filter = el.value;
         render();
