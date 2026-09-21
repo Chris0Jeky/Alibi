@@ -81,20 +81,25 @@ jobs:
           old = '      zoom = Math.round(mapZoom * 100),\n      stageWidth = Math.round(560 * mapZoom);'
           if old not in current:
               raise SystemExit('Castle map sizing changed while reconciling zoom.')
-          current = current.replace(old, '      zoom = z * 100;', 1)
+          current = current.replace(old, '      zoom = z * 25;', 1)
           old_controls = '''${button('Zoom out', 'map-zoom', 'out', mapZoom <= 1 ? 'disabled' : '')}<output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Zoom in', 'map-zoom', 'in', mapZoom >= 1.75 ? 'disabled' : '')}${button('Reset', 'map-zoom', 'reset', mapZoom === 1 ? 'disabled' : '')}'''
-          new_controls = '''<span>Zoom</span><input id="map-zoom" type="range" min="100" max="175" step="25" value="${zoom}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', z === 1 ? 'disabled' : '')}'''
+          new_controls = '''<input id="map-zoom" type="range" min="4" max="7" value="${z}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', z === 4 ? 'disabled' : '')}'''
           if old_controls not in current:
               raise SystemExit('Castle map controls changed while compacting zoom.')
           current = current.replace(old_controls, new_controls, 1)
-          current = current.replace('min-width:${stageWidth}px', 'min-width:${5.6 * zoom}px')
+          current = current.replace(
+              '<div class="map-zoom" aria-label="Map zoom">',
+              '<div class="row">',
+              1,
+          )
+          current = current.replace('min-width:${stageWidth}px', 'min-width:${140 * z}px')
           current = current.replace(
               'Estate map at ${zoom} percent, scroll across to explore',
-              'Estate map, ${zoom}% zoom',
+              'Estate map ${zoom}%',
           )
           current = current.replace(
               'Select a numbered door, or choose a named entrance below. On a small screen you can move across the grounds. Zoom changes only this map, not the page.',
-              'Choose a numbered door or named entrance. Move or zoom the map on a small screen.',
+              'Choose a door below. Pan or zoom this map.',
           )
           path.write_text(current, encoding='utf-8')
 
@@ -125,6 +130,11 @@ jobs:
               '  function inspect(id) {',
               '  function editTheory(id) {',
           )
+          current = current.replace(
+              'No close-up artwork is available for this object. Its complete description is below.',
+              'No close-up artwork is available. The description follows.',
+              1,
+          )
           if "el.id === 'show-inspectables'" not in current:
               marker = "      } else if (el.id === 'filter') {"
               if marker not in current:
@@ -135,7 +145,7 @@ jobs:
                   1,
               )
           current = current.replace('inspectablesVisible', 'showObjects')
-          current = current.replace('    mapZoom = 1,', '    zoom = 1,', 1)
+          current = current.replace('    mapZoom = 1,', '    zoom = 4,', 1)
           current = current.replace('      mapZoom,\n', '      mapZoom: zoom,\n', 1)
           start = current.index('  function captureMapViewport() {')
           end = current.index('  async function action(event) {', start)
@@ -145,7 +155,7 @@ jobs:
             render();
             map = $('.map-scroll');
             map.scrollLeft = x * map.scrollWidth - map.clientWidth / 2;
-            root.querySelector(selector)?.focus({ preventScroll: true });
+            $(selector).focus({ preventScroll: true });
           }
           '''.replace('          ', '') + current[end:]
           start = current.index("    else if (name === 'visit') visit(value);")
@@ -154,9 +164,9 @@ jobs:
           else if (name === 'select' || name === 'era') {
             if (name === 'select') selected = value;
             else era = value;
-            redraw(`[data-do="${name}"][data-value="${value}"]`);
+            redraw(`[data-value="${value}"]`);
           } else if (name === 'map-reset') {
-            zoom = 1;
+            zoom = 4;
             redraw('#map-zoom');
           }
           '''.replace('          ', '') + current[end:]
@@ -165,7 +175,7 @@ jobs:
               raise SystemExit('Castle change handler changed while wiring range zoom.')
           current = current.replace(
               marker,
-              "      } else if (el.id === 'map-zoom') {\n        zoom = Number(el.value) / 100;\n        redraw('#map-zoom');\n      } else if (el.id === 'show-inspectables') {",
+              "      } else if (el.id === 'map-zoom') {\n        zoom = +el.value;\n        redraw('#map-zoom');\n      } else if (el.id === 'show-inspectables') {",
               1,
           )
           path.write_text(current, encoding='utf-8')
@@ -183,11 +193,7 @@ jobs:
           old = '.map-zoom{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.map-zoom button{padding-inline:10px}.map-zoom-status{min-width:4ch;text-align:center;font-variant-numeric:tabular-nums;color:#eee5cf}'
           if old not in current:
               raise SystemExit('Castle map zoom style changed while compacting controls.')
-          current = current.replace(
-              old,
-              '.map-zoom{display:flex;align-items:center;gap:6px}.map-zoom input{width:110px}.map-zoom-status{min-width:4ch}',
-              1,
-          )
+          current = current.replace(old, '', 1)
           path.write_text(current, encoding='utf-8')
 
           path = Path('docs/STATE.md')
