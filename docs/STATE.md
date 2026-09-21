@@ -259,6 +259,26 @@ is never persisted and does not alter saved-run data. The real-origin browser ru
 consumption. Final combined verification is recorded with the player-fix checkpoint; the
 initial-JavaScript budget cap remains unchanged.
 
+## Block Cabinet phone action sticky correction, 2026-09-21 (not deployed)
+
+Round-2 PR #176 makes the document the phone sticky scroll owner. At phone widths the active motion
+surface removes the `.bc-studio` overflow constraint, keeps decorative artwork clipped on its
+pseudo-layer, and makes `.bc-play` layout-transparent so the sticky action group is contained by the
+full document layout. The safe-area-aware top and bottom insets remain; no markup, game-rule, save,
+menu, reduced-motion or forced-colors owner changed.
+
+Local evidence: build `1c7b6eba0ed4`; the focused phone-action Node regression passes 2/2. Browser
+evidence: the Block Cabinet Chromium suite passes 70 assertions at 390/1440px and the Block motion
+suite passes 75 assertions at 390/1280px, with no horizontal overflow or browser errors. These are
+local simulated-browser results; physical Android touch, TalkBack, comfort review and human
+acceptance remain open under the existing [HUMAN_TODO.md](../HUMAN_TODO.md) gates.
+
+## Block Cabinet phone action hierarchy candidate, 2026-09-17 (not deployed)
+
+PR #176 keeps Undo, Redo, Rotate, Cancel and restart/new-seed together as the primary phone action set while sound, haptics, motion and replay/display tools remain reachable as secondary options. A persistent selected-piece summary reports dimensions, occupied squares, orientation and legal origins. Invalid placements preserve the selection and explain the rejection; Cancel and Escape clear it with deterministic focus recovery. The phone action group remains inside the viewport while the page scrolls.
+
+The exact-head Chromium suite exercises phone and desktop widths, primary and secondary hierarchy, selection details, legal origins, invalid-placement persistence, cancellation, focus recovery, restart confirmation and phone scrolling. The original Block Cabinet rules, replay reducer and save owner are unchanged. This remains simulated browser evidence: physical Android touch, TalkBack, comfort review and human acceptance stay open in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Block Cabinet integration candidate (not deployed)
 
 A separately hashed optional surface now attaches to the original Club Block Cabinet rules and save queue. Cascade uses an independent versioned replay store, with a separate export and a bounded replay-validation worker. The initial loader is a small separate shell script; heavy game code and art load on entry. The integration honors the app-level reduced-motion setting. See [architecture](BLOCK-CABINET-ENGINE.md) and the browser acceptance suite. This is a review candidate, not a hosted release or physical Android acceptance.
