@@ -1,24 +1,43 @@
 # Live development state
 
-## Mobile play and shell QA candidate, 2026-09-21
+## Mobile play, shell QA and typography candidates, 2026-09-21 (PRs #227 -> #228; not deployed)
 
-The `fix/phone-play-qa-214` candidate addresses QA tracker #218: board-first play and usable
-Bridges zoom (#214/#215), 44px control hit areas (#216/#217), route-owned lessons and modal
-keyboard/focus continuity (#208/#209), meaningful navigation/card names (#210/#211), stable
-search metadata (#212), and readable mobile tabs/edition text (#222/#223). Story, room controls
-and assistance remain available in a disclosure after the board; clues and recovery warnings
-are not removed. Puzzle IDs/revisions and device-local save schemas are unchanged.
+Parent #227 addresses QA tracker #218: board-first play and usable Bridges zoom (#214/#215),
+44px control hit areas (#216/#217), route-owned lessons and modal keyboard/focus continuity
+(#208/#209), meaningful navigation/card names (#210/#211), stable search metadata (#212), and
+readable mobile tabs/edition text (#222/#223). Story, room controls and assistance remain in a
+disclosure after the board; clues and recovery warnings remain directly available. The child
+#228 adds the bounded #219 desk H1/H2 hierarchy correction and readable phone/short-landscape
+metadata, including a direct 12px save-status rule. Puzzle IDs, revisions, save schemas, themes
+and the strict stylesheet budget remain unchanged.
 
-Local DOM regression checks use the current source and built HTTP origin. Seven focused browser
-scenarios pass, including five viewport geometries and real control interactions; the baseline
-failed 15 subchecks. The candidate build is `971b3d96ac94`; `npm run verify` passes 322 tests
-with 581,847 assertions. These are simulated Chromium checks, not physical-phone or production
-deployment evidence.
+The current permanent `tests/browser_mobile_qa.py` suite has **nine scenarios**. The parent's
+seven scenarios and 15 failing baseline subchecks are earlier evidence. The two child scenarios
+reproduced 23 additional initial failing subchecks: twenty edition/width combinations and three
+metadata cases. The save-status review regression separately failed at 9/9/10px on 320/390/844px
+viewports before the direct 12px override. All nine scenarios and 182 existing UI checks pass
+locally after that correction. Nine supplementary comfort combinations also pass through actual
+Paper/Evening/forced-colour, larger-clue and contrast controls; these are not additional permanent
+suite methods. Local checks use an isolated source DOM, not a built HTTP origin or native host.
+The local full Node run has 303 passes and 12 missing-build/dependency failures; its logs retain
+those limitations rather than calling that workspace green.
 
-The required workflow runs `tests/browser_mobile_qa.py` against its freshly built HTTP origin
-and retains `test-results/mobile-qa/` screenshots/metrics. Exact published-head CI and
-physical-device/TalkBack acceptance remain separate gates. See
-[UX QA handoff](ux/MOBILE-QA-2026-09-21.md) and `HUMAN_TODO.md`. No release/deployment is claimed.
+Parent head `f07eb747b8ab2dbd840a43cd8a989a5fc324df7b` passed full workflow 35602820954 and
+Wrenmere workflow 35602821130, build `971b3d96ac94`. Its verified CI artifact shows all four
+Bridges islands visible at 320/360/390/430px portrait and two in short landscape with scrolling
+retained, without document overflow. Automated review reported no major issues at that head.
+Child product-code head `0e9215832b1ec59fda2dab4a3573db95aa4425d3` passed format/build/Node/budget
+and initial UI steps in workflow 35606531041; the full browser matrix was still running when
+this checkpoint was written. Check that exact run and the latest PR head before acceptance.
+A later documentation-only commit does not retroactively qualify an unobserved code run.
+
+The permanent read-only workflow runs the browser suite on its freshly built HTTP origin and
+retains `test-results/mobile-qa/` screenshots and geometry. All temporary integration files are
+removed. Physical Android, installed-PWA safe areas, TalkBack and system-font acceptance remain
+separate. The broad type/radius/button system (#219-#221) and routing (#213/#224) are still open.
+See the [mobile QA handoff](ux/MOBILE-QA-2026-09-21.md),
+[typography continuation](ux/TYPOGRAPHY-2026-09-21.md), and `HUMAN_TODO.md`.
+These candidates are not a new hosted release; no merge, version bump or deployment is claimed.
 
 ## Published 0.11.4, 2026-09-17
 
