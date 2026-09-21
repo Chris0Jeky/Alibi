@@ -13,7 +13,13 @@ if (!filename) {
 try {
   const size = fs.statSync(filename).size;
   if (size > 3 * 1024 * 1024) throw Error('Pack exceeds 3 MB.');
-  const pack = C.validatePack(JSON.parse(fs.readFileSync(filename, 'utf8')), true);
+  let raw = null;
+  try {
+    raw = JSON.parse(fs.readFileSync(filename, 'utf8'));
+  } catch {
+    throw Error('That file is not valid JSON.');
+  }
+  const pack = C.validatePack(raw, true);
   console.log(
     JSON.stringify(
       {

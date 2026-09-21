@@ -42,7 +42,7 @@ export function startIntegration() {
     busy++;
     try {
       await club().action({ dataset: { action: 'club-' + name, ...data } });
-      await club().save();
+      await club().flush();
     } finally {
       busy--;
       attach();
