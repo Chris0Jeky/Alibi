@@ -568,12 +568,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         (input) => input.value,
       ),
       records = E.evidence(state).filter((record) => ids.includes(record.id));
-    if (records.length !== ids.length || records.length < 2 || records.length > 3) {
-      const message = 'Choose two or three collected records to compare.';
-      if ($('#compare-status')) $('#compare-status').textContent = message;
-      announce(message);
-      return;
-    }
+    if (ids.length < 2 || ids.length > 3 || records.length !== ids.length) return;
     show('Compare collected records', evidenceComparison(records));
   }
   function editTheory(id) {
@@ -764,21 +759,14 @@ export async function mount({ root, preferences = null, practice = null }) {
       const el = event.target;
       if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
       else if (el.dataset.compareRecord !== undefined) {
-        const selected = [...root.querySelectorAll('[data-compare-record]:checked')];
+        let selected = root.querySelectorAll('[data-compare-record]:checked');
         if (selected.length > 3) {
           el.checked = false;
-          if ($('#compare-status'))
-            $('#compare-status').textContent = 'Compare up to three records at a time.';
-        } else {
-          const count = selected.length;
-          if ($('#compare-status'))
-            $('#compare-status').textContent = count
-              ? `${count} record${count === 1 ? '' : 's'} selected. Choose two or three.`
-              : 'Choose two or three collected records to compare.';
+          selected = root.querySelectorAll('[data-compare-record]:checked');
         }
-        const count = root.querySelectorAll('[data-compare-record]:checked').length,
-          control = root.querySelector('[data-do="compare-records"]');
-        if (control) control.disabled = count < 2 || count > 3;
+        const control = root.querySelector('[data-do="compare-records"]');
+        if (control) control.disabled = selected.length < 2;
+        if ($('#compare-status')) $('#compare-status').textContent = `${selected.length} selected.`;
       } else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
