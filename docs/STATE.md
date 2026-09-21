@@ -34,6 +34,15 @@ three-record bound, no-future-evidence rule, overflow check and offline/static s
 unchanged; comparison still changes no save, privacy, reward or evidence state. This candidate is
 not deployed; a fresh hosted Castle run at the post-fix head is still required.
 
+## Castle map viewport candidate, 2026-09-21 (not deployed)
+
+PR #206 now preserves the Castle map viewport when selecting a numbered room or switching between
+the present-day and 1911 eras, alongside the existing zoom preservation. Focused local Chromium
+coverage pans away from the left edge at 390/1280px, exercises both controls, and retains the
+selected-room panel and keyboard focus. This is source/local browser evidence only; hosted checks,
+physical-device interaction/TalkBack and human acceptance remain pending in `HUMAN_TODO.md`.
+
+
 ## Android bundled payload candidate, 2026-09-21
 
 At PR #180 implementation heads `ac11d4371f75` and merge-base integration `2ecf801d0c12`, the

@@ -46,9 +46,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     view = 'map',
     selected = 'gatehouse',
     era = 'today',
+    mapZoom = 4,
     search = '',
     filter = 'all',
-    m = true;
+    inspectablesVisible = true;
   let active = null,
     answer,
     history = [],
@@ -118,7 +119,6 @@ export async function mount({ root, preferences = null, practice = null }) {
   function room() {
     return W.rooms.find((r) => r.id === selected) || W.rooms[0];
   }
-  const roomOpen = () => view === 'room' && E.roomStatus(state, room()).open;
   function header() {
     $('header').innerHTML =
       `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">${E.score(state)} / 100 points</span>`;
@@ -131,10 +131,11 @@ export async function mount({ root, preferences = null, practice = null }) {
       view,
       selected,
       era,
+      mapZoom,
       search,
       filter,
       practiceSnapshot,
-      m,
+      inspectablesVisible,
     });
   const roomCard = (r) => pages().roomCard(r);
   function render() {
@@ -558,29 +559,28 @@ export async function mount({ root, preferences = null, practice = null }) {
   }
   function inspect(id) {
     const object = inspectObject(id, selected);
-    if (!object || !roomOpen()) return;
+    if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
     show(
       object.n,
-      `<p>No close-up artwork is available</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class=small id=observation-result role=status></p>`,
+      `<p>No close-up artwork.</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
     );
   }
   function keepObservation(id) {
     const object = inspectObject(id, selected);
-    if (!object || !roomOpen() || !object.a) return;
+    if (!object || view !== 'room' || !E.roomStatus(state, room()).open || !object.a) return;
     const result = appendObservation(state.notes, object);
     if (result.added)
       mutate((next) => {
         next.notes = result.notes;
       });
-    $('#observation-result').textContent = result.message;
+    if ($('#observation-result')) $('#observation-result').textContent = result.message;
     announce(result.message);
   }
   function compareRecords() {
-    const ids = [...root.querySelectorAll('[data-compare-record]:checked')].map(
-        (input) => input.value,
-      ),
-      records = E.evidence(state).filter((record) => ids.includes(record.id));
-    if (ids.length < 2 || ids.length > 3 || records.length !== ids.length) return;
+    const records = E.evidence(state).filter((record) =>
+      root.querySelector(`[data-compare-record][value="${record.id}"]:checked`),
+    );
+    if (records.length < 2 || records.length > 3) return;
     show('Compare collected records', evidenceComparison(records));
   }
   function editTheory(id) {
@@ -625,6 +625,14 @@ export async function mount({ root, preferences = null, practice = null }) {
     $('#label-result').textContent =
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
+  }
+  function redraw(s = '#map-zoom') {
+    let m = $('.map-scroll');
+    const x = (m.scrollLeft + m.clientWidth / 2) / m.scrollWidth;
+    render();
+    m = $('.map-scroll');
+    m.scrollLeft = x * m.scrollWidth - m.clientWidth / 2;
+    $(s).focus({ preventScroll: true });
   }
   async function action(event) {
     const target = event.target.closest?.('[data-do]');
@@ -671,16 +679,13 @@ export async function mount({ root, preferences = null, practice = null }) {
               quietLinks(),
       );
     else if (name === 'visit') visit(value);
-    else if (name === 'select') {
-      selected = value;
-      render();
-      for (const el of root.querySelectorAll('[data-do="select"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
-    } else if (name === 'era') {
-      era = value;
-      render();
-      for (const el of root.querySelectorAll('[data-do="era"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
+    else if (name === 'select' || name === 'era') {
+      if (name === 'select') selected = value;
+      else era = value;
+      redraw(`[data-do="${name}"][data-value="${value}"]`);
+    } else if (name === 'map-reset') {
+      mapZoom = 4;
+      redraw();
     } else if (name === 'object') inspect(value);
     else if (name === 'room-puzzle') {
       if (value === 'rest') rest();
@@ -758,6 +763,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         );
         $('#room-results').innerHTML = matches.map(roomCard).join('');
         $('#results-count').textContent = `${matches.length} rooms`;
+      } else if (el.id === 'map-zoom') {
+        mapZoom = +el.value;
       } else if (el.id === 'clock-answer' && active === 'clock') {
         answer = el.value;
         persist();
@@ -770,16 +777,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     (event) => {
       const el = event.target;
       if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
-      else if (el.dataset.compareRecord !== undefined) {
-        let selected = root.querySelectorAll('[data-compare-record]:checked');
-        if (selected.length > 3) {
-          el.checked = false;
-          selected = root.querySelectorAll('[data-compare-record]:checked');
-        }
-        const control = root.querySelector('[data-do="compare-records"]');
-        if (control) control.disabled = selected.length < 2;
-        if ($('#compare-status')) $('#compare-status').textContent = `${selected.length} selected.`;
-      } else if (el.dataset.wheel !== undefined && active === 'gate') {
+      else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
         next[i] = Number(el.value);
@@ -790,8 +788,10 @@ export async function mount({ root, preferences = null, practice = null }) {
         mutate((n) => {
           n.preferences[key] = el.checked;
         });
-      } else if (el.id === 'i') {
-        m = el.checked;
+      } else if (el.id === 'show-inspectables') {
+        inspectablesVisible = el.checked;
+      } else if (el.id === 'map-zoom') {
+        redraw();
       } else if (el.id === 'filter') {
         filter = el.value;
         render();

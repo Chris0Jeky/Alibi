@@ -55,9 +55,14 @@ export of that exact session. Initiating or cancelling a download does not ackno
 Further edits invalidate the acknowledgement. Confirmation never makes protected storage writable.
 
 The map uses the supplied 1200×760 estate illustration and matching numbered positions. Both
-era layers keep that geometry; the small-screen map can pan horizontally, with named entrances
-below. A secret route appears only after its deduction. The ten room illustrations use their
-own 1000×660 coordinates. Inspecting a locked nearby door preserves the current room.
+era layers keep that geometry. A native range exposes 100–175% zoom in 25% steps; Reset returns
+to 100%. Enlargement stays inside the labelled map scroller, retains its horizontal centre where
+possible, and survives numbered-room selection plus Today/1911 rerenders. Keyboard focus returns
+to the zoom control or the room/era control that triggered the rerender. Named entrances and the
+selected-room panel remain available at every level. The reconciled implementation still fits the
+unchanged 96 KiB Castle source-bundle limit. A secret route appears only after its deduction. The
+ten room illustrations use their own 1000×660 coordinates. Inspecting a locked nearby door preserves
+the current room. Floor/wing-specific views and the wider atlas remain navigation work under #45.
 
 The supplied 18-second silent film has native playback controls, captions and a complete text
 alternative. It never autoplays or downloads with the activity. Closing or leaving releases its
@@ -79,9 +84,9 @@ future records, revision races and exact export acknowledgement with determinist
 `python tests/browser_castle_investigation.py` checks hypotheses, citations, source-ordered
 collected evidence, room-return links, bounded comparison and the three label revisions on a
 validated synthetic save at phone and desktop widths. `python tests/browser_castle_exploration.py`
-checks both screen sizes, pin geometry, hotspots, locked exits, deliberate film playback/caption
-loading, source release and actual offline scene decoding. Reports distinguish fixtures from
-playthroughs.
+checks both screen sizes, pin geometry, keyboard zoom and focus, map-local panning, selected-room
+retention, hotspots, locked exits, deliberate film playback/caption loading, source release and
+actual offline scene decoding. Reports distinguish fixtures from playthroughs.
 
 PR #73 passes the full repository and castle CI gates. Both actual hosts pass all five castle suites and 92 origin checks; the actual saved-game release update passes on each. Keep #2, #11, #13 and #56 open for physical Android, TalkBack and human acceptance. The release does not close those gates.
 
