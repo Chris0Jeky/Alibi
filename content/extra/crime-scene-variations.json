@@ -14,7 +14,7 @@
       "story": "Rowan Pike was found dead after the East Gallery closed for a storm inspection. The five positions on this plan record the final round through the building, and every listed statement is reliable. Reconstruct the positions. Under this case's established rule, the only suspect who shared Rowan's room was responsible.",
       "difficulty": "Master",
       "difficultyStatus": "provisional",
-      "difficultyEvidence": "Three room exclusions identify who cannot share the archive hall; furniture adjacency and vertical order then force every position.",
+      "difficultyEvidence": "Three room exclusions identify who cannot share the archive hall; furniture adjacency and a horizontal left-of constraint then force every position.",
       "size": 5,
       "roomNames": [
         "entrance gallery",

@@ -48,10 +48,13 @@ any distracting voices, repetition or harshness. This acceptance remains open un
 - [ ] q-8 — Play the September additions on the affected phone: repeated scene tap cycles and
   hold menus, 15×15 Nonogram panning/auto-cross, the eight-chapter invitation, and all six offered
   Games Room tables. Sample the fifteen provisional Expert puzzles across all thirteen families;
-  report any easy, guess-heavy or confusing entry before treating Expert as calibrated. The
-  region game uses one lantern per row/column/region with no touching. Dominoes and Mahjong are
-  now legacy compatibility routes, not part of this discovery or difficulty sample. Confirm
-  whether the offered-game interpretations match the player's intention.
+  report any easy, guess-heavy or confusing entry before treating Expert as calibrated. Separately
+  sample the six provisional Master/Grandmaster Crime Scene variations; verify that the named
+  room/furniture cues match the playable clues and report any easy, guess-heavy or confusing solve
+  before treating either advanced label as calibrated. The region game uses one lantern per
+  row/column/region with no touching. Dominoes and Mahjong are now legacy compatibility routes,
+  not part of this discovery or difficulty sample. Confirm whether the offered-game interpretations
+  match the player's intention.
 
 ## Capacitor transition: owner gates, not a request to stop planning
 
