@@ -777,7 +777,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     'change',
     (event) => {
       const el = event.target;
-      if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
+      if (root.querySelectorAll('[data-compare-record]:checked').length > 3) {
+        el.checked = false;
+        announce('Max 3 records.');
+      } else if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
       else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
