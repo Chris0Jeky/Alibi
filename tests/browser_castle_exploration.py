@@ -96,7 +96,7 @@ def run():
                 text_control.focus()
                 text_control.press('Enter')
                 expect(page.locator('#castle-dialog')).to_contain_text('pencilled correction')
-                expect(page.locator('#castle-dialog')).to_contain_text('No close-up artwork is available')
+                expect(page.locator('#castle-dialog')).to_contain_text('No close-up artwork.')
                 page.keyboard.press('Escape')
                 expect(text_control).to_be_focused()
                 toggle.uncheck()
