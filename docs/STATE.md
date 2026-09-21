@@ -21,6 +21,14 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Castle map viewport candidate, 2026-09-21 (not deployed)
+
+PR #206 now preserves the Castle map viewport when selecting a numbered room or switching between
+the present-day and 1911 eras, alongside the existing zoom preservation. Focused local Chromium
+coverage pans away from the left edge at 390/1280px, exercises both controls, and retains the
+selected-room panel and keyboard focus. This is source/local browser evidence only; hosted checks,
+physical-device interaction/TalkBack and human acceptance remain pending in `HUMAN_TODO.md`.
+
 ## Android bundled payload candidate, 2026-09-21
 
 At PR #180 implementation heads `ac11d4371f75` and merge-base integration `2ecf801d0c12`, the
@@ -45,6 +53,7 @@ installation and relaunch, process/lifecycle and backup transfer, signing and st
 and TalkBack/large-text acceptance remain open in `HUMAN_TODO.md` (q-2, q-3, q-4 and the related
 Capacitor gates). No APK/AAB, credentials, signing material, secrets or generated
 `dist`/`dist-android` output is tracked.
+
 ## PR #198 round-2 Sudoku budget candidate, 2026-09-21
 
 The source candidate at implementation head `d227475` keeps Sudoku placement pruning limited to row, column and box peer notes;
