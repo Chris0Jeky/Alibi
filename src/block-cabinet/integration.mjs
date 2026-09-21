@@ -37,6 +37,10 @@ export function startIntegration() {
       parkedHost.style.cssText = cssText;
     };
   };
+  const reattachHost = () => {
+    const target = document.querySelector('.block-panel');
+    if (target && host && host.parentElement !== target) target.append(host);
+  };
   const action = async (name, data = {}) => {
     const restoreParkedHost = parkHost();
     busy++;
@@ -45,8 +49,9 @@ export function startIntegration() {
       await club().flush();
     } finally {
       busy--;
-      attach();
       restoreParkedHost();
+      if (busy) reattachHost();
+      else attach();
     }
   };
   function closeLab() {
