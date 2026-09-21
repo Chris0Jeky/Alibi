@@ -8,6 +8,7 @@ import {
   verifyReference,
 } from '../src/block-cabinet/calibration.mjs';
 
+// Deliberately tiny: unresolved means the bound ended, never that the seed is impossible.
 const tinyBudget = Object.freeze({ maxNodes: 3, beamWidth: 2, branchWidth: 2 });
 
 test('calibration keys separate every future-relevant Cascade value', () => {
