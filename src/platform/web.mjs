@@ -190,8 +190,9 @@ function createDocuments(host) {
       )
         return failure('invalid', 'The document byte limit is invalid.');
       return runBounded(
-        async () => {
+        async (operation) => {
           const file = await handles.get(token).getFile();
+          operation.throwIfCancelled();
           if (
             !file ||
             typeof file.text !== 'function' ||
@@ -269,13 +270,25 @@ function createDocuments(host) {
           const bytes = utf8Bytes(request.utf8Payload);
           let verifiedReadback = false;
           if (typeof handle.getFile === 'function') {
-            const file = await handle.getFile();
-            if (file && typeof file.text === 'function' && file.size === bytes) {
-              const readback = await file.text();
-              verifiedReadback =
-                typeof readback === 'string' &&
-                (await sha256(host, readback)) === request.digest.toLowerCase();
-            }
+            const readback = await runBounded(
+              async (readbackOperation) => {
+                const file = await handle.getFile();
+                readbackOperation.throwIfCancelled();
+                if (file && typeof file.text === 'function' && file.size === bytes) {
+                  const value = await file.text();
+                  readbackOperation.throwIfCancelled();
+                  return (
+                    typeof value === 'string' &&
+                    (await sha256(host, value)) === request.digest.toLowerCase()
+                  );
+                }
+                return false;
+              },
+              options,
+              host,
+              { message: 'The backup readback could not be verified.' },
+            );
+            verifiedReadback = readback.ok && readback.value === true;
           }
           return { verifiedReadback, bytes };
         },

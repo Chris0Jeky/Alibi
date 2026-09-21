@@ -156,6 +156,38 @@ test('document handles stay opaque, bounded and invalid after release', async ()
   assert.equal((await documents.readLimited(selected.value, 1024, operation())).code, 'invalid');
 });
 
+test('a late document read does not start text after its deadline', async () => {
+  const payload = JSON.stringify({ cabinet: 1 });
+  let resolveFile;
+  let textCalls = 0;
+  const handle = {
+    getFile() {
+      return new Promise((resolve) => {
+        resolveFile = resolve;
+      });
+    },
+  };
+  const host = hostFixture({ showOpenFilePicker: async () => [handle] });
+  const documents = createWebPlatform({ host, build: BUILD }).documents;
+  const selected = await documents.pickBackup(operation());
+  const pending = documents.readLimited(
+    selected.value,
+    1024,
+    operation({ operationId: 'late-read', timeoutMs: 5 }),
+  );
+  await waitUntil(() => typeof resolveFile === 'function', 'late document read');
+  assert.equal((await pending).code, 'timeout');
+  resolveFile({
+    size: Buffer.byteLength(payload),
+    text: async () => {
+      textCalls++;
+      return payload;
+    },
+  });
+  await turn();
+  assert.equal(textCalls, 0);
+});
+
 test('picker cancellation, denial, malformed responses and timeout stay distinct', async () => {
   const cancelled = createWebPlatform({
     host: hostFixture({
@@ -284,6 +316,40 @@ test('a provider write is no longer reported cancelled after bytes can change', 
     value: { verifiedReadback: true, bytes: Buffer.byteLength(payload) },
   });
   assert.deepEqual(writes, [payload]);
+});
+
+test('a committed backup bounds optional readback and reports unverified on timeout', async () => {
+  const payload = '{"club":true}';
+  const digest = createHash('sha256').update(payload).digest('hex');
+  let closed = 0;
+  let readbackStarted = false;
+  const host = hostFixture({
+    showSaveFilePicker: async () => ({
+      async createWritable() {
+        return {
+          async write() {},
+          async close() {
+            closed++;
+          },
+          async abort() {},
+        };
+      },
+      getFile() {
+        readbackStarted = true;
+        return new Promise(() => {});
+      },
+    }),
+  });
+  const result = await createWebPlatform({ host, build: BUILD }).documents.writeBackup(
+    { suggestedName: 'alibi-backup.json', utf8Payload: payload, digest },
+    operation({ operationId: 'readback-timeout', timeoutMs: 5 }),
+  );
+  assert.deepEqual(result, {
+    ok: true,
+    value: { verifiedReadback: false, bytes: Buffer.byteLength(payload) },
+  });
+  assert.equal(closed, 1);
+  assert.equal(readbackStarted, true);
 });
 
 test('save writes close the provider stream and report only verified bytes', async () => {
