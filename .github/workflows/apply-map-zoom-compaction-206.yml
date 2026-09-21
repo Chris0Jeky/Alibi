@@ -72,11 +72,11 @@ jobs:
           start = text.index('  function captureMapViewport() {')
           end = text.index('  async function action(event) {', start)
           text = text[:start] + '''  function redraw(s) {
-            let map = $('.map-scroll');
-            const x = (map.scrollLeft + map.clientWidth / 2) / map.scrollWidth;
+            let m = $('.map-scroll');
+            const x = (m.scrollLeft + m.clientWidth / 2) / m.scrollWidth;
             render();
-            map = $('.map-scroll');
-            map.scrollLeft = x * map.scrollWidth - map.clientWidth / 2;
+            m = $('.map-scroll');
+            m.scrollLeft = x * m.scrollWidth - m.clientWidth / 2;
             $(s).focus({ preventScroll: true });
           }
           '''.replace('          ', '') + text[end:]
