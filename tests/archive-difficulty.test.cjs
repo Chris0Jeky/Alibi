@@ -48,11 +48,7 @@ function isStaticDeadCorner(cell, board) {
   const row = Math.floor(cell / board.width);
   const column = cell % board.width;
   const wall = (r, c) =>
-    r < 0 ||
-    r >= board.height ||
-    c < 0 ||
-    c >= board.width ||
-    board.walls.has(r * board.width + c);
+    r < 0 || r >= board.height || c < 0 || c >= board.width || board.walls.has(r * board.width + c);
   return (
     (wall(row - 1, column) && wall(row, column - 1)) ||
     (wall(row - 1, column) && wall(row, column + 1)) ||
@@ -67,12 +63,7 @@ function move(board, state, direction) {
   const column = state.player % board.width;
   const nextRow = row + dr;
   const nextColumn = column + dc;
-  if (
-    nextRow < 0 ||
-    nextRow >= board.height ||
-    nextColumn < 0 ||
-    nextColumn >= board.width
-  )
+  if (nextRow < 0 || nextRow >= board.height || nextColumn < 0 || nextColumn >= board.width)
     return null;
 
   const next = nextRow * board.width + nextColumn;
