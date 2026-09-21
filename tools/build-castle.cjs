@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const vm = require('node:vm');
 
 const ROOM_IDS = [
   'cartography',
@@ -43,7 +44,20 @@ function hideUnresolvedRoute(bytes, id) {
   return Buffer.from(safe);
 }
 
+function validateAuthoring(root) {
+  const source = require('esbuild').buildSync({
+    entryPoints: [path.join(root, 'src/castle/authoring-validation-entry.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'iife',
+    target: 'es2022',
+    write: false,
+  }).outputFiles[0].text;
+  vm.runInNewContext(source, {}, { filename: 'castle-validation.js' });
+}
+
 module.exports = function buildCastle(root, dist) {
+  validateAuthoring(root);
   const source = require('esbuild').buildSync({
     entryPoints: [path.join(root, 'src/castle/entry.mjs')],
     bundle: true,

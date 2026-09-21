@@ -46,7 +46,8 @@ export async function mount({ root, preferences = null, practice = null }) {
     selected = 'gatehouse',
     era = 'today',
     search = '',
-    filter = 'all';
+    filter = 'all',
+    inspectablesVisible = true;
   let active = null,
     answer,
     history = [],
@@ -122,7 +123,17 @@ export async function mount({ root, preferences = null, practice = null }) {
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }
-  const pages = () => createPages({ state, view, selected, era, search, filter, practiceSnapshot });
+  const pages = () =>
+    createPages({
+      state,
+      view,
+      selected,
+      era,
+      search,
+      filter,
+      practiceSnapshot,
+      inspectablesVisible,
+    });
   const roomCard = (r) => pages().roomCard(r);
   function render() {
     if (disposed) return;
@@ -771,6 +782,8 @@ export async function mount({ root, preferences = null, practice = null }) {
         mutate((n) => {
           n.preferences[key] = el.checked;
         });
+      } else if (el.id === 'show-inspectables') {
+        inspectablesVisible = el.checked;
       } else if (el.id === 'filter') {
         filter = el.value;
         render();

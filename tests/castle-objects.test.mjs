@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  authoredObjects,
   roomObjects,
   inspectObject,
   appendObservation,
@@ -28,7 +29,12 @@ test('Inspectable objects expose one strict, immutable data contract', () => {
   assert.equal(Object.isFrozen(object.actions), true);
 });
 
-test('Inspectable object validation rejects active markup, remote art and unknown fields', () => {
+test('The authored collection passes the strict validator', () => {
+  assert.equal(authoredObjects.length, 9);
+  assert.doesNotThrow(() => authoredObjects.map(validateInspectableObject));
+});
+
+test('Inspectable object validation rejects active markup, detail art and unknown fields', () => {
   const valid = {
     schema: 1,
     id: 'library-pencil',
@@ -50,7 +56,15 @@ test('Inspectable object validation rejects active markup, remote art and unknow
         ...valid,
         detailAsset: { src: 'https://example.invalid/detail.webp', alt: 'Remote detail' },
       }),
-    /local asset/i,
+    /release manifest/i,
+  );
+  assert.throws(
+    () =>
+      validateInspectableObject({
+        ...valid,
+        detailAsset: { src: './assets/detail.webp', alt: 'Local detail' },
+      }),
+    /release manifest/i,
   );
   assert.throws(() => validateInspectableObject({ ...valid, onclick: 'bad()' }), /unknown field/i);
   assert.throws(

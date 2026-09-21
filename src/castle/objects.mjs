@@ -12,7 +12,6 @@ const ROOM_OPEN = Object.freeze({ kind: 'room-open' });
 const INSPECT = Object.freeze(['inspect']);
 const NOTE = Object.freeze(['inspect', 'note']);
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const LOCAL_ASSET = /^\.\/assets\/[a-zA-Z0-9][a-zA-Z0-9._/-]*$/;
 const ACTIVE_TEXT = /[<>\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 function exactFields(value, fields, label) {
@@ -51,14 +50,9 @@ function inspectActions(value) {
 }
 
 function detailAsset(value) {
-  if (value === null) return null;
-  exactFields(value, ['src', 'alt'], 'Inspectable detail asset');
-  if (typeof value.src !== 'string' || value.src.includes('..') || !LOCAL_ASSET.test(value.src))
-    throw Error('Inspectable detail artwork must name a local asset under ./assets/.');
-  return Object.freeze({
-    src: value.src,
-    alt: boundedText(value.alt, 'Inspectable detail asset alt text', 240),
-  });
+  if (value !== null)
+    throw Error('Inspectable detail artwork is not supported by the Castle release manifest.');
+  return null;
 }
 
 // Exported for authoring/build verification. The Castle runtime imports only the
@@ -85,7 +79,7 @@ export function validateInspectableObject(value) {
   });
 }
 
-const objects = Object.freeze(
+export const authoredObjects = Object.freeze(
   [
     [
       'gate-hinge',
@@ -156,11 +150,11 @@ const objects = Object.freeze(
 );
 
 export function roomObjects(id) {
-  return objects.filter((object) => object.room === id);
+  return authoredObjects.filter((object) => object.room === id);
 }
 
 export function inspectObject(id, room) {
-  return objects.find((object) => object.id === id && object.room === room);
+  return authoredObjects.find((object) => object.id === id && object.room === room);
 }
 
 export function appendObservation(notes, object) {
