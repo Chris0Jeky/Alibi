@@ -42,11 +42,11 @@ def run():
                 expect(zoom_status).to_have_text('100%')
                 map_scroll=page.locator('.map-scroll')
                 initial_width=page.locator('.map-stage').bounding_box()['width']
-                zoom_in=page.locator('[data-do="map-zoom"][data-value="in"]')
-                zoom_in.focus()
-                zoom_in.press('Enter')
+                zoom_control=page.get_by_label('Map zoom')
+                zoom_control.focus()
+                zoom_control.press('ArrowRight')
                 expect(zoom_status).to_have_text('125%')
-                expect(zoom_in).to_be_focused()
+                expect(zoom_control).to_be_focused()
                 zoomed_width=page.locator('.map-stage').bounding_box()['width']
                 assert zoomed_width>initial_width*1.2
                 local_overflow=map_scroll.evaluate('(e)=>({client:e.clientWidth,scroll:e.scrollWidth})')
@@ -65,9 +65,9 @@ def run():
                 assert map_scroll.evaluate('(e)=>e.scrollLeft')==panned_left
                 expect(page.locator('.rail h2')).to_have_text('The Glass Orangery')
                 report['checks'].append(f'{width}: panning survives pin selection and era switching with room selection and focus intact')
-                page.locator('[data-do="map-zoom"][data-value="reset"]').click()
+                page.locator('[data-do="map-reset"]').click()
                 expect(zoom_status).to_have_text('100%')
-                expect(zoom_in).to_be_focused()
+                expect(zoom_control).to_be_focused()
                 reset_width=page.locator('.map-stage').bounding_box()['width']
                 assert abs(reset_width-initial_width)<1
                 assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')

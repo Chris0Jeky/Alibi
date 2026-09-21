@@ -45,7 +45,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     view = 'map',
     selected = 'gatehouse',
     era = 'today',
-    mapZoom = 1,
+    mapZoom = 4,
     search = '',
     filter = 'all',
     inspectablesVisible = true;
@@ -561,7 +561,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
     const detail = object.detailAsset
       ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
-      : '<p class="small object-detail-fallback">No close-up artwork is available for this object. Its complete description is below.</p>';
+      : '<p class="small object-detail-fallback">No close-up artwork.</p>';
     const noteAction = object.actions.includes('note')
       ? button('Keep a note', 'keep-observation', id)
       : '';
@@ -630,45 +630,13 @@ export async function mount({ root, preferences = null, practice = null }) {
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
   }
-  function captureMapViewport() {
-    const scroller = $('.map-scroll');
-    if (!scroller) return null;
-    return {
-      x: (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth,
-      y: (scroller.scrollTop + scroller.clientHeight / 2) / scroller.scrollHeight,
-    };
-  }
-  function restoreMapViewport(viewport) {
-    const scroller = $('.map-scroll');
-    if (!scroller || !viewport) return;
-    scroller.scrollLeft = Math.max(0, viewport.x * scroller.scrollWidth - scroller.clientWidth / 2);
-    scroller.scrollTop = Math.max(
-      0,
-      viewport.y * scroller.scrollHeight - scroller.clientHeight / 2,
-    );
-  }
-  function zoomMap(direction) {
-    const viewport = captureMapViewport(),
-      next =
-        direction === 'in'
-          ? Math.min(1.75, mapZoom + 0.25)
-          : direction === 'out'
-            ? Math.max(1, mapZoom - 0.25)
-            : 1;
-    if (next === mapZoom) return;
-    mapZoom = next;
+  function redraw(s) {
+    let m = $('.map-scroll');
+    const x = (m.scrollLeft + m.clientWidth / 2) / m.scrollWidth;
     render();
-    restoreMapViewport(viewport);
-    const focus =
-      direction === 'reset' || (direction === 'out' && mapZoom === 1)
-        ? 'in'
-        : direction === 'in' && mapZoom === 1.75
-          ? 'out'
-          : direction;
-    root
-      .querySelector(`[data-do="map-zoom"][data-value="${focus}"]`)
-      ?.focus({ preventScroll: true });
-    announce(`Estate map zoom ${Math.round(mapZoom * 100)} percent.`);
+    m = $('.map-scroll');
+    m.scrollLeft = x * m.scrollWidth - m.clientWidth / 2;
+    $(s).focus({ preventScroll: true });
   }
   async function action(event) {
     const target = event.target.closest?.('[data-do]');
@@ -714,22 +682,14 @@ export async function mount({ root, preferences = null, practice = null }) {
               quietLinks(),
       );
     else if (name === 'visit') visit(value);
-    else if (name === 'select') {
-      const viewport = captureMapViewport();
-      selected = value;
-      render();
-      restoreMapViewport(viewport);
-      for (const el of root.querySelectorAll('[data-do="select"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
-    } else if (name === 'era') {
-      const viewport = captureMapViewport();
-      era = value;
-      render();
-      restoreMapViewport(viewport);
-      for (const el of root.querySelectorAll('[data-do="era"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
-    } else if (name === 'map-zoom') zoomMap(value);
-    else if (name === 'object') inspect(value);
+    else if (name === 'select' || name === 'era') {
+      if (name === 'select') selected = value;
+      else era = value;
+      redraw(`[data-do="${name}"][data-value="${value}"]`);
+    } else if (name === 'map-reset') {
+      mapZoom = 4;
+      redraw('#map-zoom');
+    } else if (name === 'object') inspect(value);
     else if (name === 'room-puzzle') {
       if (value === 'rest') rest();
       else if (value === 'reveal') resolution();
@@ -806,6 +766,9 @@ export async function mount({ root, preferences = null, practice = null }) {
         );
         $('#room-results').innerHTML = matches.map(roomCard).join('');
         $('#results-count').textContent = `${matches.length} rooms`;
+      } else if (el.id === 'map-zoom') {
+        mapZoom = +el.value;
+        redraw('#map-zoom');
       } else if (el.id === 'clock-answer' && active === 'clock') {
         answer = el.value;
         persist();
