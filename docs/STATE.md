@@ -60,6 +60,40 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Android bundled payload candidate, 2026-09-21
+
+At PR #180 implementation heads `ac11d4371f75` and merge-base integration `2ecf801d0c12`, the
+round-2 repair rebuilt the shared web graph and derived the Android-only payload without changing
+the copied application configuration: it retains `standalone: false`, while the injected
+`ALIBI_BUILD_TARGET='android'` marker suppresses the service-worker/update and browser-install
+paths. Quiet Wing and theatre assets remain in the payload. The Android build now refuses any
+dirty non-ignored worktree input before stamping `sourceSha`, including embedded application
+sources; a regression fixture covers a modified `src/app.js`.
+
+`npm.cmd run verify` passed 337 Node tests and 581,847 assertions. `npm.cmd run check:android`
+passed with deterministic source/content provenance checks, and the focused local-origin
+Chromium payload check passed 17/17 assertions, including visible offline readiness, no
+service-worker registration, local Wrenmere assets, retained Quiet Wing/theatre content and no
+remote network. The clean build measured web build `2e67770f6cc9`, initial JavaScript
+`126835` gzip bytes, content manifest revision
+`9fb7e17fc949b098de2ad30b85abbc83092c279da5cc47fe46f0dd9d64b6fb14`, and payload SHA-256
+`643cf81c1afcf594fe0b8aa604ae550a462e22a604a5d0ac271ef5f0c1d459e5`.
+
+This is build/check/simulated-browser evidence only. Native Android/WebView, physical-device
+installation and relaunch, process/lifecycle and backup transfer, signing and store publication,
+and TalkBack/large-text acceptance remain open in `HUMAN_TODO.md` (q-2, q-3, q-4 and the related
+Capacitor gates). No APK/AAB, credentials, signing material, secrets or generated
+`dist`/`dist-android` output is tracked.
+## PR #198 round-2 Sudoku budget candidate, 2026-09-21
+
+The source candidate at implementation head `d227475` keeps Sudoku placement pruning limited to row, column and box peer notes;
+pencil entries and Futoshiki notes remain unchanged. It removes redundant peer deduplication work
+and reuses bounded row, column and box-group construction. The local build reports
+`javascriptGzipBytes=126816`,
+strictly below the 128000-byte initial-JavaScript contract, and the focused Sudoku/budget tests
+pass. No puzzle IDs, save formats or deployed origins change. Hosted CI, physical-device,
+TalkBack and human difficulty/comfort acceptance remain separate and unverified here.
+
 ## Games Room retirement candidate, 2026-09-21 (PR #199)
 
 The Games Room now offers six games: Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe,
