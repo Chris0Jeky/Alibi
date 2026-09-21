@@ -16,7 +16,6 @@ export default `
 .inspectable-toggle{width:24px;height:24px;min-height:24px;padding:0;margin:12px 8px 12px 20px;vertical-align:middle;accent-color:#d3b477}
 .inspectable-toggle-label{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:#eee5cf}
 .inspectable-toggle:not(:checked)~.room-stage .hotspot.observation{display:none}
-.object-detail{margin:0 0 16px}.object-detail img{display:block;max-width:100%;max-height:50dvh;object-fit:contain;border:1px solid #667265;border-radius:8px}
 .method{border-top:1px solid #536357;padding-top:16px;font:italic 19px/1.6 Georgia,serif;color:#e0c89c}
 .thread-guide{margin-bottom:30px;padding:22px;border-left:3px solid #d3b477;background:#29453e}.thread-guide p{margin:8px 0 14px;max-width:68ch}
 .castle-objects{padding:20px 28px;border-top:1px solid #667265;display:flex;gap:14px;align-items:center;flex-wrap:wrap}.castle-objects p{margin:0}.castle-objects small{display:block}
