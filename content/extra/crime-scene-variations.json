@@ -1,0 +1,868 @@
+{
+  "schemaVersion": 1,
+  "id": "alibi-crime-scene-variations",
+  "version": 1,
+  "title": "Alibi · Crime Scene Variations",
+  "author": "Alibi",
+  "puzzles": [
+    {
+      "id": "variation-scene-01",
+      "revision": 1,
+      "type": "scene",
+      "title": "The divided gallery",
+      "subtitle": "The East Gallery",
+      "story": "Rowan Pike was found dead after the East Gallery closed for a storm inspection. The five positions on this plan record the final round through the building, and every listed statement is reliable. Reconstruct the positions. Under this case's established rule, the only suspect who shared Rowan's room was responsible.",
+      "difficulty": "Master",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Three room exclusions identify who cannot share the archive hall; furniture adjacency and vertical order then force every position.",
+      "size": 5,
+      "roomNames": [
+        "entrance gallery",
+        "portrait gallery",
+        "conservation bay",
+        "archive hall",
+        "west stair"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        2,
+        2,
+        1,
+        1,
+        0,
+        2,
+        3,
+        3,
+        1,
+        4,
+        2,
+        3,
+        3,
+        3,
+        4,
+        4,
+        4,
+        3,
+        3
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Mira Vale",
+          "role": "The frame conservator",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Tomas Reed",
+          "role": "The porter",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Ivo March",
+          "role": "The cataloguer",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Selene Ward",
+          "role": "The visiting donor",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Rowan Pike",
+          "role": "The curator",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 5,
+          "kind": "shelf",
+          "name": "rolled canvas rack"
+        },
+        {
+          "cell": 9,
+          "kind": "lamp",
+          "name": "inspection lamp"
+        },
+        {
+          "cell": 11,
+          "kind": "table",
+          "name": "marble work table"
+        },
+        {
+          "cell": 22,
+          "kind": "plant",
+          "name": "bay tree"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "differentRoom",
+          "who": "person-1",
+          "other": "victim"
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-4",
+          "other": "victim"
+        },
+        {
+          "kind": "differentRoom",
+          "who": "person-2",
+          "other": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-3",
+          "value": 22
+        },
+        {
+          "kind": "room",
+          "who": "person-2",
+          "value": 0
+        },
+        {
+          "kind": "left",
+          "who": "victim",
+          "other": "person-4"
+        },
+        {
+          "kind": "edge",
+          "who": "victim"
+        },
+        {
+          "kind": "near",
+          "who": "person-2",
+          "value": 11
+        }
+      ],
+      "solution": {
+        "person-1": 6,
+        "person-2": 10,
+        "person-3": 17,
+        "person-4": 4,
+        "victim": 23
+      }
+    },
+    {
+      "id": "variation-scene-02",
+      "revision": 1,
+      "type": "scene",
+      "title": "The rain ledger",
+      "subtitle": "The River Customs House",
+      "story": "Elias North was found dead while floodwater cut the River Customs House off from the quay. The surviving ledger fixes five positions but never names the person in Elias's room. Every statement below is reliable. Reconstruct the plan, then identify the sole suspect who shared the customs master's room.",
+      "difficulty": "Grandmaster",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Only indirect furniture, edge and room exclusions are supplied; six irregular rooms and Latin-position constraints carry the deduction.",
+      "size": 5,
+      "roomNames": [
+        "public counter",
+        "bonded store",
+        "map office",
+        "watch room",
+        "stair hall",
+        "quay room"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        2,
+        2,
+        2,
+        1,
+        3,
+        3,
+        2,
+        4,
+        1,
+        3,
+        5,
+        5,
+        4,
+        4,
+        3,
+        3,
+        5,
+        5,
+        4
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Nessa Cole",
+          "role": "The manifest clerk",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Arun Bell",
+          "role": "The quay inspector",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Mirelle Fox",
+          "role": "The broker",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Jonah Crane",
+          "role": "The night watch",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Elias North",
+          "role": "The customs master",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 1,
+          "kind": "lamp",
+          "name": "green signal lamp"
+        },
+        {
+          "cell": 2,
+          "kind": "shelf",
+          "name": "tariff shelf"
+        },
+        {
+          "cell": 6,
+          "kind": "table",
+          "name": "manifest desk"
+        },
+        {
+          "cell": 19,
+          "kind": "piano",
+          "name": "weighing cabinet"
+        },
+        {
+          "cell": 20,
+          "kind": "plant",
+          "name": "quayside planter"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "near",
+          "who": "person-1",
+          "value": 2
+        },
+        {
+          "kind": "near",
+          "who": "victim",
+          "value": 20
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-4"
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-1",
+          "value": 1
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 5
+        }
+      ],
+      "solution": {
+        "person-1": 7,
+        "person-2": 4,
+        "person-3": 23,
+        "person-4": 11,
+        "victim": 15
+      }
+    },
+    {
+      "id": "variation-scene-03",
+      "revision": 1,
+      "type": "scene",
+      "title": "The missing lens",
+      "subtitle": "The Hill Observatory Annex",
+      "story": "Orin Hale was found dead during a failed telescope test at the Hill Observatory Annex. The witness notes record only relative positions, not room numbers or coordinates. They are all reliable. Reconstruct the five placements and identify the suspect who alone shared Orin's room.",
+      "difficulty": "Grandmaster",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Five relative-order statements form an interlocking row/column lattice; only one non-edge restriction breaks its final symmetry.",
+      "size": 5,
+      "roomNames": [
+        "entry dome",
+        "instrument bay",
+        "lens room",
+        "calculation room",
+        "clock stair",
+        "roof archive"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        2,
+        2,
+        3,
+        1,
+        0,
+        2,
+        4,
+        3,
+        3,
+        5,
+        2,
+        4,
+        4,
+        3,
+        5,
+        5,
+        5,
+        4,
+        3
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Elara Finch",
+          "role": "The lens maker",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Cato Wynn",
+          "role": "The night assistant",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Neve Orr",
+          "role": "The meteorologist",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Bram Saye",
+          "role": "The mechanic",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Orin Hale",
+          "role": "The director",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 6,
+          "kind": "lamp",
+          "name": "red darkroom lamp"
+        },
+        {
+          "cell": 7,
+          "kind": "table",
+          "name": "optics bench"
+        },
+        {
+          "cell": 17,
+          "kind": "shelf",
+          "name": "ephemeris cabinet"
+        },
+        {
+          "cell": 23,
+          "kind": "plant",
+          "name": "roof fern"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "person-4"
+        },
+        {
+          "kind": "left",
+          "who": "victim",
+          "other": "person-3"
+        },
+        {
+          "kind": "left",
+          "who": "person-4",
+          "other": "victim"
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-4"
+        },
+        {
+          "kind": "above",
+          "who": "person-4",
+          "other": "person-1"
+        },
+        {
+          "kind": "notEdge",
+          "who": "person-1"
+        }
+      ],
+      "solution": {
+        "person-1": 16,
+        "person-2": 0,
+        "person-3": 24,
+        "person-4": 12,
+        "victim": 8
+      }
+    },
+    {
+      "id": "variation-scene-04",
+      "revision": 1,
+      "type": "scene",
+      "title": "The sealed dispatch",
+      "subtitle": "The Night Telegraph Office",
+      "story": "Mara Quill was found dead after a sealed dispatch vanished from the Night Telegraph Office. Four coordinate entries survived on the duty board, alongside two indirect observations. Every clue is reliable. Restore the positions and identify the only suspect who shared Mara's room.",
+      "difficulty": "Master",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Two row and two column anchors deliberately shift the reasoning toward cross-coordinate elimination before one furniture and room exclusion finish the case.",
+      "size": 5,
+      "roomNames": [
+        "front office",
+        "relay room",
+        "wire bay",
+        "cipher room",
+        "battery room",
+        "dispatch stair"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        0,
+        1,
+        3,
+        2,
+        4,
+        4,
+        3,
+        3,
+        2,
+        4,
+        5,
+        5,
+        3,
+        4,
+        4,
+        5,
+        5,
+        5
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Lyra Voss",
+          "role": "The cipher clerk",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Niko Fen",
+          "role": "The courier",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Priya Moss",
+          "role": "The wire operator",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Galen Rook",
+          "role": "The engineer",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Mara Quill",
+          "role": "The superintendent",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 11,
+          "kind": "shelf",
+          "name": "message pigeonholes"
+        },
+        {
+          "cell": 15,
+          "kind": "table",
+          "name": "relay desk"
+        },
+        {
+          "cell": 17,
+          "kind": "lamp",
+          "name": "battery lamp"
+        },
+        {
+          "cell": 22,
+          "kind": "piano",
+          "name": "ticker cabinet"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "row",
+          "who": "victim",
+          "value": 0
+        },
+        {
+          "kind": "row",
+          "who": "person-1",
+          "value": 4
+        },
+        {
+          "kind": "col",
+          "who": "person-3",
+          "value": 3
+        },
+        {
+          "kind": "col",
+          "who": "person-2",
+          "value": 4
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-3",
+          "value": 5
+        },
+        {
+          "kind": "near",
+          "who": "person-1",
+          "value": 15
+        }
+      ],
+      "solution": {
+        "person-1": 20,
+        "person-2": 19,
+        "person-3": 13,
+        "person-4": 7,
+        "victim": 1
+      }
+    },
+    {
+      "id": "variation-scene-05",
+      "revision": 1,
+      "type": "scene",
+      "title": "The conservatory key",
+      "subtitle": "The Glasshouse Service Wing",
+      "story": "Iris Bell was found dead after the conservatory key disappeared during an overnight frost. The service plan records several people only as edge positions or room memberships. Every statement is reliable. Reconstruct the route through the wing and identify the suspect who shared Iris's room.",
+      "difficulty": "Master",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Three edge placements interact with two precise room facts and one room exclusion; a single above relation resolves the edge permutations.",
+      "size": 5,
+      "roomNames": [
+        "potting passage",
+        "fern house",
+        "heated gallery",
+        "service court",
+        "seed room",
+        "west porch"
+      ],
+      "rooms": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        0,
+        3,
+        3,
+        1,
+        2,
+        0,
+        3,
+        4,
+        4,
+        2,
+        5,
+        3,
+        4,
+        2,
+        2,
+        5,
+        5,
+        4,
+        4,
+        2
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Anya Wren",
+          "role": "The horticulturist",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Felix Dorn",
+          "role": "The caretaker",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Suri Lane",
+          "role": "The botanist",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Theo Marr",
+          "role": "The glazier",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "Iris Bell",
+          "role": "The head gardener",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 15,
+          "kind": "table",
+          "name": "potting bench"
+        },
+        {
+          "cell": 17,
+          "kind": "shelf",
+          "name": "seed drawers"
+        },
+        {
+          "cell": 20,
+          "kind": "plant",
+          "name": "citrus tub"
+        },
+        {
+          "cell": 23,
+          "kind": "lamp",
+          "name": "propagation lamp"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "edge",
+          "who": "person-1"
+        },
+        {
+          "kind": "edge",
+          "who": "victim"
+        },
+        {
+          "kind": "room",
+          "who": "person-4",
+          "value": 2
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-1",
+          "value": 0
+        },
+        {
+          "kind": "edge",
+          "who": "person-4"
+        },
+        {
+          "kind": "room",
+          "who": "person-3",
+          "value": 4
+        },
+        {
+          "kind": "above",
+          "who": "person-2",
+          "other": "victim"
+        }
+      ],
+      "solution": {
+        "person-1": 22,
+        "person-2": 1,
+        "person-3": 13,
+        "person-4": 19,
+        "victim": 5
+      }
+    },
+    {
+      "id": "variation-scene-06",
+      "revision": 1,
+      "type": "scene",
+      "title": "The last catalogue card",
+      "subtitle": "The Museum Stack",
+      "story": "June Vale was found dead when the museum stack reopened after an alarm. The last catalogue card mixes room, row, column, adjacency and ordering evidence. All six statements are reliable. Reconstruct the positions, then identify the only suspect who shared June's room.",
+      "difficulty": "Grandmaster",
+      "difficultyStatus": "provisional",
+      "difficultyEvidence": "Six clue kinds deliberately leave no single dominant tactic; an unrelated same-room pair must be separated from the victim-room deduction.",
+      "size": 5,
+      "roomNames": [
+        "reading bay",
+        "print store",
+        "catalogue aisle",
+        "service desk",
+        "closed stack",
+        "loading room"
+      ],
+      "rooms": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        0,
+        3,
+        3,
+        1,
+        2,
+        2,
+        3,
+        4,
+        1,
+        5,
+        2,
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        4,
+        4
+      ],
+      "people": [
+        {
+          "id": "person-1",
+          "name": "Oren Pike",
+          "role": "The registrar",
+          "color": 0
+        },
+        {
+          "id": "person-2",
+          "name": "Vera Snow",
+          "role": "The researcher",
+          "color": 1
+        },
+        {
+          "id": "person-3",
+          "name": "Cass Rowan",
+          "role": "The conservator",
+          "color": 2
+        },
+        {
+          "id": "person-4",
+          "name": "Dima Holt",
+          "role": "The attendant",
+          "color": 3
+        },
+        {
+          "id": "victim",
+          "name": "June Vale",
+          "role": "The archivist",
+          "color": 4
+        }
+      ],
+      "objects": [
+        {
+          "cell": 2,
+          "kind": "lamp",
+          "name": "reader lamp"
+        },
+        {
+          "cell": 9,
+          "kind": "shelf",
+          "name": "map case"
+        },
+        {
+          "cell": 10,
+          "kind": "table",
+          "name": "sorting trolley"
+        },
+        {
+          "cell": 20,
+          "kind": "piano",
+          "name": "card cabinet"
+        },
+        {
+          "cell": 23,
+          "kind": "plant",
+          "name": "courtyard fern"
+        }
+      ],
+      "victim": "victim",
+      "clues": [
+        {
+          "kind": "sameRoom",
+          "who": "person-3",
+          "other": "person-4"
+        },
+        {
+          "kind": "near",
+          "who": "person-2",
+          "value": 23
+        },
+        {
+          "kind": "col",
+          "who": "person-1",
+          "value": 0
+        },
+        {
+          "kind": "row",
+          "who": "person-3",
+          "value": 2
+        },
+        {
+          "kind": "left",
+          "who": "person-2",
+          "other": "person-4"
+        },
+        {
+          "kind": "notRoom",
+          "who": "person-3",
+          "value": 1
+        }
+      ],
+      "solution": {
+        "person-1": 0,
+        "person-2": 22,
+        "person-3": 13,
+        "person-4": 19,
+        "victim": 6
+      }
+    }
+  ]
+}

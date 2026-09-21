@@ -4,11 +4,11 @@ const { test } = require('node:test');
 const { load, aggregate } = require('../tools/official-catalogue.cjs');
 const C = globalThis.AlibiCore;
 const original = require('../content/catalog.json');
-test('trusted catalogue validates 361 puzzles while retaining every published definition', () => {
+test('trusted catalogue validates 367 puzzles while retaining every published definition', () => {
   const catalogue = load();
-  assert.equal(catalogue.puzzles.length, 361);
+  assert.equal(catalogue.puzzles.length, 367);
   assert.deepEqual(catalogue.puzzles.slice(0, original.puzzles.length), original.puzzles);
-  assert.equal(new Set(catalogue.puzzles.map((p) => p.id)).size, 361);
+  assert.equal(new Set(catalogue.puzzles.map((p) => p.id)).size, 367);
   assert.throws(() => C.validatePack(catalogue, false), /150/);
 });
 test('official source checks global puzzle and pack IDs', () => {

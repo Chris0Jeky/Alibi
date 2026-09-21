@@ -21,6 +21,40 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Games Room retirement candidate, 2026-09-21 (PR #199)
+
+The Games Room now offers six games: Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe,
+Block Cabinet and Lantern Gardens. Dominoes and Mahjong remain direct legacy routes with their
+engines, existing saves, replay, undo/redo and backup validation intact, but no longer appear as
+discovery cards or Home resume suggestions. The focused browser suites assert both sides of that
+boundary: retired runs remain readable after Home navigation, while the retired games are absent
+from discovery. Physical-device, TalkBack and difficulty acceptance remain open in `HUMAN_TODO.md`
+q-8. This is a source candidate and is not a new hosted publication.
+## Six-tier difficulty contract candidate, 2026-09-21
+
+PR #182's round-2 candidate keeps the canonical order `Gentle`, `Steady`, `Tricky`, `Expert`,
+`Master`, `Grandmaster` in `AlibiCore.DIFFICULTIES`, the pack schema and the Wrenmere filter.
+Advanced-tier routes round-trip through the Wrenmere deep-link URL; puzzle IDs, revisions and
+save formats do not change. The initial JavaScript build is 126,854 gzip bytes, below the strict
+128,000-byte cap, after removing dead source declarations; the temporary self-modifying workflow
+and diagnostic helper are deleted.
+
+Focused Node contracts pass, and simulated Edge browser checks pass for Wrenmere navigation,
+save/resume, filtering and deep links: 79 checks at 390/1440px plus 250 responsive checks at
+320/360/390/430/768/1440px. This is source/local simulated evidence, not a hosted release or
+physical-device result. Solver/uniqueness proof for future tiered studies and human difficulty,
+touch and accessibility calibration remain pending in `HUMAN_TODO.md` q-8.
+
+## Castle inspectable-object round-2 review fix, 2026-09-21 (not deployed)
+
+The PR #184 candidate preserves the room’s inspectable-marker toggle when a named object
+opens and its dialog closes, validates the complete authored object collection during the Castle
+build, and rejects non-null detail artwork until a release-manifest path emits and caches it.
+Object IDs, saves and no-points observation semantics are unchanged. Focused Castle Node,
+asset/build, full verification and illustrated browser checks are source-candidate proof; this
+worktree is not a hosted release and physical-device/TalkBack acceptance remains open in
+`HUMAN_TODO.md` q-7 and the existing device gates.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
@@ -228,6 +262,26 @@ is never persisted and does not alter saved-run data. The real-origin browser ru
 1280px covers keyboard entry, implemented and planned rooms, replay/restart and one-time
 consumption. Final combined verification is recorded with the player-fix checkpoint; the
 initial-JavaScript budget cap remains unchanged.
+
+## Block Cabinet phone action sticky correction, 2026-09-21 (not deployed)
+
+Round-2 PR #176 makes the document the phone sticky scroll owner. At phone widths the active motion
+surface removes the `.bc-studio` overflow constraint, keeps decorative artwork clipped on its
+pseudo-layer, and makes `.bc-play` layout-transparent so the sticky action group is contained by the
+full document layout. The safe-area-aware top and bottom insets remain; no markup, game-rule, save,
+menu, reduced-motion or forced-colors owner changed.
+
+Local evidence: build `1c7b6eba0ed4`; the focused phone-action Node regression passes 2/2. Browser
+evidence: the Block Cabinet Chromium suite passes 70 assertions at 390/1440px and the Block motion
+suite passes 75 assertions at 390/1280px, with no horizontal overflow or browser errors. These are
+local simulated-browser results; physical Android touch, TalkBack, comfort review and human
+acceptance remain open under the existing [HUMAN_TODO.md](../HUMAN_TODO.md) gates.
+
+## Block Cabinet phone action hierarchy candidate, 2026-09-17 (not deployed)
+
+PR #176 keeps Undo, Redo, Rotate, Cancel and restart/new-seed together as the primary phone action set while sound, haptics, motion and replay/display tools remain reachable as secondary options. A persistent selected-piece summary reports dimensions, occupied squares, orientation and legal origins. Invalid placements preserve the selection and explain the rejection; Cancel and Escape clear it with deterministic focus recovery. The phone action group remains inside the viewport while the page scrolls.
+
+The exact-head Chromium suite exercises phone and desktop widths, primary and secondary hierarchy, selection details, legal origins, invalid-placement persistence, cancellation, focus recovery, restart confirmation and phone scrolling. The original Block Cabinet rules, replay reducer and save owner are unchanged. This remains simulated browser evidence: physical Android touch, TalkBack, comfort review and human acceptance stay open in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## Block Cabinet integration candidate (not deployed)
 
