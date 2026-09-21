@@ -108,7 +108,25 @@ with sync_playwright() as p:
         motion.click()
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle enables the floor')
         before = current(page)
+        page.evaluate('''() => {
+          const host = document.querySelector('.bc-host');
+          window.__bcHostContinuity = {host, detached: false, stopped: false};
+          const sample = () => {
+            const watch = window.__bcHostContinuity;
+            if (!watch || watch.stopped) return;
+            if (!watch.host.isConnected || watch.host.getBoundingClientRect().width === 0)
+              watch.detached = true;
+            requestAnimationFrame(sample);
+          };
+          requestAnimationFrame(sample);
+        }''')
         move(page)
+        continuity = page.evaluate('''() => {
+          const watch = window.__bcHostContinuity;
+          watch.stopped = true;
+          return {detached: watch.detached, same: watch.host === document.querySelector('.bc-host')};
+        }''')
+        check(not continuity['detached'] and continuity['same'], f'{width}: tactile host stays continuously mounted during commit')
         after = current(page)
         check(len(after['log']) == len(before['log']) + 1, f'{width}: keyboard commits legacy replay')
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion choice survives the Club rerender')
@@ -240,10 +258,24 @@ with sync_playwright() as p:
         page.reload(); page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
         check(current(page)['log'] == saved, f'{width}: optional surface and Classic reload offline')
         context.set_offline(False)
+        page.evaluate('''() => {
+          const originalFlush = AlibiClub.flush;
+          window.__bcOriginalFlush = originalFlush;
+          AlibiClub.flush = async (...args) => {
+            window.__bcSaveStarted = true;
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            return originalFlush(...args);
+          };
+        }''')
+        page.locator('.bc-host [data-command="undo"]').click()
+        page.wait_for_function('() => window.__bcSaveStarted === true')
         page.evaluate('location.hash="#/salon"')
-        page.wait_for_timeout(200)
+        page.wait_for_function("() => !document.querySelector('.block-panel')")
+        page.wait_for_timeout(600)
+        check(not errors, f'{width}: route exit during a queued save does not throw')
         check(not page.evaluate('AlibiBlockMotion.diagnostics().active'), f'{width}: route exit disposes surface')
         check(not errors, f'{width}: no uncaught browser errors: {errors}')
+        page.evaluate('AlibiClub.flush = window.__bcOriginalFlush')
         context.close()
     context = browser.new_context(viewport={'width':1280,'height':1000})
     a=context.new_page(); b=context.new_page()
