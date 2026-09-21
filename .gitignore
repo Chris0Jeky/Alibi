@@ -34,3 +34,4 @@ alibi-curation/
 alibi-castle/
 .curation-worktrees/
 /.worktrees
+/.idea

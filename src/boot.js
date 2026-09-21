@@ -2,6 +2,7 @@
   'use strict';
   const $ = (id) => document.getElementById(id),
     aliases = {
+      __proto__: null,
       games: (x) => ['salon', ...x],
       space: () => ['settings'],
       wing: (x) => ['quiet', ...x],
