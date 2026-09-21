@@ -52,6 +52,19 @@ def run():
                 local_overflow=map_scroll.evaluate('(e)=>({client:e.clientWidth,scroll:e.scrollWidth})')
                 assert local_overflow['scroll']>local_overflow['client']
                 expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
+                map_scroll.evaluate('(e)=>{e.scrollLeft=e.scrollWidth-e.clientWidth}')
+                panned_left=map_scroll.evaluate('(e)=>e.scrollLeft')
+                selected_pin=page.locator('[data-do="select"][data-value="orangery"]')
+                selected_pin.click()
+                expect(page.locator('.rail h2')).to_have_text('The Glass Orangery')
+                expect(selected_pin).to_be_focused()
+                assert map_scroll.evaluate('(e)=>e.scrollLeft')==panned_left
+                era_today=page.locator('[data-do="era"][data-value="today"]')
+                era_today.click()
+                expect(era_today).to_be_focused()
+                assert map_scroll.evaluate('(e)=>e.scrollLeft')==panned_left
+                expect(page.locator('.rail h2')).to_have_text('The Glass Orangery')
+                report['checks'].append(f'{width}: panning survives pin selection and era switching with room selection and focus intact')
                 page.locator('[data-do="map-zoom"][data-value="reset"]').click()
                 expect(zoom_status).to_have_text('100%')
                 expect(zoom_in).to_be_focused()

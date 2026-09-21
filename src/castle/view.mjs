@@ -607,11 +607,25 @@ export async function mount({ root, preferences = null, practice = null }) {
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
   }
+  function captureMapViewport() {
+    const scroller = $('.map-scroll');
+    if (!scroller) return null;
+    return {
+      x: (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth,
+      y: (scroller.scrollTop + scroller.clientHeight / 2) / scroller.scrollHeight,
+    };
+  }
+  function restoreMapViewport(viewport) {
+    const scroller = $('.map-scroll');
+    if (!scroller || !viewport) return;
+    scroller.scrollLeft = Math.max(0, viewport.x * scroller.scrollWidth - scroller.clientWidth / 2);
+    scroller.scrollTop = Math.max(
+      0,
+      viewport.y * scroller.scrollHeight - scroller.clientHeight / 2,
+    );
+  }
   function zoomMap(direction) {
-    const scroller = $('.map-scroll'),
-      center = scroller
-        ? (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth
-        : 0.5,
+    const viewport = captureMapViewport(),
       next =
         direction === 'in'
           ? Math.min(1.75, mapZoom + 0.25)
@@ -621,9 +635,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (next === mapZoom) return;
     mapZoom = next;
     render();
-    const current = $('.map-scroll');
-    if (current)
-      current.scrollLeft = Math.max(0, center * current.scrollWidth - current.clientWidth / 2);
+    restoreMapViewport(viewport);
     const focus =
       direction === 'reset' || (direction === 'out' && mapZoom === 1)
         ? 'in'
@@ -680,13 +692,17 @@ export async function mount({ root, preferences = null, practice = null }) {
       );
     else if (name === 'visit') visit(value);
     else if (name === 'select') {
+      const viewport = captureMapViewport();
       selected = value;
       render();
+      restoreMapViewport(viewport);
       for (const el of root.querySelectorAll('[data-do="select"]'))
         if (el.dataset.value === value) el.focus({ preventScroll: true });
     } else if (name === 'era') {
+      const viewport = captureMapViewport();
       era = value;
       render();
+      restoreMapViewport(viewport);
       for (const el of root.querySelectorAll('[data-do="era"]'))
         if (el.dataset.value === value) el.focus({ preventScroll: true });
     } else if (name === 'map-zoom') zoomMap(value);

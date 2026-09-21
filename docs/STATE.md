@@ -21,6 +21,14 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Castle map viewport candidate, 2026-09-21 (not deployed)
+
+PR #206 now preserves the Castle map viewport when selecting a numbered room or switching between
+the present-day and 1911 eras, alongside the existing zoom preservation. Focused local Chromium
+coverage pans away from the left edge at 390/1280px, exercises both controls, and retains the
+selected-room panel and keyboard focus. This is source/local browser evidence only; hosted checks,
+physical-device interaction/TalkBack and human acceptance remain pending in `HUMAN_TODO.md`.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
