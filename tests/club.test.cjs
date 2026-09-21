@@ -237,10 +237,25 @@ for (let level = 0; level < E.warehouse.maps.length; level++) {
   results.push({
     level,
     path: result.path,
+    pushes: s.pushes,
     nodes: result.nodes,
     milliseconds: Math.round(performance.now() - t),
   });
 }
+const publishedArchiveBaseline = results.slice(0, 6),
+  feedbackArchiveRooms = results.slice(6),
+  priorLongestPlan = Math.max(...publishedArchiveBaseline.map((r) => r.path.length)),
+  priorMostPushes = Math.max(...publishedArchiveBaseline.map((r) => r.pushes));
+eq(feedbackArchiveRooms.length, 3, 'Three feedback Archive rooms are appended');
+for (const room of feedbackArchiveRooms)
+  ok(
+    room.path.length > priorLongestPlan,
+    'Added Archive room has a longer shortest walking plan than the prior six',
+  );
+ok(
+  feedbackArchiveRooms.at(-1).pushes > priorMostPushes,
+  'Final added Archive room requires more pushes than any prior room',
+);
 fs.writeFileSync(
   path.join(__dirname, 'club-results.json'),
   JSON.stringify(

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "packId": "alibi-master-grandmaster-studies",
+  "humanPlaytested": false,
+  "studies": [
+    {
+      "id": "master-study-nonogram-01",
+      "profile": "symmetric-multi-run-propagation",
+      "structuralDistinction": "A vertically mirrored fifteen-line image uses scattered wing fragments, a narrow body and repeated short runs rather than the dense block silhouettes used by earlier large Picture Logic studies.",
+      "intendedReasoningPath": [
+        "Resolve the longest central column and the most constrained paired outer columns before attempting the fragmented wings.",
+        "Use mirror-shaped deductions only as a visual aid; every confirmed square must still follow from its own row or column clue.",
+        "Alternate short row overlaps with column separators until the central body and the final isolated wing marks become forced."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-binary-01",
+      "profile": "distinct-line-chain",
+      "structuralDistinction": "The eight-by-eight board retains only fourteen givens and deliberately delays full-line completion, making row uniqueness and column uniqueness active deductions instead of end-of-puzzle checks.",
+      "intendedReasoningPath": [
+        "Begin with adjacent pairs and split pairs to place marks forced by the no-three rule.",
+        "Use four-of-a-kind balance in partly completed rows and columns to create a second wave of placements.",
+        "Compare nearly complete lines and reject the value that would duplicate an existing row or column; repeat until the remaining chain closes."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-futoshiki-01",
+      "profile": "branching-inequality-network",
+      "structuralDistinction": "Six givens intersect twenty-four horizontal and vertical inequalities spread across the whole Latin square, avoiding a single dominant inequality chain or heavily seeded row.",
+      "intendedReasoningPath": [
+        "Translate the longest local inequality chains into upper and lower bounds before placing exact values.",
+        "Combine those bounds with missing-value sets in the intersecting rows and columns.",
+        "Revisit inequalities after each Latin placement; several late cells become fixed only when both an order bound and a column exclusion apply."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-lightup-01",
+      "profile": "sparse-numbered-wall-crossfire",
+      "structuralDistinction": "Only nine walls retain numbers on a seven-by-seven vault, so the solve depends on interactions between exact wall counts and long visibility corridors rather than local numbered-wall saturation alone.",
+      "intendedReasoningPath": [
+        "Mark cells that cannot contain lanterns because a zero wall or a saturated numbered wall controls them.",
+        "For each still-dark corridor, compare the few cells capable of lighting its least accessible square.",
+        "Propagate each forced lantern through both visibility axes, then return to the numbered walls to resolve the final quadrant."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-tents-01",
+      "profile": "matching-bottleneck-orchard",
+      "structuralDistinction": "Ten trees span seven rows and columns with several totals above one; multiple trees initially share candidate tent cells, creating a genuine one-to-one matching bottleneck after the no-touch deductions.",
+      "intendedReasoningPath": [
+        "Use zero and saturated line totals to remove impossible cells around the outer trees.",
+        "Apply diagonal no-touch exclusions to the remaining candidate clusters instead of pairing each tree greedily.",
+        "Identify the tree subset competing for too few cells; the forced matching then settles the final row and column totals."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-aquarium-01",
+      "profile": "global-waterline-coupling",
+      "structuralDistinction": "Nine connected tanks cross seven line totals and several span four or five distinct heights, so changing one waterline affects distant row and column balances rather than a compact local region.",
+      "intendedReasoningPath": [
+        "Compare rows with extreme totals to bound the minimum and maximum level of every tank that crosses them.",
+        "Transfer those level bounds into column totals, paying attention to tanks that contribute multiple cells at one height.",
+        "Resolve the last coupled tanks together; choosing either waterline in isolation leaves an apparent but invalid alternative."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-network-01",
+      "profile": "lock-free-full-board-propagation",
+      "structuralDistinction": "All forty-nine relay tiles are rotatable and the solved network is a full-board spanning tree with repeated elbows, straights and junctions; there are no locked rotations to provide artificial anchors.",
+      "intendedReasoningPath": [
+        "Eliminate edge-facing connectors and propagate the resulting rotations inward from corners and boundary runs.",
+        "Use reciprocal connector requirements to narrow repeated elbows and tees around the central source.",
+        "Reject locally closed fragments that cannot reach the source; global connectivity fixes the last ambiguous relay chain."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-trail-01",
+      "profile": "sparse-anchor-hamilton-route",
+      "structuralDistinction": "A six-by-six route keeps only six numbered anchors, including both endpoints, and places long intervals across the board so parity and Manhattan-distance bounds matter before local path tracing.",
+      "intendedReasoningPath": [
+        "For each pair of anchors, compare the available step count with their Manhattan distance and parity.",
+        "Reserve bottleneck squares whose removal would disconnect the unvisited region or strand a future anchor.",
+        "Join the forced neighbour chains in numerical order, checking that the remaining cells still support one continuous route to thirty-six."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "master-study-bridges-01",
+      "profile": "crossing-cycle-connectivity",
+      "structuralDistinction": "Fifteen islands create nineteen sightlines with both cycles and crossing alternatives; counts alone admit misleading route patterns, while the published answer uses empty, single and double connections.",
+      "intendedReasoningPath": [
+        "Apply island-capacity lower bounds where high counts have only a few available sightlines.",
+        "Carry each forced bridge through its crossing exclusions, then recompute the neighbouring island capacities.",
+        "When degree totals still allow alternatives, discard the branches that isolate an island group; connectivity forces the final double bridges."
+      ],
+      "humanPlaytested": false
+    }
+  ]
+}

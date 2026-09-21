@@ -967,6 +967,48 @@
       subtitle: 'Three records, one evening.',
       map: ['########', '# . . .#', '#      #', '# $$$  #', '#   @  #', '#      #', '########'],
     },
+    {
+      name: 'The catalogue turn',
+      subtitle: 'Two crates. The route back matters.',
+      map: [
+        '########',
+        '#     ##',
+        '# #    #',
+        '#    $$#',
+        '#      #',
+        '#      #',
+        '#   .@.#',
+        '########',
+      ],
+    },
+    {
+      name: 'The interrupted aisle',
+      subtitle: 'A short wall makes the long way useful.',
+      map: [
+        '########',
+        '##    @#',
+        '## #  .#',
+        '#      #',
+        '# $    #',
+        '#   # ##',
+        '# $ .  #',
+        '########',
+      ],
+    },
+    {
+      name: 'The sealed folio',
+      subtitle: 'Three crates. Plan the order before the first push.',
+      map: [
+        '#########',
+        '#       #',
+        '#      .#',
+        '##$     #',
+        '#       #',
+        '##  $   #',
+        '#@ .$  .#',
+        '#########',
+      ],
+    },
   ];
   const warehouse = {
     maps: warehouseMaps,
@@ -1147,6 +1189,36 @@
       regions: [
         1, 0, 0, 0, 4, 2, 2, 1, 0, 5, 5, 4, 2, 2, 5, 5, 5, 3, 4, 4, 2, 5, 5, 5, 3, 4, 4, 4, 5, 5, 5,
         5, 4, 4, 4, 5, 5, 5, 5, 5, 4, 4, 5, 6, 6, 6, 6, 6, 4,
+      ],
+    },
+    {
+      id: 'garden-7',
+      revision: 1,
+      title: 'The herb court',
+      size: 7,
+      regions: [
+        1, 1, 1, 1, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 5, 5, 4, 4, 2, 2, 3, 5, 4, 4, 4, 4, 2, 3, 5, 5, 5,
+        4, 4, 4, 4, 5, 5, 5, 4, 4, 4, 4, 5, 5, 6, 4, 4, 4, 4,
+      ],
+    },
+    {
+      id: 'garden-8',
+      revision: 1,
+      title: 'The quiet border',
+      size: 7,
+      regions: [
+        1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 3, 0, 0, 4, 1, 1, 4, 3, 3, 2, 4, 4, 4, 4, 3, 3, 5, 4, 4, 4,
+        4, 4, 5, 5, 4, 4, 4, 5, 5, 5, 5, 6, 4, 4, 5, 5, 5, 5,
+      ],
+    },
+    {
+      id: 'garden-9',
+      revision: 1,
+      title: 'Moonlit beds',
+      size: 7,
+      regions: [
+        0, 0, 0, 0, 0, 3, 3, 1, 0, 0, 0, 0, 3, 3, 0, 0, 0, 2, 3, 3, 3, 4, 4, 4, 4, 3, 3, 3, 4, 4, 4,
+        4, 3, 3, 3, 4, 4, 4, 4, 5, 5, 6, 4, 4, 4, 4, 4, 6, 6,
       ],
     },
   ];

@@ -1,44 +1,5 @@
 # Live development state
 
-## Mobile play, shell QA and typography candidates, 2026-09-21 (PRs #227 -> #228; not deployed)
-
-Parent #227 addresses QA tracker #218: board-first play and usable Bridges zoom (#214/#215),
-44px control hit areas (#216/#217), route-owned lessons and modal keyboard/focus continuity
-(#208/#209), meaningful navigation/card names (#210/#211), stable search metadata (#212), and
-readable mobile tabs/edition text (#222/#223). Story, room controls and assistance remain in a
-disclosure after the board; clues and recovery warnings remain directly available. The child
-#228 adds the bounded #219 desk H1/H2 hierarchy correction and readable phone/short-landscape
-metadata, including a direct 12px save-status rule. Puzzle IDs, revisions, save schemas, themes
-and the strict stylesheet budget remain unchanged.
-
-The current permanent `tests/browser_mobile_qa.py` suite has **nine scenarios**. The parent's
-seven scenarios and 15 failing baseline subchecks are earlier evidence. The two child scenarios
-reproduced 23 additional initial failing subchecks: twenty edition/width combinations and three
-metadata cases. The save-status review regression separately failed at 9/9/10px on 320/390/844px
-viewports before the direct 12px override. All nine scenarios and 182 existing UI checks pass
-locally after that correction. Nine supplementary comfort combinations also pass through actual
-Paper/Evening/forced-colour, larger-clue and contrast controls; these are not additional permanent
-suite methods. Local checks use an isolated source DOM, not a built HTTP origin or native host.
-The local full Node run has 303 passes and 12 missing-build/dependency failures; its logs retain
-those limitations rather than calling that workspace green.
-
-Parent head `f07eb747b8ab2dbd840a43cd8a989a5fc324df7b` passed full workflow 35602820954 and
-Wrenmere workflow 35602821130, build `971b3d96ac94`. Its verified CI artifact shows all four
-Bridges islands visible at 320/360/390/430px portrait and two in short landscape with scrolling
-retained, without document overflow. Automated review reported no major issues at that head.
-Child product-code head `0e9215832b1ec59fda2dab4a3573db95aa4425d3` passed format/build/Node/budget
-and initial UI steps in workflow 35606531041; the full browser matrix was still running when
-this checkpoint was written. Check that exact run and the latest PR head before acceptance.
-A later documentation-only commit does not retroactively qualify an unobserved code run.
-
-The permanent read-only workflow runs the browser suite on its freshly built HTTP origin and
-retains `test-results/mobile-qa/` screenshots and geometry. All temporary integration files are
-removed. Physical Android, installed-PWA safe areas, TalkBack and system-font acceptance remain
-separate. The broad type/radius/button system (#219-#221) and routing (#213/#224) are still open.
-See the [mobile QA handoff](ux/MOBILE-QA-2026-09-21.md),
-[typography continuation](ux/TYPOGRAPHY-2026-09-21.md), and `HUMAN_TODO.md`.
-These candidates are not a new hosted release; no merge, version bump or deployment is claimed.
-
 ## Published 0.11.4, 2026-09-17
 
 Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on
@@ -59,6 +20,21 @@ and 27 Quiet Wing adapter contract assertions locally. The required push and pul
 passed at the exact head. Full publication evidence, archives and rollback references are in
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
+
+## Advanced puzzle candidates, 2026-09-21 (not deployed)
+
+Open PR #226 adds six additive revision-1 Crime Scene studies with provisional Master and
+Grandmaster labels. The independent bounded solver and focused contracts pass, while the
+records remain `humanPlaytested: false`. The named room and furniture calibration notes are
+bound to their encoded clues; physical-device, TalkBack, comfort, variety and human difficulty
+acceptance remain open in `HUMAN_TODO.md` q-8.
+
+Stacked PR #229 adds nine additive revision-1 Master and Grandmaster studies across Nonogram,
+Binary, Futoshiki, Light Up, Tents, Aquarium, Network, Trail and Bridges. Its representative
+Chromium control workflow covers simulated phone and desktop hit-testing, state mutation and
+undo; physical touch, TalkBack, comfort, sustained performance and human calibration remain
+open in `HUMAN_TODO.md` q-8. Neither open candidate is deployed or store-published. See
+`docs/ADVANCED-PUZZLE-CANDIDATES.md` for the evidence boundary.
 
 ## Castle map viewport candidate, 2026-09-21 (not deployed)
 
