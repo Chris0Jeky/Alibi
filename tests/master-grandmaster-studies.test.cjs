@@ -7,9 +7,7 @@ require('../src/engines.js');
 const C = require('../src/bridges.js');
 const { counters, bridgesGraph } = require('./helpers/family-studies-oracle.cjs');
 
-const pack = JSON.parse(
-  fs.readFileSync('content/extra/master-grandmaster-studies.json', 'utf8'),
-);
+const pack = JSON.parse(fs.readFileSync('content/extra/master-grandmaster-studies.json', 'utf8'));
 const notes = JSON.parse(
   fs.readFileSync('content/curation/editorial/master-grandmaster-studies.json', 'utf8'),
 );
@@ -147,9 +145,7 @@ test('every study is independently unique and agrees with the native bounded sol
 test('the expansion adds genuinely new structures rather than semantic reskins', () => {
   const prior = officialPuzzles();
   const priorNonograms = new Set(
-    prior
-      .filter((puzzle) => puzzle.type === 'nonogram')
-      .map((puzzle) => canonicalImage(puzzle)),
+    prior.filter((puzzle) => puzzle.type === 'nonogram').map((puzzle) => canonicalImage(puzzle)),
   );
   const priorBinary = new Set(
     prior
@@ -219,7 +215,11 @@ test('each family carries a concrete high-difficulty structure rather than easy 
 
   const binary = byType.binary;
   assert.equal(binary.size, 8);
-  assert.equal(binary.givens.filter((value) => value >= 0).length, 14, 'Binary uses fourteen sparse givens');
+  assert.equal(
+    binary.givens.filter((value) => value >= 0).length,
+    14,
+    'Binary uses fourteen sparse givens',
+  );
 
   const futoshiki = byType.futoshiki;
   assert.ok(futoshiki.size >= 7);
@@ -258,7 +258,10 @@ test('each family carries a concrete high-difficulty structure rather than easy 
   assert.equal(bridges.islands.length, 15);
   const graph = bridgesGraph(bridges);
   assert.ok(graph.edges.length > bridges.islands.length - 1, 'Bridges graph has real cycles');
-  assert.ok(graph.crosses.some((crossings) => crossings.length), 'Bridges graph has crossing choices');
+  assert.ok(
+    graph.crosses.some((crossings) => crossings.length),
+    'Bridges graph has crossing choices',
+  );
   assert.deepEqual(new Set(bridges.solution), new Set([0, 1, 2]));
 });
 
