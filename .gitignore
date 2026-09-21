@@ -33,3 +33,4 @@ tests/quiet-wing/*-results.json
 alibi-curation/
 alibi-castle/
 .curation-worktrees/
+/.idea
