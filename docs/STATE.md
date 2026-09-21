@@ -41,6 +41,16 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## PR #198 round-2 Sudoku budget candidate, 2026-09-21
+
+The source candidate at implementation head `d227475` keeps Sudoku placement pruning limited to row, column and box peer notes;
+pencil entries and Futoshiki notes remain unchanged. It removes redundant peer deduplication work
+and reuses bounded row, column and box-group construction. The local build reports
+`javascriptGzipBytes=126816`,
+strictly below the 128000-byte initial-JavaScript contract, and the focused Sudoku/budget tests
+pass. No puzzle IDs, save formats or deployed origins change. Hosted CI, physical-device,
+TalkBack and human difficulty/comfort acceptance remain separate and unverified here.
+
 ## Games Room retirement candidate, 2026-09-21 (PR #199)
 
 The Games Room now offers six games: Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe,
