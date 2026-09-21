@@ -99,8 +99,8 @@ function actions(state) {
     const shapes = new Set();
     for (let rotation = 0; rotation < 4; rotation++) {
       if (rotation && !state.charges) continue;
-      const signature = Cascade.shape(piece, rotation).cells
-        .map(([x, y]) => `${x},${y}`)
+      const signature = Cascade.shape(piece, rotation)
+        .cells.map(([x, y]) => `${x},${y}`)
         .join(';');
       if (shapes.has(signature)) continue;
       shapes.add(signature);
