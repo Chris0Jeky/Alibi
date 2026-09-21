@@ -112,7 +112,7 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.PulseboardUsage\?\.journey\?\.\(current, 'hint\.requested'\);/,
   );
   assert.match(loaderSource, /PulseboardUsage\?\.resetJourney\?\.\(\);/);
-  assert.equal((appSource.match(/globalThis\.PulseboardUsage\?\.journey\?\./g) || []).length, 4);
+  assert.equal((appSource.match(/globalThis\.PulseboardUsage\?\.journey\?\./g) || []).length, 5);
   assert.doesNotMatch(appSource, /observeJourney|resetJourney/);
   assert.doesNotMatch(loaderSource, /ALIBI_OBSERVATORY_JOURNEY/);
 });
