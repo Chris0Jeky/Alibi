@@ -8,9 +8,39 @@ OUT = ROOT/'test-results/large-nonogram'
 OUT.mkdir(parents=True, exist_ok=True)
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
 pack = json.loads((ROOT/'content/extra/nonogram-large.json').read_text())['puzzles']
-COMPACT_STYLE_MARKER = 'Compact 15×15 Nonograms need content-neutral row geometry.'
+COMPACT_STYLE_MARKER = 'Compact 15×15 Nonograms keep content-neutral row geometry without clipping clues.'
 assert COMPACT_STYLE_MARKER in (ROOT/'src/app.css').read_text()
 assert COMPACT_STYLE_MARKER not in (ROOT/'src/index.html').read_text()
+
+
+def assert_clues_not_clipped(page, label):
+    clipped = page.locator('.nono-clue span').evaluate_all(
+        """spans => spans.flatMap((span, index) => {
+          const value = span.getBoundingClientRect();
+          const clue = span.parentElement.getBoundingClientRect();
+          const tolerance = 0.8;
+          const visible = value.width > 0 && value.height > 0 &&
+            value.left >= clue.left - tolerance &&
+            value.right <= clue.right + tolerance &&
+            value.top >= clue.top - tolerance &&
+            value.bottom <= clue.bottom + tolerance;
+          return visible ? [] : [{
+            index,
+            text: span.textContent,
+            value: {x:value.x,y:value.y,width:value.width,height:value.height},
+            clue: {x:clue.x,y:clue.y,width:clue.width,height:clue.height}
+          }];
+        })"""
+    )
+    assert not clipped, (label, 'clue glyph clipped', clipped[:5])
+
+
+def assert_compact_large_text_column_size(page, label):
+    sizes = page.locator('.nono-clue.col').evaluate_all(
+        """clues => clues.map(clue => getComputedStyle(clue).fontSize)"""
+    )
+    assert sizes and set(sizes) == {'12px'}, (label, 'unexpected compact column-clue size', sizes)
+    return sizes[0]
 
 
 def assert_compact_geometry(page, size, label):
@@ -69,6 +99,7 @@ with sync_playwright() as pw:
             page.locator('[data-action="zoom"]').first.click()
             assert 'zoomed' not in (page.locator('.board-scroll').get_attribute('class') or '')
             assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'empty compact board'))
+            assert_clues_not_clipped(page, (puzzle['id'], width, 'compact clues'))
 
             if puzzle is pack[0]:
                 page.locator('.board-card').screenshot(path=str(OUT/f'board-{width}.png'))
@@ -84,6 +115,12 @@ with sync_playwright() as pw:
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'auto-crossed compact board'))
                 page.evaluate("document.documentElement.dataset.large='true'")
                 assert_compact_geometry(page, puzzle['size'], (puzzle['id'], width, 'large-text compact board'))
+                if width == 320:
+                    size = assert_compact_large_text_column_size(
+                        page, (puzzle['id'], width, 'large-text compact clues')
+                    )
+                    print(f'PASS computed compact column-clue size at {width}px: {size}', flush=True)
+                assert_clues_not_clipped(page, (puzzle['id'], width, 'large-text compact clues'))
                 page.emulate_media(forced_colors='active')
                 assert page.locator('.nono-cell .cross').count() > 0
                 assert page.evaluate('''() => {
