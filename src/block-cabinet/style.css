@@ -775,6 +775,20 @@ body.block-motion-active .club-gameheading {
     border-radius: 0;
     border: 0;
     padding: max(10px, env(safe-area-inset-top)) 12px max(10px, env(safe-area-inset-bottom));
+    /* The document must own sticky positioning; keep the artwork clipped on its pseudo-layer. */
+    overflow: visible;
+  }
+  body.block-motion-active .bc-studio::before {
+    clip-path: inset(0);
+  }
+  body.block-motion-active .bc-layout {
+    gap: 0;
+  }
+  body.block-motion-active .bc-play {
+    display: contents;
+  }
+  body.block-motion-active .bc-aside {
+    margin-top: 22px;
   }
   body.block-motion-active .bc-header {
     margin-bottom: 12px;

@@ -14,6 +14,21 @@ test('the phone action surface keeps document scrolling and two-sided viewport s
     /\.bc-studio\s*\{[\s\S]*?overflow:\s*clip;/,
     'the Block Cabinet root must not become a scrolling ancestor for the sticky action group',
   );
+  assert.match(
+    css,
+    /body\.block-motion-active \.bc-studio\s*\{[\s\S]*?overflow:\s*visible;/,
+    'the phone surface must leave the document as the sticky scroll owner',
+  );
+  assert.match(
+    css,
+    /body\.block-motion-active \.bc-play\s*\{[\s\S]*?display:\s*contents;/,
+    'the phone play area must not constrain the sticky action group to the board column',
+  );
+  assert.match(
+    css,
+    /body\.block-motion-active \.bc-studio::before\s*\{[\s\S]*?clip-path:\s*inset\(0\);/,
+    'phone overflow removal must retain safe clipping for decorative artwork',
+  );
   assert.doesNotMatch(
     css,
     /\.bc-studio\s*\{[\s\S]*?overflow:\s*(?:hidden|auto|scroll);/,

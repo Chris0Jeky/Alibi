@@ -231,17 +231,17 @@ initial-JavaScript budget cap remains unchanged.
 
 ## Block Cabinet phone action sticky correction, 2026-09-21 (not deployed)
 
-Round-2 PR #176 keeps the document as the scroll owner (`overflow: clip`) and pairs the phone
-primary action group's safe-area-aware top and bottom sticky insets. The previous bottom-only
-constraint released the group when the document scrolled downward past its normal position; no DOM,
-game-rule, save, menu, reduced-motion or forced-colors owner changed.
+Round-2 PR #176 makes the document the phone sticky scroll owner. At phone widths the active motion
+surface removes the `.bc-studio` overflow constraint, keeps decorative artwork clipped on its
+pseudo-layer, and makes `.bc-play` layout-transparent so the sticky action group is contained by the
+full document layout. The safe-area-aware top and bottom insets remain; no markup, game-rule, save,
+menu, reduced-motion or forced-colors owner changed.
 
-Local evidence: build `eec268daf36d`; the focused phone-action Node regression passes 2/2. Browser
-evidence: the Block Cabinet Chromium suite passes 68 assertions at 390/1440px, the Block motion
-suite passes 75 assertions at 390/1280px, and a forced-colors/reduced-motion 390px smoke check
-passes with no horizontal overflow or browser errors. These are local simulated-browser results;
-physical Android touch, TalkBack, comfort review and human acceptance remain open under the existing
-[HUMAN_TODO.md](../HUMAN_TODO.md) gates.
+Local evidence: build `1c7b6eba0ed4`; the focused phone-action Node regression passes 2/2. Browser
+evidence: the Block Cabinet Chromium suite passes 70 assertions at 390/1440px and the Block motion
+suite passes 75 assertions at 390/1280px, with no horizontal overflow or browser errors. These are
+local simulated-browser results; physical Android touch, TalkBack, comfort review and human
+acceptance remain open under the existing [HUMAN_TODO.md](../HUMAN_TODO.md) gates.
 
 ## Block Cabinet phone action hierarchy candidate, 2026-09-17 (not deployed)
 
