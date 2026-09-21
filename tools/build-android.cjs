@@ -130,9 +130,7 @@ function cost(pathname, bytes) {
 }
 
 function sourceSha(root = ROOT) {
-  const supplied = process.env.ALIBI_SOURCE_SHA || '';
-  const value =
-    supplied || execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  const value = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
   if (!/^[0-9a-f]{40}$/.test(value)) throw new Error('Android builds require a full source SHA.');
   return value;
 }
@@ -209,9 +207,9 @@ function patchApplicationBundle(directory) {
   let source = fs.readFileSync(original, 'utf8');
   source = replaceExactly(
     source,
-    /"standalone":false/,
-    '"standalone":true',
-    'Android standalone configuration',
+    /![A-Za-z_$][\w$]*\.standalone&&"serviceWorker"in navigator/,
+    '!globalThis.ALIBI_BUILD_TARGET&&"serviceWorker"in navigator',
+    'Android target lifecycle guard',
   );
   source = replaceExactly(
     source,
@@ -368,6 +366,7 @@ module.exports = {
   files,
   makeTargetSource,
   mime,
+  sourceSha,
   sourceDigest,
   treeDigest,
 };

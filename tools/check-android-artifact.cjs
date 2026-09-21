@@ -12,6 +12,7 @@ const {
   files,
   makeTargetSource,
   mime: expectedMime,
+  sourceSha,
   sourceDigest,
   treeDigest,
 } = require('./build-android.cjs');
@@ -89,6 +90,20 @@ function expectedCosts(entries) {
   };
 }
 
+function currentContentManifestRevision(root, errors) {
+  const directory = path.join(root, 'dist', 'assets');
+  const candidates = files(directory).filter((filename) =>
+    /^official-content\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
+  );
+  if (candidates.length !== 1) {
+    errors.push(
+      `Current web build needs exactly one official-content asset; found ${candidates.length}.`,
+    );
+    return '';
+  }
+  return sha256(fs.readFileSync(candidates[0]));
+}
+
 function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) {
   const errors = [];
   const need = (condition, message) => {
@@ -115,7 +130,14 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
 
   const packageJson = readJson(path.join(root, 'package.json'), errors);
   const webInfo = readJson(path.join(root, 'build-info.json'), errors);
+  const expectedSourceSha = sourceSha(root);
+  const expectedContentManifestRevision = currentContentManifestRevision(root, errors);
   need(identity.appVersion === packageJson.version, 'Android and package versions differ.');
+  need(identity.sourceSha === expectedSourceSha, 'Android source SHA is stale.');
+  need(
+    identity.contentManifestRevision === expectedContentManifestRevision,
+    'Android content manifest revision is stale.',
+  );
   need(
     identity.webBuild === webInfo.build,
     'Android identity is not tied to the current web build.',
@@ -231,8 +253,18 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
       path.join(directory, ...applicationScripts[0].split('/')),
       'utf8',
     );
-    need(source.includes('"standalone":true'), 'Android application is not in standalone mode.');
-    need(!source.includes('"standalone":false'), 'Web standalone=false leaked into Android.');
+    need(
+      source.includes('"standalone":false'),
+      'Android application lost the hosted build configuration.',
+    );
+    need(
+      !source.includes('"standalone":true'),
+      'Standalone preview configuration leaked into Android.',
+    );
+    need(
+      source.includes('!globalThis.ALIBI_BUILD_TARGET&&"serviceWorker"in navigator'),
+      'Android target marker does not suppress web lifecycle behavior.',
+    );
     need(
       source.includes('globalThis.ALIBI_OBSERVATORY_URL=""'),
       'Android application did not disable Observatory.',

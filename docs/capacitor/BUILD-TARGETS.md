@@ -22,17 +22,15 @@ The Android document loads one small, content-addressed marker before all other 
 local bundled payload reports the actual target and offline readiness.
 
 Web remains the default when the marker is absent. During derivation, the generated application
-bundle is transformed through two exact-match, fail-closed rewrites:
-
-1. the generated configuration changes from hosted/PWA mode to self-contained mode, preventing the
-   service-worker and hosted update path from starting;
-2. the optional Observatory URL is cleared, preventing usage-sharing code from loading in the native
-   target.
+bundle keeps its `standalone: false` hosted/PWA configuration so Android does not become the
+standalone single-file preview. The optional Observatory URL is cleared through one exact-match,
+fail-closed rewrite, while `src/app.js` uses the injected target marker to suppress service-worker,
+update and browser-install behavior. The complete Quiet Wing and theatre bundles remain available.
 
 The transformed bundle receives a new content-hashed filename and only the Android `index.html`
-reference is changed. Source files and the complete `dist/` web artifact remain untouched. Any future
-build that no longer has exactly one expected configuration or Observatory assignment fails rather
-than silently producing an ambiguous native payload.
+reference is changed. Source files and the complete `dist/` web artifact remain untouched. A future
+build that no longer has exactly one expected Observatory assignment fails rather than silently
+producing an ambiguous native payload.
 
 The intended Capacitor local origin remains `https://localhost`; this slice does not create or
 configure the Capacitor host.

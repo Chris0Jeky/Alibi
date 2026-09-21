@@ -57,12 +57,16 @@ test('Android keeps the full bundled experience while the native target suppress
   const bundle = fs.readFileSync(path.join(ANDROID_DIST, ...application.path.split('/')), 'utf8');
   assert.match(bundle, /"standalone":false/);
   assert.doesNotMatch(bundle, /"standalone":true/);
+  assert.match(bundle, /!globalThis\.ALIBI_BUILD_TARGET&&"serviceWorker"in navigator/);
+  assert.match(bundle, /ALIBI_THEATRE/);
+  assert.match(bundle, /ALIBI_QUIET_CONFIG/);
+  assert.ok(
+    manifest.files.some((entry) => /^assets\/ambience-[^/]+\.[0-9a-f]{12}\.mp3$/.test(entry.path)),
+    'fixture retains bundled theatre ambience',
+  );
 
   const app = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
-  assert.match(
-    app,
-    /globalThis\.ALIBI_BUILD_TARGET\s*!==\s*'android'[\s\S]{0,160}'serviceWorker' in navigator/,
-  );
+  assert.match(app, /!globalThis\.ALIBI_BUILD_TARGET[\s\S]{0,160}'serviceWorker' in navigator/);
 });
 
 test('generated Android output is ignored by Git', () => {
@@ -119,7 +123,10 @@ test('tampering with source or content provenance invalidates the identity recei
     const identity = readJson(identityPath);
 
     writeJson(identityPath, { ...identity, sourceSha: '0'.repeat(40) });
-    assert.match(inspectAndroidArtifact({ directory: target }).errors.join('\n'), /source SHA is stale/i);
+    assert.match(
+      inspectAndroidArtifact({ directory: target }).errors.join('\n'),
+      /source SHA is stale/i,
+    );
 
     writeJson(identityPath, {
       ...identity,

@@ -21,6 +21,28 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Android bundled payload candidate, 2026-09-21
+
+At PR #180 head `918c9ea6275233bd8b1c461647e8d5d7f7cf0c25`, the round-2 repair rebuilt the
+shared web graph and derived the Android-only payload without changing the copied application
+configuration: it retains `standalone: false`, while the injected `ALIBI_BUILD_TARGET='android'`
+marker suppresses the service-worker/update and browser-install paths. Quiet Wing and theatre
+assets remain in the payload. `npm.cmd run build:android` measured web build `7f9a8b110af8`,
+initial JavaScript `127990` gzip bytes, and content manifest revision
+`9fb7e17fc949b098de2ad30b85abbc83092c279da5cc47fe46f0dd9d64b6fb14`; the Android identity
+receipt recorded payload SHA-256
+`b82aa062e70918fec7edfc9915d34f436812001167ab99f29f6cb4e21b880791`.
+
+`npm.cmd run check:android` passed with deterministic source/content provenance checks,
+`node --test tests/android-build.test.cjs` passed 8/8 including source/content tamper rejection,
+and the focused local-origin Chromium payload check passed 15/15 assertions, including no
+service-worker registration, local Wrenmere assets, retained Quiet Wing/theatre content and no
+remote network. This is build/check/simulated-browser evidence only. Native Android/WebView,
+physical-device installation and relaunch, process/lifecycle and backup transfer, signing and
+store publication, and TalkBack/large-text acceptance remain open in `HUMAN_TODO.md` (q-2,
+q-3, q-4 and the related Capacitor gates). No APK/AAB, credentials, signing material, secrets or
+generated `dist`/`dist-android` output is tracked.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published

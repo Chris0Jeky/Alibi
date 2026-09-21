@@ -3457,7 +3457,7 @@
   };
   globalThis.AlibiBootReady?.();
   if (
-    !cfg.standalone &&
+    !globalThis.ALIBI_BUILD_TARGET &&
     'serviceWorker' in navigator &&
     (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))
   ) {
