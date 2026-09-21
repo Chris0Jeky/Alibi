@@ -7,10 +7,12 @@ PR #183 now contains a host-side, consent-gated journey adapter for the fixed
 machine lives in the deferred Observatory asset, while initial app calls pass only the current
 run identity and fixed event names. It starts only on a real board mutation or journey action,
 closes on failed/completed checks, resets on route changes and withdrawal, and forwards no puzzle,
-answer, board, text or URL data. The final local verify passes 318/318 Node tests and 581,847
-assertions; build `ee603a2288d6` reports 127,950 gzip bytes for initial JavaScript, 50 bytes below
-the unchanged strict 128,000-byte cap. The focused evidence is local source behavior only; the
-generated Observatory event registration for `puzzle.failed` remains unverified. This candidate is
+answer, board, text or URL data. The generated registry now includes `puzzle.failed`, with a full-
+adapter regression proving consented validation, queueing and flush acceptance alongside the existing
+journey/privacy/reset coverage. The final local verify passes 322/322 Node tests and 581,847
+assertions; build `251085ba910e` reports 127,949 gzip bytes for initial JavaScript, 51 bytes below
+the unchanged strict 128,000-byte cap. The deferred Observatory artifact grew 16 source bytes and
+4 gzip bytes from the PR head. The focused evidence is local source behavior only; this candidate is
 not deployed and claims no remote collection, hosted acceptance or physical-device acceptance.
 Remaining owner/device gates stay in [HUMAN_TODO.md](../HUMAN_TODO.md).
 

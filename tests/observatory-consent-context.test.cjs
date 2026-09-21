@@ -66,7 +66,6 @@ function run({ contextProvider = true } = {}) {
     URL,
     Date,
     JSON,
-    Object,
     console,
     localStorage: {
       getItem: () => null,
@@ -155,4 +154,16 @@ test('deferred adapter maps Alibi hashes to the closed Observatory vocabulary', 
     assert.equal(value.route, expected, hash || '(empty hash)');
     assert.equal(value.release, '0.11.3');
   }
+});
+
+test('generated adapter validates and queues puzzle.failed after consent', () => {
+  const harness = run();
+  harness.checkbox.checked = true;
+  harness.checkbox.emit('change');
+
+  assert.equal(
+    harness.context.PulseboardUsage.journey({ key: 'generated-adapter' }, 'puzzle.failed'),
+    true,
+  );
+  assert.equal(harness.context.PulseboardUsage.status().queued, 2);
 });
