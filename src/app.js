@@ -3096,6 +3096,7 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
+    globalThis.PulseboardUsage?.journey?.(current);
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
     current.redo = [];
