@@ -3,13 +3,12 @@
 (function (root) {
   'use strict';
   const TYPES = ['scene', 'sudoku', 'nonogram', 'binary', 'futoshiki'];
-  const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert'];
+  const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const range = (n) => Array.from({ length: n }, (_, i) => i);
   const issue = (message, cells = []) => ({ message, cells });
   const rowOf = (cell, n) => Math.floor(cell / n);
-  const colOf = (cell, n) => cell % n;
   function runs(line) {
     const r = [];
     let count = 0;
