@@ -64,6 +64,10 @@ test('reference verification and search limits fail closed', () => {
   assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, maxNodes: 0 }), /maxNodes/);
   assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, beamWidth: 0 }), /beamWidth/);
   assert.throws(() => searchSeed('CALIBRATE-0', { ...tinyBudget, branchWidth: 0 }), /branchWidth/);
+  assert.throws(
+    () => searchSeed('CALIBRATE-0', { ...tinyBudget, constructor: 1 }),
+    /Unknown calibration option/,
+  );
   assert.throws(() => calibrateSeeds([], tinyBudget), /seed/);
   assert.throws(() => calibrateSeeds(['CALIBRATE-0', 'CALIBRATE-0'], tinyBudget), /duplicate/i);
 });
