@@ -258,8 +258,20 @@ with sync_playwright() as p:
         page.reload(); page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
         check(current(page)['log'] == saved, f'{width}: optional surface and Classic reload offline')
         context.set_offline(False)
+        page.evaluate('''() => {
+          const save = AlibiClub.save;
+          AlibiClub.save = async (...args) => {
+            window.__bcSaveStarted = true;
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            return save(...args);
+          };
+        }''')
+        page.locator('.bc-host [data-command="undo"]').click()
+        page.wait_for_function('() => window.__bcSaveStarted === true')
         page.evaluate('location.hash="#/salon"')
-        page.wait_for_timeout(200)
+        page.wait_for_function("() => !document.querySelector('.block-panel')")
+        page.wait_for_timeout(600)
+        check(not errors, f'{width}: route exit during a queued save does not throw')
         check(not page.evaluate('AlibiBlockMotion.diagnostics().active'), f'{width}: route exit disposes surface')
         check(not errors, f'{width}: no uncaught browser errors: {errors}')
         context.close()

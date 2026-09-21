@@ -19,20 +19,22 @@ export function startIntegration() {
     !!club().diagnostics().state.settings.zen ||
     document.documentElement.dataset.reduced === 'true';
   const parkHost = () => {
-    if (!host?.isConnected) return () => {};
-    const rect = host.getBoundingClientRect();
-    const cssText = host.style.cssText;
-    host.style.position = 'fixed';
-    host.style.left = rect.left + 'px';
-    host.style.top = rect.top + 'px';
-    host.style.width = rect.width + 'px';
-    host.style.height = rect.height + 'px';
-    host.style.zIndex = '2147483000';
-    host.style.overflow = 'hidden';
-    host.style.pointerEvents = 'none';
-    document.body.append(host);
+    const parkedHost = host;
+    if (!parkedHost?.isConnected) return () => {};
+    const rect = parkedHost.getBoundingClientRect();
+    const cssText = parkedHost.style.cssText;
+    parkedHost.style.position = 'fixed';
+    parkedHost.style.left = rect.left + 'px';
+    parkedHost.style.top = rect.top + 'px';
+    parkedHost.style.width = rect.width + 'px';
+    parkedHost.style.height = rect.height + 'px';
+    parkedHost.style.zIndex = '2147483000';
+    parkedHost.style.overflow = 'hidden';
+    parkedHost.style.pointerEvents = 'none';
+    document.body.append(parkedHost);
     return () => {
-      host.style.cssText = cssText;
+      // Route disposal can clear the live host before the queued save settles.
+      parkedHost.style.cssText = cssText;
     };
   };
   const action = async (name, data = {}) => {
