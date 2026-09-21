@@ -4,10 +4,11 @@ import { createPages } from './pages.mjs';
 import { renderBoard } from './boards.mjs';
 import styles from './style.mjs';
 import nativeStyle from './native-style.mjs';
-import { inspectObject, appendObservation } from './objects.mjs';
+import { inspectObject, appendObservation } from './objects-runtime.mjs';
 import { CastleStore } from './storage.mjs';
 import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
+import { evidenceComparison } from './evidence-view.mjs';
 import { labelQuestions } from './investigation.mjs';
 import { listed } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
@@ -204,7 +205,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (dialog.open) dialog.close();
     dialog.replaceChildren();
     render();
-    const candidates = [...root.querySelectorAll('button,a')].filter((el) =>
+    const candidates = [...root.querySelectorAll('button:not(:disabled),a')].filter((el) =>
       opener?.dataset?.do
         ? el.dataset.do === opener.dataset.do && el.dataset.value === opener.dataset.value
         : opener?.href && el.href === opener.href,
@@ -559,26 +560,14 @@ export async function mount({ root, preferences = null, practice = null }) {
   function inspect(id) {
     const object = inspectObject(id, selected);
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
-    const detail = object.detailAsset
-      ? `<figure class="object-detail"><img src="${escape(object.detailAsset.src)}" alt="${escape(object.detailAsset.alt)}"></figure>`
-      : '<p class="small object-detail-fallback">No close-up artwork.</p>';
-    const noteAction = object.actions.includes('note')
-      ? button('Keep a note', 'keep-observation', id)
-      : '';
     show(
-      object.title,
-      `${detail}<p>${escape(object.description)}</p>${noteAction}<p class="small" id="observation-result" role="status"></p>`,
+      object.n,
+      `<p>No close-up artwork.</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
     );
   }
   function keepObservation(id) {
     const object = inspectObject(id, selected);
-    if (
-      !object ||
-      view !== 'room' ||
-      !E.roomStatus(state, room()).open ||
-      !object.actions.includes('note')
-    )
-      return;
+    if (!object || view !== 'room' || !E.roomStatus(state, room()).open || !object.a) return;
     const result = appendObservation(state.notes, object);
     if (result.added)
       mutate((next) => {
@@ -586,6 +575,14 @@ export async function mount({ root, preferences = null, practice = null }) {
       });
     if ($('#observation-result')) $('#observation-result').textContent = result.message;
     announce(result.message);
+  }
+  function compareRecords() {
+    const records = E.evidence(state).filter((record) =>
+      root.querySelector(`[data-compare-record][value="${record.id}"]:checked`),
+    );
+    if (records.length < 2 || records.length > 3) return;
+    show('Compare collected records', evidenceComparison(records));
+    opener = null;
   }
   function editTheory(id) {
     if (!state.preferences.story) return;
@@ -650,7 +647,8 @@ export async function mount({ root, preferences = null, practice = null }) {
           'Practice shelf unavailable',
           '<p>This official puzzle could not be opened. Return to the collection or try again after reopening the castle.</p>',
         );
-    } else if (name === 'theory-edit') editTheory(value);
+    } else if (name === 'compare-records') compareRecords();
+    else if (name === 'theory-edit') editTheory(value);
     else if (name === 'theory-save') saveTheory(value);
     else if (name === 'theory-remove')
       show(
@@ -779,7 +777,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     'change',
     (event) => {
       const el = event.target;
-      if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
+      if (root.querySelectorAll('[data-compare-record]:checked').length > 3) {
+        el.checked = false;
+        announce('Max 3 records.');
+      } else if (el.id === 'castle-import') importFile(el.files[0]).catch(failure);
       else if (el.dataset.wheel !== undefined && active === 'gate') {
         const i = Number(el.dataset.wheel),
           next = [...answer];
