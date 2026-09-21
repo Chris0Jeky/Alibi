@@ -21,6 +21,16 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Games Room retirement candidate, 2026-09-21 (PR #199)
+
+The Games Room now offers six games: Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe,
+Block Cabinet and Lantern Gardens. Dominoes and Mahjong remain direct legacy routes with their
+engines, existing saves, replay, undo/redo and backup validation intact, but no longer appear as
+discovery cards or Home resume suggestions. The focused browser suites assert both sides of that
+boundary: retired runs remain readable after Home navigation, while the retired games are absent
+from discovery. Physical-device, TalkBack and difficulty acceptance remain open in `HUMAN_TODO.md`
+q-8. This is a source candidate and is not a new hosted publication.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published

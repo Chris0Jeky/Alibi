@@ -98,12 +98,16 @@ with sync_playwright() as playwright:
             )
         route("/home")
         check(
-            "Mahjong Solitaire · MAHJONG-01" in page.locator(".club-letter").inner_text(),
-            f"The active run card names Mahjong Solitaire at {width}px",
+            "Mahjong Solitaire · MAHJONG-01" not in page.locator(".club-letter").inner_text(),
+            f"Retired Mahjong is not offered as an active home run at {width}px",
         )
         check(
-            page.locator('.club-gamecard[data-id="mahjong"]').count() == 1,
-            f"Home advertises a distinct Mahjong Solitaire card at {width}px",
+            page.evaluate("() => AlibiClub.diagnostics().state.runs.mahjong.log.length") == 1,
+            f"Retired Mahjong run remains saved after home navigation at {width}px",
+        )
+        check(
+            page.locator('.club-gamecard[data-id="mahjong"]').count() == 0,
+            f"Home no longer advertises Mahjong Solitaire at {width}px",
         )
         route("/salon/blockcabinet")
         page.locator('[data-action="club-block-piece"]').first.click()

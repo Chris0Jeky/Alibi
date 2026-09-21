@@ -83,8 +83,12 @@ with sync_playwright() as playwright:
               f'Tab from the round status reaches the remaining hand at {width}px')
         route("/home")
         check(
-            "Draw Dominoes · DOMINO-01" in page.locator(".club-letter").inner_text(),
-            f"The active run card names Draw Dominoes at {width}px",
+            "Draw Dominoes · DOMINO-01" not in page.locator(".club-letter").inner_text(),
+            f"Retired Draw Dominoes is not offered as an active home run at {width}px",
+        )
+        check(
+            page.evaluate("() => AlibiClub.diagnostics().state.runs.dominoes.log.length") == 1,
+            f"Retired Draw Dominoes run remains saved after home navigation at {width}px",
         )
         route("/salon/dominoes")
         page.locator('[data-action="club-undo"][data-id="dominoes"]').click()
