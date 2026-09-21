@@ -51,10 +51,15 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   report any easy, guess-heavy or confusing entry before treating Expert as calibrated. Separately
   sample the six provisional Master/Grandmaster Crime Scene variations; verify that the named
   room/furniture cues match the playable clues and report any easy, guess-heavy or confusing solve
-  before treating either advanced label as calibrated. The region game uses one lantern per
+  before treating either advanced label as calibrated. Also sample the nine provisional
+  Master/Grandmaster studies across Nonogram, Binary, Futoshiki, Light Up, Tents, Aquarium,
+  Network, Trail, and Bridges. On the 15×15, 9×9, and 7×7 boards, verify physical touch targeting,
+  comfortable sizing, panning where applicable, TalkBack order, and sustained-device performance;
+  browser hit-testing does not close those checks. The region game uses one lantern per
   row/column/region with no touching. Dominoes and Mahjong are now legacy compatibility routes,
   not part of this discovery or difficulty sample. Confirm whether the offered-game interpretations
-  match the player's intention.
+  match the player's intention. Candidate evidence and residual limits are recorded in
+  [Advanced puzzle candidates](docs/ADVANCED-PUZZLE-CANDIDATES.md).
 
 ## Capacitor transition: owner gates, not a request to stop planning
 
