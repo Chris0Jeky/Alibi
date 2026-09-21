@@ -88,7 +88,8 @@ function rank(state) {
 }
 
 function compareNodes(left, right) {
-  return right.rank - left.rank || left.key.localeCompare(right.key, 'en-US-u-kf-upper');
+  if (left.rank !== right.rank) return right.rank - left.rank;
+  return left.key < right.key ? -1 : Number(left.key > right.key);
 }
 
 function actions(state) {
@@ -170,6 +171,7 @@ export function searchSeed(seed, value = {}) {
     nodes++;
     if (compareNodes(current, best) < 0) best = current;
     const children = [];
+    const childKeys = new Set();
     for (const action of actions(current.state)) {
       generated++;
       const state = Cascade.move(current.state, action.slot, action.cell, action.rotation);
@@ -178,7 +180,8 @@ export function searchSeed(seed, value = {}) {
       if (solved) return result(normalizedSeed, 'solved', nodes, generated, { state, log }, solved);
       if (state.done) continue;
       const key = stateKey(state);
-      if (seen.has(key)) continue;
+      if (seen.has(key) || childKeys.has(key)) continue;
+      childKeys.add(key);
       children.push({ state, log, key, rank: rank(state) });
     }
     children.sort(compareNodes);
