@@ -21,6 +21,21 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Advanced puzzle candidates, 2026-09-21 (not deployed)
+
+Open PR #226 adds six additive revision-1 Crime Scene studies with provisional Master and
+Grandmaster labels. The independent bounded solver and focused contracts pass, while the
+records remain `humanPlaytested: false`. The named room and furniture calibration notes are
+bound to their encoded clues; physical-device, TalkBack, comfort, variety and human difficulty
+acceptance remain open in `HUMAN_TODO.md` q-8.
+
+Stacked PR #229 adds nine additive revision-1 Master and Grandmaster studies across Nonogram,
+Binary, Futoshiki, Light Up, Tents, Aquarium, Network, Trail and Bridges. Its representative
+Chromium control workflow covers simulated phone and desktop hit-testing, state mutation and
+undo; physical touch, TalkBack, comfort, sustained performance and human calibration remain
+open in `HUMAN_TODO.md` q-8. Neither open candidate is deployed or store-published. See
+`docs/ADVANCED-PUZZLE-CANDIDATES.md` for the evidence boundary.
+
 ## Castle map viewport candidate, 2026-09-21 (not deployed)
 
 PR #206 now preserves the Castle map viewport when selecting a numbered room or switching between
