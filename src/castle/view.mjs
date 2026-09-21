@@ -45,7 +45,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     view = 'map',
     selected = 'gatehouse',
     era = 'today',
-    mapZoom = 1,
+    mapZoom = 4,
     search = '',
     filter = 'all',
     inspectablesVisible = true;
@@ -130,7 +130,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       view,
       selected,
       era,
-      mapZoom,
+      mapZoom: mapZoom / 4,
       search,
       filter,
       practiceSnapshot,
@@ -630,45 +630,27 @@ export async function mount({ root, preferences = null, practice = null }) {
       `${correct ? 'Label reviewed. ' : 'Try revising the claim. '}${question.feedback}${correct ? ' ' + question.transfer : ''}${correct && Object.keys(state.labels).length === 3 ? ' Mara’s exhibition drawer is now open.' : ''}`;
     announce($('#label-result').textContent);
   }
-  function captureMapViewport() {
-    const scroller = $('.map-scroll');
-    if (!scroller) return null;
-    return {
-      x: (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth,
-      y: (scroller.scrollTop + scroller.clientHeight / 2) / scroller.scrollHeight,
-    };
-  }
-  function restoreMapViewport(viewport) {
-    const scroller = $('.map-scroll');
-    if (!scroller || !viewport) return;
-    scroller.scrollLeft = Math.max(0, viewport.x * scroller.scrollWidth - scroller.clientWidth / 2);
-    scroller.scrollTop = Math.max(
-      0,
-      viewport.y * scroller.scrollHeight - scroller.clientHeight / 2,
-    );
+  function redrawMap(selector) {
+    let scroller = $('.map-scroll');
+    const viewport = (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth;
+    render();
+    scroller = $('.map-scroll');
+    scroller.scrollLeft = viewport * scroller.scrollWidth - scroller.clientWidth / 2;
+    $(selector)?.focus({ preventScroll: true });
   }
   function zoomMap(direction) {
-    const viewport = captureMapViewport(),
-      next =
-        direction === 'in'
-          ? Math.min(1.75, mapZoom + 0.25)
-          : direction === 'out'
-            ? Math.max(1, mapZoom - 0.25)
-            : 1;
+    const next =
+      direction === 'in'
+        ? Math.min(7, mapZoom + 1)
+        : direction === 'out'
+          ? Math.max(4, mapZoom - 1)
+          : 4;
     if (next === mapZoom) return;
     mapZoom = next;
-    render();
-    restoreMapViewport(viewport);
     const focus =
-      direction === 'reset' || (direction === 'out' && mapZoom === 1)
-        ? 'in'
-        : direction === 'in' && mapZoom === 1.75
-          ? 'out'
-          : direction;
-    root
-      .querySelector(`[data-do="map-zoom"][data-value="${focus}"]`)
-      ?.focus({ preventScroll: true });
-    announce(`Estate map zoom ${Math.round(mapZoom * 100)} percent.`);
+      mapZoom === 4 ? 'in' : mapZoom === 7 ? 'out' : direction === 'reset' ? 'in' : direction;
+    redrawMap(`[data-do="map-zoom"][data-value="${focus}"]`);
+    announce(`Zoom ${mapZoom * 25}%.`);
   }
   async function action(event) {
     const target = event.target.closest?.('[data-do]');
@@ -714,20 +696,10 @@ export async function mount({ root, preferences = null, practice = null }) {
               quietLinks(),
       );
     else if (name === 'visit') visit(value);
-    else if (name === 'select') {
-      const viewport = captureMapViewport();
-      selected = value;
-      render();
-      restoreMapViewport(viewport);
-      for (const el of root.querySelectorAll('[data-do="select"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
-    } else if (name === 'era') {
-      const viewport = captureMapViewport();
-      era = value;
-      render();
-      restoreMapViewport(viewport);
-      for (const el of root.querySelectorAll('[data-do="era"]'))
-        if (el.dataset.value === value) el.focus({ preventScroll: true });
+    else if (name === 'select' || name === 'era') {
+      if (name === 'select') selected = value;
+      else era = value;
+      redrawMap(`[data-do="${name}"][data-value="${value}"]`);
     } else if (name === 'map-zoom') zoomMap(value);
     else if (name === 'object') inspect(value);
     else if (name === 'room-puzzle') {
