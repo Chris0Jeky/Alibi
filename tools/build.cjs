@@ -172,9 +172,17 @@ function build() {
     bootURL = `./assets/boot.${hash(boot)}.js`;
   // The Observatory adapter is emitted verbatim as its own asset and loaded after the page's load event by
   // src/observatory-loader.js. It is an online-only control: not in the initial bundle, not in the offline shell.
+  // Discovery storage is likewise emitted as a deferred distribution asset. It remains unwired,
+  // so it is neither advertised by the initial bootstrap nor installed in the core offline shell.
   const observatory = read(path.join(ROOT, 'observatory/browser.js')),
-    observatoryURL = `./assets/observatory.${hash(observatory)}.js`;
+    observatoryURL = `./assets/observatory.${hash(observatory)}.js`,
+    discoveryStorage = require('esbuild').transformSync(
+      read(path.join(SRC, 'discovery-storage.js')),
+      { minify: true, target: 'es2022' },
+    ).code,
+    discoveryStorageURL = `./assets/discovery-storage.${hash(discoveryStorage)}.js`;
   write(path.join(DIST, observatoryURL), observatory);
+  write(path.join(DIST, discoveryStorageURL), discoveryStorage);
   write(path.join(DIST, bootURL), boot);
   write(path.join(DIST, engineURL), clubEngineBundle);
   write(path.join(DIST, workerURL), worker);
@@ -233,6 +241,7 @@ function build() {
         worker +
         clubEngineBundle +
         observatory +
+        discoveryStorage +
         css +
         VERSION +
         template +
@@ -384,6 +393,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -
       Buffer.byteLength(observatory) -
+      Buffer.byteLength(discoveryStorage) -
       blockMotion.bytes -
       house.bytes,
     houseBytes: house.bytes,
@@ -392,6 +402,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     blockMotionBytes: blockMotion.bytes,
     blockMotionLoaderGzipBytes: zlib.gzipSync(blockLoader).length,
     observatoryBytes: Buffer.byteLength(observatory),
+    discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
+    discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
     officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
