@@ -176,6 +176,7 @@ function mountObserver(config, create, runtime = globalThis) {
   let announced = false;
   function apply(value, persist) {
     checkbox.checked = observer.setConsent(value);
+    journey.reset();
     status.textContent = checkbox.checked ? 'Sharing is on. Untick to stop future collection.' : 'Sharing is off. The app works normally.';
     if (persist) { try { runtime.localStorage.setItem(key, JSON.stringify({ allow: checkbox.checked, until: Date.now() + CONSENT_MS })); } catch { status.textContent += ' This choice could not be saved.'; } }
     // One page view per page, on the first time sharing is on: re-ticking the box is not another visit.
