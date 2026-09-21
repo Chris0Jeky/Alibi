@@ -17,11 +17,17 @@ test('each comparison choice names its collected record', () => {
 
 test('selection guidance is visible and described by choices and the compare action', () => {
   const html = evidenceBoard(records);
-  assert.match(html, /<p\b[^>]*id="compare-guidance"[^>]*>Select 2 or 3 collected records, then choose Compare\.<\/p>/);
+  assert.match(
+    html,
+    /<p\b[^>]*id="compare-guidance"[^>]*>Select 2 or 3 collected records, then choose Compare\.<\/p>/,
+  );
   for (const [input] of choices(html)) {
     assert.match(input, /aria-describedby="compare-guidance"/);
   }
-  assert.match(html, /<button\b[^>]*data-do="compare-records"[^>]*aria-describedby="compare-guidance"/);
+  assert.match(
+    html,
+    /<button\b[^>]*data-do="compare-records"[^>]*aria-describedby="compare-guidance"/,
+  );
   assert.equal((html.match(/id="compare-guidance"/g) || []).length, 1);
 });
 
