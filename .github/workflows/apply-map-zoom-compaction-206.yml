@@ -58,26 +58,26 @@ jobs:
           replace_once(
               'src/castle/pages.mjs',
               'Select a numbered door, or choose a named entrance below. On a small screen you can move across the grounds. Zoom changes only this map, not the page.',
-              'Choose a door below. Pan or zoom this map.',
+              'Choose a door. Pan or zoom.',
           )
 
           replace_once('src/castle/view.mjs', '    mapZoom = 1,', '    mapZoom = 4,')
           replace_once(
               'src/castle/view.mjs',
               'No close-up artwork is available for this object. Its complete description is below.',
-              'No close-up artwork is available. The description follows.',
+              'No close-up artwork. Description follows.',
           )
           view = Path('src/castle/view.mjs')
           text = view.read_text(encoding='utf-8')
           start = text.index('  function captureMapViewport() {')
           end = text.index('  async function action(event) {', start)
-          text = text[:start] + '''  function redrawMap(focus) {
+          text = text[:start] + '''  function redraw(s) {
             let map = $('.map-scroll');
-            const centre = (map.scrollLeft + map.clientWidth / 2) / map.scrollWidth;
+            const x = (map.scrollLeft + map.clientWidth / 2) / map.scrollWidth;
             render();
             map = $('.map-scroll');
-            map.scrollLeft = centre * map.scrollWidth - map.clientWidth / 2;
-            $(focus).focus({ preventScroll: true });
+            map.scrollLeft = x * map.scrollWidth - map.clientWidth / 2;
+            $(s).focus({ preventScroll: true });
           }
           '''.replace('          ', '') + text[end:]
           action_start = text.index("    else if (name === 'visit') visit(value);")
@@ -87,17 +87,17 @@ jobs:
           else if (name === 'select' || name === 'era') {
             if (name === 'select') selected = value;
             else era = value;
-            redrawMap(`[data-do="${name}"][data-value="${value}"]`);
+            redraw(`[data-do="${name}"][data-value="${value}"]`);
           } else if (name === 'map-reset') {
             mapZoom = 4;
-            redrawMap('#map-zoom');
+            redraw('#map-zoom');
           } else if (name === 'object') inspect(value);'''.replace('          ', '') + text[action_end:]
           marker = "      } else if (el.id === 'clock-answer' && active === 'clock') {"
           if text.count(marker) != 1:
               raise SystemExit('Castle input handler changed unexpectedly.')
           text = text.replace(
               marker,
-              "      } else if (el.id === 'map-zoom') {\n        mapZoom = +el.value;\n        redrawMap('#map-zoom');\n      } else if (el.id === 'clock-answer' && active === 'clock') {",
+              "      } else if (el.id === 'map-zoom') {\n        mapZoom = +el.value;\n        redraw('#map-zoom');\n      } else if (el.id === 'clock-answer' && active === 'clock') {",
               1,
           )
           view.write_text(text, encoding='utf-8')
