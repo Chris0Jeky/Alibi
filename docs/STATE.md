@@ -35,6 +35,16 @@ passed at the exact head. Full publication evidence, archives and rollback refer
 [RELEASE-0.11.4.md](RELEASE-0.11.4.md). Physical-device, TalkBack and human playtesting acceptance
 remain tracked in `HUMAN_TODO.md`.
 
+## Castle inspectable-object round-2 review fix, 2026-09-21 (not deployed)
+
+The PR #184 candidate preserves the room’s inspectable-marker toggle when a named object
+opens and its dialog closes, validates the complete authored object collection during the Castle
+build, and rejects non-null detail artwork until a release-manifest path emits and caches it.
+Object IDs, saves and no-points observation semantics are unchanged. Focused Castle Node,
+asset/build, full verification and illustrated browser checks are source-candidate proof; this
+worktree is not a hosted release and physical-device/TalkBack acceptance remains open in
+`HUMAN_TODO.md` q-7 and the existing device gates.
+
 ## Published 0.11.3 Expert quality release, 2026-09-12
 
 Merged source `dc8e3ef4222d8d887edda10e702405ff1f3e542f`, build `01501bb6797b`, is published
