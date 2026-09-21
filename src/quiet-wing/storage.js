@@ -259,7 +259,12 @@
             };
           });
         } else {
-          const current = JSON.parse(localStorage.getItem(FALLBACK) || 'null');
+          let current = null;
+          try {
+            current = JSON.parse(localStorage.getItem(FALLBACK) || 'null');
+          } catch {
+            throw Error('The saved record could not be read and was preserved.');
+          }
           if ((current?.revision || 0) !== revision) {
             blocked = true;
             throw Error('Another tab changed this save.');
