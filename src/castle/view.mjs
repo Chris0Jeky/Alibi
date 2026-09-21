@@ -582,6 +582,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     );
     if (records.length < 2 || records.length > 3) return;
     show('Compare collected records', evidenceComparison(records));
+    opener = null;
   }
   function editTheory(id) {
     if (!state.preferences.story) return;
