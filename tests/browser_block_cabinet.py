@@ -54,10 +54,107 @@ with sync_playwright() as playwright:
 
         route("/salon/blockcabinet")
         page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
-        restart = page.get_by_role('button', name='Start again', exact=True)
+        restart = page.locator('.bc-host').get_by_role('button', name='Start again', exact=True)
         check(restart.is_visible(), f"Enhanced Block Cabinet exposes Start again at {width}px")
+        actions = page.locator('.bc-host .bc-controls')
+        check(
+            actions.get_by_role('button', name='Cancel piece', exact=True).count() == 1,
+            f"Enhanced Block Cabinet keeps Cancel with primary actions at {width}px",
+        )
+        check(
+            actions.locator('[data-command="sound"], [data-command="haptics"]').count() == 0,
+            f"Comfort toggles stay out of primary actions at {width}px",
+        )
+        check(
+            page.locator('.bc-host .bc-help [data-command="sound"]').count() == 1
+            and page.locator('.bc-host .bc-help [data-command="haptics"]').count() == 1,
+            f"Comfort toggles live in secondary options at {width}px",
+        )
+        selection = page.locator('.bc-host [data-selection]')
+        check(
+            selection.locator('[data-selection-title]').inner_text().strip() == 'Select a tray piece',
+            f"Enhanced Block Cabinet starts with a clear next action at {width}px",
+        )
+        if width <= 760:
+            menu = page.locator('.bc-host [data-command="menu"]')
+            if menu.get_attribute('aria-expanded') != 'true':
+                menu.click()
+            position = actions.evaluate(
+                """el => {
+                  const rect = el.getBoundingClientRect();
+                  return {
+                    top: rect.top + scrollY,
+                    height: rect.height,
+                    max: document.documentElement.scrollHeight - innerHeight,
+                  };
+                }"""
+            )
+            scroll_target = min(
+                position['top'] + position['height'] + 80,
+                position['max'] - 1,
+            )
+            check(
+                scroll_target > position['top'],
+                f"Phone fixture scrolls beyond the primary actions at {width}px",
+            )
+            page.evaluate("y => scrollTo(0, y)", scroll_target)
+            page.wait_for_timeout(100)
+            action_box = actions.bounding_box()
+            check(
+                action_box is not None
+                and action_box['y'] >= 0
+                and action_box['y'] + action_box['height'] <= height + 1,
+                f"Primary actions remain in the phone viewport while scrolling at {width}px",
+            )
+            page.evaluate("scrollTo(0, 0)")
+            if menu.get_attribute('aria-expanded') == 'true':
+                menu.click()
         original_seed = page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed")
-        page.locator('.bc-host [data-piece="0"]').click()
+        piece = page.locator('.bc-host [data-piece="0"]')
+        piece.click()
+        detail = selection.locator('[data-selection-detail]').inner_text()
+        check(
+            'cells' in detail and 'squares' in detail and 'fixed orientation' in detail,
+            f"Selected piece describes dimensions and orientation at {width}px",
+        )
+        check(
+            selection.locator('[data-selection-title]').inner_text().strip()
+            in piece.get_attribute('aria-label'),
+            f"Selected-piece summary matches its tray control at {width}px",
+        )
+        cancel = actions.get_by_role('button', name='Cancel piece', exact=True)
+        check(not cancel.is_disabled(), f"Cancel becomes available for a selection at {width}px")
+        check(
+            page.locator('.bc-host .bc-cell.legal').count() > 0,
+            f"Enhanced selection exposes legal origins at {width}px",
+        )
+        illegal = page.locator('.bc-host .bc-cell:not(.legal)').first
+        illegal.click()
+        check(
+            page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.log.length") == 0,
+            f"An invalid enhanced placement does not commit at {width}px",
+        )
+        check(
+            piece.get_attribute('aria-pressed') == 'true'
+            and selection.locator('[data-selection-title]').inner_text().strip()
+            in piece.get_attribute('aria-label'),
+            f"An invalid enhanced placement preserves selection at {width}px",
+        )
+        check(
+            'does not fit' in page.locator('.bc-host .bc-status').inner_text(),
+            f"An invalid enhanced placement explains the rejection at {width}px",
+        )
+        cancel.click()
+        check(
+            piece.get_attribute('aria-pressed') == 'false'
+            and selection.locator('[data-selection-title]').inner_text().strip() == 'Select a tray piece',
+            f"Cancel clears the selected piece at {width}px",
+        )
+        check(
+            page.locator('.bc-host [data-piece="0"]:focus').count() == 1,
+            f"Cancel restores focus to the tray piece at {width}px",
+        )
+        piece.click()
         page.locator('.bc-host .bc-cell.legal').first.click()
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 1"

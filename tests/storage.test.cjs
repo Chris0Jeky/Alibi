@@ -49,11 +49,20 @@ function setup(local = true, newer = false) {
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/core.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8'), ctx);
-  return { Store: ctx.AlibiStorage.Store, items, ls };
+  vm.runInContext(
+    fs.readFileSync(path.join(__dirname, '../src/discovery-storage.js'), 'utf8'),
+    ctx,
+  );
+  return {
+    Store: ctx.AlibiStorage.Store,
+    compareAndSwapMeta: ctx.AlibiDiscoveryStorage.compareAndSwapMeta,
+    items,
+    ls,
+  };
 }
 (async () => {
   for (const local of [true, false]) {
-    const { Store, items, ls } = setup(local),
+    const { Store, compareAndSwapMeta, items, ls } = setup(local),
       s = await new Store().init();
     ok(s.mode === (local ? 'local' : 'session'), 'honest ' + s.mode + ' mode');
     const r = { key: 'scene-01@1', rev: 0, state: { placements: {} }, schemaVersion: 1 };
@@ -79,6 +88,35 @@ function setup(local = true, newer = false) {
         'cabinet fallback key set matches the documented inventory',
       );
     }
+    const entitlementState = {
+      schema: 1,
+      generation: 1,
+      receipts: [],
+      owned: [],
+      outbox: [],
+    };
+    await assert.rejects(
+      compareAndSwapMeta(s, 'discovery-entitlements', -1, entitlementState),
+      /generation/i,
+    );
+    assertions++;
+    await assert.rejects(
+      compareAndSwapMeta(s, 'discovery-entitlements', 0, {
+        ...entitlementState,
+        generation: 2,
+      }),
+      /next generation/i,
+    );
+    assertions++;
+    await assert.rejects(
+      compareAndSwapMeta(s, 'discovery-entitlements', 0, entitlementState),
+      /requires IndexedDB/,
+    );
+    assertions++;
+    ok(
+      (await s.get('meta', 'discovery-entitlements')) === undefined,
+      'nontransactional fallback refuses central CAS without creating state',
+    );
     const backup = await s.export();
     ok(backup.format === 'alibi-backup' && backup.schemaVersion === 1, 'stable backup envelope');
     ok(backup.preferences.seen[0] === 'scene', 'preferences exported');
@@ -98,6 +136,14 @@ function setup(local = true, newer = false) {
       await assert.rejects(s.getAll('runs'), /damaged/);
       assertions++;
       ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+      await assert.rejects(s.get('runs', 'bad'), /damaged/);
+      assertions++;
+      ok(items.has('alibi.v1.runs.bad'), 'corrupt single read preserves the record');
+      ls.removeItem('alibi.v1.runs.bad');
+      const realKey = ls.key;
+      ls.key = (i) => (i === 1 ? null : realKey(i));
+      ok((await s.getAll('runs')).length === 1, 'null storage key skipped without crashing');
+      ls.key = realKey;
     }
   }
   const { Store } = setup(true, true),
@@ -112,7 +158,7 @@ function setup(local = true, newer = false) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, export, corruption preservation, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, lazy metadata CAS fallback refusal, export, corruption preservation, single-read corruption message, null-key iteration, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
       },
       null,
       2,

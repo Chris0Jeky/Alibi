@@ -118,7 +118,9 @@
             "Gentle",
             "Steady",
             "Tricky",
-            "Expert"
+            "Expert",
+            "Master",
+            "Grandmaster"
           ]
         },
         "difficultyStatus": {

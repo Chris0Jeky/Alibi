@@ -2,6 +2,7 @@
 (function (G) {
   'use strict';
   const views = ['desk', 'puzzles', 'house', 'notebook', 'comfort'];
+  const levels = G.AlibiCore.DIFFICULTIES;
   const families = [
     'scene',
     'dossier',
@@ -54,9 +55,7 @@
       q: (p.get('q') || '').slice(0, 120),
       family: families.includes(p.get('family')) ? p.get('family') : '',
       progress: ['new', 'active', 'solved'].includes(p.get('progress')) ? p.get('progress') : '',
-      level: ['Gentle', 'Steady', 'Tricky', 'Expert'].includes(p.get('level'))
-        ? p.get('level')
-        : '',
+      level: levels.includes(p.get('level')) ? p.get('level') : '',
     };
   }
   function url(state = {}) {
@@ -108,8 +107,6 @@
       tictactoe: ['Tic-Tac-Toe', (r) => E.tictactoe.replay(r.log)],
       blockcabinet: ['Block Cabinet', (r) => E.blockCabinet.replay(r.seed, r.log)],
       regiongardens: ['Lantern Gardens', (r) => E.regionGardens.replay(r.level, r.log)],
-      dominoes: ['Draw Dominoes', (r) => E.dominoes.replay(r.seed, r.log)],
-      mahjong: ['Mahjong Solitaire', (r) => E.mahjong.replay(r.seed, r.log)],
       borough: ['Pocket Borough', (r) => E.borough.replay(r.seed, r.log)],
       duel: [
         'Lantern Duel',
@@ -166,6 +163,7 @@
   }
   const api = {
     views,
+    levels,
     families,
     rooms,
     key,
