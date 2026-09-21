@@ -42,7 +42,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 367 puzzles across twenty-one bounded packs |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 376 puzzles across twenty-two bounded packs |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
@@ -57,19 +57,19 @@ flowchart TD
 
 | Family | Count | Main interaction |
 | --- | ---: | --- |
-| Tidal bridges | 25 | Tap island pairs to cycle bridge counts |
+| Tidal bridges | 26 | Tap island pairs to cycle bridge counts |
 | Crime scenes | 43 | Spatial placement followed by an accusation |
 | Alibi files | 29 | People/room/object deduction matrices |
 | Witness statements | 31 | Truth counts and culprit selection |
-| Picture logic | 30 | Nonogram paint, cross, clear |
-| Lanterns | 25 | Illumination and numbered-wall constraints |
-| Tents & trees | 25 | Tree matching and edge counts |
-| Aquariums | 25 | Shared water levels within tanks |
-| Signal paths | 25 | Connected network rotations |
-| Number trails | 25 | Consecutive path through every square |
+| Picture logic | 31 | Nonogram paint, cross, clear |
+| Lanterns | 26 | Illumination and numbered-wall constraints |
+| Tents & trees | 26 | Tree matching and edge counts |
+| Aquariums | 26 | Shared water levels within tanks |
+| Signal paths | 26 | Connected network rotations |
+| Number trails | 26 | Consecutive path through every square |
 | Sudoku | 26 | Row, column and box constraints |
-| Sun & moon | 28 | Balanced binary lines without triples |
-| Futoshiki | 24 | Latin square and inequality constraints |
+| Sun & moon | 29 | Balanced binary lines without triples |
+| Futoshiki | 25 | Latin square and inequality constraints |
 
 Bellweather adds six original, chronological records, and the unfinished invitation adds eight
 continuous records. The earlier three casebooks are anthologies of existing puzzles. Casebook
@@ -87,7 +87,7 @@ Two real players have enjoyed Alibi (owner report, 2026-09-09). Structured diffi
 ## After Hours
 
 See [AFTER-HOURS-MAP.md](AFTER-HOURS-MAP.md) and its per-file inventory for the full second bundle.
-`src/club-engines.js` retains eight separately versioned engines for compatibility; six are currently offered in the Games Room. `assist.js` adds reversible rules,
+`src/club-engines.js` adds eight separately versioned games; `assist.js` adds reversible rules,
 `club.js` and `club.css` implement the new desk/games/journal/Zen, and `atlas.js` draws the harbour.
 `boot.js` supplies independent startup recovery. `optional-online/` is a separate, disabled-by-default
 room service. The original 116-puzzle count is unchanged; six Archive rooms are additional games-room
@@ -114,7 +114,7 @@ combined staging and subsequent section validation use its bounded worker. See R
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 59 additional classic/Club challenges are
-separate experiences, never core imports or additions to the 367-puzzle count.
+separate experiences, never core imports or additions to the 376-puzzle count.
 
 ## Adaptive asset delivery
 
