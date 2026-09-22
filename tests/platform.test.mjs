@@ -391,7 +391,18 @@ test('a committed backup bounds optional readback and reports unverified on time
   const digest = createHash('sha256').update(payload).digest('hex');
   let closed = 0;
   let readbackStarted = false;
+  let nextTimerId = 0;
+  const timers = new Map();
   const host = hostFixture({
+    setTimeout(callback, delay) {
+      const id = ++nextTimerId;
+      timers.set(id, { callback, delay, fired: false, cleared: false });
+      return id;
+    },
+    clearTimeout(id) {
+      const timer = timers.get(id);
+      if (timer) timer.cleared = true;
+    },
     showSaveFilePicker: async () => ({
       async createWritable() {
         return {
@@ -403,7 +414,15 @@ test('a committed backup bounds optional readback and reports unverified on time
         };
       },
       getFile() {
+        assert.equal(closed, 1, 'the provider stream closes before readback begins');
         readbackStarted = true;
+        const pendingTimers = [...timers.values()].filter((timer) => !timer.cleared);
+        assert.equal(pendingTimers.length, 1, 'only the readback deadline remains active');
+        const readbackTimer = pendingTimers[0];
+        assert.equal(readbackTimer.delay, 5);
+        // Keep real SHA-256 work outside wall-clock flakiness; expire only optional readback.
+        readbackTimer.fired = true;
+        readbackTimer.callback();
         return new Promise(() => {});
       },
     }),
@@ -418,6 +437,13 @@ test('a committed backup bounds optional readback and reports unverified on time
   });
   assert.equal(closed, 1);
   assert.equal(readbackStarted, true);
+  assert.deepEqual(
+    [...timers.values()].map(({ delay, fired, cleared }) => ({ delay, fired, cleared })),
+    [
+      { delay: 5, fired: false, cleared: true },
+      { delay: 5, fired: true, cleared: true },
+    ],
+  );
 });
 
 test('save writes close the provider stream and report only verified bytes', async () => {
