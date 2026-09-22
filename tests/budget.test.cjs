@@ -49,10 +49,13 @@ for (const [label, pattern, reportedBytes] of deferredAssets) {
 }
 const deferredBytes = info.observatoryBytes + info.discoveryStorageBytes;
 const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
-assert.ok(info.javascriptGzipBytes < 125 * 1024, 'Initial JavaScript stays under 125 KiB gzip');
+assert.ok(info.javascriptGzipBytes < 125 * 1024, 'Application bundle stays under 125 KiB gzip');
+assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
-  coreOfflineBytes - info.officialContentBytes < 1.3 * 1024 * 1024,
-  'Precached code and shell excluding official content stay under 1.3 MiB',
+  // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
+  // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024,
+  'Precached code and shell excluding official content stay under 1.32 MiB',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
