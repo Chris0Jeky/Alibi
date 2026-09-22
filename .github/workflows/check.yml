@@ -132,6 +132,7 @@ jobs:
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
           python tests/browser_backup_worker.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_backup_import.py
           node tools/serve-assets.cjs > /tmp/alibi-assets.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
           python tests/browser_assets.py
@@ -161,6 +162,7 @@ jobs:
             tests/quiet-wing/*-results.json
             tests/screenshots/
             test-results/browser-origin/*.json
+            test-results/browser-backup-import.json
             test-results/browser-update/*.json
             test-results/mobile-qa/
             test-results/browser-expedition/**/*.json
