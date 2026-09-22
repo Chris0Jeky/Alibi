@@ -235,13 +235,13 @@ function inspectAndroidArtifact({
     runtimeIdentity = readIdentity(directory);
     const expected = {
       target: 'android',
-      flavor: identity.flavor,
       sourceSha: expectedSourceSha,
       sourceDirty: false,
       payloadSha256: identity.payloadSha256,
       appVersion: packageJson.version,
       contentManifestRevision: expectedContentManifestRevision,
       rulesCompatibility: {},
+      flavor: identity.flavor,
     };
     need(
       runtimeIdentity.source === identitySource(expected),
