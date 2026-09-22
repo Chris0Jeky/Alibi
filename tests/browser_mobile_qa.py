@@ -120,6 +120,10 @@ class MobileQA(unittest.TestCase):
     def test_bridge_zoom_changes_board_and_targets(self):
         page = self.open_page(route='play/bridges-01@1')
         self.dismiss_lesson(page)
+        # Lesson dismissal can complete while the board is being replaced.
+        # Wait for visible geometry before reading the baseline boxes.
+        expect(page.locator('.bridge-map')).to_be_visible()
+        expect(page.locator('.island').first).to_be_visible()
         before = page.locator('.bridge-map').bounding_box()
         target = page.locator('.island').first.bounding_box()
         page.get_by_role('button', name='Enlarge board', exact=True).click()
@@ -215,6 +219,54 @@ class MobileQA(unittest.TestCase):
                     'els => els.map(el => parseFloat(getComputedStyle(el).fontSize))')
                 self.assertTrue(sizes and min(sizes) >= 11, sizes)
                 self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width + 1)
+
+
+    def test_feature_heading_respects_page_hierarchy(self):
+        measurements = []
+        for width in [320, 390, 768, 1280, 1440]:
+            page = self.open_page(width, 900)
+            expect(page.locator('.club-welcome h1')).to_be_visible()
+            visited = set()
+            for _ in range(4):
+                edition = page.locator('.club-hero').get_attribute('data-theatre-story')
+                self.assertNotIn(edition, visited)
+                visited.add(edition)
+                with self.subTest(width=width, edition=edition):
+                    geometry = page.evaluate('''() => {
+                        const pageTitle = document.querySelector('.club-welcome h1');
+                        const feature = document.querySelector('.hero-copy h2');
+                        const title = feature.getBoundingClientRect();
+                        const card = document.querySelector('.club-hero').getBoundingClientRect();
+                        return {width:innerWidth, edition:document.querySelector('.club-hero').dataset.theatreStory,
+                            pageSize:parseFloat(getComputedStyle(pageTitle).fontSize),
+                            featureSize:parseFloat(getComputedStyle(feature).fontSize),
+                            contained:title.left >= card.left && title.right <= card.right + 1 &&
+                                title.top >= card.top && title.bottom <= card.bottom + 1,
+                            overflow:document.documentElement.scrollWidth > innerWidth + 1};
+                    }''')
+                    measurements.append(geometry)
+                    page.screenshot(path=str(OUT / f'type-{width}-{edition}.png'))
+                    self.assertLessEqual(geometry['featureSize'], geometry['pageSize'], geometry)
+                    self.assertGreaterEqual(geometry['featureSize'], 24, geometry)
+                    self.assertTrue(geometry['contained'], geometry)
+                    self.assertFalse(geometry['overflow'], geometry)
+                page.get_by_role('button', name='Next edition', exact=False).click()
+                expect(page.locator('.club-hero')).not_to_have_attribute('data-theatre-story', edition)
+        (OUT / 'typography-metrics.json').write_text(json.dumps(measurements, indent=2))
+
+    def test_phone_play_metadata_has_readable_floor(self):
+        for width, height in [(320, 568), (390, 844), (844, 390)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'play/bridges-01@1')
+                self.dismiss_lesson(page)
+                for selector, minimum in [('.play-title .row', 12), ('.play-title .difficulty', 12),
+                                          ('.play-title .save-state', 12), ('.board-heading .eyebrow', 11)]:
+                    label = page.locator(selector)
+                    expect(label).to_be_visible()
+                    self.assertGreaterEqual(label.evaluate('el => parseFloat(getComputedStyle(el).fontSize)'),
+                                            minimum, selector)
+                self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width + 1)
+                self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
 
 
 if __name__ == '__main__':

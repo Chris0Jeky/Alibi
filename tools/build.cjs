@@ -14,6 +14,25 @@ const read = (p) => fs.readFileSync(p, 'utf8'),
     fs.mkdirSync(path.dirname(p), { recursive: true });
     fs.writeFileSync(p, x);
   };
+/* Extensionless shared paths (/privacy, /about, /login) must resolve on a first
+visit, before any service worker controls the page. Hosts serve the static
+404-page for those paths, so the client-side path normalization in src/boot.js
+never runs. These tiny redirect documents bridge that gap: unknown addresses
+still land on 404.html, while each known alias forwards to its hash route.
+Both the `<alias>.html` and `<alias>/index.html` forms are emitted because
+static hosts differ on which convention answers an extensionless request. */
+const PATH_ROUTE_ALIASES = { __proto__: null, privacy: 'privacy', about: 'about', login: 'login' };
+function pathRouteAliasDocument(alias, target) {
+  const hash = `#/${target}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=/${hash}"><title>Alibi · ${alias}</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><p><a href="/${hash}">Continue to Alibi</a></p></main><script>location.replace('/${hash}'+location.search);</script></body></html>`;
+}
+function writePathRouteAliases(dist) {
+  for (const alias of Object.keys(PATH_ROUTE_ALIASES)) {
+    const document = pathRouteAliasDocument(alias, PATH_ROUTE_ALIASES[alias]);
+    write(path.join(dist, `${alias}.html`), document);
+    write(path.join(dist, alias, 'index.html'), document);
+  }
+}
 function files(dir) {
   return fs
     .readdirSync(dir, { withFileTypes: true })
@@ -352,6 +371,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
+  writePathRouteAliases(DIST);
   const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
@@ -419,4 +439,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   console.log(JSON.stringify(info, null, 2));
 }
 if (require.main === module) build();
-module.exports = { build, zip, files };
+module.exports = {
+  build,
+  zip,
+  files,
+  PATH_ROUTE_ALIASES,
+  pathRouteAliasDocument,
+  writePathRouteAliases,
+};

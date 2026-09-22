@@ -34,6 +34,8 @@ function boot(target) {
   const location = {
     hash: '',
     href: 'https://localhost/',
+    pathname: '/',
+    search: '',
     reload() {},
     toString() {
       return this.href;
