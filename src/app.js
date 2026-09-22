@@ -2137,7 +2137,7 @@
               ? 'That backup is larger than 16 MB. Choose a smaller backup.'
               : reading
                 ? 'The selected backup could not be read. Choose a JSON backup file.'
-                : 'The backup picker could not finish. Try again or use the file chooser.',
+                : 'The backup picker could not finish. Try again from Restore backup.',
           code !== 'cancelled',
         );
       };
@@ -2162,7 +2162,11 @@
       }
       await importBackup(new File([read.value], 'alibi-backup.json', { type: 'application/json' }));
     } finally {
-      if (token) await platform.documents.release(token).catch(() => {});
+      try {
+        if (token) await platform.documents.release(token);
+      } catch {
+        /* Cleanup must not replace the picker or import failure. */
+      }
       backupPickerBusy = false;
     }
   }

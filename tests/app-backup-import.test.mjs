@@ -55,6 +55,7 @@ test('picker import reads the bounded cabinet document, releases its token and p
   assert.equal(fixture.imported.length, 1);
   assert.equal(fixture.imported[0].name, 'alibi-backup.json');
   assert.equal(fixture.imported[0].type, 'application/json');
+  assert.equal(fixture.imported[0].parts[0], '{"format":"alibi-backup"}');
   assert.deepEqual(fixture.released, ['token-1']);
   assert.deepEqual(
     fixture.calls.map((call) => [call.kind, call.limit, call.options.timeoutMs]),
@@ -116,7 +117,9 @@ test('overlapping picker requests share one in-flight request and reset after ex
             });
           },
           readLimited: async () => ({ ok: true, value: '{}' }),
-          release: async () => {},
+          release: () => {
+            throw Error('release failed');
+          },
         },
         capabilities: () => ({ userDocuments: true }),
       },
@@ -134,7 +137,7 @@ test('overlapping picker requests share one in-flight request and reset after ex
   await assert.rejects(first, /worker failure/);
   assert.equal(await second, undefined);
   const third = fixture.run();
-  assert.equal(pickCalls, 2, 'busy flag resets after an import exception');
+  assert.equal(pickCalls, 2, 'busy flag resets after an import exception and release failure');
   resolvePick({ ok: false, code: 'cancelled' });
   await third;
 });

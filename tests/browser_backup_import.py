@@ -1,32 +1,54 @@
-"""Cabinet restore control proof with a document picker advertised before bootstrap.
+"""Real-origin Cabinet picker proof with nonempty saved progress.
 
-This uses a fresh real-origin Chromium context and injected File System Access API
-fixtures. It leaves the no-picker fallback coverage in browser_origin.py intact.
+The incoming backup is created through actual Sudoku controls in one isolated browser
+context. A second isolated context has a different saved Sudoku run, then exercises the
+advertised document picker, staged Add missing and Replace restore paths. Failure paths
+must leave IndexedDB unchanged. This does not claim hosted or physical-device coverage.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import shutil
-import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8793/")
-PAYLOAD = json.dumps(
-    {
-        "format": "alibi-backup",
-        "schemaVersion": 1,
-        "runs": [],
-        "packs": [],
-        "settings": {},
-        "preferences": {"seen": [], "favorites": []},
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/")
+ORIGIN = BASE.rstrip("/")
+REPORT_PATH = ROOT / "test-results" / "browser-backup-import.json"
+PICKER_SCRIPT = r"""
+(() => {
+  const fixture = globalThis.__cabinetPicker = {
+    mode: 'normal', payload: '', openCalls: 0, saveCalls: 0,
+    readCalls: 0, hiddenClicks: 0, resolve: null
+  };
+  const selected = () => ({
+    size: fixture.mode === 'oversize' ? 16 * 1024 * 1024 + 1 : fixture.payload.length,
+    async text() { fixture.readCalls++; return fixture.payload; }
+  });
+  Object.defineProperty(globalThis, 'showOpenFilePicker', {
+    configurable: true,
+    value: async () => {
+      fixture.openCalls++;
+      if (fixture.mode === 'cancel') throw new DOMException('cancelled', 'AbortError');
+      if (fixture.mode === 'deny') throw new DOMException('denied', 'NotAllowedError');
+      if (fixture.mode === 'invalid') return [{}];
+      if (fixture.mode === 'pending') return await new Promise(resolve => { fixture.resolve = resolve; });
+      return [{ getFile: async () => selected() }];
     }
-)
+  });
+  Object.defineProperty(globalThis, 'showSaveFilePicker', {
+    configurable: true,
+    value: async () => { fixture.saveCalls++; throw new Error('save picker must not run'); }
+  });
+})();
+"""
+
 checks: list[str] = []
+errors: list[str] = []
+identity: dict[str, object] | None = None
 
 
 def check(value: object, label: str) -> None:
@@ -35,155 +57,266 @@ def check(value: object, label: str) -> None:
     print("PASS", label, flush=True)
 
 
-def wait_toast(page, text: str) -> None:
-    page.locator("#toasts").get_by_text(text, exact=True).wait_for()
+def boot(page) -> None:
+    page.wait_for_function("() => Boolean(window.AlibiDiagnostics)")
+    page.wait_for_function("() => AlibiDiagnostics.getStatus().mode === 'indexeddb'")
 
 
-def route_settings(page) -> None:
-    page.evaluate("() => { location.hash = '#/settings'; }")
-    page.locator('[data-action="import-backup"]').wait_for()
+def dismiss_lesson(page) -> None:
+    dialog = page.locator("dialog[open]")
+    if not dialog.count():
+        return
+    finish = dialog.locator('[data-action="lesson-finish"]')
+    if finish.count():
+        finish.click()
+    else:
+        close = dialog.locator('[data-action="close-dialog"]')
+        if close.count():
+            close.click()
+    page.wait_for_function("() => !document.querySelector('dialog[open]')")
 
 
-def import_dialog(page) -> None:
-    page.locator('[data-action="import-backup"]').click()
+def route(page, fragment: str) -> None:
+    target = fragment if fragment.startswith("#") else f"#{fragment}"
+    page.goto(f"{ORIGIN}/{target}", wait_until="domcontentloaded")
+    boot(page)
+
+
+def move_sudoku(page) -> dict[str, object]:
+    current = page.evaluate("() => AlibiDiagnostics.getCurrent()")
+    puzzle = current["puzzle"]
+    state = current["state"]
+    index = next(
+        i for i, given in enumerate(puzzle["givens"])
+        if not given and state["cells"][i] == 0
+    )
+    value = puzzle["solution"][index]
+    page.locator(f'[data-action="cell"][data-cell="{index}"]').click()
+    page.locator(f'[data-action="value"][data-value="{value}"]').click()
+    page.wait_for_function(
+        "({key, value}) => AlibiDiagnostics.getCurrent()?.key === key && "
+        "AlibiDiagnostics.getCurrent()?.state.cells.some((cell, i) => i === value.index && cell === value.answer)",
+        arg={"key": current["key"], "value": {"index": index, "answer": value}},
+    )
+    page.wait_for_function("() => AlibiDiagnostics.getStatus().pendingSaves === 0")
+    return page.evaluate("() => AlibiDiagnostics.getCurrent()")
+
+
+def read_runs(page) -> list[dict[str, object]]:
+    return page.evaluate(
+        """() => new Promise((resolve, reject) => {
+          const request = indexedDB.open('alibi-device');
+          request.onerror = () => reject(request.error || new Error('run read failed'));
+          request.onsuccess = () => {
+            const db = request.result;
+            const tx = db.transaction('runs', 'readonly');
+            const get = tx.objectStore('runs').getAll();
+            get.onsuccess = () => { db.close(); resolve(get.result.map((record) => record.value)); };
+            get.onerror = () => { db.close(); reject(get.error || new Error('run read failed')); };
+          };
+        })"""
+    )
+
+
+def stable_runs(page) -> str:
+    return json.dumps(read_runs(page), sort_keys=True, separators=(",", ":"))
+
+
+def wait_picker_dialog(page) -> None:
     page.locator('[data-action="restore-merge"]').wait_for(timeout=10000)
 
 
-def fresh_profile() -> Path:
-    return Path(tempfile.mkdtemp(prefix="alibi-backup-picker-"))
+def start_picker(page) -> None:
+    page.locator('[data-action="import-backup"]').click()
 
 
-with sync_playwright() as playwright:
-    launch = {"headless": True, "args": ["--no-sandbox"]}
-    if os.environ.get("CHROMIUM_PATH"):
-        launch["executable_path"] = os.environ["CHROMIUM_PATH"]
-    elif Path("/usr/bin/chromium").exists():
-        launch["executable_path"] = "/usr/bin/chromium"
-    profile = fresh_profile()
-    try:
-        context = playwright.chromium.launch_persistent_context(
-            str(profile),
-            **launch,
-            viewport={"width": 390, "height": 900},
-            accept_downloads=True,
-            service_workers="allow",
-        )
-        page = context.new_page()
-        page.set_default_timeout(10000)
-        page.add_init_script(
-            """
-            (() => {
-              const fixture = globalThis.__cabinetPicker = {
-                mode: 'normal', payload: '', openCalls: 0, saveCalls: 0,
-                readCalls: 0, hiddenClicks: 0, resolve: null
-              };
-              const selected = () => ({
-                size: fixture.mode === 'oversize' ? 16 * 1024 * 1024 + 1 : fixture.payload.length,
-                async text() { fixture.readCalls++; return fixture.payload; }
-              });
-              Object.defineProperty(globalThis, 'showOpenFilePicker', {
-                configurable: true,
-                value: async () => {
-                  fixture.openCalls++;
-                  if (fixture.mode === 'cancel') throw new DOMException('cancelled', 'AbortError');
-                  if (fixture.mode === 'deny') throw new DOMException('denied', 'NotAllowedError');
-                  if (fixture.mode === 'pending') return await new Promise(resolve => { fixture.resolve = resolve; });
-                  return [{ getFile: async () => selected() }];
-                }
-              });
-              Object.defineProperty(globalThis, 'showSaveFilePicker', {
-                configurable: true,
-                value: async () => { fixture.saveCalls++; throw new Error('save picker must not run'); }
-              });
-            })();
-            """
-        )
-        page.goto(BASE, wait_until="domcontentloaded")
-        page.wait_for_function("() => Boolean(window.AlibiDiagnostics)")
-        page.evaluate("(payload) => { window.__cabinetPicker.payload = payload; }", PAYLOAD)
-        page.evaluate(
-            """
-            () => {
-              const input = document.querySelector('#backup-input');
-              const original = input.click.bind(input);
-              input.click = () => { window.__cabinetPicker.hiddenClicks++; original(); };
-            }
-            """
-        )
-        check(
+def wait_reload(page, old_origin: float) -> None:
+    page.wait_for_function("(origin) => performance.timeOrigin !== origin", arg=old_origin)
+    page.wait_for_function("() => Boolean(window.AlibiDiagnostics)")
+    page.wait_for_function("() => AlibiDiagnostics.getStatus().mode === 'indexeddb'")
+
+
+def export_backup(page) -> dict[str, object]:
+    route(page, "#/settings")
+    with page.expect_download() as download:
+        page.locator('[data-action="export"]').first.click()
+    return json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
+
+
+def run() -> dict[str, object]:
+    global identity
+    with sync_playwright() as playwright:
+        launch = {"headless": True, "args": ["--no-sandbox"]}
+        if os.environ.get("CHROMIUM_PATH"):
+            launch["executable_path"] = os.environ["CHROMIUM_PATH"]
+        elif Path("/usr/bin/chromium").exists():
+            launch["executable_path"] = "/usr/bin/chromium"
+        browser = playwright.chromium.launch(**launch)
+        incoming_context = None
+        test_context = None
+        try:
+            incoming_context = browser.new_context(viewport={"width": 390, "height": 900}, accept_downloads=True)
+            incoming_page = incoming_context.new_page()
+            incoming_page.set_default_timeout(10000)
+            incoming_page.on("pageerror", lambda error: errors.append(f"incoming: {error}"))
+            route(incoming_page, "#/play/sudoku-01@1")
+            dismiss_lesson(incoming_page)
+            incoming = move_sudoku(incoming_page)
+            incoming_key = incoming["key"]
+            incoming_payload = export_backup(incoming_page)
+            incoming_records = {record["key"]: record for record in incoming_payload["runs"]}
+            check(
+                incoming_key in incoming_records and incoming_records[incoming_key]["moves"] > 0,
+                "incoming backup is nonempty and was exported after an actual Sudoku control move",
+            )
+            incoming_context.close()
+            incoming_context = None
+
+            test_context = browser.new_context(
+                viewport={"width": 390, "height": 900},
+                accept_downloads=True,
+            )
+            test_context.add_init_script(PICKER_SCRIPT)
+            page = test_context.new_page()
+            page.set_default_timeout(10000)
+            page.on("pageerror", lambda error: errors.append(f"restore: {error}"))
+            route(page, "#/play/sudoku-02@1")
+            dismiss_lesson(page)
+            existing = move_sudoku(page)
+            existing_key = existing["key"]
+            check(existing_key != incoming_key and existing["moves"] > 0, "test context has a different existing Sudoku save")
+            page.evaluate("(payload) => { __cabinetPicker.payload = payload; }", json.dumps(incoming_payload))
             page.evaluate(
-                "() => AlibiPlatform.capabilities().userDocuments && typeof showSaveFilePicker === 'function'"
-            ),
-            "document picker capability is advertised from the pre-bootstrap APIs",
-        )
-        route_settings(page)
+                """() => {
+                  const input = document.querySelector('#backup-input');
+                  const original = input.click.bind(input);
+                  input.click = () => { __cabinetPicker.hiddenClicks++; original(); };
+                }"""
+            )
+            identity = page.evaluate(
+                "() => ({ config: globalThis.ALIBI_CONFIG, platform: globalThis.AlibiPlatform?.build })"
+            )
+            check(
+                page.evaluate(
+                    "() => AlibiPlatform.capabilities().userDocuments && typeof showSaveFilePicker === 'function'"
+                ),
+                "document picker capability is advertised from pre-bootstrap APIs",
+            )
+            route(page, "#/settings")
+            before_failures = stable_runs(page)
 
-        before = page.evaluate("() => AlibiDiagnostics.getCounts()")
-        page.evaluate("() => { window.__cabinetPicker.mode = 'cancel'; }")
-        page.locator('[data-action="import-backup"]').click()
-        wait_toast(page, "No backup was selected. Nothing was changed.")
-        check(
-            page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.readCalls === 0"),
-            "picker cancellation does not fall back to the hidden input or read a document",
-        )
-        check(page.evaluate("(before) => JSON.stringify(AlibiDiagnostics.getCounts()) === JSON.stringify(before)", before), "picker cancellation leaves cabinet counts unchanged")
+            for mode, label, toast in [
+                ("cancel", "picker cancellation", "No backup was selected. Nothing was changed."),
+                ("deny", "picker denial", "The backup picker could not finish. Try again from Restore backup."),
+                ("invalid", "invalid picker result", "The backup picker could not finish. Try again from Restore backup."),
+            ]:
+                page.evaluate("(mode) => { __cabinetPicker.mode = mode; }", mode)
+                start_picker(page)
+                page.locator("#toasts").get_by_text(toast, exact=True).wait_for()
+                check(stable_runs(page) == before_failures, f"{label} leaves saved data unchanged")
+                check(page.evaluate("() => __cabinetPicker.hiddenClicks === 0"), f"{label} never opens the hidden input")
 
-        page.evaluate("() => { window.__cabinetPicker.mode = 'deny'; }")
-        page.locator('[data-action="import-backup"]').click()
-        wait_toast(page, "The backup picker could not finish. Try again or use the file chooser.")
-        check(page.evaluate("() => __cabinetPicker.hiddenClicks === 0"), "picker denial does not open the hidden input")
+            page.evaluate("() => { __cabinetPicker.mode = 'oversize'; __cabinetPicker.readCalls = 0; }")
+            start_picker(page)
+            page.locator("#toasts").get_by_text("That backup is larger than 16 MB. Choose a smaller backup.", exact=True).wait_for()
+            check(stable_runs(page) == before_failures, "oversize picker read leaves saved data unchanged")
+            check(
+                page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.readCalls === 0"),
+                "oversize picker avoids hidden fallback and document text access",
+            )
 
-        page.evaluate("() => { window.__cabinetPicker.mode = 'oversize'; }")
-        page.locator('[data-action="import-backup"]').click()
-        wait_toast(page, "That backup is larger than 16 MB. Choose a smaller backup.")
-        check(
-            page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.readCalls === 0"),
-            "oversize document is rejected by the bounded read before text access",
-        )
+            page.evaluate("() => { __cabinetPicker.mode = 'pending'; __cabinetPicker.resolve = null; }")
+            open_before = page.evaluate("() => __cabinetPicker.openCalls")
+            start_picker(page)
+            start_picker(page)
+            page.wait_for_function("(expected) => __cabinetPicker.openCalls === expected", arg=open_before + 1)
+            check(stable_runs(page) == before_failures, "overlapping picker requests leave saved data unchanged")
+            page.evaluate(
+                """(payload) => {
+                  __cabinetPicker.mode = 'normal';
+                  __cabinetPicker.resolve([{ getFile: async () => ({ size: payload.length, text: async () => payload }) }]);
+                }""",
+                json.dumps(incoming_payload),
+            )
+            wait_picker_dialog(page)
+            check(stable_runs(page) == before_failures, "staged picker review leaves saved data unchanged")
+            page.locator('[data-action="close-dialog"]').first.click()
 
-        page.evaluate("() => { window.__cabinetPicker.mode = 'pending'; window.__cabinetPicker.resolve = null; }")
-        first = page.locator('[data-action="import-backup"]')
-        first.click()
-        first.click()
-        page.wait_for_function("() => __cabinetPicker.openCalls === 4")
-        check(page.evaluate("() => __cabinetPicker.openCalls === 4"), "repeat clicks keep one picker request in flight")
-        page.evaluate(
-            """() => {
-              __cabinetPicker.mode = 'normal';
-              __cabinetPicker.resolve([{ getFile: async () => ({ size: __cabinetPicker.payload.length, text: async () => { __cabinetPicker.readCalls++; return __cabinetPicker.payload; } }) }]);
-            }"""
-        )
-        page.locator('[data-action="restore-merge"]').wait_for(timeout=10000)
-        check(page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"), "successful picker path never invokes save or hidden-input APIs")
-        page.locator('[data-action="close-dialog"]').first.click()
+            page.evaluate("() => { __cabinetPicker.mode = 'normal'; }")
+            start_picker(page)
+            wait_picker_dialog(page)
+            old_origin = page.evaluate("() => performance.timeOrigin")
+            page.locator('[data-action="restore-merge"]').click()
+            wait_reload(page, old_origin)
+            merged = {record["key"]: record for record in read_runs(page)}
+            check(
+                set(merged) == {incoming_key, existing_key},
+                f"Add missing imports the incoming save and preserves the existing save (actual {sorted(merged)})",
+            )
+            check(merged[incoming_key]["state"] == incoming_records[incoming_key]["state"], "Add missing retains incoming Sudoku state")
+            check(merged[existing_key]["state"] == existing["state"], "Add missing retains existing Sudoku state")
+            route(page, "#/settings")
+            with page.expect_download() as download:
+                page.locator('[data-action="recovery"]').click()
+            add_recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
+            check(
+                {record["key"] for record in add_recovery["runs"]} == {existing_key},
+                "Add missing keeps the pre-restore recovery copy",
+            )
 
-        page.evaluate("() => { window.__cabinetPicker.mode = 'normal'; }")
-        import_dialog(page)
-        page.locator('[data-action="restore-merge"]').click()
-        page.wait_for_timeout(500)
-        route_settings(page)
-        page.evaluate("(payload) => { window.__cabinetPicker.payload = payload; }", PAYLOAD)
-        with page.expect_download() as download:
-            page.locator('[data-action="recovery"]').click()
-        recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
-        check(recovery["format"] == "alibi-backup" and recovery["schemaVersion"] == 1, "successful Add missing restore retains a pre-restore recovery backup")
+            page.evaluate("(payload) => { __cabinetPicker.payload = payload; __cabinetPicker.mode = 'normal'; }", json.dumps(incoming_payload))
+            start_picker(page)
+            wait_picker_dialog(page)
+            page.locator('[data-action="restore-replace"]').click()
+            old_origin = page.evaluate("() => performance.timeOrigin")
+            page.locator('[data-action="restore-replace-confirm"]').click(force=True)
+            wait_reload(page, old_origin)
+            replaced = {record["key"]: record for record in read_runs(page)}
+            check(set(replaced) == {incoming_key}, "Replace restores the imported save set")
+            check(replaced[incoming_key]["state"] == incoming_records[incoming_key]["state"], "Replace retains imported Sudoku state")
+            route(page, "#/settings")
+            with page.expect_download() as download:
+                page.locator('[data-action="recovery"]').click()
+            replace_recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
+            check(
+                {record["key"] for record in replace_recovery["runs"]} == {incoming_key, existing_key},
+                "Replace keeps the pre-restore recovery copy of both prior saves",
+            )
+            check(
+                page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"),
+                "advertised picker outcomes avoid hidden fallback and save APIs",
+            )
+            check(not errors, "browser restore proof has no uncaught page errors")
+        finally:
+            if test_context is not None:
+                test_context.close()
+            if incoming_context is not None:
+                incoming_context.close()
+            browser.close()
+    return {
+        "passed": True,
+        "assertions": len(checks),
+        "checks": checks,
+        "errors": errors,
+        "build": identity,
+        "scope": "Real-origin Chromium controls with isolated IndexedDB contexts and pre-bootstrap document picker fixtures; no hosted deployment, physical device or human accessibility claim.",
+    }
 
-        import_dialog(page)
-        page.locator('[data-action="restore-replace"]').click()
-        page.locator('[data-action="restore-replace-confirm"]').click(force=True)
-        page.wait_for_function("() => Boolean(window.AlibiDiagnostics)")
-        route_settings(page)
-        with page.expect_download() as download:
-            page.locator('[data-action="recovery"]').click()
-        recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
-        check(recovery["format"] == "alibi-backup", "successful Replace restore retains the existing recovery path")
-        check(page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"), "all advertised picker outcomes avoid browser fallback and save APIs")
-        context.close()
-    finally:
-        shutil.rmtree(profile, ignore_errors=True)
 
-print("PASS", len(checks), "browser backup-picker checks")
-(ROOT / "test-results" / "browser-backup-import.json").write_text(
-    json.dumps({"passed": True, "assertions": len(checks), "checks": checks, "scope": "Real-origin Chromium controls with pre-bootstrap document picker fixtures; no physical device or hosted deployment claim."}, indent=2),
-    encoding="utf-8",
-)
+try:
+    result = run()
+except Exception as error:
+    errors.append(f"{type(error).__name__}: {error}")
+    result = {
+        "passed": False,
+        "assertions": len(checks),
+        "checks": checks,
+        "errors": errors,
+        "build": identity,
+        "scope": "Real-origin Chromium controls with isolated IndexedDB contexts and pre-bootstrap document picker fixtures; no hosted deployment, physical device or human accessibility claim.",
+    }
+REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+REPORT_PATH.write_text(json.dumps(result, indent=2), encoding="utf-8")
+print(json.dumps(result, indent=2))
+if not result["passed"]:
+    raise SystemExit(1)
