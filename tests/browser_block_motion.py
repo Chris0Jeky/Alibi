@@ -58,6 +58,51 @@ def lab(page, check_name=False):
         )
 
 
+def watch_host(page):
+    page.evaluate('''() => {
+      const host = document.querySelector('.bc-host');
+      const watch = window.__bcHostContinuity = {
+        host,
+        detached: false,
+        zeroGeometry: false,
+        effectFrames: 0,
+        frames: 0,
+        stopped: false,
+      };
+      const sample = () => {
+        if (!watch || watch.stopped) return;
+        const current = document.querySelector('.bc-host');
+        const rect = watch.host?.getBoundingClientRect();
+        const diagnostics = globalThis.AlibiBlockMotion?.diagnostics?.();
+        watch.frames += 1;
+        if (!watch.host?.isConnected || current !== watch.host) watch.detached = true;
+        if (!rect || rect.width === 0 || rect.height === 0) watch.zeroGeometry = true;
+        if (diagnostics?.pending || watch.host?.querySelector('.bc-board.bc-resolving'))
+          watch.effectFrames += 1;
+        requestAnimationFrame(sample);
+      };
+      requestAnimationFrame(sample);
+    }''')
+
+
+def stop_host_watch(page):
+    return page.evaluate('''() => {
+      const watch = window.__bcHostContinuity;
+      watch.stopped = true;
+      const rect = watch.host?.getBoundingClientRect();
+      return {
+        detached: watch.detached,
+        zeroGeometry: watch.zeroGeometry,
+        same: watch.host === document.querySelector('.bc-host'),
+        effectFrames: watch.effectFrames,
+        frames: watch.frames,
+        finalConnected: !!watch.host?.isConnected,
+        finalWidth: rect?.width || 0,
+        finalHeight: rect?.height || 0,
+      };
+    }''')
+
+
 with sync_playwright() as p:
     args = {'headless': True, 'args': ['--no-sandbox']}
     if os.environ.get('CHROMIUM_PATH'):
@@ -108,25 +153,15 @@ with sync_playwright() as p:
         motion.click()
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle enables the floor')
         before = current(page)
-        page.evaluate('''() => {
-          const host = document.querySelector('.bc-host');
-          window.__bcHostContinuity = {host, detached: false, stopped: false};
-          const sample = () => {
-            const watch = window.__bcHostContinuity;
-            if (!watch || watch.stopped) return;
-            if (!watch.host.isConnected || watch.host.getBoundingClientRect().width === 0)
-              watch.detached = true;
-            requestAnimationFrame(sample);
-          };
-          requestAnimationFrame(sample);
-        }''')
+        watch_host(page)
         move(page)
-        continuity = page.evaluate('''() => {
-          const watch = window.__bcHostContinuity;
-          watch.stopped = true;
-          return {detached: watch.detached, same: watch.host === document.querySelector('.bc-host')};
-        }''')
-        check(not continuity['detached'] and continuity['same'], f'{width}: tactile host stays continuously mounted during commit')
+        continuity = stop_host_watch(page)
+        check(
+            not continuity['detached']
+            and not continuity['zeroGeometry']
+            and continuity['same'],
+            f'{width}: reduced-motion tactile host stays mounted with geometry during commit',
+        )
         after = current(page)
         check(len(after['log']) == len(before['log']) + 1, f'{width}: keyboard commits legacy replay')
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion choice survives the Club rerender')
@@ -147,6 +182,27 @@ with sync_playwright() as p:
         page.wait_for_function('()=>!AlibiBlockMotion.diagnostics().pending')
         check(current(page)['log'] == after['log'], f'{width}: legacy redo')
         check(page.locator('.bc-host [data-command="undo"]:focus').count() == 1, f'{width}: redo restores focus to the available command')
+        ordinary_before = current(page)
+        watch_host(page)
+        move(page)
+        ordinary = stop_host_watch(page)
+        check(
+            not ordinary['detached']
+            and not ordinary['zeroGeometry']
+            and ordinary['same']
+            and ordinary['finalConnected']
+            and ordinary['finalWidth'] > 0
+            and ordinary['finalHeight'] > 0,
+            f'{width}: ordinary-motion placement keeps one tactile host with nonzero geometry',
+        )
+        check(ordinary['effectFrames'] > 0, f'{width}: ordinary-motion placement effect is observed separately from host continuity')
+        check(ordinary['frames'] > ordinary['effectFrames'], f'{width}: ordinary-motion probe samples before and after placement effect')
+        check(len(current(page)['log']) == len(ordinary_before['log']) + 1, f'{width}: ordinary-motion keyboard placement commits once')
+        page.locator('.bc-host [data-command="undo"]').focus()
+        page.keyboard.press('Enter')
+        page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n', arg=len(after['log']))
+        page.wait_for_function('()=>!AlibiBlockMotion.diagnostics().pending')
+        check(current(page)['log'] == after['log'], f'{width}: ordinary-motion probe restores the prior replay')
         page.locator('.bc-host .bc-board').scroll_into_view_if_needed()
         geometry = page.evaluate('''() => {
           const r=AlibiClub.diagnostics().state.runs.blockcabinet,e=AlibiClubEngines.blockCabinet,s=e.replay(r.seed,r.log);
