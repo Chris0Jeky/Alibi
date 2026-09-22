@@ -19,17 +19,18 @@ claimed here.
 
 ## Current source checkpoint, 2026-09-22
 
-The current source base is `origin/main` at `f49f0b4`. It includes the merged
+The current source base is `origin/main` at `d091d19`. It includes the merged
 unknown-route recovery (#233), Android-aware startup recovery (#236), the
 0.11.5 release and its follow-up routing and deployment records through #248.
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
 remain unchanged.
 
-The provider-cancellation candidate is currently `d3cc268`, incorporating the
-provider-phase regression from PR #238 and the coherent Bridges zoom sampler
-from PR #243. PR #239 is this live-state refresh. Both are pending source
-review/integration; deployment is pending. The candidate does not claim a
-hosted release.
+PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
+provider-phase regression and PR #243's coherent Bridges zoom sampler after
+all three required CI workflows passed at `d3cc268`. PR #239 is this live-state
+refresh. PR #251 corrects the packager's stale seven-scenario browser evidence
+contract; its independent regression and actual nine-scenario report check
+pass, while current-base CI and integration are pending. Deployment is pending.
 
 ### Verification boundary
 
@@ -44,8 +45,11 @@ At `d3cc2688a9cdff35cd5ccd36bd6930cd21b182de`, all 14 platform tests and nine
 real-origin Chromium mobile QA tests pass locally. The independent review
 found no merge blockers. Formatting and web/Android builds pass; the unchanged
 Windows symlink-permission fixture prevents a fully green local Node run.
-Fresh Linux CI remains required before merge. These results do not establish
-hosted responses, physical-device behavior or TalkBack acceptance.
+Linux CI subsequently passed in runs `35754591274`, `35754589032` and
+`35754589020` before #238 merged. The full local UI suite passed 182 checks,
+the nine-scenario real-origin suite passed 127 checks, and the synthetic
+two-release update suite passed 18 checks. These results do not establish
+hosted deployment, physical-device behavior or TalkBack acceptance.
 
 PR #183 remains parked on Pulseboard #63: the collector must admit the
 `puzzle.failed` event before the host journey branch can merge. The dependency
