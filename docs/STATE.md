@@ -1,5 +1,25 @@
 # Live development state
 
+## Merged main 557ef27, open candidates, 2026-09-22 (not deployed)
+
+Main merged PR #233 as `7d0fbf7` (unknown-hash recovery surface, null-prototype
+alias table) and stacked PR #236 as `557ef27` (package-aware Android boot
+recovery, closes #235). Both had green verify/castle/storage at their heads.
+
+Open and green: PR #227 at `a792ec5` (board-first phone play; zoom-rerender
+wait repaired the detached-board race; round-1 review posted, owner review
+remains the gate, still draft) with child PR #228 at `b957465` (desk type
+hierarchy). PR #237 carries named comparison choices plus linked selection
+guidance; the 98426-byte castle activity exceeded the 96 KiB cap (main measures
+98288), so fix `832f123` raises the documented cap to 97 KiB with rationale.
+Castle checks pass at the new head; one verify run hit a
+`platform.test.mjs` backup-stream timeout that is green on main and 3× locally
+(second attempt running at closeout). PR #183 stays parked on external
+collector admission, 207 commits behind main.
+
+No new hosted publication or physical-device/TalkBack/human acceptance is
+claimed; those gates remain in `HUMAN_TODO.md`.
+
 ## Published 0.11.4, 2026-09-17
 
 Merged source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build `159f34ae5948`, is published on
