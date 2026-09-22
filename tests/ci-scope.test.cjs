@@ -26,6 +26,18 @@ function fixture(files) {
   return root;
 }
 
+function ownedFixture(files, prefix = 'alibi-ci-scope-') {
+  const parent = path.join(__dirname, '..', 'test-results', 'ci-scope');
+  fs.mkdirSync(parent, { recursive: true });
+  const root = fs.mkdtempSync(path.join(parent, prefix));
+  for (const [relative, content] of Object.entries(files)) {
+    const filename = path.join(root, relative);
+    fs.mkdirSync(path.dirname(filename), { recursive: true });
+    fs.writeFileSync(filename, content);
+  }
+  return root;
+}
+
 test('only exact publication and provenance paths use the fast path', () => {
   const result = classifyPaths([
     'docs/RELEASE-0.11.3.md',
@@ -137,9 +149,36 @@ test('publication verification rejects unsupported schemes and deleted allowlist
   assert.match(errors.join('\n'), /document is missing/);
 });
 
-test('publication verification rejects symlinked allowlisted documents', () => {
+test('rejects linked allowlisted documents', () => {
+  if (process.platform === 'win32') {
+    // A parent junction keeps the final document a regular file while proving realpath containment.
+    const root = ownedFixture({}, 'alibi-ci-scope-repository-');
+    const outside = ownedFixture({ 'STATE.md': '# Outside\n' }, 'alibi-ci-scope-target-');
+    try {
+      fs.symlinkSync(outside, path.join(root, 'docs'), 'junction');
+      const filename = path.join(root, 'docs', 'STATE.md');
+      assert.equal(fs.lstatSync(filename).isFile(), true);
+      assert.match(verifyDocuments(root, ['docs/STATE.md']).join('\n'), /escapes the repository/);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(outside, { recursive: true, force: true });
+    }
+    return;
+  }
+
+  // POSIX retains direct file-symlink coverage; Windows file symlink creation is permission-sensitive.
   const root = fixture({ 'outside.md': '# Outside\n' });
   fs.mkdirSync(path.join(root, 'docs'), { recursive: true });
   fs.symlinkSync(path.join(root, 'outside.md'), path.join(root, 'docs/STATE.md'));
   assert.match(verifyDocuments(root, ['docs/STATE.md']).join('\n'), /must be a regular file/);
+});
+
+test('publication verification rejects directory allowlisted documents', () => {
+  const root = ownedFixture({}, 'alibi-ci-scope-directory-');
+  try {
+    fs.mkdirSync(path.join(root, 'docs', 'STATE.md'), { recursive: true });
+    assert.match(verifyDocuments(root, ['docs/STATE.md']).join('\n'), /must be a regular file/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
