@@ -8,6 +8,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { ANDROID_DIST, deriveAndroidPayload, sourceSha } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
+const { checkPublicPayload } = require('../tools/sync-android.cjs');
 const { readIdentity, payloadDigest } = require('../tools/platform-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -144,6 +145,29 @@ test('Android keeps the full bundled experience while the native target suppress
 test('generated Android output is ignored by Git', () => {
   const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
   assert.match(ignore, /^dist-android\/$/m);
+});
+
+test('Capacitor sync checks exact public bytes and sibling config files', () => {
+  const fixture = temporaryDirectory('alibi-capacitor-sync-');
+  const source = path.join(fixture, 'source');
+  const target = path.join(fixture, 'assets', 'public');
+  try {
+    fs.mkdirSync(source, { recursive: true });
+    fs.mkdirSync(target, { recursive: true });
+    fs.writeFileSync(path.join(source, 'index.html'), 'preview');
+    fs.writeFileSync(path.join(target, 'index.html'), 'preview');
+    for (const name of ['capacitor.config.json', 'capacitor.plugins.json']) {
+      fs.writeFileSync(path.join(fixture, 'assets', name), '{}');
+    }
+    assert.deepEqual(checkPublicPayload({ source, target }), []);
+    fs.writeFileSync(path.join(target, 'index.html'), 'stale');
+    assert.match(checkPublicPayload({ source, target }).join('\n'), /differs for index.html/);
+    fs.writeFileSync(path.join(target, 'index.html'), 'preview');
+    fs.rmSync(path.join(fixture, 'assets', 'capacitor.plugins.json'));
+    assert.match(checkPublicPayload({ source, target }).join('\n'), /capacitor.plugins.json/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
 
 test('deriving twice from one shared graph is byte-for-byte deterministic', () => {

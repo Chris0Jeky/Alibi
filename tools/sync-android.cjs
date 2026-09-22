@@ -8,7 +8,8 @@ const { buildAndroid } = require('./build-android.cjs');
 const { inspectAndroidArtifact } = require('./check-android-artifact.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
-const PUBLIC = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public');
+const ASSETS = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets');
+const PUBLIC = path.join(ASSETS, 'public');
 const FLAVOR = 'capacitor-preview';
 
 function files(directory) {
@@ -41,7 +42,7 @@ function checkPublicPayload({ source = path.join(ROOT, 'dist-android'), target =
       errors.push(`Capacitor public payload differs for ${name}.`);
   }
   for (const name of ['capacitor.config.json', 'capacitor.plugins.json']) {
-    if (!fs.existsSync(path.join(target, name)))
+    if (!fs.existsSync(path.join(path.dirname(target), name)))
       errors.push(`Expected generated Capacitor extra is missing: ${name}.`);
   }
   return errors;
@@ -52,8 +53,8 @@ function syncAndroid() {
   const result = inspectAndroidArtifact({ expectedFlavor: FLAVOR });
   if (result.errors.length)
     throw new Error(`Android host artifact check failed:\n${result.errors.join('\n')}`);
-  const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-  execFileSync(executable, ['cap', 'sync', 'android'], { cwd: ROOT, stdio: 'inherit' });
+  const capacitor = require.resolve('@capacitor/cli/bin/capacitor');
+  execFileSync(process.execPath, [capacitor, 'sync', 'android'], { cwd: ROOT, stdio: 'inherit' });
   const errors = checkPublicPayload();
   if (errors.length) throw new Error(`Capacitor payload closure failed:\n${errors.join('\n')}`);
   return { flavor: FLAVOR, public: PUBLIC };
