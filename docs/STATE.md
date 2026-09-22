@@ -118,22 +118,19 @@ hosting-layer challenge script inserted. The main page's meta CSP remains
 present. Sites still lacks the repository's HTTP CSP header and serves 51
 WebP files as octet-stream (#6); these platform limits remain open.
 
-## Current source checkpoint, 2026-09-22
+## Earlier source checkpoint, 2026-09-22
 
-The published source base is `origin/main` at `4ad450f`. It includes the merged
+The earlier published source base was `origin/main` at `4ad450f`. It included the merged
 unknown-route recovery (#233), Android-aware startup recovery (#236), the
 0.11.5 release and its follow-up routing and deployment records through #248.
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
 remain unchanged.
 
-The Cabinet restore picker consumer is a source candidate on branch
-`codex/cap03-backup-import-20260922`: browsers advertising both document-picker APIs use the
-bounded platform read and retain the existing validation, staged review, atomic restore and
-pre-restore recovery flow; browsers without that capability keep the hidden file-input path.
-The candidate has focused Node coverage and a real-origin injected-picker control script, but is
-not part of the published build until its parent integration is reviewed.
-The consumer adds 389 bytes to the JavaScript gzip (128,167 bytes total, 167 bytes above the
-125 KiB app ceiling); the startup 200 KiB, platform 6 KiB and offline ceilings remain unchanged.
+The Cabinet restore picker consumer was subsequently reviewed, merged and
+published in the backup recovery update above. Its browser capability fallback
+and atomic restore behaviour are covered by that update's source and hosted
+checks. The earlier 125 KiB app gzip ceiling was exceeded by 167 bytes; this
+persists in the published build and remains a size-budget follow-up.
 
 PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
 provider-phase regression and PR #243's coherent Bridges zoom sampler after
