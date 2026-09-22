@@ -72,6 +72,17 @@ uncaught page errors. This test correction does not change the deployed build.
 
 ### Verification boundary
 
+The Windows document fixture follow-up (#250) now makes `npm run verify`
+fully green on this host: formatting, web/Android builds, 407 Node tests
+with zero failures or skips, and both Quiet Wing scripts pass. Windows
+checks a real file through an outside parent junction and separately rejects
+a directory at an allowlisted document path; POSIX keeps direct file-symlink
+coverage. The guard implementation and machine permissions are unchanged.
+`npm run bundle` also passes for build `9760fe9fcf64`; its checksums match
+and it includes the complete nine-scenario, 156-check browser report plus
+the matching synthetic-update report. Packaging still marks Android
+acceptance unverified. Earlier 405/406 results below are historical snapshots.
+
 PR #238 replaces scheduler-turn polling with explicit provider-stream request
 and late-abort signals. Its fixture retains a real SHA-256 digest delayed past
 150 turns, a 1000 ms operation deadline, exactly one abort, and no write or

@@ -90,8 +90,14 @@ run `35761649274`. Independent review requalified the actual main-based diff.
 The real-302 regression passes after failing before the fix; 11 focused Node
 tests pass, including 85 existing worker/build assertions. The canonicalizing
 loopback host passes all 156 origin checks; synthetic update coverage passes
-18 checks. Local formatting and web/Android builds pass; the full local Node
-run remains 405/406 because of the unchanged Windows symlink fixture (#250).
+18 checks. At the runtime-fix head, local formatting and web/Android builds
+passed; the Node run was 405/406 because of the Windows symlink fixture.
+The test-only #250 follow-up preserves POSIX file-symlink coverage, exercises
+a Windows parent-junction escape with a real file, and rejects directory
+documents on all platforms. Full local `npm run verify` now passes 407 Node
+tests without failures or skips, plus both Quiet Wing scripts and web/Android
+builds. No guard or machine permissions changed. `npm run bundle` passes with
+matching checksums and the complete browser/update reports for the same build.
 
 Earlier 0.11.5 publication receipts remain rollback references: Cloudflare
 source `5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3`, build `f0baec5e3291`,
@@ -122,5 +128,5 @@ Physical-device, TalkBack, human difficulty and curation acceptance remain open
 in [HUMAN_TODO.md](../HUMAN_TODO.md). The synthetic two-release update suite
 passes, and both actual hosted old-to-new updates pass the save-retention
 assertions above. Browser, hosted and solver evidence does not close those
-human gates. Sites header/MIME limits (#6) and the local Windows fixture
-permission failure (#250) remain open.
+human gates. Sites header/MIME limits (#6) remain open; the #250 fixture
+follow-up removes the local verification failure without changing the guard.
