@@ -20,11 +20,31 @@ visit, before any service worker controls the page. Hosts serve the static
 never runs. These tiny redirect documents bridge that gap: unknown addresses
 still land on 404.html, while each known alias forwards to its hash route.
 Both the `<alias>.html` and `<alias>/index.html` forms are emitted because
-static hosts differ on which convention answers an extensionless request. */
+static hosts differ on which convention answers an extensionless request.
+The alias documents carry no directory-relative subresources, so they are
+also the answer for service-worker-controlled navigations: the cached root
+shell would resolve its `./assets/` URLs against the alias directory base
+and fail to boot (issue #244). */
 const PATH_ROUTE_ALIASES = { __proto__: null, privacy: 'privacy', about: 'about', login: 'login' };
+function pathRouteAliasScript(target) {
+  // Runs before the no-JavaScript meta refresh below can fire: drop the
+  // refresh, then forward to the explicit fragment when one is present so a
+  // shared `/about/#/library` address keeps its route. An outer query merges
+  // into an existing fragment query with `&` instead of corrupting it.
+  return `document.querySelector('meta[http-equiv="refresh"]').remove();var h=location.hash||'#/${target}',q=location.search;if(q)h+=(h.indexOf('?')>=0?'&':'?')+q.slice(1);location.replace('/'+h);`;
+}
 function pathRouteAliasDocument(alias, target) {
   const hash = `#/${target}`;
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=/${hash}"><title>Alibi · ${alias}</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><p><a href="/${hash}">Continue to Alibi</a></p></main><script>location.replace('/${hash}'+location.search);</script></body></html>`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=/${hash}"><title>Alibi · ${alias}</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><p><a href="/${hash}">Continue to Alibi</a></p></main><script>${pathRouteAliasScript(target)}</script></body></html>`;
+}
+function pathRouteAliasCspHashes() {
+  // The global Content-Security-Policy blocks inline scripts, which would
+  // leave only the query-dropping meta refresh. Hash-allowlist the exact
+  // redirect scripts instead of relaxing script-src (issue #244).
+  return Object.values(PATH_ROUTE_ALIASES).map(
+    (target) =>
+      `'sha256-${crypto.createHash('sha256').update(pathRouteAliasScript(target)).digest('base64')}'`,
+  );
 }
 function writePathRouteAliases(dist) {
   for (const alias of Object.keys(PATH_ROUTE_ALIASES)) {
@@ -310,7 +330,7 @@ function build() {
   // Must equal the origin of the collect endpoint compiled into observatory/browser.js; observatory/check.mjs asserts both.
   const OBSERVATORY_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev';
   const connectOrigins = [...delivery.origins, OBSERVATORY_ORIGIN];
-  const documentPolicy = `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
+  const documentPolicy = `default-src 'self'; script-src 'self' ${pathRouteAliasCspHashes().join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
   const head = `<meta http-equiv="Content-Security-Policy" content="${documentPolicy}"><meta name="referrer" content="no-referrer"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png"><link rel="stylesheet" href="./${cssName}">`;
   write(
     path.join(DIST, 'index.html'),
@@ -321,9 +341,14 @@ function build() {
         `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
       ),
   );
+  const aliasShellDocuments = Object.keys(PATH_ROUTE_ALIASES).flatMap((alias) => [
+    `./${alias}.html`,
+    `./${alias}/index.html`,
+  ]);
   const assets = [
     './',
     './index.html',
+    ...aliasShellDocuments,
     './manifest.webmanifest',
     './icons/icon-192.png',
     './icons/icon-512.png',
@@ -345,7 +370,9 @@ self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(a
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
 const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate')return await c.match(new URL('./',self.registration.scope).href)||fetch(r);const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
+function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias)return await c.match(new URL('./'+alias+'.html',self.registration.scope).href)||fetch(r);return await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
   write(path.join(DIST, 'sw.js'), sw);
   write(
