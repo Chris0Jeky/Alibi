@@ -99,9 +99,15 @@ function setup(failInstall = false) {
   );
   const x = setup();
   await x.lifecycle('install');
+  const shell = JSON.parse(code.match(/SHELL=(\[.*?\])/)[1]);
   check(
-    x.data.get(name).size ===
+    x.data.get(name).size === shell.length,
+    'Release installs exactly the emitted shell entries',
+  );
+  check(
+    shell.length ===
       6 +
+        6 +
         fs
           .readdirSync(path.join(ROOT, 'dist/assets'))
           .filter(
@@ -119,7 +125,7 @@ function setup(failInstall = false) {
                 n,
               ),
           ).length,
-    'Release installs the core shell without optional activity assets',
+    'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
   );
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
@@ -149,6 +155,22 @@ function setup(failInstall = false) {
   const page = await x.request('/#/play/scene-01', { mode: 'navigate' });
   check(page.release === name, 'Navigation uses the coherent active-release shell');
   check(x.calls.network === 0, 'Cached navigation does not require network');
+  const aliasDirectory = await x.request('/privacy/', { mode: 'navigate' });
+  check(
+    aliasDirectory && aliasDirectory.url.endsWith('/privacy.html'),
+    'Controlled directory alias navigation answers the cached redirect',
+  );
+  const aliasLeaf = await x.request('/LOGIN', { mode: 'navigate' });
+  check(
+    aliasLeaf && aliasLeaf.url.endsWith('/login.html'),
+    'Controlled alias matching ignores case and trailing slashes',
+  );
+  const aliasNested = await x.request('/alibi/privacy', { mode: 'navigate' });
+  check(
+    aliasNested && aliasNested.url === 'https://test.invalid/',
+    'Nested alias-like paths keep the root shell',
+  );
+  check(x.calls.network === 0, 'Controlled alias navigation does not require network');
   const js = [...x.data.get(name).keys()].find((k) => k.endsWith('.js'));
   check((await x.request(js)).release === name, 'Hashed script served from current cache');
   check(

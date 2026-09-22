@@ -1,6 +1,10 @@
 name: Verify puzzle cabinet
 on:
+  # PR branches validate via pull_request only. A bare push trigger used to
+  # fire a second full run on the same SHA (issue #242).
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 permissions:

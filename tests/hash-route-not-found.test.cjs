@@ -106,7 +106,7 @@ function execute(hash) {
   const observers = [];
   const replacements = [];
   const document = createDocument();
-  const location = { hash, reload() {} };
+  const location = { hash, pathname: '/', search: '', reload() {} };
   const history = {
     state: { retained: true },
     replaceState(state, title, url) {
@@ -166,6 +166,14 @@ test('unknown hashes render a deliberate recovery surface after the app opens', 
     links.map((link) => link.href),
     ['#/home', '#/library'],
   );
+});
+
+test('shared paths without an app page reach the recovery surface', () => {
+  for (const hash of ['#/about', '#/login']) {
+    const result = execute(hash);
+    result.context.AlibiBootReady();
+    assert.ok(result.document.getElementById('route-not-found'), hash);
+  }
 });
 
 test('canonical routes do not receive the not-found surface', () => {
