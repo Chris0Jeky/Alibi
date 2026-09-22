@@ -49,7 +49,8 @@ for (const [label, pattern, reportedBytes] of deferredAssets) {
 }
 const deferredBytes = info.observatoryBytes + info.discoveryStorageBytes;
 const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
-assert.ok(info.javascriptGzipBytes < 125 * 1024, 'Application bundle stays under 125 KiB gzip');
+// CAP-03 adds the bounded Cabinet picker consumer to the startup application shell.
+assert.ok(info.javascriptGzipBytes < 126 * 1024, 'Application bundle stays under 126 KiB gzip');
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB

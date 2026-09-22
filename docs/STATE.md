@@ -81,6 +81,13 @@ unknown-route recovery (#233), Android-aware startup recovery (#236), the
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
 remain unchanged.
 
+The Cabinet restore picker consumer is a source candidate on branch
+`codex/cap03-backup-import-20260922`: browsers advertising both document-picker APIs use the
+bounded platform read and retain the existing validation, staged review, atomic restore and
+pre-restore recovery flow; browsers without that capability keep the hidden file-input path.
+The candidate has focused Node coverage and a real-origin injected-picker control script, but is
+not part of the published build until its parent integration is reviewed.
+
 PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
 provider-phase regression and PR #243's coherent Bridges zoom sampler after
 all three required CI workflows passed at `d3cc268`. PR #239 merged the
