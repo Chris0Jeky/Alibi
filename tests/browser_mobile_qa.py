@@ -120,6 +120,10 @@ class MobileQA(unittest.TestCase):
     def test_bridge_zoom_changes_board_and_targets(self):
         page = self.open_page(route='play/bridges-01@1')
         self.dismiss_lesson(page)
+        # Lesson dismissal can complete while the board is being replaced.
+        # Wait for visible geometry before reading the baseline boxes.
+        expect(page.locator('.bridge-map')).to_be_visible()
+        expect(page.locator('.island').first).to_be_visible()
         before = page.locator('.bridge-map').bounding_box()
         target = page.locator('.island').first.bounding_box()
         page.get_by_role('button', name='Enlarge board', exact=True).click()
