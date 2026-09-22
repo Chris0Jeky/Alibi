@@ -13,6 +13,8 @@ function execute(hash) {
   const replacements = [];
   const location = {
     hash,
+    pathname: '/',
+    search: '',
     reload() {},
   };
   const history = {

@@ -10,7 +10,7 @@ function execute(hash) {
   const listeners = new Map();
   const replacements = [];
   const timers = [];
-  const location = { hash };
+  const location = { hash, pathname: '/', search: '' };
   const state = { retained: true };
   const context = {
     document: { getElementById: () => null },
