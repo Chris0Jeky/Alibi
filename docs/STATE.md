@@ -1,6 +1,6 @@
 # Live development state
 
-## CAP04 source-only Android preview, 2026-09-22
+## CAP04 offline Android preview candidate, 2026-09-22
 
 The source layer now has explicit browser and Capacitor Android preview flavors. The browser flavor
 remains the default and reports `nativeHost:false`; the host flavor requires the official bridge,
@@ -13,9 +13,17 @@ release variants.
 
 The source checks cover missing/wrong bridge, target/origin/build identity, immutable facade and
 capability honesty, plus browser/native flavor substitution and receipt rejection. `native:sync`
-adds the official Capacitor sync and byte-exact copied-public closure, but SDK provisioning, Gradle
-dependency verification, APK compilation, emulator/physical launch, 16 KiB native library review,
-accessibility, backup transfer and release approval remain open under CAP04/#126 and CAP05/#125.
+adds the official Capacitor sync and byte-exact copied-public closure. The synced tree passes full
+local verification (431 Node tests and both Quiet Wing suites). With Android SDK 36, JDK 22 and
+Gradle 8.14.3, both debug and release-like `capacitorPreview` APKs compile. The release-like APK
+is zipaligned and verified with local debug signing; its 730 archive entries contain 292 bundled
+web assets, no `sw.js` and no native `.so` libraries. Thus this artifact has no packaged native
+libraries to check for 16 KiB ELF alignment. In an Android 36 emulator with airplane mode on, the
+release-like APK launches offline, plays a Sudoku move and restores that exact move after force
+stop and relaunch. The debug APK also installs and launches offline. These are sampled emulator
+results, not full CAP04 acceptance. Gradle dependency verification/locking, every-feature offline
+play, minimum-WebView support, splash failure recovery, physical-device/accessibility checks,
+backup transfer and release approval remain open under CAP04/#126 and the dependent packages.
 The pinned npm moderate chain (`@capacitor/cli -> xcode -> uuid@7.0.3`, explicit-buffer UUID
 advisory) is a toolchain-only finding with no Android runtime call path; it was not overridden.
 

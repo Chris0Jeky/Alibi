@@ -74,8 +74,14 @@ with browser-safe fallback operations preserved. No App, back, inset or haptics 
 The scaffold excludes all backup domains, uses the unapproved preview application ID and local
 debug signing, ignores keys and generated assets, and disables the production `release` variant.
 
-This is source and artifact-contract evidence only. No APK, Gradle compile, emulator, physical
-device, accessibility, backup-transfer, signing or publication result is claimed here. The pinned
+Both the debug and release-like `capacitorPreview` APKs compile with the local Android SDK 36 and
+JDK 22; the latter is zipaligned and verifies with local debug signing. Its 730 archive entries
+contain 292 bundled web assets, no service worker and no native `.so` libraries. On an Android 36
+emulator in airplane mode, the release-like APK launches, saves a Sudoku move and restores it after
+force stop and relaunch. The debug APK also installs and launches offline. These sampled results do
+not establish every-feature, minimum-WebView, physical-device, accessibility, backup-transfer or
+publication acceptance. Gradle dependency verification/locking and splash failure recovery remain
+open under #126. The pinned
 npm audit warning is toolchain-only: `@capacitor/cli -> xcode -> uuid@7.0.3` reaches `uuid.v4()`
 without an explicit buffer in the installed xcode path; it does not affect the Android add/sync/
 build path or the shipped browser/native runtime API. It remains recorded for later dependency
