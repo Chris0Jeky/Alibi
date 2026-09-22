@@ -2,6 +2,12 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const {
+  browserBundle,
+  identitySource,
+  sha256,
+  sourceIdentity,
+} = require('./platform-identity.cjs');
 const ROOT = path.resolve(__dirname, '..');
 const read = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const json = (p) => JSON.parse(read(p));
@@ -20,6 +26,7 @@ function preview(out = path.join(ROOT, 'house-preview.html')) {
       curationMedia[path.parse(file).name] = image('assets-source/library/editorial/' + file);
   editorial.artwork = [];
   const globals = {
+    ALIBI_BUILD_TARGET: 'standalone',
     ALIBI_CONFIG: {
       version: '0.11.1-house-mobile-source-preview',
       build: 'source-preview',
@@ -65,6 +72,8 @@ function preview(out = path.join(ROOT, 'house-preview.html')) {
     Object.entries(globals)
       .map(([k, v]) => `globalThis.${k}=${JSON.stringify(v)};`)
       .join('\n') +
+    '\n' +
+    browserBundle(ROOT) +
     '\nif (!location.hash) location.hash = "#/home?ux=house";\n' +
     files.map((f) => read('src/' + f + '.js')).join('\n');
   const css = [
@@ -81,12 +90,23 @@ function preview(out = path.join(ROOT, 'house-preview.html')) {
     .join('\n');
   const notice =
     '<aside style="padding:6px 16px;background:#173c36;color:#fff;font:12px/1.5 system-ui;text-align:center">SOURCE PREVIEW · Cabinet games work. Optional castle packs require the full build.</aside>';
+  // This explicit source preview has no assets/ graph. Fingerprint its actual inline
+  // script and stylesheet, excluding the self-referencing identity assignment.
+  const inlineScript = script.replace(/<\/script/gi, '<\\/script');
+  const platformBuild = {
+    target: 'web',
+    ...sourceIdentity(ROOT),
+    payloadSha256: sha256('script\0' + inlineScript + '\0style\0' + css + '\0'),
+    appVersion: globals.ALIBI_CONFIG.version,
+    contentManifestRevision: sha256(JSON.stringify(catalog)),
+    rulesCompatibility: {},
+  };
   const html = read('src/index.html')
     .replace('<!-- HEAD -->', () => '<style>' + css + '</style>')
     .replace('<body>', '<body>' + notice)
     .replace(
       '<!-- SCRIPTS -->',
-      () => '<script>' + script.replace(/<\/script/gi, '<\\/script') + '</script>',
+      () => '<script>' + identitySource(platformBuild) + inlineScript + '</script>',
     );
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, html);

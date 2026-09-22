@@ -8,6 +8,7 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { ANDROID_DIST, deriveAndroidPayload, sourceSha } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
+const { readIdentity, payloadDigest } = require('../tools/platform-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const WEB_DIST = path.join(ROOT, 'dist');
@@ -28,9 +29,50 @@ test('generated Android payload satisfies the closed artifact contract', () => {
   const result = inspectAndroidArtifact();
   assert.deepEqual(result.errors, []);
   assert.match(result.payloadSha256, /^[0-9a-f]{64}$/);
+  assert.match(result.artifactSha256, /^[0-9a-f]{64}$/);
   assert.match(result.sourceSha, /^[0-9a-f]{40}$/);
   assert.ok(result.files > 20);
   assert.ok(result.bytes > 0);
+});
+
+test('Android replaces the web runtime identity with explicit browser-preview capabilities', () => {
+  const web = readIdentity(WEB_DIST);
+  const android = readIdentity(ANDROID_DIST);
+  const receipt = readJson(path.join(ANDROID_DIST, 'android-build-identity.json'));
+  assert.equal(web.identity.target, 'web');
+  assert.equal(android.identity.target, 'android');
+  assert.equal(android.identity.sourceDirty, false);
+  assert.equal(android.identity.payloadSha256, payloadDigest(ANDROID_DIST));
+  assert.notEqual(android.identity.payloadSha256, web.identity.payloadSha256);
+  assert.equal(fs.existsSync(path.join(ANDROID_DIST, web.path)), false);
+  assert.equal(receipt.schemaVersion, 2);
+  assert.deepEqual(receipt.rulesCompatibility, {});
+  assert.match(receipt.rulesSourceDigest, /^[0-9a-f]{64}$/);
+  assert.equal(receipt.payloadSha256, android.identity.payloadSha256);
+  assert.notEqual(receipt.payloadSha256, receipt.artifactSha256);
+});
+
+test('runtime identity tampering and metadata tampering remain independently detectable', () => {
+  const target = temporaryDirectory('alibi-android-runtime-');
+  try {
+    deriveAndroidPayload({ target });
+    const runtime = readIdentity(target);
+    fs.appendFileSync(path.join(target, runtime.path), '// changed\n');
+    let errors = inspectAndroidArtifact({ directory: target }).errors.join('\n');
+    assert.match(errors, /identity framing|filename hash|identity encoding/);
+    assert.match(errors, /artifact digest is stale/i);
+    fs.writeFileSync(path.join(target, runtime.path), runtime.source);
+    fs.appendFileSync(path.join(target, 'privacy.html'), '<!-- changed -->');
+    errors = inspectAndroidArtifact({ directory: target }).errors.join('\n');
+    assert.match(errors, /artifact digest is stale/i);
+    assert.doesNotMatch(
+      errors,
+      /payload digest is stale/i,
+      'metadata does not enter the runtime graph',
+    );
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
 });
 
 test('web output remains intact while Android output excludes hosting controls', () => {

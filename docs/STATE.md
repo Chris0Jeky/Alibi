@@ -1,5 +1,53 @@
 # Live development state
 
+## CAP-03 source candidate, 2026-09-22
+
+The `codex/cap03-platform-startup-20260922` candidate installs the shared browser
+platform before the app in the PWA, standalone preview and Android payload.
+Build identity records the real commit anchor and dirty-source status; Android
+preview capabilities explicitly report that no native host or vault exists.
+The schema-2 Android receipt separates the runtime graph SHA from the complete
+artifact SHA and leaves save compatibility undeclared pending CAP-05.
+
+App feedback now uses the port. A reproduced vibration exception previously
+interrupted a validated move before completion, saving and rendering; focused
+tests now prove those steps finish for throwing, rejected and unresolved
+feedback. The app owns its lifecycle lease and disposes it on final page exit,
+while retaining it for a browser-cached page return. Actual document migration,
+activity/Club lifecycle consumers and native recovery remain follow-on work
+under #125 and the dependent CAP packages; this candidate does not close #125.
+
+At `c7b1b8b`, `npm run verify` passes formatting, web/Android builds, all 421
+Node tests (zero failures/skips), and both Quiet Wing checks (581,847 reducer
+assertions and 29 contracts). The first full run exposed two outdated startup
+accounting assertions and stale app source receipts; those were corrected.
+A later 5 ms fixture deadline could expire during real hashing before its
+intended readback phase. Its controlled timer now expires only after the
+provider closes; production deadlines are unchanged.
+
+At the unchanged runtime source `f4be7e9`, the isolated browser UI passes 184
+checks, completing all thirteen games and exporting saves while vibration
+deliberately throws. Android preview passes 19 checks with no native bridge,
+service worker or remote request. At `6bfbac7`, the complete nine-scenario
+real-origin suite passes 168 checks and the synthetic two-release update
+suite passes 18. Phone/desktop viewport screenshots were visually inspected;
+these are simulated browser results, not physical-device acceptance.
+At `6a5fa5b`, the complete bundle passes all 421 Node tests, with fresh UI
+(184), real-origin (168) and synthetic update (18) checks matching build
+`4284a6e96e86`. Independent review of the runtime and its follow-up diff
+found no blockers.
+
+Hosted CI then exposed a separate entry point: the explicit Wrenmere source
+preview assembled the app without its required platform facade. That
+generator now shares the release bootstrap compiler, installs a complete
+web identity, and hashes its actual inline script/style payload separately
+from a release graph. The five focused build tests pass, including an
+emitted-source regression; the corrected source preview passes all 79 house
+and 250 mobile checks with no page errors. Updated-head hosted CI and
+deployment remain pending.
+Published origins remain on build `9760fe9fcf64` below. Human and physical
+acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Published 0.11.5 on both origins, 2026-09-22
 
 Merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252), build

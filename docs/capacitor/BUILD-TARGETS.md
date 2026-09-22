@@ -1,6 +1,6 @@
 # Web and bundled Android build targets
 
-**Status:** CAP-02 implementation contract. This produces a native-ready web payload, not an Android
+**Status:** CAP-02 build and CAP-03 browser-bootstrap contract. This produces a native-ready web payload, not an Android
 project, APK/AAB, application ID, signing identity or Play release. Host generation remains CAP-04.
 
 ## Commands and outputs
@@ -20,6 +20,33 @@ derivation of that graph.
 The Android document loads one small, content-addressed marker before all other scripts. It declares
 `globalThis.ALIBI_BUILD_TARGET = 'android'` and decorates the existing diagnostics contract so the
 local bundled payload reports the actual target and offline readiness.
+
+All targets then load a generated identity and the shared platform IIFE before the application.
+The PWA and embedded standalone preview install a web-target browser adapter. The Android payload
+installs an Android-target browser adapter: `capabilities().nativeHost`, `nativeFeedback`, and
+`recoveryVault` remain false until an actual reviewed native adapter is supplied. Browser document
+capability reports API availability, not permission; operations still return denied/cancelled states.
+No user-agent, hostname, display mode, permission prompt, native library or network request selects
+the adapter. The immutable `AlibiPlatform` global exposes the injected facade to classic scripts.
+
+`sourceSha` is the actual Git HEAD commit anchor; `sourceDirty` explicitly records uncommitted
+workspace changes. Ordinary web development may be dirty. Android derivation continues to require
+a clean tree and a web identity produced from that same commit. Source identity and platform code
+enter the PWA release seed, so even a documentation-only commit changes its stamped release/cache
+identity. An app version, release/cache build, content revision and source commit are distinct.
+
+Runtime `payloadSha256` uses the shared `tools/platform-identity.cjs` selector: all files under
+`assets/` and `icons/`, sorted by normalized relative path, hashed as path, NUL, bytes, NUL. Only the
+content-addressed runtime identity script is excluded. This includes optional executable/media
+assets; it excludes HTML, the service worker and hosting/receipt metadata to avoid self-reference.
+Standalone reports the web graph represented by its embedded preview, not a hash of the HTML file.
+Android recomputes this graph after its target patches and replaces the web identity completely.
+
+The separate `preview-house.cjs` source fixture also installs the browser facade. It keeps its
+explicit `source-preview` build/version and visible SOURCE PREVIEW banner. Without a release
+asset graph, its payload hash covers `script`, NUL, the actual inline script (identity excluded),
+NUL, `style`, NUL, the inline stylesheet, NUL. It reports its actual source commit/dirty status
+and catalogue hash. This fixture is not a release artifact or origin/service-worker evidence.
 
 Web remains the default when the marker is absent. During derivation, the generated application
 bundle keeps its `standalone: false` hosted/PWA configuration so Android does not become the
@@ -71,17 +98,20 @@ measurement rather than presenting package size as decoded memory. Text and exec
 a byte lower bound. The manifest summary totals installed bytes and identifies unresolved decoded
 costs.
 
-`android-build-identity.json` records build identity separately from any future Android
+`android-build-identity.json` schema 2 records build identity separately from any future Android
 `versionCode`:
 
 ```text
 target
 appVersion
 sourceSha
+sourceDirty
 payloadSha256
+artifactSha256
 webBuild
 contentManifestRevision
 rulesCompatibility
+rulesSourceDigest
 saveEnvelopeVersions
 assetManifest
 files
@@ -90,6 +120,13 @@ files
 The save envelope record intentionally says `pending-CAP-05`. CAP-02 knows the current cabinet and
 combined backup envelope versions, but it does not invent a completed native save registry,
 production approval, application ID or version code.
+
+`rulesCompatibility` is an empty revision map until CAP-05 declares a save-domain compatibility
+policy. The former SHA-256 string is now `rulesSourceDigest`, a change detector for the listed
+rules source files, never an invented compatibility version. `artifactSha256` preserves the
+complete Android tree digest (including index, runtime identity and asset manifest), excluding
+only this receipt. It is separate from the runtime graph hash. Every manifest entry still has its
+own byte/hash/MIME checks; excluded runtime metadata is not exempt from artifact verification.
 
 ## Determinism and verification
 
@@ -103,7 +140,7 @@ The checker also rejects:
 - byte, MIME, SHA or aggregate payload drift;
 - host-only files or an Observatory script;
 - a remote URL or web manifest in `index.html`;
-- a missing or late target marker;
+- a missing or late target marker, runtime identity or platform bootstrap;
 - multiple or stale application bundles;
 - missing Quiet Wing or Wrenmere executable assets;
 - stale source, rules, content or web-build identity;
@@ -133,7 +170,11 @@ The regular build remains the source of truth for:
 - Cloudflare headers and ZIP packaging.
 
 CAP-02 tests both target outputs and the existing service-worker/core tests. Native additions must
-not be charged to, hidden inside or used to relax the PWA budgets.
+not be hidden in the PWA payload. The shared CAP-03 browser facade is explicitly counted: the app
+retains its 125 KiB gzip ceiling, platform plus identity has a 6 KiB ceiling, and all required scripts
+(including the previously uncounted boot script) share the unchanged 200 KiB startup ceiling.
+The shared facade adds about 14 KiB uncompressed; the code/shell allowance excluding official data
+is 1.32 MiB, while the complete offline allowance remains 2.3 MiB.
 
 ## Follow-on packages
 

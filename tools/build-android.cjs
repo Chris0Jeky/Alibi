@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { payloadDigest, writeIdentity, readIdentity } = require('./platform-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const WEB_DIST = path.join(ROOT, 'dist');
@@ -304,6 +305,16 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
   if (!fs.existsSync(path.join(source, 'index.html'))) {
     throw new Error('Web build is missing. Run the shared build before deriving Android assets.');
   }
+  const commit = sourceSha(root);
+  const webIdentity = readIdentity(source).identity;
+  if (
+    webIdentity.target !== 'web' ||
+    webIdentity.sourceSha !== commit ||
+    webIdentity.sourceDirty !== false
+  )
+    throw new Error('Android derivation requires the current clean web source identity.');
+  if (webIdentity.payloadSha256 !== payloadDigest(source))
+    throw new Error('Web platform payload digest is stale.');
   copyTree(source, target);
   for (const filename of HOST_ONLY) fs.rmSync(path.join(target, filename), { force: true });
   for (const filename of files(path.join(target, 'assets'))) {
@@ -315,6 +326,13 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
   const targetScript = `assets/alibi-target.${sha256(targetSource).slice(0, 12)}.js`;
   fs.writeFileSync(path.join(target, targetScript), targetSource);
   rewriteIndex(target, targetScript, application);
+  const runtimeIdentity = {
+    ...webIdentity,
+    target: 'android',
+    sourceDirty: false,
+    payloadSha256: payloadDigest(target),
+  };
+  writeIdentity(target, runtimeIdentity, { replace: true });
   const assets = writeAssetManifest(target);
 
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -324,14 +342,15 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
   );
   if (!content) throw new Error('Android payload is missing official content.');
   const identity = {
-    schemaVersion: 1,
-    target: 'android',
+    schemaVersion: 2,
+    ...runtimeIdentity,
     appVersion: packageJson.version,
-    sourceSha: sourceSha(root),
-    payloadSha256: treeDigest(target, new Set(['android-build-identity.json'])),
+    sourceSha: commit,
+    artifactSha256: treeDigest(target, new Set(['android-build-identity.json'])),
     webBuild: webInfo.build,
     contentManifestRevision: content.sha256,
-    rulesCompatibility: sourceDigest(root),
+    rulesCompatibility: {},
+    rulesSourceDigest: sourceDigest(root),
     saveEnvelopeVersions: {
       registryStatus: 'pending-CAP-05',
       cabinetBackup: 1,

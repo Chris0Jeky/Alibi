@@ -9,6 +9,7 @@
     icon = U.icon,
     art = U.art,
     cfg = globalThis.ALIBI_CONFIG,
+    platform = globalThis.AlibiPlatform,
     starter = globalThis.ALIBI_CATALOG,
     books = globalThis.ALIBI_CASEBOOKS;
   const $ = (s) => document.querySelector(s),
@@ -216,6 +217,7 @@
     document.documentElement.dataset.contrast = settings.contrast;
     document.documentElement.dataset.large = settings.largeText;
     globalThis.AlibiActivities?.setPreferences?.(settings);
+    platform.feedback.setPreferences(settings);
   }
   theme();
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', theme);
@@ -1379,13 +1381,17 @@
     }
   }
   function feedbackSound() {
-    if (settings.haptics && navigator.vibrate) navigator.vibrate(7);
+    try {
+      platform.feedback.emit('place')?.catch?.(() => {});
+    } catch {
+      /* Optional device feedback cannot interrupt a validated move or its save. */
+    }
     if (!settings.sound) return;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       const a = feedbackSound.context || (feedbackSound.context = new AC());
-      a.resume();
+      a.resume()?.catch?.(() => {});
       const o = a.createOscillator(),
         g = a.createGain();
       o.type = 'sine';
@@ -3445,15 +3451,21 @@
       if (sessionSeconds % 15 === 0) enqueueSave();
     }
   }, 1000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
+  const platformLifecycle = await platform.subscribeLifecycle((event) => {
+    if (event.kind === 'pause') {
       endPaint();
       enqueueSave();
-    }
+      platform.feedback.suspend();
+    } else if (event.kind === 'resume') platform.feedback.setPreferences(settings);
   });
-  window.addEventListener('pagehide', () => {
+  window.addEventListener('pagehide', (event) => {
     endPaint();
     enqueueSave();
+    platform.feedback.suspend();
+    if (!event.persisted) {
+      platformLifecycle.dispose();
+      platform.feedback.dispose();
+    }
   });
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();

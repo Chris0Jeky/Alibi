@@ -17,15 +17,7 @@ const FEEDBACK_KINDS = new Set(['select', 'invalid', 'place', 'clear', 'complete
 const SAFE_FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._ -]{0,119}$/;
 
 function fallbackBuild(host) {
-  const config = host.ALIBI_CONFIG || {};
-  return {
-    target: 'web',
-    sourceSha: config.sourceSha,
-    payloadSha256: config.payloadSha256,
-    appVersion: config.appVersion ?? config.version,
-    contentManifestRevision: config.contentManifestRevision,
-    rulesCompatibility: config.rulesCompatibility,
-  };
+  return host.ALIBI_PLATFORM_BUILD;
 }
 
 function documentUnavailable() {
@@ -33,7 +25,7 @@ function documentUnavailable() {
 }
 
 function recoveryUnavailable() {
-  return failure('unavailable', 'Native recovery checkpoints are unavailable on the web target.');
+  return failure('unavailable', 'Recovery checkpoints are unavailable in this browser adapter.');
 }
 
 function safeInvoke(listener, value) {
@@ -319,14 +311,14 @@ function createRecovery() {
   });
 }
 
-/** Browser implementation of the platform contract. It never infers Android from UA, origin or display mode. */
-export function createWebPlatform(options = {}) {
+function createBrowserPlatform(options, target) {
   const host = options.host || globalThis;
-  const build = assertBuildIdentity(options.build || fallbackBuild(host), 'web');
+  const build = assertBuildIdentity(options.build ?? fallbackBuild(host), target);
   const assets = assetRegistry(options.assets);
   const externalLinks = externalRegistry(options.externalLinks);
   const capabilities = Object.freeze({
-    target: 'web',
+    target,
+    nativeHost: false,
     nativeFeedback: false,
     userDocuments:
       typeof host.showOpenFilePicker === 'function' &&
@@ -392,4 +384,16 @@ export function createWebPlatform(options = {}) {
       );
     },
   });
+}
+
+/** Browser implementation pinned to a web identity. It never infers Android from browser signals. */
+export function createWebPlatform(options = {}) {
+  return createBrowserPlatform(options, 'web');
+}
+
+/** Browser API fallback for an explicitly selected web or Android build target. */
+export function createBrowserFallbackPlatform(options = {}) {
+  const host = options.host || globalThis;
+  const build = assertBuildIdentity(options.build ?? fallbackBuild(host));
+  return createBrowserPlatform({ ...options, host, build }, build.target);
 }

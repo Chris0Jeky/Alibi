@@ -4,6 +4,13 @@ const fs = require('node:fs'),
   path = require('node:path'),
   crypto = require('node:crypto'),
   zlib = require('node:zlib');
+const {
+  browserBundle,
+  sourceIdentity,
+  payloadDigest,
+  writeIdentity,
+  sha256,
+} = require('./platform-identity.cjs');
 const ROOT = path.resolve(__dirname, '..'),
   SRC = path.join(ROOT, 'src'),
   DIST = path.join(ROOT, 'dist'),
@@ -113,8 +120,12 @@ function zip(entries, out) {
   write(out, Buffer.concat([...chunks, cd, end]));
 }
 function build() {
+  const source = sourceIdentity(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
+  const platformSource = browserBundle(ROOT);
+  const platformURL = `./assets/alibi-platform.${hash(platformSource)}.js`;
+  write(path.join(DIST, platformURL), platformSource);
   const castleValidation = require('esbuild').buildSync({
     entryPoints: [path.join(SRC, 'castle/validation-entry.mjs')],
     bundle: true,
@@ -273,7 +284,9 @@ function build() {
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
     release = hash(
-      contentSource +
+      JSON.stringify(source) +
+        platformSource +
+        contentSource +
         blockLoader +
         webBase +
         boot +
@@ -285,6 +298,7 @@ function build() {
         VERSION +
         template +
         read(__filename) +
+        read(require.resolve('./platform-identity.cjs')) +
         fingerprint +
         JSON.stringify(media) +
         JSON.stringify(quiet.config) +
@@ -303,6 +317,16 @@ function build() {
   write(path.join(DIST, cssName), css);
   for (const p of files(path.join(SRC, 'icons')))
     write(path.join(DIST, 'icons', path.basename(p)), fs.readFileSync(p));
+  const platformBuild = {
+    target: 'web',
+    ...source,
+    payloadSha256: payloadDigest(DIST),
+    appVersion: VERSION,
+    contentManifestRevision: sha256(contentSource),
+    rulesCompatibility: {},
+  };
+  const platformIdentity = writeIdentity(DIST, platformBuild);
+  const identityURL = './' + platformIdentity.path;
   const manifest = {
     id: './',
     name: 'Alibi · A little room to think',
@@ -338,7 +362,7 @@ function build() {
       .replace('<!-- HEAD -->', head)
       .replace(
         '<!-- SCRIPTS -->',
-        `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
+        `<script src="${bootURL}" defer></script><script src="${identityURL}" defer></script><script src="${platformURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
       ),
   );
   const aliasShellDocuments = Object.keys(PATH_ROUTE_ALIASES).flatMap((alias) => [
@@ -358,6 +382,8 @@ function build() {
     engineURL,
     blockLoaderURL,
     bootURL,
+    identityURL,
+    platformURL,
     workerURL,
     contentURL,
     ...Object.values(curation.media),
@@ -413,7 +439,13 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
           '<script>' +
           boot +
           '\n' +
-          (contentSource + standalone).replace(/<\/script/gi, '<\\/script') +
+          (
+            `globalThis.ALIBI_BUILD_TARGET='standalone';\n` +
+            platformIdentity.source +
+            platformSource +
+            contentSource +
+            standalone
+          ).replace(/<\/script/gi, '<\\/script') +
           '</script>',
       ),
   );
@@ -460,8 +492,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     initialCodeAndContentGzipBytes:
       zlib.gzipSync(js).length +
       zlib.gzipSync(contentSource).length +
-      zlib.gzipSync(blockLoader).length,
+      zlib.gzipSync(blockLoader).length +
+      zlib.gzipSync(boot).length +
+      zlib.gzipSync(platformSource).length +
+      zlib.gzipSync(platformIdentity.source).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,
+    bootGzipBytes: zlib.gzipSync(boot).length,
+    platformGzipBytes:
+      zlib.gzipSync(platformSource).length + zlib.gzipSync(platformIdentity.source).length,
+    platformBuild,
     observatoryGzipBytes: zlib.gzipSync(observatory).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,
   };
