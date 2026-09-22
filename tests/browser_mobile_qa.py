@@ -120,35 +120,73 @@ class MobileQA(unittest.TestCase):
     def test_bridge_zoom_changes_board_and_targets(self):
         page = self.open_page(route='play/bridges-01@1')
         self.dismiss_lesson(page)
-        before = page.locator('.bridge-map').bounding_box()
-        target = page.locator('.island').first.bounding_box()
+        # Capture the values being asserted in the same browser turn as readiness.
+        # A later protocol bounding_box() can resolve a node that is then replaced.
+        sampler = '''async expected => {
+            const samples = [];
+            for (let frame = 0; frame < 3; frame++) {
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                const board = document.querySelector('#main [data-scroll-key="bridges"]');
+                const map = board?.querySelector('.bridge-map');
+                const islands = [...(map?.querySelectorAll('.island') || [])];
+                const pressed = document.getElementById('play-zoom')?.getAttribute('aria-pressed');
+                const zoomed = expected.mode === 'enlarged';
+                if (!map || islands.length !== 4 || pressed !== String(zoomed) ||
+                    board.classList.contains('zoomed') !== zoomed) return false;
+                const rect = map.getBoundingClientRect();
+                const sample = {map: {width: rect.width, height: rect.height},
+                    islands: islands.map(el => {
+                        const r = el.getBoundingClientRect();
+                        return {id: el.id, width: r.width, height: r.height};
+                    }), pressed, scrollWidth: document.documentElement.scrollWidth,
+                    viewport: innerWidth, moves: globalThis.AlibiDiagnostics.getCurrent().moves};
+                if (sample.map.width <= 0 || sample.map.height <= 0 ||
+                    sample.islands.some(el => el.width < 44 || el.height < 44)) return false;
+                if (expected.before) {
+                    const before = expected.before;
+                    const matches = (value, previous) => zoomed
+                        ? value > previous : Math.abs(value - previous) <= 1;
+                    if (!matches(sample.map.width, before.map.width) || sample.islands.some((el, i) =>
+                        el.id !== before.islands[i].id || !matches(el.width, before.islands[i].width) ||
+                        !matches(el.height, before.islands[i].height))) return false;
+                }
+                samples.push(sample);
+            }
+            const first = samples[0];
+            if (samples.some(sample => Math.abs(sample.map.width - first.map.width) > 1 ||
+                Math.abs(sample.map.height - first.map.height) > 1 || sample.islands.some((el, i) =>
+                    el.id !== first.islands[i].id || Math.abs(el.width - first.islands[i].width) > 1 ||
+                    Math.abs(el.height - first.islands[i].height) > 1))) return false;
+            return samples;
+        }'''
+        before_samples = page.wait_for_function(sampler, arg={'mode': 'baseline'}).json_value()
+        before = before_samples[-1]
         page.get_by_role('button', name='Enlarge board', exact=True).click()
-        page.wait_for_function(
-            '''expected => {
-                const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
-                const island = document.querySelector('.island')?.getBoundingClientRect();
-                return Boolean(map && island && map.width > expected.map && island.width > expected.island);
-            }''',
-            arg={'map': before['width'], 'island': target['width']},
-        )
-        self.assertGreater(page.locator('.bridge-map').bounding_box()['width'], before['width'])
-        self.assertGreater(page.locator('.island').first.bounding_box()['width'], target['width'])
-        self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), 391)
+        enlarged = page.wait_for_function(
+            sampler, arg={'mode': 'enlarged', 'before': before},
+        ).json_value()
         page.get_by_role('button', name='Use normal board size', exact=True).click()
-        # The click may complete while the old board is being replaced. Wait for
-        # both restored dimensions rather than reading an absent bounding box.
-        page.wait_for_function(
-            '''expected => {
-                const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
-                const island = document.querySelector('.island')?.getBoundingClientRect();
-                return Boolean(map && island && Math.abs(map.width - expected.map) <= 1
-                    && Math.abs(island.width - expected.island) <= 1);
-            }''',
-            arg={'map': before['width'], 'island': target['width']},
-        )
-        self.assertAlmostEqual(page.locator('.bridge-map').bounding_box()['width'], before['width'], delta=1)
-        self.assertAlmostEqual(page.locator('.island').first.bounding_box()['width'], target['width'], delta=1)
-        self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
+        restored = page.wait_for_function(
+            sampler, arg={'mode': 'restored', 'before': before},
+        ).json_value()
+        evidence = {'before': before_samples, 'enlarged': enlarged, 'restored': restored}
+        (OUT / 'zoom-metrics.json').write_text(json.dumps(evidence, indent=2))
+        for sample in enlarged:
+            self.assertGreater(sample['map']['width'], before['map']['width'])
+            for actual, original in zip(sample['islands'], before['islands']):
+                self.assertGreater(actual['width'], original['width'])
+                self.assertGreater(actual['height'], original['height'])
+        for sample in restored:
+            self.assertAlmostEqual(sample['map']['width'], before['map']['width'], delta=1)
+            for actual, original in zip(sample['islands'], before['islands']):
+                self.assertAlmostEqual(actual['width'], original['width'], delta=1)
+                self.assertAlmostEqual(actual['height'], original['height'], delta=1)
+        for samples in evidence.values():
+            self.assertEqual(len(samples), 3)
+            for sample in samples:
+                self.assertEqual(len(sample['islands']), 4)
+                self.assertLessEqual(sample['scrollWidth'], sample['viewport'] + 1)
+                self.assertEqual(sample['moves'], 0)
 
     def test_optional_play_context_remains_reachable(self):
         page = self.open_page(320, 568, 'play/bridges-01@1')
