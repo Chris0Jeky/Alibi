@@ -14,6 +14,7 @@ These entries describe the versions when they arrived. The original 0.2 source b
 - Keep keyboard focus inside the how-to dialog while it is open; leaving the route dismisses it and Escape returns focus sensibly.
 - Hear cleaner names with screen readers: navigation counts stand apart from labels and library cards hide decorative preview digits.
 - Land on a designed recovery page, not the desk, when an address is not an Alibi room; saved progress is unchanged.
+- Open a shared address such as /privacy, /about or /login on its page on first visit, not the not-found page; saved progress is unchanged.
 - Compare collected castle records side by side from the evidence board.
 
 [Deployment receipt](docs/RELEASE-0.11.5.md)
