@@ -25,11 +25,13 @@ test('every alias document forwards to its hash route three ways', () => {
     const hash = `#/${target}`;
     assert.match(document, new RegExp(`http-equiv="refresh" content="0;url=/${hash}"`), alias);
     assert.match(document, new RegExp(`<a href="/${hash}">`), alias);
-    assert.match(
-      document,
-      new RegExp(`location\\.replace\\('/${hash}'\\+location\\.search\\)`),
+    // The script preempts the meta refresh, keeps an explicit fragment and
+    // preserves the query (issue #244).
+    assert.ok(
+      document.includes(`location.replace('/'+(location.hash||'${hash}')+location.search);`),
       alias,
     );
+    assert.ok(document.includes(`querySelector('meta[http-equiv="refresh"]').remove()`), alias);
   }
 });
 

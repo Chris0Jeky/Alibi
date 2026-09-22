@@ -47,6 +47,7 @@ ORIGIN_SCENARIOS = (
     "cross_tab",
     "keyboard",
     "offline",
+    "shared_paths",
     "malformed_draft",
     "malformed_persisted",
     "newer_database",
@@ -735,6 +736,98 @@ def scenario_offline(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_shared_paths(pw: Any, root: Path) -> None:
+    """Issue #244: shared leaf/directory links boot with working assets.
+
+    Covers cold and service-worker-controlled navigation to /privacy/,
+    /about/ and /login/, query and explicit-fragment combinations, refresh,
+    offline controlled navigation and an existing in-progress puzzle. It
+    asserts the intended destination and successful JS/CSS responses, not
+    merely a 200 HTML response.
+    """
+    profile = root / "shared-paths"
+    context = launch_profile(pw, profile)
+    try:
+        page = new_page(context, "shared-paths")
+        responses: list[tuple[str, int]] = []
+        page.on("response", lambda r: responses.append((r.url, r.status)))
+
+        def assert_booted_assets(label: str) -> None:
+            scripts = [u for (u, s) in responses if "/assets/" in u and u.endswith(".js") and s == 200]
+            styles = [u for (u, s) in responses if u.endswith(".css") and s == 200]
+            check(bool(scripts), f"{label}: hashed board script loads with 200")
+            check(bool(styles), f"{label}: hashed stylesheet loads with 200")
+
+        def goto_alias(url: str, label: str) -> None:
+            responses.clear()
+            page.goto(url, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+            wait_diag(page)
+            dismiss_dialog(page)
+
+        goto_alias(urljoin(BASE, "privacy/"), "cold directory privacy")
+        check(page.evaluate("location.hash") == "#/privacy", "cold /privacy/ opens the privacy route")
+        assert_booted_assets("cold /privacy/")
+
+        goto_alias(urljoin(BASE, "privacy?from=shared-link"), "cold leaf privacy with query")
+        check(
+            page.evaluate("location.hash") == "#/privacy?from=shared-link",
+            "cold /privacy with a query keeps the query on the privacy route",
+        )
+        assert_booted_assets("cold /privacy with query")
+
+        goto_alias(urljoin(BASE, "about/#/library"), "cold about with explicit fragment")
+        check(
+            page.evaluate("location.hash") == "#/library",
+            "cold /about/ with an explicit fragment keeps the explicit route",
+        )
+        assert_booted_assets("cold /about/ with explicit fragment")
+
+        boot(page)
+        route(page, "play/lightup-01@1")
+        first, before, _ = move_first_cell(page, "shared-paths move seeds an in-progress puzzle")
+        wait_run(page, "lightup-01@1", 1)
+        wait_page(
+            page,
+            "() => Boolean(navigator.serviceWorker?.controller)",
+            what="service worker controller",
+            timeout_seconds=SW_TIMEOUT,
+        )
+        check(True, "service worker controls the page before controlled navigation")
+
+        goto_alias(urljoin(BASE, "login/"), "controlled directory login")
+        check(page.evaluate("location.hash") == "#/login", "controlled /login/ opens the login route")
+        wait_diag(page)
+        page.reload(wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        wait_diag(page)
+        dismiss_dialog(page)
+        check(page.evaluate("location.hash") == "#/login", "refresh keeps the login route")
+
+        route(page, "play/lightup-01@1")
+        check(
+            current(page)["state"]["cells"][first] != before["state"]["cells"][first],
+            "in-progress puzzle survives shared-link navigation",
+        )
+        stored = read_idb(page, "runs", "lightup-01@1")
+        check(stored["rev"] >= 1, "in-progress puzzle revision is unchanged by navigation")
+
+        context.set_offline(True)
+        goto_alias(urljoin(BASE, "privacy/"), "offline controlled directory privacy")
+        check(
+            page.evaluate("location.hash") == "#/privacy",
+            "offline controlled /privacy/ still opens the privacy route",
+        )
+        context.set_offline(False)
+    finally:
+        try:
+            context.set_offline(False)
+        except Exception:
+            pass
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_malformed_draft(pw: Any, root: Path) -> None:
     profile = root / "malformed-draft"
     context = launch_profile(pw, profile)
@@ -880,6 +973,7 @@ def run() -> int:
                 scenario_cross_tab,
                 scenario_keyboard,
                 scenario_offline,
+                scenario_shared_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_newer_database,
