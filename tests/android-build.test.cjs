@@ -147,6 +147,37 @@ test('generated Android output is ignored by Git', () => {
   assert.match(ignore, /^dist-android\/$/m);
 });
 
+test('legacy, cloud, and device-transfer backup rules exclude every Android data domain', () => {
+  const domains = [
+    'root',
+    'file',
+    'database',
+    'sharedpref',
+    'external',
+    'device_root',
+    'device_file',
+    'device_database',
+    'device_sharedpref',
+  ];
+  const xmlDir = path.join(ROOT, 'android', 'app', 'src', 'main', 'res', 'xml');
+  const legacy = fs.readFileSync(path.join(xmlDir, 'backup_rules_legacy.xml'), 'utf8');
+  const extraction = fs.readFileSync(path.join(xmlDir, 'backup_rules_extraction.xml'), 'utf8');
+  const cloud = extraction.match(/<cloud-backup>([\s\S]*?)<\/cloud-backup>/)?.[1];
+  const transfer = extraction.match(/<device-transfer>([\s\S]*?)<\/device-transfer>/)?.[1];
+  assert.ok(cloud);
+  assert.ok(transfer);
+  for (const [label, section] of [
+    ['legacy', legacy],
+    ['cloud', cloud],
+    ['transfer', transfer],
+  ]) {
+    const excluded = [...section.matchAll(/<exclude domain="([^"]+)" path="\."\s*\/>/g)].map(
+      (match) => match[1],
+    );
+    assert.deepEqual(excluded.sort(), [...domains].sort(), label);
+  }
+});
+
 test('Capacitor sync checks exact public bytes and sibling config files', () => {
   const fixture = temporaryDirectory('alibi-capacitor-sync-');
   const source = path.join(fixture, 'source');
