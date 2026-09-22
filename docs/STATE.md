@@ -63,6 +63,13 @@ native save transfer and human puzzle calibration remain separate. See
 [HUMAN_TODO.md](../HUMAN_TODO.md), [PROJECT-MAP.md](PROJECT-MAP.md),
 [mobile QA](ux/MOBILE-QA-2026-09-21.md) and [typography](ux/TYPOGRAPHY-2026-09-21.md).
 
+### Block Cabinet phone action hierarchy candidate, 2026-09-17
+
+This named source checkpoint and its automated receipts remain in the history document below.
+Its acceptance boundary remains live: physical Android touch, TalkBack, comfort review and human acceptance stay open.
+Neither the newer mobile QA source integration nor simulated browser viewports replace those
+checks. Preserve this boundary when updating the live summary, not only in archived history.
+
 ## Published 0.11.4, 2026-09-17
 
 The last recorded publication is source `a79b7eb13e4bd8ba4e61dfd8126c05511e0bad57`, build
