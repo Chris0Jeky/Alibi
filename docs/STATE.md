@@ -43,7 +43,10 @@ all three required CI workflows passed at `d3cc268`. PR #239 merged the
 live-state refresh as `d729d70a67a1c08898c1954d0a7aedb7c945ca7b` after CI
 run `35756590457` passed. PR #251 corrects the packager's stale seven-scenario
 browser evidence contract and the hosted suite's reused cold profile. Its
-current-base CI and integration are pending.
+current-base CI and integration are pending. The packager accepts the ordered
+nine-scenario report, including `shared_paths` and `malformed_persisted`,
+while rejecting stale, incomplete, duplicate, focused, failed or wrong-build
+reports. Packaging never establishes hosted or physical acceptance.
 
 ### Verification boundary
 

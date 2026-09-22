@@ -4,12 +4,28 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const {
-  ORIGIN_SCENARIOS,
-  isCompleteOriginReport,
-  newPackageDirectory,
-  nodeSuites,
-} = require('../tools/package.cjs');
+const { isCompleteOriginReport, newPackageDirectory, nodeSuites } = require('../tools/package.cjs');
+
+const LEGACY_PACKAGE_SCENARIOS = [
+  'durability',
+  'backup_restore',
+  'cross_tab',
+  'keyboard',
+  'offline',
+  'malformed_draft',
+  'newer_database',
+];
+const CURRENT_BROWSER_ORIGIN_SCENARIOS = [
+  'durability',
+  'backup_restore',
+  'cross_tab',
+  'keyboard',
+  'offline',
+  'shared_paths',
+  'malformed_draft',
+  'malformed_persisted',
+  'newer_database',
+];
 
 test('package runner includes every declared Node suite', () => {
   const suites = nodeSuites();
@@ -20,18 +36,37 @@ test('package runner includes every declared Node suite', () => {
   ]);
 });
 
-test('only a complete origin scenario receipt is package eligible', () => {
+test('only a complete current origin scenario receipt is package eligible', () => {
   const valid = {
     passed: true,
     fullSuite: true,
-    scenarioSet: [...ORIGIN_SCENARIOS],
+    scenarioSet: [...CURRENT_BROWSER_ORIGIN_SCENARIOS],
     runtime: { build: 'build-1' },
   };
   assert.equal(isCompleteOriginReport(valid, 'build-1'), true);
   assert.equal(
-    isCompleteOriginReport({ ...valid, fullSuite: false, scenarioSet: ['offline'] }, 'build-1'),
+    isCompleteOriginReport({ ...valid, scenarioSet: [...LEGACY_PACKAGE_SCENARIOS] }, 'build-1'),
     false,
   );
+  assert.equal(
+    isCompleteOriginReport({ ...valid, scenarioSet: valid.scenarioSet.slice(0, -1) }, 'build-1'),
+    false,
+  );
+  assert.equal(
+    isCompleteOriginReport(
+      { ...valid, scenarioSet: [...valid.scenarioSet.slice(0, -1), 'shared_paths'] },
+      'build-1',
+    ),
+    false,
+  );
+  assert.equal(
+    isCompleteOriginReport(
+      { ...valid, fullSuite: false, scenarioSet: ['shared_paths'] },
+      'build-1',
+    ),
+    false,
+  );
+  assert.equal(isCompleteOriginReport({ ...valid, passed: false }, 'build-1'), false);
   assert.equal(isCompleteOriginReport({ ...valid, runtime: { build: 'old' } }, 'build-1'), false);
 });
 
