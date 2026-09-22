@@ -15,6 +15,7 @@ on:
       - 'tools/build-*.cjs'
       - 'tools/check-android-artifact.cjs'
       - 'tests/android-build.test.cjs'
+      - 'tests/android-boot-target.test.cjs'
       - 'tests/browser_android_payload.py'
   push:
     branches:
@@ -32,6 +33,7 @@ on:
       - 'tools/build-*.cjs'
       - 'tools/check-android-artifact.cjs'
       - 'tests/android-build.test.cjs'
+      - 'tests/android-boot-target.test.cjs'
       - 'tests/browser_android_payload.py'
 
 permissions:
@@ -58,8 +60,8 @@ jobs:
         run: npm run build:android
       - name: Audit Android artifact
         run: npm run check:android
-      - name: Exercise deterministic and tamper contracts
-        run: node --test tests/android-build.test.cjs
+      - name: Exercise Android payload and boot contracts
+        run: node --test tests/android-build.test.cjs tests/android-boot-target.test.cjs
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
