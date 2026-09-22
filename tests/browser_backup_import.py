@@ -24,6 +24,11 @@ PICKER_SCRIPT = r"""
     mode: 'normal', payload: '', openCalls: 0, saveCalls: 0,
     readCalls: 0, hiddenClicks: 0, resolve: null
   };
+  const inputClick = HTMLInputElement.prototype.click;
+  HTMLInputElement.prototype.click = function () {
+    if (this.id === 'backup-input') fixture.hiddenClicks++;
+    return inputClick.call(this);
+  };
   const selected = () => ({
     size: fixture.mode === 'oversize' ? 16 * 1024 * 1024 + 1 : fixture.payload.length,
     async text() { fixture.readCalls++; return fixture.payload; }
@@ -186,13 +191,6 @@ def run() -> dict[str, object]:
             existing_key = existing["key"]
             check(existing_key != incoming_key and existing["moves"] > 0, "test context has a different existing Sudoku save")
             page.evaluate("(payload) => { __cabinetPicker.payload = payload; }", json.dumps(incoming_payload))
-            page.evaluate(
-                """() => {
-                  const input = document.querySelector('#backup-input');
-                  const original = input.click.bind(input);
-                  input.click = () => { __cabinetPicker.hiddenClicks++; original(); };
-                }"""
-            )
             identity = page.evaluate(
                 "() => ({ config: globalThis.ALIBI_CONFIG, platform: globalThis.AlibiPlatform?.build })"
             )
@@ -240,6 +238,10 @@ def run() -> dict[str, object]:
             )
             wait_picker_dialog(page)
             check(stable_runs(page) == before_failures, "staged picker review leaves saved data unchanged")
+            check(
+                page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"),
+                "all picker outcomes avoid hidden fallback and save APIs before reload",
+            )
             page.locator('[data-action="close-dialog"]').first.click()
 
             page.evaluate("() => { __cabinetPicker.mode = 'normal'; }")
@@ -260,8 +262,8 @@ def run() -> dict[str, object]:
                 page.locator('[data-action="recovery"]').click()
             add_recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
             check(
-                {record["key"] for record in add_recovery["runs"]} == {existing_key},
-                "Add missing keeps the pre-restore recovery copy",
+                json.dumps(add_recovery["runs"], sort_keys=True, separators=(",", ":")) == before_failures,
+                "Add missing keeps the exact pre-restore recovery runs",
             )
 
             page.evaluate("(payload) => { __cabinetPicker.payload = payload; __cabinetPicker.mode = 'normal'; }", json.dumps(incoming_payload))
@@ -279,8 +281,8 @@ def run() -> dict[str, object]:
                 page.locator('[data-action="recovery"]').click()
             replace_recovery = json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
             check(
-                {record["key"] for record in replace_recovery["runs"]} == {incoming_key, existing_key},
-                "Replace keeps the pre-restore recovery copy of both prior saves",
+                {record["key"]: record for record in replace_recovery["runs"]} == merged,
+                "Replace keeps the exact pre-restore recovery runs for both prior saves",
             )
             check(
                 page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"),
