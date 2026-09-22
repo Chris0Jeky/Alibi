@@ -1,77 +1,75 @@
-/* Keep startup failures recoverable without clearing device-local progress. */
 (function () {
   'use strict';
-
-  const routeAliases = Object.freeze({
-    games: (tail) => ['salon', ...tail],
-    space: () => ['settings'],
-    wing: (tail) => ['quiet', ...tail],
-    castle: (tail) => ['quiet', 'castle', ...(tail.length ? tail : ['map'])],
-    wrenmere: (tail) => ['quiet', 'castle', ...(tail.length ? tail : ['map'])],
-  });
-
-  function normalizeHashAlias() {
-    const raw = String(location.hash || '').replace(/^#\/?/, ''),
-      [path, ...queryParts] = raw.split('?'),
-      parts = path.split('/').filter(Boolean),
-      alias = routeAliases[parts[0]?.toLowerCase()];
-    if (!alias) return false;
-    const targetParts = alias(parts.slice(1)),
-      query = queryParts.length ? `?${queryParts.join('?')}` : '',
-      target = `#/${targetParts.join('/')}${query}`;
-    if (target === location.hash) return false;
-    history.replaceState(history.state, '', target);
-    return true;
+  const $ = (id) => document.getElementById(id),
+    aliases = {
+      __proto__: null,
+      games: (x) => ['salon', ...x],
+      space: () => ['settings'],
+      wing: (x) => ['quiet', ...x],
+      castle: (x) => ['quiet', 'castle', ...(x.length ? x : ['map'])],
+      wrenmere: (x) => ['quiet', 'castle', ...(x.length ? x : ['map'])],
+    },
+    known =
+      /^(home|library|play|casebooks|story|journal|settings|workshop|privacy|changelog|salon|lab|club|quiet)$/;
+  function normalize() {
+    const [path, ...q] = location.hash.replace(/^#\/?/, '').split('?'),
+      p = path.split('/').filter(Boolean),
+      alias = aliases[p[0]?.toLowerCase()];
+    if (!alias) return;
+    history.replaceState(
+      history.state,
+      '',
+      `#/${alias(p.slice(1)).join('/')}${q.length ? `?${q.join('?')}` : ''}`,
+    );
   }
-
-  normalizeHashAlias();
-  globalThis.addEventListener?.('hashchange', normalizeHashAlias);
-
-  const timer = setTimeout(() => {
-    if (globalThis.AlibiDiagnostics) return;
-    const app = document.getElementById('app');
-    if (!app || document.getElementById('boot-recovery')) return;
-    const panel = document.createElement('section');
-    panel.id = 'boot-recovery';
-    panel.className = 'panel';
-    panel.setAttribute('role', 'alert');
-    const title = document.createElement('h2');
-    title.textContent = 'Taking longer than expected.';
-    const note = document.createElement('p');
-    note.textContent =
-      'Close other Alibi windows, then retry. Your saved progress has not been cleared. If this keeps happening, refresh the app files while online; this keeps your puzzles and saves.';
-    const retry = document.createElement('button');
-    retry.className = 'btn';
-    retry.textContent = 'Retry opening';
-    retry.onclick = () => location.reload();
-    const refresh = document.createElement('button');
-    refresh.className = 'btn secondary';
-    refresh.textContent = 'Refresh app files';
-    refresh.onclick = async () => {
-      refresh.disabled = true;
-      try {
-        if (!navigator.onLine) throw Error('Connect to the internet before refreshing app files.');
-        const registrations = (await navigator.serviceWorker?.getRegistrations()) || [];
-        for (const registration of registrations) {
-          if (registration.scope === new URL('./', location.href).href)
-            await registration.unregister();
+  function show() {
+    const r = location.hash.replace(/^#\/?/, '').split(/[/?]/)[0].toLowerCase(),
+      main = $('main');
+    if (!r || known.test(r) || !main) return;
+    if ($('route-not-found')) return;
+    main.innerHTML =
+      '<section id="route-not-found" class="empty" role="status"><h1>That door is not on the map.</h1><p>That address is not an Alibi room. Your saved progress is unchanged.</p><code id="route-not-found-hash"></code><div class="row actions"><a class="btn" href="#/home">Your desk</a><a class="btn secondary" href="#/library">Puzzles</a></div></section>';
+    $('route-not-found-hash').textContent = location.hash;
+    document.title = 'Room not found · Alibi';
+    main.focus();
+  }
+  normalize();
+  addEventListener('hashchange', normalize);
+  const isAndroidTarget = globalThis.ALIBI_BUILD_TARGET === 'android',
+    timer = setTimeout(() => {
+      if (globalThis.AlibiDiagnostics) return;
+      const app = $('app');
+      if (!app || $('boot-recovery')) return;
+      app.insertAdjacentHTML(
+        'beforeend',
+        isAndroidTarget
+          ? '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close and reopen the bundled Android app, then retry. Your saves are unchanged.</p><button class="btn">Retry opening</button></section>'
+          : '<section id="boot-recovery" class="panel" role="alert"><h2>Still opening.</h2><p>Close other Alibi windows and retry. Your saves are unchanged. Refresh app files online if this continues.</p><button class="btn">Retry opening</button><button class="btn secondary">Refresh app files</button></section>',
+      );
+      const panel = $('boot-recovery'),
+        [retry, refresh] = panel.querySelectorAll('button');
+      retry.onclick = () => location.reload();
+      if (!refresh) return;
+      refresh.onclick = async () => {
+        refresh.disabled = true;
+        try {
+          if (!navigator.onLine) throw Error('Go online to refresh app files.');
+          for (const r of (await navigator.serviceWorker?.getRegistrations()) || [])
+            if (r.scope === new URL('.', location).href) await r.unregister();
+          if (globalThis.caches)
+            for (const n of await caches.keys())
+              if (n.startsWith('alibi-shell-')) await caches.delete(n);
+          location.reload();
+        } catch (e) {
+          panel.querySelector('p').textContent = e.message;
+          refresh.disabled = false;
         }
-        if ('caches' in globalThis) {
-          for (const name of await caches.keys()) {
-            if (name.startsWith('alibi-shell-')) await caches.delete(name);
-          }
-        }
-        location.reload();
-      } catch (error) {
-        note.textContent = error.message;
-        refresh.disabled = false;
-      }
-    };
-    panel.append(title, note, retry, refresh);
-    app.append(panel);
-  }, 12000);
+      };
+    }, 12000);
   globalThis.AlibiBootReady = () => {
     clearTimeout(timer);
-    document.getElementById('boot-recovery')?.remove();
+    $('boot-recovery')?.remove();
+    new MutationObserver(show).observe($('app'), { childList: true });
+    show();
   };
 })();

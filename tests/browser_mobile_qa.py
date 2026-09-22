@@ -135,7 +135,19 @@ class MobileQA(unittest.TestCase):
         self.assertGreater(page.locator('.island').first.bounding_box()['width'], target['width'])
         self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), 391)
         page.get_by_role('button', name='Use normal board size', exact=True).click()
+        # The click may complete while the old board is being replaced. Wait for
+        # both restored dimensions rather than reading an absent bounding box.
+        page.wait_for_function(
+            '''expected => {
+                const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
+                const island = document.querySelector('.island')?.getBoundingClientRect();
+                return Boolean(map && island && Math.abs(map.width - expected.map) <= 1
+                    && Math.abs(island.width - expected.island) <= 1);
+            }''',
+            arg={'map': before['width'], 'island': target['width']},
+        )
         self.assertAlmostEqual(page.locator('.bridge-map').bounding_box()['width'], before['width'], delta=1)
+        self.assertAlmostEqual(page.locator('.island').first.bounding_box()['width'], target['width'], delta=1)
         self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
 
     def test_optional_play_context_remains_reachable(self):
