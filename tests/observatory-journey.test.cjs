@@ -212,3 +212,118 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     );
   assert.doesNotMatch(appSource, /PulseboardUsage/);
 });
+
+// Runs the real loader and the real generated adapter together, with a minimal DOM that dispatches
+// change events through document capture listeners the way a browser does.
+function integrated() {
+  const { webcrypto } = require('node:crypto');
+  const windowListeners = {};
+  const captures = [];
+  const created = [];
+  function element(tag) {
+    const node = {
+      tag,
+      children: [],
+      listeners: {},
+      textContent: '',
+      checked: false,
+      disabled: false,
+      parent: null,
+      append(...children) {
+        for (const child of children) {
+          if (child && typeof child === 'object') child.parent = node;
+          node.children.push(child);
+        }
+      },
+      setAttribute() {},
+      addEventListener(type, listener) {
+        (node.listeners[type] ||= []).push(listener);
+      },
+      remove() {},
+      closest(selector) {
+        for (let at = node; at; at = at.parent) if ('#' + at.id === selector) return at;
+        return null;
+      },
+    };
+    created.push(node);
+    return node;
+  }
+  const document = {
+    readyState: 'complete',
+    body: element('body'),
+    head: { append() {} },
+    createElement: element,
+    createTextNode: (text) => ({ text }),
+    addEventListener(type, listener, capture) {
+      if (type === 'change' && capture === true) captures.push(listener);
+    },
+    removeEventListener() {},
+  };
+  const context = {
+    document,
+    location: {
+      origin: 'https://alibi-after-hours-preview.commit-atlas.workers.dev',
+      protocol: 'https:',
+      pathname: '/',
+      hash: '#/play/test@1',
+    },
+    navigator: {},
+    crypto: webcrypto,
+    AbortController,
+    TextEncoder,
+    Response,
+    URL,
+    Date,
+    JSON,
+    // No host Object: the adapter checks that events carry this realm's plain-object prototype.
+    localStorage: { getItem: () => null, setItem: () => {} },
+    fetch: async () => new Response('{}', { status: 202 }),
+    setTimeout: () => 1,
+    clearTimeout: () => {},
+    addEventListener(type, listener) {
+      (windowListeners[type] ||= []).push(listener);
+    },
+    removeEventListener() {},
+    ALIBI_CONFIG: { standalone: false, version: '0.11.5' },
+    ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
+  };
+  context.globalThis = context;
+  vm.createContext(context);
+  vm.runInContext(loaderSource, context, { filename: 'observatory-loader.js' });
+  vm.runInContext(browserSource, context, { filename: 'observatory/browser.js' });
+  const checkbox = created.find((node) => node.type === 'checkbox');
+  return {
+    context,
+    toggle(value) {
+      checkbox.checked = value;
+      for (const listener of captures) listener({ target: checkbox });
+      for (const listener of checkbox.listeners.change || []) listener({ target: checkbox });
+    },
+    queued: () => context.PulseboardUsage.status().queued,
+  };
+}
+
+test('the generated adapter admits every journey event the loader emits', () => {
+  const h = integrated();
+  const run = { key: 'integrated' };
+  assert.equal(h.context.AlibiJourney(run), false, 'nothing is tracked before consent');
+  assert.equal(h.queued(), 0);
+
+  h.toggle(true);
+  const afterConsent = h.queued();
+  assert.equal(afterConsent, 0, 'the consent page view is already in flight');
+  assert.equal(h.context.PulseboardUsage.status().requests, 1);
+  assert.equal(h.context.AlibiJourney(run), true);
+  assert.equal(h.context.AlibiJourney(run, 'hint.requested'), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.completed'), true);
+  assert.equal(h.queued(), afterConsent + 5, 'started, hint, failed, started, completed');
+
+  h.context.AlibiJourney(run);
+  h.toggle(false);
+  assert.equal(h.queued(), 0, 'withdrawal clears the queue');
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
+  h.toggle(true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
+  assert.equal(h.queued(), 2, 're-consent opens a fresh attempt instead of continuing the old one');
+});
