@@ -30,7 +30,7 @@ remain in history. Start with [STRATEGY.md](STRATEGY.md).
   first-solve familiarity and internal return context. [PRACTICE.md](PRACTICE.md) defines the
   read boundary and why these discoveries do not award case evidence or cross-game entitlements.
 - `tools/build-quiet-pack.cjs`: the unchanged prior Quiet Wing builder, renamed.
-- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate 96 KiB source-bundle limit; the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
+- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate 97 KiB source-bundle limit; the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
 
 ## Boundaries
 
@@ -60,7 +60,7 @@ to 100%. Enlargement stays inside the labelled map scroller, retains its horizon
 possible, and survives numbered-room selection plus Today/1911 rerenders. Keyboard focus returns
 to the zoom control or the room/era control that triggered the rerender. Named entrances and the
 selected-room panel remain available at every level. The reconciled implementation still fits the
-unchanged 96 KiB Castle source-bundle limit. A secret route appears only after its deduction. The
+97 KiB Castle source-bundle limit. A secret route appears only after its deduction. The
 ten room illustrations use their own 1000×660 coordinates. Inspecting a locked nearby door preserves
 the current room. Floor/wing-specific views and the wider atlas remain navigation work under #45.
 

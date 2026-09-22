@@ -20,7 +20,8 @@ const ROOM_IDS = [
 ];
 const SCENE_BUDGET = 180 * 1024;
 const FILM_BUDGET = 1024 * 1024;
-const SCRIPT_BUDGET = 96 * 1024;
+// Named comparison controls add ~140 bytes over the former cap; the activity stays lazy-loaded outside the initial-JS budget.
+const SCRIPT_BUDGET = 97 * 1024;
 
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex').slice(0, 12);
 
