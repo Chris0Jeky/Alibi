@@ -16,6 +16,7 @@ These entries describe the versions when they arrived. The original 0.2 source b
 - Land on a designed recovery page, not the desk, when an address is not an Alibi room; saved progress is unchanged.
 - Open a shared address such as /privacy, /about or /login on its page on first visit, not the not-found page; saved progress is unchanged.
 - Compare collected castle records side by side from the evidence board.
+- Fifteen new puzzles in two new packs: six crime-scene variations and nine Master/Grandmaster studies (open human-calibration gates apply). Previously published puzzle IDs and revisions are unchanged.
 
 [Deployment receipt](docs/RELEASE-0.11.5.md)
 

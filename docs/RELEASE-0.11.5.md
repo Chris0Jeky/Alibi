@@ -9,8 +9,11 @@ Player-facing changes since 0.11.4: board-first phone play with 44px touch
 targets and Bridges zoom; modal how-to dialog with route-leave dismissal;
 screen-reader-safe navigation and card names; a designed recovery page for
 unknown addresses; first-visit shared addresses (/privacy, /about, /login)
-that open their page; castle collected-record comparison. No puzzle IDs,
-revisions, save formats or catalogue counts change.
+that open their page; castle collected-record comparison; fifteen new
+puzzles in two new packs (six crime-scene variations, nine
+Master/Grandmaster studies under the open human-calibration gates). All
+previously published puzzle IDs, revisions and save formats are unchanged;
+the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
