@@ -74,6 +74,8 @@
     draftObject = 'plant',
     draftBusy = false,
     pendingBackup = null,
+    backupPickerBusy = false,
+    backupPickerSerial = 0,
     installEvent = null,
     registration = null,
     offlineReady = !!globalThis.ALIBI_BUILD_TARGET,
@@ -2118,6 +2120,56 @@
       ],
     );
   }
+  async function importBackupFromPicker() {
+    if (backupPickerBusy) return;
+    backupPickerBusy = true;
+    let token = null;
+    try {
+      const operation = (stage) => ({
+        operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
+        timeoutMs: 30000,
+      });
+      const fail = (code, reading = false) => {
+        toast(
+          code === 'cancelled'
+            ? 'No backup was selected. Nothing was changed.'
+            : code === 'protected'
+              ? 'That backup is larger than 16 MB. Choose a smaller backup.'
+              : reading
+                ? 'The selected backup could not be read. Choose a JSON backup file.'
+                : 'The backup picker could not finish. Try again from Restore backup.',
+          code !== 'cancelled',
+        );
+      };
+      const picked = await platform.documents.pickBackup(operation('pick'));
+      if (!picked?.ok) {
+        fail(picked?.code);
+        return;
+      }
+      token = picked.value;
+      if (typeof token !== 'string' || !token) {
+        fail('invalid');
+        return;
+      }
+      const read = await platform.documents.readLimited(token, 16 * 1024 * 1024, operation('read'));
+      if (!read?.ok) {
+        fail(read?.code, true);
+        return;
+      }
+      if (typeof read.value !== 'string') {
+        fail('invalid', true);
+        return;
+      }
+      await importBackup(new File([read.value], 'alibi-backup.json', { type: 'application/json' }));
+    } finally {
+      try {
+        if (token) await platform.documents.release(token);
+      } catch {
+        /* Cleanup must not replace the picker or import failure. */
+      }
+      backupPickerBusy = false;
+    }
+  }
   async function importBackup(file) {
     if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
     pendingBackup = await inWorker({ type: 'cabinet-backup', text: await file.text() });
@@ -2793,7 +2845,8 @@
         }
         break;
       case 'import-backup':
-        $('#backup-input').click();
+        if (platform.capabilities().userDocuments) await importBackupFromPicker();
+        else $('#backup-input').click();
         break;
       case 'restore-merge':
         await restoreBackup(false);
