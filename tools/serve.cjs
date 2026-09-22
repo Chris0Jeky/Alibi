@@ -36,6 +36,12 @@ http
       return;
     }
     if (name.endsWith('/')) file = path.join(file, 'index.html');
+    // Mirror the primary host: an extensionless shared path answers its
+    // `<alias>.html` redirect document instead of 404ing (issue #244).
+    if ((!fs.existsSync(file) || !fs.statSync(file).isFile()) && !path.extname(file)) {
+      const sibling = file + '.html';
+      if (fs.existsSync(sibling) && fs.statSync(sibling).isFile()) file = sibling;
+    }
     if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
       res.writeHead(404).end('Not found');
       return;

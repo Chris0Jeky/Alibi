@@ -10,7 +10,19 @@
       wrenmere: (x) => ['quiet', 'castle', ...(x.length ? x : ['map'])],
     },
     known =
-      /^(home|library|play|casebooks|story|journal|settings|workshop|privacy|changelog|salon|lab|club|quiet)$/;
+      /^(home|library|play|casebooks|story|journal|settings|workshop|privacy|changelog|salon|lab|club|quiet)$/,
+    pathRoutes = {
+      __proto__: null,
+      privacy: 'privacy',
+      about: 'about',
+      login: 'login',
+    };
+  function normalizePath() {
+    if (location.hash) return;
+    const target = pathRoutes[location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase()];
+    if (!target) return;
+    history.replaceState(history.state, '', `#/${target}${location.search}`);
+  }
   function normalize() {
     const [path, ...q] = location.hash.replace(/^#\/?/, '').split('?'),
       p = path.split('/').filter(Boolean),
@@ -33,6 +45,7 @@
     document.title = 'Room not found · Alibi';
     main.focus();
   }
+  normalizePath();
   normalize();
   addEventListener('hashchange', normalize);
   const isAndroidTarget = globalThis.ALIBI_BUILD_TARGET === 'android',
