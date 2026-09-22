@@ -1,6 +1,10 @@
 name: Verify puzzle cabinet
 on:
+  # PR branches validate via pull_request only. A bare push trigger used to
+  # fire a second full run on the same SHA (issue #242).
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 permissions:
@@ -98,6 +102,7 @@ jobs:
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_focus.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_motion.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_player_qa.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_mobile_qa.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_september_feedback.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_tic_tac_toe.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_large_nonogram.py
@@ -127,6 +132,7 @@ jobs:
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
           python tests/browser_backup_worker.py
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_backup_import.py
           node tools/serve-assets.cjs > /tmp/alibi-assets.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
           python tests/browser_assets.py
@@ -156,7 +162,9 @@ jobs:
             tests/quiet-wing/*-results.json
             tests/screenshots/
             test-results/browser-origin/*.json
+            test-results/browser-backup-import.json
             test-results/browser-update/*.json
+            test-results/mobile-qa/
             test-results/browser-expedition/**/*.json
             test-results/browser-expedition/**/*.png
             test-results/*.png

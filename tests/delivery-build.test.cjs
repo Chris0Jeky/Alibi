@@ -66,6 +66,8 @@ test('delivery build emits exact derivatives outside the offline shell and valid
   assert.ok(!html.includes('frame-ancestors'), 'framing is a response-header policy only');
   const headers = fs.readFileSync(path.join(root, 'dist/_headers'), 'utf8');
   assert.ok(headers.includes("img-src 'self' data: blob:"));
-  assert.ok(headers.includes("script-src 'self';"));
+  const scriptSrc = headers.match(/script-src ([^;]+);/)[1];
+  assert.ok(scriptSrc.startsWith("'self'"), 'scripts stay same-origin');
+  assert.ok(!scriptSrc.includes("'unsafe-inline'"), 'scripts stay free of unsafe-inline');
   assert.ok(!headers.includes('cdn.example'));
 });

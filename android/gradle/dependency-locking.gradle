@@ -1,0 +1,14 @@
+def lockId = project.path == ':' ? 'root' : project.path.substring(1).replace(':', '-')
+def lockDir = new File(project.rootProject.projectDir, 'gradle/dependency-locks')
+
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = org.gradle.api.artifacts.dsl.LockMode.STRICT
+    lockFile = new File(lockDir, "${lockId}.lockfile")
+}
+
+project.buildscript.dependencyLocking {
+    lockMode = org.gradle.api.artifacts.dsl.LockMode.STRICT
+    lockFile = new File(lockDir, "${lockId}-buildscript.lockfile")
+}
+project.buildscript.configurations.classpath.resolutionStrategy.activateDependencyLocking()

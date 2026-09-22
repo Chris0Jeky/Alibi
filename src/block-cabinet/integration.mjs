@@ -8,6 +8,7 @@ export function startIntegration() {
     panel = null,
     surface = null,
     busy = 0,
+    suppressRender = 0,
     simple = false,
     lab = null,
     labEpoch = 0;
@@ -21,11 +22,16 @@ export function startIntegration() {
   const action = async (name, data = {}) => {
     busy++;
     try {
-      await club().action({ dataset: { action: 'club-' + name, ...data } });
+      suppressRender++;
+      try {
+        await club().action({ dataset: { action: 'club-' + name, ...data } });
+      } finally {
+        suppressRender--;
+      }
       await club().flush();
     } finally {
       busy--;
-      attach();
+      if (!busy) attach();
     }
   };
   function closeLab() {
@@ -84,6 +90,8 @@ export function startIntegration() {
     panel?.closest('.club-playlayout')?.classList.remove('bc-enhanced-layout');
     panel?.querySelectorAll('.bc-legacy').forEach((el) => el.classList.remove('bc-legacy'));
     installEnable();
+    club().refresh();
+    attach();
     if (restoreFocus) {
       const target =
         panel?.querySelector('.block-cell:not([disabled])') || panel?.querySelector('.bc-enable');
@@ -162,7 +170,7 @@ export function startIntegration() {
       host = document.createElement('div');
       host.className = 'bc-host';
     }
-    // Reattach the retained surface after the Club's whole-page render. Pointer moves never render the host app.
+    // Retain the surface across Club actions; unrelated route renders reattach it here.
     for (const child of [...target.children]) if (child !== host) child.classList.add('bc-legacy');
     target.closest('.club-playlayout').classList.add('bc-enhanced-layout');
     if (host.parentElement !== target) target.append(host);
@@ -195,6 +203,8 @@ export function startIntegration() {
   globalThis.AlibiBlockMotion = {
     ...globalThis.AlibiBlockMotion,
     running: true,
+    suppressClubRender: () =>
+      suppressRender > 0 && !!host?.isConnected && document.querySelector('.block-panel') === panel,
     diagnostics: () => ({
       active: !!surface,
       simple,

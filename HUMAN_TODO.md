@@ -48,16 +48,25 @@ any distracting voices, repetition or harshness. This acceptance remains open un
 - [ ] q-8 — Play the September additions on the affected phone: repeated scene tap cycles and
   hold menus, 15×15 Nonogram panning/auto-cross, the eight-chapter invitation, and all six offered
   Games Room tables. Sample the fifteen provisional Expert puzzles across all thirteen families;
-  report any easy, guess-heavy or confusing entry before treating Expert as calibrated. The
-  region game uses one lantern per row/column/region with no touching. Dominoes and Mahjong are
-  now legacy compatibility routes, not part of this discovery or difficulty sample. Confirm
-  whether the offered-game interpretations match the player's intention.
+  report any easy, guess-heavy or confusing entry before treating Expert as calibrated. Separately
+  sample the six provisional Master/Grandmaster Crime Scene variations; verify that the named
+  room/furniture cues match the playable clues and report any easy, guess-heavy or confusing solve
+  before treating either advanced label as calibrated. Also sample the nine provisional
+  Master/Grandmaster studies across Nonogram, Binary, Futoshiki, Light Up, Tents, Aquarium,
+  Network, Trail, and Bridges. On the 15×15, 9×9, and 7×7 boards, verify physical touch targeting,
+  comfortable sizing, panning where applicable, TalkBack order, and sustained-device performance;
+  browser hit-testing does not close those checks. The region game uses one lantern per
+  row/column/region with no touching. Dominoes and Mahjong are now legacy compatibility routes,
+  not part of this discovery or difficulty sample. Confirm whether the offered-game interpretations
+  match the player's intention. Candidate evidence and residual limits are recorded in
+  [Advanced puzzle candidates](docs/ADVANCED-PUZZLE-CANDIDATES.md).
 
 ## Capacitor transition: owner gates, not a request to stop planning
 
 The [Capacitor architecture package](docs/capacitor/README.md) and [program #120](https://github.com/Chris0Jeky/Alibi/issues/120)
-plan a shared PWA plus bundled Android edition. No native application, store release or new account
-is claimed by this planning PR. Build-target/port work and a visibly non-publishable preview can
+plan a shared PWA plus bundled Android edition. The architecture PR supplied no native application;
+CAP04 now has a non-publishable Android preview APK. No store release or new account is claimed.
+Build-target/port work and a visibly non-publishable preview can
 proceed without more animation choices, a new domain or store credentials.
 
 Before production registration, extend q-3 with the approved legal publisher, applicationId, Play
@@ -80,4 +89,5 @@ in [plan.json](docs/capacitor/plan.json).
 
 - Test actual Android touch drag, cancellation by OS gestures, TalkBack, large text, audio comfort and lifecycle resume.
 - Calibrate Cascade seeds and relic/rotation rules before promotion out of the lab. Export Cascade separately from the existing combined backup.
-- No native APK, Play publication or phone performance result is claimed. See docs/BLOCK-CABINET-ENGINE.md.
+- No physical Android result for the tactile surface, Play publication or phone performance is
+  claimed. The CAP04 emulator APK sampled Sudoku only. See docs/BLOCK-CABINET-ENGINE.md.

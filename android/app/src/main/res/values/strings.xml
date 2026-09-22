@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Alibi Android Preview</string>
+    <string name="title_activity_main">Alibi Android Preview</string>
+    <string name="package_name">example.unapproved.alibi.preview</string>
+    <string name="custom_url_scheme">example.unapproved.alibi.preview</string>
+</resources>

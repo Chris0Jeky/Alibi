@@ -4,6 +4,13 @@ const fs = require('node:fs'),
   path = require('node:path'),
   crypto = require('node:crypto'),
   zlib = require('node:zlib');
+const {
+  browserBundle,
+  sourceIdentity,
+  payloadDigest,
+  writeIdentity,
+  sha256,
+} = require('./platform-identity.cjs');
 const ROOT = path.resolve(__dirname, '..'),
   SRC = path.join(ROOT, 'src'),
   DIST = path.join(ROOT, 'dist'),
@@ -14,6 +21,45 @@ const read = (p) => fs.readFileSync(p, 'utf8'),
     fs.mkdirSync(path.dirname(p), { recursive: true });
     fs.writeFileSync(p, x);
   };
+/* Extensionless shared paths (/privacy, /about, /login) must resolve on a first
+visit, before any service worker controls the page. Hosts serve the static
+404-page for those paths, so the client-side path normalization in src/boot.js
+never runs. These tiny redirect documents bridge that gap: unknown addresses
+still land on 404.html, while each known alias forwards to its hash route.
+Both the `<alias>.html` and `<alias>/index.html` forms are emitted because
+static hosts differ on which convention answers an extensionless request.
+The alias documents carry no directory-relative subresources, so they are
+also the answer for service-worker-controlled navigations: the cached root
+shell would resolve its `./assets/` URLs against the alias directory base
+and fail to boot (issue #244). */
+const PATH_ROUTE_ALIASES = { __proto__: null, privacy: 'privacy', about: 'about', login: 'login' };
+function pathRouteAliasScript(target) {
+  // Runs before the no-JavaScript meta refresh below can fire: drop the
+  // refresh, then forward to the explicit fragment when one is present so a
+  // shared `/about/#/library` address keeps its route. An outer query merges
+  // into an existing fragment query with `&` instead of corrupting it.
+  return `document.querySelector('meta[http-equiv="refresh"]').remove();var h=location.hash||'#/${target}',q=location.search;if(q)h+=(h.indexOf('?')>=0?'&':'?')+q.slice(1);location.replace('/'+h);`;
+}
+function pathRouteAliasDocument(alias, target) {
+  const hash = `#/${target}`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="0;url=/${hash}"><title>Alibi · ${alias}</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><p><a href="/${hash}">Continue to Alibi</a></p></main><script>${pathRouteAliasScript(target)}</script></body></html>`;
+}
+function pathRouteAliasCspHashes() {
+  // The global Content-Security-Policy blocks inline scripts, which would
+  // leave only the query-dropping meta refresh. Hash-allowlist the exact
+  // redirect scripts instead of relaxing script-src (issue #244).
+  return Object.values(PATH_ROUTE_ALIASES).map(
+    (target) =>
+      `'sha256-${crypto.createHash('sha256').update(pathRouteAliasScript(target)).digest('base64')}'`,
+  );
+}
+function writePathRouteAliases(dist) {
+  for (const alias of Object.keys(PATH_ROUTE_ALIASES)) {
+    const document = pathRouteAliasDocument(alias, PATH_ROUTE_ALIASES[alias]);
+    write(path.join(dist, `${alias}.html`), document);
+    write(path.join(dist, alias, 'index.html'), document);
+  }
+}
 function files(dir) {
   return fs
     .readdirSync(dir, { withFileTypes: true })
@@ -74,8 +120,15 @@ function zip(entries, out) {
   write(out, Buffer.concat([...chunks, cd, end]));
 }
 function build() {
+  const source = sourceIdentity(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
+  const platformSource = browserBundle(
+    ROOT,
+    process.env.ALIBI_PLATFORM_ENTRY || 'src/platform/browser-entry.mjs',
+  );
+  const platformURL = `./assets/alibi-platform.${hash(platformSource)}.js`;
+  write(path.join(DIST, platformURL), platformSource);
   const castleValidation = require('esbuild').buildSync({
     entryPoints: [path.join(SRC, 'castle/validation-entry.mjs')],
     bundle: true,
@@ -234,7 +287,9 @@ function build() {
       .map((p) => hash(fs.readFileSync(p)))
       .join(''),
     release = hash(
-      contentSource +
+      JSON.stringify(source) +
+        platformSource +
+        contentSource +
         blockLoader +
         webBase +
         boot +
@@ -246,6 +301,7 @@ function build() {
         VERSION +
         template +
         read(__filename) +
+        read(require.resolve('./platform-identity.cjs')) +
         fingerprint +
         JSON.stringify(media) +
         JSON.stringify(quiet.config) +
@@ -264,6 +320,16 @@ function build() {
   write(path.join(DIST, cssName), css);
   for (const p of files(path.join(SRC, 'icons')))
     write(path.join(DIST, 'icons', path.basename(p)), fs.readFileSync(p));
+  const platformBuild = {
+    target: 'web',
+    ...source,
+    payloadSha256: payloadDigest(DIST),
+    appVersion: VERSION,
+    contentManifestRevision: sha256(contentSource),
+    rulesCompatibility: {},
+  };
+  const platformIdentity = writeIdentity(DIST, platformBuild);
+  const identityURL = './' + platformIdentity.path;
   const manifest = {
     id: './',
     name: 'Alibi · A little room to think',
@@ -291,7 +357,7 @@ function build() {
   // Must equal the origin of the collect endpoint compiled into observatory/browser.js; observatory/check.mjs asserts both.
   const OBSERVATORY_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev';
   const connectOrigins = [...delivery.origins, OBSERVATORY_ORIGIN];
-  const documentPolicy = `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
+  const documentPolicy = `default-src 'self'; script-src 'self' ${pathRouteAliasCspHashes().join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
   const head = `<meta http-equiv="Content-Security-Policy" content="${documentPolicy}"><meta name="referrer" content="no-referrer"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png"><link rel="stylesheet" href="./${cssName}">`;
   write(
     path.join(DIST, 'index.html'),
@@ -299,12 +365,17 @@ function build() {
       .replace('<!-- HEAD -->', head)
       .replace(
         '<!-- SCRIPTS -->',
-        `<script src="${bootURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
+        `<script src="${bootURL}" defer></script><script src="${identityURL}" defer></script><script src="${platformURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
       ),
   );
+  const aliasShellDocuments = Object.keys(PATH_ROUTE_ALIASES).flatMap((alias) => [
+    `./${alias}.html`,
+    `./${alias}/index.html`,
+  ]);
   const assets = [
     './',
     './index.html',
+    ...aliasShellDocuments,
     './manifest.webmanifest',
     './icons/icon-192.png',
     './icons/icon-512.png',
@@ -314,11 +385,16 @@ function build() {
     engineURL,
     blockLoaderURL,
     bootURL,
+    identityURL,
+    platformURL,
     workerURL,
     contentURL,
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
+  // Hosts may canonicalize cached alias URLs through an HTTP redirect. A
+  // manual-mode navigation cannot consume that followed-redirect response;
+  // rewrap only those cache hits while preserving their bytes and headers.
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
 const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
@@ -326,7 +402,9 @@ self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(a
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
 const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate')return await c.match(new URL('./',self.registration.scope).href)||fetch(r);const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
+function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}return await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
   write(path.join(DIST, 'sw.js'), sw);
   write(
@@ -352,6 +430,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     path.join(DIST, '404.html'),
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
+  writePathRouteAliases(DIST);
   const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
@@ -363,7 +442,13 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
           '<script>' +
           boot +
           '\n' +
-          (contentSource + standalone).replace(/<\/script/gi, '<\\/script') +
+          (
+            `globalThis.ALIBI_BUILD_TARGET='standalone';\n` +
+            platformIdentity.source +
+            platformSource +
+            contentSource +
+            standalone
+          ).replace(/<\/script/gi, '<\\/script') +
           '</script>',
       ),
   );
@@ -410,8 +495,15 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     initialCodeAndContentGzipBytes:
       zlib.gzipSync(js).length +
       zlib.gzipSync(contentSource).length +
-      zlib.gzipSync(blockLoader).length,
+      zlib.gzipSync(blockLoader).length +
+      zlib.gzipSync(boot).length +
+      zlib.gzipSync(platformSource).length +
+      zlib.gzipSync(platformIdentity.source).length,
     javascriptGzipBytes: zlib.gzipSync(js).length,
+    bootGzipBytes: zlib.gzipSync(boot).length,
+    platformGzipBytes:
+      zlib.gzipSync(platformSource).length + zlib.gzipSync(platformIdentity.source).length,
+    platformBuild,
     observatoryGzipBytes: zlib.gzipSync(observatory).length,
     uploadZipBytes: fs.statSync(path.join(ROOT, 'alibi-deluxe-cloudflare.zip')).size,
   };
@@ -419,4 +511,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   console.log(JSON.stringify(info, null, 2));
 }
 if (require.main === module) build();
-module.exports = { build, zip, files };
+module.exports = {
+  build,
+  zip,
+  files,
+  PATH_ROUTE_ALIASES,
+  pathRouteAliasDocument,
+  writePathRouteAliases,
+};

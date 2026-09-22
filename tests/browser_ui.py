@@ -43,6 +43,17 @@ with sync_playwright() as pw:
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
     check(page.title().startswith('Alibi'),'Application title and boot')
+    check(page.evaluate("()=>ALIBI_BUILD_TARGET==='standalone' && AlibiPlatform.build.target==='web' && AlibiPlatform.capabilities().nativeHost===false"),'Standalone uses the explicit browser platform')
+    route('settings')
+    page.locator('[data-setting="haptics"]').check()
+    page.evaluate("""() => {
+      globalThis.failedVibrationAttempts = 0;
+      Object.defineProperty(navigator, 'vibrate', { configurable: true, value() {
+        globalThis.failedVibrationAttempts++;
+        throw new Error('fixture unavailable vibration');
+      }});
+    }""")
+    route('home')
     check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==OFFICIAL_COUNT,'All registered puzzles loaded')
     check(page.evaluate('AlibiDiagnostics.getCounts().types')==13,'All thirteen engines loaded')
     page.screenshot(path=str(shots/'desktop-home.png'),full_page=True)
@@ -170,6 +181,7 @@ with sync_playwright() as pw:
     route('play/sudoku-02@2');dismiss();check(state()['puzzle']['title']=='Revision two test' and state()['moves']==0,'New revision creates separate run')
     # Revert this test-only catalogue mutation before any further exports.
     page.evaluate('(title)=>{const p=ALIBI_CATALOG.puzzles.find(p=>p.id==="sudoku-02");p.revision=1;p.title=title;}',old_title)
+    check(page.evaluate('failedVibrationAttempts') > 0,'Actual game controls complete and export saved moves despite failed vibration')
     check(not errors,'No uncaught browser exceptions')
     (ROOT/'tests/browser-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'checks':checks,'errors':errors,'browser':browser.version,'build':page.evaluate('ALIBI_CONFIG.build'),'scope':'Chromium isolated page via set_content; real DOM, controls, Blob workers and downloads; not hosted navigation, IndexedDB persistence, real service worker or Android.'},indent=2))
     browser.close()

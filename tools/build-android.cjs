@@ -5,10 +5,17 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const {
+  browserBundle,
+  payloadDigest,
+  writeIdentity,
+  readIdentity,
+} = require('./platform-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const WEB_DIST = path.join(ROOT, 'dist');
 const ANDROID_DIST = path.join(ROOT, 'dist-android');
+const ANDROID_FLAVORS = new Set(['browser-preview', 'capacitor-preview']);
 const HOST_ONLY = new Set(['404.html', '_headers', 'manifest.webmanifest', 'sw.js']);
 const RULE_SOURCES = [
   'src/core.js',
@@ -202,6 +209,26 @@ function makeTargetSource() {
 `;
 }
 
+function replacePlatformBundle(directory, flavor, oldReference) {
+  if (flavor === 'browser-preview') return oldReference;
+  const platformFiles = files(path.join(directory, 'assets')).filter((filename) =>
+    /^alibi-platform\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
+  );
+  if (platformFiles.length !== 1)
+    throw new Error('Expected one browser platform bundle before native substitution.');
+  const source = browserBundle(ROOT, 'src/platform/android-entry.mjs');
+  const nextName = `assets/alibi-platform.${sha256(source).slice(0, 12)}.js`;
+  fs.writeFileSync(path.join(directory, nextName), source);
+  fs.rmSync(platformFiles[0]);
+  const index = path.join(directory, 'index.html');
+  const html = fs.readFileSync(index, 'utf8');
+  const old = `./${relative(directory, platformFiles[0])}`;
+  if (html.split(old).length !== 2)
+    throw new Error('Expected one platform bundle reference for native substitution.');
+  fs.writeFileSync(index, html.replace(old, `./${nextName}`));
+  return nextName;
+}
+
 function patchApplicationBundle(directory) {
   const candidates = files(path.join(directory, 'assets')).filter((filename) =>
     /^alibi\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
@@ -300,21 +327,52 @@ function writeAssetManifest(directory) {
   return entries;
 }
 
-function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID_DIST } = {}) {
+function deriveAndroidPayload({
+  root = ROOT,
+  source = WEB_DIST,
+  target = ANDROID_DIST,
+  flavor = process.env.ALIBI_ANDROID_FLAVOR || 'browser-preview',
+} = {}) {
+  if (!ANDROID_FLAVORS.has(flavor))
+    throw new Error(`Unsupported Android preview flavor: ${flavor}.`);
   if (!fs.existsSync(path.join(source, 'index.html'))) {
     throw new Error('Web build is missing. Run the shared build before deriving Android assets.');
   }
+  const commit = sourceSha(root);
+  const webIdentity = readIdentity(source).identity;
+  if (
+    webIdentity.target !== 'web' ||
+    webIdentity.sourceSha !== commit ||
+    webIdentity.sourceDirty !== false
+  )
+    throw new Error('Android derivation requires the current clean web source identity.');
+  if (webIdentity.payloadSha256 !== payloadDigest(source))
+    throw new Error('Web platform payload digest is stale.');
   copyTree(source, target);
   for (const filename of HOST_ONLY) fs.rmSync(path.join(target, filename), { force: true });
   for (const filename of files(path.join(target, 'assets'))) {
     if (/^observatory\.[0-9a-f]{12}\.js$/.test(path.basename(filename))) fs.rmSync(filename);
   }
 
+  const platformFiles = files(path.join(target, 'assets')).filter((filename) =>
+    /^alibi-platform\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
+  );
+  if (platformFiles.length !== 1)
+    throw new Error('Expected exactly one platform bundle in Android payload.');
   const application = patchApplicationBundle(target);
   const targetSource = makeTargetSource();
   const targetScript = `assets/alibi-target.${sha256(targetSource).slice(0, 12)}.js`;
   fs.writeFileSync(path.join(target, targetScript), targetSource);
   rewriteIndex(target, targetScript, application);
+  replacePlatformBundle(target, flavor, `assets/${path.basename(platformFiles[0])}`);
+  const runtimeIdentity = {
+    ...webIdentity,
+    target: 'android',
+    flavor,
+    sourceDirty: false,
+    payloadSha256: payloadDigest(target),
+  };
+  writeIdentity(target, runtimeIdentity, { replace: true });
   const assets = writeAssetManifest(target);
 
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -324,14 +382,15 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
   );
   if (!content) throw new Error('Android payload is missing official content.');
   const identity = {
-    schemaVersion: 1,
-    target: 'android',
+    schemaVersion: 2,
+    ...runtimeIdentity,
     appVersion: packageJson.version,
-    sourceSha: sourceSha(root),
-    payloadSha256: treeDigest(target, new Set(['android-build-identity.json'])),
+    sourceSha: commit,
+    artifactSha256: treeDigest(target, new Set(['android-build-identity.json'])),
     webBuild: webInfo.build,
     contentManifestRevision: content.sha256,
-    rulesCompatibility: sourceDigest(root),
+    rulesCompatibility: {},
+    rulesSourceDigest: sourceDigest(root),
     saveEnvelopeVersions: {
       registryStatus: 'pending-CAP-05',
       cabinetBackup: 1,
@@ -347,20 +406,28 @@ function deriveAndroidPayload({ root = ROOT, source = WEB_DIST, target = ANDROID
   return identity;
 }
 
-function buildAndroid() {
+function buildAndroid({ flavor = process.env.ALIBI_ANDROID_FLAVOR || 'browser-preview' } = {}) {
   execFileSync(process.execPath, [path.join(ROOT, 'tools/build.cjs')], {
     cwd: ROOT,
-    env: { ...process.env, ALIBI_BUILD_TARGET: 'web' },
+    env: {
+      ...process.env,
+      ALIBI_BUILD_TARGET: 'web',
+      ALIBI_PLATFORM_ENTRY: 'src/platform/browser-entry.mjs',
+    },
     stdio: 'inherit',
   });
-  const identity = deriveAndroidPayload();
+  const identity = deriveAndroidPayload({ flavor });
   console.log(JSON.stringify(identity, null, 2));
   return identity;
 }
 
-if (require.main === module) buildAndroid();
+if (require.main === module) {
+  const flag = process.argv.find((value) => value.startsWith('--flavor='));
+  buildAndroid({ flavor: flag ? flag.slice('--flavor='.length) : undefined });
+}
 module.exports = {
   ANDROID_DIST,
+  ANDROID_FLAVORS,
   HOST_ONLY,
   NATIVE_CSP,
   NATIVE_UI_CSS,
@@ -371,6 +438,7 @@ module.exports = {
   files,
   makeTargetSource,
   mime,
+  replacePlatformBundle,
   sourceSha,
   sourceDigest,
   treeDigest,

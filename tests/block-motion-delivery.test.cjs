@@ -59,6 +59,8 @@ test('Block Cabinet is an independently bounded optional pack, not hidden initia
     info.initialCodeAndContentGzipBytes,
     zlib.gzipSync(fs.readFileSync(path.join(dist, 'assets', main))).length +
       zlib.gzipSync(fs.readFileSync(path.join(dist, 'assets', content))).length +
-      info.blockMotionLoaderGzipBytes,
+      info.blockMotionLoaderGzipBytes +
+      info.bootGzipBytes +
+      info.platformGzipBytes,
   );
 });

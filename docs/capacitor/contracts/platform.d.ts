@@ -32,7 +32,10 @@ export interface OperationOptions {
 }
 export interface BuildIdentity {
   readonly target: Target;
+  /** Full Git commit used as the source anchor; dirty builds do not identify exact source bytes. */
   readonly sourceSha: string;
+  readonly sourceDirty: boolean;
+  /** SHA-256 of the documented executable graph, not a native signed package. */
   readonly payloadSha256: Sha256;
   readonly appVersion: string;
   readonly versionCode?: number;
@@ -41,6 +44,7 @@ export interface BuildIdentity {
 }
 export interface Capabilities {
   readonly target: Target;
+  readonly nativeHost: boolean;
   readonly nativeFeedback: boolean;
   readonly userDocuments: boolean;
   readonly recoveryVault: boolean;

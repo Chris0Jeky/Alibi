@@ -44,7 +44,11 @@ test('editorial theatre data is loaded before its consumer and fully counted', (
   assert.equal(info.officialContentGzipBytes, zlib.gzipSync(content).length);
   assert.equal(
     info.initialCodeAndContentGzipBytes,
-    zlib.gzipSync(js).length + zlib.gzipSync(content).length + info.blockMotionLoaderGzipBytes,
+    zlib.gzipSync(js).length +
+      zlib.gzipSync(content).length +
+      info.blockMotionLoaderGzipBytes +
+      info.bootGzipBytes +
+      info.platformGzipBytes,
   );
 });
 test('recorded ambience is traceable, compact and excluded from the automatic shell download', () => {

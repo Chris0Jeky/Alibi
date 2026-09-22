@@ -8,6 +8,8 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { ANDROID_DIST, deriveAndroidPayload, sourceSha } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
+const { checkPublicPayload } = require('../tools/sync-android.cjs');
+const { readIdentity, payloadDigest } = require('../tools/platform-identity.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const WEB_DIST = path.join(ROOT, 'dist');
@@ -28,9 +30,79 @@ test('generated Android payload satisfies the closed artifact contract', () => {
   const result = inspectAndroidArtifact();
   assert.deepEqual(result.errors, []);
   assert.match(result.payloadSha256, /^[0-9a-f]{64}$/);
+  assert.match(result.artifactSha256, /^[0-9a-f]{64}$/);
   assert.match(result.sourceSha, /^[0-9a-f]{40}$/);
   assert.ok(result.files > 20);
   assert.ok(result.bytes > 0);
+});
+
+test('Android replaces the web runtime identity with explicit browser-preview capabilities', () => {
+  const web = readIdentity(WEB_DIST);
+  const android = readIdentity(ANDROID_DIST);
+  const receipt = readJson(path.join(ANDROID_DIST, 'android-build-identity.json'));
+  assert.equal(web.identity.target, 'web');
+  assert.equal(android.identity.target, 'android');
+  assert.equal(android.identity.flavor, 'browser-preview');
+  assert.equal(android.identity.sourceDirty, false);
+  assert.equal(android.identity.payloadSha256, payloadDigest(ANDROID_DIST));
+  assert.notEqual(android.identity.payloadSha256, web.identity.payloadSha256);
+  assert.equal(fs.existsSync(path.join(ANDROID_DIST, web.path)), false);
+  assert.equal(receipt.schemaVersion, 2);
+  assert.deepEqual(receipt.rulesCompatibility, {});
+  assert.match(receipt.rulesSourceDigest, /^[0-9a-f]{64}$/);
+  assert.equal(receipt.payloadSha256, android.identity.payloadSha256);
+  assert.notEqual(receipt.payloadSha256, receipt.artifactSha256);
+});
+
+test('native flavor substitutes the explicit Capacitor entry and rejects a browser flavor check', () => {
+  const target = temporaryDirectory('alibi-android-native-');
+  try {
+    const identity = deriveAndroidPayload({ target, flavor: 'capacitor-preview' });
+    assert.equal(identity.flavor, 'capacitor-preview');
+    assert.deepEqual(
+      inspectAndroidArtifact({ directory: target, expectedFlavor: 'capacitor-preview' }).errors,
+      [],
+    );
+    const platform = fs
+      .readdirSync(path.join(target, 'assets'))
+      .find((name) => /^alibi-platform\.[0-9a-f]{12}\.js$/.test(name));
+    assert.ok(platform);
+    assert.match(
+      fs.readFileSync(path.join(target, 'assets', platform), 'utf8'),
+      /Capacitor bridge/,
+    );
+    assert.match(
+      inspectAndroidArtifact({ directory: target, expectedFlavor: 'browser-preview' }).errors.join(
+        '\n',
+      ),
+      /flavor must be browser-preview/i,
+    );
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test('runtime identity tampering and metadata tampering remain independently detectable', () => {
+  const target = temporaryDirectory('alibi-android-runtime-');
+  try {
+    deriveAndroidPayload({ target });
+    const runtime = readIdentity(target);
+    fs.appendFileSync(path.join(target, runtime.path), '// changed\n');
+    let errors = inspectAndroidArtifact({ directory: target }).errors.join('\n');
+    assert.match(errors, /identity framing|filename hash|identity encoding/);
+    assert.match(errors, /artifact digest is stale/i);
+    fs.writeFileSync(path.join(target, runtime.path), runtime.source);
+    fs.appendFileSync(path.join(target, 'privacy.html'), '<!-- changed -->');
+    errors = inspectAndroidArtifact({ directory: target }).errors.join('\n');
+    assert.match(errors, /artifact digest is stale/i);
+    assert.doesNotMatch(
+      errors,
+      /payload digest is stale/i,
+      'metadata does not enter the runtime graph',
+    );
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
 });
 
 test('web output remains intact while Android output excludes hosting controls', () => {
@@ -73,6 +145,65 @@ test('Android keeps the full bundled experience while the native target suppress
 test('generated Android output is ignored by Git', () => {
   const ignore = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8');
   assert.match(ignore, /^dist-android\/$/m);
+});
+
+test('legacy, cloud, and device-transfer backup rules exclude every Android data domain', () => {
+  const domains = [
+    'root',
+    'file',
+    'database',
+    'sharedpref',
+    'external',
+    'device_root',
+    'device_file',
+    'device_database',
+    'device_sharedpref',
+  ];
+  const xmlDir = path.join(ROOT, 'android', 'app', 'src', 'main', 'res', 'xml');
+  const legacy = fs.readFileSync(path.join(xmlDir, 'backup_rules_legacy.xml'), 'utf8');
+  const extraction = fs.readFileSync(path.join(xmlDir, 'backup_rules_extraction.xml'), 'utf8');
+  const cloud = extraction.match(/<cloud-backup>([\s\S]*?)<\/cloud-backup>/)?.[1];
+  const transfer = extraction.match(/<device-transfer>([\s\S]*?)<\/device-transfer>/)?.[1];
+  assert.ok(cloud);
+  assert.ok(transfer);
+  for (const [label, section] of [
+    ['legacy', legacy],
+    ['cloud', cloud],
+    ['transfer', transfer],
+  ]) {
+    const excluded = [...section.matchAll(/<exclude domain="([^"]+)" path="\."\s*\/>/g)].map(
+      (match) => match[1],
+    );
+    assert.deepEqual(excluded.sort(), [...domains].sort(), label);
+  }
+});
+
+test('Capacitor sync checks exact public bytes and sibling config files', () => {
+  const fixture = temporaryDirectory('alibi-capacitor-sync-');
+  const source = path.join(fixture, 'source');
+  const target = path.join(fixture, 'assets', 'public');
+  try {
+    fs.mkdirSync(source, { recursive: true });
+    fs.mkdirSync(target, { recursive: true });
+    fs.writeFileSync(path.join(source, 'index.html'), 'preview');
+    fs.writeFileSync(path.join(target, 'index.html'), 'preview');
+    fs.writeFileSync(path.join(target, 'cordova.js'), 'generated');
+    fs.writeFileSync(path.join(target, 'cordova_plugins.js'), 'generated');
+    for (const name of ['capacitor.config.json', 'capacitor.plugins.json']) {
+      fs.writeFileSync(path.join(fixture, 'assets', name), '{}');
+    }
+    assert.deepEqual(checkPublicPayload({ source, target }), []);
+    fs.writeFileSync(path.join(target, 'unexpected.js'), 'stale');
+    assert.match(checkPublicPayload({ source, target }).join('\n'), /file set differs/);
+    fs.rmSync(path.join(target, 'unexpected.js'));
+    fs.writeFileSync(path.join(target, 'index.html'), 'stale');
+    assert.match(checkPublicPayload({ source, target }).join('\n'), /differs for index.html/);
+    fs.writeFileSync(path.join(target, 'index.html'), 'preview');
+    fs.rmSync(path.join(fixture, 'assets', 'capacitor.plugins.json'));
+    assert.match(checkPublicPayload({ source, target }).join('\n'), /capacitor.plugins.json/);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
 
 test('deriving twice from one shared graph is byte-for-byte deterministic', () => {

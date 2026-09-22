@@ -17,7 +17,7 @@ prototype package manager files or historical test reports are published as work
 | --- | --- | --- |
 | Lantern Duel: offline opponent and same-device play | `src/club-engines.js`, `src/club.js` | Legal flips, automatic passes, bounded opponent, whole-exchange undo; real-control full game |
 | Pocket Borough | Same modules | Seeded draft, 18 placements, explicit score preview, daily seed, local records, seed sharing and resume |
-| Archive Heist | Same modules | Six independently solved rooms, touch/keyboard, undo/redo; all six completed through controls |
+| Archive Heist | Same modules | Nine independently solved rooms, touch/keyboard, undo/redo; all nine completed through controls |
 | Reversible assistance | `src/assist.js`, player hooks | Visible-rule candidates and derived marks, explicit forced-step confirmation; off by default to preserve manual play |
 | Four editorial desks | `src/club.js`, `src/club.css` | Per-visit rotation, pinning, latest unfinished puzzle/game, fictional weather |
 | Club journal | `src/club.js` | Local activity and records, no fabricated players or global ranking |

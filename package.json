@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "private": true,
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
   "engines": {
@@ -10,7 +10,10 @@
     "build": "node tools/build.cjs",
     "build:web": "node tools/build.cjs",
     "build:android": "node tools/build-android.cjs",
+    "build:android:host": "node tools/build-android.cjs --flavor=capacitor-preview",
     "check:android": "node tools/check-android-artifact.cjs",
+    "check:android:host": "node tools/check-android-artifact.cjs --flavor=capacitor-preview",
+    "native:sync": "node tools/sync-android.cjs",
     "start": "node tools/serve.cjs",
     "test": "node --test tests/*.test.cjs tests/*.test.mjs && node tests/quiet-wing/engines.cjs && node tests/quiet-wing/contracts.cjs",
     "format": "prettier --write \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
@@ -28,6 +31,9 @@
     "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc"
   },
   "devDependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/cli": "8.5.2",
+    "@capacitor/core": "8.5.2",
     "esbuild": "0.28.2",
     "prettier": "3.9.6",
     "sharp": "0.35.4",

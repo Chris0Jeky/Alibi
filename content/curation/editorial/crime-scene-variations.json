@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "packId": "alibi-crime-scene-variations",
+  "humanPlaytested": false,
+  "cases": [
+    {
+      "id": "variation-scene-01",
+      "profile": "room-relationship-chain",
+      "structuralDistinction": "The solve begins by excluding three suspects from the victim’s room rather than locating the culprit directly. Two furniture adjacencies and an ordering clue then turn the irregular five-room plan into a constrained room-membership chain.",
+      "intendedReasoningPath": [
+        "Use the three different-room statements to narrow the victim’s possible companion without naming that person directly.",
+        "Place Tomas and Ivo from their furniture adjacencies, then use the gallery geometry to restrict their rows and rooms.",
+        "Apply the remaining left/edge relationship; the one-per-row and one-per-column rule fixes the last pair and reveals the shared-room suspect."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "variation-scene-02",
+      "profile": "furniture-exclusion",
+      "structuralDistinction": "No pairwise ordering clue is provided. The case is driven by two different furniture adjacencies, an interior-only placement, one room exclusion and one positive room assignment across six compact rooms.",
+      "intendedReasoningPath": [
+        "Anchor Nessa beside the tariff shelf and Elias beside the quayside planter; each adjacency still leaves more than one legal square.",
+        "Use Jonah’s interior position and Nessa’s room exclusion to remove the tempting mirrored placements.",
+        "Place Mirelle in the quay room; row/column uniqueness then forces Arun and Jonah, leaving exactly one suspect in Elias’s room."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "variation-scene-03",
+      "profile": "relative-order-lattice",
+      "structuralDistinction": "The clue set avoids direct rows, columns, rooms and furniture. Five above/left relations create a partial-order lattice, while one not-edge fact breaks the last geometric symmetry.",
+      "intendedReasoningPath": [
+        "Build the horizontal chain Cato → Bram → Orin → Neve from the three left-of statements.",
+        "Combine Cato-above-Bram and Bram-above-Elara to establish the vertical ordering without assigning exact rows.",
+        "Use Elara’s interior-only square with one-per-row/column placement; the irregular rooms then determine which suspect shares Orin’s room."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "variation-scene-04",
+      "profile": "coordinate-crossfire",
+      "structuralDistinction": "Unlike the relationship-led cases, this board starts with two explicit rows and two explicit columns assigned to different people. The remaining two clues prevent a routine coordinate fill by controlling room and furniture placement.",
+      "intendedReasoningPath": [
+        "Mark Mara’s and Lyra’s rows, then Priya’s and Niko’s columns; do not assume those facts determine complete cells.",
+        "Use Priya’s room exclusion and Lyra’s adjacency to the relay desk to select among the coordinate intersections.",
+        "The unused row and column force Galen’s position, after which the victim-room rule identifies the responsible suspect."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "variation-scene-05",
+      "profile": "edge-and-room-pressure",
+      "structuralDistinction": "Three people are known only to be somewhere on the perimeter. Positive and negative room evidence must be combined with one vertical relationship, so edge facts act as a coupled constraint rather than isolated placements.",
+      "intendedReasoningPath": [
+        "Separate the three perimeter candidates using Theo’s heated gallery room and Anya’s exclusion from the potting passage.",
+        "Place Suri in the seed room; the irregular room boundaries remove edge squares that initially appear interchangeable.",
+        "Use Felix-above-Iris and row/column uniqueness to settle the remaining edge cells and expose the shared-room suspect."
+      ],
+      "humanPlaytested": false
+    },
+    {
+      "id": "variation-scene-06",
+      "profile": "mixed-late-room-deduction",
+      "structuralDistinction": "Each clue uses a different mechanism. The sole same-room clue links two suspects who are not with the victim, forcing the player to distinguish a useful room relationship from the final culprit condition.",
+      "intendedReasoningPath": [
+        "Keep Cass and Dima together while respecting Cass’s row and room exclusion; this pair is deliberately not the victim pair.",
+        "Anchor Oren’s column and Vera’s adjacency to the courtyard fern, then apply Vera-left-of-Dima.",
+        "Row/column uniqueness leaves June’s room with exactly one remaining suspect; verify that the Cass/Dima pair occupies a different room before accusing."
+      ],
+      "humanPlaytested": false
+    }
+  ]
+}

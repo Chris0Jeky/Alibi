@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createWebPlatform } from '../src/platform/web.mjs';
+import { createBrowserFallbackPlatform, createWebPlatform } from '../src/platform/web.mjs';
 import { getPlatform, installPlatform, __resetPlatformForTests } from '../src/platform/index.mjs';
 
 const BUILD = Object.freeze({
   target: 'web',
   sourceSha: '1'.repeat(40),
+  sourceDirty: false,
   payloadSha256: '2'.repeat(64),
   appVersion: '0.11.4',
   contentManifestRevision: 'catalogue-1',
@@ -52,6 +53,7 @@ test('web is the explicit default; Android-looking UA and localhost never imply 
   const platform = web();
   assert.deepEqual(platform.capabilities(), {
     target: 'web',
+    nativeHost: false,
     nativeFeedback: false,
     userDocuments: false,
     recoveryVault: false,
@@ -70,23 +72,55 @@ test('web is the explicit default; Android-looking UA and localhost never imply 
 
 test('default web fallback rejects incomplete identity instead of fabricating valid-looking hashes', () => {
   __resetPlatformForTests();
-  const incomplete = hostFixture({
-    ALIBI_CONFIG: { version: '0.11.4', build: 'release-only', standalone: false },
-  });
-  assert.throws(() => getPlatform({ host: incomplete }), /sourceSha/i);
+  const incomplete = hostFixture({ ALIBI_CONFIG: { version: '0.11.4', standalone: false } });
+  assert.throws(() => getPlatform({ host: incomplete }), /valid platform build identity/i);
 
   __resetPlatformForTests();
   const complete = hostFixture({
-    ALIBI_CONFIG: {
-      version: BUILD.appVersion,
-      sourceSha: BUILD.sourceSha,
-      payloadSha256: BUILD.payloadSha256,
-      contentManifestRevision: BUILD.contentManifestRevision,
-      rulesCompatibility: BUILD.rulesCompatibility,
-    },
+    ALIBI_PLATFORM_BUILD: BUILD,
   });
   assert.deepEqual(getPlatform({ host: complete }).build, BUILD);
   __resetPlatformForTests();
+});
+
+test('browser fallback can describe an Android preview while reporting its actual browser APIs', async () => {
+  const androidBuild = Object.freeze({
+    ...BUILD,
+    target: 'android',
+    flavor: 'browser-preview',
+    versionCode: 3,
+  });
+  const host = hostFixture({
+    showOpenFilePicker() {},
+    showSaveFilePicker() {},
+  });
+  const platform = createBrowserFallbackPlatform({ host, build: androidBuild });
+  assert.equal(platform.build.target, 'android');
+  assert.deepEqual(platform.capabilities(), {
+    target: 'android',
+    nativeHost: false,
+    nativeFeedback: false,
+    userDocuments: true,
+    recoveryVault: false,
+    remoteTelemetry: false,
+  });
+  assert.equal(
+    (await platform.recovery.list('club', operation())).message,
+    'Recovery checkpoints are unavailable in this browser adapter.',
+  );
+  assert.throws(() => createWebPlatform({ host, build: androidBuild }), /web build identity/i);
+});
+
+test('build identity requires a dirty-source boolean and preserves its declared value', () => {
+  assert.throws(
+    () => createWebPlatform({ host: hostFixture(), build: { ...BUILD, sourceDirty: undefined } }),
+    /sourceDirty/i,
+  );
+  assert.equal(
+    createWebPlatform({ host: hostFixture(), build: { ...BUILD, sourceDirty: true } }).build
+      .sourceDirty,
+    true,
+  );
 });
 
 test('unsupported document and recovery operations return bounded failures instead of throwing', async () => {
@@ -230,14 +264,33 @@ test('a cancelled backup write cannot continue after the caller receives failure
   const digest = createHash('sha256').update(payload).digest('hex');
   const controller = new AbortController();
   let resolveWritable;
+  let signalRequested;
+  let signalAborted;
+  const requested = new Promise((resolve) => {
+    signalRequested = resolve;
+  });
+  const aborted = new Promise((resolve) => {
+    signalAborted = resolve;
+  });
   let writes = 0;
   let closes = 0;
   let aborts = 0;
   const host = hostFixture({
+    crypto: {
+      subtle: {
+        async digest(...args) {
+          // A valid worker can take more turns than the removed 100-turn poll.
+          // Retain the real digest, but deterministically exercise that ordering.
+          for (let attempt = 0; attempt < 150; attempt++) await turn();
+          return globalThis.crypto.subtle.digest(...args);
+        },
+      },
+    },
     showSaveFilePicker: async () => ({
       createWritable() {
         return new Promise((resolve) => {
           resolveWritable = resolve;
+          signalRequested();
         });
       },
     }),
@@ -246,7 +299,12 @@ test('a cancelled backup write cannot continue after the caller receives failure
     { suggestedName: 'alibi-backup.json', utf8Payload: payload, digest },
     operation({ operationId: 'cancel-write', timeoutMs: 1000, signal: controller.signal }),
   );
-  await waitUntil(() => typeof resolveWritable === 'function', 'document provider stream');
+  await Promise.race([
+    requested,
+    pending.then((result) => {
+      assert.fail(`Write settled before requesting its stream: ${JSON.stringify(result)}`);
+    }),
+  ]);
   controller.abort();
   assert.equal((await pending).code, 'cancelled');
   resolveWritable({
@@ -258,9 +316,24 @@ test('a cancelled backup write cannot continue after the caller receives failure
     },
     async abort() {
       aborts++;
+      signalAborted();
     },
   });
-  await waitUntil(() => aborts === 1, 'late stream cleanup');
+  let cleanupTimer;
+  try {
+    await Promise.race([
+      aborted,
+      new Promise((_, reject) => {
+        cleanupTimer = setTimeout(
+          () => reject(new Error('Timed out waiting for cancelled backup stream abort.')),
+          1000,
+        );
+      }),
+    ]);
+  } finally {
+    clearTimeout(cleanupTimer);
+  }
+  assert.equal(aborts, 1);
   assert.equal(writes, 0);
   assert.equal(closes, 0);
 });
@@ -323,7 +396,18 @@ test('a committed backup bounds optional readback and reports unverified on time
   const digest = createHash('sha256').update(payload).digest('hex');
   let closed = 0;
   let readbackStarted = false;
+  let nextTimerId = 0;
+  const timers = new Map();
   const host = hostFixture({
+    setTimeout(callback, delay) {
+      const id = ++nextTimerId;
+      timers.set(id, { callback, delay, fired: false, cleared: false });
+      return id;
+    },
+    clearTimeout(id) {
+      const timer = timers.get(id);
+      if (timer) timer.cleared = true;
+    },
     showSaveFilePicker: async () => ({
       async createWritable() {
         return {
@@ -335,7 +419,15 @@ test('a committed backup bounds optional readback and reports unverified on time
         };
       },
       getFile() {
+        assert.equal(closed, 1, 'the provider stream closes before readback begins');
         readbackStarted = true;
+        const pendingTimers = [...timers.values()].filter((timer) => !timer.cleared);
+        assert.equal(pendingTimers.length, 1, 'only the readback deadline remains active');
+        const readbackTimer = pendingTimers[0];
+        assert.equal(readbackTimer.delay, 5);
+        // Keep real SHA-256 work outside wall-clock flakiness; expire only optional readback.
+        readbackTimer.fired = true;
+        readbackTimer.callback();
         return new Promise(() => {});
       },
     }),
@@ -350,6 +442,13 @@ test('a committed backup bounds optional readback and reports unverified on time
   });
   assert.equal(closed, 1);
   assert.equal(readbackStarted, true);
+  assert.deepEqual(
+    [...timers.values()].map(({ delay, fired, cleared }) => ({ delay, fired, cleared })),
+    [
+      { delay: 5, fired: false, cleared: true },
+      { delay: 5, fired: true, cleared: true },
+    ],
+  );
 });
 
 test('save writes close the provider stream and report only verified bytes', async () => {

@@ -47,6 +47,7 @@ ORIGIN_SCENARIOS = (
     "cross_tab",
     "keyboard",
     "offline",
+    "shared_paths",
     "malformed_draft",
     "malformed_persisted",
     "newer_database",
@@ -128,6 +129,10 @@ def boot(page: Page, require_indexeddb: bool = True) -> None:
         )
     )
     check(page.title().startswith("Alibi"), "application boots on real origin")
+    check(
+        page.evaluate("()=>AlibiPlatform.build.target==='web' && !AlibiPlatform.capabilities().nativeHost && typeof Capacitor==='undefined'"),
+        "real-origin PWA installs its explicit browser platform",
+    )
     counts = page.evaluate("AlibiDiagnostics.getCounts()")
     check(counts["puzzles"] == OFFICIAL_COUNT, "real-origin catalogue matches the official registry")
     check(counts["types"] == 13, "real-origin catalogue has thirteen engines")
@@ -735,6 +740,159 @@ def scenario_offline(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_shared_paths(pw: Any, root: Path) -> None:
+    """Issue #244: shared leaf/directory links boot with working assets.
+
+    Covers cold and service-worker-controlled navigation to /privacy/,
+    /about/ and /login/, query and explicit-fragment combinations, refresh,
+    offline controlled navigation and an existing in-progress puzzle. Each
+    explicitly cold alias gets a new persistent profile so its hashed assets
+    must be fetched with 200; a separate warm context proves revalidation.
+    """
+    def expected_assets(page: Page) -> dict[str, list[str]]:
+        return page.evaluate(
+            """() => {
+              // The emitted shell scripts defer startup. Optional scripts injected
+              // after load (such as usage sharing) are not boot dependencies.
+              const scripts = [...document.querySelectorAll('script[src][defer]')]
+                .map((node) => new URL(node.src, location.href).href)
+                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname));
+              const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
+                .map((node) => new URL(node.href, location.href).href)
+                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.css$/.test(new URL(url).pathname));
+              return {scripts, styles};
+            }"""
+        )
+
+    def assert_booted_assets(
+        page: Page,
+        responses: list[tuple[str, int]],
+        label: str,
+        allowed_statuses: set[int],
+    ) -> None:
+        expected = expected_assets(page)
+        observed: dict[str, list[int]] = {}
+        for url, status in responses:
+            observed.setdefault(url.split("?", 1)[0], []).append(status)
+        scripts = [url for url in expected["scripts"] if url.split("?", 1)[0] in observed]
+        styles = [url for url in expected["styles"] if url.split("?", 1)[0] in observed]
+        status_label = "200" if allowed_statuses == {200} else "200 or 304"
+        check(bool(scripts), f"{label}: hashed board script loads with {status_label}")
+        check(bool(styles), f"{label}: hashed stylesheet loads with {status_label}")
+        check(
+            all(any(status in allowed_statuses for status in observed.get(url.split("?", 1)[0], [])) for url in expected["scripts"]),
+            f"{label}: expected hashed board scripts revalidate successfully",
+        )
+        check(
+            all(any(status in allowed_statuses for status in observed.get(url.split("?", 1)[0], [])) for url in expected["styles"]),
+            f"{label}: expected hashed stylesheet revalidates successfully",
+        )
+
+    def goto_alias(
+        page: Page,
+        responses: list[tuple[str, int]],
+        url: str,
+        label: str,
+        expected_hash: str,
+        allowed_statuses: set[int],
+    ) -> None:
+        responses.clear()
+        page.goto(url, wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        wait_diag(page)
+        dismiss_dialog(page)
+        check(page.evaluate("location.hash") == expected_hash, f"{label}: expected route hash")
+        check(page.evaluate("Boolean(window.AlibiDiagnostics?.getCounts)"), f"{label}: diagnostics available")
+        assert_booted_assets(page, responses, label, allowed_statuses)
+
+    cold_aliases = (
+        ("privacy-directory", "privacy/", "#/privacy", "cold /privacy/"),
+        ("privacy-query", "privacy?from=shared-link", "#/privacy?from=shared-link", "cold /privacy with query"),
+        ("about-fragment", "about/#/library", "#/library", "cold /about/ with explicit fragment"),
+        (
+            "about-query-fragment",
+            "about?from=email#/library",
+            "#/library?from=email",
+            "cold /about/ with query and fragment",
+        ),
+    )
+    for profile_name, path, expected_hash, label in cold_aliases:
+        context = launch_profile(pw, root / f"shared-paths-cold-{profile_name}")
+        try:
+            if profile_name == "privacy-directory":
+                # Startup must remain provable even when the optional, post-load
+                # usage-sharing asset has no successful response to record.
+                context.route("**/assets/observatory.*.js", lambda request: request.abort())
+            page = new_page(context, f"shared-paths-{profile_name}")
+            responses: list[tuple[str, int]] = []
+            page.on("response", lambda response: responses.append((response.url, response.status)))
+            goto_alias(page, responses, urljoin(BASE, path), label, expected_hash, {200})
+        finally:
+            try:
+                context.close()
+            except Exception:
+                pass
+
+    context = launch_profile(pw, root / "shared-paths-warm")
+    try:
+        page = new_page(context, "shared-paths-warm")
+        responses = []
+        page.on("response", lambda response: responses.append((response.url, response.status)))
+        goto_alias(page, responses, urljoin(BASE, "privacy/"), "warm-cache seed /privacy/", "#/privacy", {200})
+        goto_alias(
+            page,
+            responses,
+            urljoin(BASE, "privacy?from=shared-link"),
+            "warm-cache /privacy with query",
+            "#/privacy?from=shared-link",
+            {200, 304},
+        )
+
+        boot(page)
+        route(page, "play/lightup-01@1")
+        first, before, _ = move_first_cell(page, "shared-paths move seeds an in-progress puzzle")
+        wait_run(page, "lightup-01@1", 1)
+        wait_page(
+            page,
+            "() => Boolean(navigator.serviceWorker?.controller)",
+            what="service worker controller",
+            timeout_seconds=SW_TIMEOUT,
+        )
+        check(True, "service worker controls the page before controlled navigation")
+
+        goto_alias(page, responses, urljoin(BASE, "login/"), "controlled directory login", "#/login", {200, 304})
+        page.reload(wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        wait_diag(page)
+        dismiss_dialog(page)
+        check(page.evaluate("location.hash") == "#/login", "refresh keeps the login route")
+
+        route(page, "play/lightup-01@1")
+        check(
+            current(page)["state"]["cells"][first] != before["state"]["cells"][first],
+            "in-progress puzzle survives shared-link navigation",
+        )
+        stored = read_idb(page, "runs", "lightup-01@1")
+        check(stored["rev"] >= 1, "in-progress puzzle revision is unchanged by navigation")
+
+        context.set_offline(True)
+        page.goto(urljoin(BASE, "privacy/"), wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        wait_diag(page)
+        dismiss_dialog(page)
+        check(
+            page.evaluate("location.hash") == "#/privacy",
+            "offline controlled /privacy/ still opens the privacy route",
+        )
+        context.set_offline(False)
+    finally:
+        try:
+            context.set_offline(False)
+        except Exception:
+            pass
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_malformed_draft(pw: Any, root: Path) -> None:
     profile = root / "malformed-draft"
     context = launch_profile(pw, profile)
@@ -880,6 +1038,7 @@ def run() -> int:
                 scenario_cross_tab,
                 scenario_keyboard,
                 scenario_offline,
+                scenario_shared_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_newer_database,
