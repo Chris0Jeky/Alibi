@@ -114,6 +114,11 @@ request or registration occurs, verifies browser install and usage-sharing contr
 opens the Wrenmere desk from bundled script and style files without a remote request. Its build
 receipts are uploaded as review evidence.
 
+A separate VM contract executes the real `src/boot.js` watchdog for both targets. Android delayed
+startup offers only retry/reopen guidance for the bundled package; it never offers browser
+service-worker or shell-cache repair. The web/PWA target retains the explicit **Refresh app files**
+action and its existing unregister/cache cleanup behavior.
+
 This is browser simulation of the bundled origin. It is not physical-device, WebView, TalkBack,
 keystore, signing, APK/AAB or Play Console evidence.
 
