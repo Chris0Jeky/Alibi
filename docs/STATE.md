@@ -2,36 +2,32 @@
 
 ## Published 0.11.5 on both origins, 2026-09-22
 
-Merged source `5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3` (PR #241, release
-head `a66c52b9e36c`), build `f0baec5e3291`, is published on the primary
-Cloudflare Worker `alibi-after-hours-preview` as version
-`b8f83076-dc6f-41d6-acf0-7787ede4424e` (21 files uploaded, 268 retained).
-The recorded hosted checks for `/`, `/privacy.html`, `/manifest.webmanifest`
-and the content-hashed shell assets pass; the full receipt is
-[RELEASE-0.11.5.md](RELEASE-0.11.5.md).
+Merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252), build
+`9760fe9fcf64`, is published on both existing origins. Cloudflare Worker
+`alibi-after-hours-preview` runs version `31412617-9de1-41f2-927b-371b45c09460`
+(six files uploaded, 283 retained). Sites runs version 18, deployment
+`appgdep_6ab2c17f3fd881918cbdd3a094d019fd`, succeeded at 17:57:52 UTC.
+The complete receipts and prior rollback references are in
+[RELEASE-0.11.5.md](RELEASE-0.11.5.md). Saves remain separate per origin.
 
-The Sites fallback now serves maintenance build `b08bc7a1e5ea` from merged
-source `d091d19ca942c1e8cec614038666ead9cfc73949`, version 17, deployment
-`appgdep_6ab2b2b8ed408191a09d6b65ad205bf9` (succeeded at 16:54:38 UTC).
-It includes the shared-address query and offline-alias fix for #244.
-All 279 non-HTML public files match the local build byte-for-byte. The ten
-HTML files retain their source content with one hosting-layer Cloudflare
-challenge script added; the main page's meta CSP remains present. The fallback's
-HTTP CSP-header limitation remains separate from these file checks (#6).
+Both hosted origins pass all 156 real-origin checks across nine scenarios,
+including cold/warm shared links, controlled `/login/`, query preservation,
+offline navigation and retained puzzle progress (#244). Actual old-to-new
+hosted updates also preserve two moves and the pinned puzzle definition,
+wait for Save & update, retain an observer tab without forced reload, and
+reload offline with the exact saved state. The prior builds were Cloudflare
+`f0baec5e3291` and Sites `b08bc7a1e5ea`. The Sites update assertions passed;
+a later Windows temporary-profile cleanup error was separately resolved.
 
-Both origins report 0.11.5, but their build hashes differ and saves remain
-per-origin. The primary still serves `f0baec5e3291`: its maintenance deployment
-requires renewal of the expired Cloudflare login. Full hosted acceptance of
-the new fallback build and an actual old-to-new hosted update are pending;
-the first hosted run exposed a cold-profile test defect under HTTP 304 cache
-revalidation. With that corrected, all cold and warm shared-link cases pass,
-but controlled `/login/` navigation fails with `net::ERR_FAILED` on Sites.
-The same focused scenario passes 54 checks locally. This hosted worker
-failure remains under investigation in #244; hosted acceptance is not green.
+All 289 Cloudflare public files match local SHA-256 values. On Sites, 279
+non-HTML files match; ten HTML files retain their source content with one
+hosting-layer challenge script inserted. The main page's meta CSP remains
+present. Sites still lacks the repository's HTTP CSP header and serves 51
+WebP files as octet-stream (#6); these platform limits remain open.
 
 ## Current source checkpoint, 2026-09-22
 
-The current source base is `origin/main` at `aa77718`. It includes the merged
+The published source base is `origin/main` at `4ad450f`. It includes the merged
 unknown-route recovery (#233), Android-aware startup recovery (#236), the
 0.11.5 release and its follow-up routing and deployment records through #248.
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
@@ -50,8 +46,11 @@ nine-scenario report, including `shared_paths` and `malformed_persisted`,
 while rejecting stale, incomplete, duplicate, focused, failed or wrong-build
 reports. Packaging never establishes hosted or physical acceptance.
 
-PR #252's #244 follow-up at `a05bd53b0e016f94cfcf878df23b43551b78a9ea`, build
-`9760fe9fcf64`, fixes the confirmed Sites worker failure. Sites canonicalizes
+PR #252 merged as `4ad450ff032d91d0a483548ab2791b3b202976e2` after all five
+current-base CI jobs passed at `6d6558e299b73c824298b5240004c0a8af7127ec`
+(full verification run `35761649274`) and independent review requalified the
+main-based diff. Build `9760fe9fcf64` fixes the confirmed Sites worker failure.
+Sites canonicalizes
 the cached alias-file URLs through HTTP redirects; a followed-redirect
 response cannot satisfy a manual-mode navigation. The worker now rewraps
 only those cached alias responses, preserving their body, status and headers.
@@ -62,8 +61,14 @@ and passes all 156 checks in the complete nine-scenario suite with the fix,
 with no uncaught browser errors. Formatting and web/Android builds pass;
 the full local Node run is 405/406, with only the unchanged Windows symlink
 permission fixture failing (#250). The 18-check synthetic update suite and
-independent source review pass. Current-base CI, merge and hosted publication
-remain separate gates; build `9760fe9fcf64` is not yet deployed.
+independent source review pass. The hosted results above qualify publication.
+
+The final Sites run also exposed an evidence-only race: its asset recorder
+counted the optional, post-load usage-sharing script as a startup dependency.
+The recorder now checks the emitted deferred shell scripts, still fails on
+missing required responses, and exercises cold startup with the optional
+script blocked. The corrected full hosted run passes 156 checks with no
+uncaught page errors. This test correction does not change the deployed build.
 
 ### Verification boundary
 
