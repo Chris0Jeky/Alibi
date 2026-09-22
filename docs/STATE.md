@@ -48,6 +48,21 @@ nine-scenario report, including `shared_paths` and `malformed_persisted`,
 while rejecting stale, incomplete, duplicate, focused, failed or wrong-build
 reports. Packaging never establishes hosted or physical acceptance.
 
+The #244 follow-up at `a05bd53b0e016f94cfcf878df23b43551b78a9ea`, build
+`9760fe9fcf64`, fixes the confirmed Sites worker failure. Sites canonicalizes
+the cached alias-file URLs through HTTP redirects; a followed-redirect
+response cannot satisfy a manual-mode navigation. The worker now rewraps
+only those cached alias responses, preserving their body, status and headers.
+The real-redirect Node regression is red before the fix and green after it;
+all 11 focused Node tests pass, including 85 existing worker/build assertions.
+A loopback host with the same canonical redirects reproduces the old failure
+and passes all 156 checks in the complete nine-scenario suite with the fix,
+with no uncaught browser errors. Formatting and web/Android builds pass;
+the full local Node run is 405/406, with only the unchanged Windows symlink
+permission fixture failing (#250). The 18-check synthetic update suite and
+independent source review pass. Current-base CI, merge and hosted publication
+remain separate gates; build `9760fe9fcf64` is not yet deployed.
+
 ### Verification boundary
 
 PR #238 replaces scheduler-turn polling with explicit provider-stream request
