@@ -11,6 +11,7 @@ const FAILURE_CODES = new Set([
 ]);
 const DOMAIN_IDS = new Set(['cabinet', 'club', 'quiet-wing', 'challenges', 'castle']);
 const TARGETS = new Set(['web', 'android']);
+const ANDROID_FLAVORS = new Set(['browser-preview', 'capacitor-preview']);
 const SOURCE_SHA = /^[a-f0-9]{40}$/i;
 const SHA256 = /^[a-f0-9]{64}$/i;
 const HANDLE_ID = /^[a-z0-9][a-z0-9._:-]{0,127}$/i;
@@ -54,6 +55,8 @@ export function assertBuildIdentity(value, target) {
     throw new TypeError('A valid platform build identity is required.');
   if (target && value.target !== target)
     throw new TypeError(`Expected a ${target} build identity.`);
+  if (value.target === 'android' && !ANDROID_FLAVORS.has(value.flavor))
+    throw new TypeError('A complete Android build identity requires a permitted flavor.');
   if (!SOURCE_SHA.test(value.sourceSha || ''))
     throw new TypeError('Build sourceSha must be a full commit SHA.');
   if (typeof value.sourceDirty !== 'boolean')
@@ -79,6 +82,7 @@ export function assertBuildIdentity(value, target) {
   );
   return Object.freeze({
     target: value.target,
+    ...(value.target === 'android' ? { flavor: value.flavor } : {}),
     sourceSha: value.sourceSha.toLowerCase(),
     sourceDirty: value.sourceDirty,
     payloadSha256: value.payloadSha256.toLowerCase(),

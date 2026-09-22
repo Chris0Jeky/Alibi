@@ -84,7 +84,12 @@ test('default web fallback rejects incomplete identity instead of fabricating va
 });
 
 test('browser fallback can describe an Android preview while reporting its actual browser APIs', async () => {
-  const androidBuild = Object.freeze({ ...BUILD, target: 'android', versionCode: 3 });
+  const androidBuild = Object.freeze({
+    ...BUILD,
+    target: 'android',
+    flavor: 'browser-preview',
+    versionCode: 3,
+  });
   const host = hostFixture({
     showOpenFilePicker() {},
     showSaveFilePicker() {},
