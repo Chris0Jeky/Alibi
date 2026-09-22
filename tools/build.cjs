@@ -363,6 +363,9 @@ function build() {
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
+  // Hosts may canonicalize cached alias URLs through an HTTP redirect. A
+  // manual-mode navigation cannot consume that followed-redirect response;
+  // rewrap only those cache hits while preserving their bytes and headers.
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
 const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
@@ -372,7 +375,7 @@ const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alib
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
 const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
 function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias)return await c.match(new URL('./'+alias+'.html',self.registration.scope).href)||fetch(r);return await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length)))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}return await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
   write(path.join(DIST, 'sw.js'), sw);
   write(
