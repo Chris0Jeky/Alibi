@@ -60,6 +60,7 @@ with sync_playwright() as pw:
         cell.click()
         before_summary_state = page.evaluate('()=>AlibiDiagnostics.getCurrent().state')
         assert before_summary_state != before_cell_state, 'enabled puzzle control changed state'
+        page.locator('#play-context-summary').click()
         game_summary = page.locator('.theatre-settings > summary')
         game_summary.focus()
         game_summary.press('ArrowRight')
