@@ -230,14 +230,33 @@ test('a cancelled backup write cannot continue after the caller receives failure
   const digest = createHash('sha256').update(payload).digest('hex');
   const controller = new AbortController();
   let resolveWritable;
+  let signalRequested;
+  let signalAborted;
+  const requested = new Promise((resolve) => {
+    signalRequested = resolve;
+  });
+  const aborted = new Promise((resolve) => {
+    signalAborted = resolve;
+  });
   let writes = 0;
   let closes = 0;
   let aborts = 0;
   const host = hostFixture({
+    crypto: {
+      subtle: {
+        async digest(...args) {
+          // A valid worker can take more turns than the removed 100-turn poll.
+          // Retain the real digest, but deterministically exercise that ordering.
+          for (let attempt = 0; attempt < 150; attempt++) await turn();
+          return globalThis.crypto.subtle.digest(...args);
+        },
+      },
+    },
     showSaveFilePicker: async () => ({
       createWritable() {
         return new Promise((resolve) => {
           resolveWritable = resolve;
+          signalRequested();
         });
       },
     }),
@@ -246,7 +265,12 @@ test('a cancelled backup write cannot continue after the caller receives failure
     { suggestedName: 'alibi-backup.json', utf8Payload: payload, digest },
     operation({ operationId: 'cancel-write', timeoutMs: 1000, signal: controller.signal }),
   );
-  await waitUntil(() => typeof resolveWritable === 'function', 'document provider stream');
+  await Promise.race([
+    requested,
+    pending.then((result) => {
+      assert.fail(`Write settled before requesting its stream: ${JSON.stringify(result)}`);
+    }),
+  ]);
   controller.abort();
   assert.equal((await pending).code, 'cancelled');
   resolveWritable({
@@ -258,9 +282,11 @@ test('a cancelled backup write cannot continue after the caller receives failure
     },
     async abort() {
       aborts++;
+      signalAborted();
     },
   });
-  await waitUntil(() => aborts === 1, 'late stream cleanup');
+  await aborted;
+  assert.equal(aborts, 1);
   assert.equal(writes, 0);
   assert.equal(closes, 0);
 });
