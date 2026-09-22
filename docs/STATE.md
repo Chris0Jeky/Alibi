@@ -110,7 +110,7 @@ bounded platform read and retain the existing validation, staged review, atomic 
 pre-restore recovery flow; browsers without that capability keep the hidden file-input path.
 The candidate has focused Node coverage and a real-origin injected-picker control script, but is
 not part of the published build until its parent integration is reviewed.
-The consumer adds 388 bytes to the JavaScript gzip (128,166 bytes total, 166 bytes above the
+The consumer adds 389 bytes to the JavaScript gzip (128,167 bytes total, 167 bytes above the
 125 KiB app ceiling); the startup 200 KiB, platform 6 KiB and offline ceilings remain unchanged.
 
 PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
