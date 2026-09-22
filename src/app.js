@@ -1279,6 +1279,12 @@
     return `<div class="workshop-grid"><section class="panel"><h2>Scenarios are data.</h2><p>A pack has an ID, title, version and list of puzzle definitions. Each puzzle has its own stable ID and revision, plus the fields its engine needs. Export the starter examples to see every supported format.</p><div class="guide-rules"><div class="guide-rule">Use a unique, lowercase ID such as my-puzzle-01. An imported pack must not collide with the installed collection.</div><div class="guide-rule">A solution is required for validation and optional reveals. The importer independently checks that the rules allow exactly one solution.</div><div class="guide-rule">Changing a published puzzle’s rules requires a new revision. Existing game saves keep a snapshot of their original puzzle.</div><div class="guide-rule">Text is plain text. There are no HTML snippets, remote asset URLs or executable puzzle plugins in imported packs.</div></div><div class="row actions">${B('Export starter examples', 'export-template', 'download')}${B('Open scene maker', 'work-tab', 'scene', 'secondary', 'data-value="scene"')}</div></section><section class="panel"><h2>Publish deliberately.</h2><p>Importing adds content to your device. It does not update the public website. For everyone to receive an official pack, add it to the source catalogue, run the tests, build the static release, then update the existing deployment.</p><div class="docs-card"><h3>A new family needs an engine.</h3><p>Implement initial state, actions, constraint checks, completion detection, a bounded solver, definition/state validation, a renderer and a mini lesson. The source bundle documents these extension points.</p></div><div class="docs-card"><h3>Before calling a puzzle finished</h3><p>Verify one solution, solve it without hints, check every clue, test on a narrow screen, and ask another person to play it. Uniqueness is necessary; it does not guarantee an enjoyable deduction path.</p></div><p class="fine" style="margin-top:17px">The full publishing bundle includes architecture, schemas, authoring examples, deployment steps, backup strategy, automated tests and an agent handoff.</p></section></div>`;
   }
   function render() {
+    if (
+      route.page === 'salon' &&
+      route.id === 'blockcabinet' &&
+      globalThis.AlibiBlockMotion?.suppressClubRender?.()
+    )
+      return;
     if (route.page === 'quiet') {
       if (!document.getElementById('quiet-host')) {
         $('#app').innerHTML =

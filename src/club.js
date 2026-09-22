@@ -1881,6 +1881,7 @@
     emblem,
     engine,
     save,
+    refresh: render,
     flush: () => saveQueue,
     diagnostics: () => ({
       storageMode,
