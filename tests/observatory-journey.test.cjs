@@ -10,37 +10,64 @@ const loaderSource = fs.readFileSync(path.join(root, 'src/observatory-loader.js'
 const appSource = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
 const browserSource = fs.readFileSync(path.join(root, 'observatory/browser.js'), 'utf8');
 
-function harness() {
-  const block = /\/\/ Alibi journey helper start\.\n([\s\S]*?)\/\/ Alibi journey helper end\./.exec(
-    browserSource,
-  );
-  assert.ok(block, 'adapter must contain the bounded journey helper block');
+// Runs the real loader with a stub facade standing in for the generated adapter.
+function harness({ standalone = false } = {}) {
+  const windowListeners = {};
+  const documentListeners = [];
   const events = [];
   let active = false;
-  const context = {
+  const facade = () => ({
+    status: () => ({ active }),
     track(event) {
       if (!active) return false;
       events.push(event);
       return true;
     },
-    active: () => active,
+  });
+  const context = {
+    ALIBI_CONFIG: { standalone, version: '0.11.5' },
+    ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
+    location: { hash: '#/play/test@1' },
+    document: {
+      readyState: 'complete',
+      createElement: (tag) => ({ tag }),
+      head: { append() {} },
+      addEventListener(type, listener, capture) {
+        documentListeners.push({ type, listener, capture });
+      },
+    },
+    addEventListener(type, listener) {
+      (windowListeners[type] ||= []).push(listener);
+    },
   };
   context.globalThis = context;
-  vm.runInNewContext(`${block[1]}\nglobalThis.__journey = createJourney(track, active);`, context, {
-    filename: 'observatory-journey-helper.js',
-  });
+  vm.createContext(context);
+  vm.runInContext(loaderSource, context, { filename: 'observatory-loader.js' });
+  context.PulseboardUsage = facade();
   let current = { key: 'first' };
   return {
+    context,
     events,
-    call(event) {
-      return context.__journey.observe(current, event);
-    },
+    documentListeners,
+    call: (event) => context.AlibiJourney(current, event),
     change(value) {
       current = value;
     },
-    reset: context.__journey.reset,
     setActive(value) {
       active = value;
+    },
+    remount() {
+      context.PulseboardUsage = facade();
+    },
+    consentChange(inside = true) {
+      const target = {
+        closest: (selector) => (inside && selector === '#pulseboard-usage-sharing' ? {} : null),
+      };
+      for (const { type, listener } of documentListeners)
+        if (type === 'change') listener({ target });
+    },
+    hashchange() {
+      for (const listener of windowListeners.hashchange || []) listener({ type: 'hashchange' });
     },
   };
 }
@@ -82,37 +109,106 @@ test('withdrawal and puzzle changes reset local attempt state', () => {
   assert.deepEqual(h.events.slice(-3), ['puzzle.started', 'puzzle.started', 'puzzle.failed']);
 });
 
-test('route resets require a fresh start without buffering', () => {
+test('unknown events are refused and nothing is buffered before consent', () => {
   const h = harness();
   h.setActive(true);
   assert.equal(h.call('puzzle.unknown'), false);
+  assert.equal(h.call('puzzle.solved'), false);
   assert.deepEqual(h.events, []);
 
+  h.setActive(false);
   h.call();
-  h.reset();
+  h.call('hint.requested');
+  h.call('puzzle.failed');
+  h.setActive(true);
+  assert.deepEqual(h.events, [], 'pre-consent calls are dropped, never replayed');
+  assert.equal(h.call('hint.requested'), true);
+  assert.deepEqual(h.events, ['puzzle.started', 'hint.requested']);
+});
+
+test('route changes reset the attempt and still report a page view', () => {
+  const h = harness();
+  h.setActive(true);
+  h.call();
+  h.hashchange();
+  assert.deepEqual(h.events, ['puzzle.started', 'page.view']);
   assert.equal(h.call('puzzle.completed'), true);
-  assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
+  assert.deepEqual(h.events.slice(2), ['puzzle.started', 'puzzle.completed']);
+});
+
+test('consent transitions reset the attempt even with no call while sharing was off', () => {
+  const h = harness();
+  h.setActive(true);
+  h.call();
+  h.consentChange(false);
+  h.call();
+  assert.deepEqual(
+    h.events,
+    ['puzzle.started'],
+    'an unrelated form change is not a consent change',
+  );
+
+  h.consentChange();
+  h.call();
+  assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started']);
+
+  h.remount();
+  h.call();
+  assert.deepEqual(
+    h.events,
+    ['puzzle.started', 'puzzle.started', 'puzzle.started'],
+    'a remounted facade starts a fresh consent state',
+  );
+  assert.ok(
+    h.documentListeners.some(({ type, capture }) => type === 'change' && capture === true),
+    'consent changes are observed before the control applies them',
+  );
+});
+
+test('a missing or inert facade keeps the journey silent', () => {
+  const h = harness();
+  h.context.PulseboardUsage = null;
+  assert.equal(h.call(), false);
+  assert.equal(h.call('puzzle.completed'), false);
+  assert.deepEqual(h.events, []);
+});
+
+test('standalone builds install no journey helper', () => {
+  const h = harness({ standalone: true });
+  assert.equal(h.context.AlibiJourney, undefined);
+  assert.equal(h.documentListeners.length, 0);
+});
+
+test('the generated control keeps the id the loader watches for consent changes', () => {
+  assert.match(browserSource, /details\.id = 'pulseboard-usage-sharing'/);
+  assert.match(browserSource, /checkbox\.addEventListener\('change'/);
+  assert.doesNotMatch(browserSource, /AlibiJourney|createJourney|journey/i);
 });
 
 test('application lifecycle calls the helper with fixed event names only', () => {
+  assert.match(appSource, /globalThis\.AlibiJourney\?\.\(current\);[\s\S]*current\.state = next;/);
   assert.match(
     appSource,
-    /PulseboardUsage\?\.journey\?\.\(current\);[\s\S]*current\.state = next;/,
+    /issues\.length\) \{\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.failed'\);/,
   );
   assert.match(
     appSource,
-    /issues\.length\)[\s\S]*PulseboardUsage\?\.journey\?\.\(current, 'puzzle\.failed'\)/,
+    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.completed'\);/,
   );
   assert.match(
     appSource,
-    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*globalThis\.PulseboardUsage\?\.journey\?\.\(current, 'puzzle\.completed'\);/,
+    /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.AlibiJourney\?\.\(current, 'hint\.requested'\);/,
   );
   assert.match(
     appSource,
-    /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.PulseboardUsage\?\.journey\?\.\(current, 'hint\.requested'\);/,
+    /C\.equal\(current\.state, d\.before\)\) return;\s*globalThis\.AlibiJourney\?\.\(current\);/,
   );
-  assert.match(loaderSource, /PulseboardUsage\?\.resetJourney\?\.\(\);/);
-  assert.equal((appSource.match(/globalThis\.PulseboardUsage\?\.journey\?\./g) || []).length, 5);
-  assert.doesNotMatch(appSource, /observeJourney|resetJourney/);
-  assert.doesNotMatch(loaderSource, /ALIBI_OBSERVATORY_JOURNEY/);
+  const calls = appSource.match(/globalThis\.AlibiJourney\?\.\([^)]*\)/g) || [];
+  assert.equal(calls.length, 5);
+  for (const call of calls)
+    assert.match(
+      call,
+      /^globalThis\.AlibiJourney\?\.\(current(, '(puzzle\.(failed|completed)|hint\.requested)')?\)$/,
+    );
+  assert.doesNotMatch(appSource, /PulseboardUsage/);
 });
