@@ -17,10 +17,29 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
-Pending. Primary is the existing Cloudflare Worker
-`alibi-after-hours-preview`; fallback is the existing Sites project
-`appgdep_6aabac35f2f48191b5aa2f3e59150239`. Record Worker version, Sites
-version, uploaded/retained asset counts, MIME and header verification here.
+Primary published 2026-09-22 from merged source
+`5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3` (PR #241, release head
+`a66c52b9e36c`), build `f0baec5e3291`, 376 puzzles across 22 packs.
+`npm run cloudflare:check` (wrangler 4.129.1 dry run, 295 dist files) passed,
+then `npm run cloudflare:deploy` uploaded 21 changed files (268 retained) to
+the existing Worker `alibi-after-hours-preview`. Current Worker version ID:
+`b8f83076-dc6f-41d6-acf0-7787ede4424e`.
+
+Hosted verification on
+`https://alibi-after-hours-preview.commit-atlas.workers.dev/` the same day:
+`/` 200, `/privacy.html` 200 (redirect stub to the in-app `/#/privacy`
+route), `/manifest.webmanifest` 200, content-hashed shell assets 200 with
+names matching the local `dist/` build (`boot.bdf54bea6078.js`,
+`alibi.a765ad34a970.js`), shell `cache-control: no-cache`, and the
+repository Content-Security-Policy present. The in-app privacy copy at
+`/#/privacy` is unchanged device-local copy plus the optional usage-sharing
+disclosure.
+
+Fallback not yet updated: the existing Sites project
+`appgdep_6aabac35f2f48191b5aa2f3e59150239` still serves 0.11.4 (version 16).
+Its update needs the owner credential flow in `docs/DEPLOYMENT.md` step 5,
+so the two origins currently serve different releases. Saves stay
+per-origin; no migration is implied by this skew.
 
 ## Verification
 
