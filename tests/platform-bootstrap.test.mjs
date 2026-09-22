@@ -78,7 +78,12 @@ test('absent and standalone markers select web without inspecting browser identi
 });
 
 test('Android marker keeps browser fallback capabilities and installs one immutable facade', async () => {
-  const androidBuild = Object.freeze({ ...BUILD, target: 'android', versionCode: 7 });
+  const androidBuild = Object.freeze({
+    ...BUILD,
+    target: 'android',
+    flavor: 'browser-preview',
+    versionCode: 7,
+  });
   const host = hostFixture({
     ALIBI_BUILD_TARGET: 'android',
     ALIBI_PLATFORM_BUILD: androidBuild,

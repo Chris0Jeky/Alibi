@@ -17,7 +17,14 @@ export function bootstrapPlatform(options = {}) {
   if (Object.hasOwn(host, 'AlibiPlatform')) throw new Error('AlibiPlatform is already defined.');
   if (!Object.isExtensible(host)) throw new Error('AlibiPlatform cannot be defined on this host.');
 
-  const platform = installPlatform(createBrowserFallbackPlatform({ host, build }));
+  const adapterFactory = options.adapterFactory ?? createBrowserFallbackPlatform;
+  if (typeof adapterFactory !== 'function')
+    throw new TypeError('A platform adapter factory is required.');
+  const candidate = adapterFactory({ host, build });
+  const adapterBuild = assertBuildIdentity(candidate?.build, target);
+  if (JSON.stringify(adapterBuild) !== JSON.stringify(build))
+    throw new TypeError('Platform adapter identity does not match the selected build identity.');
+  const platform = installPlatform(candidate);
   Object.defineProperty(host, 'AlibiPlatform', {
     value: platform,
     enumerable: true,
