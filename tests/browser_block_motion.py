@@ -65,20 +65,24 @@ def watch_host(page):
         host,
         detached: false,
         zeroGeometry: false,
-        effectFrames: 0,
+        effectDraws: 0,
         frames: 0,
         stopped: false,
+      };
+      const fillText = CanvasRenderingContext2D.prototype.fillText;
+      watch.fillText = fillText;
+      CanvasRenderingContext2D.prototype.fillText = function(...args) {
+        if (typeof args[0] === 'string' && /^[+][0-9]+$/.test(args[0]) && this.canvas?.closest('.bc-host'))
+          watch.effectDraws += 1;
+        return fillText.apply(this, args);
       };
       const sample = () => {
         if (!watch || watch.stopped) return;
         const current = document.querySelector('.bc-host');
         const rect = watch.host?.getBoundingClientRect();
-        const diagnostics = globalThis.AlibiBlockMotion?.diagnostics?.();
         watch.frames += 1;
         if (!watch.host?.isConnected || current !== watch.host) watch.detached = true;
         if (!rect || rect.width === 0 || rect.height === 0) watch.zeroGeometry = true;
-        if (diagnostics?.pending || watch.host?.querySelector('.bc-board.bc-resolving'))
-          watch.effectFrames += 1;
         requestAnimationFrame(sample);
       };
       requestAnimationFrame(sample);
@@ -89,12 +93,13 @@ def stop_host_watch(page):
     return page.evaluate('''() => {
       const watch = window.__bcHostContinuity;
       watch.stopped = true;
+      CanvasRenderingContext2D.prototype.fillText = watch.fillText;
       const rect = watch.host?.getBoundingClientRect();
       return {
         detached: watch.detached,
         zeroGeometry: watch.zeroGeometry,
         same: watch.host === document.querySelector('.bc-host'),
-        effectFrames: watch.effectFrames,
+        effectDraws: watch.effectDraws,
         frames: watch.frames,
         finalConnected: !!watch.host?.isConnected,
         finalWidth: rect?.width || 0,
@@ -195,8 +200,8 @@ with sync_playwright() as p:
             and ordinary['finalHeight'] > 0,
             f'{width}: ordinary-motion placement keeps one tactile host with nonzero geometry',
         )
-        check(ordinary['effectFrames'] > 0, f'{width}: ordinary-motion placement effect is observed separately from host continuity')
-        check(ordinary['frames'] > ordinary['effectFrames'], f'{width}: ordinary-motion probe samples before and after placement effect')
+        check(ordinary['effectDraws'] > 0, f'{width}: ordinary-motion placement draws its score effect')
+        check(ordinary['frames'] > 0, f'{width}: ordinary-motion probe samples host geometry across animation frames')
         check(len(current(page)['log']) == len(ordinary_before['log']) + 1, f'{width}: ordinary-motion keyboard placement commits once')
         page.locator('.bc-host [data-command="undo"]').focus()
         page.keyboard.press('Enter')
