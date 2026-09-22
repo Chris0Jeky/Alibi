@@ -14,11 +14,16 @@ publication evidence is in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
 The Sites fallback still serves 0.11.4 (version 16) pending the owner
 credential flow; the two origins currently serve different releases and
 saves stay per-origin. This cycle also merged PR #237, PR #240 (leaf-path
-shared addresses, closes #213), PR #241 and PR #243 (coherent Bridges zoom
-sampler into the draft 238 stack). Open: PR #245 (single-trigger CI, fixes
-#242), draft PRs #238/#239 stacked on the owner's provider-cancellation
-work, draft PR #183 parked on external Pulseboard collector admission, and
-issue #244 (directory-form shared links).
+shared addresses, closes #213), PR #241, PR #243 (coherent Bridges zoom
+sampler into the draft 238 stack), PR #245 (single-trigger CI, closes
+#242), PR #246 (0.11.5 publication evidence, including 110/110 hosted
+real-origin checks) and PR #247 (controlled shared-link navigation plus
+query/fragment merging for issue #244). The 244 fix is merged with local
+real-origin browser evidence (25/25) and full CI, but its hosted acceptance
+still needs a deployment carrying it — 0.11.6 or a main deploy is an owner
+release decision. Draft PRs #238/#239 stay stacked on the owner's
+provider-cancellation work; draft PR #183 stays parked on external
+Pulseboard collector admission.
 
 ## 0.11.5 release candidate, 2026-09-22 (shipped to Cloudflare, see above)
 
