@@ -35,6 +35,25 @@ repository Content-Security-Policy present. The in-app privacy copy at
 `/#/privacy` is unchanged device-local copy plus the optional usage-sharing
 disclosure.
 
+The advertised extensionless shared addresses were checked on the live
+origin the same day, not just their `.html` files: `/privacy`, `/about`,
+`/login` and their directory forms each return 200 with the redirect target
+`/#/privacy`, `/#/about` or `/#/login`. A real Chromium session in a fresh
+profile (cold, no controlling worker) lands on each hash route with the app
+booted and hashed JS/CSS loading 200 — 6/6 forms pass. One known boundary
+carried forward to issue #244: `/privacy?from=shared-link` lands on
+`#/privacy` with the query dropped, because the no-JavaScript meta refresh
+wins over the query-preserving script under the deployed CSP.
+
+The hosted real-origin suite was run against the same deployment from
+disposable profiles the same day: durability 17, backup/restore 22,
+cross-tab 17, keyboard 10, offline (IndexedDB persistence plus offline
+reload under a controlling worker) 14, malformed draft 10, malformed
+persisted 12 and newer database 8 — 110/110 checks pass with no uncaught
+page errors, covering the IndexedDB, service-worker offline and recovery
+behavior. Release-to-release update behavior, the Sites fallback and
+physical-device acceptance remain in the limits below.
+
 Fallback not yet updated: the existing Sites project
 `appgdep_6aabac35f2f48191b5aa2f3e59150239` still serves 0.11.4 (version 16).
 Its update needs the owner credential flow in `docs/DEPLOYMENT.md` step 5,
@@ -60,5 +79,6 @@ Rollback references are the 0.11.4 publication: Cloudflare Worker version
 `appgdep_6aabac35f2f48191b5aa2f3e59150239`. No rollback has been executed.
 
 Physical-device, TalkBack, human difficulty and curation acceptance remain open
-in [HUMAN_TODO.md](../HUMAN_TODO.md). Browser and solver evidence does not
-close those human gates.
+in [HUMAN_TODO.md](../HUMAN_TODO.md). Release-to-release service-worker
+update behavior and the Sites fallback publication are likewise unverified
+here. Browser and solver evidence does not close those human gates.
