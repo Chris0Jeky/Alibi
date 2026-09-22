@@ -23,7 +23,7 @@ for (const alias of ALIASES) {
       assert.ok(fs.existsSync(document), `${document} is emitted`);
       const body = fs.readFileSync(document, 'utf8');
       assert.ok(
-        body.includes(`(location.hash||'#/${alias}')`),
+        body.includes(`location.hash||'#/${alias}'`),
         `${document} keeps an explicit hash instead of clobbering it`,
       );
       assert.ok(
@@ -55,6 +55,34 @@ test('the redirect script runs under the global CSP instead of relaxing it', () 
     );
     const digest = `'sha256-${crypto.createHash('sha256').update(script).digest('base64')}'`;
     assert.ok(policy.includes(digest), `_headers allowlists the exact ${alias} redirect script`);
+  }
+});
+
+function runRedirectScript(alias, hash, search) {
+  const body = fs.readFileSync(path.join(dist, `${alias}.html`), 'utf8');
+  const script = body.match(/<script>([\s\S]*?)<\/script>/)[1];
+  let replaced = null;
+  const sandbox = {
+    document: { querySelector: () => ({ remove: () => {} }) },
+    location: { hash, search, replace: (url) => (replaced = url) },
+  };
+  vm.runInNewContext(script, sandbox, { filename: `${alias}.html` });
+  return replaced;
+}
+
+test('an outer query merges into a fragment query instead of corrupting it', () => {
+  for (const [hash, search, expected] of [
+    ['', '', '/#/privacy'],
+    ['', '?from=shared-link', '/#/privacy?from=shared-link'],
+    ['#/library', '', '/#/library'],
+    ['#/library', '?from=email', '/#/library?from=email'],
+    [
+      '#/play/lightup-01@1?book=bellweather',
+      '?from=email',
+      '/#/play/lightup-01@1?book=bellweather&from=email',
+    ],
+  ]) {
+    assert.equal(runRedirectScript('privacy', hash, search), expected, `${hash}${search}`);
   }
 });
 

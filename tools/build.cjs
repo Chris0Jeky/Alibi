@@ -29,8 +29,9 @@ const PATH_ROUTE_ALIASES = { __proto__: null, privacy: 'privacy', about: 'about'
 function pathRouteAliasScript(target) {
   // Runs before the no-JavaScript meta refresh below can fire: drop the
   // refresh, then forward to the explicit fragment when one is present so a
-  // shared `/about/#/library` address keeps its route, preserving any query.
-  return `document.querySelector('meta[http-equiv="refresh"]').remove();location.replace('/'+(location.hash||'#/${target}')+location.search);`;
+  // shared `/about/#/library` address keeps its route. An outer query merges
+  // into an existing fragment query with `&` instead of corrupting it.
+  return `document.querySelector('meta[http-equiv="refresh"]').remove();var h=location.hash||'#/${target}',q=location.search;if(q)h+=(h.indexOf('?')>=0?'&':'?')+q.slice(1);location.replace('/'+h);`;
 }
 function pathRouteAliasDocument(alias, target) {
   const hash = `#/${target}`;

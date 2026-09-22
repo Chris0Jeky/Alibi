@@ -782,6 +782,13 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
         )
         assert_booted_assets("cold /about/ with explicit fragment")
 
+        goto_alias(urljoin(BASE, "about?from=email#/library"), "cold about with query and fragment")
+        check(
+            page.evaluate("location.hash") == "#/library?from=email",
+            "cold /about/ with a query and an explicit fragment merges both",
+        )
+        assert_booted_assets("cold /about/ with query and fragment")
+
         boot(page)
         route(page, "play/lightup-01@1")
         first, before, _ = move_first_cell(page, "shared-paths move seeds an in-progress puzzle")
