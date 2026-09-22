@@ -20,8 +20,15 @@ version, uploaded/retained asset counts, MIME and header verification here.
 
 ## Verification
 
-Pending. Record local `npm ci` / `npm run verify` totals, the exact release-PR
-CI runs, and the per-origin hosted real-origin check totals here.
+Local `npm run verify` passed on the release branch before publication.
+The 0.11.5 version bump exposed a real defect: the Observatory adapter's
+closed release allowlist still ended at 0.11.4, so consent events shipped
+`release: "unattributed"` and `browser_observatory.py` failed deterministically
+(local repro plus CI run 35675412689). Fixed by registering 0.11.5 in
+`observatory/browser.js` with a recomputed `observatory.lock.json` hash,
+mirroring the 0.11.4 alignment; `observatory/check.mjs` and all 15
+`browser_observatory.py` assertions pass locally. Release-PR CI runs and
+per-origin hosted real-origin check totals are recorded below as they land.
 
 ## Rollback and remaining limits
 
