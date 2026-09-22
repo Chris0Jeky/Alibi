@@ -7,6 +7,10 @@ Use Node 22+, `npm ci`, `npm run verify`, then `npm start`. Python browser setup
 the README. Test phone widths first. New behavior needs a direct regression, not a test of its
 implementation details. Avoid new runtime dependencies unless the player benefit justifies them.
 
+Run `npm run verify`, not bare `npm test`: several suites read emitted `dist/` artifacts, so
+`npm test` against a stale build fails with misleading assertion errors instead of testing your
+change. Rebuild first (the `verify` script does this for you). See issue #264.
+
 Open ready-for-review pull requests with the problem, resulting behavior, proving checks and
 remaining limitations. Never include progress backups, notes, tokens or test browser profiles.
 Use synthetic fixtures for bug reports. Do not silently alter published puzzle rule fields.
