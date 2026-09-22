@@ -17,11 +17,24 @@ while retaining it for a browser-cached page return. Actual document migration,
 activity/Club lifecycle consumers and native recovery remain follow-on work
 under #125 and the dependent CAP packages; this candidate does not close #125.
 
-The runtime-contract slice (`f4e1267`) passes 19 focused tests. Build/identity
-integration (`6535257`) passes 17 Android/build tests, including deterministic
-derivation and tampering checks. The consumer slice passes 22 focused tests
-and the startup budget checks. Full current-candidate verification, browser
-controls, hosted CI, independent review and deployment are still pending.
+At `c7b1b8b`, `npm run verify` passes formatting, web/Android builds, all 421
+Node tests (zero failures/skips), and both Quiet Wing checks (581,847 reducer
+assertions and 29 contracts). The first full run exposed two outdated startup
+accounting assertions and stale app source receipts; those were corrected.
+A later 5 ms fixture deadline could expire during real hashing before its
+intended readback phase. Its controlled timer now expires only after the
+provider closes; production deadlines are unchanged.
+
+At the unchanged runtime source `f4be7e9`, the isolated browser UI passes 184
+checks, completing all thirteen games and exporting saves while vibration
+deliberately throws. Android preview passes 19 checks with no native bridge,
+service worker or remote request. At `6bfbac7`, the complete nine-scenario
+real-origin suite passes 168 checks and the synthetic two-release update
+suite passes 18. Phone/desktop viewport screenshots were visually inspected;
+these are simulated browser results, not physical-device acceptance. Later
+changes only correct receipts and the timeout fixture. Independent review
+of the runtime and its follow-up diff found no blockers. Hosted CI and
+deployment remain pending.
 Published origins remain on build `9760fe9fcf64` below. Human and physical
 acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
