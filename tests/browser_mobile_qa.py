@@ -135,8 +135,24 @@ class MobileQA(unittest.TestCase):
             }''',
             arg={'map': before['width'], 'island': target['width']},
         )
-        self.assertGreater(page.locator('.bridge-map').bounding_box()['width'], before['width'])
-        self.assertGreater(page.locator('.island').first.bounding_box()['width'], target['width'])
+        # The board can be replaced between the wait above and the read
+        # below, leaving a detached handle with no bounding box. Re-read
+        # fresh geometry until it settles instead of trusting the handle.
+        enlarged = None
+        for _ in range(20):
+            enlarged = page.evaluate(
+                '''() => {
+                    const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
+                    const island = document.querySelector('.island')?.getBoundingClientRect();
+                    return map && island ? {map: map.width, island: island.width} : null;
+                }'''
+            )
+            if enlarged is not None:
+                break
+            page.wait_for_timeout(100)
+        self.assertIsNotNone(enlarged, 'enlarged board keeps geometry across re-renders')
+        self.assertGreater(enlarged['map'], before['width'])
+        self.assertGreater(enlarged['island'], target['width'])
         self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), 391)
         page.get_by_role('button', name='Use normal board size', exact=True).click()
         # The click may complete while the old board is being replaced. Wait for
@@ -150,8 +166,21 @@ class MobileQA(unittest.TestCase):
             }''',
             arg={'map': before['width'], 'island': target['width']},
         )
-        self.assertAlmostEqual(page.locator('.bridge-map').bounding_box()['width'], before['width'], delta=1)
-        self.assertAlmostEqual(page.locator('.island').first.bounding_box()['width'], target['width'], delta=1)
+        restored = None
+        for _ in range(20):
+            restored = page.evaluate(
+                '''() => {
+                    const map = document.querySelector('.bridge-map')?.getBoundingClientRect();
+                    const island = document.querySelector('.island')?.getBoundingClientRect();
+                    return map && island ? {map: map.width, island: island.width} : null;
+                }'''
+            )
+            if restored is not None:
+                break
+            page.wait_for_timeout(100)
+        self.assertIsNotNone(restored, 'restored board keeps geometry across re-renders')
+        self.assertAlmostEqual(restored['map'], before['width'], delta=1)
+        self.assertAlmostEqual(restored['island'], target['width'], delta=1)
         self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
 
     def test_optional_play_context_remains_reachable(self):
