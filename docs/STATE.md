@@ -1,5 +1,30 @@
 # Live development state
 
+## CAP-03 source candidate, 2026-09-22
+
+The `codex/cap03-platform-startup-20260922` candidate installs the shared browser
+platform before the app in the PWA, standalone preview and Android payload.
+Build identity records the real commit anchor and dirty-source status; Android
+preview capabilities explicitly report that no native host or vault exists.
+The schema-2 Android receipt separates the runtime graph SHA from the complete
+artifact SHA and leaves save compatibility undeclared pending CAP-05.
+
+App feedback now uses the port. A reproduced vibration exception previously
+interrupted a validated move before completion, saving and rendering; focused
+tests now prove those steps finish for throwing, rejected and unresolved
+feedback. The app owns its lifecycle lease and disposes it on final page exit,
+while retaining it for a browser-cached page return. Actual document migration,
+activity/Club lifecycle consumers and native recovery remain follow-on work
+under #125 and the dependent CAP packages; this candidate does not close #125.
+
+The runtime-contract slice (`f4e1267`) passes 19 focused tests. Build/identity
+integration (`6535257`) passes 17 Android/build tests, including deterministic
+derivation and tampering checks. The consumer slice passes 22 focused tests
+and the startup budget checks. Full current-candidate verification, browser
+controls, hosted CI, independent review and deployment are still pending.
+Published origins remain on build `9760fe9fcf64` below. Human and physical
+acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Published 0.11.5 on both origins, 2026-09-22
 
 Merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252), build

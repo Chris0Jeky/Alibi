@@ -129,6 +129,10 @@ def boot(page: Page, require_indexeddb: bool = True) -> None:
         )
     )
     check(page.title().startswith("Alibi"), "application boots on real origin")
+    check(
+        page.evaluate("()=>AlibiPlatform.build.target==='web' && !AlibiPlatform.capabilities().nativeHost && typeof Capacitor==='undefined'"),
+        "real-origin PWA installs its explicit browser platform",
+    )
     counts = page.evaluate("AlibiDiagnostics.getCounts()")
     check(counts["puzzles"] == OFFICIAL_COUNT, "real-origin catalogue matches the official registry")
     check(counts["types"] == 13, "real-origin catalogue has thirteen engines")

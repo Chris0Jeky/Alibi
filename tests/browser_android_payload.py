@@ -56,6 +56,15 @@ with sync_playwright() as pw:
     page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
 
     check(
+        page.evaluate("()=>AlibiPlatform.build.target==='android' && AlibiPlatform.build.sourceDirty===false"),
+        'Android runtime facade uses the clean target-specific build identity',
+    )
+    check(
+        page.evaluate("()=>!AlibiPlatform.capabilities().nativeHost && !AlibiPlatform.capabilities().nativeFeedback && !AlibiPlatform.capabilities().recoveryVault && typeof Capacitor==='undefined'"),
+        'browser preview does not claim a native host or native capabilities',
+    )
+
+    check(
         page.evaluate("()=>globalThis.ALIBI_BUILD_TARGET") == 'android',
         'Android target marker loads first',
     )
