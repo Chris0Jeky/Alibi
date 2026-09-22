@@ -285,7 +285,20 @@ test('a cancelled backup write cannot continue after the caller receives failure
       signalAborted();
     },
   });
-  await aborted;
+  let cleanupTimer;
+  try {
+    await Promise.race([
+      aborted,
+      new Promise((_, reject) => {
+        cleanupTimer = setTimeout(
+          () => reject(new Error('Timed out waiting for cancelled backup stream abort.')),
+          1000,
+        );
+      }),
+    ]);
+  } finally {
+    clearTimeout(cleanupTimer);
+  }
   assert.equal(aborts, 1);
   assert.equal(writes, 0);
   assert.equal(closes, 0);
