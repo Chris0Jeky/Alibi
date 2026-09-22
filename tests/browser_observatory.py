@@ -154,6 +154,43 @@ with sync_playwright() as pw:
         "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
         arg=editable,
     )
+    page.evaluate('() => PulseboardUsage.flush()')
+    wait_for_events(page, observed, 4)
+    check(observed[3]['event'] == 'puzzle.started', 'the first real board change starts a journey')
+    check(observed[3]['route'] == 'puzzle', 'the journey start uses the puzzle route')
+
+    conflict = page.evaluate(
+        """(entry) => {
+          const run = AlibiDiagnostics.getCurrent();
+          const size = Math.sqrt(run.puzzle.givens.length);
+          const row = Math.floor(entry.index / size) * size;
+          for (let index = row; index < row + size; index++)
+            if (index !== entry.index && !run.puzzle.givens[index] && !run.state.cells[index])
+              return {index, value: entry.value};
+          return null;
+        }""",
+        editable,
+    )
+    page.locator(f'#cell-{conflict["index"]}').click()
+    page.keyboard.press(str(conflict['value']))
+    page.wait_for_function(
+        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
+        arg=conflict,
+    )
+    page.locator('[data-action="check"]').first.click()
+    page.evaluate('() => PulseboardUsage.flush()')
+    wait_for_events(page, observed, 5)
+    check(
+        [event['event'] for event in observed[3:]] == ['puzzle.started', 'puzzle.failed'],
+        'a conflicted check ends the open attempt without another start',
+    )
+    check(
+        all(set(event) <= {'v', 'id', 'session', 'seq', 'event', 'route', 'release'} for event in observed[3:])
+        and key not in json.dumps(observed),
+        'journey events carry no puzzle identity, answer or board payload',
+    )
+    dismiss_dialog(page)
+
     before = page.evaluate(
         "()=>({state: AlibiDiagnostics.getCurrent().state, moves: AlibiDiagnostics.getCurrent().moves})"
     )
