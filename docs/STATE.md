@@ -29,6 +29,28 @@ backup transfer and release approval remain open under CAP04/#126 and the depend
 The pinned npm moderate chain (`@capacitor/cli -> xcode -> uuid@7.0.3`, explicit-buffer UUID
 advisory) is a toolchain-only finding with no Android runtime call path; it was not overridden.
 
+## Published backup import recovery, 2026-09-22
+
+PR #258 merged as `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` after six green
+current-base checks, independent review and the post-push aging floor. Both
+existing origins now serve version 0.11.5, build `ce60bde20b83`, built from
+that merged source. The Cloudflare Worker version is
+`f9526b2d-8a1b-4221-bed1-8bcc73655d3f`; Sites version 20 deployed as
+`appgdep_6ab2eed4184c8191926045fd1042c98f` at 21:10:59 UTC. This
+update preserves the separate saves at each origin.
+
+The merged source passes `npm run verify` (426 Node tests and both Quiet Wing
+suites), `cloudflare:check`, 23 backup-import browser checks and 168 real-origin
+checks. Each hosted origin passes the full 168-check origin suite. All 291
+Cloudflare files match local bytes. Sites returns all 291; 281 non-HTML files
+match, and each of ten HTML files differs only by one 938-character platform
+challenge script. The main page's meta CSP remains; the existing Sites HTTP
+CSP and WebP MIME limitations remain #6. Actual updates on both origins from
+`df04399c4ee7` to `ce60bde20b83` preserve the exact saved puzzle and move
+after Save & update and offline reload. Receipts and rollback references are in
+[RELEASE-0.11.5.md](RELEASE-0.11.5.md). Physical Android and human acceptance
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Published platform startup update, 2026-09-22
 
 PR #255 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` after all seven
@@ -125,22 +147,19 @@ hosting-layer challenge script inserted. The main page's meta CSP remains
 present. Sites still lacks the repository's HTTP CSP header and serves 51
 WebP files as octet-stream (#6); these platform limits remain open.
 
-## Current source checkpoint, 2026-09-22
+## Earlier source checkpoint, 2026-09-22
 
-The published source base is `origin/main` at `4ad450f`. It includes the merged
+The earlier published source base was `origin/main` at `4ad450f`. It included the merged
 unknown-route recovery (#233), Android-aware startup recovery (#236), the
 0.11.5 release and its follow-up routing and deployment records through #248.
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
 remain unchanged.
 
-The Cabinet restore picker consumer is a source candidate on branch
-`codex/cap03-backup-import-20260922`: browsers advertising both document-picker APIs use the
-bounded platform read and retain the existing validation, staged review, atomic restore and
-pre-restore recovery flow; browsers without that capability keep the hidden file-input path.
-The candidate has focused Node coverage and a real-origin injected-picker control script, but is
-not part of the published build until its parent integration is reviewed.
-The consumer adds 389 bytes to the JavaScript gzip (128,167 bytes total, 167 bytes above the
-125 KiB app ceiling); the startup 200 KiB, platform 6 KiB and offline ceilings remain unchanged.
+The Cabinet restore picker consumer was subsequently reviewed, merged and
+published in the backup recovery update above. Its browser capability fallback
+and atomic restore behaviour are covered by that update's source and hosted
+checks. The earlier 125 KiB app gzip ceiling was exceeded by 167 bytes; this
+persists in the published build and remains a size-budget follow-up.
 
 PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
 provider-phase regression and PR #243's coherent Bridges zoom sampler after
