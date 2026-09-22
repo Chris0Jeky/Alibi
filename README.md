@@ -25,7 +25,7 @@ The product direction is not “add every possible minigame.” It is to build a
 
 ## What ships today
 
-- **355 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
+- **376 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
 - **Five illustrated mystery casebooks:** including the six-record *Last Light at Bellweather* sequence and the longer unfinished invitation.
 - **Six Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, and Lantern Gardens. Legacy Dominoes and Mahjong saves remain readable/exportable for compatibility.
 - **A tactile Block Cabinet and experimental Cascade surface:** built on explicit, separate save contracts rather than silently replacing the original game.

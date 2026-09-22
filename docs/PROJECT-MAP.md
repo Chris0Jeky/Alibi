@@ -61,13 +61,13 @@ flowchart TD
 | Crime scenes | 43 | Spatial placement followed by an accusation |
 | Alibi files | 29 | People/room/object deduction matrices |
 | Witness statements | 31 | Truth counts and culprit selection |
-| Picture logic | 31 | Nonogram paint, cross, clear |
+| Picture logic | 34 | Nonogram paint, cross, clear |
 | Lanterns | 26 | Illumination and numbered-wall constraints |
 | Tents & trees | 26 | Tree matching and edge counts |
 | Aquariums | 26 | Shared water levels within tanks |
 | Signal paths | 26 | Connected network rotations |
 | Number trails | 26 | Consecutive path through every square |
-| Sudoku | 26 | Row, column and box constraints |
+| Sudoku | 29 | Row, column and box constraints |
 | Sun & moon | 29 | Balanced binary lines without triples |
 | Futoshiki | 25 | Latin square and inequality constraints |
 
