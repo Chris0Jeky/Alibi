@@ -17,6 +17,36 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
+### Backup import recovery, 2026-09-22
+
+Both existing origins now serve build `ce60bde20b83` from merged source
+`6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` (PR #258). The merge followed
+six green current-base checks, independent review and the post-push aging
+floor. The release adds visible, reload-safe recovery for backup imports while
+preserving puzzle identities, revisions and existing save formats. The previous
+`df04399c4ee7` release remains the rollback candidate; no rollback occurred.
+
+Cloudflare deployed Worker version `f9526b2d-8a1b-4221-bed1-8bcc73655d3f`
+after uploading four changed files and retaining 287. All 291 public files
+return 200 and match local SHA-256 values. Sites version 20 is
+`appgprj_6a9f4fc7b5cc8191be66defcdccd366b~appgver_28d09dd681808191a1e83d44f45aa0e1`.
+Deployment `appgdep_6ab2eed4184c8191926045fd1042c98f` succeeded at
+21:10:59 UTC from source `6d6e3e6`, with archive digest
+`sha256:c22b8605bb0a98064b256a7d93b67de984b458eb5ff89b6afdabebbfcca8db47`.
+All 291 Sites files return 200. The 281 non-HTML files match local bytes;
+each of the ten HTML differences is solely one 938-character challenge
+script. The main meta CSP remains. Sites HTTP CSP and 51 WebP MIME limits
+remain #6.
+
+Both complete hosted origin suites pass 168 checks. Actual updates on both
+origins from `df04399c4ee7` wait for Save & update, preserve the exact saved
+puzzle and extra move, and reload offline with the state intact. At the merged
+source, `npm run verify` passes 426 Node tests and both Quiet Wing suites;
+`cloudflare:check`, 23 backup-import browser checks and 168 loopback origin
+checks pass. The ignored `test-results/` directory of the CAP03 worktree
+holds the hosted file, origin and update reports. Physical-device and owner
+gates remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ### Platform startup update, 2026-09-22
 
 Both existing origins now serve version 0.11.5, build `df04399c4ee7`, from
