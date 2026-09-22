@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { createWebPlatform } from '../src/platform/web.mjs';
+import { createBrowserFallbackPlatform, createWebPlatform } from '../src/platform/web.mjs';
 import { getPlatform, installPlatform, __resetPlatformForTests } from '../src/platform/index.mjs';
 
 const BUILD = Object.freeze({
   target: 'web',
   sourceSha: '1'.repeat(40),
+  sourceDirty: false,
   payloadSha256: '2'.repeat(64),
   appVersion: '0.11.4',
   contentManifestRevision: 'catalogue-1',
@@ -52,6 +53,7 @@ test('web is the explicit default; Android-looking UA and localhost never imply 
   const platform = web();
   assert.deepEqual(platform.capabilities(), {
     target: 'web',
+    nativeHost: false,
     nativeFeedback: false,
     userDocuments: false,
     recoveryVault: false,
@@ -70,23 +72,50 @@ test('web is the explicit default; Android-looking UA and localhost never imply 
 
 test('default web fallback rejects incomplete identity instead of fabricating valid-looking hashes', () => {
   __resetPlatformForTests();
-  const incomplete = hostFixture({
-    ALIBI_CONFIG: { version: '0.11.4', build: 'release-only', standalone: false },
-  });
-  assert.throws(() => getPlatform({ host: incomplete }), /sourceSha/i);
+  const incomplete = hostFixture({ ALIBI_CONFIG: { version: '0.11.4', standalone: false } });
+  assert.throws(() => getPlatform({ host: incomplete }), /valid platform build identity/i);
 
   __resetPlatformForTests();
   const complete = hostFixture({
-    ALIBI_CONFIG: {
-      version: BUILD.appVersion,
-      sourceSha: BUILD.sourceSha,
-      payloadSha256: BUILD.payloadSha256,
-      contentManifestRevision: BUILD.contentManifestRevision,
-      rulesCompatibility: BUILD.rulesCompatibility,
-    },
+    ALIBI_PLATFORM_BUILD: BUILD,
   });
   assert.deepEqual(getPlatform({ host: complete }).build, BUILD);
   __resetPlatformForTests();
+});
+
+test('browser fallback can describe an Android preview while reporting its actual browser APIs', async () => {
+  const androidBuild = Object.freeze({ ...BUILD, target: 'android', versionCode: 3 });
+  const host = hostFixture({
+    showOpenFilePicker() {},
+    showSaveFilePicker() {},
+  });
+  const platform = createBrowserFallbackPlatform({ host, build: androidBuild });
+  assert.equal(platform.build.target, 'android');
+  assert.deepEqual(platform.capabilities(), {
+    target: 'android',
+    nativeHost: false,
+    nativeFeedback: false,
+    userDocuments: true,
+    recoveryVault: false,
+    remoteTelemetry: false,
+  });
+  assert.equal(
+    (await platform.recovery.list('club', operation())).message,
+    'Recovery checkpoints are unavailable in this browser adapter.',
+  );
+  assert.throws(() => createWebPlatform({ host, build: androidBuild }), /web build identity/i);
+});
+
+test('build identity requires a dirty-source boolean and preserves its declared value', () => {
+  assert.throws(
+    () => createWebPlatform({ host: hostFixture(), build: { ...BUILD, sourceDirty: undefined } }),
+    /sourceDirty/i,
+  );
+  assert.equal(
+    createWebPlatform({ host: hostFixture(), build: { ...BUILD, sourceDirty: true } }).build
+      .sourceDirty,
+    true,
+  );
 });
 
 test('unsupported document and recovery operations return bounded failures instead of throwing', async () => {
