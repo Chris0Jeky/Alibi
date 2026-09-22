@@ -1,8 +1,29 @@
 # Live development state
 
-## CAP-03 source candidate, 2026-09-22
+## Published platform startup update, 2026-09-22
 
-The `codex/cap03-platform-startup-20260922` candidate installs the shared browser
+PR #255 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` after all seven
+current-base checks passed, including full CI run `35772430005`, independent
+review and the post-push aging floor. Both existing origins now serve the
+reviewed source `1819ae38d5b2d4fa0fd001370bc7bc3627158c93`, version 0.11.5,
+build `df04399c4ee7`. The source is an ancestor of the merge; publishing used
+its already-verified artifact without rebuilding from the merge commit.
+
+Cloudflare Worker version `64329d75-8b37-4159-8851-1b22579d97e3` uploaded five
+changed files and retained 286. Sites version 19, deployment
+`appgdep_6ab2d8b1eafc8191997d2d58a24c8ab2`, succeeded at 19:36:34 UTC.
+Both complete nine-scenario hosted origin suites pass 168 checks. Actual
+updates from `9760fe9fcf64` wait for Save & update, preserve two moves and the
+exact pinned puzzle, retain an observer tab without forced reload, and reload
+offline with the same state. Disposable profiles closed without cleanup errors.
+
+All 291 Cloudflare public files match local hashes. Sites returns all 291
+files successfully: 281 non-HTML files match, while ten HTML files retain their
+source with one 938-character platform challenge script inserted. The main
+meta CSP remains present; missing HTTP CSP and 51 WebP MIME limits remain #6.
+Receipts and rollback references are in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
+
+The merged `codex/cap03-platform-startup-20260922` work installs the shared browser
 platform before the app in the PWA, standalone preview and Android payload.
 Build identity records the real commit anchor and dirty-source status; Android
 preview capabilities explicitly report that no native host or vault exists.
@@ -15,7 +36,7 @@ tests now prove those steps finish for throwing, rejected and unresolved
 feedback. The app owns its lifecycle lease and disposes it on final page exit,
 while retaining it for a browser-cached page return. Actual document migration,
 activity/Club lifecycle consumers and native recovery remain follow-on work
-under #125 and the dependent CAP packages; this candidate does not close #125.
+under #125 and the dependent CAP packages; #125 remains open.
 
 At `c7b1b8b`, `npm run verify` passes formatting, web/Android builds, all 421
 Node tests (zero failures/skips), and both Quiet Wing checks (581,847 reducer
@@ -43,15 +64,17 @@ generator now shares the release bootstrap compiler, installs a complete
 web identity, and hashes its actual inline script/style payload separately
 from a release graph. The five focused build tests pass, including an
 emitted-source regression; the corrected source preview passes all 79 house
-and 250 mobile checks with no page errors. Updated-head hosted CI and
-deployment remain pending.
-Published origins remain on build `9760fe9fcf64` below. Human and physical
-acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+and 250 mobile checks with no page errors. At the clean `1819ae3` head,
+full local verification passes all 422 Node tests, both Quiet Wing suites,
+formatting and web/Android builds. Fresh UI (184), origin (168) and synthetic
+update (18) reports match `df04399c4ee7`; all nine package checksum entries
+match. Human and physical acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md)
+remains open.
 
-## Published 0.11.5 on both origins, 2026-09-22
+## Previous 0.11.5 publication on both origins, 2026-09-22
 
 Merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252), build
-`9760fe9fcf64`, is published on both existing origins. Cloudflare Worker
+`9760fe9fcf64`, was published on both existing origins. Cloudflare Worker
 `alibi-after-hours-preview` runs version `31412617-9de1-41f2-927b-371b45c09460`
 (six files uploaded, 283 retained). Sites runs version 18, deployment
 `appgdep_6ab2c17f3fd881918cbdd3a094d019fd`, succeeded at 17:57:52 UTC.
