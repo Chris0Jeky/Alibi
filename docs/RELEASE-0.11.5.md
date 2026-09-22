@@ -17,7 +17,53 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
-Both existing origins now serve version 0.11.5, build `9760fe9fcf64`, rebuilt
+### Platform startup update, 2026-09-22
+
+Both existing origins now serve version 0.11.5, build `df04399c4ee7`, from
+reviewed source `1819ae38d5b2d4fa0fd001370bc7bc3627158c93` (PR #255). The PR
+merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` at 19:32:45 UTC after
+all seven current-base checks passed, including full run `35772430005`,
+independent review and aging. Publication reuses the verified source artifact;
+the deployed source is an ancestor of the merge commit. Source identity now
+enters the build seed, so rebuilding a later documentation or merge commit
+would produce a different release identity even with identical game code.
+
+Optional feedback cannot interrupt a validated move before saving, completion
+or rendering. The PWA, standalone/source preview and Android payload install
+the shared browser facade before the application. Native host capabilities
+remain explicitly unavailable in a browser-only Android payload. Puzzle IDs,
+revisions, content and save schemas are unchanged; remaining consumers stay #125.
+
+Cloudflare Worker `64329d75-8b37-4159-8851-1b22579d97e3` uploaded five files,
+retained 286 and inspected 297. All 291 public files return 200 and match local
+SHA-256 values; the HTTP CSP remains present. Sites version 19 is
+`appgprj_6a9f4fc7b5cc8191be66defcdccd366b~appgver_1c44c25aca208191b09f4918c3c229dd`.
+Deployment `appgdep_6ab2d8b1eafc8191997d2d58a24c8ab2` succeeded at
+2026-09-22 19:36:34 UTC, with archive digest
+`sha256:3b947fa7d1ac7116f9f5574ec4fbde64e9343ee318e24c971a0ab2c57147f43a`.
+All 291 Sites files return 200; 281 non-HTML files match. Ten HTML files retain
+their source with one 938-character hosting challenge script inserted. The
+main meta CSP remains present. Missing Sites HTTP CSP and 51 WebP octet-stream
+responses remain #6. Normal Chromium fetches prove these comparisons; a
+separate urllib attempt was rejected with 403 and is retained as failed evidence.
+
+Both full hosted origin suites pass 168 checks across nine scenarios. Games
+opened on each previous `9760fe9fcf64` release stay active until Save & update,
+retain the exact two-move state and pinned definition, leave observer tabs
+loaded, and reload offline with the same state after the update. Both disposable
+profiles close cleanly. Local proof at the deployed source includes 422 Node
+tests, both Quiet Wing suites, UI 184, real-origin 168, synthetic update 18,
+source-preview house 79 and mobile 250 checks. Package checksums match.
+
+The prior `9760fe9fcf64` artifact and publication receipts below remain rollback
+candidates; no rollback was executed. Source and proof are preserved under the
+primary checkout's ignored `release/2026-09-22-integration/cap03/`, including
+`release/publication-df04399c4ee7.json` and `PRESERVED-FILES.json`. Physical
+Android/TalkBack and owner gates remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+### Previous cached-navigation update
+
+Both existing origins previously served version 0.11.5, build `9760fe9fcf64`, rebuilt
 from merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252).
 The catalogue remains 376 puzzles across 22 packs. Their saves remain separate.
 
@@ -26,7 +72,7 @@ The catalogue remains 376 puzzles across 22 packs. Their saves remain separate.
 `npm run cloudflare:check` passed before publication. The merged build then
 deployed with `npm run cloudflare:deploy` to the existing Worker
 `alibi-after-hours-preview`: six changed files uploaded, 283 retained,
-295 files inspected by Wrangler. Current Worker version:
+295 files inspected by Wrangler. Previous Worker version:
 `31412617-9de1-41f2-927b-371b45c09460`.
 
 The public origin is
@@ -40,7 +86,7 @@ with no uncaught page errors.
 ### Sites fallback, 2026-09-22
 
 Existing project `appgprj_6a9f4fc7b5cc8191be66defcdccd366b`, public origin
-`https://alibi-puzzle-club.jeky-tck.chatgpt.site/`, now serves version 18:
+`https://alibi-puzzle-club.jeky-tck.chatgpt.site/`, served version 18:
 `appgprj_6a9f4fc7b5cc8191be66defcdccd366b~appgver_723df60146888191b798da62ca367851`.
 Deployment `appgdep_6ab2c17f3fd881918cbdd3a094d019fd` succeeded at
 2026-09-22 17:57:52 UTC. The source was pushed before saving the version;
