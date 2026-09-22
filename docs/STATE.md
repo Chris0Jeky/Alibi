@@ -1,5 +1,12 @@
 # Live development state
 
+## Package origin-evidence candidate, 2026-09-22 (source only)
+
+The release packager now recognizes the ordered nine-scenario real-origin receipt used by
+`tests/browser_origin.py`, including `shared_paths` and `malformed_persisted`, while rejecting
+stale, incomplete, duplicate, focused, failed or wrong-build receipts. This is a source/tooling
+candidate; hosted and physical acceptance remain separate evidence.
+
 ## Published 0.11.5 on Cloudflare, 2026-09-22 (Sites fallback still 0.11.4)
 
 Merged source `5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3` (PR #241, release

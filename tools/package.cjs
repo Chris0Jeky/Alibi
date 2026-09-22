@@ -12,7 +12,9 @@ const ORIGIN_SCENARIOS = [
   'cross_tab',
   'keyboard',
   'offline',
+  'shared_paths',
   'malformed_draft',
+  'malformed_persisted',
   'newer_database',
 ];
 
