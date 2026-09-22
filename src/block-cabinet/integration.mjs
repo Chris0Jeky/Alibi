@@ -8,6 +8,7 @@ export function startIntegration() {
     panel = null,
     surface = null,
     busy = 0,
+    suppressRender = 0,
     simple = false,
     lab = null,
     labEpoch = 0;
@@ -18,40 +19,19 @@ export function startIntegration() {
   const effectiveReducedMotion = () =>
     !!club().diagnostics().state.settings.zen ||
     document.documentElement.dataset.reduced === 'true';
-  const parkHost = () => {
-    const parkedHost = host;
-    if (!parkedHost?.isConnected) return () => {};
-    const rect = parkedHost.getBoundingClientRect();
-    const cssText = parkedHost.style.cssText;
-    parkedHost.style.position = 'fixed';
-    parkedHost.style.left = rect.left + 'px';
-    parkedHost.style.top = rect.top + 'px';
-    parkedHost.style.width = rect.width + 'px';
-    parkedHost.style.height = rect.height + 'px';
-    parkedHost.style.zIndex = '2147483000';
-    parkedHost.style.overflow = 'hidden';
-    parkedHost.style.pointerEvents = 'none';
-    document.body.append(parkedHost);
-    return () => {
-      // Route disposal can clear the live host before the queued save settles.
-      parkedHost.style.cssText = cssText;
-    };
-  };
-  const reattachHost = () => {
-    const target = document.querySelector('.block-panel');
-    if (target && host && host.parentElement !== target) target.append(host);
-  };
   const action = async (name, data = {}) => {
-    const restoreParkedHost = parkHost();
     busy++;
     try {
-      await club().action({ dataset: { action: 'club-' + name, ...data } });
+      suppressRender++;
+      try {
+        await club().action({ dataset: { action: 'club-' + name, ...data } });
+      } finally {
+        suppressRender--;
+      }
       await club().flush();
     } finally {
       busy--;
-      restoreParkedHost();
-      if (busy) reattachHost();
-      else attach();
+      if (!busy) attach();
     }
   };
   function closeLab() {
@@ -110,6 +90,8 @@ export function startIntegration() {
     panel?.closest('.club-playlayout')?.classList.remove('bc-enhanced-layout');
     panel?.querySelectorAll('.bc-legacy').forEach((el) => el.classList.remove('bc-legacy'));
     installEnable();
+    club().refresh();
+    attach();
     if (restoreFocus) {
       const target =
         panel?.querySelector('.block-cell:not([disabled])') || panel?.querySelector('.bc-enable');
@@ -188,7 +170,7 @@ export function startIntegration() {
       host = document.createElement('div');
       host.className = 'bc-host';
     }
-    // Reattach the retained surface after the Club's whole-page render. Pointer moves never render the host app.
+    // Retain the surface across Club actions; unrelated route renders reattach it here.
     for (const child of [...target.children]) if (child !== host) child.classList.add('bc-legacy');
     target.closest('.club-playlayout').classList.add('bc-enhanced-layout');
     if (host.parentElement !== target) target.append(host);
@@ -221,6 +203,8 @@ export function startIntegration() {
   globalThis.AlibiBlockMotion = {
     ...globalThis.AlibiBlockMotion,
     running: true,
+    suppressClubRender: () =>
+      suppressRender > 0 && !!host?.isConnected && document.querySelector('.block-panel') === panel,
     diagnostics: () => ({
       active: !!surface,
       simple,

@@ -1,5 +1,23 @@
 # Live development state
 
+## Block Cabinet host continuity candidate, 2026-09-22
+
+The #160 browser probe reproduced four synchronous removals of the tactile
+host during one placement. The Club action path moved the host into `body`
+before each full app render and returned it afterward; animation-frame
+sampling missed those short detachments. The candidate keeps the Club's
+replay/save action but suppresses its redundant full app render while the
+enhanced surface owns the visible board. Switching to Simple controls
+refreshes the legacy view before exposing it.
+
+The strengthened browser suite passes 89 checks at 390px and 1280px: a
+mutation observer sees no host removals during reduced and ordinary motion,
+the host retains nonzero geometry, and the ordinary score effect draws on a
+connected canvas. Replay, undo/redo, Simple controls, Cascade and offline
+reload checks also pass. Phone and desktop screenshots were inspected.
+Physical Android comfort, touch and TalkBack acceptance remain open in
+[HUMAN_TODO.md](../HUMAN_TODO.md); this candidate does not close #160.
+
 ## Published backup import recovery, 2026-09-22
 
 PR #258 merged as `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` after six green

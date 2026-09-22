@@ -64,18 +64,36 @@ def watch_host(page):
       const watch = window.__bcHostContinuity = {
         host,
         detached: false,
+        removalDetails: [],
         zeroGeometry: false,
-        effectDraws: 0,
+        visibleEffectDraws: 0,
+        invisibleEffectDraws: 0,
         frames: 0,
         stopped: false,
       };
-      const fillText = CanvasRenderingContext2D.prototype.fillText;
-      watch.fillText = fillText;
-      CanvasRenderingContext2D.prototype.fillText = function(...args) {
-        if (typeof args[0] === 'string' && /^[+][0-9]+$/.test(args[0]) && this.canvas?.closest('.bc-host'))
-          watch.effectDraws += 1;
-        return fillText.apply(this, args);
-      };
+      const proto = CanvasRenderingContext2D.prototype;
+      watch.fillTextDescriptor = Object.getOwnPropertyDescriptor(proto, 'fillText');
+      Object.defineProperty(proto, 'fillText', {
+        ...watch.fillTextDescriptor,
+        value: function(...args) {
+          if (typeof args[0] === 'string' && /^[+][0-9]+$/.test(args[0])) {
+            const canvas = this.canvas, rect = canvas?.getBoundingClientRect();
+            if (canvas?.isConnected && canvas.closest('.bc-host') === watch.host &&
+                rect?.width > 0 && rect?.height > 0) watch.visibleEffectDraws += 1;
+            else watch.invisibleEffectDraws += 1;
+          }
+          return watch.fillTextDescriptor.value.apply(this, args);
+        },
+      });
+      watch.observer = new MutationObserver(records => {
+        for (const record of records)
+          for (const removed of record.removedNodes)
+            if (removed === watch.host || removed.contains?.(watch.host)) {
+              watch.detached = true;
+              watch.removalDetails.push(`${removed.nodeName}.${removed.className || ''}`);
+            }
+      });
+      watch.observer.observe(document.documentElement, {childList: true, subtree: true});
       const sample = () => {
         if (!watch || watch.stopped) return;
         const current = document.querySelector('.bc-host');
@@ -93,13 +111,24 @@ def stop_host_watch(page):
     return page.evaluate('''() => {
       const watch = window.__bcHostContinuity;
       watch.stopped = true;
-      CanvasRenderingContext2D.prototype.fillText = watch.fillText;
+      for (const record of watch.observer.takeRecords())
+        for (const removed of record.removedNodes)
+          if (removed === watch.host || removed.contains?.(watch.host)) {
+            watch.detached = true;
+            watch.removalDetails.push(`${removed.nodeName}.${removed.className || ''}`);
+          }
+      watch.observer.disconnect();
+      const proto = CanvasRenderingContext2D.prototype;
+      Object.defineProperty(proto, 'fillText', watch.fillTextDescriptor);
       const rect = watch.host?.getBoundingClientRect();
       return {
         detached: watch.detached,
+        removalDetails: watch.removalDetails,
         zeroGeometry: watch.zeroGeometry,
         same: watch.host === document.querySelector('.bc-host'),
-        effectDraws: watch.effectDraws,
+        visibleEffectDraws: watch.visibleEffectDraws,
+        invisibleEffectDraws: watch.invisibleEffectDraws,
+        fillTextRestored: Object.getOwnPropertyDescriptor(proto, 'fillText').value === watch.fillTextDescriptor.value,
         frames: watch.frames,
         finalConnected: !!watch.host?.isConnected,
         finalWidth: rect?.width || 0,
@@ -159,13 +188,16 @@ with sync_playwright() as p:
         check(page.evaluate('AlibiBlockMotion.diagnostics().reducedMotion'), f'{width}: local reduced-motion toggle enables the floor')
         before = current(page)
         watch_host(page)
-        move(page)
-        continuity = stop_host_watch(page)
+        try:
+            move(page)
+        finally:
+            continuity = stop_host_watch(page)
         check(
             not continuity['detached']
             and not continuity['zeroGeometry']
-            and continuity['same'],
-            f'{width}: reduced-motion tactile host stays mounted with geometry during commit',
+            and continuity['same']
+            and continuity['fillTextRestored'],
+            f'{width}: reduced-motion tactile host stays mounted with geometry during commit: {continuity}',
         )
         after = current(page)
         check(len(after['log']) == len(before['log']) + 1, f'{width}: keyboard commits legacy replay')
@@ -189,18 +221,22 @@ with sync_playwright() as p:
         check(page.locator('.bc-host [data-command="undo"]:focus').count() == 1, f'{width}: redo restores focus to the available command')
         ordinary_before = current(page)
         watch_host(page)
-        move(page)
-        ordinary = stop_host_watch(page)
+        try:
+            move(page)
+        finally:
+            ordinary = stop_host_watch(page)
         check(
             not ordinary['detached']
             and not ordinary['zeroGeometry']
             and ordinary['same']
             and ordinary['finalConnected']
             and ordinary['finalWidth'] > 0
-            and ordinary['finalHeight'] > 0,
-            f'{width}: ordinary-motion placement keeps one tactile host with nonzero geometry',
+            and ordinary['finalHeight'] > 0
+            and ordinary['invisibleEffectDraws'] == 0
+            and ordinary['fillTextRestored'],
+            f'{width}: ordinary-motion placement keeps one tactile host with nonzero geometry: {ordinary}',
         )
-        check(ordinary['effectDraws'] > 0, f'{width}: ordinary-motion placement draws its score effect')
+        check(ordinary['visibleEffectDraws'] > 0, f'{width}: ordinary-motion placement draws its visible score effect')
         check(ordinary['frames'] > 0, f'{width}: ordinary-motion probe samples host geometry across animation frames')
         check(len(current(page)['log']) == len(ordinary_before['log']) + 1, f'{width}: ordinary-motion keyboard placement commits once')
         page.locator('.bc-host [data-command="undo"]').focus()
