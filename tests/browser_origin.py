@@ -748,7 +748,9 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
     def expected_assets(page: Page) -> dict[str, list[str]]:
         return page.evaluate(
             """() => {
-              const scripts = [...document.querySelectorAll('script[src]')]
+              // The emitted shell scripts defer startup. Optional scripts injected
+              // after load (such as usage sharing) are not boot dependencies.
+              const scripts = [...document.querySelectorAll('script[src][defer]')]
                 .map((node) => new URL(node.src, location.href).href)
                 .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname));
               const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
@@ -774,11 +776,11 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
         check(bool(scripts), f"{label}: hashed board script loads with {status_label}")
         check(bool(styles), f"{label}: hashed stylesheet loads with {status_label}")
         check(
-            all(any(status in allowed_statuses for status in observed[url.split("?", 1)[0]]) for url in expected["scripts"]),
+            all(any(status in allowed_statuses for status in observed.get(url.split("?", 1)[0], [])) for url in expected["scripts"]),
             f"{label}: expected hashed board scripts revalidate successfully",
         )
         check(
-            all(any(status in allowed_statuses for status in observed[url.split("?", 1)[0]]) for url in expected["styles"]),
+            all(any(status in allowed_statuses for status in observed.get(url.split("?", 1)[0], [])) for url in expected["styles"]),
             f"{label}: expected hashed stylesheet revalidates successfully",
         )
 
@@ -812,6 +814,10 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
     for profile_name, path, expected_hash, label in cold_aliases:
         context = launch_profile(pw, root / f"shared-paths-cold-{profile_name}")
         try:
+            if profile_name == "privacy-directory":
+                # Startup must remain provable even when the optional, post-load
+                # usage-sharing asset has no successful response to record.
+                context.route("**/assets/observatory.*.js", lambda request: request.abort())
             page = new_page(context, f"shared-paths-{profile_name}")
             responses: list[tuple[str, int]] = []
             page.on("response", lambda response: responses.append((response.url, response.status)))
