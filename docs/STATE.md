@@ -1,13 +1,6 @@
 # Live development state
 
-## Package origin-evidence candidate, 2026-09-22 (source only)
-
-The release packager now recognizes the ordered nine-scenario real-origin receipt used by
-`tests/browser_origin.py`, including `shared_paths` and `malformed_persisted`, while rejecting
-stale, incomplete, duplicate, focused, failed or wrong-build receipts. This is a source/tooling
-candidate; hosted and physical acceptance remain separate evidence.
-
-## Published 0.11.5 on Cloudflare, 2026-09-22 (Sites fallback still 0.11.4)
+## Published 0.11.5 on both origins, 2026-09-22
 
 Merged source `5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3` (PR #241, release
 head `a66c52b9e36c`), build `f0baec5e3291`, is published on the primary
@@ -17,16 +10,28 @@ The recorded hosted checks for `/`, `/privacy.html`, `/manifest.webmanifest`
 and the content-hashed shell assets pass; the full receipt is
 [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
 
-The Sites fallback still serves 0.11.4 (version 16); deployment is pending.
-The two origins serve different releases and saves remain per-origin. Source
-and release records include PRs #237, #240, #241, #243, #245, #246, #247 and
-#248. The #244 fix has local 25/25 real-origin evidence and full CI; hosted
-acceptance still needs a deployment carrying it. No newer hosted release is
-claimed here.
+The Sites fallback now serves maintenance build `b08bc7a1e5ea` from merged
+source `d091d19ca942c1e8cec614038666ead9cfc73949`, version 17, deployment
+`appgdep_6ab2b2b8ed408191a09d6b65ad205bf9` (succeeded at 16:54:38 UTC).
+It includes the shared-address query and offline-alias fix for #244.
+All 279 non-HTML public files match the local build byte-for-byte. The ten
+HTML files retain their source content with one hosting-layer Cloudflare
+challenge script added; the main page's meta CSP remains present. The fallback's
+HTTP CSP-header limitation remains separate from these file checks (#6).
+
+Both origins report 0.11.5, but their build hashes differ and saves remain
+per-origin. The primary still serves `f0baec5e3291`: its maintenance deployment
+requires renewal of the expired Cloudflare login. Full hosted acceptance of
+the new fallback build and an actual old-to-new hosted update are pending;
+the first hosted run exposed a cold-profile test defect under HTTP 304 cache
+revalidation. With that corrected, all cold and warm shared-link cases pass,
+but controlled `/login/` navigation fails with `net::ERR_FAILED` on Sites.
+The same focused scenario passes 54 checks locally. This hosted worker
+failure remains under investigation in #244; hosted acceptance is not green.
 
 ## Current source checkpoint, 2026-09-22
 
-The current source base is `origin/main` at `d091d19`. It includes the merged
+The current source base is `origin/main` at `d729d70`. It includes the merged
 unknown-route recovery (#233), Android-aware startup recovery (#236), the
 0.11.5 release and its follow-up routing and deployment records through #248.
 Published puzzle IDs, revisions, save schemas and the app's offline ownership
@@ -34,10 +39,14 @@ remain unchanged.
 
 PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
 provider-phase regression and PR #243's coherent Bridges zoom sampler after
-all three required CI workflows passed at `d3cc268`. PR #239 is this live-state
-refresh. PR #251 corrects the packager's stale seven-scenario browser evidence
-contract; its independent regression and actual nine-scenario report check
-pass, while current-base CI and integration are pending. Deployment is pending.
+all three required CI workflows passed at `d3cc268`. PR #239 merged the
+live-state refresh as `d729d70a67a1c08898c1954d0a7aedb7c945ca7b` after CI
+run `35756590457` passed. PR #251 corrects the packager's stale seven-scenario
+browser evidence contract and the hosted suite's reused cold profile. Its
+current-base CI and integration are pending. The packager accepts the ordered
+nine-scenario report, including `shared_paths` and `malformed_persisted`,
+while rejecting stale, incomplete, duplicate, focused, failed or wrong-build
+reports. Packaging never establishes hosted or physical acceptance.
 
 ### Verification boundary
 
