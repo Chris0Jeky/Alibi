@@ -11,6 +11,7 @@ const ROOT = path.resolve(__dirname, '..');
 const ASSETS = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets');
 const PUBLIC = path.join(ASSETS, 'public');
 const FLAVOR = 'capacitor-preview';
+const CAPACITOR_PUBLIC_EXTRAS = new Set(['cordova.js', 'cordova_plugins.js']);
 
 function files(directory) {
   if (!fs.existsSync(directory)) return [];
@@ -32,8 +33,13 @@ function checkPublicPayload({ source = path.join(ROOT, 'dist-android'), target =
   const targetFiles = files(target)
     .map((filename) => relative(target, filename))
     .sort();
-  if (sourceFiles.join('\n') !== targetFiles.join('\n')) {
+  const copiedFiles = targetFiles.filter((name) => !CAPACITOR_PUBLIC_EXTRAS.has(name));
+  if (sourceFiles.join('\n') !== copiedFiles.join('\n')) {
     errors.push('Capacitor public payload file set differs from the checked Android payload.');
+  }
+  for (const name of CAPACITOR_PUBLIC_EXTRAS) {
+    if (!targetFiles.includes(name))
+      errors.push(`Expected generated Capacitor file is missing: ${name}.`);
   }
   for (const name of sourceFiles) {
     const sourceBytes = fs.readFileSync(path.join(source, ...name.split('/')));
