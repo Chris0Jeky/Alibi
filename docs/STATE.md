@@ -6,15 +6,16 @@ The source layer now has explicit browser and Capacitor Android preview flavors.
 remains the default and reports `nativeHost:false`; the host flavor requires the official bridge,
 Android/native status and the exact `https://localhost` origin before installing its immutable
 platform facade. Native document, feedback, recovery and telemetry capabilities remain disabled.
-Android backup metadata excludes root, device-root and external domains for both legacy and Android
-12 extraction formats. The preview identity is `example.unapproved.alibi.preview`, uses package
+Android backup metadata excludes all nine documented data domains for both legacy and Android
+12 extraction formats, including cloud backup and device transfer. The preview identity is
+`example.unapproved.alibi.preview`, uses package
 version naming and local debug signing, ignores generated assets and keys, and disables production
 release variants.
 
 The source checks cover missing/wrong bridge, target/origin/build identity, immutable facade and
 capability honesty, plus browser/native flavor substitution and receipt rejection. `native:sync`
 adds the official Capacitor sync and byte-exact copied-public closure. The synced tree passes full
-local verification (431 Node tests and both Quiet Wing suites). With Android SDK 36, JDK 22 and
+local verification (432 Node tests and both Quiet Wing suites). With Android SDK 36, JDK 22 and
 Gradle 8.14.3, both debug and release-like `capacitorPreview` APKs compile. The release-like APK
 is zipaligned and verified with local debug signing; its 730 archive entries contain 292 bundled
 web assets, no `sw.js` and no native `.so` libraries. Thus this artifact has no packaged native
