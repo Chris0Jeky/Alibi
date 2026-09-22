@@ -123,7 +123,10 @@ function build() {
   const source = sourceIdentity(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
-  const platformSource = browserBundle(ROOT);
+  const platformSource = browserBundle(
+    ROOT,
+    process.env.ALIBI_PLATFORM_ENTRY || 'src/platform/browser-entry.mjs',
+  );
   const platformURL = `./assets/alibi-platform.${hash(platformSource)}.js`;
   write(path.join(DIST, platformURL), platformSource);
   const castleValidation = require('esbuild').buildSync({

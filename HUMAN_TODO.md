@@ -64,8 +64,9 @@ any distracting voices, repetition or harshness. This acceptance remains open un
 ## Capacitor transition: owner gates, not a request to stop planning
 
 The [Capacitor architecture package](docs/capacitor/README.md) and [program #120](https://github.com/Chris0Jeky/Alibi/issues/120)
-plan a shared PWA plus bundled Android edition. No native application, store release or new account
-is claimed by this planning PR. Build-target/port work and a visibly non-publishable preview can
+plan a shared PWA plus bundled Android edition. The architecture PR supplied no native application;
+CAP04 now has a non-publishable Android preview APK. No store release or new account is claimed.
+Build-target/port work and a visibly non-publishable preview can
 proceed without more animation choices, a new domain or store credentials.
 
 Before production registration, extend q-3 with the approved legal publisher, applicationId, Play
@@ -88,4 +89,5 @@ in [plan.json](docs/capacitor/plan.json).
 
 - Test actual Android touch drag, cancellation by OS gestures, TalkBack, large text, audio comfort and lifecycle resume.
 - Calibrate Cascade seeds and relic/rotation rules before promotion out of the lab. Export Cascade separately from the existing combined backup.
-- No native APK, Play publication or phone performance result is claimed. See docs/BLOCK-CABINET-ENGINE.md.
+- No physical Android result for the tactile surface, Play publication or phone performance is
+  claimed. The CAP04 emulator APK sampled Sudoku only. See docs/BLOCK-CABINET-ENGINE.md.

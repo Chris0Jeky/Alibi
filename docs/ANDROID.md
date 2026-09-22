@@ -8,9 +8,10 @@ save/recovery and migration, assets, native UX, security, CI/CD, acceptance and 
 implementation roadmap. [Issue #120](https://github.com/Chris0Jeky/Alibi/issues/120) remains the program
 umbrella; CAP-01–CAP-14 are issues #123–#136.
 
-This is a planning deliverable, not a native release. No Android project, APK/AAB, signing key,
-account setup or Play submission is supplied by the architecture PR. The existing browser app and
-its published save identities remain unchanged.
+The architecture PR was a planning deliverable. CAP04 now adds a non-publishable Android preview
+project; debug and release-like APKs compile and launch in an offline emulator. Production identity,
+signing custody, account setup, Play submission and physical-device acceptance are not supplied.
+The existing browser app and its published save identities remain unchanged.
 
 The proposed host uses bundled local assets and narrow native adapters. It does not load the live
 website as a privileged main document, register the PWA service worker in Android, or introduce an

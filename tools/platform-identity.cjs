@@ -9,9 +9,9 @@ const IDENTITY_ASSET = /^assets\/alibi-platform-identity\.[0-9a-f]{12}\.js$/;
 const IDENTITY_PREFIX = 'globalThis.ALIBI_PLATFORM_BUILD=';
 const sha256 = (value) => crypto.createHash('sha256').update(value).digest('hex');
 
-function browserBundle(root) {
+function browserBundle(root, entry = 'src/platform/browser-entry.mjs') {
   return require('esbuild').buildSync({
-    entryPoints: [path.join(root, 'src/platform/browser-entry.mjs')],
+    entryPoints: [path.join(root, entry)],
     bundle: true,
     minify: true,
     format: 'iife',
