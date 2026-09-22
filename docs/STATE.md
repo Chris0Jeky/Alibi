@@ -1,5 +1,27 @@
 # Live development state
 
+## Published backup import recovery, 2026-09-22
+
+PR #258 merged as `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` after six green
+current-base checks, independent review and the post-push aging floor. Both
+existing origins now serve version 0.11.5, build `ce60bde20b83`, built from
+that merged source. The Cloudflare Worker version is
+`f9526b2d-8a1b-4221-bed1-8bcc73655d3f`; Sites version 20 deployed as
+`appgdep_6ab2eed4184c8191926045fd1042c98f` at 21:10:59 UTC. This
+update preserves the separate saves at each origin.
+
+The merged source passes `npm run verify` (426 Node tests and both Quiet Wing
+suites), `cloudflare:check`, 23 backup-import browser checks and 168 real-origin
+checks. Each hosted origin passes the full 168-check origin suite. All 291
+Cloudflare files match local bytes. Sites returns all 291; 281 non-HTML files
+match, and each of ten HTML files differs only by one 938-character platform
+challenge script. The main page's meta CSP remains; the existing Sites HTTP
+CSP and WebP MIME limitations remain #6. Actual updates on both origins from
+`df04399c4ee7` to `ce60bde20b83` preserve the exact saved puzzle and move
+after Save & update and offline reload. Receipts and rollback references are in
+[RELEASE-0.11.5.md](RELEASE-0.11.5.md). Physical Android and human acceptance
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## Published platform startup update, 2026-09-22
 
 PR #255 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` after all seven
