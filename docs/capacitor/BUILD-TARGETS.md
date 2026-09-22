@@ -42,6 +42,12 @@ assets; it excludes HTML, the service worker and hosting/receipt metadata to avo
 Standalone reports the web graph represented by its embedded preview, not a hash of the HTML file.
 Android recomputes this graph after its target patches and replaces the web identity completely.
 
+The separate `preview-house.cjs` source fixture also installs the browser facade. It keeps its
+explicit `source-preview` build/version and visible SOURCE PREVIEW banner. Without a release
+asset graph, its payload hash covers `script`, NUL, the actual inline script (identity excluded),
+NUL, `style`, NUL, the inline stylesheet, NUL. It reports its actual source commit/dirty status
+and catalogue hash. This fixture is not a release artifact or origin/service-worker evidence.
+
 Web remains the default when the marker is absent. During derivation, the generated application
 bundle keeps its `standalone: false` hosted/PWA configuration so Android does not become the
 standalone single-file preview. The optional Observatory URL is cleared through one exact-match,

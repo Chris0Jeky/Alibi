@@ -4,7 +4,13 @@ const fs = require('node:fs'),
   path = require('node:path'),
   crypto = require('node:crypto'),
   zlib = require('node:zlib');
-const { sourceIdentity, payloadDigest, writeIdentity, sha256 } = require('./platform-identity.cjs');
+const {
+  browserBundle,
+  sourceIdentity,
+  payloadDigest,
+  writeIdentity,
+  sha256,
+} = require('./platform-identity.cjs');
 const ROOT = path.resolve(__dirname, '..'),
   SRC = path.join(ROOT, 'src'),
   DIST = path.join(ROOT, 'dist'),
@@ -117,14 +123,7 @@ function build() {
   const source = sourceIdentity(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
-  const platformSource = require('esbuild').buildSync({
-    entryPoints: [path.join(SRC, 'platform/browser-entry.mjs')],
-    bundle: true,
-    minify: true,
-    format: 'iife',
-    target: 'es2022',
-    write: false,
-  }).outputFiles[0].text;
+  const platformSource = browserBundle(ROOT);
   const platformURL = `./assets/alibi-platform.${hash(platformSource)}.js`;
   write(path.join(DIST, platformURL), platformSource);
   const castleValidation = require('esbuild').buildSync({

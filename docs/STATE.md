@@ -31,9 +31,19 @@ deliberately throws. Android preview passes 19 checks with no native bridge,
 service worker or remote request. At `6bfbac7`, the complete nine-scenario
 real-origin suite passes 168 checks and the synthetic two-release update
 suite passes 18. Phone/desktop viewport screenshots were visually inspected;
-these are simulated browser results, not physical-device acceptance. Later
-changes only correct receipts and the timeout fixture. Independent review
-of the runtime and its follow-up diff found no blockers. Hosted CI and
+these are simulated browser results, not physical-device acceptance.
+At `6a5fa5b`, the complete bundle passes all 421 Node tests, with fresh UI
+(184), real-origin (168) and synthetic update (18) checks matching build
+`4284a6e96e86`. Independent review of the runtime and its follow-up diff
+found no blockers.
+
+Hosted CI then exposed a separate entry point: the explicit Wrenmere source
+preview assembled the app without its required platform facade. That
+generator now shares the release bootstrap compiler, installs a complete
+web identity, and hashes its actual inline script/style payload separately
+from a release graph. The five focused build tests pass, including an
+emitted-source regression; the corrected source preview passes all 79 house
+and 250 mobile checks with no page errors. Updated-head hosted CI and
 deployment remain pending.
 Published origins remain on build `9760fe9fcf64` below. Human and physical
 acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.

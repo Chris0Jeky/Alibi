@@ -9,6 +9,7 @@ const { execFileSync } = require('node:child_process');
 const {
   payloadDigest,
   readIdentity,
+  sha256,
   sourceIdentity,
   writeIdentity,
 } = require('../tools/platform-identity.cjs');
@@ -63,6 +64,42 @@ test('startup delivery accounting includes every required emitted script', () =>
   );
   assert.equal(info.platformGzipBytes, gzip(scripts[1]) + gzip(scripts[2]));
   assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform startup stays below 6 KiB gzip');
+});
+
+test('house source preview installs the facade and fingerprints its emitted inline payload', () => {
+  const parent = path.join(ROOT, 'test-results', 'platform-build');
+  fs.mkdirSync(parent, { recursive: true });
+  const filename = path.join(parent, 'house-source.html');
+  require('../tools/preview-house.cjs').preview(filename);
+  const html = fs.readFileSync(filename, 'utf8');
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  const css = html.match(/<style>([\s\S]*?)<\/style>/)[1];
+  const firstLine = script.indexOf('\n');
+  const context = vm.createContext({
+    TextEncoder,
+    AbortSignal,
+    AbortController,
+    setTimeout,
+    clearTimeout,
+  });
+  // Execute the real globals and platform bundle before the first application code.
+  const applicationStart = script.indexOf('\nif (!location.hash)');
+  assert.ok(applicationStart > firstLine);
+  vm.runInContext(script.slice(0, applicationStart), context);
+  const identity = context.AlibiPlatform.build;
+  assert.equal(identity.target, 'web');
+  assert.equal(context.ALIBI_BUILD_TARGET, 'standalone');
+  assert.equal(identity.sourceSha, sourceIdentity(ROOT).sourceSha);
+  assert.equal(identity.sourceDirty, sourceIdentity(ROOT).sourceDirty);
+  assert.equal(identity.appVersion, context.ALIBI_CONFIG.version);
+  assert.equal(identity.contentManifestRevision, sha256(JSON.stringify(context.ALIBI_CATALOG)));
+  assert.equal(
+    identity.payloadSha256,
+    sha256('script\0' + script.slice(firstLine + 1) + '\0style\0' + css + '\0'),
+  );
+  assert.equal(context.AlibiPlatform.capabilities().nativeHost, false);
+  assert.equal(Object.getOwnPropertyDescriptor(context, 'AlibiPlatform').writable, false);
+  assert.match(html, /SOURCE PREVIEW/);
 });
 
 test('runtime graph excludes self-reference but includes optional code and installed icons', () => {
