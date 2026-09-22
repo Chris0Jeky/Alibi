@@ -1,5 +1,24 @@
 # Live development state
 
+## CAP04 source-only Android preview, 2026-09-22
+
+The source layer now has explicit browser and Capacitor Android preview flavors. The browser flavor
+remains the default and reports `nativeHost:false`; the host flavor requires the official bridge,
+Android/native status and the exact `https://localhost` origin before installing its immutable
+platform facade. Native document, feedback, recovery and telemetry capabilities remain disabled.
+Android backup metadata excludes root, device-root and external domains for both legacy and Android
+12 extraction formats. The preview identity is `example.unapproved.alibi.preview`, uses package
+version naming and local debug signing, ignores generated assets and keys, and disables production
+release variants.
+
+The source checks cover missing/wrong bridge, target/origin/build identity, immutable facade and
+capability honesty, plus browser/native flavor substitution and receipt rejection. `native:sync`
+adds the official Capacitor sync and byte-exact copied-public closure, but SDK provisioning, Gradle
+dependency verification, APK compilation, emulator/physical launch, 16 KiB native library review,
+accessibility, backup transfer and release approval remain open under CAP04/#126 and CAP05/#125.
+The pinned npm moderate chain (`@capacitor/cli -> xcode -> uuid@7.0.3`, explicit-buffer UUID
+advisory) is a toolchain-only finding with no Android runtime call path; it was not overridden.
+
 ## Published platform startup update, 2026-09-22
 
 PR #255 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` after all seven

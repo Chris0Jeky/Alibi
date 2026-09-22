@@ -41,6 +41,7 @@ test('Android replaces the web runtime identity with explicit browser-preview ca
   const receipt = readJson(path.join(ANDROID_DIST, 'android-build-identity.json'));
   assert.equal(web.identity.target, 'web');
   assert.equal(android.identity.target, 'android');
+  assert.equal(android.identity.flavor, 'browser-preview');
   assert.equal(android.identity.sourceDirty, false);
   assert.equal(android.identity.payloadSha256, payloadDigest(ANDROID_DIST));
   assert.notEqual(android.identity.payloadSha256, web.identity.payloadSha256);
@@ -50,6 +51,34 @@ test('Android replaces the web runtime identity with explicit browser-preview ca
   assert.match(receipt.rulesSourceDigest, /^[0-9a-f]{64}$/);
   assert.equal(receipt.payloadSha256, android.identity.payloadSha256);
   assert.notEqual(receipt.payloadSha256, receipt.artifactSha256);
+});
+
+test('native flavor substitutes the explicit Capacitor entry and rejects a browser flavor check', () => {
+  const target = temporaryDirectory('alibi-android-native-');
+  try {
+    const identity = deriveAndroidPayload({ target, flavor: 'capacitor-preview' });
+    assert.equal(identity.flavor, 'capacitor-preview');
+    assert.deepEqual(
+      inspectAndroidArtifact({ directory: target, expectedFlavor: 'capacitor-preview' }).errors,
+      [],
+    );
+    const platform = fs
+      .readdirSync(path.join(target, 'assets'))
+      .find((name) => /^alibi-platform\.[0-9a-f]{12}\.js$/.test(name));
+    assert.ok(platform);
+    assert.match(
+      fs.readFileSync(path.join(target, 'assets', platform), 'utf8'),
+      /Capacitor bridge/,
+    );
+    assert.match(
+      inspectAndroidArtifact({ directory: target, expectedFlavor: 'browser-preview' }).errors.join(
+        '\n',
+      ),
+      /flavor must be browser-preview/i,
+    );
+  } finally {
+    fs.rmSync(target, { recursive: true, force: true });
+  }
 });
 
 test('runtime identity tampering and metadata tampering remain independently detectable', () => {

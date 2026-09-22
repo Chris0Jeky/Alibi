@@ -55,3 +55,28 @@ The Block Cabinet work in #115/#117 is merged into the reconciled base. Cascade 
 Architectural work and a clearly labelled non-publishable native preview can proceed without a domain purchase or Play account. Before production identity/signing, the owner must settle publisher/application ID, custody and account verification. Before launch, physical device acceptance, genuine tester participation, current Console requirements and an explicit release approval must be recorded. No agent should invent those outcomes.
 
 See [HUMAN_TODO.md](../../HUMAN_TODO.md) and [the Android entry point](../ANDROID.md). Current hosted release status remains in [the main state log](../STATE.md); this proposal is not a deployment receipt.
+
+## CAP04 source preview runbook
+
+The repository now contains a visibly non-publishable Android preview scaffold. The default
+`npm run build:android` creates the `browser-preview` payload and keeps the browser adapter's
+`nativeHost:false` capability honest. `npm run build:android:host` selects the explicit
+`capacitor-preview` payload; it substitutes the native entry only after a fresh shared web build,
+and `npm run check:android:host` rejects a browser-flavor receipt. `npm run native:sync` performs
+the host build and check, runs the official Capacitor Android sync, and compares the copied
+`android/app/src/main/assets/public` tree byte-for-byte with `dist-android` while requiring the
+generated Capacitor config/plugin extras.
+
+The native adapter requires the explicit Android marker, the complete Android build identity, the
+official bridge reporting Android/native, and the exact `https://localhost` origin. It exposes only
+`nativeHost`; document providers, native feedback, recovery vault and telemetry remain unavailable,
+with browser-safe fallback operations preserved. No App, back, inset or haptics plugin is claimed.
+The scaffold excludes all backup domains, uses the unapproved preview application ID and local
+debug signing, ignores keys and generated assets, and disables the production `release` variant.
+
+This is source and artifact-contract evidence only. No APK, Gradle compile, emulator, physical
+device, accessibility, backup-transfer, signing or publication result is claimed here. The pinned
+npm audit warning is toolchain-only: `@capacitor/cli -> xcode -> uuid@7.0.3` reaches `uuid.v4()`
+without an explicit buffer in the installed xcode path; it does not affect the Android add/sync/
+build path or the shipped browser/native runtime API. It remains recorded for later dependency
+maintenance rather than being silently overridden.

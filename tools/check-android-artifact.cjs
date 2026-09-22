@@ -16,6 +16,7 @@ const {
   sourceSha,
   sourceDigest,
   treeDigest,
+  ANDROID_FLAVORS,
 } = require('./build-android.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -105,7 +106,11 @@ function currentContentManifestRevision(root, errors) {
   return sha256(fs.readFileSync(candidates[0]));
 }
 
-function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) {
+function inspectAndroidArtifact({
+  root = ROOT,
+  directory = ANDROID_DIST,
+  expectedFlavor = process.env.ALIBI_ANDROID_FLAVOR || null,
+} = {}) {
   const errors = [];
   const need = (condition, message) => {
     if (!condition) errors.push(message);
@@ -121,6 +126,9 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
   need(Array.isArray(manifest.files), 'Android asset manifest needs a files array.');
   need(identity.schemaVersion === 2, 'Unsupported Android build-identity schema.');
   need(identity.target === 'android', 'Android build identity has the wrong target.');
+  need(ANDROID_FLAVORS.has(identity.flavor), 'Android build identity has an unsupported flavor.');
+  if (expectedFlavor)
+    need(identity.flavor === expectedFlavor, `Android artifact flavor must be ${expectedFlavor}.`);
   need(/^[0-9a-f]{40}$/.test(identity.sourceSha || ''), 'Build identity needs a full source SHA.');
   need(identity.sourceDirty === false, 'Android source identity must be clean.');
   for (const [field, value] of [
@@ -227,6 +235,7 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
     runtimeIdentity = readIdentity(directory);
     const expected = {
       target: 'android',
+      flavor: identity.flavor,
       sourceSha: expectedSourceSha,
       sourceDirty: false,
       payloadSha256: identity.payloadSha256,
@@ -343,7 +352,10 @@ function inspectAndroidArtifact({ root = ROOT, directory = ANDROID_DIST } = {}) 
 }
 
 if (require.main === module) {
-  const result = inspectAndroidArtifact();
+  const flag = process.argv.find((value) => value.startsWith('--flavor='));
+  const result = inspectAndroidArtifact({
+    expectedFlavor: flag ? flag.slice('--flavor='.length) : undefined,
+  });
   console.log(JSON.stringify(result, null, 2));
   process.exitCode = result.errors.length ? 1 : 0;
 }
