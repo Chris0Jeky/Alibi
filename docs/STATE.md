@@ -1,5 +1,13 @@
 # Live development state
 
+## 0.11.5 release candidate, 2026-09-22 (not deployed)
+
+Release prep is cut from main on a release branch: version 0.11.5 with the
+phone-first play, dialog/a11y, unknown-route recovery and castle comparison
+changes since 0.11.4. No puzzle IDs, revisions, saves or catalogue counts
+change. Publication evidence lands in docs/RELEASE-0.11.5.md as each step
+completes.
+
 ## Merged main 557ef27, open candidates, 2026-09-22 (not deployed)
 
 Main merged PR #233 as `7d0fbf7` (unknown-hash recovery surface, null-prototype

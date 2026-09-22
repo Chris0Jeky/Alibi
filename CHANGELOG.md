@@ -6,6 +6,18 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.5 · Phone-first play and forgiving routes
+
+2026-09-22
+
+- Play board-first on phones: the puzzle board is visible without scrolling, key controls meet 44px touch guidance, and Bridges zoom enlarges the board and its targets.
+- Keep keyboard focus inside the how-to dialog while it is open; leaving the route dismisses it and Escape returns focus sensibly.
+- Hear cleaner names with screen readers: navigation counts stand apart from labels and library cards hide decorative preview digits.
+- Land on a designed recovery page, not the desk, when an address is not an Alibi room; saved progress is unchanged.
+- Compare collected castle records side by side from the evidence board.
+
+[Deployment receipt](docs/RELEASE-0.11.5.md)
+
 ## 0.11.4 · A deeper Expert collection
 
 2026-09-17
