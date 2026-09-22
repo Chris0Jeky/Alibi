@@ -17,10 +17,7 @@ test('each comparison choice names its collected record', () => {
 
 test('selection guidance is visible and described by choices and the compare action', () => {
   const html = evidenceBoard(records);
-  assert.match(
-    html,
-    /<p\b[^>]*id="compare-guidance"[^>]*>Select 2 or 3 collected records, then choose Compare\.<\/p>/,
-  );
+  assert.match(html, /<h2 id="compare-guidance">Choose 2 or 3 records<\/h2>/);
   for (const [input] of choices(html)) {
     assert.match(input, /aria-describedby="compare-guidance"/);
   }
