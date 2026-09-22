@@ -2,4 +2,9 @@ include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')
 
+// Capacitor regenerates its Cordova subproject during sync. Keep every lock in tracked source.
+gradle.beforeProject { project ->
+    project.apply from: file('gradle/dependency-locking.gradle')
+}
+
 apply from: 'capacitor.settings.gradle'
