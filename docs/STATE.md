@@ -1,6 +1,26 @@
 # Live development state
 
-## 0.11.5 release candidate, 2026-09-22 (not deployed)
+## Published 0.11.5 on Cloudflare, 2026-09-22 (Sites fallback still 0.11.4)
+
+Merged source `5d3c594a7494ba58acab7fbf5668fcd8d3e2fcd3` (PR #241, release
+head `a66c52b9e36c`), build `f0baec5e3291`, is published on the primary
+Cloudflare Worker `alibi-after-hours-preview` as version
+`b8f83076-dc6f-41d6-acf0-7787ede4424e` (21 files uploaded, 268 retained).
+Hosted checks the same day: `/`, `/privacy.html` and
+`/manifest.webmanifest` 200, content-hashed shell assets 200 matching the
+local `dist/` build, shell `no-cache`, repository CSP present. Full
+publication evidence is in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
+
+The Sites fallback still serves 0.11.4 (version 16) pending the owner
+credential flow; the two origins currently serve different releases and
+saves stay per-origin. This cycle also merged PR #237, PR #240 (leaf-path
+shared addresses, closes #213), PR #241 and PR #243 (coherent Bridges zoom
+sampler into the draft 238 stack). Open: PR #245 (single-trigger CI, fixes
+#242), draft PRs #238/#239 stacked on the owner's provider-cancellation
+work, draft PR #183 parked on external Pulseboard collector admission, and
+issue #244 (directory-form shared links).
+
+## 0.11.5 release candidate, 2026-09-22 (shipped to Cloudflare, see above)
 
 Release prep is cut from main on a release branch: version 0.11.5 with the
 phone-first play, dialog/a11y, unknown-route recovery and castle comparison
