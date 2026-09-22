@@ -17,9 +17,41 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
+### Block Cabinet host continuity, 2026-09-22
+
+Both existing origins now serve build `b8c6f194c5a4` from merged source
+`c8a613a6278845ce7e3df8fe8adff1c505942cdf` (PR #260). The merge followed
+four green current-head checks, independent review and the post-push aging
+floor. The fix stops the enhanced Block Cabinet host from being removed and
+reinserted during an ordinary placement while preserving Club save/replay
+ownership and the Simple control route. The previous `ce60bde20b83` release
+remains the rollback candidate; no rollback occurred.
+
+Cloudflare deployed Worker version `20f003f6-cd7a-42b4-b743-963ad0d9e09e`
+after uploading six changed files and retaining 285. All 291 public files
+return 200 and match local SHA-256 values, and the HTTP CSP remains present.
+Sites version 21 is
+`appgprj_6a9f4fc7b5cc8191be66defcdccd366b~appgver_a4580b491fd08191bfa0573c398cfaa4`.
+Deployment `appgdep_6ab303e27f0c8191b42505d84154da0d` succeeded at
+22:40:51 UTC from the exact source commit, with archive content digest
+`sha256:461ffee7d69271cd87ddf4f95c1ac4d86f43670e30cccbfa7f397b2355cd6c1c`.
+All 291 Sites files return 200. The 281 non-HTML files match local bytes;
+each of the ten HTML differences is solely one 938-character challenge
+script. The main meta CSP remains. Sites HTTP CSP and 51 WebP MIME limits
+remain #6.
+
+Both complete hosted origin suites pass 168 checks. Actual updates on both
+origins from `ce60bde20b83` wait for Save & update, preserve the same pinned
+puzzle and exact two-move state, then reload offline with that state intact.
+The merged source passes `npm run verify` and `cloudflare:check`; the focused
+Block Cabinet browser suite passes 89 checks at 390px and 1280px. The ignored
+`release/2026-09-22-integration/cabinet/` directory retains the release,
+hosted-file and live-update reports. Physical Android comfort and TalkBack
+acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md); #160 remains open.
+
 ### Backup import recovery, 2026-09-22
 
-Both existing origins now serve build `ce60bde20b83` from merged source
+Both existing origins served build `ce60bde20b83` from merged source
 `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` (PR #258). The merge followed
 six green current-base checks, independent review and the post-push aging
 floor. The release adds visible, reload-safe recovery for backup imports while

@@ -29,12 +29,20 @@ CAP04/#126 and the dependent packages.
 The pinned npm moderate chain (`@capacitor/cli -> xcode -> uuid@7.0.3`, explicit-buffer UUID
 advisory) is a toolchain-only finding with no Android runtime call path; it was not overridden.
 
-## Block Cabinet host continuity candidate, 2026-09-22
+## Published Block Cabinet host continuity, 2026-09-22
+
+PR #260 merged as `c8a613a6278845ce7e3df8fe8adff1c505942cdf` after four
+green current-head checks, independent review and the post-push aging floor.
+Both existing origins now serve version 0.11.5, build `b8c6f194c5a4`, from
+that exact merged source. Cloudflare Worker version
+`20f003f6-cd7a-42b4-b743-963ad0d9e09e` and Sites version 21 deployment
+`appgdep_6ab303e27f0c8191b42505d84154da0d` succeeded. The separate
+saves on both origins remain intact.
 
 The #160 browser probe reproduced four synchronous removals of the tactile
 host during one placement. The Club action path moved the host into `body`
 before each full app render and returned it afterward; animation-frame
-sampling missed those short detachments. The candidate keeps the Club's
+sampling missed those short detachments. The merged fix keeps the Club's
 replay/save action but suppresses its redundant full app render while the
 enhanced surface owns the visible board. Switching to Simple controls
 refreshes the legacy view before exposing it.
@@ -44,14 +52,21 @@ mutation observer sees no host removals during reduced and ordinary motion,
 the host retains nonzero geometry, and the ordinary score effect draws on a
 connected canvas. Replay, undo/redo, Simple controls, Cascade and offline
 reload checks also pass. Phone and desktop screenshots were inspected.
+The merged source passes `npm run verify` and `cloudflare:check`; both hosted
+origin suites pass 168 checks. Cloudflare's 291 public files match local bytes.
+On Sites, 281 non-HTML files match; ten HTML files each differ only by one
+938-character hosting challenge script, with the main meta CSP retained.
+Actual updates on both origins from `ce60bde20b83` to `b8c6f194c5a4`
+preserve the saved puzzle and two-move state after Save & update and an offline
+reload. Full receipts are in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
 Physical Android comfort, touch and TalkBack acceptance remain open in
-[HUMAN_TODO.md](../HUMAN_TODO.md); this candidate does not close #160.
+[HUMAN_TODO.md](../HUMAN_TODO.md); this release does not close #160.
 
 ## Published backup import recovery, 2026-09-22
 
 PR #258 merged as `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` after six green
 current-base checks, independent review and the post-push aging floor. Both
-existing origins now serve version 0.11.5, build `ce60bde20b83`, built from
+existing origins served version 0.11.5, build `ce60bde20b83`, built from
 that merged source. The Cloudflare Worker version is
 `f9526b2d-8a1b-4221-bed1-8bcc73655d3f`; Sites version 20 deployed as
 `appgdep_6ab2eed4184c8191926045fd1042c98f` at 21:10:59 UTC. This
