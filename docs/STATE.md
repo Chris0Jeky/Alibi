@@ -1,5 +1,17 @@
 # Live development state
 
+## Swarm batch v3 merges, 2026-09-23
+
+PR #283 (worker pack cap 50→150, `tests/pack-cap.test.cjs` parity regression)
+merged as `1e7b872`; PR #284 (About + no-accounts login pages for shared-path
+routes) merged as `1b804d1`. Codex P2 on #283 (shared-object validator capture)
+fixed with mutation proof and resolved; #284 got an independent lens APPROVE
+with follow-ups tracked in #285, plus local render verification and 390px
+screenshots. Batch-v3 Workflow scheduler stalled (single child admitted then
+idle, siblings never admitted), so both fixes were executed inline in isolated
+worktrees. #273 closed as invalid (coordinator miscount; bridges row predates
+#269). Six Pass-1 swarm workers still running at merge time.
+
 ## Swarm Pass-1 merges, 2026-09-23 (updated: #265, #266)
 
 PR #265 (CONTRIBUTING stale-`dist/` trap doc + STATE record) merged as `d5771ed`;
