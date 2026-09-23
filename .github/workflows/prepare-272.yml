@@ -21,7 +21,7 @@ jobs:
       - name: Apply reviewed exact-source patch and validate
         run: |
           node tools/prepare-272.cjs
-          node node_modules/prettier/bin/prettier.cjs --write src/app.js tests/mark-grid-navigation.test.cjs
+          node node_modules/prettier/bin/prettier.cjs --write src/app.js src/presentation.js tests/mark-grid-navigation.test.cjs
           node --test tests/mark-grid-navigation.test.cjs
           python -m py_compile tests/mark_grid_cases.py tests/browser_ui.py
           git diff --check
@@ -29,14 +29,14 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/app.js tests/mark-grid-navigation.test.cjs tests/browser_ui.py docs/STATE.md
-          git commit -m 'fix(keyboard): navigate dossier and witness marks with arrows (#272)'
+          git add src/app.js src/presentation.js tests/mark-grid-navigation.test.cjs tests/mark_grid_cases.py tests/browser_ui.py docs/STATE.md
+          git commit -m 'fix(keyboard): retain marking tools and bound navigation to rendered marks (#272)'
           git push origin HEAD:refs/heads/codex/272-mark-grid-keys
       - name: Measure candidate build against existing budgets
         run: |
           npm run build
           node tests/budget.test.cjs
-      - name: Retain build measurements and pinned local validation tools
+      - name: Retain build measurements and exact candidate source
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -44,6 +44,9 @@ jobs:
           retention-days: 2
           path: |
             build-info.json
-            node_modules/esbuild/
-            node_modules/@esbuild/linux-x64/
-            node_modules/prettier/
+            src/app.js
+            src/presentation.js
+            tests/mark-grid-navigation.test.cjs
+            tests/mark_grid_cases.py
+            tests/browser_ui.py
+            docs/STATE.md
