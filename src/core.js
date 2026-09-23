@@ -783,8 +783,8 @@
       input.title.length > 120
     )
       throw new Error('Invalid pack header.');
-    if (!Array.isArray(input.puzzles) || input.puzzles.length < 1 || input.puzzles.length > 50)
-      throw new Error('A pack must contain 1–50 puzzles.');
+    if (!Array.isArray(input.puzzles) || input.puzzles.length < 1 || input.puzzles.length > 150)
+      throw new Error('A pack must contain 1–150 puzzles.');
     const puzzles = input.puzzles.map(validateDefinition),
       ids = puzzles.map((x) => x.id);
     if (new Set(ids).size !== ids.length) throw new Error('Duplicate puzzle IDs in the pack.');
