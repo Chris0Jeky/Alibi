@@ -249,7 +249,7 @@ test('the generated control keeps the id the loader watches for consent changes'
   assert.doesNotMatch(browserSource, /AlibiJourney|createJourney|journey/i);
 });
 
-test('application lifecycle calls the helper with fixed event names only', () => {
+test('application lifecycle calls the helper with fixed names only', () => {
   assert.match(appSource, /globalThis\.AlibiJourney\?\.\(current\);[\s\S]*current\.state = next;/);
   assert.match(
     appSource,
@@ -267,14 +267,28 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     appSource,
     /C\.equal\(current\.state, d\.before\)\) return;\s*globalThis\.AlibiJourney\?\.\(current\);/,
   );
+  assert.match(
+    appSource,
+    /if \(wasSolved\) reviewing = true;\s*else if \(!reviewing\) globalThis\.AlibiJourney\?\.\(current\);/,
+  );
+  assert.match(
+    appSource,
+    /current\.completedAt = null;\s*reviewing = false;\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.abandoned'\);/,
+  );
+  assert.match(
+    appSource,
+    /globalThis\.AlibiJourney\?\.\(current\);\s*reviewing = false;\s*if \(history\)/,
+  );
+  assert.match(appSource, /checking = false;\s*reviewing = false;\s*feedback = '';/);
   const calls = appSource.match(/globalThis\.AlibiJourney\?\.\([^)]*\)/g) || [];
-  assert.equal(calls.length, 5);
+  assert.equal(calls.length, 7);
   for (const call of calls)
     assert.match(
       call,
-      /^globalThis\.AlibiJourney\?\.\(current(, '(puzzle\.(failed|completed)|hint\.requested)')?\)$/,
+      /^globalThis\.AlibiJourney\?\.\(current(, '(puzzle\.(failed|completed|abandoned)|hint\.requested)')?\)$/,
     );
   assert.doesNotMatch(appSource, /PulseboardUsage/);
+  assert.doesNotMatch(appSource, /current\.reviewing/, 'the review flag is UI state, never saved');
 });
 
 // Runs the real loader and the real generated adapter together, with a minimal DOM that dispatches

@@ -58,6 +58,7 @@
     paused = false,
     checking = false,
     feedback = '',
+    reviewing = false,
     evidenceTab = 'clues',
     dossierTab = 0,
     trailValue = 1,
@@ -1487,6 +1488,7 @@
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
     globalThis.AlibiJourney?.(current);
+    reviewing = false;
     if (history) {
       current.undo.push(C.clone(current.state));
       current.undo = current.undo.slice(-80);
@@ -1790,9 +1792,13 @@
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
+    const wasSolved = !!current.completedAt;
     to.push(C.clone(current.state));
     current.state = from.pop();
     current.completedAt = null;
+    // Undo after a failure reopens the retry; stepping off a solved board only reviews it.
+    if (wasSolved) reviewing = true;
+    else if (!reviewing) globalThis.AlibiJourney?.(current);
     feedback = '';
     checking = false;
     accuseChoice = null;
@@ -2756,6 +2762,8 @@
           current.elapsed = 0;
           current.note = '';
           current.completedAt = null;
+          reviewing = false;
+          globalThis.AlibiJourney?.(current, 'puzzle.abandoned');
           sessionSeconds = 0;
           feedback = '';
           checking = false;
@@ -3213,6 +3221,7 @@
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
     globalThis.AlibiJourney?.(current);
+    reviewing = false;
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
     current.redo = [];
@@ -3471,6 +3480,7 @@
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;
         checking = false;
+        reviewing = false;
         feedback = '';
         evidenceTab = 'clues';
         dossierTab = 0;
