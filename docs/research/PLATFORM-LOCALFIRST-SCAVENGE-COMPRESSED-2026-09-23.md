@@ -1,5 +1,11 @@
-# Platform Local-First scavenge — COMPRESSED sibling 2026-09-23
+# Alibi local-first review: spoken summary
 
-Spoken TLDR for repo `docs/research/`. Full pack on box: `/workspace/handoffs/platform-localfirst-scavenge-2026-09-23/COMPRESSED.md`.
+Alibi keeps play and saves on the device, with player-owned JSON backups. Preserve that baseline.
+A future sync service must return conflicting boards as separate alternatives, with explicit
+resolution and consent. It must not silently overwrite a board or require an account for local
+play. No sync server, outbox or replication runtime is being shipped in this docs-only proposal.
 
-Chris — docs and ADRs only. You already ship review-first Taskdeck, Action Stack outbox plus Later, Alibi device-local saves. Steal sync-ethics language and dogfood drills. Skip Automerge and multi-device CRDT defaults. Chat must land Review proposals, not prose-as-done.
+The [self-contained review](PLATFORM-LOCALFIRST-SCAVENGE-2026-09-23.md) includes the candidate
+ADR-PLF-04, drill matrix, source paths and evidence limits. The earlier machine-local handoff is
+not required to review it. Thirteen focused source tests passed; maintainer review and any new
+browser/device acceptance remain outstanding. Related issue: #282.
