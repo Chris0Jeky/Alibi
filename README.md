@@ -9,7 +9,7 @@ Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and lo
 [Latest release](https://github.com/Chris0Jeky/Alibi/releases/latest) ·
 [Project map](docs/PROJECT-MAP.md) · [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
 
-> **Current release: 0.11.3.** The public sites and downloadable release are working browser/PWA editions. A Capacitor transition is planned and architected, but no APK, Play Store release, or completed physical-device acceptance is claimed.
+> **Current release: 0.11.5.** The public sites and downloadable release are working browser/PWA editions. A Capacitor transition is planned and architected, but no APK, Play Store release, or completed physical-device acceptance is claimed.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 
