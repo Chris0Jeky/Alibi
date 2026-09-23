@@ -905,8 +905,11 @@ def keyboard_bridges(page: Page) -> None:
 def keyboard_marks(page: Page, puzzle_id: str, label: str) -> None:
     route(page, f"play/{puzzle_id}@1")
     marks = page.locator('[data-action="mark"][data-cell]')
-    if marks.count() < 1:
-        raise AssertionError(f"{label}: no mark controls")
+    if marks.count() < 3:
+        raise AssertionError(f"{label}: requires at least three mark controls")
+    order = marks.evaluate_all(
+        "(elements) => elements.map((el) => Number(el.dataset.cell))"
+    )
     marks.first.focus()
     page.keyboard.press("Enter")
     wait_page(
@@ -918,7 +921,25 @@ def keyboard_marks(page: Page, puzzle_id: str, label: str) -> None:
         current(page)["state"]["marks"][0] == 1,
         f"{label} Enter cycles the first mark",
     )
-    note(f"{label} arrow keys are not bound (Tab reaches every control)")
+    for step, expected in enumerate(order[1:3], start=1):
+        page.keyboard.press("Tab")
+        wait_page(
+            page,
+            "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+            arg=expected,
+            what=f"{label} Tab stop {step}",
+        )
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == expected,
+            f"{label} Tab reaches mark {expected}",
+        )
+    marks.first.focus()
+    page.keyboard.press("ArrowRight")
+    page.wait_for_timeout(300)
+    check(
+        page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+        f"{label} ArrowRight leaves mark focus unchanged (arrows unbound)",
+    )
 
 
 def scenario_keyboard(pw: Any, root: Path) -> None:
