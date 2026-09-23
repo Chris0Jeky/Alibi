@@ -9,6 +9,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 from official_fixture import OFFICIAL_COUNT
 from block_landscape_cases import check_landscape
+from bridge_landscape_cases import check_bridge_landscape
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'mobile-qa'
@@ -79,9 +80,20 @@ class MobileQA(unittest.TestCase):
                 expect(host).to_have_count(0)
                 self.assertEqual(page.evaluate('location.hash'), '#/salon')
 
+    def test_bridges_landscape_full_board_and_controls(self):
+        metrics = []
+        for width, height in [(667, 375), (844, 390)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'play/bridges-01@1')
+                self.dismiss_lesson(page)
+                metrics.append(check_bridge_landscape(
+                    page, screenshot=OUT / f'bridges-landscape-{width}.png',
+                ))
+        (OUT / 'bridges-landscape.json').write_text(json.dumps(metrics, indent=2))
+
     def test_board_is_visible_after_lesson(self):
         metrics = []
-        for width, height in [(320, 568), (360, 800), (390, 844), (430, 932), (844, 390)]:
+        for width, height in [(320, 568), (360, 800), (390, 844), (430, 932), (667, 375), (844, 390)]:
             with self.subTest(viewport=(width, height)):
                 page = self.open_page(width, height, 'play/bridges-01@1')
                 self.dismiss_lesson(page)
@@ -100,8 +112,7 @@ class MobileQA(unittest.TestCase):
                 metrics.append(geometry)
                 page.screenshot(path=str(OUT / f'play-{width}.png'))
                 self.assertFalse(geometry['overflow'], geometry)
-                self.assertGreaterEqual(sum(x['visible'] for x in geometry['islands']),
-                                        2 if height < 600 else 4, geometry)
+                self.assertEqual(sum(x['visible'] for x in geometry['islands']), 4, geometry)
                 # Selection must not jump the board or rewrite the player save.
                 page.locator('.island').first.click()
                 self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
