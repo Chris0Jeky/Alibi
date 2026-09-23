@@ -13,6 +13,17 @@ assert.ok(start >= 0 && end > start, 'the real application key handler is presen
 function harness(type, { tab = 0, paused = false, modal = false } = {}) {
   const focused = [];
   let handler;
+  const offset = type === 'dossier' ? tab * 9 : 0;
+  const marks = Array.from({ length: type === 'dossier' ? 9 : 5 }, (_, i) => {
+    const target = {
+      tagName: 'BUTTON',
+      disabled: false,
+      dataset: { cell: String(offset + i) },
+      focus: () => focused.push('mark-' + (offset + i)),
+    };
+    target.closest = () => target;
+    return target;
+  });
   const context = {
     current: { puzzle: { type, size: 3, statements: Array(5).fill({}) } },
     dossierTab: tab,
@@ -21,6 +32,7 @@ function harness(type, { tab = 0, paused = false, modal = false } = {}) {
     $: () => ({ open: modal }),
     document: {
       addEventListener: (_type, fn) => (handler = fn),
+      querySelectorAll: () => marks,
       getElementById: (id) => ({ focus: () => focused.push(id) }),
     },
     render() {
@@ -36,7 +48,7 @@ function harness(type, { tab = 0, paused = false, modal = false } = {}) {
     context,
     key(key, index, overrides = {}) {
       let prevented = false;
-      const target = {
+      const target = marks.find((mark) => Number(mark.dataset.cell) === index) || {
         tagName: 'BUTTON',
         disabled: false,
         dataset: { cell: String(index) },
@@ -112,4 +124,21 @@ test('paused, modal, input and invalid or stale mark targets do not move focus',
   for (const tagName of ['INPUT', 'TEXTAREA', 'SELECT', 'SUMMARY'])
     assert.equal(h.key('ArrowRight', 9, { target: { tagName } }), false);
   assert.equal(h.focused.length, 0);
+});
+
+test('Dossier keyboard guidance retains every existing marking tool', () => {
+  const start = source.indexOf('  function controls(p, s) {');
+  const end = source.indexOf('  function evidence(p, s) {', start);
+  assert.ok(start >= 0 && end > start);
+  const context = {
+    brush: 'cycle',
+    AlibiClub: { assistance: () => 'off' },
+    tool: (label, action) => '<button data-action="' + action + '">' + label + '</button>',
+  };
+  vm.runInNewContext(
+    source.slice(start, end) + '; result = controls({type:"dossier"}, {});',
+    context,
+  );
+  for (const label of ['Yes', 'No', 'Cycle', 'Erase'])
+    assert.ok(context.result.includes('>' + label + '</button>'), label);
 });

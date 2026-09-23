@@ -8,6 +8,10 @@ def check_mark_keys(page, puzzle):
     moves = page.evaluate('AlibiDiagnostics.getCurrent().moves')
     dossier = puzzle['type'] == 'dossier'
     size = puzzle['size']
+    if dossier:
+        for name in ['Yes', 'No', 'Cycle', 'Erase']:
+            expect(page.locator('.controls').get_by_role('button', name=name, exact=True)).to_be_visible()
+        page.locator('.controls').get_by_role('button', name='Cycle', exact=True).click()
     categories = range(len(puzzle['categories'])) if dossier else [0]
     for category in categories:
         offset = category * size * size if dossier else 0
