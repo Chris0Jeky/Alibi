@@ -108,8 +108,7 @@ test('paused, modal, input and invalid or stale mark targets do not move focus',
     assert.equal(h.focused.length, 0);
   }
   const h = harness('dossier', { tab: 1 });
-  for (const index of [-1, 0, 8, 18, 1.5, NaN])
-    assert.equal(h.key('ArrowRight', index), false);
+  for (const index of [-1, 0, 8, 18, 1.5, NaN]) assert.equal(h.key('ArrowRight', index), false);
   for (const tagName of ['INPUT', 'TEXTAREA', 'SELECT', 'SUMMARY'])
     assert.equal(h.key('ArrowRight', 9, { target: { tagName } }), false);
   assert.equal(h.focused.length, 0);

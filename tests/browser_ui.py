@@ -5,6 +5,7 @@ Use CHROMIUM_PATH to override the Chromium executable when needed.
 import json, os, time
 from pathlib import Path
 from official_fixture import OFFICIAL_COUNT
+from mark_grid_cases import check_mark_keys
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 PUZZLES=json.loads((ROOT/'content/catalog.json').read_text())['puzzles']
@@ -67,6 +68,9 @@ with sync_playwright() as pw:
         for i in targets:action('lesson-tap',f'[data-cell="{i}"]')
         check(page.locator('.lesson-success').count()==1,typ+' miniature lesson responds correctly')
         action('lesson-finish');check(page.locator('dialog[open]').count()==0,typ+' lesson leads into game')
+        if typ in ['dossier','witness']:
+            check_mark_keys(page,p)
+            check(True,typ+' arrows, category bounds, Tab and Enter preserve board behavior')
         if typ=='scene':
             for person in p['people']:
                 action('person',f'[data-id="{person["id"]}"]');cell(p['solution'][person['id']])

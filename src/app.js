@@ -1036,11 +1036,13 @@
       )}</div><div class="logic-summary">${p.people.map((name, i) => `<div><strong>${esc(name)}</strong><span>${esc(p.categories[0].name)} ${esc(a[i] >= 0 ? p.categories[0].values[a[i]] : 'unknown')} · ${esc(p.categories[1].name)} ${esc(a[n + i] >= 0 ? p.categories[1].values[a[n + i]] : 'unknown')}</span></div>`).join('')}</div>`;
   }
   function witnessBoard(p, s) {
-    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.</p>`;
+    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Arrow keys move between accounts; Enter cycles a mark. Your marks are hypotheses, not verdicts.</p>`;
   }
   function controls(p, s) {
     const t = p.type;
     let content = '';
+    if (t === 'dossier')
+      return '<p class="control-note">Arrow keys move within the current evidence table. Enter cycles a mark; Tab reaches the other controls.</p>';
     if (t === 'bridges')
       return `<div class="toolrow">${tool('Clear selection', 'erase', 'close', false, bridgeAnchor === null ? 'disabled' : '')}</div><p class="control-note">Repeat a pair: one bridge → two → none. Arrow keys move between islands; Enter selects. Delete cancels the selection.</p>`;
     if (t === 'sudoku' || t === 'futoshiki') {
@@ -3308,6 +3310,30 @@
       return;
     }
     if (paused) return;
+    if (['dossier', 'witness'].includes(p.type) && /^Arrow(Left|Right|Up|Down)$/.test(e.key)) {
+      const mark = e.target.closest?.('[data-action="mark"][data-cell]');
+      if (!mark || mark.disabled || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const index = Number(mark.dataset.cell),
+        n = p.size,
+        offset = p.type === 'dossier' ? dossierTab * n * n : 0,
+        length = p.type === 'dossier' ? n * n : p.statements.length;
+      if (!Number.isInteger(index) || index < offset || index >= offset + length) return;
+      const local = index - offset;
+      let next = local;
+      if (p.type === 'dossier') {
+        if (e.key === 'ArrowLeft' && local % n > 0) next--;
+        if (e.key === 'ArrowRight' && local % n < n - 1) next++;
+        if (e.key === 'ArrowUp' && local >= n) next -= n;
+        if (e.key === 'ArrowDown' && local < length - n) next += n;
+      } else {
+        const step = e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1;
+        next = Math.max(0, Math.min(length - 1, local + step));
+      }
+      e.preventDefault();
+      selectedCell = offset + next;
+      document.getElementById('mark-' + selectedCell)?.focus();
+      return;
+    }
     const d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -p.size, ArrowDown: p.size }[e.key];
     if (d && !['dossier', 'witness'].includes(p.type)) {
       e.preventDefault();
