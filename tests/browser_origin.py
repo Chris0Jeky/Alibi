@@ -645,6 +645,282 @@ def keyboard_family(page: Page, puzzle_id: str, label: str) -> None:
             )
 
 
+def keyboard_arrows(page: Page, first: int, second: int, label: str) -> None:
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("ArrowRight")
+    wait_page(
+        page,
+        "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+        arg=second,
+        what=f"{label} ArrowRight focus",
+    )
+    check(
+        page.evaluate("Number(document.activeElement?.dataset.cell)") == second,
+        f"{label} ArrowRight moves to the next enabled cell",
+    )
+
+
+def keyboard_number(page: Page, puzzle_id: str, digit: str, label: str) -> None:
+    route(page, f"play/{puzzle_id}@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError(f"{label}: requires at least two enabled cells")
+    first, second = enabled[:2]
+    if current(page)["state"]["cells"][first] != 0:
+        raise AssertionError(f"{label}: expected an empty first cell")
+    size = current(page)["puzzle"]["size"]
+    if int(digit) > size:
+        raise AssertionError(f"{label}: digit {digit} exceeds board size {size}")
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press(digit)
+    wait_page(
+        page,
+        "({cell, value}) => AlibiDiagnostics.getCurrent()?.state.cells[cell] === value",
+        arg={"cell": first, "value": int(digit)},
+        what=f"{label} digit entry",
+    )
+    check(
+        current(page)["state"]["cells"][first] == int(digit),
+        f"{label} number key enters the digit",
+    )
+    keyboard_arrows(page, first, second, label)
+
+
+def keyboard_binary(page: Page) -> None:
+    route(page, "play/binary-01@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError("binary keyboard: requires at least two enabled cells")
+    first, second = enabled[:2]
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({cell}) => AlibiDiagnostics.getCurrent()?.state.cells[cell] === 0",
+        arg={"cell": first},
+        what="binary keyboard Enter cycle",
+    )
+    check(
+        current(page)["state"]["cells"][first] == 0,
+        "binary keyboard Enter cycles the brush value",
+    )
+    page.keyboard.press("1")
+    wait_page(
+        page,
+        "({cell}) => AlibiDiagnostics.getCurrent()?.state.cells[cell] === 1",
+        arg={"cell": first},
+        what="binary keyboard digit entry",
+    )
+    check(
+        current(page)["state"]["cells"][first] == 1,
+        "binary keyboard digit key sets the value",
+    )
+    keyboard_arrows(page, first, second, "binary keyboard")
+
+
+def keyboard_aquarium(page: Page) -> None:
+    route(page, "play/aquarium-01@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError("aquarium keyboard: requires at least two enabled cells")
+    first, second = enabled[:2]
+    tank = current(page)["puzzle"]["tanks"][first]
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({tank}) => AlibiDiagnostics.getCurrent()?.state.levels[tank] > 0",
+        arg={"tank": tank},
+        what="aquarium keyboard waterline",
+    )
+    check(
+        current(page)["state"]["levels"][tank] > 0,
+        "aquarium keyboard Enter sets the tank waterline",
+    )
+    keyboard_arrows(page, first, second, "aquarium keyboard")
+
+
+def keyboard_network(page: Page) -> None:
+    route(page, "play/network-01@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError("network keyboard: requires at least two enabled cells")
+    first, second = enabled[:2]
+    before = current(page)["state"]["rotations"][first]
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({cell, old}) => AlibiDiagnostics.getCurrent()?.state.rotations[cell] !== old",
+        arg={"cell": first, "old": before},
+        what="network keyboard rotate",
+    )
+    check(
+        current(page)["state"]["rotations"][first] != before,
+        "network keyboard Enter rotates clockwise",
+    )
+    page.keyboard.press("Shift+Enter")
+    wait_page(
+        page,
+        "({cell, old}) => AlibiDiagnostics.getCurrent()?.state.rotations[cell] === old",
+        arg={"cell": first, "old": before},
+        what="network keyboard reverse rotate",
+    )
+    check(
+        current(page)["state"]["rotations"][first] == before,
+        "network keyboard Shift+Enter rotates back",
+    )
+    keyboard_arrows(page, first, second, "network keyboard")
+
+
+def keyboard_trail(page: Page) -> None:
+    route(page, "play/trail-01@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError("trail keyboard: requires at least two enabled cells")
+    first, second = enabled[:2]
+    state = current(page)
+    if state["state"]["cells"][first] != 0:
+        raise AssertionError("trail keyboard: expected an empty first cell")
+    used = set(state["state"]["cells"]) | set(state["puzzle"]["givens"])
+    expected = next(
+        v for v in range(1, len(state["state"]["cells"]) + 1) if v not in used
+    )
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({cell, value}) => AlibiDiagnostics.getCurrent()?.state.cells[cell] === value",
+        arg={"cell": first, "value": expected},
+        what="trail keyboard placement",
+    )
+    check(
+        current(page)["state"]["cells"][first] == expected,
+        "trail keyboard Enter places the next number",
+    )
+    keyboard_arrows(page, first, second, "trail keyboard")
+
+
+def keyboard_scene(page: Page) -> None:
+    route(page, "play/scene-01@1")
+    enabled = cells(page, enabled_only=True)
+    if len(enabled) < 2:
+        raise AssertionError("scene keyboard: requires at least two enabled cells")
+    first, second = enabled[:2]
+    people = [person["id"] for person in current(page)["puzzle"]["people"]]
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({who, cell}) => AlibiDiagnostics.getCurrent()?.state.placements[who] === cell",
+        arg={"who": people[0], "cell": first},
+        what="scene keyboard placement",
+    )
+    check(
+        current(page)["state"]["placements"].get(people[0]) == first,
+        "scene keyboard Enter places the selected person",
+    )
+    keyboard_arrows(page, first, second, "scene keyboard")
+    page.locator(f'[data-action="cell"][data-cell="{second}"]').focus()
+    page.keyboard.press("2")
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({who, cell}) => AlibiDiagnostics.getCurrent()?.state.placements[who] === cell",
+        arg={"who": people[1], "cell": second},
+        what="scene keyboard person switch",
+    )
+    check(
+        current(page)["state"]["placements"].get(people[1]) == second,
+        "scene keyboard number key switches person",
+    )
+
+
+def keyboard_bridges(page: Page) -> None:
+    route(page, "play/bridges-01@1")
+    puzzle = current(page)["puzzle"]
+    size = puzzle["size"]
+    islands = sorted(island["cell"] for island in puzzle["islands"])
+    pair = None
+    for direction in ("row", "column"):
+        rows: dict[int, list[int]] = {}
+        for cell in islands:
+            key = cell // size if direction == "row" else cell % size
+            rows.setdefault(key, []).append(cell)
+        for group in rows.values():
+            ordered = sorted(
+                group, key=(lambda c: c % size) if direction == "row" else (lambda c: c // size)
+            )
+            for left, right in zip(ordered, ordered[1:]):
+                pair = (left, right, "ArrowRight" if direction == "row" else "ArrowDown")
+                break
+            if pair:
+                break
+        if pair:
+            break
+    if not pair:
+        raise AssertionError("bridges keyboard: no aligned island pair")
+    first, second, arrow = pair
+    before = page.evaluate("JSON.stringify(AlibiDiagnostics.getCurrent()?.state.cells)")
+    page.locator(f'[data-action="cell"][data-cell="{first}"]').focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "(cell) => document.getElementById('cell-' + cell)?.getAttribute('aria-pressed') === 'true'",
+        arg=first,
+        what="bridges keyboard anchor",
+    )
+    check(
+        page.evaluate(
+            "(cell) => document.getElementById('cell-' + cell)?.getAttribute('aria-pressed')",
+            first,
+        )
+        == "true",
+        "bridges keyboard Enter anchors the island",
+    )
+    page.keyboard.press(arrow)
+    wait_page(
+        page,
+        "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+        arg=second,
+        what="bridges keyboard island jump",
+    )
+    check(
+        page.evaluate("Number(document.activeElement?.dataset.cell)") == second,
+        "bridges keyboard arrows jump between islands",
+    )
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "({old}) => JSON.stringify(AlibiDiagnostics.getCurrent()?.state.cells) !== old",
+        arg={"old": before},
+        what="bridges keyboard connect",
+    )
+    check(
+        page.evaluate("JSON.stringify(AlibiDiagnostics.getCurrent()?.state.cells)") != before,
+        "bridges keyboard connects the island pair",
+    )
+
+
+def keyboard_marks(page: Page, puzzle_id: str, label: str) -> None:
+    route(page, f"play/{puzzle_id}@1")
+    marks = page.locator('[data-action="mark"][data-cell]')
+    if marks.count() < 1:
+        raise AssertionError(f"{label}: no mark controls")
+    marks.first.focus()
+    page.keyboard.press("Enter")
+    wait_page(
+        page,
+        "() => AlibiDiagnostics.getCurrent()?.state.marks[0] === 1",
+        what=f"{label} Enter mark",
+    )
+    check(
+        current(page)["state"]["marks"][0] == 1,
+        f"{label} Enter cycles the first mark",
+    )
+    note(f"{label} arrow keys are not bound (Tab reaches every control)")
+
+
 def scenario_keyboard(pw: Any, root: Path) -> None:
     profile = root / "keyboard"
     context = launch_profile(pw, profile)
@@ -653,6 +929,17 @@ def scenario_keyboard(pw: Any, root: Path) -> None:
         boot(page)
         keyboard_family(page, "lightup-01", "lightup keyboard")
         keyboard_family(page, "tents-01", "tents keyboard")
+        keyboard_family(page, "nonogram-01", "nonogram keyboard")
+        keyboard_number(page, "sudoku-01", "3", "sudoku keyboard")
+        keyboard_number(page, "futoshiki-01", "1", "futoshiki keyboard")
+        keyboard_binary(page)
+        keyboard_aquarium(page)
+        keyboard_network(page)
+        keyboard_trail(page)
+        keyboard_scene(page)
+        keyboard_bridges(page)
+        keyboard_marks(page, "dossier-01", "dossier keyboard")
+        keyboard_marks(page, "witness-01", "witness keyboard")
     finally:
         try:
             context.close()
