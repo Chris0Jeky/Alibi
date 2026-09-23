@@ -244,13 +244,8 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     appSource,
     /C\.equal\(current\.state, d\.before\)\) return;\s*globalThis\.AlibiJourney\?\.\(current\);/,
   );
-  assert.match(
-    appSource,
-    /if \(!from\.length\) return;\s*\/\/[^\n]*\s*if \(!current\.completedAt\) globalThis\.AlibiJourney\?\.\(current\);\s*to\.push/,
-    'undo/redo opens an attempt unless it steps through an already solved board',
-  );
   const calls = appSource.match(/globalThis\.AlibiJourney\?\.\([^)]*\)/g) || [];
-  assert.equal(calls.length, 6);
+  assert.equal(calls.length, 5);
   for (const call of calls)
     assert.match(
       call,

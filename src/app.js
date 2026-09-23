@@ -1780,8 +1780,6 @@
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
-    // Undo after a failed check is a real retry; stepping back through a solved board is a review.
-    if (!current.completedAt) globalThis.AlibiJourney?.(current);
     to.push(C.clone(current.state));
     current.state = from.pop();
     current.completedAt = null;
