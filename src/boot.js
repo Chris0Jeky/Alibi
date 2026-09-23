@@ -26,12 +26,14 @@
   function normalize() {
     const [path, ...q] = location.hash.replace(/^#\/?/, '').split('?'),
       p = path.split('/').filter(Boolean),
-      alias = aliases[p[0]?.toLowerCase()];
-    if (!alias) return;
+      name = p[0]?.toLowerCase(),
+      alias = aliases[name];
+    if (!alias && (!known.test(name) || name === p[0])) return;
+    const target = alias ? alias(p.slice(1)) : [name, ...p.slice(1)];
     history.replaceState(
       history.state,
       '',
-      `#/${alias(p.slice(1)).join('/')}${q.length ? `?${q.join('?')}` : ''}`,
+      `#/${target.join('/')}${q.length ? `?${q.join('?')}` : ''}`,
     );
   }
   function show() {
