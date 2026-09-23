@@ -191,6 +191,18 @@ with sync_playwright() as pw:
     )
     dismiss_dialog(page)
 
+    page.locator('[data-action="check"]').first.click()
+    page.evaluate('() => PulseboardUsage.flush()')
+    page.wait_for_timeout(300)
+    check(len(observed) == 5, 'checking the same board again is not another attempt')
+    dismiss_dialog(page)
+
+    page.locator('[data-action="undo"]:visible').first.click()
+    page.evaluate('() => PulseboardUsage.flush()')
+    wait_for_events(page, observed, 6)
+    check(observed[5]['event'] == 'puzzle.started', 'undo after a failed check starts the retry')
+    dismiss_dialog(page)
+
     before = page.evaluate(
         "()=>({state: AlibiDiagnostics.getCurrent().state, moves: AlibiDiagnostics.getCurrent().moves})"
     )
