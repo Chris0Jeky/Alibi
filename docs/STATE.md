@@ -2,7 +2,7 @@
 
 ## Source maintenance checkpoint: 23 September 2026
 
-Reconciled against `main` at `e79146ed219b6a0159a223308ec66209ad7b17cc`.
+Reconciled against `main` at `e721a3b7663b2faf494b7585ecca2fd9a26cc3e0`.
 This checkpoint records repository work, not a deployment. Source merges do not update either
 hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
 
@@ -11,7 +11,8 @@ hosted origin automatically. Use live GitHub for later PR/issue status and exact
 | #264: stale test artifacts | #286 merged as `3c37667c97ba9023cd0a110ab322c4a227f5229b`. `npm test` checks source, payload identity and receipts before artifact-dependent suites. Both full verify run `35916329920` and Android run `35916329976` passed head `4f9625cc46898291441ed66039a159a3f783c09b`. |
 | #285: named routes | #287 merged as `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`. Known page casing is normalized without altering puzzle IDs or queries; browser tests assert actual about/login pages and working exits. Full verify `35917035567` and Android `35917035553` passed head `d70b5e4031baea71853f5f7c67effeb7a65a705b`. |
 | #276 / #278: Cabinet landscape and exit target | #288 merged as `31e4b83780c28689286222eb32a011c66ec9571e` after full verification and Android checks. The bounded board/tray layout, 44px return target and placement/undo/menu/keyboard regressions are in source. Physical-device acceptance remains separate. |
-| #277: Bridges landscape | #290 implements the height-aware board, adjacent instructions/actions and focused-scroll correction without shrinking 44px island targets. Six initial local DOM/browser checks and ten engine checks passed. Its first full run `35923855260` failed the CSS download budget (455 of 456 Node tests passed), while Android passed. The follow-up removes 33 obsolete homepage rules from expedition.css without increasing any budget. Consult the PR for the final head, CI, review and merge outcome before treating it as accepted. Built-origin verification and existing physical-device gates are not replaced by a local fixture. |
+| #277: Bridges landscape | #290 merged as `e721a3b7663b2faf494b7585ecca2fd9a26cc3e0`. Full workflow `35930469160` and Android `35930469085` passed head `f67c6e03bf3cd24c2e642fcde5c2e740f954ca45`; independent review reported no major issues. All four tutorial islands fit short landscape without shrinking 44px targets. Obsolete homepage CSS was removed to meet, not increase, the stylesheet budget. Physical-device and comfort acceptance remain separate. |
+| #272: evidence-grid keyboard candidate | Dossier arrows stay inside the active category; Witness arrows follow the account list. Native Tab/Enter remain intact. Five focused handler tests and actual controls at 390px/1280px pass locally. The shared browser helper runs in the existing UI suite and asserts that Yes/No/Cycle/Erase remain usable. Four unused UI icon paths are removed to keep navigation inside the unchanged JavaScript budget; the theatre compass emblem is independent and retained. Preparation run `35932147661` passed focused checks and existing build budgets at `ae48725b34661a4ce43763946ab3c0bca94178b2` (129007 bytes gzip application JS). Temporary preparation automation is excluded from the final candidate. Exact-head full PR CI, independent review and physical accessibility acceptance remain separate. |
 | #263 / #275: publication chronology | #289 merged as `e79146ed219b6a0159a223308ec66209ad7b17cc` after full run `35920075259` and independent review. The roadmap, state archive and per-origin receipt chronology are reconciled without a new deployment. |
 | #282: local-first architecture skim | #281 now contains a self-contained Alibi decision candidate and acceptance matrix. It no longer depends on machine-local ADR files. Thirteen focused source tests passed. Keep the draft/maintainer-skim gate: no sync server, outbox, replication runtime or accepted ADR is implied. |
 | #257: historical source heading | Already satisfied on the reconciled main source; closed after checking the explicitly earlier checkpoint and retained evidence. |
@@ -52,7 +53,6 @@ acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/dev
 
 ## Next focused work
 
-- #272: complete dossier/witness arrow-key semantics without breaking their Tab/Enter paths.
 - #270 / #274: correct the optional journey receipt boundaries around retry, undo and session
   rollover; do not count restoring/rendering a board as a fresh player attempt.
 - Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence

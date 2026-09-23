@@ -299,7 +299,6 @@
     check: '<path d="m5 12 4 4L19 6"/>',
     close: '<path d="m6 6 12 12M6 18 18 6"/>',
     book: '<path d="M12 5v16M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z"/>',
-    help: '<circle cx="12" cy="12" r="9"/><path d="M9 8a3 3 0 1 1 5 3l-2 2m0 3v1"/>',
     undo: '<path d="M8 4 3 9l5 5M3 9h11a6 6 0 0 1 0 12"/>',
     redo: '<path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12"/>',
     pencil: '<path d="m4 15-1 6 6-1L21 8l-5-5ZM13 6l5 5M4 15l5 5"/>',
@@ -328,15 +327,12 @@
     refresh: '<path d="M20 8a8 8 0 1 0 0 9m0-15v6h-6"/>',
     eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
     search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',
-    chevron: '<path d="m9 5 7 7-7 7"/>',
     heart: '<path d="M20 4c-3-2-6 0-8 3-2-3-5-5-8-3s-2 7 1 10l7 7 7-7c3-3 4-8 1-10Z"/>',
     device: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/>',
     zoom: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6m-3-3v6"/>',
     more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
     grass: '<path d="M3 21h18M8 21c0-8-3-11-5-13m9 13c0-10 1-15 4-19m-2 19c0-6 3-10 7-12"/>',
-    volume: '<path d="M3 9h4l5-5v16l-5-5H3Zm13-1c3 3 3 5 0 8m3-11c5 5 5 9 0 14"/>',
     flag: '<path d="M5 22V3c5-5 9 4 15 0v10c-6 4-10-5-15 0"/>',
-    compass: '<circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5z"/>',
   };
   function icon(name, cls = '') {
     return `<svg class="icon ${cls}" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.sudoku}</svg>`;
