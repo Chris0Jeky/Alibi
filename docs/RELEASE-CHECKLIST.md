@@ -45,7 +45,7 @@ Do not mark unperformed checks as passed. This is the long-term acceptance backl
 - [ ] A human solves at least two puzzles in each family without the solution array, including one Tricky case.
 - [ ] Review every mystery's names, story, room grammar, furniture clue and final accusation explanation.
 - [ ] Confirm displayed difficulty/time estimates are reasonable; revise labels from playtest evidence.
-- [ ] Test keyboard-only navigation, focus restoration, all twelve lessons, error messages, favourites, search, casebook unlocks and restart confirmation.
+- [ ] Test keyboard-only navigation, focus restoration, all thirteen lessons, error messages, favourites, search, casebook unlocks and restart confirmation.
 - [ ] Check at least one small Android device in landscape, not only emulated portrait widths. Confirm colour is not the only meaningful cue.
 
 ## Rollback or repair
