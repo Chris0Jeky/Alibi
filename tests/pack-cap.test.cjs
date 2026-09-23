@@ -8,6 +8,9 @@ const assert = require('node:assert/strict'),
   { test } = require('node:test');
 require('../src/core.js');
 const CoreC = globalThis.AlibiCore;
+// engines.js mutates the shared AlibiCore object, so capture core's validator
+// before loading engines; otherwise both sides would exercise engines.
+const coreValidatePack = CoreC.validatePack;
 require('../src/engines.js');
 const C = globalThis.AlibiCore;
 
@@ -24,15 +27,16 @@ function packWith(n) {
 }
 
 test('core and engines agree on the 150-puzzle pack cap', () => {
-  for (const [impl, name] of [
-    [CoreC, 'core'],
-    [C, 'engines'],
+  assert.notEqual(coreValidatePack, C.validatePack, 'validators are distinct functions');
+  for (const [validatePack, name] of [
+    [coreValidatePack, 'core'],
+    [C.validatePack, 'engines'],
   ]) {
-    assert.doesNotThrow(() => impl.validatePack(packWith(50), false), `${name} accepts 50`);
-    assert.doesNotThrow(() => impl.validatePack(packWith(51), false), `${name} accepts 51`);
-    assert.doesNotThrow(() => impl.validatePack(packWith(150), false), `${name} accepts 150`);
-    assert.throws(() => impl.validatePack(packWith(151), false), /150/, `${name} rejects 151`);
-    assert.throws(() => impl.validatePack(packWith(0), false), /1–150/, `${name} rejects 0`);
+    assert.doesNotThrow(() => validatePack(packWith(50), false), `${name} accepts 50`);
+    assert.doesNotThrow(() => validatePack(packWith(51), false), `${name} accepts 51`);
+    assert.doesNotThrow(() => validatePack(packWith(150), false), `${name} accepts 150`);
+    assert.throws(() => validatePack(packWith(151), false), /150/, `${name} rejects 151`);
+    assert.throws(() => validatePack(packWith(0), false), /1–150/, `${name} rejects 0`);
   }
 });
 
