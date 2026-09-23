@@ -1,9 +1,8 @@
-# 0.11.5 — Phone-first play and forgiving routes
+# 0.11.5: Phone-first play and forgiving routes
 
-Release candidate cut from main. Source SHA, build hash, PR references and
-deployment evidence are recorded below as each step completes; nothing in this
-file is a publication claim until the Publication and delivery section is
-filled.
+Published release record with dated source/build/deployment receipts. Each receipt describes
+its own verification checkpoint, not the current state of every origin. The maintenance review
+on 23 September 2026 did not deploy or re-probe live hosting.
 
 Player-facing changes since 0.11.4: board-first phone play with 44px touch
 targets and Bridges zoom; modal how-to dialog with route-leave dismissal;
@@ -17,9 +16,21 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
+### Latest recorded receipts, reviewed 2026-09-23
+
+| Origin | Receipt date | Recorded build | Recorded source |
+| --- | --- | --- | --- |
+| Cloudflare | 2026-09-23 | `d6862c274553` | `a3b48daddb0eae1832c61d3358a603593d980da9` |
+| Sites | 2026-09-22 | `b8c6f194c5a4` | `c8a613a6278845ce7e3df8fe8adff1c505942cdf` |
+
+The detailed receipts below retain their original evidence and rollback references. Older
+statements apply only to their dated checkpoint. In particular, `df04399c4ee7` and
+`ce60bde20b83` are historical publications, not competing current-build claims. This table
+is a documentation readback, not a fresh live-origin observation.
+
 ### Observatory puzzle journey, 2026-09-23 (Cloudflare origin only)
 
-The Cloudflare origin now serves build `d6862c274553` from merged source
+At the 23 September publication checkpoint, Cloudflare served build `d6862c274553` from merged source
 `a3b48daddb0eae1832c61d3358a603593d980da9` (PR #183), deployed as Worker
 version `3d83bc77-5202-4a12-8668-485ca0c16f64` after uploading six changed
 files and retaining 285; the previous version
@@ -30,12 +41,12 @@ collector. The Pulseboard collector admitted the same event and release on a
 scratch preview before its production deploy (Pulseboard #63, owner decision
 q-11). The range since `c8a613a` also ships #261, #262, #269 and #271 (witness mark
 focus). Sites was not
-redeployed and still serves `b8c6f194c5a4`; the artifact stays silent off the
+redeployed at that checkpoint and retained `b8c6f194c5a4`; the artifact stays silent off the
 registered origin. No consented production journey event has been observed yet.
 
 ### Block Cabinet host continuity, 2026-09-22
 
-Both existing origins now serve build `b8c6f194c5a4` from merged source
+At this 22 September checkpoint, both origins served build `b8c6f194c5a4` from merged source
 `c8a613a6278845ce7e3df8fe8adff1c505942cdf` (PR #260). The merge followed
 four green current-head checks, independent review and the post-push aging
 floor. The fix stops the enhanced Block Cabinet host from being removed and
@@ -97,14 +108,14 @@ gates remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ### Platform startup update, 2026-09-22
 
-Both existing origins now serve version 0.11.5, build `df04399c4ee7`, from
+At this 22 September checkpoint, both origins served version 0.11.5, build `df04399c4ee7`, from
 reviewed source `1819ae38d5b2d4fa0fd001370bc7bc3627158c93` (PR #255). The PR
 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` at 19:32:45 UTC after
 all seven current-base checks passed, including full run `35772430005`,
 independent review and aging. Publication reuses the verified source artifact;
-the deployed source is an ancestor of the merge commit. Source identity now
-enters the build seed, so rebuilding a later documentation or merge commit
-would produce a different release identity even with identical game code.
+the deployed source is an ancestor of the merge commit. This source change includes
+source identity in the build seed, so rebuilding a later documentation or merge
+commit would produce a different release identity even with identical game code.
 
 Optional feedback cannot interrupt a validated move before saving, completion
 or rendering. The PWA, standalone/source preview and Android payload install
@@ -218,7 +229,7 @@ loopback host passes all 156 origin checks; synthetic update coverage passes
 passed; the Node run was 405/406 because of the Windows symlink fixture.
 The test-only #250 follow-up preserves POSIX file-symlink coverage, exercises
 a Windows parent-junction escape with a real file, and rejects directory
-documents on all platforms. Full local `npm run verify` now passes 407 Node
+documents on all platforms. At that checkpoint, full local `npm run verify` passed 407 Node
 tests without failures or skips, plus both Quiet Wing scripts and web/Android
 builds. No guard or machine permissions changed. `npm run bundle` passes with
 matching checksums and the complete browser/update reports for the same build.
