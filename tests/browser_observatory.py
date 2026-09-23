@@ -163,15 +163,16 @@ with sync_playwright() as pw:
         """(entry) => {
           const run = AlibiDiagnostics.getCurrent();
           const size = Math.sqrt(run.puzzle.givens.length);
-          const row = Math.floor(entry.index / size) * size;
-          for (let index = row; index < row + size; index++)
-            if (index !== entry.index && !run.puzzle.givens[index] && !run.state.cells[index])
+          const row = Math.floor(entry.index / size), column = entry.index % size;
+          for (let index = 0; index < run.state.cells.length; index++)
+            if (index !== entry.index && !run.puzzle.givens[index] && !run.state.cells[index] &&
+                (Math.floor(index / size) === row || index % size === column))
               return {index, value: entry.value};
           return null;
         }""",
         editable,
     )
-    check(conflict is not None, 'the sudoku row has another editable cell for the conflict')
+    check(conflict is not None, 'Sudoku fixture needs an editable row or column peer for a conflict')
     page.locator(f'#cell-{conflict["index"]}').click()
     page.keyboard.press(str(conflict['value']))
     page.wait_for_function(
