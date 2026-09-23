@@ -3340,8 +3340,11 @@
       if (active?.dataset?.action !== 'mark') return;
       const cell = Number(active.dataset.cell);
       if (!Number.isInteger(cell)) return;
+      const dossier = p.type === 'dossier';
+      if (!dossier && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
       let next = -1;
-      if (p.type === 'dossier') {
+      if (dossier) {
         const n = p.size,
           local = cell - dossierTab * n * n;
         if (local < 0 || local >= n * n) return;
@@ -3351,14 +3354,12 @@
         if (r < 0 || r >= n || c < 0 || c >= n) return;
         next = dossierTab * n * n + r * n + c;
       } else {
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         next = cell + (e.key === 'ArrowRight' ? 1 : -1);
         if (next < 0 || next >= p.statements.length) return;
       }
       const target = document.getElementById('mark-' + next);
       if (!target) return;
-      e.preventDefault();
-      target.focus({ preventScroll: true });
+      target.focus();
       return;
     }
     if (['Backspace', 'Delete'].includes(e.key)) {
