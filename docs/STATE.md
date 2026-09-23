@@ -1,5 +1,18 @@
 # Live development state
 
+## Swarm Pass-1 merges, 2026-09-23
+
+PR #269 (doc counts: 376 puzzles verified against `content/official-packs.json`,
+13 lessons) merged as `108d2db`; PR #271 (keyboard coverage for all thirteen
+families in `tests/browser_origin.py`, witness mark-button `id` fix, regenerated
+asset-catalogue pins) merged as `a757754`. Both passed full CI on their merge
+heads; the Codex P2 Tab-reachability thread on #271 was fixed in-branch and
+resolved. Coordinator acted as reviewer-of-record after the independent lens
+failed environmentally (could not read diff artifacts); no substantive blocking
+findings. Issues #267/#272 (earlier triage) and #273 (PROJECT-MAP omits the
+bridges row) remain open. Six Pass-1 swarm workers still running; synthesis
+pending their results.
+
 ## CAP04 offline Android preview candidate, 2026-09-22
 
 The source layer now has explicit browser and Capacitor Android preview flavors. The browser flavor
