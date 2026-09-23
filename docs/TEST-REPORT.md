@@ -7,7 +7,7 @@ Do not count a browser emulation run as physical Android or assistive-technology
 | Gate | Scope |
 | --- | --- |
 | `npm run verify` | Formatting, deterministic build, all catalogue solvers, save/worker contracts, regressions and deductions |
-| `python tests/browser_ui.py` | Real Chromium controls in an isolated document; all twelve lessons and families, workshop, exports, four viewport widths |
+| `python tests/browser_ui.py` | Real Chromium controls in an isolated document; all thirteen lessons and families, workshop, exports, four viewport widths |
 | `python tests/browser_origin.py` | Real-origin IndexedDB, reload/restart, notes/settings, backup/restore, conflict protection, quarantine and offline navigation |
 | `python tests/browser_update.py` | Coherent A/B fixture releases on one origin, explicit update, open-tab behavior and saved puzzle continuity |
 | Hosted smoke/acceptance | Actual HTTPS origin, assets/MIME/security headers and disposable-profile gameplay |
