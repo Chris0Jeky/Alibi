@@ -122,6 +122,7 @@ test('unknown events are refused and nothing is buffered before consent', () => 
   h.setActive(true);
   assert.equal(h.call('puzzle.unknown'), false);
   assert.equal(h.call('puzzle.solved'), false);
+  assert.equal(h.call('puzzle.abandon'), false, 'the control event name is exact');
   assert.deepEqual(h.events, []);
 
   h.setActive(false);
@@ -163,6 +164,28 @@ test('one attempt yields at most one terminal: repeated checks, hints and undo r
     'puzzle.started',
     'puzzle.completed',
   ]);
+});
+
+test('restart abandons the open attempt locally without emitting a terminal', () => {
+  const h = harness();
+  h.setActive(true);
+  assert.equal(
+    h.call('puzzle.abandoned'),
+    true,
+    'abandoning with no open attempt is a silent no-op',
+  );
+  assert.deepEqual(h.events, []);
+  h.call();
+  assert.equal(h.call('puzzle.abandoned'), true);
+  assert.deepEqual(h.events, ['puzzle.started']);
+  assert.equal(
+    h.call('puzzle.failed'),
+    false,
+    'the abandoned attempt cannot be closed by a later check',
+  );
+  assert.equal(h.call(), true, 'the next real board change opens a fresh attempt');
+  assert.equal(h.call('puzzle.completed'), true);
+  assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
 });
 
 test('route changes reset the attempt and still report a page view', () => {
@@ -360,6 +383,15 @@ test('the generated adapter admits every journey event the loader emits', () => 
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.completed'), true);
   assert.equal(h.queued(), afterConsent + 5, 'started, hint, failed, started, completed');
+
+  assert.equal(h.context.AlibiJourney(run), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.abandoned'), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
+  assert.equal(
+    h.queued(),
+    afterConsent + 6,
+    'the abandoned start is collected, the abandon itself is local-only',
+  );
 
   h.context.AlibiJourney(run);
   h.toggle(false);
