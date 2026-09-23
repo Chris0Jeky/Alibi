@@ -11,7 +11,8 @@ resolved. Coordinator acted as reviewer-of-record after the independent lens
 failed environmentally (could not read diff artifacts); no substantive blocking
 findings. Issues #267/#272 (earlier triage) and #273 (PROJECT-MAP omits the
 bridges row) remain open. Six Pass-1 swarm workers still running; synthesis
-pending their results.
+pending their results. CONTRIBUTING now documents the stale-`dist/` trap (run
+`npm run verify`, not bare `npm test`); #264 follow-up still open.
 
 ## CAP04 offline Android preview candidate, 2026-09-22
 
