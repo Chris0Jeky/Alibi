@@ -98,7 +98,10 @@ test('missing or modified runtime payloads fail before artifact suites', (t) => 
 
 test('mismatched web and Android build receipts fail', (t) => {
   const { root } = fixture(t);
-  fs.writeFileSync(path.join(root, 'build-info.json'), '{"build":"abcdef123456","version":"0.0.1"}');
+  fs.writeFileSync(
+    path.join(root, 'build-info.json'),
+    '{"build":"abcdef123456","version":"0.0.1"}',
+  );
   assert.match(inspect(root).join('\n'), /receipt/i);
 });
 
@@ -106,10 +109,8 @@ test('malformed identities and receipts produce bounded diagnostics, not a stack
   const { root } = fixture(t);
   fs.writeFileSync(path.join(root, 'build-info.json'), '{broken');
   const names = fs.readdirSync(path.join(root, 'dist/assets'));
-  fs.writeFileSync(
-    path.join(root, 'dist/assets', names.find((n) => n.startsWith('alibi-platform'))),
-    'broken',
-  );
+  const identity = names.find((name) => name.startsWith('alibi-platform'));
+  fs.writeFileSync(path.join(root, 'dist/assets', identity), 'broken');
   assert.ok(inspect(root).length >= 2);
   const result = spawnSync(process.execPath, [script], { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 1);
