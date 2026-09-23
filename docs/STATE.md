@@ -2,7 +2,7 @@
 
 ## Source maintenance checkpoint: 23 September 2026
 
-Reconciled against `main` at `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`.
+Reconciled against `main` at `e79146ed219b6a0159a223308ec66209ad7b17cc`.
 This checkpoint records repository work, not a deployment. Source merges do not update either
 hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
 
@@ -10,7 +10,9 @@ hosted origin automatically. Use live GitHub for later PR/issue status and exact
 | --- | --- |
 | #264: stale test artifacts | #286 merged as `3c37667c97ba9023cd0a110ab322c4a227f5229b`. `npm test` checks source, payload identity and receipts before artifact-dependent suites. Both full verify run `35916329920` and Android run `35916329976` passed head `4f9625cc46898291441ed66039a159a3f783c09b`. |
 | #285: named routes | #287 merged as `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`. Known page casing is normalized without altering puzzle IDs or queries; browser tests assert actual about/login pages and working exits. Full verify `35917035567` and Android `35917035553` passed head `d70b5e4031baea71853f5f7c67effeb7a65a705b`. |
-| #276 / #278: Cabinet landscape and exit target | #288 contains the bounded board/tray layout, 44px return target and real placement/undo/menu/keyboard regressions. See that PR for its current head, required CI and merge decision. Local source-DOM checks cover 667x375, 844x390, portrait and desktop; they do not establish physical-device acceptance. |
+| #276 / #278: Cabinet landscape and exit target | #288 merged as `31e4b83780c28689286222eb32a011c66ec9571e` after full verification and Android checks. The bounded board/tray layout, 44px return target and placement/undo/menu/keyboard regressions are in source. Physical-device acceptance remains separate. |
+| #277: Bridges landscape | #290 implements the height-aware board, adjacent instructions/actions and focused-scroll correction without shrinking 44px island targets. Six local DOM/browser checks and ten engine checks passed. Its first full run `35923855260` failed one of 451 Node tests while Android passed; consult the PR for the final head, CI, review and merge outcome before treating it as accepted. Built-origin verification and existing physical-device gates are not replaced by the local fixture. |
+| #263 / #275: publication chronology | #289 merged as `e79146ed219b6a0159a223308ec66209ad7b17cc` after full run `35920075259` and independent review. The roadmap, state archive and per-origin receipt chronology are reconciled without a new deployment. |
 | #282: local-first architecture skim | #281 now contains a self-contained Alibi decision candidate and acceptance matrix. It no longer depends on machine-local ADR files. Thirteen focused source tests passed. Keep the draft/maintainer-skim gate: no sync server, outbox, replication runtime or accepted ADR is implied. |
 | #257: historical source heading | Already satisfied on the reconciled main source; closed after checking the explicitly earlier checkpoint and retained evidence. |
 
@@ -50,14 +52,12 @@ acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/dev
 
 ## Next focused work
 
-- #277: Bridges on short landscape still exposes only two of four islands after the lesson.
-  Preserve 44px island targets and zoom/pan while reducing surrounding chrome; do not treat the
-  Cabinet layout in #288 as a Bridges fix.
 - #272: complete dossier/witness arrow-key semantics without breaking their Tab/Enter paths.
 - #270 / #274: correct the optional journey receipt boundaries around retry, undo and session
   rollover; do not count restoring/rendering a board as a fresh player attempt.
 - Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
-  does not replace comfort, editorial, accessibility or difficulty calibration.
+  does not replace comfort, editorial, accessibility or difficulty calibration. The landscape
+  source fixes above still need physical Android/TalkBack and enlarged-system-text acceptance.
 
 ## Historical evidence
 
