@@ -16,6 +16,7 @@ function run({
 } = {}) {
   const listeners = new Map();
   const scripts = [];
+  const documentListeners = [];
   const context = {
     ALIBI_CONFIG: { standalone, version: '0.11.3' },
     ALIBI_OBSERVATORY_URL: url,
@@ -29,6 +30,9 @@ function run({
         append(node) {
           scripts.push(node);
         },
+      },
+      addEventListener(type) {
+        documentListeners.push(type);
       },
     },
     addEventListener(type, listener) {
@@ -48,6 +52,7 @@ function run({
     listenerCount(type) {
       return (listeners.get(type) || []).length;
     },
+    documentListeners,
   };
 }
 
@@ -102,5 +107,7 @@ test('standalone and unconfigured builds stay completely inert', () => {
     assert.equal(harness.scripts.length, 0);
     assert.equal(harness.listenerCount('hashchange'), 0);
     assert.equal(harness.context.ALIBI_OBSERVATORY_CONTEXT, undefined);
+    assert.equal(harness.context.AlibiJourney, undefined);
+    assert.deepEqual(harness.documentListeners, []);
   }
 });

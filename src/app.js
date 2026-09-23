@@ -1434,6 +1434,7 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
+      globalThis.AlibiJourney?.(current, 'puzzle.completed');
       globalThis.AlibiTheatre.moment('complete');
       paused = false;
       render();
@@ -1475,6 +1476,7 @@
   }
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
+    globalThis.AlibiJourney?.(current);
     if (history) {
       current.undo.push(C.clone(current.state));
       current.undo = current.undo.slice(-80);
@@ -1699,11 +1701,12 @@
     checking = true;
     const p = current.puzzle,
       issues = E[p.type].validate(p, current.state);
-    if (issues.length)
+    if (issues.length) {
+      globalThis.AlibiJourney?.(current, 'puzzle.failed');
       feedback =
         issues[0].message +
         (issues.length > 1 ? ` (${issues.length} rule conflicts to revisit.)` : '');
-    else if (E[p.type].complete(p, current.state)) feedback = 'Solved. Every rule is satisfied.';
+    } else if (E[p.type].complete(p, current.state)) feedback = 'Solved. Every rule is satisfied.';
     else if (p.type === 'scene' && C.sceneComplete(p, current.state))
       feedback = 'Every placement fits. Now identify the suspect in the victim’s room.';
     else if (p.type === 'dossier' && X.dossierReady(p, current.state))
@@ -1715,6 +1718,7 @@
   }
   function showHint() {
     if (!current) return;
+    globalThis.AlibiJourney?.(current, 'hint.requested');
     const hint = C.insights.deduction(current.puzzle, current.state);
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
@@ -3198,6 +3202,7 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
+    globalThis.AlibiJourney?.(current);
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
     current.redo = [];

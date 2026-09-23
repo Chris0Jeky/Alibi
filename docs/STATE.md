@@ -275,9 +275,16 @@ the nine-scenario real-origin suite passed 127 checks, and the synthetic
 two-release update suite passed 18 checks. These results do not establish
 hosted deployment, physical-device behavior or TalkBack acceptance.
 
-PR #183 remains parked on Pulseboard #63: the collector must admit the
-`puzzle.failed` event before the host journey branch can merge. The dependency
-is still an open draft at `7cb0687`; host-only tests are not collector proof.
+PR #183 was reconciled with main on 2026-09-23 after the owner admitted
+`puzzle.failed` for the Alibi pilot (Pulseboard HUMAN_TODO q-11). The journey
+state machine now lives in `src/observatory-loader.js` as `AlibiJourney`, over
+the generated facade's `track` and `status().active`; `observatory/browser.js`
+is again byte-for-byte Pulseboard installer output (Pulseboard #63 head
+`a7f7576`, SHA-256 `1e4e1082…05c7e0`) with `puzzle.failed` and releases through
+0.11.5. Local proof: the node and browser Observatory suites, `observatory/check.mjs`
+and the budget suite pass; initial JavaScript is 128,497 gzip bytes against the
+129,024-byte cap (+293 from main). Collector admission, deployment and hosted
+acceptance are not claimed by this branch.
 
 ## Remaining gates
 
