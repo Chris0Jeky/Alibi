@@ -28,7 +28,8 @@
     "assets:gallery": "node tools/serve-assets.cjs",
     "cloudflare:preview": "wrangler dev --config wrangler.jsonc",
     "cloudflare:check": "wrangler deploy --dry-run --config wrangler.jsonc",
-    "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc"
+    "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc",
+    "pretest": "node tools/check-test-build.cjs"
   },
   "devDependencies": {
     "@capacitor/android": "8.5.2",
