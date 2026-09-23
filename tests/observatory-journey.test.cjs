@@ -269,7 +269,7 @@ test('application lifecycle calls the helper with fixed names only', () => {
   );
   assert.match(
     appSource,
-    /if \(wasSolved\) reviewing = true;\s*else if \(!reviewing\) globalThis\.AlibiJourney\?\.\(current\);/,
+    /completion\(\);\s*\/\/ Undo after a failure reopens the retry\.[\s\S]*?if \(wasSolved \|\| current\.completedAt\) reviewing = true;\s*else if \(!reviewing\) globalThis\.AlibiJourney\?\.\(current\);/,
   );
   assert.match(
     appSource,

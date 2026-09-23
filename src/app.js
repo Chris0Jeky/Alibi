@@ -1796,14 +1796,15 @@
     to.push(C.clone(current.state));
     current.state = from.pop();
     current.completedAt = null;
-    // Undo after a failure reopens the retry; stepping off a solved board only reviews it.
-    if (wasSolved) reviewing = true;
-    else if (!reviewing) globalThis.AlibiJourney?.(current);
     feedback = '';
     checking = false;
     accuseChoice = null;
     if (current.puzzle.type === 'trail') trailValue = nextTrail(current.state, current.puzzle);
     completion();
+    // Undo after a failure reopens the retry. Touching a solved board on either side of the
+    // step only reviews it, re-derived here so route re-entry cannot turn a review into a solve.
+    if (wasSolved || current.completedAt) reviewing = true;
+    else if (!reviewing) globalThis.AlibiJourney?.(current);
     enqueueSave();
     render();
   }
