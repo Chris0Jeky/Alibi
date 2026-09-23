@@ -1,328 +1,75 @@
 # Live development state
 
-## Swarm batch v3 merges, 2026-09-23
+## Source maintenance checkpoint: 23 September 2026
 
-PR #283 (worker pack cap 50→150, `tests/pack-cap.test.cjs` parity regression)
-merged as `1e7b872`; PR #284 (About + no-accounts login pages for shared-path
-routes) merged as `1b804d1`. Codex P2 on #283 (shared-object validator capture)
-fixed with mutation proof and resolved; #284 got an independent lens APPROVE
-with follow-ups tracked in #285, plus local render verification and 390px
-screenshots. Batch-v3 Workflow scheduler stalled (single child admitted then
-idle, siblings never admitted), so both fixes were executed inline in isolated
-worktrees. #273 closed as invalid (coordinator miscount; bridges row predates
-#269). Six Pass-1 swarm workers still running at merge time.
+Reconciled against `main` at `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`.
+This checkpoint records repository work, not a deployment. Source merges do not update either
+hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
 
-## Swarm Pass-1 merges, 2026-09-23 (updated: #265, #266)
+| Work | Evidence and continuation |
+| --- | --- |
+| #264: stale test artifacts | #286 merged as `3c37667c97ba9023cd0a110ab322c4a227f5229b`. `npm test` checks source, payload identity and receipts before artifact-dependent suites. Both full verify run `35916329920` and Android run `35916329976` passed head `4f9625cc46898291441ed66039a159a3f783c09b`. |
+| #285: named routes | #287 merged as `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`. Known page casing is normalized without altering puzzle IDs or queries; browser tests assert actual about/login pages and working exits. Full verify `35917035567` and Android `35917035553` passed head `d70b5e4031baea71853f5f7c67effeb7a65a705b`. |
+| #276 / #278: Cabinet landscape and exit target | #288 contains the bounded board/tray layout, 44px return target and real placement/undo/menu/keyboard regressions. See that PR for its current head, required CI and merge decision. Local source-DOM checks cover 667x375, 844x390, portrait and desktop; they do not establish physical-device acceptance. |
+| #282: local-first architecture skim | #281 now contains a self-contained Alibi decision candidate and acceptance matrix. It no longer depends on machine-local ADR files. Thirteen focused source tests passed. Keep the draft/maintainer-skim gate: no sync server, outbox, replication runtime or accepted ADR is implied. |
+| #257: historical source heading | Already satisfied on the reconciled main source; closed after checking the explicitly earlier checkpoint and retained evidence. |
 
-PR #265 (CONTRIBUTING stale-`dist/` trap doc + STATE record) merged as `d5771ed`;
-PR #266 (README 355/361/0.11.3 passages reconciled to published 0.11.5/376 per
-`content/releases.json`) merged as `c6f3047`. Both Codex threads resolved;
-one `browser_september_feedback` KeyError on an identical-code head investigated
-as a flake (sibling green twice, re-run green). Issues #275 (ROADMAP baseline)
-and #273 (PROJECT-MAP bridges row) filed as follow-ups.
+The maintenance workspace came from an uploaded source ZIP verified against original main
+`bda28b1dad5ec500808ef758ed1d05c0425868e2`. Local dependency installation failed with DNS
+`EAI_AGAIN`; local browser HTTP navigation was blocked. Source tests and isolated inline Chromium
+fixtures were used for reproduction, with full build/HTTP/platform proof taken only from the
+relevant exact-head GitHub Actions runs. No local fixture is a deployment or persistence receipt.
 
-PR #269 (doc counts: 376 puzzles verified against `content/official-packs.json`,
-13 lessons) merged as `108d2db`; PR #271 (keyboard coverage for all thirteen
-families in `tests/browser_origin.py`, witness mark-button `id` fix, regenerated
-asset-catalogue pins) merged as `a757754`. Both passed full CI on their merge
-heads; the Codex P2 Tab-reachability thread on #271 was fixed in-branch and
-resolved. Coordinator acted as reviewer-of-record after the independent lens
-failed environmentally (could not read diff artifacts); no substantive blocking
-findings. Issues #267/#272 (earlier triage) and #273 (PROJECT-MAP omits the
-bridges row) remain open. Six Pass-1 swarm workers still running; synthesis
-pending their results. CONTRIBUTING now documents the stale-`dist/` trap (run
-`npm run verify`, not bare `npm test`); #264 follow-up still open.
+## Published browser baseline and dated receipts
 
-## CAP04 offline Android preview candidate, 2026-09-22
+Version **0.11.5** contains 376 catalogue entries across thirteen puzzle families. The latest
+receipts present in the [release record](RELEASE-0.11.5.md), reviewed on this date, are:
 
-The source layer now has explicit browser and Capacitor Android preview flavors. The browser flavor
-remains the default and reports `nativeHost:false`; the host flavor requires the official bridge,
-Android/native status and the exact `https://localhost` origin before installing its immutable
-platform facade. Native document, feedback, recovery and telemetry capabilities remain disabled.
-Android backup metadata excludes all nine documented data domains for both legacy and Android
-12 extraction formats, including cloud backup and device transfer. The preview identity is
-`example.unapproved.alibi.preview`, uses package version naming and local debug signing, ignores
-generated assets and keys, and disables production release variants.
+| Origin | Receipt date | Build | Recorded source |
+| --- | --- | --- | --- |
+| Cloudflare | 23 September 2026 | `d6862c274553` | `a3b48daddb0eae1832c61d3358a603593d980da9` |
+| Sites | 22 September 2026 | `b8c6f194c5a4` | `c8a613a6278845ce7e3df8fe8adff1c505942cdf` |
 
-The source checks cover missing/wrong bridge, target/origin/build identity, immutable facade and
-capability honesty, plus browser/native flavor substitution and receipt rejection. `native:sync`
-adds the official Capacitor sync and byte-exact copied-public closure. The synced tree passes full
-local verification (432 Node tests and both Quiet Wing suites). With Android SDK 36, JDK 22 and
-Gradle 8.14.3, both debug and release-like `capacitorPreview` APKs compile. The release-like APK
-is zipaligned and verified with local debug signing; its 730 archive entries contain 292 bundled
-web assets, no `sw.js` and no native `.so` libraries. Thus this artifact has no packaged native
-libraries to check for 16 KiB ELF alignment. In an Android 36 emulator with airplane mode on, the
-release-like APK launches offline, plays a Sudoku move and restores that exact move after force
-stop and relaunch. The debug APK also installs and launches offline. Tracked Gradle lockfiles cover
-the app and Capacitor subprojects, including the Cordova project regenerated by sync. SHA-256
-verification metadata records the resolved artifacts. These are sampled emulator results, not full
-CAP04 acceptance. Every-feature offline play, minimum-WebView support, splash failure recovery,
-physical-device/accessibility checks, backup transfer and release approval remain open under
-CAP04/#126 and the dependent packages.
-The pinned npm moderate chain (`@capacitor/cli -> xcode -> uuid@7.0.3`, explicit-buffer UUID
-advisory) is a toolchain-only finding with no Android runtime call path; it was not overridden.
+These are dated document readbacks, not new live-origin probes. Older `df04399c4ee7`,
+`ce60bde20b83` and `b8c6f194c5a4` Cloudflare checkpoints are historical. Preserve their
+checksums and rollback evidence; never infer that every origin has the same current build.
+The hosting CSP/WebP constraints remain #6. No deployment or rollback was executed here.
 
-## Published Block Cabinet host continuity, 2026-09-22
+## Android source preview, not a production release
 
-PR #260 merged as `c8a613a6278845ce7e3df8fe8adff1c505942cdf` after four
-green current-head checks, independent review and the post-push aging floor.
-Both existing origins now serve version 0.11.5, build `b8c6f194c5a4`, from
-that exact merged source. Cloudflare Worker version
-`20f003f6-cd7a-42b4-b743-963ad0d9e09e` and Sites version 21 deployment
-`appgdep_6ab303e27f0c8191b42505d84154da0d` succeeded. The separate
-saves on both origins remain intact.
+CAP04 has pinned browser/Capacitor flavors, a strict native bootstrap, sync/build receipts and
+sampled Android 36 emulator evidence for debug and release-like preview APKs. See the
+[archived CAP04 record](STATE-ARCHIVE-2026-09-23.md#cap04-offline-android-preview-candidate-2026-09-22)
+for the exact scope. These use local debug signing and the unapproved preview application ID;
+they are not a production-signed AAB or a Play Store release.
 
-The #160 browser probe reproduced four synchronous removals of the tactile
-host during one placement. The Club action path moved the host into `body`
-before each full app render and returned it afterward; animation-frame
-sampling missed those short detachments. The merged fix keeps the Club's
-replay/save action but suppresses its redundant full app render while the
-enhanced surface owns the visible board. Switching to Simple controls
-refreshes the legacy view before exposing it.
+Every-feature offline play, minimum-WebView compatibility, physical devices/accessibility,
+recovery, transfer, production identity/signing and owner release approval remain open under
+#126 and the dependent [Capacitor packages](capacitor/README.md). Source, emulator and human
+acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/device gates.
 
-The strengthened browser suite passes 89 checks at 390px and 1280px: a
-mutation observer sees no host removals during reduced and ordinary motion,
-the host retains nonzero geometry, and the ordinary score effect draws on a
-connected canvas. Replay, undo/redo, Simple controls, Cascade and offline
-reload checks also pass. Phone and desktop screenshots were inspected.
-The merged source passes `npm run verify` and `cloudflare:check`; both hosted
-origin suites pass 168 checks. Cloudflare's 291 public files match local bytes.
-On Sites, 281 non-HTML files match; ten HTML files each differ only by one
-938-character hosting challenge script, with the main meta CSP retained.
-Actual updates on both origins from `ce60bde20b83` to `b8c6f194c5a4`
-preserve the saved puzzle and two-move state after Save & update and an offline
-reload. Full receipts are in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
-Physical Android comfort, touch and TalkBack acceptance remain open in
-[HUMAN_TODO.md](../HUMAN_TODO.md); this release does not close #160.
+## Next focused work
 
-## Published backup import recovery, 2026-09-22
+- #277: Bridges on short landscape still exposes only two of four islands after the lesson.
+  Preserve 44px island targets and zoom/pan while reducing surrounding chrome; do not treat the
+  Cabinet layout in #288 as a Bridges fix.
+- #272: complete dossier/witness arrow-key semantics without breaking their Tab/Enter paths.
+- #270 / #274: correct the optional journey receipt boundaries around retry, undo and session
+  rollover; do not count restoring/rendering a board as a fresh player attempt.
+- Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
+  does not replace comfort, editorial, accessibility or difficulty calibration.
 
-PR #258 merged as `6d6e3e6b14ab04bb39fe333fc884a72fb39eb72c` after six green
-current-base checks, independent review and the post-push aging floor. Both
-existing origins served version 0.11.5, build `ce60bde20b83`, built from
-that merged source. The Cloudflare Worker version is
-`f9526b2d-8a1b-4221-bed1-8bcc73655d3f`; Sites version 20 deployed as
-`appgdep_6ab2eed4184c8191926045fd1042c98f` at 21:10:59 UTC. This
-update preserves the separate saves at each origin.
+## Historical evidence
 
-The merged source passes `npm run verify` (426 Node tests and both Quiet Wing
-suites), `cloudflare:check`, 23 backup-import browser checks and 168 real-origin
-checks. Each hosted origin passes the full 168-check origin suite. All 291
-Cloudflare files match local bytes. Sites returns all 291; 281 non-HTML files
-match, and each of ten HTML files differs only by one 938-character platform
-challenge script. The main page's meta CSP remains; the existing Sites HTTP
-CSP and WebP MIME limitations remain #6. Actual updates on both origins from
-`df04399c4ee7` to `ce60bde20b83` preserve the exact saved puzzle and move
-after Save & update and offline reload. Receipts and rollback references are in
-[RELEASE-0.11.5.md](RELEASE-0.11.5.md). Physical Android and human acceptance
-remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+[STATE-ARCHIVE-2026-09-23.md](STATE-ARCHIVE-2026-09-23.md) preserves the previous state file
+byte for byte, including publication, source, QA and rollback receipts. Its title, present-tense
+wording, worker activity and PR statuses belong to those historical checkpoints, not live state.
+The [roadmap](../ROADMAP.md) separates published browser capability from native preview work
+and future services.
 
-## Published platform startup update, 2026-09-22
+### Block Cabinet phone action hierarchy candidate, 2026-09-17
 
-PR #255 merged as `cddeea1126e146ad56cb2bbb20ca0ebb57433e97` after all seven
-current-base checks passed, including full CI run `35772430005`, independent
-review and the post-push aging floor. Both existing origins now serve the
-reviewed source `1819ae38d5b2d4fa0fd001370bc7bc3627158c93`, version 0.11.5,
-build `df04399c4ee7`. The source is an ancestor of the merge; publishing used
-its already-verified artifact without rebuilding from the merge commit.
-
-Cloudflare Worker version `64329d75-8b37-4159-8851-1b22579d97e3` uploaded five
-changed files and retained 286. Sites version 19, deployment
-`appgdep_6ab2d8b1eafc8191997d2d58a24c8ab2`, succeeded at 19:36:34 UTC.
-Both complete nine-scenario hosted origin suites pass 168 checks. Actual
-updates from `9760fe9fcf64` wait for Save & update, preserve two moves and the
-exact pinned puzzle, retain an observer tab without forced reload, and reload
-offline with the same state. Disposable profiles closed without cleanup errors.
-
-All 291 Cloudflare public files match local hashes. Sites returns all 291
-files successfully: 281 non-HTML files match, while ten HTML files retain their
-source with one 938-character platform challenge script inserted. The main
-meta CSP remains present; missing HTTP CSP and 51 WebP MIME limits remain #6.
-Receipts and rollback references are in [RELEASE-0.11.5.md](RELEASE-0.11.5.md).
-
-The merged `codex/cap03-platform-startup-20260922` work installs the shared browser
-platform before the app in the PWA, standalone preview and Android payload.
-Build identity records the real commit anchor and dirty-source status; Android
-preview capabilities explicitly report that no native host or vault exists.
-The schema-2 Android receipt separates the runtime graph SHA from the complete
-artifact SHA and leaves save compatibility undeclared pending CAP-05.
-
-App feedback now uses the port. A reproduced vibration exception previously
-interrupted a validated move before completion, saving and rendering; focused
-tests now prove those steps finish for throwing, rejected and unresolved
-feedback. The app owns its lifecycle lease and disposes it on final page exit,
-while retaining it for a browser-cached page return. Actual document migration,
-activity/Club lifecycle consumers and native recovery remain follow-on work
-under #125 and the dependent CAP packages; #125 remains open.
-
-At `c7b1b8b`, `npm run verify` passes formatting, web/Android builds, all 421
-Node tests (zero failures/skips), and both Quiet Wing checks (581,847 reducer
-assertions and 29 contracts). The first full run exposed two outdated startup
-accounting assertions and stale app source receipts; those were corrected.
-A later 5 ms fixture deadline could expire during real hashing before its
-intended readback phase. Its controlled timer now expires only after the
-provider closes; production deadlines are unchanged.
-
-At the unchanged runtime source `f4be7e9`, the isolated browser UI passes 184
-checks, completing all thirteen games and exporting saves while vibration
-deliberately throws. Android preview passes 19 checks with no native bridge,
-service worker or remote request. At `6bfbac7`, the complete nine-scenario
-real-origin suite passes 168 checks and the synthetic two-release update
-suite passes 18. Phone/desktop viewport screenshots were visually inspected;
-these are simulated browser results, not physical-device acceptance.
-At `6a5fa5b`, the complete bundle passes all 421 Node tests, with fresh UI
-(184), real-origin (168) and synthetic update (18) checks matching build
-`4284a6e96e86`. Independent review of the runtime and its follow-up diff
-found no blockers.
-
-Hosted CI then exposed a separate entry point: the explicit Wrenmere source
-preview assembled the app without its required platform facade. That
-generator now shares the release bootstrap compiler, installs a complete
-web identity, and hashes its actual inline script/style payload separately
-from a release graph. The five focused build tests pass, including an
-emitted-source regression; the corrected source preview passes all 79 house
-and 250 mobile checks with no page errors. At the clean `1819ae3` head,
-full local verification passes all 422 Node tests, both Quiet Wing suites,
-formatting and web/Android builds. Fresh UI (184), origin (168) and synthetic
-update (18) reports match `df04399c4ee7`; all nine package checksum entries
-match. Human and physical acceptance in [HUMAN_TODO.md](../HUMAN_TODO.md)
-remains open.
-
-## Previous 0.11.5 publication on both origins, 2026-09-22
-
-Merged source `4ad450ff032d91d0a483548ab2791b3b202976e2` (PR #252), build
-`9760fe9fcf64`, was published on both existing origins. Cloudflare Worker
-`alibi-after-hours-preview` runs version `31412617-9de1-41f2-927b-371b45c09460`
-(six files uploaded, 283 retained). Sites runs version 18, deployment
-`appgdep_6ab2c17f3fd881918cbdd3a094d019fd`, succeeded at 17:57:52 UTC.
-The complete receipts and prior rollback references are in
-[RELEASE-0.11.5.md](RELEASE-0.11.5.md). Saves remain separate per origin.
-
-Both hosted origins pass all 156 real-origin checks across nine scenarios,
-including cold/warm shared links, controlled `/login/`, query preservation,
-offline navigation and retained puzzle progress (#244). Actual old-to-new
-hosted updates also preserve two moves and the pinned puzzle definition,
-wait for Save & update, retain an observer tab without forced reload, and
-reload offline with the exact saved state. The prior builds were Cloudflare
-`f0baec5e3291` and Sites `b08bc7a1e5ea`. The Sites update assertions passed;
-a later Windows temporary-profile cleanup error was separately resolved.
-
-All 289 Cloudflare public files match local SHA-256 values. On Sites, 279
-non-HTML files match; ten HTML files retain their source content with one
-hosting-layer challenge script inserted. The main page's meta CSP remains
-present. Sites still lacks the repository's HTTP CSP header and serves 51
-WebP files as octet-stream (#6); these platform limits remain open.
-
-## Earlier source checkpoint, 2026-09-22
-
-The earlier published source base was `origin/main` at `4ad450f`. It included the merged
-unknown-route recovery (#233), Android-aware startup recovery (#236), the
-0.11.5 release and its follow-up routing and deployment records through #248.
-Published puzzle IDs, revisions, save schemas and the app's offline ownership
-remain unchanged.
-
-The Cabinet restore picker consumer was subsequently reviewed, merged and
-published in the backup recovery update above. Its browser capability fallback
-and atomic restore behaviour are covered by that update's source and hosted
-checks. The earlier 125 KiB app gzip ceiling was exceeded by 167 bytes; this
-persists in the published build and remains a size-budget follow-up.
-
-PR #238 merged as `d091d19ca942c1e8cec614038666ead9cfc73949`, integrating the
-provider-phase regression and PR #243's coherent Bridges zoom sampler after
-all three required CI workflows passed at `d3cc268`. PR #239 merged the
-live-state refresh as `d729d70a67a1c08898c1954d0a7aedb7c945ca7b` after CI
-run `35756590457` passed. PR #251 merged as
-`aa777181ee67722f254830c8347a0fcab4320b5a` after CI run `35759764242` and
-independent review passed at `dbbfbba`. It corrects the packager's stale
-seven-scenario browser evidence contract and the hosted suite's reused cold
-profile. The packager accepts the ordered
-nine-scenario report, including `shared_paths` and `malformed_persisted`,
-while rejecting stale, incomplete, duplicate, focused, failed or wrong-build
-reports. Packaging never establishes hosted or physical acceptance.
-
-PR #252 merged as `4ad450ff032d91d0a483548ab2791b3b202976e2` after all five
-current-base CI jobs passed at `6d6558e299b73c824298b5240004c0a8af7127ec`
-(full verification run `35761649274`) and independent review requalified the
-main-based diff. Build `9760fe9fcf64` fixes the confirmed Sites worker failure.
-Sites canonicalizes
-the cached alias-file URLs through HTTP redirects; a followed-redirect
-response cannot satisfy a manual-mode navigation. The worker now rewraps
-only those cached alias responses, preserving their body, status and headers.
-The real-redirect Node regression is red before the fix and green after it;
-all 11 focused Node tests pass, including 85 existing worker/build assertions.
-A loopback host with the same canonical redirects reproduces the old failure
-and passes all 156 checks in the complete nine-scenario suite with the fix,
-with no uncaught browser errors. Formatting and web/Android builds pass;
-the full local Node run is 405/406, with only the unchanged Windows symlink
-permission fixture failing (#250). The 18-check synthetic update suite and
-independent source review pass. The hosted results above qualify publication.
-
-The final Sites run also exposed an evidence-only race: its asset recorder
-counted the optional, post-load usage-sharing script as a startup dependency.
-The recorder now checks the emitted deferred shell scripts, still fails on
-missing required responses, and exercises cold startup with the optional
-script blocked. The corrected full hosted run passes 156 checks with no
-uncaught page errors. This test correction does not change the deployed build.
-
-### Verification boundary
-
-The Windows document fixture follow-up (#250) now makes `npm run verify`
-fully green on this host: formatting, web/Android builds, 407 Node tests
-with zero failures or skips, and both Quiet Wing scripts pass. Windows
-checks a real file through an outside parent junction and separately rejects
-a directory at an allowlisted document path; POSIX keeps direct file-symlink
-coverage. The guard implementation and machine permissions are unchanged.
-`npm run bundle` also passes for build `9760fe9fcf64`; its checksums match
-and it includes the complete nine-scenario, 156-check browser report plus
-the matching synthetic-update report. Packaging still marks Android
-acceptance unverified. Earlier 405/406 results below are historical snapshots.
-
-PR #238 replaces scheduler-turn polling with explicit provider-stream request
-and late-abort signals. Its fixture retains a real SHA-256 digest delayed past
-150 turns, a 1000 ms operation deadline, exactly one abort, and no write or
-close after cancellation. PR #243 samples the same Bridges DOM geometry across
-three stable frames for baseline, enlarged and restored states, retaining the
-44px target floor, no-overflow check and zero-move assertion.
-
-At `d3cc2688a9cdff35cd5ccd36bd6930cd21b182de`, all 14 platform tests and nine
-real-origin Chromium mobile QA tests pass locally. The independent review
-found no merge blockers. Formatting and web/Android builds pass; the unchanged
-Windows symlink-permission fixture prevents a fully green local Node run.
-Linux CI subsequently passed in runs `35754591274`, `35754589032` and
-`35754589020` before #238 merged. The full local UI suite passed 182 checks,
-the nine-scenario real-origin suite passed 127 checks, and the synthetic
-two-release update suite passed 18 checks. These results do not establish
-hosted deployment, physical-device behavior or TalkBack acceptance.
-
-PR #183 was reconciled with main on 2026-09-23 after the owner admitted
-`puzzle.failed` for the Alibi pilot (Pulseboard HUMAN_TODO q-11). The journey
-state machine now lives in `src/observatory-loader.js` as `AlibiJourney`, over
-the generated facade's `track` and `status().active`; `observatory/browser.js`
-is again byte-for-byte Pulseboard installer output (Pulseboard #63 head
-`a7f7576`, SHA-256 `1e4e1082…05c7e0`) with `puzzle.failed` and releases through
-0.11.5. Local proof: the node and browser Observatory suites, `observatory/check.mjs`
-and the budget suite pass; initial JavaScript is 128,497 gzip bytes against the
-129,024-byte cap (+293 from main). Collector admission, deployment and hosted
-acceptance are not claimed by this branch.
-
-## Remaining gates
-
-The release and source work remain subject to the human actions in
-[HUMAN_TODO.md](../HUMAN_TODO.md), including the physical Android recovery and
-accessibility checks (q-2), Quiet Wing acceptance (q-4), Wrenmere playtest
-(q-7), and September additions and difficulty calibration (q-8). Browser and
-CI evidence cannot close those device and human gates.
-
-### Block Cabinet tactile motion candidate
-
-The Block Cabinet phone action hierarchy candidate, 2026-09-17, remains a
-source checkpoint with simulated-browser evidence only. Its boundary remains
-live: physical Android touch, TalkBack, comfort review and human acceptance stay open.
-Neither newer mobile QA nor simulated browser viewports replaces those checks.
-
-The complete prior state, including concurrent integration history, is
-preserved byte-for-byte in
-[STATE-HISTORY-2026-09-22.md](STATE-HISTORY-2026-09-22.md), Git blob
-`66604fea62153624911e43ed57f2dab5b35a837b`. Historical candidate labels and
-older receipts remain in that archive rather than serving as current release
-status.
+The earlier candidate and proving checks remain in the archive. In particular,
+physical Android touch, TalkBack, comfort review and human acceptance stay open.
+Do not convert that historical source proof, or the newer landscape regressions, into a native
+release signoff.
