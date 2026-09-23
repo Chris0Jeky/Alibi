@@ -44,7 +44,7 @@ test('shared privacy path opens the privacy route with its query', () => {
   }
 });
 
-test('paths without an app page land on their named hash route', () => {
+test('shared about and login paths land on their named app routes', () => {
   for (const pathname of ['/about', '/login', '/About/', '/LOGIN']) {
     const result = execute({ pathname });
     const expected = `#/${pathname.replace(/^\/+|\/+$/g, '').toLowerCase()}`;
@@ -72,5 +72,40 @@ test('inherited names stay inert as paths without breaking boot', () => {
     assert.equal(result.replacements.length, 0, pathname);
     assert.equal(result.timers.length, 1, 'the recovery watchdog still installs');
     assert.equal(typeof result.context.AlibiBootReady, 'function');
+  }
+});
+
+test('canonical hash page casing is normalized without changing IDs or queries', () => {
+  for (const [hash, expected] of [
+    ['#/ABOUT', '#/about'],
+    ['#/LoGiN?from=Desk?Detail', '#/login?from=Desk?Detail'],
+    ['#/PLAY/Custom-Case%40A?book=MyBook', '#/play/Custom-Case%40A?book=MyBook'],
+  ]) {
+    const result = execute({ hash });
+    assert.deepEqual(result.replacements, [expected]);
+    result.listeners.get('hashchange')();
+    assert.deepEqual(result.replacements, [expected], 'normalization is idempotent');
+  }
+});
+
+test('subsequent hash changes normalize before the app reads the route', () => {
+  const result = execute({ hash: '#/home' });
+  result.location.hash = '#/LOGIN';
+  result.listeners.get('hashchange')();
+  assert.equal(result.location.hash, '#/login');
+});
+
+test('unknown, encoded and inherited hash names are not promoted to known pages', () => {
+  for (const hash of [
+    '#/ABOUT-other',
+    '#/%61bout',
+    '#/constructor',
+    '#/__proto__',
+    '#/toString',
+    '#/<img-src=x-onerror=alert(1)>',
+  ]) {
+    const result = execute({ hash });
+    assert.deepEqual(result.replacements, [], hash);
+    assert.equal(result.location.hash, hash);
   }
 });
