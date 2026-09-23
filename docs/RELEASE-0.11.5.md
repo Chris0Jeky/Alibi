@@ -17,6 +17,21 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ## Publication and delivery
 
+### Observatory puzzle journey, 2026-09-23 (Cloudflare origin only)
+
+The Cloudflare origin now serves build `` from merged source
+`a3b48daddb0eae1832c61d3358a603593d980da9` (PR #183), deployed as Worker
+version `3d83bc77-5202-4a12-8668-485ca0c16f64` after uploading six changed
+files and retaining 285; the previous version `20f003f6…` is the rollback
+candidate. All 291 public files return 200 and match local SHA-256 values.
+The served `assets/observatory.1e4e10824d07.js` lists `puzzle.failed` and
+release `0.11.5`, its endpoint is unchanged, and `connect-src` still names the
+collector. The Pulseboard collector admitted the same event and release on a
+scratch preview before its production deploy (Pulseboard #63, owner decision
+q-11). The range also ships #271 (witness mark focus). Sites was not
+redeployed and still serves `b8c6f194c5a4`; the artifact stays silent off the
+registered origin. No consented production journey event has been observed yet.
+
 ### Block Cabinet host continuity, 2026-09-22
 
 Both existing origins now serve build `b8c6f194c5a4` from merged source
