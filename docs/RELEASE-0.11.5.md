@@ -19,7 +19,7 @@ the catalogue grows from 361 to 376 puzzles across 20 to 22 packs.
 
 ### Observatory puzzle journey, 2026-09-23 (Cloudflare origin only)
 
-The Cloudflare origin now serves build `` from merged source
+The Cloudflare origin now serves build `d6862c274553` from merged source
 `a3b48daddb0eae1832c61d3358a603593d980da9` (PR #183), deployed as Worker
 version `3d83bc77-5202-4a12-8668-485ca0c16f64` after uploading six changed
 files and retaining 285; the previous version `20f003f6…` is the rollback
