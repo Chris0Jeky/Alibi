@@ -168,16 +168,24 @@ test('unknown hashes render a deliberate recovery surface after the app opens', 
   );
 });
 
-test('shared paths without an app page reach the recovery surface', () => {
+test('about and login have app pages instead of the recovery surface', () => {
   for (const hash of ['#/about', '#/login']) {
     const result = execute(hash);
     result.context.AlibiBootReady();
-    assert.ok(result.document.getElementById('route-not-found'), hash);
+    assert.equal(result.document.getElementById('route-not-found'), null, hash);
   }
 });
 
 test('canonical routes do not receive the not-found surface', () => {
-  for (const hash of ['#/home', '#/library', '#/salon', '#/quiet/castle/map', '#/settings']) {
+  for (const hash of [
+    '#/home',
+    '#/library',
+    '#/salon',
+    '#/quiet/castle/map',
+    '#/settings',
+    '#/about',
+    '#/login',
+  ]) {
     const result = execute(hash);
     result.context.AlibiBootReady();
     assert.equal(result.document.getElementById('route-not-found'), null, hash);

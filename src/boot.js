@@ -10,7 +10,7 @@
       wrenmere: (x) => ['quiet', 'castle', ...(x.length ? x : ['map'])],
     },
     known =
-      /^(home|library|play|casebooks|story|journal|settings|workshop|privacy|changelog|salon|lab|club|quiet)$/,
+      /^(home|library|play|casebooks|story|journal|settings|workshop|privacy|about|login|changelog|salon|lab|club|quiet)$/,
     pathRoutes = {
       __proto__: null,
       privacy: 'privacy',
