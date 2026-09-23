@@ -1,6 +1,13 @@
 # Live development state
 
-## Swarm Pass-1 merges, 2026-09-23
+## Swarm Pass-1 merges, 2026-09-23 (updated: #265, #266)
+
+PR #265 (CONTRIBUTING stale-`dist/` trap doc + STATE record) merged as `d5771ed`;
+PR #266 (README 355/361/0.11.3 passages reconciled to published 0.11.5/376 per
+`content/releases.json`) merged as `c6f3047`. Both Codex threads resolved;
+one `browser_september_feedback` KeyError on an identical-code head investigated
+as a flake (sibling green twice, re-run green). Issues #275 (ROADMAP baseline)
+and #273 (PROJECT-MAP bridges row) filed as follow-ups.
 
 PR #269 (doc counts: 376 puzzles verified against `content/official-packs.json`,
 13 lessons) merged as `108d2db`; PR #271 (keyboard coverage for all thirteen
