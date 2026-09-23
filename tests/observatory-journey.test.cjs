@@ -100,11 +100,19 @@ test('withdrawal and puzzle changes reset local attempt state', () => {
   h.setActive(false);
   assert.equal(h.call('hint.requested'), false);
   h.setActive(true);
-  assert.equal(h.call('puzzle.completed'), true, 're-consent begins a fresh bounded attempt');
+  assert.equal(
+    h.call('puzzle.completed'),
+    false,
+    'an attempt not observed under current consent has no terminal',
+  );
+  assert.equal(h.call(), true, 're-consent begins a fresh bounded attempt');
+  assert.equal(h.call('puzzle.completed'), true);
   assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
 
   h.call();
   h.change({ key: 'second' });
+  assert.equal(h.call('puzzle.failed'), false, 'a puzzle change closes nothing on the new puzzle');
+  h.call();
   h.call('puzzle.failed');
   assert.deepEqual(h.events.slice(-3), ['puzzle.started', 'puzzle.started', 'puzzle.failed']);
 });
@@ -123,7 +131,38 @@ test('unknown events are refused and nothing is buffered before consent', () => 
   h.setActive(true);
   assert.deepEqual(h.events, [], 'pre-consent calls are dropped, never replayed');
   assert.equal(h.call('hint.requested'), true);
-  assert.deepEqual(h.events, ['puzzle.started', 'hint.requested']);
+  assert.deepEqual(h.events, ['hint.requested'], 'a hint is reported without opening an attempt');
+});
+
+test('one attempt yields at most one terminal: repeated checks, hints and undo reviews add none', () => {
+  const h = harness();
+  h.setActive(true);
+  assert.equal(h.call('hint.requested'), true);
+  assert.equal(h.call('puzzle.failed'), false, 'a check before any move closes nothing');
+  h.call();
+  assert.equal(h.call('puzzle.failed'), true);
+  assert.equal(
+    h.call('puzzle.failed'),
+    false,
+    'pressing Check again on the same board is not another attempt',
+  );
+  assert.equal(h.call('hint.requested'), true);
+  assert.equal(h.call('puzzle.failed'), false);
+  h.call();
+  assert.equal(h.call('puzzle.completed'), true);
+  assert.equal(
+    h.call('puzzle.completed'),
+    false,
+    'undo/redo back to the solved state is a review, not a solve',
+  );
+  assert.deepEqual(h.events, [
+    'hint.requested',
+    'puzzle.started',
+    'puzzle.failed',
+    'hint.requested',
+    'puzzle.started',
+    'puzzle.completed',
+  ]);
 });
 
 test('route changes reset the attempt and still report a page view', () => {
@@ -132,6 +171,8 @@ test('route changes reset the attempt and still report a page view', () => {
   h.call();
   h.hashchange();
   assert.deepEqual(h.events, ['puzzle.started', 'page.view']);
+  assert.equal(h.call('puzzle.completed'), false, 'the route change closed the attempt');
+  h.call();
   assert.equal(h.call('puzzle.completed'), true);
   assert.deepEqual(h.events.slice(2), ['puzzle.started', 'puzzle.completed']);
 });
@@ -316,6 +357,7 @@ test('the generated adapter admits every journey event the loader emits', () => 
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'hint.requested'), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
+  assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.completed'), true);
   assert.equal(h.queued(), afterConsent + 5, 'started, hint, failed, started, completed');
 
@@ -324,6 +366,12 @@ test('the generated adapter admits every journey event the loader emits', () => 
   assert.equal(h.queued(), 0, 'withdrawal clears the queue');
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
   h.toggle(true);
+  assert.equal(
+    h.context.AlibiJourney(run, 'puzzle.failed'),
+    false,
+    'the withdrawn attempt cannot be closed',
+  );
+  assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
   assert.equal(h.queued(), 2, 're-consent opens a fresh attempt instead of continuing the old one');
 });
