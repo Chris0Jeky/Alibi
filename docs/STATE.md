@@ -68,7 +68,7 @@ The hosting CSP/WebP constraints remain #6. No deployment or rollback was execut
 
 CAP04 has pinned browser/Capacitor flavors, a strict native bootstrap, sync/build receipts and
 sampled Android 36 emulator evidence for debug and release-like preview APKs. See the
-[archived CAP04 record](STATE-ARCHIVE-2026-09-24.md#cap04-offline-android-preview-candidate-2026-09-22)
+[archived CAP04 record](STATE-ARCHIVE-2026-09-23.md#cap04-offline-android-preview-candidate-2026-09-22)
 for the exact scope. These use local debug signing and the unapproved preview application ID;
 they are not a production-signed AAB or a Play Store release.
 
