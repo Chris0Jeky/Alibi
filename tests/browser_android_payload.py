@@ -103,6 +103,8 @@ with sync_playwright() as pw:
         page.locator('#pulseboard-usage-sharing').count() == 0,
         'native telemetry remains disabled',
     )
+    # Negative observation window: absence of a service-worker request has no
+    # positive signal to wait on, so this short window is intentional.
     page.wait_for_timeout(200)
     check(
         not any(urlparse(url).path.endswith('/sw.js') for url in requested),
