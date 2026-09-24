@@ -1016,7 +1016,11 @@
       if (!Array.isArray(map) || map.length < 3 || map.length > 20)
         throw Error('Invalid archive map.');
       const w = typeof map[0] === 'string' ? map[0].length : 0;
-      if (w < 3 || w > 30 || map.some((row) => typeof row !== 'string' || row.length !== w))
+      if (
+        w < 3 ||
+        w > 30 ||
+        Array.from(map).some((row) => typeof row !== 'string' || row.length !== w)
+      )
         throw Error('Invalid archive map dimensions.');
       const flat = map.join(''),
         walls = [],
@@ -1028,7 +1032,10 @@
         if (c === '#') walls.push(i);
         if ('.+*'.includes(c)) goals.push(i);
         if ('$*'.includes(c)) crates.push(i);
-        if ('@+'.includes(c)) player = i;
+        if ('@+'.includes(c)) {
+          if (player >= 0) throw Error('Invalid archive map pieces.');
+          player = i;
+        }
       });
       if (player < 0 || crates.length < 1 || crates.length !== goals.length)
         throw Error('Invalid archive map pieces.');
@@ -1042,7 +1049,7 @@
         player,
         moves: 0,
         pushes: 0,
-        done: false,
+        done: crates.every((i) => goals.includes(i)),
       };
     },
     initial(level = 0) {
@@ -1051,7 +1058,7 @@
     },
     move(s, direction) {
       const ds = { up: -s.w, right: 1, down: s.w, left: -1 };
-      if (!(direction in ds)) throw Error('Unknown direction.');
+      if (!Object.hasOwn(ds, direction)) throw Error('Unknown direction.');
       if (s.done) return s;
       const d = ds[direction],
         next = s.player + d;
@@ -1087,16 +1094,17 @@
       return q;
     },
     corners(s) {
-      return s.crates.filter(
-        (i) =>
+      const wall = (r, c) =>
+        r < 0 || r >= s.h || c < 0 || c >= s.w || s.walls.includes(r * s.w + c);
+      return s.crates.filter((i) => {
+        const r = Math.floor(i / s.w),
+          c = i % s.w;
+        return (
           !s.goals.includes(i) &&
-          [
-            [-s.w, -1],
-            [-s.w, 1],
-            [s.w, -1],
-            [s.w, 1],
-          ].some((ds) => ds.every((d) => s.walls.includes(i + d))),
-      );
+          (wall(r - 1, c) || wall(r + 1, c)) &&
+          (wall(r, c - 1) || wall(r, c + 1))
+        );
+      });
     },
     solve(start, max = 150000) {
       const key = (s) =>
