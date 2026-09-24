@@ -8,6 +8,14 @@
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
   const conflict = (message, cells) => ({ rule: 'Revisit a conflict', message, cells });
+  function tentConflicts(p, s) {
+    const issues = C.registry.tents.validate(p, s),
+      tents = s.cells.flatMap((v, i) => (v === 1 ? [i] : []));
+    // Reverse the matching sides: every placed tent needs its own tree, not vice versa.
+    if (!X.matchTrees({ size: p.size, trees: tents }, p.trees))
+      issues.push({ message: 'Each tent needs a different adjacent tree.', cells: tents });
+    return issues;
+  }
   function deduction(p, s) {
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
@@ -16,21 +24,13 @@
       if (guidance) return guidance;
     }
     const n = p.size,
-      issues = C.registry[p.type].validate(p, s);
+      issues = p.type === 'tents' ? tentConflicts(p, s) : C.registry[p.type].validate(p, s);
     if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
+      const groups = C.groups(p);
       for (let i = 0; i < n * n; i++) {
         if (s.cells[i]) continue;
-        const row = Math.floor(i / n),
-          col = i % n;
-        const peers = C.range(n * n).filter(
-          (j) =>
-            Math.floor(j / n) === row ||
-            j % n === col ||
-            (p.type === 'sudoku' &&
-              Math.floor(Math.floor(j / n) / p.boxRows) === Math.floor(row / p.boxRows) &&
-              Math.floor((j % n) / p.boxCols) === Math.floor(col / p.boxCols)),
-        );
+        const peers = groups.filter((group) => group.includes(i)).flat();
         const possible = C.range(n)
           .map((k) => k + 1)
           .filter((v) => !peers.some((j) => s.cells[j] === v))
@@ -47,7 +47,7 @@
         if (possible.length === 1)
           return result(
             'Only one number fits',
-            `${at(i, n)} must be ${possible[0]}: your row, column${p.type === 'sudoku' ? ' and box' : ' and inequality'} entries exclude every other number.`,
+            `Only ${possible[0]} fits ${at(i, n)} with your row, column${p.type === 'sudoku' ? ', box' : ', inequality'} and current marks.`,
             i,
             possible[0],
           );
@@ -72,7 +72,7 @@
                 if (full || triple)
                   return result(
                     full ? 'Keep the balance' : 'No three together',
-                    `${at(cells[k], n)} must be ${v === 0 ? 'a moon' : 'a sun'} with your current entries: ${full ? label + ' already has its full share of ' + (v === 0 ? 'suns' : 'moons') : 'the other symbol would make three in a row in ' + label}.`,
+                    `With your marks, ${at(cells[k], n)} must be ${v === 0 ? 'a moon' : 'a sun'}. ${label} ${full ? 'already has enough ' + (v === 0 ? 'suns' : 'moons') : 'would otherwise have three equal neighbours'}.`,
                     cells[k],
                     1 - v,
                   );
@@ -106,7 +106,7 @@
           if (remaining === 0 || remaining === unknown.length) {
             const value = remaining === 0 ? 0 : 1;
             if (value) {
-              const forced = C.registry.tents.validate(p, {
+              const forced = tentConflicts(p, {
                 ...s,
                 cells: s.cells.map((v, i) => (unknown.includes(i) ? 1 : v)),
               });
@@ -132,7 +132,7 @@
         if (s.cells[i] === -1 && lit.has(i))
           return result(
             'No facing lanterns',
-            `${at(i, n)} is lit by another lantern with no wall between them. Cross it out to avoid facing lanterns.`,
+            `${at(i, n)} faces a lantern with no wall between them. Mark it with a cross.`,
             i,
             0,
           );
@@ -153,7 +153,7 @@
         if (remaining === unknown.length)
           return result(
             'Fill the remaining neighbours',
-            `Every unmarked neighbour of ${at(i, n)} must hold a lantern to meet its clue. Place one at ${at(unknown[0], n)}.`,
+            `The clue at ${at(i, n)} needs every unmarked neighbour. Place a lantern at ${at(unknown[0], n)}.`,
             unknown[0],
             1,
           );
@@ -185,7 +185,7 @@
                 label = lineName(axis, line);
               return result(
                 value ? 'Where the runs overlap' : 'A gap in every arrangement',
-                `${label} has clues ${clues.join(', ')}. All ${patterns.length} arrangements that fit your marks ${value ? 'fill' : 'leave empty'} ${at(cells[k], n)}. ${value ? 'Fill this square.' : 'Mark it with a cross.'}`,
+                `${label} clues ${clues.join(', ')}: all ${patterns.length} arrangements fitting your marks ${value ? 'fill' : 'leave empty'} ${at(cells[k], n)}. ${value ? 'Fill it.' : 'Mark it with a cross.'}`,
                 cells[k],
                 value,
               );
@@ -228,16 +228,15 @@
         ),
       ];
     const summaries = {
-      bridges: `All ${p.islands?.length || 0} islands meet their bridge counts and belong to one connected network.`,
-      sudoku: 'Every row, column and box contains each number exactly once.',
-      futoshiki: 'Every row and column contains each number once, and every inequality holds.',
-      binary:
-        'Every line is balanced, has no three equal neighbours and differs from every other line.',
-      nonogram: 'Every filled run matches the clues on both edges.',
+      bridges: `All ${p.islands?.length || 0} islands meet their counts in one connected network.`,
+      sudoku: 'Each number appears once per row, column and box.',
+      futoshiki: 'Each number appears once per row and column; all inequalities hold.',
+      binary: 'Lines are balanced and distinct, with no three equal neighbours.',
+      nonogram: 'Filled runs match every row and column clue.',
       lightup: 'Every open square is lit; numbered walls and lantern sight lines all fit.',
-      tents: 'Every tent is matched to a tree, no tents touch, and all edge counts agree.',
-      aquarium: 'The water is level within each tank and every row and column total matches.',
-      network: 'Every connector fits, and the whole network connects to the source.',
+      tents: 'Tents have distinct trees, do not touch and match all edge counts.',
+      aquarium: 'Each tank is level and all row and column totals match.',
+      network: 'All connectors fit in one network linked to the source.',
       trail: 'Consecutive numbers form one unbroken path through every square.',
     };
     return [summaries[p.type] || 'Every rule is satisfied.'];

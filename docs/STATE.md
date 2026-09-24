@@ -1,5 +1,28 @@
 # Live development state
 
+## Matching and review continuation: 24 September 2026
+
+The Tents review also identified a distinct shared-tree witness on tents-04. The latest
+hint-only correction uses the existing augmenting-path matcher with its sides reversed,
+requiring each placed or forced tent to have a distinct adjacent tree. It checks existing
+assignments and the whole hypothetical forced set, without changing engine validation,
+reading stored answers, installing hypothetical marks or adding a puzzle-search fallback.
+Two further tests were observed failing before correction; 25 hint tests now pass. The
+independent arbitrary-mark model additionally checks partial matching, and a positive case
+requires reassignment rather than greedy pairing. The 621 official steps remain unchanged.
+
+The wrong-C1 browser/Undo scenario passed at both widths in run 36060033384. The new shared-
+tree browser scenario and current emitted bundle still need latest-head CI. The formatted
+predecessor c70faaf built at 130,112 gzip bytes, 64 bytes over the unchanged cap. Reusing core
+number-grid groups and reducing repeated wording addresses size without removing rules or
+raising limits; 2,210 peer sets across 54 number boards matched the earlier geometry. See
+[TENTS-REASONING.md](TENTS-REASONING.md) for limits and exact evidence scope.
+
+House child #315 merged into the #311 branch as 2a5fca0f266ca424d694c5c2e86d7f310d66fbca,
+NOT into main. Its exact-head full/mobile checks and independent reviews passed. Parent #311
+must retain current main and STATE, then pass fresh combined-head checks before integration.
+Earlier source checkpoints below remain dated history; latest GitHub status takes precedence.
+
 ## Latest continuation: 24 September 2026, after 21:00 UTC
 
 The source baseline is now main `93852f76a3b3014d463a6dab55b7d657efc836ef`.
