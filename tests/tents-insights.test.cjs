@@ -43,13 +43,13 @@ test('a tent requires an orthogonally adjacent tree, not a diagonal or wrapped o
   assert.equal(hint.rule, 'Each tent needs a tree');
 });
 test('a placed tent excludes diagonal neighbours as well as touching sides', () => {
-  checkHint({ 0: 1, 3: 0, 5: 0 }, 4, 0, 'Leave a gap between tents');
+  checkHint({ 0: 1, 3: 0, 5: 0 }, 4, 0, 'Tent spacing');
 });
 test('a fulfilled row count excludes its other unknown squares', () => {
-  checkHint({ 0: 1, 3: 0, 4: 0, 5: 0 }, 2, 0, 'This line has enough tents');
+  checkHint({ 0: 1, 3: 0, 4: 0, 5: 0 }, 2, 0, 'Line full');
 });
 test('a line with only the required number of unknown squares forces a tent', () => {
-  checkHint({ 0: 0, 3: 0, 4: 0, 5: 0 }, 2, 1, 'Fill the remaining tent sites');
+  checkHint({ 0: 0, 3: 0, 4: 0, 5: 0 }, 2, 1, 'Complete line');
 });
 test('no tree cell is suggested, ambiguity remains and conflicts take priority', () => {
   const { puzzle, state } = fixture({ 3: 0, 4: 0, 5: 0 });
