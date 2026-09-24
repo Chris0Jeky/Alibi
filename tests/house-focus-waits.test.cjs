@@ -13,9 +13,7 @@ function readiness(file, marker, locals) {
   const match = source.slice(start).match(/wait_js\(page,\s*"([^"\n]+)"(?:,\s*arg=([^\n]+))?\)/);
   assert.ok(match, `Missing readiness predicate in ${file}`);
   // These calls use strings or a plain literal with shared JS/Python syntax.
-  const arg = match[2]
-    ? vm.runInNewContext(`(${match[2]})`, locals, { timeout: 1000 })
-    : undefined;
+  const arg = match[2] ? vm.runInNewContext(`(${match[2]})`, locals, { timeout: 1000 }) : undefined;
   return (state) => {
     const before = JSON.stringify(state);
     const result = vm.runInNewContext(`(${match[1]})(arg)`, { ...state, arg }, { timeout: 1000 });
