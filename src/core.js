@@ -4,6 +4,7 @@
   'use strict';
   const TYPES = ['scene', 'sudoku', 'nonogram', 'binary', 'futoshiki'];
   const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];
+  const MAX_PACK_PUZZLES = 150;
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const range = (n) => Array.from({ length: n }, (_, i) => i);
@@ -783,8 +784,12 @@
       input.title.length > 120
     )
       throw new Error('Invalid pack header.');
-    if (!Array.isArray(input.puzzles) || input.puzzles.length < 1 || input.puzzles.length > 150)
-      throw new Error('A pack must contain 1–150 puzzles.');
+    if (
+      !Array.isArray(input.puzzles) ||
+      input.puzzles.length < 1 ||
+      input.puzzles.length > MAX_PACK_PUZZLES
+    )
+      throw new Error(`A pack must contain 1–${MAX_PACK_PUZZLES} puzzles.`);
     const puzzles = input.puzzles.map(validateDefinition),
       ids = puzzles.map((x) => x.id);
     if (new Set(ids).size !== ids.length) throw new Error('Duplicate puzzle IDs in the pack.');
@@ -1077,6 +1082,7 @@
   root.AlibiCore = {
     TYPES,
     DIFFICULTIES,
+    MAX_PACK_PUZZLES,
     registry,
     clone,
     equal,
