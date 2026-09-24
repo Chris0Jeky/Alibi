@@ -102,7 +102,7 @@ body.zen .folio-invitation {
   min-height: 88px;
   background: #faf6eb;
   border: 1px solid #d5dacb;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   text-decoration: none;
   transition: background 0.15s;
 }

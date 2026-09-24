@@ -39,7 +39,7 @@
   display: block;
   overflow: hidden;
   background: #163540;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   margin: 22px 0 32px;
   padding: 46px;
   min-height: 440px;
@@ -92,7 +92,7 @@
   padding: 24px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .cast-file h2 {
   font-size: 26px;
@@ -131,7 +131,7 @@
 }
 .chapter-entry {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   overflow: hidden;
 }
@@ -179,7 +179,7 @@
   overflow: hidden;
   min-height: 116px;
   padding: 22px 28px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: #17343e;
   color: #fff4df;
   margin-bottom: 25px;
@@ -219,7 +219,7 @@
   text-align: left;
   background: var(--green-soft);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin: 20px 0;
 }
 .chapter-reveal img {
@@ -242,7 +242,7 @@
       calc(100% / var(--islands-size)),
     var(--green-soft);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 .bridge-lines {
   position: absolute;
