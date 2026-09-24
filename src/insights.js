@@ -54,41 +54,28 @@
       }
     }
     if (p.type === 'binary') {
-      const open = (cells) => cells.filter((i) => s.cells[i] === -1),
-        sets = [
-          ...open(C.range(n * n)).map((i) => [i]),
-          ...C.groups(p)
-            .map(open)
-            .filter((cells) => cells.length === 2),
-        ];
-      for (const cells of sets) {
-        const trials = C.range(2 ** cells.length).map((mask) => {
-            const next = s.cells.slice(),
-              values = cells.map((i, k) => (mask >> k) & 1);
+      for (const group of [...C.range(n * n).map((i) => [i]), ...C.groups(p)]) {
+        const cells = group.filter((i) => s.cells[i] === -1);
+        if (!cells.length || cells.length > 2) continue;
+        const reasons = new Set(),
+          names = cells.map((i) => at(i, n)).join(', '),
+          allowed = C.range(2 ** cells.length).filter((mask) => {
+            const next = s.cells.slice();
             cells.forEach((i, k) => {
-              next[i] = values[k];
+              next[i] = (mask >> k) & 1;
             });
-            return { values, issues: C.registry.binary.validate(p, { cells: next }) };
-          }),
-          allowed = trials.filter((trial) => !trial.issues.length);
+            const issues = C.registry.binary.validate(p, { cells: next });
+            issues.forEach((issue) => reasons.add(issue.message));
+            return !issues.length;
+          });
         if (!allowed.length)
-          return conflict(
-            `No allowed symbols at ${cells.map((i) => at(i, n)).join(', ')}. Recheck your marks.`,
-            cells,
-          );
+          return conflict(`${names}: no symbol fits. Recheck your marks.`, cells);
         for (let k = 0; k < cells.length; k++) {
-          const value = allowed[0].values[k];
-          if (!allowed.every((trial) => trial.values[k] === value)) continue;
-          const reasons = [
-            ...new Set(
-              trials
-                .filter((trial) => trial.values[k] !== value)
-                .flatMap((trial) => trial.issues.map((issue) => issue.message)),
-            ),
-          ];
+          const value = (allowed[0] >> k) & 1;
+          if (!allowed.every((mask) => ((mask >> k) & 1) === value)) continue;
           return result(
             cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',
-            `With your marks, ${at(cells[k], n)} must be ${value === 0 ? 'a sun' : 'a moon'}. Other choices in ${cells.map((i) => at(i, n)).join(', ')} break at least one rule: ${reasons.join(' ')}`,
+            `${at(cells[k], n)} must be ${value ? 'a moon' : 'a sun'}. Compare ${names}: ${[...reasons].join(' ')}`,
             cells[k],
             value,
           );
