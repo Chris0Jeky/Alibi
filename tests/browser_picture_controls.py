@@ -21,6 +21,12 @@ PUZZLES = json.loads(
 )['puzzles']
 
 
+def require_indexeddb(page):
+    mode = page.evaluate("() => globalThis.AlibiDiagnostics?.getStatus().mode")
+    if mode != 'indexeddb':
+        raise AssertionError(f'Expected IndexedDB persistence, got {mode!r}')
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     checks, failures = [], []
@@ -50,6 +56,7 @@ def run():
                                 '(id) => globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id === id',
                                 arg=puzzle_id,
                             )
+                            require_indexeddb(page)
                             dismiss_lesson(page)
                             expect(page.locator('.board-card')).to_be_visible()
                             if page.evaluate('document.documentElement.scrollWidth > innerWidth'):
@@ -70,10 +77,11 @@ def run():
                                 'Boolean(globalThis.AlibiDiagnostics?.getCurrent()?.completedAt)',
                                 arg=puzzle_id,
                             )
+                            require_indexeddb(page)
                             restored = current(page)
                             if restored['completedAt'] != completed:
                                 raise AssertionError('offline reload changed completion identity')
-                            checks.append(f'{width}px controls, undo and offline restore: {puzzle_id}')
+                            checks.append(f'{width}px controls, undo and IndexedDB/offline restore: {puzzle_id}')
                             page.screenshot(path=str(OUT / f'{puzzle_id}-{width}.png'), full_page=True)
                         except Exception as error:
                             page.screenshot(path=str(OUT / f'failure-{puzzle_id}-{width}.png'))
