@@ -24,24 +24,31 @@ with sync_playwright() as pw:
         def mode(value): page.locator(f'.toolrow [data-action="scene-mode"][data-value="{value}"]').click()
         def person(w): page.locator(f'[data-action="person"][data-id="{w["id"]}"]').click()
         def state(): return page.evaluate('AlibiDiagnostics.getCurrent().state')
+        def tap_mark(loc):
+            # Tap dispatch and the click task race the next read; wait for the
+            # move counter to land so a slow tap waits instead of tearing the
+            # cycle-loop asserts (KeyError flake, verify run 35933404822).
+            before = page.evaluate('AlibiDiagnostics.getCurrent().moves')
+            loc.tap()
+            page.wait_for_function(f'AlibiDiagnostics.getCurrent().moves === {before + 1}')
         person(other)
         mode('candidate')
-        target.tap()
+        tap_mark(target)
         mode('exclude')
-        target.tap()
+        tap_mark(target)
         person(who)
         mode('candidate')
-        page.locator(f'#cell-{elsewhere}').tap()
+        tap_mark(page.locator(f'#cell-{elsewhere}'))
         mode('cycle')
         for tap in range(1, 8):
-            target.tap()
+            tap_mark(target)
             s = state()
             stage = (tap - 1) % 4
             assert (s['placements'].get(who['id']) == cell) == (stage == 0), (tap, s)
-            assert other['id'] in s['candidates'][str(cell)]
-            assert cell in s['notes'][other['id']]
-            assert who['id'] in s['candidates'][str(elsewhere)]
-            assert (cell in s.get('crosses', [])) == (stage == 3)
+            assert other['id'] in s.get('candidates', {}).get(str(cell), []), (tap, width, s)
+            assert cell in s['notes'].get(other['id'], []), (tap, width, s)
+            assert who['id'] in s.get('candidates', {}).get(str(elsewhere), []), (tap, width, s)
+            assert (cell in s.get('crosses', [])) == (stage == 3), (tap, width, s)
             expect(page.locator(f'[data-action="person"][data-id="{who["id"]}"]')).to_have_attribute('aria-pressed', 'true')
             label = page.locator(f'#cell-{elsewhere}').get_attribute('aria-label')
             assert ('candidates: ' + who['name'] in label) == (stage != 0), label
