@@ -1,5 +1,32 @@
 # Live development state
 
+## Latest continuation: 24 September 2026, after 21:00 UTC
+
+The source baseline is now main `93852f76a3b3014d463a6dab55b7d657efc836ef`.
+#320 merged as `db4925fb28f5e1dce348f7d53712722005605ed4` after final-head full Verify,
+four dedicated lanes and independent review. All four inline findings were addressed.
+The source catalogue is 382 puzzles across 23 packs, including 40 Picture Logic entries;
+the six new pictures remain provisionally rated. #161 and q-8 stay open.
+#326 merged as `93852f76a3b3014d463a6dab55b7d657efc836ef` after full Verify, Android payload
+and independent review. It normalizes Reversi depth without changing the normal worker path.
+
+#324's combined head 4bad87b also completed all five workflows, but review 4098104696 found
+that incorrect crosses could force a tent into a fulfilled perpendicular line. The correction
+validates the whole forced set on a copied board and reports the conflict instead of a move.
+Three new regressions failed before the fix. The current 23-test hint run passes, retaining
+872 compatible-board deductions and 621 official Tents steps. An independent arbitrary-mark
+check covers 1,568 locally legal positions: 1,532 safe moves, 14 conflicts and 22 fallbacks.
+The browser route adds wrong-cross advice, no-mutation checks, Undo and resumed valid play
+at both 390px and 1440px. Python compilation passes. See TENTS-REASONING.md.
+
+Require the corrected head's exact CI, current bundle budget and independent review; older
+4bad87b results do not qualify new bytes. No published puzzle, save schema, dependency,
+resource cap or deployment changes are part of this continuation. Local npm registry access
+was retried and remains blocked. Full local build/browser success is not claimed.
+
+The earlier checkpoint below is retained as dated history. Its pending-merge statements are
+superseded by the latest continuation above, not erased from the evidence trail.
+
 ## Gameplay continuation: 24 September 2026, evening
 
 This checkpoint starts from main `753b5d0476b79abde633a579227264556f996380`.

@@ -1,48 +1,61 @@
 # Tents & Trees reasoning hints
 
-Gameplay slice #323 extends the existing `AlibiCore.insights.deduction` seam, following
-Lanterns in #322. It adds no hint service, new solver, save schema or puzzle revisions.
+Gameplay slice #323 / #324 extends `AlibiCore.insights.deduction`, following Lanterns in
+#322. No hint service, new solver, save schema or puzzle revisions are introduced.
 
-## Rules
+## Rules and conflict handling
 
 Existing conflict guidance takes priority. For unknown non-tree squares, explain why a
 square without an orthogonally adjacent tree must be crossed, or why touching a placed tent
-at a side or corner excludes it. Then inspect rows followed by columns. A line with its full
-tent count excludes remaining unknown sites; a line requiring every remaining site forces
-a tent at the first one. Tree cells never become proposed moves.
+at a side or corner excludes it. Then inspect rows followed by columns. A fulfilled line
+excludes remaining unknown sites; a line requiring every remaining site can force a tent.
 
-The exclusion pass precedes counting, so impossible sites are crossed before a later count
-hint uses them. Return one coordinate and value without changing any state. The existing
-Hint dialog remains informational; the player chooses whether to apply a move. Answer-based
-reveals remain separate. No applicable rule means the existing general-strategy fallback.
+Before a forced tent is proposed, overlay ALL that line's required tents in a copied board
+and run the existing local validator. Perpendicular quotas and spacing must hold together,
+not merely for the first tent. A contradiction returns a Revisit a conflict explanation,
+names the hypothetical line and violated rule, and asks the player to recheck crosses.
+The hypothetical board is never installed, saved, counted as a reveal or added to Undo.
 
-These are deductions conditional on current marks, not certification that earlier guesses
-are correct or that the position is solvable. The helper does not infer a permanent tree/tent
-pairing, implement a complete matching solver, search for guesses or finish every puzzle.
+This corrects review 4098104696: crossing C1 in tents-01 after the seven no-tree exclusions
+formerly forced B1 despite column B's zero target. A separate regression covers two adjacent
+forced sites whose first tent alone is legal. Shared conflict/line-label helpers and the
+combined exclusion message reduce duplication without changing deduction order.
+
+No applicable rule means the existing general-strategy fallback. Hints remain conditional
+on current marks. Local checks are not a complete solvability test or a proof that earlier
+guesses are correct. The helper does not implement matching search, guess or solve every board.
 
 ## Evidence
 
-Seven new regressions plus five existing hint tests pass locally. Six new tests failed before
-the implementation. An independent finite model enumerates complete assignments for four
-selected 3x3 layouts, checks row/column counts and spacing, and explicitly matches distinct
-tents to distinct trees without calling the production matching or geometry helpers. It
-checks 872 deductions across 880 compatible partial boards, including ambiguous positions
-and column deductions. Official-catalogue walks check 621 steps against verified definitions
-with a throwing solution getter, pure hint calls and production reducers.
+The interrupted candidate's final combined head 4bad87b passed all five Actions workflows,
+but still had the above independently reported correctness defect. Green CI alone was not
+accepted as permission to merge it.
 
-The browser test follows a 14-step clue-derived prefix of tents-01 at 390px and 1440px. It
-covers all four explanations through real Hint, brush, cell and Undo controls, without
-injecting saves or reading answers. It checks marks, undo/redo, reveal counts and completion
-remain unchanged while reading advice. The existing reasoning workflow now runs both Lantern
-and Tents suites; it is not an additional parallel workflow. Receipts/screenshots are retained.
+Three additional regressions were reproduced failing before correction. Together with the
+original Tents, Lantern and shared hint suites, 23 source tests now pass. The original finite
+model checks 872 deductions over 880 compatible partial boards on four selected 3x3 layouts,
+with independent geometry, counts, spacing and injective tree/tent matching. Official Tents
+walks still check 621 steps with answer access blocked and real reducers applying each move.
 
-Local npm registry DNS prevents installing the pinned formatter/build dependencies. Python
-compilation and focused Node checks pass; `npm test` correctly refuses this source snapshot's
-missing checkout identity and fresh Android artifacts. Local Chromium blocks the localhost
-origin by policy, so no fresh local browser pass is claimed. Require full exact-head CI,
-resource budgets, both browser suites and independent review before merging.
+A second independent local-rule checker enumerates arbitrary unknown/cross/tent assignments
+for four selected 3x3 layouts, including incorrect crosses and unsatisfiable positions. Among
+1,568 locally legal starting positions, all 1,532 suggested moves preserve local rules;
+14 produce conflict advice and 22 have no local hint. This is bounded evidence, not exhaustive
+coverage of every board size or a complete matching proof for arbitrary marks.
 
-Human acceptance remains separate under HUMAN_TODO q-8: ask a player whether each explanation
-is understandable, whether the named square is easy to locate, and whether hints remain
-comfortable with physical touch, enlarged text and TalkBack. Do not close those checks using
-machine proofs or screenshots. No deployment is part of this change.
+The browser suite retains its 14-step clue-derived route at 390px/1440px. It additionally
+enters the incorrect C1 through actual brush/cell controls, reads the conflict without state,
+Undo/Redo, reveal-count or completion mutation, undoes the mistake and resumes the original
+route. Python compilation passes; fresh browser receipts and screenshots must qualify the
+corrected head. The existing workflow retains canonical formatter copies without editing
+checked-out sources. Require exact-head full CI and unchanged resource budgets before merge.
+
+Local npm registry access remains blocked; no fresh full local build or browser pass is
+claimed. Dedicated source checks supplement, not replace, Actions and independent review.
+
+## Human acceptance
+
+HUMAN_TODO q-8 remains open. Ask players whether the four explanations and wrong-cross
+warning are clear, whether they can locate the named row/column, and whether Hint/Undo are
+comfortable with physical touch, enlarged text and TalkBack. Machine proofs and screenshots
+are not human signoff. No deployment or physical-phone freeze resolution is claimed.

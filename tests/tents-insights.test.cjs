@@ -181,3 +181,103 @@ test('official Tents deductions never read answers or mutate requested state', (
   assert.ok(count > 0);
   console.log(`Official Tents deductions: ${count}`);
 });
+
+function noAnswer(puzzle) {
+  return new Proxy(puzzle, {
+    get(target, key) {
+      if (key === 'solution') throw Error('Reasoning read the answer');
+      return target[key];
+    },
+  });
+}
+
+test('an incorrect cross cannot force a tent into a zero-quota column', () => {
+  const puzzle = noAnswer(load(process.cwd(), false).puzzles.find((p) => p.id === 'tents-01'));
+  let state = C.registry.tents.initial(puzzle);
+  for (const cell of [2, 3, 4, 10, 11, 15, 18, 24]) {
+    state = C.registry.tents.reduce(puzzle, state, { type: 'set', cell, value: 0 });
+  }
+  const before = structuredClone(state);
+  assert.deepEqual(C.registry.tents.validate(puzzle, state), []);
+  const hint = I.deduction(puzzle, state);
+  assert.equal(hint.rule, 'Revisit a conflict');
+  assert.equal(hint.value, undefined);
+  assert.match(hint.message, /Row 1/);
+  assert.match(hint.message, /Column B/);
+  assert.match(hint.message, /cross/i);
+  assert.deepEqual(state, before);
+});
+
+test('check the complete forced set, not just its first individually legal tent', () => {
+  const puzzle = noAnswer({
+    type: 'tents', size: 3, trees: [3, 4], rowTargets: [2, 0, 0], colTargets: [1, 1, 0],
+  });
+  const state = C.registry.tents.initial(puzzle);
+  state.cells.fill(0);
+  state.cells[0] = state.cells[1] = -1;
+  assert.deepEqual(C.registry.tents.validate(puzzle, state), []);
+  const first = C.registry.tents.reduce(puzzle, state, { type: 'set', cell: 0, value: 1 });
+  assert.deepEqual(C.registry.tents.validate(puzzle, first), []);
+  const before = structuredClone(state);
+  const hint = I.deduction(puzzle, state);
+  assert.equal(hint.rule, 'Revisit a conflict');
+  assert.equal(hint.value, undefined);
+  assert.match(hint.message, /touch/i);
+  assert.deepEqual(state, before);
+});
+
+// Clue/geometry checks independent of production validation. This deliberately includes
+// incorrect crosses and positions with no completion, unlike the compatible-state oracle.
+function locallyValid(p, s) {
+  const n = p.size;
+  const tents = s.cells.flatMap((v, i) => v === 1 ? [i] : []);
+  const row = (i) => Math.floor(i / n), col = (i) => i % n;
+  return tents.every((a) => !p.trees.includes(a) &&
+    p.trees.some((b) => Math.abs(row(a) - row(b)) + Math.abs(col(a) - col(b)) === 1) &&
+    tents.every((b) => a === b || Math.max(Math.abs(row(a) - row(b)), Math.abs(col(a) - col(b))) > 1)) &&
+    p.rowTargets.every((v, r) => tents.filter((i) => row(i) === r).length <= v) &&
+    p.colTargets.every((v, c) => tents.filter((i) => col(i) === c).length <= v);
+}
+
+test('all ternary small-board marks preserve local rules when a hint proposes a move', () => {
+  const layouts = [
+    { trees: [1, 7], rowTargets: [1, 0, 1], colTargets: [1, 0, 1] },
+    { trees: [3, 5], rowTargets: [1, 0, 1], colTargets: [1, 0, 1] },
+    { trees: [0, 8], rowTargets: [1, 0, 1], colTargets: [0, 2, 0] },
+    { trees: [4], rowTargets: [0, 1, 0], colTargets: [1, 0, 0] },
+  ];
+  let positions = 0, moves = 0, conflicts = 0;
+  for (const layout of layouts) {
+    const puzzle = noAnswer({ type: 'tents', size: 3, ...layout });
+    const sites = Array.from({ length: 9 }, (_, i) => i).filter((i) => !puzzle.trees.includes(i));
+    for (let code = 0; code < 3 ** sites.length; code++) {
+      const state = C.registry.tents.initial(puzzle);
+      let digits = code;
+      for (const cell of sites) {
+        state.cells[cell] = digits % 3 - 1;
+        digits = Math.floor(digits / 3);
+      }
+      if (!locallyValid(puzzle, state)) continue;
+      const before = structuredClone(state);
+      const hint = I.deduction(puzzle, state);
+      assert.deepEqual(state, before);
+      positions++;
+      if (!hint) continue;
+      if (hint.value === undefined) {
+        assert.equal(hint.rule, 'Revisit a conflict');
+        conflicts++;
+        continue;
+      }
+      assert.equal(state.cells[hint.cells[0]], -1);
+      const after = C.registry.tents.reduce(puzzle, state, {
+        type: 'set', cell: hint.cells[0], value: hint.value,
+      });
+      assert.ok(locallyValid(puzzle, after), JSON.stringify({ layout, cells: state.cells, hint }));
+      moves++;
+    }
+  }
+  assert.ok(positions > 1000);
+  assert.ok(moves > 1000);
+  assert.ok(conflicts > 0);
+  console.log(`Tents arbitrary marks: ${positions} positions, ${moves} moves, ${conflicts} conflicts`);
+});

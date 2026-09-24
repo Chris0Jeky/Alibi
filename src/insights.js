@@ -5,6 +5,9 @@
     X = C.extras;
   const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
   const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
+  const lineName = (axis, line) =>
+    axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
+  const conflict = (message, cells) => ({ rule: 'Revisit a conflict', message, cells });
   function deduction(p, s) {
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
@@ -14,12 +17,7 @@
     }
     const n = p.size,
       issues = C.registry[p.type].validate(p, s);
-    if (issues.length)
-      return {
-        rule: 'Revisit a conflict',
-        message: issues[0].message,
-        cells: issues[0].cells || [],
-      };
+    if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
       for (let i = 0; i < n * n; i++) {
         if (s.cells[i]) continue;
@@ -60,7 +58,7 @@
         for (let line = 0; line < n; line++) {
           const cells = C.range(n).map((k) => (axis ? k * n + line : line * n + k)),
             values = cells.map((i) => s.cells[i]);
-          const label = axis ? 'column ' + String.fromCharCode(65 + line) : 'row ' + (line + 1);
+          const label = lineName(axis, line);
           for (let k = 0; k < n; k++)
             if (values[k] === -1)
               for (const v of [0, 1]) {
@@ -87,17 +85,11 @@
         tents = sites.filter((i) => s.cells[i] === 1);
       for (const i of sites) {
         if (s.cells[i] !== -1) continue;
-        if (!X.adj(i, n).some((j) => trees.has(j)))
+        const beside = X.adj(i, n).some((j) => trees.has(j));
+        if (!beside || tents.some((j) => X.near(i, j, n)))
           return result(
-            'Each tent needs a tree',
-            `${at(i, n)} has no tree directly beside it. Diagonal trees do not count. Mark it with a cross.`,
-            i,
-            0,
-          );
-        if (tents.some((j) => X.near(i, j, n)))
-          return result(
-            'Leave a gap between tents',
-            `${at(i, n)} touches a tent. Tents cannot touch, even diagonally. Mark it with a cross.`,
+            beside ? 'Leave a gap between tents' : 'Each tent needs a tree',
+            `${at(i, n)} ${beside ? 'touches a tent at a side or corner' : 'has no tree beside it (diagonals do not count)'}. Mark it with a cross.`,
             i,
             0,
           );
@@ -109,10 +101,21 @@
             remaining =
               (axis ? p.colTargets : p.rowTargets)[line] -
               cells.filter((i) => s.cells[i] === 1).length,
-            label = axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
+            label = lineName(axis, line);
           if (!unknown.length) continue;
           if (remaining === 0 || remaining === unknown.length) {
             const value = remaining === 0 ? 0 : 1;
+            if (value) {
+              const forced = C.registry.tents.validate(p, {
+                ...s,
+                cells: s.cells.map((v, i) => (unknown.includes(i) ? 1 : v)),
+              });
+              if (forced.length)
+                return conflict(
+                  `Filling ${label} would conflict: ${forced[0].message} Recheck your crosses.`,
+                  cells,
+                );
+            }
             return result(
               value ? 'Fill the remaining tent sites' : 'This line has enough tents',
               `${label} ${value ? 'needs every unmarked site' : 'has all its tents'}. ${value ? 'Place a tent at' : 'Cross out'} ${at(unknown[0], n)}. This follows from your marks.`,
@@ -179,10 +182,10 @@
           for (let k = 0; k < n; k++)
             if (s.cells[cells[k]] === -1 && patterns.every((v) => v[k] === patterns[0][k])) {
               const value = patterns[0][k],
-                label = axis ? 'column ' + String.fromCharCode(65 + line) : 'row ' + (line + 1);
+                label = lineName(axis, line);
               return result(
                 value ? 'Where the runs overlap' : 'A gap in every arrangement',
-                `${label[0].toUpperCase() + label.slice(1)} has clues ${clues.join(', ')}. All ${patterns.length} arrangements that fit your marks ${value ? 'fill' : 'leave empty'} ${at(cells[k], n)}. ${value ? 'Fill this square.' : 'Mark it with a cross.'}`,
+                `${label} has clues ${clues.join(', ')}. All ${patterns.length} arrangements that fit your marks ${value ? 'fill' : 'leave empty'} ${at(cells[k], n)}. ${value ? 'Fill this square.' : 'Mark it with a cross.'}`,
                 cells[k],
                 value,
               );
