@@ -1,5 +1,35 @@
 # Live development state
 
+## Gameplay and levels continuation: 24 September 2026
+
+The gameplay pass began from the uploaded ZIP matching `5c9eddb` and reconciled every
+published change with live GitHub. #317 fixes #314's Archive map/edge/completion defects
+and merged as `12817918456cff0b4d92ac61e59ccc2126e1aeed`. Exact head `4767394` passed full
+cabinet run `36025982876` and Android run `36025982930`; independent Codex review found no
+major issues and no unresolved threads remained. All nine published rooms and replay indices
+are preserved. The eight boundary regressions accompany independent minimum-push/Club tests.
+
+#320 addresses #319 with six original 15x15 Picture Logic studies, proposing 382 source
+puzzles across 23 packs without changing any of the earlier 376 definitions. Independent
+uniqueness checks and 1,350 answer-independent production-hint steps pass locally. Head
+`0f8e15f` passed six-study phone/desktop controls plus offline completion restoration and the
+existing nine-family controls. Full verification still reported test formatting at that
+checkpoint; a non-mutating canonical-format artifact was added to diagnose it. Use #320's
+latest head, review and full CI for final acceptance, not this dated intermediate status.
+
+#321 adds four local Lantern reasoning rules in the existing hint seam. The focused source
+suite passes 13 tests, including an independent exhaustive model with 6,588 deductions over
+6,977 compatible partial boards and 477 answer-independent official-catalogue steps. The
+new browser lane exercises Hint dialogs, brush placement and undo at 390px and 1440px.
+That lane and full exact-head CI are required before merge; source proofs are not a fresh
+local build. No complete-solver fallback, answer reveal or save/revision migration is added.
+
+Local registry DNS blocks dependency installation. Python checks compile and focused Node
+suites run, but local full build/browser/Android acceptance is not claimed. All changes are
+submitted on focused PRs; source merges are not deployments. Keep #161 and HUMAN_TODO q-8
+open for human difficulty, recognizability, explanation quality and physical Android/TalkBack
+acceptance. Provisional labels and Chromium emulation do not close those gates.
+
 ## Maintenance continuation: 24 September 2026
 
 The diagnostics follow-up #310 is based on `main` at
