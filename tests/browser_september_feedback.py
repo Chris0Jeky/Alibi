@@ -30,7 +30,7 @@ with sync_playwright() as pw:
             # cycle-loop asserts (KeyError flake, verify run 35933404822).
             before = page.evaluate('AlibiDiagnostics.getCurrent().moves')
             loc.tap()
-            page.wait_for_function(f'AlibiDiagnostics.getCurrent().moves === {before + 1}')
+            page.wait_for_function('exp => AlibiDiagnostics.getCurrent().moves === exp', arg=before + 1)
         person(other)
         mode('candidate')
         tap_mark(target)
@@ -79,7 +79,7 @@ with sync_playwright() as pw:
         assert cell not in state()['notes'][other['id']]
         assert state()['candidates'][str(elsewhere)] == [who['id']]
         expect(page.locator('#save-state')).to_contain_text('Saved on this device')
-        page.wait_for_function('navigator.serviceWorker.controller !== null')
+        page.wait_for_function('() => navigator.serviceWorker.controller !== null')
         context.set_offline(True)
         page.reload()
         expect(page.locator(f'#cell-{elsewhere}')).to_have_attribute('aria-label', re.compile('candidates: ' + who['name']))
@@ -111,7 +111,7 @@ with sync_playwright() as pw:
         page.locator('.main-tools [data-action="redo"]').click()
         expect(derived).to_have_class(re.compile('derived-mark'))
         expect(page.locator('#save-state')).to_contain_text('Saved on this device')
-        page.wait_for_function('AlibiClub.diagnostics().revision > 0')
+        page.wait_for_function('() => AlibiClub.diagnostics().revision > 0')
         context.set_offline(True)
         page.reload()
         expect(derived).to_have_class(re.compile('derived-mark'))

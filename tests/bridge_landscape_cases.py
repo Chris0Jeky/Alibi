@@ -29,7 +29,7 @@ def check_bridge_landscape(page, screenshot=None):
     original = page.evaluate('AlibiDiagnostics.getCurrent().state')
     page.locator('.island').first.click()
     page.locator('.island.reachable').first.click()
-    page.wait_for_function('AlibiDiagnostics.getCurrent().moves === 1')
+    page.wait_for_function('() => AlibiDiagnostics.getCurrent().moves === 1')
     page.locator('.main-tools [data-action="undo"]').click()
     assert page.evaluate('AlibiDiagnostics.getCurrent().state') == original
     # The normal board fits; enlargement still offers a bounded scrollable surface.
