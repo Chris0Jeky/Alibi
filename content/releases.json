@@ -1,5 +1,18 @@
 [
   {
+    "version": "0.11.6",
+    "date": "2026-09-25",
+    "title": "A larger picture collection, clearer hints",
+    "tag": "v0.11.6",
+    "receipt": "docs/RELEASE-0.11.6.md",
+    "changes": [
+      "Try six original 15×15 Picture Logic studies, bringing the source catalogue to 382 puzzles across 23 packs. Four Tricky and two Expert labels remain provisional pending human calibration.",
+      "Get more useful Lantern Gardens hints from visible marks, without revealing solutions.",
+      "Get Tents & Trees advice that checks forced lines together and catches conflicts before suggesting a move.",
+      "Play Archive boards with safer boundary handling, and keep Reversi search depth within its documented bound."
+    ]
+  },
+  {
     "version": "0.11.5",
     "date": "2026-09-22",
     "title": "Phone-first play and forgiving routes",

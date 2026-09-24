@@ -25,7 +25,7 @@ function harness({ standalone = false } = {}) {
     },
   });
   const context = {
-    ALIBI_CONFIG: { standalone, version: '0.11.5' },
+    ALIBI_CONFIG: { standalone, version: '0.11.6' },
     ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
     location: { hash: '#/play/test@1' },
     document: {
@@ -362,7 +362,7 @@ function integrated() {
       (windowListeners[type] ||= []).push(listener);
     },
     removeEventListener() {},
-    ALIBI_CONFIG: { standalone: false, version: '0.11.5' },
+    ALIBI_CONFIG: { standalone: false, version: '0.11.6' },
     ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
   };
   context.globalThis = context;
