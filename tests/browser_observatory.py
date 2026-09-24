@@ -171,6 +171,7 @@ with sync_playwright() as pw:
         }""",
         editable,
     )
+    check(conflict is not None, 'the sudoku row has another editable cell for the conflict')
     page.locator(f'#cell-{conflict["index"]}').click()
     page.keyboard.press(str(conflict['value']))
     page.wait_for_function(
@@ -195,6 +196,45 @@ with sync_playwright() as pw:
     page.evaluate('() => PulseboardUsage.flush()')
     page.wait_for_timeout(300)
     check(len(observed) == 5, 'checking the same board again is not another attempt')
+    dismiss_dialog(page)
+
+    followup = page.evaluate(
+        """() => {
+          const run = AlibiDiagnostics.getCurrent();
+          const index = run.puzzle.givens.findIndex(
+            (value, cell) => !value && !run.state.cells[cell],
+          );
+          return index === -1 ? null : {index, value: run.puzzle.solution[index]};
+        }"""
+    )
+    check(followup is not None, 'the sudoku board has a third editable cell for the retry')
+    page.locator(f'#cell-{followup["index"]}').click()
+    page.keyboard.press(str(followup['value']))
+    page.wait_for_function(
+        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
+        arg=followup,
+    )
+    page.locator('[data-action="check"]').first.click()
+    page.evaluate('() => PulseboardUsage.flush()')
+    wait_for_events(page, observed, 7)
+    check(
+        [event['event'] for event in observed[5:]] == ['puzzle.started', 'puzzle.failed'],
+        'a move after failure opens a fresh attempt',
+    )
+    dismiss_dialog(page)
+
+    page.locator('[data-action="undo"]').first.click()
+    page.wait_for_function(
+        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] !== entry.value",
+        arg=followup,
+    )
+    page.locator('[data-action="check"]').first.click()
+    page.evaluate('() => PulseboardUsage.flush()')
+    wait_for_events(page, observed, 9)
+    check(
+        [event['event'] for event in observed[7:]] == ['puzzle.started', 'puzzle.failed'],
+        'undo after a failed check reopens the retry without a new move',
+    )
     dismiss_dialog(page)
 
     before = page.evaluate(

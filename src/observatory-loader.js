@@ -23,6 +23,7 @@
   // puzzle ids, answers, text, URLs or boards. Only a real board change opens an attempt; a conflicted
   // check or a committed completion closes an open one and is dropped otherwise (repeated checks, undo/redo
   // reviews), so one attempt yields at most one terminal. Hints are reported but never open an attempt.
+  // A restart abandons the open attempt locally (puzzle.abandoned), which resets without emitting.
   // Nothing is buffered: while sharing is off the state resets and calls are dropped. Consent changes, a
   // remounted facade and route changes also reset.
   let usage, run, open;
@@ -32,6 +33,10 @@
     if (u !== usage) ((usage = u), reset());
     if (run !== current) ((run = current), (open = null));
     if (!u?.status?.().active) return (reset(), false);
+    if (event === 'puzzle.abandoned') {
+      open = null;
+      return true;
+    }
     if (event && !/^(puzzle\.(started|failed|completed)|hint\.requested)$/.test(event))
       return false;
     if (!event || event === 'puzzle.started') return open || (open = u.track('puzzle.started'));
