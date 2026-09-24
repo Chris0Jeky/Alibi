@@ -1,7 +1,7 @@
 # Sun & Moon reasoning
 
-Gameplay slice #327 extends the existing pure Hint seam. It builds on the reviewed Tents
-work in #324 without altering that code, puzzle definitions, givens, saves or reveal counts.
+Gameplay slice #327 / #328 extends the existing pure Hint seam. It builds on the merged
+Tents work in #324 without altering that code, puzzle definitions, givens, saves or reveals.
 
 ## Local alternatives, not answer lookup
 
@@ -39,7 +39,7 @@ these tests exercise genuinely ambiguous partial boards rather than one stored s
 A deterministic 4x4 sample checks 1,493 returned deductions against all compatible complete
 answers across 1,500 partial cases. A separate ternary sample retains 2,050 locally legal
 positions, including incorrect marks, and checks that every proposed move preserves its
-independently implemented counts, spacing and distinct-line rules. These are bounded samples,
+independently implemented counts, triples and distinct-line rules. These are bounded samples,
 not exhaustive coverage of all board sizes. Official-catalogue walks verify 458 deductions
 with throwing solution getters, immutable hint calls, preserved givens and real reducers.
 
@@ -51,8 +51,13 @@ board. Tests contain the explicit binary-03 wrong-C3 regression and row/column t
 `tests/browser_binary_hints.py` opens curated-binary-01 at 390px and 1440px, follows twelve
 clue-derived steps through Hint/symbol/cell/Undo controls and requires a distinct-line
 explanation at the final step. It then enters the wrong C3 on binary-03, checks pure conflict
-advice and undoes the mistake. The planned receipt contains 26 interactions and page errors.
-No player record is injected. Python compilation passes; browser success is not yet claimed.
+advice and undoes the mistake. No player record is injected. Python compilation passes.
+
+Initial head caa87ee passed run 36066440056. Downloaded artifact 10836218226 records all 26
+binary interactions and the 44 existing Tents/Lantern interactions, with no page errors. The
+phone distinct-line and wrong-mark screenshots were inspected. Canonical formatter output
+was then applied without changing rules or assertions; the combined 33 source tests pass.
+The formatted/current-main head must still earn its own complete verification and review.
 
 The existing reasoning workflow runs Lantern, Tents and binary controls in the same lane and
 retains screenshots, receipts and non-mutating pinned formatter output. Full exact-head
