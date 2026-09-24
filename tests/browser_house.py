@@ -95,7 +95,7 @@ def main():
             if page.locator("#dialog").evaluate("e => e.open"):
                 page.locator("#dialog").get_by_role("button", name="Start playing", exact=True).click()
             page.locator("#hx-return a").click()
-            wait_js(page, "h => location.hash === h", arg=browse_hash)
+            wait_js(page, "expected => location.hash === expected.hash && document.activeElement.id === expected.focus", arg={'hash': browse_hash, 'focus': origin_id})
             check(page.evaluate("location.hash") == browse_hash, f"{width}: exact finder route restored")
             expect(page.locator(".hx-puzzle")).to_have_count(24)
             check(page.evaluate("document.activeElement.id") == origin_id, f"{width}: originating puzzle regains focus")
