@@ -44,7 +44,7 @@ with sync_playwright() as playwright:
 
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
-            page.locator(markers[path]).first.wait_for()
+            page.locator(markers[path]).first.wait_for(timeout=20000)
 
         def simple_controls():
             # Exercise the real fallback menu; enhanced controls have their own suite.
