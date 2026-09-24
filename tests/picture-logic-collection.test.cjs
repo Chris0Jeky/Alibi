@@ -45,7 +45,10 @@ test('six original revision-one studies extend the trusted catalogue without eas
     assert.equal(puzzle.revision, 1);
     assert.equal(puzzle.difficultyStatus, 'provisional');
     assert.ok(['Tricky', 'Expert'].includes(puzzle.difficulty));
-    assert.deepEqual(catalogue.puzzles.find((p) => p.id === puzzle.id), puzzle);
+    assert.deepEqual(
+      catalogue.puzzles.find((p) => p.id === puzzle.id),
+      puzzle,
+    );
   }
 });
 
