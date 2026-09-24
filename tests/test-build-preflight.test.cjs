@@ -93,8 +93,7 @@ test('dirty-tree diagnostics name the blocking paths within a bound', (t) => {
   fs.writeFileSync(path.join(root, 'scratch-note.txt'), 'untracked\n');
   assert.match(inspect(root).join('\n'), /source\.js/);
   assert.match(inspect(root).join('\n'), /scratch-note\.txt/);
-  for (let i = 0; i < 8; i++)
-    fs.writeFileSync(path.join(root, `scratch-${i}.txt`), 'untracked\n');
+  for (let i = 0; i < 8; i++) fs.writeFileSync(path.join(root, `scratch-${i}.txt`), 'untracked\n');
   const errors = inspect(root).join('\n');
   assert.match(errors, /\(\+5 more\)/);
   assert.ok(errors.length < 2000, 'diagnostics stay bounded');
