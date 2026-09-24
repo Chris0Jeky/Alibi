@@ -44,6 +44,11 @@
   --club-cream: #f4efe3;
   --club-sage: #899d89;
   --club-serif: Georgia, 'Times New Roman', serif;
+  /* Type ramp top steps (#219). Desk display stays above the hero title at every width. */
+  --club-display: clamp(30px, 2.8vw, 45px);
+  --club-display-narrow: 37px;
+  --club-display-compact: 31px;
+  --club-title: clamp(24px, 2.6vw, 40px);
 }
 body.club-home,
 body.club-experiment {
@@ -63,7 +68,7 @@ body.club-experiment {
 }
 .club-welcome h1 {
   font-family: var(--club-serif);
-  font-size: clamp(30px, 2.8vw, 45px);
+  font-size: var(--club-display);
   font-weight: 400;
   letter-spacing: -1.7px;
   margin-top: 12px;
@@ -2214,7 +2219,7 @@ body.club-experiment {
     grid-template-columns: 1fr;
   }
   .club-welcome h1 {
-    font-size: 37px;
+    font-size: var(--club-display-narrow);
   }
   .club-gameheading h1 {
     font-size: 35px;
@@ -2239,7 +2244,7 @@ body.club-experiment {
     margin-bottom: 21px;
   }
   .club-welcome h1 {
-    font-size: 31px;
+    font-size: var(--club-display-compact);
     letter-spacing: -1.3px;
     line-height: 1.13;
   }
