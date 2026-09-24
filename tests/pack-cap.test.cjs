@@ -48,6 +48,28 @@ test('core and engines agree on the 150-puzzle pack cap', () => {
   }
 });
 
+test('core and engines agree on pack header rules', () => {
+  const validators = [
+    [coreValidatePack, 'core'],
+    [C.validatePack, 'engines'],
+  ];
+  const cases = [
+    ['baseline pack', (p) => p, true],
+    ['constructor id', (p) => ({ ...p, id: 'constructor' }), false],
+    ['prototype id', (p) => ({ ...p, id: 'prototype' }), false],
+    ['version 0', (p) => ({ ...p, version: 0 }), false],
+    ['version 999999', (p) => ({ ...p, version: 999999 }), true],
+    ['version 1000000', (p) => ({ ...p, version: 1000000 }), false],
+    ['blank title', (p) => ({ ...p, title: '   ' }), false],
+  ];
+  for (const [validatePack, name] of validators)
+    for (const [label, mutate, valid] of cases) {
+      const pack = mutate(packWith(1));
+      if (valid) assert.doesNotThrow(() => validatePack(pack, false), `${name} accepts ${label}`);
+      else assert.throws(() => validatePack(pack, false), Error, `${name} rejects ${label}`);
+    }
+});
+
 test('schema, UI text and docs promise the same 150 cap', () => {
   const schema = JSON.parse(fs.readFileSync(path.join(__dirname, '../schemas/pack.schema.json')));
   assert.equal(schema.properties.puzzles.maxItems, 150, 'schema maxItems');
