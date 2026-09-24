@@ -42,15 +42,31 @@ function sourceIdentity(root) {
 /** Bounded dirty-path sample for failure diagnostics. Never throws. */
 function dirtyPaths(root, limit = 5) {
   try {
-    const out = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    const out = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], {
       cwd: root,
       encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 10000,
     });
-    const paths = out
-      .split('\n')
-      .map((line) => line.slice(3).split(' -> ').at(-1))
-      .filter((entry) => entry && entry.length <= 240);
-    return { shown: paths.slice(0, limit), total: paths.length };
+    const entries = out.split('\0');
+    const maximum = Number.isFinite(limit) ? Math.max(0, Math.min(5, Math.trunc(limit))) : 5;
+    const shown = [];
+    let total = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (!entry) continue;
+      total++;
+      if (shown.length < maximum) {
+        const display = JSON.stringify(entry.slice(3)).replace(
+          /[\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g,
+          (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
+        );
+        shown.push(display.length > 240 ? display.slice(0, 237) + '...' : display);
+      }
+      // Porcelain -z puts a rename/copy destination first, then its source path.
+      if (/[RC]/.test(entry.slice(0, 2))) i++;
+    }
+    return { shown, total };
   } catch {
     return { shown: [], total: 0 };
   }
