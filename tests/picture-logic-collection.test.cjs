@@ -78,7 +78,7 @@ test('independent and native solvers agree on exactly one answer for each pictur
   }
 });
 
-test('every study has a complete answer-independent deduction route through production moves', () => {
+test('every study has an answer-independent solve route through production moves', () => {
   for (const puzzle of collection().puzzles) {
     const publicPuzzle = new Proxy(puzzle, {
       get(target, key) {

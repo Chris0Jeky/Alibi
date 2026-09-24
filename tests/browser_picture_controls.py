@@ -39,7 +39,7 @@ def run():
                     page.goto(URL + '/#/library')
                     page.wait_for_function(
                         '() => navigator.serviceWorker.controller && '
-                        'AlibiDiagnostics.getStatus().offlineReady', timeout=30000,
+                        'globalThis.AlibiDiagnostics?.getStatus().offlineReady', timeout=30000,
                     )
                     for puzzle in PUZZLES:
                         puzzle_id = puzzle['id']
@@ -47,7 +47,7 @@ def run():
                             context.set_offline(False)
                             page.goto(URL + f'/#/play/{puzzle_id}@1')
                             page.wait_for_function(
-                                '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id',
+                                '(id) => globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id === id',
                                 arg=puzzle_id,
                             )
                             dismiss_lesson(page)
@@ -58,16 +58,16 @@ def run():
                             assert_mutation_and_undo(page, puzzle, checks, width)
                             solve(page, puzzle)
                             page.wait_for_function(
-                                '() => Boolean(AlibiDiagnostics.getCurrent()?.completedAt) && '
-                                'AlibiDiagnostics.getStatus().pendingSaves === 0',
+                                '() => Boolean(globalThis.AlibiDiagnostics?.getCurrent()?.completedAt) && '
+                                'globalThis.AlibiDiagnostics?.getStatus().pendingSaves === 0',
                                 timeout=30000,
                             )
                             completed = current(page)['completedAt']
                             context.set_offline(True)
                             page.reload()
                             page.wait_for_function(
-                                '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id && '
-                                'Boolean(AlibiDiagnostics.getCurrent()?.completedAt)',
+                                '(id) => globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id === id && '
+                                'Boolean(globalThis.AlibiDiagnostics?.getCurrent()?.completedAt)',
                                 arg=puzzle_id,
                             )
                             restored = current(page)
