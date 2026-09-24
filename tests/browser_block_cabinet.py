@@ -40,9 +40,9 @@ with sync_playwright() as playwright:
             )
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
-        # Salon renders the enhanced or the simple board depending on the mode
-        # under test; accept either as the render marker.
-        markers = {"/salon/blockcabinet": ".bc-host .bc-cell, .block-cell", "/home": ".club-welcome"}
+        # Salon always renders both boards and hides the inactive one; accept
+        # whichever board is visible as the render marker.
+        markers = {"/salon/blockcabinet": ".bc-host .bc-cell:visible, .block-cell:visible", "/home": ".club-welcome"}
 
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
