@@ -500,6 +500,7 @@ def offline_bridges(page: Page, context: BrowserContext) -> None:
     try:
         page.reload(wait_until="domcontentloaded", timeout=15000)
         wait_diag(page)
+        wait_check(page, "() => AlibiDiagnostics.getStatus().offlineReady === true", timeout=SW_TIMEOUT_MS)
         check(page.evaluate("AlibiDiagnostics.getStatus().offlineReady") is True, "offline-ready status survives an offline Bridges reload")
         check(current(page)["puzzle"]["id"] == "bridges-08", "offline reload returns to Bridges-08")
         check(state(page)["cells"][first] == 1, "online Bridges move survives offline reload")
