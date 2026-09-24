@@ -16,23 +16,6 @@ concurrency:
   group: picture-controls-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  prior-failure-evidence:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      actions: read
-    steps:
-      - name: Collect previous verification log without modifying sources
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p evidence
-          gh api --allow-escape-sequences repos/Chris0Jeky/Alibi/actions/jobs/107744486168/logs > evidence/previous-verify.log
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: prior-verify-failure
-          path: evidence/previous-verify.log
-          retention-days: 7
   browser-controls:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
