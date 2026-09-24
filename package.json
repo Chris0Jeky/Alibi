@@ -44,6 +44,9 @@
   "overrides": {
     "miniflare@5.20260907.0-alpha": {
       "sharp": "0.35.4"
+    },
+    "xcode": {
+      "uuid": "11.1.1"
     }
   }
 }

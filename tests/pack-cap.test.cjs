@@ -1,7 +1,10 @@
 'use strict';
 // Issue #267: every pack-cap surface must agree on 150 puzzles per pack.
-// The import worker bundles only src/core.js, so core's cap is the effective
-// import limit; engines, schema, UI text and docs must match it.
+// Both validators derive the cap from core's MAX_PACK_PUZZLES. The import
+// worker bundles core before engines (tools/build.cjs), and engines'
+// validatePack overwrites core's, so the shared constant is the effective
+// limit in every bundle. Schema, UI text and docs are separate surfaces
+// pinned to the same value below.
 const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path'),
@@ -25,6 +28,11 @@ function packWith(n) {
   }
   return { schemaVersion: 1, id: 'cap-probe-pack', version: 1, title: 'Cap probe', puzzles };
 }
+
+test('the pack cap constant is 150', () => {
+  assert.equal(CoreC.MAX_PACK_PUZZLES, 150, 'core exports the 150 cap');
+  assert.equal(C.MAX_PACK_PUZZLES, 150, 'engines sees the same constant');
+});
 
 test('core and engines agree on the 150-puzzle pack cap', () => {
   assert.notEqual(coreValidatePack, C.validatePack, 'validators are distinct functions');

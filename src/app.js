@@ -1037,7 +1037,7 @@
       )}</div><div class="logic-summary">${p.people.map((name, i) => `<div><strong>${esc(name)}</strong><span>${esc(p.categories[0].name)} ${esc(a[i] >= 0 ? p.categories[0].values[a[i]] : 'unknown')} · ${esc(p.categories[1].name)} ${esc(a[n + i] >= 0 ? p.categories[1].values[a[n + i]] : 'unknown')}</span></div>`).join('')}</div>`;
   }
   function witnessBoard(p, s) {
-    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.</p>`;
+    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts. The left and right arrows move between accounts.</p>`;
   }
   function controls(p, s) {
     const t = p.type;
@@ -1085,7 +1085,7 @@
     else if (t === 'network')
       content = `<div class="toolrow">${tool('Turn left', 'turn-left', 'undo')}${tool('Turn right', 'turn-right', 'redo')}</div><p class="control-note">Tap to turn clockwise. Right-click or Shift+Enter turns anticlockwise. Arrows move selection.</p>`;
     else if (t === 'dossier')
-      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs.</p>`;
+      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs. Arrow keys move between marks.</p>`;
     else if (t === 'trail')
       content = `<div class="numberpad trail-pad" data-scroll-key="trail-keys">${range(p.size ** 2)
         .map(
@@ -1796,14 +1796,15 @@
     to.push(C.clone(current.state));
     current.state = from.pop();
     current.completedAt = null;
-    // Undo after a failure reopens the retry; stepping off a solved board only reviews it.
-    if (wasSolved) reviewing = true;
-    else if (!reviewing) globalThis.AlibiJourney?.(current);
     feedback = '';
     checking = false;
     accuseChoice = null;
     if (current.puzzle.type === 'trail') trailValue = nextTrail(current.state, current.puzzle);
     completion();
+    // Undo after a failure reopens the retry. Touching a solved board on either side of the
+    // step only reviews it, re-derived here so route re-entry cannot turn a review into a solve.
+    if (wasSolved || current.completedAt) reviewing = true;
+    else if (!reviewing) globalThis.AlibiJourney?.(current);
     enqueueSave();
     render();
   }
@@ -3342,6 +3343,33 @@
       if (next >= 0 && next < p.size ** 2) selectedCell = next;
       render();
       document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
+      return;
+    }
+    if (d && ['dossier', 'witness'].includes(p.type)) {
+      const active = document.activeElement;
+      if (active?.dataset?.action !== 'mark') return;
+      const cell = Number(active.dataset.cell);
+      if (!Number.isInteger(cell)) return;
+      const dossier = p.type === 'dossier';
+      if (!dossier && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      let next = -1;
+      if (dossier) {
+        const n = p.size,
+          local = cell - dossierTab * n * n;
+        if (local < 0 || local >= n * n) return;
+        const r =
+            Math.floor(local / n) + (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0),
+          c = (local % n) + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0);
+        if (r < 0 || r >= n || c < 0 || c >= n) return;
+        next = dossierTab * n * n + r * n + c;
+      } else {
+        next = cell + (e.key === 'ArrowRight' ? 1 : -1);
+        if (next < 0 || next >= p.statements.length) return;
+      }
+      const target = document.getElementById('mark-' + next);
+      if (!target) return;
+      target.focus();
       return;
     }
     if (['Backspace', 'Delete'].includes(e.key)) {
