@@ -63,6 +63,7 @@ test('Lo Shu accepts symmetry; Hanoi rejects illegal and unbounded logs', () => 
 test('Unknown and nested future fields remain protected', () => {
   const edits = [
     (s) => (s.version = 2),
+    (s) => (s.futureSaveField = 1),
     (s) => (s.preferences.future = true),
     (s) => (s.completed.gate = { answer: [1, 3, 5], guided: false, future: 1 }),
     (s) => (s.drafts.constructor = []),

@@ -310,26 +310,6 @@ function validate(s) {
   shape(s.preferences, ['motion', 'sound', 'story']);
   for (const record of Object.values(s.completed)) shape(record, ['answer', 'guided']);
   if (
-    s &&
-    typeof s === 'object' &&
-    Object.keys(s).some(
-      (k) =>
-        ![
-          'version',
-          'revision',
-          'completed',
-          'notes',
-          'visited',
-          'drafts',
-          'revealed',
-          'preferences',
-          'theories',
-          'labels',
-        ].includes(k),
-    )
-  )
-    throw Error('Unknown save fields. Original data was not overwritten.');
-  if (
     !s ||
     s.version !== 1 ||
     !Number.isSafeInteger(s.revision) ||
