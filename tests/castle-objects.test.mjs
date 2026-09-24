@@ -5,6 +5,7 @@ import {
   roomObjects,
   inspectObject,
   appendObservation,
+  validateAuthoredCollection,
   validateInspectableObject,
 } from '../src/castle/objects.mjs';
 
@@ -32,6 +33,23 @@ test('Inspectable objects expose one strict, immutable data contract', () => {
 test('The authored collection passes the strict validator', () => {
   assert.equal(authoredObjects.length, 9);
   assert.doesNotThrow(() => authoredObjects.map(validateInspectableObject));
+});
+
+test('The authored collection rejects a duplicated room and object pair', () => {
+  assert.doesNotThrow(() => validateAuthoredCollection(authoredObjects));
+  const duplicate = { ...authoredObjects[0] };
+  assert.throws(
+    () => validateAuthoredCollection([...authoredObjects, duplicate]),
+    /duplicate inspectable object/i,
+  );
+  assert.throws(
+    () =>
+      validateAuthoredCollection([
+        ...authoredObjects,
+        { ...duplicate, description: '<script>alert(1)</script>' },
+      ]),
+    /plain text/i,
+  );
 });
 
 test('Inspectable object validation rejects active markup, detail art and unknown fields', () => {
