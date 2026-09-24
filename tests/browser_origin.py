@@ -935,11 +935,84 @@ def keyboard_marks(page: Page, puzzle_id: str, label: str) -> None:
         )
     marks.first.focus()
     page.keyboard.press("ArrowRight")
-    page.wait_for_timeout(300)
-    check(
-        page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
-        f"{label} ArrowRight leaves mark focus unchanged (arrows unbound)",
+    wait_page(
+        page,
+        "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+        arg=order[1],
+        what=f"{label} ArrowRight focus",
     )
+    check(
+        page.evaluate("Number(document.activeElement?.dataset.cell)") == order[1],
+        f"{label} ArrowRight moves to the next mark",
+    )
+    if puzzle_id.startswith("dossier"):
+        size = page.evaluate("AlibiDiagnostics.getCurrent()?.puzzle.size")
+        page.keyboard.press("ArrowDown")
+        down = order[1] + size
+        wait_page(
+            page,
+            "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+            arg=down,
+            what=f"{label} ArrowDown focus",
+        )
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == down,
+            f"{label} ArrowDown moves a row down in the active tab",
+        )
+        marks.first.focus()
+        page.keyboard.press("ArrowLeft")
+        page.wait_for_timeout(300)
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+            f"{label} ArrowLeft stays on the first column",
+        )
+        page.keyboard.press("ArrowUp")
+        page.wait_for_timeout(300)
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+            f"{label} ArrowUp stays on the first row",
+        )
+        page.locator('[data-action="dossier-tab"][data-value="1"]').click()
+        tab_marks = page.locator('[data-action="mark"][data-cell]')
+        tab_order = tab_marks.evaluate_all(
+            "(elements) => elements.map((el) => Number(el.dataset.cell))"
+        )
+        tab_marks.first.focus()
+        page.keyboard.press("ArrowRight")
+        wait_page(
+            page,
+            "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+            arg=tab_order[1],
+            what=f"{label} second-tab ArrowRight focus",
+        )
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == tab_order[1],
+            f"{label} ArrowRight moves within the second tab",
+        )
+    else:
+        page.keyboard.press("ArrowLeft")
+        wait_page(
+            page,
+            "(cell) => Number(document.activeElement?.dataset.cell) === cell",
+            arg=order[0],
+            what=f"{label} ArrowLeft focus",
+        )
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+            f"{label} ArrowLeft moves back along the statement list",
+        )
+        page.keyboard.press("ArrowLeft")
+        page.wait_for_timeout(300)
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+            f"{label} ArrowLeft stays on the first account",
+        )
+        page.keyboard.press("ArrowUp")
+        page.wait_for_timeout(300)
+        check(
+            page.evaluate("Number(document.activeElement?.dataset.cell)") == order[0],
+            f"{label} ArrowUp leaves account focus unchanged",
+        )
 
 
 def scenario_keyboard(pw: Any, root: Path) -> None:
