@@ -97,22 +97,18 @@ def launch(pw: Any, profile: Path) -> BrowserContext:
 
 
 def wait_check(page: Page, expression: str, *, arg: Any = None, timeout: int = TIMEOUT_MS) -> None:
-    # Poll from the test process: Playwright's in-page polling uses eval, blocked by our CSP.
-    end = time.monotonic() + timeout / 1000
-    while time.monotonic() < end:
-        try:
-            if page.evaluate(expression, arg):
-                return
-        except PlaywrightError as error:
-            if "Execution context was destroyed" not in str(error):
-                raise
-        page.wait_for_timeout(60)
-    raise AssertionError(f"Timed out waiting for {expression}")
+    # wait_for_function evaluates through CDP callFunctionOn, which the app's
+    # Content-Security-Policy allows; the house, delivery, curation, dominoes,
+    # assets and block suites already rely on it under the same policy.
+    page.wait_for_function(expression, arg=arg, timeout=timeout)
 
 
 def wait_diag(page: Page) -> None:
-    wait_check(page, "Boolean(window.AlibiDiagnostics)", timeout=TIMEOUT_MS)
-    page.wait_for_timeout(100)
+    wait_check(
+        page,
+        "() => ['getStatus', 'getCounts', 'getCurrent'].every((key) => typeof window.AlibiDiagnostics?.[key] === 'function')",
+        timeout=TIMEOUT_MS,
+    )
 
 
 def current(page: Page) -> dict[str, Any]:
@@ -135,13 +131,12 @@ def close_dialog(page: Page) -> None:
         close.first.click()
     else:
         page.keyboard.press("Escape")
-    page.wait_for_timeout(100)
+    wait_check(page, "() => !document.querySelector('dialog[open]')", timeout=TIMEOUT_MS)
 
 
 def route(page: Page, path: str) -> None:
     close_dialog(page)
     page.evaluate("path => { location.hash = '#/' + path; }", path)
-    page.wait_for_timeout(150)
     if path.startswith("play/"):
         puzzle_id = path.split("/", 1)[1].split("@", 1)[0].split("?", 1)[0]
         wait_check(page,
@@ -260,7 +255,7 @@ def finish_lesson_if_open(page: Page, puzzle_type: str) -> None:
     dialog.locator(f'[data-action="lesson-tap"][data-cell="{target}"]').click()
     check(dialog.locator(".lesson-success").count() == 1, f"{puzzle_type} miniature lesson responds")
     dialog.locator('[data-action="lesson-finish"]').click()
-    page.wait_for_timeout(150)
+    wait_check(page, "() => !document.querySelector('dialog[open]')", timeout=TIMEOUT_MS)
     check(page.locator("dialog[open]").count() == 0, f"{puzzle_type} lesson hands control to the puzzle")
 
 
@@ -424,7 +419,7 @@ def complete_bridges(page: Page) -> None:
     wait_edge(page, 0, 2)
     check(state(page)["cells"][0] == 2, "bridges-01 redo restores a bridge change")
     before_reload = state(page)["cells"][:]
-    page.wait_for_timeout(350)
+    wait_check(page, "() => AlibiDiagnostics.getStatus().pendingSaves === 0", timeout=TIMEOUT_MS)
     page.reload(wait_until="domcontentloaded", timeout=TIMEOUT_MS)
     wait_diag(page)
     wait_check(page, "id => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg="bridges-01", timeout=TIMEOUT_MS)
@@ -447,7 +442,7 @@ def complete_bridges(page: Page) -> None:
             while state(page)["cells"][i] != target:
                 before = state(page)["cells"][i]
                 bridge_click(page, p, i)
-                page.wait_for_timeout(35)
+                wait_edge(page, i, (before + 1) % 3)
                 check(state(page)["cells"][i] == (before + 1) % 3, f"{puzzle_id} pair control advances edge {i}")
         wait_completed(page, puzzle_id)
         close_dialog(page)
@@ -476,7 +471,7 @@ def invalid_diagonal(page: Page) -> None:
     assert pair is not None
     for index in pair:
         page.locator(f'[data-action="cell"][data-cell="{islands[index]["cell"]}"]').click()
-    page.wait_for_timeout(160)
+    wait_check(page, "() => document.body.innerText.toLowerCase().includes('nearest island')", timeout=TIMEOUT_MS)
     check(state(page)["cells"] == before, "diagonal island pair leaves the bridge state unchanged")
     check("nearest island" in page.locator("body").inner_text().lower(), "diagonal island pair explains the straight-route rule")
     close_dialog(page)
@@ -524,7 +519,7 @@ def complete_witness(page: Page, p: dict[str, Any], book: str) -> None:
     wrong = (solution + 1) % p["size"]
     page.locator(f'[data-action="choose-accuse"][data-id="{wrong}"]').click()
     page.locator('[data-action="submit-accuse"]').click()
-    page.wait_for_timeout(130)
+    wait_check(page, "() => document.querySelector('.feedback')?.textContent.includes('statements would be true') ?? false", timeout=TIMEOUT_MS)
     check(not current(page)["completedAt"], f"{p['id']} rejects a wrong witness conclusion")
     page.locator(f'[data-action="choose-accuse"][data-id="{solution}"]').click()
     page.locator('[data-action="submit-accuse"]').click()
@@ -540,7 +535,7 @@ def complete_dossier(page: Page, p: dict[str, Any], book: str) -> None:
             value = int(p["solution"][category * n + person])
             index = category * n * n + person * n + value
             page.locator(f'[data-action="mark"][data-cell="{index}"]').click()
-            page.wait_for_timeout(25)
+            wait_check(page, "cell => AlibiDiagnostics.getCurrent()?.state.marks[cell] === 1", arg=index, timeout=TIMEOUT_MS)
     culprit = p["solution"][n:].index(p["targetItem"])
     page.locator(f'[data-action="choose-accuse"][data-id="{culprit}"]').click()
     page.locator('[data-action="submit-accuse"]').click()
