@@ -1,6 +1,31 @@
 # Live development state
 
-## Source maintenance checkpoint: 24 September 2026
+## Maintenance continuation: 24 September 2026
+
+The diagnostics follow-up #310 is based on `main` at
+`498dafd544cd6fa16d885c1183da181f04d36c8b`. It repairs #307's filename parsing and
+long-path counts without changing the clean-source gate. Six disposable-Git-repository
+regressions pass locally, including literal rename-like names, real renames, truncated paths,
+escaped control characters and bounded samples. POSIX-only names are skipped on Windows.
+Exact-head full CI and independent review remain required; use #310 for the final outcome.
+
+The same maintenance pass reviewed and merged #309 (`15ef765c`), #306 (`f8aa80d4`) and
+#308 (`a85a9d61`) after their exact-head full, Android and Wrenmere workflows passed,
+independent Codex reviews completed and no review threads remained. The combined Castle
+source suite passed 45 checks locally. The manifest regression also failed before its fix.
+The retained save-field check, all twelve distinct scenes and unique authored room/object
+pairs remain enforced. No puzzle or save-schema migration was introduced.
+
+The local workspace is an uploaded source snapshot reconciled per changed seam, not a fresh
+full build of current main. A local platform-build test could not read `dist/index.html`;
+full local artifact acceptance is not claimed. Source tests supplement the relevant GitHub
+Actions runs, not replace them. No deployment, physical-device or human acceptance occurred.
+
+The following checkpoint is retained history. Its PR statuses and next-work list are dated;
+live GitHub takes precedence for subsequent merges, including concurrent work on #295/#304.
+The maintainer architecture skim for #281/#282 and HUMAN_TODO device gates remain open.
+
+## Earlier source maintenance checkpoint: 24 September 2026
 
 Reconciled against `main` at `43319e52db12310b8b8a20f9633fbdfc7a2863a4`.
 This checkpoint records repository work, not a deployment. Source merges do not update either
@@ -43,7 +68,7 @@ The hosting CSP/WebP constraints remain #6. No deployment or rollback was execut
 
 CAP04 has pinned browser/Capacitor flavors, a strict native bootstrap, sync/build receipts and
 sampled Android 36 emulator evidence for debug and release-like preview APKs. See the
-[archived CAP04 record](STATE-ARCHIVE-2026-09-23.md#cap04-offline-android-preview-candidate-2026-09-22)
+[archived CAP04 record](STATE-ARCHIVE-2026-09-24.md#cap04-offline-android-preview-candidate-2026-09-22)
 for the exact scope. These use local debug signing and the unapproved preview application ID;
 they are not a production-signed AAB or a Play Store release.
 
@@ -52,7 +77,7 @@ recovery, transfer, production identity/signing and owner release approval remai
 #126 and the dependent [Capacitor packages](capacitor/README.md). Source, emulator and human
 acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/device gates.
 
-## Next focused work
+## Next focused work at the earlier checkpoint
 
 - Merge #295 once its verify rerun is green, closing the last in-repo #270 item.
 - Harden `tests/browser_september_feedback.py` (waits plus tap diagnostics) after the rerun
