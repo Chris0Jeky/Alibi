@@ -49,7 +49,7 @@
         if (possible.length === 1)
           return result(
             'Only one number fits',
-            `${at(i, n)} can only be ${possible[0]} with your current entries. Every other number is excluded by its row, column${p.type === 'sudoku' ? ' or box' : ' or inequality clues'}.`,
+            `${at(i, n)} must be ${possible[0]}: your row, column${p.type === 'sudoku' ? ' and box' : ' and inequality'} entries exclude every other number.`,
             i,
             possible[0],
           );
@@ -90,14 +90,14 @@
         if (!X.adj(i, n).some((j) => trees.has(j)))
           return result(
             'Each tent needs a tree',
-            `${at(i, n)} has no tree directly above, below, left or right. Mark it with a cross. A diagonal tree does not count.`,
+            `${at(i, n)} has no tree directly beside it. Diagonal trees do not count. Mark it with a cross.`,
             i,
             0,
           );
         if (tents.some((j) => X.near(i, j, n)))
           return result(
             'Leave a gap between tents',
-            `${at(i, n)} touches a tent, at a side or corner. Mark it with a cross so the tents stay apart.`,
+            `${at(i, n)} touches a tent. Tents cannot touch, even diagonally. Mark it with a cross.`,
             i,
             0,
           );
@@ -115,7 +115,7 @@
             const value = remaining === 0 ? 0 : 1;
             return result(
               value ? 'Fill the remaining tent sites' : 'This line has enough tents',
-              `${label} ${value ? 'needs a tent in every remaining unmarked site' : 'already has all its required tents'}. ${value ? 'Place a tent at' : 'Cross out'} ${at(unknown[0], n)}. This follows from your current marks.`,
+              `${label} ${value ? 'needs every unmarked site' : 'has all its tents'}. ${value ? 'Place a tent at' : 'Cross out'} ${at(unknown[0], n)}. This follows from your marks.`,
               unknown[0],
               value,
             );
@@ -129,7 +129,7 @@
         if (s.cells[i] === -1 && lit.has(i))
           return result(
             'No facing lanterns',
-            `${at(i, n)} is already lit by a lantern along an unobstructed row or column. A lantern here would face it. Mark this square with a cross.`,
+            `${at(i, n)} is lit by another lantern with no wall between them. Cross it out to avoid facing lanterns.`,
             i,
             0,
           );
@@ -143,14 +143,14 @@
         if (remaining === 0)
           return result(
             'This wall has enough lanterns',
-            `The ${p.walls[i]} wall at ${at(i, n)} already has all its required lanterns. Its other neighbour ${at(unknown[0], n)} must stay empty. Mark it with a cross.`,
+            `The wall at ${at(i, n)} has all its required lanterns. Cross out ${at(unknown[0], n)}.`,
             unknown[0],
             0,
           );
         if (remaining === unknown.length)
           return result(
             'Fill the remaining neighbours',
-            `The wall at ${at(i, n)} needs ${remaining} more lantern${remaining === 1 ? '' : 's'} and has exactly ${unknown.length} unmarked neighbouring square${unknown.length === 1 ? '' : 's'}. Place a lantern at ${at(unknown[0], n)}.`,
+            `Every unmarked neighbour of ${at(i, n)} must hold a lantern to meet its clue. Place one at ${at(unknown[0], n)}.`,
             unknown[0],
             1,
           );
@@ -161,7 +161,7 @@
         if (sources.length === 1)
           return result(
             'Only one way to light this square',
-            `${at(i, n)} is unlit. With your current crosses and lanterns, only ${at(sources[0], n)} can light it along an unobstructed row or column, or from the square itself. Place a lantern there.`,
+            `With your marks, only a lantern at ${at(sources[0], n)} can light ${at(i, n)}. Place one there.`,
             sources[0],
             1,
           );
