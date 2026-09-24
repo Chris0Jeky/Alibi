@@ -1,7 +1,6 @@
 """House navigation contract. Source mode is explicit; it is NOT an origin/SW test."""
 import json
 import os
-import time
 from pathlib import Path
 from playwright.sync_api import expect, sync_playwright
 
@@ -21,21 +20,17 @@ def check(value, label):
 
 
 def wait_js(page, expression, arg=None):
-    """CDP evaluation avoids page-side eval; keep the production CSP unchanged."""
-    deadline = time.monotonic() + 6
-    while time.monotonic() < deadline:
-        if page.evaluate(expression, arg):
-            return
-        page.wait_for_timeout(50)
-    raise AssertionError("Timed out: " + expression)
+    """Poll a page predicate via Playwright; pass-through arg keeps expressions static."""
+    page.wait_for_function(expression, arg=arg, timeout=6000)
 
 
 def nav(page, view):
     selector = ".hx-mobile" if page.viewport_size["width"] <= 760 else ".hx-nav"
     names = {"desk": "Your desk", "puzzles": "Puzzles", "house": "The house", "notebook": "Notebook", "comfort": "Comfort"}
-    page.locator(selector).get_by_role("link", name=names[view], exact=True).click()
+    link = page.locator(selector).get_by_role("link", name=names[view], exact=True)
+    link.click()
     wait_js(page, "v => AlibiHouseModel.locationState(location.hash).view === v", arg=view)
-    page.wait_for_timeout(80)
+    expect(link).to_have_attribute("aria-current", "page")
 
 
 def fit(page, label):
@@ -72,7 +67,6 @@ def main():
             wait_js(page, "() => AlibiDiagnostics.getCurrent().moves > 0")
             saved = page.evaluate("AlibiDiagnostics.getCurrent()")
             page.locator("#hx-return a").click()
-            page.wait_for_timeout(120)
             expect(page.locator(".hx-resume")).to_contain_text("Continue puzzle")
             check(page.locator(".hx-resume").inner_text().find("1 move") >= 0, f"{width}: real run appears on desk")
             play = page.locator(".hx-resume [data-house-action=play]")
@@ -81,7 +75,6 @@ def main():
             check(page.evaluate("AlibiDiagnostics.getCurrent().state") == saved["state"], f"{width}: canonical board resumes")
             check(page.evaluate("AlibiDiagnostics.getCurrent().undo") == saved["undo"], f"{width}: undo history preserved")
             page.locator("#hx-return a").click()
-            page.wait_for_timeout(120)
             # Filter URL, null results, recovery, pagination focus and return anchor.
             nav(page, "puzzles")
             page.locator("#hx-query").fill("zzzz-no-match")
@@ -98,11 +91,11 @@ def main():
             origin_id = launch.get_attribute("id")
             browse_hash = page.evaluate("location.hash")
             launch.click()
-            page.wait_for_timeout(100)
+            wait_js(page, "() => document.querySelector('#dialog').open || !!document.querySelector('#hx-return a')")
             if page.locator("#dialog").evaluate("e => e.open"):
                 page.locator("#dialog").get_by_role("button", name="Start playing", exact=True).click()
             page.locator("#hx-return a").click()
-            page.wait_for_timeout(160)
+            wait_js(page, "expected => location.hash === expected.hash && document.activeElement.id === expected.focus", arg={'hash': browse_hash, 'focus': origin_id})
             check(page.evaluate("location.hash") == browse_hash, f"{width}: exact finder route restored")
             expect(page.locator(".hx-puzzle")).to_have_count(24)
             check(page.evaluate("document.activeElement.id") == origin_id, f"{width}: originating puzzle regains focus")
@@ -114,7 +107,7 @@ def main():
             page.keyboard.press("Enter")
             expect(page.locator("#dialog")).to_be_visible()
             page.keyboard.press("Escape")
-            page.wait_for_timeout(100)
+            wait_js(page, "id => document.activeElement.id === id", arg=letter_id)
             check(page.evaluate("document.activeElement.id") == letter_id, f"{width}: letter Escape restores opener")
             for room in ("study", "library", "maps"):
                 item = page.locator(f".hx-room-cards [data-room={room}]")
@@ -122,7 +115,7 @@ def main():
                 item.click()
                 expect(page.locator("#dialog")).to_be_visible()
                 page.keyboard.press("Escape")
-                page.wait_for_timeout(80)
+                wait_js(page, "id => document.activeElement.id === id", arg=origin)
                 check(page.evaluate("document.activeElement.id") == origin, f"{width}: {room} close restores opener")
             check(page.evaluate("AlibiHouseLoader.diagnostics().study.study.visited.length") == 3, f"{width}: three observations")
             fit(page, f"{width}: map")
@@ -161,7 +154,7 @@ def main():
                 page.emulate_media(forced_colors="none")
             nav(page, "comfort")
             page.locator(".hx-exit").click()
-            page.wait_for_timeout(120)
+            wait_js(page, "() => !document.querySelector('.hx-experience') && document.body.dataset.house === 'false'")
             check(page.locator(".hx-experience").count() == 0, f"{width}: classic exit")
             check(page.locator(".sidebar").count() == 1, f"{width}: original navigation retained")
             check(page.evaluate("document.body.dataset.house") == "false", f"{width}: house CSS deactivated")
