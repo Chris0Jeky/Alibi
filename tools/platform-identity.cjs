@@ -44,11 +44,11 @@ function dirtyPaths(root, limit = 5) {
   try {
     const out = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], {
       cwd: root,
-      encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 10000,
     });
-    const entries = out.split('\0');
+    // Latin-1 keeps each byte intact while splitting Git's NUL records.
+    const entries = out.toString('latin1').split('\0');
     const maximum = Number.isFinite(limit) ? Math.max(0, Math.min(5, Math.trunc(limit))) : 5;
     const shown = [];
     let total = 0;
@@ -57,7 +57,17 @@ function dirtyPaths(root, limit = 5) {
       if (!entry) continue;
       total++;
       if (shown.length < maximum) {
-        const display = JSON.stringify(entry.slice(3)).replace(
+        const raw = entry.slice(3),
+          bytes = Buffer.from(raw, 'latin1'),
+          text = bytes.toString('utf8'),
+          validText = Buffer.from(text, 'utf8').equals(bytes);
+        let display = JSON.stringify(validText ? text : raw);
+        if (!validText)
+          display = display.replace(
+            /[\u0080-\u00ff]/g,
+            (char) => `\\x${char.charCodeAt(0).toString(16).padStart(2, '0')}`,
+          );
+        display = display.replace(
           /[\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g,
           (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
         );

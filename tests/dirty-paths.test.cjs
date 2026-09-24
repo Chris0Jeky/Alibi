@@ -87,3 +87,27 @@ test('missing checkout returns no sample without throwing', (t) => {
   const { root } = fixture(t);
   assert.deepEqual(dirtyPaths(path.join(root, 'missing')), { shown: [], total: 0 });
 });
+
+test(
+  'non-UTF-8 filename bytes remain distinct from each other and replacement text',
+  { skip: process.platform === 'win32' },
+  (t) => {
+    const { root } = fixture(t);
+    for (const byte of [0xfe, 0xff]) {
+      const filename = Buffer.concat([
+        Buffer.from(root + '/bad-'),
+        Buffer.from([byte]),
+        Buffer.from('.txt'),
+      ]);
+      fs.writeFileSync(filename, 'untracked');
+    }
+    fs.writeFileSync(path.join(root, 'bad-\ufffd.txt'), 'untracked');
+    const result = dirtyPaths(root);
+    assert.equal(result.total, 3);
+    assert.equal(new Set(result.shown).size, 3);
+    assert.ok(result.shown.includes('"bad-\\xfe.txt"'));
+    assert.ok(result.shown.includes('"bad-\\xff.txt"'));
+    assert.ok(result.shown.includes(JSON.stringify('bad-\ufffd.txt')));
+    assert.equal(sourceIdentity(root).sourceDirty, true);
+  },
+);
