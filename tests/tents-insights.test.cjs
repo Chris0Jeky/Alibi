@@ -30,7 +30,7 @@ function checkHint(marks, cell, value, rule) {
 }
 
 test('a tent requires an orthogonally adjacent tree, not a diagonal or wrapped one', () => {
-  checkHint({}, 3, 0, 'Each tent needs a tree');
+  checkHint({}, 3, 0, 'No tree');
   const { puzzle, state } = fixture();
   puzzle.trees = [2];
   puzzle.rowTargets = [1, 0, 0];
