@@ -1,0 +1,135 @@
+# Live development state
+
+## Gameplay and levels continuation: 24 September 2026
+
+The gameplay pass began from the uploaded ZIP matching `5c9eddb` and reconciled every
+published change with live GitHub. #317 fixes #314's Archive map/edge/completion defects
+and merged as `12817918456cff0b4d92ac61e59ccc2126e1aeed`. Exact head `4767394` passed full
+cabinet run `36025982876` and Android run `36025982930`; independent Codex review found no
+major issues and no unresolved threads remained. All nine published rooms and replay indices
+are preserved. The eight boundary regressions accompany independent minimum-push/Club tests.
+
+#320 addresses #319 with six original 15x15 Picture Logic studies, proposing 382 source
+puzzles across 23 packs without changing any of the earlier 376 definitions. Independent
+uniqueness checks and 1,350 answer-independent production-hint steps pass locally. Head
+`0f8e15f` passed six-study phone/desktop controls plus offline completion restoration and the
+existing nine-family controls. Full verification still reported test formatting at that
+checkpoint; a non-mutating canonical-format artifact was added to diagnose it. Use #320's
+latest head, review and full CI for final acceptance, not this dated intermediate status.
+
+#321 adds four local Lantern reasoning rules in the existing hint seam. The focused source
+suite passes 13 tests, including an independent exhaustive model with 6,588 deductions over
+6,977 compatible partial boards and 477 answer-independent official-catalogue steps. The
+new browser lane exercises Hint dialogs, brush placement and undo at 390px and 1440px.
+That lane and full exact-head CI are required before merge; source proofs are not a fresh
+local build. No complete-solver fallback, answer reveal or save/revision migration is added.
+
+Local registry DNS blocks dependency installation. Python checks compile and focused Node
+suites run, but local full build/browser/Android acceptance is not claimed. All changes are
+submitted on focused PRs; source merges are not deployments. Keep #161 and HUMAN_TODO q-8
+open for human difficulty, recognizability, explanation quality and physical Android/TalkBack
+acceptance. Provisional labels and Chromium emulation do not close those gates.
+
+## Maintenance continuation: 24 September 2026
+
+The diagnostics follow-up #310 is based on `main` at
+`498dafd544cd6fa16d885c1183da181f04d36c8b`. It repairs #307's filename parsing and
+long-path counts without changing the clean-source gate. Six disposable-Git-repository
+regressions pass locally, including literal rename-like names, real renames, truncated paths,
+escaped control characters and bounded samples. POSIX-only names are skipped on Windows.
+Exact-head full CI and independent review remain required; use #310 for the final outcome.
+
+The same maintenance pass reviewed and merged #309 (`15ef765c`), #306 (`f8aa80d4`) and
+#308 (`a85a9d61`) after their exact-head full, Android and Wrenmere workflows passed,
+independent Codex reviews completed and no review threads remained. The combined Castle
+source suite passed 45 checks locally. The manifest regression also failed before its fix.
+The retained save-field check, all twelve distinct scenes and unique authored room/object
+pairs remain enforced. No puzzle or save-schema migration was introduced.
+
+The local workspace is an uploaded source snapshot reconciled per changed seam, not a fresh
+full build of current main. A local platform-build test could not read `dist/index.html`;
+full local artifact acceptance is not claimed. Source tests supplement the relevant GitHub
+Actions runs, not replace them. No deployment, physical-device or human acceptance occurred.
+
+The following checkpoint is retained history. Its PR statuses and next-work list are dated;
+live GitHub takes precedence for subsequent merges, including concurrent work on #295/#304.
+The maintainer architecture skim for #281/#282 and HUMAN_TODO device gates remain open.
+
+## Earlier source maintenance checkpoint: 24 September 2026
+
+Reconciled against `main` at `43319e52db12310b8b8a20f9633fbdfc7a2863a4`.
+This checkpoint records repository work, not a deployment. Source merges do not update either
+hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
+
+| Work                                    | Evidence and continuation                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #277: Bridges landscape                 | #290 merged as `e721a3b7663b2faf494b7585ecca2fd9a26cc3e0`. PR-head cabinet run `35930469160` passed head `f67c6e03bf3cd24c2e642fcde5c2e740f954ca45` (height-aware board plus the 33-rule expedition.css removal); the main-head run was cancelled by a superseding push. Physical-device acceptance remains separate.                                                                                                                           |
+| #293: README release line               | Merged as `d136f1eed26ec7dd094ceb35940c9aa9176ada81`. Main-head cabinet run `35932894357` passed. README now reconciled at 0.11.5.                                                                                                                                                                                                                                                                                                              |
+| #274 / #270: journey receipt boundaries | #291 merged as `250a509e6102c2a5d290aaf053d062882d3e2c1f`. PR-head cabinet run `35933288366` passed head `f0215447024f04c8eb704cd02bcd1de359c47f51` (includes the owner restart-boundary tests); the main-head run was cancelled by a superseding push. Undo-retry and restart boundaries are in source.                                                                                                                                        |
+| #296: transitive uuid pin               | Merged as `554d298f166ef5343f7a9d7b92033a7d6d3f4cd0`. PR-head cabinet run `35934028891` passed head `825e79219777098567d7189086311ca4c62c3b9f`; the main-head run was cancelled by a superseding push. Transitive uuid pinned to 11.1.1 for the xcode subtree.                                                                                                                                                                                  |
+| #297: single-source pack cap            | Merged as `0896d5388db908d2a52ec1252e7cd39b5f88ef82` after PR-head cabinet run `35937381890` passed head `5ada0994acc52574728661764d0a8fd4f5eca5de`. The main-head cabinet run `35976744344` then failed the 126 KiB gzip budget (red main); #298 below resolved it.                                                                                                                                                                            |
+| #272: dossier/witness arrow keys        | #292 merged as `d71d241c85517335cfdf564b9775343962f9e07b`. PR-head cabinet run `35979342079` passed head `2ab81e33639b753d08eb0dabb22f6e5712889652` (an earlier failed attempt on the branch re-ran green and was diagnosed as a flake); the main-head run was cancelled by a superseding push. Tab/Enter paths preserved.                                                                                                                      |
+| Bundle budget restoration               | #298 merged as `43319e52db12310b8b8a20f9633fbdfc7a2863a4`. Main-head cabinet run `35984246288` and storage run `35984246356` passed. The application budget is 127 KiB gzip; the merged tree is green.                                                                                                                                                                                                                                          |
+| #270 fixture follow-up                  | #295 open at `adea099922e6005b18b2c02582d0b4685afa84e5`: test-only row-or-column conflict peer. Its verify run `35933404822` failed once on the september-feedback race below; a rerun was in progress at checkpoint time. This closes the last in-repo #270 item; session rollover stays collector-side.                                                                                                                                       |
+| september-feedback race                 | Second occurrence of the `browser_september_feedback` KeyError on identical code (first: 23 September archive). The scene engine trace is deterministic, so the race is test-side (immediate state read after tap). Hardened by #300 (merged `df3d326`, wait-for-observable-state guards) and #304 (open at `86ee713`: eval-free function predicates after a CSP EvalError flake on bare wait strings, full verify `36004116061` green 19m29s). |
+| #282: local-first architecture skim     | #281 still draft behind the maintainer-skim gate; no sync runtime implied. No change since the previous checkpoint.                                                                                                                                                                                                                                                                                                                             |
+
+This checkpoint was reconciled from live GitHub state (merge commits, exact-head
+workflow runs and open PR/issue records) against a clean local checkout of the
+reconciled SHA with a fresh local build. No deployment, rollback or device
+acceptance was executed here.
+
+## Published browser baseline and dated receipts
+
+Version **0.11.5** contains 376 catalogue entries across thirteen puzzle families. The latest
+receipts present in the [release record](RELEASE-0.11.5.md), reviewed 23 September 2026, are:
+
+| Origin     | Receipt date      | Build          | Recorded source                            |
+| ---------- | ----------------- | -------------- | ------------------------------------------ |
+| Cloudflare | 23 September 2026 | `d6862c274553` | `a3b48daddb0eae1832c61d3358a603593d980da9` |
+| Sites      | 22 September 2026 | `b8c6f194c5a4` | `c8a613a6278845ce7e3df8fe8adff1c505942cdf` |
+
+These are dated document readbacks, not new live-origin probes. Older `df04399c4ee7`,
+`ce60bde20b83` and `b8c6f194c5a4` Cloudflare checkpoints are historical. Preserve their
+checksums and rollback evidence; never infer that every origin has the same current build.
+The hosting CSP/WebP constraints remain #6. No deployment or rollback was executed here.
+
+## Android source preview, not a production release
+
+CAP04 has pinned browser/Capacitor flavors, a strict native bootstrap, sync/build receipts and
+sampled Android 36 emulator evidence for debug and release-like preview APKs. See the
+[archived CAP04 record](STATE-ARCHIVE-2026-09-23.md#cap04-offline-android-preview-candidate-2026-09-22)
+for the exact scope. These use local debug signing and the unapproved preview application ID;
+they are not a production-signed AAB or a Play Store release.
+
+Every-feature offline play, minimum-WebView compatibility, physical devices/accessibility,
+recovery, transfer, production identity/signing and owner release approval remain open under
+#126 and the dependent [Capacitor packages](capacitor/README.md). Source, emulator and human
+acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/device gates.
+
+## Next focused work at the earlier checkpoint
+
+- Merge #295 once its verify rerun is green, closing the last in-repo #270 item.
+- Merge #304 (eval-free september/bridge waits, verify green) once reviewed, closing the
+  feedback-race hardening.
+- Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
+  does not replace comfort, editorial, accessibility or difficulty calibration. The landscape
+  source fixes above still need physical Android/TalkBack and enlarged-system-text acceptance.
+- Scope bounded slices of the design-system debt (#219 type ramp, #220 radii, #221 button
+  recipes) with visual verification; do not start them as one mega-PR.
+
+## Historical evidence
+
+[STATE-ARCHIVE-2026-09-24.md](STATE-ARCHIVE-2026-09-24.md) preserves the previous state file
+byte for byte. [STATE-ARCHIVE-2026-09-23.md](STATE-ARCHIVE-2026-09-23.md) preserves the earlier
+checkpoints in the same way. Archive titles, present-tense wording, worker activity and PR
+statuses belong to those historical checkpoints, not live state.
+The [roadmap](../ROADMAP.md) separates published browser capability from native preview work
+and future services.
+
+### Block Cabinet phone action hierarchy candidate, 2026-09-17
+
+The earlier candidate and proving checks remain in the archive. In particular,
+physical Android touch, TalkBack, comfort review and human acceptance stay open.
+Do not convert that historical source proof, or the newer landscape regressions, into a native
+release signoff.
