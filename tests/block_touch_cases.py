@@ -3,7 +3,7 @@
 
 def assert_touch_drag(page, context, check, width):
     page.locator('.bc-host .bc-tray').scroll_into_view_if_needed()
-    page.wait_for_timeout(200)
+    page.wait_for_function("() => { const r = document.querySelector('.bc-host .bc-tray').getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }")
     geometry = page.evaluate('''() => {
       const r=AlibiClub.diagnostics().state.runs.blockcabinet,e=AlibiClubEngines.blockCabinet,s=e.replay(r.seed,r.log);
       const slot=[0,1,2].find(n=>e.placements(s,n).length),origin=e.placements(s,slot)[0],shape=e.shape(s.tray[slot]);
@@ -16,14 +16,14 @@ def assert_touch_drag(page, context, check, width):
     session = context.new_cdp_session(page)
     session.send('Input.dispatchTouchEvent', {'type':'touchStart','touchPoints':[{'x':geometry['sx'],'y':geometry['sy']}]})
     # A new status message can wrap differently. It must not cancel the captured touch.
-    page.wait_for_timeout(100)
+    page.wait_for_function("() => document.querySelector('.bc-host .bc-status').textContent.includes('selected')")
     for step in range(1, 9):
         session.send('Input.dispatchTouchEvent', {'type':'touchMove','touchPoints':[{
             'x':geometry['sx']+(geometry['x']-geometry['sx'])*step/8,
             'y':geometry['sy']+(geometry['y']-geometry['sy'])*step/8,
         }]})
     session.send('Input.dispatchTouchEvent', {'type':'touchEnd','touchPoints':[]})
-    page.wait_for_timeout(1900)
+    page.wait_for_function('(n) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === n && !AlibiBlockMotion.diagnostics().pending', arg=n+1)
     log = page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log')
     check(len(log) == n+1, f'{width}: lifted touch drag commits once after status reflow')
     check(log[-1]['cell'] == geometry['origin'] and log[-1]['slot'] == geometry['slot'],

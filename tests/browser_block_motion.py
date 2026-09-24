@@ -26,7 +26,9 @@ def boot(page):
     page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
 
 
-def move(page, prefix='.bc-host'):
+def move(page, prefix='.bc-host', settled='()=>!AlibiBlockMotion.diagnostics().pending'):
+    # Host commits settle via the motion pending flag; the Cascade lab surface
+    # is not covered by that flag, so lab callers pass their own signal.
     piece = page.locator(prefix + ' [data-piece="0"]')
     piece.focus()
     page.keyboard.press('Enter')
@@ -37,7 +39,7 @@ def move(page, prefix='.bc-host'):
     cell = page.locator(prefix + ' .bc-cell.legal').first
     cell.focus()
     page.keyboard.press('Enter')
-    page.wait_for_timeout(1900)
+    page.wait_for_function(settled)
 
 
 def lab(page, check_name=False):
@@ -254,7 +256,7 @@ with sync_playwright() as p:
         n = len(current(page)['log'])
         page.mouse.move(geometry['sx'], geometry['sy']); page.mouse.down()
         page.mouse.move(geometry['x'], geometry['y'], steps=8); page.mouse.up()
-        page.wait_for_timeout(1900)
+        page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n && !AlibiBlockMotion.diagnostics().pending', arg=n+1)
         check(len(current(page)['log']) == n+1, f'{width}: mouse drag commits exactly once')
         assert_touch_drag(page, context, check, width)
         tray = page.locator('.bc-host [data-piece="0"]').bounding_box()
@@ -269,7 +271,7 @@ with sync_playwright() as p:
         page.reload(); page.locator('.bc-host .bc-cell').first.wait_for()
         check(current(page)['log'] == saved, f'{width}: Classic survives reload')
         lab(page, check_name=True)
-        move(page, '.bc-modal')
+        move(page, '.bc-modal', "() => document.querySelector('.bc-modal [data-score]').textContent.trim() !== '0' && document.querySelector('.bc-modal [data-command=\"import\"]').disabled === false")
         score = page.locator('.bc-modal [data-score]').inner_text()
         check(int(score) > 0, f'{width}: Cascade actual controls')
         check(current(page)['log'] == saved, f'{width}: Cascade cannot mutate Classic')
@@ -368,7 +370,7 @@ with sync_playwright() as p:
         page.wait_for_function('() => window.__bcSaveStarted === true')
         page.evaluate('location.hash="#/salon"')
         page.wait_for_function("() => !document.querySelector('.block-panel')")
-        page.wait_for_timeout(600)
+        page.wait_for_function('()=>!AlibiBlockMotion.diagnostics().active && AlibiDiagnostics.getStatus().pendingSaves === 0')
         check(not errors, f'{width}: route exit during a queued save does not throw')
         check(not page.evaluate('AlibiBlockMotion.diagnostics().active'), f'{width}: route exit disposes surface')
         check(not errors, f'{width}: no uncaught browser errors: {errors}')
@@ -377,7 +379,8 @@ with sync_playwright() as p:
     context = browser.new_context(viewport={'width':1280,'height':1000})
     a=context.new_page(); b=context.new_page()
     boot(a); lab(a); boot(b); lab(b)
-    move(a,'.bc-modal'); move(b,'.bc-modal')
+    move(a,'.bc-modal',"() => document.querySelector('.bc-modal [data-score]').textContent.trim() !== '0' && AlibiDiagnostics.getStatus().pendingSaves === 0")
+    move(b,'.bc-modal',"() => document.querySelector('.bc-modal .bc-status').textContent.includes('Another tab')")
     check('Another tab' in b.locator('.bc-modal .bc-status').inner_text(), 'Cascade stale-tab write is rejected')
     check(b.locator('.bc-modal [data-score]').inner_text() == '0', 'Rejected stale write does not mutate game')
     context.close(); browser.close()
