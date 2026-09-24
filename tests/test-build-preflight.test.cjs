@@ -87,6 +87,19 @@ test('uncommitted tracked and untracked changes are not fresh source', (t) => {
   assert.match(inspect(root).join('\n'), /working tree/i);
 });
 
+test('dirty-tree diagnostics name the blocking paths within a bound', (t) => {
+  const { root } = fixture(t);
+  fs.writeFileSync(path.join(root, 'source.js'), 'const fixture = 2;\n');
+  fs.writeFileSync(path.join(root, 'scratch-note.txt'), 'untracked\n');
+  assert.match(inspect(root).join('\n'), /source\.js/);
+  assert.match(inspect(root).join('\n'), /scratch-note\.txt/);
+  for (let i = 0; i < 8; i++)
+    fs.writeFileSync(path.join(root, `scratch-${i}.txt`), 'untracked\n');
+  const errors = inspect(root).join('\n');
+  assert.match(errors, /\(\+5 more\)/);
+  assert.ok(errors.length < 2000, 'diagnostics stay bounded');
+});
+
 test('missing or modified runtime payloads fail before artifact suites', (t) => {
   const { root } = fixture(t);
   fs.writeFileSync(path.join(root, 'dist/assets/app.js'), '/* modified */');
