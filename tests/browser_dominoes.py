@@ -37,7 +37,7 @@ with sync_playwright() as playwright:
             page.set_content((ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"), wait_until="load")
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
-        markers = {"/salon/dominoes": ".domino-hand-tile", "/home": ".club-letter"}
+        markers = {"/salon/dominoes": ".domino-hand-tile", "/home": ".club-welcome"}
 
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
