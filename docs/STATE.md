@@ -1,31 +1,33 @@
 # Live development state
 
-## Source maintenance checkpoint: 23 September 2026
+## Source maintenance checkpoint: 24 September 2026
 
-Reconciled against `main` at `e79146ed219b6a0159a223308ec66209ad7b17cc`.
+Reconciled against `main` at `43319e52db12310b8b8a20f9633fbdfc7a2863a4`.
 This checkpoint records repository work, not a deployment. Source merges do not update either
 hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
 
 | Work | Evidence and continuation |
 | --- | --- |
-| #264: stale test artifacts | #286 merged as `3c37667c97ba9023cd0a110ab322c4a227f5229b`. `npm test` checks source, payload identity and receipts before artifact-dependent suites. Both full verify run `35916329920` and Android run `35916329976` passed head `4f9625cc46898291441ed66039a159a3f783c09b`. |
-| #285: named routes | #287 merged as `bc9d4c0ac67310903183f8dc0d56bcb80d2f564e`. Known page casing is normalized without altering puzzle IDs or queries; browser tests assert actual about/login pages and working exits. Full verify `35917035567` and Android `35917035553` passed head `d70b5e4031baea71853f5f7c67effeb7a65a705b`. |
-| #276 / #278: Cabinet landscape and exit target | #288 merged as `31e4b83780c28689286222eb32a011c66ec9571e` after full verification and Android checks. The bounded board/tray layout, 44px return target and placement/undo/menu/keyboard regressions are in source. Physical-device acceptance remains separate. |
-| #277: Bridges landscape | #290 implements the height-aware board, adjacent instructions/actions and focused-scroll correction without shrinking 44px island targets. Six initial local DOM/browser checks and ten engine checks passed. Its first full run `35923855260` failed the CSS download budget (455 of 456 Node tests passed), while Android passed. The follow-up removes 33 obsolete homepage rules from expedition.css without increasing any budget. Consult the PR for the final head, CI, review and merge outcome before treating it as accepted. Built-origin verification and existing physical-device gates are not replaced by a local fixture. |
-| #263 / #275: publication chronology | #289 merged as `e79146ed219b6a0159a223308ec66209ad7b17cc` after full run `35920075259` and independent review. The roadmap, state archive and per-origin receipt chronology are reconciled without a new deployment. |
-| #282: local-first architecture skim | #281 now contains a self-contained Alibi decision candidate and acceptance matrix. It no longer depends on machine-local ADR files. Thirteen focused source tests passed. Keep the draft/maintainer-skim gate: no sync server, outbox, replication runtime or accepted ADR is implied. |
-| #257: historical source heading | Already satisfied on the reconciled main source; closed after checking the explicitly earlier checkpoint and retained evidence. |
+| #277: Bridges landscape | #290 merged as `e721a3b7663b2faf494b7585ecca2fd9a26cc3e0`. PR-head cabinet run `35930469160` passed head `f67c6e03bf3cd24c2e642fcde5c2e740f954ca45` (height-aware board plus the 33-rule expedition.css removal); the main-head run was cancelled by a superseding push. Physical-device acceptance remains separate. |
+| #293: README release line | Merged as `d136f1eed26ec7dd094ceb35940c9aa9176ada81`. Main-head cabinet run `35932894357` passed. README now reconciled at 0.11.5. |
+| #274 / #270: journey receipt boundaries | #291 merged as `250a509e6102c2a5d290aaf053d062882d3e2c1f`. PR-head cabinet run `35933288366` passed head `f0215447024f04c8eb704cd02bcd1de359c47f51` (includes the owner restart-boundary tests); the main-head run was cancelled by a superseding push. Undo-retry and restart boundaries are in source. |
+| #296: transitive uuid pin | Merged as `554d298f166ef5343f7a9d7b92033a7d6d3f4cd0`. PR-head cabinet run `35934028891` passed head `825e79219777098567d7189086311ca4c62c3b9f`; the main-head run was cancelled by a superseding push. Transitive uuid pinned to 11.1.1 for the xcode subtree. |
+| #297: single-source pack cap | Merged as `0896d5388db908d2a52ec1252e7cd39b5f88ef82` after PR-head cabinet run `35937381890` passed head `5ada0994acc52574728661764d0a8fd4f5eca5de`. The main-head cabinet run `35976744344` then failed the 126 KiB gzip budget (red main); #298 below resolved it. |
+| #272: dossier/witness arrow keys | #292 merged as `d71d241c85517335cfdf564b9775343962f9e07b`. PR-head cabinet run `35979342079` passed head `2ab81e33639b753d08eb0dabb22f6e5712889652` (an earlier failed attempt on the branch re-ran green and was diagnosed as a flake); the main-head run was cancelled by a superseding push. Tab/Enter paths preserved. |
+| Bundle budget restoration | #298 merged as `43319e52db12310b8b8a20f9633fbdfc7a2863a4`. Main-head cabinet run `35984246288` and storage run `35984246356` passed. The application budget is 127 KiB gzip; the merged tree is green. |
+| #270 fixture follow-up | #295 open at `adea099922e6005b18b2c02582d0b4685afa84e5`: test-only row-or-column conflict peer. Its verify run `35933404822` failed once on the september-feedback race below; a rerun was in progress at checkpoint time. This closes the last in-repo #270 item; session rollover stays collector-side. |
+| september-feedback race | Second occurrence of the `browser_september_feedback` KeyError on identical code (first: 23 September archive). The scene engine trace is deterministic, so the race is test-side (immediate state read after tap). Planned hardening: wait-for-observable-state guards plus tap/width diagnostics on the cycle-loop asserts. |
+| #282: local-first architecture skim | #281 still draft behind the maintainer-skim gate; no sync runtime implied. No change since the previous checkpoint. |
 
-The maintenance workspace came from an uploaded source ZIP verified against original main
-`bda28b1dad5ec500808ef758ed1d05c0425868e2`. Local dependency installation failed with DNS
-`EAI_AGAIN`; local browser HTTP navigation was blocked. Source tests and isolated inline Chromium
-fixtures were used for reproduction, with full build/HTTP/platform proof taken only from the
-relevant exact-head GitHub Actions runs. No local fixture is a deployment or persistence receipt.
+This checkpoint was reconciled from live GitHub state (merge commits, exact-head
+workflow runs and open PR/issue records) against a clean local checkout of the
+reconciled SHA with a fresh local build. No deployment, rollback or device
+acceptance was executed here.
 
 ## Published browser baseline and dated receipts
 
 Version **0.11.5** contains 376 catalogue entries across thirteen puzzle families. The latest
-receipts present in the [release record](RELEASE-0.11.5.md), reviewed on this date, are:
+receipts present in the [release record](RELEASE-0.11.5.md), reviewed 23 September 2026, are:
 
 | Origin | Receipt date | Build | Recorded source |
 | --- | --- | --- | --- |
@@ -52,18 +54,21 @@ acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/dev
 
 ## Next focused work
 
-- #272: complete dossier/witness arrow-key semantics without breaking their Tab/Enter paths.
-- #270 / #274: correct the optional journey receipt boundaries around retry, undo and session
-  rollover; do not count restoring/rendering a board as a fresh player attempt.
+- Merge #295 once its verify rerun is green, closing the last in-repo #270 item.
+- Harden `tests/browser_september_feedback.py` (waits plus tap diagnostics) after the rerun
+  verdict lands, so the race above cannot silently recur.
 - Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
   does not replace comfort, editorial, accessibility or difficulty calibration. The landscape
   source fixes above still need physical Android/TalkBack and enlarged-system-text acceptance.
+- Scope bounded slices of the design-system debt (#219 type ramp, #220 radii, #221 button
+  recipes) with visual verification; do not start them as one mega-PR.
 
 ## Historical evidence
 
-[STATE-ARCHIVE-2026-09-23.md](STATE-ARCHIVE-2026-09-23.md) preserves the previous state file
-byte for byte, including publication, source, QA and rollback receipts. Its title, present-tense
-wording, worker activity and PR statuses belong to those historical checkpoints, not live state.
+[STATE-ARCHIVE-2026-09-24.md](STATE-ARCHIVE-2026-09-24.md) preserves the previous state file
+byte for byte. [STATE-ARCHIVE-2026-09-23.md](STATE-ARCHIVE-2026-09-23.md) preserves the earlier
+checkpoints in the same way. Archive titles, present-tense wording, worker activity and PR
+statuses belong to those historical checkpoints, not live state.
 The [roadmap](../ROADMAP.md) separates published browser capability from native preview work
 and future services.
 
