@@ -23,7 +23,7 @@ def assert_touch_drag(page, context, check, width):
             'y':geometry['sy']+(geometry['y']-geometry['sy'])*step/8,
         }]})
     session.send('Input.dispatchTouchEvent', {'type':'touchEnd','touchPoints':[]})
-    page.wait_for_function('(n) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === n', arg=n+1)
+    page.wait_for_function('(n) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === n && !AlibiBlockMotion.diagnostics().pending', arg=n+1)
     log = page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log')
     check(len(log) == n+1, f'{width}: lifted touch drag commits once after status reflow')
     check(log[-1]['cell'] == geometry['origin'] and log[-1]['slot'] == geometry['slot'],

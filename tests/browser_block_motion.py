@@ -254,7 +254,7 @@ with sync_playwright() as p:
         n = len(current(page)['log'])
         page.mouse.move(geometry['sx'], geometry['sy']); page.mouse.down()
         page.mouse.move(geometry['x'], geometry['y'], steps=8); page.mouse.up()
-        page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n', arg=n+1)
+        page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n && !AlibiBlockMotion.diagnostics().pending', arg=n+1)
         check(len(current(page)['log']) == n+1, f'{width}: mouse drag commits exactly once')
         assert_touch_drag(page, context, check, width)
         tray = page.locator('.bc-host [data-piece="0"]').bounding_box()
