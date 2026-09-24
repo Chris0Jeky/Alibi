@@ -271,7 +271,7 @@ with sync_playwright() as p:
         page.reload(); page.locator('.bc-host .bc-cell').first.wait_for()
         check(current(page)['log'] == saved, f'{width}: Classic survives reload')
         lab(page, check_name=True)
-        move(page, '.bc-modal', "() => document.querySelector('.bc-modal [data-score]').textContent.trim() !== '0' && AlibiDiagnostics.getStatus().pendingSaves === 0")
+        move(page, '.bc-modal', "() => document.querySelector('.bc-modal [data-score]').textContent.trim() !== '0' && document.querySelector('.bc-modal [data-command=\"import\"]').disabled === false")
         score = page.locator('.bc-modal [data-score]').inner_text()
         check(int(score) > 0, f'{width}: Cascade actual controls')
         check(current(page)['log'] == saved, f'{width}: Cascade cannot mutate Classic')
