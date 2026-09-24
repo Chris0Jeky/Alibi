@@ -54,30 +54,33 @@
       }
     }
     if (p.type === 'binary') {
-      for (let axis = 0; axis < 2; axis++)
-        for (let line = 0; line < n; line++) {
-          const cells = C.range(n).map((k) => (axis ? k * n + line : line * n + k)),
-            values = cells.map((i) => s.cells[i]);
-          const label = lineName(axis, line);
-          for (let k = 0; k < n; k++)
-            if (values[k] === -1)
-              for (const v of [0, 1]) {
-                const full = values.filter((x) => x === v).length === n / 2;
-                const triple = [k - 2, k - 1, k].some(
-                  (start) =>
-                    start >= 0 &&
-                    start + 2 < n &&
-                    C.range(3).every((d) => start + d === k || values[start + d] === v),
-                );
-                if (full || triple)
-                  return result(
-                    full ? 'Keep the balance' : 'No three together',
-                    `With your marks, ${at(cells[k], n)} must be ${v === 0 ? 'a moon' : 'a sun'}. ${label} ${full ? 'already has enough ' + (v === 0 ? 'suns' : 'moons') : 'would otherwise have three equal neighbours'}.`,
-                    cells[k],
-                    1 - v,
-                  );
-              }
+      const open = (cells) => cells.filter((i) => s.cells[i] === -1),
+        sets = [
+          ...open(C.range(n * n)).map((i) => [i]),
+          ...C.groups(p).map(open).filter((cells) => cells.length === 2),
+        ];
+      for (const cells of sets) {
+        const trials = C.range(2 ** cells.length).map((mask) => {
+          const next = s.cells.slice(), values = cells.map((i, k) => (mask >> k) & 1);
+          cells.forEach((i, k) => { next[i] = values[k]; });
+          return { values, issues: C.registry.binary.validate(p, { cells: next }) };
+        }),
+          allowed = trials.filter((trial) => !trial.issues.length);
+        if (!allowed.length)
+          return conflict(`No allowed symbols at ${cells.map((i) => at(i, n)).join(', ')}. Recheck your marks.`, cells);
+        for (let k = 0; k < cells.length; k++) {
+          const value = allowed[0].values[k];
+          if (!allowed.every((trial) => trial.values[k] === value)) continue;
+          const reasons = [...new Set(trials.filter((trial) => trial.values[k] !== value)
+            .flatMap((trial) => trial.issues.map((issue) => issue.message)))];
+          return result(
+            cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',
+            `With your marks, ${at(cells[k], n)} must be ${value === 0 ? 'a sun' : 'a moon'}. Other choices in ${cells.map((i) => at(i, n)).join(', ')} break at least one rule: ${reasons.join(' ')}`,
+            cells[k],
+            value,
+          );
         }
+      }
     }
     if (p.type === 'tents') {
       const sites = C.range(n * n).filter((i) => !p.trees.includes(i)),
