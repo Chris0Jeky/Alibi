@@ -37,9 +37,11 @@ with sync_playwright() as playwright:
             page.set_content((ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"), wait_until="load")
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
+        markers = {"/salon/dominoes": ".domino-hand-tile", "/home": ".club-letter"}
+
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
-            page.wait_for_timeout(180)
+            page.locator(markers[path]).first.wait_for()
 
         route("/salon/dominoes")
         check(
@@ -109,7 +111,7 @@ with sync_playwright() as playwright:
         )
         page.locator("#domino-seed").fill("SECOND-DOMINO")
         if os.environ.get('ALIBI_URL'):
-            page.wait_for_timeout(600)
+            page.wait_for_function("() => AlibiDiagnostics.getStatus().pendingSaves === 0")
             context.set_offline(True)
             page.reload()
             page.wait_for_selector('.domino-chain-piece')

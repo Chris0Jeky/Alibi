@@ -32,10 +32,11 @@ with sync_playwright() as p:
         first.scroll_into_view_if_needed();page.keyboard.press('Tab');first.locator('.card-open').focus()
         first.screenshot(path=str(OUT/('highlight-focus-'+theme+'.png')))
         check(page.evaluate('document.documentElement.dataset.theme')==theme,'Actual '+theme+' theme applies to illustrated cards')
+    markers = {'library/scene':'.puzzle-card','library/witness':'.puzzle-card','club':'.club-stamp','quiet/journal':'.badge svg'}
     for width in [390,1440]:
         page.set_viewport_size({'width':width,'height':1000})
         for route in ['library/scene','library/witness','club','quiet/journal']:
-            page.goto(URL+'#/'+route);page.wait_for_timeout(500)
+            page.goto(URL+'#/'+route);page.locator(markers[route]).first.wait_for()
             check(page.evaluate('document.documentElement.scrollWidth<=innerWidth'),str(width)+' '+route+' fits')
             page.screenshot(path=str(OUT/(route.replace('/','-')+'-'+str(width)+'.png')))
     page.goto(URL+'#/club');page.wait_for_selector('.club-stamp')
