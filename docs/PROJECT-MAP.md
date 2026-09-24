@@ -42,7 +42,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 376 puzzles across twenty-two bounded packs |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 382 puzzles across twenty-three bounded packs |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
@@ -61,7 +61,7 @@ flowchart TD
 | Crime scenes | 43 | Spatial placement followed by an accusation |
 | Alibi files | 29 | People/room/object deduction matrices |
 | Witness statements | 31 | Truth counts and culprit selection |
-| Picture logic | 34 | Nonogram paint, cross, clear |
+| Picture logic | 40 | Nonogram paint, cross, clear |
 | Lanterns | 26 | Illumination and numbered-wall constraints |
 | Tents & trees | 26 | Tree matching and edge counts |
 | Aquariums | 26 | Shared water levels within tanks |
@@ -114,7 +114,7 @@ combined staging and subsequent section validation use its bounded worker. See R
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 59 additional classic/Club challenges are
-separate experiences, never core imports or additions to the 376-puzzle count.
+separate experiences, never core imports or additions to the 382-puzzle count.
 
 ## Adaptive asset delivery
 

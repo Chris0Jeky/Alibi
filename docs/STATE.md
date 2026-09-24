@@ -1,80 +1,131 @@
 # Live development state
 
-## Source maintenance checkpoint: 24 September 2026
+## Matching and review continuation: 24 September 2026
 
-Reconciled against `main` at `43319e52db12310b8b8a20f9633fbdfc7a2863a4`.
-This checkpoint records repository work, not a deployment. Source merges do not update either
-hosted origin automatically. Use live GitHub for later PR/issue status and exact-head checks.
+The Tents review also identified a distinct shared-tree witness on tents-04. The latest
+hint-only correction uses the existing augmenting-path matcher with its sides reversed,
+requiring each placed or forced tent to have a distinct adjacent tree. It checks existing
+assignments and the whole hypothetical forced set, without changing engine validation,
+reading stored answers, installing hypothetical marks or adding a puzzle-search fallback.
+Two further tests were observed failing before correction; 25 hint tests now pass. The
+independent arbitrary-mark model additionally checks partial matching, and a positive case
+requires reassignment rather than greedy pairing. The 621 official steps remain unchanged.
 
-| Work                                    | Evidence and continuation                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #277: Bridges landscape                 | #290 merged as `e721a3b7663b2faf494b7585ecca2fd9a26cc3e0`. PR-head cabinet run `35930469160` passed head `f67c6e03bf3cd24c2e642fcde5c2e740f954ca45` (height-aware board plus the 33-rule expedition.css removal); the main-head run was cancelled by a superseding push. Physical-device acceptance remains separate.                                                                                                                           |
-| #293: README release line               | Merged as `d136f1eed26ec7dd094ceb35940c9aa9176ada81`. Main-head cabinet run `35932894357` passed. README now reconciled at 0.11.5.                                                                                                                                                                                                                                                                                                              |
-| #274 / #270: journey receipt boundaries | #291 merged as `250a509e6102c2a5d290aaf053d062882d3e2c1f`. PR-head cabinet run `35933288366` passed head `f0215447024f04c8eb704cd02bcd1de359c47f51` (includes the owner restart-boundary tests); the main-head run was cancelled by a superseding push. Undo-retry and restart boundaries are in source.                                                                                                                                        |
-| #296: transitive uuid pin               | Merged as `554d298f166ef5343f7a9d7b92033a7d6d3f4cd0`. PR-head cabinet run `35934028891` passed head `825e79219777098567d7189086311ca4c62c3b9f`; the main-head run was cancelled by a superseding push. Transitive uuid pinned to 11.1.1 for the xcode subtree.                                                                                                                                                                                  |
-| #297: single-source pack cap            | Merged as `0896d5388db908d2a52ec1252e7cd39b5f88ef82` after PR-head cabinet run `35937381890` passed head `5ada0994acc52574728661764d0a8fd4f5eca5de`. The main-head cabinet run `35976744344` then failed the 126 KiB gzip budget (red main); #298 below resolved it.                                                                                                                                                                            |
-| #272: dossier/witness arrow keys        | #292 merged as `d71d241c85517335cfdf564b9775343962f9e07b`. PR-head cabinet run `35979342079` passed head `2ab81e33639b753d08eb0dabb22f6e5712889652` (an earlier failed attempt on the branch re-ran green and was diagnosed as a flake); the main-head run was cancelled by a superseding push. Tab/Enter paths preserved.                                                                                                                      |
-| Bundle budget restoration               | #298 merged as `43319e52db12310b8b8a20f9633fbdfc7a2863a4`. Main-head cabinet run `35984246288` and storage run `35984246356` passed. The application budget is 127 KiB gzip; the merged tree is green.                                                                                                                                                                                                                                          |
-| #270 fixture follow-up                  | #295 open at `adea099922e6005b18b2c02582d0b4685afa84e5`: test-only row-or-column conflict peer. Its verify run `35933404822` failed once on the september-feedback race below; a rerun was in progress at checkpoint time. This closes the last in-repo #270 item; session rollover stays collector-side.                                                                                                                                       |
-| september-feedback race                 | Second occurrence of the `browser_september_feedback` KeyError on identical code (first: 23 September archive). The scene engine trace is deterministic, so the race is test-side (immediate state read after tap). Hardened by #300 (merged `df3d326`, wait-for-observable-state guards) and #304 (open at `86ee713`: eval-free function predicates after a CSP EvalError flake on bare wait strings, full verify `36004116061` green 19m29s). |
-| #282: local-first architecture skim     | #281 still draft behind the maintainer-skim gate; no sync runtime implied. No change since the previous checkpoint.                                                                                                                                                                                                                                                                                                                             |
+The wrong-C1 browser/Undo scenario passed at both widths in run 36060033384. The new shared-
+tree browser scenario and current emitted bundle still need latest-head CI. The formatted
+predecessor c70faaf built at 130,112 gzip bytes, 64 bytes over the unchanged cap. Reusing core
+number-grid groups and reducing repeated wording addresses size without removing rules or
+raising limits; 2,210 peer sets across 54 number boards matched the earlier geometry. See
+[TENTS-REASONING.md](TENTS-REASONING.md) for limits and exact evidence scope.
 
-This checkpoint was reconciled from live GitHub state (merge commits, exact-head
-workflow runs and open PR/issue records) against a clean local checkout of the
-reconciled SHA with a fresh local build. No deployment, rollback or device
-acceptance was executed here.
+House child #315 merged into the #311 branch as 2a5fca0f266ca424d694c5c2e86d7f310d66fbca,
+NOT into main. Its exact-head full/mobile checks and independent reviews passed. Parent #311
+must retain current main and STATE, then pass fresh combined-head checks before integration.
+Earlier source checkpoints below remain dated history; latest GitHub status takes precedence.
 
-## Published browser baseline and dated receipts
+## Latest continuation: 24 September 2026, after 21:00 UTC
 
-Version **0.11.5** contains 376 catalogue entries across thirteen puzzle families. The latest
-receipts present in the [release record](RELEASE-0.11.5.md), reviewed 23 September 2026, are:
+The source baseline is now main `93852f76a3b3014d463a6dab55b7d657efc836ef`.
+#320 merged as `db4925fb28f5e1dce348f7d53712722005605ed4` after final-head full Verify,
+four dedicated lanes and independent review. All four inline findings were addressed.
+The source catalogue is 382 puzzles across 23 packs, including 40 Picture Logic entries;
+the six new pictures remain provisionally rated. #161 and q-8 stay open.
+#326 merged as `93852f76a3b3014d463a6dab55b7d657efc836ef` after full Verify, Android payload
+and independent review. It normalizes Reversi depth without changing the normal worker path.
 
-| Origin     | Receipt date      | Build          | Recorded source                            |
-| ---------- | ----------------- | -------------- | ------------------------------------------ |
-| Cloudflare | 23 September 2026 | `d6862c274553` | `a3b48daddb0eae1832c61d3358a603593d980da9` |
-| Sites      | 22 September 2026 | `b8c6f194c5a4` | `c8a613a6278845ce7e3df8fe8adff1c505942cdf` |
+#324's combined head 4bad87b also completed all five workflows, but review 4098104696 found
+that incorrect crosses could force a tent into a fulfilled perpendicular line. The correction
+validates the whole forced set on a copied board and reports the conflict instead of a move.
+Three new regressions failed before the fix. The current 23-test hint run passes, retaining
+872 compatible-board deductions and 621 official Tents steps. An independent arbitrary-mark
+check covers 1,568 locally legal positions: 1,532 safe moves, 14 conflicts and 22 fallbacks.
+The browser route adds wrong-cross advice, no-mutation checks, Undo and resumed valid play
+at both 390px and 1440px. Python compilation passes. See TENTS-REASONING.md.
 
-These are dated document readbacks, not new live-origin probes. Older `df04399c4ee7`,
-`ce60bde20b83` and `b8c6f194c5a4` Cloudflare checkpoints are historical. Preserve their
-checksums and rollback evidence; never infer that every origin has the same current build.
-The hosting CSP/WebP constraints remain #6. No deployment or rollback was executed here.
+Require the corrected head's exact CI, current bundle budget and independent review; older
+4bad87b results do not qualify new bytes. No published puzzle, save schema, dependency,
+resource cap or deployment changes are part of this continuation. Local npm registry access
+was retried and remains blocked. Full local build/browser success is not claimed.
 
-## Android source preview, not a production release
+The earlier checkpoint below is retained as dated history. Its pending-merge statements are
+superseded by the latest continuation above, not erased from the evidence trail.
 
-CAP04 has pinned browser/Capacitor flavors, a strict native bootstrap, sync/build receipts and
-sampled Android 36 emulator evidence for debug and release-like preview APKs. See the
-[archived CAP04 record](STATE-ARCHIVE-2026-09-23.md#cap04-offline-android-preview-candidate-2026-09-22)
-for the exact scope. These use local debug signing and the unapproved preview application ID;
-they are not a production-signed AAB or a Play Store release.
+## Gameplay continuation: 24 September 2026, evening
 
-Every-feature offline play, minimum-WebView compatibility, physical devices/accessibility,
-recovery, transfer, production identity/signing and owner release approval remain open under
-#126 and the dependent [Capacitor packages](capacitor/README.md). Source, emulator and human
-acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/device gates.
+This checkpoint starts from main `753b5d0476b79abde633a579227264556f996380`.
+It records source work, not a deployment. Live GitHub takes precedence for later PR status.
+The previous STATE is preserved byte-for-byte in
+[the gameplay-base archive](STATE-ARCHIVE-2026-09-24-GAMEPLAY-BASE.md), including all earlier
+maintenance, source/CI, hosted-origin, Android preview and rollback references.
 
-## Next focused work
+### Landed gameplay
 
-- Merge #295 once its verify rerun is green, closing the last in-repo #270 item.
-- Merge #304 (eval-free september/bridge waits, verify green) once reviewed, closing the
-  feedback-race hardening.
-- Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
-  does not replace comfort, editorial, accessibility or difficulty calibration. The landscape
-  source fixes above still need physical Android/TalkBack and enlarged-system-text acceptance.
-- Scope bounded slices of the design-system debt (#219 type ramp, #220 radii, #221 button
-  recipes) with visual verification; do not start them as one mega-PR.
+#317 fixed Archive map occupants, missing rows, completion and board-edge handling, preserving
+all nine rooms and replay identities. It merged as `12817918456cff0b4d92ac61e59ccc2126e1aeed`.
+#322 added four answer-independent Lantern deductions and merged as
+`753b5d0476b79abde633a579227264556f996380`. Both had full exact-head verification, independent
+review and unchanged-head checks before merge. Their PRs retain detailed evidence.
 
-## Historical evidence
+### Picture Logic expansion, #319 / #320
 
-[STATE-ARCHIVE-2026-09-24.md](STATE-ARCHIVE-2026-09-24.md) preserves the previous state file
-byte for byte. [STATE-ARCHIVE-2026-09-23.md](STATE-ARCHIVE-2026-09-23.md) preserves the earlier
-checkpoints in the same way. Archive titles, present-tense wording, worker activity and PR
-statuses belong to those historical checkpoints, not live state.
-The [roadmap](../ROADMAP.md) separates published browser capability from native preview work
-and future services.
+Six original revision-1 15x15 pictures propose 382 source puzzles across 23 trusted packs.
+All earlier 376 definitions remain unchanged. Labels are provisional, not human calibration.
+The first full Verify failed in `browser_expert_families.py`: its fixed 21-card Expert count
+could not include the two new Expert boards (actual 23). This was not an origin-storage or
+puzzle-solver failure. The complete log was recovered as artifact `10829779903`.
+
+Head `9d156c64f3cfeccc50c6c92eff375f6d33987df5` derives expected Expert revision keys from the
+trusted registry and checks exact displayed membership as well as count. The temporary log
+collection job was removed; no extra Actions permission or weakened verification remains.
+All five workflows passed on that head. Review then identified the 24-card pagination
+boundary; head `2ce1807f90998fa2478b019e2df73aff55865fc4` also expands Show more before exact
+membership checks. Five controlled list sizes and a non-progressing control were checked.
+Require that final head's full CI and review before merging. Keep #161 and human q-8 open.
+
+### Tents reasoning, #323
+
+Four local rules extend the existing hint seam: tree adjacency, tent spacing, fulfilled line
+counts and forced remaining sites. Seven new plus five existing source tests pass, including
+872 independently checked deductions over 880 compatible small-board states and 621 official
+steps with answer access blocked. See [TENTS-REASONING.md](TENTS-REASONING.md).
+The existing reasoning browser workflow now checks Lantern and Tents controls. Require its
+receipts, full exact-head CI/budgets and independent review before merge. No complete-solver,
+automatic-move, save-schema or puzzle-revision change is introduced.
+
+A later bundle check measured 130,141 gzip bytes, 93 bytes over the unchanged 127 KiB limit.
+Shorter explanations for Tents, Lanterns and number hints preserve their rules and reduce the
+actual emitted bundle to 130,029 bytes on head `7a5b744`. Twenty combined hint source tests and
+both reasoning browser suites pass. The separate historical phone-action warning below was
+restored after its existing source test caught the loss from the condensed handoff.
+
+### Reversi search boundary, #325 / #326
+
+The engine accepted fractional depths that never reached the recursive zero-depth stop.
+Three new regressions reproduce the defect on a bounded seven-empty-square endgame. Head
+`541209500f2f0f24eb09602e1d66249565829038` normalizes invalid values to four and retains the
+existing one-to-five integer clamp. Nine Reversi/Club/challenge subtests pass locally; the
+published corrected source blob matches the tested bytes. Require final-head CI and review.
+The shipped worker uses depth four, so this is not a reproduction of the reported phone freeze.
+No game rules, replay versions or published Archive layouts changed.
 
 ### Block Cabinet phone action hierarchy candidate, 2026-09-17
 
-The earlier candidate and proving checks remain in the archive. In particular,
+The historical candidate and proving checks remain in the linked gameplay-base archive;
 physical Android touch, TalkBack, comfort review and human acceptance stay open.
-Do not convert that historical source proof, or the newer landscape regressions, into a native
-release signoff.
+Neither newer source proofs nor browser screenshots turn that candidate into a device signoff.
+
+## Evidence and remaining boundaries
+
+The local workspace is an uploaded source ZIP reconciled at changed seams, not a fresh full
+checkout/build of main. npm registry DNS and local Chromium origin policy block full local
+verification. Focused Node checks and Python compilation supplement GitHub Actions; they do
+not replace full build, browser, offline or Android payload gates.
+
+Version 0.11.5's published 376-puzzle release and the separate Cloudflare/Sites origin receipts
+remain dated history in [RELEASE-0.11.5.md](RELEASE-0.11.5.md) and the state archives. No new
+hosted-origin probe, deployment, rollback, store submission or physical-device acceptance is
+claimed. Android remains a non-publishable preview; the Capacitor owner gates remain open.
+
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
+explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
+source tests do not approve that ADR. Review live open PRs before overlapping another lane.
