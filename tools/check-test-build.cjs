@@ -2,7 +2,12 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { payloadDigest, readIdentity, sourceIdentity } = require('./platform-identity.cjs');
+const {
+  dirtyPaths,
+  payloadDigest,
+  readIdentity,
+  sourceIdentity,
+} = require('./platform-identity.cjs');
 
 /** Fail before artifact-dependent suites, without rebuilding or changing the checkout. */
 function inspectTestBuild(root) {
@@ -15,7 +20,12 @@ function inspectTestBuild(root) {
   } catch {
     return ['Cannot identify this Git checkout and package version.'];
   }
-  if (source.sourceDirty) errors.push('The working tree differs from the committed build source.');
+  if (source.sourceDirty) {
+    const { shown, total } = dirtyPaths(root);
+    const more = total > shown.length ? ` (+${total - shown.length} more)` : '';
+    const detail = shown.length ? `: ${shown.join(', ')}${more}` : '';
+    errors.push(`The working tree differs from the committed build source${detail}.`);
+  }
   for (const [name, target] of [
     ['dist', 'web'],
     ['dist-android', 'android'],
@@ -59,7 +69,7 @@ if (require.main === module) {
     console.error(
       'Alibi needs fresh web and Android artifacts before npm test.\n' +
         errors.map((error) => `- ${error}`).join('\n') +
-        '\nCommit or stash source edits, then run npm run build:android and npm test ' +
+        '\nCommit, stash (including untracked files), or move scratch files out of the checkout, then run npm run build:android and npm test ' +
         '(or npm run verify).\n' +
         'For a source-only edit/test loop, run node --test tests/<name>.test.cjs on a suite ' +
         'that does not read build artifacts.',

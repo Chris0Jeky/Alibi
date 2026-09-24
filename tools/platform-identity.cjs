@@ -39,6 +39,23 @@ function sourceIdentity(root) {
   };
 }
 
+/** Bounded dirty-path sample for failure diagnostics. Never throws. */
+function dirtyPaths(root, limit = 5) {
+  try {
+    const out = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    const paths = out
+      .split('\n')
+      .map((line) => line.slice(3).split(' -> ').at(-1))
+      .filter((entry) => entry && entry.length <= 240);
+    return { shown: paths.slice(0, limit), total: paths.length };
+  } catch {
+    return { shown: [], total: 0 };
+  }
+}
+
 /** Canonical runtime graph: normalized assets/ and icons/ paths, excluding the identity itself.
  * HTML, service worker and receipts are release metadata; Android's separate artifact SHA covers
  * the complete tree. The graph includes all bundled optional code and media, not just startup.
@@ -104,6 +121,7 @@ function writeIdentity(directory, identity, { replace = false } = {}) {
 
 module.exports = {
   browserBundle,
+  dirtyPaths,
   IDENTITY_ASSET,
   identityAssets,
   identitySource,
