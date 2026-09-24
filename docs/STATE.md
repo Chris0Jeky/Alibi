@@ -78,3 +78,26 @@ The earlier candidate and proving checks remain in the archive. In particular,
 physical Android touch, TalkBack, comfort review and human acceptance stay open.
 Do not convert that historical source proof, or the newer landscape regressions, into a native
 release signoff.
+
+## House focus regression follow-up, 24 September 2026
+
+PR #315 follows the House predicate-wait sweep in #311. The existing controller restores finder
+and filter-opener focus on an animation frame after rendering. Three browser predicates now
+require the intended focus as well as the route; URL readiness alone does not prove focus has
+settled. The final focus assertions and six/seven-second deadlines are unchanged.
+
+Three Node regressions execute the actual embedded browser predicates. All three fail on the
+parent's URL-only waits and pass after the correction, including wrong-route and read-only
+checks. Both Python suites compile. These are controlled predicate/source checks, not a new
+physical-browser or complete local-source-build acceptance.
+
+At implementation checkpoint `85d4be9827905c7c09d01438c1cb79d3a377dd25`, mobile workflow
+`36025246343` passed. The first full run on earlier head `8c3bec0` stopped at formatting in the
+new test; `85d4be9` corrected that conditional's layout without altering its behavior. The full
+workflow and independent review must qualify the final PR head, including later documentation
+or integration commits. Refer to the PR for the latest head and exact results.
+
+Integrate #311 first, compare the actual merged parent tree, then retarget #315 and retain
+concurrent maintenance/publication notes. This entry does not replace dated receipts above,
+change saves, deploy either origin, accept ADR-PLF-04, or close physical Android/TalkBack and
+human-playtest gates in `HUMAN_TODO.md`.
