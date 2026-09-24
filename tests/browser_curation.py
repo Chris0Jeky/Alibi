@@ -14,8 +14,8 @@ def dismiss(page):
     if page.locator('dialog[open] [data-action="lesson-finish"]').count():page.locator('dialog[open] [data-action="lesson-finish"]').click()
     elif page.locator('dialog[open] [data-action="close-dialog"]').count():page.locator('dialog[open] [data-action="close-dialog"]').first.click()
 def route(page,value):
+    # Callers wait on the routed puzzle id; no settle sleep needed here.
     dismiss(page);page.evaluate('(v)=>location.hash=v',value)
-    page.wait_for_timeout(120)
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     for width in (360,1280):
