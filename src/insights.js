@@ -80,16 +80,15 @@
         }
     }
     if (p.type === 'tents') {
-      const trees = new Set(p.trees),
-        sites = C.range(n * n).filter((i) => !trees.has(i)),
+      const sites = C.range(n * n).filter((i) => !p.trees.includes(i)),
         tents = sites.filter((i) => s.cells[i] === 1);
       for (const i of sites) {
         if (s.cells[i] !== -1) continue;
-        const beside = X.adj(i, n).some((j) => trees.has(j));
+        const beside = X.adj(i, n).some((j) => p.trees.includes(j));
         if (!beside || tents.some((j) => X.near(i, j, n)))
           return result(
-            beside ? 'Leave a gap between tents' : 'Each tent needs a tree',
-            `${at(i, n)} ${beside ? 'touches a tent at a side or corner' : 'has no tree beside it (diagonals do not count)'}. Mark it with a cross.`,
+            beside ? 'Tent spacing' : 'No tree',
+            `${at(i, n)} ${beside ? 'touches a tent. Diagonals count' : 'has no tree on a side'}. Cross it.`,
             i,
             0,
           );
@@ -104,21 +103,16 @@
             label = lineName(axis, line);
           if (!unknown.length) continue;
           if (remaining === 0 || remaining === unknown.length) {
-            const value = remaining === 0 ? 0 : 1;
+            const value = remaining ? 1 : 0;
             if (value) {
-              const forced = C.registry.tents.validate(p, {
-                ...s,
+              const issue = C.registry.tents.validate(p, {
                 cells: s.cells.map((v, i) => (unknown.includes(i) ? 1 : v)),
-              });
-              if (forced.length)
-                return conflict(
-                  `Filling ${label} would conflict: ${forced[0].message} Recheck your crosses.`,
-                  cells,
-                );
+              })[0];
+              if (issue) return conflict(`${label}: ${issue.message}`, cells);
             }
             return result(
-              value ? 'Fill the remaining tent sites' : 'This line has enough tents',
-              `${label} ${value ? 'needs every unmarked site' : 'has all its tents'}. ${value ? 'Place a tent at' : 'Cross out'} ${at(unknown[0], n)}. This follows from your marks.`,
+              value ? 'Complete line' : 'Line full',
+              `${label} ${value ? 'needs all open sites. Place one at' : 'quota is met. Cross out'} ${at(unknown[0], n)}.`,
               unknown[0],
               value,
             );

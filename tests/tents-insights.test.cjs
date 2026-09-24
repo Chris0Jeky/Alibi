@@ -204,7 +204,7 @@ test('an incorrect cross cannot force a tent into a zero-quota column', () => {
   assert.equal(hint.value, undefined);
   assert.match(hint.message, /Row 1/);
   assert.match(hint.message, /Column B/);
-  assert.match(hint.message, /cross/i);
+  assert.match(hint.message, /too many tents/);
   assert.deepEqual(state, before);
 });
 
