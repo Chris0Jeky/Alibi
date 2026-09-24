@@ -79,6 +79,17 @@ export function validateInspectableObject(value) {
   });
 }
 
+export function validateAuthoredCollection(values) {
+  const seen = new Set();
+  for (const raw of values) {
+    const value = validateInspectableObject(raw);
+    const key = `${value.room}/${value.id}`;
+    if (seen.has(key)) throw Error(`Duplicate inspectable object: ${key}.`);
+    seen.add(key);
+  }
+  return values;
+}
+
 const objects = Object.freeze(
   objectData.map(([id, room, title, description]) => {
     return Object.freeze({
