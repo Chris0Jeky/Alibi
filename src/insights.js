@@ -81,6 +81,46 @@
               }
         }
     }
+    if (p.type === 'tents') {
+      const trees = new Set(p.trees),
+        sites = C.range(n * n).filter((i) => !trees.has(i)),
+        tents = sites.filter((i) => s.cells[i] === 1);
+      for (const i of sites) {
+        if (s.cells[i] !== -1) continue;
+        if (!X.adj(i, n).some((j) => trees.has(j)))
+          return result(
+            'Each tent needs a tree',
+            `${at(i, n)} has no tree directly above, below, left or right. Mark it with a cross. A diagonal tree does not count.`,
+            i,
+            0,
+          );
+        if (tents.some((j) => X.near(i, j, n)))
+          return result(
+            'Leave a gap between tents',
+            `${at(i, n)} touches a tent, at a side or corner. Mark it with a cross so the tents stay apart.`,
+            i,
+            0,
+          );
+      }
+      for (let axis = 0; axis < 2; axis++)
+        for (let line = 0; line < n; line++) {
+          const cells = sites.filter((i) => (axis ? i % n : Math.floor(i / n)) === line),
+            unknown = cells.filter((i) => s.cells[i] === -1),
+            remaining = (axis ? p.colTargets : p.rowTargets)[line] -
+              cells.filter((i) => s.cells[i] === 1).length,
+            label = axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
+          if (!unknown.length) continue;
+          if (remaining === 0 || remaining === unknown.length) {
+            const value = remaining === 0 ? 0 : 1;
+            return result(
+              value ? 'Fill the remaining tent sites' : 'This line has enough tents',
+              `${label} ${value ? 'needs a tent in every remaining unmarked site' : 'already has all its required tents'}. ${value ? 'Place a tent at' : 'Cross out'} ${at(unknown[0], n)}. This follows from your current marks.`,
+              unknown[0],
+              value,
+            );
+          }
+        }
+    }
     if (p.type === 'lightup') {
       const lit = X.litCells(p, s),
         white = C.range(n * n).filter((i) => p.walls[i] === -2);
