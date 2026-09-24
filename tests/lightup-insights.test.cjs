@@ -37,13 +37,7 @@ test('lit squares exclude a second lantern along an unobstructed sight line', ()
 
 test('zero walls and fulfilled wall counts exclude remaining neighbours', () => {
   hintFor(['...', '.0.', '...'], {}, 1, 0, 'This wall has enough lanterns');
-  hintFor(
-    ['1..', '...', '...'],
-    { 1: 1, 2: 0, 4: 0, 7: 0 },
-    3,
-    0,
-    'This wall has enough lanterns',
-  );
+  hintFor(['1..', '...', '...'], { 1: 1, 2: 0, 4: 0, 7: 0 }, 3, 0, 'This wall has enough lanterns');
 });
 
 test('a wall needing every remaining available neighbour forces a lantern', () => {
@@ -139,7 +133,9 @@ test('hints agree with every compatible exhaustive solution, including ambiguous
   }
   assert.ok(checked > 1000, 'exercise more than handpicked happy paths');
   assert.ok(deductions > 100, 'do not pass by returning no guidance');
-  console.log(`Lantern oracle: ${deductions} deductions across ${checked} compatible partial boards`);
+  console.log(
+    `Lantern oracle: ${deductions} deductions across ${checked} compatible partial boards`,
+  );
 });
 
 test('official Lantern hints stay pure, answer-independent and agree with verified answers', () => {

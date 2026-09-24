@@ -58,7 +58,8 @@ def run():
                                     if after.get(field) != before.get(field):
                                         raise AssertionError(f'Hint changed {field}')
                                 page.screenshot(path=str(OUT / f'{puzzle_id}-{width}-{step}.png'))
-                                dismiss_lesson(page)
+                                dialog.get_by_role('button', name='Keep thinking', exact=True).click()
+                                expect(dialog).not_to_be_visible()
                                 action(page, 'brush', f'[data-value="{value}"]')
                                 cell(page, index)
                                 page.wait_for_function(
