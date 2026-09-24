@@ -210,7 +210,11 @@ test('an incorrect cross cannot force a tent into a zero-quota column', () => {
 
 test('check the complete forced set, not just its first individually legal tent', () => {
   const puzzle = noAnswer({
-    type: 'tents', size: 3, trees: [3, 4], rowTargets: [2, 0, 0], colTargets: [1, 1, 0],
+    type: 'tents',
+    size: 3,
+    trees: [3, 4],
+    rowTargets: [2, 0, 0],
+    colTargets: [1, 1, 0],
   });
   const state = C.registry.tents.initial(puzzle);
   state.cells.fill(0);
@@ -230,13 +234,21 @@ test('check the complete forced set, not just its first individually legal tent'
 // incorrect crosses and positions with no completion, unlike the compatible-state oracle.
 function locallyValid(p, s) {
   const n = p.size;
-  const tents = s.cells.flatMap((v, i) => v === 1 ? [i] : []);
-  const row = (i) => Math.floor(i / n), col = (i) => i % n;
-  return tents.every((a) => !p.trees.includes(a) &&
-    p.trees.some((b) => Math.abs(row(a) - row(b)) + Math.abs(col(a) - col(b)) === 1) &&
-    tents.every((b) => a === b || Math.max(Math.abs(row(a) - row(b)), Math.abs(col(a) - col(b))) > 1)) &&
+  const tents = s.cells.flatMap((v, i) => (v === 1 ? [i] : []));
+  const row = (i) => Math.floor(i / n),
+    col = (i) => i % n;
+  return (
+    tents.every(
+      (a) =>
+        !p.trees.includes(a) &&
+        p.trees.some((b) => Math.abs(row(a) - row(b)) + Math.abs(col(a) - col(b)) === 1) &&
+        tents.every(
+          (b) => a === b || Math.max(Math.abs(row(a) - row(b)), Math.abs(col(a) - col(b))) > 1,
+        ),
+    ) &&
     p.rowTargets.every((v, r) => tents.filter((i) => row(i) === r).length <= v) &&
-    p.colTargets.every((v, c) => tents.filter((i) => col(i) === c).length <= v);
+    p.colTargets.every((v, c) => tents.filter((i) => col(i) === c).length <= v)
+  );
 }
 
 test('all ternary small-board marks preserve local rules when a hint proposes a move', () => {
@@ -246,7 +258,9 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
     { trees: [0, 8], rowTargets: [1, 0, 1], colTargets: [0, 2, 0] },
     { trees: [4], rowTargets: [0, 1, 0], colTargets: [1, 0, 0] },
   ];
-  let positions = 0, moves = 0, conflicts = 0;
+  let positions = 0,
+    moves = 0,
+    conflicts = 0;
   for (const layout of layouts) {
     const puzzle = noAnswer({ type: 'tents', size: 3, ...layout });
     const sites = Array.from({ length: 9 }, (_, i) => i).filter((i) => !puzzle.trees.includes(i));
@@ -254,7 +268,7 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
       const state = C.registry.tents.initial(puzzle);
       let digits = code;
       for (const cell of sites) {
-        state.cells[cell] = digits % 3 - 1;
+        state.cells[cell] = (digits % 3) - 1;
         digits = Math.floor(digits / 3);
       }
       if (!locallyValid(puzzle, state)) continue;
@@ -270,7 +284,9 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
       }
       assert.equal(state.cells[hint.cells[0]], -1);
       const after = C.registry.tents.reduce(puzzle, state, {
-        type: 'set', cell: hint.cells[0], value: hint.value,
+        type: 'set',
+        cell: hint.cells[0],
+        value: hint.value,
       });
       assert.ok(locallyValid(puzzle, after), JSON.stringify({ layout, cells: state.cells, hint }));
       moves++;
@@ -279,5 +295,7 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
   assert.ok(positions > 1000);
   assert.ok(moves > 1000);
   assert.ok(conflicts > 0);
-  console.log(`Tents arbitrary marks: ${positions} positions, ${moves} moves, ${conflicts} conflicts`);
+  console.log(
+    `Tents arbitrary marks: ${positions} positions, ${moves} moves, ${conflicts} conflicts`,
+  );
 });
