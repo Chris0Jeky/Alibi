@@ -81,6 +81,51 @@
               }
         }
     }
+    if (p.type === 'lightup') {
+      const lit = X.litCells(p, s),
+        white = C.range(n * n).filter((i) => p.walls[i] === -2);
+      for (const i of white)
+        if (s.cells[i] === -1 && lit.has(i))
+          return result(
+            'No facing lanterns',
+            `${at(i, n)} is already lit by a lantern along an unobstructed row or column. A lantern here would face it. Mark this square with a cross.`,
+            i,
+            0,
+          );
+      for (let i = 0; i < n * n; i++) {
+        if (p.walls[i] < 0) continue;
+        const neighbours = X.adj(i, n).filter((j) => p.walls[j] === -2),
+          placed = neighbours.filter((j) => s.cells[j] === 1).length,
+          unknown = neighbours.filter((j) => s.cells[j] === -1),
+          remaining = p.walls[i] - placed;
+        if (!unknown.length) continue;
+        if (remaining === 0)
+          return result(
+            'This wall has enough lanterns',
+            `The ${p.walls[i]} wall at ${at(i, n)} already has all its required lanterns. Its other neighbour ${at(unknown[0], n)} must stay empty. Mark it with a cross.`,
+            unknown[0],
+            0,
+          );
+        if (remaining === unknown.length)
+          return result(
+            'Fill the remaining neighbours',
+            `The wall at ${at(i, n)} needs ${remaining} more lantern${remaining === 1 ? '' : 's'} and has exactly ${unknown.length} unmarked neighbouring square${unknown.length === 1 ? '' : 's'}. Place a lantern at ${at(unknown[0], n)}.`,
+            unknown[0],
+            1,
+          );
+      }
+      for (const i of white) {
+        if (lit.has(i)) continue;
+        const sources = [i, ...X.visible(p, i)].filter((j) => s.cells[j] === -1 && !lit.has(j));
+        if (sources.length === 1)
+          return result(
+            'Only one way to light this square',
+            `${at(i, n)} is unlit. With your current crosses and lanterns, only ${at(sources[0], n)} can light it along an unobstructed row or column, or from the square itself. Place a lantern there.`,
+            sources[0],
+            1,
+          );
+      }
+    }
     if (p.type === 'nonogram') {
       for (let axis = 0; axis < 2; axis++)
         for (let line = 0; line < n; line++) {
