@@ -106,7 +106,8 @@
         for (let line = 0; line < n; line++) {
           const cells = sites.filter((i) => (axis ? i % n : Math.floor(i / n)) === line),
             unknown = cells.filter((i) => s.cells[i] === -1),
-            remaining = (axis ? p.colTargets : p.rowTargets)[line] -
+            remaining =
+              (axis ? p.colTargets : p.rowTargets)[line] -
               cells.filter((i) => s.cells[i] === 1).length,
             label = axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
           if (!unknown.length) continue;
