@@ -27,8 +27,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p evidence
-          gh api repos/Chris0Jeky/Alibi/actions/jobs/107744486168/logs > evidence/previous-verify.log
-          tail -n 180 evidence/previous-verify.log
+          gh api --allow-escape-sequences repos/Chris0Jeky/Alibi/actions/jobs/107744486168/logs > evidence/previous-verify.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: prior-verify-failure
