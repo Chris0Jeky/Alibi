@@ -55,7 +55,13 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   Master/Grandmaster studies across Nonogram, Binary, Futoshiki, Light Up, Tents, Aquarium,
   Network, Trail, and Bridges. On the 15×15, 9×9, and 7×7 boards, verify physical touch targeting,
   comfortable sizing, panning where applicable, TalkBack order, and sustained-device performance;
-  browser hit-testing does not close those checks. The region game uses one lantern per
+  browser hit-testing does not close those checks. Separately play all six Objects after closing
+  Picture Logic studies (`keepers-picture-01` through `keepers-picture-06`, revision 1): four
+  provisional Tricky and two provisional Expert boards. Record recognizability, perceived
+  difficulty, clue readability and the actual deduction route, then check physical 15×15 touch,
+  panning and TalkBack. A machine no-guess route does not calibrate enjoyment or human difficulty.
+  See [Keeper picture studies](docs/curation/KEEPERS-PICTURE-STUDIES.md).
+  The region game uses one lantern per
   row/column/region with no touching. Dominoes and Mahjong are now legacy compatibility routes,
   not part of this discovery or difficulty sample. Confirm whether the offered-game interpretations
   match the player's intention. Candidate evidence and residual limits are recorded in
