@@ -43,11 +43,12 @@ export function validatePackConfig(config) {
   if (new Set(ids).size !== ids.length) return false;
   if (config.media !== undefined) {
     if (!config.media || typeof config.media !== 'object') return false;
-    const values = Object.values(config.media);
+    const entries = Object.entries(config.media);
     if (
-      values.length !== 12 ||
-      new Set(values).size !== values.length ||
-      !values.every((url) => scenes.includes(url))
+      entries.length !== SCENE_IDS.size ||
+      !entries.every(
+        ([id, url]) => SCENE_IDS.has(id) && scenes.includes(url) && SCENE.exec(url)[2] === id,
+      )
     )
       return false;
   }
