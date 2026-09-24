@@ -1,5 +1,24 @@
 # Live development state
 
+## Source reconciliation checkpoint: 24 September 2026
+
+This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
+Tents reasoning PR #324 merged. A clean main checkout passed `npm.cmd run verify` at that
+commit: 519 passed, 3 skipped and 0 failed; the emitted JavaScript measured 130,012 gzip
+bytes, below the existing 127 KiB cap. The build still identifies the source version as
+0.11.5; this is a source checkpoint, not a new release or deployment.
+
+House wait PR #311 includes child #315. Their combined changes replace fixed sleeps with
+predicate waits for route and restored opener focus, and add three Node regressions that
+execute the actual browser predicates. The two House browser suites keep their existing
+focus assertions. See PR #311 for exact-head CI and review receipts; source-level predicates
+do not establish physical-browser, phone, or accessibility acceptance.
+
+The 24 September Muse wait branches #313, #316 and #318 are being requalified against current
+main. PR #281 remains draft pending its maintainer architecture acceptance. Human acceptance
+for physical Android/TalkBack use and provisional puzzle calibration remains open in
+`HUMAN_TODO.md`.
+
 ## Matching and review continuation: 24 September 2026
 
 The Tents review also identified a distinct shared-tree witness on tents-04. The latest
@@ -18,10 +37,9 @@ number-grid groups and reducing repeated wording addresses size without removing
 raising limits; 2,210 peer sets across 54 number boards matched the earlier geometry. See
 [TENTS-REASONING.md](TENTS-REASONING.md) for limits and exact evidence scope.
 
-House child #315 merged into the #311 branch as 2a5fca0f266ca424d694c5c2e86d7f310d66fbca,
-NOT into main. Its exact-head full/mobile checks and independent reviews passed. Parent #311
-must retain current main and STATE, then pass fresh combined-head checks before integration.
-Earlier source checkpoints below remain dated history; latest GitHub status takes precedence.
+House child #315 joined #311 as `2a5fca0f266ca424d694c5c2e86d7f310d66fbca`. Earlier source
+checkpoints below remain dated history; live GitHub status and PR #311 hold the latest
+combined-head CI and review receipts.
 
 ## Latest continuation: 24 September 2026, after 21:00 UTC
 
