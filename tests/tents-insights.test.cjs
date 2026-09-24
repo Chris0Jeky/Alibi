@@ -251,6 +251,27 @@ function locallyValid(p, s) {
   );
 }
 
+// Backtracking over tiny fixtures is independent of the production augmenting-path matcher.
+function partialMatching(p, s) {
+  const tents = s.cells.flatMap((v, i) => (v === 1 ? [i] : []));
+  const adjacent = (a, b) =>
+    Math.abs(Math.floor(a / p.size) - Math.floor(b / p.size)) +
+      Math.abs((a % p.size) - (b % p.size)) ===
+    1;
+  function assign(index, used) {
+    return (
+      index === tents.length ||
+      p.trees.some(
+        (tree) =>
+          !used.has(tree) &&
+          adjacent(tents[index], tree) &&
+          assign(index + 1, new Set([...used, tree])),
+      )
+    );
+  }
+  return assign(0, new Set());
+}
+
 test('all ternary small-board marks preserve local rules when a hint proposes a move', () => {
   const layouts = [
     { trees: [1, 7], rowTargets: [1, 0, 1], colTargets: [1, 0, 1] },
@@ -277,6 +298,8 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
       assert.deepEqual(state, before);
       positions++;
       if (!hint) continue;
+      if (!partialMatching(puzzle, state))
+        assert.equal(hint.value, undefined, 'unmatchable existing tents take conflict priority');
       if (hint.value === undefined) {
         assert.equal(hint.rule, 'Revisit a conflict');
         conflicts++;
@@ -289,6 +312,7 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
         value: hint.value,
       });
       assert.ok(locallyValid(puzzle, after), JSON.stringify({ layout, cells: state.cells, hint }));
+      assert.ok(partialMatching(puzzle, after), 'a proposed move retains an injective assignment');
       moves++;
     }
   }
@@ -298,4 +322,42 @@ test('all ternary small-board marks preserve local rules when a hint proposes a 
   console.log(
     `Tents arbitrary marks: ${positions} positions, ${moves} moves, ${conflicts} conflicts`,
   );
+});
+
+test('forced tents cannot compete for the same tree on tents-04', () => {
+  const puzzle = noAnswer(load(process.cwd(), false).puzzles.find((p) => p.id === 'tents-04'));
+  const state = C.registry.tents.initial(puzzle);
+  state.cells.fill(0);
+  state.cells[2] = state.cells[5] = 1;
+  state.cells[12] = state.cells[14] = -1;
+  const before = structuredClone(state);
+  assert.deepEqual(C.registry.tents.validate(puzzle, state), []);
+  const hint = I.deduction(puzzle, state);
+  assert.equal(hint.rule, 'Revisit a conflict');
+  assert.equal(hint.value, undefined);
+  assert.match(hint.message, /tree/i);
+  assert.deepEqual(state, before);
+});
+
+test('partial tent matching can reassign trees instead of using a greedy pairing', () => {
+  const puzzle = noAnswer({
+    type: 'tents',
+    size: 3,
+    trees: [1, 5],
+    rowTargets: [1, 0, 1],
+    colTargets: [0, 0, 2],
+  });
+  const state = C.registry.tents.initial(puzzle);
+  state.cells[2] = state.cells[8] = 1;
+  assert.deepEqual(C.registry.tents.validate(puzzle, state), []);
+  assert.notEqual(I.deduction(puzzle, state)?.rule, 'Revisit a conflict');
+  // Cell 2 can use either tree; cell 8 can only use tree 5.
+  puzzle.trees.reverse();
+  assert.deepEqual(C.registry.tents.validate(puzzle, state), []);
+  assert.notEqual(I.deduction(puzzle, state)?.rule, 'Revisit a conflict');
+  puzzle.trees = [5];
+  const hint = I.deduction(puzzle, state);
+  assert.equal(hint.rule, 'Revisit a conflict');
+  assert.match(hint.message, /different.*tree/i);
+  assert.equal(hint.value, undefined);
 });
