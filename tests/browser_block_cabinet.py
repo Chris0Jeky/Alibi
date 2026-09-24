@@ -40,9 +40,11 @@ with sync_playwright() as playwright:
             )
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
+        markers = {"/salon/blockcabinet": ".bc-host .bc-cell", "/home": ".club-welcome"}
+
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
-            page.wait_for_timeout(180)
+            page.locator(markers[path]).first.wait_for()
 
         def simple_controls():
             # Exercise the real fallback menu; enhanced controls have their own suite.
@@ -98,7 +100,7 @@ with sync_playwright() as playwright:
                 f"Phone fixture scrolls beyond the primary actions at {width}px",
             )
             page.evaluate("y => scrollTo(0, y)", scroll_target)
-            page.wait_for_timeout(100)
+            page.wait_for_function("(y) => Math.abs(scrollY - y) < 2", arg=scroll_target)
             action_box = actions.bounding_box()
             check(
                 action_box is not None

@@ -37,7 +37,7 @@ def move(page, prefix='.bc-host'):
     cell = page.locator(prefix + ' .bc-cell.legal').first
     cell.focus()
     page.keyboard.press('Enter')
-    page.wait_for_timeout(1900)
+    page.wait_for_function('()=>!AlibiBlockMotion.diagnostics().pending')
 
 
 def lab(page, check_name=False):
@@ -254,7 +254,7 @@ with sync_playwright() as p:
         n = len(current(page)['log'])
         page.mouse.move(geometry['sx'], geometry['sy']); page.mouse.down()
         page.mouse.move(geometry['x'], geometry['y'], steps=8); page.mouse.up()
-        page.wait_for_timeout(1900)
+        page.wait_for_function('(n)=>AlibiClub.diagnostics().state.runs.blockcabinet.log.length===n', arg=n+1)
         check(len(current(page)['log']) == n+1, f'{width}: mouse drag commits exactly once')
         assert_touch_drag(page, context, check, width)
         tray = page.locator('.bc-host [data-piece="0"]').bounding_box()
@@ -368,7 +368,7 @@ with sync_playwright() as p:
         page.wait_for_function('() => window.__bcSaveStarted === true')
         page.evaluate('location.hash="#/salon"')
         page.wait_for_function("() => !document.querySelector('.block-panel')")
-        page.wait_for_timeout(600)
+        page.wait_for_function('()=>!AlibiBlockMotion.diagnostics().active && AlibiDiagnostics.getStatus().pendingSaves === 0')
         check(not errors, f'{width}: route exit during a queued save does not throw')
         check(not page.evaluate('AlibiBlockMotion.diagnostics().active'), f'{width}: route exit disposes surface')
         check(not errors, f'{width}: no uncaught browser errors: {errors}')
