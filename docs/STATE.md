@@ -1,5 +1,35 @@
 # Live development state
 
+## Sun & Moon continuation: 24 September 2026, after 22:00 UTC
+
+#324 is merged on main as `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`. Its final head
+9abb460 passed full Verify 36064801293, Android 36064801385, reasoning controls 36064801296
+and Picture Logic controls 36064801408. Independent review 5823009386 found no major issues;
+all three inline findings have evidence replies and are resolved. Downloaded artifact
+10836240335 confirms 32 Tents plus 12 Lantern interactions with no page errors. This closes
+the source work in #323, not #161 or physical/human acceptance. The merged tree exactly
+matches the reviewed head; no unpublished source is substituted.
+
+#327 / #328 adds Sun & Moon distinct-line and contradictory-mark reasoning. It tests at most
+two unknown cells at a time using the existing local validator, never the stored answer or
+puzzle solver. Six of the eight regressions fail against 9abb460; all eight plus 25 existing
+hint tests pass after the change. Independent oracles verify ambiguous-board deductions and
+2,050 arbitrary locally legal positions; official walks check 458 steps through reducers.
+See [BINARY-REASONING.md](BINARY-REASONING.md) for bounds and conditional-soundness limits.
+
+The initial #328 head caa87ee passed all 26 new phone/desktop browser interactions plus the
+44 existing Tents/Lantern interactions in run 36066440056, artifact 10836218226. Real controls
+cover distinct-line advice, wrong-C3 conflict guidance and Undo recovery. Phone screenshots
+were inspected. Pinned formatter output was applied without changing rules or assertions;
+33 source tests still pass. The formatted, current-main-based head must pass fresh full CI,
+resource budgets and independent review before merge. Initial browser success is not a
+substitute for that final gate. No dependency, cap, save, puzzle revision or deployment change.
+
+Local source execution uses the uploaded ZIP reconciled at changed seams, not a fresh full
+checkout/build. npm/origin restrictions still prevent a claimed full local browser build.
+Keep HUMAN_TODO q-8 open for explanation quality, physical touch/TalkBack and human difficulty.
+The checkpoints below are preserved history; latest GitHub status takes precedence.
+
 ## Matching and review continuation: 24 September 2026
 
 The Tents review also identified a distinct shared-tree witness on tents-04. The latest
