@@ -1,21 +1,22 @@
 # Sun & Moon reasoning
 
-Gameplay slice #327 / #328 extends the existing pure Hint seam. It builds on the merged
+Gameplay slice #327 / #329 extends the existing pure Hint seam. It builds on the merged
 Tents work in #324 without altering that code, puzzle definitions, givens, saves or reveals.
+The initial stacked PR #328 closed when its merged base branch was deleted; #329 continues
+the same preserved branch directly against main. No deleted parent branch was recreated.
 
 ## Local alternatives, not answer lookup
 
-The existing row-first balance/triple helper can suggest a symbol that immediately violates
-a perpendicular constraint after an incorrect entry. On binary-03, place a moon at C3; the
-old helper suggests a sun at B3 although that move violates the column rule. The corrected
-helper reports that neither symbol is allowed at B3 and asks the player to recheck marks.
+The old row-first balance/triple helper can suggest a symbol that immediately violates a
+perpendicular constraint after an incorrect entry. On binary-03, place a moon at C3; the old
+helper suggests a sun at B3 although that move violates the column rule. The corrected helper
+reports that neither symbol fits B3 and asks the player to recheck marks.
 
-First consider the two symbols for each unknown cell. Then consider at most four assignments
-for the two unknown squares in a row or column. Validate the entire copied board for each
-assignment using the existing binary validator. A hint proposes a value only when all allowed
-alternatives agree. Its explanation names the examined coordinates and the rules excluding
-other choices. Rejections may have different causes, so the message says they break at least
-one of the listed rules rather than claiming every alternative breaks every rule.
+Visit unknown individual squares, then rows and columns with at most two unknown squares.
+Test the two or four assignments on copied cells using the existing binary validator. Retain
+only allowed assignment masks and a set of the rules rejecting other assignments. A hint
+proposes a value only when all allowed alternatives agree. Its explanation names the examined
+coordinates and the involved rules. Listed rules need not reject every alternative separately.
 
 This adds the missing distinct-line deduction: a nearly complete row/column cannot become
 a copy of an existing complete line. Quotas, triples and perpendicular constraints are checked
@@ -56,8 +57,13 @@ advice and undoes the mistake. No player record is injected. Python compilation 
 Initial head caa87ee passed run 36066440056. Downloaded artifact 10836218226 records all 26
 binary interactions and the 44 existing Tents/Lantern interactions, with no page errors. The
 phone distinct-line and wrong-mark screenshots were inspected. Canonical formatter output
-was then applied without changing rules or assertions; the combined 33 source tests pass.
-The formatted/current-main head must still earn its own complete verification and review.
+was applied without changing rules or assertions; the combined 33 source tests pass.
+
+Artifact 10836274708 on head fd9360c measured 130,194 gzip bytes, 146 above the unchanged
+127 KiB application cap. The compact follow-up removes trial objects and repeated filtering,
+retains only small assignment masks and shortens duplicate wording. All 33 source tests pass
+again, including official hint routes and the call bound. Only the final emitted artifact and
+full CI can establish budget compliance; source-only compression estimates are not acceptance.
 
 The existing reasoning workflow runs Lantern, Tents and binary controls in the same lane and
 retains screenshots, receipts and non-mutating pinned formatter output. Full exact-head
