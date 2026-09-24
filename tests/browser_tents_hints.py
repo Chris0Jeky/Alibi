@@ -10,10 +10,10 @@ OUT = ROOT / 'test-results' / 'lightup-hints' / 'tents'
 URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
 # Clue-derived prefix for tents-01. No answer lookup or injected player state.
 STEPS = [
-    *[('Each tent needs a tree', i, 0) for i in (3, 4, 10, 11, 15, 18, 24)],
-    *[('This line has enough tents', i, 0) for i in (16, 17, 19)],
-    *[('Fill the remaining tent sites', i, 1) for i in (20, 23, 5)],
-    ('Leave a gap between tents', 1, 0),
+    *[('No tree', i, 0) for i in (3, 4, 10, 11, 15, 18, 24)],
+    *[('Line full', i, 0) for i in (16, 17, 19)],
+    *[('Complete line', i, 1) for i in (20, 23, 5)],
+    ('Tent spacing', 1, 0),
 ]
 
 
@@ -41,7 +41,7 @@ def wrong_cross(page, width):
     action(page, 'hint')
     dialog = page.locator('dialog[open]')
     expect(dialog.locator('.deduction-title')).to_have_text('Revisit a conflict')
-    for detail in ('Row 1', 'Column B', 'crosses'):
+    for detail in ('Row 1', 'Column B', 'too many tents'):
         expect(dialog.locator('.hint-box')).to_contain_text(detail)
     unchanged_hint(page, mistaken)
     page.screenshot(path=str(OUT / f'{width}-wrong-cross.png'))
