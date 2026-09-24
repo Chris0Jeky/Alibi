@@ -16,7 +16,7 @@ hosted origin automatically. Use live GitHub for later PR/issue status and exact
 | #272: dossier/witness arrow keys | #292 merged as `d71d241c85517335cfdf564b9775343962f9e07b`. PR-head cabinet run `35979342079` passed head `2ab81e33639b753d08eb0dabb22f6e5712889652` (an earlier failed attempt on the branch re-ran green and was diagnosed as a flake); the main-head run was cancelled by a superseding push. Tab/Enter paths preserved. |
 | Bundle budget restoration | #298 merged as `43319e52db12310b8b8a20f9633fbdfc7a2863a4`. Main-head cabinet run `35984246288` and storage run `35984246356` passed. The application budget is 127 KiB gzip; the merged tree is green. |
 | #270 fixture follow-up | #295 open at `adea099922e6005b18b2c02582d0b4685afa84e5`: test-only row-or-column conflict peer. Its verify run `35933404822` failed once on the september-feedback race below; a rerun was in progress at checkpoint time. This closes the last in-repo #270 item; session rollover stays collector-side. |
-| september-feedback race | Second occurrence of the `browser_september_feedback` KeyError on identical code (first: 23 September archive). The scene engine trace is deterministic, so the race is test-side (immediate state read after tap). Planned hardening: wait-for-observable-state guards plus tap/width diagnostics on the cycle-loop asserts. |
+| september-feedback race | Second occurrence of the `browser_september_feedback` KeyError on identical code (first: 23 September archive). The scene engine trace is deterministic, so the race is test-side (immediate state read after tap). Hardened by #300 (merged `df3d326`, wait-for-observable-state guards) and #304 (open at `86ee713`: eval-free function predicates after a CSP EvalError flake on bare wait strings, full verify `36004116061` green 19m29s). |
 | #282: local-first architecture skim | #281 still draft behind the maintainer-skim gate; no sync runtime implied. No change since the previous checkpoint. |
 
 This checkpoint was reconciled from live GitHub state (merge commits, exact-head
@@ -55,8 +55,8 @@ acceptance are separate. [HUMAN_TODO.md](../HUMAN_TODO.md) retains the owner/dev
 ## Next focused work
 
 - Merge #295 once its verify rerun is green, closing the last in-repo #270 item.
-- Harden `tests/browser_september_feedback.py` (waits plus tap diagnostics) after the rerun
-  verdict lands, so the race above cannot silently recur.
+- Merge #304 (eval-free september/bridge waits, verify green) once reviewed, closing the
+  feedback-race hardening.
 - Continue #218 / #160 phone QA and player-led curation. Automated layout and replay evidence
   does not replace comfort, editorial, accessibility or difficulty calibration. The landscape
   source fixes above still need physical Android/TalkBack and enlarged-system-text acceptance.
