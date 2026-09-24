@@ -778,9 +778,12 @@
       input.schemaVersion !== 1 ||
       typeof input.id !== 'string' ||
       !/^[a-z][a-z0-9-]{1,63}$/.test(input.id) ||
+      ['constructor', 'prototype'].includes(input.id) ||
       !Number.isInteger(input.version) ||
       input.version < 1 ||
+      input.version > 999999 ||
       typeof input.title !== 'string' ||
+      !input.title.trim() ||
       input.title.length > 120
     )
       throw new Error('Invalid pack header.');
