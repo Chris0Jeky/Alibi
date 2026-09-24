@@ -109,7 +109,8 @@
     best(s, depth = 4) {
       const moves = this.legal(s);
       if (!moves.length) return null;
-      const player = s.turn;
+      const player = s.turn,
+        limit = Math.min(5, Math.max(1, Number.isInteger(depth) ? depth : 4));
       let nodes = 0;
       const search = (q, d, a, b) => {
         nodes++;
@@ -132,7 +133,7 @@
       let best = moves[0],
         value = -Infinity;
       for (const i of moves) {
-        const v = search(this.move(s, i), Math.min(5, Math.max(1, depth)) - 1, -Infinity, Infinity);
+        const v = search(this.move(s, i), limit - 1, -Infinity, Infinity);
         if (v > value) {
           value = v;
           best = i;
