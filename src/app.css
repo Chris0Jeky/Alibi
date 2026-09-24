@@ -13,6 +13,11 @@
   --sidebar: #233c30;
   --shadow: 0 6px 26px #213f3209;
   --radius: 18px;
+  /* Radius scale (#220). Exact-match literals map onto these; near values stay literal until a later slice. */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
   --room-0: #ece3d3;
   --room-1: #dfe8d5;
   --room-2: #e8d9d0;
@@ -728,7 +733,7 @@ small,
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   transition:
     transform 0.15s,
     border-color 0.15s;
@@ -856,7 +861,7 @@ small,
   padding: 17px;
   border: 1px solid var(--line);
   background: var(--paper);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   position: relative;
   display: block;
 }
@@ -905,7 +910,7 @@ small,
 .club-note {
   background: var(--green-soft);
   padding: 23px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   gap: 19px;
@@ -954,7 +959,7 @@ select,
 textarea {
   border: 1px solid var(--line);
   background: var(--paper);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 11px 13px;
   min-height: 44px;
   color: var(--ink);
@@ -1202,7 +1207,7 @@ input[type='checkbox'] {
   align-items: center;
   gap: 18px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--paper);
 }
 .chapter-number {
@@ -1241,7 +1246,7 @@ input[type='checkbox'] {
   max-width: 850px;
   background: var(--green-soft);
   padding: 27px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   margin-top: 22px;
 }
 .case-ending p {
@@ -1257,7 +1262,7 @@ input[type='checkbox'] {
 .stat-card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 21px;
 }
 .stat-card strong {
@@ -1383,7 +1388,7 @@ input[type='checkbox'] {
   line-height: 1.6;
   padding: 13px 15px;
   background: var(--green-soft);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 18px;
   display: flex;
   gap: 9px;
@@ -1670,7 +1675,7 @@ input[type='checkbox'] {
   left: 50%;
   width: 1.5px;
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: currentColor;
   transform: translateX(-50%) rotate(45deg);
 }
@@ -1801,7 +1806,7 @@ input[type='checkbox'] {
   border-radius: 50%;
 }
 .person-token.victim {
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: #766b60;
   font-size: 12px;
   border: 1px dashed #f4ead5;
@@ -1902,7 +1907,7 @@ input[type='checkbox'] {
 .tool {
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   min-height: 41px;
   padding: 8px 11px;
   display: inline-flex;
@@ -1988,7 +1993,7 @@ input[type='checkbox'] {
 .feedback {
   margin-top: 14px;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--green-soft);
   font-size: 11px;
   color: var(--green);
@@ -2146,7 +2151,7 @@ input[type='checkbox'] {
   line-height: 1.7;
   background: var(--green-soft);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-top: 17px;
 }
 .notes-box {
@@ -2177,7 +2182,7 @@ input[type='checkbox'] {
 .accusation {
   border: 1px solid #c2cbb7;
   background: var(--green-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 20px;
   margin-top: 18px;
 }
@@ -2582,7 +2587,7 @@ input[type='checkbox'] {
   min-height: 41px;
   border: 1px solid var(--line);
   background: var(--bg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 17px;
 }
 .truth-mark.true {
@@ -3629,7 +3634,7 @@ html[data-reduced='true'] *:after {
     color: var(--muted);
     min-width: 53px;
     padding: 4px 9px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     line-height: 1.2;
   }
   .mobile-nav button.active {
