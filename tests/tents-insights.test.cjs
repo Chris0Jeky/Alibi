@@ -40,7 +40,7 @@ test('a tent requires an orthogonally adjacent tree, not a diagonal or wrapped o
   const hint = I.deduction(puzzle, state);
   assert.deepEqual(hint.cells, [3]);
   assert.equal(hint.value, 0);
-  assert.equal(hint.rule, 'Each tent needs a tree');
+  assert.equal(hint.rule, 'No tree');
 });
 test('a placed tent excludes diagonal neighbours as well as touching sides', () => {
   checkHint({ 0: 1, 3: 0, 5: 0 }, 4, 0, 'Tent spacing');
