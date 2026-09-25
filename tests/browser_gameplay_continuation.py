@@ -23,7 +23,7 @@ def run():
                 page.goto(os.environ['ALIBI_URL'])
             else:
                 page.set_content((ROOT/'alibi-deluxe-play.html').read_text(),wait_until='load')
-            page.wait_for_function('globalThis.AlibiDiagnostics')
+            page.wait_for_function('() => globalThis.AlibiDiagnostics')
             page.evaluate("location.hash='/salon/duel'")
             page.locator('.duel-strengths').wait_for(timeout=20000)
             for strength in ('learner','club','keeper','expert'):
@@ -41,7 +41,7 @@ def run():
                 page.wait_for_function('(v)=>AlibiClub.diagnostics().state.runs.duel.difficulty===v',arg=strength)
                 assert page.evaluate('AlibiClub.diagnostics().state.runs.duel.log.length') == 0
                 page.locator('[data-action="club-duel-cell"]:enabled').first.click()
-                page.wait_for_function('AlibiClub.diagnostics().state.runs.duel.log.length>=2',timeout=15000)
+                page.wait_for_function('() => AlibiClub.diagnostics().state.runs.duel.log.length>=2',timeout=15000)
                 assert page.evaluate('AlibiClub.diagnostics().botPending') is False
                 results.append({'width':width,'strength':strength,'actualWorkerReply':True,'cancelPreservesRun':bool(before['log'])})
             page.locator('[data-action="club-restart"]').click()
@@ -58,7 +58,7 @@ def run():
             assert page.evaluate('AlibiClub.diagnostics().botPending') is False
             page.evaluate('() => { window.Worker = window.originalWorker; }')
             page.locator('[data-action="club-bot-retry"]').click()
-            page.wait_for_function('AlibiClub.diagnostics().state.runs.duel.log.length>=2',timeout=15000)
+            page.wait_for_function('() => AlibiClub.diagnostics().state.runs.duel.log.length>=2',timeout=15000)
             results.append({'width':width,'failureRequiresRetry':True,'actualRetryReply':True})
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), 'No horizontal overflow'
             page.screenshot(path=str(OUT/f'duel-{width}.png'),full_page=True)
