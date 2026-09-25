@@ -34,6 +34,26 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Night Gardens source candidate: 25 September 2026
+
+The stacked #342 candidate adds 18 original Lanterns, Tents and Aquariums
+boards, proposing 400 puzzles across 24 packs. Exact registered-catalogue and
+Night Gardens source checks pass locally (seven focused tests), including native
+and independent unique answers, reducer replay, definition receipts and the
+published-definition baseline. Hosted full Verify and real-control browser
+checks are pending. Expert/Master labels remain provisional pending #161 and
+`HUMAN_TODO.md` q-8; no new web release is claimed.
+
+## Night Routes source candidate: 25 September 2026
+
+The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
+Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
+The six focused Routes/catalogue tests pass locally, including independent
+unique-answer receipts and production reducer replay. An independent review
+found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending; human difficulty and physical-device acceptance
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
