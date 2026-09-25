@@ -24,6 +24,32 @@ TalkBack and human difficulty calibration. Issue #220 remains open for larger
 and decorative radii; issue #219 remains open for cross-room type work.
 Earlier checkpoints below are historical.
 
+## Club persistence and restore hardening merged: 25 September 2026
+
+The Club storage closeout is now on `main`. PR #376 added backup-envelope
+validation coverage and merged as `2856e8f9057ea808a8d152f5dc2a41ee6ee93449`.
+PR #377 then serialized restore replacement, invalidated the pending bot keeper
+and preserved persist-before-replace ordering; it merged as
+`8452662f803139d5d51d65657f3b42d1a2389443`. PR #378 added fail-closed handling
+for IndexedDB read or transaction failures (no writable localStorage fork),
+bound delayed Borough reset confirmation to its own intent, and added a live
+Chromium regression for an aborted Club read; it merged as
+`69b8c42cccb721000e9628e3d12476d124724a9a` from exact head
+`3a3a1fd7164b612262f01ca1bf1e74959c2352d2`.
+
+At that exact head, local `npm.cmd run verify` passed 598 tests (595 passed,
+3 skipped, 0 failed) with 581,847 assertions; both web and Android receipts
+reported `sourceDirty: false`. The focused Club/restore/backup suite passed 14
+tests, including 51 Club assertions. The focused real-origin Chromium scenario
+passed 30 checks, the full real-origin suite on the same test content passed
+243 checks, and exact-head hosted Verify, browser controls and Android payload
+checks all passed. This is a source checkpoint only: no new release, tag or
+deployment is claimed.
+
+The evidence does not certify physical-device behavior, TalkBack, human
+accessibility calibration, or real browser Worker interleaving. `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
 ## Published web release 0.11.6: 25 September 2026 (historical)
 
 [PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
