@@ -44,6 +44,15 @@ overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
 184 isolated core UI checks and the isolated After Hours browser suite passed.
 The rest of the cross-room type migration in #219 remains open. Hosted and
 physical-device evidence has not yet been gathered for this candidate.
+## Night collection certificate foundation: 25 September 2026
+
+Merged PR #341 adds offline definition receipts, structural duplicate
+checks, independent uniqueness checks and production reducer replay for proposed
+harder studies. It adds no playable puzzle or runtime code. On the current main
+base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
+suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
+proposed Night boards remain in stacked PRs; human difficulty and device checks
+remain open under #161 and `HUMAN_TODO.md` q-8.
 
 ## Backup validation QA: 25 September 2026
 
