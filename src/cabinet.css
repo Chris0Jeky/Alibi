@@ -195,9 +195,6 @@ body {
 .section-head {
   margin-top: 34px;
 }
-.section-head h2 {
-  font-size: 29px;
-}
 .section-head p,
 .page-head p {
   font-size: 15px;
@@ -585,9 +582,6 @@ html[data-theme='night'] .book-number {
   .section-head {
     margin: 26px 0 14px;
     align-items: center;
-  }
-  .section-head h2 {
-    font-size: 27px;
   }
   .section-head .eyebrow {
     font-size: 10px;
