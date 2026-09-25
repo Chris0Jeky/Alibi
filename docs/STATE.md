@@ -56,6 +56,19 @@ overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
 PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
 of the cross-room type migration in #219 remains open; physical-device evidence
 has not yet been gathered.
+
+## Approved radius mapping candidate: 25 September 2026
+
+The owner approved eight small scalar mappings from issue #220. This source pass
+maps 56 declarations across seven bundled CSS files onto the existing 8px, 12px
+and 16px tokens. On the Desk, the desktop nav radius computes to 8px instead of
+7px and the phone hero computes to 16px instead of 17px; neither 390px nor
+1280px has horizontal overflow. Local Verify passed with 542 Node tests and
+three skips, 184 isolated UI checks and 12 real-origin phone QA tests passed.
+The full four-token collapse remains open: larger panel/theatre radii, true
+circles, game-board geometry and named decorative exceptions were not changed.
+Hosted and physical-device evidence has not yet been gathered for this pass.
+
 ## Night collection certificate foundation: 25 September 2026
 
 Merged PR #341 adds offline definition receipts, structural duplicate

@@ -127,7 +127,7 @@ body.zen .folio-invitation {
   border: 1px solid #dce1d1;
   background: #f4f1e7;
   margin: 0 0 24px;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 .collection-atmosphere figure {
