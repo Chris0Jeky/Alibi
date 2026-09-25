@@ -73,7 +73,7 @@ body.club-experiment {
   position: absolute;
   inset: 12px;
   border: 1px solid rgba(240, 219, 174, 0.14);
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   pointer-events: none;
   z-index: 1;
 }
@@ -330,7 +330,7 @@ body.club-experiment {
 }
 .daily-illustration {
   background: rgba(238, 224, 193, 0.94);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow:
     0 13px 28px rgba(5, 23, 25, 0.22),
     inset 0 1px #fff;
@@ -501,12 +501,12 @@ a:focus-visible {
     align-items: flex-start;
   }
   .club-weather {
-    border-radius: 13px;
+    border-radius: var(--radius-md);
     max-width: 145px;
   }
   .club-hero {
     min-height: 510px;
-    border-radius: 17px;
+    border-radius: var(--radius-lg);
   }
   .club-hero::before {
     inset: 8px;
@@ -525,7 +525,7 @@ a:focus-visible {
     margin-inline: 19px;
   }
   .club-underhero {
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
   .club-section {
     margin-top: 36px;
@@ -535,7 +535,7 @@ a:focus-visible {
     transform: translateY(-3px);
   }
   .club-boardpanel {
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
   }
 }
 @media (prefers-reduced-motion: reduce) {
