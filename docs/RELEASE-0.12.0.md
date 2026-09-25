@@ -20,7 +20,7 @@ Version 0.12.0 is registered in `package.json` and `content/releases.json` for
 the candidate. Pulseboard PR #88 registered the matching release label. The
 Observatory adapter is now generated from Pulseboard's statistical-only client:
 eligible first-time visitors on the primary Cloudflare origin start with Usage
-sharing on, see an open notice and can turn it off there or in settings. Previous
+sharing on, see an open notice and can turn it off with its checkbox. Previous
 explicit off choices remain off. GPC, DNT, storage failures, automation and the
 Sites fallback origin do not collect. The collector accepts only bounded
 event/route/release counts, while its hosting provider necessarily receives
