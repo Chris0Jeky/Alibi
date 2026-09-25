@@ -64,11 +64,11 @@ disposable profile; never run destructive drills on a player's only copy.
 
 | Drill | Expected observation | Existing evidence entry point |
 | --- | --- | --- |
-| Stale writer in two tabs | Losing writer stops and offers export/reload; winning save remains unchanged | `tests/storage-revision.test.cjs`, `tests/club-revision.test.cjs`, `tests/browser_origin.py` |
+| Stale writer in two tabs | Losing writer stops and offers export/reload; winning save remains unchanged | `tests/storage.test.cjs`, `tests/club-storage.test.cjs`, `tests/browser_origin.py` |
 | IndexedDB unavailable | Storage mode is labelled; fallback does not claim transactional replacement | `tests/storage.test.cjs`, `tests/club-storage.test.cjs`, `tests/browser_origin.py` |
 | Invalid or interrupted backup import | No invalid partial admission; original save remains available | `tests/app-backup-import.test.mjs`, `tests/browser_backup_import.py`, `tests/browser_backup_worker.py` |
 | Explicit replacement and recovery | Confirmation precedes replacement; independent export and pre-restore recovery remain usable | `tests/browser_origin.py`, `src/storage.js`, `src/backup-validation.js` |
-| Offline/update/retry | Existing run survives an explicit update; refresh affects app caches, not player databases | `tests/browser_update.py`, `tests/browser_boot.py`, `tools/build.cjs` |
+| Offline/update/retry | Existing run survives an explicit update; refresh affects app caches, not player databases | `tests/browser_update.py`, `tests/browser_boot.py` |
 | Unknown newer data version | Compatibility stop instead of an apparently empty alternative save store | `tests/storage.test.cjs`, `tests/browser_origin.py` |
 | Future remote conflict | Two alternatives, explicit resolution, authorization and idempotent retry | Not implemented; requires a separate design and tests before enabling sync |
 
