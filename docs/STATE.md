@@ -1,22 +1,47 @@
 # Live development state
 
-## Backup validation QA and live queue: 25 September 2026
+## Published web release 0.11.6: 25 September 2026
 
-A separate Muse 1.3 contributor xhigh worktree added six direct validator regressions
-for duplicate run and pack records, starter-catalogue collisions, and saved-run counter,
-note and undo bounds. They use the actual backup validator and original catalogue;
-no import, save, content or runtime behavior changed. The six-test direct Node run passed.
-The full source gate is re-run after committing because Android payload identity requires
-a clean tracked tree. Browser import, physical Android and destructive-restore behavior
-are separate evidence and are not established by these pure tests.
+[PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
+race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
+[issue #333](https://github.com/Chris0Jeky/Alibi/issues/333). Exact-head
+[Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36122242738) and the
+other applicable checks passed, the focused second review found no new blocker,
+and the head passed the three-minute merge age. A clean build of the merged commit
+is 0.11.6 / `db7e68c1bfa6`, with 382 puzzles, 130,271 JavaScript gzip bytes and
+`sourceDirty: false`. Local Verify passed (529 Node tests, 3 skipped), along with
+pack validation, Observatory check, Cloudflare dry run, bundle packaging, and
+214 local real-origin browser checks. The first bundle attempt lacked the local
+`ffprobe` path; rerunning with the installed Krita tool passed.
 
-At this checkpoint the open PRs are #281 and #329 plus the draft #341-#344
-curated-content stack. #342-#344 have red full Verify runs: their expanded catalogue
-still meets a fixed 382-puzzle assertion in tests/official-catalogue.test.cjs.
-The exact-head failure was confirmed in hosted logs and an independent read-only
-review of #342; its finding is posted on that PR. Those drafts remain unmerged,
-and content proof receipts, current-head CI and human difficulty calibration remain
-outstanding.
+Annotated tag [`v0.11.6`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.6)
+points to that deployed source. Cloudflare now serves it as Worker version
+`107707f3-1e5d-442c-94b3-c87c6ec73ae6` at
+https://alibi-after-hours-preview.commit-atlas.workers.dev/. The existing Sites
+fallback serves the same build at https://alibi-puzzle-club.jeky-tck.chatgpt.site/
+from saved version 22, deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`.
+The two local build directories matched across all 292 files before packaging.
+Each public origin passed all 214 hosted real-origin browser checks, including
+IndexedDB restore/recovery, offline reload and in-progress navigation. All 291
+public files returned HTTP 200: Cloudflare bytes matched the built files; Sites
+matched all non-HTML bytes and transformed ten HTML pages. Cloudflare retained
+HTTP CSP and WebP MIME; Sites still lacks the repository HTTP CSP and serves the
+sampled WebP as `application/octet-stream` (existing hosting limits, issue #6).
+See [the release record](RELEASE-0.11.6.md) for rollback and digest receipts.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open. In particular, the web publication
+does not certify the affected physical Android phone, TalkBack, or the provisional
+Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
+source-only and pre-publication checkpoints below are historical.
+
+## Backup validation QA: 25 September 2026
+
+Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
+collisions, and saved-run counter, note and undo bounds. They use the actual backup
+validator and catalogue; no production behavior changed. The six-test direct Node
+run passed on the original base. The full source gate must be re-proved on the
+current main after integration. Browser import, physical Android and destructive-
+restore behavior remain separate evidence.
 
 ## Repository and release checkpoint: 25 September 2026
 
@@ -54,6 +79,41 @@ local directories, now outside the registry. That dirty review worktree and the 
 directories remain preserved.
 `HUMAN_TODO.md` q-1 through q-8 remain open, including source licensing, physical Android and
 TalkBack checks, and human calibration.
+
+## Curation guard coverage: 25 September 2026
+
+Focused Node coverage now checks that editorial notes do not attach to imported IDs or
+other puzzle revisions, that editorial and museum text is escaped, and that the
+gallery filters artwork by venue and kind. Eight focused tests pass. This adds no
+runtime logic, content, save-schema change or published puzzle ID. Full Verify,
+browser and physical-device checks remain separate evidence gates.
+
+## 0.11.6 publication preflight: 25 September 2026
+
+PR #332 merged focused curation tests as `da19969` after exact-head Verify and
+fresh-context review. The 0.11.6 source at `84be37f` passed local Verify,
+example-pack validation, Observatory check and a Cloudflare dry run; its clean
+build is `024c5bc9bd9d` with 382 puzzles and 130,014 JavaScript gzip bytes.
+Read-only HTTPS checks still found the previous builds on both existing origins.
+No 0.11.6 tag, deployment or public GitHub release has been created. A real
+IndexedDB two-connection check then reproduced [restore issue #333](https://github.com/Chris0Jeky/Alibi/issues/333):
+a save made between the pre-restore snapshot and replacement vanished from both
+live runs and the recovery copy. The next release needs a verified fix before
+publication. See [the release record](RELEASE-0.11.6.md); `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
+The issue #333 fix candidate at `cbfdf0e30688c4c6ed6acc05adec4ee427b32b12`
+reads recovery data and replaces Cabinet records in one IndexedDB write
+transaction. A merge rejects a stale snapshot and retains another tab's fresh
+preferences; a queued error aborts the transaction. Both real-origin regressions
+failed before their fixes and passed afterward. Local Verify passed (529 Node
+tests passed, 3 skipped) and the full origin suite passed 214 checks. The clean
+build is `7af1c8978307` with 130,271 JavaScript gzip bytes. The safety fix
+needed a measured 256-byte increase to the previous bundle limit; the new
+strict limit is 130,304 bytes.
+The first independent review found the preference loss and it was fixed; a
+fresh review of that logic change and exact-head CI are still required before
+merge or publication.
 
 ## Source reconciliation checkpoint: 24 September 2026
 

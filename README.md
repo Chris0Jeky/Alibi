@@ -9,7 +9,7 @@ Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and lo
 [Latest release](https://github.com/Chris0Jeky/Alibi/releases/latest) ·
 [Project map](docs/PROJECT-MAP.md) · [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
 
-> **Current release: 0.11.5.** The public sites and downloadable release are working browser/PWA editions. A Capacitor transition is planned and architected, but no APK, Play Store release, or completed physical-device acceptance is claimed.
+> **Current release: 0.11.6.** Both public sites and the downloadable release are working browser/PWA editions. A non-publishable Capacitor preview APK exists, but no Play Store release or completed physical-device acceptance is claimed.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 
@@ -25,7 +25,7 @@ The product direction is not “add every possible minigame.” It is to build a
 
 ## What ships today
 
-- **376 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
+- **382 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
 - **Five illustrated mystery casebooks:** including the six-record *Last Light at Bellweather* sequence and the longer unfinished invitation.
 - **Six Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, and Lantern Gardens. Legacy Dominoes and Mahjong saves remain readable/exportable for compatibility.
 - **A tactile Block Cabinet and experimental Cascade surface:** built on explicit, separate save contracts rather than silently replacing the original game.
@@ -34,7 +34,7 @@ The product direction is not “add every possible minigame.” It is to build a
 - **Durable local play:** automatic device-local saves, revision-pinned continuations, undo/redo, notes, favorites, recovery checks, and JSON backups.
 - **Offline installation:** the complete core remains usable after installation. Optional room and media packs are delivered separately so they do not inflate the critical path.
 - **Local authoring:** create and validate a mystery, verify uniqueness where the family contract supports it, and export or install a local pack.
-- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. The published 0.11.5 catalogue holds 376 puzzles, including the six provisional Expert studies, six crime-scene variations and nine Master/Grandmaster studies; Expert difficulty and human-calibration gates remain open pending player feedback.
+- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. The published 0.11.6 catalogue holds 382 puzzles, including six new 15×15 Picture Logic studies alongside the earlier Expert, crime-scene and advanced variations; difficulty and human-calibration gates remain open pending player feedback.
 
 ## Direction
 
@@ -43,7 +43,7 @@ The next work is less about raw catalogue size and more about making the existin
 ### Now: player evidence and content quality
 
 - Human-playtest representative puzzles in every family and record real instruction ambiguity, solve time, difficulty, comfort, and story response.
-- Evaluate the opt-in Wrenmere Desk source candidate; it is not part of the deployed 0.11.5 baseline until hosted and physical-device gates pass.
+- Evaluate the opt-in Wrenmere Desk candidate against hosted behavior and physical-device gates before claiming acceptance.
 - Curate definitions deliberately while preserving old revisions for existing saves.
 - Improve deterministic browser acceptance, publication receipts, update recovery, keyboard behavior, and narrow-screen interaction.
 - Keep optional usage sharing consented, content-free, reversible, and visibly separate from puzzle progress.
@@ -143,7 +143,7 @@ locally, but a static deployment does not enable public online play.
 The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
 classic boards, credited museum artwork and 59 separately versioned challenges. Enter from the
 home desk or main navigation. The Curation Cabinet adds 208 puzzles across four anthologies; later
-trusted packs bring the catalogue to 376, published on both 0.11.5 origins.
+trusted packs bring the catalogue to 382, published on both 0.11.6 origins.
 Difficulty remains provisional and missing times are not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 

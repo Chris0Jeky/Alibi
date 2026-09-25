@@ -2219,11 +2219,13 @@
         'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
       );
     await queue;
-    let b = pendingBackup;
+    let b = pendingBackup,
+      expected;
     if (!replace) {
       const raw = await store.export(),
         runs = new Map(raw.runs.map((r) => [r.key, r])),
         combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
+      expected = raw;
       for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
       for (const p of b.packs) {
         if (combinedPacks.has(p.id)) {
@@ -2239,12 +2241,12 @@
           ...b,
           runs: [...runs.values()],
           packs: [...combinedPacks.values()],
-          settings,
-          preferences: prefs,
+          settings: raw.settings,
+          preferences: raw.preferences,
         },
       });
     }
-    await store.restore(b);
+    await store.restore(b, expected);
     pendingBackup = null;
     channel?.postMessage({ type: 'restored' });
     closeDialog();
