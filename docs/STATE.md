@@ -128,6 +128,16 @@ found no confirmed correctness blocker. Hosted full Verify and real-control
 browser checks remain pending; human difficulty and physical-device acceptance
 remain open under #161 and `HUMAN_TODO.md` q-8.
 
+## Night Symbols source candidate: 25 September 2026
+
+The stacked #344 candidate adds 12 original Sun & Moon and Futoshiki boards.
+The proposed Night collection totals 48 additions and 430 puzzles across 26
+packs. Its six focused Symbols/catalogue tests pass locally, including exact
+definition receipts, independent unique answers and reducer replay; independent
+review found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending. Expert/Master labels, human solve paths and
+physical-device acceptance remain open under #161 and `HUMAN_TODO.md` q-8.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
