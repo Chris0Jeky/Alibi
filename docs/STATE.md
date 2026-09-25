@@ -1,5 +1,39 @@
 # Live development state
 
+## Published web release 0.11.6: 25 September 2026
+
+[PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
+race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
+[issue #333](https://github.com/Chris0Jeky/Alibi/issues/333). Exact-head
+[Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36122242738) and the
+other applicable checks passed, the focused second review found no new blocker,
+and the head passed the three-minute merge age. A clean build of the merged commit
+is 0.11.6 / `db7e68c1bfa6`, with 382 puzzles, 130,271 JavaScript gzip bytes and
+`sourceDirty: false`. Local Verify passed (529 Node tests, 3 skipped), along with
+pack validation, Observatory check, Cloudflare dry run, bundle packaging, and
+214 local real-origin browser checks. The first bundle attempt lacked the local
+`ffprobe` path; rerunning with the installed Krita tool passed.
+
+Annotated tag [`v0.11.6`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.6)
+points to that deployed source. Cloudflare now serves it as Worker version
+`107707f3-1e5d-442c-94b3-c87c6ec73ae6` at
+https://alibi-after-hours-preview.commit-atlas.workers.dev/. The existing Sites
+fallback serves the same build at https://alibi-puzzle-club.jeky-tck.chatgpt.site/
+from saved version 22, deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`.
+The two local build directories matched across all 292 files before packaging.
+Each public origin passed all 214 hosted real-origin browser checks, including
+IndexedDB restore/recovery, offline reload and in-progress navigation. All 291
+public files returned HTTP 200: Cloudflare bytes matched the built files; Sites
+matched all non-HTML bytes and transformed ten HTML pages. Cloudflare retained
+HTTP CSP and WebP MIME; Sites still lacks the repository HTTP CSP and serves the
+sampled WebP as `application/octet-stream` (existing hosting limits, issue #6).
+See [the release record](RELEASE-0.11.6.md) for rollback and digest receipts.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open. In particular, the web publication
+does not certify the affected physical Android phone, TalkBack, or the provisional
+Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
+source-only and pre-publication checkpoints below are historical.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
