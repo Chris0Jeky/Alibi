@@ -982,7 +982,7 @@
       worker.onmessage = (e) => {
         if (!current()) return;
         if (e.data?.id !== job) {
-          if (!e.data || !Number.isInteger(e.data.id)) botFailure();
+          botFailure();
           return;
         }
         if (e.data.error) return botFailure();

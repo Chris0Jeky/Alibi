@@ -10,7 +10,7 @@ async function pending() {
   tab.club.afterRender({ page: 'salon', id: 'duel' });
   return tab;
 }
-for (const kind of ['error', 'message-error', 'malformed', 'illegal']) {
+for (const kind of ['error', 'message-error', 'malformed', 'illegal', 'mismatched-id']) {
   test(`opponent ${kind} pauses until explicit retry without changing history`, async () => {
     const tab = await pending();
     const worker = tab.workers.at(-1),
@@ -22,7 +22,7 @@ for (const kind of ['error', 'message-error', 'malformed', 'illegal']) {
           kind === 'malformed'
             ? null
             : {
-                id: worker.request.id,
+                id: worker.request.id + (kind === 'mismatched-id' ? 1 : 0),
                 ...(kind === 'message-error' ? { error: 'failure' } : { cell: 14 }),
               },
       });
