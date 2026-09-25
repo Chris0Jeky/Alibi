@@ -17,10 +17,14 @@ ramp improve browser controls, but physical Android, large text and TalkBack
 acceptance remain open in `HUMAN_TODO.md`.
 
 Version 0.12.0 is registered in `package.json` and `content/releases.json` for
-the candidate. Pulseboard must admit the matching release label and regenerate
-the locked Observatory adapter before Alibi's version commit can merge. Source
-PRs still require exact-head CI and their review gates. No tag, deployment,
-public GitHub release or physical-device acceptance is claimed here.
+the candidate. Pulseboard PR #88 registered the matching release label and
+regenerated the locked Observatory adapter; it merged and was deployed before
+this Alibi candidate. Local Verify passed with 558 Node tests and three skips;
+the Night study browser suite passed 480 checks, and the real-origin storage and
+offline suite passed 214 checks. Source PRs still require exact-head CI and their
+review gates. No tag, deployment, public GitHub release or physical-device
+acceptance is claimed here. Usage sharing remains opt-in in this candidate;
+Pulseboard issue #89 tracks the separately reviewed statistical-only default.
 
 ## Publication receipt
 
