@@ -14,8 +14,9 @@ The 0.11.5 source is still the latest deployed release. The source catalogue con
 puzzles across 23 packs. Release candidate branch `codex/release-0.11.6` prepares the six new
 Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
 Reversi depth correction and the refreshed Observatory release check. Pulseboard PR #86 merged
-as `b01624b`, registering Alibi 0.11.6 and its matching `v0.11.6` catalogue tag. On the
-candidate, `npm run check:alibi`, `node observatory/check.mjs`, the 24-assertion
+as `b01624b`, registering Alibi 0.11.6 and its matching `v0.11.6` catalogue tag. From
+Pulseboard's `observatory` directory, `npm.cmd run check:alibi -- <Alibi checkout>` passed
+against the candidate. On the candidate, `node observatory/check.mjs`, the 24-assertion
 `tests/browser_observatory.py` suite and `npm.cmd run verify` passed locally; the build reports
 130,014 JavaScript gzip bytes, 34 below the fixed cap. The previous hosted Verify run on
 pre-fix head `9ebf813` failed because the real-origin browser check could not recognize 0.11.6;

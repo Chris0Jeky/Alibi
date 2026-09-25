@@ -20,9 +20,11 @@ puzzles and 130,014 JavaScript gzip bytes, 34 bytes below the fixed cap.
 Pulseboard PR #86 merged the release contract at `b01624b`. Its sync and check commands now
 register 0.11.6, require the matching `v0.11.6` catalogue tag, and verify the bundled adapter
 hash. The candidate's generated Observatory checker and browser bridge were refreshed from
-that contract. `npm run check:alibi`, `node observatory/check.mjs`, and
-`PYTHONUTF8=1 python tests/browser_observatory.py` passed locally; the browser suite reported
-24 assertions. The previous hosted Verify run was on pre-fix head `9ebf813` and failed the
+that contract. From Pulseboard's `observatory` directory,
+`npm.cmd run check:alibi -- <Alibi checkout>` confirmed the registration. From this Alibi
+checkout, `node observatory/check.mjs` and `PYTHONUTF8=1 python tests/browser_observatory.py`
+passed; the browser suite reported 24 assertions. The previous hosted Verify run was on pre-fix
+head `9ebf813` and failed the
 real-origin assertion that the initial page view uses the registered app release. The updated
 candidate still needs exact-head hosted CI and independent review before merge. These checks do
 not claim a new deployment, a physical-device check or human difficulty acceptance.
