@@ -50,26 +50,39 @@ physical-device evidence has not yet been gathered for this candidate.
 Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
 collisions, and saved-run counter, note and undo bounds. They use the actual backup
 validator and catalogue; no production behavior changed. The six-test direct Node
-run passed on the original base. The full source gate must be re-proved on the
-current main after integration. Browser import, physical Android and destructive-
-restore behavior remain separate evidence.
+run passed on the original base. PR #349's exact-head hosted source gate passed
+before merge, and PR #351's integrated head passed the same gate. Browser import,
+physical Android and destructive-restore behavior remain separate evidence.
 
-## Desk action sizing candidate: 25 September 2026
+## Desk action sizing merged: 25 September 2026
 
 A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
 on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
 At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
 Chromium touch run cycled the edition and pinned the desk without a page error.
 The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
-including controls across all thirteen game families. This is a source candidate;
-no hosted or physical-phone acceptance is claimed, and the wider #221 button
-recipe work stays open.
+including controls across all thirteen game families. Local format and Android
+build passed. The concurrent Node suite in `npm.cmd run verify` stopped
+progressing in `tests/platform.test.mjs` and was interrupted; that file passed
+all 16 tests alone. The serial Node suite passed 529 with three skips, and both
+Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
+passed before merge. Physical-phone acceptance and the wider #221 button
+recipe work stay open.
 
-Local format and Android build passed. The concurrent Node suite in `npm.cmd run
-verify` stopped progressing in `tests/platform.test.mjs` and was interrupted;
-that file passed all 16 tests alone. The serial Node suite passed 529 with
-three skips, and both Quiet Wing suites passed. Exact-head hosted Verify is
-still required before merge.
+## Block Cabinet visual stability candidate: 25 September 2026
+
+Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
+real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
+opacity for roughly 15 frames. A Classic clear hid an unrelated stationary
+piece for 18 frames. The source candidate keeps locked cells opaque and leaves
+pieces unchanged across every clear wave in semantic HTML; Canvas animates only
+changing cells. The focused Node suites passed 26 tests; the built-origin
+Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
+and reduced motion and stationary pieces through both clear modes. This does
+not establish that every instance of the player's flashing report is gone on
+the affected physical phone. Local full Verify passed on the source and browser
+test commit (535 Node tests passed, three skipped; Android build passed).
+Exact-head hosted checks remain to be proven after the state note is committed.
 
 ## Repository and release checkpoint: 25 September 2026
 
