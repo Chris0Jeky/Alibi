@@ -34,6 +34,23 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Desk action sizing candidate: 25 September 2026
+
+A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
+on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
+At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
+Chromium touch run cycled the edition and pinned the desk without a page error.
+The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
+including controls across all thirteen game families. This is a source candidate;
+no hosted or physical-phone acceptance is claimed, and the wider #221 button
+recipe work stays open.
+
+Local format and Android build passed. The concurrent Node suite in `npm.cmd run
+verify` stopped progressing in `tests/platform.test.mjs` and was interrupted;
+that file passed all 16 tests alone. The serial Node suite passed 529 with
+three skips, and both Quiet Wing suites passed. Exact-head hosted Verify is
+still required before merge.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
