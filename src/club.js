@@ -19,6 +19,7 @@
     storageMode = 'session',
     saveError = '',
     saveQueue = Promise.resolve(),
+    restoring = false,
     loading = null;
   let state = {
     schema: 1,
@@ -310,6 +311,7 @@
     );
   }
   function persist(replacement = null) {
+    if (restoring && !replacement) return saveQueue;
     const snapshot = clone(replacement || state);
     saveQueue = saveQueue
       .then(async () => {
@@ -979,6 +981,7 @@
     const a = el.dataset.action.slice(5),
       v = el.dataset.value,
       id = el.dataset.id;
+    if (restoring && a !== 'restore-confirm') return;
     try {
       if (a === 'rotate') {
         hero = (hero + 1) % stories.length;
@@ -1062,19 +1065,25 @@
       else if (a === 'restore-confirm') {
         document.getElementById('dialog').close();
         if (root.__alibiPendingClub) {
+          if (restoring) throw Error('A Club restore is already in progress.');
           if (storageMode !== 'indexeddb' || saveError)
             throw Error(
               'Restore needs healthy device storage. Export this session before reloading.',
             );
           const next = root.__alibiPendingClub;
           delete root.__alibiPendingClub;
+          restoring = true;
           botJob++;
           botWorker?.terminate();
           botWorker = null;
           botPending = false;
-          await persist(next);
-          if (saveError) throw Error(saveError);
-          state = next;
+          try {
+            await persist(next);
+            if (saveError) throw Error(saveError);
+            state = next;
+          } finally {
+            restoring = false;
+          }
           await onRoute(route);
           render();
         }
