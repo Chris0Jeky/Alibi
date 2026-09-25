@@ -1,0 +1,47 @@
+name: Verified gameplay blob upload
+on:
+  push:
+    branches: [codex/347-games-finish]
+    paths: [.github/workflows/gameplay-verified-upload.yml]
+permissions:
+  contents: write
+jobs:
+  blobs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: a544de5c03f2e66e3576c7bc5926b93afa23151d
+          persist-credentials: false
+      - name: Correct fixed transport and verify all exact source identities before upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import base64, hashlib, json, os, pathlib, re, urllib.request, zlib
+          source = pathlib.Path('.github/workflows/gameplay-fixed-blob-upload.yml').read_text()
+          encoded = re.search(r"encoded = '''(.*?)'''", source, re.S).group(1)
+          encoded = encoded.replace('N8suTEJ', 'N8uTEJ').replace('DjLarpuvf6R29', 'DjLrquf6R29')
+          raw = zlib.decompress(base64.b64decode(encoded))
+          assert hashlib.sha256(raw).hexdigest() == '1f2300a614bf0ece436fead4b56a0b14fda7961b8aedcb0f712ad7ed3bda9d40'
+          records = json.loads(raw)
+          assert {r['path'] for r in records} == {'docs/STATE.md', 'src/backup-validation.js', 'src/club-engines.js', 'src/club.js', 'tests/browser_block_cabinet.py'}
+          def blob(data):
+              return hashlib.sha1(('blob ' + str(len(data)) + '\0').encode() + data).hexdigest()
+          outputs = []
+          for r in records:
+              data = pathlib.Path(r['path']).read_bytes()
+              assert blob(data) == r['before'], r['path']
+              value = data.decode()
+              for start, end, text in reversed(r['edits']):
+                  value = value[:start] + text + value[end:]
+              data = value.encode()
+              assert blob(data) == r['after'], r['path']
+              outputs.append((r, data))
+          for r, data in outputs:
+              request = urllib.request.Request('https://api.github.com/repos/Chris0Jeky/Alibi/git/blobs', data=json.dumps({'content': base64.b64encode(data).decode(), 'encoding': 'base64'}).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'}, method='POST')
+              with urllib.request.urlopen(request) as response:
+                  result = json.load(response)
+              assert result['sha'] == r['after'], r['path']
+              print(r['path'], result['sha'], flush=True)
