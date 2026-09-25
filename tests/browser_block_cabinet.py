@@ -170,8 +170,8 @@ with sync_playwright() as playwright:
             "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 0"
         )
         check(
-            page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed") == original_seed,
-            f"Enhanced restart keeps the current seed at {width}px",
+            page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed") != original_seed,
+            f"Enhanced restart chooses a new seed at {width}px",
         )
         simple_controls()
         check(
@@ -208,13 +208,17 @@ with sync_playwright() as playwright:
             f"The persisted move keeps its selected tray slot at {width}px",
         )
         check(
-            page.evaluate("() => AlibiClub.diagnostics().state.runs.blockcabinet.log[0].cell")
-            == int(page.locator(".block-cell.filled").first.get_attribute("data-cell")),
+            page.evaluate("""() => {
+              const run = AlibiClub.diagnostics().state.runs.blockcabinet;
+              const board = AlibiClubEngines.blockCabinet.replay(run.seed, run.log).board;
+              return [...document.querySelectorAll('.block-cell')].every(cell =>
+                cell.classList.contains('filled') === Boolean(board[Number(cell.dataset.cell)]));
+            }"""),
             f"The board reflects the saved placement at {width}px",
         )
         route("/home")
         check(
-            "Block Cabinet · BLOCK-01" in page.locator(".club-letter").inner_text(),
+            ("Block Cabinet · " + page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed")) in page.locator(".club-letter").inner_text(),
             f"The active run card names Block Cabinet at {width}px",
         )
         route("/salon/blockcabinet")

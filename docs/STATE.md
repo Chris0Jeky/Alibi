@@ -357,3 +357,12 @@ claimed. Android remains a non-publishable preview; the Capacitor owner gates re
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
 explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
 source tests do not approve that ADR. Review live open PRs before overlapping another lane.
+
+## Games Room recovery draft
+
+The #347 continuation adds bounded Duel strengths and fresh confirmed Cabinet
+restarts, with explicit worker-error retry and stale-reply guards. See
+[Games recovery](curation/GAMES-RECOVERY.md) for the source and browser receipts.
+Seventeen source tests and ten/76 standalone browser checks pass. The measured
+JavaScript exceeds the unchanged cap; no full-CI, merge or release claim is made.
+Physical-device and human gates remain in HUMAN_TODO.md.
