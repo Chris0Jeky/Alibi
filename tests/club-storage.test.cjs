@@ -157,6 +157,42 @@ async function tab(storage) {
     temp.AlibiClub.diagnostics().saveError.includes('only in this tab'),
     'Session-only warning is exposed',
   );
+  const clubSource = fs.readFileSync(path.join(root, 'src/club.js'), 'utf8');
+  const restoreAt = clubSource.indexOf("a === 'restore-confirm'");
+  check(restoreAt !== -1, 'Club restore-confirm path exists');
+  const restoreEnd = clubSource.indexOf("else if (a === 'duel-mode'", restoreAt);
+  const restoreBlock = clubSource.slice(restoreAt, restoreEnd);
+  const persistAt = restoreBlock.indexOf('await persist(next)');
+  check(persistAt !== -1, 'Restore persists the replacement save');
+  check(restoreBlock.includes('botJob++'), 'Restore invalidates the pending keeper job');
+  check(
+    restoreBlock.includes('botWorker?.terminate()'),
+    'Restore terminates the pending keeper worker',
+  );
+  check(restoreBlock.includes('botWorker = null'), 'Restore clears the keeper worker');
+  check(restoreBlock.includes('botPending = false'), 'Restore clears the keeper pending flag');
+  check(
+    restoreBlock.indexOf('botJob++') < persistAt &&
+      restoreBlock.indexOf('botWorker?.terminate()') < persistAt &&
+      restoreBlock.indexOf('botWorker = null') < persistAt &&
+      restoreBlock.indexOf('botPending = false') < persistAt,
+    'Restore cancels the keeper before persisting the replacement',
+  );
+  check(
+    restoreBlock.includes("storageMode !== 'indexeddb'") && restoreBlock.includes('saveError'),
+    'Restore keeps the healthy-storage and saveError guards',
+  );
+  check(
+    persistAt < restoreBlock.indexOf('state = next'),
+    'Restore keeps persist-then-replace recovery ordering',
+  );
+  check(
+    clubSource.includes("a === 'reset-confirm'") && clubSource.includes('botJob++'),
+    'Reset keeper invalidation remains intact',
+  );
+  console.log(
+    'NOTE browser-only boundary: Node has no Worker/IndexedDB interleaving, so this is a source-contract guard that a late keeper reply is ignored after restore begins.',
+  );
   // Commit-game contract through the public Club action path. Same VM +
   // localStorage boundary as above: no real IndexedDB or browser durability.
   const gs = store(),
@@ -208,7 +244,7 @@ async function tab(storage) {
         passed: true,
         assertions: checks.length,
         scope:
-          'Separate Node VM sessions sharing a localStorage fixture. Tests the exact fallback key, rotation, pinning, fallback and sequential conflicts, plus one Tic-Tac-Toe commitGame contract (exactly-once log, redo clear, flush persistence). Not real IndexedDB transactions or browser durability.',
+          'Separate Node VM sessions sharing a localStorage fixture. Tests the exact fallback key, rotation, pinning, fallback and sequential conflicts, plus restore keeper invalidation and one Tic-Tac-Toe commitGame contract. Not real IndexedDB transactions, Worker interleaving or browser durability.',
         checks,
       },
       null,
