@@ -2241,8 +2241,8 @@
           ...b,
           runs: [...runs.values()],
           packs: [...combinedPacks.values()],
-          settings,
-          preferences: prefs,
+          settings: raw.settings,
+          preferences: raw.preferences,
         },
       });
     }

@@ -544,6 +544,21 @@ def scenario_backup_restore(pw: Any, root: Path) -> None:
             "recovery button exports the pre-replace progress",
         )
 
+        page.evaluate("""async () => {
+          const other = await new AlibiStorage.Store().init();
+          const old = (await other.get('meta', 'preferences')) || {};
+          await other.put('meta', 'preferences', {
+            ...old,
+            favorites: [...(old.favorites || []), 'other-tab-favorite'],
+          });
+        }""")
+        input_backup(page, backup, "merge-with-other-tab-preferences.json")
+        click_reload_action(page, '[data-action="restore-merge"]')
+        check(
+            "other-tab-favorite" in read_idb(page, "meta", "preferences")["favorites"],
+            "merge preserves another tab's committed preferences",
+        )
+
         stale = page.evaluate("""async () => {
           const a = await new AlibiStorage.Store().init();
           const b = await new AlibiStorage.Store().init();
