@@ -39,19 +39,21 @@ source-only and pre-publication checkpoints below are historical.
 The proposed next web release combines 48 Night studies across eight families
 with the merged Desk type ramp, the approved radius slice and Block Cabinet
 visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
-registration, exact-head integration checks, Pulseboard's release contract,
-both existing deployments and hosted-origin acceptance remain to be completed.
+registration and Pulseboard's release contract are complete in this candidate.
+Local Verify, the Night control suite and local real-origin storage/offline checks
+passed. Exact-head hosted integration, both existing deployments and hosted-origin
+acceptance remain to be completed.
 No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
 and `HUMAN_TODO.md` for human difficulty and physical-device gates.
 
-## Night Gardens source candidate: 25 September 2026
+## Night Gardens source merged: 25 September 2026
 
-The stacked #342 candidate adds 18 original Lanterns, Tents and Aquariums
-boards, proposing 400 puzzles across 24 packs. Exact registered-catalogue and
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums boards, bringing
+the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
 Night Gardens source checks pass locally (seven focused tests), including native
 and independent unique answers, reducer replay, definition receipts and the
-published-definition baseline. Full Verify and real-control browser checks passed
-on the previous #342 head; the main refresh requires exact-head reproof.
+published-definition baseline. Exact-head hosted Verify and real-control browser
+checks passed before merge.
 Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
 
