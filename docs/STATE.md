@@ -25,9 +25,11 @@ unmerged, untagged and undeployed. `HUMAN_TODO.md` q-1 through q-8 remain open, 
 source licensing, physical Android/TalkBack checks and human calibration.
 
 The primary checkout's tracked files are clean. The 25 September branch, pull-request and
-worktree dispositions are in [the repository sweep](REPO-SWEEP-2026-09-25.md). Two completed
-Muse wait worktrees were removed; the remaining worktrees stay registered after OneDrive denied
-ordinary removal attempts. Dirty review work remains preserved.
+worktree dispositions are in [the repository sweep](REPO-SWEEP-2026-09-25.md). Clean merged
+worktrees were removed where ordinary removal succeeded; 14 Git worktrees remain registered,
+including active release, asset, review and unique-commit work. Windows refused removal of 18
+old local directories, now outside the Git worktree registry. The dirty external review worktree
+remains preserved.
 
 ## Source reconciliation checkpoint: 24 September 2026
 

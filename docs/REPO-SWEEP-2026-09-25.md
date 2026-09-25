@@ -1,71 +1,83 @@
 # Repository sweep — 25 September 2026
 
-This is a dated local/remote reconciliation record. Live GitHub state and the current Git
-refs take precedence if they change after this checkpoint.
+This is a point-in-time reconciliation of the Alibi checkout, GitHub pull requests, and the
+Pulseboard release-contract dependency. Live GitHub status takes precedence after this date.
 
-## Main, release and open pull requests
+## Main and release
 
-The primary checkout is on `main` at `7ac666b` after #313, #316 and #318 merged with merge
-commits. Its tracked worktree is clean. Source version remains 0.11.5; the release receipt
-records 0.11.5 deployments, while local tags stop at `v0.11.4`. The 0.11.6 source candidate is
-on `codex/release-0.11.6`; it is not merged, tagged or deployed.
+Before the 0.11.6 candidate lands, the primary checkout is clean on `main` at
+`7ac666b9dc9cbf73be74c56a95fb14b6ce496a82`, equal to `origin/main`. The source version there
+remains 0.11.5. The 0.11.6 branch is `codex/release-0.11.6`; its pushed head is tracked in
+PR #330. The candidate contains six new Picture Logic studies, Lantern and Tents hint changes,
+Archive boundary fixes, a Reversi depth correction, and the Pulseboard-generated Observatory
+release check. Its current release evidence is in [RELEASE-0.11.6.md](RELEASE-0.11.6.md).
 
-| PR | State at this sweep | Disposition |
-| --- | --- | --- |
-| #313 | Merged as `d82004f` | Exact-head checks passed; small browser-suite waits. |
-| #316 | Merged as `e557763` | Refreshed exact-head checks passed; Block browser waits. |
-| #318 | Merged as `7ac666b` | Exact head `272b1aa9f` passed full verify run `36075003653`; its P2 screenshot concern was dispositioned as non-blocking test evidence. |
-| #329 | Draft, checks running | Exact head `e0efa245ccdf2aac830f251ba1a893a43ae96ef3` is based on current main. Eight focused binary tests, the pinned formatter and 26 browser interactions pass locally; its build is 130,103 bytes against the fixed 130,048-byte cap, still 55 over. Exact-head Actions runs `36080015857`, `36080015860`, `36080015862` and `36080015882` were in progress at this checkpoint. The cap failure keeps the PR draft and blocks merge. |
-| #281 | Draft, checks green, behind main | Still awaits maintainer architecture acceptance; no code was merged. |
+## Open Alibi pull requests
 
-## Branch refs
+- [#330](https://github.com/Chris0Jeky/Alibi/pull/330) is the ready 0.11.6 candidate. Its
+  current pushed head is `7125a7582efdfa4b75b671c40d09316922fba2c6`. The refreshed adapter
+  registers 0.11.6, checks the `v0.11.6` catalogue tag and adapter hash, and fails closed for
+  missing or mismatched registration. A fresh-context review found no confirmed CRITICAL/HIGH
+  issue. Exact-head hosted checks are required before merge. The former run on `9ebf813` failed
+  because the old adapter rejected 0.11.6 in the real-origin release assertion; that run predates
+  this correction.
+- [#329](https://github.com/Chris0Jeky/Alibi/pull/329) remains draft at
+  `e0efa245ccdf2aac830f251ba1a893a43ae96ef3`. Its hosted Verify check fails the unchanged
+  130,048-byte JavaScript gzip cap: the measured bundle is 130,103 bytes, 55 bytes over. A
+  local optimization experiment reached 130,083 bytes but still exceeded the cap, so it was
+  reverted and not pushed. The branch and worktree are preserved for a future bounded attempt.
+- [#281](https://github.com/Chris0Jeky/Alibi/pull/281) remains draft and behind `main`, awaiting
+  maintainer architecture acceptance. No merge or retarget was made.
 
-The initial read-only inventory counted 181 local branches. This sweep removed 93 local
-branches whose tips were already ancestors of `origin/main` and which were not checked out.
-After this count, two completed Muse wait worktrees and their already-merged local branches were
-removed. The #318 merge also deleted the remote `muse/swarm-block-waits` and
-`muse/swarm-expedition-waits` branches; fetching pruned their tracking refs. It also pruned seven
-stale remote-tracking refs. Four remote branches were removed after
-checking that their changes were already reachable or patch-equivalent in main, that no open PR used them,
-that none was protected, and that no worktree had the branch checked out:
+These are the only open Alibi PRs found in the sweep. Closed unmerged work with unique commits
+and remote branches is retained rather than deleted.
 
-- `codex/editorial-order`
-- `codex/restore-dist-android-ignore`
-- `codex/wrenmere-practice`
-- `integration/phone-qa-60c3706`
+## Registered worktrees
 
-Unique or active remote branches remain preserved. These include the two #272 keyboard branches,
-the open #329 and #281 heads, Wrenmere asset and release-receipt work, the CAP02 Android build
-work, cabinet revision precision work, and three `tmp/format-*` branches with unique formatting
-commits. They are not ancestors or patch-equivalents of current main, so deleting them would
-discard work or provenance. Local-only branches with unmerged commits are also preserved.
+The Git worktree registry now has 14 entries: the primary checkout, the 0.11.6 release
+candidate, the dirty external #227 review checkout, five asset worktrees, the #329 binary-hints
+worktree, and the preserved #156, #163, #166, #167 and #206 check/fix worktrees. The unique
+asset and review branches remain available for their separate work. The external temp checkout
+`alibi-pr227-review` has eight tracked modifications and three untracked files; it was inspected
+and left untouched.
 
-## Worktrees and unsaved changes
+Clean worktrees whose commits were already ancestors of `origin/main` were removed where the
+ordinary Git operation succeeded. Merged local branch refs were deleted after checking ancestry.
+Several ordinary removals returned Windows `Permission denied`. Their worktree registrations are
+no longer listed, but these 18 local directories remain untouched and may need a later manual
+closeout after the file handles are released:
 
-The starting inventory contained 61 registered worktrees. The release candidate added one.
-Two completed Muse wait trees (`muse-house-waits-finalize` and `muse-expedition-waits-finalize`)
-were verified clean, their heads were ancestors of main, and they were removed with plain
-`git worktree remove`; their local branches were then deleted. The ignored files they contained
-were generated build/test outputs, also reproducible from the primary checkout.
+- `.worktrees/block-review-115`, `.worktrees/card-status`, `.worktrees/docs-current-state`,
+  `.worktrees/fallback-inventory`
+- `.worktrees/pr152-check`, `.worktrees/pr154-check`, `.worktrees/pr162-check`,
+  `.worktrees/pr164-check`, `.worktrees/pr165-check`, `.worktrees/pr168-check`,
+  `.worktrees/pr169-check`, `.worktrees/pr170-check`, `.worktrees/pr171-check`
+- `.worktrees/pr226-fix`, `.worktrees/pr227-fix`, `.worktrees/summary-keydown`,
+  `.worktrees/tic-tac-toe`
+- the sibling `Alibi-worktrees/release` directory
 
-The later inventory found 36 other clean `.worktrees` whose commits were already in main. Two
-plain removal attempts (`block-review-115` and `card-status`) failed with OneDrive permission
-errors and partially removed administrative metadata; both worktree registrations and their
-single missing `.agent-harness/tier.json` files were reconstructed from verified branch objects,
-then checked clean. No more OneDrive removals were attempted. The other clean merged worktrees,
-unique worktrees, detached Codex-managed worktrees and asset worktrees remain registered.
+Their pre-removal status showed no tracked or untracked changes; ignored contents were generated
+builds, dependencies, test results, caches and screenshots. No force removal or manual recursive
+delete was used. Nine clean detached Codex worktrees were removed. The sibling 0.11.1 receipt
+branch is merged and its local ref was deleted, but its worktree directory also remains after
+Windows refused removal. Unmerged remote branches and worktrees remain preserved.
 
-One external dirty work area remains deliberately intact:
+## Remaining gates
 
-- `muse-binary-hints-finalize` now checks out `codex/binary-reasoning-hints`; the optimized
-  source and updated evidence are committed and pushed to #329 at `e0efa245`. Its eight focused
-  tests, formatter and 26 browser interactions pass locally. The fresh build remains 55 bytes
-  over the unchanged cap, so the PR stays draft. No cap was raised.
-- The external `alibi-pr227-review` worktree has 11 tracked edits, three untracked files and
-  ignored generated evidence. Its unique `tests/metadata.test.cjs` was copied into the release
-  candidate and passes; the other work was left untouched because it is older or already has a
-  newer counterpart on main.
+The remote refs not merged into `origin/main` were reviewed and retained because their commits
+are absent from main. They are `origin/codex/272-evidence-keyboard` (#294 closed),
+`origin/codex/272-mark-grid-keys`, `origin/codex/binary-reasoning-hints` (#329 open),
+`origin/codex/release-0.11.6` (#330 open), `origin/codex/wrenmere-assets` (#187 closed),
+`origin/codex/wrenmere-release-receipt` (#189 closed),
+`origin/docs/platform-localfirst-scavenge-2026-09-23` (#281 open),
+`origin/feat/cap-02-android-build-target-124` (#191 closed),
+`origin/fix/cabinet-revision-precision`, `origin/tmp/format-android-124` (#181 closed),
+`origin/tmp/format-capture-125`, and `origin/tmp/format-platform-125` (#192 closed). Closed
+PR refs and branches without an open PR were kept rather than deleted. No 0.11.6 tag,
+deployment, or public GitHub release was created. `HUMAN_TODO.md` q-1 through q-8 remain open,
+including source licensing, physical Android/TalkBack acceptance, and human difficulty
+calibration.
 
-The primary `main` checkout remains tracked-clean. `HUMAN_TODO.md` still has q-1 through q-8
-open, including source licensing, physical Android/TalkBack acceptance, and human calibration
-of the provisional puzzle labels.
+Pulseboard PR #86 merged as `b01624b`, supplying the Alibi 0.11.6 release contract. Pulseboard
+`main` is clean at that merge commit. Its open PR #39 and its other unique unmerged remote
+branches remain separate work and were not changed by this Alibi release sweep.
