@@ -10,6 +10,7 @@ const path = require('node:path');
 
 const appCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'app.css'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '..', 'src', 'club.css'), 'utf8');
+const cabinetCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'cabinet.css'), 'utf8');
 const afterHours = fs.readFileSync(path.join(__dirname, '..', 'src', 'after-hours.css'), 'utf8');
 
 function tokenSteps(name) {
@@ -43,6 +44,16 @@ test('Desk and shared headings consume their role tokens', () => {
   assert.match(css, /\.club-section-head h2 \{[^}]*font-size: var\(--text-h2\)/s);
   assert.match(css, /\.gamecard-copy h3 \{[^}]*font-size: var\(--text-h3\)/s);
   assert.match(appCss, /\.section-head h2 \{[^}]*font-size: var\(--text-h2\)/s);
+  assert.equal(
+    [...appCss.matchAll(/\.section-head h2 \{/g)].length,
+    1,
+    'later responsive rules must not override the shared section heading token',
+  );
+  assert.doesNotMatch(
+    cabinetCss,
+    /\.section-head h2 \{/,
+    'cabinet CSS must not override core headings',
+  );
   assert.match(appCss, /\.book-info h3 \{[^}]*font-size: var\(--text-h3\)/s);
   assert.doesNotMatch(
     css,

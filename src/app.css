@@ -4264,9 +4264,6 @@ html[data-reduced='true'] *:after {
     width: 11px;
     height: 11px;
   }
-  .section-head h2 {
-    font-size: 25px;
-  }
   .section-head p {
     font-size: 10px;
   }
@@ -4423,9 +4420,6 @@ html[data-reduced='true'] *:after {
   .section-head {
     margin-top: 27px;
     margin-bottom: 15px;
-  }
-  .section-head h2 {
-    font-size: var(--text-h2);
   }
   .section-head .btn {
     font-size: 10px;
