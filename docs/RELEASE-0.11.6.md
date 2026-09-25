@@ -1,5 +1,52 @@
 # 0.11.6: A larger picture collection, clearer hints
 
+## Published web release: 25 September 2026
+
+The reviewed Cabinet restore fix [PR #335](https://github.com/Chris0Jeky/Alibi/pull/335)
+merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1` and closed
+[issue #333](https://github.com/Chris0Jeky/Alibi/issues/333). The final PR head
+`8c1b219221f531b053c16e8a008783c9a9654e37` passed
+[exact-head Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36122242738)
+and all other applicable checks. The focused second independent review found no
+new direct blocker. The merge preserved commits after the three-minute head age.
+
+The clean merged-source build is `db7e68c1bfa6`: 382 puzzles, 292 emitted files,
+130,271 JavaScript gzip bytes and `sourceDirty: false`. Local `npm.cmd ci`,
+`npm.cmd run verify` (529 passed, 3 skipped), example-pack validation,
+`node observatory/check.mjs`, Cloudflare dry run and `npm.cmd run bundle` passed.
+The Windows audio checks needed the installed Krita `ffprobe` directory on `PATH`;
+the first bundle attempt without it failed, then the corrected run passed.
+Local real-origin Chromium passed 214 checks. The
+[public release](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.6)
+and annotated tag `v0.11.6` point to the merged source; the downloadable ZIP
+SHA-256 is `d9710717dd955c6dd35f1778433214dc7b91ed0cc90a11ae2b8c33616d6977ae`.
+The standalone HTML SHA-256 is
+`e31c5c748704576f7bdead6e6deeca2069aa6a087f9012f571365782172a545e`.
+The public release includes `SHA256SUMS` for its downloads; the local bundle
+also retained verification reports.
+
+| Origin | Publication receipt | Actual response proof |
+| --- | --- | --- |
+| [Cloudflare primary](https://alibi-after-hours-preview.commit-atlas.workers.dev/) | Worker version `107707f3-1e5d-442c-94b3-c87c6ec73ae6` | 214 hosted real-origin checks; 291 public files HTTP 200 and byte-identical to the local build; HTTP CSP and sampled WebP MIME present. |
+| [Sites fallback](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) | Saved version 22, deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`; archive content digest `sha256:92521e5f85939139d4f5a9c59d6dd82fa6ff39c3efc1e665d509c2acb2dd3835` | 214 hosted real-origin checks; all 291 public files HTTP 200, all non-HTML bytes identical; Sites transformed ten HTML pages. |
+
+The two source builds matched all 292 emitted files before Sites packaging. Each
+hosted browser run used disposable profiles and exercised actual IndexedDB,
+backup restore/recovery, saved moves after offline reload, service-worker
+control and shared-link navigation. The Sites host still omits the repository
+HTTP CSP header and returns the sampled WebP as `application/octet-stream`,
+consistent with the existing hosting limitation tracked by issue #6. The
+previous 0.11.5 Worker and Sites versions remain rollback references in
+[RELEASE-0.11.5.md](RELEASE-0.11.5.md); rollback was not executed.
+
+Physical Android freeze recovery, TalkBack, sustained device performance, and
+human recognition/difficulty calibration are **not verified**. The six new
+Picture Logic labels remain provisional in `HUMAN_TODO.md` q-8. The Android
+build remains a non-publishable preview; no store publication is claimed.
+The pre-publication notes below are retained as dated history.
+
+## Source candidate history
+
 Source release candidate prepared 2026-09-25 from the changes merged after 0.11.5.
 It contains six original 15×15 Picture Logic studies, the Lantern and Tents hint
 improvements, Archive boundary corrections and a bounded Reversi depth fix. The
@@ -32,7 +79,7 @@ merged that source as merge commit `287fc38757d8628bfa8a0b6912adf90aadca0219` af
 independent review found no confirmed CRITICAL/HIGH issue. These checks do not claim a new
 deployment, a physical-device check or human difficulty acceptance.
 
-## Publication and delivery
+## Pre-publication source checkpoint
 
 The 0.11.6 source merged to `main` as `287fc38757d8628bfa8a0b6912adf90aadca0219`; no tag,
 deployment or public GitHub release has been created. The 0.11.5 Cloudflare and Sites receipts
