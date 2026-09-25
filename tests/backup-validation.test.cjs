@@ -7,6 +7,7 @@ const path = require('node:path');
 require('../src/core.js');
 require('../src/engines.js');
 const C = require('../src/bridges.js');
+const E = require('../src/club-engines.js');
 require('../src/backup-validation.js');
 
 const catalog = JSON.parse(
@@ -152,6 +153,34 @@ test('a run with more than 100 undo entries is rejected while 100 is accepted', 
   const tooManyUndo = Array.from({ length: 101 }, () => C.clone(state));
   const invalid = backupWith({ runs: [makeRun('sudoku-01', { undo: tooManyUndo })] });
   assertRejectedUnchanged(invalid, COUNTERS_MESSAGE);
+});
+
+test('Club save archive replay accepts a legal walk and rejects a wall push without mutating the source', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const baseSave = {
+    schema: 1,
+    settings: { assist: 'off', zen: false, pinned: null },
+    visit: 1,
+    lastHero: -1,
+    runs: { archive: { level: 0, log: ['up'], redo: [] } },
+    records: [],
+    stamps: [],
+  };
+  assert.doesNotThrow(() => clubValidator.validateSave(baseSave));
+
+  const withRedo = {
+    ...baseSave,
+    runs: { archive: { level: 0, log: ['up'], redo: ['up'] } },
+  };
+  assert.doesNotThrow(() => clubValidator.validateSave(withRedo));
+
+  const invalid = {
+    ...baseSave,
+    runs: { archive: { level: 0, log: ['up', 'up'], redo: ['up'] } },
+  };
+  const snapshot = structuredClone(invalid);
+  assert.throws(() => clubValidator.validateSave(invalid));
+  assert.deepEqual(invalid, snapshot);
 });
 
 function baseClubSave() {
