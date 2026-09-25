@@ -43,6 +43,54 @@ and independent unique answers, reducer replay, definition receipts and the
 published-definition baseline. Hosted full Verify and real-control browser
 checks are pending. Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
+## Night collection certificate foundation: 25 September 2026
+
+Merged PR #341 adds offline definition receipts, structural duplicate
+checks, independent uniqueness checks and production reducer replay for proposed
+harder studies. It adds no playable puzzle or runtime code. On the current main
+base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
+suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
+proposed Night boards remain in stacked PRs; human difficulty and device checks remain
+open under #161 and `HUMAN_TODO.md` q-8.
+
+## Backup validation QA: 25 September 2026
+
+Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
+collisions, and saved-run counter, note and undo bounds. They use the actual backup
+validator and catalogue; no production behavior changed. The six-test direct Node
+run passed on the original base. PR #349's exact-head hosted source gate passed
+before merge, and PR #351's integrated head passed the same gate. Browser import,
+physical Android and destructive-restore behavior remain separate evidence.
+
+## Desk action sizing merged: 25 September 2026
+
+A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
+on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
+At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
+Chromium touch run cycled the edition and pinned the desk without a page error.
+The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
+including controls across all thirteen game families. Local format and Android
+build passed. The concurrent Node suite in `npm.cmd run verify` stopped
+progressing in `tests/platform.test.mjs` and was interrupted; that file passed
+all 16 tests alone. The serial Node suite passed 529 with three skips, and both
+Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
+passed before merge. Physical-phone acceptance and the wider #221 button
+recipe work stay open.
+
+## Block Cabinet visual stability merged: 25 September 2026
+
+Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
+real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
+opacity for roughly 15 frames. A Classic clear hid an unrelated stationary
+piece for 18 frames. The source candidate keeps locked cells opaque and leaves
+pieces unchanged across every clear wave in semantic HTML; Canvas animates only
+changing cells. The focused Node suites passed 26 tests; the built-origin
+Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
+and reduced motion and stationary pieces through both clear modes. This does
+not establish that every instance of the player's flashing report is gone on
+the affected physical phone. Local full Verify passed on the source and browser
+test commit (535 Node tests passed, three skipped; Android build passed).
+PR #352's exact-head hosted Verify and Android checks passed before merge.
 
 ## Night Routes source candidate: 25 September 2026
 

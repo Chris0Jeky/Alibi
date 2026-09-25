@@ -37,6 +37,10 @@
   cursor: default;
   opacity: 0.4;
 }
+.bc-studio .bc-cell:disabled {
+  /* A short placement lock must not blink the entire 8x8 board. */
+  opacity: 1;
+}
 .bc-studio button:focus-visible,
 .bc-studio summary:focus-visible {
   outline: 3px solid #ffe0a0;
@@ -203,6 +207,9 @@
 }
 .bc-resolving .bc-block {
   opacity: 0 !important;
+}
+.bc-resolving .bc-cell.bc-stationary .bc-block {
+  opacity: 1 !important;
 }
 .bc-cell.legal {
   box-shadow:
