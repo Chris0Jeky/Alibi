@@ -417,6 +417,13 @@ with sync_playwright() as pw:
             + OLD_PREFIX
             + "https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi', '{broken')",
         ),
+        (
+            'denied probe cleanup',
+            "const remove = Storage.prototype.removeItem; "
+            "Storage.prototype.removeItem = function(key) { "
+            "if (key === '" + PREF_KEY + ":probe') throw Error('cleanup denied'); "
+            "return remove.call(this, key); };",
+        ),
     ):
         counts_before = len(observed_counts)
         bodies_before = len(observed_bodies)
