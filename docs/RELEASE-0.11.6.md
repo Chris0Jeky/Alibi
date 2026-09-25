@@ -15,7 +15,7 @@ are unchanged.
 The local `npm.cmd run verify` gate passed on 25 September: formatting, the Android preview
 build, 526 Node tests (523 passed, 3 skipped, 0 failed), and both Quiet Wing suites (581,847
 and 29 assertions). The emitted 0.11.6 Android preview records `sourceDirty: false`, 382
-puzzles and 130,013 JavaScript gzip bytes. This is local evidence; the candidate still needs
+puzzles and 130,012 JavaScript gzip bytes, 36 bytes below the fixed cap. This is local evidence; the candidate still needs
 exact-head hosted CI and independent review before merge. It does not claim a new deployment,
 a hosted-origin check, a physical-device check or human difficulty acceptance.
 
