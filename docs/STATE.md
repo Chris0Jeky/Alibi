@@ -69,7 +69,9 @@ changing cells. The focused Node suites passed 26 tests; the built-origin
 Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
 and reduced motion and stationary pieces through both clear modes. This does
 not establish that every instance of the player's flashing report is gone on
-the affected physical phone. Full source and hosted gates remain to be proven.
+the affected physical phone. Local full Verify passed on the source and browser
+test commit (535 Node tests passed, three skipped; Android build passed).
+Exact-head hosted checks remain to be proven after the state note is committed.
 
 ## Repository and release checkpoint: 25 September 2026
 
