@@ -49,7 +49,7 @@ source catalogue. The integrated clean build remained below the
 Published 25 September 2026 from [PR #364](https://github.com/Chris0Jeky/Alibi/pull/364)
 merge commit `0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
 [`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0) points
-to that commit. The clean merged-source build is 0.12.0 / `f2b20d3ee6c0`,
+to that commit. The clean merged-source build `f2b20d3ee6c0` is version 0.12.0,
 with `sourceDirty: false`, 430 puzzles, 292 emitted files and 130,290 startup
 JavaScript gzip bytes against the 130,304-byte ceiling. The independent Sites
 source checkout at the same SHA emitted byte-identical output across all 292
