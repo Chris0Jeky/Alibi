@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const C = root.AlibiCore;
-  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
+  const at = C.at;
   function reason(p, s, cell, value, person) {
     const n = p.size;
     if (['sudoku', 'futoshiki'].includes(p.type)) {

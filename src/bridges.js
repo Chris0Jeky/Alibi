@@ -10,9 +10,7 @@
   };
   const integer = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const text = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
-  const coordinate = (p, i) =>
-    String.fromCharCode(65 + (p.islands[i].cell % p.size)) +
-    (Math.floor(p.islands[i].cell / p.size) + 1);
+  const coordinate = (p, i) => C.at(p.islands[i].cell, p.size);
 
   function graph(p) {
     const xy = p.islands.map(({ cell }) => ({ x: cell % p.size, y: Math.floor(cell / p.size) }));
