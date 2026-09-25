@@ -2,34 +2,40 @@
 
 ## Repository and release checkpoint: 25 September 2026
 
-The primary `main` checkout is tracked-clean at `7ac666b`, after #313, #316 and #318 merged
-with merge commits. PR #318's exact head `272b1aa9f` passed full verify run `36075003653`;
-its P2 screenshot concern was dispositioned as a non-blocking test-evidence issue. #281 remains
-draft for maintainer architecture acceptance. #329 remains draft because its published head
-`e0efa24` is 55 bytes over the unchanged JavaScript gzip cap. Eight focused binary tests, the
-pinned formatter and 26 real-browser interactions passed on that head. See
-[the repository sweep](REPO-SWEEP-2026-09-25.md).
+PR #330 merged the 0.11.6 source candidate with merge commit
+`287fc38757d8628bfa8a0b6912adf90aadca0219`. Its exact head
+`3adfde9db7c68c2c78741a1e99c6090ec0f4cc9c` passed [Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890060)
+and [Verify Android payload](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890051).
+Independent review found no confirmed CRITICAL/HIGH issue. The earlier failure on pre-fix head
+`9ebf813` was corrected and is retained as history in [the release record](RELEASE-0.11.6.md).
 
-The 0.11.5 source is still the latest deployed release. The source catalogue contains 382
-puzzles across 23 packs. Release candidate branch `codex/release-0.11.6` prepares the six new
-Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
-Reversi depth correction and the refreshed Observatory release check. Pulseboard PR #86 merged
-as `b01624b`, registering Alibi 0.11.6 and its matching `v0.11.6` catalogue tag. From
-Pulseboard's `observatory` directory, `npm.cmd run check:alibi -- <Alibi checkout>` passed
-against the candidate. On the candidate, `node observatory/check.mjs`, the 24-assertion
-`tests/browser_observatory.py` suite and `npm.cmd run verify` passed locally; the build reports
-130,014 JavaScript gzip bytes, 34 below the fixed cap. The previous hosted Verify run on
-pre-fix head `9ebf813` failed because the real-origin browser check could not recognize 0.11.6;
-updated exact-head hosted CI and independent review are still required. The candidate remains
-unmerged, untagged and undeployed. `HUMAN_TODO.md` q-1 through q-8 remain open, including
-source licensing, physical Android/TalkBack checks and human calibration.
+The source catalogue now contains 382 puzzles across 23 packs. Release 0.11.6 includes six
+new Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
+a Reversi depth correction and the refreshed Observatory release check. Local
+`npm.cmd run verify` passed with 526 Node tests (523 passed, 3 skipped), both Quiet Wing suites,
+and a 130,014-byte JavaScript gzip bundle, 34 bytes below the fixed cap. Pulseboard PR #86
+registered 0.11.6 and its `v0.11.6` catalogue tag. PR #87 merged connection improvements as
+`ad42c96520b79c406c1395908a9dcdb009178c54`: no-argument checkout discovery, structured JSON
+receipts, and a read-only scheduled/manual watch. The local no-argument checker discovers the
+sibling Alibi checkout and reports it in sync; its adapter SHA-256 is
+`f63eb983e77c118a0c70ba8cdc37e9f6f9ba67868fdd508d70f98f43095f95e8`. Hosted watch
+[36090389677](https://github.com/Chris0Jeky/Pulseboard/actions/runs/36090389677) succeeded on
+that Pulseboard main commit.
 
-The primary checkout's tracked files are clean. The 25 September branch, pull-request and
-worktree dispositions are in [the repository sweep](REPO-SWEEP-2026-09-25.md). Clean merged
-worktrees were removed where ordinary removal succeeded; 14 Git worktrees remain registered,
-including active release, asset, review and unique-commit work. Windows refused removal of 18
-old local directories, now outside the Git worktree registry. The dirty external review worktree
-remains preserved.
+This is a source merge only. No 0.11.6 tag, deployment or public GitHub release was created;
+0.11.5 remains the latest deployed release. PR #329 remains draft because head `e0efa24` is
+55 bytes over the unchanged JavaScript gzip cap. #281 remains draft pending maintainer
+architecture acceptance. See [the repository sweep](REPO-SWEEP-2026-09-25.md).
+
+The primary checkout's tracked files are clean on `main` after the documentation refresh. The
+merged release worktree and local branch were removed with ordinary Git removal after confirming
+there were no tracked or untracked edits; its ignored contents were generated builds, dependencies
+and test results. Thirteen Git worktrees remain registered, including asset worktrees,
+unique-commit work and the dirty external review worktree. Windows refused plain removal of 18 old
+local directories, now outside the registry. That dirty review worktree and the refused
+directories remain preserved.
+`HUMAN_TODO.md` q-1 through q-8 remain open, including source licensing, physical Android and
+TalkBack checks, and human calibration.
 
 ## Source reconciliation checkpoint: 24 September 2026
 

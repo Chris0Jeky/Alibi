@@ -24,12 +24,16 @@ that contract. From Pulseboard's `observatory` directory,
 `npm.cmd run check:alibi -- <Alibi checkout>` confirmed the registration. From this Alibi
 checkout, `node observatory/check.mjs` and `PYTHONUTF8=1 python tests/browser_observatory.py`
 passed; the browser suite reported 24 assertions. The previous hosted Verify run was on pre-fix
-head `9ebf813` and failed the
-real-origin assertion that the initial page view uses the registered app release. The updated
-candidate still needs exact-head hosted CI and independent review before merge. These checks do
-not claim a new deployment, a physical-device check or human difficulty acceptance.
+head `9ebf813` and failed the real-origin assertion that the initial page view uses the
+registered app release. Corrected head `3adfde9db7c68c2c78741a1e99c6090ec0f4cc9c` passed
+[Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890060) and
+[Verify Android payload](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890051). PR #330
+merged that source as merge commit `287fc38757d8628bfa8a0b6912adf90aadca0219` after the
+independent review found no confirmed CRITICAL/HIGH issue. These checks do not claim a new
+deployment, a physical-device check or human difficulty acceptance.
 
 ## Publication and delivery
 
-No 0.11.6 deployment or public GitHub release has been recorded yet. The 0.11.5 Cloudflare
-and Sites receipts remain the latest verified deployments.
+The 0.11.6 source merged to `main` as `287fc38757d8628bfa8a0b6912adf90aadca0219`; no tag,
+deployment or public GitHub release has been created. The 0.11.5 Cloudflare and Sites receipts
+remain the latest verified deployments.

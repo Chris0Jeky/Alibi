@@ -5,22 +5,21 @@ Pulseboard release-contract dependency. Live GitHub status takes precedence afte
 
 ## Main and release
 
-Before the 0.11.6 candidate lands, the primary checkout is clean on `main` at
-`7ac666b9dc9cbf73be74c56a95fb14b6ce496a82`, equal to `origin/main`. The source version there
-remains 0.11.5. The 0.11.6 branch is `codex/release-0.11.6`; its pushed head is tracked in
-PR #330. The candidate contains six new Picture Logic studies, Lantern and Tents hint changes,
-Archive boundary fixes, a Reversi depth correction, and the Pulseboard-generated Observatory
-release check. Its current release evidence is in [RELEASE-0.11.6.md](RELEASE-0.11.6.md).
+The 0.11.6 source candidate merged to `main` as `287fc38757d8628bfa8a0b6912adf90aadca0219`
+through PR #330. Exact head `3adfde9db7c68c2c78741a1e99c6090ec0f4cc9c` passed [Verify puzzle
+cabinet](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890060) and [Verify Android
+payload](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890051); independent review found
+no confirmed CRITICAL/HIGH issue. The candidate contains six new Picture Logic studies, Lantern
+and Tents hint changes, Archive boundary fixes, a Reversi depth correction, and the refreshed
+Observatory release check. Its release evidence is in [RELEASE-0.11.6.md](RELEASE-0.11.6.md).
+
+No 0.11.6 tag, deployment, or public GitHub release has been created. The 0.11.5 Cloudflare and
+Sites receipts remain the latest deployment evidence. The release branch has been deleted after
+merge. Human release gates remain open in `HUMAN_TODO.md` q-1 through q-8, including source
+licensing, physical-device and TalkBack acceptance, and human calibration.
 
 ## Open Alibi pull requests
 
-- [#330](https://github.com/Chris0Jeky/Alibi/pull/330) is the ready 0.11.6 candidate. Its
-  current pushed head is `7125a7582efdfa4b75b671c40d09316922fba2c6`. The refreshed adapter
-  registers 0.11.6, checks the `v0.11.6` catalogue tag and adapter hash, and fails closed for
-  missing or mismatched registration. A fresh-context review found no confirmed CRITICAL/HIGH
-  issue. Exact-head hosted checks are required before merge. The former run on `9ebf813` failed
-  because the old adapter rejected 0.11.6 in the real-origin release assertion; that run predates
-  this correction.
 - [#329](https://github.com/Chris0Jeky/Alibi/pull/329) remains draft at
   `e0efa245ccdf2aac830f251ba1a893a43ae96ef3`. Its hosted Verify check fails the unchanged
   130,048-byte JavaScript gzip cap: the measured bundle is 130,103 bytes, 55 bytes over. A
@@ -29,17 +28,21 @@ release check. Its current release evidence is in [RELEASE-0.11.6.md](RELEASE-0.
 - [#281](https://github.com/Chris0Jeky/Alibi/pull/281) remains draft and behind `main`, awaiting
   maintainer architecture acceptance. No merge or retarget was made.
 
-These are the only open Alibi PRs found in the sweep. Closed unmerged work with unique commits
+These are the only open Alibi PRs now: #329 and #281. Closed unmerged work with unique commits
 and remote branches is retained rather than deleted.
 
 ## Registered worktrees
 
-The Git worktree registry now has 14 entries: the primary checkout, the 0.11.6 release
-candidate, the dirty external #227 review checkout, five asset worktrees, the #329 binary-hints
-worktree, and the preserved #156, #163, #166, #167 and #206 check/fix worktrees. The unique
-asset and review branches remain available for their separate work. The external temp checkout
-`alibi-pr227-review` has eight tracked modifications and three untracked files; it was inspected
-and left untouched.
+The Git worktree registry now has 13 entries: the primary checkout, the dirty external #227
+review checkout, five asset worktrees, the #329 binary-hints worktree, and the preserved #156,
+#163, #166, #167 and #206 check/fix worktrees. The unique asset and review branches remain
+available for their separate work. The external temp checkout `alibi-pr227-review` has eight
+tracked modifications and three untracked files; it was inspected and left untouched.
+
+After #330 merged, its clean release worktree and local branch were removed with ordinary Git
+removal. Before removal it had no tracked or untracked changes; ignored contents were generated
+builds, dependencies, and test results, so none needed preservation. The remote release branch was
+also absent after merge.
 
 Clean worktrees whose commits were already ancestors of `origin/main` were removed where the
 ordinary Git operation succeeded. Merged local branch refs were deleted after checking ancestry.
@@ -64,11 +67,10 @@ Windows refused removal. Unmerged remote branches and worktrees remain preserved
 
 ## Remaining gates
 
-The remote refs not merged into `origin/main` were reviewed and retained because their commits
-are absent from main. They are `origin/codex/272-evidence-keyboard` (#294 closed),
+The remaining remote refs not merged into `origin/main` were reviewed and retained because their
+commits are absent from main. They are `origin/codex/272-evidence-keyboard` (#294 closed),
 `origin/codex/272-mark-grid-keys`, `origin/codex/binary-reasoning-hints` (#329 open),
-`origin/codex/release-0.11.6` (#330 open), `origin/codex/wrenmere-assets` (#187 closed),
-`origin/codex/wrenmere-release-receipt` (#189 closed),
+`origin/codex/wrenmere-assets` (#187 closed), `origin/codex/wrenmere-release-receipt` (#189 closed),
 `origin/docs/platform-localfirst-scavenge-2026-09-23` (#281 open),
 `origin/feat/cap-02-android-build-target-124` (#191 closed),
 `origin/fix/cabinet-revision-precision`, `origin/tmp/format-android-124` (#181 closed),
@@ -79,5 +81,11 @@ including source licensing, physical Android/TalkBack acceptance, and human diff
 calibration.
 
 Pulseboard PR #86 merged as `b01624b`, supplying the Alibi 0.11.6 release contract. Pulseboard
-`main` is clean at that merge commit. Its open PR #39 and its other unique unmerged remote
-branches remain separate work and were not changed by this Alibi release sweep.
+PR #87 then merged as `ad42c96520b79c406c1395908a9dcdb009178c54`; it adds Alibi checkout
+auto-discovery with explicit override order, structured JSON sync receipts, and a read-only
+scheduled/manual contract watch. The feature branch was deleted after merge. Hosted run
+[36090389677](https://github.com/Chris0Jeky/Pulseboard/actions/runs/36090389677) succeeded on
+that main commit. The checker also passed locally from the Pulseboard checkout without a path,
+resolved the sibling Alibi repository, reported 0.11.6 in sync, and produced no changed files.
+Pulseboard `main` is clean at the merge commit. Its open PR #39, unique unmerged branches, tracked
+issues, and `HUMAN_TODO.md` q-5 (first-run hook setup and trust) remain separate work.
