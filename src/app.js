@@ -742,7 +742,7 @@
     return `<span class="person-token person-${person.color} ${person.id === p.victim ? 'victim' : ''}" aria-hidden="true">${person.id === p.victim ? icon('close') : esc(person.name.slice(0, 1))}</span>`;
   }
   function peoplePalette(p, s) {
-    return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : `${String.fromCharCode(65 + (s.placements[person.id] % p.size))}${Math.floor(s.placements[person.id] / p.size) + 1}`}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
+    return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : C.at(s.placements[person.id], p.size)}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
   }
   function boardCell(p, s, i, errors) {
     const n = p.size,
@@ -828,7 +828,7 @@
             const other = Math.max(q.a, q.b),
               sign = q.a === i ? q.op : q.op === '<' ? '>' : '<';
             content += `<span class="ineq ${other === i + n ? 'vertical' : ''}" aria-hidden="true">${esc(sign)}</span>`;
-            label += `, ${q.a === i ? (q.op === '<' ? 'less than' : 'greater than') : q.op === '<' ? 'greater than' : 'less than'} neighbouring cell ${String.fromCharCode(65 + (other % n))}${Math.floor(other / n) + 1}`;
+            label += `, ${q.a === i ? (q.op === '<' ? 'less than' : 'greater than') : q.op === '<' ? 'greater than' : 'less than'} neighbouring cell ${C.at(other, n)}`;
           }
     } else if (t === 'binary') {
       const v = s.cells[i],
@@ -1855,9 +1855,7 @@
         .map((i) =>
           lc(
             i,
-            l.done && i === 5
-              ? 'I'
-              : `${String.fromCharCode(65 + (i % 3))}${Math.floor(i / 3) + 1}`,
+            l.done && i === 5 ? 'I' : C.at(i, 3),
             i === 5 ? (l.done ? 'correct' : 'target') : '',
           ),
         )

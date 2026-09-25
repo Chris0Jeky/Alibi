@@ -8,6 +8,7 @@
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const range = (n) => Array.from({ length: n }, (_, i) => i);
+  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
   const issue = (message, cells = []) => ({ message, cells });
   const rowOf = (cell, n) => Math.floor(cell / n);
   function runs(line) {
@@ -1090,6 +1091,7 @@
     clone,
     equal,
     range,
+    at,
     runs,
     nonogramPatterns: patterns,
     groups,

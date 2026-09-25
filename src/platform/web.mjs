@@ -208,23 +208,26 @@ function createDocuments(host) {
     },
     async writeBackup(request, options) {
       if (typeof host.showSaveFilePicker !== 'function') return documentUnavailable();
+      // Bind validation, provider writes and receipts to the same call-time values.
+      const { suggestedName, utf8Payload, digest } = request || {};
       if (
         !request ||
         typeof request !== 'object' ||
-        !SAFE_FILE_NAME.test(request.suggestedName || '') ||
-        typeof request.utf8Payload !== 'string' ||
-        utf8Bytes(request.utf8Payload) > MAX_DOCUMENT_BYTES ||
-        !isSha256(request.digest)
+        typeof suggestedName !== 'string' ||
+        !SAFE_FILE_NAME.test(suggestedName) ||
+        typeof utf8Payload !== 'string' ||
+        utf8Bytes(utf8Payload) > MAX_DOCUMENT_BYTES ||
+        !isSha256(digest)
       )
         return failure('invalid', 'The backup write request is invalid.');
       return runBounded(
         async (operation) => {
-          const actualDigest = await sha256(host, request.utf8Payload);
+          const actualDigest = await sha256(host, utf8Payload);
           operation.throwIfCancelled();
-          if (actualDigest !== request.digest.toLowerCase())
+          if (actualDigest !== digest.toLowerCase())
             throw new PlatformFailure('invalid', 'The backup digest does not match its payload.');
           const handle = await host.showSaveFilePicker({
-            suggestedName: request.suggestedName,
+            suggestedName,
             types: [
               {
                 description: 'Alibi JSON backup',
@@ -249,7 +252,7 @@ function createDocuments(host) {
               );
             operation.throwIfCancelled();
             operation.commit();
-            await writable.write(request.utf8Payload);
+            await writable.write(utf8Payload);
             await writable.close();
           } catch (error) {
             try {
@@ -259,7 +262,7 @@ function createDocuments(host) {
             }
             throw error;
           }
-          const bytes = utf8Bytes(request.utf8Payload);
+          const bytes = utf8Bytes(utf8Payload);
           let verifiedReadback = false;
           if (typeof handle.getFile === 'function') {
             const readback = await runBounded(
@@ -271,7 +274,7 @@ function createDocuments(host) {
                   readbackOperation.throwIfCancelled();
                   return (
                     typeof value === 'string' &&
-                    (await sha256(host, value)) === request.digest.toLowerCase()
+                    (await sha256(host, value)) === digest.toLowerCase()
                   );
                 }
                 return false;
