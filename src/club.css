@@ -44,11 +44,7 @@
   --club-cream: #f4efe3;
   --club-sage: #899d89;
   --club-serif: Georgia, 'Times New Roman', serif;
-  /* Type ramp top steps (#219). Desk display stays above the hero title at every width. */
-  --club-display: clamp(30px, 2.8vw, 45px);
-  --club-display-narrow: 37px;
-  --club-display-compact: 31px;
-  --club-title: clamp(24px, 2.6vw, 40px);
+  /* Desk page and feature titles use the shared type ramp. */
 }
 body.club-home,
 body.club-experiment {
@@ -68,7 +64,7 @@ body.club-experiment {
 }
 .club-welcome h1 {
   font-family: var(--club-serif);
-  font-size: var(--club-display);
+  font-size: var(--text-h1);
   font-weight: 400;
   letter-spacing: -1.7px;
   margin-top: 12px;
@@ -193,7 +189,7 @@ body.club-experiment {
   border: 1px solid #f0e5c9;
   padding: 13px 18px;
   font-size: 12px;
-  min-height: 43px;
+  min-height: 44px;
 }
 .hero-cta span {
   margin-left: 18px;
@@ -227,8 +223,8 @@ body.club-experiment {
   background: transparent;
   border-color: #ddd8bd40;
   white-space: nowrap;
-  font-size: 10px !important;
-  padding: 7px 10px !important;
+  font-size: 12px !important;
+  padding: 10px 12px !important;
 }
 .quiet:hover {
   background: #fff1;
@@ -333,7 +329,7 @@ body.club-experiment {
 }
 .club-section-head h2 {
   font-family: var(--club-serif);
-  font-size: 27px;
+  font-size: var(--text-h2);
   font-weight: 400;
   letter-spacing: -0.7px;
   margin-top: 7px;
@@ -455,7 +451,7 @@ body.club-experiment {
 }
 .gamecard-copy h3 {
   font-family: var(--club-serif);
-  font-size: 21px;
+  font-size: var(--text-h3);
   letter-spacing: -0.4px;
   font-weight: 400;
   margin: 11px 0 8px;
@@ -490,7 +486,7 @@ body.club-experiment {
 }
 .club-daily h3 {
   font-family: var(--club-serif);
-  font-size: 24px;
+  font-size: var(--text-h3);
   font-weight: 400;
   margin: 10px 0 8px;
   color: #193d40;
@@ -2218,9 +2214,6 @@ body.club-experiment {
   .club-two-panels {
     grid-template-columns: 1fr;
   }
-  .club-welcome h1 {
-    font-size: var(--club-display-narrow);
-  }
   .club-gameheading h1 {
     font-size: 35px;
   }
@@ -2244,7 +2237,6 @@ body.club-experiment {
     margin-bottom: 21px;
   }
   .club-welcome h1 {
-    font-size: var(--club-display-compact);
     letter-spacing: -1.3px;
     line-height: 1.13;
   }
@@ -2295,8 +2287,8 @@ body.club-experiment {
     margin: 17px 0 21px;
   }
   .hero-cta {
-    font-size: 11px;
-    min-height: 43px;
+    font-size: 12px;
+    min-height: 44px;
     padding: 12px 15px;
   }
   .hero-foot {
@@ -2312,7 +2304,7 @@ body.club-experiment {
     width: 100%;
   }
   .hero-foot .btn {
-    min-height: 33px;
+    min-height: 44px;
   }
   .hero-vignette {
     background:
@@ -2328,7 +2320,7 @@ body.club-experiment {
     margin: 28px 0;
   }
   .club-section-head h2 {
-    font-size: 23px;
+    font-size: var(--text-h2);
     margin-top: 7px;
     letter-spacing: -0.6px;
   }
@@ -2367,7 +2359,7 @@ body.club-experiment {
     letter-spacing: 0.7px;
   }
   .gamecard-copy h3 {
-    font-size: 19px;
+    font-size: var(--text-h3);
     margin-top: 9px;
     letter-spacing: -0.5px;
     gap: 4px;
@@ -2398,7 +2390,7 @@ body.club-experiment {
     min-width: 160px;
   }
   .club-daily h3 {
-    font-size: 22px;
+    font-size: var(--text-h3);
     line-height: 1.2;
   }
   .club-daily p {
@@ -2412,8 +2404,8 @@ body.club-experiment {
   .club-daily > .btn {
     margin: 6px 0 0;
     width: 100%;
-    font-size: 11px;
-    min-height: 43px;
+    font-size: 12px;
+    min-height: 44px;
   }
   .club-categorycards {
     gap: 13px 10px;

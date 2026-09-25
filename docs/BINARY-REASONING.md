@@ -1,78 +1,87 @@
 # Sun & Moon reasoning
 
-Gameplay slice #327 / #329 extends the existing pure Hint seam. It builds on the merged
-Tents work in #324 without altering that code, puzzle definitions, givens, saves or reveals.
-The initial stacked PR #328 closed when its merged base branch was deleted; #329 continues
-the same preserved branch directly against main. No deleted parent branch was recreated.
+## Current maintenance checkpoint: 25 September 2026
+
+PR #329 continues #327. Its old stacked PR #328 closed when the merged #324 base
+branch was deleted; the preserved binary branch is now targeted at main. This refresh
+reconciles the uploaded `c2e86011` snapshot to main `9c4e7a33`. The reconstructed main
+Git tree matches `d60f5c3f9fa80e926584c8802db9daec3893a7db` exactly. Current main's
+release/typography STATE history is retained instead of the stale branch preface.
+This is source work, not a release or deployment.
 
 ## Local alternatives, not answer lookup
 
-The old row-first balance/triple helper can suggest a symbol that immediately violates a
-perpendicular constraint after an incorrect entry. On binary-03, place a moon at C3; the old
-helper suggests a sun at B3 although that move violates the column rule. The corrected helper
-reports that neither symbol fits B3 and asks the player to recheck marks.
+The preceding row-first balance/triple helper can suggest a symbol that immediately
+violates a perpendicular constraint after an incorrect entry. On binary-03, place a
+moon at C3: the old helper suggests a sun at B3 despite the column rule. The corrected
+helper reports that neither symbol fits B3 and asks the player to recheck marks.
 
-Visit unknown individual squares, then rows and columns with exactly two unknown squares.
-Test the two or four assignments on copied cells using the existing binary validator. Retain
-only the small masks for allowed assignments. A hint proposes a value only when all allowed
-alternatives agree. Its explanation names the selected square and gives a validator reason
-from an assignment that rejects the other symbol; when possible it prefers the distinct-line
-reason. It does not claim that the one displayed reason accounts for every rejected assignment.
+Visit unknown individual squares, then rows and columns with exactly two unknown
+squares. Test the two or four assignments on copied cells using the existing binary
+validator. Keep only the small masks for allowed assignments. Propose a value only
+when all allowed alternatives agree. Counts, triples, distinct lines and perpendicular
+constraints are checked together. No allowed alternatives means conflict advice without
+a move value; no local deduction means the existing general-strategy fallback.
 
-This adds the missing distinct-line deduction: a nearly complete row/column cannot become
-a copy of an existing complete line. Quotas, triples and perpendicular constraints are checked
-together. If there are no allowed alternatives, return conflict advice without a move value.
-If no local test decides a value, retain the general-strategy fallback.
+There is no recursive puzzle search, guessing fallback, stored-answer read or automatic
+move. Reasoning is conditional on current marks, not proof that every earlier guess is
+correct or that the complete puzzle remains solvable. The maximum number of validator
+calls is `1 + 2n² + 8n`, at most 193 for the supported 8x8 maximum. Candidate sets never
+contain more than two cells. Hypothetical cells do not become saves.
 
-There is no recursive puzzle search, guessing fallback, stored-answer read or automatic move.
-This is conditional reasoning from current marks, not proof that every earlier guess is
-correct or that the complete puzzle is still solvable. The maximum number of validator calls
-per request is 1 + 2n² + 8n, at most 193 on the supported 8x8 maximum. Candidate sets never
-contain more than two cells. The runtime creates only copied hypothetical cells, not saves.
+## Explanation correction in this refresh
 
-## Independent source evidence
+The preceding PR selected one rejection reason, preferring a distinct-line message.
+That did not explain all rejected alternatives in the two-square witness: one is
+rejected by the symbol quota and another by the distinct-line rule. The refresh lists
+the distinct validator messages from the excluded assignments, once each. There are
+only three binary rule messages. This preserves the chosen cell, value, trial order,
+validation bound and conflict behavior while making the displayed justification fuller.
+The new row/transposed-column regression requires both reasons without repetition and
+a message below 240 characters for those witnesses. It fails on the preceding PR and
+passes with the correction.
 
-Eight new tests were run against the preceding hint source: six fail and two pass. With the
-implementation, all eight pass. The independent complete-board oracle finds 40 compatible
-answers for each of the row and transposed-column examples; every answer agrees with the
-proposed deduction. Thus these tests exercise genuinely ambiguous partial boards rather than
-one stored solution.
+## Evidence and its limits
 
-A deterministic 4x4 sample checks 1,493 returned deductions against all compatible complete
-answers across 1,500 partial cases. A separate ternary sample retains 2,050 locally legal
-positions, including incorrect marks, and checks that every proposed move preserves its
-independently implemented counts, triples and distinct-line rules. These are bounded samples,
-not exhaustive coverage of all board sizes. Official-catalogue walks verify 458 deductions
-with throwing solution getters, immutable hint calls, preserved givens and real reducers.
+Against reconciled main, six of the preceding eight binary tests fail. All nine binary
+tests pass with this source, as do all 25 shared, Tents and Lantern reasoning tests:
+34 focused tests, zero failures. Independent complete-board enumeration finds 40
+compatible answers for each row/column witness; every answer agrees with the proposed
+move. Deterministic samples verify 1,493 deductions against compatible completions and
+2,050 arbitrary locally legal positions. Official-catalogue walks check 458 deductions
+with throwing solution getters, immutable Hint calls, preserved givens and real reducers.
+These are bounded samples, not exhaustive proofs for every board size.
 
-The source test also traps puzzle-solver calls and counts local validation on an empty 8x8
-board. Tests contain the explicit binary-03 wrong-C3 regression and row/column transposition.
+The local `npm run verify` attempt passes formatting and web/Android preview builds.
+Its Node stage records 551 passes and three failures: the unchanged application budget,
+missing `@capacitor/core` for the native-flavor test, and missing `uuid` for the dependency
+patch test. The latter two packages are absent from the downloaded public build-tool
+subset; they are not treated as passing tests. The chained Quiet Wing commands do not
+run when that Node stage fails; both were then run directly and passed. A normal complete
+npm install remains necessary in CI.
 
-## Real-control acceptance and continuation
+The fresh local application measures 130,336 gzip bytes against current main's unchanged
+strict ceiling of 130,304 bytes, so the budget still blocks merge. Replaying the preceding
+PR source on the same main measured 130,352 bytes. No cap, gzip setting, assertion or
+required check was relaxed. Earlier documents' 130,048-byte ceiling predates main's
+independently merged Cabinet restore work and is not today's baseline.
 
-`tests/browser_binary_hints.py` opens curated-binary-01 at 390px and 1440px, follows twelve
-clue-derived steps through Hint/symbol/cell/Undo controls and requires a distinct-line
-explanation at the final step. It then enters the wrong C3 on binary-03, checks pure conflict
-advice and undoes the mistake. No player record is injected. Python compilation passes.
+`tests/browser_binary_hints.py` retains the 390px/1440px twelve-step Hint/symbol/cell/Undo
+walk and wrong-C3 conflict recovery. Local Chromium launches, but this environment blocks
+navigation to the local origin with `ERR_BLOCKED_BY_ADMINISTRATOR`; no new local real-control
+pass is claimed. Older head `835b051260` passed hosted reasoning run 36067988069.
+Those historical 26 binary and 44 Tents/Lantern
+interactions do not certify this refreshed head.
 
-Initial head caa87ee passed run 36066440056. Downloaded artifact 10836218226 records all 26
-binary interactions and the 44 existing Tents/Lantern interactions, with no page errors. The
-phone distinct-line and wrong-mark screenshots were inspected. On 25 September, the optimized
-source passed all eight binary reasoning tests, the pinned formatter, and all 26 browser
-interactions at 390px and 1440px. The browser run covered the binary flow after the smaller
-hint implementation was in place.
+## Continuation and merge gate
 
-Artifact 10836274708 on head fd9360c measured 130,194 gzip bytes, 146 above the unchanged
-127 KiB application cap. The compact follow-up removes trial objects and repeated filtering,
-retains only small assignment masks and shortens duplicate wording. The fresh local build of
-that follow-up measured 130,103 gzip bytes, still 55 above the 130,048-byte cap. The existing
-cap and merge check remain unchanged; this known failure blocks making #329 ready or merging.
-Only a fresh exact-head hosted run after push can establish the final CI result.
+Keep #329 draft. Reduce actual emitted application size below the existing ceiling while
+preserving explanations and semantics, then obtain complete exact-head Verify, reasoning,
+Picture Logic and Android results and a fresh independent review. Inspect every failure,
+not just the known budget failure. Recheck current main, final head, mergeability and head
+age immediately before merging. The existing reasoning workflow retains source-formatting
+output, screenshots and receipts for all three families.
 
-The existing reasoning workflow runs Lantern, Tents and binary controls in the same lane and
-retains screenshots, receipts and non-mutating pinned formatter output. Full exact-head
-formatting, emitted resource budgets, browser/offline and Android checks must pass alongside
-independent review before merge. No existing cap, dependency or merge check is relaxed.
-
-Keep HUMAN_TODO q-8 and #161 open for explanation quality, physical touch/TalkBack and human
-difficulty acceptance. This is not a deployment.
+Keep #161 and `HUMAN_TODO.md` q-8 open for human explanation quality, difficulty calibration,
+physical touch and TalkBack acceptance. Puzzle IDs, revisions, givens, save formats,
+reveals and the other puzzle engines are unchanged.

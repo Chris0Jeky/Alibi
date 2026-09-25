@@ -6,6 +6,17 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.11.6 · A larger picture collection, clearer hints
+
+2026-09-25
+
+- Try six original 15×15 Picture Logic studies, bringing the source catalogue to 382 puzzles across 23 packs. Four Tricky and two Expert labels remain provisional pending human calibration.
+- Get more useful Lantern Gardens hints from visible marks, without revealing solutions.
+- Get Tents & Trees advice that checks forced lines together and catches conflicts before suggesting a move.
+- Play Archive boards with safer boundary handling, and keep Reversi search depth within its documented bound.
+
+[Release record](docs/RELEASE-0.11.6.md)
+
 ## 0.11.5 · Phone-first play and forgiving routes
 
 2026-09-22

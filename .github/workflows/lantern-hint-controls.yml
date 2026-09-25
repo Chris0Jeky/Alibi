@@ -7,6 +7,7 @@ on:
       - 'tests/lightup-insights.test.cjs'
       - 'tests/tents-insights.test.cjs'
       - 'tests/binary-reasoning.test.cjs'
+      - 'tests/binary-explanations.test.cjs'
       - 'content/official-packs.json'
       - 'content/catalog.json'
       - 'content/curation/packs/binary.json'

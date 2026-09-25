@@ -10,7 +10,7 @@ const BUILD = Object.freeze({
   sourceSha: '1'.repeat(40),
   sourceDirty: false,
   payloadSha256: '2'.repeat(64),
-  appVersion: '0.11.5',
+  appVersion: '0.11.6',
   versionCode: 11,
   contentManifestRevision: 'catalogue-1',
   rulesCompatibility: Object.freeze({ cabinet: 4 }),

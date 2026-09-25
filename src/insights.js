@@ -77,9 +77,14 @@
         for (let k = 0; k < cells.length; k++) {
           const value = (allowed[0] >> k) & 1;
           if (allowed.some((mask) => ((mask >> k) & 1) !== value)) continue;
-          const failures = trials.filter((_, mask) => ((mask >> k) & 1) !== value).flat(),
-            reason = (failures.find((issue) => issue.message.includes('different')) || failures[0])
-              .message;
+          const reason = [
+            ...new Set(
+              trials
+                .filter((_, mask) => ((mask >> k) & 1) !== value)
+                .flat()
+                .map((issue) => issue.message),
+            ),
+          ].join(' ');
 
           return result(
             cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',

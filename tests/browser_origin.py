@@ -543,6 +543,85 @@ def scenario_backup_restore(pw: Any, root: Path) -> None:
             {extra_key, recovery_key}.issubset(recovery_keys),
             "recovery button exports the pre-replace progress",
         )
+
+        page.evaluate("""async () => {
+          const other = await new AlibiStorage.Store().init();
+          const old = (await other.get('meta', 'preferences')) || {};
+          await other.put('meta', 'preferences', {
+            ...old,
+            favorites: [...(old.favorites || []), 'other-tab-favorite'],
+          });
+        }""")
+        input_backup(page, backup, "merge-with-other-tab-preferences.json")
+        click_reload_action(page, '[data-action="restore-merge"]')
+        check(
+            "other-tab-favorite" in read_idb(page, "meta", "preferences")["favorites"],
+            "merge preserves another tab's committed preferences",
+        )
+
+        stale = page.evaluate("""async () => {
+          const a = await new AlibiStorage.Store().init();
+          const b = await new AlibiStorage.Store().init();
+          const snap = await a.export();
+          await b.put('runs', 'race-stale-marker', {key: 'race-stale-marker', rev: 1});
+          let rejected = false;
+          try { await a.restore(snap, snap); } catch { rejected = true; }
+          const live = await a.getAll('runs');
+          return {rejected, keys: live.map((r) => r.key)};
+        }""")
+        check(
+            stale["rejected"],
+            "stale merge with an older snapshot rejects instead of discarding",
+        )
+        check(
+            "race-stale-marker" in stale["keys"],
+            "stale merge preserves the other tab's newly saved run",
+        )
+
+        malformed = page.evaluate("""async () => {
+          const a = await new AlibiStorage.Store().init();
+          const before = (await a.getAll('runs')).map((r) => r.key).sort();
+          let rejected = false;
+          try {
+            await a.restore({runs: null, packs: [], settings: {}, preferences: {}});
+          } catch { rejected = true; }
+          const after = (await a.getAll('runs')).map((r) => r.key).sort();
+          return {rejected, before, after};
+        }""")
+        check(malformed["rejected"], "malformed direct restore rejects")
+        check(
+            malformed["before"] == malformed["after"],
+            "malformed direct restore does not commit queued clears",
+        )
+
+        raced = page.evaluate("""async () => {
+          const a = await new AlibiStorage.Store().init();
+          const b = await new AlibiStorage.Store().init();
+          const snap = await a.export();
+          await b.put('runs', 'race-recovery-marker', {key: 'race-recovery-marker', rev: 1});
+          await a.restore(snap);
+          const live = (await a.getAll('runs')).map((r) => r.key);
+          const rec = await a.get('meta', 'pre-restore-backup');
+          return {live, rec: ((rec && rec.runs) || []).map((r) => r.key)};
+        }""")
+        check(
+            "race-recovery-marker" in raced["rec"],
+            "replace recovery includes current prior data",
+        )
+
+        control = page.evaluate("""async () => {
+          const a = await new AlibiStorage.Store().init();
+          const b = await new AlibiStorage.Store().init();
+          const snap = await a.export();
+          await a.restore(snap);
+          const live = (await a.getAll('runs')).map((r) => r.key).sort();
+          const want = (snap.runs || []).map((r) => r.key).sort();
+          await b.put('runs', 'race-after-marker', {key: 'race-after-marker', rev: 1});
+          const live2 = (await a.getAll('runs')).map((r) => r.key);
+          return {ok: JSON.stringify(live) === JSON.stringify(want), after: live2.includes('race-after-marker')};
+        }""")
+        check(control["ok"], "valid replace still works")
+        check(control["after"], "a write ordered after the transaction survives")
     finally:
         try:
             context.close()

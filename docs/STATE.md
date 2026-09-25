@@ -1,14 +1,169 @@
 # Live development state
 
-## Sun & Moon continuation: 25 September 2026
+## Published web release 0.11.6: 25 September 2026
 
-The current main base is `7ac666b`, after #313, #316 and #318 merged. The binary reasoning
-work remains in draft PR #329. Its local size rewrite passes all eight binary reasoning tests,
-the pinned formatter and 26 real-browser hint interactions at 390px and 1440px. The latest
-local build measures 130,103 JavaScript gzip bytes against the unchanged 130,048-byte cap,
-so it remains 55 bytes over and is not merge-eligible. No limit was raised; no binary changes
-are included in the 0.11.6 release candidate. Keep HUMAN_TODO q-8 open for human difficulty,
-touch and TalkBack acceptance.
+[PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
+race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
+[issue #333](https://github.com/Chris0Jeky/Alibi/issues/333). Exact-head
+[Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36122242738) and the
+other applicable checks passed, the focused second review found no new blocker,
+and the head passed the three-minute merge age. A clean build of the merged commit
+is 0.11.6 / `db7e68c1bfa6`, with 382 puzzles, 130,271 JavaScript gzip bytes and
+`sourceDirty: false`. Local Verify passed (529 Node tests, 3 skipped), along with
+pack validation, Observatory check, Cloudflare dry run, bundle packaging, and
+214 local real-origin browser checks. The first bundle attempt lacked the local
+`ffprobe` path; rerunning with the installed Krita tool passed.
+
+Annotated tag [`v0.11.6`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.6)
+points to that deployed source. Cloudflare now serves it as Worker version
+`107707f3-1e5d-442c-94b3-c87c6ec73ae6` at
+https://alibi-after-hours-preview.commit-atlas.workers.dev/. The existing Sites
+fallback serves the same build at https://alibi-puzzle-club.jeky-tck.chatgpt.site/
+from saved version 22, deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`.
+The two local build directories matched across all 292 files before packaging.
+Each public origin passed all 214 hosted real-origin browser checks, including
+IndexedDB restore/recovery, offline reload and in-progress navigation. All 291
+public files returned HTTP 200: Cloudflare bytes matched the built files; Sites
+matched all non-HTML bytes and transformed ten HTML pages. Cloudflare retained
+HTTP CSP and WebP MIME; Sites still lacks the repository HTTP CSP and serves the
+sampled WebP as `application/octet-stream` (existing hosting limits, issue #6).
+See [the release record](RELEASE-0.11.6.md) for rollback and digest receipts.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open. In particular, the web publication
+does not certify the affected physical Android phone, TalkBack, or the provisional
+Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
+source-only and pre-publication checkpoints below are historical.
+
+## Shared type ramp candidate: 25 September 2026
+
+A first #219 layer defines the approved seven type steps and maps Desk/page,
+feature, section and card headings in the shared chrome to their roles. At 390px,
+the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
+stays on one line and 320px, 390px and 1280px rendered views have no horizontal
+overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
+184 isolated core UI checks and the isolated After Hours browser suite passed.
+The rest of the cross-room type migration in #219 remains open. Hosted and
+physical-device evidence has not yet been gathered for this candidate.
+## Night collection certificate foundation: 25 September 2026
+
+Merged PR #341 adds offline definition receipts, structural duplicate
+checks, independent uniqueness checks and production reducer replay for proposed
+harder studies. It adds no playable puzzle or runtime code. On the current main
+base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
+suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
+proposed Night boards remain in stacked PRs; human difficulty and device checks
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
+## Backup validation QA: 25 September 2026
+
+Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
+collisions, and saved-run counter, note and undo bounds. They use the actual backup
+validator and catalogue; no production behavior changed. The six-test direct Node
+run passed on the original base. PR #349's exact-head hosted source gate passed
+before merge, and PR #351's integrated head passed the same gate. Browser import,
+physical Android and destructive-restore behavior remain separate evidence.
+
+## Desk action sizing merged: 25 September 2026
+
+A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
+on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
+At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
+Chromium touch run cycled the edition and pinned the desk without a page error.
+The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
+including controls across all thirteen game families. Local format and Android
+build passed. The concurrent Node suite in `npm.cmd run verify` stopped
+progressing in `tests/platform.test.mjs` and was interrupted; that file passed
+all 16 tests alone. The serial Node suite passed 529 with three skips, and both
+Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
+passed before merge. Physical-phone acceptance and the wider #221 button
+recipe work stay open.
+
+## Block Cabinet visual stability candidate: 25 September 2026
+
+Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
+real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
+opacity for roughly 15 frames. A Classic clear hid an unrelated stationary
+piece for 18 frames. The source candidate keeps locked cells opaque and leaves
+pieces unchanged across every clear wave in semantic HTML; Canvas animates only
+changing cells. The focused Node suites passed 26 tests; the built-origin
+Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
+and reduced motion and stationary pieces through both clear modes. This does
+not establish that every instance of the player's flashing report is gone on
+the affected physical phone. Local full Verify passed on the source and browser
+test commit (535 Node tests passed, three skipped; Android build passed).
+Exact-head hosted checks remain to be proven after the state note is committed.
+
+## Repository and release checkpoint: 25 September 2026
+
+PR #330 merged the 0.11.6 source candidate with merge commit
+`287fc38757d8628bfa8a0b6912adf90aadca0219`. Its exact head
+`3adfde9db7c68c2c78741a1e99c6090ec0f4cc9c` passed [Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890060)
+and [Verify Android payload](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890051).
+Independent review found no confirmed CRITICAL/HIGH issue. The earlier failure on pre-fix head
+`9ebf813` was corrected and is retained as history in [the release record](RELEASE-0.11.6.md).
+
+The source catalogue now contains 382 puzzles across 23 packs. Release 0.11.6 includes six
+new Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
+a Reversi depth correction and the refreshed Observatory release check. Local
+`npm.cmd run verify` passed with 526 Node tests (523 passed, 3 skipped), both Quiet Wing suites,
+and a 130,014-byte JavaScript gzip bundle, 34 bytes below the fixed cap. Pulseboard PR #86
+registered 0.11.6 and its `v0.11.6` catalogue tag. PR #87 merged connection improvements as
+`ad42c96520b79c406c1395908a9dcdb009178c54`: no-argument checkout discovery, structured JSON
+receipts, and a read-only scheduled/manual watch. The local no-argument checker discovers the
+sibling Alibi checkout and reports it in sync; its adapter SHA-256 is
+`f63eb983e77c118a0c70ba8cdc37e9f6f9ba67868fdd508d70f98f43095f95e8`. Hosted watch
+[36090389677](https://github.com/Chris0Jeky/Pulseboard/actions/runs/36090389677) succeeded on
+that Pulseboard main commit.
+
+This is a source merge only. No 0.11.6 tag, deployment or public GitHub release was created;
+0.11.5 remains the latest deployed release. PR #329 remains draft because head `e0efa24` is
+55 bytes over the unchanged JavaScript gzip cap. #281 remains draft pending maintainer
+architecture acceptance. See [the repository sweep](REPO-SWEEP-2026-09-25.md).
+
+The primary checkout's tracked files are clean on `main` after the documentation refresh. The
+merged release worktree and local branch were removed with ordinary Git removal after confirming
+there were no tracked or untracked edits; its ignored contents were generated builds, dependencies
+and test results. Thirteen Git worktrees remain registered, including asset worktrees,
+unique-commit work and the dirty external review worktree. Windows refused plain removal of 18 old
+local directories, now outside the registry. That dirty review worktree and the refused
+directories remain preserved.
+`HUMAN_TODO.md` q-1 through q-8 remain open, including source licensing, physical Android and
+TalkBack checks, and human calibration.
+
+## Curation guard coverage: 25 September 2026
+
+Focused Node coverage now checks that editorial notes do not attach to imported IDs or
+other puzzle revisions, that editorial and museum text is escaped, and that the
+gallery filters artwork by venue and kind. Eight focused tests pass. This adds no
+runtime logic, content, save-schema change or published puzzle ID. Full Verify,
+browser and physical-device checks remain separate evidence gates.
+
+## 0.11.6 publication preflight: 25 September 2026
+
+PR #332 merged focused curation tests as `da19969` after exact-head Verify and
+fresh-context review. The 0.11.6 source at `84be37f` passed local Verify,
+example-pack validation, Observatory check and a Cloudflare dry run; its clean
+build is `024c5bc9bd9d` with 382 puzzles and 130,014 JavaScript gzip bytes.
+Read-only HTTPS checks still found the previous builds on both existing origins.
+No 0.11.6 tag, deployment or public GitHub release has been created. A real
+IndexedDB two-connection check then reproduced [restore issue #333](https://github.com/Chris0Jeky/Alibi/issues/333):
+a save made between the pre-restore snapshot and replacement vanished from both
+live runs and the recovery copy. The next release needs a verified fix before
+publication. See [the release record](RELEASE-0.11.6.md); `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
+The issue #333 fix candidate at `cbfdf0e30688c4c6ed6acc05adec4ee427b32b12`
+reads recovery data and replaces Cabinet records in one IndexedDB write
+transaction. A merge rejects a stale snapshot and retains another tab's fresh
+preferences; a queued error aborts the transaction. Both real-origin regressions
+failed before their fixes and passed afterward. Local Verify passed (529 Node
+tests passed, 3 skipped) and the full origin suite passed 214 checks. The clean
+build is `7af1c8978307` with 130,271 JavaScript gzip bytes. The safety fix
+needed a measured 256-byte increase to the previous bundle limit; the new
+strict limit is 130,304 bytes.
+The first independent review found the preference loss and it was fixed; a
+fresh review of that logic change and exact-head CI are still required before
+merge or publication.
 
 ## Source reconciliation checkpoint: 24 September 2026
 
