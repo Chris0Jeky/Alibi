@@ -37,6 +37,14 @@ directories remain preserved.
 `HUMAN_TODO.md` q-1 through q-8 remain open, including source licensing, physical Android and
 TalkBack checks, and human calibration.
 
+## Curation guard coverage: 25 September 2026
+
+Focused Node coverage now checks that editorial notes do not attach to imported IDs or
+other puzzle revisions, that editorial and museum text is escaped, and that the
+gallery filters artwork by venue and kind. Eight focused tests pass. This adds no
+runtime logic, content, save-schema change or published puzzle ID. Full Verify,
+browser and physical-device checks remain separate evidence gates.
+
 ## Source reconciliation checkpoint: 24 September 2026
 
 This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
