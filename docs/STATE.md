@@ -34,6 +34,17 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Night Gardens source candidate: 25 September 2026
+
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums
+boards, bringing the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
+Night Gardens source checks pass locally (seven focused tests), including native
+and independent unique answers, reducer replay, definition receipts and the
+published-definition baseline. Full Verify and real-control browser checks passed
+on the previous #342 head; the main refresh requires exact-head reproof.
+Expert/Master labels remain provisional pending #161 and
+`HUMAN_TODO.md` q-8; no new web release is claimed.
+
 ## Shared type ramp merged: 25 September 2026
 
 A first #219 layer defines the approved seven type steps and maps Desk/page,
@@ -92,7 +103,7 @@ Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
 passed before merge. Physical-phone acceptance and the wider #221 button
 recipe work stay open.
 
-## Block Cabinet visual stability candidate: 25 September 2026
+## Block Cabinet visual stability merged: 25 September 2026
 
 Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
 real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
@@ -105,7 +116,7 @@ and reduced motion and stationary pieces through both clear modes. This does
 not establish that every instance of the player's flashing report is gone on
 the affected physical phone. Local full Verify passed on the source and browser
 test commit (535 Node tests passed, three skipped; Android build passed).
-Exact-head hosted checks remain to be proven after the state note is committed.
+PR #352's exact-head hosted Verify and Android checks passed before merge.
 
 ## Repository and release checkpoint: 25 September 2026
 
