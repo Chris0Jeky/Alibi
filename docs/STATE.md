@@ -34,6 +34,15 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Backup validation QA: 25 September 2026
+
+Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
+collisions, and saved-run counter, note and undo bounds. They use the actual backup
+validator and catalogue; no production behavior changed. The six-test direct Node
+run passed on the original base. The full source gate must be re-proved on the
+current main after integration. Browser import, physical Android and destructive-
+restore behavior remain separate evidence.
+
 ## Desk action sizing candidate: 25 September 2026
 
 A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
