@@ -151,3 +151,46 @@ test('a run with more than 100 undo entries is rejected while 100 is accepted', 
   const invalid = backupWith({ runs: [makeRun('sudoku-01', { undo: tooManyUndo })] });
   assertRejectedUnchanged(invalid, COUNTERS_MESSAGE);
 });
+
+function baseClubSave() {
+  return {
+    schema: 1,
+    settings: { assist: 'off', zen: false, pinned: null },
+    runs: {},
+    records: [],
+    stamps: [],
+    visit: 0,
+    lastHero: -1,
+  };
+}
+
+test('invalid Club seeds are rejected before replay and inputs are unchanged', () => {
+  assert.deepEqual(validator.validateSave(baseClubSave()), baseClubSave());
+
+  const cases = [
+    ['blockcabinet', 'Invalid Block Cabinet seed.'],
+    ['dominoes', 'Invalid domino seed.'],
+    ['mahjong', 'Invalid Mahjong seed.'],
+  ];
+  for (const [key, message] of cases) {
+    const save = baseClubSave();
+    save.runs = {
+      [key]: {
+        rulesVersion: 1,
+        log: [{ sentinel: true }],
+        redo: [{ sentinel: true }],
+        seed: 'bad seed',
+      },
+    };
+    const snapshot = structuredClone(save);
+    try {
+      validator.validateSave(save);
+    } catch (error) {
+      assert.equal(error.name, 'Error');
+      assert.equal(error.message, message);
+      assert.deepEqual(save, snapshot);
+      continue;
+    }
+    assert.fail(`expected rejection with ${message}`);
+  }
+});
