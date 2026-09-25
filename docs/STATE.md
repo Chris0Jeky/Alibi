@@ -1,5 +1,25 @@
 # Live development state
 
+## Repository and release checkpoint: 25 September 2026
+
+The primary `main` checkout is tracked-clean at `e557763`, after #313 and #316 merged with
+merge commits. #318 is the remaining wait-suite PR; its refreshed exact head `272b1aa9f` has
+one full `verify` workflow still running. #281 remains draft for maintainer architecture
+acceptance. #329 remains draft because the exact remote build exceeds the unchanged JavaScript
+gzip cap; its local Muse worktree and measured result are recorded in
+[the repository sweep](REPO-SWEEP-2026-09-25.md).
+
+The 0.11.5 source is still the latest deployed release. The source catalogue contains 382
+puzzles across 23 packs. Release candidate branch `codex/release-0.11.6` prepares the six new
+Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections and
+the Reversi depth fix. Its release record keeps the new picture difficulty labels provisional.
+The candidate is not merged, tagged or deployed. `HUMAN_TODO.md` q-1 through q-8 remain open,
+including source licensing, physical Android/TalkBack checks and human calibration.
+
+The primary checkout's tracked files are clean. The 25 September branch, pull-request and
+worktree dispositions are in [the repository sweep](REPO-SWEEP-2026-09-25.md); ignored build
+outputs and dirty review worktrees remain preserved.
+
 ## Source reconciliation checkpoint: 24 September 2026
 
 This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
