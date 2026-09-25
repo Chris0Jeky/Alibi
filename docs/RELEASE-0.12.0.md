@@ -40,8 +40,8 @@ against the old generated artifact when an idle route count was not sent; the
 regenerated adapter passed 45 browser assertions, including automatic delivery
 and a corrupt legacy opt-out. The first integrated Verify found a 7-byte
 startup-JavaScript budget overrun, resolved by shorter About copy and a refreshed
-source catalogue. The clean build measured 130,299 gzip bytes, below the
-130,304-byte ceiling. Exact-head CI, hosted integration, publication and
+source catalogue. The integrated clean build remained below the
+130,304-byte gzip ceiling. Exact-head CI, hosted integration, publication and
 physical-device acceptance remain open for the release PR. No tag, deployment
 or public GitHub release is claimed here.
 
