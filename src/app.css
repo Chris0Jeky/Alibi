@@ -18,6 +18,14 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+  /* Type ramp (#219): desktop steps; phones step headings down. */
+  --text-display: 44px;
+  --text-h1: 36px;
+  --text-h2: 28px;
+  --text-h3: 22px;
+  --text-body: 16px;
+  --text-meta: 13px;
+  --text-eyebrow: 11px;
   --room-0: #ece3d3;
   --room-1: #dfe8d5;
   --room-2: #e8d9d0;
@@ -32,6 +40,14 @@
   --water: #95c4d4;
   --wall: #34473e;
   color-scheme: light;
+}
+@media (max-width: 600px) {
+  :root {
+    --text-display: 40px;
+    --text-h1: 32px;
+    --text-h2: 25px;
+    --text-h3: 20px;
+  }
 }
 * {
   box-sizing: border-box;
@@ -519,7 +535,7 @@ small,
   margin: 31px 0 17px;
 }
 .section-head h2 {
-  font-size: 25px;
+  font-size: var(--text-h2);
 }
 .section-head p {
   font-size: 12px;
@@ -820,7 +836,7 @@ small,
 }
 .book-info h3 {
   font-family: Georgia, serif;
-  font-size: 22px;
+  font-size: var(--text-h3);
   font-weight: 400;
   letter-spacing: -0.04em;
 }
@@ -4248,9 +4264,6 @@ html[data-reduced='true'] *:after {
     width: 11px;
     height: 11px;
   }
-  .section-head h2 {
-    font-size: 25px;
-  }
   .section-head p {
     font-size: 10px;
   }
@@ -4408,9 +4421,6 @@ html[data-reduced='true'] *:after {
     margin-top: 27px;
     margin-bottom: 15px;
   }
-  .section-head h2 {
-    font-size: 23px;
-  }
   .section-head .btn {
     font-size: 10px;
   }
@@ -4448,7 +4458,7 @@ html[data-reduced='true'] *:after {
     padding: 17px 15px;
   }
   .book-info h3 {
-    font-size: 21px;
+    font-size: var(--text-h3);
   }
   .book-info p {
     font-size: 10px;
