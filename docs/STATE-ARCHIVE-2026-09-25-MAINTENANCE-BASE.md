@@ -118,26 +118,6 @@ the affected physical phone. Local full Verify passed on the source and browser
 test commit (535 Node tests passed, three skipped; Android build passed).
 PR #352's exact-head hosted Verify and Android checks passed before merge.
 
-## Night Routes source candidate: 25 September 2026
-
-The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
-Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
-The six focused Routes/catalogue tests pass locally, including independent
-unique-answer receipts and production reducer replay. An independent review
-found no confirmed correctness blocker. Hosted full Verify and real-control
-browser checks remain pending; human difficulty and physical-device acceptance
-remain open under #161 and `HUMAN_TODO.md` q-8.
-
-## Night Symbols source candidate: 25 September 2026
-
-The stacked #344 candidate adds 12 original Sun & Moon and Futoshiki boards.
-The proposed Night collection totals 48 additions and 430 puzzles across 26
-packs. Its six focused Symbols/catalogue tests pass locally, including exact
-definition receipts, independent unique answers and reducer replay; independent
-review found no confirmed correctness blocker. Hosted full Verify and real-control
-browser checks remain pending. Expert/Master labels, human solve paths and
-physical-device acceptance remain open under #161 and `HUMAN_TODO.md` q-8.
-
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit

@@ -3,7 +3,7 @@
   'use strict';
   const C = root.AlibiCore,
     X = C.extras;
-  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
+  const at = C.at;
   const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
@@ -54,30 +54,46 @@
       }
     }
     if (p.type === 'binary') {
-      for (let axis = 0; axis < 2; axis++)
-        for (let line = 0; line < n; line++) {
-          const cells = C.range(n).map((k) => (axis ? k * n + line : line * n + k)),
-            values = cells.map((i) => s.cells[i]);
-          const label = lineName(axis, line);
-          for (let k = 0; k < n; k++)
-            if (values[k] === -1)
-              for (const v of [0, 1]) {
-                const full = values.filter((x) => x === v).length === n / 2;
-                const triple = [k - 2, k - 1, k].some(
-                  (start) =>
-                    start >= 0 &&
-                    start + 2 < n &&
-                    C.range(3).every((d) => start + d === k || values[start + d] === v),
-                );
-                if (full || triple)
-                  return result(
-                    full ? 'Keep the balance' : 'No three together',
-                    `With your marks, ${at(cells[k], n)} must be ${v === 0 ? 'a moon' : 'a sun'}. ${label} ${full ? 'already has enough ' + (v === 0 ? 'suns' : 'moons') : 'would otherwise have three equal neighbours'}.`,
-                    cells[k],
-                    1 - v,
-                  );
-              }
+      const open = (i) => s.cells[i] < 0,
+        sets = [
+          ...C.range(n * n)
+            .filter(open)
+            .map((i) => [i]),
+          ...C.groups(p)
+            .map((group) => group.filter(open))
+            .filter((cells) => cells.length === 2),
+        ];
+      for (const cells of sets) {
+        const trials = [],
+          allowed = [];
+        for (let mask = 0; mask < 1 << cells.length; mask++) {
+          const next = s.cells.slice();
+          cells.forEach((i, k) => (next[i] = (mask >> k) & 1));
+          const issues = C.registry.binary.validate(p, { cells: next });
+          trials.push(issues);
+          if (!issues.length) allowed.push(mask);
         }
+        if (!allowed.length) return conflict(`${at(cells[0], n)} has no move. Check marks.`, cells);
+        for (let k = 0; k < cells.length; k++) {
+          const value = (allowed[0] >> k) & 1;
+          if (allowed.some((mask) => ((mask >> k) & 1) !== value)) continue;
+          const reason = [
+            ...new Set(
+              trials
+                .filter((_, mask) => ((mask >> k) & 1) !== value)
+                .flat()
+                .map((issue) => issue.message),
+            ),
+          ].join(' ');
+
+          return result(
+            cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',
+            `${at(cells[k], n)} is a ${value ? 'moon' : 'sun'}: ${reason}`,
+            cells[k],
+            value,
+          );
+        }
+      }
     }
     if (p.type === 'tents') {
       const sites = C.range(n * n).filter((i) => !p.trees.includes(i)),

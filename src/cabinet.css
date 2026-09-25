@@ -195,9 +195,6 @@ body {
 .section-head {
   margin-top: 34px;
 }
-.section-head h2 {
-  font-size: 29px;
-}
 .section-head p,
 .page-head p {
   font-size: 15px;
@@ -226,7 +223,7 @@ body {
   height: 88px;
 }
 .book-card {
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 .book-cover {
@@ -289,7 +286,7 @@ body {
 }
 .case-illustration {
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   min-height: 230px;
 }
 .case-header p,
@@ -517,7 +514,7 @@ html[data-theme='night'] .book-number {
   .hero.case-feature {
     min-height: 294px;
     padding: 25px 22px;
-    border-radius: 13px;
+    border-radius: var(--radius-md);
   }
   .case-feature h2 {
     font-size: 42px;
@@ -585,9 +582,6 @@ html[data-theme='night'] .book-number {
   .section-head {
     margin: 26px 0 14px;
     align-items: center;
-  }
-  .section-head h2 {
-    font-size: 27px;
   }
   .section-head .eyebrow {
     font-size: 10px;
@@ -812,7 +806,7 @@ html[data-theme='night'] .book-number {
   width: 38px;
   height: 38px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   color: var(--ink);
 }

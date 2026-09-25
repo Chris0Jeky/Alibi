@@ -18,6 +18,14 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+  /* Type ramp (#219): desktop steps; phones step headings down. */
+  --text-display: 44px;
+  --text-h1: 36px;
+  --text-h2: 28px;
+  --text-h3: 22px;
+  --text-body: 16px;
+  --text-meta: 13px;
+  --text-eyebrow: 11px;
   --room-0: #ece3d3;
   --room-1: #dfe8d5;
   --room-2: #e8d9d0;
@@ -32,6 +40,14 @@
   --water: #95c4d4;
   --wall: #34473e;
   color-scheme: light;
+}
+@media (max-width: 600px) {
+  :root {
+    --text-display: 40px;
+    --text-h1: 32px;
+    --text-h2: 25px;
+    --text-h3: 20px;
+  }
 }
 * {
   box-sizing: border-box;
@@ -157,7 +173,7 @@ small,
   color: #fff;
   padding: 11px 18px;
   min-height: 44px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   gap: 9px;
   align-items: center;
@@ -368,7 +384,7 @@ small,
   border: 0;
   background: none;
   color: #bfcebd;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   text-align: left;
   font-size: 12px;
   padding: 9px 13px;
@@ -519,7 +535,7 @@ small,
   margin: 31px 0 17px;
 }
 .section-head h2 {
-  font-size: 25px;
+  font-size: var(--text-h2);
 }
 .section-head p {
   font-size: 12px;
@@ -746,7 +762,7 @@ small,
   width: 71px;
   height: 68px;
   overflow: hidden;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
 }
 .daily-art .puzzle-art {
@@ -777,7 +793,7 @@ small,
 }
 .book-card {
   border: 1px solid var(--line);
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--paper);
   text-align: left;
@@ -820,7 +836,7 @@ small,
 }
 .book-info h3 {
   font-family: Georgia, serif;
-  font-size: 22px;
+  font-size: var(--text-h3);
   font-weight: 400;
   letter-spacing: -0.04em;
 }
@@ -875,7 +891,7 @@ small,
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--green-soft);
   color: var(--green);
   margin-bottom: 15px;
@@ -1020,7 +1036,7 @@ input[type='checkbox'] {
   gap: 17px;
 }
 .puzzle-card {
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--line);
   background: var(--paper);
   overflow: hidden;
@@ -1154,7 +1170,7 @@ input[type='checkbox'] {
   gap: 22px;
   padding: 20px 25px;
   background: var(--green-soft);
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   margin-bottom: 24px;
 }
 .family-intro .icon {
@@ -1279,14 +1295,14 @@ input[type='checkbox'] {
 .journal-meter {
   height: 5px;
   background: var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   margin: 9px 0;
 }
 .journal-meter div {
   height: 100%;
   background: var(--green);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
 }
 /* Player: the board has priority */
 .shell.playing {
@@ -1357,7 +1373,7 @@ input[type='checkbox'] {
 }
 .board-card {
   border: 1px solid var(--line);
-  border-radius: 17px;
+  border-radius: var(--radius-lg);
   background: var(--paper);
   padding: 22px;
   position: relative;
@@ -1844,7 +1860,7 @@ input[type='checkbox'] {
   min-width: 0;
   border: 1px solid var(--line);
   background: transparent;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   padding: 9px 3px 8px;
   position: relative;
   display: flex;
@@ -1938,7 +1954,7 @@ input[type='checkbox'] {
 .number-key {
   border: 1px solid var(--line);
   background: var(--bg);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   min-height: 43px;
   padding: 6px 0;
   font-size: 20px;
@@ -2023,7 +2039,7 @@ input[type='checkbox'] {
 }
 .evidence-card {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   overflow: hidden;
   min-width: 0;
@@ -2075,7 +2091,7 @@ input[type='checkbox'] {
   align-items: flex-start;
   border: 0;
   background: var(--bg);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   padding: 11px 10px;
   text-align: left;
   font-size: 11px;
@@ -2167,7 +2183,7 @@ input[type='checkbox'] {
   margin-top: 15px;
   padding: 15px;
   border: 1px solid var(--line);
-  border-radius: 11px;
+  border-radius: var(--radius-md);
   font-size: 10px;
   color: var(--muted);
   line-height: 1.7;
@@ -2231,7 +2247,7 @@ input[type='checkbox'] {
   position: absolute;
   inset: 0;
   z-index: 5;
-  border-radius: 17px;
+  border-radius: var(--radius-lg);
   background: var(--paper);
   display: flex;
   align-items: center;
@@ -2255,7 +2271,7 @@ input[type='checkbox'] {
 }
 .play-end {
   padding: 25px;
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   background: var(--green-soft);
   margin-top: 20px;
 }
@@ -2538,7 +2554,7 @@ input[type='checkbox'] {
   background: #f1e6cc;
   color: #786035;
   border: 1px solid #e3d5b6;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 16px;
   text-align: center;
   margin: 0 0 19px;
@@ -2561,7 +2577,7 @@ input[type='checkbox'] {
 }
 .statement {
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 15px;
   background: var(--paper);
   display: grid;
@@ -2606,7 +2622,7 @@ input[type='checkbox'] {
 }
 .panel {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   padding: 25px;
   min-width: 0;
@@ -2755,7 +2771,7 @@ input[type='checkbox'] {
 .drop-zone {
   border: 1px dashed #a3b393;
   background: var(--green-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 27px;
   text-align: center;
   margin: 16px 0;
@@ -2879,7 +2895,7 @@ input[type='checkbox'] {
   line-height: 1.7;
   background: var(--green-soft);
   padding: 14px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   margin-top: 17px;
 }
 .verification.warn {
@@ -2907,7 +2923,7 @@ input[type='checkbox'] {
 .docs-card {
   padding: 19px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   margin-top: 17px;
 }
 .docs-card p {
@@ -3014,7 +3030,7 @@ dialog .dialog-actions {
   font-size: 10px;
 }
 .lesson-art {
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   margin: 15px 0 20px;
   height: 142px;
@@ -3029,7 +3045,7 @@ dialog .dialog-actions {
   padding: 20px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 11px;
+  border-radius: var(--radius-md);
   text-align: center;
 }
 .lesson-grid {
@@ -3111,7 +3127,7 @@ dialog .dialog-actions {
 }
 .hint-box {
   padding: 18px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--green-soft);
   font-size: 13px;
   line-height: 1.85;
@@ -3132,7 +3148,7 @@ dialog .dialog-actions {
   background: #294837;
   color: #fffef0;
   border: 1px solid #e6eedd22;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   box-shadow: 0 6px 25px #162d2833;
   max-width: 550px;
@@ -3655,7 +3671,7 @@ html[data-reduced='true'] *:after {
     gap: 15px;
   }
   .hero {
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
   .hero h2 {
     font-size: 45px;
@@ -4248,9 +4264,6 @@ html[data-reduced='true'] *:after {
     width: 11px;
     height: 11px;
   }
-  .section-head h2 {
-    font-size: 25px;
-  }
   .section-head p {
     font-size: 10px;
   }
@@ -4382,7 +4395,7 @@ html[data-reduced='true'] *:after {
   }
   .daily-card {
     padding: 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
   }
   .daily-art {
     height: 54px;
@@ -4407,9 +4420,6 @@ html[data-reduced='true'] *:after {
   .section-head {
     margin-top: 27px;
     margin-bottom: 15px;
-  }
-  .section-head h2 {
-    font-size: 23px;
   }
   .section-head .btn {
     font-size: 10px;
@@ -4448,7 +4458,7 @@ html[data-reduced='true'] *:after {
     padding: 17px 15px;
   }
   .book-info h3 {
-    font-size: 21px;
+    font-size: var(--text-h3);
   }
   .book-info p {
     font-size: 10px;
@@ -4603,7 +4613,7 @@ html[data-reduced='true'] *:after {
   }
   .board-card {
     padding: 17px 14px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
   .board-heading .eyebrow {
     font-size: 8px;
@@ -4884,7 +4894,7 @@ html[data-reduced='true'] *:after {
   }
   dialog {
     padding: 27px 23px 23px;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
   }
   dialog h2 {
     font-size: 29px;

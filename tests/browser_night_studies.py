@@ -1,21 +1,30 @@
 """Exercise every registered Night study using the existing real-control driver."""
 import importlib.util
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('night-gardens', 'night-routes', 'night-symbols')
 
 
 def run():
-    registry = json.loads((ROOT / 'content' / 'official-packs.json').read_text())
-    packs = [name for name in NAMES if f'extra/{name}.json' in registry['packs']]
+    registry = json.loads(
+        (ROOT / 'content' / 'official-packs.json').read_text(encoding='utf-8')
+    )
+    packs = [path for path in registry['packs'] if path.startswith('extra/night-')]
     if not packs:
         raise AssertionError('No registered Night collections to exercise')
     puzzles = []
-    for name in packs:
-        pack = json.loads((ROOT / 'content' / 'extra' / f'{name}.json').read_text())
+    for path in packs:
+        if not re.fullmatch(r'extra/night-[a-z0-9][a-z0-9_-]*\.json', path):
+            raise AssertionError(f'Invalid Night pack path: {path}')
+        pack = json.loads((ROOT / 'content' / path).read_text(encoding='utf-8'))
+        if not pack['puzzles']:
+            raise AssertionError(f'Empty Night collection: {path}')
         puzzles.extend(pack['puzzles'])
+    ids = [puzzle['id'] for puzzle in puzzles]
+    if len(set(ids)) != len(ids):
+        raise AssertionError('Duplicate Night puzzle IDs in registered collections')
     spec = importlib.util.spec_from_file_location(
         'advanced_controls', ROOT / 'tests' / 'browser_master_grandmaster_controls.py'
     )
