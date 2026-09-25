@@ -1,0 +1,45 @@
+name: Fixed gameplay blob upload
+on:
+  push:
+    branches: [codex/347-games-finish]
+    paths: [.github/workflows/gameplay-fixed-blob-upload.yml]
+permissions:
+  contents: write
+jobs:
+  blobs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 19f45ebd880fc3f0d828688978dc028bbb789306
+          persist-credentials: false
+      - name: Verify fixed before/after identities and upload immutable blobs only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import base64, hashlib, json, os, pathlib, urllib.request, zlib
+          encoded = '''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'''
+          raw = zlib.decompress(base64.b64decode(encoded))
+          assert hashlib.sha256(raw).hexdigest() == '1f2300a614bf0ece436fead4b56a0b14fda7961b8aedcb0f712ad7ed3bda9d40'
+          records = json.loads(raw)
+          assert {r['path'] for r in records} == {'docs/STATE.md', 'src/backup-validation.js', 'src/club-engines.js', 'src/club.js', 'tests/browser_block_cabinet.py'}
+          def blob(data):
+              return hashlib.sha1(('blob ' + str(len(data)) + '\0').encode() + data).hexdigest()
+          outputs = []
+          for r in records:
+              data = pathlib.Path(r['path']).read_bytes()
+              assert blob(data) == r['before'], r['path']
+              value = data.decode()
+              for start, end, text in reversed(r['edits']):
+                  value = value[:start] + text + value[end:]
+              data = value.encode()
+              assert blob(data) == r['after'], r['path']
+              outputs.append((r, data))
+          for r, data in outputs:
+              request = urllib.request.Request('https://api.github.com/repos/Chris0Jeky/Alibi/git/blobs', data=json.dumps({'content': base64.b64encode(data).decode(), 'encoding': 'base64'}).encode(), headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'], 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json'}, method='POST')
+              with urllib.request.urlopen(request) as response:
+                  result = json.load(response)
+              assert result['sha'] == r['after'], r['path']
+              print(r['path'], result['sha'], flush=True)
