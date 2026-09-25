@@ -3252,6 +3252,7 @@ dialog .dialog-actions {
 }
 @media (max-width: 600px) {
   #pulseboard-usage-sharing {
+    bottom: 150px;
     max-height: 42vh;
   }
 }
