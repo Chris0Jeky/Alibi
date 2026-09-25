@@ -73,7 +73,8 @@ verify the old-shell/new-host case and record the accepted temporary disappearan
 adapter to the offline shell merely to hide this condition without rechecking the shell budget.
 
 The app requests no remote player data, ads or fonts. On the primary Cloudflare
-origin, eligible first-time visitors start aggregate Usage sharing after an open
+origin, eligible visitors without a stored opt-out, including return visitors,
+start aggregate Usage sharing after an open
 notice; the visible control can turn it off. The Sites fallback stays outside
 collector admission. The hosting platform and collector may process ordinary
 request logs and browser/security cookies. On-site privacy copy must distinguish

@@ -65,7 +65,8 @@ with the merged Desk type ramp, the approved radius slice and Block Cabinet
 visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
 registration and Pulseboard's release contract are complete in this candidate.
 The candidate now includes the statistical-only, default-on Usage sharing adapter
-for eligible first-time visitors on the primary Cloudflare origin, with an open
+for eligible visitors without a stored opt-out, including return visitors, on
+the primary Cloudflare origin, with an open
 notice, immediate opt-out and preserved prior off choices. The separate Sites
 fallback origin remains outside collector admission. Pulseboard's production
 admission switch is live and its aggregate-only hosted boundary has been probed.
