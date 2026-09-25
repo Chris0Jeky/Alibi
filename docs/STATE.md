@@ -44,6 +44,16 @@ published-definition baseline. Hosted full Verify and real-control browser
 checks are pending. Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
 
+## Night Routes source candidate: 25 September 2026
+
+The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
+Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
+The six focused Routes/catalogue tests pass locally, including independent
+unique-answer receipts and production reducer replay. An independent review
+found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending; human difficulty and physical-device acceptance
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
