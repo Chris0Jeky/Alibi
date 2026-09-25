@@ -14,8 +14,7 @@ const STAT_ENDPOINT =
 const ALIBI_ORIGIN = 'https://alibi-after-hours-preview.commit-atlas.workers.dev';
 const PREF_KEY = 'pulseboard:statistics:v1:alibi';
 const OLD_PREFIX = 'pulseboard:consent:v1:alibi:';
-const HARDCODED_LEGACY =
-  'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi';
+const HARDCODED_LEGACY = 'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi';
 
 function element(tag) {
   const node = {
@@ -149,7 +148,9 @@ function run({
     ALIBI_CONFIG: { standalone },
     __testRoute: contextRoute,
     __testRelease: contextRelease,
-    __markContextRead: () => { contextReads += 1; },
+    __markContextRead: () => {
+      contextReads += 1;
+    },
   };
   context.globalThis = context;
   vm.createContext(context);
@@ -206,10 +207,7 @@ function assertAggregateBody(body, expectedEvents) {
     'url',
     'href',
   ])
-    assert.ok(
-      !raw.includes(`"${forbidden}"`),
-      `aggregate payload must not carry ${forbidden}`,
-    );
+    assert.ok(!raw.includes(`"${forbidden}"`), `aggregate payload must not carry ${forbidden}`);
 }
 
 test('default-on: eligible visit mounts an open notice before the first aggregate page.view', async () => {
