@@ -40,9 +40,13 @@ with sync_playwright() as playwright:
             )
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
+        # Salon always renders both boards and hides the inactive one; accept
+        # whichever board is visible as the render marker.
+        markers = {"/salon/blockcabinet": ".bc-host .bc-cell:visible, .block-cell:visible", "/home": ".club-welcome"}
+
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
-            page.wait_for_timeout(180)
+            page.locator(markers[path]).first.wait_for(timeout=20000)
 
         def simple_controls():
             # Exercise the real fallback menu; enhanced controls have their own suite.
@@ -98,7 +102,7 @@ with sync_playwright() as playwright:
                 f"Phone fixture scrolls beyond the primary actions at {width}px",
             )
             page.evaluate("y => scrollTo(0, y)", scroll_target)
-            page.wait_for_timeout(100)
+            page.wait_for_function("(y) => Math.abs(scrollY - y) < 2", arg=scroll_target)
             action_box = actions.bounding_box()
             check(
                 action_box is not None

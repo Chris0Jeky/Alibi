@@ -1,34 +1,33 @@
 # Live development state
 
-## Sun & Moon continuation: 24 September 2026, after 22:00 UTC
+## Sun & Moon continuation: 25 September 2026
 
-#324 is merged on main as `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`. Its final head
-9abb460 passed full Verify 36064801293, Android 36064801385, reasoning controls 36064801296
-and Picture Logic controls 36064801408. Independent review 5823009386 found no major issues;
-all three inline findings have evidence replies and are resolved. Downloaded artifact
-10836240335 confirms 32 Tents plus 12 Lantern interactions with no page errors. This closes
-the source work in #323, not #161 or physical/human acceptance. The merged tree exactly
-matches the reviewed head; no unpublished source is substituted.
+The current main base is `7ac666b`, after #313, #316 and #318 merged. The binary reasoning
+work remains in draft PR #329. Its local size rewrite passes all eight binary reasoning tests,
+the pinned formatter and 26 real-browser hint interactions at 390px and 1440px. The latest
+local build measures 130,103 JavaScript gzip bytes against the unchanged 130,048-byte cap,
+so it remains 55 bytes over and is not merge-eligible. No limit was raised; no binary changes
+are included in the 0.11.6 release candidate. Keep HUMAN_TODO q-8 open for human difficulty,
+touch and TalkBack acceptance.
 
-#327 / #328 adds Sun & Moon distinct-line and contradictory-mark reasoning. It tests at most
-two unknown cells at a time using the existing local validator, never the stored answer or
-puzzle solver. Six of the eight regressions fail against 9abb460; all eight plus 25 existing
-hint tests pass after the change. Independent oracles verify ambiguous-board deductions and
-2,050 arbitrary locally legal positions; official walks check 458 steps through reducers.
-See [BINARY-REASONING.md](BINARY-REASONING.md) for bounds and conditional-soundness limits.
+## Source reconciliation checkpoint: 24 September 2026
 
-The initial #328 head caa87ee passed all 26 new phone/desktop browser interactions plus the
-44 existing Tents/Lantern interactions in run 36066440056, artifact 10836218226. Real controls
-cover distinct-line advice, wrong-C3 conflict guidance and Undo recovery. Phone screenshots
-were inspected. Pinned formatter output was applied without changing rules or assertions;
-33 source tests still pass. The formatted, current-main-based head must pass fresh full CI,
-resource budgets and independent review before merge. Initial browser success is not a
-substitute for that final gate. No dependency, cap, save, puzzle revision or deployment change.
+This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
+Tents reasoning PR #324 merged. A clean main checkout passed `npm.cmd run verify` at that
+commit: 519 passed, 3 skipped and 0 failed; the emitted JavaScript measured 130,012 gzip
+bytes, below the existing 127 KiB cap. The build still identifies the source version as
+0.11.5; this is a source checkpoint, not a new release or deployment.
 
-Local source execution uses the uploaded ZIP reconciled at changed seams, not a fresh full
-checkout/build. npm/origin restrictions still prevent a claimed full local browser build.
-Keep HUMAN_TODO q-8 open for explanation quality, physical touch/TalkBack and human difficulty.
-The checkpoints below are preserved history; latest GitHub status takes precedence.
+House wait PR #311 includes child #315. Their combined changes replace fixed sleeps with
+predicate waits for route and restored opener focus, and add three Node regressions that
+execute the actual browser predicates. The two House browser suites keep their existing
+focus assertions. See PR #311 for exact-head CI and review receipts; source-level predicates
+do not establish physical-browser, phone, or accessibility acceptance.
+
+The 24 September Muse wait branches #313, #316 and #318 are being requalified against current
+main. PR #281 remains draft pending its maintainer architecture acceptance. Human acceptance
+for physical Android/TalkBack use and provisional puzzle calibration remains open in
+`HUMAN_TODO.md`.
 
 ## Matching and review continuation: 24 September 2026
 
@@ -48,10 +47,9 @@ number-grid groups and reducing repeated wording addresses size without removing
 raising limits; 2,210 peer sets across 54 number boards matched the earlier geometry. See
 [TENTS-REASONING.md](TENTS-REASONING.md) for limits and exact evidence scope.
 
-House child #315 merged into the #311 branch as 2a5fca0f266ca424d694c5c2e86d7f310d66fbca,
-NOT into main. Its exact-head full/mobile checks and independent reviews passed. Parent #311
-must retain current main and STATE, then pass fresh combined-head checks before integration.
-Earlier source checkpoints below remain dated history; latest GitHub status takes precedence.
+House child #315 joined #311 as `2a5fca0f266ca424d694c5c2e86d7f310d66fbca`. Earlier source
+checkpoints below remain dated history; live GitHub status and PR #311 hold the latest
+combined-head CI and review receipts.
 
 ## Latest continuation: 24 September 2026, after 21:00 UTC
 

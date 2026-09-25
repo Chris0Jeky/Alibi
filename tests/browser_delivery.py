@@ -71,7 +71,7 @@ with sync_playwright() as p:
     context = browser.new_context(viewport={'width':390,'height':900})
     context.route('**/assets/enhanced-*', lambda route: route.fulfill(status=503, body='Unavailable'))
     page = context.new_page(); image = gallery(page)
-    page.wait_for_timeout(500)
+    page.wait_for_function('()=>document.querySelector("img[data-adaptive-image]").dataset.assetQuality === "compact" && document.querySelector("img[data-adaptive-image]").naturalWidth > 0')
     check(image.get_attribute('data-asset-quality') == 'compact' and image.evaluate('(i)=>i.naturalWidth>0'), '503 retains useful compact artwork')
     context.unroute('**/assets/enhanced-*')
     page.evaluate('dispatchEvent(new Event("online"))')

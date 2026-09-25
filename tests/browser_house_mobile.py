@@ -16,11 +16,17 @@ def check(value, name):
     checks.append(name)
     print('PASS', name, flush=True)
 
+def wait_js(page, expression, arg=None):
+    """Poll a page predicate via Playwright; pass-through arg keeps expressions static."""
+    page.wait_for_function(expression, arg=arg, timeout=7000)
+
 def go(page, view):
     selector = '.hx-mobile' if page.viewport_size['width'] <= 760 else '.hx-nav'
     names = {'desk':'Your desk','house':'The house','notebook':'Notebook','comfort':'Comfort','puzzles':'Puzzles'}
-    page.locator(selector).get_by_role('link', name=names[view], exact=True).click()
-    page.wait_for_timeout(100)
+    link = page.locator(selector).get_by_role('link', name=names[view], exact=True)
+    link.click()
+    wait_js(page, 'v => AlibiHouseModel.locationState(location.hash).view === v', arg=view)
+    expect(link).to_have_attribute('aria-current', 'page')
 
 def fit(page, name):
     check(page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'), name+' fits viewport')
@@ -60,7 +66,7 @@ def main():
             check(page.evaluate("document.activeElement.name")=='family',f'{width} sheet initial focus')
             page.locator('#hx-filter-form [name=family]').select_option('nonogram')
             page.keyboard.press('Escape')
-            page.wait_for_timeout(120)
+            wait_js(page, 'h => location.hash === h && document.activeElement.id === "hx-filters-open"', arg=original)
             check(page.evaluate('location.hash')==original,f'{width} cancel discards draft filters')
             check(page.evaluate('document.activeElement.id')=='hx-filters-open',f'{width} cancel restores filter opener')
             page.locator('#hx-filters-open').click()
@@ -68,7 +74,7 @@ def main():
             page.locator('#hx-filter-form [name=level]').select_option('Gentle')
             if width==390: page.screenshot(path=str(OUT/'filters-390.png'))
             page.locator('#hx-filter-form').get_by_role('button',name='Apply filters').click()
-            page.wait_for_timeout(150)
+            wait_js(page, "() => location.hash.includes('family=binary') && location.hash.includes('level=Gentle') && document.activeElement.id === 'hx-filters-open'")
             check('family=binary' in page.evaluate('location.hash') and 'level=Gentle' in page.evaluate('location.hash'),f'{width} explicit apply updates route')
             expect(page.locator('#dialog')).not_to_be_visible()
             check(page.evaluate('document.activeElement.id')=='hx-filters-open',f'{width} apply restores filter focus')
@@ -76,7 +82,7 @@ def main():
             page.locator('#hx-filters-open').click()
             page.locator('[data-house-action=filter-reset]').click()
             page.locator('#hx-filter-form').get_by_role('button',name='Apply filters').click()
-            page.wait_for_timeout(120)
+            wait_js(page, "() => !location.hash.includes('family=') && document.activeElement.id === 'hx-filters-open'")
             check('family=' not in page.evaluate('location.hash'),f'{width} reset then apply')
             page.locator('.hx-chip').filter(has_text='Gentle').click()
             expect(page.locator('.hx-chip').filter(has_text='Gentle')).to_have_attribute('aria-current','true')
@@ -90,20 +96,18 @@ def main():
             page.locator('.hx-empty a').click()
             if width<=430:
                 page.locator('.hx-puzzle button').nth(5).focus()
-                page.wait_for_timeout(120)
+                wait_js(page, '''() => document.activeElement.getBoundingClientRect().bottom <= document.querySelector('.hx-mobile').getBoundingClientRect().top''')
                 check(page.evaluate('''() => document.activeElement.getBoundingClientRect().bottom <= document.querySelector('.hx-mobile').getBoundingClientRect().top'''),f'{width} focused puzzle clear of dock')
             go(page,'house')
             page.locator('.hx-room-cards [data-room=library]').click()
             if width==390: page.screenshot(path=str(OUT/'observation-390.png'))
             page.keyboard.press('Escape')
-            page.wait_for_timeout(100)
             expect(page.locator('.hx-room-cards [data-room=library]')).to_contain_text('Observed')
             check(page.locator('.hx-room-cards [data-room=library]').get_attribute('aria-label').endswith('observed'),f'{width} observation status not colour-only')
             go(page,'desk')
             # Dispatch a real resource failure to the real handler; no application API stub.
             if page.locator('[data-house-art]').count():
                 page.locator('[data-house-art]').evaluate("e=>{e.src='data:image/png;base64,broken';}")
-                page.wait_for_timeout(150)
                 expect(page.locator('[data-house-art]')).to_have_class('hx-art-unavailable')
                 expect(page.locator('.hx-hero [data-house-action=letter]')).to_be_visible()
                 check(True,f'{width} failed artwork retains text and envelope control')
