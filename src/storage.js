@@ -215,31 +215,74 @@
         preferences: (await this.get('meta', 'preferences')) || {},
       };
     }
-    async restore(backup) {
-      const previous = await this.export();
-      if (this.db)
-        return new Promise((resolve, reject) => {
-          const tx = this.db.transaction(['runs', 'packs', 'meta'], 'readwrite'),
-            runs = tx.objectStore('runs'),
-            packs = tx.objectStore('packs'),
-            meta = tx.objectStore('meta');
-          this.watch(tx, reject);
-          meta.put({ key: 'pre-restore-backup', value: previous });
-          runs.clear();
-          packs.clear();
-          for (const r of backup.runs) runs.put({ key: r.key, value: r });
-          for (const p of backup.packs) packs.put({ key: p.id, value: p });
-          meta.put({ key: 'settings', value: backup.settings || {} });
-          meta.put({ key: 'preferences', value: backup.preferences || {} });
-          tx.oncomplete = () => resolve();
-          tx.onabort = () =>
-            reject(tx.error || Error('Restore cancelled. Previous data is unchanged.'));
-          tx.onerror = () => reject(tx.error);
-        });
-      // Fallback cannot offer atomic multi-key replacement, so refuse destructive restores.
-      throw Error(
-        'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
-      );
+    async restore(backup, expected) {
+      if (!this.db)
+        throw Error(
+          'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
+        );
+      return new Promise((resolve, reject) => {
+        const tx = this.db.transaction(['runs', 'packs', 'meta'], 'readwrite'),
+          runs = tx.objectStore('runs'),
+          packs = tx.objectStore('packs'),
+          meta = tx.objectStore('meta');
+        this.watch(tx, reject);
+        let bad = null;
+        const rr = runs.getAll(),
+          pr = packs.getAll(),
+          sr = meta.get('settings'),
+          fr = meta.get('preferences');
+        let n = 0;
+        const go = () => {
+          if (++n < 4) return;
+          try {
+            const cR = rr.result.map((x) => x.value),
+              cP = pr.result.map((x) => x.value),
+              cS = sr.result?.value || {},
+              cF = fr.result?.value || {};
+            if (
+              expected &&
+              !root.AlibiCore.equal(
+                [cR, cP, cS, cF],
+                [
+                  expected.runs,
+                  expected.packs,
+                  expected.settings || {},
+                  expected.preferences || {},
+                ],
+              )
+            )
+              throw new ConflictError();
+            if (!backup || !Array.isArray(backup.runs) || !Array.isArray(backup.packs))
+              throw Error('Unsupported backup format. Nothing was changed.');
+            meta.put({
+              key: 'pre-restore-backup',
+              value: {
+                format: 'alibi-backup',
+                schemaVersion: 1,
+                exportedAt: new Date().toISOString(),
+                runs: cR,
+                packs: cP,
+                settings: cS,
+                preferences: cF,
+              },
+            });
+            runs.clear();
+            packs.clear();
+            for (const r of backup.runs) runs.put({ key: r.key, value: r });
+            for (const p of backup.packs) packs.put({ key: p.id, value: p });
+            meta.put({ key: 'settings', value: backup.settings || {} });
+            meta.put({ key: 'preferences', value: backup.preferences || {} });
+          } catch (e) {
+            bad = e;
+            tx.abort();
+          }
+        };
+        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = go;
+        tx.oncomplete = () => resolve();
+        tx.onabort = () =>
+          reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));
+        tx.onerror = () => reject(tx.error);
+      });
     }
   }
   root.AlibiStorage = { Store, ConflictError };

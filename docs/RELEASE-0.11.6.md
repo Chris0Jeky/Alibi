@@ -62,3 +62,16 @@ Real-origin Chromium also reproduced [Cabinet restore issue #333](https://github
 a run saved by another tab between the recovery snapshot and replacement was
 absent from both the restored runs and the recovery copy. The release remains
 unpublished while that data-loss boundary is repaired and reverified.
+
+The fix candidate at `cbfdf0e30688c4c6ed6acc05adec4ee427b32b12`
+serializes the recovery snapshot and replacement in one IndexedDB write
+transaction, rejects stale merges, and aborts queued writes on malformed
+input. The first independent review exposed a stale-preferences merge path;
+the fix now uses the guarded fresh snapshot for that payload too. Both browser
+regressions failed before their fixes and passed afterward. Local Verify passed
+with 529 Node tests passing and 3 skipped; the full real-origin browser suite
+passed 214 checks. Clean build `7af1c8978307` contains 130,271 JavaScript
+gzip bytes. The measured safety change adds 257 bytes to the previous
+130,014-byte bundle, and the strict cap rises by 256 bytes to 130,304. Fresh
+review of the logic fix and exact-head CI remain pending; no tag or deployment
+has been made.

@@ -53,7 +53,11 @@ const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // Merges through #297 add a measured net 102 gzip bytes (128,943 -> 129,045)
 // for the journey-boundary fix and the single-sourced pack cap.
 // Keyboard arrows for dossier/witness mark grids add reachable focus motion (#272).
-assert.ok(info.javascriptGzipBytes < 127 * 1024, 'Application bundle stays under 127 KiB gzip');
+// #333: atomic restore and stale-merge protection need a measured 256-byte ceiling extension.
+assert.ok(
+  info.javascriptGzipBytes < 127 * 1024 + 256,
+  'Application bundle stays under 127 KiB + 256 bytes gzip',
+);
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB

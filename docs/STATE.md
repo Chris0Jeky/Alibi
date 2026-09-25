@@ -59,6 +59,19 @@ live runs and the recovery copy. The next release needs a verified fix before
 publication. See [the release record](RELEASE-0.11.6.md); `HUMAN_TODO.md`
 q-1 through q-8 remain open.
 
+The issue #333 fix candidate at `cbfdf0e30688c4c6ed6acc05adec4ee427b32b12`
+reads recovery data and replaces Cabinet records in one IndexedDB write
+transaction. A merge rejects a stale snapshot and retains another tab's fresh
+preferences; a queued error aborts the transaction. Both real-origin regressions
+failed before their fixes and passed afterward. Local Verify passed (529 Node
+tests passed, 3 skipped) and the full origin suite passed 214 checks. The clean
+build is `7af1c8978307` with 130,271 JavaScript gzip bytes. The safety fix
+needed a measured 256-byte increase to the previous bundle limit; the new
+strict limit is 130,304 bytes.
+The first independent review found the preference loss and it was fixed; a
+fresh review of that logic change and exact-head CI are still required before
+merge or publication.
+
 ## Source reconciliation checkpoint: 24 September 2026
 
 This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
