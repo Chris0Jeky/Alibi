@@ -1,45 +1,49 @@
 'use strict';
 
-// #219: the desk display step must stay at or above the hero title step at every
-// width, so the h1/h2 hierarchy cannot silently re-invert. Asserts the invariant
-// from the published ramp tokens, not exact pixel values.
+// #219: the Desk page title and feature title use the shared ramp without
+// re-inverting the h1/h2 hierarchy. Rendered widths are checked in browser QA.
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const appCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'app.css'), 'utf8');
 const css = fs.readFileSync(path.join(__dirname, '..', 'src', 'club.css'), 'utf8');
 const afterHours = fs.readFileSync(path.join(__dirname, '..', 'src', 'after-hours.css'), 'utf8');
 
-function token(name) {
-  const match = css.match(new RegExp(`--${name}:\\s*([^;]+);`));
-  assert.ok(match, `ramp token --${name} is defined`);
-  return match[1].trim();
+function tokenSteps(name) {
+  const values = [...appCss.matchAll(new RegExp(`--text-${name}:\\s*(\\d+)px`, 'g'))].map((match) =>
+    Number(match[1]),
+  );
+  assert.ok(values.length, `type token --text-${name} is defined`);
+  return values;
 }
 
-function minPx(value) {
-  const clamp = value.match(/^clamp\((\d+(?:\.\d+)?)px,/);
-  if (clamp) return Number(clamp[1]);
-  const px = value.match(/^(\d+(?:\.\d+)?)px$/);
-  assert.ok(px, `ramp token resolves to px: ${value}`);
-  return Number(px[1]);
-}
-
-test('desk display tokens stay at or above the hero title token', () => {
-  const title = minPx(token('club-title'));
-  for (const name of ['club-display', 'club-display-narrow', 'club-display-compact']) {
-    assert.ok(
-      minPx(token(name)) >= title,
-      `--${name} must stay >= --club-title to preserve h1/h2 hierarchy`,
-    );
+test('shared type ramp has the approved desktop and phone steps', () => {
+  for (const [name, expected] of Object.entries({
+    display: [44, 40],
+    h1: [36, 32],
+    h2: [28, 25],
+    h3: [22, 20],
+    body: [16],
+    meta: [13],
+    eyebrow: [11],
+  })) {
+    assert.deepEqual(tokenSteps(name), expected, `--text-${name}`);
   }
+  for (let i = 0; i < 2; i++)
+    assert.ok(tokenSteps('h1')[i] >= tokenSteps('h2')[i], 'page h1 must be >= feature h2');
 });
 
-test('desk h1 and hero h2 consume the ramp tokens', () => {
-  assert.match(css, /\.club-welcome h1 \{[^}]*font-size: var\(--club-display\)/s);
+test('Desk and shared headings consume their role tokens', () => {
+  assert.match(css, /\.club-welcome h1 \{[^}]*font-size: var\(--text-h1\)/s);
   // The winning hero rule lives in after-hours.css (later in the bundle than club.css).
-  assert.match(afterHours, /\.hero-copy h2 \{[^}]*font-size: var\(--club-title\)/s);
+  assert.match(afterHours, /\.hero-copy h2 \{[^}]*font-size: var\(--text-h2\)/s);
+  assert.match(css, /\.club-section-head h2 \{[^}]*font-size: var\(--text-h2\)/s);
+  assert.match(css, /\.gamecard-copy h3 \{[^}]*font-size: var\(--text-h3\)/s);
+  assert.match(appCss, /\.section-head h2 \{[^}]*font-size: var\(--text-h2\)/s);
+  assert.match(appCss, /\.book-info h3 \{[^}]*font-size: var\(--text-h3\)/s);
   assert.doesNotMatch(
     css,
     /\.hero-copy h2 \{[^}]*font-size:/s,
