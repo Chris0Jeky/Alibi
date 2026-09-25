@@ -1,5 +1,23 @@
 # Live development state
 
+## Backup validation QA and live queue: 25 September 2026
+
+A separate Muse 1.3 contributor xhigh worktree added six direct validator regressions
+for duplicate run and pack records, starter-catalogue collisions, and saved-run counter,
+note and undo bounds. They use the actual backup validator and original catalogue;
+no import, save, content or runtime behavior changed. The six-test direct Node run passed.
+The full source gate is re-run after committing because Android payload identity requires
+a clean tracked tree. Browser import, physical Android and destructive-restore behavior
+are separate evidence and are not established by these pure tests.
+
+At this checkpoint the open PRs are #281 and #329 plus the draft #341-#344
+curated-content stack. #342-#344 have red full Verify runs: their expanded catalogue
+still meets a fixed 382-puzzle assertion in tests/official-catalogue.test.cjs.
+The exact-head failure was confirmed in hosted logs and an independent read-only
+review of #342; its finding is posted on that PR. Those drafts remain unmerged,
+and content proof receipts, current-head CI and human difficulty calibration remain
+outstanding.
+
 ## Repository and release checkpoint: 25 September 2026
 
 PR #330 merged the 0.11.6 source candidate with merge commit
