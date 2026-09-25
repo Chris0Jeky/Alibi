@@ -2214,9 +2214,6 @@ body.club-experiment {
   .club-two-panels {
     grid-template-columns: 1fr;
   }
-  .club-welcome h1 {
-    font-size: var(--text-h1);
-  }
   .club-gameheading h1 {
     font-size: 35px;
   }
@@ -2240,7 +2237,6 @@ body.club-experiment {
     margin-bottom: 21px;
   }
   .club-welcome h1 {
-    font-size: var(--text-h1);
     letter-spacing: -1.3px;
     line-height: 1.13;
   }
