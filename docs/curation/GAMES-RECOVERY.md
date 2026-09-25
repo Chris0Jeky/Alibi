@@ -30,9 +30,12 @@ strength/recovery scenarios and 76 Block assertions, retaining main's stationary
 piece and anti-flicker checks. Fresh-seed browser expectations compare the complete
 rendered board with its production replay, not a fixed tray shape or seed.
 
-The web/Android browser-preview builds and formatting succeed. Current gameplay
-JavaScript is 131,003 gzip bytes versus the unchanged strict 130,304 ceiling;
-this is a known blocker, not waived. Two normal full-suite attempts exceeded the
+The web/Android browser-preview builds and formatting succeed. Moving static
+enhancement metadata to the existing official-data asset preserves
+its startup global and exact values. The new build measures 129,651 JavaScript
+gzip bytes, below the unchanged strict 130,304 ceiling; combined initial code
+and data is 203,370 bytes, below 204,800. All bytes remain counted. Two normal
+full-suite attempts exceeded the
 local execution limit; no complete local suite is claimed at this checkpoint.
 A separate bounded diagnostic run is not a substitute for the required CI suite.
 

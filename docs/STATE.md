@@ -366,3 +366,14 @@ restarts, with explicit worker-error retry and stale-reply guards. See
 Seventeen source tests and ten/76 standalone browser checks pass. The measured
 JavaScript exceeds the unchanged cap; no full-CI, merge or release claim is made.
 Physical-device and human gates remain in HUMAN_TODO.md.
+
+### Games Room budget recovery
+
+The gameplay slice moves enhancement metadata into the existing official data
+asset and retains the same startup global. All values are independently compared
+with the asset builder; no metadata, request, shell entry or byte accounting is
+dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
+203,370 combined initial bytes, below unchanged 130,304 and 204,800 limits.
+Twenty-two focused checks, ten actual-worker standalone scenarios and 76 Block
+assertions pass after this change. Full exact-head CI, origin storage/offline,
+independent review and physical/human acceptance remain required.

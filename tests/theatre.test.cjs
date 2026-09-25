@@ -26,12 +26,14 @@ for (const [name, source] of [
   ['ALIBI_THEATRE', content],
   ['ALIBI_CURATION_MEDIA', js],
   ['ALIBI_MEDIA', js],
-  ['ALIBI_DELIVERY', js],
+  ['ALIBI_CURATION', content],
 ]) {
   const assignment = source.match(new RegExp('globalThis\\.' + name + '=(.*);\\n'));
   assert.ok(assignment, name + ' has a static emitted assignment');
   config[name] = JSON.parse(assignment[1]);
 }
+assert.ok(js.includes('globalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;'));
+config.ALIBI_DELIVERY = config.ALIBI_CURATION.delivery;
 test('editorial theatre data is loaded before its consumer and fully counted', () => {
   const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
   const info = JSON.parse(fs.readFileSync(path.join(root, 'build-info.json')));
