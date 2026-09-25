@@ -217,7 +217,7 @@ with sync_playwright() as pw:
         "(key) => window.AlibiDiagnostics?.getCurrent()?.key === key",
         arg=key,
     )
-    page.evaluate('() => PulseboardUsage.flush()')
+    # A normal SPA route change must send without a test-only flush call.
     wait_for_counts(page, observed_counts, 3)
     check(observed_counts[2]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
     check(observed_counts[2]['release'] == app_release, 'SPA navigation keeps the release label')
@@ -410,6 +410,12 @@ with sync_playwright() as pw:
             "localStorage.setItem('"
             + OLD_PREFIX
             + "https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi', JSON.stringify({allow:false}))",
+        ),
+        (
+            'corrupt old opt-out',
+            "localStorage.setItem('"
+            + OLD_PREFIX
+            + "https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi', '{broken')",
         ),
     ):
         counts_before = len(observed_counts)
