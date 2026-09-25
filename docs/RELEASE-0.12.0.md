@@ -25,8 +25,10 @@ explicit off choices remain off. GPC, DNT, storage failures, automation and the
 Sites fallback origin do not collect. The collector accepts only bounded
 event/route/release counts, while its hosting provider necessarily receives
 request metadata such as IP addresses; aggregate rows are retained for at most
-14 UTC dates. Pulseboard's production admission switch must be enabled and
-verified before this candidate is published.
+14 UTC dates. Pulseboard's production admission switch is live in Worker
+version `51871cc3-75ef-40e8-80b8-3e4bb0336cb0`: an exact valid Alibi
+aggregate returned 202, while an identifier-bearing payload returned 400,
+a wrong Origin returned 403, and unauthenticated statistics returned 401.
 
 The Night study browser suite previously passed 480 checks, and the real-origin
 storage and offline suite passed 214 checks. The new adapter and release head

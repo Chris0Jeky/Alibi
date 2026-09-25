@@ -44,7 +44,8 @@ The candidate now includes the statistical-only, default-on Usage sharing adapte
 for eligible first-time visitors on the primary Cloudflare origin, with an open
 notice, immediate opt-out and preserved prior off choices. The separate Sites
 fallback origin remains outside collector admission. Pulseboard's production
-admission switch and the new adapter's full integration checks are pending.
+admission switch is live and its aggregate-only hosted boundary has been probed.
+The new adapter's full integration checks are pending.
 Earlier local Verify, Night controls and real-origin storage/offline checks passed;
 exact-head hosted integration, both existing deployments and hosted-origin
 acceptance remain to be completed.
