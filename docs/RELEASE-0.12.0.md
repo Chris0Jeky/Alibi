@@ -34,7 +34,7 @@ handoffs alive across ordinary navigation without replay and made malformed
 legacy opt-outs fail closed. Pulseboard PR #97 also makes a failed preference
 storage-probe cleanup fail closed. The regenerated Alibi adapter is pinned by hash.
 
-On the integrated candidate, local Verify passed 582 Node tests with three
+At the candidate checkpoint, local Verify passed 582 Node tests with three
 skips; 184 actual-control checks, 214 real-origin storage/offline checks and
 480 Night study control checks passed. A real Chromium adapter regression failed
 against the old generated artifact when an idle route count was not sent; the
@@ -42,13 +42,45 @@ regenerated adapter passed 48 browser assertions, including automatic delivery,
 a corrupt legacy opt-out and denied probe cleanup. The first integrated Verify found a 7-byte
 startup-JavaScript budget overrun, resolved by shorter About copy and a refreshed
 source catalogue. The integrated clean build remained below the
-130,304-byte gzip ceiling. Exact-head CI, hosted integration, publication and
-physical-device acceptance remain open for the release PR. No tag, deployment
-or public GitHub release is claimed here.
+130,304-byte gzip ceiling. That checkpoint preceded the publication receipt below.
 
 ## Publication receipt
 
-Pending. Record the merged source SHA, clean build hash and budgets, exact-head
-checks, bundle hashes, Cloudflare Worker version, Sites saved/deployed version,
-actual HTTPS response checks, real-origin offline/save results and rollback
-references here before calling 0.12.0 published.
+Published 25 September 2026 from [PR #364](https://github.com/Chris0Jeky/Alibi/pull/364)
+merge commit `0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
+[`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0) points
+to that commit. The clean merged-source build `f2b20d3ee6c0` is version 0.12.0,
+with `sourceDirty: false`, 430 puzzles, 292 emitted files and 130,290 startup
+JavaScript gzip bytes against the 130,304-byte ceiling. The independent Sites
+source checkout at the same SHA emitted byte-identical output across all 292
+files plus `build-info.json`. Exact-head CI passed all seven applicable checks;
+merged-source `npm run verify` passed 588 Node tests with three skips, plus
+581,847 Quiet Wing reducer and 29 save-adapter assertions. `cloudflare:check`
+and `bundle` passed. The bundle's `SHA256SUMS` was checked against its files:
+
+- `alibi-deluxe-cloudflare.zip`: `21f46cb0b47e7c2656760dc64c52067c4b58a081d3eb8f6357407280578dd077`
+- `alibi-deluxe-play.html`: `9804b576fba6ad5c1dfea0e742486bcadfc9d9d147fb56ff5c96cb8a97e8b0cf`
+
+The primary [Cloudflare origin](https://alibi-after-hours-preview.commit-atlas.workers.dev/)
+is Worker version `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`. The existing
+[Sites fallback](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) is saved
+version 23, deployment `appgdep_6ab6c0dc2c848191913d93bd136c2f2a`,
+from the same source SHA. All 291 publicly served files returned HTTP 200:
+Cloudflare matched the clean build byte for byte; Sites matched 281 files
+byte for byte and transformed ten HTML pages. Each hosted origin passed 214
+disposable-profile real-origin browser checks, including IndexedDB recovery,
+backup and offline behavior. The hosted checks intercepted statistical POSTs
+to avoid contaminating live counts. A separate disposable primary-origin visit
+observed the open, on-by-default notice, one accepted aggregate-only
+`page.view/home/0.12.0/n=1` POST (202), a persisted opt-out, and no subsequent
+send after navigation. That QA visit and the earlier collector admission probe
+each added one synthetic count to production aggregates.
+
+Cloudflare serves the repository HTTP CSP and sampled WebP as `image/webp`.
+Sites still lacks the HTTP CSP and serves sampled WebP as
+`application/octet-stream`, existing fallback limits tracked in issue #6.
+The prior web rollback is annotated tag `v0.11.6`, Cloudflare Worker version
+`107707f3-1e5d-442c-94b3-c87c6ec73ae6`, and Sites saved version 22
+(deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`). Rollback was
+not exercised. Physical Android, TalkBack, and human difficulty calibration
+remain open in `HUMAN_TODO.md` q-1 through q-8.

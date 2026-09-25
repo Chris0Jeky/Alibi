@@ -1,6 +1,30 @@
 # Live development state
 
-## Published web release 0.11.6: 25 September 2026
+## Published web release 0.12.0: 25 September 2026
+
+[PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
+`0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
+[`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0)
+and the public release assets point to that source. The clean build is
+0.12.0 / `f2b20d3ee6c0`, with 430 puzzles and 130,290 startup JavaScript
+gzip bytes. All seven exact-head CI checks passed; merged-source Verify,
+Cloudflare dry run and release bundle passed. Cloudflare Worker version
+`8edf7ab7-a92e-4963-be7a-d1bebcd68fe8` and Sites saved version 23
+(deployment `appgdep_6ab6c0dc2c848191913d93bd136c2f2a`) now serve the
+same source. All 291 public files returned HTTP 200 on each origin; both
+origins passed 214 hosted real-origin storage/offline browser checks. The
+primary origin's default-on Usage sharing sent a bounded aggregate count,
+and opt-out stopped further sends in live Chromium. The separate Sites
+origin stays outside collector admission. See the
+[0.12.0 publication receipt](RELEASE-0.12.0.md) for build digests, HTTP
+comparison, rollback references and evidence limits.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open, especially physical Android,
+TalkBack and human difficulty calibration. Issue #220 remains open for larger
+and decorative radii; issue #219 remains open for cross-room type work.
+Earlier checkpoints below are historical.
+
+## Published web release 0.11.6: 25 September 2026 (historical)
 
 [PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
 race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
@@ -34,7 +58,7 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
-## 0.12.0 source candidate: 25 September 2026
+## 0.12.0 source candidate: 25 September 2026 (historical)
 
 The proposed next web release combines 48 Night studies across eight families
 with the merged Desk type ramp, the approved radius slice and Block Cabinet
