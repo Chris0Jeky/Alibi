@@ -1,6 +1,6 @@
 # Vault authoring integration checkpoint
 
-25 September 2026, PR #350. The five original authoring files are retained
+25 September 2026, PR #350. The five original authoring files are now retained
 byte-for-byte from reviewed head `a8280dc506da87a8f04477f4dfe47d61678fbd5d`.
 They are integrated onto main `f1cd4cf2fabc28dae957b802153e51d4f943c556`, which
 includes all 48 Night studies, the corrected moon opening, Sun & Moon reasoning,
@@ -8,9 +8,17 @@ backup request snapshots and Night registry-derived control selection. Main's
 STATE history and every runtime/content file are preserved by using its Git tree
 as the integration base. The baseline section of VAULT-EXPANSION.md is historical.
 
+Correction: the first refresh, `02dfc56f`, accidentally reused the earlier
+unformatted test blob `b8dda850` rather than a8280dc5's formatted `0576fd92`.
+Verify 36168699997 failed its formatting step for tests/vault-quality.test.cjs;
+build, Node and browser stages did not run. Authoring 36168699957 passed the
+three semantic tests. Restoring the exact formatted blob fixes the provenance
+mistake without changing assertions. The prior claim that all five files were
+byte-identical at 02dfc56f was incorrect.
+
 Earlier Verify 36141141983 and authoring 36141142119 passed on a8280dc5;
 maintenance review 5319964109 found no blocking implementation defect. Those
-receipts do not certify this new integration. Require fresh exact-head Verify,
+receipts do not certify the new integration. Require fresh exact-head Verify,
 authoring checks and independent review before merge. This checkpoint is not a
 fresh local full-build or physical-device result.
 
