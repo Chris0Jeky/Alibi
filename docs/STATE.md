@@ -45,6 +45,20 @@ gallery filters artwork by venue and kind. Eight focused tests pass. This adds n
 runtime logic, content, save-schema change or published puzzle ID. Full Verify,
 browser and physical-device checks remain separate evidence gates.
 
+## 0.11.6 publication preflight: 25 September 2026
+
+PR #332 merged focused curation tests as `da19969` after exact-head Verify and
+fresh-context review. The 0.11.6 source at `84be37f` passed local Verify,
+example-pack validation, Observatory check and a Cloudflare dry run; its clean
+build is `024c5bc9bd9d` with 382 puzzles and 130,014 JavaScript gzip bytes.
+Read-only HTTPS checks still found the previous builds on both existing origins.
+No 0.11.6 tag, deployment or public GitHub release has been created. A real
+IndexedDB two-connection check then reproduced [restore issue #333](https://github.com/Chris0Jeky/Alibi/issues/333):
+a save made between the pre-restore snapshot and replacement vanished from both
+live runs and the recovery copy. The next release needs a verified fix before
+publication. See [the release record](RELEASE-0.11.6.md); `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
 ## Source reconciliation checkpoint: 24 September 2026
 
 This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after

@@ -57,3 +57,8 @@ the final merged head and build, create the matching tag, deploy both existing
 origins from one validated build, and verify their actual files and offline
 behavior. Physical play and difficulty calibration remain open in
 `HUMAN_TODO.md`.
+
+Real-origin Chromium also reproduced [Cabinet restore issue #333](https://github.com/Chris0Jeky/Alibi/issues/333):
+a run saved by another tab between the recovery snapshot and replacement was
+absent from both the restored runs and the recovery copy. The release remains
+unpublished while that data-loss boundary is repaired and reverified.
