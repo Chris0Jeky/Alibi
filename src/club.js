@@ -19,6 +19,7 @@
     storageMode = 'session',
     saveError = '',
     saveQueue = Promise.resolve(),
+    restoring = false,
     loading = null;
   let state = {
     schema: 1,
@@ -310,6 +311,10 @@
     );
   }
   function persist(replacement = null) {
+    if (restoring && !replacement) {
+      notify('Wait for the Club restore to finish before editing.', true);
+      return saveQueue;
+    }
     const snapshot = clone(replacement || state);
     saveQueue = saveQueue
       .then(async () => {
@@ -897,6 +902,10 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
   async function commitGame(id, value) {
+    if (restoring) {
+      notify('Wait for the Club restore to finish before editing.', true);
+      return;
+    }
     if (saveError && storageMode !== 'session') {
       notify('Resolve the save conflict or export before continuing.', true);
       return;
@@ -1062,15 +1071,25 @@
       else if (a === 'restore-confirm') {
         document.getElementById('dialog').close();
         if (root.__alibiPendingClub) {
+          if (restoring) throw Error('A Club restore is already in progress.');
           if (storageMode !== 'indexeddb' || saveError)
             throw Error(
               'Restore needs healthy device storage. Export this session before reloading.',
             );
           const next = root.__alibiPendingClub;
           delete root.__alibiPendingClub;
-          await persist(next);
-          if (saveError) throw Error(saveError);
-          state = next;
+          restoring = true;
+          botJob++;
+          botWorker?.terminate();
+          botWorker = null;
+          botPending = false;
+          try {
+            await persist(next);
+            if (saveError) throw Error(saveError);
+            state = next;
+          } finally {
+            restoring = false;
+          }
           await onRoute(route);
           render();
         }
