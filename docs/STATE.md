@@ -40,9 +40,22 @@ The stacked #342 candidate adds 18 original Lanterns, Tents and Aquariums
 boards, proposing 400 puzzles across 24 packs. Exact registered-catalogue and
 Night Gardens source checks pass locally (seven focused tests), including native
 and independent unique answers, reducer replay, definition receipts and the
-published-definition baseline. Hosted full Verify and real-control browser
-checks are pending. Expert/Master labels remain provisional pending #161 and
+published-definition baseline. Full Verify and real-control browser checks passed
+on the previous #342 head; the main refresh requires exact-head reproof.
+Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
+
+## Shared type ramp merged: 25 September 2026
+
+A first #219 layer defines the approved seven type steps and maps Desk/page,
+feature, section and card headings in the shared chrome to their roles. At 390px,
+the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
+stays on one line and 320px, 390px and 1280px rendered views have no horizontal
+overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
+184 isolated core UI checks and the isolated After Hours browser suite passed.
+PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
+of the cross-room type migration in #219 remains open; physical-device evidence
+has not yet been gathered.
 ## Night collection certificate foundation: 25 September 2026
 
 Merged PR #341 adds offline definition receipts, structural duplicate
@@ -50,8 +63,8 @@ checks, independent uniqueness checks and production reducer replay for proposed
 harder studies. It adds no playable puzzle or runtime code. On the current main
 base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
 suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
-proposed Night boards remain in stacked PRs; human difficulty and device checks remain
-open under #161 and `HUMAN_TODO.md` q-8.
+proposed Night boards remain in stacked PRs; human difficulty and device checks
+remain open under #161 and `HUMAN_TODO.md` q-8.
 
 ## Backup validation QA: 25 September 2026
 
