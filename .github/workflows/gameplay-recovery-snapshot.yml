@@ -1,0 +1,49 @@
+name: Gameplay recovery snapshot
+on:
+  push:
+    branches: [codex/347-gameplay-recovery]
+    paths: [.github/workflows/gameplay-recovery-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 93cc5fa99c15814c4cbfccac5b5515b5c2ab2660
+          persist-credentials: false
+          path: main-source
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: c60c3285a94e0ce223bc92ce74623890edd572cb
+          persist-credentials: false
+          path: planning-source
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ce46e85811506967660e6ccec37907d15e6f8886
+          persist-credentials: false
+          path: vault-source
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci
+        working-directory: main-source
+      - name: Archive source and public locked dependencies only
+        shell: bash
+        run: |
+          mkdir recovery-export
+          for name in main planning vault; do
+            git -C "$name-source" rev-parse HEAD > "recovery-export/$name-head.txt"
+            git -C "$name-source" archive --format=tar.gz HEAD > "recovery-export/$name-source.tar.gz"
+          done
+          tar -C main-source --exclude='*/examples/fonts' --exclude='*/.cache' -czf recovery-export/dependencies.tar.gz node_modules
+          sha256sum main-source/package-lock.json > recovery-export/lockfile.sha256
+          cd recovery-export
+          sha256sum *.tar.gz > SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gameplay-recovery-snapshots
+          path: recovery-export/
+          retention-days: 1
