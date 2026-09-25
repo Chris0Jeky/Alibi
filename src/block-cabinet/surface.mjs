@@ -161,6 +161,7 @@ export function mountSurface(root, adapter, options = {}) {
       el.classList.toggle('filled', !!state.board[i]);
       el.classList.toggle('relic', state.board[i] === 2 && advanced);
       el.classList.toggle('legal', isLegal);
+      el.classList.toggle('bc-stationary', !!effects?.stationary.has(i));
       el.disabled = pending || state.done;
       el.setAttribute(
         'aria-label',
@@ -288,11 +289,27 @@ export function mountSurface(root, adapter, options = {}) {
               },
             ]
           : [];
+      const stationary = new Set();
+      if (waves.length)
+        after.board.forEach((value, i) => {
+          if (
+            value &&
+            waves.every(
+              (wave) =>
+                wave.before[i] === value &&
+                wave.after[i] === value &&
+                !wave.cells.includes(i) &&
+                !wave.falls.some((fall) => fall.from === i || fall.to === i),
+            )
+          )
+            stationary.add(i);
+        });
       effects = ctx
         ? {
             start: performance.now(),
             placed,
             waves,
+            stationary,
             score: after.score - before.score,
             duration: reduce ? 0 : waves.length ? Math.min(1800, waves.length * 300 + 220) : 220,
           }
@@ -415,7 +432,7 @@ export function mountSurface(root, adapter, options = {}) {
         if (wave) {
           const p = clamp((elapsed - index * 300) / 300, 0, 1);
           wave.before.forEach((value, i) => {
-            if (!value) return;
+            if (!value || effects.stationary.has(i)) return;
             if (wave.cells.includes(i)) {
               tile(
                 d.x + (i % 8) * d.cell,
