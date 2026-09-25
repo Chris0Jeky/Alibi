@@ -5,18 +5,23 @@
 The primary `main` checkout is tracked-clean at `7ac666b`, after #313, #316 and #318 merged
 with merge commits. PR #318's exact head `272b1aa9f` passed full verify run `36075003653`;
 its P2 screenshot concern was dispositioned as a non-blocking test-evidence issue. #281 remains
-draft for maintainer architecture acceptance. #329 remains draft because the exact remote build
-exceeds the unchanged JavaScript gzip cap. Its refreshed head `e0efa24` passes eight focused
-binary tests, the pinned formatter and 26 real-browser interactions; its local build is still
-55 bytes over the cap. Exact-head hosted runs are pending. See
+draft for maintainer architecture acceptance. #329 remains draft because its published head
+`e0efa24` is 55 bytes over the unchanged JavaScript gzip cap. Eight focused binary tests, the
+pinned formatter and 26 real-browser interactions passed on that head. See
 [the repository sweep](REPO-SWEEP-2026-09-25.md).
 
 The 0.11.5 source is still the latest deployed release. The source catalogue contains 382
 puzzles across 23 packs. Release candidate branch `codex/release-0.11.6` prepares the six new
-Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections and
-the Reversi depth fix. Its release record keeps the new picture difficulty labels provisional.
-The candidate is not merged, tagged or deployed. `HUMAN_TODO.md` q-1 through q-8 remain open,
-including source licensing, physical Android/TalkBack checks and human calibration.
+Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
+Reversi depth correction and the refreshed Observatory release check. Pulseboard PR #86 merged
+as `b01624b`, registering Alibi 0.11.6 and its matching `v0.11.6` catalogue tag. On the
+candidate, `npm run check:alibi`, `node observatory/check.mjs`, the 24-assertion
+`tests/browser_observatory.py` suite and `npm.cmd run verify` passed locally; the build reports
+130,014 JavaScript gzip bytes, 34 below the fixed cap. The previous hosted Verify run on
+pre-fix head `9ebf813` failed because the real-origin browser check could not recognize 0.11.6;
+updated exact-head hosted CI and independent review are still required. The candidate remains
+unmerged, untagged and undeployed. `HUMAN_TODO.md` q-1 through q-8 remain open, including
+source licensing, physical Android/TalkBack checks and human calibration.
 
 The primary checkout's tracked files are clean. The 25 September branch, pull-request and
 worktree dispositions are in [the repository sweep](REPO-SWEEP-2026-09-25.md). Two completed
