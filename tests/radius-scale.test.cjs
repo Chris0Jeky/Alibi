@@ -22,7 +22,7 @@ const BUNDLE = [
 ];
 const sources = BUNDLE.map((f) => [
   f,
-  fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8'),
+  fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''),
 ]);
 
 test('radius scale tokens hold their exact values', () => {
@@ -48,8 +48,7 @@ test('no standalone scale or retired scalar radius returns outside named excepti
   };
   const retired = new Set([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 999]);
   const retained = [];
-  for (const [file, source] of sources) {
-    const css = source.replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const [file, css] of sources) {
     const strays = [];
     for (const match of css.matchAll(/border-radius:\s*(\d+(?:\.\d+)?)px(?:\s*!important)?\s*;/g)) {
       const value = Number(match[1]);
