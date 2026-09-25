@@ -54,28 +54,36 @@
       }
     }
     if (p.type === 'binary') {
-      for (const group of [...C.range(n * n).map((i) => [i]), ...C.groups(p)]) {
-        const cells = group.filter((i) => s.cells[i] === -1);
-        if (!cells.length || cells.length > 2) continue;
-        const reasons = new Set(),
-          names = cells.map((i) => at(i, n)).join(', '),
-          allowed = C.range(2 ** cells.length).filter((mask) => {
-            const next = s.cells.slice();
-            cells.forEach((i, k) => {
-              next[i] = (mask >> k) & 1;
-            });
-            const issues = C.registry.binary.validate(p, { cells: next });
-            issues.forEach((issue) => reasons.add(issue.message));
-            return !issues.length;
-          });
-        if (!allowed.length)
-          return conflict(`${names}: no symbol fits. Recheck your marks.`, cells);
+      const open = (i) => s.cells[i] < 0,
+        sets = [
+          ...C.range(n * n)
+            .filter(open)
+            .map((i) => [i]),
+          ...C.groups(p)
+            .map((group) => group.filter(open))
+            .filter((cells) => cells.length === 2),
+        ];
+      for (const cells of sets) {
+        const trials = [],
+          allowed = [];
+        for (let mask = 0; mask < 1 << cells.length; mask++) {
+          const next = s.cells.slice();
+          cells.forEach((i, k) => (next[i] = (mask >> k) & 1));
+          const issues = C.registry.binary.validate(p, { cells: next });
+          trials.push(issues);
+          if (!issues.length) allowed.push(mask);
+        }
+        if (!allowed.length) return conflict(`${at(cells[0], n)} has no move. Check marks.`, cells);
         for (let k = 0; k < cells.length; k++) {
           const value = (allowed[0] >> k) & 1;
-          if (!allowed.every((mask) => ((mask >> k) & 1) === value)) continue;
+          if (allowed.some((mask) => ((mask >> k) & 1) !== value)) continue;
+          const failures = trials.filter((_, mask) => ((mask >> k) & 1) !== value).flat(),
+            reason = (failures.find((issue) => issue.message.includes('different')) || failures[0])
+              .message;
+
           return result(
             cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',
-            `${at(cells[k], n)} must be ${value ? 'a moon' : 'a sun'}. Compare ${names}: ${[...reasons].join(' ')}`,
+            `${at(cells[k], n)} is a ${value ? 'moon' : 'sun'}: ${reason}`,
             cells[k],
             value,
           );
