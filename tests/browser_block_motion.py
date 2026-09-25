@@ -383,6 +383,47 @@ with sync_playwright() as p:
     move(b,'.bc-modal',"() => document.querySelector('.bc-modal .bc-status').textContent.includes('Another tab')")
     check('Another tab' in b.locator('.bc-modal .bc-status').inner_text(), 'Cascade stale-tab write is rejected')
     check(b.locator('.bc-modal [data-score]').inner_text() == '0', 'Rejected stale write does not mutate game')
+    context.close()
+    context = browser.new_context(viewport={'width':390,'height':844}, reduced_motion='no-preference')
+    page = context.new_page()
+    boot(page)
+    page.wait_for_function('''() => navigator.serviceWorker.controller &&
+        AlibiDiagnostics.getStatus().offlineReady''')
+    lab(page)
+    page.on('dialog', lambda dialog: dialog.accept('FLASH-19') if dialog.type == 'prompt' else dialog.accept())
+    page.locator('.bc-modal [data-command="new"]').click()
+    page.wait_for_function('''() =>
+        document.querySelector('.bc-modal [data-piece="0"]')?.getAttribute('aria-label')?.includes('Long beam') &&
+        document.querySelector('.bc-modal [data-piece="1"]')?.getAttribute('aria-label')?.includes('Square')''')
+    for slot, cell in ((1, 48), (0, 0)):
+        page.locator(f'.bc-modal [data-piece="{slot}"]').click()
+        page.locator(f'.bc-modal .bc-cell[data-cell="{cell}"].legal').click()
+        page.wait_for_function('() => !document.querySelector(".bc-modal .bc-cell:disabled")')
+    page.locator('.bc-modal [data-piece="2"]').click()
+    page.evaluate('''() => {
+      const samples = [];
+      window.cascadeClearProbe = {samples};
+      const start = performance.now();
+      const sample = () => {
+        const block = document.querySelector('.bc-modal .bc-cell[data-cell="48"] .bc-block');
+        samples.push({
+          resolving: !!document.querySelector('.bc-modal .bc-resolving'),
+          opacity: block ? Number(getComputedStyle(block).opacity) : 0,
+        });
+        if (performance.now() - start < 1000) requestAnimationFrame(sample);
+        else window.cascadeClearProbe.done = true;
+      };
+      requestAnimationFrame(sample);
+    }''')
+    page.locator('.bc-modal .bc-cell[data-cell="4"].legal').click()
+    page.wait_for_function('() => window.cascadeClearProbe?.done === true')
+    visual = page.evaluate('''() => ({
+      resolvingFrames: cascadeClearProbe.samples.filter(s => s.resolving).length,
+      minStationaryOpacity: Math.min(...cascadeClearProbe.samples
+        .filter(s => s.resolving).map(s => s.opacity)),
+    })''')
+    check(visual['resolvingFrames'] > 0 and visual['minStationaryOpacity'] >= 0.95,
+          f'Cascade keeps stationary blocks visible through a real line clear: {visual}')
     context.close(); browser.close()
 
 (OUT/'acceptance.json').write_text(json.dumps({'checks':len(checks),'passed':checks,'physicalAndroidTested':False},indent=2))
