@@ -3207,6 +3207,54 @@ dialog .dialog-actions {
 .privacy-copy .btn {
   margin-top: 18px;
 }
+/* The first-visit statistics notice stays visible until the reader closes it.
+   It is outside the app root so route changes cannot remove the off switch. */
+#pulseboard-usage-sharing {
+  position: fixed;
+  z-index: 80;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  width: min(390px, calc(100vw - 24px));
+  max-height: min(55vh, 420px);
+  overflow: auto;
+  padding: 12px 16px;
+  border: 2px solid var(--green);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 12px 36px #14211940;
+}
+#pulseboard-usage-sharing summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+#pulseboard-usage-sharing summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+#pulseboard-usage-sharing p {
+  margin: 8px 0;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+#pulseboard-usage-sharing label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 600;
+}
+#pulseboard-usage-sharing input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--green);
+}
+@media (max-width: 600px) {
+  #pulseboard-usage-sharing {
+    max-height: 42vh;
+  }
+}
 /* Theme and accessibility */
 html[data-theme='night'] {
   --bg: #19251f;

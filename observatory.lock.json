@@ -4,7 +4,7 @@
   "installs": {
     "observatory/browser.js": {
       "project": "alibi",
-      "sha256": "3eb78efb41d77205eb1ce5f60a34d05417fc69090f21f65888526bb3a2339194"
+      "sha256": "54582f27d319a682f2d0569de2caa5a77e9e3a35fdd849d81cbf9b47fd42a524"
     }
   }
 }
