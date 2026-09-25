@@ -154,6 +154,187 @@ async function tab(storage) {
     temp.AlibiClub.diagnostics().saveError.includes('only in this tab'),
     'Session-only warning is exposed',
   );
+  const clubSource = fs.readFileSync(path.join(root, 'src/club.js'), 'utf8');
+  check(
+    /VersionError[\s\S]*\|\|\s*db/.test(clubSource),
+    'Unknown IndexedDB read stays protected instead of falling back (source guard)',
+  );
+  check(
+    clubSource.includes('__clubReset === intent'),
+    'Delayed borough confirmation only consumes its own reset intent (source guard)',
+  );
+  async function tabWith(storage, extra = {}, bridgeExtra = {}) {
+    const dialogs = [];
+    const c = {
+      console,
+      URL,
+      URLSearchParams,
+      Math,
+      Date,
+      JSON,
+      Number,
+      Promise,
+      setTimeout,
+      clearTimeout,
+      localStorage: storage,
+      location: { hash: '' },
+      document: {
+        addEventListener() {},
+        createElement() {
+          return {};
+        },
+        body: { append() {} },
+      },
+      ...extra,
+    };
+    c.globalThis = c;
+    vm.createContext(c);
+    for (const f of ['core', 'backup-validation', 'club-engines', 'club'])
+      vm.runInContext(fs.readFileSync(path.join(root, 'src/' + f + '.js'), 'utf8'), c);
+    await c.AlibiClub.init({
+      toast() {},
+      render() {},
+      settings: () => ({}),
+      dialog(title, body, actions) {
+        dialogs.push({ title, body, actions });
+      },
+      navigate() {},
+      ...bridgeExtra,
+    });
+    c.__capturedDialogs = dialogs;
+    return c;
+  }
+  function abortingIndexedDB() {
+    const abortError = Object.assign(Error('Club storage transaction aborted.'), {
+      name: 'AbortError',
+    });
+    const listeners = { complete: [], error: [], abort: [] };
+    const tx = {
+      error: abortError,
+      onabort: null,
+      abort() {},
+      addEventListener(type, fn) {
+        (listeners[type] = listeners[type] || []).push(fn);
+      },
+      objectStore() {
+        return {
+          get() {
+            const req = { result: undefined, error: abortError, onsuccess: null, onerror: null };
+            setTimeout(() => {
+              for (const fn of listeners.error || []) {
+                try {
+                  fn();
+                } catch {}
+              }
+              if (typeof req.onerror === 'function') req.onerror();
+            }, 0);
+            return req;
+          },
+        };
+      },
+    };
+    const dbStub = {
+      close() {},
+      transaction() {
+        return tx;
+      },
+      onversionchange: null,
+    };
+    return {
+      open() {
+        const req = {
+          result: dbStub,
+          error: null,
+          onsuccess: null,
+          onerror: null,
+          onblocked: null,
+          onupgradeneeded: null,
+          transaction: null,
+        };
+        setTimeout(() => {
+          if (typeof req.onsuccess === 'function') req.onsuccess();
+        }, 0);
+        return req;
+      },
+    };
+  }
+  const unknownStore = store();
+  const unknownTab = await tabWith(unknownStore, { indexedDB: abortingIndexedDB() });
+  check(
+    unknownTab.AlibiClub.diagnostics().storageMode === 'session',
+    'Aborted IndexedDB read never switches to writable localStorage',
+  );
+  check(
+    /export/i.test(unknownTab.AlibiClub.diagnostics().saveError) &&
+      /reload|temporary/i.test(unknownTab.AlibiClub.diagnostics().saveError) &&
+      /untouched/i.test(unknownTab.AlibiClub.diagnostics().saveError),
+    'Aborted IndexedDB read warns to export and reload without touching saves',
+  );
+  check(
+    unknownStore.getItem('alibi-afterhours-v1') === null,
+    'Aborted IndexedDB read writes no divergent localStorage save',
+  );
+  await unknownTab.AlibiClub.save();
+  check(
+    unknownStore.getItem('alibi-afterhours-v1') === null,
+    'Temporary session persist does not create a divergent save',
+  );
+  const raceStore = store();
+  const seedTab = await tab(raceStore);
+  await seedTab.AlibiClub.save();
+  const envelope = JSON.parse(raceStore.getItem('alibi-afterhours-v1'));
+  const firstEmpty = seedTab.AlibiClubEngines.borough
+    .initial('EVENING-01')
+    .board.findIndex((v) => !v);
+  envelope.data.runs.borough = {
+    seed: 'EVENING-01',
+    log: [{ slot: 0, cell: firstEmpty }],
+    redo: [],
+  };
+  raceStore.setItem('alibi-afterhours-v1', JSON.stringify(envelope));
+  const raceTab = await tabWith(raceStore);
+  check(
+    (raceTab.AlibiClub.diagnostics().state.runs.borough?.log.length || 0) === 1,
+    'Shared-town fixture starts with an unfinished borough',
+  );
+  const pendingTimers = [];
+  raceTab.setTimeout = (fn, ms) => {
+    pendingTimers.push({ fn, ms });
+    return pendingTimers.length;
+  };
+  raceTab.location.hash = '#/salon/borough?seed=SHARED-01';
+  await raceTab.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  check(
+    pendingTimers.length === 1 && pendingTimers[0].ms === 100,
+    'Shared-town confirmation is deferred without real scheduler sleep',
+  );
+  const boroughIntent = raceTab.__clubReset;
+  check(
+    boroughIntent && boroughIntent.id === 'borough' && boroughIntent.seed === 'SHARED-01',
+    'Shared-town route creates a borough reset intent',
+  );
+  raceTab.__clubReset = { id: 'duel', mode: 'local' };
+  pendingTimers[0].fn();
+  check(
+    raceTab.__capturedDialogs.length === 0,
+    'Stale shared-town callback is harmless after another reset supersedes it',
+  );
+  check(
+    raceTab.__clubReset.id === 'duel',
+    'Stale callback does not replace the superseding intent',
+  );
+  raceTab.__capturedDialogs.length = 0;
+  pendingTimers.length = 0;
+  raceTab.location.hash = '#/salon/borough?seed=OTHER-02';
+  await raceTab.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  const freshIntent = raceTab.__clubReset;
+  pendingTimers[0].fn();
+  check(
+    raceTab.__capturedDialogs.length === 1 &&
+      /shared town/i.test(raceTab.__capturedDialogs[0].title),
+    'Unsuperseded shared-town confirmation still prompts',
+  );
+  check(raceTab.__clubReset === freshIntent, 'Unsuperseded confirmation keeps its own intent');
   fs.writeFileSync(
     path.join(root, 'tests/club-storage-results.json'),
     JSON.stringify(
