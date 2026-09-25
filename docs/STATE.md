@@ -40,8 +40,13 @@ The proposed next web release combines 48 Night studies across eight families
 with the merged Desk type ramp, the approved radius slice and Block Cabinet
 visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
 registration and Pulseboard's release contract are complete in this candidate.
-Local Verify, the Night control suite and local real-origin storage/offline checks
-passed. Exact-head hosted integration, both existing deployments and hosted-origin
+The candidate now includes the statistical-only, default-on Usage sharing adapter
+for eligible first-time visitors on the primary Cloudflare origin, with an open
+notice, immediate opt-out and preserved prior off choices. The separate Sites
+fallback origin remains outside collector admission. Pulseboard's production
+admission switch and the new adapter's full integration checks are pending.
+Earlier local Verify, Night controls and real-origin storage/offline checks passed;
+exact-head hosted integration, both existing deployments and hosted-origin
 acceptance remain to be completed.
 No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
 and `HUMAN_TODO.md` for human difficulty and physical-device gates.

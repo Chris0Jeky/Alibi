@@ -17,14 +17,22 @@ ramp improve browser controls, but physical Android, large text and TalkBack
 acceptance remain open in `HUMAN_TODO.md`.
 
 Version 0.12.0 is registered in `package.json` and `content/releases.json` for
-the candidate. Pulseboard PR #88 registered the matching release label and
-regenerated the locked Observatory adapter; it merged and was deployed before
-this Alibi candidate. Local Verify passed with 558 Node tests and three skips;
-the Night study browser suite passed 480 checks, and the real-origin storage and
-offline suite passed 214 checks. Source PRs still require exact-head CI and their
-review gates. No tag, deployment, public GitHub release or physical-device
-acceptance is claimed here. Usage sharing remains opt-in in this candidate;
-Pulseboard issue #89 tracks the separately reviewed statistical-only default.
+the candidate. Pulseboard PR #88 registered the matching release label. The
+Observatory adapter is now generated from Pulseboard's statistical-only client:
+eligible first-time visitors on the primary Cloudflare origin start with Usage
+sharing on, see an open notice and can turn it off there or in settings. Previous
+explicit off choices remain off. GPC, DNT, storage failures, automation and the
+Sites fallback origin do not collect. The collector accepts only bounded
+event/route/release counts, while its hosting provider necessarily receives
+request metadata such as IP addresses; aggregate rows are retained for at most
+14 UTC dates. Pulseboard's production admission switch must be enabled and
+verified before this candidate is published.
+
+The Night study browser suite previously passed 480 checks, and the real-origin
+storage and offline suite passed 214 checks. The new adapter and release head
+still require fresh Verify, browser and exact-head CI evidence. Source PRs still
+require their review gates. No tag, deployment, public GitHub release or
+physical-device acceptance is claimed here.
 
 ## Publication receipt
 
