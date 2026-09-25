@@ -50,6 +50,9 @@ async function tab(storage) {
       createElement() {
         return {};
       },
+      getElementById() {
+        return null;
+      },
       body: { append() {} },
     },
   };
@@ -154,6 +157,50 @@ async function tab(storage) {
     temp.AlibiClub.diagnostics().saveError.includes('only in this tab'),
     'Session-only warning is exposed',
   );
+  // Commit-game contract through the public Club action path. Same VM +
+  // localStorage boundary as above: no real IndexedDB or browser durability.
+  const gs = store(),
+    g = await tab(gs);
+  await g.AlibiClub.onRoute({ page: 'salon', id: 'tictactoe' });
+  check(
+    Array.isArray(g.AlibiClub.diagnostics().state.runs.tictactoe?.log) &&
+      g.AlibiClub.diagnostics().state.runs.tictactoe.log.length === 0 &&
+      g.AlibiClub.diagnostics().state.runs.tictactoe.redo.length === 0,
+    'Tic-Tac-Toe starts with an empty move log and redo stack',
+  );
+  await g.AlibiClub.action({ dataset: { action: 'club-tictactoe-cell', cell: '0' } });
+  await g.AlibiClub.flush();
+  check(
+    JSON.stringify(g.AlibiClub.diagnostics().state.runs.tictactoe.log) === '[0]' &&
+      g.AlibiClub.diagnostics().state.runs.tictactoe.redo.length === 0,
+    'Club action records one Tic-Tac-Toe move exactly once with empty redo',
+  );
+  await g.AlibiClub.action({ dataset: { action: 'club-undo', id: 'tictactoe' } });
+  await g.AlibiClub.flush();
+  check(
+    g.AlibiClub.diagnostics().state.runs.tictactoe.log.length === 0 &&
+      JSON.stringify(g.AlibiClub.diagnostics().state.runs.tictactoe.redo) === '[0]',
+    'Undo parks the committed move on the redo stack',
+  );
+  await g.AlibiClub.action({ dataset: { action: 'club-tictactoe-cell', cell: '1' } });
+  await g.AlibiClub.flush();
+  const after = g.AlibiClub.diagnostics().state.runs.tictactoe;
+  check(
+    JSON.stringify(after.log) === '[1]' && after.redo.length === 0,
+    'A new Club move replaces redo history and is recorded exactly once',
+  );
+  const persisted = JSON.parse(gs.getItem('alibi-afterhours-v1'));
+  check(
+    JSON.stringify(persisted.data.runs.tictactoe.log) === '[1]' &&
+      persisted.data.runs.tictactoe.redo.length === 0,
+    'Committed Tic-Tac-Toe move persists in the localStorage envelope after flush',
+  );
+  const reloaded = await tab(gs);
+  check(
+    JSON.stringify(reloaded.AlibiClub.diagnostics().state.runs.tictactoe.log) === '[1]' &&
+      reloaded.AlibiClub.diagnostics().state.runs.tictactoe.redo.length === 0,
+    'Reloaded tab replays the committed move log with cleared redo',
+  );
   fs.writeFileSync(
     path.join(root, 'tests/club-storage-results.json'),
     JSON.stringify(
@@ -161,7 +208,7 @@ async function tab(storage) {
         passed: true,
         assertions: checks.length,
         scope:
-          'Separate Node VM sessions sharing a localStorage fixture. Tests the exact fallback key, rotation, pinning, fallback and sequential conflicts. Not real IndexedDB transactions or browser durability.',
+          'Separate Node VM sessions sharing a localStorage fixture. Tests the exact fallback key, rotation, pinning, fallback and sequential conflicts, plus one Tic-Tac-Toe commitGame contract (exactly-once log, redo clear, flush persistence). Not real IndexedDB transactions or browser durability.',
         checks,
       },
       null,
