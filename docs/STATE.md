@@ -34,6 +34,16 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Night collection certificate foundation: 25 September 2026
+
+The #161 foundation adds offline definition receipts, structural duplicate
+checks, independent uniqueness checks and production reducer replay for proposed
+harder studies. It adds no playable puzzle or runtime code. On the current main
+base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
+suites, and a clean 382-puzzle build. The 48 proposed Night boards remain in
+stacked drafts; human difficulty calibration and physical-device checks remain
+open under #161 and `HUMAN_TODO.md` q-8.
+
 ## Backup validation QA: 25 September 2026
 
 Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
