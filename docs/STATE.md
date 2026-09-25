@@ -34,6 +34,16 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## 0.12.0 source candidate: 25 September 2026
+
+The proposed next web release combines 48 Night studies across eight families
+with the merged Desk type ramp, the approved radius slice and Block Cabinet
+visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
+registration, exact-head integration checks, Pulseboard's release contract,
+both existing deployments and hosted-origin acceptance remain to be completed.
+No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
+and `HUMAN_TODO.md` for human difficulty and physical-device gates.
+
 ## Night Gardens source candidate: 25 September 2026
 
 The stacked #342 candidate adds 18 original Lanterns, Tents and Aquariums
