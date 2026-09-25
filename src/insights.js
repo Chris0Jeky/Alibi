@@ -3,7 +3,7 @@
   'use strict';
   const C = root.AlibiCore,
     X = C.extras;
-  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
+  const at = C.at;
   const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
