@@ -1,0 +1,51 @@
+name: Gameplay budget blobs
+on:
+  push:
+    branches: [codex/347-games-finish]
+    paths: [.github/workflows/gameplay-budget-blobs.yml]
+permissions:
+  contents: write
+jobs:
+  blobs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 77a068bd2a3cf3b0d1d176fc934e36ae0594c7ee
+          persist-credentials: false
+      - name: Apply three fixed text changes and verify every blob before uploading
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import base64, hashlib, json, os, pathlib, urllib.request
+          changes = [
+            ('tools/build.cjs', '8a29cc05a46b0a946c8cc18ed5f1b6721f60fefd', '429f541c0da9cb21b2108fbe50dcf72931ac06d0', [
+              ('editorial.artwork = curation.assets;', 'editorial.artwork = curation.assets;\n  editorial.delivery = delivery.entries;'),
+              ('globalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};', 'globalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;')]),
+            ('tests/theatre.test.cjs', '518f4e87ad1c9950607c9c8f8b29b5d13d3de9a8', 'd722df2cadf97776573da27168c898a17934bc74', [
+              ("['ALIBI_DELIVERY', js]", "['ALIBI_CURATION', content]"),
+              ("test('editorial theatre data", "assert.ok(js.includes('globalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;'));\nconfig.ALIBI_DELIVERY = config.ALIBI_CURATION.delivery;\ntest('editorial theatre data")]),
+            ('docs/STATE.md', '5d2b734565e759ae907f8ac773a1e21e02e3dfb7', '5b484c830f35704d209d168f90c4fa9aeaeb12b6', [])
+          ]
+          appendix = '\n### Games Room budget recovery\n\nThe gameplay slice moves enhancement metadata into the existing official data\nasset and retains the same startup global. All values are independently compared\nwith the asset builder; no metadata, request, shell entry or byte accounting is\ndropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and\n203,370 combined initial bytes, below unchanged 130,304 and 204,800 limits.\nTwenty-two focused checks, ten actual-worker standalone scenarios and 76 Block\nassertions pass after this change. Full exact-head CI, origin storage/offline,\nindependent review and physical/human acceptance remain required.\n'
+          def blob(data):
+              return hashlib.sha1(('blob ' + str(len(data)) + '\0').encode() + data).hexdigest()
+          outputs = []
+          for path, before, after, replacements in changes:
+              data = pathlib.Path(path).read_bytes()
+              assert blob(data) == before, path
+              text = data.decode()
+              for old, new in replacements:
+                  assert text.count(old) == 1, path
+                  text = text.replace(old, new)
+              if path == 'docs/STATE.md': text += appendix
+              data = text.encode()
+              assert blob(data) == after, path
+              outputs.append((path, after, data))
+          for path, after, data in outputs:
+              req = urllib.request.Request('https://api.github.com/repos/Chris0Jeky/Alibi/git/blobs', data=json.dumps({'content':base64.b64encode(data).decode(),'encoding':'base64'}).encode(), headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Content-Type':'application/json','Accept':'application/vnd.github+json'}, method='POST')
+              with urllib.request.urlopen(req) as response: result = json.load(response)
+              assert result['sha'] == after, path
+              print(path, after)
