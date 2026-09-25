@@ -106,7 +106,7 @@ body.club-experiment {
   position: relative;
   min-height: 415px;
   isolation: isolate;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: #15333e;
   color: #f5edd9;
@@ -357,7 +357,7 @@ body.club-experiment {
   background: var(--paper);
   padding: 0;
   text-align: left;
-  border-radius: 11px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   transition:
     transform 0.18s ease,
@@ -525,7 +525,7 @@ body.club-experiment {
 }
 .club-category .club-portrait {
   height: 100px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   margin-bottom: 13px;
 }
 .club-category .club-portrait svg {
@@ -1059,7 +1059,7 @@ body.club-experiment {
 .plan {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   position: relative;
   padding: 4px 7px 9px;
   min-width: 0;
@@ -1115,7 +1115,7 @@ body.club-experiment {
   padding: 18px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 .seed-control label {
   font-size: 11px;
@@ -1288,7 +1288,7 @@ body.club-experiment {
   min-height: 101px;
   padding: 9px 4px 7px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   display: flex;
@@ -1457,7 +1457,7 @@ body.club-experiment {
   min-height: 105px;
   padding: 10px 7px 8px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   display: flex;
@@ -1696,7 +1696,7 @@ body.club-experiment {
   grid-template-columns: repeat(4, 1fr);
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   padding: 24px 5px;
   gap: 5px;
 }
@@ -1809,7 +1809,7 @@ body.club-experiment {
   border: 1px solid #c09572;
   background: #fbf0db;
   color: #705134;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -2250,7 +2250,7 @@ body.club-experiment {
     letter-spacing: 1.2px;
   }
   .club-hero {
-    border-radius: 11px;
+    border-radius: var(--radius-md);
     min-height: 427px;
   }
   .club-hero > img {
@@ -2467,7 +2467,7 @@ body.club-experiment {
   }
   .club-boardpanel {
     padding: 17px 11px;
-    border-radius: 9px;
+    border-radius: var(--radius-sm);
   }
   .duel-modes {
     gap: 5px;
