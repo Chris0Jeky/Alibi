@@ -31,14 +31,15 @@ aggregate returned 202, while an identifier-bearing payload returned 400,
 a wrong Origin returned 403, and unauthenticated statistics returned 401.
 Pulseboard PR #96 then repaired automatic delivery, kept pending aggregate
 handoffs alive across ordinary navigation without replay and made malformed
-legacy opt-outs fail closed. The regenerated Alibi adapter is pinned by hash.
+legacy opt-outs fail closed. Pulseboard PR #97 also makes a failed preference
+storage-probe cleanup fail closed. The regenerated Alibi adapter is pinned by hash.
 
 On the integrated candidate, local Verify passed 582 Node tests with three
 skips; 184 actual-control checks, 214 real-origin storage/offline checks and
 480 Night study control checks passed. A real Chromium adapter regression failed
 against the old generated artifact when an idle route count was not sent; the
-regenerated adapter passed 45 browser assertions, including automatic delivery
-and a corrupt legacy opt-out. The first integrated Verify found a 7-byte
+regenerated adapter passed 48 browser assertions, including automatic delivery,
+a corrupt legacy opt-out and denied probe cleanup. The first integrated Verify found a 7-byte
 startup-JavaScript budget overrun, resolved by shorter About copy and a refreshed
 source catalogue. The integrated clean build remained below the
 130,304-byte gzip ceiling. Exact-head CI, hosted integration, publication and

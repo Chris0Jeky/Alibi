@@ -45,9 +45,10 @@ for eligible first-time visitors on the primary Cloudflare origin, with an open
 notice, immediate opt-out and preserved prior off choices. The separate Sites
 fallback origin remains outside collector admission. Pulseboard's production
 admission switch is live and its aggregate-only hosted boundary has been probed.
-Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair.
-The regenerated Alibi adapter passed 45 real Chromium assertions after its
-idle-route regression failed against the prior artifact. Integrated local Verify
+Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair;
+PR #97 adds a fail-closed storage-probe cleanup. The regenerated Alibi adapter
+passed 48 real Chromium assertions after idle-route and denied-cleanup
+regressions failed against their prior artifacts. Integrated local Verify
 passed 582 Node tests with three skips; 184 controls, 480 Night controls and
 214 real-origin storage/offline checks passed. Exact-head hosted integration,
 both existing deployments and hosted-origin acceptance remain to be completed.
