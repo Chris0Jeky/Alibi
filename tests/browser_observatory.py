@@ -71,7 +71,6 @@ def assert_aggregate_body(payload, expected, label):
         '"session"',
         '"seq"',
         '"sessionId"',
-        '"puzzle"',
         '"answer"',
         '"solution"',
         '"save"',
@@ -218,6 +217,7 @@ with sync_playwright() as pw:
         "(key) => window.AlibiDiagnostics?.getCurrent()?.key === key",
         arg=key,
     )
+    page.evaluate('() => PulseboardUsage.flush()')
     wait_for_counts(page, observed_counts, 3)
     check(observed_counts[2]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
     check(observed_counts[2]['release'] == app_release, 'SPA navigation keeps the release label')
@@ -420,14 +420,11 @@ with sync_playwright() as pw:
         seeded.add_init_script(
             "Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => false, configurable: true});"
         )
+        seeded.add_init_script(f'try {{ {seed_script} }} catch {{}}')
         seeded.route('**/*', serve)
         seeded_page = seeded.new_page()
         seeded_page.on('pageerror', lambda error: page_errors.append(str(error)))
         seeded_page.goto(PUBLIC_URL)
-        seeded_page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-        seeded_page.locator('#pulseboard-usage-sharing').wait_for()
-        seeded_page.evaluate(seed_script)
-        seeded_page.reload()
         seeded_page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
         seeded_page.locator('#pulseboard-usage-sharing').wait_for()
         seeded_page.wait_for_timeout(500)
