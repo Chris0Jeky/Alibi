@@ -34,15 +34,25 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
+## Shared type ramp candidate: 25 September 2026
+
+A first #219 layer defines the approved seven type steps and maps Desk/page,
+feature, section and card headings in the shared chrome to their roles. At 390px,
+the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
+stays on one line and 320px, 390px and 1280px rendered views have no horizontal
+overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
+184 isolated core UI checks and the isolated After Hours browser suite passed.
+The rest of the cross-room type migration in #219 remains open. Hosted and
+physical-device evidence has not yet been gathered for this candidate.
 ## Night collection certificate foundation: 25 September 2026
 
-The #161 foundation adds offline definition receipts, structural duplicate
+Merged PR #341 adds offline definition receipts, structural duplicate
 checks, independent uniqueness checks and production reducer replay for proposed
 harder studies. It adds no playable puzzle or runtime code. On the current main
 base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
-suites, and a clean 382-puzzle build. The 48 proposed Night boards remain in
-stacked drafts; human difficulty calibration and physical-device checks remain
-open under #161 and `HUMAN_TODO.md` q-8.
+suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
+proposed Night boards remain in stacked PRs; human difficulty and device checks
+remain open under #161 and `HUMAN_TODO.md` q-8.
 
 ## Backup validation QA: 25 September 2026
 
