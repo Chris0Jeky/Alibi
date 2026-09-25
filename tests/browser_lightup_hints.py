@@ -24,6 +24,48 @@ CASES = {
 }
 
 
+def wrong_mark_recovery(page, width, checks):
+    # Continue the three clue-derived lightup-02 steps above, using actual controls.
+    if current(page)['puzzle']['id'] != 'lightup-02':
+        raise AssertionError('The wrong-mark witness must follow lightup-02')
+    for index, value in ((18, 0), (4, 1), (7, 1)):
+        action(page, 'brush', f'[data-value="{value}"]')
+        cell(page, index)
+        page.wait_for_function(
+            '([i,v]) => AlibiDiagnostics.getCurrent().state.cells[i] === v',
+            arg=[index, value],
+        )
+    before = current(page)
+    action(page, 'brush', '[data-value="0"]')
+    cell(page, 21)  # Wrong B5 leaves C4 as the only remaining site for the C5 wall.
+    page.wait_for_function('() => AlibiDiagnostics.getCurrent().state.cells[21] === 0')
+    mistaken = current(page)
+    action(page, 'hint')
+    dialog = page.locator('dialog[open]')
+    expect(dialog.locator('.deduction-title')).to_have_text('Revisit a conflict')
+    expect(dialog.locator('.hint-box')).to_contain_text('With your marks')
+    after = current(page)
+    for field in ('state', 'undo', 'redo', 'hints', 'completedAt'):
+        if after.get(field) != mistaken.get(field):
+            raise AssertionError(f'Conflict Hint changed {field}')
+    page.screenshot(path=str(OUT / f'lightup-02-{width}-wrong-mark.png'))
+    dialog.get_by_role('button', name='Keep thinking', exact=True).click()
+    expect(dialog).not_to_be_visible()
+    action(page, 'undo')
+    page.wait_for_function(
+        '(state) => JSON.stringify(AlibiDiagnostics.getCurrent().state) === '
+        'JSON.stringify(state)', arg=before['state'],
+    )
+    # Undoing the mistake must restore ordinary clue-based advice, not a stale conflict.
+    action(page, 'hint')
+    dialog = page.locator('dialog[open]')
+    expect(dialog.locator('.deduction-title')).to_have_text('This wall has enough lanterns')
+    expect(dialog.locator('.hint-box')).to_contain_text('C4')
+    dialog.get_by_role('button', name='Keep thinking', exact=True).click()
+    expect(dialog).not_to_be_visible()
+    checks.append(f'{width}px lightup-02: pure conflict Hint, Undo and restored C4 advice')
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     checks, errors = [], []
@@ -78,6 +120,7 @@ def run():
                                     arg=[index, value],
                                 )
                                 checks.append(f'{width}px {puzzle_id}: {rule}, {coordinate}, undo')
+                        wrong_mark_recovery(page, width, checks)
                     finally:
                         context.close()
             finally:

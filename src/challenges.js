@@ -137,7 +137,11 @@
       ].includes(c.family)
     )
       fail('Unsupported challenge mechanism.');
-    if (c.family === 'borough') validateRequirements(c.requirements);
+    if (c.family === 'borough') {
+      if (!Number.isInteger(c.targetScore) || c.targetScore < 0 || c.targetScore > 1000)
+        fail('Invalid Borough score requirement.');
+      validateRequirements(c.requirements);
+    }
     let state = start(c, Q, E);
     const supplied = c.solutionActions || c.solutionPath || c.principalVariation;
     const solution = typeof supplied === 'string' ? [...supplied] : supplied;
@@ -291,6 +295,7 @@
     if (requirements === undefined) return;
     if (!Array.isArray(requirements) || !requirements.length || requirements.length > 3)
       fail('Invalid Borough requirements.');
+    const seen = new Set();
     for (const r of requirements) {
       if (
         !r ||
@@ -305,6 +310,9 @@
         r.count > 18
       )
         fail('Invalid Borough requirement.');
+      const key = [r.building, r.neighbor, r.minimumNeighbors].join(':');
+      if (seen.has(key)) fail('Duplicate Borough requirement.');
+      seen.add(key);
     }
   }
   function boroughRequirements(c, state) {

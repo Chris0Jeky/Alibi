@@ -51,4 +51,11 @@ function runtime(entries) {
     Object.fromEntries(Object.entries(c).filter(([key]) => !authoring.has(key))),
   );
 }
-module.exports = { load, runtime };
+// Validation never renders labels; all objective, starting-state and solution fields remain.
+function validation(entries) {
+  const presentation = new Set(['title', 'instruction', 'hint', 'difficulty', 'difficultyStatus']);
+  return runtime(entries).map((c) =>
+    Object.fromEntries(Object.entries(c).filter(([key]) => !presentation.has(key))),
+  );
+}
+module.exports = { load, runtime, validation };

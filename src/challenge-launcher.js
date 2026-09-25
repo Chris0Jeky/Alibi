@@ -157,7 +157,7 @@
           `<button data-action="cell" data-value="${i}" ${v || !G.AlibiClubEngines.reversi.legal(s).includes(i) ? 'disabled' : ''}>${v === 1 ? '●' : v === -1 ? '○' : '·'}</button>`,
       );
     if (c.family === 'borough')
-      return `<div class="row">${s.offers.map((v, i) => `<button data-action="slot" data-value="${i}" aria-pressed="${selected === i}">${esc(v)}</button>`).join('')}</div>${grid(s.board, 5, (v, i) => `<button data-action="plot" data-value="${i}" ${v ? 'disabled' : ''}>${esc(v || '+')}</button>`)}<p>Score: ${G.AlibiClubEngines.borough.score(s)} / ${c.targetScore}</p>${G.AlibiChallenges.boroughRequirements(
+      return `<div class="row">${s.offers.map((v, i) => `<button data-action="slot" data-value="${i}" aria-pressed="${selected === i}">${esc(v)}</button>`).join('')}</div>${grid(s.board, 5, (v, i) => `<button data-action="plot" data-value="${i}" ${v ? 'disabled' : ''}>${esc(v || '+')}</button>`)}<section class="challenge-objectives" aria-label="Planning contract progress"><p>Score: ${G.AlibiClubEngines.borough.score(s)} / ${c.targetScore}</p>${G.AlibiChallenges.boroughRequirements(
         c,
         s,
       )
@@ -165,7 +165,7 @@
           (r) =>
             `<p class="challenge-requirement">${r.actual} / ${r.count} ${esc(r.building)} plots beside at least ${r.minimumNeighbors} ${esc(r.neighbor)} plots</p>`,
         )
-        .join('')}`;
+        .join('')}</section>`;
     return '';
   }
   function grid(values, columns, render) {

@@ -34,7 +34,18 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
-## Shared type ramp candidate: 25 September 2026
+## Night Gardens source candidate: 25 September 2026
+
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums
+boards, bringing the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
+Night Gardens source checks pass locally (seven focused tests), including native
+and independent unique answers, reducer replay, definition receipts and the
+published-definition baseline. Full Verify and real-control browser checks passed
+on the previous #342 head; the main refresh requires exact-head reproof.
+Expert/Master labels remain provisional pending #161 and
+`HUMAN_TODO.md` q-8; no new web release is claimed.
+
+## Shared type ramp merged: 25 September 2026
 
 A first #219 layer defines the approved seven type steps and maps Desk/page,
 feature, section and card headings in the shared chrome to their roles. At 390px,
@@ -42,8 +53,22 @@ the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
 stays on one line and 320px, 390px and 1280px rendered views have no horizontal
 overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
 184 isolated core UI checks and the isolated After Hours browser suite passed.
-The rest of the cross-room type migration in #219 remains open. Hosted and
-physical-device evidence has not yet been gathered for this candidate.
+PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
+of the cross-room type migration in #219 remains open; physical-device evidence
+has not yet been gathered.
+
+## Approved radius mapping candidate: 25 September 2026
+
+The owner approved eight small scalar mappings from issue #220. This source pass
+maps 56 declarations across seven bundled CSS files onto the existing 8px, 12px
+and 16px tokens. On the Desk, the desktop nav radius computes to 8px instead of
+7px and the phone hero computes to 16px instead of 17px; neither 390px nor
+1280px has horizontal overflow. Local Verify passed with 542 Node tests and
+three skips, 184 isolated UI checks and 12 real-origin phone QA tests passed.
+The full four-token collapse remains open: larger panel/theatre radii, true
+circles, game-board geometry and named decorative exceptions were not changed.
+Hosted and physical-device evidence has not yet been gathered for this pass.
+
 ## Night collection certificate foundation: 25 September 2026
 
 Merged PR #341 adds offline definition receipts, structural duplicate
@@ -78,7 +103,7 @@ Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
 passed before merge. Physical-phone acceptance and the wider #221 button
 recipe work stay open.
 
-## Block Cabinet visual stability candidate: 25 September 2026
+## Block Cabinet visual stability merged: 25 September 2026
 
 Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
 real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
@@ -91,7 +116,27 @@ and reduced motion and stationary pieces through both clear modes. This does
 not establish that every instance of the player's flashing report is gone on
 the affected physical phone. Local full Verify passed on the source and browser
 test commit (535 Node tests passed, three skipped; Android build passed).
-Exact-head hosted checks remain to be proven after the state note is committed.
+PR #352's exact-head hosted Verify and Android checks passed before merge.
+
+## Night Routes source candidate: 25 September 2026
+
+The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
+Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
+The six focused Routes/catalogue tests pass locally, including independent
+unique-answer receipts and production reducer replay. An independent review
+found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending; human difficulty and physical-device acceptance
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
+## Night Symbols source candidate: 25 September 2026
+
+The stacked #344 candidate adds 12 original Sun & Moon and Futoshiki boards.
+The proposed Night collection totals 48 additions and 430 puzzles across 26
+packs. Its six focused Symbols/catalogue tests pass locally, including exact
+definition receipts, independent unique answers and reducer replay; independent
+review found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending. Expert/Master labels, human solve paths and
+physical-device acceptance remain open under #161 and `HUMAN_TODO.md` q-8.
 
 ## Repository and release checkpoint: 25 September 2026
 
@@ -312,3 +357,17 @@ claimed. Android remains a non-publishable preview; the Capacitor owner gates re
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
 explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
 source tests do not approve that ADR. Review live open PRs before overlapping another lane.
+
+## Planning vault integration recovery: 25 September 2026
+
+PR #357 now wires its existing 24 Archive vaults and 12 Borough contracts into
+one trusted source registry for both the optional launcher and validation worker.
+All 59 earlier challenge definitions and starting identities remain intact.
+Independent push minima, native immutable replays, source projection and actual
+emitted-worker checks cover all 95 challenges. The legacy audit also covers 95.
+The two #357 data files remain byte-identical to c60c3285; no older handoff map
+replaces them. See docs/curation/PLANNING-VAULTS.md for proof limits and the missing
+historical generator, and the new read-only planning control workflow for the
+real-origin gate. Isolated controls pass all 72 cases; this does not certify
+origin persistence, physical Android, TalkBack or calibrated human difficulty.
+No budget increase, merge, deployment or release is implied.

@@ -23,6 +23,9 @@
     "extra/after-hours-hard-studies.json",
     "extra/crime-scene-variations.json",
     "extra/master-grandmaster-studies.json",
-    "extra/keepers-picture-studies.json"
+    "extra/keepers-picture-studies.json",
+    "extra/night-gardens.json",
+    "extra/night-routes.json",
+    "extra/night-symbols.json"
   ]
 }

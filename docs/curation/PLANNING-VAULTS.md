@@ -21,3 +21,37 @@ This first checkpoint contains the requirement validator/evaluator and build-tim
 Local work used the uploaded source tree 236107167e34b63479ce1f386b9d4dab12c6b71c. Live main 9c4e7a33d065b9bd42a3b22137c8f92e588e0597 was compared through the connector; the runtime and build files changed here were byte-identical in that comparison. Publication preserves main's newer CSS, Block Cabinet rendering and other unrelated work.
 
 Machine correctness, source-isolated browser controls, built-origin storage/offline checks, physical Android/TalkBack and human difficulty are separate evidence categories. Local browser navigation to loopback is blocked by policy; no hosted/browser integration pass is inferred from a successful source replay or build. Keep human calibration under #161 and HUMAN_TODO q-8. No merge or deployment.
+
+## Integrated recovery checkpoint: 25 September
+
+The final recovery integrates the source registry, both delivery paths, family
+filter, labelled Borough progress and all 36 reference replays. The two data
+files from c60c3285a94e0ce223bc92ce74623890edd572cb remain unchanged; this does
+not replace them with the different maps from the older downloadable handoff.
+The full main baseline is 19f45ebd880fc3f0d828688978dc028bbb789306.
+
+The independent forward push-region BFS checks all 24 recorded minima, and tests
+recompute their map hashes and Manhattan assignment lower bounds. These are
+18–21 pushes, at least six above the lower bound. Native reducers replay the
+references without input mutation. The original reverse-generation script named
+in the historical provenance was not recovered; these new checks reproduce
+solvability and minimum pushes, not the original candidate-selection run.
+
+All 12 Borough references meet their score and visible neighbourhood objectives.
+All recorded greedy references fail the full objective, even when their raw score
+is higher. There are twelve distinct decks and briefs across ten river footprints,
+not twelve different river geometries. Targets span 78–104; reference scores span
+80–106. Scores are not cross-layout difficulty ratings or optimal-town claims.
+
+The normal challenge audit now covers all 95 definitions instead of silently
+stopping at the previous 59. The emitted backup worker is separately exercised
+with all 95 reference saves and rejects a contract whose requirements disappeared.
+The worker omits duplicated presentation strings only; the UI retains them, and
+all objective/start identities are checked against the unprojected source.
+
+Seventy-two isolated-document scenarios pass, including actual controls, Undo,
+completion, memory remount and restart at 390px and 1280px. They do not prove
+origin reload, IndexedDB, service workers or the integrated family selector. The
+read-only workflow runs the actual-origin matrix with isolation explicitly off.
+Full exact-head Verify, origin evidence, independent review and human/physical
+acceptance remain required. No merge or deployment.
