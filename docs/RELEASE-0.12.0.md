@@ -29,12 +29,21 @@ request metadata such as IP addresses; aggregate rows are retained for at most
 version `51871cc3-75ef-40e8-80b8-3e4bb0336cb0`: an exact valid Alibi
 aggregate returned 202, while an identifier-bearing payload returned 400,
 a wrong Origin returned 403, and unauthenticated statistics returned 401.
+Pulseboard PR #96 then repaired automatic delivery, kept pending aggregate
+handoffs alive across ordinary navigation without replay and made malformed
+legacy opt-outs fail closed. The regenerated Alibi adapter is pinned by hash.
 
-The Night study browser suite previously passed 480 checks, and the real-origin
-storage and offline suite passed 214 checks. The new adapter and release head
-still require fresh Verify, browser and exact-head CI evidence. Source PRs still
-require their review gates. No tag, deployment, public GitHub release or
-physical-device acceptance is claimed here.
+On the integrated candidate, local Verify passed 582 Node tests with three
+skips; 184 actual-control checks, 214 real-origin storage/offline checks and
+480 Night study control checks passed. A real Chromium adapter regression failed
+against the old generated artifact when an idle route count was not sent; the
+regenerated adapter passed 45 browser assertions, including automatic delivery
+and a corrupt legacy opt-out. The first integrated Verify found a 7-byte
+startup-JavaScript budget overrun, resolved by shorter About copy and a refreshed
+source catalogue. The clean build measured 130,299 gzip bytes, below the
+130,304-byte ceiling. Exact-head CI, hosted integration, publication and
+physical-device acceptance remain open for the release PR. No tag, deployment
+or public GitHub release is claimed here.
 
 ## Publication receipt
 
