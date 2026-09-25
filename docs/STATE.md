@@ -34,7 +34,7 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
-## Shared type ramp candidate: 25 September 2026
+## Shared type ramp merged: 25 September 2026
 
 A first #219 layer defines the approved seven type steps and maps Desk/page,
 feature, section and card headings in the shared chrome to their roles. At 390px,
@@ -42,8 +42,22 @@ the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
 stays on one line and 320px, 390px and 1280px rendered views have no horizontal
 overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
 184 isolated core UI checks and the isolated After Hours browser suite passed.
-The rest of the cross-room type migration in #219 remains open. Hosted and
-physical-device evidence has not yet been gathered for this candidate.
+PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
+of the cross-room type migration in #219 remains open; physical-device evidence
+has not yet been gathered.
+
+## Approved radius mapping candidate: 25 September 2026
+
+The owner approved eight small scalar mappings from issue #220. This source pass
+maps 56 declarations across seven bundled CSS files onto the existing 8px, 12px
+and 16px tokens. On the Desk, the desktop nav radius computes to 8px instead of
+7px and the phone hero computes to 16px instead of 17px; neither 390px nor
+1280px has horizontal overflow. Local Verify passed with 542 Node tests and
+three skips, 184 isolated UI checks and 12 real-origin phone QA tests passed.
+The full four-token collapse remains open: larger panel/theatre radii, true
+circles, game-board geometry and named decorative exceptions were not changed.
+Hosted and physical-device evidence has not yet been gathered for this pass.
+
 ## Night collection certificate foundation: 25 September 2026
 
 Merged PR #341 adds offline definition receipts, structural duplicate
