@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import vm from 'node:vm';
 export default () => {
   const root = new URL('../', import.meta.url);
-  const ENDPOINT = 'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi';
+  const ENDPOINT = 'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect-stat/alibi';
   const COLLECTOR_ORIGIN = new URL(ENDPOINT).origin;
   const lock = JSON.parse(readFileSync(new URL('observatory.lock.json', root), 'utf8'));
   // The lock is keyed by target since Pulseboard#15; the original single-entry shape still reads.
@@ -16,11 +16,11 @@ export default () => {
   const code = readFileSync(new URL(target, root), 'utf8');
   assert.equal(createHash('sha256').update(code).digest('hex'), entry.sha256, target);
   assert.ok(!/MAX_BYTES|MAX_BATCH/.test(code), 'Server-only constants must not be published');
-  // Collection is active: the artifact carries the registered collector endpoint, exactly once.
+  // The aggregate artifact carries the registered statistics endpoint, exactly once.
   assert.equal(
     code.split(`"endpoint":"${ENDPOINT}"`).length - 1,
     1,
-    'Expected exactly one registered collect endpoint',
+    'Expected exactly one registered statistics endpoint',
   );
   // Without a document origin the artifact still mounts nothing, endpoint or not.
   let context = { document: { readyState: 'complete' } };
@@ -40,7 +40,7 @@ export default () => {
   };
   vm.runInNewContext(code, context);
   assert.equal(context.PulseboardUsage, null);
-  // The shipped policy must actually permit the collector, or consent would produce blocked requests.
+  // The shipped policy must permit the collector when default-on statistics are active.
   let headers;
   try {
     headers = readFileSync(new URL('dist/_headers', root), 'utf8');
@@ -66,7 +66,7 @@ export default () => {
   const bundleCode = readFileSync(new URL('dist/' + bundle, root), 'utf8');
   assert.ok(
     !bundleCode.includes(ENDPOINT),
-    'The collect endpoint must not be inlined in the initial bundle',
+    'The statistics endpoint must not be inlined in the initial bundle',
   );
   const emitted = bundleCode.match(
     /ALIBI_OBSERVATORY_URL="\.\/(assets\/observatory\.[a-f0-9]+\.js)"/,
@@ -90,6 +90,6 @@ export default () => {
     'build-info must report the Observatory asset size separately',
   );
   console.log(
-    'Hash, endpoint, inactive runtime, public-origin standalone rejection, built CSP and deferred asset passed. Full build QA remains required.',
+    'Hash, statistics endpoint, inactive runtime, public-origin standalone rejection, built CSP and deferred asset passed. Full build QA remains required.',
   );
 };

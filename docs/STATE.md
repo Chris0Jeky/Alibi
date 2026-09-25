@@ -34,14 +34,35 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
-## Night Gardens source candidate: 25 September 2026
+## 0.12.0 source candidate: 25 September 2026
 
-Merged PR #342 adds 18 original Lanterns, Tents and Aquariums
-boards, bringing the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
+The proposed next web release combines 48 Night studies across eight families
+with the merged Desk type ramp, the approved radius slice and Block Cabinet
+visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
+registration and Pulseboard's release contract are complete in this candidate.
+The candidate now includes the statistical-only, default-on Usage sharing adapter
+for eligible first-time visitors on the primary Cloudflare origin, with an open
+notice, immediate opt-out and preserved prior off choices. The separate Sites
+fallback origin remains outside collector admission. Pulseboard's production
+admission switch is live and its aggregate-only hosted boundary has been probed.
+Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair;
+PR #97 adds a fail-closed storage-probe cleanup. The regenerated Alibi adapter
+passed 48 real Chromium assertions after idle-route and denied-cleanup
+regressions failed against their prior artifacts. Integrated local Verify
+passed 582 Node tests with three skips; 184 controls, 480 Night controls and
+214 real-origin storage/offline checks passed. Exact-head hosted integration,
+both existing deployments and hosted-origin acceptance remain to be completed.
+No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
+and `HUMAN_TODO.md` for human difficulty and physical-device gates.
+
+## Night Gardens source merged: 25 September 2026
+
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums boards, bringing
+the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
 Night Gardens source checks pass locally (seven focused tests), including native
 and independent unique answers, reducer replay, definition receipts and the
-published-definition baseline. Full Verify and real-control browser checks passed
-on the previous #342 head; the main refresh requires exact-head reproof.
+published-definition baseline. Exact-head hosted Verify and real-control browser
+checks passed before merge.
 Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
 

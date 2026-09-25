@@ -27,7 +27,7 @@ The two existing origins remain independent, recoverable sources of player data:
 | `src/asset-delivery.js`, `tools/build-delivery.cjs` | Verified enhanced images and exact local mirrors | Platform-aware resolver; preserve compact offline artwork and provenance |
 | `tools/build-quiet.cjs`, castle/Quiet Wing entry points | Lazy executable activity bundles and media | Bundle their executable bytes in Android even when execution remains lazy |
 | `src/theatre.js`, `src/atmosphere.js`, `src/quiet-wing/gpu.js` | Audio, images, Canvas/WebGL, lifecycle-sensitive resources | Interruption handling, measured decode budgets and explicit disposal |
-| `observatory/browser.js`, `src/observatory-loader.js` | Opt-in collector with an exact Cloudflare origin gate | Keep the web gate; native telemetry stays disabled pending its own audit |
+| `observatory/browser.js`, `src/observatory-loader.js` | Aggregate sharing defaults on for eligible first visits to the exact Cloudflare web origin, with a visible opt-out | Keep the web gate; native telemetry stays disabled pending its own audit |
 | `optional-online/` | Separately configured, disabled room service | Leave disabled initially; relative `/api` must not accidentally target virtual localhost |
 | `.github/workflows/check.yml` | Existing comprehensive `verify` job, browser/engine/offline evidence | Preserve required check; add native-specific checks later, not in this planning PR |
 
@@ -65,7 +65,7 @@ CAP-05/CAP-06 must preserve that exclusion: do not delete, coalesce or silently 
 
 ## Discrepancies and release risks
 
-1. Some deployment prose still says there is no analytics while current README/state and Observatory code describe an opt-in pilot. Privacy disclosures must be derived from the executed network graph, not copied from a stale sentence.
+1. The primary web origin admits aggregate sharing by default for eligible first visits, while Sites and native remain outside that gate. Keep privacy disclosures aligned with the executed network graph when either host changes.
 2. The primary and fallback have separate saves and documented release versions. Neither a redirect nor an Android package can silently migrate those browser databases.
 3. A declared Android minimum OS is not a minimum WebView feature contract. Audit all runtime APIs used by boot, workers, graphics, audio, storage and optional activities.
 4. Source build receipts separate compressed JavaScript, core shell and optional assets. Measure the native AAB/APKs, installed size and decoded memory independently; do not extrapolate from a zipped repository or an image's compressed file size.

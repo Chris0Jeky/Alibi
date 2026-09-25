@@ -123,7 +123,7 @@ Run `npm run assets:gallery` to inspect the source-backed production asset libra
 
 ## Privacy, provenance, and limitations
 
-Progress stays in this browser on this device. There is no mandatory account, cloud sync, advertising system, or payment service. Optional usage sharing is off by default and is designed around a closed, content-free event vocabulary; withdrawing consent stops later events. Hosting infrastructure may still process ordinary request data.
+Progress stays in this browser on this device. There is no mandatory account, cloud sync, advertising system, or payment service. On the primary Cloudflare site, eligible first-time visitors see an open notice and Usage sharing starts on for bounded, content-free counts; the visible control can turn it off immediately, and prior opt-outs stay off. The Sites fallback, GPC/DNT and unavailable or corrupt preference storage keep sharing off. Hosting and the collector may process ordinary request data, including IP addresses.
 
 Solutions ship with the application for offline checking and explicit reveals. Scores are not competitive or tamper-resistant. Difficulty and time estimates remain provisional until human calibration. Physical-device accessibility and Android acceptance remain open gates. The source currently has no reuse licence; that owner decision is still pending.
 
