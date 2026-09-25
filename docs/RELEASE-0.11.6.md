@@ -37,3 +37,23 @@ deployment, a physical-device check or human difficulty acceptance.
 The 0.11.6 source merged to `main` as `287fc38757d8628bfa8a0b6912adf90aadca0219`; no tag,
 deployment or public GitHub release has been created. The 0.11.5 Cloudflare and Sites receipts
 remain the latest verified deployments.
+
+## Pre-publication check: 25 September 2026
+
+On `main` at `84be37f7ae8c67545200866df189ea98d065bec5`,
+`npm.cmd ci`, `npm.cmd run verify`, `node tools/validate-pack.cjs
+examples/twelve-families.json`, `node observatory/check.mjs`, and
+`npm.cmd run cloudflare:check` passed locally. The Windows test run added Krita's
+installed `ffprobe` directory to `PATH` for the audio asset checks. The clean
+build identifies version `0.11.6`, build `024c5bc9bd9d`, 382 puzzles,
+`sourceDirty: false`, and 130,014 JavaScript gzip bytes. The same main head
+passed [hosted Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36092124637).
+
+Read-only HTTPS checks still found build `d6862c274553` on Cloudflare and
+`b8c6f194c5a4` on Sites; neither origin serves 0.11.6 yet. PR #332 merged
+curation regression tests as `da19969`. PR #329's binary hint change
+remains a separate draft with a failing size gate. Before publication, recheck
+the final merged head and build, create the matching tag, deploy both existing
+origins from one validated build, and verify their actual files and offline
+behavior. Physical play and difficulty calibration remain open in
+`HUMAN_TODO.md`.
