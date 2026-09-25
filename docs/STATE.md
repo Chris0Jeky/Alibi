@@ -87,9 +87,9 @@ Cloudflare and Sites and their separate device-local saves. Android is a preview
 
 ### Block Cabinet phone action hierarchy candidate, 2026-09-17
 
-The candidate and earlier proving checks remain in the state archives. Physical
-Android touch, TalkBack, comfort review and human acceptance remain open; source
-and simulated-browser checks do not turn that candidate into device signoff.
+The candidate and earlier proving checks remain in the state archives. The
+physical Android touch, TalkBack, comfort review and human acceptance stay open;
+source and simulated-browser checks do not turn that candidate into device signoff.
 
 [HUMAN_TODO.md](../HUMAN_TODO.md) q-1 through q-8 remain open, including source
 licensing, human difficulty and explanation quality, physical Android and TalkBack.
