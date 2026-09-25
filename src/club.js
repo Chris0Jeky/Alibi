@@ -1068,6 +1068,10 @@
             );
           const next = root.__alibiPendingClub;
           delete root.__alibiPendingClub;
+          botJob++;
+          botWorker?.terminate();
+          botWorker = null;
+          botPending = false;
           await persist(next);
           if (saveError) throw Error(saveError);
           state = next;
