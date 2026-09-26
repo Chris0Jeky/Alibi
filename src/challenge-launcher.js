@@ -36,12 +36,14 @@
       host.querySelector('[data-challenge="undo"]')?.addEventListener('click', () => {
         run.log.pop();
         selected = null;
+        message = '';
         onSave(copy(run));
         draw();
       });
       host.querySelector('[data-challenge="reset"]')?.addEventListener('click', () => {
         run = registry.begin(id);
         selected = null;
+        message = '';
         onSave(copy(run));
         draw();
       });
