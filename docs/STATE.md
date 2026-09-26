@@ -1,5 +1,24 @@
 # Live development state
 
+## Hotfix: Usage sharing confined to Settings: 26 September 2026
+
+Source `afabf32` (three commits on `main`) fixes the player-reported floating
+Usage sharing popup: the loader now hides the generated control on every route
+except Settings and Privacy, where it renders as a static top-of-page box.
+Sharing still defaults on for eligible visits; no default change was made.
+Version stays 0.12.0 (Pulseboard registration unchanged); clean build is
+`6b11d27969d7` with 130,366 startup JavaScript gzip bytes against the extended
+130,432-byte ceiling. Cloudflare Worker version
+`c8a8b8d5-7521-4779-98f1-545da40e2cac` serves the hotfix. Local `npm run
+verify`, `node observatory/check.mjs`, 65 intercepted Observatory browser
+assertions and a live disposable-profile smoke (collector blocked, no popup on
+home at 390px, settings/privacy box visible, opt-out persists, no page errors)
+all passed. The Sites fallback still serves the pre-hotfix build (saved
+version 23); it never loads the control and no Sites deploy tooling was
+available in this session. Full CI matrix and physical-device confirmation are
+pending. See [the hotfix receipt](HOTFIX-2026-09-26-USAGE-SHARING.md).
+Rollback: Worker `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`.
+
 ## Published web release 0.12.0: 25 September 2026
 
 [PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
