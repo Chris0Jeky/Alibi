@@ -1,6 +1,56 @@
 # Live development state
 
-## Published web release 0.11.6: 25 September 2026
+## Published web release 0.12.0: 25 September 2026
+
+[PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
+`0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
+[`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0)
+and the public release assets point to that source. The clean build is
+0.12.0 / `f2b20d3ee6c0`, with 430 puzzles and 130,290 startup JavaScript
+gzip bytes. All seven exact-head CI checks passed; merged-source Verify,
+Cloudflare dry run and release bundle passed. Cloudflare Worker version
+`8edf7ab7-a92e-4963-be7a-d1bebcd68fe8` and Sites saved version 23
+(deployment `appgdep_6ab6c0dc2c848191913d93bd136c2f2a`) now serve the
+same source. All 291 public files returned HTTP 200 on each origin; both
+origins passed 214 hosted real-origin storage/offline browser checks. The
+primary origin's default-on Usage sharing sent a bounded aggregate count,
+and opt-out stopped further sends in live Chromium. The separate Sites
+origin stays outside collector admission. See the
+[0.12.0 publication receipt](RELEASE-0.12.0.md) for build digests, HTTP
+comparison, rollback references and evidence limits.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open, especially physical Android,
+TalkBack and human difficulty calibration. Issue #220 remains open for larger
+and decorative radii; issue #219 remains open for cross-room type work.
+Earlier checkpoints below are historical.
+
+## Club persistence and restore hardening merged: 25 September 2026
+
+The Club storage closeout is now on `main`. PR #376 added backup-envelope
+validation coverage and merged as `2856e8f9057ea808a8d152f5dc2a41ee6ee93449`.
+PR #377 then serialized restore replacement, invalidated the pending bot keeper
+and preserved persist-before-replace ordering; it merged as
+`8452662f803139d5d51d65657f3b42d1a2389443`. PR #378 added fail-closed handling
+for IndexedDB read or transaction failures (no writable localStorage fork),
+bound delayed Borough reset confirmation to its own intent, and added a live
+Chromium regression for an aborted Club read; it merged as
+`69b8c42cccb721000e9628e3d12476d124724a9a` from exact head
+`3a3a1fd7164b612262f01ca1bf1e74959c2352d2`.
+
+At that exact head, local `npm.cmd run verify` passed 598 tests (595 passed,
+3 skipped, 0 failed) with 581,847 assertions; both web and Android receipts
+reported `sourceDirty: false`. The focused Club/restore/backup suite passed 14
+tests, including 51 Club assertions. The focused real-origin Chromium scenario
+passed 30 checks, the full real-origin suite on the same test content passed
+243 checks, and exact-head hosted Verify, browser controls and Android payload
+checks all passed. This is a source checkpoint only: no new release, tag or
+deployment is claimed.
+
+The evidence does not certify physical-device behavior, TalkBack, human
+accessibility calibration, or real browser Worker interleaving. `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
+## Published web release 0.11.6: 25 September 2026 (historical)
 
 [PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
 race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
@@ -34,14 +84,36 @@ does not certify the affected physical Android phone, TalkBack, or the provision
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
 
-## Night Gardens source candidate: 25 September 2026
+## 0.12.0 source candidate: 25 September 2026 (historical)
 
-Merged PR #342 adds 18 original Lanterns, Tents and Aquariums
-boards, bringing the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
+The proposed next web release combines 48 Night studies across eight families
+with the merged Desk type ramp, the approved radius slice and Block Cabinet
+visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
+registration and Pulseboard's release contract are complete in this candidate.
+The candidate now includes the statistical-only, default-on Usage sharing adapter
+for eligible visitors without a stored opt-out, including return visitors, on
+the primary Cloudflare origin, with an open
+notice, immediate opt-out and preserved prior off choices. The separate Sites
+fallback origin remains outside collector admission. Pulseboard's production
+admission switch is live and its aggregate-only hosted boundary has been probed.
+Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair;
+PR #97 adds a fail-closed storage-probe cleanup. The regenerated Alibi adapter
+passed 48 real Chromium assertions after idle-route and denied-cleanup
+regressions failed against their prior artifacts. Integrated local Verify
+passed 582 Node tests with three skips; 184 controls, 480 Night controls and
+214 real-origin storage/offline checks passed. Exact-head hosted integration,
+both existing deployments and hosted-origin acceptance remain to be completed.
+No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
+and `HUMAN_TODO.md` for human difficulty and physical-device gates.
+
+## Night Gardens source merged: 25 September 2026
+
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums boards, bringing
+the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
 Night Gardens source checks pass locally (seven focused tests), including native
 and independent unique answers, reducer replay, definition receipts and the
-published-definition baseline. Full Verify and real-control browser checks passed
-on the previous #342 head; the main refresh requires exact-head reproof.
+published-definition baseline. Exact-head hosted Verify and real-control browser
+checks passed before merge.
 Expert/Master labels remain provisional pending #161 and
 `HUMAN_TODO.md` q-8; no new web release is claimed.
 
