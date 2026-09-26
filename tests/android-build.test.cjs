@@ -116,7 +116,7 @@ test('web output remains intact while Android output excludes hosting controls',
   assert.equal(
     fs
       .readdirSync(path.join(ANDROID_DIST, 'assets'))
-      .some((name) => name.startsWith('observatory.')),
+      .some((name) => name.startsWith('pulseboard.')),
     false,
   );
 });

@@ -3207,55 +3207,22 @@ dialog .dialog-actions {
 .privacy-copy .btn {
   margin-top: 18px;
 }
-/* The statistics control lives at the top of Settings and Privacy only.
-   It is outside the app root so route changes cannot remove the off switch;
-   the loader hides it on every other route instead of floating a popup. */
-#pulseboard-usage-sharing {
-  width: min(750px, calc(100% - 24px));
-  margin: 12px auto;
-  padding: 12px 16px;
-  border: 2px solid var(--green);
-  border-radius: var(--radius-md);
-  background: var(--paper);
-  color: var(--ink);
-  box-shadow: 0 12px 36px #14211940;
-}
-#pulseboard-usage-sharing[hidden] {
+/* Pulseboard SDK: the Beta notice sits in the in-flow [data-pulseboard-bar] placeholder at the top of
+   the page (never an overlay), and the collapsed Beta button renders inline in #pulseboard-slot, which
+   src/pulseboard-host.js keeps inside the Settings or Privacy panel and parks hidden elsewhere. */
+[data-pulseboard-bar][hidden],
+#pulseboard-slot[hidden] {
   display: none;
 }
-#usage-sharing-slot.panel > #pulseboard-usage-sharing {
-  width: auto;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+#pulseboard-slot:not(:empty) {
+  margin: 10px 0;
 }
-#pulseboard-usage-sharing summary {
-  cursor: pointer;
-  font-weight: 700;
+#pulseboard-slot:not(:empty) + .usage-fallback {
+  display: none;
 }
-#pulseboard-usage-sharing summary:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
-}
-#pulseboard-usage-sharing p {
-  margin: 8px 0;
-  font-size: var(--text-meta);
-  line-height: 1.5;
-}
-#pulseboard-usage-sharing label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-weight: 600;
-}
-#pulseboard-usage-sharing input {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin: 2px 0 0;
-  accent-color: var(--green);
+[data-pulseboard-bar] button,
+#pulseboard-slot button {
+  min-height: 44px;
 }
 /* Theme and accessibility */
 html[data-theme='night'] {

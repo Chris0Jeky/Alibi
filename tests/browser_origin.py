@@ -1293,9 +1293,9 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
         context = launch_profile(pw, root / f"shared-paths-cold-{profile_name}")
         try:
             if profile_name == "privacy-directory":
-                # Startup must remain provable even when the optional, post-load
-                # usage-sharing asset has no successful response to record.
-                context.route("**/assets/observatory.*.js", lambda request: request.abort())
+                # Startup must remain provable even when the optional, deferred
+                # Pulseboard SDK asset has no successful response to record.
+                context.route("**/assets/pulseboard.*.js", lambda request: request.abort())
             page = new_page(context, f"shared-paths-{profile_name}")
             responses: list[tuple[str, int]] = []
             page.on("response", lambda response: responses.append((response.url, response.status)))

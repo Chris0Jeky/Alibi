@@ -243,12 +243,6 @@ function patchApplicationBundle(directory) {
     '!globalThis.ALIBI_BUILD_TARGET&&"serviceWorker"in navigator',
     'Android target lifecycle guard',
   );
-  source = replaceExactly(
-    source,
-    /globalThis\.ALIBI_OBSERVATORY_URL="\.\/assets\/observatory\.[0-9a-f]{12}\.js"/,
-    'globalThis.ALIBI_OBSERVATORY_URL=""',
-    'Android Observatory disablement',
-  );
   const nextName = `alibi.${sha256(source).slice(0, 12)}.js`;
   const next = path.join(path.dirname(original), nextName);
   fs.writeFileSync(next, source);
@@ -274,6 +268,25 @@ function rewriteIndex(directory, targetScript, application) {
     new RegExp(application.previous.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
     application.current,
     'Application script reference',
+  );
+  // The Pulseboard SDK is web-only: drop its script, the reserved notice space and the button slot.
+  html = replaceExactly(
+    html,
+    /<script src="\.\/assets\/pulseboard\.[0-9a-f]{12}\.js" defer><\/script>/,
+    '',
+    'Pulseboard SDK script',
+  );
+  html = replaceExactly(
+    html,
+    /\s*<div data-pulseboard-bar[^>]*><\/div>/,
+    '',
+    'Pulseboard notice space',
+  );
+  html = replaceExactly(
+    html,
+    /<div id="pulseboard-slot"[^>]*><\/div>/,
+    '',
+    'Pulseboard button slot',
   );
   const firstScript = html.indexOf('<script ');
   if (firstScript < 0) throw new Error('Built index has no external script anchor.');
@@ -351,7 +364,7 @@ function deriveAndroidPayload({
   copyTree(source, target);
   for (const filename of HOST_ONLY) fs.rmSync(path.join(target, filename), { force: true });
   for (const filename of files(path.join(target, 'assets'))) {
-    if (/^observatory\.[0-9a-f]{12}\.js$/.test(path.basename(filename))) fs.rmSync(filename);
+    if (/^pulseboard\.[0-9a-f]{12}\.js$/.test(path.basename(filename))) fs.rmSync(filename);
   }
 
   const platformFiles = files(path.join(target, 'assets')).filter((filename) =>

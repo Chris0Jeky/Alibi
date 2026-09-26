@@ -224,12 +224,13 @@ function build() {
     workerURL = `./assets/validator.${hash(worker)}.js`,
     boot = read(path.join(SRC, 'boot.js')),
     bootURL = `./assets/boot.${hash(boot)}.js`;
-  // The Observatory adapter is emitted verbatim as its own asset and loaded after the page's load event by
-  // src/observatory-loader.js. It is an online-only control: not in the initial bundle, not in the offline shell.
+  // The Pulseboard SDK (observatory/pulseboard.js, pinned by observatory.lock.json) is emitted verbatim as its
+  // own hashed asset and loaded by the last deferred script of the web index only. It is online-only: not in the
+  // initial bundle, not in the offline shell, not in the standalone file, and stripped from Android.
   // Discovery storage is likewise emitted as a deferred distribution asset. It remains unwired,
   // so it is neither advertised by the initial bootstrap nor installed in the core offline shell.
-  const observatory = read(path.join(ROOT, 'observatory/browser.js')),
-    observatoryURL = `./assets/observatory.${hash(observatory)}.js`,
+  const observatory = read(path.join(ROOT, 'observatory/pulseboard.js')),
+    observatoryURL = `./assets/pulseboard.${hash(observatory)}.js`,
     discoveryStorage = require('esbuild').transformSync(
       read(path.join(SRC, 'discovery-storage.js')),
       { minify: true, target: 'es2022' },
@@ -289,7 +290,7 @@ function build() {
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
-    read(path.join(SRC, 'observatory-loader.js')),
+    read(path.join(SRC, 'pulseboard-host.js')),
   ].join('\n');
   const targetGuard = '!globalThis.ALIBI_BUILD_TARGET &&';
   if (base.split(targetGuard).length !== 2)
@@ -333,7 +334,7 @@ function build() {
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
       require('esbuild').transformSync(webBase, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -375,7 +376,7 @@ function build() {
     ],
   };
   write(path.join(DIST, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
-  // Must equal the origin of the collect endpoint compiled into observatory/browser.js; observatory/check.mjs asserts both.
+  // Must equal the collector origin compiled into observatory/pulseboard.js; observatory/check.mjs asserts both.
   const OBSERVATORY_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev';
   const connectOrigins = [...delivery.origins, OBSERVATORY_ORIGIN];
   const documentPolicy = `default-src 'self'; script-src 'self' ${pathRouteAliasCspHashes().join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
@@ -384,9 +385,12 @@ function build() {
     path.join(DIST, 'index.html'),
     template
       .replace('<!-- HEAD -->', head)
+      // In-flow space for the SDK's one-line Beta notice, released once no notice shows. min-height, not
+      // height: on a narrow phone the notice wraps and must push the page down, never overlap it.
+      .replace('<body>', '<body>\n    <div data-pulseboard-bar style="min-height: 2.5rem"></div>')
       .replace(
         '<!-- SCRIPTS -->',
-        `<script src="${bootURL}" defer></script><script src="${identityURL}" defer></script><script src="${platformURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script>`,
+        `<div id="pulseboard-slot" data-pulseboard-slot hidden></div><script src="${bootURL}" defer></script><script src="${identityURL}" defer></script><script src="${platformURL}" defer></script><script src="${contentURL}" defer></script><script src="./${jsName}" defer></script><script src="${blockLoaderURL}" defer></script><script src="${observatoryURL}" defer></script>`,
       ),
   );
   const aliasShellDocuments = Object.keys(PATH_ROUTE_ALIASES).flatMap((alias) => [

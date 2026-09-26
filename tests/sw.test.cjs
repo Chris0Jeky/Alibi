@@ -115,7 +115,7 @@ function setup(failInstall = false) {
               !n.startsWith('folio-') &&
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
-              !n.startsWith('observatory.') &&
+              !n.startsWith('pulseboard.') &&
               !n.startsWith('discovery-storage.') &&
               !n.startsWith('house.') &&
               !n.startsWith('block-motion.') &&
@@ -134,7 +134,7 @@ function setup(failInstall = false) {
         !n.startsWith('folio-') &&
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&
-        !n.startsWith('observatory.') &&
+        !n.startsWith('pulseboard.') &&
         !n.startsWith('discovery-storage.') &&
         !n.startsWith('house.') &&
         !n.startsWith('block-motion.') &&
