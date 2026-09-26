@@ -24,11 +24,11 @@ const config = {};
 // Execute only the generated official-data script in an isolated realm, never app code.
 require('node:vm').runInNewContext(content, config, { timeout: 2000 });
 assert.ok(config.ALIBI_THEATRE, 'official data installs theatre before the application');
+assert.ok(config.ALIBI_CURATION, 'official data installs curation before the application');
 // The unchanged application metadata retains named static JSON assignments.
 for (const [name, source] of [
   ['ALIBI_CURATION_MEDIA', js],
   ['ALIBI_MEDIA', js],
-  ['ALIBI_CURATION', content],
 ]) {
   const assignment = source.match(new RegExp('globalThis\\.' + name + '=(.*);\\n'));
   assert.ok(assignment, name + ' has a static emitted assignment');

@@ -24,7 +24,7 @@ keyboard focus. The shared worker behavior also covers Tic-Tac-Toe.
 
 ## Evidence and boundaries
 
-Seventeen focused source tests pass, including six new worker/focus regressions
+Eighteen focused source tests pass, including seven new worker/focus regressions
 observed red on the recovered code. Built standalone Chromium passes ten Duel
 strength/recovery scenarios and 76 Block assertions, retaining main's stationary
 piece and anti-flicker checks. Fresh-seed browser expectations compare the complete

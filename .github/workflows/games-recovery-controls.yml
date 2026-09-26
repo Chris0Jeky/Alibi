@@ -38,7 +38,7 @@ jobs:
       - name: Exercise built-origin games
         run: |
           mkdir -p test-results/gameplay-continuation
-          printf '%s\n' '${{ github.event.pull_request.head.sha || github.sha }}' > test-results/gameplay-continuation/source-head.txt
+          git rev-parse HEAD > test-results/gameplay-continuation/source-head.txt
           npm start > /tmp/alibi-games-server.log 2>&1 &
           for attempt in $(seq 1 30); do
             curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break
