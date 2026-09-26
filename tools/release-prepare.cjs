@@ -34,7 +34,9 @@ function releaseRecordProblems(releases, version) {
   const record = matches[0],
     problems = [];
   if (releases[0] !== record) problems.push(`The ${version} record must be first (newest).`);
-  const newestOther = releases.find((r) => r && r !== record && SEMVER.test(r.version));
+  const newestOther = releases
+    .filter((r) => r && r !== record && SEMVER.test(r.version))
+    .sort((a, b) => compareVersions(b.version, a.version))[0];
   if (newestOther && compareVersions(version, newestOther.version) <= 0)
     problems.push(`${version} must be newer than ${newestOther.version}.`);
   if (record.tag !== `v${version}`) problems.push(`tag must be v${version}.`);
@@ -177,7 +179,7 @@ function main(argv) {
     });
     if (!flag('--publish')) {
       console.log(
-        `Committed on ${branch} in ${worktree}. Re-run with --publish, or push it yourself.`,
+        `Committed on ${branch} in ${worktree}. Push it and open the PR yourself, or delete the branch and worktree and re-run with --publish.`,
       );
       return;
     }

@@ -45,6 +45,14 @@ test('missing, duplicate, stale or incomplete records are refused', () => {
     );
 });
 
+test('the candidate must be newer than every recorded release, not only the next one', () => {
+  assert.ok(
+    releaseRecordProblems([record('0.13.0'), record('0.12.0'), record('1.0.0')], '0.13.0').some(
+      (p) => /newer than 1.0.0/.test(p),
+    ),
+  );
+});
+
 test('versions compare numerically', () => {
   assert.ok(compareVersions('0.10.0', '0.9.9') > 0);
   assert.equal(compareVersions('1.2.3', '1.2.3'), 0);
