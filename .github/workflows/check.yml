@@ -10,7 +10,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: verify-${{ github.workflow }}-${{ github.ref }}
+  # Main runs get a per-commit group: a later docs-only push must not cancel a full run.
+  group: verify-${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
   cancel-in-progress: true
 jobs:
   verify:

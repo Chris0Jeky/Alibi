@@ -93,3 +93,27 @@ test('the penultimate Club revision advances exactly to the safe limit', async (
   assert.equal(saved.rev, Number.MAX_SAFE_INTEGER);
   assert.equal(context.AlibiClub.diagnostics().saveError, '');
 });
+
+test('a failed fallback write leaves the in-memory Club revision unchanged', async () => {
+  const fixture = await envelope();
+  const context = await tab(fixture.localStorage);
+  const before = context.AlibiClub.diagnostics().revision;
+  fixture.localStorage.setItem = () => {
+    throw Error('Quota exceeded');
+  };
+  await context.AlibiClub.save();
+  assert.equal(context.AlibiClub.diagnostics().revision, before);
+  assert.match(context.AlibiClub.diagnostics().saveError, /quota/i);
+});
+
+test('a superseded route does not apply a shared Borough seed', async () => {
+  const fixture = await envelope();
+  const context = await tab(fixture.localStorage);
+  context.location.hash = '#/salon/borough?seed=SHARED-TOWN';
+  const stale = context.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  const current = context.AlibiClub.onRoute({ page: 'home' });
+  await Promise.all([stale, current]);
+  await context.AlibiClub.save();
+  const saved = JSON.parse(fixture.localStorage.getItem('alibi-afterhours-v1'));
+  assert.equal(saved.data.runs?.borough, undefined);
+});

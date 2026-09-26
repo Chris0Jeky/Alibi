@@ -1,5 +1,18 @@
 [
   {
+    "version": "0.13.0",
+    "date": "2026-09-26",
+    "title": "Deeper vaults and a stronger Duel",
+    "tag": "v0.13.0",
+    "receipt": "docs/RELEASE-0.13.0.md",
+    "changes": [
+      "Take on 36 new challenges: 24 Archive Heist vaults with three or four crates, and 12 Pocket Borough planning contracts that pair score targets with neighbourhood requirements and visible progress. Filter the 95-challenge library by family.",
+      "Choose Lantern Duel strength: Learner, Club, Keeper or Expert. Existing saves keep Keeper, and a failed opponent now pauses for an explicit Retry instead of stalling.",
+      "Start a fresh Block Cabinet game on each confirmed Start again, while typed seeds remain repeatable.",
+      "Find Usage sharing inside Settings and Privacy instead of a banner, and keep Club saves safer during restores, storage failures and quick navigation."
+    ]
+  },
+  {
     "version": "0.12.0",
     "date": "2026-09-25",
     "title": "Night studies and a steadier Desk",

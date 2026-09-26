@@ -360,8 +360,9 @@
             throw Error('Club progress changed in another tab. Export and reload.');
           localStorage.setItem(
             'alibi-afterhours-v1',
-            JSON.stringify({ rev: ++rev, data: snapshot }),
+            JSON.stringify({ rev: rev + 1, data: snapshot }),
           );
+          rev++;
         }
       })
       .catch((e) => {
@@ -519,16 +520,20 @@
     if (r.page === 'salon' || r.page === 'club') {
       try {
         await engine();
+        if (route !== r) return;
         if (r.id === 'borough') {
           const query = new URLSearchParams(location.hash.split('?')[1] || ''),
             seed = query.get('seed');
           if (seed && (!state.runs.borough || state.runs.borough.seed !== E().seedText(seed))) {
             const validSeed = E().seedText(seed);
             if (state.runs.borough?.log.length && !currentGame('borough').done) {
-              const intent = (root.__clubReset = { id: 'borough', seed: validSeed });
+              const intent = (root.__clubReset = { id: 'borough', seed: validSeed }),
+                hash = location.hash;
               setTimeout(
                 () =>
                   root.__clubReset === intent &&
+                  route === r &&
+                  location.hash === hash &&
                   confirmation(
                     'Open the shared town?',
                     'This replaces your unfinished town. Export the Club save first to keep it.',
@@ -1684,13 +1689,16 @@
   }
   async function pollRoom() {
     if (!room || document.hidden || route.page !== 'salon' || route.id !== 'duel') return;
+    const current = room;
     try {
       const value = await request('/rooms/' + room.code + '/state', 'GET', undefined, room.token);
+      if (room !== current) return;
       const changed = value.version !== room.version || value.joined !== room.joined;
       Object.assign(room, value);
       roomError = '';
       if (changed) render();
     } catch (e) {
+      if (room !== current) return;
       roomError = e.message;
       const msg = document.querySelector('.club-turn-status');
       if (msg) msg.textContent = roomError;
@@ -1701,6 +1709,7 @@
   async function roomMove(cell) {
     if (!room || roomBusy || room.seat !== room.state.turn || !room.joined) return;
     roomBusy = true;
+    const current = room;
     try {
       const value = await request(
         '/rooms/' + room.code + '/move',
@@ -1708,10 +1717,12 @@
         { cell, expectedVersion: room.version, moveId: crypto.randomUUID() },
         room.token,
       );
+      if (room !== current) return;
       Object.assign(room, value);
       roomError = '';
       render();
     } catch (e) {
+      if (room !== current) return;
       roomError = e.message;
       notify(roomError, true);
       await pollRoom();
