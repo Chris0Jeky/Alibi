@@ -29,7 +29,6 @@
       }
     });
     if (optedOut && ls.getItem(V3) === null) {
-      const d = new Date();
       ls.setItem(
         V3,
         JSON.stringify({
@@ -37,7 +36,7 @@
           diagnostics: false,
           journeys: false,
           decided: true,
-          month: d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'),
+          month: new Date().toISOString().slice(0, 7),
         }),
       );
     }
