@@ -152,10 +152,16 @@ function main(argv) {
     }
     // Only a real registration needs a branch; refuse to duplicate an existing one.
     for (const ref of [`refs/heads/${branch}`, `refs/remotes/origin/${branch}`])
-      if (spawnSync('git', ['rev-parse', '-q', '--verify', ref], { cwd: pulseboard }).status === 0)
+      if (
+        spawnSync('git', ['rev-parse', '-q', '--verify', ref], { cwd: pulseboard }).status === 0
+      ) {
+        // Nothing of value is lost: the regenerated files are reproducible from origin/main.
+        run('git', ['checkout', '--', '.'], { cwd: worktree });
+        keepWorktree = false;
         throw Error(
           `Pulseboard already has ${branch}; an admission PR may already be open (delete a stale local branch to retry).`,
         );
+      }
     run('git', ['switch', '-q', '-c', branch], { cwd: worktree });
     if (!fs.existsSync(path.join(observatory, 'node_modules')))
       run('npm', ['ci', '--no-audit', '--no-fund'], { cwd: observatory });

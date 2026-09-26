@@ -32,8 +32,9 @@ regenerated adapter is pinned in `observatory.lock.json`.
 ## Publication receipt
 
 Pending. Record here: merge commit, clean build hash and `build-info.json` figures,
-exact-head CI, Cloudflare Worker version and hosted checks, Sites status, and the
-collector deployment that admits 0.13.0.
+exact-head CI, Cloudflare Worker version and hosted checks, and Sites status. The
+collector admitting 0.13.0 is already deployed as Pulseboard Worker version
+`ed739cc8-b136-4c28-864f-6b34f9b2ee95` (rollback `bffba8a7-d066-46a8-887a-bf1c916f2648`).
 
 ## Evidence limits
 
