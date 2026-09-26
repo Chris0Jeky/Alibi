@@ -484,3 +484,17 @@ claimed. Android remains a non-publishable preview; the Capacitor owner gates re
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
 explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
 source tests do not approve that ADR. Review live open PRs before overlapping another lane.
+
+## Planning vault integration recovery: 25 September 2026
+
+PR #357 now wires its existing 24 Archive vaults and 12 Borough contracts into
+one trusted source registry for both the optional launcher and validation worker.
+All 59 earlier challenge definitions and starting identities remain intact.
+Independent push minima, native immutable replays, source projection and actual
+emitted-worker checks cover all 95 challenges. The legacy audit also covers 95.
+The two #357 data files remain byte-identical to c60c3285; no older handoff map
+replaces them. See docs/curation/PLANNING-VAULTS.md for proof limits and the missing
+historical generator, and the new read-only planning control workflow for the
+real-origin gate. Isolated controls pass all 72 cases; this does not certify
+origin persistence, physical Android, TalkBack or calibrated human difficulty.
+No budget increase, merge, deployment or release is implied.
