@@ -4,7 +4,6 @@
   const C = root.AlibiCore,
     X = C.extras;
   const at = C.at;
-  const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
   const conflict = (message, cells) => ({ rule: 'Revisit a conflict', message, cells });
@@ -17,6 +16,17 @@
     return issues;
   }
   function deduction(p, s) {
+    const result = (rule, message, cell, value, forced = [cell]) => {
+      // Lantern claims can force several neighbours; validate them together on a copy.
+      const issue =
+        p.type === 'lightup' &&
+        C.registry.lightup.validate(p, {
+          cells: s.cells.map((v, i) => (forced.includes(i) ? value : v)),
+        })[0];
+      return issue
+        ? conflict(`With your marks: ${issue.message}`, issue.cells)
+        : { rule, message, cells: [cell], value };
+    };
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
     if (p.type === 'network' && networkHint) {
@@ -142,7 +152,7 @@
         if (s.cells[i] === -1 && lit.has(i))
           return result(
             'No facing lanterns',
-            `${at(i, n)} faces a lantern with no wall between them. Mark it with a cross.`,
+            `${at(i, n)} faces a lantern with no wall between. Cross it.`,
             i,
             0,
           );
@@ -153,20 +163,16 @@
           unknown = neighbours.filter((j) => s.cells[j] === -1),
           remaining = p.walls[i] - placed;
         if (!unknown.length) continue;
-        if (remaining === 0)
+        if (remaining === 0 || remaining === unknown.length) {
+          const value = remaining ? 1 : 0;
           return result(
-            'This wall has enough lanterns',
-            `The wall at ${at(i, n)} has all its required lanterns. Cross out ${at(unknown[0], n)}.`,
+            value ? 'Fill the remaining neighbours' : 'This wall has enough lanterns',
+            `The wall at ${at(i, n)} ${value ? 'needs all unmarked neighbours. Place a lantern at' : 'has enough lanterns. Cross out'} ${at(unknown[0], n)}.`,
             unknown[0],
-            0,
+            value,
+            unknown,
           );
-        if (remaining === unknown.length)
-          return result(
-            'Fill the remaining neighbours',
-            `The clue at ${at(i, n)} needs every unmarked neighbour. Place a lantern at ${at(unknown[0], n)}.`,
-            unknown[0],
-            1,
-          );
+        }
       }
       for (const i of white) {
         if (lit.has(i)) continue;
@@ -174,7 +180,7 @@
         if (sources.length === 1)
           return result(
             'Only one way to light this square',
-            `With your marks, only a lantern at ${at(sources[0], n)} can light ${at(i, n)}. Place one there.`,
+            `Only ${at(sources[0], n)} can light ${at(i, n)} with your marks. Place a lantern there.`,
             sources[0],
             1,
           );

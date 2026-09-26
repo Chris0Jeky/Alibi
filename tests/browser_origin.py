@@ -51,6 +51,7 @@ ORIGIN_SCENARIOS = (
     "malformed_draft",
     "malformed_persisted",
     "newer_database",
+    "club_read_abort",
 )
 
 checks: list[str] = []
@@ -1473,6 +1474,142 @@ def scenario_newer_database(pw: Any, root: Path) -> None:
             pass
 
 
+CLUB_ABORT_SCRIPT = """(() => {
+  if (globalThis.__alibiClubAbortInstalled) return;
+  globalThis.__alibiClubAbortInstalled = true;
+  globalThis.__alibiClubAbortArmed = true;
+  globalThis.__alibiClubAbortFired = false;
+  const origGet = IDBObjectStore.prototype.get;
+  IDBObjectStore.prototype.get = function (key, ...rest) {
+    const req = origGet.call(this, key, ...rest);
+    try {
+      const tx = req.transaction;
+      if (
+        globalThis.__alibiClubAbortArmed &&
+        this.name === 'club' &&
+        key === 'state' &&
+        tx &&
+        tx.db &&
+        tx.db.name === 'alibi-afterhours-v1' &&
+        tx.mode === 'readonly'
+      ) {
+        globalThis.__alibiClubAbortArmed = false;
+        globalThis.__alibiClubAbortFired = true;
+        queueMicrotask(() => {
+          try { tx.abort(); } catch {}
+        });
+      }
+    } catch {}
+    return req;
+  };
+})();"""
+
+
+def read_club_state(page: Page) -> Any:
+    return page.evaluate(
+        """() => new Promise((resolve, reject) => {
+          const request = indexedDB.open('alibi-afterhours-v1');
+          request.onerror = () => reject(request.error || new Error('Club IndexedDB open failed'));
+          request.onsuccess = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains('club')) {
+              db.close();
+              resolve(null);
+              return;
+            }
+            const tx = db.transaction('club', 'readonly');
+            const read = tx.objectStore('club').get('state');
+            read.onerror = () => reject(read.error || new Error('Club IndexedDB read failed'));
+            read.onsuccess = () => {
+              const value = read.result ?? null;
+              db.close();
+              resolve(value);
+            };
+          };
+        })"""
+    )
+
+
+def scenario_club_read_abort(pw: Any, root: Path) -> None:
+    profile = root / "club-read-abort"
+    context = launch_profile(pw, profile)
+    try:
+        seed = new_page(context, "club-read-abort-seed")
+        boot(seed)
+        seed_diag = seed.evaluate("AlibiClub.diagnostics()")
+        check(seed_diag["storageMode"] == "indexeddb", "club seed uses IndexedDB")
+        baseline = read_club_state(seed)
+        check(
+            isinstance(baseline, dict) and isinstance(baseline.get("rev"), int) and baseline["rev"] >= 1,
+            "club seed establishes a revisioned state record",
+        )
+        check(
+            isinstance(baseline.get("data"), dict) and baseline["data"].get("schema") == 1,
+            "club seed record satisfies the production save schema",
+        )
+        baseline_json = json.dumps(baseline, sort_keys=True)
+        seed.close()
+
+        context.add_init_script(CLUB_ABORT_SCRIPT)
+        page = new_page(context, "club-read-abort")
+        boot(page)
+        wait_page(
+            page,
+            "() => globalThis.AlibiClub?.diagnostics().storageMode === 'session'",
+            what="club protected session",
+        )
+        check(page.evaluate("() => !!globalThis.__alibiClubAbortFired"), "one-shot club read abort was consumed")
+        check(
+            page.evaluate("() => globalThis.__alibiClubAbortArmed === false"),
+            "abort injection does not persist past the first read",
+        )
+        club = page.evaluate("AlibiClub.diagnostics()")
+        check(club["storageMode"] == "session", "aborted club read stays in protected temporary session")
+        warning = str(club.get("saveError", "")).lower()
+        check("left untouched" in warning, "aborted club read reports the save was left untouched")
+        check("temporary" in warning, "aborted club read reports a temporary session")
+        check("export" in warning, "aborted club read asks for export")
+        check("reload" in warning, "aborted club read asks for reload")
+        body = page_text(page).lower()
+        check("left untouched" in body, "protected temporary warning is exposed in the UI")
+        check("export" in body, "export warning is exposed in the UI")
+        check(
+            page.evaluate("localStorage.getItem('alibi-afterhours-v1')") is None,
+            "aborted club read writes no divergent localStorage fallback",
+        )
+        check(
+            "alibi-afterhours-v1" not in page.evaluate("Object.keys(localStorage)"),
+            "no competing club localStorage key exists",
+        )
+        check(
+            page.evaluate("AlibiDiagnostics.storage") == "indexeddb",
+            "cabinet storage stays on IndexedDB while the club session is protected",
+        )
+        after = read_club_state(page)
+        check(
+            after is not None and json.dumps(after, sort_keys=True) == baseline_json,
+            "pre-existing club record revision and data remain equal",
+        )
+        persisted = page.evaluate(
+            "async () => { await AlibiClub.save(); await AlibiClub.flush(); return AlibiClub.diagnostics(); }"
+        )
+        check(persisted["storageMode"] == "session", "temporary session persist stays out of writable storage")
+        check(
+            page.evaluate("localStorage.getItem('alibi-afterhours-v1')") is None,
+            "temporary session persist creates no divergent localStorage save",
+        )
+        reread = read_club_state(page)
+        check(
+            reread is not None and json.dumps(reread, sort_keys=True) == baseline_json,
+            "temporary session persist does not mutate the protected record",
+        )
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def run() -> int:
     result: dict[str, Any] = {
         "startedAt": datetime.now(timezone.utc).isoformat(),
@@ -1502,6 +1639,7 @@ def run() -> int:
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_newer_database,
+                scenario_club_read_abort,
             ]
             only = os.environ.get("ALIBI_ONLY")
             if only and only not in ORIGIN_SCENARIOS:
