@@ -1,9 +1,54 @@
-# Observatory integration
+# Pulseboard integration
 
-Alibi ships a generated, pinned browser adapter from the Pulseboard Observatory. Pulseboard PRs #90–#95 replaced the earlier raw-event pilot with aggregate statistics, PR #96 repairs automatic delivery and fail-closed legacy preferences, and PR #97 makes denied preference-probe cleanup fail closed. `observatory.lock.json` pins the checked-in `observatory/browser.js` bytes. From the Pulseboard `observatory/` directory, `npm run sync:alibi -- <Alibi checkout>` regenerates the artifact and lock; `node observatory/check.mjs` verifies the pin, endpoint, public-origin guard and built Content Security Policy.
+Since 0.13.1 Alibi ships the Pulseboard SDK v3 (Pulseboard issue #105) instead of the aggregate
+statistics embed. `observatory/pulseboard.js` is the unedited output of Pulseboard
+`observatory/adapters/build-sdk.mjs` for project `alibi`, pinned by `observatory.lock.json`
+(`"sdk": "3.0.0"`, SHA-256 per target). `node observatory/check.mjs` verifies the pin, the builder's
+header hash, the collector origin (`https://pulseboard-observatory.commit-atlas.workers.dev`), that
+the package version is the release built into the artifact and listed in its closed release
+contract, and that the artifact defines `window.Pulseboard` in a fake window without a network call
+before mount and stays inert off the registered origin or under automation. `check.local.mjs` then
+checks the built site: CSP `connect-src`, one deferred hashed SDK script loaded last, the in-flow
+`[data-pulseboard-bar]` space as the first element of `<body>`, the `#pulseboard-slot`, and that
+neither the offline shell nor the standalone file carries the SDK.
 
-The build emits the adapter as a hashed online-only asset outside the initial application bundle and service-worker shell. `src/observatory-loader.js` loads it after the page load event. The generated adapter admits only the primary Cloudflare Alibi origin with a non-standalone web build. The separate Sites fallback, local files, offline play and automated browsers do not collect. GPC, DNT, unavailable/corrupt preference storage and prior explicit opt-outs keep sharing off.
+## Rebuilding
 
-Usage sharing still defaults on for eligible visits. The control lives on Settings and Privacy only, never as a popup; unticking it stops later counts and that choice persists. The adapter sends bounded counts for a closed event, route and app-release vocabulary; it excludes puzzle content, answers, saves, notes, session and visitor IDs. The collector's hosting provider necessarily receives request metadata such as IP addresses. Aggregate rows retain at most 14 UTC dates. Pulseboard's production admission switch is live, while Alibi publication and hosted browser acceptance are recorded in `docs/RELEASE-0.12.0.md`.
+The artifact embeds its release. A new Alibi version must first be registered in Pulseboard
+(`observatory/src/alibi-releases.mjs`, then a collector deploy) or its counts are refused. From a
+Pulseboard checkout: `git rm observatory/pulseboard.js` here, then
+`node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>` in
+Pulseboard's `observatory/`, and put the printed SHA-256 into the lock. Pulseboard's `sync:alibi`
+still targets the old `observatory/browser.js` embed and needs an SDK v3 update before
+`npm run release:prepare` works again.
 
-`tests/browser_observatory.py` serves the built files under the exact public origin with an intercepted fake collector. It checks the settings-only notice, default-on counts, automatic route delivery, immediate opt-out, corrupt and legacy preference boundaries, and content-free journey events. It does not prove the live collector, physical Android, or storage/offline behavior. Use `tests/browser_origin.py` on each deployed HTTPS origin for the latter browser behavior. Never send answers, save data, imported puzzles, personal text or workshop contents.
+0.13.1's artifact was built from Pulseboard `0ed1dcb` with `0.13.1` appended to the release list,
+before Pulseboard registered it: the bytes equal what Pulseboard builds once it lists `0.13.1`.
+
+## Host integration
+
+- `tools/build.cjs` emits the SDK as `assets/pulseboard.<hash>.js`, the last deferred script of the
+  web index, outside the initial bundle and the offline shell. The standalone file never loads it;
+  the Android build strips the script, the notice space and the slot.
+- `<div data-pulseboard-bar style="min-height: 2.5rem">` is the first element of `<body>`. The SDK
+  renders the one-line Beta notice into it, in flow, and releases it once a choice is recorded.
+  `min-height`, not `height`: on a 390px phone the notice wraps and pushes the game down.
+- `<div id="pulseboard-slot" data-pulseboard-slot hidden>` exists before the SDK mounts, so the
+  collapsed Beta button renders inline in that element, never as a fixed pill.
+  `src/pulseboard-host.js` moves it into `#usage-sharing-slot` in Settings and Privacy and parks it
+  hidden on every other route.
+- The same glue reports hash routes with `Pulseboard.route` (`home`, `puzzle`, `castle`,
+  `quiet-wing`, `other`) and a bounded journey with `Pulseboard.count` plus `Pulseboard.track`:
+  `puzzle.started {puzzle}`, `puzzle.completed {puzzle, seconds, hints, attempts}`,
+  `puzzle.failed {puzzle, seconds, attempts}`, `hint.requested {puzzle, hint}`. Only official
+  catalogue ids leave the device (`custom` otherwise); never answers, boards, notes or typed text.
+  Every call is guarded, and without the SDK the glue releases the reserved space.
+
+## Tests
+
+`tests/pulseboard-host.test.cjs` runs the glue against a stub and against the real artifact in a
+fake DOM; `tests/browser_observatory.py` serves the build under the public origin at 390px with a
+fake collector and checks the in-flow notice, that no game control is overlapped or covered, the
+inline Beta button in Settings and Privacy, journey payloads, EEA, non-EEA, GPC and a blocked SDK.
+Neither proves the live collector, a physical phone or storage/offline behaviour
+(`tests/browser_origin.py` on each deployed origin).
