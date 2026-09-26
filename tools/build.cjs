@@ -137,7 +137,8 @@ function build() {
     target: 'es2022',
     write: false,
   }).outputFiles[0].text;
-  const catalog = require('./official-catalogue.cjs').load(ROOT),
+  const officialParts = require('./official-catalogue.cjs').partition(ROOT),
+    catalog = officialParts.catalog,
     books = JSON.parse(read(path.join(ROOT, 'content/casebooks.json'))),
     core = read(path.join(SRC, 'core.js')),
     engines = read(path.join(SRC, 'engines.js')),
@@ -244,13 +245,25 @@ function build() {
   editorial.delivery = delivery.entries;
   // Authored scene/media metadata belongs with the other official editorial data.
   // This is still an initial download, counted in combined and offline delivery budgets.
-  const contentSource = require('./build-official-content.cjs').serialize({
-    ALIBI_RELEASES: JSON.parse(read(path.join(ROOT, 'content/releases.json'))),
-    ALIBI_CATALOG: catalog,
-    ALIBI_CASEBOOKS: books,
-    ALIBI_CURATION: editorial,
-    ALIBI_THEATRE: theatre,
-  });
+  // Registry-deferred definitions ship in one precached chunk. Startup carries listing entries,
+  // and the chunk swaps in the full definitions after validating each against its entry.
+  const officialContent = require('./build-official-content.cjs'),
+    officialSplit = officialContent.split(catalog, officialParts.deferred),
+    deferredSource = officialContent.serializeDeferred(
+      officialSplit.keys,
+      officialSplit.positions,
+      officialSplit.definitions,
+    ),
+    deferredURL = `./assets/official-deferred.${hash(deferredSource)}.js`;
+  write(path.join(DIST, deferredURL), deferredSource);
+  const contentSource =
+    officialContent.serialize({
+      ALIBI_RELEASES: JSON.parse(read(path.join(ROOT, 'content/releases.json'))),
+      ALIBI_CATALOG: officialSplit.catalog,
+      ALIBI_CASEBOOKS: books,
+      ALIBI_CURATION: editorial,
+      ALIBI_THEATRE: theatre,
+    }) + officialContent.deferredRuntime(deferredURL, officialSplit.keys);
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
   const base = [
@@ -297,6 +310,7 @@ function build() {
       JSON.stringify(source) +
         platformSource +
         contentSource +
+        deferredSource +
         blockLoader +
         webBase +
         boot +
@@ -396,6 +410,7 @@ function build() {
     platformURL,
     workerURL,
     contentURL,
+    deferredURL,
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
@@ -454,6 +469,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
             platformIdentity.source +
             platformSource +
             contentSource +
+            deferredSource +
             standalone
           ).replace(/<\/script/gi, '<\\/script') +
           '</script>',
@@ -496,9 +512,13 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     observatoryBytes: Buffer.byteLength(observatory),
     discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
     discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
-    officialContentBytes: Buffer.byteLength(contentSource) + curation.bytes,
+    officialContentBytes:
+      Buffer.byteLength(contentSource) + Buffer.byteLength(deferredSource) + curation.bytes,
     curationMediaBytes: curation.bytes,
     officialContentGzipBytes: zlib.gzipSync(contentSource).length,
+    deferredContentBytes: Buffer.byteLength(deferredSource),
+    deferredContentGzipBytes: zlib.gzipSync(deferredSource).length,
+    deferredPuzzles: officialSplit.keys.length,
     initialCodeAndContentGzipBytes:
       zlib.gzipSync(js).length +
       zlib.gzipSync(contentSource).length +

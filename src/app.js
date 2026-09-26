@@ -11,6 +11,8 @@
     cfg = globalThis.ALIBI_CONFIG,
     platform = globalThis.AlibiPlatform,
     starter = globalThis.ALIBI_CATALOG,
+    // Listing-only official entries; their definitions arrive in a precached chunk.
+    deferred = globalThis.ALIBI_DEFERRED,
     books = globalThis.ALIBI_CASEBOOKS;
   const $ = (s) => document.querySelector(s),
     esc = (v) =>
@@ -304,6 +306,7 @@
   function getRun(p) {
     const key = keyFor(p);
     if (records.has(key)) return records.get(key);
+    if (deferred?.has(p)) throw Error('Puzzle definition is not loaded.');
     const r = {
       schemaVersion: 1,
       key,
@@ -3490,15 +3493,24 @@
       route.page = 'home';
     if (route.page !== 'play') caseReturn = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
+    let late;
     if (route.page === 'play') {
       const [pid, revision] = id.split('@'),
         catalog = find(pid),
         key = revision ? pid + '@' + Number(revision) : null,
-        pinned = key ? records.get(key)?.puzzle : null,
-        p =
-          pinned ||
-          (catalog && (!revision || catalog.revision === Number(revision)) ? catalog : null) ||
-          (!revision ? [...records.values()].find((r) => r.puzzle.id === pid)?.puzzle : null);
+        pinned = key ? records.get(key)?.puzzle : null;
+      // A saved run carries its own definition; a new run waits for the deferred chunk.
+      if (!pinned && deferred?.has(catalog)) {
+        await deferred.ensure().catch(() => 0);
+        if (serial !== routeSerial) return;
+        late = deferred.has(catalog);
+      }
+      const p =
+        pinned ||
+        (catalog && !late && (!revision || catalog.revision === Number(revision))
+          ? catalog
+          : null) ||
+        (!revision ? [...records.values()].find((r) => r.puzzle.id === pid)?.puzzle : null);
       if (p) {
         if (caseReturn && caseReturn.puzzleKey !== keyFor(p)) caseReturn = null;
         current = getRun(p);
@@ -3523,7 +3535,7 @@
         caseReturn = null;
         route.page = 'library';
         route.id = '';
-        toast('That puzzle revision is not in this collection.', true);
+        if (!late) toast('That puzzle revision is not in this collection.', true);
       }
     } else current = null;
     if (route.page !== 'quiet') await AlibiActivities.leave();
@@ -3531,6 +3543,12 @@
     await AlibiClub.onRoute(route);
     if (serial !== routeSerial) return;
     render();
+    if (late && !current)
+      dialog(
+        'This puzzle has not downloaded yet.',
+        '<p>Check your connection and try again. Nothing was saved.</p>',
+        [{ label: 'Retry', action: 'open', attrs: `data-id="${esc(id)}"` }],
+      );
     if (route.page === 'quiet') {
       try {
         await AlibiActivities.enter(document.getElementById('quiet-host'), {
