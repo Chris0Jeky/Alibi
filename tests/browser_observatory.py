@@ -224,6 +224,11 @@ with sync_playwright() as pw:
         'No puzzle content' in page.locator('#pulseboard-usage-sharing').inner_text(),
         'control describes aggregate-only counts',
     )
+    wait_for_counts(page, observed_counts, 3)
+    check(observed_counts[2]['route'] == 'other', 'settings navigation reports the settings route')
+    check(
+        observed_counts[2]['release'] == app_release, 'settings navigation keeps the release label'
+    )
 
     key = page.evaluate(
         """() => {
@@ -237,9 +242,9 @@ with sync_playwright() as pw:
         arg=key,
     )
     # A normal SPA route change must send without a test-only flush call.
-    wait_for_counts(page, observed_counts, 3)
-    check(observed_counts[2]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
-    check(observed_counts[2]['release'] == app_release, 'SPA navigation keeps the release label')
+    wait_for_counts(page, observed_counts, 4)
+    check(observed_counts[3]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
+    check(observed_counts[3]['release'] == app_release, 'SPA navigation keeps the release label')
     check(
         not notice_visible(page),
         'the control hides on puzzle routes even while opted in',
@@ -260,9 +265,9 @@ with sync_playwright() as pw:
         arg=editable,
     )
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 4)
-    check(observed_counts[3]['event'] == 'puzzle.started', 'the first real board change starts a journey')
-    check(observed_counts[3]['route'] == 'puzzle', 'the journey start uses the puzzle route')
+    wait_for_counts(page, observed_counts, 5)
+    check(observed_counts[4]['event'] == 'puzzle.started', 'the first real board change starts a journey')
+    check(observed_counts[4]['route'] == 'puzzle', 'the journey start uses the puzzle route')
     assert_aggregate_body(
         observed_bodies[-1],
         [{'event': 'puzzle.started', 'route': 'puzzle', 'release': app_release}],
@@ -291,13 +296,13 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 5)
+    wait_for_counts(page, observed_counts, 6)
     check(
-        [event['event'] for event in observed_counts[3:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[4:]] == ['puzzle.started', 'puzzle.failed'],
         'a conflicted check ends the open attempt without another start',
     )
     check(
-        all(set(event) == {'event', 'route', 'release', 'n'} for event in observed_counts[3:])
+        all(set(event) == {'event', 'route', 'release', 'n'} for event in observed_counts[4:])
         and key not in json.dumps(observed_bodies),
         'journey events carry no puzzle identity, answer or board payload',
     )
@@ -306,7 +311,7 @@ with sync_playwright() as pw:
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
     page.wait_for_timeout(300)
-    check(len(observed_counts) == 5, 'checking the same board again is not another attempt')
+    check(len(observed_counts) == 6, 'checking the same board again is not another attempt')
     dismiss_dialog(page)
 
     followup = page.evaluate(
@@ -327,9 +332,9 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 7)
+    wait_for_counts(page, observed_counts, 8)
     check(
-        [event['event'] for event in observed_counts[5:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[6:]] == ['puzzle.started', 'puzzle.failed'],
         'a move after failure opens a fresh attempt',
     )
     dismiss_dialog(page)
@@ -341,9 +346,9 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 9)
+    wait_for_counts(page, observed_counts, 10)
     check(
-        [event['event'] for event in observed_counts[7:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[8:]] == ['puzzle.started', 'puzzle.failed'],
         'undo after a failed check reopens the retry without a new move',
     )
     dismiss_dialog(page)
