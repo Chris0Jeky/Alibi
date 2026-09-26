@@ -3223,6 +3223,14 @@ dialog .dialog-actions {
 #pulseboard-usage-sharing[hidden] {
   display: none;
 }
+#usage-sharing-slot.panel > #pulseboard-usage-sharing {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
 #pulseboard-usage-sharing summary {
   cursor: pointer;
   font-weight: 700;

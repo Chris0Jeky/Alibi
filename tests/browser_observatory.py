@@ -63,6 +63,12 @@ def notice_visible(page):
     return page.locator('#pulseboard-usage-sharing').is_visible()
 
 
+def in_slot(page):
+    return page.evaluate(
+        "() => document.querySelector('#pulseboard-usage-sharing').parentElement?.id === 'usage-sharing-slot'"
+    )
+
+
 def goto_settings(page):
     page.evaluate("location.hash='/settings'")
     page.locator('#pulseboard-usage-sharing').wait_for(state='visible')
@@ -177,6 +183,12 @@ with sync_playwright() as pw:
         'the settings control mounts exactly once',
     )
     check(not notice_visible(page), 'no sharing popup on the home route')
+    check(
+        page.evaluate(
+            "() => document.querySelector('#pulseboard-usage-sharing').parentElement === document.body"
+        ),
+        'the control parks on the body off Settings',
+    )
     check(is_details_open(page), 'sharing control mounts open before the first send')
     check(is_checked(page), 'usage sharing defaults on when eligible')
     wait_for_counts(page, observed_counts, 1)
@@ -215,6 +227,11 @@ with sync_playwright() as pw:
 
     checkbox = goto_settings(page)
     check(is_details_open(page), 'the settings control opens on the settings route')
+    check(in_slot(page), 'the control moves into the settings slot')
+    check(
+        page.locator('#usage-sharing-slot > p').count() == 0,
+        'the slot fallback is replaced by the control',
+    )
     check(checkbox.is_checked(), 'the settings box shows sharing on')
     check(
         'Sharing is on' in page.locator('#pulseboard-usage-sharing').inner_text(),
@@ -426,6 +443,12 @@ with sync_playwright() as pw:
         f"""() => JSON.parse(localStorage.getItem('{PREF_KEY}'))"""
     )
     check(rechoice and rechoice['allow'] is True, 're-on persists sharing on')
+    page.evaluate("location.hash='/privacy'")
+    page.locator('#usage-sharing-slot > #pulseboard-usage-sharing').wait_for(state='visible')
+    check(in_slot(page), 'the control moves into the privacy slot')
+    # Drain the privacy page view before the seeded contexts snapshot their baselines.
+    page.evaluate('() => PulseboardUsage.flush()')
+    page.wait_for_timeout(300)
     check(not page_errors, 'Observatory lifecycle produces no browser errors')
     context.close()
 
@@ -486,11 +509,14 @@ with sync_playwright() as pw:
             f'prior {seed_label} performs no collector request',
         )
         seeded_page.evaluate("location.hash='/settings'")
-        seeded_page.locator('#pulseboard-usage-sharing').wait_for(state='visible')
+        seeded_page.locator('#usage-sharing-slot > #pulseboard-usage-sharing').wait_for(
+            state='visible'
+        )
         check(
             not seeded_page.locator('#pulseboard-usage-sharing input[type="checkbox"]').is_checked(),
             f'prior {seed_label} shows an unticked settings box',
         )
+        check(in_slot(seeded_page), f'prior {seed_label} lands in the settings slot')
         seeded.close()
 
     browser.close()

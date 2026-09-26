@@ -46,15 +46,21 @@
     return u.track(event);
   };
   // The generated control is the only element with this id; its switch changes the sharing preference.
-  // Settings-first placement: it lives at the top of Settings and Privacy only, never as a popup.
-  // Sharing itself still defaults on for eligible visits; the Settings box turns it off.
+  // Settings-first placement: the control lives in the Settings/Privacy slot, never as a popup.
+  // Sharing still defaults on for eligible visits; the Settings box turns it off.
   const NOTICE = 'pulseboard-usage-sharing';
+  const SLOT = 'usage-sharing-slot';
   document.addEventListener('change', (e) => e.target?.closest?.('#' + NOTICE) && reset(), true);
-  const sync = () => {
+  // Moves the control into the rendered slot, or parks it hidden on the body. The app rescues it
+  // before replacing its content so a re-render cannot destroy the control.
+  g.AlibiUsageSlot = (rescue) => {
     try {
       const el = document.getElementById?.(NOTICE);
       if (!el) return false;
-      el.hidden = !/^#\/(settings|privacy)([/?]|$)/.test(g.location?.hash || '');
+      const slot = rescue ? null : document.getElementById?.(SLOT);
+      if (slot && el.parentElement !== slot) slot.replaceChildren(el);
+      el.hidden = !slot;
+      if (!slot && el.parentElement !== document.body) document.body.prepend(el);
       return true;
     } catch {
       return false;
@@ -62,16 +68,15 @@
   };
   g.addEventListener('hashchange', () => {
     reset();
-    sync();
     g.PulseboardUsage?.track?.('page.view');
   });
   const inject = () => {
     const tag = document.createElement('script');
     tag.src = url;
     document.head.append(tag);
-    if (!sync()) {
+    if (!g.AlibiUsageSlot()) {
       try {
-        const seen = new MutationObserver(() => sync() && seen.disconnect());
+        const seen = new MutationObserver(() => g.AlibiUsageSlot() && seen.disconnect());
         seen.observe(document.body, { childList: true });
       } catch {}
     }
