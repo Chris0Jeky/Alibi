@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.14.0",
+    "date": "2026-09-26",
+    "title": "The Vault studies",
+    "tag": "v0.14.0",
+    "receipt": "docs/RELEASE-0.14.0.md",
+    "changes": [
+      "Explore 80 original Vault studies: 20 each in Sun & Moon, Sudoku, Lanterns and Futoshiki, bringing the collection to 510 puzzles across 30 packs. Their 47 Expert and 33 Master labels remain provisional pending human playtesting.",
+      "Keep the first load light: the Vault boards arrive in a separate file that is saved for offline play, and a Retry notice appears if it cannot load yet."
+    ]
+  },
+  {
     "version": "0.13.0",
     "date": "2026-09-26",
     "title": "Deeper vaults and a stronger Duel",

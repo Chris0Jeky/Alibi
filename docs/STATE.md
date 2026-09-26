@@ -1,6 +1,15 @@
 # Live development state
 
-## Published web release 0.13.0: 26 September 2026
+## Release 0.14.0 candidate: 26 September 2026
+
+Branch `release/0.14.0` publishes the 80 Vault studies merged in #385 (510 puzzles,
+30 packs; provisional 47 Expert / 33 Master) through the precached deferred chunk. The
+release label was registered with `npm run release:prepare -- 0.14.0 --publish`, which
+opened [Pulseboard#124](https://github.com/Chris0Jeky/Pulseboard/pull/124) unattended; it
+merged and the collector deployed as Worker `1fdd08f8-a81f-436c-ab41-90762ce79fbd`
+(rollback `6735ac3b-2187-4c91-a50f-ac2822ae35f9`) before Alibi. #354 is closed as superseded.
+
+## Published web release 0.13.0: 26 September 2026 (historical)
 
 Every later section below is historical: its deployment status and next-step directives
 predate this release (0.13.0 deployed the Settings-slot Usage sharing change).
