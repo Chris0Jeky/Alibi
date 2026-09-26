@@ -58,6 +58,7 @@
     paused = false,
     checking = false,
     feedback = '',
+    reviewing = false,
     evidenceTab = 'clues',
     dossierTab = 0,
     trailValue = 1,
@@ -497,7 +498,7 @@
       .join('')}</nav>`;
   }
   function footer() {
-    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="changelog">What’s new</button><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
+    return `<footer class="footer"><span>alibi: &nbsp; A little room to think.</span><span class="footer-links"><button data-action="navigate" data-page="changelog">What’s new</button><button data-action="navigate" data-page="about">About</button><button data-action="navigate" data-page="privacy">Privacy & credits</button><button data-action="feedback-report">Report a puzzle issue</button><span>v${esc(cfg.version)}</span></span></footer>`;
   }
   function shell(content) {
     const label =
@@ -511,6 +512,8 @@
             workshop: 'The workshop',
             settings: 'Settings & saves',
             privacy: 'Privacy & credits',
+            about: 'About Alibi',
+            login: 'No accounts here',
             changelog: 'What’s new',
             salon: 'The games room',
             lab: 'The living atlas',
@@ -727,13 +730,19 @@
     return `<div class="page-head"><div><div class="eyebrow">Make yourself comfortable</div><h1>Your space.</h1><p>How it looks, how it feels, and how your progress stays with you.</p></div>${B('The workshop', 'navigate', 'workshop', 'secondary', 'data-page="workshop"')}</div><div class="settings-grid"><section class="panel"><h2>A comfortable desk.</h2><div class="setting-row"><label for="theme-select">Appearance<small>Choose paper, evening, or your device preference.</small></label><select id="theme-select"><option value="light" ${settings.theme === 'light' ? 'selected' : ''}>Paper</option><option value="night" ${settings.theme === 'night' ? 'selected' : ''}>Evening</option><option value="system" ${settings.theme === 'system' ? 'selected' : ''}>System</option></select></div>${toggle('contrast', 'Stronger contrast', 'Darker borders and more distinct text.')}${toggle('largeText', 'Larger clue text', 'More readable evidence and instructions.')}${toggle('reducedMotion', 'Reduce motion', 'Remove decorative transitions and animation.')}${toggle('timer', 'Show the timer', 'Optional. Time never affects a result.')}${toggle('sound', 'Soft interaction sounds', 'Synthesised locally. No audio downloads.')}${toggle('haptics', 'Light haptics', 'A small tap on supported devices.')}${AlibiClub.assistBar()}<p class="fine">Mint-dotted marks are derived, not saved as manual notes. Changing their premise removes them.</p></section><section class="panel"><h2>Cabinet, Club, Quiet Wing and castle.</h2><p>Export these four device-local save stores together. The downloaded manifest lists what was included and warns if a section could not be read. Curated challenge replays are separate: open each challenge to export its replay. Restore one section at a time, with a recovery copy for that section. Restores across these stores are not one transaction.</p><div class="row actions">${B('Export cabinet, Club, Wing & castle', 'export-all', 'download')}${B('Review combined backup', 'import-all', 'upload', 'secondary')}${B('Quiet Wing recovery', 'navigate', 'refresh', 'secondary', 'id="quiet-recovery" data-page="quiet" data-id="realm"')}</div><input id="all-backup-input" type="file" accept="application/json,.json" hidden></section><section class="panel"><h2>Games-room progress.</h2><p>The experimental games room has a separate save. Export this as well as your cabinet backup before changing devices.</p><div class="row actions">${B('Export Club save', 'club-export', 'download')}${B('Restore Club save', 'club-import', 'upload', 'secondary')}${B('Club recovery copy', 'club-recovery', 'refresh', 'secondary')}${B('Club journal', 'navigate', 'book', 'ghost', 'data-page="club"')}</div></section><section class="panel"><h2>Your progress is yours.</h2><p>Boards and notes stay in this browser on this device. There is no cloud account or automatic cross-device backup.</p><div class="data-list"><div><span>Save storage</span><strong>${store.mode === 'indexeddb' ? 'IndexedDB · device-local' : store.mode === 'local' ? 'localStorage fallback' : 'This session only'}</strong></div><div><span>Saved puzzles</span><strong>${records.size}</strong></div><div><span>Favorite puzzles</span><strong>${prefs.favorites.length}</strong></div><div><span>Custom packs</span><strong>${packs.length - 1}</strong></div></div><div class="row actions">${B('Export backup', 'export', 'download')}${B('Restore backup', 'import-backup', 'upload', 'secondary')}</div><div class="row actions">${B('Protect local storage', 'persist', 'lock', 'ghost small')}${B('Recovery copy', 'recovery', 'refresh', 'ghost small')}</div><p class="fine" style="margin:16px 0 0">Clearing site data, changing browser profiles, changing the website address or losing the device can make local progress unavailable. Keep an exported backup elsewhere. A persistence request is not a cloud backup.</p></section><section class="panel"><h2>Make it feel like an app.</h2><p>Open the deployed HTTPS address on Android. Install from your browser’s menu to put Alibi on your home screen.</p><div class="data-list"><div><span>Offline files</span><strong>${offlineReady ? 'Ready' : cfg.standalone ? 'Local preview only' : 'Preparing / not ready'}</strong></div><div><span>Display</span><strong>${matchMedia('(display-mode: standalone)').matches ? 'Installed app' : 'Browser tab'}</strong></div><div><span>Version</span><strong>${esc(cfg.version)} · ${esc(cfg.build.slice(0, 8))}</strong></div><div><span>Updates</span><strong>${waitingUpdate ? 'Ready to install' : 'None waiting'}</strong></div></div><div class="row actions">${B('Install Alibi', 'install', 'download')}${B('Check for updates', 'check-update', 'refresh', 'secondary')}</div><p class="fine" style="margin-top:16px">${cfg.standalone ? 'This self-contained file is for trying the game. The hosted build provides the install manifest, service worker and coherent offline updates.' : 'Load the app online once, wait for “Offline ready”, then test reopening it in airplane mode. Your browser still controls storage availability.'}</p></section><section class="panel"><h2>A cabinet that can grow.</h2><p>${starter.puzzles.length} starter puzzles, ${C.TYPES.length} game families and ${books.length} casebooks, including two continuous investigations. Use the workshop to make original scene drafts, edit rooms and clues, verify the solution, and share JSON packs.</p><div class="row actions">${B('Open the workshop', 'navigate', 'workshop', '', 'data-page="workshop"')}${B('Replay a lesson', 'choose-lesson', 'book', 'secondary')}</div><div class="divider"></div><h3>Something not behaving as expected?</h3><p style="font-size:11px;margin-top:9px">Export a small issue report with the puzzle ID, app version and current board. Review it before sharing; it is not sent anywhere automatically.</p><div class="row actions">${B('Create issue report', 'feedback-report', 'flag', 'ghost small')}${B('Privacy & credits', 'navigate', 'arrow', 'ghost small', 'data-page="privacy"')}</div></section></div>`;
   }
   function privacyPage() {
-    return `<div class="privacy-copy"><div class="eyebrow">The small print, in plain language</div><h1>Privacy & credits.</h1><h2>Your device is the save file.</h2><p>Alibi stores game progress, notes, settings and custom puzzle packs in your browser. It does not create an account, load advertising or make AI calls, and it sends nothing to an analytics service unless you tick the optional Usage sharing box described below. Backup and issue-report exports are files you choose to save and share.</p><p>The hosting provider still receives ordinary web requests, including your IP address and request metadata, when you load the site or check for updates. Its logging and retention depend on the operator’s hosting configuration. This page describes this static build, not every possible future deployment.</p><h2>Offline, not indestructible.</h2><p>The installed version caches its application files for offline play. Browser storage can be cleared or become unavailable. An installed icon is not a guarantee of permanent storage. Export backups, and keep the same production address when publishing updates.</p><h2>Original content, familiar rules.</h2><p>The scene-deduction format is inspired by Murdoku by Manuel Garand. These are original scenarios and original interface illustrations, not copied Murdoku puzzles, artwork or an affiliated product. Other games use familiar logic-puzzle rules. The puzzle previews are decorative illustrations, not a promise that the pictured arrangement is playable.</p><p>“Alibi” is a working product name. This bundle does not establish trademark clearance or grant rights to third-party names. The app runs from static files with bundled code, illustrations, fonts and controls. In the Rich edition, visible artwork can request credited photographs from Unsplash or Pexels. Those providers receive ordinary request metadata, including your IP address; no gameplay or cookies are sent by the image loader. Choose Painted edition in the room controls to stop these optional requests. Verified detail can be reused offline, while the complete local painting always remains available. Films stream from this site only when you ask to play them. Room sound is off by default and has a locally composed offline version. The optional Quiet Wing includes licensed 3D models and museum reproductions, with credits in its source ledger. The original casebook covers were made with AI image generation. SVG puzzle previews, install icons and synthesised interface sounds are bundled locally.</p><h2>Explore the puzzle tradition.</h2><p>Our new Tidal bridges family uses the familiar Hashi rules, studied through <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/bridges.html" target="_blank" rel="noopener noreferrer">Simon Tatham’s Bridges manual</a>. Alibi’s engine, island maps and illustrations are original. No Tatham code or puzzle data is bundled.</p><p>For more variety, visit <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/" target="_blank" rel="noopener noreferrer">Simon Tatham’s Portable Puzzle Collection</a>, a free collection published under the MIT license. This opens an external website; its games and progress are separate from Alibi and need their own initial online visit.</p><h2>What the quality checks mean.</h2><p>The starter catalogue is solver-checked for exactly one solution under the implemented rules. Difficulty and time estimates have not been calibrated through a formal player study. Bellweather and The unfinished invitation each follow a single authored investigation. The other casebooks collect standalone records. Neither uses branching dialogue or simulated suspects. Optional reveals use the stored solution and are counted.</p><h2>Accessibility.</h2><p>The app includes keyboard controls, visible focus, reduced motion, stronger contrast, larger clue text and non-colour labels. Spatial grids are not a fully nonvisual puzzle experience. Physical-device and assistive-technology testing are still part of a public release checklist.</p><h2>Project and support.</h2><p>Alibi is maintained by <a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky</a>. Report a problem through <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>; keep personal notes and full progress backups private. The public source currently has no reuse license.</p><h2>After Hours: optional private rooms.</h2><p>The games-room prototype stores its own progress separately from the puzzle cabinet. Export both backups when moving devices. Personal records and stamps stay local. No public leaderboard, cloud save or account service is enabled.</p><p>Only when you configure and use the optional room API are your moves sent to that server. A room keeps its board, version, move identifiers and hashed seat credentials for up to 24 hours. The creation quota uses a salted daily IP hash. Hosting request metadata may have a separate retention policy. Room credentials are not included in Club exports. The static app does not contact a room server before you configure it.</p><h2>Optional usage sharing.</h2><p>At the bottom, <strong>Usage sharing</strong> is off until ticked. It sends content-free event names, the current Alibi section, version and a temporary session ID to pulseboard-observatory.commit-atlas.workers.dev; never puzzle answers, saves, notes, imported packs, workshop text or browsing history. Events expire after 14 days. Your choice lasts 90 days; unticking stops sending. The box is hidden in standalone exports and when DNT or GPC is set.</p><h2>Data removal.</h2><p>Export anything you need first. Your browser’s site-data controls can remove the app’s local storage and offline cache. That removal is not reversible unless you have a backup.</p>${B('Back to your space', 'navigate', 'back', 'secondary', 'data-page="settings"')}</div>`;
+    return `<div class="privacy-copy"><div class="eyebrow">The small print, in plain language</div><h1>Privacy & credits.</h1><h2>Your device is the save file.</h2><p>Alibi saves progress, notes, settings and packs in this browser. There are no accounts, ads or AI calls. The primary Cloudflare site can share aggregate usage counts after a visible notice; the off switch is below. You choose whether to export backups or reports.</p><p>The hosting provider still receives ordinary web requests, including your IP address and request metadata, when you load the site or check for updates. Its logging and retention depend on the operator’s hosting configuration. This page describes this static build, not every possible future deployment.</p><h2>Offline, not indestructible.</h2><p>The installed version caches its application files for offline play. Browser storage can be cleared or become unavailable. An installed icon is not a guarantee of permanent storage. Export backups, and keep the same production address when publishing updates.</p><h2>Original content, familiar rules.</h2><p>The scene-deduction format is inspired by Murdoku by Manuel Garand. These are original scenarios and original interface illustrations, not copied Murdoku puzzles, artwork or an affiliated product. Other games use familiar logic-puzzle rules. The puzzle previews are decorative illustrations, not a promise that the pictured arrangement is playable.</p><p>“Alibi” is a working product name. This bundle does not establish trademark clearance or grant rights to third-party names. The app runs from static files with bundled code, illustrations, fonts and controls. In the Rich edition, visible artwork can request credited photographs from Unsplash or Pexels. Those providers receive ordinary request metadata, including your IP address; no gameplay or cookies are sent by the image loader. Choose Painted edition in the room controls to stop these optional requests. Verified detail can be reused offline, while the complete local painting always remains available. Films stream from this site only when you ask to play them. Room sound is off by default and has a locally composed offline version. The optional Quiet Wing includes licensed 3D models and museum reproductions, with credits in its source ledger. The original casebook covers were made with AI image generation. SVG puzzle previews, install icons and synthesised interface sounds are bundled locally.</p><h2>Explore the puzzle tradition.</h2><p>Our new Tidal bridges family uses the familiar Hashi rules, studied through <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/bridges.html" target="_blank" rel="noopener noreferrer">Simon Tatham’s Bridges manual</a>. Alibi’s engine, island maps and illustrations are original. No Tatham code or puzzle data is bundled.</p><p>For more variety, visit <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/" target="_blank" rel="noopener noreferrer">Simon Tatham’s Portable Puzzle Collection</a>, a free collection published under the MIT license. This opens an external website; its games and progress are separate from Alibi and need their own initial online visit.</p><h2>What the quality checks mean.</h2><p>The starter catalogue is solver-checked for exactly one solution under the implemented rules. Difficulty and time estimates have not been calibrated through a formal player study. Bellweather and The unfinished invitation each follow a single authored investigation. The other casebooks collect standalone records. Neither uses branching dialogue or simulated suspects. Optional reveals use the stored solution and are counted.</p><h2>Accessibility.</h2><p>The app includes keyboard controls, visible focus, reduced motion, stronger contrast, larger clue text and non-colour labels. Spatial grids are not a fully nonvisual puzzle experience. Physical-device and assistive-technology testing are still part of a public release checklist.</p><h2>Project and support.</h2><p>Alibi is maintained by <a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky</a>. Report a problem through <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>; keep personal notes and full progress backups private. The public source currently has no reuse license.</p><h2>After Hours: optional private rooms.</h2><p>The games-room prototype stores its own progress separately from the puzzle cabinet. Export both backups when moving devices. Personal records and stamps stay local. No public leaderboard, cloud save or account service is enabled.</p><p>Only when you configure and use the optional room API are your moves sent to that server. A room keeps its board, version, move identifiers and hashed seat credentials for up to 24 hours. The creation quota uses a salted daily IP hash. Hosting request metadata may have a separate retention policy. Room credentials are not included in Club exports. The static app does not contact a room server before you configure it.</p><h2>Usage sharing.</h2><p>On the primary Cloudflare site, sharing starts on after a notice appears. Pulseboard (pulseboard-observatory.commit-atlas.workers.dev) receives event counts by section and app version, plus request metadata such as your IP address. Counts stay for at most 14 UTC dates. Event payloads exclude puzzle content, saves, notes, session and visitor IDs. Untick the visible box to stop sharing; off persists. Do Not Track, Global Privacy Control and blocked or corrupt storage keep sharing off. Prior opt-outs stay off. The Sites fallback and standalone files do not load the control.</p><h2>Data removal.</h2><p>Export anything you need first. Your browser’s site-data controls can remove the app’s local storage and offline cache. That removal is not reversible unless you have a backup.</p>${B('Back to your space', 'navigate', 'back', 'secondary', 'data-page="settings"')}</div>`;
+  }
+  function aboutPage() {
+    return `<div class="privacy-copy"><div class="eyebrow">A little room to think</div><h1>About Alibi.</h1><p>Alibi is a device-local collection of thirteen puzzle families, illustrated casebooks, lessons and offline saves. Everything runs from static files; progress stays in this browser.</p><div class="data-list"><div><span>Version</span><strong>${esc(cfg.version)} · ${esc(cfg.build.slice(0, 8))}</strong></div><div><span>Source</span><strong><a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky/Alibi</a></strong></div></div><p>Original stories and art; familiar logic rules. Credits, privacy and support are on the Privacy & credits page.</p><div class="row actions">${B('Privacy & credits', 'navigate', 'arrow', 'secondary', 'data-page="privacy"')}${B('What’s new', 'navigate', 'star', 'secondary', 'data-page="changelog"')}${B('Back to your desk', 'navigate', 'back', 'secondary', 'data-page="home"')}</div></div>`;
+  }
+  function loginPage() {
+    return `<div class="privacy-copy"><div class="eyebrow">No sign-in required</div><h1>No accounts here.</h1><p>Alibi has no login, no accounts and no cloud save. Your puzzles, notes and settings live in this browser on this device. Anyone with this link can play, but nobody can sign in as you because there is nothing to sign in to.</p><p>Moving devices? Export a backup from settings and restore it there.</p><div class="row actions">${B('Settings & saves', 'navigate', 'settings', '', 'data-page="settings"')}${B('Privacy & credits', 'navigate', 'arrow', 'secondary', 'data-page="privacy"')}${B('Back to your desk', 'navigate', 'back', 'secondary', 'data-page="home"')}</div></div>`;
   }
   function token(person, p, small = false) {
     return `<span class="person-token person-${person.color} ${person.id === p.victim ? 'victim' : ''}" aria-hidden="true">${person.id === p.victim ? icon('close') : esc(person.name.slice(0, 1))}</span>`;
   }
   function peoplePalette(p, s) {
-    return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : `${String.fromCharCode(65 + (s.placements[person.id] % p.size))}${Math.floor(s.placements[person.id] / p.size) + 1}`}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
+    return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : C.at(s.placements[person.id], p.size)}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
   }
   function boardCell(p, s, i, errors) {
     const n = p.size,
@@ -819,7 +828,7 @@
             const other = Math.max(q.a, q.b),
               sign = q.a === i ? q.op : q.op === '<' ? '>' : '<';
             content += `<span class="ineq ${other === i + n ? 'vertical' : ''}" aria-hidden="true">${esc(sign)}</span>`;
-            label += `, ${q.a === i ? (q.op === '<' ? 'less than' : 'greater than') : q.op === '<' ? 'greater than' : 'less than'} neighbouring cell ${String.fromCharCode(65 + (other % n))}${Math.floor(other / n) + 1}`;
+            label += `, ${q.a === i ? (q.op === '<' ? 'less than' : 'greater than') : q.op === '<' ? 'greater than' : 'less than'} neighbouring cell ${C.at(other, n)}`;
           }
     } else if (t === 'binary') {
       const v = s.cells[i],
@@ -1028,7 +1037,7 @@
       )}</div><div class="logic-summary">${p.people.map((name, i) => `<div><strong>${esc(name)}</strong><span>${esc(p.categories[0].name)} ${esc(a[i] >= 0 ? p.categories[0].values[a[i]] : 'unknown')} · ${esc(p.categories[1].name)} ${esc(a[n + i] >= 0 ? p.categories[1].values[a[n + i]] : 'unknown')}</span></div>`).join('')}</div>`;
   }
   function witnessBoard(p, s) {
-    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.</p>`;
+    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts. The left and right arrows move between accounts.</p>`;
   }
   function controls(p, s) {
     const t = p.type;
@@ -1076,7 +1085,7 @@
     else if (t === 'network')
       content = `<div class="toolrow">${tool('Turn left', 'turn-left', 'undo')}${tool('Turn right', 'turn-right', 'redo')}</div><p class="control-note">Tap to turn clockwise. Right-click or Shift+Enter turns anticlockwise. Arrows move selection.</p>`;
     else if (t === 'dossier')
-      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs.</p>`;
+      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs. Arrow keys move between marks.</p>`;
     else if (t === 'trail')
       content = `<div class="numberpad trail-pad" data-scroll-key="trail-keys">${range(p.size ** 2)
         .map(
@@ -1336,6 +1345,8 @@
         settings: settingsPage,
         workshop: workshopPage,
         privacy: privacyPage,
+        about: aboutPage,
+        login: loginPage,
         changelog: () => globalThis.AlibiUpdates.page(),
         play: playPage,
         salon: () => AlibiClub.roomPage(route.id),
@@ -1477,6 +1488,7 @@
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
     globalThis.AlibiJourney?.(current);
+    reviewing = false;
     if (history) {
       current.undo.push(C.clone(current.state));
       current.undo = current.undo.slice(-80);
@@ -1780,6 +1792,7 @@
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
+    const wasSolved = !!current.completedAt;
     to.push(C.clone(current.state));
     current.state = from.pop();
     current.completedAt = null;
@@ -1788,6 +1801,10 @@
     accuseChoice = null;
     if (current.puzzle.type === 'trail') trailValue = nextTrail(current.state, current.puzzle);
     completion();
+    // Undo after a failure reopens the retry. Touching a solved board on either side of the
+    // step only reviews it, re-derived here so route re-entry cannot turn a review into a solve.
+    if (wasSolved || current.completedAt) reviewing = true;
+    else if (!reviewing) globalThis.AlibiJourney?.(current);
     enqueueSave();
     render();
   }
@@ -1838,9 +1855,7 @@
         .map((i) =>
           lc(
             i,
-            l.done && i === 5
-              ? 'I'
-              : `${String.fromCharCode(65 + (i % 3))}${Math.floor(i / 3) + 1}`,
+            l.done && i === 5 ? 'I' : C.at(i, 3),
             i === 5 ? (l.done ? 'correct' : 'target') : '',
           ),
         )
@@ -2202,11 +2217,13 @@
         'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
       );
     await queue;
-    let b = pendingBackup;
+    let b = pendingBackup,
+      expected;
     if (!replace) {
       const raw = await store.export(),
         runs = new Map(raw.runs.map((r) => [r.key, r])),
         combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
+      expected = raw;
       for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
       for (const p of b.packs) {
         if (combinedPacks.has(p.id)) {
@@ -2222,12 +2239,12 @@
           ...b,
           runs: [...runs.values()],
           packs: [...combinedPacks.values()],
-          settings,
-          preferences: prefs,
+          settings: raw.settings,
+          preferences: raw.preferences,
         },
       });
     }
-    await store.restore(b);
+    await store.restore(b, expected);
     pendingBackup = null;
     channel?.postMessage({ type: 'restored' });
     closeDialog();
@@ -2746,6 +2763,8 @@
           current.elapsed = 0;
           current.note = '';
           current.completedAt = null;
+          reviewing = false;
+          globalThis.AlibiJourney?.(current, 'puzzle.abandoned');
           sessionSeconds = 0;
           feedback = '';
           checking = false;
@@ -3203,6 +3222,7 @@
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
     globalThis.AlibiJourney?.(current);
+    reviewing = false;
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
     current.redo = [];
@@ -3325,6 +3345,33 @@
       document.getElementById('cell-' + selectedCell)?.focus({ preventScroll: true });
       return;
     }
+    if (d && ['dossier', 'witness'].includes(p.type)) {
+      const active = document.activeElement;
+      if (active?.dataset?.action !== 'mark') return;
+      const cell = Number(active.dataset.cell);
+      if (!Number.isInteger(cell)) return;
+      const dossier = p.type === 'dossier';
+      if (!dossier && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      let next = -1;
+      if (dossier) {
+        const n = p.size,
+          local = cell - dossierTab * n * n;
+        if (local < 0 || local >= n * n) return;
+        const r =
+            Math.floor(local / n) + (e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0),
+          c = (local % n) + (e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0);
+        if (r < 0 || r >= n || c < 0 || c >= n) return;
+        next = dossierTab * n * n + r * n + c;
+      } else {
+        next = cell + (e.key === 'ArrowRight' ? 1 : -1);
+        if (next < 0 || next >= p.statements.length) return;
+      }
+      const target = document.getElementById('mark-' + next);
+      if (!target) return;
+      target.focus();
+      return;
+    }
     if (['Backspace', 'Delete'].includes(e.key)) {
       e.preventDefault();
       erase();
@@ -3429,6 +3476,8 @@
         'settings',
         'workshop',
         'privacy',
+        'about',
+        'login',
         'changelog',
         'salon',
         'lab',
@@ -3459,6 +3508,7 @@
         brush = ['binary', 'dossier'].includes(p.type) ? 'cycle' : 1;
         paused = false;
         checking = false;
+        reviewing = false;
         feedback = '';
         evidenceTab = 'clues';
         dossierTab = 0;

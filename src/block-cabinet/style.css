@@ -37,6 +37,10 @@
   cursor: default;
   opacity: 0.4;
 }
+.bc-studio .bc-cell:disabled {
+  /* A short placement lock must not blink the entire 8x8 board. */
+  opacity: 1;
+}
 .bc-studio button:focus-visible,
 .bc-studio summary:focus-visible {
   outline: 3px solid #ffe0a0;
@@ -203,6 +207,9 @@
 }
 .bc-resolving .bc-block {
   opacity: 0 !important;
+}
+.bc-resolving .bc-cell.bc-stationary .bc-block {
+  opacity: 1 !important;
 }
 .bc-cell.legal {
   box-shadow:
@@ -748,7 +755,10 @@
 /* Integrated game focus: keep a real return link, not the surrounding web page chrome. */
 .bc-return {
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
   padding: 6px 0;
 }
 .bc-return:focus-visible {
@@ -813,5 +823,103 @@ body.block-motion-active .club-gameheading {
     border-radius: 12px;
     background: #102c24f2;
     box-shadow: 0 10px 28px #0007;
+  }
+}
+
+/* Short landscape phones keep the board and tray together, without a desktop sidebar.
+   The stage remains a real box: drag cancellation and Canvas feedback own its geometry. */
+@media (min-width: 600px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  body.block-motion-active .sidebar,
+  body.block-motion-active .topbar,
+  body.block-motion-active .theatre-rail,
+  body.block-motion-active .mobile-nav,
+  body.block-motion-active #main > .footer {
+    display: none;
+  }
+  body.block-motion-active .main-wrap,
+  body.block-motion-active #main {
+    margin: 0;
+    padding: 0;
+  }
+  body.block-motion-active .bc-enhanced-layout,
+  body.block-motion-active .bc-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  body.block-motion-active .bc-studio {
+    min-height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+  body.block-motion-active .bc-studio::before {
+    clip-path: inset(0);
+  }
+  body.block-motion-active .bc-play {
+    display: block;
+    max-width: none;
+  }
+  body.block-motion-active .bc-header {
+    margin-bottom: 8px;
+    gap: 12px;
+  }
+  body.block-motion-active .bc-header > div {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  body.block-motion-active .bc-header h2 {
+    margin: 0;
+    font-size: 28px;
+  }
+  body.block-motion-active .bc-scoreboard {
+    padding-bottom: 8px;
+  }
+  body.block-motion-active .bc-scoreboard strong {
+    font-size: 24px;
+  }
+  body.block-motion-active .bc-stage {
+    display: grid;
+    grid-template-columns: minmax(224px, min(42vw, calc(100dvh - 132px))) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 0 16px;
+  }
+  body.block-motion-active .bc-board {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    gap: 2px;
+    padding: 5px;
+  }
+  body.block-motion-active .bc-status {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 42px;
+    padding: 8px 0;
+  }
+  body.block-motion-active .bc-tray {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+  body.block-motion-active .bc-studio .bc-piece {
+    height: 104px;
+  }
+  body.block-motion-active .bc-controls {
+    /* Do not cover the smaller landscape board with a floating portrait action bar. */
+    position: static;
+  }
+  body.block-motion-active .bc-menu-toggle {
+    display: block;
+    flex-shrink: 0;
+  }
+  body.block-motion-active .bc-seal,
+  body.block-motion-active .bc-aside {
+    display: none;
+  }
+  body.block-motion-active .bc-menu-open .bc-aside {
+    display: grid;
+    margin-top: 22px;
   }
 }

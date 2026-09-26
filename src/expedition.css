@@ -21,92 +21,6 @@
 .case-opening h1 {
   letter-spacing: -0.035em;
 }
-.hero.case-feature {
-  min-height: 405px;
-  border-radius: 6px 22px 22px 22px;
-}
-.feature-image .case-art {
-  object-position: 65% 55%;
-}
-.feature-image::after {
-  background: linear-gradient(90deg, #102832f2, #10283294 49%, #10283212 90%);
-}
-.feature-copy {
-  max-width: 400px;
-}
-.case-feature h2 {
-  font-size: clamp(40px, 4vw, 64px);
-}
-.resume-card {
-  border: 1px solid var(--line);
-  background: var(--paper);
-  box-shadow: 5px 6px 0 #dcd6c73d;
-  border-radius: 6px;
-}
-.destination-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-.destination {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  min-height: 290px;
-  padding: 28px;
-  border: 0;
-  border-radius: 14px;
-  text-align: left;
-  color: #fff9e8;
-  display: flex;
-  align-items: flex-end;
-  background: #18343c;
-}
-.destination img {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s;
-}
-.destination::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(0deg, #102a34f7, #102a3440 80%);
-}
-.destination:hover img {
-  transform: scale(1.035);
-}
-.destination .eyebrow {
-  color: #ebce99;
-}
-.destination h3 {
-  font-size: 29px;
-  margin: 9px 0 3px;
-  line-height: 1.15;
-}
-.destination p {
-  font-size: 14px;
-  margin: 7px 0 14px;
-  color: #efe7d8;
-}
-.destination-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  font-weight: 650;
-}
-.puzzle-illustration {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 .book-card {
   border-radius: 5px 14px 14px 5px;
 }
@@ -125,7 +39,7 @@
   display: block;
   overflow: hidden;
   background: #163540;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   margin: 22px 0 32px;
   padding: 46px;
   min-height: 440px;
@@ -178,7 +92,7 @@
   padding: 24px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .cast-file h2 {
   font-size: 26px;
@@ -217,7 +131,7 @@
 }
 .chapter-entry {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   overflow: hidden;
 }
@@ -265,7 +179,7 @@
   overflow: hidden;
   min-height: 116px;
   padding: 22px 28px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: #17343e;
   color: #fff4df;
   margin-bottom: 25px;
@@ -305,7 +219,7 @@
   text-align: left;
   background: var(--green-soft);
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin: 20px 0;
 }
 .chapter-reveal img {
@@ -328,7 +242,7 @@
       calc(100% / var(--islands-size)),
     var(--green-soft);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 .bridge-lines {
   position: absolute;
@@ -422,9 +336,6 @@
   place-items: center;
 }
 @media (max-width: 1100px) {
-  .hero-row {
-    grid-template-columns: minmax(0, 1fr) 230px;
-  }
   .cast-file {
     grid-template-columns: 1fr;
   }
@@ -433,49 +344,6 @@
   }
 }
 @media (max-width: 767px) {
-  .hero-row {
-    grid-template-columns: 1fr;
-  }
-  .hero.case-feature {
-    min-height: 410px;
-    padding: 28px 24px;
-    display: flex;
-    align-items: flex-end;
-  }
-  .feature-image .case-art {
-    object-position: 72% center;
-  }
-  .feature-image::after {
-    background: linear-gradient(0deg, #102832f7, #102832a3 58%, #10283212);
-  }
-  .feature-copy {
-    max-width: 100%;
-  }
-  .case-feature h2 {
-    font-size: 44px;
-  }
-  .resume-card {
-    min-height: auto;
-  }
-  .destination-grid {
-    gap: 14px;
-  }
-  .destination {
-    min-height: 250px;
-    padding: 18px 14px;
-  }
-  .destination h3 {
-    font-size: 23px;
-  }
-  .destination .eyebrow {
-    font-size: 9px;
-  }
-  .destination p {
-    font-size: 12px;
-  }
-  .destination-link {
-    font-size: 12px;
-  }
   .book-grid {
     grid-template-columns: 1fr;
   }
@@ -528,19 +396,49 @@
     width: 80px;
   }
 }
-@media (max-width: 370px) {
-  .destination-grid {
-    grid-template-columns: 1fr;
+/* On short landscape screens, controls sit beside Bridges instead of pushing it
+   below the fold. Dense and enlarged maps keep the existing scroll/zoom route. */
+@media (min-width: 600px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  /* The play header is static here; do not scroll focused islands away from
+     the board to reserve the desktop sticky-header inset. */
+  html:has(.shell.playing .bridge-map) {
+    scroll-padding-top: 8px;
   }
-  .destination {
-    min-height: 230px;
+  .shell.playing:has(.bridge-map) {
+    grid-template-columns: minmax(0, 1fr);
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .destination img {
-    transition: none;
+  .shell.playing:has(.bridge-map) > .sidebar {
+    display: none;
   }
-}
-body.reduced-motion .destination img {
-  transition: none;
+  .player-grid:has(.bridge-map) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .board-card:has(.bridge-map) {
+    display: grid;
+    grid-template-columns: minmax(0, min(45vw, calc(100dvh - 120px))) minmax(0, 1fr);
+    gap: 8px 16px;
+    align-items: start;
+  }
+  .board-card:has(.bridge-map) > .board-wrap {
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    min-width: 0;
+  }
+  .board-card:has(.bridge-map) > .board-heading,
+  .board-card:has(.bridge-map) > .board-instruction,
+  .board-card:has(.bridge-map) > .toolrow,
+  .board-card:has(.bridge-map) > .control-note,
+  .board-card:has(.bridge-map) > .main-tools,
+  .board-card:has(.bridge-map) > .feedback {
+    grid-column: 2;
+    margin: 0;
+  }
+  .board-card:has(.bridge-map) .board-scroll {
+    max-height: calc(100dvh - 120px);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .board-card:has(.bridge-map) .bridge-prompt {
+    text-align: left;
+  }
 }

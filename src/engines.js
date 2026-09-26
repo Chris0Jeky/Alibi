@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const C = root.AlibiCore,
-    { clone, range, equal, DIFFICULTIES } = C,
+    { clone, range, equal, DIFFICULTIES, MAX_PACK_PUZZLES } = C,
     legacy = {
       solve: C.solve,
       validateDefinition: C.validateDefinition,
@@ -1022,9 +1022,9 @@
       input.title.length > 120 ||
       !Array.isArray(input.puzzles) ||
       input.puzzles.length < 1 ||
-      input.puzzles.length > 150
+      input.puzzles.length > MAX_PACK_PUZZLES
     )
-      throw new Error('A valid pack needs an ID, title and 1–150 puzzles.');
+      throw new Error(`A valid pack needs an ID, title and 1–${MAX_PACK_PUZZLES} puzzles.`);
     const puzzles = input.puzzles.map((p) => C.validateDefinition(p));
     if (new Set(puzzles.map((p) => p.id)).size !== puzzles.length)
       throw new Error('Duplicate puzzle IDs.');

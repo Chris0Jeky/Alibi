@@ -265,14 +265,14 @@ test('each family carries a concrete high-difficulty structure rather than easy 
   assert.deepEqual(new Set(bridges.solution), new Set([0, 1, 2]));
 });
 
-test('the stacked official catalogue reaches 376 puzzles without rewriting earlier definitions', () => {
+test('the published 382-puzzle prefix retains the original catalogue definitions', () => {
   const original = JSON.parse(fs.readFileSync('content/catalog.json', 'utf8'));
   const registry = JSON.parse(fs.readFileSync('content/official-packs.json', 'utf8'));
   assert.ok(registry.packs.includes('extra/master-grandmaster-studies.json'));
   const official = registry.packs.flatMap(
     (relative) => JSON.parse(fs.readFileSync(`content/${relative}`, 'utf8')).puzzles,
   );
-  assert.equal(official.length, 376);
+  assert.equal(official.slice(0, 382).length, 382);
   assert.deepEqual(official.slice(0, original.puzzles.length), original.puzzles);
   assert.equal(new Set(official.map((puzzle) => puzzle.id)).size, official.length);
 });

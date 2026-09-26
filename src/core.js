@@ -4,9 +4,11 @@
   'use strict';
   const TYPES = ['scene', 'sudoku', 'nonogram', 'binary', 'futoshiki'];
   const DIFFICULTIES = ['Gentle', 'Steady', 'Tricky', 'Expert', 'Master', 'Grandmaster'];
+  const MAX_PACK_PUZZLES = 150;
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const range = (n) => Array.from({ length: n }, (_, i) => i);
+  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
   const issue = (message, cells = []) => ({ message, cells });
   const rowOf = (cell, n) => Math.floor(cell / n);
   function runs(line) {
@@ -777,14 +779,21 @@
       input.schemaVersion !== 1 ||
       typeof input.id !== 'string' ||
       !/^[a-z][a-z0-9-]{1,63}$/.test(input.id) ||
+      ['constructor', 'prototype'].includes(input.id) ||
       !Number.isInteger(input.version) ||
       input.version < 1 ||
+      input.version > 999999 ||
       typeof input.title !== 'string' ||
+      !input.title.trim() ||
       input.title.length > 120
     )
       throw new Error('Invalid pack header.');
-    if (!Array.isArray(input.puzzles) || input.puzzles.length < 1 || input.puzzles.length > 50)
-      throw new Error('A pack must contain 1–50 puzzles.');
+    if (
+      !Array.isArray(input.puzzles) ||
+      input.puzzles.length < 1 ||
+      input.puzzles.length > MAX_PACK_PUZZLES
+    )
+      throw new Error(`A pack must contain 1–${MAX_PACK_PUZZLES} puzzles.`);
     const puzzles = input.puzzles.map(validateDefinition),
       ids = puzzles.map((x) => x.id);
     if (new Set(ids).size !== ids.length) throw new Error('Duplicate puzzle IDs in the pack.');
@@ -1077,10 +1086,12 @@
   root.AlibiCore = {
     TYPES,
     DIFFICULTIES,
+    MAX_PACK_PUZZLES,
     registry,
     clone,
     equal,
     range,
+    at,
     runs,
     nonogramPatterns: patterns,
     groups,

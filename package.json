@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.11.5",
+  "version": "0.12.0",
   "private": true,
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
   "engines": {
@@ -28,7 +28,8 @@
     "assets:gallery": "node tools/serve-assets.cjs",
     "cloudflare:preview": "wrangler dev --config wrangler.jsonc",
     "cloudflare:check": "wrangler deploy --dry-run --config wrangler.jsonc",
-    "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc"
+    "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc",
+    "pretest": "node tools/check-test-build.cjs"
   },
   "devDependencies": {
     "@capacitor/android": "8.5.2",
@@ -43,6 +44,9 @@
   "overrides": {
     "miniflare@5.20260907.0-alpha": {
       "sharp": "0.35.4"
+    },
+    "xcode": {
+      "uuid": "11.1.1"
     }
   }
 }

@@ -1,4 +1,4 @@
-// Loads the Observatory consent control after the page has finished loading. The artifact ships as
+// Loads the Observatory statistics control after the page has finished loading. The artifact ships as
 // its own hashed asset outside the offline shell, so it never joins the initial bundle or its budgets. The
 // artifact itself refuses standalone exports, automated browsers, DNT/GPC signals and foreign origins.
 (function () {
@@ -23,7 +23,8 @@
   // puzzle ids, answers, text, URLs or boards. Only a real board change opens an attempt; a conflicted
   // check or a committed completion closes an open one and is dropped otherwise (repeated checks, undo/redo
   // reviews), so one attempt yields at most one terminal. Hints are reported but never open an attempt.
-  // Nothing is buffered: while sharing is off the state resets and calls are dropped. Consent changes, a
+  // A restart abandons the open attempt locally (puzzle.abandoned), which resets without emitting.
+  // Nothing is buffered: while sharing is off the state resets and calls are dropped. Preference changes, a
   // remounted facade and route changes also reset.
   let usage, run, open;
   const reset = () => (run = open = null);
@@ -32,6 +33,10 @@
     if (u !== usage) ((usage = u), reset());
     if (run !== current) ((run = current), (open = null));
     if (!u?.status?.().active) return (reset(), false);
+    if (event === 'puzzle.abandoned') {
+      open = null;
+      return true;
+    }
     if (event && !/^(puzzle\.(started|failed|completed)|hint\.requested)$/.test(event))
       return false;
     if (!event || event === 'puzzle.started') return open || (open = u.track('puzzle.started'));
@@ -40,7 +45,7 @@
     open = null;
     return u.track(event);
   };
-  // The generated control is the only element with this id; any change inside it is a consent transition.
+  // The generated control is the only element with this id; its switch changes the sharing preference.
   document.addEventListener(
     'change',
     (e) => e.target?.closest?.('#pulseboard-usage-sharing') && reset(),

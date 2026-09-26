@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "9190cdd7ccbc5aa4f98cf77a3346cbce899bfc1f",
+  "puzzleCount": 382,
+  "packs": [
+    {
+      "path": "catalog.json",
+      "sha256": "e2d9ab9ceb61aaa801832dd4490839a0cd9890932dba3e5ad43f3d582021d1c0"
+    },
+    {
+      "path": "curation/packs/aquarium.json",
+      "sha256": "520610b2f564b4b0b67fec82958c4df090fe4c6b7144953dbf3d8c9359443039"
+    },
+    {
+      "path": "curation/packs/binary.json",
+      "sha256": "32fdd64377d69a461f6736de20bd9d99d47ce869303fd0d458a147544574c77f"
+    },
+    {
+      "path": "curation/packs/bridges.json",
+      "sha256": "47f6e110f9880730f28cb9457bd516a8d9053e5c7e9c56e40af1267d157ee1b8"
+    },
+    {
+      "path": "curation/packs/dossier.json",
+      "sha256": "fbabd7b7e14c19dcc6ed04e5ec1091110b86a91ac11be729ac9001d781c101a2"
+    },
+    {
+      "path": "curation/packs/futoshiki.json",
+      "sha256": "36e6b2b6f1fa5daf6bbb982706878afa186476023acddd78c7198287287b4c11"
+    },
+    {
+      "path": "curation/packs/lightup.json",
+      "sha256": "4e90883be355d8325a3469bb09041c9e3fc60cf567dcdbd4d22702715b70787c"
+    },
+    {
+      "path": "curation/packs/network.json",
+      "sha256": "9dee4eb2db6ae94f0567f75d9197e6b937347cc8a50b2135d2598a911a4a0cab"
+    },
+    {
+      "path": "curation/packs/nonogram.json",
+      "sha256": "dfc98a06ebd9e2d4fc9be83eb138e4a06b66ae2f44ac99708175f08d871841db"
+    },
+    {
+      "path": "curation/packs/scene.json",
+      "sha256": "6ce462c9152d4770889bbd2d1633d89fa89c70dc05b796a7b4de815e18c5196b"
+    },
+    {
+      "path": "curation/packs/sudoku.json",
+      "sha256": "08eced7b9a30920384b1c4162556524f867ccbb08af02293686110cbb7622163"
+    },
+    {
+      "path": "curation/packs/tents.json",
+      "sha256": "3e55cb489e29eda75f6204deeed9d47213c19d5a3dbb2142472be77751b1eac1"
+    },
+    {
+      "path": "curation/packs/trail.json",
+      "sha256": "7fbf56e208ebf0951739eb6ed41602d6bdd4afbf1804d448c5884177366bc18a"
+    },
+    {
+      "path": "curation/packs/witness.json",
+      "sha256": "06b2133788aa946fa6bc6fadfda0fd22211330a2917cbe4eff0195ec7816e4f5"
+    },
+    {
+      "path": "extra/binary-large.json",
+      "sha256": "abf3f7f6d93c42a25bc66b2307db6867dc418ff61c33e4358e6ef4d64f354143"
+    },
+    {
+      "path": "extra/nonogram-large.json",
+      "sha256": "c46408e676a76d1706d7bf5da18f5f0edeff6106858eefef33479792ea2a9bb0"
+    },
+    {
+      "path": "extra/sudoku-expert.json",
+      "sha256": "1ce9587f69de7dc7a9ee7fed263de26202161a8043e9d09beb0bbeaf10e62f76"
+    },
+    {
+      "path": "extra/case-invitation.json",
+      "sha256": "ed329c99d2a18111d1d5eddff5e872375f315eb6265571a8fabaff0f07e566fc"
+    },
+    {
+      "path": "extra/expert-families.json",
+      "sha256": "5ed732282937c42aac88a59287598d01d6eb8f85de0d3fb66fd83b1ab04f7826"
+    },
+    {
+      "path": "extra/after-hours-hard-studies.json",
+      "sha256": "5017065cb73ad51468f47865e81603b0de0cedb6797e95bb323447c84198cafd"
+    },
+    {
+      "path": "extra/crime-scene-variations.json",
+      "sha256": "def4d4e62fe84808de74c698500863040b39d88612c64fb6034606cb0b0375f1"
+    },
+    {
+      "path": "extra/master-grandmaster-studies.json",
+      "sha256": "6fe9014368e8e48d6c70e27af778a0b35b1ec8de9f32874df2b10378987aa57a"
+    },
+    {
+      "path": "extra/keepers-picture-studies.json",
+      "sha256": "249a2f332d692d50d2cfa1f527a1a4a6d6ae6e4b5daf5683227f9701dbba2695"
+    }
+  ],
+  "legacySha256": "1c9177aa3b4f20a90ab29e733668aa77ae88ae8eaf4ee3e1aca892cf11e029ba"
+}

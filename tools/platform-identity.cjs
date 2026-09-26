@@ -39,6 +39,49 @@ function sourceIdentity(root) {
   };
 }
 
+/** Bounded dirty-path sample for failure diagnostics. Never throws. */
+function dirtyPaths(root, limit = 5) {
+  try {
+    const out = execFileSync('git', ['status', '--porcelain=v1', '-z', '--untracked-files=all'], {
+      cwd: root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 10000,
+    });
+    // Latin-1 keeps each byte intact while splitting Git's NUL records.
+    const entries = out.toString('latin1').split('\0');
+    const maximum = Number.isFinite(limit) ? Math.max(0, Math.min(5, Math.trunc(limit))) : 5;
+    const shown = [];
+    let total = 0;
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (!entry) continue;
+      total++;
+      if (shown.length < maximum) {
+        const raw = entry.slice(3),
+          bytes = Buffer.from(raw, 'latin1'),
+          text = bytes.toString('utf8'),
+          validText = Buffer.from(text, 'utf8').equals(bytes);
+        let display = JSON.stringify(validText ? text : raw);
+        if (!validText)
+          display = display.replace(
+            /[\u0080-\u00ff]/g,
+            (char) => `\\x${char.charCodeAt(0).toString(16).padStart(2, '0')}`,
+          );
+        display = display.replace(
+          /[\u007f-\u009f\u2028\u2029\u202a-\u202e\u2066-\u2069]/g,
+          (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
+        );
+        shown.push(display.length > 240 ? display.slice(0, 237) + '...' : display);
+      }
+      // Porcelain -z puts a rename/copy destination first, then its source path.
+      if (/[RC]/.test(entry.slice(0, 2))) i++;
+    }
+    return { shown, total };
+  } catch {
+    return { shown: [], total: 0 };
+  }
+}
+
 /** Canonical runtime graph: normalized assets/ and icons/ paths, excluding the identity itself.
  * HTML, service worker and receipts are release metadata; Android's separate artifact SHA covers
  * the complete tree. The graph includes all bundled optional code and media, not just startup.
@@ -104,6 +147,7 @@ function writeIdentity(directory, identity, { replace = false } = {}) {
 
 module.exports = {
   browserBundle,
+  dirtyPaths,
   IDENTITY_ASSET,
   identityAssets,
   identitySource,

@@ -112,7 +112,7 @@
   position: relative;
   isolation: isolate;
   min-height: 390px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: #16353f;
   color: #fff4dc;
@@ -201,7 +201,7 @@
   min-height: 50px;
   min-width: 0;
   border: 1px solid #d9cbb0;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: #fbf7ed;
   color: #29434a;
   padding: 9px;
@@ -290,7 +290,7 @@
   background: #112e37;
   color: #f1e4c6;
   border: 1px solid #b99a61;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 24px;
 }
 .theatre-dialog::backdrop {

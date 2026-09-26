@@ -34,20 +34,21 @@ export function validatePackConfig(config) {
   )
     return false;
   const scenes = config.files.slice(1);
-  if (
-    !scenes.every((url) => {
-      const match = SCENE.exec(url);
-      return validURL(url, SCENE) && match && SCENE_IDS.has(match[2]);
-    })
-  )
-    return false;
+  const ids = [];
+  for (const url of scenes) {
+    const match = SCENE.exec(url);
+    if (!validURL(url, SCENE) || !match || !SCENE_IDS.has(match[2])) return false;
+    ids.push(match[2]);
+  }
+  if (new Set(ids).size !== ids.length) return false;
   if (config.media !== undefined) {
     if (!config.media || typeof config.media !== 'object') return false;
-    const values = Object.values(config.media);
+    const entries = Object.entries(config.media);
     if (
-      values.length !== 12 ||
-      new Set(values).size !== values.length ||
-      !values.every((url) => scenes.includes(url))
+      entries.length !== SCENE_IDS.size ||
+      !entries.every(
+        ([id, url]) => SCENE_IDS.has(id) && scenes.includes(url) && SCENE.exec(url)[2] === id,
+      )
     )
       return false;
   }

@@ -40,9 +40,13 @@ with sync_playwright() as playwright:
             )
         page.wait_for_function("() => globalThis.AlibiDiagnostics")
 
+        # Salon always renders both boards and hides the inactive one; accept
+        # whichever board is visible as the render marker.
+        markers = {"/salon/blockcabinet": ".bc-host .bc-cell:visible, .block-cell:visible", "/home": ".club-welcome"}
+
         def route(path):
             page.evaluate("(value) => (location.hash = value)", path)
-            page.wait_for_timeout(180)
+            page.locator(markers[path]).first.wait_for(timeout=20000)
 
         def simple_controls():
             # Exercise the real fallback menu; enhanced controls have their own suite.
@@ -98,7 +102,7 @@ with sync_playwright() as playwright:
                 f"Phone fixture scrolls beyond the primary actions at {width}px",
             )
             page.evaluate("y => scrollTo(0, y)", scroll_target)
-            page.wait_for_timeout(100)
+            page.wait_for_function("(y) => Math.abs(scrollY - y) < 2", arg=scroll_target)
             action_box = actions.bounding_box()
             check(
                 action_box is not None
@@ -279,5 +283,120 @@ with sync_playwright() as playwright:
         page.screenshot(path=str(ROOT / "test-results" / f"block-cabinet-home-{width}.png"), full_page=True)
         check(not errors, f"Block Cabinet controls produce no browser errors at {width}px")
         context.close()
+    for motion in ("no-preference", "reduce"):
+        context = browser.new_context(
+            viewport={"width": 390, "height": 844}, reduced_motion=motion,
+        )
+        page = context.new_page()
+        if os.environ.get('ALIBI_URL'):
+            page.goto(os.environ['ALIBI_URL'] + '/#/salon/blockcabinet')
+            page.wait_for_function('''() => navigator.serviceWorker.controller &&
+                AlibiDiagnostics.getStatus().offlineReady''')
+        else:
+            page.set_content(
+                (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
+                wait_until="load",
+            )
+            page.evaluate('() => location.hash = "#/salon/blockcabinet"')
+        page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+        page.locator('.bc-host [data-piece="0"]').click()
+        page.evaluate('''() => {
+            const host = document.querySelector('.bc-host');
+            const frames = [];
+            window.cabinetFlashProbe = {frames};
+            const start = performance.now();
+            const sample = () => {
+                const cell = document.querySelector('.bc-host .bc-cell');
+                frames.push({
+                    hostVisible: !!cell && host.isConnected && host.getBoundingClientRect().width > 0,
+                    cellOpacity: cell ? Number(getComputedStyle(cell).opacity) : 0,
+                    cellDisabled: !!cell?.disabled,
+                });
+                if (performance.now() - start < 700) requestAnimationFrame(sample);
+                else window.cabinetFlashProbe.done = true;
+            };
+            requestAnimationFrame(sample);
+        }''')
+        page.locator('.bc-host .bc-cell.legal').first.click()
+        page.wait_for_function('() => window.cabinetFlashProbe?.done === true')
+        visual = page.evaluate('''() => ({
+            frames: cabinetFlashProbe.frames.length,
+            minOpacity: Math.min(...cabinetFlashProbe.frames.map(frame => frame.cellOpacity)),
+            missingHostFrames: cabinetFlashProbe.frames.filter(frame => !frame.hostVisible).length,
+            lockedFrames: cabinetFlashProbe.frames.filter(frame => frame.cellDisabled).length,
+        })''')
+        check(visual['frames'] > 5 and visual['missingHostFrames'] == 0,
+              f"Enhanced board remains mounted during {motion} placement: {visual}")
+        if motion == "no-preference":
+            check(visual['lockedFrames'] > 0,
+                  f"Visual probe covers the ordinary-motion placement lock: {visual}")
+        check(visual['minOpacity'] >= 0.95,
+              f"Enhanced board does not dim during {motion} placement: {visual}")
+        context.close()
+    context = browser.new_context(
+        viewport={"width": 390, "height": 844}, reduced_motion="no-preference",
+    )
+    page = context.new_page()
+    if os.environ.get('ALIBI_URL'):
+        page.goto(os.environ['ALIBI_URL'] + '/#/salon/blockcabinet')
+        page.wait_for_function('''() => navigator.serviceWorker.controller &&
+            AlibiDiagnostics.getStatus().offlineReady''')
+    else:
+        page.set_content(
+            (ROOT / "alibi-deluxe-play.html").read_text(encoding="utf-8"),
+            wait_until="load",
+        )
+        page.evaluate('() => location.hash = "#/salon/blockcabinet"')
+    page.locator('.bc-host .bc-cell').first.wait_for(timeout=20000)
+    page.locator('.bc-host [data-command="menu"]').click()
+    page.locator('.bc-host [data-command="simple"]').click()
+    page.locator('#block-seed').fill('FLASH-26')
+    page.locator('[data-action="club-block-use-seed"]').click()
+    page.wait_for_function('''() =>
+        AlibiClub.diagnostics().state.runs.blockcabinet.seed === 'FLASH-26' ||
+        Boolean(document.querySelector('dialog[open] [data-action="club-reset-confirm"]'))
+    ''')
+    if page.locator('dialog[open] [data-action="club-reset-confirm"]').count():
+        page.locator('dialog[open] [data-action="club-reset-confirm"]').click()
+    page.wait_for_function(
+        '() => AlibiClub.diagnostics().state.runs.blockcabinet.seed === "FLASH-26"'
+    )
+    page.locator('.bc-enable').click()
+    page.locator('.bc-host .bc-cell').first.wait_for()
+    for slot, cell in ((2, 16), (0, 0)):
+        page.locator(f'.bc-host [data-piece="{slot}"]').click()
+        page.locator(f'.bc-host .bc-cell[data-cell="{cell}"].legal').click()
+        page.wait_for_function('() => !document.querySelector(".bc-cell:disabled")')
+    check(page.locator('.bc-host .bc-cell[data-cell="16"].filled').count() == 1,
+          "Line-clear fixture has a stationary piece outside the clearing row")
+    page.locator('.bc-host [data-piece="1"]').click()
+    page.evaluate('''() => {
+        const samples = [];
+        window.cabinetClearProbe = {samples};
+        const start = performance.now();
+        const sample = () => {
+            const block = document.querySelector('.bc-cell[data-cell="16"] .bc-block');
+            samples.push({
+                resolving: !!document.querySelector('.bc-resolving'),
+                opacity: block ? Number(getComputedStyle(block).opacity) : 0,
+            });
+            if (performance.now() - start < 1000) requestAnimationFrame(sample);
+            else window.cabinetClearProbe.done = true;
+        };
+        requestAnimationFrame(sample);
+    }''')
+    page.locator('.bc-host .bc-cell[data-cell="5"].legal').click()
+    page.wait_for_function('() => window.cabinetClearProbe?.done === true')
+    clear_visual = page.evaluate('''() => ({
+        resolvingFrames: cabinetClearProbe.samples.filter(s => s.resolving).length,
+        minStationaryOpacity: Math.min(...cabinetClearProbe.samples
+            .filter(s => s.resolving).map(s => s.opacity)),
+        moves: AlibiClub.diagnostics().state.runs.blockcabinet.log.length,
+    })''')
+    check(clear_visual['moves'] == 3 and clear_visual['resolvingFrames'] > 0,
+          f"Line-clear visual probe exercises the real animation: {clear_visual}")
+    check(clear_visual['minStationaryOpacity'] >= 0.95,
+          f"Stationary piece remains visible during line clear: {clear_visual}")
+    context.close()
     print("PASS", len(checks), "Block Cabinet browser assertions.")
     browser.close()

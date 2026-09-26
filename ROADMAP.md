@@ -1,16 +1,16 @@
 # Alibi roadmap
 
-**Last reconciled: 15 September 2026**
+**Last reconciled: 23 September 2026**
 
-This roadmap starts from the public 0.11.3 release rather than preserving the old 0.3/0.4 launch chronology as though it were still future work. It separates shipped capability, active quality work, planned implementation, and optional later services.
+This roadmap starts from the published 0.11.5 release rather than preserving the old 0.3/0.4 launch chronology as though it were still future work. It separates shipped capability, active quality work, planned implementation, and optional later services.
 
 The governing rule is simple: **preserve local play, versioned content, and truthful evidence while the experience grows.** A seeded issue or design document is not a shipped feature. A green synthetic test is not physical-device acceptance. A larger catalogue is not automatically a better puzzle collection.
 
-## Shipped baseline: 0.11.3
+## Published browser baseline: 0.11.5
 
-The current public browser/PWA product includes:
+The recorded 0.11.5 browser/PWA release includes:
 
-- thirteen puzzle families and 355 catalogue entries;
+- thirteen puzzle families and 376 catalogue entries;
 - five illustrated casebooks, including Bellweather and the invitation sequence;
 - interactive lessons, selected current-board deductions, and reopenable completion explanations;
 - revision-pinned saves, notes, undo/redo, favorites, recovery, and JSON backup paths;
@@ -18,9 +18,25 @@ The current public browser/PWA product includes:
 - the local asset gallery as a developer-only source preview (`npm run assets:gallery`), not as a public app surface;
 - local authoring, uniqueness checks where supported, pack export, and stable content IDs/revisions;
 - a complete offline core, two verified public origins, release archives, deployment receipts, and real-browser save/update coverage;
-- a proposed source-level Capacitor transition architecture and package map, but no native application claim.
+- a Capacitor transition architecture and package map, separate from the published browser artifact.
 
-The release record and deployment receipts are the source of truth for published versions. Open pull requests may refine this baseline; they do not change it until merged, released, and verified.
+The [release record](docs/RELEASE-0.11.5.md) and its dated per-origin receipts are the source of
+truth for publication. The latest recorded Cloudflare and Sites builds differ; this reconciliation
+does not re-probe either live origin. Merged source improvements are not automatically deployed.
+Open pull requests remain candidates until reviewed and verified.
+
+## Implemented source preview: Android CAP04
+
+The repository now includes the pinned Capacitor Android preview flavors, a strict native
+bootstrap and reproducible sync/build boundaries. The [dated CAP04 record](docs/STATE-ARCHIVE-2026-09-23.md)
+records debug and release-like preview APK compilation plus sampled Android 36 emulator
+install, offline launch and force-stop/save-restoration checks. These are local debug-signed
+preview artifacts using `example.unapproved.alibi.preview`, not a production identity, AAB,
+Play Store release or completed native acceptance.
+
+Every-feature offline play, minimum-WebView support, physical-device/accessibility testing,
+recovery, transfer, production signing and publisher approval remain open under #126 and the
+other [Capacitor packages](docs/capacitor/README.md).
 
 ## Horizon A — player-calibrated quality
 
@@ -67,7 +83,7 @@ The release record and deployment receipts are the source of truth for published
 
 Implementation follows the package and release-gate map in `docs/capacitor/`.
 
-- Establish the pinned native toolchain and reproducible local/CI build.
+- Extend the existing pinned native preview toolchain and reproducible sync/build checks into the remaining release gates.
 - Bundle trusted application code; do not replace it with a remote-webview shell.
 - Keep IndexedDB authoritative unless a reviewed migration changes that contract.
 - Implement explicit transfer and bounded recovery checkpoints for supported data domains.
@@ -113,7 +129,7 @@ Every horizon retains the same non-negotiable release habits:
 
 Alibi does **not** currently claim:
 
-- an Android APK, AAB, Play Store listing, or completed native acceptance;
+- a production Android release, production-signed AAB, Play Store listing, or completed native acceptance;
 - cloud sync, a hosted account service, public multiplayer, or tamper-resistant scoring;
 - universal solver support for arbitrary partial player states;
 - calibrated difficulty and solve-time labels across the full catalogue;

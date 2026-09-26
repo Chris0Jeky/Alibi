@@ -25,7 +25,7 @@ function harness({ standalone = false } = {}) {
     },
   });
   const context = {
-    ALIBI_CONFIG: { standalone, version: '0.11.5' },
+    ALIBI_CONFIG: { standalone, version: '0.11.6' },
     ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
     location: { hash: '#/play/test@1' },
     document: {
@@ -122,6 +122,7 @@ test('unknown events are refused and nothing is buffered before consent', () => 
   h.setActive(true);
   assert.equal(h.call('puzzle.unknown'), false);
   assert.equal(h.call('puzzle.solved'), false);
+  assert.equal(h.call('puzzle.abandon'), false, 'the control event name is exact');
   assert.deepEqual(h.events, []);
 
   h.setActive(false);
@@ -163,6 +164,28 @@ test('one attempt yields at most one terminal: repeated checks, hints and undo r
     'puzzle.started',
     'puzzle.completed',
   ]);
+});
+
+test('restart abandons the open attempt locally without emitting a terminal', () => {
+  const h = harness();
+  h.setActive(true);
+  assert.equal(
+    h.call('puzzle.abandoned'),
+    true,
+    'abandoning with no open attempt is a silent no-op',
+  );
+  assert.deepEqual(h.events, []);
+  h.call();
+  assert.equal(h.call('puzzle.abandoned'), true);
+  assert.deepEqual(h.events, ['puzzle.started']);
+  assert.equal(
+    h.call('puzzle.failed'),
+    false,
+    'the abandoned attempt cannot be closed by a later check',
+  );
+  assert.equal(h.call(), true, 'the next real board change opens a fresh attempt');
+  assert.equal(h.call('puzzle.completed'), true);
+  assert.deepEqual(h.events, ['puzzle.started', 'puzzle.started', 'puzzle.completed']);
 });
 
 test('route changes reset the attempt and still report a page view', () => {
@@ -226,7 +249,7 @@ test('the generated control keeps the id the loader watches for consent changes'
   assert.doesNotMatch(browserSource, /AlibiJourney|createJourney|journey/i);
 });
 
-test('application lifecycle calls the helper with fixed event names only', () => {
+test('application lifecycle calls the helper with fixed names only', () => {
   assert.match(appSource, /globalThis\.AlibiJourney\?\.\(current\);[\s\S]*current\.state = next;/);
   assert.match(
     appSource,
@@ -244,23 +267,42 @@ test('application lifecycle calls the helper with fixed event names only', () =>
     appSource,
     /C\.equal\(current\.state, d\.before\)\) return;\s*globalThis\.AlibiJourney\?\.\(current\);/,
   );
+  assert.match(
+    appSource,
+    /completion\(\);\s*\/\/ Undo after a failure reopens the retry\.[\s\S]*?if \(wasSolved \|\| current\.completedAt\) reviewing = true;\s*else if \(!reviewing\) globalThis\.AlibiJourney\?\.\(current\);/,
+  );
+  assert.match(
+    appSource,
+    /current\.completedAt = null;\s*reviewing = false;\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.abandoned'\);/,
+  );
+  assert.match(
+    appSource,
+    /globalThis\.AlibiJourney\?\.\(current\);\s*reviewing = false;\s*if \(history\)/,
+  );
+  assert.match(appSource, /checking = false;\s*reviewing = false;\s*feedback = '';/);
   const calls = appSource.match(/globalThis\.AlibiJourney\?\.\([^)]*\)/g) || [];
-  assert.equal(calls.length, 5);
+  assert.equal(calls.length, 7);
   for (const call of calls)
     assert.match(
       call,
-      /^globalThis\.AlibiJourney\?\.\(current(, '(puzzle\.(failed|completed)|hint\.requested)')?\)$/,
+      /^globalThis\.AlibiJourney\?\.\(current(, '(puzzle\.(failed|completed|abandoned)|hint\.requested)')?\)$/,
     );
   assert.doesNotMatch(appSource, /PulseboardUsage/);
+  assert.doesNotMatch(appSource, /current\.reviewing/, 'the review flag is UI state, never saved');
 });
 
 // Runs the real loader and the real generated adapter together, with a minimal DOM that dispatches
-// change events through document capture listeners the way a browser does.
+// change events through document capture listeners the way a browser does. Storage is a working
+// Map-backed localStorage so the committed default-on path is exercised: an eligible first visit
+// shares on without an explicit toggle, after mounting the open notice.
 function integrated() {
   const { webcrypto } = require('node:crypto');
   const windowListeners = {};
   const captures = [];
   const created = [];
+  const order = [];
+  const fetchCalls = [];
+  const store = new Map();
   function element(tag) {
     const node = {
       tag,
@@ -276,6 +318,17 @@ function integrated() {
           node.children.push(child);
         }
       },
+      appendChild(child) {
+        if (child && typeof child === 'object') child.parent = node;
+        node.children.push(child);
+        return child;
+      },
+      prepend(...children) {
+        for (const child of [...children].reverse()) {
+          if (child && typeof child === 'object') child.parent = node;
+          node.children.unshift(child);
+        }
+      },
       setAttribute() {},
       addEventListener(type, listener) {
         (node.listeners[type] ||= []).push(listener);
@@ -289,9 +342,20 @@ function integrated() {
     created.push(node);
     return node;
   }
+  const body = element('body');
+  const origAppend = body.append.bind(body);
+  const origPrepend = body.prepend.bind(body);
+  body.append = (...children) => {
+    order.push('notice');
+    return origAppend(...children);
+  };
+  body.prepend = (...children) => {
+    order.push('notice');
+    return origPrepend(...children);
+  };
   const document = {
     readyState: 'complete',
-    body: element('body'),
+    body,
     head: { append() {} },
     createElement: element,
     createTextNode: (text) => ({ text }),
@@ -315,17 +379,24 @@ function integrated() {
     Response,
     URL,
     Date,
-    JSON,
-    // No host Object: the adapter checks that events carry this realm's plain-object prototype.
-    localStorage: { getItem: () => null, setItem: () => {} },
-    fetch: async () => new Response('{}', { status: 202 }),
+    // Keep JSON and Object in this VM realm for the adapter's plain-object checks.
+    localStorage: {
+      getItem: (key) => (store.has(key) ? store.get(key) : null),
+      setItem: (key, value) => store.set(key, String(value)),
+      removeItem: (key) => store.delete(key),
+    },
+    fetch: async (url, init) => {
+      order.push('network');
+      fetchCalls.push({ url, init, body: init && init.body });
+      return new Response('{}', { status: 202 });
+    },
     setTimeout: () => 1,
     clearTimeout: () => {},
     addEventListener(type, listener) {
       (windowListeners[type] ||= []).push(listener);
     },
     removeEventListener() {},
-    ALIBI_CONFIG: { standalone: false, version: '0.11.5' },
+    ALIBI_CONFIG: { standalone: false, version: '0.11.6' },
     ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
   };
   context.globalThis = context;
@@ -333,8 +404,14 @@ function integrated() {
   vm.runInContext(loaderSource, context, { filename: 'observatory-loader.js' });
   vm.runInContext(browserSource, context, { filename: 'observatory/browser.js' });
   const checkbox = created.find((node) => node.type === 'checkbox');
+  const details = created.find((node) => node.id === 'pulseboard-usage-sharing');
   return {
     context,
+    checkbox,
+    details,
+    fetchCalls,
+    order,
+    store,
     toggle(value) {
       checkbox.checked = value;
       for (const listener of captures) listener({ target: checkbox });
@@ -344,15 +421,35 @@ function integrated() {
   };
 }
 
-test('the generated adapter admits every journey event the loader emits', () => {
+test('the generated adapter admits every journey event the loader emits (default-on aggregate)', async () => {
   const h = integrated();
   const run = { key: 'integrated' };
-  assert.equal(h.context.AlibiJourney(run), false, 'nothing is tracked before consent');
-  assert.equal(h.queued(), 0);
+  assert.equal(
+    h.context.PulseboardUsage.status().active,
+    true,
+    'eligible visits default to sharing on without a toggle',
+  );
+  assert.equal(h.details.open, true, 'the open notice mounts before the first send');
+  assert.equal(h.checkbox.checked, true);
+  assert.ok(h.order.includes('notice'));
+  assert.ok(h.order.includes('network'));
+  assert.ok(
+    h.order.indexOf('notice') < h.order.indexOf('network'),
+    'the visible notice precedes the first page.view network',
+  );
+  assert.equal(
+    h.fetchCalls[0].url,
+    'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect-stat/alibi',
+  );
+  const initial = JSON.parse(h.fetchCalls[0].body);
+  assert.equal(initial.v, 1);
+  assert.equal(initial.counts.length, 1);
+  assert.deepEqual(Object.keys(initial.counts[0]).sort(), ['event', 'n', 'release', 'route']);
+  assert.equal(initial.counts[0].event, 'page.view');
+  assert.equal(initial.counts[0].n, 1);
 
-  h.toggle(true);
   const afterConsent = h.queued();
-  assert.equal(afterConsent, 0, 'the consent page view is already in flight');
+  assert.equal(afterConsent, 0, 'the default-on page view is already in flight');
   assert.equal(h.context.PulseboardUsage.status().requests, 1);
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'hint.requested'), true);
@@ -361,11 +458,21 @@ test('the generated adapter admits every journey event the loader emits', () => 
   assert.equal(h.context.AlibiJourney(run, 'puzzle.completed'), true);
   assert.equal(h.queued(), afterConsent + 5, 'started, hint, failed, started, completed');
 
+  assert.equal(h.context.AlibiJourney(run), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.abandoned'), true);
+  assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
+  assert.equal(
+    h.queued(),
+    afterConsent + 6,
+    'the abandoned start is collected, the abandon itself is local-only',
+  );
+
   h.context.AlibiJourney(run);
   h.toggle(false);
-  assert.equal(h.queued(), 0, 'withdrawal clears the queue');
+  assert.equal(h.queued(), 0, 'explicit off clears the queue');
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
   h.toggle(true);
+  assert.equal(h.context.PulseboardUsage.status().active, true, 're-on activates the adapter');
   assert.equal(
     h.context.AlibiJourney(run, 'puzzle.failed'),
     false,
@@ -373,5 +480,14 @@ test('the generated adapter admits every journey event the loader emits', () => 
   );
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
-  assert.equal(h.queued(), 2, 're-consent opens a fresh attempt instead of continuing the old one');
+  assert.equal(h.queued(), 2, 're-on opens a fresh attempt instead of continuing the old one');
+
+  await h.context.PulseboardUsage.flush();
+  const last = JSON.parse(h.fetchCalls[h.fetchCalls.length - 1].body);
+  assert.equal(last.v, 1);
+  for (const count of last.counts) {
+    assert.deepEqual(Object.keys(count).sort(), ['event', 'n', 'release', 'route']);
+    assert.equal(count.n, 1);
+  }
+  assert.ok(!JSON.stringify(last).includes('integrated'), 'no puzzle identity leaks');
 });

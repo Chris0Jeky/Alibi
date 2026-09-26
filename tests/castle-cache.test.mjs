@@ -76,6 +76,17 @@ test('Castle cache validates the bounded hashed scene manifest', () => {
   ]) {
     assert.equal(validatePackConfig({ ...config, files }), false);
   }
+  assert.equal(
+    validatePackConfig({
+      ...config,
+      files: [
+        config.files[0],
+        ...config.files.slice(1, -1),
+        './assets/quiet-castle.999999999999.library.svg',
+      ],
+    }),
+    false,
+  );
   assert.equal(validatePackConfig({ ...config, build: '123456ABCDEF' }), false);
   assert.equal(
     validatePackConfig({ ...config, files: [config.files[0], ...config.files.slice(2)] }),
