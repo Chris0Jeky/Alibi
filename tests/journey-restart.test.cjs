@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
-const loader = fs.readFileSync(path.join(root, 'src/observatory-loader.js'), 'utf8');
+const loader = fs.readFileSync(path.join(root, 'src/pulseboard-host.js'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
 const start = app.indexOf("      case 'restart':");
 const end = app.indexOf("      case 'next':", start);
@@ -15,17 +15,19 @@ function harness({ active = true, saveError = '', storageFatal = '' } = {}) {
   const events = [];
   const context = {
     ALIBI_CONFIG: { standalone: false },
-    ALIBI_OBSERVATORY_URL: 'assets/observatory.test.js',
-    PulseboardUsage: { status: () => ({ active }), track: (event) => (events.push(event), true) },
+    Pulseboard: {
+      count: () => active,
+      track: (event) => (events.push(event), active),
+      consent: { get: () => ({ counts: active, journeys: active }) },
+    },
     document: {
       readyState: 'complete',
-      createElement: () => ({}),
-      head: { append() {} },
+      querySelector: () => null,
       addEventListener() {},
     },
     addEventListener() {},
     current: {
-      puzzle: { type: 'sudoku' },
+      puzzle: { type: 'sudoku', id: 'expert-sudoku-01' },
       state: { cells: [1] },
       undo: [{ cells: [0] }],
       redo: [],

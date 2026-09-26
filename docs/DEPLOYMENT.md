@@ -22,6 +22,12 @@ paid external service is needed. Never create another project just to publish an
    here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
    PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
    the collector rejects the new release's usage counts.
+   Since 0.14.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`), which
+   Pulseboard's `sync:alibi` does not yet regenerate: until it does, register the release in
+   Pulseboard `observatory/src/alibi-releases.mjs`, rebuild with
+   `node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>` after
+   `git rm observatory/pulseboard.js`, update `observatory.lock.json`, and run
+   `node observatory/check.mjs` after a build.
 1. Run `npm ci`, `npm run verify`, and all browser acceptance suites in CI. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. Build the merged source. Record its full Git SHA and `build-info.json`.
@@ -69,19 +75,19 @@ The active worker serves one coherent cached release. A new release waits for Sa
 other open pages are not forcibly reloaded. Worker caches never contain or delete game saves.
 A server rollback does not reverse IndexedDB or immediately replace all installed workers.
 
-### Observatory adapter rollout
+### Pulseboard SDK rollout
 
-The optional Observatory adapter is a content-hashed online-only asset outside the service-worker
-shell. A browser still running the previous cached shell can therefore request the previous adapter
-name after a host has removed it. This fails closed: the Usage sharing control disappears and no
-events are sent until the player applies the coherent app update. During an adapter rollout, retain
-the previous `observatory.<hash>.js` when the host supports immutable-asset retention, or explicitly
-verify the old-shell/new-host case and record the accepted temporary disappearance. Never add the
-adapter to the offline shell merely to hide this condition without rechecking the shell budget.
+The Pulseboard SDK is a content-hashed online-only asset (`assets/pulseboard.<hash>.js`, the last
+deferred script of the web index) outside the service-worker shell. A browser still running the
+previous cached shell can request the previous SDK name after a host has removed it. This fails
+closed: `src/pulseboard-host.js` releases the reserved notice space, no Beta notice shows and nothing
+is sent until the player applies the coherent app update. The 0.14.1 rollout replaces the old
+`observatory.<hash>.js` adapter the same way: an old shell that cannot fetch it shows no control.
+Never add the SDK to the offline shell merely to hide this condition without rechecking the budget.
 
 The app requests no remote player data, ads or fonts. On the primary Cloudflare
-origin, aggregate Usage sharing defaults on for eligible visits;
-the control lives on Settings and Privacy only, never as a popup.
+origin, the Pulseboard SDK's Beta notice sits in flow at the top of the page and its
+Beta button renders inline in Settings and Privacy only, never as a popup or fixed pill.
 The Sites fallback stays outside collector admission. The hosting platform and collector may process ordinary
 request logs and browser/security cookies. On-site privacy copy must distinguish
 the game's device-local saves from aggregate counts and host infrastructure.

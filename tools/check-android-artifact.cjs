@@ -253,8 +253,8 @@ function inspectAndroidArtifact({
   for (const filename of HOST_ONLY)
     need(!actualPaths.includes(filename), `Host-only file leaked into Android: ${filename}.`);
   need(
-    !actualPaths.some((name) => /^assets\/observatory\.[0-9a-f]{12}\.js$/.test(name)),
-    'The online Observatory adapter leaked into Android.',
+    !actualPaths.some((name) => /^assets\/pulseboard\.[0-9a-f]{12}\.js$/.test(name)),
+    'The online Pulseboard SDK leaked into Android.',
   );
 
   const indexPath = path.join(directory, 'index.html');
@@ -263,6 +263,7 @@ function inspectAndroidArtifact({
   need(!/rel="manifest"/.test(index), 'Android index still advertises a web manifest.');
   need(!/serviceWorker|sw\.js/.test(index), 'Android index references a service worker.');
   need(!/https?:\/\//.test(index), 'Android index contains a remote URL.');
+  need(!/pulseboard/i.test(index), 'Android index still carries the web-only Pulseboard SDK.');
   need(
     index.includes(`<meta http-equiv="Content-Security-Policy" content="${NATIVE_CSP}">`),
     'Android index does not use the native offline CSP.',
@@ -316,8 +317,8 @@ function inspectAndroidArtifact({
       'Android target marker does not suppress web lifecycle behavior.',
     );
     need(
-      source.includes('globalThis.ALIBI_OBSERVATORY_URL=""'),
-      'Android application did not disable Observatory.',
+      !/pulseboard\.[0-9a-f]{12}\.js/.test(source),
+      'Android application references the Pulseboard SDK.',
     );
     need(
       source.includes('ALIBI_HOUSE_CONFIG'),

@@ -1226,11 +1226,12 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
     def expected_assets(page: Page) -> dict[str, list[str]]:
         return page.evaluate(
             """() => {
-              // The emitted shell scripts defer startup. Optional scripts injected
-              // after load (such as usage sharing) are not boot dependencies.
+              // The emitted shell scripts defer startup. The online-only Pulseboard SDK
+              // is deferred too but is not a boot dependency.
               const scripts = [...document.querySelectorAll('script[src][defer]')]
                 .map((node) => new URL(node.src, location.href).href)
-                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname));
+                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname))
+                .filter((url) => !/\\/assets\\/pulseboard\\./.test(new URL(url).pathname));
               const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
                 .map((node) => new URL(node.href, location.href).href)
                 .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.css$/.test(new URL(url).pathname));
@@ -1293,9 +1294,9 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
         context = launch_profile(pw, root / f"shared-paths-cold-{profile_name}")
         try:
             if profile_name == "privacy-directory":
-                # Startup must remain provable even when the optional, post-load
-                # usage-sharing asset has no successful response to record.
-                context.route("**/assets/observatory.*.js", lambda request: request.abort())
+                # Startup must remain provable even when the optional, deferred
+                # Pulseboard SDK asset has no successful response to record.
+                context.route("**/assets/pulseboard.*.js", lambda request: request.abort())
             page = new_page(context, f"shared-paths-{profile_name}")
             responses: list[tuple[str, int]] = []
             page.on("response", lambda response: responses.append((response.url, response.status)))

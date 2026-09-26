@@ -18,7 +18,6 @@ for (const globalName of [
   'ALIBI_MEDIA',
   'ALIBI_WORKER_URL',
   'ALIBI_CLUB_CONFIG',
-  'ALIBI_OBSERVATORY_URL',
 ])
   assert.ok(
     initialScript.includes(`globalThis.${globalName}=`),
@@ -30,7 +29,7 @@ assert.ok(
 );
 const serviceWorker = fs.readFileSync(path.join(root, 'dist/sw.js'), 'utf8');
 const deferredAssets = [
-  ['Observatory', /^observatory\.[a-f0-9]{12}\.js$/, info.observatoryBytes],
+  ['Pulseboard SDK', /^pulseboard\.[a-f0-9]{12}\.js$/, info.observatoryBytes],
   ['Discovery storage', /^discovery-storage\.[a-f0-9]{12}\.js$/, info.discoveryStorageBytes],
 ];
 for (const [label, pattern, reportedBytes] of deferredAssets) {
@@ -77,9 +76,14 @@ const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // The settings-first sharing hotfix (route visibility sync plus a late-mount observer) needs a
 // further measured 128-byte extension: 130,290 -> 130,366 gzip bytes. Moving the control into the
 // Settings/Privacy slot (render rescue plus slot move) needs another measured 64 bytes: -> 130,443.
+// Pulseboard SDK v3 (0.14.1): the host glue (slot, routes, id-and-number journey props) plus the
+// required Privacy copy for the three categories, EEA gating, GPC/DNT and retention measured
+// 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
+// asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
+// loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 448,
-  'Application bundle stays under 127 KiB + 448 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 1024,
+  'Application bundle stays under 127 KiB + 1,024 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(

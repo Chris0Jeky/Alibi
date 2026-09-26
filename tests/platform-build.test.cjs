@@ -16,12 +16,17 @@ const {
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const read = (name) => fs.readFileSync(path.join(DIST, name), 'utf8');
-const scripts = [...read('index.html').matchAll(/<script src="\.\/([^"]+)" defer><\/script>/g)].map(
-  (match) => match[1],
-);
+const deferred = [
+  ...read('index.html').matchAll(/<script src="\.\/([^"]+)" defer><\/script>/g),
+].map((match) => match[1]);
+// The online-only Pulseboard SDK loads last and is neither startup code nor offline shell.
+const sdk = deferred.filter((name) => /^assets\/pulseboard\.[0-9a-f]{12}\.js$/.test(name));
+const scripts = deferred.filter((name) => !sdk.includes(name));
 
 test('generated web startup injects a verified immutable browser facade before the app', () => {
   assert.equal(scripts.length, 6);
+  assert.deepEqual(sdk, deferred.slice(-1), 'the Pulseboard SDK is the last deferred script');
+  assert.ok(!read('sw.js').includes('./' + sdk[0]), 'the Pulseboard SDK is not cached offline');
   const names = [
     'boot',
     'alibi-platform-identity',

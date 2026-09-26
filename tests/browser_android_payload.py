@@ -100,8 +100,12 @@ with sync_playwright() as pw:
         'Android settings report bundled offline files as ready',
     )
     check(
-        page.locator('#pulseboard-usage-sharing').count() == 0,
+        page.locator('[data-pulseboard-bar], #pulseboard-slot, .pb-bar, .pb-pill').count() == 0,
         'native telemetry remains disabled',
+    )
+    check(
+        not page.locator('.panel:has(> #usage-sharing-slot)').is_visible(),
+        'Android settings hide the web-only Beta and privacy panel',
     )
     # Negative observation window: absence of a service-worker request has no
     # positive signal to wait on, so this short window is intentional.

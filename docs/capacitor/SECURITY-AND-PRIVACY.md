@@ -38,7 +38,7 @@ For each permitted endpoint, retain purpose, fields, whether enabled by default,
 
 ## Observatory and diagnostics
 
-Current `observatory/browser.js` is gated to the Cloudflare primary origin and HTTPS. Android's local origin is intentionally outside that gate. Do not add a wildcard localhost exception. The native MVP has no new remote telemetry; existing web consent behaviour stays unchanged.
+The Pulseboard SDK (`observatory/pulseboard.js`) is gated to the Cloudflare primary origin and HTTPS, and the Android build strips its script, notice space and slot. Android's local origin is intentionally outside that gate. Do not add a wildcard localhost exception. The native MVP has no new remote telemetry; existing web consent behaviour stays unchanged.
 
 A later native collector requires an independently reviewed configuration/consent path, actual network capture, accurate Data Safety declarations and supported withdrawal. Consent cannot be inherited simply by importing a game backup. No notebook text, custom pack content, puzzle answers, document paths, arbitrary URLs or device identifiers in routine diagnostics.
 
