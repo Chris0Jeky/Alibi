@@ -46,19 +46,35 @@
     return u.track(event);
   };
   // The generated control is the only element with this id; its switch changes the sharing preference.
-  document.addEventListener(
-    'change',
-    (e) => e.target?.closest?.('#pulseboard-usage-sharing') && reset(),
-    true,
-  );
+  // Settings-first placement: it lives at the top of Settings and Privacy only, never as a popup.
+  // Sharing itself still defaults on for eligible visits; the Settings box turns it off.
+  const NOTICE = 'pulseboard-usage-sharing';
+  document.addEventListener('change', (e) => e.target?.closest?.('#' + NOTICE) && reset(), true);
+  const sync = () => {
+    try {
+      const el = document.getElementById?.(NOTICE);
+      if (!el) return false;
+      el.hidden = !/^#\/(settings|privacy)([/?]|$)/.test(g.location?.hash || '');
+      return true;
+    } catch {
+      return false;
+    }
+  };
   g.addEventListener('hashchange', () => {
     reset();
+    sync();
     g.PulseboardUsage?.track?.('page.view');
   });
   const inject = () => {
     const tag = document.createElement('script');
     tag.src = url;
     document.head.append(tag);
+    if (!sync()) {
+      try {
+        const seen = new MutationObserver(() => sync() && seen.disconnect());
+        seen.observe(document.body, { childList: true });
+      } catch {}
+    }
   };
   if (document.readyState === 'complete') inject();
   else globalThis.addEventListener('load', inject, { once: true });

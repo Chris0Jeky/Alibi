@@ -293,8 +293,8 @@ test('application lifecycle calls the helper with fixed names only', () => {
 
 // Runs the real loader and the real generated adapter together, with a minimal DOM that dispatches
 // change events through document capture listeners the way a browser does. Storage is a working
-// Map-backed localStorage so the committed default-on path is exercised: an eligible first visit
-// shares on without an explicit toggle, after mounting the open notice.
+// Map-backed localStorage so the committed settings-first path is exercised: eligible first visits
+// still default on, while the loader confines the control to Settings and Privacy.
 function integrated() {
   const { webcrypto } = require('node:crypto');
   const windowListeners = {};
@@ -359,6 +359,7 @@ function integrated() {
     head: { append() {} },
     createElement: element,
     createTextNode: (text) => ({ text }),
+    getElementById: (id) => created.find((node) => node.id === id) ?? null,
     addEventListener(type, listener, capture) {
       if (type === 'change' && capture === true) captures.push(listener);
     },
@@ -417,25 +418,28 @@ function integrated() {
       for (const listener of captures) listener({ target: checkbox });
       for (const listener of checkbox.listeners.change || []) listener({ target: checkbox });
     },
+    hashchange() {
+      for (const listener of windowListeners.hashchange || []) listener({ type: 'hashchange' });
+    },
     queued: () => context.PulseboardUsage.status().queued,
   };
 }
 
-test('the generated adapter admits every journey event the loader emits (default-on aggregate)', async () => {
+test('the generated adapter defaults on but shows only on Settings (settings-first placement)', async () => {
   const h = integrated();
   const run = { key: 'integrated' };
   assert.equal(
     h.context.PulseboardUsage.status().active,
     true,
-    'eligible visits default to sharing on without a toggle',
+    'eligible visits still default to sharing on',
   );
-  assert.equal(h.details.open, true, 'the open notice mounts before the first send');
+  assert.equal(h.details.open, true, 'the adapter still mounts the notice open');
   assert.equal(h.checkbox.checked, true);
   assert.ok(h.order.includes('notice'));
   assert.ok(h.order.includes('network'));
   assert.ok(
     h.order.indexOf('notice') < h.order.indexOf('network'),
-    'the visible notice precedes the first page.view network',
+    'the mounted notice precedes the first page.view network',
   );
   assert.equal(
     h.fetchCalls[0].url,
@@ -470,6 +474,8 @@ test('the generated adapter admits every journey event the loader emits (default
   h.context.AlibiJourney(run);
   h.toggle(false);
   assert.equal(h.queued(), 0, 'explicit off clears the queue');
+  h.hashchange();
+  assert.equal(h.details.hidden, true, 'the control hides off Settings while off too');
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
   h.toggle(true);
   assert.equal(h.context.PulseboardUsage.status().active, true, 're-on activates the adapter');
@@ -490,4 +496,11 @@ test('the generated adapter admits every journey event the loader emits (default
     assert.equal(count.n, 1);
   }
   assert.ok(!JSON.stringify(last).includes('integrated'), 'no puzzle identity leaks');
+
+  h.hashchange();
+  assert.equal(h.details.hidden, true, 'the control hides on puzzle routes while on');
+  h.context.location.hash = '#/settings';
+  h.hashchange();
+  assert.equal(h.details.hidden, false, 'the control shows on Settings');
+  assert.equal(h.details.open, true);
 });
