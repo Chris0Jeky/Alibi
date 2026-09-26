@@ -1,0 +1,39 @@
+name: Vault authoring evidence
+on:
+  pull_request:
+    paths:
+      - 'tools/curation/vault-*.cjs'
+      - 'tests/vault-quality.test.cjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/vault-authoring.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authoring:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/vault-quality.test.cjs
+      - name: Export pinned public tools for the offline authoring workspace
+        run: |
+          mkdir -p test-results/vault-authoring
+          git rev-parse HEAD > test-results/vault-authoring/source-head.txt
+          sha256sum package-lock.json > test-results/vault-authoring/lockfile.sha256
+          paths=()
+          for name in prettier esbuild @esbuild sharp @img detect-libc semver lru-cache color color-convert color-name color-string is-arrayish simple-swizzle three; do
+            test ! -d "node_modules/$name" || paths+=("node_modules/$name")
+          done
+          tar --exclude='*/examples/fonts' -czf test-results/vault-authoring/public-toolchain.tar.gz "${paths[@]}"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vault-authoring-tools
+          path: test-results/vault-authoring/
+          retention-days: 3

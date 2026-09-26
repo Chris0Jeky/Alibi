@@ -498,3 +498,16 @@ historical generator, and the new read-only planning control workflow for the
 real-origin gate. Isolated controls pass all 72 cases; this does not certify
 origin persistence, physical Android, TalkBack or calibrated human difficulty.
 No budget increase, merge, deployment or release is implied.
+
+## Vault authoring foundation: 26 September 2026
+
+PR #350 (#345/#161) adds six authoring-only files: bounded independent Sudoku
+enumeration, answer-free elementary-method profiles with fail-closed unsupported
+markers, symmetry/digit-renaming identities, native/independent uniqueness
+certificates, seeded Sudoku recipes and a read-only authoring workflow. No
+playable puzzle, runtime generator, save format, budget or deployment change.
+Coordinator review verified the bounds and added recipe
+determinism/uniqueness coverage. Stored profiles must be recomputed after
+production hint changes; human difficulty stays under #161 / q-8. The
+dependent Vault collection #354 must be retargeted to main before this
+branch is removed.
