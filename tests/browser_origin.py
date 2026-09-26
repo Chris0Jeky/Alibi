@@ -1189,6 +1189,19 @@ def scenario_offline(pw: Any, root: Path) -> None:
         wait_run(page, "lightup-01@1", 2)
         stored = read_idb(page, "runs", "lightup-01@1")
         check(stored["state"]["cells"][second] == 1, "offline move is persisted in IndexedDB")
+        # Deferred official definitions are precached in the shell, so a new Vault run opens offline.
+        route(page, "play/vault-lightup-01@1")
+        dismiss_dialog(page)
+        wait_page(
+            page,
+            "() => AlibiDiagnostics.getCurrent()?.puzzle.id === 'vault-lightup-01'"
+            " && Array.isArray(AlibiDiagnostics.getCurrent().puzzle.solution)",
+            what="offline Vault run from the precached deferred chunk",
+        )
+        check(
+            page.evaluate("ALIBI_DEFERRED.ready") is True,
+            "deferred Vault definitions load offline from the precached shell",
+        )
         context.set_offline(False)
     finally:
         try:
