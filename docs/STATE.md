@@ -1,5 +1,13 @@
 # Live development state
 
+## Release 0.14.0 candidate: 26 September 2026
+
+Branch `release/0.14.0` publishes the 80 Vault studies merged in #385 (510 puzzles,
+30 packs; provisional 47 Expert / 33 Master) through the precached deferred chunk. The
+release label was registered with `npm run release:prepare -- 0.14.0 --publish`, which
+opened [Pulseboard#124](https://github.com/Chris0Jeky/Pulseboard/pull/124) unattended; the
+collector must deploy after it merges and before Alibi deploys. #354 is closed as superseded.
+
 ## Release 0.13.0 candidate: 26 September 2026
 
 Branch `release/0.13.0` carries version 0.13.0, its release record and the
