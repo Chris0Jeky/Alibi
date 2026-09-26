@@ -23,7 +23,7 @@ jobs:
       - name: Export pinned public tools for the offline authoring workspace
         run: |
           mkdir -p test-results/vault-authoring
-          printf '%s\n' '${{ github.event.pull_request.head.sha || github.sha }}' > test-results/vault-authoring/source-head.txt
+          git rev-parse HEAD > test-results/vault-authoring/source-head.txt
           sha256sum package-lock.json > test-results/vault-authoring/lockfile.sha256
           paths=()
           for name in prettier esbuild @esbuild sharp @img detect-libc semver lru-cache color color-convert color-name color-string is-arrayish simple-swizzle three; do

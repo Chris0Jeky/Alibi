@@ -1,8 +1,11 @@
 # Vault authoring integration checkpoint
 
-25 September 2026, PR #350. The five original authoring files are now retained
-byte-for-byte from reviewed head `a8280dc506da87a8f04477f4dfe47d61678fbd5d`.
-They are integrated onto main `f1cd4cf2fabc28dae957b802153e51d4f943c556`, which
+25 September 2026, PR #350. Four of the five original authoring files are
+retained byte-for-byte from reviewed head
+`a8280dc506da87a8f04477f4dfe47d61678fbd5d`; `tests/vault-quality.test.cjs`
+additionally carries the coordinator's recipe determinism/uniqueness coverage
+and the fail-closed aquarium/network profile test. They are integrated onto
+main `f1cd4cf2fabc28dae957b802153e51d4f943c556`, which
 includes all 48 Night studies, the corrected moon opening, Sun & Moon reasoning,
 backup request snapshots and Night registry-derived control selection. Main's
 STATE history and every runtime/content file are preserved by using its Git tree

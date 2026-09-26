@@ -429,3 +429,16 @@ claimed. Android remains a non-publishable preview; the Capacitor owner gates re
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
 explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
 source tests do not approve that ADR. Review live open PRs before overlapping another lane.
+
+## Vault authoring foundation: 26 September 2026
+
+PR #350 (#345/#161) adds six authoring-only files: bounded independent Sudoku
+enumeration, answer-free elementary-method profiles with fail-closed unsupported
+markers, symmetry/digit-renaming identities, native/independent uniqueness
+certificates, seeded Sudoku recipes and a read-only authoring workflow. No
+playable puzzle, runtime generator, save format, budget or deployment change.
+Coordinator review verified the bounds and added recipe
+determinism/uniqueness coverage. Stored profiles must be recomputed after
+production hint changes; human difficulty stays under #161 / q-8. The
+dependent Vault collection #354 must be retargeted to main before this
+branch is removed.
