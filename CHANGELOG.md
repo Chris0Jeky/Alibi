@@ -6,14 +6,14 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
-## 0.13.1 · A Beta notice that stays out of the way
+## 0.14.1 · A Beta notice that stays out of the way
 
 2026-09-26
 
 - See a one-line Beta notice at the top of the hosted site instead of a sharing box: OK accepts, Choose sets usage counts, diagnostics and journeys separately. It never covers the board or its controls.
 - Reopen your choices from the Beta button in Settings and Privacy; Privacy explains what each category sends, EEA defaults, Global Privacy Control and Do Not Track, and retention.
 
-[Release record](docs/RELEASE-0.13.1.md)
+[Release record](docs/RELEASE-0.14.1.md)
 
 ## 0.11.6 · A larger picture collection, clearer hints
 

@@ -1,9 +1,9 @@
 # Pulseboard integration
 
-Since 0.13.1 Alibi ships the Pulseboard SDK v3 (Pulseboard issue #105) instead of the aggregate
+Since 0.14.1 Alibi ships the Pulseboard SDK v3 (Pulseboard issue #105) instead of the aggregate
 statistics embed. `observatory/pulseboard.js` is the unedited output of Pulseboard
 `observatory/adapters/build-sdk.mjs` for project `alibi`, pinned by `observatory.lock.json`
-(`"sdk": "3.0.0"`, SHA-256 per target). `node observatory/check.mjs` verifies the pin, the builder's
+(`"sdk": "3.1.0"`, SHA-256 per target). `node observatory/check.mjs` verifies the pin, the builder's
 header hash, the collector origin (`https://pulseboard-observatory.commit-atlas.workers.dev`), that
 the package version is the release built into the artifact and listed in its closed release
 contract, and that the artifact defines `window.Pulseboard` in a fake window without a network call
@@ -22,8 +22,8 @@ Pulseboard's `observatory/`, and put the printed SHA-256 into the lock. Pulseboa
 still targets the old `observatory/browser.js` embed and needs an SDK v3 update before
 `npm run release:prepare` works again.
 
-0.13.1's artifact was built from Pulseboard `0ed1dcb` with `0.13.1` appended to the release list,
-before Pulseboard registered it: the bytes equal what Pulseboard builds once it lists `0.13.1`.
+0.14.1's artifact was built from Pulseboard `5b53836` (SDK 3.1.0) with `0.14.1` appended to the release list,
+before Pulseboard registered it: the bytes equal what Pulseboard builds once it lists `0.14.1`.
 
 ## Host integration
 
@@ -37,6 +37,8 @@ before Pulseboard registered it: the bytes equal what Pulseboard builds once it 
   collapsed Beta button renders inline in that element, never as a fixed pill.
   `src/pulseboard-host.js` moves it into `#usage-sharing-slot` in Settings and Privacy and parks it
   hidden on every other route.
+- Before the SDK mounts, the glue sets `<html data-pulseboard-route>` to the landing route, so a
+  deep link records one view for its real route (SDK 3.1).
 - The same glue reports hash routes with `Pulseboard.route` (`home`, `puzzle`, `castle`,
   `quiet-wing`, `other`) and a bounded journey with `Pulseboard.count` plus `Pulseboard.track`:
   `puzzle.started {puzzle}`, `puzzle.completed {puzzle, seconds, hints, attempts}`,

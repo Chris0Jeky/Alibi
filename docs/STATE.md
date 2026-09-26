@@ -1,21 +1,30 @@
 # Live development state
 
-## Pulseboard SDK v3 (0.13.1 candidate, PR open): 26 September 2026
+## Pulseboard SDK v3 (0.14.1 candidate, PR open): 26 September 2026
 
 Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and
 `src/observatory-loader.js` with the Pulseboard SDK v3 (`observatory/pulseboard.js`, built
-from Pulseboard `0ed1dcb` for release 0.13.1) and `src/pulseboard-host.js`. The Beta notice is
+from Pulseboard `5b53836` (SDK 3.1.0) for release 0.14.1) and `src/pulseboard-host.js`. The Beta notice is
 in flow at the top of the page; the Beta button renders inline in Settings and Privacy only.
-Puzzle journeys carry official ids and numbers only. Version 0.13.1 must be registered in
+Puzzle journeys carry official ids and numbers only. Version 0.14.1 must be registered in
 Pulseboard and `alibi` admitted to `COLLECT_PRODUCT_PROJECTS` before this deploys
-([release record](RELEASE-0.13.1.md)). Pulseboard's `sync:alibi` still targets the old embed, so
+([release record](RELEASE-0.14.1.md)). Pulseboard's `sync:alibi` still targets the old embed, so
 `npm run release:prepare` fails until it learns SDK v3. The application bundle budget took a
 measured +256-byte ceiling (130,084 -> 130,678 gzip). Local `npm run verify`,
 `node observatory/check.mjs` and the browser suites observatory (82), origin (244), UI at 390px,
 narrow layout, mobile QA, player QA, September feedback, curation, discovery, boot and Android
 payload passed; not deployed.
 
-## Published web release 0.13.0: 26 September 2026
+## Release 0.14.0 candidate: 26 September 2026
+
+Branch `release/0.14.0` publishes the 80 Vault studies merged in #385 (510 puzzles,
+30 packs; provisional 47 Expert / 33 Master) through the precached deferred chunk. The
+release label was registered with `npm run release:prepare -- 0.14.0 --publish`, which
+opened [Pulseboard#124](https://github.com/Chris0Jeky/Pulseboard/pull/124) unattended; it
+merged and the collector deployed as Worker `1fdd08f8-a81f-436c-ab41-90762ce79fbd`
+(rollback `6735ac3b-2187-4c91-a50f-ac2822ae35f9`) before Alibi. #354 is closed as superseded.
+
+## Published web release 0.13.0: 26 September 2026 (historical)
 
 Every later section below is historical: its deployment status and next-step directives
 predate this release (0.13.0 deployed the Settings-slot Usage sharing change).

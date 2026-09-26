@@ -76,7 +76,7 @@ const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // The settings-first sharing hotfix (route visibility sync plus a late-mount observer) needs a
 // further measured 128-byte extension: 130,290 -> 130,366 gzip bytes. Moving the control into the
 // Settings/Privacy slot (render rescue plus slot move) needs another measured 64 bytes: -> 130,443.
-// Pulseboard SDK v3 (0.13.1): the host glue (slot, routes, id-and-number journey props) plus the
+// Pulseboard SDK v3 (0.14.1): the host glue (slot, routes, id-and-number journey props) plus the
 // required Privacy copy for the three categories, EEA gating, GPC/DNT and retention measured
 // 130,084 -> 130,678 gzip bytes; the SDK itself stays a separate deferred asset. Ceiling +256.
 assert.ok(

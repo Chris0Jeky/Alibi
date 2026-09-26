@@ -1,8 +1,8 @@
-# 0.13.1: A Beta notice that stays out of the way
+# 0.14.1: A Beta notice that stays out of the way
 
 ## Source candidate: 26 September 2026
 
-This patch replaces the aggregate Usage sharing embed with the Pulseboard SDK v3
+This patch replaces the aggregate Usage sharing embed with the Pulseboard SDK 3.1.0
 (Pulseboard issue #105, owner decisions q-13, q-19 to q-21). The puzzle catalogue, saves and
 engines are unchanged.
 
@@ -19,13 +19,13 @@ engines are unchanged.
 
 ## Deployment order (blocking)
 
-1. Pulseboard registers `0.13.1` (append it to `observatory/src/alibi-releases.mjs`) and deploys
-   the collector. `observatory/pulseboard.js` already lists `0.13.1`; a rebuild from that
-   Pulseboard commit must produce the same SHA-256 as `observatory.lock.json`.
+1. Pulseboard registers `0.14.1` (append it to `observatory/src/alibi-releases.mjs`) and deploys
+   the collector. `observatory/pulseboard.js` already lists `0.14.1` (built from Pulseboard `5b53836` with
+   that one append); a rebuild from the registering Pulseboard commit must produce the same SHA-256 as `observatory.lock.json`.
 2. Pulseboard admits `alibi` in `COLLECT_PRODUCT_PROJECTS` for diagnostics and journeys
    (counts already use `COLLECT_STAT_PROJECTS`). Until then product batches are refused and the
    SDK stops after three failures per page.
-3. Only then deploy Alibi 0.13.1. Deploying first means every 0.13.1 count is rejected.
+3. Only then deploy Alibi 0.14.1. Deploying first means every 0.14.1 count is rejected.
 
 ## Publication receipt
 

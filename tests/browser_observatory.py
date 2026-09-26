@@ -249,7 +249,7 @@ with sync_playwright() as pw:
     page.goto(PUBLIC_URL)
     ready(page)
     release = page.evaluate('() => ALIBI_CONFIG.version')
-    check(page.evaluate('() => Pulseboard.version') == '3.0.0', 'the page loads Pulseboard SDK 3.0.0')
+    check(page.evaluate('() => Pulseboard.version') == '3.1.0', 'the page loads Pulseboard SDK 3.1.0')
     check(
         page.locator('script[src^="./assets/pulseboard."]').count() == 1,
         'the page loads exactly one hashed SDK asset',
@@ -399,6 +399,7 @@ with sync_playwright() as pw:
     assert_controls_clear(page, 'deep-linked puzzle with the notice showing')
     wait_until(page, lambda: any(e['name'] == 'page.view' for e in other.events), 'journey page.view outside the EEA')
     wait_until(page, lambda: any(c['route'] == 'puzzle' for c in other.counts), 'deep link names its route')
+    check(not any(c['route'] == 'home' for c in other.counts), 'a deep link records no extra home view')
     check(any(e['name'] == 'page.view' and e['route'] == 'puzzle' for e in other.events), 'journeys start on outside the EEA with the real route')
     check(not errors, 'the non-EEA visit produces no page errors')
     context.close()

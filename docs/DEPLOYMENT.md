@@ -22,7 +22,7 @@ paid external service is needed. Never create another project just to publish an
    here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
    PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
    the collector rejects the new release's usage counts.
-   Since 0.13.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`), which
+   Since 0.14.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`), which
    Pulseboard's `sync:alibi` does not yet regenerate: until it does, register the release in
    Pulseboard `observatory/src/alibi-releases.mjs`, rebuild with
    `node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>` after
@@ -81,7 +81,7 @@ The Pulseboard SDK is a content-hashed online-only asset (`assets/pulseboard.<ha
 deferred script of the web index) outside the service-worker shell. A browser still running the
 previous cached shell can request the previous SDK name after a host has removed it. This fails
 closed: `src/pulseboard-host.js` releases the reserved notice space, no Beta notice shows and nothing
-is sent until the player applies the coherent app update. The 0.13.1 rollout replaces the old
+is sent until the player applies the coherent app update. The 0.14.1 rollout replaces the old
 `observatory.<hash>.js` adapter the same way: an old shell that cannot fetch it shows no control.
 Never add the SDK to the offline shell merely to hide this condition without rechecking the budget.
 

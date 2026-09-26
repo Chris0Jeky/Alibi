@@ -111,26 +111,24 @@
       sdk()?.route?.(routeOf(g.location?.hash));
     } catch {}
   });
-  // After every deferred script ran: without an SDK nothing will release the reserved bar space, and
-  // with one the page view it recorded at mount was for 'home', so a deep link names its real route.
+  // The SDK (the next deferred script) records one landing view for <html data-pulseboard-route>,
+  // read once at mount, so a deep link counts its real route instead of 'home'.
+  try {
+    document.documentElement.dataset.pulseboardRoute = routeOf(g.location?.hash);
+  } catch {}
+  // After every deferred script ran, nothing releases the reserved bar space if the SDK never loaded.
   // This bundle is itself deferred (readyState 'interactive', SDK not yet run), so wait for
   // DOMContentLoaded, with load as a fallback; settle runs once.
   let settled = false;
   const settle = () => {
-    if (settled) return;
+    if (settled || sdk()) return;
     settled = true;
     try {
-      const p = sdk();
-      if (!p) {
-        const bar = document.querySelector?.('[data-pulseboard-bar]');
-        if (bar) {
-          bar.hidden = true;
-          if (bar.style) bar.style.height = bar.style.minHeight = '0';
-        }
-        return;
+      const bar = document.querySelector?.('[data-pulseboard-bar]');
+      if (bar) {
+        bar.hidden = true;
+        if (bar.style) bar.style.height = bar.style.minHeight = '0';
       }
-      const route = routeOf(g.location?.hash);
-      if (route !== 'home') p.route?.(route);
     } catch {}
   };
   if (document.readyState === 'complete') settle();

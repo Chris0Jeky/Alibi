@@ -87,7 +87,7 @@ function page({ hash = '', readyState = 'complete', standalone = false, sdk = nu
     readyState,
     referrer: '',
     visibilityState: 'visible',
-    documentElement: { scrollHeight: 1000, clientHeight: 800, scrollTop: 0 },
+    documentElement: { scrollHeight: 1000, clientHeight: 800, scrollTop: 0, dataset: {} },
     createElement: (tag) => node(tag, document),
     getElementById: (id) => walk(body).find((el) => el.id === id) ?? null,
     querySelector: (selector) =>
@@ -106,7 +106,7 @@ function page({ hash = '', readyState = 'complete', standalone = false, sdk = nu
   const context = {
     document,
     location: { hash, origin: ORIGIN, protocol: 'https:', href: ORIGIN + '/', search: '' },
-    ALIBI_CONFIG: { standalone, version: '0.13.1' },
+    ALIBI_CONFIG: { standalone, version: '0.14.1' },
     ALIBI_CATALOG: { puzzles: [{ id: 'expert-sudoku-01' }, { id: 'scene-01' }] },
     addEventListener(type, fn) {
       (windowListeners[type] ||= []).push(fn);
@@ -143,7 +143,7 @@ function fakeSdk() {
     calls,
     state,
     api: {
-      version: '3.0.0',
+      version: '3.1.0',
       route: (name) => (calls.push(['route', name]), true),
       count: (event) => (calls.push(['count', event]), state.counts),
       track: (name, props) => (calls.push(['track', name, props]), state.journeys),
@@ -173,28 +173,27 @@ test('hash routes map to the registered Pulseboard routes', () => {
   );
 });
 
-test('a deep link names its real route once the deferred scripts ran; home adds nothing', () => {
+test('a deep link names its landing route for the SDK mount, without an extra view', () => {
   const deep = fakeSdk();
-  const h = page({ hash: '#/quiet/castle', readyState: 'loading', sdk: deep.api });
+  const h = page({ hash: '#/quiet/castle', readyState: 'interactive' });
   h.run();
-  assert.deepEqual(deep.calls, [], 'nothing before DOMContentLoaded');
+  assert.equal(h.document.documentElement.dataset.pulseboardRoute, 'castle');
+  h.context.Pulseboard = deep.api;
   h.ready();
-  assert.deepEqual(deep.calls, [['route', 'castle']]);
-  const home = fakeSdk();
-  page({ hash: '#/home', sdk: home.api }).run();
-  assert.deepEqual(home.calls, []);
+  assert.deepEqual(deep.calls, [], 'the SDK records the landing view itself');
+  const home = page({ hash: '' });
+  home.run();
+  assert.equal(home.document.documentElement.dataset.pulseboardRoute, 'home');
 });
 
 test('the deferred bundle waits for the SDK script that follows it', () => {
   // Deferred scripts run while readyState is 'interactive'; the SDK is the next script.
-  const later = fakeSdk();
   const h = page({ hash: '#/play/expert-sudoku-01@1', readyState: 'interactive' });
   h.run();
   assert.equal(h.bar.hidden, false, 'the space is not released before the SDK had its turn');
-  h.context.Pulseboard = later.api;
+  h.context.Pulseboard = fakeSdk().api;
   h.ready();
   assert.equal(h.bar.hidden, false);
-  assert.deepEqual(later.calls, [['route', 'puzzle']]);
 });
 
 test('without the SDK the game still runs and the reserved notice space is released', () => {

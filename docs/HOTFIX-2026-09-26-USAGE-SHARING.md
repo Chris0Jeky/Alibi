@@ -1,7 +1,7 @@
 # Hotfix 2026-09-26: Usage sharing control confined to Settings
 
-Superseded in 0.13.1 by the Pulseboard SDK v3: an in-flow Beta notice and an inline Beta
-button in Settings and Privacy ([release record](RELEASE-0.13.1.md)).
+Superseded in 0.14.1 by the Pulseboard SDK v3: an in-flow Beta notice and an inline Beta
+button in Settings and Privacy ([release record](RELEASE-0.14.1.md)).
 
 ## Problem
 
