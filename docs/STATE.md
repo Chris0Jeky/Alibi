@@ -1,5 +1,19 @@
 # Live development state
 
+## Usage sharing moved into the Settings slot (on main, undeployed): 26 September 2026
+
+Source `d64b911` answers the owner's "can't find the setting" report: the
+hotfix banner rendered above the app header and read as a cookie notice. The
+generated control now moves into a real slot panel inside Settings (second
+panel) and Privacy, with a fail-closed fallback line when the adapter cannot
+load; the app rescues the node across re-renders. Local `npm run verify`,
+`node observatory/check.mjs` and 73 intercepted Observatory browser assertions
+passed. NOT deployed per owner request; the live Cloudflare origin still
+serves the banner hotfix (`6b11d27969d7`). Deploy with the next release.
+Separately, [issue #380](https://github.com/Chris0Jeky/Alibi/issues/380) seeds
+the in-app feedback-pipeline proposal (description field plus direct or
+GitHub-issue submit); the owner contact decision is open.
+
 ## Hotfix: Usage sharing confined to Settings: 26 September 2026
 
 Source `afabf32` (three commits on `main`) fixes the player-reported floating
