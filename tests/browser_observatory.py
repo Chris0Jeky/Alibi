@@ -1,4 +1,8 @@
-"""Synthetic intercepted Observatory checks for the default-on aggregate adapter.
+"""Synthetic intercepted Observatory checks for the settings-first aggregate adapter.
+
+Sharing still defaults on for eligible visits, but the Usage sharing control
+lives on Settings and Privacy only, never as a popup over play, library or
+home routes.
 
 This is NOT a real-origin storage/offline suite: it serves the last local
 ``dist`` build under the public origin via Playwright routing with a fake
@@ -49,10 +53,19 @@ def is_details_open(page):
     return page.evaluate("() => document.querySelector('#pulseboard-usage-sharing').open === true")
 
 
-def open_consent(page):
-    page.locator('#pulseboard-usage-sharing').wait_for()
-    if not is_details_open(page):
-        page.locator('#pulseboard-usage-sharing summary').click()
+def is_checked(page):
+    return page.evaluate(
+        "() => document.querySelector('#pulseboard-usage-sharing input[type=\"checkbox\"]').checked === true"
+    )
+
+
+def notice_visible(page):
+    return page.locator('#pulseboard-usage-sharing').is_visible()
+
+
+def goto_settings(page):
+    page.evaluate("location.hash='/settings'")
+    page.locator('#pulseboard-usage-sharing').wait_for(state='visible')
     return page.locator('#pulseboard-usage-sharing input[type="checkbox"]')
 
 
@@ -156,20 +169,16 @@ with sync_playwright() as pw:
     page.on('pageerror', lambda error: page_errors.append(str(error)))
     page.goto(PUBLIC_URL)
     page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-    page.locator('#pulseboard-usage-sharing').wait_for()
+    page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
 
-    checkbox = open_consent(page)
     app_release = page.evaluate('() => ALIBI_CONFIG.version')
-    check(is_details_open(page), 'sharing notice is open before the first send')
-    check(checkbox.is_checked(), 'usage sharing defaults on when eligible')
     check(
-        'Sharing is on' in page.locator('#pulseboard-usage-sharing').inner_text(),
-        'notice status reports sharing on',
+        page.locator('#pulseboard-usage-sharing').count() == 1,
+        'the settings control mounts exactly once',
     )
-    check(
-        'No puzzle content' in page.locator('#pulseboard-usage-sharing').inner_text(),
-        'notice describes aggregate-only counts',
-    )
+    check(not notice_visible(page), 'no sharing popup on the home route')
+    check(is_details_open(page), 'sharing control mounts open before the first send')
+    check(is_checked(page), 'usage sharing defaults on when eligible')
     wait_for_counts(page, observed_counts, 1)
     check(len(observed_bodies) == 1, 'default-on sends one initial aggregate request')
     assert_aggregate_body(
@@ -190,12 +199,10 @@ with sync_playwright() as pw:
 
     page.reload()
     page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-    page.locator('#pulseboard-usage-sharing').wait_for()
+    page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
     wait_for_counts(page, observed_counts, 2)
-    check(
-        page.locator('#pulseboard-usage-sharing input[type="checkbox"]').is_checked(),
-        'default-on persists across reload',
-    )
+    check(is_checked(page), 'default-on persists across reload')
+    check(not notice_visible(page), 'reloaded home route shows no sharing popup')
     check(observed_counts[1]['route'] == 'home', 'restored consent reports the reloaded route')
     check(
         observed_counts[1]['release'] == app_release, 'restored consent keeps the release label'
@@ -204,6 +211,23 @@ with sync_playwright() as pw:
         observed_bodies[1],
         [{'event': 'page.view', 'route': 'home', 'release': app_release}],
         'reloaded page.view',
+    )
+
+    checkbox = goto_settings(page)
+    check(is_details_open(page), 'the settings control opens on the settings route')
+    check(checkbox.is_checked(), 'the settings box shows sharing on')
+    check(
+        'Sharing is on' in page.locator('#pulseboard-usage-sharing').inner_text(),
+        'settings status reports sharing on',
+    )
+    check(
+        'No puzzle content' in page.locator('#pulseboard-usage-sharing').inner_text(),
+        'control describes aggregate-only counts',
+    )
+    wait_for_counts(page, observed_counts, 3)
+    check(observed_counts[2]['route'] == 'other', 'settings navigation reports the settings route')
+    check(
+        observed_counts[2]['release'] == app_release, 'settings navigation keeps the release label'
     )
 
     key = page.evaluate(
@@ -218,9 +242,13 @@ with sync_playwright() as pw:
         arg=key,
     )
     # A normal SPA route change must send without a test-only flush call.
-    wait_for_counts(page, observed_counts, 3)
-    check(observed_counts[2]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
-    check(observed_counts[2]['release'] == app_release, 'SPA navigation keeps the release label')
+    wait_for_counts(page, observed_counts, 4)
+    check(observed_counts[3]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
+    check(observed_counts[3]['release'] == app_release, 'SPA navigation keeps the release label')
+    check(
+        not notice_visible(page),
+        'the control hides on puzzle routes even while opted in',
+    )
     dismiss_dialog(page)
 
     editable = page.evaluate(
@@ -237,9 +265,9 @@ with sync_playwright() as pw:
         arg=editable,
     )
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 4)
-    check(observed_counts[3]['event'] == 'puzzle.started', 'the first real board change starts a journey')
-    check(observed_counts[3]['route'] == 'puzzle', 'the journey start uses the puzzle route')
+    wait_for_counts(page, observed_counts, 5)
+    check(observed_counts[4]['event'] == 'puzzle.started', 'the first real board change starts a journey')
+    check(observed_counts[4]['route'] == 'puzzle', 'the journey start uses the puzzle route')
     assert_aggregate_body(
         observed_bodies[-1],
         [{'event': 'puzzle.started', 'route': 'puzzle', 'release': app_release}],
@@ -268,13 +296,13 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 5)
+    wait_for_counts(page, observed_counts, 6)
     check(
-        [event['event'] for event in observed_counts[3:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[4:]] == ['puzzle.started', 'puzzle.failed'],
         'a conflicted check ends the open attempt without another start',
     )
     check(
-        all(set(event) == {'event', 'route', 'release', 'n'} for event in observed_counts[3:])
+        all(set(event) == {'event', 'route', 'release', 'n'} for event in observed_counts[4:])
         and key not in json.dumps(observed_bodies),
         'journey events carry no puzzle identity, answer or board payload',
     )
@@ -283,7 +311,7 @@ with sync_playwright() as pw:
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
     page.wait_for_timeout(300)
-    check(len(observed_counts) == 5, 'checking the same board again is not another attempt')
+    check(len(observed_counts) == 6, 'checking the same board again is not another attempt')
     dismiss_dialog(page)
 
     followup = page.evaluate(
@@ -304,9 +332,9 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 7)
+    wait_for_counts(page, observed_counts, 8)
     check(
-        [event['event'] for event in observed_counts[5:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[6:]] == ['puzzle.started', 'puzzle.failed'],
         'a move after failure opens a fresh attempt',
     )
     dismiss_dialog(page)
@@ -318,9 +346,9 @@ with sync_playwright() as pw:
     )
     page.locator('[data-action="check"]').first.click()
     page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 9)
+    wait_for_counts(page, observed_counts, 10)
     check(
-        [event['event'] for event in observed_counts[7:]] == ['puzzle.started', 'puzzle.failed'],
+        [event['event'] for event in observed_counts[8:]] == ['puzzle.started', 'puzzle.failed'],
         'undo after a failed check reopens the retry without a new move',
     )
     dismiss_dialog(page)
@@ -347,25 +375,23 @@ with sync_playwright() as pw:
     check(not page_errors, 'a disabled collector produces no browser errors')
     collector_status['code'] = 202
 
-    before = page.evaluate(
-        "()=>({state: AlibiDiagnostics.getCurrent().state, moves: AlibiDiagnostics.getCurrent().moves})"
+    check(
+        page.evaluate("() => document.querySelector('#pulseboard-usage-sharing').hidden === true"),
+        'the control stays hidden on puzzle routes while opted in',
     )
+    goto_settings(page)
     summary = page.locator('#pulseboard-usage-sharing summary')
     summary.focus()
     page.keyboard.press('Delete')
     page.keyboard.press('ArrowRight')
-    after = page.evaluate(
-        "()=>({state: AlibiDiagnostics.getCurrent().state, moves: AlibiDiagnostics.getCurrent().moves})"
-    )
-    check(after == before, 'summary keyboard input cannot mutate the active puzzle')
     check(
         page.evaluate(
             "()=>document.activeElement === document.querySelector('#pulseboard-usage-sharing summary')"
         ),
-        'summary retains keyboard focus instead of moving through the board',
+        'summary retains keyboard focus instead of moving through the page',
     )
 
-    checkbox = open_consent(page)
+    checkbox = page.locator('#pulseboard-usage-sharing input[type="checkbox"]')
     checkbox.uncheck()
     count = len(observed_counts)
     page.evaluate("location.hash='/home'")
@@ -376,6 +402,7 @@ with sync_playwright() as pw:
         page.evaluate('() => PulseboardUsage.status().queued') == 0,
         'explicit off clears pending sends',
     )
+    check(not notice_visible(page), 'explicit off hides the control off Settings')
     choice = page.evaluate(
         f"""() => {{
           const raw = localStorage.getItem('{PREF_KEY}');
@@ -388,6 +415,7 @@ with sync_playwright() as pw:
     )
     check(old_keys == [], 'explicit off does not write legacy opt-out keys')
 
+    checkbox = goto_settings(page)
     checkbox.check()
     page.wait_for_timeout(300)
     check(
@@ -439,11 +467,15 @@ with sync_playwright() as pw:
         seeded_page.on('pageerror', lambda error: page_errors.append(str(error)))
         seeded_page.goto(PUBLIC_URL)
         seeded_page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-        seeded_page.locator('#pulseboard-usage-sharing').wait_for()
+        seeded_page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
         seeded_page.wait_for_timeout(500)
         check(
-            not seeded_page.locator('#pulseboard-usage-sharing input[type="checkbox"]').is_checked(),
+            not is_checked(seeded_page),
             f'prior {seed_label} stays off',
+        )
+        check(
+            not seeded_page.locator('#pulseboard-usage-sharing').is_visible(),
+            f'prior {seed_label} shows no popup on the home route',
         )
         check(
             len(observed_counts) == counts_before,
@@ -452,6 +484,12 @@ with sync_playwright() as pw:
         check(
             len(observed_bodies) == bodies_before,
             f'prior {seed_label} performs no collector request',
+        )
+        seeded_page.evaluate("location.hash='/settings'")
+        seeded_page.locator('#pulseboard-usage-sharing').wait_for(state='visible')
+        check(
+            not seeded_page.locator('#pulseboard-usage-sharing input[type="checkbox"]').is_checked(),
+            f'prior {seed_label} shows an unticked settings box',
         )
         seeded.close()
 
