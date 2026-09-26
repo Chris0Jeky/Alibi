@@ -126,17 +126,10 @@ function main(argv) {
     cwd: pulseboard,
   });
   const branch = `chore/admit-alibi-${version}`;
-  for (const ref of [`refs/heads/${branch}`, `refs/remotes/origin/${branch}`])
-    if (spawnSync('git', ['rev-parse', '-q', '--verify', ref], { cwd: pulseboard }).status === 0)
-      throw Error(
-        `Pulseboard already has ${branch}; an admission PR may already be open (delete a stale local branch to retry).`,
-      );
   const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'pulseboard-release-'));
   run('git', ['worktree', 'add', '-q', '--detach', worktree, 'origin/main'], { cwd: pulseboard });
-  let keepWorktree = true,
-    deleteBranch = false;
+  let keepWorktree = true;
   try {
-    run('git', ['switch', '-q', '-c', branch], { cwd: worktree });
     const observatory = path.join(worktree, 'observatory');
     const report = JSON.parse(
       run('node', ['adapters/sync-alibi.mjs', '--write', '--json', ROOT], { cwd: observatory }),
@@ -154,10 +147,16 @@ function main(argv) {
     const changed = run('git', ['status', '--porcelain'], { cwd: worktree });
     if (!changed) {
       keepWorktree = false;
-      deleteBranch = true;
       console.log(`Pulseboard already admits ${version}; no Pulseboard change needed.`);
       return;
     }
+    // Only a real registration needs a branch; refuse to duplicate an existing one.
+    for (const ref of [`refs/heads/${branch}`, `refs/remotes/origin/${branch}`])
+      if (spawnSync('git', ['rev-parse', '-q', '--verify', ref], { cwd: pulseboard }).status === 0)
+        throw Error(
+          `Pulseboard already has ${branch}; an admission PR may already be open (delete a stale local branch to retry).`,
+        );
+    run('git', ['switch', '-q', '-c', branch], { cwd: worktree });
     if (!fs.existsSync(path.join(observatory, 'node_modules')))
       run('npm', ['ci', '--no-audit', '--no-fund'], { cwd: observatory });
     // Force the spec reporter: Node 22 defaults to TAP when output is not a terminal.
@@ -202,7 +201,6 @@ function main(argv) {
     // Failures and unpublished commits keep the temporary worktree for inspection.
     if (keepWorktree) console.log(`Pulseboard worktree kept: ${worktree}`);
     else run('git', ['worktree', 'remove', worktree], { cwd: pulseboard });
-    if (deleteBranch) run('git', ['branch', '-q', '-D', branch], { cwd: pulseboard });
     console.log(
       'This Alibi checkout may now carry a new package version and regenerated observatory files: commit them with the release, or restore them.',
     );
