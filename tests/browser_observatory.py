@@ -424,6 +424,32 @@ with sync_playwright() as pw:
     check(not gpc.requests, 'GPC: still no request after navigation')
     context.close()
 
+    # ---- An opt-out recorded by the old statistics embed stays off under the SDK ----
+    legacy = Collector('other')
+    context, page = open_context(
+        browser, legacy, errors,
+        init="if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); "
+        "localStorage.setItem('pulseboard:statistics:v1:alibi', JSON.stringify({allow: false})); }",
+    )
+    page.goto(PUBLIC_URL)
+    ready(page)
+    page.wait_for_timeout(2500)
+    stored = page.evaluate(f"() => JSON.parse(localStorage.getItem('{CONSENT_KEY}'))")
+    check(
+        stored and stored['decided'] and not (stored['counts'] or stored['diagnostics'] or stored['journeys']),
+        'legacy opt-out: migrated to an all-off SDK choice',
+    )
+    check(
+        page.evaluate("() => Object.keys(localStorage).filter((k) => /^pulseboard:(statistics|consent):v1:/.test(k))") == [],
+        'legacy opt-out: old keys are removed',
+    )
+    check(page.locator('.pb-bar').count() == 0, 'legacy opt-out: no notice')
+    check(not [r for r in legacy.requests if r[1] != '/v1/consent/alibi'], 'legacy opt-out: nothing is sent')
+    page.evaluate("location.hash='/settings'")
+    page.locator('#usage-sharing-slot .pb-pill').wait_for(state='visible')
+    check(True, 'legacy opt-out: the Beta button can turn collection back on')
+    context.close()
+
     # ---- SDK blocked or offline: the game is unchanged and the reserved space is released ----
     blocked = Collector('other')
     context, page = open_context(browser, blocked, errors, block_sdk=True)
@@ -442,7 +468,12 @@ with sync_playwright() as pw:
     dismiss_dialog(page)
     assert_controls_clear(page, 'blocked SDK')
     page.evaluate("location.hash='/settings'")
-    page.locator('#usage-sharing-slot .usage-fallback').wait_for(state='visible')
+    page.locator('#usage-sharing-slot').wait_for(state='attached')
+    check(
+        not page.locator('.panel:has(> #usage-sharing-slot)').is_visible()
+        and not page.locator('.usage-fallback').first.is_visible(),
+        'blocked: Settings hides the Beta panel and its notice hint',
+    )
     check(not blocked.requests, 'blocked: nothing reaches the collector')
     check(not errors, 'a blocked SDK produces no page errors')
     context.close()

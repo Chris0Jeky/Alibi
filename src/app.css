@@ -3220,6 +3220,12 @@ dialog .dialog-actions {
 #pulseboard-slot:not(:empty) + .usage-fallback {
   display: none;
 }
+/* Where the SDK shows nothing (Android, the Sites fallback, standalone, offline or blocked), the
+   Settings panel and the notice hint are hidden; src/pulseboard-host.js sets the flag. */
+html:not([data-pulseboard-active]) .panel:has(> #usage-sharing-slot),
+html:not([data-pulseboard-active]) .usage-fallback {
+  display: none;
+}
 [data-pulseboard-bar] button,
 #pulseboard-slot button {
   min-height: 44px;

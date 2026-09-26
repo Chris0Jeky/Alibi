@@ -11,6 +11,38 @@
 (function () {
   const g = globalThis;
   if (g.ALIBI_CONFIG?.standalone !== false || typeof document === 'undefined') return;
+  // The statistics embed (0.11.3-0.14.0) kept its choice under other keys. An opt-out there becomes an
+  // all-off SDK choice in the SDK's stored shape before the SDK loads; then every old key goes.
+  try {
+    const ls = g.localStorage,
+      V3 = 'pulseboard:consent:v3:alibi',
+      old = [];
+    for (let i = 0; i < ls.length; i++) {
+      const key = ls.key(i);
+      if (/^pulseboard:(statistics:v1:alibi|consent:v1:alibi:)/.test(key)) old.push(key);
+    }
+    const optedOut = old.some((key) => {
+      try {
+        return JSON.parse(ls.getItem(key))?.allow === false;
+      } catch {
+        return false;
+      }
+    });
+    if (optedOut && ls.getItem(V3) === null) {
+      const d = new Date();
+      ls.setItem(
+        V3,
+        JSON.stringify({
+          counts: false,
+          diagnostics: false,
+          journeys: false,
+          decided: true,
+          month: d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'),
+        }),
+      );
+    }
+    for (const key of old) ls.removeItem(key);
+  } catch {}
   const sdk = () => {
     const p = g.Pulseboard;
     return p && typeof p.track === 'function' && typeof p.count === 'function' ? p : null;
@@ -116,19 +148,26 @@
   try {
     document.documentElement.dataset.pulseboardRoute = routeOf(g.location?.hash);
   } catch {}
-  // After every deferred script ran, nothing releases the reserved bar space if the SDK never loaded.
+  // After every deferred script ran: nothing releases the reserved bar space if the SDK never loaded;
+  // when the SDK shows its notice or Beta button, html[data-pulseboard-active] reveals the Settings
+  // panel and its hint (hidden for Android, Sites, blocked or offline loads, where nothing shows).
   // This bundle is itself deferred (readyState 'interactive', SDK not yet run), so wait for
   // DOMContentLoaded, with load as a fallback; settle runs once.
   let settled = false;
   const settle = () => {
-    if (settled || sdk()) return;
+    if (settled) return;
     settled = true;
     try {
       const bar = document.querySelector?.('[data-pulseboard-bar]');
-      if (bar) {
-        bar.hidden = true;
-        if (bar.style) bar.style.height = bar.style.minHeight = '0';
+      if (!sdk()) {
+        if (bar) {
+          bar.hidden = true;
+          if (bar.style) bar.style.height = bar.style.minHeight = '0';
+        }
+        return;
       }
+      if (bar?.children?.length || document.getElementById?.('pulseboard-slot')?.children?.length)
+        document.documentElement.dataset.pulseboardActive = '';
     } catch {}
   };
   if (document.readyState === 'complete') settle();

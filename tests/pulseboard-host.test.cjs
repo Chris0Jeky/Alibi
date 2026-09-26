@@ -69,7 +69,31 @@ const walk = (el, out = []) => {
 };
 
 // A small DOM with the web index's reserved notice space and the persistent button slot.
-function page({ hash = '', readyState = 'complete', standalone = false, sdk = null } = {}) {
+function storage(initial = {}, { throws = false } = {}) {
+  const map = new Map(Object.entries(initial));
+  const guard = () => {
+    if (throws) throw new Error('SecurityError');
+  };
+  return {
+    map,
+    get length() {
+      guard();
+      return map.size;
+    },
+    key: (i) => (guard(), [...map.keys()][i] ?? null),
+    getItem: (k) => (guard(), map.has(k) ? map.get(k) : null),
+    setItem: (k, v) => (guard(), map.set(k, String(v))),
+    removeItem: (k) => (guard(), map.delete(k)),
+  };
+}
+
+function page({
+  hash = '',
+  readyState = 'complete',
+  standalone = false,
+  sdk = null,
+  local = storage(),
+} = {}) {
   const windowListeners = {};
   const docListeners = {};
   const document = { all: [] };
@@ -108,6 +132,7 @@ function page({ hash = '', readyState = 'complete', standalone = false, sdk = nu
     location: { hash, origin: ORIGIN, protocol: 'https:', href: ORIGIN + '/', search: '' },
     ALIBI_CONFIG: { standalone, version: '0.14.1' },
     ALIBI_CATALOG: { puzzles: [{ id: 'expert-sudoku-01' }, { id: 'scene-01' }] },
+    localStorage: local,
     addEventListener(type, fn) {
       (windowListeners[type] ||= []).push(fn);
     },
@@ -366,8 +391,8 @@ test('application lifecycle calls the journey helper with fixed names and elapse
 });
 
 // The real pinned SDK and the real host glue together, on the registered origin at phone width.
-function integrated() {
-  const h = page({ hash: '#/settings', readyState: 'loading' });
+function integrated(local = storage()) {
+  const h = page({ hash: '#/settings', readyState: 'loading', local });
   const timers = [];
   const fetches = [];
   const store = () => {
@@ -383,7 +408,6 @@ function integrated() {
     navigator: {},
     innerWidth: 390,
     innerHeight: 844,
-    localStorage: store(),
     sessionStorage: store(),
     AbortController,
     TextEncoder,
@@ -452,4 +476,101 @@ test('the real SDK renders its notice in flow and its Beta button inline in Sett
     }),
     true,
   );
+});
+
+const OLD = 'pulseboard:statistics:v1:alibi';
+const LEGACY =
+  'pulseboard:consent:v1:alibi:https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi';
+const V3 = 'pulseboard:consent:v3:alibi';
+const offRecord = (raw) => {
+  const record = JSON.parse(raw);
+  assert.deepEqual(Object.keys(record).sort(), [
+    'counts',
+    'decided',
+    'diagnostics',
+    'journeys',
+    'month',
+  ]);
+  assert.equal(record.counts, false);
+  assert.equal(record.diagnostics, false);
+  assert.equal(record.journeys, false);
+  assert.equal(record.decided, true);
+  assert.match(record.month, /^\d{4}-(0[1-9]|1[0-2])$/);
+};
+
+test('an opt-out under the old embed becomes an all-off SDK choice and old keys are removed', () => {
+  for (const key of [OLD, LEGACY]) {
+    const local = storage({ [key]: '{"allow":false}', [OLD + ':probe']: '1', unrelated: 'keep' });
+    page({ local }).run();
+    offRecord(local.map.get(V3));
+    assert.deepEqual([...local.map.keys()].sort(), [V3, 'unrelated'].sort(), key);
+  }
+});
+
+test('an old opt-in, a corrupt value or an existing SDK choice writes nothing; old keys still go', () => {
+  const cases = [
+    [{ [OLD]: '{"allow":true}' }, null],
+    [{ [OLD]: '{broken' }, null],
+    [{ [LEGACY]: '{"allow":true}' }, null],
+    [{ [OLD]: '{"allow":false}', [V3]: 'mine' }, 'mine'],
+  ];
+  for (const [seed, expected] of cases) {
+    const local = storage(seed);
+    page({ local }).run();
+    assert.equal(local.map.get(V3) ?? null, expected, JSON.stringify(seed));
+    assert.ok(
+      ![...local.map.keys()].some(
+        (k) => k.startsWith('pulseboard:statistics:v1:') || k.startsWith('pulseboard:consent:v1:'),
+      ),
+    );
+  }
+});
+
+test('unavailable storage never breaks the game', () => {
+  assert.doesNotThrow(() =>
+    page({ local: storage({ [OLD]: '{"allow":false}' }, { throws: true }) }).run(),
+  );
+  const h = page({ local: undefined });
+  delete h.context.localStorage;
+  assert.doesNotThrow(() => h.run());
+});
+
+test('the real SDK honours a migrated opt-out: no notice, every category off, nothing sent', () => {
+  const h = integrated(storage({ [OLD]: '{"allow":false}' }));
+  h.ready();
+  const choice = h.context.Pulseboard.consent.get();
+  assert.equal(choice.decided, true);
+  assert.equal(choice.counts || choice.diagnostics || choice.journeys, false);
+  assert.equal(h.bar.children.length, 0, 'no notice for a recorded choice');
+  assert.equal(h.context.Pulseboard.count('page.view'), false);
+  assert.ok(
+    h.fetches.every((f) => f.url.includes('/v1/consent/')),
+    'at most the region hint',
+  );
+});
+
+test('the Settings panel and its notice hint show only while the SDK shows something', () => {
+  const run = (mount) => {
+    const h = page({ readyState: 'interactive' });
+    h.run();
+    h.context.Pulseboard = fakeSdk().api;
+    mount?.(h);
+    h.ready();
+    return h.document.documentElement.dataset.pulseboardActive;
+  };
+  assert.equal(run(null), undefined, 'an inert SDK (another origin) mounts nothing');
+  assert.equal(
+    run((h) => h.bar.append(node('div'))),
+    '',
+    'the notice is showing',
+  );
+  assert.equal(
+    run((h) => h.slot.append(node('button'))),
+    '',
+    'the Beta button exists (a recorded choice, or GPC)',
+  );
+  const absent = page({ readyState: 'interactive' });
+  absent.run();
+  absent.ready();
+  assert.equal(absent.document.documentElement.dataset.pulseboardActive, undefined);
 });
