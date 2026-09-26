@@ -15,7 +15,16 @@ measured +256-byte ceiling (130,084 -> 130,678 gzip). Local `npm run verify`,
 narrow layout, mobile QA, player QA, September feedback, curation, discovery, boot and Android
 payload passed; not deployed.
 
-## Release 0.14.0 candidate: 26 September 2026
+## Published web release 0.14.0: 26 September 2026
+
+Published from `985515e` as [`v0.14.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.0):
+Cloudflare Worker `e667fd5c-784b-4754-b6f0-90be31293e1a`, 292/292 files byte-identical,
+244 hosted real-origin checks (Vault chunk offline included). Sites fallback still on
+0.12.0. Open follow-ups: [#389](https://github.com/Chris0Jeky/Alibi/issues/389) (Vault
+chunk LOWs), [#387](https://github.com/Chris0Jeky/Alibi/issues/387) (intermittent test).
+See the [publication receipt](RELEASE-0.14.0.md).
+
+## Release 0.14.0 candidate: 26 September 2026 (historical)
 
 Branch `release/0.14.0` publishes the 80 Vault studies merged in #385 (510 puzzles,
 30 packs; provisional 47 Expert / 33 Master) through the precached deferred chunk. The
