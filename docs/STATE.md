@@ -15,9 +15,25 @@ measured +256-byte ceiling (130,084 -> 130,678 gzip). Local `npm run verify`,
 narrow layout, mobile QA, player QA, September feedback, curation, discovery, boot and Android
 payload passed; not deployed.
 
-## Release 0.13.0 candidate: 26 September 2026
+## Published web release 0.13.0: 26 September 2026
 
-Branch `release/0.13.0` carries version 0.13.0, its release record and the
+Every later section below is historical: its deployment status and next-step directives
+predate this release (0.13.0 deployed the Settings-slot Usage sharing change).
+
+[PR #386](https://github.com/Chris0Jeky/Alibi/pull/386) merged as `fa9dc0e`;
+[`v0.13.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.13.0) and its assets
+point there. Clean build `81d973e4d783` (430 puzzles). Cloudflare Worker
+`65d60c13-1cb6-4567-8637-92e2fe249afc` serves it: all 291 files matched byte for byte
+and 243 hosted real-origin checks passed. The Pulseboard collector admitting 0.13.0
+deployed first. The Sites fallback still serves 0.12.0 (no Sites tooling this session).
+Intermittent local test failure tracked as [#387](https://github.com/Chris0Jeky/Alibi/issues/387).
+Next: [PR #385](https://github.com/Chris0Jeky/Alibi/pull/385) delivers #354's 80 Vault
+studies through a precached deferred chunk (199,942 initial gzip bytes), superseding #354.
+See the [publication receipt](RELEASE-0.13.0.md).
+
+## Release 0.13.0 candidate: 26 September 2026 (historical)
+
+Branch `release/0.13.0` carried version 0.13.0, its release record and the
 [receipt draft](RELEASE-0.13.0.md): 36 new challenges (#357), Duel strengths /
 Cabinet restarts / opponent retry (#366), Usage sharing in Settings, Club
 hardening and stale-async fixes (#383, from a Muse bug-hunt plus a Codex
@@ -39,7 +55,7 @@ collector deployed as Worker version `ed739cc8-b136-4c28-864f-6b34f9b2ee95`
 live 0.13.0 count was sent. Collector deployment remains a manual step: automating it
 needs a Cloudflare token in Pulseboard Actions (owner decision).
 
-## Coordinator merge wave: 26 September 2026
+## Coordinator merge wave: 26 September 2026 (historical)
 
 Merged, each with exact-head green CI, head age, an independent review and
 resolved threads: #281 research docs, #350 Vault authoring foundation
@@ -62,7 +78,7 @@ the 80-board actual-control matrix. Design-system audits posted on #219
 (inversion fixed; adoption remainder quantified) and #220 (remainder
 quantified with token proposal); both need visual review before migration.
 
-## Usage sharing moved into the Settings slot (on main, undeployed): 26 September 2026
+## Usage sharing moved into the Settings slot: 26 September 2026 (historical; deployed in 0.13.0)
 
 Source `d64b911` answers the owner's "can't find the setting" report: the
 hotfix banner rendered above the app header and read as a cookie notice. The
@@ -76,7 +92,7 @@ Separately, [issue #380](https://github.com/Chris0Jeky/Alibi/issues/380) seeds
 the in-app feedback-pipeline proposal (description field plus direct or
 GitHub-issue submit); the owner contact decision is open.
 
-## Hotfix: Usage sharing confined to Settings: 26 September 2026
+## Hotfix: Usage sharing confined to Settings: 26 September 2026 (historical; superseded by 0.13.0)
 
 Source `afabf32` (three commits on `main`) fixes the player-reported floating
 Usage sharing popup: the loader now hides the generated control on every route
@@ -95,14 +111,14 @@ available in this session. Full CI matrix and physical-device confirmation are
 pending. See [the hotfix receipt](HOTFIX-2026-09-26-USAGE-SHARING.md).
 Rollback: Worker `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`.
 
-## Lossless official-content delivery merged: 26 September 2026
+## Lossless official-content delivery merged: 26 September 2026 (historical)
 
 PR #365 merged the lossless record/column encoder for the five startup JSON
 globals with byte-identical restore, decoder bytes inside the counted content
 script, and VM-executed install tests. It unblocks the Vault collection #354
 delivery gate pending full-payload re-measurement.
 
-## Published web release 0.12.0: 25 September 2026
+## Published web release 0.12.0: 25 September 2026 (historical)
 
 [PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
 `0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
@@ -124,9 +140,8 @@ comparison, rollback references and evidence limits.
 `HUMAN_TODO.md` q-1 through q-8 remain open, especially physical Android,
 TalkBack and human difficulty calibration. Issue #220 remains open for larger
 and decorative radii; issue #219 remains open for cross-room type work.
-Earlier checkpoints below are historical.
 
-## Club persistence and restore hardening merged: 25 September 2026
+## Club persistence and restore hardening merged: 25 September 2026 (historical)
 
 The Club storage closeout is now on `main`. PR #376 added backup-envelope
 validation coverage and merged as `2856e8f9057ea808a8d152f5dc2a41ee6ee93449`.
