@@ -13,4 +13,20 @@ for(const c of load('warehouse')){const index=E.warehouse.maps.length;E.warehous
 function minimax(s,owner,memo){const key=s.board.join(',')+'/'+s.turn;if(memo.has(key))return memo.get(key);if(s.done){const score=E.reversi.score(s);return (score.gold-score.ink)*owner;}const values=E.reversi.legal(s).map(c=>minimax(E.reversi.move(s,c),owner,memo));assert(values.length,'Reducer must handle automatic passes');const value=s.turn===owner?Math.max(...values):Math.min(...values);memo.set(key,value);return value;}
 for(const c of load('reversi')){let s=E.reversi.initial();for(const a of c.startActions){assert(E.reversi.legal(s).includes(a));s=E.reversi.move(s,a);}assert.deepEqual(s,c.startState,c.id);const memo=new Map(),values=E.reversi.legal(s).map(cell=>({cell,value:minimax(E.reversi.move(s,cell),s.turn,memo)}));assert.equal(values.filter(x=>x.value>0).length,1,c.id);assert.equal(values.find(x=>x.value>0).cell,c.solutionFirstMove);for(const v of c.rootMoveValues)assert.equal(values.find(x=>x.cell===v.cell).value,v.finalMarginForPlayerToMove);for(const a of c.principalVariation){assert(E.reversi.legal(s).includes(a));s=E.reversi.move(s,a);}assert(s.done);report.reversi.push({id:c.id,legalStartReplay:true,uniqueWinningMove:true,terminalMinimaxNodes:memo.size});}
 for(const c of load('borough')){const s=E.borough.replay(c.seed,c.solutionActions);assert(s.done,c.id);const score=E.borough.score(s);assert.equal(score,c.referenceScore);assert(score>=c.targetScore);report.borough.push({id:c.id,referenceScore:score,targetScore:c.targetScore,optimalityClaim:false});}
-report.allPassed=true;const text=JSON.stringify(report,null,2);if(process.argv[4])fs.writeFileSync(path.resolve(process.argv[4]),text+'\n');else console.log(text);console.log('59 challenge definitions reverified; this does not test their launcher/save adapters.');
+const catalogue=require('../challenge-catalogue.cjs').load(path.resolve(__dirname,'../..'));
+const known=new Set(Object.values(report).flat().map(c=>c.id));
+const registry=require('../../src/challenges.js').create(catalogue,{quiet:Q,club:E});
+for(const c of catalogue.filter(c=>!known.has(c.id))){
+  const run=registry.begin(c.id),source=c.solutionActions||c.solutionPath||c.principalVariation;
+  run.log=typeof source==='string'?[...source]:structuredClone(source);
+  const view=registry.replay(run);assert(view.complete,c.id);
+  if(c.family==='warehouse'){
+    const proof=require('../../tests/helpers/archive-push-oracle.cjs').solve(c.map);
+    assert(!proof.exhausted,c.id);assert.equal(proof.minimumPushes,c.verification.minimumPushes,c.id);
+    report.warehouse.push({id:c.id,winningReplay:true,minimumPushes:proof.minimumPushes,uniqueSolutionClaim:false});
+  }else if(c.family==='borough'){
+    const score=E.borough.score(view.state);assert.equal(score,c.referenceScore,c.id);
+    report.borough.push({id:c.id,referenceScore:score,targetScore:c.targetScore,neighbourhoodRequirements:true,optimalityClaim:false});
+  }else throw Error('No audit for added challenge family: '+c.family);
+}
+report.allPassed=true;const text=JSON.stringify(report,null,2);if(process.argv[4])fs.writeFileSync(path.resolve(process.argv[4]),text+'\n');else console.log(text);console.log(catalogue.length+' challenge definitions reverified; this does not test their launcher/save adapters.');

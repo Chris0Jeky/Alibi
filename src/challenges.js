@@ -46,7 +46,8 @@
     )
       fail('Challenge engines are unavailable.');
     const entries = Array.isArray(raw) ? raw : raw?.challenges;
-    if (!Array.isArray(entries) || entries.length !== 59) fail('Expected 59 trusted challenges.');
+    if (!Array.isArray(entries) || !entries.length || entries.length > 128)
+      fail('Expected 1 to 128 trusted challenges.');
     const byId = new Map();
     for (const source of entries) {
       if (!source || !/^curated-(classic|archive|duel|borough)-[a-z0-9-]+$/.test(source.id || ''))
@@ -136,6 +137,11 @@
       ].includes(c.family)
     )
       fail('Unsupported challenge mechanism.');
+    if (c.family === 'borough') {
+      if (!Number.isInteger(c.targetScore) || c.targetScore < 0 || c.targetScore > 1000)
+        fail('Invalid Borough score requirement.');
+      validateRequirements(c.requirements);
+    }
     let state = start(c, Q, E);
     const supplied = c.solutionActions || c.solutionPath || c.principalVariation;
     const solution = typeof supplied === 'string' ? [...supplied] : supplied;
@@ -146,7 +152,12 @@
   }
   function startDescriptor(c) {
     if (c.family === 'warehouse') return { map: c.map };
-    if (c.family === 'borough') return { seed: c.seed, targetScore: c.targetScore };
+    if (c.family === 'borough')
+      return {
+        seed: c.seed,
+        targetScore: c.targetScore,
+        ...(c.requirements ? { requirements: c.requirements } : {}),
+      };
     return {
       startState: c.startState,
       fixedCells: c.fixedCells || [],
@@ -253,12 +264,23 @@
     return next.state;
   }
   function objective(c) {
-    if (c.family === 'borough') return { type: 'score', targetScore: c.targetScore, seed: c.seed };
+    if (c.family === 'borough')
+      return {
+        type: 'score',
+        targetScore: c.targetScore,
+        seed: c.seed,
+        ...(c.requirements ? { requirements: c.requirements } : {}),
+      };
     if (c.family === 'reversi') return { type: 'terminal-win', player: c.startState.turn };
     return { type: 'complete' };
   }
   function complete(c, state, Q, E, log) {
-    if (c.family === 'borough') return state.done && E.borough.score(state) >= c.targetScore;
+    if (c.family === 'borough')
+      return (
+        state.done &&
+        E.borough.score(state) >= c.targetScore &&
+        boroughRequirements(c, state).every((r) => r.actual >= r.count)
+      );
     if (c.family === 'reversi') {
       const score = E.reversi.score(state);
       return (
@@ -269,6 +291,46 @@
     }
     return c.family === 'warehouse' ? state.done : Q.classicWon(state);
   }
-  G.AlibiChallenges = { create };
+  function validateRequirements(requirements) {
+    if (requirements === undefined) return;
+    if (!Array.isArray(requirements) || !requirements.length || requirements.length > 3)
+      fail('Invalid Borough requirements.');
+    const seen = new Set();
+    for (const r of requirements) {
+      if (
+        !r ||
+        Object.keys(r).sort().join(',') !== 'building,count,minimumNeighbors,neighbor' ||
+        !['home', 'garden', 'cafe', 'library'].includes(r.building) ||
+        !['home', 'garden', 'cafe', 'library', 'water'].includes(r.neighbor) ||
+        !Number.isInteger(r.minimumNeighbors) ||
+        r.minimumNeighbors < 1 ||
+        r.minimumNeighbors > 4 ||
+        !Number.isInteger(r.count) ||
+        r.count < 1 ||
+        r.count > 18
+      )
+        fail('Invalid Borough requirement.');
+      const key = [r.building, r.neighbor, r.minimumNeighbors].join(':');
+      if (seen.has(key)) fail('Duplicate Borough requirement.');
+      seen.add(key);
+    }
+  }
+  function boroughRequirements(c, state) {
+    return (c.requirements || []).map((r) => ({
+      ...r,
+      actual: state.board.filter(
+        (v, i) =>
+          v === r.building &&
+          [i - 5, i + 5, i - 1, i + 1].filter(
+            (j) =>
+              j >= 0 &&
+              j < 25 &&
+              Math.abs(Math.floor(i / 5) - Math.floor(j / 5)) + Math.abs((i % 5) - (j % 5)) === 1 &&
+              state.board[j] === r.neighbor,
+          ).length >= r.minimumNeighbors,
+      ).length,
+    }));
+  }
+  G.AlibiChallenges = { create, boroughRequirements };
   if (typeof module !== 'undefined') module.exports = G.AlibiChallenges;
 })(globalThis);
