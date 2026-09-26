@@ -1,7 +1,11 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { releaseRecordProblems, compareVersions } = require('../tools/release-prepare.cjs');
+const {
+  releaseRecordProblems,
+  compareVersions,
+  onlyHostSymlinkFailures,
+} = require('../tools/release-prepare.cjs');
 
 const record = (version, extra = {}) => ({
   version,
@@ -44,4 +48,25 @@ test('missing, duplicate, stale or incomplete records are refused', () => {
 test('versions compare numerically', () => {
   assert.ok(compareVersions('0.10.0', '0.9.9') > 0);
   assert.equal(compareVersions('1.2.3', '1.2.3'), 0);
+});
+
+test('only Windows symlink EPERM failures are tolerated', () => {
+  const eperm = 'Error: EPERM: operation not permitted, symlink a -> b\n';
+  const summary = (...names) =>
+    `✖ failing tests:\n\n${names.map((n) => `✖ ${n} (1ms)`).join('\n')}\n`;
+  const symlinkOnly = eperm + summary('installer refuses symlink escape');
+  assert.equal(onlyHostSymlinkFailures(symlinkOnly, 'win32'), true);
+  assert.equal(onlyHostSymlinkFailures(symlinkOnly, 'linux'), false);
+  assert.equal(
+    onlyHostSymlinkFailures(
+      eperm + summary('installer refuses symlink escape', 'sync rolls back'),
+      'win32',
+    ),
+    false,
+  );
+  assert.equal(
+    onlyHostSymlinkFailures(summary('installer refuses symlink escape'), 'win32'),
+    false,
+  );
+  assert.equal(onlyHostSymlinkFailures('not ok 1 - sync rolls back\n', 'win32'), false);
 });

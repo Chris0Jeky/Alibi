@@ -64,6 +64,19 @@ function run(command, args, options = {}) {
   return result.stdout.trim();
 }
 
+// A failed run is tolerated only on Windows when every failing test is a symlink test and the
+// output shows the host refusing symlink creation (EPERM). Elsewhere symlink tests must pass.
+function onlyHostSymlinkFailures(output, platform = process.platform) {
+  const summary = output.split(/^✖ failing tests:$/m)[1];
+  if (platform !== 'win32' || !summary) return false;
+  const failed = [...new Set(summary.match(/^✖ .*$/gm) || [])];
+  return (
+    failed.length > 0 &&
+    failed.every((line) => /symlink/i.test(line)) &&
+    /EPERM: operation not permitted, symlink/.test(output)
+  );
+}
+
 function findPulseboard(explicit) {
   const candidates = [
     explicit,
@@ -113,10 +126,13 @@ function main(argv) {
   const branch = `chore/admit-alibi-${version}`;
   for (const ref of [`refs/heads/${branch}`, `refs/remotes/origin/${branch}`])
     if (spawnSync('git', ['rev-parse', '-q', '--verify', ref], { cwd: pulseboard }).status === 0)
-      throw Error(`Pulseboard already has ${branch}; an admission PR may already be open.`);
+      throw Error(
+        `Pulseboard already has ${branch}; an admission PR may already be open (delete a stale local branch to retry).`,
+      );
   const worktree = fs.mkdtempSync(path.join(os.tmpdir(), 'pulseboard-release-'));
   run('git', ['worktree', 'add', '-q', '--detach', worktree, 'origin/main'], { cwd: pulseboard });
-  let keepWorktree = true;
+  let keepWorktree = true,
+    deleteBranch = false;
   try {
     run('git', ['switch', '-q', '-c', branch], { cwd: worktree });
     const observatory = path.join(worktree, 'observatory');
@@ -136,22 +152,24 @@ function main(argv) {
     const changed = run('git', ['status', '--porcelain'], { cwd: worktree });
     if (!changed) {
       keepWorktree = false;
+      deleteBranch = true;
       console.log(`Pulseboard already admits ${version}; no Pulseboard change needed.`);
       return;
     }
     if (!fs.existsSync(path.join(observatory, 'node_modules')))
       run('npm', ['ci', '--no-audit', '--no-fund'], { cwd: observatory });
+    // Force the spec reporter: Node 22 defaults to TAP when output is not a terminal.
     const tests = spawnSync(
       process.execPath,
-      ['--test', 'tests/alibi-sync.test.mjs', 'tests/installer.test.mjs'],
+      ['--test', '--test-reporter=spec', 'tests/alibi-sync.test.mjs', 'tests/installer.test.mjs'],
       { cwd: observatory, encoding: 'utf8' },
     );
-    const failed = (tests.stdout.match(/^✖ .*$/gm) || []).filter(
-      (line) => !/symlink/i.test(line) && !/failing tests/.test(line),
-    );
-    if (failed.length) throw Error(`Pulseboard tests failed:\n${failed.join('\n')}`);
+    if (tests.status !== 0 && !onlyHostSymlinkFailures(tests.stdout))
+      throw Error(`Pulseboard tests failed:\n${tests.stdout.slice(-4000)}`);
     console.log(
-      'Pulseboard release tests passed (symlink tests need a host that allows symlinks).',
+      tests.status === 0
+        ? 'Pulseboard release tests passed.'
+        : 'Pulseboard release tests passed except symlink tests this host cannot run (EPERM); CI runs them.',
     );
 
     run('git', ['commit', '-qam', `chore(observatory): admit Alibi ${version} release`], {
@@ -182,10 +200,11 @@ function main(argv) {
     // Failures and unpublished commits keep the temporary worktree for inspection.
     if (keepWorktree) console.log(`Pulseboard worktree kept: ${worktree}`);
     else run('git', ['worktree', 'remove', worktree], { cwd: pulseboard });
+    if (deleteBranch) run('git', ['branch', '-q', '-D', branch], { cwd: pulseboard });
+    console.log(
+      'This Alibi checkout may now carry a new package version and regenerated observatory files: commit them with the release, or restore them.',
+    );
   }
-  console.log(
-    'Commit the Alibi changes (package version, observatory adapter and lock) with the release.',
-  );
 }
 
 if (require.main === module)
@@ -195,4 +214,4 @@ if (require.main === module)
     console.error(error.message);
     process.exit(1);
   }
-module.exports = { releaseRecordProblems, compareVersions };
+module.exports = { releaseRecordProblems, compareVersions, onlyHostSymlinkFailures };
