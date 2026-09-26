@@ -15,6 +15,13 @@ paid external service is needed. Never create another project just to publish an
 
 ## Release procedure
 
+0. Write the new first record in `content/releases.json` (version, date, title, `v` tag,
+   `docs/RELEASE-<version>.md` receipt, player-facing changes), then run
+   `npm run release:prepare -- <version> --publish`. It sets the package version, registers the
+   release label in a temporary Pulseboard worktree, regenerates the pinned Observatory adapter
+   here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
+   PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
+   the collector rejects the new release's usage counts.
 1. Run `npm ci`, `npm run verify`, and all browser acceptance suites in CI. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. Build the merged source. Record its full Git SHA and `build-info.json`.

@@ -338,6 +338,16 @@ async function tab(storage) {
     'Unsuperseded shared-town confirmation still prompts',
   );
   check(raceTab.__clubReset === freshIntent, 'Unsuperseded confirmation keeps its own intent');
+  raceTab.__capturedDialogs.length = 0;
+  pendingTimers.length = 0;
+  raceTab.location.hash = '#/salon/borough?seed=THIRD-03';
+  await raceTab.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  raceTab.location.hash = '#/salon/duel';
+  pendingTimers[0].fn();
+  check(
+    raceTab.__capturedDialogs.length === 0,
+    'Shared-town confirmation stays hidden once the URL has left that town',
+  );
   const restoreAt = clubSource.indexOf("a === 'restore-confirm'");
   check(restoreAt !== -1, 'Club restore-confirm path exists');
   const restoreEnd = clubSource.indexOf("else if (a === 'duel-mode'", restoreAt);
