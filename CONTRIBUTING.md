@@ -19,5 +19,6 @@ Open ready-for-review pull requests with the problem, resulting behavior, provin
 remaining limitations. Never include progress backups, notes, tokens or test browser profiles.
 Use synthetic fixtures for bug reports. Do not silently alter published puzzle rule fields.
 
-The repository has no reuse license until the owner chooses one. Please settle contribution
-licensing with the maintainer before submitting independently owned material.
+The source is licensed under the PolyForm Strict License 1.0.0, which grants no right to make
+changes. Bug reports and suggestions are welcome as issues. Code or content contributions need a
+separate written agreement with the maintainer first, so please open an issue before a pull request.
