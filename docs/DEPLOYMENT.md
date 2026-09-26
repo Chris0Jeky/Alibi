@@ -4,8 +4,9 @@ The owner selected Cloudflare as primary on 2026-09-09. Both existing host ident
 
 - Primary: **https://alibi-after-hours-preview.commit-atlas.workers.dev/**
   (`wrangler.jsonc`, Worker `alibi-after-hours-preview`). Its historical name is retained to preserve the origin.
-- Fallback: **https://alibi-puzzle-club.jeky-tck.chatgpt.site/**
-  (`.openai/hosting.json`, existing Alibi Sites project).
+- Retired fallback: **https://alibi-puzzle-club.jeky-tck.chatgpt.site/**
+  (`.openai/hosting.json`, existing Alibi Sites project). Retired by owner decision on 2026-09-27;
+  see [Retiring the Sites fallback](#retiring-the-sites-fallback).
 - Public source: **https://github.com/Chris0Jeky/Alibi**
 - Public output: **dist/**
 
@@ -33,13 +34,12 @@ paid external service is needed. Never create another project just to publish an
 3. Build the merged source. Record its full Git SHA and `build-info.json`.
 4. Run `npm run cloudflare:check`, then `npm run cloudflare:deploy` for the primary site.
    Record the returned Worker version and verify actual HTTPS files, headers, saves and offline play.
-5. Update the fallback from the same validated build. Use the Sites hosting skill and the existing project ID. Acquire a short-lived source write
-   credential, push the exact source with a per-command authorization header, and never persist
-   that credential in Git config, files or remote URLs.
-6. Package `dist/` using the Sites helper, save that exact version and deploy to the authorized
-   audience. Poll until deployment actually succeeds.
+5. Routine releases no longer deploy to the retired Sites fallback. Only the single retirement
+   deployment below does.
+6. (Retired step; kept for the retirement deployment.) Package `dist/` using the Sites helper, save
+   that exact version and deploy to the authorized audience. Poll until deployment actually succeeds.
 7. Verify HTML, hashed assets, manifest, icons, security headers, IndexedDB and offline play on
-   both deployed HTTPS origins using disposable test profiles. Keep rollback artifacts.
+   the primary HTTPS origin using disposable test profiles. Keep rollback artifacts.
 
 For another static host, `npm run build` produces `alibi-deluxe-cloudflare.zip` with index.html at
 its root, all hashed assets, manifest, worker and `_headers`. `wrangler.jsonc` selects the existing
@@ -94,6 +94,31 @@ the game's device-local saves from aggregate counts and host infrastructure.
 
 Physical Android install, file-picker and TalkBack acceptance remain separate from desktop/mobile
 emulation. See docs/ANDROID.md and HUMAN_TODO.md.
+
+## Retiring the Sites fallback
+
+Owner decision, 2026-09-27: retire the Sites copy behind a moved notice instead of keeping it in sync.
+Saves belong to each address, so the retired origin keeps serving the **full current app**, not a
+static page: a static page would replace the cached app and leave players unable to export. From the
+first release that contains it, `src/boot.js` shows an in-flow "Alibi has moved" notice only on
+`https://alibi-puzzle-club.jeky-tck.chatgpt.site`, with "Back up my saves" (Settings, where the
+combined export lives) and "Open the new site". Nothing redirects, and no stored data is deleted.
+
+The one remaining deployment needs a Codex session with the Sites hosting skill (not available to
+Claude sessions). Deploy the published release that first contains the notice:
+
+1. Check out the release tag, `npm ci`, `npm run build`, and confirm `build-info.json` matches the
+   Cloudflare publication receipt for that release.
+2. Use the Sites hosting skill with the project ID in `.openai/hosting.json`. Acquire a short-lived
+   source write credential, push the exact source with a per-command authorization header, and never
+   persist that credential in Git config, files or remote URLs.
+3. Package `dist/` with the Sites helper, save that exact version, deploy it and poll until the
+   deployment succeeds.
+4. In a disposable profile, open the Sites origin: the moved notice shows at 390px and desktop,
+   "Back up my saves" opens Settings with **Export cabinet, Club, Wing & castle**, and an export of a
+   seeded save downloads. Then import that file on the primary origin.
+5. Record the saved version and deployment id in the release receipt and `docs/STATE.md`, and close
+   the `HUMAN_TODO.md` item. After this, do not deploy to Sites again.
 
 ## Cloudflare primary site
 
