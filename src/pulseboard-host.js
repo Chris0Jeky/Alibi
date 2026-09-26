@@ -6,7 +6,8 @@
 // - releases the reserved top bar space when the SDK never ran (offline, blocked, Android);
 // - reports hash routes through Pulseboard.route with the registered route names;
 // - reports a bounded puzzle journey: aggregate counts plus Journeys events whose props are official
-//   puzzle ids and numbers only (never answers, boards, notes or typed text).
+//   puzzle ids with their catalogue family and tier, and numbers only (never answers, boards, notes or
+//   typed text). Imported and workshop puzzles are 'custom' with no family or tier.
 // Every call is guarded, so the game is unchanged when window.Pulseboard is undefined or throws.
 (function () {
   const g = globalThis;
@@ -61,15 +62,19 @@
           : 'other';
   };
   // Only official catalogue ids leave the device; imported or workshop puzzles carry authored ids.
+  // An official puzzle also names its catalogue family (type) and lower-cased tier (difficulty).
   let official;
   const puzzleId = (run) => {
     const id = run?.puzzle?.id;
     if (!official) {
-      official = new Set();
+      official = new Map();
       for (const p of g.ALIBI_CATALOG?.puzzles || [])
-        if (typeof p?.id === 'string') official.add(p.id);
+        if (typeof p?.id === 'string') official.set(p.id, p);
     }
-    return typeof id === 'string' && official.has(id) ? id : 'custom';
+    const p = typeof id === 'string' && official.get(id);
+    return p
+      ? { puzzle: id, family: p.type, tier: String(p.difficulty).toLowerCase() }
+      : { puzzle: 'custom' };
   };
   const whole = (n) => (Number.isFinite(n) && n > 0 ? Math.min(Math.round(n), 864000) : 0);
   // One attempt opens on the first real board change and closes at most once: a conflicted check or a
@@ -106,19 +111,19 @@
     if (!event || event === 'puzzle.started') {
       if (open) return true;
       open = puzzle;
-      emit(p, 'puzzle.started', { puzzle });
+      emit(p, 'puzzle.started', puzzle);
       return true;
     }
-    if (event === 'hint.requested') return emit(p, event, { puzzle, hint: ++hints });
+    if (event === 'hint.requested') return emit(p, event, { ...puzzle, hint: ++hints });
     if (!open) return false;
     open = null;
     const time = whole(seconds);
     if (event === 'puzzle.failed')
-      return emit(p, event, { puzzle, seconds: time, attempts: ++fails });
+      return emit(p, event, { ...puzzle, seconds: time, attempts: ++fails });
     const attempts = fails + 1;
     const used = hints;
     reset();
-    return emit(p, event, { puzzle, seconds: time, hints: used, attempts });
+    return emit(p, event, { ...puzzle, seconds: time, hints: used, attempts });
   };
   // The SDK renders its Beta button into #pulseboard-slot. The app parks it on the body (hidden) before
   // replacing its content and moves it into #usage-sharing-slot after rendering Settings or Privacy.
