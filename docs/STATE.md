@@ -1,5 +1,28 @@
 # Live development state
 
+## Coordinator merge wave: 26 September 2026
+
+Merged, each with exact-head green CI, head age, an independent review and
+resolved threads: #281 research docs, #350 Vault authoring foundation
+(+ #369 fail-closed profiles, coordinator recipe test), #357 planning vaults
+and challenge registry, #365 lossless official-content delivery, #366 Duel
+strengths, Cabinet restarts and opponent recovery (+ #370/#371 test pins).
+Stacked fixes #369-#372 merged into their bases first. Owner hotfixes
+(fcc8d4b-3e00ef5) moved main mid-flight; branches re-refreshed onto each base.
+
+Two CI trigger gaps observed: conflicting PRs get zero pull_request runs (no
+merge ref), and one push fired only 2 of 5 workflows (selective drop,
+unexplained). Required-conversation-resolution blocked #350 until four bot
+threads were answered; #357/#366 had three more between them.
+
+#354 stays draft: measured 205,448 initial gzip bytes vs the 204,800 limit,
+with vault content costing 7,495 bytes inside the initial script, so it needs
+deferred (non-initial, precached) delivery plus recertification
+(vault-binary-03 recomputes residual 8 vs stored 15, below the 12 bar) and
+the 80-board actual-control matrix. Design-system audits posted on #219
+(inversion fixed; adoption remainder quantified) and #220 (remainder
+quantified with token proposal); both need visual review before migration.
+
 ## Usage sharing moved into the Settings slot (on main, undeployed): 26 September 2026
 
 Source `d64b911` answers the owner's "can't find the setting" report: the
