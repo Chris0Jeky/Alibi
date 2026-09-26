@@ -9,6 +9,18 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'observatory-loader.js'), 'utf8');
 const PREF_KEY = 'pulseboard:statistics:v1:alibi';
 
+function makeSlot() {
+  return {
+    textContent: 'fallback',
+    children: [],
+    replaceChildren(el) {
+      this.textContent = '';
+      this.children = [el];
+      el.parentElement = this;
+    },
+  };
+}
+
 function run({
   hash = '#/home',
   readyState = 'complete',
@@ -16,6 +28,7 @@ function run({
   url = 'assets/observatory.test.js',
   seed,
   notice = null,
+  slot = null,
   storage = 'map',
 } = {}) {
   const listeners = new Map();
@@ -24,7 +37,7 @@ function run({
   const observed = [];
   const mobCallbacks = [];
   let disconnected = 0;
-  const box = { notice };
+  const box = { notice, slot };
   const store = new Map();
   if (seed !== undefined) store.set(PREF_KEY, seed);
   const localStorage =
@@ -47,6 +60,13 @@ function run({
             },
           }
         : undefined;
+  const body = {
+    prepended: [],
+    prepend(el) {
+      this.prepended.push(el);
+      el.parentElement = this;
+    },
+  };
   const context = {
     ALIBI_CONFIG: { standalone, version: '0.11.3' },
     ALIBI_OBSERVATORY_URL: url,
@@ -61,12 +81,14 @@ function run({
     },
     document: {
       readyState,
-      body: {},
+      body,
       createElement(tag) {
         return { tag };
       },
       getElementById(id) {
-        return id === 'pulseboard-usage-sharing' ? box.notice : null;
+        if (id === 'pulseboard-usage-sharing') return box.notice;
+        if (id === 'usage-sharing-slot') return box.slot;
+        return null;
       },
       head: {
         append(node) {
@@ -89,11 +111,15 @@ function run({
     context,
     scripts,
     store,
+    body,
     observed,
     mobCallbacks,
     documentListeners,
     setNotice(value) {
       box.notice = value;
+    },
+    setSlot(value) {
+      box.slot = value;
     },
     disconnected() {
       return disconnected;
@@ -159,6 +185,7 @@ test('standalone and unconfigured builds stay completely inert', () => {
     assert.equal(harness.listenerCount('hashchange'), 0);
     assert.equal(harness.context.ALIBI_OBSERVATORY_CONTEXT, undefined);
     assert.equal(harness.context.AlibiJourney, undefined);
+    assert.equal(harness.context.AlibiUsageSlot, undefined);
     assert.deepEqual(harness.documentListeners, []);
   }
 });
@@ -172,51 +199,66 @@ test('the loader records no preference; the adapter default applies', () => {
   }
 });
 
-test('the control is shown only on Settings and Privacy, never as a popup elsewhere', () => {
-  const cases = [
-    ['#/settings', true],
-    ['#/settings?from=privacy', true],
-    ['#/privacy', true],
-    ['#/privacy/', true],
-    ['#/home', false],
-    ['#/play/expert-sudoku-01@2', false],
-    ['#/quiet/castle/room/library', false],
-    ['#/library/sudoku', false],
-    ['', false],
-  ];
-  for (const [hash, show] of cases) {
-    const notice = { hidden: false, open: true };
-    run({ hash, notice });
-    assert.equal(notice.hidden, !show, `${hash || '(empty hash)'} visibility`);
-    assert.equal(notice.open, true, `${hash || '(empty hash)'} keeps its disclosure`);
-  }
+test('the control moves into the rendered slot and shows', () => {
+  const slot = makeSlot();
+  const notice = { hidden: true, open: true, parentElement: null };
+  const harness = run({ notice });
+  notice.parentElement = harness.body;
+  harness.setSlot(slot);
+  harness.context.AlibiUsageSlot();
+  assert.deepEqual(slot.children, [notice]);
+  assert.equal(slot.textContent, '');
+  assert.equal(notice.hidden, false);
+  assert.equal(notice.parentElement, slot);
 });
 
-test('route changes re-sync visibility and still report a fresh page view', () => {
-  const notice = { hidden: true, open: true };
-  const harness = run({ hash: '#/home', notice });
+test('without a slot the control parks hidden on the body', () => {
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice });
+  harness.context.AlibiUsageSlot();
+  assert.deepEqual(harness.body.prepended, [notice]);
   assert.equal(notice.hidden, true);
+  assert.equal(notice.parentElement, harness.body);
+});
+
+test('rescue parks the control even when a slot is rendered', () => {
+  const slot = makeSlot();
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice, slot });
+  assert.equal(notice.parentElement, slot);
+  harness.context.AlibiUsageSlot(true);
+  assert.equal(notice.hidden, true);
+  assert.equal(notice.parentElement, harness.body);
+  assert.deepEqual(harness.body.prepended, [notice]);
+});
+
+test('route changes leave placement to the app render', () => {
+  const slot = makeSlot();
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice, slot });
+  assert.equal(notice.parentElement, slot);
   const events = [];
   harness.context.PulseboardUsage = {
     track(event) {
       events.push(event);
     },
   };
-  harness.context.location.hash = '#/settings';
   harness.emit('hashchange');
+  assert.equal(notice.parentElement, slot);
   assert.equal(notice.hidden, false);
-  assert.equal(notice.open, true);
   assert.deepEqual(events, ['page.view']);
 });
 
-test('a late mount is observed once, synced, then released', () => {
-  const harness = run({ hash: '#/home' });
+test('a late mount is observed once, placed, then released', () => {
+  const slot = makeSlot();
+  const harness = run({ slot });
   assert.equal(harness.observed.length, 1);
   assert.equal(harness.disconnected(), 0);
-  const notice = { hidden: false, open: true };
+  const notice = { hidden: false, open: true, parentElement: harness.body };
   harness.setNotice(notice);
   harness.mobCallbacks[0]();
-  assert.equal(notice.hidden, true);
+  assert.deepEqual(slot.children, [notice]);
+  assert.equal(notice.hidden, false);
   assert.equal(harness.disconnected(), 1);
 });
 
