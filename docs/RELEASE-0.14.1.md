@@ -46,7 +46,7 @@ The primary Cloudflare origin is Worker version `856d1a61-fdae-4d6c-aca0-236ccc9
 returned HTTP 200 (HTML after the host's canonical redirects) and matched the clean build byte for
 byte; `/` serves the repository CSP with the collector in `connect-src`. The hosted real-origin
 suite passed 244 checks. The collector admitting 0.14.1 and `alibi` product events was already
-live as Pulseboard Worker `10669420...` (coordinator record).
+live as Pulseboard Worker `10669420-9b93-4448-803f-c4093f5fbdae` (0.14.1 registration first went live in `2b1f13f8-e878-4616-af71-c9673cae83a5`; never roll the collector back below that version while 0.14.1 is served, see Pulseboard `observatory/docs/HOSTING.md`).
 
 Live SDK acceptance (disposable in-memory Chromium profiles at 390×844, automation flag masked,
 25/25 checks): 0.14.1 and SDK 3.1.0 are served; the Beta notice is the first element of `<body>`,
