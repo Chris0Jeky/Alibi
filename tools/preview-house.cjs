@@ -66,7 +66,7 @@ function preview(out = path.join(ROOT, 'house-preview.html')) {
     'castle-practice',
     'activities',
     'app',
-    'observatory-loader',
+    'pulseboard-host',
   ];
   const script =
     Object.entries(globals)
