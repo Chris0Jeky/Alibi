@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "packs": [
+    "classics.json",
+    "warehouse.json",
+    "reversi.json",
+    "borough.json",
+    "archive-vaults.json",
+    "borough-contracts.json"
+  ]
+}

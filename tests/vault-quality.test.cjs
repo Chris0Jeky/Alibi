@@ -41,3 +41,50 @@ test('Sudoku identities reject digit relabeling and certificates reject edited a
   p.solution[0] = p.solution[1];
   assert.throws(() => certify(p));
 });
+test('aquarium and network profiles fail closed with an explicit unsupported marker', () => {
+  const { profile, certify } = tools();
+  const aquarium = structuredClone(require('../content/curation/packs/aquarium.json').puzzles[0]);
+  const network = structuredClone(require('../content/curation/packs/network.json').puzzles[0]);
+  for (const puzzle of [aquarium, network]) {
+    const safe = new Proxy(puzzle, {
+      get(target, key) {
+        if (key === 'solution') throw Error('answer accessed');
+        return target[key];
+      },
+    });
+    const result = profile(safe);
+    assert.equal(result.method, 'unsupported');
+    assert.equal(result.steps, 0);
+    assert.equal(result.unresolved, null);
+    assert.equal(result.complete, null);
+    assert.deepEqual(result.rules, {});
+    assert.ok(typeof result.reason === 'string' && result.reason.length > 0);
+  }
+  for (const puzzle of [aquarium, network]) {
+    const proof = certify(structuredClone(puzzle));
+    assert.equal(proof.profile.method, 'unsupported');
+    assert.equal(proof.profile.steps, 0);
+    assert.equal(proof.profile.unresolved, null);
+    assert.equal(proof.profile.complete, null);
+    assert.deepEqual(proof.profile.rules, {});
+    assert.ok(typeof proof.profile.reason === 'string' && proof.profile.reason.length > 0);
+    assert.equal(Object.hasOwn(proof.profile, 'humanDifficulty'), false);
+  }
+});
+test('vault Sudoku recipes sketch deterministic, uniquely-solved candidates', () => {
+  const { sudoku } = tools();
+  const recipes = require('../tools/curation/vault-recipes.cjs');
+  const first = recipes.candidate('sudoku', 7);
+  assert.ok(first, 'seeded sketch produces a candidate');
+  assert.deepEqual(first, recipes.candidate('sudoku', 7), 'same seed sketches the same board');
+  assert.ok(first.givens.filter(Boolean).length >= 24, 'candidate keeps at least 24 clues');
+  const proof = sudoku(first.givens, 2, 250000);
+  assert.equal(proof.exhausted, false);
+  assert.equal(proof.count, 1);
+  assert.deepEqual(proof.first, first.solution);
+  assert.deepEqual(
+    recipes.candidate('binary', 7),
+    require('../tools/curation/night-recipes.cjs').candidate('binary', 7),
+    'other families delegate to the retained Night recipes',
+  );
+});

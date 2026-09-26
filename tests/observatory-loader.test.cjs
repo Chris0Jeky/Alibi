@@ -7,24 +7,88 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'observatory-loader.js'), 'utf8');
+const PREF_KEY = 'pulseboard:statistics:v1:alibi';
+
+function makeSlot() {
+  return {
+    textContent: 'fallback',
+    children: [],
+    replaceChildren(el) {
+      this.textContent = '';
+      this.children = [el];
+      el.parentElement = this;
+    },
+  };
+}
 
 function run({
   hash = '#/home',
   readyState = 'complete',
   standalone = false,
   url = 'assets/observatory.test.js',
+  seed,
+  notice = null,
+  slot = null,
+  storage = 'map',
 } = {}) {
   const listeners = new Map();
   const scripts = [];
   const documentListeners = [];
+  const observed = [];
+  const mobCallbacks = [];
+  let disconnected = 0;
+  const box = { notice, slot };
+  const store = new Map();
+  if (seed !== undefined) store.set(PREF_KEY, seed);
+  const localStorage =
+    storage === 'map'
+      ? {
+          getItem: (key) => (store.has(key) ? store.get(key) : null),
+          setItem: (key, value) => store.set(key, String(value)),
+          removeItem: (key) => store.delete(key),
+        }
+      : storage === 'throws'
+        ? {
+            getItem: () => {
+              throw new Error('storage blocked');
+            },
+            setItem: () => {
+              throw new Error('storage blocked');
+            },
+            removeItem: () => {
+              throw new Error('storage blocked');
+            },
+          }
+        : undefined;
+  const body = {
+    prepended: [],
+    prepend(el) {
+      this.prepended.push(el);
+      el.parentElement = this;
+    },
+  };
   const context = {
     ALIBI_CONFIG: { standalone, version: '0.11.3' },
     ALIBI_OBSERVATORY_URL: url,
     location: { hash },
+    localStorage,
+    MutationObserver: function (callback) {
+      mobCallbacks.push(callback);
+      this.observe = (target, options) => observed.push([target, options]);
+      this.disconnect = () => {
+        disconnected += 1;
+      };
+    },
     document: {
       readyState,
+      body,
       createElement(tag) {
         return { tag };
+      },
+      getElementById(id) {
+        if (id === 'pulseboard-usage-sharing') return box.notice;
+        if (id === 'usage-sharing-slot') return box.slot;
+        return null;
       },
       head: {
         append(node) {
@@ -46,13 +110,26 @@ function run({
   return {
     context,
     scripts,
+    store,
+    body,
+    observed,
+    mobCallbacks,
+    documentListeners,
+    setNotice(value) {
+      box.notice = value;
+    },
+    setSlot(value) {
+      box.slot = value;
+    },
+    disconnected() {
+      return disconnected;
+    },
     emit(type) {
       for (const listener of listeners.get(type) || []) listener({ type });
     },
     listenerCount(type) {
       return (listeners.get(type) || []).length;
     },
-    documentListeners,
   };
 }
 
@@ -108,6 +185,88 @@ test('standalone and unconfigured builds stay completely inert', () => {
     assert.equal(harness.listenerCount('hashchange'), 0);
     assert.equal(harness.context.ALIBI_OBSERVATORY_CONTEXT, undefined);
     assert.equal(harness.context.AlibiJourney, undefined);
+    assert.equal(harness.context.AlibiUsageSlot, undefined);
     assert.deepEqual(harness.documentListeners, []);
+  }
+});
+
+test('the loader records no preference; the adapter default applies', () => {
+  const harness = run();
+  assert.equal(harness.store.has(PREF_KEY), false);
+  for (const seed of ['{"allow":true}', '{"allow":false}', '{broken']) {
+    const seeded = run({ seed });
+    assert.equal(seeded.store.get(PREF_KEY), seed);
+  }
+});
+
+test('the control moves into the rendered slot and shows', () => {
+  const slot = makeSlot();
+  const notice = { hidden: true, open: true, parentElement: null };
+  const harness = run({ notice });
+  notice.parentElement = harness.body;
+  harness.setSlot(slot);
+  harness.context.AlibiUsageSlot();
+  assert.deepEqual(slot.children, [notice]);
+  assert.equal(slot.textContent, '');
+  assert.equal(notice.hidden, false);
+  assert.equal(notice.parentElement, slot);
+});
+
+test('without a slot the control parks hidden on the body', () => {
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice });
+  harness.context.AlibiUsageSlot();
+  assert.deepEqual(harness.body.prepended, [notice]);
+  assert.equal(notice.hidden, true);
+  assert.equal(notice.parentElement, harness.body);
+});
+
+test('rescue parks the control even when a slot is rendered', () => {
+  const slot = makeSlot();
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice, slot });
+  assert.equal(notice.parentElement, slot);
+  harness.context.AlibiUsageSlot(true);
+  assert.equal(notice.hidden, true);
+  assert.equal(notice.parentElement, harness.body);
+  assert.deepEqual(harness.body.prepended, [notice]);
+});
+
+test('route changes leave placement to the app render', () => {
+  const slot = makeSlot();
+  const notice = { hidden: false, open: true, parentElement: null };
+  const harness = run({ notice, slot });
+  assert.equal(notice.parentElement, slot);
+  const events = [];
+  harness.context.PulseboardUsage = {
+    track(event) {
+      events.push(event);
+    },
+  };
+  harness.emit('hashchange');
+  assert.equal(notice.parentElement, slot);
+  assert.equal(notice.hidden, false);
+  assert.deepEqual(events, ['page.view']);
+});
+
+test('a late mount is observed once, placed, then released', () => {
+  const slot = makeSlot();
+  const harness = run({ slot });
+  assert.equal(harness.observed.length, 1);
+  assert.equal(harness.disconnected(), 0);
+  const notice = { hidden: false, open: true, parentElement: harness.body };
+  harness.setNotice(notice);
+  harness.mobCallbacks[0]();
+  assert.deepEqual(slot.children, [notice]);
+  assert.equal(notice.hidden, false);
+  assert.equal(harness.disconnected(), 1);
+});
+
+test('unavailable or throwing storage keeps the loader safe', () => {
+  for (const storage of [null, 'throws']) {
+    const harness = run({ storage });
+    assert.equal(harness.scripts.length, 1);
+    assert.equal(harness.store.size, 0);
+    harness.emit('hashchange');
   }
 });

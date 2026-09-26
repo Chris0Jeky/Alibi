@@ -1,6 +1,119 @@
 # Live development state
 
-## Published web release 0.11.6: 25 September 2026
+## Coordinator merge wave: 26 September 2026
+
+Merged, each with exact-head green CI, head age, an independent review and
+resolved threads: #281 research docs, #350 Vault authoring foundation
+(+ #369 fail-closed profiles, coordinator recipe test), #357 planning vaults
+and challenge registry, #365 lossless official-content delivery, #366 Duel
+strengths, Cabinet restarts and opponent recovery (+ #370/#371 test pins).
+Stacked fixes #369-#372 merged into their bases first. Owner hotfixes
+(fcc8d4b-3e00ef5) moved main mid-flight; branches re-refreshed onto each base.
+
+Two CI trigger gaps observed: conflicting PRs get zero pull_request runs (no
+merge ref), and one push fired only 2 of 5 workflows (selective drop,
+unexplained). Required-conversation-resolution blocked #350 until four bot
+threads were answered; #357/#366 had three more between them.
+
+#354 stays draft: measured 205,448 initial gzip bytes vs the 204,800 limit,
+with vault content costing 7,495 bytes inside the initial script, so it needs
+deferred (non-initial, precached) delivery plus recertification
+(vault-binary-03 recomputes residual 8 vs stored 15, below the 12 bar) and
+the 80-board actual-control matrix. Design-system audits posted on #219
+(inversion fixed; adoption remainder quantified) and #220 (remainder
+quantified with token proposal); both need visual review before migration.
+
+## Usage sharing moved into the Settings slot (on main, undeployed): 26 September 2026
+
+Source `d64b911` answers the owner's "can't find the setting" report: the
+hotfix banner rendered above the app header and read as a cookie notice. The
+generated control now moves into a real slot panel inside Settings (second
+panel) and Privacy, with a fail-closed fallback line when the adapter cannot
+load; the app rescues the node across re-renders. Local `npm run verify`,
+`node observatory/check.mjs` and 73 intercepted Observatory browser assertions
+passed. NOT deployed per owner request; the live Cloudflare origin still
+serves the banner hotfix (`6b11d27969d7`). Deploy with the next release.
+Separately, [issue #380](https://github.com/Chris0Jeky/Alibi/issues/380) seeds
+the in-app feedback-pipeline proposal (description field plus direct or
+GitHub-issue submit); the owner contact decision is open.
+
+## Hotfix: Usage sharing confined to Settings: 26 September 2026
+
+Source `afabf32` (three commits on `main`) fixes the player-reported floating
+Usage sharing popup: the loader now hides the generated control on every route
+except Settings and Privacy, where it renders as a static top-of-page box.
+Sharing still defaults on for eligible visits; no default change was made.
+Version stays 0.12.0 (Pulseboard registration unchanged); clean build is
+`6b11d27969d7` with 130,366 startup JavaScript gzip bytes against the extended
+130,432-byte ceiling. Cloudflare Worker version
+`c8a8b8d5-7521-4779-98f1-545da40e2cac` serves the hotfix. Local `npm run
+verify`, `node observatory/check.mjs`, 65 intercepted Observatory browser
+assertions and a live disposable-profile smoke (collector blocked, no popup on
+home at 390px, settings/privacy box visible, opt-out persists, no page errors)
+all passed. The Sites fallback still serves the pre-hotfix build (saved
+version 23); it never loads the control and no Sites deploy tooling was
+available in this session. Full CI matrix and physical-device confirmation are
+pending. See [the hotfix receipt](HOTFIX-2026-09-26-USAGE-SHARING.md).
+Rollback: Worker `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`.
+
+## Lossless official-content delivery merged: 26 September 2026
+
+PR #365 merged the lossless record/column encoder for the five startup JSON
+globals with byte-identical restore, decoder bytes inside the counted content
+script, and VM-executed install tests. It unblocks the Vault collection #354
+delivery gate pending full-payload re-measurement.
+
+## Published web release 0.12.0: 25 September 2026
+
+[PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
+`0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
+[`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0)
+and the public release assets point to that source. The clean build is
+0.12.0 / `f2b20d3ee6c0`, with 430 puzzles and 130,290 startup JavaScript
+gzip bytes. All seven exact-head CI checks passed; merged-source Verify,
+Cloudflare dry run and release bundle passed. Cloudflare Worker version
+`8edf7ab7-a92e-4963-be7a-d1bebcd68fe8` and Sites saved version 23
+(deployment `appgdep_6ab6c0dc2c848191913d93bd136c2f2a`) now serve the
+same source. All 291 public files returned HTTP 200 on each origin; both
+origins passed 214 hosted real-origin storage/offline browser checks. The
+primary origin's default-on Usage sharing sent a bounded aggregate count,
+and opt-out stopped further sends in live Chromium. The separate Sites
+origin stays outside collector admission. See the
+[0.12.0 publication receipt](RELEASE-0.12.0.md) for build digests, HTTP
+comparison, rollback references and evidence limits.
+
+`HUMAN_TODO.md` q-1 through q-8 remain open, especially physical Android,
+TalkBack and human difficulty calibration. Issue #220 remains open for larger
+and decorative radii; issue #219 remains open for cross-room type work.
+Earlier checkpoints below are historical.
+
+## Club persistence and restore hardening merged: 25 September 2026
+
+The Club storage closeout is now on `main`. PR #376 added backup-envelope
+validation coverage and merged as `2856e8f9057ea808a8d152f5dc2a41ee6ee93449`.
+PR #377 then serialized restore replacement, invalidated the pending bot keeper
+and preserved persist-before-replace ordering; it merged as
+`8452662f803139d5d51d65657f3b42d1a2389443`. PR #378 added fail-closed handling
+for IndexedDB read or transaction failures (no writable localStorage fork),
+bound delayed Borough reset confirmation to its own intent, and added a live
+Chromium regression for an aborted Club read; it merged as
+`69b8c42cccb721000e9628e3d12476d124724a9a` from exact head
+`3a3a1fd7164b612262f01ca1bf1e74959c2352d2`.
+
+At that exact head, local `npm.cmd run verify` passed 598 tests (595 passed,
+3 skipped, 0 failed) with 581,847 assertions; both web and Android receipts
+reported `sourceDirty: false`. The focused Club/restore/backup suite passed 14
+tests, including 51 Club assertions. The focused real-origin Chromium scenario
+passed 30 checks, the full real-origin suite on the same test content passed
+243 checks, and exact-head hosted Verify, browser controls and Android payload
+checks all passed. This is a source checkpoint only: no new release, tag or
+deployment is claimed.
+
+The evidence does not certify physical-device behavior, TalkBack, human
+accessibility calibration, or real browser Worker interleaving. `HUMAN_TODO.md`
+q-1 through q-8 remain open.
+
+## Published web release 0.11.6: 25 September 2026 (historical)
 
 [PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
 race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
@@ -33,6 +146,132 @@ See [the release record](RELEASE-0.11.6.md) for rollback and digest receipts.
 does not certify the affected physical Android phone, TalkBack, or the provisional
 Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
 source-only and pre-publication checkpoints below are historical.
+
+## 0.12.0 source candidate: 25 September 2026 (historical)
+
+The proposed next web release combines 48 Night studies across eight families
+with the merged Desk type ramp, the approved radius slice and Block Cabinet
+visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
+registration and Pulseboard's release contract are complete in this candidate.
+The candidate now includes the statistical-only, default-on Usage sharing adapter
+for eligible visitors without a stored opt-out, including return visitors, on
+the primary Cloudflare origin, with an open
+notice, immediate opt-out and preserved prior off choices. The separate Sites
+fallback origin remains outside collector admission. Pulseboard's production
+admission switch is live and its aggregate-only hosted boundary has been probed.
+Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair;
+PR #97 adds a fail-closed storage-probe cleanup. The regenerated Alibi adapter
+passed 48 real Chromium assertions after idle-route and denied-cleanup
+regressions failed against their prior artifacts. Integrated local Verify
+passed 582 Node tests with three skips; 184 controls, 480 Night controls and
+214 real-origin storage/offline checks passed. Exact-head hosted integration,
+both existing deployments and hosted-origin acceptance remain to be completed.
+No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
+and `HUMAN_TODO.md` for human difficulty and physical-device gates.
+
+## Night Gardens source merged: 25 September 2026
+
+Merged PR #342 adds 18 original Lanterns, Tents and Aquariums boards, bringing
+the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
+Night Gardens source checks pass locally (seven focused tests), including native
+and independent unique answers, reducer replay, definition receipts and the
+published-definition baseline. Exact-head hosted Verify and real-control browser
+checks passed before merge.
+Expert/Master labels remain provisional pending #161 and
+`HUMAN_TODO.md` q-8; no new web release is claimed.
+
+## Shared type ramp merged: 25 September 2026
+
+A first #219 layer defines the approved seven type steps and maps Desk/page,
+feature, section and card headings in the shared chrome to their roles. At 390px,
+the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
+stays on one line and 320px, 390px and 1280px rendered views have no horizontal
+overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
+184 isolated core UI checks and the isolated After Hours browser suite passed.
+PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
+of the cross-room type migration in #219 remains open; physical-device evidence
+has not yet been gathered.
+
+## Approved radius mapping candidate: 25 September 2026
+
+The owner approved eight small scalar mappings from issue #220. This source pass
+maps 56 declarations across seven bundled CSS files onto the existing 8px, 12px
+and 16px tokens. On the Desk, the desktop nav radius computes to 8px instead of
+7px and the phone hero computes to 16px instead of 17px; neither 390px nor
+1280px has horizontal overflow. Local Verify passed with 542 Node tests and
+three skips, 184 isolated UI checks and 12 real-origin phone QA tests passed.
+The full four-token collapse remains open: larger panel/theatre radii, true
+circles, game-board geometry and named decorative exceptions were not changed.
+Hosted and physical-device evidence has not yet been gathered for this pass.
+
+## Night collection certificate foundation: 25 September 2026
+
+Merged PR #341 adds offline definition receipts, structural duplicate
+checks, independent uniqueness checks and production reducer replay for proposed
+harder studies. It adds no playable puzzle or runtime code. On the current main
+base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
+suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
+proposed Night boards remain in stacked PRs; human difficulty and device checks
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
+## Backup validation QA: 25 September 2026
+
+Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
+collisions, and saved-run counter, note and undo bounds. They use the actual backup
+validator and catalogue; no production behavior changed. The six-test direct Node
+run passed on the original base. PR #349's exact-head hosted source gate passed
+before merge, and PR #351's integrated head passed the same gate. Browser import,
+physical Android and destructive-restore behavior remain separate evidence.
+
+## Desk action sizing merged: 25 September 2026
+
+A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
+on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
+At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
+Chromium touch run cycled the edition and pinned the desk without a page error.
+The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
+including controls across all thirteen game families. Local format and Android
+build passed. The concurrent Node suite in `npm.cmd run verify` stopped
+progressing in `tests/platform.test.mjs` and was interrupted; that file passed
+all 16 tests alone. The serial Node suite passed 529 with three skips, and both
+Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
+passed before merge. Physical-phone acceptance and the wider #221 button
+recipe work stay open.
+
+## Block Cabinet visual stability merged: 25 September 2026
+
+Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
+real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
+opacity for roughly 15 frames. A Classic clear hid an unrelated stationary
+piece for 18 frames. The source candidate keeps locked cells opaque and leaves
+pieces unchanged across every clear wave in semantic HTML; Canvas animates only
+changing cells. The focused Node suites passed 26 tests; the built-origin
+Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
+and reduced motion and stationary pieces through both clear modes. This does
+not establish that every instance of the player's flashing report is gone on
+the affected physical phone. Local full Verify passed on the source and browser
+test commit (535 Node tests passed, three skipped; Android build passed).
+PR #352's exact-head hosted Verify and Android checks passed before merge.
+
+## Night Routes source candidate: 25 September 2026
+
+The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
+Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
+The six focused Routes/catalogue tests pass locally, including independent
+unique-answer receipts and production reducer replay. An independent review
+found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending; human difficulty and physical-device acceptance
+remain open under #161 and `HUMAN_TODO.md` q-8.
+
+## Night Symbols source candidate: 25 September 2026
+
+The stacked #344 candidate adds 12 original Sun & Moon and Futoshiki boards.
+The proposed Night collection totals 48 additions and 430 puzzles across 26
+packs. Its six focused Symbols/catalogue tests pass locally, including exact
+definition receipts, independent unique answers and reducer replay; independent
+review found no confirmed correctness blocker. Hosted full Verify and real-control
+browser checks remain pending. Expert/Master labels, human solve paths and
+physical-device acceptance remain open under #161 and `HUMAN_TODO.md` q-8.
 
 ## Repository and release checkpoint: 25 September 2026
 
@@ -253,3 +492,49 @@ claimed. Android remains a non-publishable preview; the Capacitor owner gates re
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
 explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
 source tests do not approve that ADR. Review live open PRs before overlapping another lane.
+
+## Planning vault integration recovery: 25 September 2026
+
+PR #357 now wires its existing 24 Archive vaults and 12 Borough contracts into
+one trusted source registry for both the optional launcher and validation worker.
+All 59 earlier challenge definitions and starting identities remain intact.
+Independent push minima, native immutable replays, source projection and actual
+emitted-worker checks cover all 95 challenges. The legacy audit also covers 95.
+The two #357 data files remain byte-identical to c60c3285; no older handoff map
+replaces them. See docs/curation/PLANNING-VAULTS.md for proof limits and the missing
+historical generator, and the new read-only planning control workflow for the
+real-origin gate. Isolated controls pass all 72 cases; this does not certify
+origin persistence, physical Android, TalkBack or calibrated human difficulty.
+No budget increase, merge, deployment or release is implied.
+
+## Vault authoring foundation: 26 September 2026
+
+PR #350 (#345/#161) adds six authoring-only files: bounded independent Sudoku
+enumeration, answer-free elementary-method profiles with fail-closed unsupported
+markers, symmetry/digit-renaming identities, native/independent uniqueness
+certificates, seeded Sudoku recipes and a read-only authoring workflow. No
+playable puzzle, runtime generator, save format, budget or deployment change.
+Coordinator review verified the bounds and added recipe
+determinism/uniqueness coverage. Stored profiles must be recomputed after
+production hint changes; human difficulty stays under #161 / q-8. The
+dependent Vault collection #354 was retargeted to main after the merge.
+
+## Games Room recovery draft
+
+The #347 continuation adds bounded Duel strengths and fresh confirmed Cabinet
+restarts, with explicit worker-error retry and stale-reply guards. See
+[Games recovery](curation/GAMES-RECOVERY.md) for the source and browser receipts.
+Eighteen source tests and ten/76 standalone browser checks pass. The measured
+JavaScript exceeds the unchanged cap; no full-CI, merge or release claim is made.
+Physical-device and human gates remain in HUMAN_TODO.md.
+
+### Games Room budget recovery
+
+The gameplay slice moves enhancement metadata into the existing official data
+asset and retains the same startup global. All values are independently compared
+with the asset builder; no metadata, request, shell entry or byte accounting is
+dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
+203,370 combined initial bytes, below unchanged 130,304 and 204,800 limits.
+Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
+assertions pass after this change. Full exact-head CI, origin storage/offline,
+independent review and physical/human acceptance remain required.

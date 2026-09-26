@@ -141,6 +141,7 @@
         )
           throw Error('Invalid game history.');
         if (key === 'duel') {
+          E().reversi.strength(r.difficulty);
           if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
           let s = E().reversi.initial();
           for (const i of [...r.log, ...r.redo.slice().reverse()]) s = E().reversi.move(s, i);
@@ -176,7 +177,8 @@
           E().mahjong.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
         }
       }
-      for (const r of v.records)
+      for (const r of v.records) {
+        if (r?.type === 'duel' && r.difficulty !== undefined) E().reversi.strength(r.difficulty);
         if (
           !r ||
           typeof r.id !== 'string' ||
@@ -198,6 +200,7 @@
           r.date.length > 40
         )
           throw Error('Invalid record.');
+      }
       if (
         v.settings.api !== undefined &&
         (typeof v.settings.api !== 'string' || v.settings.api.length > 2048)

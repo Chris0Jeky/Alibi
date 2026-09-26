@@ -7,11 +7,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
   const modelData = read('assets/city-models.json');
-  const challengeData = ['classics', 'warehouse', 'reversi', 'borough'].flatMap(
-    (name) =>
-      JSON.parse(fs.readFileSync(path.join(root, 'content/challenges', name + '.json'), 'utf8'))
-        .challenges,
-  );
+  const challengeData = require('./challenge-catalogue.cjs').load(root);
   const quietEngine = require(path.join(dir, 'engine.js'));
   const clubEngine = require(path.join(root, 'src/club-engines.js'));
   require(path.join(root, 'src/challenges.js')).create(challengeData, {
@@ -19,7 +15,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
     club: clubEngine,
   });
   const challengeSource =
-    `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(challengeData)};\n` +
+    `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(require('./challenge-catalogue.cjs').runtime(challengeData))};\n` +
     ['club-engines.js', 'challenges.js', 'challenge-storage.js', 'challenge-launcher.js']
       .map((name) => fs.readFileSync(path.join(root, 'src', name), 'utf8'))
       .join('\n');

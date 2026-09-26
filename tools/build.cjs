@@ -149,7 +149,7 @@ function build() {
       read(path.join(SRC, 'backup-validation.js')),
       read(path.join(SRC, 'club-engines.js')),
       ...['calm.js', 'engine.js', 'storage.js'].map((f) => read(path.join(SRC, 'quiet-wing', f))),
-      `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(['classics', 'warehouse', 'reversi', 'borough'].flatMap((name) => JSON.parse(read(path.join(ROOT, 'content/challenges', name + '.json'))).challenges))};`,
+      `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(require('./challenge-catalogue.cjs').validation(require('./challenge-catalogue.cjs').load(ROOT)))};`,
       read(path.join(SRC, 'challenges.js')),
       castleValidation,
       `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
@@ -241,9 +241,16 @@ function build() {
   write(path.join(DIST, workerURL), worker);
   const editorial = require('./curation-editorial.cjs').load(ROOT, catalog);
   editorial.artwork = curation.assets;
+  editorial.delivery = delivery.entries;
   // Authored scene/media metadata belongs with the other official editorial data.
   // This is still an initial download, counted in combined and offline delivery budgets.
-  const contentSource = `globalThis.ALIBI_RELEASES=${JSON.stringify(JSON.parse(read(path.join(ROOT, 'content/releases.json'))))};\nglobalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\n`;
+  const contentSource = require('./build-official-content.cjs').serialize({
+    ALIBI_RELEASES: JSON.parse(read(path.join(ROOT, 'content/releases.json'))),
+    ALIBI_CATALOG: catalog,
+    ALIBI_CASEBOOKS: books,
+    ALIBI_CURATION: editorial,
+    ALIBI_THEATRE: theatre,
+  });
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
   const base = [
@@ -312,7 +319,7 @@ function build() {
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=${JSON.stringify(delivery.entries)};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\nglobalThis.ALIBI_OBSERVATORY_URL=${JSON.stringify(observatoryURL)};\n` +
       require('esbuild').transformSync(webBase, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;

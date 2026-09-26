@@ -292,12 +292,17 @@ test('application lifecycle calls the helper with fixed names only', () => {
 });
 
 // Runs the real loader and the real generated adapter together, with a minimal DOM that dispatches
-// change events through document capture listeners the way a browser does.
+// change events through document capture listeners the way a browser does. Storage is a working
+// Map-backed localStorage so the committed settings-first path is exercised: eligible first visits
+// still default on, while the loader confines the control to Settings and Privacy.
 function integrated() {
   const { webcrypto } = require('node:crypto');
   const windowListeners = {};
   const captures = [];
   const created = [];
+  const order = [];
+  const fetchCalls = [];
+  const store = new Map();
   function element(tag) {
     const node = {
       tag,
@@ -307,10 +312,27 @@ function integrated() {
       checked: false,
       disabled: false,
       parent: null,
+      parentElement: null,
       append(...children) {
         for (const child of children) {
-          if (child && typeof child === 'object') child.parent = node;
+          if (child && typeof child === 'object') child.parent = child.parentElement = node;
           node.children.push(child);
+        }
+      },
+      appendChild(child) {
+        if (child && typeof child === 'object') child.parent = child.parentElement = node;
+        node.children.push(child);
+        return child;
+      },
+      replaceChildren(...children) {
+        node.textContent = '';
+        node.children = [];
+        node.append(...children);
+      },
+      prepend(...children) {
+        for (const child of [...children].reverse()) {
+          if (child && typeof child === 'object') child.parent = child.parentElement = node;
+          node.children.unshift(child);
         }
       },
       setAttribute() {},
@@ -326,12 +348,24 @@ function integrated() {
     created.push(node);
     return node;
   }
+  const body = element('body');
+  const origAppend = body.append.bind(body);
+  const origPrepend = body.prepend.bind(body);
+  body.append = (...children) => {
+    order.push('notice');
+    return origAppend(...children);
+  };
+  body.prepend = (...children) => {
+    order.push('notice');
+    return origPrepend(...children);
+  };
   const document = {
     readyState: 'complete',
-    body: element('body'),
+    body,
     head: { append() {} },
     createElement: element,
     createTextNode: (text) => ({ text }),
+    getElementById: (id) => created.find((node) => node.id === id) ?? null,
     addEventListener(type, listener, capture) {
       if (type === 'change' && capture === true) captures.push(listener);
     },
@@ -352,10 +386,17 @@ function integrated() {
     Response,
     URL,
     Date,
-    JSON,
-    // No host Object: the adapter checks that events carry this realm's plain-object prototype.
-    localStorage: { getItem: () => null, setItem: () => {} },
-    fetch: async () => new Response('{}', { status: 202 }),
+    // Keep JSON and Object in this VM realm for the adapter's plain-object checks.
+    localStorage: {
+      getItem: (key) => (store.has(key) ? store.get(key) : null),
+      setItem: (key, value) => store.set(key, String(value)),
+      removeItem: (key) => store.delete(key),
+    },
+    fetch: async (url, init) => {
+      order.push('network');
+      fetchCalls.push({ url, init, body: init && init.body });
+      return new Response('{}', { status: 202 });
+    },
     setTimeout: () => 1,
     clearTimeout: () => {},
     addEventListener(type, listener) {
@@ -370,26 +411,69 @@ function integrated() {
   vm.runInContext(loaderSource, context, { filename: 'observatory-loader.js' });
   vm.runInContext(browserSource, context, { filename: 'observatory/browser.js' });
   const checkbox = created.find((node) => node.type === 'checkbox');
+  const details = created.find((node) => node.id === 'pulseboard-usage-sharing');
+  let slot = null;
   return {
     context,
+    checkbox,
+    details,
+    body,
+    fetchCalls,
+    order,
+    store,
+    get slot() {
+      return slot;
+    },
+    renderSlot() {
+      slot = element('section');
+      slot.id = 'usage-sharing-slot';
+      slot.textContent = 'fallback';
+      return slot;
+    },
     toggle(value) {
       checkbox.checked = value;
       for (const listener of captures) listener({ target: checkbox });
       for (const listener of checkbox.listeners.change || []) listener({ target: checkbox });
     },
+    hashchange() {
+      for (const listener of windowListeners.hashchange || []) listener({ type: 'hashchange' });
+    },
     queued: () => context.PulseboardUsage.status().queued,
   };
 }
 
-test('the generated adapter admits every journey event the loader emits', () => {
+test('the generated adapter defaults on but shows only on Settings (settings-first placement)', async () => {
   const h = integrated();
   const run = { key: 'integrated' };
-  assert.equal(h.context.AlibiJourney(run), false, 'nothing is tracked before consent');
-  assert.equal(h.queued(), 0);
+  assert.equal(
+    h.context.PulseboardUsage.status().active,
+    true,
+    'eligible visits still default to sharing on',
+  );
+  assert.equal(h.details.open, true, 'the adapter still mounts the notice open');
+  assert.equal(h.checkbox.checked, true);
+  assert.ok(h.order.includes('notice'));
+  assert.ok(h.order.includes('network'));
+  assert.ok(
+    h.order.indexOf('notice') < h.order.indexOf('network'),
+    'the mounted notice precedes the first page.view network',
+  );
+  assert.equal(
+    h.fetchCalls[0].url,
+    'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect-stat/alibi',
+  );
+  const initial = JSON.parse(h.fetchCalls[0].body);
+  assert.equal(initial.v, 1);
+  assert.equal(initial.counts.length, 1);
+  assert.deepEqual(Object.keys(initial.counts[0]).sort(), ['event', 'n', 'release', 'route']);
+  assert.equal(initial.counts[0].event, 'page.view');
+  assert.equal(initial.counts[0].n, 1);
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, true, 'without a slot the control parks hidden');
+  assert.equal(h.details.parentElement, h.body, 'the parked control lives on the body');
 
-  h.toggle(true);
   const afterConsent = h.queued();
-  assert.equal(afterConsent, 0, 'the consent page view is already in flight');
+  assert.equal(afterConsent, 0, 'the default-on page view is already in flight');
   assert.equal(h.context.PulseboardUsage.status().requests, 1);
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'hint.requested'), true);
@@ -409,9 +493,12 @@ test('the generated adapter admits every journey event the loader emits', () => 
 
   h.context.AlibiJourney(run);
   h.toggle(false);
-  assert.equal(h.queued(), 0, 'withdrawal clears the queue');
+  assert.equal(h.queued(), 0, 'explicit off clears the queue');
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, true, 'the control parks hidden while off too');
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
   h.toggle(true);
+  assert.equal(h.context.PulseboardUsage.status().active, true, 're-on activates the adapter');
   assert.equal(
     h.context.AlibiJourney(run, 'puzzle.failed'),
     false,
@@ -419,5 +506,24 @@ test('the generated adapter admits every journey event the loader emits', () => 
   );
   assert.equal(h.context.AlibiJourney(run), true);
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), true);
-  assert.equal(h.queued(), 2, 're-consent opens a fresh attempt instead of continuing the old one');
+  assert.equal(h.queued(), 2, 're-on opens a fresh attempt instead of continuing the old one');
+
+  await h.context.PulseboardUsage.flush();
+  const last = JSON.parse(h.fetchCalls[h.fetchCalls.length - 1].body);
+  assert.equal(last.v, 1);
+  for (const count of last.counts) {
+    assert.deepEqual(Object.keys(count).sort(), ['event', 'n', 'release', 'route']);
+    assert.equal(count.n, 1);
+  }
+  assert.ok(!JSON.stringify(last).includes('integrated'), 'no puzzle identity leaks');
+
+  h.renderSlot();
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, false, 'the control shows once its slot renders');
+  assert.equal(h.details.parentElement, h.slot, 'the control moves into the settings slot');
+  h.hashchange();
+  assert.equal(h.details.parentElement, h.slot, 'route changes leave placement to the app render');
+  h.context.AlibiUsageSlot(true);
+  assert.equal(h.details.hidden, true, 'rescue parks the control before a re-render');
+  assert.equal(h.details.parentElement, h.body, 'the rescued control returns to the body');
 });

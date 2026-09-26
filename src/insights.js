@@ -3,8 +3,7 @@
   'use strict';
   const C = root.AlibiCore,
     X = C.extras;
-  const at = (i, n) => `${String.fromCharCode(65 + (i % n))}${Math.floor(i / n) + 1}`;
-  const result = (rule, message, cell, value) => ({ rule, message, cells: [cell], value });
+  const at = C.at;
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
   const conflict = (message, cells) => ({ rule: 'Revisit a conflict', message, cells });
@@ -17,6 +16,17 @@
     return issues;
   }
   function deduction(p, s) {
+    const result = (rule, message, cell, value, forced = [cell]) => {
+      // Lantern claims can force several neighbours; validate them together on a copy.
+      const issue =
+        p.type === 'lightup' &&
+        C.registry.lightup.validate(p, {
+          cells: s.cells.map((v, i) => (forced.includes(i) ? value : v)),
+        })[0];
+      return issue
+        ? conflict(`With your marks: ${issue.message}`, issue.cells)
+        : { rule, message, cells: [cell], value };
+    };
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
     if (p.type === 'network' && networkHint) {
@@ -54,30 +64,46 @@
       }
     }
     if (p.type === 'binary') {
-      for (let axis = 0; axis < 2; axis++)
-        for (let line = 0; line < n; line++) {
-          const cells = C.range(n).map((k) => (axis ? k * n + line : line * n + k)),
-            values = cells.map((i) => s.cells[i]);
-          const label = lineName(axis, line);
-          for (let k = 0; k < n; k++)
-            if (values[k] === -1)
-              for (const v of [0, 1]) {
-                const full = values.filter((x) => x === v).length === n / 2;
-                const triple = [k - 2, k - 1, k].some(
-                  (start) =>
-                    start >= 0 &&
-                    start + 2 < n &&
-                    C.range(3).every((d) => start + d === k || values[start + d] === v),
-                );
-                if (full || triple)
-                  return result(
-                    full ? 'Keep the balance' : 'No three together',
-                    `With your marks, ${at(cells[k], n)} must be ${v === 0 ? 'a moon' : 'a sun'}. ${label} ${full ? 'already has enough ' + (v === 0 ? 'suns' : 'moons') : 'would otherwise have three equal neighbours'}.`,
-                    cells[k],
-                    1 - v,
-                  );
-              }
+      const open = (i) => s.cells[i] < 0,
+        sets = [
+          ...C.range(n * n)
+            .filter(open)
+            .map((i) => [i]),
+          ...C.groups(p)
+            .map((group) => group.filter(open))
+            .filter((cells) => cells.length === 2),
+        ];
+      for (const cells of sets) {
+        const trials = [],
+          allowed = [];
+        for (let mask = 0; mask < 1 << cells.length; mask++) {
+          const next = s.cells.slice();
+          cells.forEach((i, k) => (next[i] = (mask >> k) & 1));
+          const issues = C.registry.binary.validate(p, { cells: next });
+          trials.push(issues);
+          if (!issues.length) allowed.push(mask);
         }
+        if (!allowed.length) return conflict(`${at(cells[0], n)} has no move. Check marks.`, cells);
+        for (let k = 0; k < cells.length; k++) {
+          const value = (allowed[0] >> k) & 1;
+          if (allowed.some((mask) => ((mask >> k) & 1) !== value)) continue;
+          const reason = [
+            ...new Set(
+              trials
+                .filter((_, mask) => ((mask >> k) & 1) !== value)
+                .flat()
+                .map((issue) => issue.message),
+            ),
+          ].join(' ');
+
+          return result(
+            cells.length === 1 ? 'Only one symbol fits' : 'Compare two squares',
+            `${at(cells[k], n)} is a ${value ? 'moon' : 'sun'}: ${reason}`,
+            cells[k],
+            value,
+          );
+        }
+      }
     }
     if (p.type === 'tents') {
       const sites = C.range(n * n).filter((i) => !p.trees.includes(i)),
@@ -126,7 +152,7 @@
         if (s.cells[i] === -1 && lit.has(i))
           return result(
             'No facing lanterns',
-            `${at(i, n)} faces a lantern with no wall between them. Mark it with a cross.`,
+            `${at(i, n)} faces a lantern with no wall between. Cross it.`,
             i,
             0,
           );
@@ -137,20 +163,16 @@
           unknown = neighbours.filter((j) => s.cells[j] === -1),
           remaining = p.walls[i] - placed;
         if (!unknown.length) continue;
-        if (remaining === 0)
+        if (remaining === 0 || remaining === unknown.length) {
+          const value = remaining ? 1 : 0;
           return result(
-            'This wall has enough lanterns',
-            `The wall at ${at(i, n)} has all its required lanterns. Cross out ${at(unknown[0], n)}.`,
+            value ? 'Fill the remaining neighbours' : 'This wall has enough lanterns',
+            `The wall at ${at(i, n)} ${value ? 'needs all unmarked neighbours. Place a lantern at' : 'has enough lanterns. Cross out'} ${at(unknown[0], n)}.`,
             unknown[0],
-            0,
+            value,
+            unknown,
           );
-        if (remaining === unknown.length)
-          return result(
-            'Fill the remaining neighbours',
-            `The clue at ${at(i, n)} needs every unmarked neighbour. Place a lantern at ${at(unknown[0], n)}.`,
-            unknown[0],
-            1,
-          );
+        }
       }
       for (const i of white) {
         if (lit.has(i)) continue;
@@ -158,7 +180,7 @@
         if (sources.length === 1)
           return result(
             'Only one way to light this square',
-            `With your marks, only a lantern at ${at(sources[0], n)} can light ${at(i, n)}. Place one there.`,
+            `Only ${at(sources[0], n)} can light ${at(i, n)} with your marks. Place a lantern there.`,
             sources[0],
             1,
           );
