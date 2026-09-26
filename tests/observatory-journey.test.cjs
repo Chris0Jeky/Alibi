@@ -312,20 +312,26 @@ function integrated() {
       checked: false,
       disabled: false,
       parent: null,
+      parentElement: null,
       append(...children) {
         for (const child of children) {
-          if (child && typeof child === 'object') child.parent = node;
+          if (child && typeof child === 'object') child.parent = child.parentElement = node;
           node.children.push(child);
         }
       },
       appendChild(child) {
-        if (child && typeof child === 'object') child.parent = node;
+        if (child && typeof child === 'object') child.parent = child.parentElement = node;
         node.children.push(child);
         return child;
       },
+      replaceChildren(...children) {
+        node.textContent = '';
+        node.children = [];
+        node.append(...children);
+      },
       prepend(...children) {
         for (const child of [...children].reverse()) {
-          if (child && typeof child === 'object') child.parent = node;
+          if (child && typeof child === 'object') child.parent = child.parentElement = node;
           node.children.unshift(child);
         }
       },
@@ -406,13 +412,24 @@ function integrated() {
   vm.runInContext(browserSource, context, { filename: 'observatory/browser.js' });
   const checkbox = created.find((node) => node.type === 'checkbox');
   const details = created.find((node) => node.id === 'pulseboard-usage-sharing');
+  let slot = null;
   return {
     context,
     checkbox,
     details,
+    body,
     fetchCalls,
     order,
     store,
+    get slot() {
+      return slot;
+    },
+    renderSlot() {
+      slot = element('section');
+      slot.id = 'usage-sharing-slot';
+      slot.textContent = 'fallback';
+      return slot;
+    },
     toggle(value) {
       checkbox.checked = value;
       for (const listener of captures) listener({ target: checkbox });
@@ -451,6 +468,9 @@ test('the generated adapter defaults on but shows only on Settings (settings-fir
   assert.deepEqual(Object.keys(initial.counts[0]).sort(), ['event', 'n', 'release', 'route']);
   assert.equal(initial.counts[0].event, 'page.view');
   assert.equal(initial.counts[0].n, 1);
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, true, 'without a slot the control parks hidden');
+  assert.equal(h.details.parentElement, h.body, 'the parked control lives on the body');
 
   const afterConsent = h.queued();
   assert.equal(afterConsent, 0, 'the default-on page view is already in flight');
@@ -474,8 +494,8 @@ test('the generated adapter defaults on but shows only on Settings (settings-fir
   h.context.AlibiJourney(run);
   h.toggle(false);
   assert.equal(h.queued(), 0, 'explicit off clears the queue');
-  h.hashchange();
-  assert.equal(h.details.hidden, true, 'the control hides off Settings while off too');
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, true, 'the control parks hidden while off too');
   assert.equal(h.context.AlibiJourney(run, 'puzzle.failed'), false);
   h.toggle(true);
   assert.equal(h.context.PulseboardUsage.status().active, true, 're-on activates the adapter');
@@ -497,10 +517,13 @@ test('the generated adapter defaults on but shows only on Settings (settings-fir
   }
   assert.ok(!JSON.stringify(last).includes('integrated'), 'no puzzle identity leaks');
 
+  h.renderSlot();
+  h.context.AlibiUsageSlot();
+  assert.equal(h.details.hidden, false, 'the control shows once its slot renders');
+  assert.equal(h.details.parentElement, h.slot, 'the control moves into the settings slot');
   h.hashchange();
-  assert.equal(h.details.hidden, true, 'the control hides on puzzle routes while on');
-  h.context.location.hash = '#/settings';
-  h.hashchange();
-  assert.equal(h.details.hidden, false, 'the control shows on Settings');
-  assert.equal(h.details.open, true);
+  assert.equal(h.details.parentElement, h.slot, 'route changes leave placement to the app render');
+  h.context.AlibiUsageSlot(true);
+  assert.equal(h.details.hidden, true, 'rescue parks the control before a re-render');
+  assert.equal(h.details.parentElement, h.body, 'the rescued control returns to the body');
 });

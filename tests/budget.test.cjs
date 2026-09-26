@@ -55,10 +55,11 @@ const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // Keyboard arrows for dossier/witness mark grids add reachable focus motion (#272).
 // #333: atomic restore and stale-merge protection need a measured 256-byte ceiling extension.
 // The settings-first sharing hotfix (route visibility sync plus a late-mount observer) needs a
-// further measured 128-byte extension: 130,290 -> 130,366 gzip bytes.
+// further measured 128-byte extension: 130,290 -> 130,366 gzip bytes. Moving the control into the
+// Settings/Privacy slot (render rescue plus slot move) needs another measured 64 bytes: -> 130,443.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 384,
-  'Application bundle stays under 127 KiB + 384 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 448,
+  'Application bundle stays under 127 KiB + 448 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
