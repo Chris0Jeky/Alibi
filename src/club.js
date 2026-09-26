@@ -527,11 +527,13 @@
           if (seed && (!state.runs.borough || state.runs.borough.seed !== E().seedText(seed))) {
             const validSeed = E().seedText(seed);
             if (state.runs.borough?.log.length && !currentGame('borough').done) {
-              const intent = (root.__clubReset = { id: 'borough', seed: validSeed });
+              const intent = (root.__clubReset = { id: 'borough', seed: validSeed }),
+                hash = location.hash;
               setTimeout(
                 () =>
                   root.__clubReset === intent &&
                   route === r &&
+                  location.hash === hash &&
                   confirmation(
                     'Open the shared town?',
                     'This replaces your unfinished town. Export the Club save first to keep it.',
