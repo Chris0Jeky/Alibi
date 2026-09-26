@@ -1,8 +1,21 @@
 # Live development state
 
-## Release 0.13.0 candidate: 26 September 2026
+## Published web release 0.13.0: 26 September 2026
 
-Branch `release/0.13.0` carries version 0.13.0, its release record and the
+[PR #386](https://github.com/Chris0Jeky/Alibi/pull/386) merged as `fa9dc0e`;
+[`v0.13.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.13.0) and its assets
+point there. Clean build `81d973e4d783` (430 puzzles). Cloudflare Worker
+`65d60c13-1cb6-4567-8637-92e2fe249afc` serves it: all 291 files matched byte for byte
+and 243 hosted real-origin checks passed. The Pulseboard collector admitting 0.13.0
+deployed first. The Sites fallback still serves 0.12.0 (no Sites tooling this session).
+Intermittent local test failure tracked as [#387](https://github.com/Chris0Jeky/Alibi/issues/387).
+Next: [PR #385](https://github.com/Chris0Jeky/Alibi/pull/385) delivers #354's 80 Vault
+studies through a precached deferred chunk (199,942 initial gzip bytes), superseding #354.
+See the [publication receipt](RELEASE-0.13.0.md).
+
+## Release 0.13.0 candidate: 26 September 2026 (historical)
+
+Branch `release/0.13.0` carried version 0.13.0, its release record and the
 [receipt draft](RELEASE-0.13.0.md): 36 new challenges (#357), Duel strengths /
 Cabinet restarts / opponent retry (#366), Usage sharing in Settings, Club
 hardening and stale-async fixes (#383, from a Muse bug-hunt plus a Codex
