@@ -4,6 +4,8 @@ on:
     paths:
       - 'tools/curation/vault-*.cjs'
       - 'tests/vault-quality.test.cjs'
+      - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/vault-authoring.yml'
   workflow_dispatch:
 permissions:
