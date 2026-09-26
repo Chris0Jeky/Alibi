@@ -21,7 +21,7 @@ paid external service is needed. Never create another project just to publish an
    release label in a temporary Pulseboard worktree, regenerates the pinned Observatory adapter
    here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
    PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
-   the new release's usage counts are dropped client-side.
+   the collector rejects the new release's usage counts.
 1. Run `npm ci`, `npm run verify`, and all browser acceptance suites in CI. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. Build the merged source. Record its full Git SHA and `build-info.json`.
