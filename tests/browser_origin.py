@@ -1226,11 +1226,12 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
     def expected_assets(page: Page) -> dict[str, list[str]]:
         return page.evaluate(
             """() => {
-              // The emitted shell scripts defer startup. Optional scripts injected
-              // after load (such as usage sharing) are not boot dependencies.
+              // The emitted shell scripts defer startup. The online-only Pulseboard SDK
+              // is deferred too but is not a boot dependency.
               const scripts = [...document.querySelectorAll('script[src][defer]')]
                 .map((node) => new URL(node.src, location.href).href)
-                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname));
+                .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.js$/.test(new URL(url).pathname))
+                .filter((url) => !/\\/assets\\/pulseboard\\./.test(new URL(url).pathname));
               const styles = [...document.querySelectorAll('link[rel="stylesheet"]')]
                 .map((node) => new URL(node.href, location.href).href)
                 .filter((url) => /\\/assets\\/[^/]+\\.[a-f0-9]{12}\\.css$/.test(new URL(url).pathname));
