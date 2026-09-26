@@ -1,5 +1,29 @@
 # Live development state
 
+## Release 0.13.0 candidate: 26 September 2026
+
+Branch `release/0.13.0` carries version 0.13.0, its release record and the
+[receipt draft](RELEASE-0.13.0.md): 36 new challenges (#357), Duel strengths /
+Cabinet restarts / opponent retry (#366), Usage sharing in Settings, Club
+hardening and stale-async fixes (#383, from a Muse bug-hunt plus a Codex
+follow-up). The catalogue stays at 430 puzzles; #354's 80 Vault studies wait
+for deferred delivery (a replacement PR is in progress).
+
+Retroactive audit of the previous merge wave: main's full CI Verify for #366
+had been cancelled by the docs-only #381 push; a dispatched full run on
+`b1c1977` passed, local verify passed, and #382 now gives main pushes a
+per-commit concurrency group so this cannot recur.
+
+Release registration is automated (#384): `npm run release:prepare -- <version>
+[--publish]` validates the record, sets the version, runs the Pulseboard sync in
+a temporary worktree and its tests, and opens the Pulseboard PR. Proven locally:
+the 0.13.0 no-change path and a full unpublished 0.13.1 scratch path. Pulseboard
+#109 admitted 0.13.0 (it also derives test expectations from the registry) and the
+collector deployed as Worker version `ed739cc8-b136-4c28-864f-6b34f9b2ee95`
+(rollback `bffba8a7-d066-46a8-887a-bf1c916f2648`); `/healthz` and `/readyz` 200. No
+live 0.13.0 count was sent. Collector deployment remains a manual step: automating it
+needs a Cloudflare token in Pulseboard Actions (owner decision).
+
 ## Coordinator merge wave: 26 September 2026
 
 Merged, each with exact-head green CI, head age, an independent review and
