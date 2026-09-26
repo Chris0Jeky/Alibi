@@ -1,6 +1,15 @@
 # Live development state
 
-## Pulseboard SDK v3 (0.14.1 candidate, PR open): 26 September 2026
+## Published web release 0.14.1: 26 September 2026
+
+Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):
+Cloudflare Worker `856d1a61-fdae-4d6c-aca0-236ccc9982ca` (rollback `e667fd5c-784b-4754-b6f0-90be31293e1a`),
+build `64e09f4e5707`, 292/292 files byte-identical, 244 hosted real-origin checks and 25/25 live
+Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC silent, Beta button
+only in Settings/Privacy). Sites fallback still on 0.12.0. See the
+[publication receipt](RELEASE-0.14.1.md).
+
+## Pulseboard SDK v3 (0.14.1 candidate, merged as #391, historical): 26 September 2026
 
 Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and
 `src/observatory-loader.js` with the Pulseboard SDK v3 (`observatory/pulseboard.js`, built
