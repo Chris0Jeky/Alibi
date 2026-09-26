@@ -1,95 +1,68 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import vm from 'node:vm';
-export default () => {
+// Alibi's built-site assertions for the Pulseboard SDK. Run after `npm run build`.
+export default ({ content }) => {
   const root = new URL('../', import.meta.url);
-  const ENDPOINT = 'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect-stat/alibi';
-  const COLLECTOR_ORIGIN = new URL(ENDPOINT).origin;
-  const lock = JSON.parse(readFileSync(new URL('observatory.lock.json', root), 'utf8'));
-  // The lock is keyed by target since Pulseboard#15; the original single-entry shape still reads.
-  const installs = lock.installs ?? {
-    [lock.target]: { project: lock.project, sha256: lock.sha256 },
+  const COLLECTOR_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev';
+  const read = (relative) => {
+    try {
+      return readFileSync(new URL(relative, root), 'utf8');
+    } catch {
+      assert.fail(`Run \`npm run build\` before this check: ${relative} is missing`);
+    }
   };
-  const [target, entry] = Object.entries(installs)[0] ?? [];
-  assert.ok(target, 'The lock records no installed artifact');
-  const code = readFileSync(new URL(target, root), 'utf8');
-  assert.equal(createHash('sha256').update(code).digest('hex'), entry.sha256, target);
-  assert.ok(!/MAX_BYTES|MAX_BATCH/.test(code), 'Server-only constants must not be published');
-  // The aggregate artifact carries the registered statistics endpoint, exactly once.
-  assert.equal(
-    code.split(`"endpoint":"${ENDPOINT}"`).length - 1,
-    1,
-    'Expected exactly one registered statistics endpoint',
-  );
-  // Without a document origin the artifact still mounts nothing, endpoint or not.
-  let context = { document: { readyState: 'complete' } };
-  vm.runInNewContext(code, context);
-  assert.equal(context.PulseboardUsage, null);
-  // On the real public origin a standalone export stays silent; the public flag is the gate.
-  context = {
-    URL,
-    document: { readyState: 'complete' },
-    navigator: {},
-    location: {
-      origin: 'https://alibi-after-hours-preview.commit-atlas.workers.dev',
-      protocol: 'https:',
-      pathname: '/',
-    },
-    ALIBI_CONFIG: { standalone: true },
-  };
-  vm.runInNewContext(code, context);
-  assert.equal(context.PulseboardUsage, null);
-  // The shipped policy must permit the collector when default-on statistics are active.
-  let headers;
-  try {
-    headers = readFileSync(new URL('dist/_headers', root), 'utf8');
-  } catch {
-    assert.fail('Run `npm run build` before this check: dist/_headers is missing');
-  }
-  const policy = headers.match(/Content-Security-Policy: (.+)/)?.[1] ?? '';
-  const connectSrc = policy.match(/connect-src ([^;]+)/)?.[1] ?? '';
+  const sha = (value) => createHash('sha256').update(value).digest('hex');
+  // The shipped policy must let the SDK reach the collector; the SDK needs no inline styles or scripts.
+  const policy = read('dist/_headers').match(/Content-Security-Policy: (.+)/)?.[1] ?? '';
   assert.ok(
-    connectSrc.split(/\s+/).includes(COLLECTOR_ORIGIN),
-    `connect-src must list ${COLLECTOR_ORIGIN}; saw: ${connectSrc}`,
+    (policy.match(/connect-src ([^;]+)/)?.[1] ?? '').split(/\s+/).includes(COLLECTOR_ORIGIN),
+    `_headers connect-src must list ${COLLECTOR_ORIGIN}`,
   );
-  const html = readFileSync(new URL('dist/index.html', root), 'utf8');
+  const html = read('dist/index.html');
   const meta = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1] ?? '';
   assert.ok(
     (meta.match(/connect-src ([^;]+)/)?.[1] ?? '').split(/\s+/).includes(COLLECTOR_ORIGIN),
     'The index.html CSP meta tag must list the collector origin',
   );
-  // The artifact ships verbatim as its own asset, loaded after the page's load event: not in the initial bundle, not in the offline shell.
-  const scripts = [...html.matchAll(/<script src="\.\/([^"]+)"/g)].map((m) => m[1]);
-  const bundle = scripts.find((s) => /^assets\/alibi\.[a-f0-9]+\.js$/.test(s));
-  assert.ok(bundle, 'The main bundle script tag is missing from dist/index.html');
-  const bundleCode = readFileSync(new URL('dist/' + bundle, root), 'utf8');
-  assert.ok(
-    !bundleCode.includes(ENDPOINT),
-    'The statistics endpoint must not be inlined in the initial bundle',
-  );
-  const emitted = bundleCode.match(
-    /ALIBI_OBSERVATORY_URL="\.\/(assets\/observatory\.[a-f0-9]+\.js)"/,
-  )?.[1];
-  assert.ok(emitted, 'The bundle must name the Observatory asset for the loader');
+  // One deferred SDK script, last, serving the locked bytes from a hashed asset.
+  const scripts = [...html.matchAll(/<script src="\.\/([^"]+)"( defer)?><\/script>/g)];
+  const sdk = scripts.filter((m) => /^assets\/pulseboard\.[a-f0-9]{12}\.js$/.test(m[1]));
+  assert.equal(sdk.length, 1, 'Expected exactly one Pulseboard SDK script in dist/index.html');
+  assert.equal(scripts.at(-1), sdk[0], 'The SDK loads after the application scripts');
+  assert.equal(sdk[0][2], ' defer', 'The SDK script is deferred');
   assert.equal(
-    createHash('sha256')
-      .update(readFileSync(new URL('dist/' + emitted, root), 'utf8'))
-      .digest('hex'),
-    entry.sha256,
+    sha(read('dist/' + sdk[0][1])),
+    sha(content),
     'The emitted asset must be the locked artifact byte for byte',
   );
-  assert.ok(
-    !readFileSync(new URL('dist/sw.js', root), 'utf8').includes('observatory.'),
-    'The offline shell must not precache the Observatory asset',
+  // The notice space is the first element of <body> and grows in flow; the button slot exists at mount.
+  assert.match(
+    html,
+    /<body>\s*<div data-pulseboard-bar style="min-height: 2\.5rem"><\/div>\s*<a class="skip-link"/,
+    'The in-flow [data-pulseboard-bar] placeholder must be the first child of <body>',
   );
-  const info = JSON.parse(readFileSync(new URL('build-info.json', root), 'utf8'));
   assert.equal(
-    info.observatoryBytes,
-    Buffer.byteLength(code),
-    'build-info must report the Observatory asset size separately',
+    html.split('<div id="pulseboard-slot" data-pulseboard-slot hidden></div>').length,
+    2,
+    'Exactly one hidden #pulseboard-slot must exist before the SDK mounts',
   );
+  // Online-only: not inlined into the initial bundle, not in the offline shell, not in the standalone file.
+  const bundle = scripts.find((m) => /^assets\/alibi\.[a-f0-9]{12}\.js$/.test(m[1]));
+  assert.ok(bundle, 'The main bundle script tag is missing from dist/index.html');
+  const bundleCode = read('dist/' + bundle[1]);
+  assert.ok(!bundleCode.includes('/v1/collect-stat/'), 'The SDK must not be inlined in the initial bundle');
+  assert.ok(!read('dist/sw.js').includes('pulseboard.'), 'The offline shell must not precache the SDK');
+  const standalone = read('alibi-deluxe-play.html');
+  assert.ok(
+    !standalone.includes('pulseboard-sdk') &&
+      !standalone.includes('<div data-pulseboard-bar') &&
+      !standalone.includes('id="pulseboard-slot"'),
+    'The standalone file must not carry the SDK',
+  );
+  const info = JSON.parse(read('build-info.json'));
+  assert.equal(info.observatoryBytes, Buffer.byteLength(content), 'build-info reports the SDK asset size');
   console.log(
-    'Hash, statistics endpoint, inactive runtime, public-origin standalone rejection, built CSP and deferred asset passed. Full build QA remains required.',
+    'SDK pin, header, collector, release contract, inert off-origin runtime, CSP, deferred asset, in-flow notice space and slot passed. Full build QA remains required.',
   );
 };

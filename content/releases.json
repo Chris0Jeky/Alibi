@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.13.1",
+    "date": "2026-09-26",
+    "title": "A Beta notice that stays out of the way",
+    "tag": "v0.13.1",
+    "receipt": "docs/RELEASE-0.13.1.md",
+    "changes": [
+      "See a one-line Beta notice at the top of the page on the hosted site: OK accepts, Choose opens three switches (usage counts, diagnostics, journeys) with Save and Turn all off. It never covers the board or its controls.",
+      "Reopen your choices from the Beta button in Settings and Privacy. Privacy explains what each category sends, EEA defaults, Global Privacy Control and Do Not Track, and how long Pulseboard keeps it."
+    ]
+  },
+  {
     "version": "0.13.0",
     "date": "2026-09-26",
     "title": "Deeper vaults and a stronger Duel",
