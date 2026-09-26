@@ -78,7 +78,8 @@ const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // Settings/Privacy slot (render rescue plus slot move) needs another measured 64 bytes: -> 130,443.
 // Pulseboard SDK v3 (0.14.1): the host glue (slot, routes, id-and-number journey props) plus the
 // required Privacy copy for the three categories, EEA gating, GPC/DNT and retention measured
-// 130,084 -> 130,678 gzip bytes; the SDK itself stays a separate deferred asset. Ceiling +256.
+// 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
+// asset. Ceiling +256.
 assert.ok(
   info.javascriptGzipBytes < 127 * 1024 + 704,
   'Application bundle stays under 127 KiB + 704 bytes gzip',
