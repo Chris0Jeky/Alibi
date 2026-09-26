@@ -113,7 +113,12 @@
   });
   // After every deferred script ran: without an SDK nothing will release the reserved bar space, and
   // with one the page view it recorded at mount was for 'home', so a deep link names its real route.
+  // This bundle is itself deferred (readyState 'interactive', SDK not yet run), so wait for
+  // DOMContentLoaded, with load as a fallback; settle runs once.
+  let settled = false;
   const settle = () => {
+    if (settled) return;
+    settled = true;
     try {
       const p = sdk();
       if (!p) {
@@ -128,7 +133,9 @@
       if (route !== 'home') p.route?.(route);
     } catch {}
   };
-  if (document.readyState === 'loading')
+  if (document.readyState === 'complete') settle();
+  else {
     document.addEventListener('DOMContentLoaded', settle, { once: true });
-  else settle();
+    g.addEventListener('load', settle, { once: true });
+  }
 })();

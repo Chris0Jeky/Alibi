@@ -180,7 +180,7 @@ CONTROLS_CLEAR = """() => {
   const out = [];
   const targets = [...document.querySelectorAll('.main-tools [data-action], .board-wrap, #play-back')];
   for (const el of targets) {
-    el.scrollIntoView({block: 'center', inline: 'center'});
+    el.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'});
     const r = el.getBoundingClientRect();
     const b = holder && !holder.hidden ? holder.getBoundingClientRect() : null;
     const x = r.left + Math.min(r.width / 2, 20), y = r.top + Math.min(r.height / 2, 20);
@@ -192,7 +192,7 @@ CONTROLS_CLEAR = """() => {
       coveredBy: hit && !(hit === el || el.contains(hit)) ? (hit.className || hit.tagName) : null,
     });
   }
-  scrollTo(0, 0);
+  scrollTo({top: 0, left: 0, behavior: 'instant'});
   return out;
 }"""
 

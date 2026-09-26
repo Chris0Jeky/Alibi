@@ -185,6 +185,18 @@ test('a deep link names its real route once the deferred scripts ran; home adds 
   assert.deepEqual(home.calls, []);
 });
 
+test('the deferred bundle waits for the SDK script that follows it', () => {
+  // Deferred scripts run while readyState is 'interactive'; the SDK is the next script.
+  const later = fakeSdk();
+  const h = page({ hash: '#/play/expert-sudoku-01@1', readyState: 'interactive' });
+  h.run();
+  assert.equal(h.bar.hidden, false, 'the space is not released before the SDK had its turn');
+  h.context.Pulseboard = later.api;
+  h.ready();
+  assert.equal(h.bar.hidden, false);
+  assert.deepEqual(later.calls, [['route', 'puzzle']]);
+});
+
 test('without the SDK the game still runs and the reserved notice space is released', () => {
   const h = page({ hash: '#/play/expert-sudoku-01@1', readyState: 'loading' });
   h.run();
