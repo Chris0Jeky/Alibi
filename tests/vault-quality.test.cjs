@@ -71,3 +71,20 @@ test('aquarium and network profiles fail closed with an explicit unsupported mar
     assert.equal(Object.hasOwn(proof.profile, 'humanDifficulty'), false);
   }
 });
+test('vault Sudoku recipes sketch deterministic, uniquely-solved candidates', () => {
+  const { sudoku } = tools();
+  const recipes = require('../tools/curation/vault-recipes.cjs');
+  const first = recipes.candidate('sudoku', 7);
+  assert.ok(first, 'seeded sketch produces a candidate');
+  assert.deepEqual(first, recipes.candidate('sudoku', 7), 'same seed sketches the same board');
+  assert.ok(first.givens.filter(Boolean).length >= 24, 'candidate keeps at least 24 clues');
+  const proof = sudoku(first.givens, 2, 250000);
+  assert.equal(proof.exhausted, false);
+  assert.equal(proof.count, 1);
+  assert.deepEqual(proof.first, first.solution);
+  assert.deepEqual(
+    recipes.candidate('binary', 7),
+    require('../tools/curation/night-recipes.cjs').candidate('binary', 7),
+    'other families delegate to the retained Night recipes',
+  );
+});
