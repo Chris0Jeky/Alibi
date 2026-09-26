@@ -21,9 +21,11 @@ const content = fs.readFileSync(
   'utf8',
 );
 const config = {};
-// Inspect named JSON assignments, not positional lines or executable application code.
+// Execute only the generated official-data script in an isolated realm, never app code.
+require('node:vm').runInNewContext(content, config, { timeout: 2000 });
+assert.ok(config.ALIBI_THEATRE, 'official data installs theatre before the application');
+// The unchanged application metadata retains named static JSON assignments.
 for (const [name, source] of [
-  ['ALIBI_THEATRE', content],
   ['ALIBI_CURATION_MEDIA', js],
   ['ALIBI_MEDIA', js],
   ['ALIBI_CURATION', content],
