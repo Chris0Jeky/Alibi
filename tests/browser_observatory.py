@@ -1,14 +1,15 @@
-"""Synthetic intercepted Observatory checks for the settings-first aggregate adapter.
+"""Synthetic intercepted checks for the Pulseboard SDK v3 on a 390px phone viewport.
 
-Sharing still defaults on for eligible visits, but the Usage sharing control
-lives on Settings and Privacy only, never as a popup over play, library or
-home routes.
+The one-line Beta notice must sit in flow at the top of the page (pushing content down, never
+overlapping game controls), and the collapsed Beta button must render inline inside the Settings
+and Privacy panels only, never as a fixed pill over play. Puzzle journeys carry official ids and
+numbers only.
 
-This is NOT a real-origin storage/offline suite: it serves the last local
-``dist`` build under the public origin via Playwright routing with a fake
-``/v1/collect-stat/alibi`` collector, using disposable in-memory contexts only.
-No persistent or private profiles are created or read. Real-origin IndexedDB,
-service-worker and offline acceptance lives in ``tests/browser_origin.py``.
+This is NOT a real-origin storage/offline suite: it serves the last local ``dist`` build under the
+public origin via Playwright routing with a fake Pulseboard collector (region hint, counts and
+product endpoints), using disposable in-memory contexts only. No persistent or private profiles are
+created or read. Real-origin IndexedDB, service-worker and offline acceptance lives in
+``tests/browser_origin.py``.
 """
 
 import json
@@ -23,9 +24,13 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST = (ROOT / 'dist').resolve()
 ORIGIN = 'https://alibi-after-hours-preview.commit-atlas.workers.dev'
 PUBLIC_URL = ORIGIN + '/'
-STAT_COLLECTOR = 'https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect-stat/alibi'
-PREF_KEY = 'pulseboard:statistics:v1:alibi'
-OLD_PREFIX = 'pulseboard:consent:v1:alibi:'
+COLLECTOR = 'https://pulseboard-observatory.commit-atlas.workers.dev'
+CONSENT_KEY = 'pulseboard:consent:v3:alibi'
+VISIT_KEY = 'pulseboard:visit:alibi'
+PHONE = {'width': 390, 'height': 844}
+NO_WEBDRIVER = (
+    "Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => false, configurable: true});"
+)
 checks = 0
 
 
@@ -36,12 +41,117 @@ def check(value, label):
     print('PASS', label, flush=True)
 
 
-def wait_for_counts(page, counts, count, timeout=5000):
+if not (DIST / 'index.html').is_file():
+    raise SystemExit('Run npm run build before browser_observatory.py')
+
+
+class Collector:
+    """Fake Pulseboard collector: records every request per endpoint."""
+
+    def __init__(self, region):
+        self.region = region
+        self.requests = []
+        self.counts = []
+        self.events = []
+        self.bodies = []
+
+    def headers(self):
+        return {
+            'Access-Control-Allow-Origin': ORIGIN,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'content-type',
+            'Cache-Control': 'no-store',
+            'Vary': 'Origin',
+        }
+
+    def handle(self, route, request):
+        path = urlparse(request.url).path
+        if request.method == 'OPTIONS':
+            route.fulfill(status=204, headers=self.headers(), body='')
+            return
+        self.requests.append((request.method, path))
+        if request.method == 'GET' and path == '/v1/consent/alibi':
+            route.fulfill(
+                status=200,
+                headers=self.headers(),
+                content_type='application/json',
+                body=json.dumps({'v': 1, 'region': self.region}),
+            )
+            return
+        if request.method == 'POST' and path in ('/v1/collect-stat/alibi', '/v1/product/alibi'):
+            payload = json.loads(request.post_data or '{}')
+            self.bodies.append((path, payload))
+            if path.endswith('/collect-stat/alibi'):
+                self.counts.extend(payload.get('counts', []))
+            else:
+                self.events.extend(payload.get('events', []))
+            route.fulfill(
+                status=202, headers=self.headers(), content_type='application/json', body='{}'
+            )
+            return
+        route.fulfill(status=404, headers=self.headers(), body='')
+
+
+def serve_with(collector, block_sdk=False):
+    def serve(route, request):
+        parsed = urlparse(request.url)
+        if request.url.startswith(COLLECTOR):
+            collector.handle(route, request)
+            return
+        if parsed.scheme == 'https' and f'{parsed.scheme}://{parsed.netloc}' == ORIGIN:
+            relative = unquote(parsed.path).lstrip('/') or 'index.html'
+            if block_sdk and relative.startswith('assets/pulseboard.'):
+                route.abort()
+                return
+            filename = (DIST / relative).resolve()
+            if DIST not in filename.parents and filename != DIST:
+                route.fulfill(status=403, body='')
+                return
+            if not filename.is_file():
+                route.fulfill(status=404, body='')
+                return
+            route.fulfill(
+                status=200,
+                content_type=mimetypes.guess_type(filename.name)[0] or 'application/octet-stream',
+                body=filename.read_bytes(),
+            )
+            return
+        route.abort()
+
+    return serve
+
+
+def wait_until(page, predicate, label, timeout=6000):
     deadline = time.monotonic() + timeout / 1000
-    while len(counts) < count:
+    while not predicate():
         if time.monotonic() >= deadline:
-            raise AssertionError(f'Expected {count} Observatory counts, found {counts!r}')
-        page.wait_for_timeout(25)
+            raise AssertionError('Timed out: ' + label)
+        page.wait_for_timeout(50)
+
+
+def open_context(browser, collector, errors, init=None, block_sdk=False):
+    context = browser.new_context(service_workers='block', viewport=PHONE)
+    context.add_init_script(NO_WEBDRIVER)
+    if init:
+        context.add_init_script(init)
+    context.route('**/*', serve_with(collector, block_sdk))
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    return context, page
+
+
+def ready(page, sdk=True):
+    page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
+    if sdk:
+        page.wait_for_function('()=>Boolean(window.Pulseboard)')
+
+
+def goto_puzzle(page, key):
+    page.evaluate("(key) => { location.hash = '/play/' + key; }", key)
+    page.wait_for_function("(key) => window.AlibiDiagnostics?.getCurrent()?.key === key", arg=key)
+    if page.locator('dialog[open]').count():
+        page.keyboard.press('Escape')
+    page.locator('.main-tools [data-action="undo"]').wait_for(state='attached')
 
 
 def dismiss_dialog(page):
@@ -49,203 +159,110 @@ def dismiss_dialog(page):
         page.keyboard.press('Escape')
 
 
-def is_details_open(page):
-    return page.evaluate("() => document.querySelector('#pulseboard-usage-sharing').open === true")
+BAR_LAYOUT = """() => {
+  const holder = document.querySelector('[data-pulseboard-bar]');
+  const bar = holder?.querySelector('.pb-bar');
+  const rect = (el) => { const r = el.getBoundingClientRect(); return {top: r.top + scrollY, bottom: r.bottom + scrollY, height: r.height}; };
+  return {
+    first: document.body.firstElementChild === holder,
+    hidden: !!holder?.hidden,
+    holder: holder ? rect(holder) : null,
+    bar: bar ? rect(bar) : null,
+    position: bar ? getComputedStyle(bar).position : null,
+    app: rect(document.querySelector('#app')),
+  };
+}"""
+
+# Every game control and the board: scrolled into view, it must not intersect the notice and the
+# element under its centre must be the control itself (nothing drawn over it).
+CONTROLS_CLEAR = """() => {
+  const holder = document.querySelector('[data-pulseboard-bar]');
+  const out = [];
+  const targets = [...document.querySelectorAll('.main-tools [data-action], .board-wrap, #play-back')];
+  for (const el of targets) {
+    el.scrollIntoView({block: 'center', inline: 'center'});
+    const r = el.getBoundingClientRect();
+    const b = holder && !holder.hidden ? holder.getBoundingClientRect() : null;
+    const x = r.left + Math.min(r.width / 2, 20), y = r.top + Math.min(r.height / 2, 20);
+    const hit = document.elementFromPoint(x, y);
+    out.push({
+      control: el.dataset.action || el.id || 'board',
+      overlaps: !!b && b.height > 0 && r.top < b.bottom && r.bottom > b.top && r.left < b.right && r.right > b.left,
+      covered: !(hit && (hit === el || el.contains(hit))),
+      coveredBy: hit && !(hit === el || el.contains(hit)) ? (hit.className || hit.tagName) : null,
+    });
+  }
+  scrollTo(0, 0);
+  return out;
+}"""
+
+NO_FIXED_SDK_UI = """() => [...document.querySelectorAll('[class^="pb-"], [class*=" pb-"]')]
+  .every((el) => !['fixed', 'absolute', 'sticky'].includes(getComputedStyle(el).position))"""
+
+PILL = """() => {
+  const pill = document.querySelector('.pb-pill');
+  if (!pill) return null;
+  const r = pill.getBoundingClientRect();
+  return {
+    slot: pill.parentElement?.id,
+    host: pill.parentElement?.parentElement?.id,
+    hostHidden: !!pill.parentElement?.hidden,
+    visible: r.width > 0 && r.height > 0,
+    position: getComputedStyle(pill).position,
+    height: r.height,
+    fallbackShown: [...document.querySelectorAll('.usage-fallback')].some((p) => p.getClientRects().length > 0),
+  };
+}"""
 
 
-def is_checked(page):
-    return page.evaluate(
-        "() => document.querySelector('#pulseboard-usage-sharing input[type=\"checkbox\"]').checked === true"
+def assert_controls_clear(page, label):
+    result = page.evaluate(CONTROLS_CLEAR)
+    names = {entry['control'] for entry in result}
+    check({'undo', 'redo', 'hint', 'check'} <= names, f'{label}: Undo, Redo, Hint and Check are measured')
+    bad = [entry for entry in result if entry['overlaps'] or entry['covered']]
+    check(not bad, f'{label}: no game control or the board is overlapped or covered {bad!r}')
+    check(page.evaluate(NO_FIXED_SDK_UI), f'{label}: no Pulseboard element is fixed or absolute')
+
+
+def assert_bar_in_flow(page, label):
+    layout = page.evaluate(BAR_LAYOUT)
+    check(layout['first'], f'{label}: the notice space is the first element of <body>')
+    check(layout['bar'] is not None and layout['bar']['height'] > 0, f'{label}: the Beta notice shows')
+    check(layout['position'] in ('static', 'relative'), f'{label}: the notice is in flow')
+    check(
+        layout['holder']['height'] >= layout['bar']['height'] - 0.5,
+        f'{label}: the reserved space grows with the wrapped notice',
+    )
+    check(
+        layout['app']['top'] >= layout['holder']['bottom'] - 0.5,
+        f'{label}: the notice pushes the game down instead of overlapping it',
     )
 
 
-def notice_visible(page):
-    return page.locator('#pulseboard-usage-sharing').is_visible()
-
-
-def in_slot(page):
-    return page.evaluate(
-        "() => document.querySelector('#pulseboard-usage-sharing').parentElement?.id === 'usage-sharing-slot'"
-    )
-
-
-def goto_settings(page):
-    page.evaluate("location.hash='/settings'")
-    page.locator('#pulseboard-usage-sharing').wait_for(state='visible')
-    return page.locator('#pulseboard-usage-sharing input[type="checkbox"]')
-
-
-def assert_aggregate_body(payload, expected, label):
-    assert payload.get('v') == 1, f'{label} carries v:1'
-    counts = payload.get('counts')
-    assert isinstance(counts, list) and len(counts) == len(expected), f'{label} count length'
-    for count, want in zip(counts, expected):
-        assert set(count.keys()) == {'event', 'route', 'release', 'n'}, f'{label} keys'
-        assert count['event'] == want['event'], f'{label} event'
-        assert count['route'] == want['route'], f'{label} route'
-        assert count['release'] == want['release'], f'{label} release'
-        assert count['n'] == 1, f'{label} n:1'
-    raw = json.dumps(payload)
-    for forbidden in (
-        '"session"',
-        '"seq"',
-        '"sessionId"',
-        '"answer"',
-        '"solution"',
-        '"save"',
-        '"content"',
-        '"board"',
-    ):
-        assert forbidden not in raw, f'{label} omits {forbidden}'
-
-
-if not (DIST / 'index.html').is_file():
-    raise SystemExit('Run npm run build before browser_observatory.py')
-
-observed_counts = []
-observed_bodies = []
-observed_requests = []
-collector_status = {'code': 202}
-page_errors = []
-
-
-def headers():
-    return {
-        'Access-Control-Allow-Origin': ORIGIN,
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'content-type',
-        'Cache-Control': 'no-store',
-        'Vary': 'Origin',
-    }
-
-
-def serve(route, request):
-    parsed = urlparse(request.url)
-    if request.url.startswith(STAT_COLLECTOR):
-        if request.method == 'OPTIONS':
-            route.fulfill(status=204, headers=headers(), body='')
-            return
-        if request.method == 'POST':
-            observed_requests.append({'url': request.url, 'method': request.method})
-            try:
-                payload = json.loads(request.post_data or '{}')
-            except json.JSONDecodeError:
-                route.fulfill(status=400, headers=headers(), body='')
-                return
-            observed_bodies.append(payload)
-            if collector_status['code'] == 202:
-                observed_counts.extend(payload.get('counts', []))
-                route.fulfill(
-                    status=202, headers=headers(), content_type='application/json', body='{}'
-                )
-            else:
-                route.fulfill(
-                    status=503, headers=headers(), content_type='application/json', body='{}'
-                )
-            return
-        route.fulfill(status=405, headers=headers(), body='')
-        return
-    if parsed.scheme == 'https' and f'{parsed.scheme}://{parsed.netloc}' == ORIGIN:
-        relative = unquote(parsed.path).lstrip('/') or 'index.html'
-        filename = (DIST / relative).resolve()
-        if DIST not in filename.parents and filename != DIST:
-            route.fulfill(status=403, body='')
-            return
-        if not filename.is_file():
-            route.fulfill(status=404, body='')
-            return
-        route.fulfill(
-            status=200,
-            content_type=mimetypes.guess_type(filename.name)[0] or 'application/octet-stream',
-            body=filename.read_bytes(),
-        )
-        return
-    route.abort()
-
-
+errors = []
 with sync_playwright() as pw:
     browser = pw.chromium.launch(headless=True)
-    # Disposable in-memory context: no persistent profile, no private data retained.
-    context = browser.new_context(service_workers='block', viewport={'width': 1100, 'height': 900})
-    context.add_init_script(
-        "Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => false, configurable: true});"
-    )
-    context.route('**/*', serve)
-    page = context.new_page()
-    page.on('pageerror', lambda error: page_errors.append(str(error)))
+
+    # ---- EEA visitor: counts only until OK; the notice is in flow; the pill lives in Settings ----
+    eea = Collector('eea')
+    context, page = open_context(browser, eea, errors)
     page.goto(PUBLIC_URL)
-    page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-    page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
-
-    app_release = page.evaluate('() => ALIBI_CONFIG.version')
+    ready(page)
+    release = page.evaluate('() => ALIBI_CONFIG.version')
+    check(page.evaluate('() => Pulseboard.version') == '3.0.0', 'the page loads Pulseboard SDK 3.0.0')
     check(
-        page.locator('#pulseboard-usage-sharing').count() == 1,
-        'the settings control mounts exactly once',
+        page.locator('script[src^="./assets/pulseboard."]').count() == 1,
+        'the page loads exactly one hashed SDK asset',
     )
-    check(not notice_visible(page), 'no sharing popup on the home route')
-    check(
-        page.evaluate(
-            "() => document.querySelector('#pulseboard-usage-sharing').parentElement === document.body"
-        ),
-        'the control parks on the body off Settings',
-    )
-    check(is_details_open(page), 'sharing control mounts open before the first send')
-    check(is_checked(page), 'usage sharing defaults on when eligible')
-    wait_for_counts(page, observed_counts, 1)
-    check(len(observed_bodies) == 1, 'default-on sends one initial aggregate request')
-    assert_aggregate_body(
-        observed_bodies[0],
-        [{'event': 'page.view', 'route': 'home', 'release': app_release}],
-        'initial page.view',
-    )
-    check(observed_counts[0]['event'] == 'page.view', 'default-on reports one page view')
-    check(observed_counts[0]['route'] == 'home', 'initial page view uses the current Alibi route')
-    check(
-        observed_counts[0]['release'] == app_release,
-        'initial page view uses the registered app release',
-    )
-    check(
-        page.evaluate('() => PulseboardUsage.status().active') is True,
-        'adapter status is active by default',
-    )
-
-    page.reload()
-    page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-    page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
-    wait_for_counts(page, observed_counts, 2)
-    check(is_checked(page), 'default-on persists across reload')
-    check(not notice_visible(page), 'reloaded home route shows no sharing popup')
-    check(observed_counts[1]['route'] == 'home', 'restored consent reports the reloaded route')
-    check(
-        observed_counts[1]['release'] == app_release, 'restored consent keeps the release label'
-    )
-    assert_aggregate_body(
-        observed_bodies[1],
-        [{'event': 'page.view', 'route': 'home', 'release': app_release}],
-        'reloaded page.view',
-    )
-
-    checkbox = goto_settings(page)
-    check(is_details_open(page), 'the settings control opens on the settings route')
-    check(in_slot(page), 'the control moves into the settings slot')
-    check(
-        page.locator('#usage-sharing-slot > p').count() == 0,
-        'the slot fallback is replaced by the control',
-    )
-    check(checkbox.is_checked(), 'the settings box shows sharing on')
-    check(
-        'Sharing is on' in page.locator('#pulseboard-usage-sharing').inner_text(),
-        'settings status reports sharing on',
-    )
-    check(
-        'No puzzle content' in page.locator('#pulseboard-usage-sharing').inner_text(),
-        'control describes aggregate-only counts',
-    )
-    wait_for_counts(page, observed_counts, 3)
-    check(observed_counts[2]['route'] == 'other', 'settings navigation reports the settings route')
-    check(
-        observed_counts[2]['release'] == app_release, 'settings navigation keeps the release label'
-    )
+    page.locator('[data-pulseboard-bar] .pb-bar').wait_for(state='visible')
+    text = page.locator('.pb-bar').inner_text()
+    check('Beta' in text and 'thanks for helping test Alibi' in text, 'the owner-approved notice text shows')
+    assert_bar_in_flow(page, 'home at 390px')
+    check(page.locator('.pb-pill').count() == 0, 'no Beta button before a choice')
+    wait_until(page, lambda: any(c['event'] == 'page.view' for c in eea.counts), 'EEA page.view count')
+    check(eea.counts[0] == {'event': 'page.view', 'route': 'home', 'release': release, 'n': 1}, 'EEA counts carry the registered release')
+    check(not eea.events, 'EEA sends no diagnostics or journeys before OK')
+    check(page.evaluate(f"() => localStorage.getItem('{VISIT_KEY}')") is None, 'EEA stores no visit marker before OK')
 
     key = page.evaluate(
         """() => {
@@ -253,21 +270,29 @@ with sync_playwright() as pw:
           return puzzle.id + '@' + puzzle.revision;
         }"""
     )
-    page.evaluate("(key) => { location.hash = '/play/' + key; }", key)
-    page.wait_for_function(
-        "(key) => window.AlibiDiagnostics?.getCurrent()?.key === key",
-        arg=key,
-    )
-    # A normal SPA route change must send without a test-only flush call.
-    wait_for_counts(page, observed_counts, 4)
-    check(observed_counts[3]['route'] == 'puzzle', 'SPA navigation reports the puzzle route')
-    check(observed_counts[3]['release'] == app_release, 'SPA navigation keeps the release label')
-    check(
-        not notice_visible(page),
-        'the control hides on puzzle routes even while opted in',
-    )
-    dismiss_dialog(page)
+    puzzle_id = key.split('@')[0]
+    goto_puzzle(page, key)
+    assert_bar_in_flow(page, 'puzzle at 390px')
+    assert_controls_clear(page, 'puzzle with the notice showing')
+    wait_until(page, lambda: any(c['route'] == 'puzzle' for c in eea.counts), 'puzzle page.view count')
 
+    page.locator('.pb-bar .pb-choose').click()
+    page.locator('.pb-bar .pb-switches').wait_for(state='visible')
+    assert_bar_in_flow(page, 'puzzle with Choose open')
+    assert_controls_clear(page, 'puzzle with the switches open')
+
+    page.locator('.pb-bar .pb-ok').click()
+    page.wait_for_function("() => !document.querySelector('.pb-bar')")
+    layout = page.evaluate(BAR_LAYOUT)
+    check(layout['hidden'] and layout['holder']['height'] == 0, 'OK releases the reserved space')
+    pill = page.evaluate(PILL)
+    check(pill and pill['slot'] == 'pulseboard-slot' and pill['hostHidden'], 'on a puzzle the Beta button is parked hidden in its slot')
+    check(not pill['visible'], 'no Beta button is visible over play')
+    assert_controls_clear(page, 'puzzle after OK')
+    stored = page.evaluate(f"() => JSON.parse(localStorage.getItem('{CONSENT_KEY}'))")
+    check(stored['counts'] and stored['diagnostics'] and stored['journeys'] and stored['decided'], 'OK records every category on')
+
+    # A bounded journey: one move opens an attempt, a conflicted check fails it, a hint is numbered.
     editable = page.evaluate(
         """() => {
           const run = AlibiDiagnostics.getCurrent();
@@ -281,16 +306,6 @@ with sync_playwright() as pw:
         "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
         arg=editable,
     )
-    page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 5)
-    check(observed_counts[4]['event'] == 'puzzle.started', 'the first real board change starts a journey')
-    check(observed_counts[4]['route'] == 'puzzle', 'the journey start uses the puzzle route')
-    assert_aggregate_body(
-        observed_bodies[-1],
-        [{'event': 'puzzle.started', 'route': 'puzzle', 'release': app_release}],
-        'journey start',
-    )
-
     conflict = page.evaluate(
         """(entry) => {
           const run = AlibiDiagnostics.getCurrent();
@@ -311,214 +326,126 @@ with sync_playwright() as pw:
         "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
         arg=conflict,
     )
-    page.locator('[data-action="check"]').first.click()
-    page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 6)
-    check(
-        [event['event'] for event in observed_counts[4:]] == ['puzzle.started', 'puzzle.failed'],
-        'a conflicted check ends the open attempt without another start',
-    )
-    check(
-        all(set(event) == {'event', 'route', 'release', 'n'} for event in observed_counts[4:])
-        and key not in json.dumps(observed_bodies),
-        'journey events carry no puzzle identity, answer or board payload',
-    )
+    page.locator('.main-tools [data-action="check"]').click()
+    dismiss_dialog(page)
+    page.locator('.main-tools [data-action="hint"]').click()
     dismiss_dialog(page)
 
-    page.locator('[data-action="check"]').first.click()
-    page.evaluate('() => PulseboardUsage.flush()')
-    page.wait_for_timeout(300)
-    check(len(observed_counts) == 6, 'checking the same board again is not another attempt')
-    dismiss_dialog(page)
+    def journey():
+        return [e for e in eea.events if e['name'] in ('puzzle.started', 'puzzle.failed', 'hint.requested')]
 
-    followup = page.evaluate(
-        """() => {
-          const run = AlibiDiagnostics.getCurrent();
-          const index = run.puzzle.givens.findIndex(
-            (value, cell) => !value && !run.state.cells[cell],
-          );
-          return index === -1 ? null : {index, value: run.puzzle.solution[index]};
-        }"""
-    )
-    check(followup is not None, 'the sudoku board has a third editable cell for the retry')
-    page.locator(f'#cell-{followup["index"]}').click()
-    page.keyboard.press(str(followup['value']))
-    page.wait_for_function(
-        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
-        arg=followup,
-    )
-    page.locator('[data-action="check"]').first.click()
-    page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 8)
+    wait_until(page, lambda: len(journey()) >= 3, 'journey events')
+    started, failed, hint = journey()[:3]
+    check(started['name'] == 'puzzle.started' and started['props'] == {'puzzle': puzzle_id}, 'puzzle.started carries only the puzzle id')
     check(
-        [event['event'] for event in observed_counts[6:]] == ['puzzle.started', 'puzzle.failed'],
-        'a move after failure opens a fresh attempt',
+        failed['name'] == 'puzzle.failed'
+        and set(failed['props']) == {'puzzle', 'seconds', 'attempts'}
+        and failed['props']['puzzle'] == puzzle_id
+        and failed['props']['attempts'] == 1
+        and isinstance(failed['props']['seconds'], int),
+        'puzzle.failed carries the id, whole seconds and the attempt number',
     )
-    dismiss_dialog(page)
+    check(hint['name'] == 'hint.requested' and hint['props'] == {'puzzle': puzzle_id, 'hint': 1}, 'hint.requested carries the id and hint index')
+    check(all(e['route'] == 'puzzle' for e in journey()), 'journey events carry the puzzle route')
+    wait_until(
+        page,
+        lambda: {'puzzle.started', 'puzzle.failed', 'hint.requested'} <= {c['event'] for c in eea.counts},
+        'journey counts',
+    )
+    raw = json.dumps([b for _, b in eea.bodies])
+    check('"solution"' not in raw and '"cells"' not in raw and '"state"' not in raw, 'no answer or board leaves the page')
+    product = [b for p, b in eea.bodies if p.endswith('/product/alibi')]
+    check(all(set(b) == {'v', 'session', 'release', 'context', 'events'} and b['release'] == release for b in product), 'product batches carry the release and no extra keys')
 
-    page.locator('[data-action="undo"]').first.click()
-    page.wait_for_function(
-        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] !== entry.value",
-        arg=followup,
-    )
-    page.locator('[data-action="check"]').first.click()
-    page.evaluate('() => PulseboardUsage.flush()')
-    wait_for_counts(page, observed_counts, 10)
-    check(
-        [event['event'] for event in observed_counts[8:]] == ['puzzle.started', 'puzzle.failed'],
-        'undo after a failed check reopens the retry without a new move',
-    )
-    dismiss_dialog(page)
-
-    # Disabled collector: the stat endpoint answers 503 while sharing stays on.
-    failures_before = page.evaluate('() => PulseboardUsage.status().failures')
-    counts_before = len(observed_counts)
-    collector_status['code'] = 503
-    page.evaluate("() => PulseboardUsage.track('hint.requested')")
-    page.evaluate('() => PulseboardUsage.flush()')
-    page.wait_for_timeout(500)
-    check(
-        len(observed_requests) > len(observed_bodies) or collector_status['code'] == 503,
-        'disabled stat endpoint is reached distinctly from the 202 path',
-    )
-    check(
-        page.evaluate('() => PulseboardUsage.status().failures') > failures_before,
-        'a 503 stat response records a failure without throwing',
-    )
-    check(
-        len(observed_counts) == counts_before,
-        'a 503 stat response records no aggregate count',
-    )
-    check(not page_errors, 'a disabled collector produces no browser errors')
-    collector_status['code'] = 202
-
-    check(
-        page.evaluate("() => document.querySelector('#pulseboard-usage-sharing').hidden === true"),
-        'the control stays hidden on puzzle routes while opted in',
-    )
-    goto_settings(page)
-    summary = page.locator('#pulseboard-usage-sharing summary')
-    summary.focus()
-    page.keyboard.press('Delete')
-    page.keyboard.press('ArrowRight')
-    check(
-        page.evaluate(
-            "()=>document.activeElement === document.querySelector('#pulseboard-usage-sharing summary')"
-        ),
-        'summary retains keyboard focus instead of moving through the page',
-    )
-
-    checkbox = page.locator('#pulseboard-usage-sharing input[type="checkbox"]')
-    checkbox.uncheck()
-    count = len(observed_counts)
+    # Settings and Privacy: the Beta button renders inline in the panel, never fixed.
+    page.evaluate("location.hash='/settings'")
+    page.locator('#usage-sharing-slot .pb-pill').wait_for(state='visible')
+    pill = page.evaluate(PILL)
+    check(pill['host'] == 'usage-sharing-slot' and not pill['hostHidden'], 'Settings shows the Beta button in its panel')
+    check(pill['position'] == 'static', 'the Settings Beta button is inline, not fixed')
+    check(pill['height'] >= 44, 'the Beta button meets the 44px touch target')
+    check(not pill['fallbackShown'], 'the fallback line hides once the button shows')
+    page.locator('#usage-sharing-slot .pb-pill').click()
+    page.locator('#usage-sharing-slot .pb-panel').wait_for(state='visible')
+    check(page.evaluate(NO_FIXED_SDK_UI), 'the switches open inline in Settings')
+    page.locator('#usage-sharing-slot .pb-panel .pb-off').click()
+    stored = page.evaluate(f"() => JSON.parse(localStorage.getItem('{CONSENT_KEY}'))")
+    check(not stored['counts'] and not stored['diagnostics'] and not stored['journeys'], 'Turn all off records every category off')
+    check(page.evaluate(f"() => localStorage.getItem('{VISIT_KEY}')") is None, 'Turn all off clears the visit marker')
+    page.wait_for_timeout(2500)
+    before = len(eea.requests)
     page.evaluate("location.hash='/home'")
-    page.evaluate("window.dispatchEvent(new ErrorEvent('error', {message: 'post-withdrawal probe'}))")
-    page.wait_for_timeout(300)
-    check(len(observed_counts) == count, 'explicit off stops route and error emission immediately')
-    check(
-        page.evaluate('() => PulseboardUsage.status().queued') == 0,
-        'explicit off clears pending sends',
-    )
-    check(not notice_visible(page), 'explicit off hides the control off Settings')
-    choice = page.evaluate(
-        f"""() => {{
-          const raw = localStorage.getItem('{PREF_KEY}');
-          return raw ? JSON.parse(raw) : null;
-        }}"""
-    )
-    check(choice and choice['allow'] is False, 'explicit off persists under the new preference key')
-    old_keys = page.evaluate(
-        f"""() => Object.keys(localStorage).filter((item) => item.startsWith('{OLD_PREFIX}'))"""
-    )
-    check(old_keys == [], 'explicit off does not write legacy opt-out keys')
+    page.wait_for_timeout(2500)
+    check(len(eea.requests) == before, 'nothing is sent after Turn all off')
 
-    checkbox = goto_settings(page)
-    checkbox.check()
-    page.wait_for_timeout(300)
-    check(
-        page.evaluate('() => PulseboardUsage.status().active') is True,
-        're-on requires successful persistence and re-enables collection',
-    )
-    rechoice = page.evaluate(
-        f"""() => JSON.parse(localStorage.getItem('{PREF_KEY}'))"""
-    )
-    check(rechoice and rechoice['allow'] is True, 're-on persists sharing on')
     page.evaluate("location.hash='/privacy'")
-    page.locator('#usage-sharing-slot > #pulseboard-usage-sharing').wait_for(state='visible')
-    check(in_slot(page), 'the control moves into the privacy slot')
-    # Drain the privacy page view before the seeded contexts snapshot their baselines.
-    page.evaluate('() => PulseboardUsage.flush()')
-    page.wait_for_timeout(300)
-    check(not page_errors, 'Observatory lifecycle produces no browser errors')
+    page.locator('.privacy-copy #usage-sharing-slot .pb-pill').wait_for(state='visible')
+    check(page.evaluate(PILL)['position'] == 'static', 'Privacy shows the Beta button inline')
+    copy = page.locator('.privacy-copy').inner_text()
+    for phrase in ('Usage counts', 'Diagnostics', 'Journeys', 'EEA', 'Global Privacy Control', 'Do Not Track', '90 days', 'currently 14 days'):
+        check(phrase in copy, f'Privacy describes {phrase}')
+    check(not errors, 'the EEA journey produces no page errors')
     context.close()
 
-    # Prior preferences stay off: a fresh disposable context with a stored off
-    # choice or legacy opt-out must not send before an explicit re-on.
-    for seed_label, seed_script in (
-        ('new off', f"localStorage.setItem('{PREF_KEY}', JSON.stringify({{allow:false}}))"),
-        (
-            'old opt-out',
-            "localStorage.setItem('"
-            + OLD_PREFIX
-            + "https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi', JSON.stringify({allow:false}))",
-        ),
-        (
-            'corrupt old opt-out',
-            "localStorage.setItem('"
-            + OLD_PREFIX
-            + "https://pulseboard-observatory.commit-atlas.workers.dev/v1/collect/alibi', '{broken')",
-        ),
-        (
-            'denied probe cleanup',
-            "const remove = Storage.prototype.removeItem; "
-            "Storage.prototype.removeItem = function(key) { "
-            "if (key === '" + PREF_KEY + ":probe') throw Error('cleanup denied'); "
-            "return remove.call(this, key); };",
-        ),
-    ):
-        counts_before = len(observed_counts)
-        bodies_before = len(observed_bodies)
-        seeded = browser.new_context(
-            service_workers='block', viewport={'width': 1100, 'height': 900}
-        )
-        seeded.add_init_script(
-            "Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => false, configurable: true});"
-        )
-        seeded.add_init_script(f'try {{ {seed_script} }} catch {{}}')
-        seeded.route('**/*', serve)
-        seeded_page = seeded.new_page()
-        seeded_page.on('pageerror', lambda error: page_errors.append(str(error)))
-        seeded_page.goto(PUBLIC_URL)
-        seeded_page.wait_for_function('()=>Boolean(window.AlibiDiagnostics)')
-        seeded_page.wait_for_function('()=>Boolean(window.PulseboardUsage)')
-        seeded_page.wait_for_timeout(500)
-        check(
-            not is_checked(seeded_page),
-            f'prior {seed_label} stays off',
-        )
-        check(
-            not seeded_page.locator('#pulseboard-usage-sharing').is_visible(),
-            f'prior {seed_label} shows no popup on the home route',
-        )
-        check(
-            len(observed_counts) == counts_before,
-            f'prior {seed_label} sends no aggregate count',
-        )
-        check(
-            len(observed_bodies) == bodies_before,
-            f'prior {seed_label} performs no collector request',
-        )
-        seeded_page.evaluate("location.hash='/settings'")
-        seeded_page.locator('#usage-sharing-slot > #pulseboard-usage-sharing').wait_for(
-            state='visible'
-        )
-        check(
-            not seeded_page.locator('#pulseboard-usage-sharing input[type="checkbox"]').is_checked(),
-            f'prior {seed_label} shows an unticked settings box',
-        )
-        check(in_slot(seeded_page), f'prior {seed_label} lands in the settings slot')
-        seeded.close()
+    # ---- Visitor outside the EEA, landing on a puzzle: everything on, notice still in flow ----
+    other = Collector('other')
+    context, page = open_context(browser, other, errors)
+    page.goto(PUBLIC_URL + '#/play/' + key)
+    ready(page)
+    page.wait_for_function("(key) => window.AlibiDiagnostics?.getCurrent()?.key === key", arg=key)
+    dismiss_dialog(page)
+    page.locator('[data-pulseboard-bar] .pb-bar').wait_for(state='visible')
+    assert_bar_in_flow(page, 'deep-linked puzzle')
+    assert_controls_clear(page, 'deep-linked puzzle with the notice showing')
+    wait_until(page, lambda: any(e['name'] == 'page.view' for e in other.events), 'journey page.view outside the EEA')
+    wait_until(page, lambda: any(c['route'] == 'puzzle' for c in other.counts), 'deep link names its route')
+    check(any(e['name'] == 'page.view' and e['route'] == 'puzzle' for e in other.events), 'journeys start on outside the EEA with the real route')
+    check(not errors, 'the non-EEA visit produces no page errors')
+    context.close()
+
+    # ---- Global Privacy Control: silent, no notice, no request, the button still in Settings ----
+    gpc = Collector('other')
+    context, page = open_context(
+        browser, gpc, errors,
+        init="Object.defineProperty(Navigator.prototype, 'globalPrivacyControl', {get: () => true, configurable: true});",
+    )
+    page.goto(PUBLIC_URL)
+    ready(page)
+    page.wait_for_timeout(2500)
+    check(not gpc.requests, 'GPC: no request of any kind')
+    check(page.locator('.pb-bar').count() == 0, 'GPC: no notice')
+    check(page.evaluate(BAR_LAYOUT)['hidden'], 'GPC: the reserved space is released')
+    page.evaluate("location.hash='/settings'")
+    page.locator('#usage-sharing-slot .pb-pill').wait_for(state='visible')
+    check(page.evaluate(PILL)['position'] == 'static', 'GPC: the Beta button is inline in Settings')
+    page.locator('#usage-sharing-slot .pb-pill').click()
+    check(page.locator('#usage-sharing-slot .pb-check:disabled').count() == 3, 'GPC: the switches are disabled')
+    check(not gpc.requests, 'GPC: still no request after navigation')
+    context.close()
+
+    # ---- SDK blocked or offline: the game is unchanged and the reserved space is released ----
+    blocked = Collector('other')
+    context, page = open_context(browser, blocked, errors, block_sdk=True)
+    page.goto(PUBLIC_URL)
+    ready(page, sdk=False)
+    page.wait_for_function("() => document.querySelector('[data-pulseboard-bar]').hidden")
+    check(page.evaluate('() => window.Pulseboard === undefined'), 'blocked: window.Pulseboard is undefined')
+    goto_puzzle(page, key)
+    page.locator(f'#cell-{editable["index"]}').click()
+    page.keyboard.press(str(editable['value']))
+    page.wait_for_function(
+        "(entry) => AlibiDiagnostics.getCurrent().state.cells[entry.index] === entry.value",
+        arg=editable,
+    )
+    page.locator('.main-tools [data-action="check"]').click()
+    dismiss_dialog(page)
+    assert_controls_clear(page, 'blocked SDK')
+    page.evaluate("location.hash='/settings'")
+    page.locator('#usage-sharing-slot .usage-fallback').wait_for(state='visible')
+    check(not blocked.requests, 'blocked: nothing reaches the collector')
+    check(not errors, 'a blocked SDK produces no page errors')
+    context.close()
 
     browser.close()
 
-print('PASS', checks, 'Observatory browser assertions')
+print('PASS', checks, 'Pulseboard SDK browser assertions')
