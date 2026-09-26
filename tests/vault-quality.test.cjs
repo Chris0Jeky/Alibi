@@ -41,3 +41,33 @@ test('Sudoku identities reject digit relabeling and certificates reject edited a
   p.solution[0] = p.solution[1];
   assert.throws(() => certify(p));
 });
+test('aquarium and network profiles fail closed with an explicit unsupported marker', () => {
+  const { profile, certify } = tools();
+  const aquarium = structuredClone(require('../content/curation/packs/aquarium.json').puzzles[0]);
+  const network = structuredClone(require('../content/curation/packs/network.json').puzzles[0]);
+  for (const puzzle of [aquarium, network]) {
+    const safe = new Proxy(puzzle, {
+      get(target, key) {
+        if (key === 'solution') throw Error('answer accessed');
+        return target[key];
+      },
+    });
+    const result = profile(safe);
+    assert.equal(result.method, 'unsupported');
+    assert.equal(result.steps, 0);
+    assert.equal(result.unresolved, null);
+    assert.equal(result.complete, null);
+    assert.deepEqual(result.rules, {});
+    assert.ok(typeof result.reason === 'string' && result.reason.length > 0);
+  }
+  for (const puzzle of [aquarium, network]) {
+    const proof = certify(structuredClone(puzzle));
+    assert.equal(proof.profile.method, 'unsupported');
+    assert.equal(proof.profile.steps, 0);
+    assert.equal(proof.profile.unresolved, null);
+    assert.equal(proof.profile.complete, null);
+    assert.deepEqual(proof.profile.rules, {});
+    assert.ok(typeof proof.profile.reason === 'string' && proof.profile.reason.length > 0);
+    assert.equal(Object.hasOwn(proof.profile, 'humanDifficulty'), false);
+  }
+});

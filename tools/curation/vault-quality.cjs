@@ -90,6 +90,7 @@ function numericProfile(p) {
 }
 function profile(p) {
   if (p.type === 'sudoku' || p.type === 'futoshiki') return numericProfile(p);
+  if (p.type !== 'binary' && p.type !== 'lightup') return { method: 'unsupported', steps: 0, unresolved: null, complete: null, rules: {}, reason: `No answer-free profile for ${p.type}` };
   const safe = new Proxy(p, { get(target, key) { if (key === 'solution') throw Error('Profile read the answer'); return target[key]; } });
   const engine = C.registry[p.type];
   let state = engine.initial(safe), steps = 0;
