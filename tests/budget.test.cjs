@@ -76,9 +76,10 @@ assert.ok(
 );
 for (const [prefix, limit] of [
   ['club-engines.', 8 * 1024],
-  // Six offered Games Room games plus retained legacy compatibility surfaces: 33 KiB allows the measured 32.2 KiB stylesheet.
+  // Six offered Games Room games plus retained legacy compatibility surfaces use 33 KiB;
+  // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
-  ['alibi.', 33 * 1024],
+  ['alibi.', 33 * 1024 + 256],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))

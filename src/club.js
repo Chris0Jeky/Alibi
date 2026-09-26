@@ -20,6 +20,7 @@
     saveError = '',
     protectedSave = false,
     saveQueue = Promise.resolve(),
+    restoring = false,
     loading = null;
   let state = {
     schema: 1,
@@ -214,10 +215,10 @@
         notify(saveError, true);
       };
     } catch (e) {
-      if (foundSave || e.name === 'BlockedError' || e.name === 'VersionError') {
+      if (foundSave || e.name === 'BlockedError' || e.name === 'VersionError' || db) {
         protectedSave = true;
         saveError =
-          'The existing Club save could not be opened and was left untouched. This session is temporary; export before closing.';
+          'Club save was left untouched; this session is temporary. Export before closing, then reload.';
         db?.close();
         db = null;
       } else
@@ -314,6 +315,7 @@
     );
   }
   function persist(replacement = null) {
+    if (restoring && !replacement) return saveQueue;
     const snapshot = clone(replacement || state);
     saveQueue = saveQueue
       .then(async () => {
@@ -523,9 +525,10 @@
           if (seed && (!state.runs.borough || state.runs.borough.seed !== E().seedText(seed))) {
             const validSeed = E().seedText(seed);
             if (state.runs.borough?.log.length && !currentGame('borough').done) {
-              root.__clubReset = { id: 'borough', seed: validSeed };
+              const intent = (root.__clubReset = { id: 'borough', seed: validSeed });
               setTimeout(
                 () =>
+                  root.__clubReset === intent &&
                   confirmation(
                     'Open the shared town?',
                     'This replaces your unfinished town. Export the Club save first to keep it.',
@@ -1020,6 +1023,7 @@
     const a = el.dataset.action.slice(5),
       v = el.dataset.value,
       id = el.dataset.id;
+    if (restoring && a !== 'restore-confirm') return;
     try {
       if (a === 'rotate') {
         hero = (hero + 1) % stories.length;
@@ -1103,15 +1107,25 @@
       else if (a === 'restore-confirm') {
         document.getElementById('dialog').close();
         if (root.__alibiPendingClub) {
+          if (restoring) throw Error('A Club restore is already in progress.');
           if (storageMode !== 'indexeddb' || saveError)
             throw Error(
               'Restore needs healthy device storage. Export this session before reloading.',
             );
           const next = root.__alibiPendingClub;
           delete root.__alibiPendingClub;
-          await persist(next);
-          if (saveError) throw Error(saveError);
-          state = next;
+          restoring = true;
+          botJob++;
+          botWorker?.terminate();
+          botWorker = null;
+          botPending = false;
+          try {
+            await persist(next);
+            if (saveError) throw Error(saveError);
+            state = next;
+          } finally {
+            restoring = false;
+          }
           await onRoute(route);
           render();
         }
