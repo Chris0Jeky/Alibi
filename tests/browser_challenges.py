@@ -7,7 +7,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = [item for name in ('classics', 'warehouse', 'reversi', 'borough') for item in json.loads((ROOT / 'content' / 'challenges' / f'{name}.json').read_text())['challenges']]
+PACKS = json.loads((ROOT / 'content/challenges/registry.json').read_text())['packs']
+DATA = [item for name in PACKS for item in json.loads((ROOT / 'content/challenges' / name).read_text())['challenges']]
 BY_ID = {item['id']: item for item in DATA}
 
 def assert_grid(page):
@@ -157,7 +158,8 @@ try:
         page = p.chromium.launch().new_page(viewport={'width': 390, 'height': 900})
         page.goto(production_url.rstrip('/') + '#/quiet/challenges')
         page.locator('[data-challenge-id]').first.wait_for()
-        assert page.locator('[data-challenge-id]').count() == 59
+        assert page.locator('[data-challenge-id]').count() == len(DATA)
+        assert set(page.locator('[data-challenge-id]').evaluate_all('(es) => es.map(e => e.dataset.challengeId)')) == set(BY_ID)
         page.locator('[data-challenge-id="curated-classic-hanoi-01"]').click()
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()

@@ -1498,7 +1498,14 @@
               'Fixed starts. Your own route.',
               'Each challenge rebuilds from its recorded start and your legal moves. Existing classics and Club games keep their own saves.',
             ) +
-            `<div class="card-grid">${entries.map((c) => `<button class="activity-card" data-challenge-id="${esc(c.id)}"><div class="info"><span class="tag">${esc(c.family)}</span><h3>${esc(c.title)}</h3><p>${esc(c.instruction).slice(0, 112)}…</p><span class="pill">Open challenge →</span></div></button>`).join('')}</div>`;
+            `<label for="challenge-family">Challenge family</label><select id="challenge-family"><option value="all">All challenges</option>${[...new Set(entries.map((c) => c.family))].map((f) => `<option value="${f}">${f === 'warehouse' ? 'Archive Heist' : f === 'borough' ? 'Pocket Borough' : f} (${entries.filter((c) => c.family === f).length})</option>`).join('')}</select><div class="card-grid">${entries.map((c) => `<button class="activity-card" data-family="${c.family}" data-challenge-id="${esc(c.id)}"><div class="info"><span class="tag">${esc(c.family)}</span><h3>${esc(c.title)}</h3><p>${esc(c.instruction).slice(0, 112)}…</p><span class="pill">Open challenge →</span></div></button>`).join('')}</div>`;
+          $('#challenge-family').onchange = (event) => {
+            const family = event.target.value;
+            $$('[data-challenge-id]').forEach((button) => {
+              button.hidden = family !== 'all' && button.dataset.family !== family;
+              button.style.display = button.hidden ? 'none' : '';
+            });
+          };
           $$('[data-challenge-id]').forEach(
             (button) =>
               (button.onclick = () => navigate('challenges/' + button.dataset.challengeId)),
