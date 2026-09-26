@@ -178,7 +178,7 @@ BAR_LAYOUT = """() => {
 CONTROLS_CLEAR = """() => {
   const holder = document.querySelector('[data-pulseboard-bar]');
   const out = [];
-  const targets = [...document.querySelectorAll('.main-tools [data-action], .board-wrap, #play-back')];
+  const targets = [...document.querySelectorAll('.main-tools [data-action], .play-nav button, .board-wrap, #play-back')];
   for (const el of targets) {
     el.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'});
     const r = el.getBoundingClientRect();
@@ -218,7 +218,7 @@ PILL = """() => {
 def assert_controls_clear(page, label):
     result = page.evaluate(CONTROLS_CLEAR)
     names = {entry['control'] for entry in result}
-    check({'undo', 'redo', 'hint', 'check'} <= names, f'{label}: Undo, Redo, Hint and Check are measured')
+    check({'undo', 'redo', 'hint', 'check', 'back-to-collection'} <= names, f'{label}: Undo, Redo, Hint, Check and the phone tool bar are measured')
     bad = [entry for entry in result if entry['overlaps'] or entry['covered']]
     check(not bad, f'{label}: no game control or the board is overlapped or covered {bad!r}')
     check(page.evaluate(NO_FIXED_SDK_UI), f'{label}: no Pulseboard element is fixed or absolute')

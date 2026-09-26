@@ -3224,6 +3224,13 @@ dialog .dialog-actions {
 #pulseboard-slot button {
   min-height: 44px;
 }
+/* The SDK paints its own dark surface; host paragraph colours and sizes must not leak into it. */
+[data-pulseboard-bar] p,
+#pulseboard-slot p {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
 /* Theme and accessibility */
 html[data-theme='night'] {
   --bg: #19251f;
