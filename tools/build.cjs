@@ -243,7 +243,13 @@ function build() {
   editorial.artwork = curation.assets;
   // Authored scene/media metadata belongs with the other official editorial data.
   // This is still an initial download, counted in combined and offline delivery budgets.
-  const contentSource = `globalThis.ALIBI_RELEASES=${JSON.stringify(JSON.parse(read(path.join(ROOT, 'content/releases.json'))))};\nglobalThis.ALIBI_CATALOG=${JSON.stringify(catalog)};\nglobalThis.ALIBI_CASEBOOKS=${JSON.stringify(books)};\nglobalThis.ALIBI_CURATION=${JSON.stringify(editorial)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify(theatre)};\n`;
+  const contentSource = require('./build-official-content.cjs').serialize({
+    ALIBI_RELEASES: JSON.parse(read(path.join(ROOT, 'content/releases.json'))),
+    ALIBI_CATALOG: catalog,
+    ALIBI_CASEBOOKS: books,
+    ALIBI_CURATION: editorial,
+    ALIBI_THEATRE: theatre,
+  });
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
   const base = [
