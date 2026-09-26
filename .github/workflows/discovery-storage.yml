@@ -28,7 +28,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: discovery-storage-${{ github.ref }}
+  # Main runs get a per-commit group: a later docs-only push must not cancel a full run.
+  group: discovery-storage-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
   cancel-in-progress: true
 jobs:
   storage:
