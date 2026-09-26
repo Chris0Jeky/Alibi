@@ -47,6 +47,26 @@ for (const [label, pattern, reportedBytes] of deferredAssets) {
     `${label} stays outside the core offline shell`,
   );
 }
+{
+  // Registry-deferred official definitions leave the startup payload but stay offline-ready.
+  const matches = assetNames.filter((name) => /^official-deferred\.[a-f0-9]{12}\.js$/.test(name));
+  assert.equal(matches.length, 1, 'One hashed deferred official-definitions asset is emitted');
+  const bytes = fs.readFileSync(path.join(root, 'dist/assets', matches[0]));
+  assert.equal(bytes.length, info.deferredContentBytes, 'Deferred definitions are reported');
+  assert.equal(zlib.gzipSync(bytes).length, info.deferredContentGzipBytes);
+  assert.ok(
+    serviceWorker.includes(`"./assets/${matches[0]}"`),
+    'Deferred definitions are precached in the core offline shell',
+  );
+  assert.ok(
+    !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+    'Deferred definitions are not a startup script',
+  );
+  assert.ok(
+    info.deferredContentGzipBytes < 12 * 1024,
+    'Deferred official definitions stay under 12 KiB gzip',
+  );
+}
 const deferredBytes = info.observatoryBytes + info.discoveryStorageBytes;
 const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
 // CAP-03 adds the bounded Cabinet picker consumer to the startup application shell.

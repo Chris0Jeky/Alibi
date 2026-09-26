@@ -26,6 +26,16 @@
     "extra/keepers-picture-studies.json",
     "extra/night-gardens.json",
     "extra/night-routes.json",
-    "extra/night-symbols.json"
+    "extra/night-symbols.json",
+    "extra/vault-binary.json",
+    "extra/vault-sudoku.json",
+    "extra/vault-lightup.json",
+    "extra/vault-futoshiki.json"
+  ],
+  "deferred": [
+    "extra/vault-binary.json",
+    "extra/vault-sudoku.json",
+    "extra/vault-lightup.json",
+    "extra/vault-futoshiki.json"
   ]
 }

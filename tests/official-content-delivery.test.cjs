@@ -117,8 +117,11 @@ test('actual built official catalogue matches every registered definition byte-f
   const dir = path.join(__dirname, '../dist/assets');
   const file = fs.readdirSync(dir).find((name) => /^official-content\.[a-f0-9]+\.js$/.test(name));
   assert.ok(file, 'the normal build emits one hashed official-data script');
+  const later = fs.readdirSync(dir).find((name) => /^official-deferred\.[a-f0-9]+\.js$/.test(name));
+  assert.ok(later, 'registry-deferred definitions are emitted as one hashed chunk');
   const context = {};
   vm.runInNewContext(fs.readFileSync(path.join(dir, file), 'utf8'), context, { timeout: 2000 });
+  vm.runInNewContext(fs.readFileSync(path.join(dir, later), 'utf8'), context, { timeout: 2000 });
   assert.equal(JSON.stringify(context.ALIBI_CATALOG), JSON.stringify(expected));
 });
 

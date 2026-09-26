@@ -1,0 +1,342 @@
+{"schemaVersion":1,"id":"alibi-vault-lightup","version":1,"title":"Alibi · Vault Chambers: Lanterns","author":"Alibi","puzzles":[
+{"id":"vault-lightup-01","revision":1,"type":"lightup","title":"The shadowed vestibule","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,-2,-2,-2,-2,
+-2,-1,-1,1,-2,-1,-2,
+-2,-2,-2,2,-2,2,-2,
+1,-2,-2,-2,-2,-2,-1,
+-1,-2,-2,-2,-2,-2,0,
+-2,-2,-2,-1,-2,-1,-1,
+0,-2,1,-2,-2,-1,-2
+],"solution":[
+0,0,0,1,0,0,0,
+0,0,0,0,0,0,0,
+1,0,0,0,1,0,1,
+0,0,0,1,0,0,0,
+0,0,1,0,0,0,0,
+0,1,0,0,0,0,0,
+0,0,0,1,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 33 open squares; local wall and coverage hints leave 29 unknowns. Provisional tier."},
+{"id":"vault-lightup-02","revision":1,"type":"lightup","title":"Lanterns above the cistern","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,1,-2,-2,-2,-2,-2,
+-2,0,-2,-2,-2,1,-2,
+-2,-2,1,-2,-2,-2,-2,
+-1,1,-1,-2,-2,0,0,
+1,-2,-1,-2,-2,-2,-2,
+-2,-2,-1,-1,-2,-2,-2,
+-2,-2,-1,-1,-2,2,-2
+],"solution":[
+0,0,1,0,0,0,0,
+0,0,0,0,0,0,1,
+1,0,0,1,0,0,0,
+0,0,0,0,0,0,0,
+0,1,0,0,1,0,0,
+0,0,0,0,0,1,0,
+1,0,0,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"9 numbered walls cover 33 open squares; local wall and coverage hints leave 6 unknowns. Provisional tier."},
+{"id":"vault-lightup-03","revision":1,"type":"lightup","title":"The divided glass roof","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-1,-2,-2,-1,-1,-2,-2,
+-2,2,-2,-1,-1,0,-2,
+-2,-2,-2,-1,-2,-2,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-2,-2,-1,-2,-2,-2,-1,
+-2,4,-2,-2,2,-2,-2,
+-2,-2,-2,-1,-2,2,-2
+],"solution":[
+0,1,0,0,0,0,1,
+0,0,1,0,0,0,0,
+0,0,0,0,0,0,0,
+0,0,0,0,0,1,0,
+0,1,0,0,1,0,0,
+1,0,1,0,0,0,0,
+0,1,0,0,1,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"5 numbered walls cover 35 open squares; local wall and coverage hints leave 10 unknowns. Provisional tier."},
+{"id":"vault-lightup-04","revision":1,"type":"lightup","title":"The unlit stair landing","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,-2,-2,1,-2,
+-2,-2,-2,-2,2,-2,-2,
+-2,-2,-2,3,-2,2,-2,
+1,-2,-2,-2,-2,-2,-2,
+-2,-2,-2,-2,1,-2,-2,
+-2,-2,-2,-1,-1,-2,-2,
+-2,1,-2,1,-2,-2,-2
+],"solution":[
+0,0,0,1,0,0,0,
+1,0,0,0,0,1,0,
+0,0,1,0,1,0,0,
+0,0,0,1,0,0,0,
+1,0,0,0,0,1,0,
+0,1,0,0,0,0,1,
+0,0,0,0,1,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"8 numbered walls cover 39 open squares; local wall and coverage hints leave 39 unknowns. Provisional tier."},
+{"id":"vault-lightup-05","revision":1,"type":"lightup","title":"A corridor without glare","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,1,-2,-2,-1,-2,
+1,-2,-2,-2,-2,-2,-1,
+-2,-2,-2,0,-1,-2,-2,
+-2,-1,-2,-1,-2,-1,0,
+-2,-2,-2,-2,-2,-1,-1,
+-2,-2,4,-2,-1,-2,-1,
+-2,-2,-2,-2,-2,-2,-2
+],"solution":[
+1,0,0,1,0,0,1,
+0,0,0,0,1,0,0,
+0,1,0,0,0,1,0,
+1,0,0,0,1,0,0,
+0,0,1,0,0,0,0,
+0,1,0,1,0,1,0,
+0,0,1,0,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"5 numbered walls cover 34 open squares; local wall and coverage hints leave 9 unknowns. Provisional tier."},
+{"id":"vault-lightup-06","revision":1,"type":"lightup","title":"The sealed lantern niche","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-1,-2,-2,0,-2,-2,
+-1,2,-2,-2,-2,-2,-2,
+-2,-2,2,-2,-2,-2,-2,
+-2,-2,-1,-2,-1,0,-2,
+-2,1,0,-2,-2,0,-2,
+-2,-2,-2,-2,-2,-2,-1,
+-2,2,-2,-2,-2,-2,-1
+],"solution":[
+1,0,0,0,0,0,1,
+0,0,1,0,0,0,0,
+0,1,0,0,1,0,0,
+0,0,0,1,0,0,0,
+0,0,0,0,0,0,0,
+0,1,0,0,0,0,0,
+1,0,0,0,1,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"8 numbered walls cover 35 open squares; local wall and coverage hints leave 12 unknowns. Provisional tier."},
+{"id":"vault-lightup-07","revision":1,"type":"lightup","title":"The four silent alcoves","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,0,1,-2,-2,-2,
+2,-2,-2,-2,-2,-2,-2,
+-2,-2,-2,-2,0,-2,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-2,-2,0,2,-2,-2,-1,
+-1,-2,-2,-2,-2,-2,-2,
+-2,-2,-2,0,-2,1,-2
+],"solution":[
+1,0,0,0,1,0,0,
+0,0,0,0,0,1,0,
+1,0,0,0,0,0,1,
+0,0,0,1,0,0,0,
+0,0,0,0,1,0,0,
+0,1,0,0,0,0,0,
+1,0,0,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"8 numbered walls cover 39 open squares; local wall and coverage hints leave 14 unknowns. Provisional tier."},
+{"id":"vault-lightup-08","revision":1,"type":"lightup","title":"Light through the west arcade","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-1,-2,-2,-2,-2,
+-2,-2,0,-2,-2,-2,-2,
+-2,-2,-1,-2,-1,2,-2,
+2,-1,-2,-2,-1,0,-2,
+-2,-2,0,-2,-2,-2,-1,
+2,-2,-1,-2,-2,-2,-2,
+-2,-2,-2,-2,-2,2,-2
+],"solution":[
+0,1,0,0,1,0,0,
+0,0,0,0,0,1,0,
+1,0,0,0,0,0,1,
+0,0,0,1,0,0,0,
+1,0,0,0,1,0,0,
+0,1,0,0,0,1,0,
+0,0,1,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 35 open squares; local wall and coverage hints leave 10 unknowns. Provisional tier."},
+{"id":"vault-lightup-09","revision":1,"type":"lightup","title":"The crossing galleries","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,3,-2,-1,-1,-1,-1,
+-2,-2,-2,1,-1,-2,-1,
+-2,-2,-1,-2,-2,-2,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-1,-1,-2,1,-2,-2,1,
+-2,-2,-2,-2,-2,-2,-1,
+0,-2,-2,2,-2,-2,-2
+],"solution":[
+1,0,1,0,0,0,0,
+0,1,0,0,0,0,0,
+0,0,0,1,0,0,0,
+0,0,0,0,1,0,0,
+0,0,0,0,0,1,0,
+0,0,0,1,0,0,0,
+0,0,1,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"6 numbered walls cover 33 open squares; local wall and coverage hints leave 17 unknowns. Provisional tier."},
+{"id":"vault-lightup-10","revision":1,"type":"lightup","title":"A lamp behind the screen","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-1,-2,-1,1,-2,-2,-2,
+-2,2,-2,-2,-2,-2,1,
+-2,-2,-2,-2,-2,-2,-1,
+-2,-2,-2,-2,2,-2,0,
+-1,-2,-2,-2,-2,-2,-2,
+-1,-2,-2,-2,-2,0,-2,
+-2,-2,-2,-2,-2,-2,-2
+],"solution":[
+0,1,0,0,1,0,0,
+1,0,0,0,0,1,0,
+0,0,1,0,0,0,0,
+0,0,0,1,0,0,0,
+0,0,0,0,1,0,0,
+0,1,0,0,0,0,0,
+0,0,0,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"6 numbered walls cover 38 open squares; local wall and coverage hints leave 25 unknowns. Provisional tier."},
+{"id":"vault-lightup-11","revision":1,"type":"lightup","title":"The narrow light shaft","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,1,-2,-1,-1,
+-2,-2,2,-2,-2,-2,-2,
+-2,-2,-2,-2,1,-2,-1,
+1,-2,-2,-2,1,1,-2,
+-2,-1,-2,-2,-1,-2,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-2,-2,-2,-1,1,-1,-2
+],"solution":[
+1,0,0,0,1,0,0,
+0,1,0,0,0,0,1,
+0,0,1,0,0,1,0,
+0,0,0,1,0,0,0,
+1,0,0,0,0,0,1,
+0,0,0,0,1,0,0,
+0,1,0,0,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 35 open squares; local wall and coverage hints leave 22 unknowns. Provisional tier."},
+{"id":"vault-lightup-12","revision":1,"type":"lightup","title":"The broken colonnade","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,1,-2,-2,-2,-2,
+-2,-2,-2,-2,-2,1,-2,
+-2,-1,-2,-2,-1,-2,-2,
+-2,-2,-1,-2,-2,-2,-2,
+-2,3,-1,-2,-2,1,-2,
+-2,-2,-2,2,-2,-2,-2,
+-2,-2,-2,-2,-1,-2,0
+],"solution":[
+0,1,0,0,1,0,0,
+0,0,0,0,0,0,0,
+0,0,1,0,0,1,0,
+0,1,0,0,0,0,1,
+1,0,0,1,0,0,0,
+0,1,0,0,0,1,0,
+0,0,0,1,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"6 numbered walls cover 38 open squares; local wall and coverage hints leave 13 unknowns. Provisional tier."},
+{"id":"vault-lightup-13","revision":1,"type":"lightup","title":"The walled reading court","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-1,1,-2,-2,-2,0,
+-2,-2,-2,-2,-2,-2,1,
+-1,-1,1,-1,-2,-2,-2,
+-2,-1,2,-2,1,-2,-2,
+-2,-2,-2,2,1,-2,-2,
+1,-2,-2,-2,-2,-2,-1,
+-2,-1,-2,-2,-2,-2,-2
+],"solution":[
+1,0,0,0,1,0,0,
+0,0,1,0,0,0,0,
+0,0,0,0,0,0,1,
+1,0,0,1,0,0,0,
+0,0,1,0,0,0,0,
+0,0,0,0,1,0,0,
+1,0,0,0,0,1,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"9 numbered walls cover 33 open squares; local wall and coverage hints leave 7 unknowns. Provisional tier."},
+{"id":"vault-lightup-14","revision":1,"type":"lightup","title":"The gardener’s night diagram","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,-2,-2,-1,-2,
+-1,-2,-2,-2,-1,-1,-2,
+-2,1,2,-2,-2,-2,1,
+-1,-1,-2,-2,-2,-2,-1,
+-2,-2,-1,-1,-2,-2,-1,
+2,-1,-2,-2,3,-2,-2,
+-2,-2,-2,-2,-1,-1,-2
+],"solution":[
+0,0,0,1,0,0,0,
+0,0,1,0,0,0,1,
+1,0,0,0,0,0,0,
+0,0,1,0,0,0,0,
+1,0,0,0,1,0,0,
+0,0,0,1,0,1,0,
+1,0,0,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"5 numbered walls cover 31 open squares; local wall and coverage hints leave 10 unknowns. Provisional tier."},
+{"id":"vault-lightup-15","revision":1,"type":"lightup","title":"A lantern by the archive","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,0,1,-2,-1,
+-1,-2,-1,-2,-2,-2,1,
+-1,1,1,-2,-2,-2,-2,
+-2,-2,-2,-2,-2,-1,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-2,-2,1,1,-2,-2,-2,
+-2,-2,-1,-2,-2,-2,-2
+],"solution":[
+1,0,0,0,0,1,0,
+0,1,0,0,0,0,0,
+0,0,0,0,0,0,1,
+0,0,1,0,0,0,0,
+0,0,0,1,0,0,0,
+0,1,0,0,0,1,0,
+1,0,0,0,1,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 36 open squares; local wall and coverage hints leave 34 unknowns. Provisional tier."},
+{"id":"vault-lightup-16","revision":1,"type":"lightup","title":"The second covered walk","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,-2,-1,-2,-2,-2,
+-2,-2,-2,-1,-2,1,-1,
+-1,1,-2,-2,-2,-1,-2,
+-2,-2,-2,0,-2,-2,3,
+-2,-2,-2,-2,-1,-2,-2,
+-2,-2,3,-2,-2,-2,-2,
+1,-2,-2,-2,-2,-1,-1
+],"solution":[
+0,1,0,0,0,1,0,
+1,0,0,0,0,0,0,
+0,0,0,0,1,0,1,
+0,1,0,0,0,1,0,
+0,0,1,0,0,0,1,
+1,0,0,1,0,0,0,
+0,0,1,0,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"6 numbered walls cover 35 open squares; local wall and coverage hints leave 25 unknowns. Provisional tier."},
+{"id":"vault-lightup-17","revision":1,"type":"lightup","title":"The unlit north passage","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,1,-2,-2,-2,-2,
+-2,-2,-2,1,-2,2,-2,
+-2,-1,-1,-2,-2,-2,-1,
+-2,-2,-1,-2,-2,0,-1,
+2,-2,-1,-1,-2,-2,-2,
+-2,-2,-2,0,-2,-2,-2,
+-2,-2,-2,-2,-2,1,-2
+],"solution":[
+1,0,0,0,0,1,0,
+0,0,1,0,0,0,1,
+0,0,0,0,1,0,0,
+0,0,0,1,0,0,0,
+0,1,0,0,0,0,1,
+1,0,0,0,0,1,0,
+0,0,1,0,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 35 open squares; local wall and coverage hints leave 29 unknowns. Provisional tier."},
+{"id":"vault-lightup-18","revision":1,"type":"lightup","title":"The quiet winter court","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-1,-1,0,-2,-1,-2,-2,
+-2,-1,-2,-2,-2,-2,-2,
+-2,-2,-2,-2,1,-2,-2,
+2,-2,2,-2,-2,-2,0,
+-2,-2,-2,-2,-1,-1,-1,
+-2,-2,-2,-1,1,-2,-2,
+-2,-2,-2,0,-2,-2,-2
+],"solution":[
+0,0,0,0,0,0,0,
+0,0,0,0,0,0,1,
+1,0,0,0,0,1,0,
+0,1,0,1,0,0,0,
+0,0,0,0,0,0,0,
+0,0,1,0,0,1,0,
+1,0,0,0,0,0,1
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 34 open squares; local wall and coverage hints leave 24 unknowns. Provisional tier."},
+{"id":"vault-lightup-19","revision":1,"type":"lightup","title":"The three adjoining walls","subtitle":"Vault Chambers","difficulty":"Expert","difficultyStatus":"provisional","size":7,"walls":[
+-2,2,-2,-2,-1,-2,-2,
+-2,-1,-2,-2,-2,2,-2,
+2,-2,-2,-2,3,-2,-2,
+-2,-1,-2,-2,-2,-2,-1,
+-1,-2,-2,-2,-1,-1,-1,
+-2,-2,-2,-2,1,1,-2,
+0,-2,-2,-2,-2,-2,-2
+],"solution":[
+1,0,1,0,0,0,1,
+0,0,0,0,1,0,0,
+0,1,0,0,0,1,0,
+1,0,0,0,1,0,0,
+0,0,0,1,0,0,0,
+0,1,0,0,0,0,1,
+0,0,0,0,1,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 34 open squares; local wall and coverage hints leave 9 unknowns. Provisional tier."},
+{"id":"vault-lightup-20","revision":1,"type":"lightup","title":"The last gallery lamp","subtitle":"Vault Chambers","difficulty":"Master","difficultyStatus":"provisional","size":7,"walls":[
+-2,-2,1,-2,-2,3,-2,
+-2,-2,-2,-2,-1,-2,-1,
+-1,-2,-2,1,-2,-2,-2,
+-2,-2,-2,-2,-2,-2,-2,
+-2,-2,-2,-2,-2,1,0,
+-2,-2,-2,1,-2,-2,-2,
+-2,2,-2,-2,-2,-2,-2
+],"solution":[
+0,1,0,0,1,0,1,
+0,0,0,1,0,1,0,
+0,0,0,0,0,0,1,
+0,0,0,0,1,0,0,
+0,0,0,1,0,0,0,
+0,0,0,0,0,1,0,
+1,0,1,0,0,0,0
+],"story":"The keeper has left a lamp plan for the closed galleries. Light every open square, satisfy every numbered wall and keep lanterns out of each other’s sight.","difficultyEvidence":"7 numbered walls cover 39 open squares; local wall and coverage hints leave 31 unknowns. Provisional tier."}
+]}

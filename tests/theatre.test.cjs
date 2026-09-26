@@ -44,7 +44,11 @@ test('editorial theatre data is loaded before its consumer and fully counted', (
   const dataIndex = html.indexOf('src="./assets/official-content.');
   const codeIndex = html.indexOf('src="./assets/alibi.');
   assert.ok(dataIndex >= 0 && codeIndex > dataIndex);
-  assert.equal(info.officialContentBytes, Buffer.byteLength(content) + info.curationMediaBytes);
+  // Registry-deferred definitions are official content too, delivered after startup.
+  assert.equal(
+    info.officialContentBytes,
+    Buffer.byteLength(content) + info.deferredContentBytes + info.curationMediaBytes,
+  );
   assert.equal(info.officialContentGzipBytes, zlib.gzipSync(content).length);
   assert.equal(
     info.initialCodeAndContentGzipBytes,

@@ -24,20 +24,44 @@ function aggregate(packs, checkUnique = true) {
   if (!packs.length) throw Error('Official catalogue is empty');
   return { ...packs[0], puzzles };
 }
-function load(root = path.resolve(__dirname, '..'), checkUnique = true) {
-  const dir = path.join(root, 'content');
-  const registry = JSON.parse(fs.readFileSync(path.join(dir, 'official-packs.json'), 'utf8'));
-  if (registry.schemaVersion !== 1 || !Array.isArray(registry.packs))
-    throw Error('Unsupported official pack registry');
-  return aggregate(
-    registry.packs.map((file) => {
-      if (!/^[a-z0-9/-]+\.json$/.test(file) || file.includes('..'))
-        throw Error('Invalid official pack path');
-      const bytes = fs.readFileSync(path.join(dir, file));
-      if (bytes.length > 3 * 1024 * 1024) throw Error('Official source pack exceeds 3 MB');
-      return JSON.parse(bytes.toString('utf8'));
-    }),
-    checkUnique,
+function registry(root) {
+  const value = JSON.parse(
+    fs.readFileSync(path.join(root, 'content', 'official-packs.json'), 'utf8'),
   );
+  if (value.schemaVersion !== 1 || !Array.isArray(value.packs))
+    throw Error('Unsupported official pack registry');
+  const deferred = value.deferred ?? [];
+  // Deferred packs are still official content: delivered after startup, never omitted.
+  if (
+    !Array.isArray(deferred) ||
+    new Set(deferred).size !== deferred.length ||
+    deferred.some((file) => !value.packs.includes(file))
+  )
+    throw Error('Deferred official packs must be distinct registered packs');
+  return { packs: value.packs, deferred };
 }
-module.exports = { load, aggregate };
+function readPacks(root, files) {
+  const dir = path.join(root, 'content');
+  return files.map((file) => {
+    if (!/^[a-z0-9/-]+\.json$/.test(file) || file.includes('..'))
+      throw Error('Invalid official pack path');
+    const bytes = fs.readFileSync(path.join(dir, file));
+    if (bytes.length > 3 * 1024 * 1024) throw Error('Official source pack exceeds 3 MB');
+    return JSON.parse(bytes.toString('utf8'));
+  });
+}
+function load(root = path.resolve(__dirname, '..'), checkUnique = true) {
+  return aggregate(readPacks(root, registry(root).packs), checkUnique);
+}
+// The full catalogue plus the keys (id@revision) whose definitions ship in the deferred chunk.
+function partition(root = path.resolve(__dirname, '..'), checkUnique = true) {
+  const { packs, deferred } = registry(root);
+  const sources = readPacks(root, packs);
+  const deferredKeys = new Set(
+    sources
+      .filter((_, i) => deferred.includes(packs[i]))
+      .flatMap((pack) => pack.puzzles.map((p) => p.id + '@' + p.revision)),
+  );
+  return { catalog: aggregate(sources, checkUnique), deferred: deferredKeys };
+}
+module.exports = { load, aggregate, partition };
