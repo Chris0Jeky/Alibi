@@ -25,6 +25,7 @@ test('Block Cabinet draws reproducible trays and replays placements', () => {
   assert.deepEqual(first.board, Array(64).fill(0), 'move does not mutate the board');
   assert.deepEqual(placed, blocks.replay('CABINET-1', [{ slot: 0, cell: 0 }]));
   assert.deepEqual(placed.tray.slice(1), first.tray.slice(1), 'unused tray pieces remain');
+  assert.equal(placed.tray[0], 'zig', 'the used slot receives its deterministic next piece');
   assert.equal(
     placed.score,
     shape.cells.length,

@@ -33,27 +33,12 @@ available in this session. Full CI matrix and physical-device confirmation are
 pending. See [the hotfix receipt](HOTFIX-2026-09-26-USAGE-SHARING.md).
 Rollback: Worker `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`.
 
-## Branch checkpoint: lossless delivery candidate #365 (draft branch only)
+## Lossless official-content delivery merged: 26 September 2026
 
-This section exists only on `codex/345-lossless-official-delivery`; reconcile it
-before merging to main. Live PR state takes precedence over this note.
-
-[Lossless official-content delivery](OFFICIAL-CONTENT-DELIVERY.md) groups record
-fields and bounded integer arrays while restoring all five existing JSON globals
-synchronously before the app. Decoder bytes remain in the same counted, cached
-content script. Nineteen focused identity/delivery tests pass. Replaying the exact
-#354 artifact preserves every value and JSON key order while saving 6,913 gzip
-bytes. Holding its other bytes constant projects 204,294 initial bytes below the
-unchanged 204,800 limit; this is not a fresh integrated 510-puzzle build.
-
-Keep #365 draft until exact-head CI passes after the main merge, plus independent
-review, actual browser/offline checks and measured emitted bytes. The related
-Vault collection #354 stays draft until reviewed delivery and authoring changes
-are integrated, production-hint-dependent profiles are recertified without
-altering definitions, the full startup payload is remeasured and all 80 boards
-are exercised through phone/desktop controls. Planning challenges #357 and
-Duel/Cabinet #347 are separate work. #281/#282 still need maintainer
-architecture acceptance.
+PR #365 merged the lossless record/column encoder for the five startup JSON
+globals with byte-identical restore, decoder bytes inside the counted content
+script, and VM-executed install tests. It unblocks the Vault collection #354
+delivery gate pending full-payload re-measurement.
 
 ## Published web release 0.12.0: 25 September 2026
 
@@ -509,5 +494,24 @@ playable puzzle, runtime generator, save format, budget or deployment change.
 Coordinator review verified the bounds and added recipe
 determinism/uniqueness coverage. Stored profiles must be recomputed after
 production hint changes; human difficulty stays under #161 / q-8. The
-dependent Vault collection #354 must be retargeted to main before this
-branch is removed.
+dependent Vault collection #354 was retargeted to main after the merge.
+
+## Games Room recovery draft
+
+The #347 continuation adds bounded Duel strengths and fresh confirmed Cabinet
+restarts, with explicit worker-error retry and stale-reply guards. See
+[Games recovery](curation/GAMES-RECOVERY.md) for the source and browser receipts.
+Eighteen source tests and ten/76 standalone browser checks pass. The measured
+JavaScript exceeds the unchanged cap; no full-CI, merge or release claim is made.
+Physical-device and human gates remain in HUMAN_TODO.md.
+
+### Games Room budget recovery
+
+The gameplay slice moves enhancement metadata into the existing official data
+asset and retains the same startup global. All values are independently compared
+with the asset builder; no metadata, request, shell entry or byte accounting is
+dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
+203,370 combined initial bytes, below unchanged 130,304 and 204,800 limits.
+Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
+assertions pass after this change. Full exact-head CI, origin storage/offline,
+independent review and physical/human acceptance remain required.

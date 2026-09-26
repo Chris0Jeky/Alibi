@@ -35,6 +35,17 @@
     [1, 1],
   ];
   const reversi = {
+    strengths: Object.freeze({
+      learner: Object.freeze({ name: 'Learner', depth: 1 }),
+      club: Object.freeze({ name: 'Club', depth: 3 }),
+      keeper: Object.freeze({ name: 'Keeper', depth: 4 }),
+      expert: Object.freeze({ name: 'Expert', depth: 5 }),
+    }),
+    strength(id = 'keeper') {
+      if (typeof id !== 'string' || !Object.hasOwn(this.strengths, id))
+        throw Error('Unknown Lantern Duel strength.');
+      return this.strengths[id];
+    },
     initial() {
       const b = Array(36).fill(0);
       b[14] = b[21] = -1;

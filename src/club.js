@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   const cfg = () => root.ALIBI_CLUB_CONFIG || {};
@@ -18,6 +18,7 @@
     rev = 0,
     storageMode = 'session',
     saveError = '',
+    protectedSave = false,
     saveQueue = Promise.resolve(),
     restoring = false,
     loading = null;
@@ -41,6 +42,7 @@
     botWorker = null,
     botJob = 0,
     botPending = false,
+    botFailed = false,
     lab = null,
     room = null,
     roomAttempt = null,
@@ -213,7 +215,8 @@
         notify(saveError, true);
       };
     } catch (e) {
-      if (e.name === 'BlockedError' || e.name === 'VersionError' || db) {
+      if (foundSave || e.name === 'BlockedError' || e.name === 'VersionError' || db) {
+        protectedSave = true;
         saveError =
           'Club save was left untouched; this session is temporary. Export before closing, then reload.';
         db?.close();
@@ -234,6 +237,7 @@
           localStorage.removeItem('alibi-club-probe');
           storageMode = 'local';
         } catch (_) {
+          protectedSave = foundSave;
           saveError = foundSave
             ? 'An existing Club save was left untouched because it could not be read. Export this temporary session before closing.'
             : 'Club progress is kept only in this tab. Export before closing it.';
@@ -509,12 +513,7 @@
     selectedDominoTile = null;
     selectedMahjongTile = null;
     previewCell = null;
-    botJob++;
-    botPending = false;
-    if (botWorker) {
-      botWorker.terminate();
-      botWorker = null;
-    }
+    stopBot();
     stopLab();
     stopPoll();
     if (r.page === 'salon' || r.page === 'club') {
@@ -606,7 +605,7 @@
     return `<details class="club-rules" ${open ? 'open' : ''}><summary>How this works <span>+</span></summary>${content}</details>`;
   }
   function toolbar(id, r, extra = '') {
-    return `<div class="club-playtools">${B('↶ Undo', 'undo', `data-id="${id}" ${r.log.length ? '' : 'disabled'}`, 'secondary')}${B('↷ Redo', 'redo', `data-id="${id}" ${r.redo.length ? '' : 'disabled'}`, 'secondary')}${B('Start again', 'restart', `data-id="${id}"`, 'ghost')}${extra}</div>`;
+    return `<div class="club-playtools">${B('↶ Undo', 'undo', `data-id="${id}" ${r.log.length ? '' : 'disabled'}`, 'secondary')}${B('↷ Redo', 'redo', `data-id="${id}" ${r.redo.length ? '' : 'disabled'}`, 'secondary')}${B('Start again', 'restart', `data-id="${id}"`, 'ghost')}${extra}${botFailed && ['duel', 'tictactoe'].includes(id) ? B('Retry opponent', 'bot-retry', '', 'secondary') : ''}</div>`;
   }
   function duelPage() {
     ensureRun('duel');
@@ -622,7 +621,24 @@
         (!online || room.joined) &&
         (online || r.mode === 'local' || s.turn === 1),
       capture = previewCell !== null ? E().reversi.flips(s, previewCell) : [];
-    return `${heading('Lantern Duel.', 'THE GAMES ROOM / 01', 'Keep the corners. Read the room. Leave fewer choices.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><div class="duel-modes">${B('Against the keeper', 'duel-mode', 'data-value="bot"', !online && r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'duel-mode', 'data-value="local"', !online && r.mode === 'local' ? 'active' : 'secondary')}${B(online ? 'Private room ' + esc(room.code) : 'Private online room', 'online-settings', '', online ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><i class="lantern-piece gold"></i><span>Gold <small>${online ? (room.seat === 1 ? 'You' : 'Opponent') : r.mode === 'bot' ? 'You' : 'First player'}</small></span><strong>${score.gold}</strong></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><i class="lantern-piece ink"></i><span>Ink <small>${online ? (room.seat === -1 ? 'You' : 'Opponent') : r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span><strong>${score.ink}</strong></div></div><div class="duel-grid" role="group" aria-label="Lantern Duel board, six rows and columns">${s.board.map((v, i) => `<button id="duel-${i}" class="duel-cell ${v ? 'occupied' : ''} ${!v && legal.includes(i) ? 'legal' : ''} ${capture.includes(i) ? 'capture-preview' : ''}" data-action="club-duel-cell" data-cell="${i}" ${canMove && !v && legal.includes(i) ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}: ${v === 1 ? 'gold lantern' : v === -1 ? 'ink lantern' : legal.includes(i) ? `empty, legal move, flips ${E().reversi.flips(s, i).length}` : 'empty, unavailable'}">${v ? `<i class="lantern-piece ${v === 1 ? 'gold' : 'ink'}"></i>` : legal.includes(i) ? '<span class="legal-dot"></span>' : ''}</button>`).join('')}</div><div class="club-turn-status" role="status">${s.done ? `<strong>${score.gold === score.ink ? 'An even table.' : score.gold > score.ink ? 'Gold holds the room.' : 'Ink holds the room.'}</strong> Final score ${score.gold} – ${score.ink}.` : online && !room.joined ? 'Room open. Waiting for the second player.' : !yourTurn ? 'Your opponent is thinking.' : botPending ? 'The keeper is considering the corners…' : `${s.turn === 1 ? 'Gold' : 'Ink'} to move. ${legal.length} legal ${legal.length === 1 ? 'square' : 'squares'}.`}${s.passed && !s.done ? '<small>The other side had no legal move and passed automatically.</small>' : ''}</div>${online ? `<div class="club-playtools">${B('Refresh room', 'room-refresh', '', 'secondary')}${B('Leave room view', 'room-leave', '', 'ghost')}</div>` : toolbar('duel', r)}${roomError ? `<p class="club-warning">${esc(roomError)}</p>` : ''}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE KEEPER’S NOTE</span><h2>A full board is not a plan.</h2><p>Capture along a straight line. Corners cannot be taken back. A big early move is not always a good one.</p><div class="tiny-diagram"><i class="lantern-piece gold"></i><i class="lantern-piece ink"></i><span>→</span><i class="lantern-piece gold"></i><i class="lantern-piece gold"></i></div></div>${ruleDetails('<p>Gold moves first. Place a lantern on a dotted square to enclose at least one opposing lantern between the new lantern and one of yours. All enclosed lanterns flip, in all eight directions.</p><p>You must play when you can. A player with no legal move passes automatically. When neither player can move, the side with more lanterns wins.</p><p>Undo against the keeper rewinds your move and the keeper’s reply. The keeper is a bounded game-tree search running in a worker, not an online language model.</p>', true)}<div class="club-local-note">${online ? 'Private room. The server validates turns. No ranking or matchmaking.' : r.mode === 'local' ? 'Two real players, one device. No network required.' : 'An offline opponent. Not another player.'}</div></aside></div>`;
+    return `${heading('Lantern Duel.', 'THE GAMES ROOM / 01', 'Keep the corners. Read the room. Leave fewer choices.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><div class="duel-modes">${B('Against the keeper', 'duel-mode', 'data-value="bot"', !online && r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'duel-mode', 'data-value="local"', !online && r.mode === 'local' ? 'active' : 'secondary')}${B(online ? 'Private room ' + esc(room.code) : 'Private online room', 'online-settings', '', online ? 'active' : 'secondary')}</div>${
+      !online && r.mode === 'bot'
+        ? `<fieldset class="duel-strengths"><legend>Opponent strength</legend>${Object.entries(
+            E().reversi.strengths,
+          )
+            .map(([key, strength]) =>
+              B(
+                strength.name,
+                'duel-strength',
+                `data-value="${key}" aria-pressed="${(r.difficulty || 'keeper') === key}"`,
+                'secondary small',
+              ),
+            )
+            .join(
+              '',
+            )}<p>${E().reversi.strength(r.difficulty).depth} moves ahead at most. Keeper retains the original setting. Higher strengths can still make mistakes.</p></fieldset>`
+        : ''
+    }<div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><i class="lantern-piece gold"></i><span>Gold <small>${online ? (room.seat === 1 ? 'You' : 'Opponent') : r.mode === 'bot' ? 'You' : 'First player'}</small></span><strong>${score.gold}</strong></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><i class="lantern-piece ink"></i><span>Ink <small>${online ? (room.seat === -1 ? 'You' : 'Opponent') : r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span><strong>${score.ink}</strong></div></div><div class="duel-grid" role="group" aria-label="Lantern Duel board, six rows and columns">${s.board.map((v, i) => `<button id="duel-${i}" class="duel-cell ${v ? 'occupied' : ''} ${!v && legal.includes(i) ? 'legal' : ''} ${capture.includes(i) ? 'capture-preview' : ''}" data-action="club-duel-cell" data-cell="${i}" ${canMove && !v && legal.includes(i) ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 6) + 1}, column ${(i % 6) + 1}: ${v === 1 ? 'gold lantern' : v === -1 ? 'ink lantern' : legal.includes(i) ? `empty, legal move, flips ${E().reversi.flips(s, i).length}` : 'empty, unavailable'}">${v ? `<i class="lantern-piece ${v === 1 ? 'gold' : 'ink'}"></i>` : legal.includes(i) ? '<span class="legal-dot"></span>' : ''}</button>`).join('')}</div><div class="club-turn-status" role="status">${s.done ? `<strong>${score.gold === score.ink ? 'An even table.' : score.gold > score.ink ? 'Gold holds the room.' : 'Ink holds the room.'}</strong> Final score ${score.gold} – ${score.ink}.` : online && !room.joined ? 'Room open. Waiting for the second player.' : !yourTurn ? 'Your opponent is thinking.' : botFailed ? 'The offline opponent is paused. Retry or undo.' : botPending ? 'The keeper is considering the corners…' : `${s.turn === 1 ? 'Gold' : 'Ink'} to move. ${legal.length} legal ${legal.length === 1 ? 'square' : 'squares'}.`}${s.passed && !s.done ? '<small>The other side had no legal move and passed automatically.</small>' : ''}</div>${online ? `<div class="club-playtools">${B('Refresh room', 'room-refresh', '', 'secondary')}${B('Leave room view', 'room-leave', '', 'ghost')}</div>` : toolbar('duel', r)}${roomError ? `<p class="club-warning">${esc(roomError)}</p>` : ''}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE KEEPER’S NOTE</span><h2>A full board is not a plan.</h2><p>Capture along a straight line. Corners cannot be taken back. A big early move is not always a good one.</p><div class="tiny-diagram"><i class="lantern-piece gold"></i><i class="lantern-piece ink"></i><span>→</span><i class="lantern-piece gold"></i><i class="lantern-piece gold"></i></div></div>${ruleDetails('<p>Gold moves first. Place a lantern on a dotted square to enclose at least one opposing lantern between the new lantern and one of yours. All enclosed lanterns flip, in all eight directions.</p><p>You must play when you can. A player with no legal move passes automatically. When neither player can move, the side with more lanterns wins.</p><p>Undo against the keeper rewinds your move and the keeper’s reply. The keeper is a bounded game-tree search running in a worker, not an online language model.</p>', true)}<div class="club-local-note">${online ? 'Private room. The server validates turns. No ranking or matchmaking.' : r.mode === 'local' ? 'Two real players, one device. No network required.' : 'An offline opponent. Not another player.'}</div></aside></div>`;
   }
   function ticTacToePage() {
     ensureRun('tictactoe');
@@ -641,7 +657,7 @@
         : s.turn === 1
           ? 'X to move.'
           : 'O to move.';
-    return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', `data-value="bot" aria-pressed="${r.mode === 'bot'}"`, r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', `data-value="local" aria-pressed="${r.mode === 'local'}"`, r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div id="tictactoe-status" class="club-turn-status tic-status" role="status" tabindex="-1"><strong>${label}</strong>${s.done ? ' The match is complete.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
+    return `${heading('Tic-Tac-Toe.', 'THE GAMES ROOM / 02', 'Make a line. Block the next idea.')}${status()}<div class="club-playlayout"><section class="club-boardpanel tic-panel"><div class="duel-modes tic-modes">${B('Against the keeper', 'tictactoe-mode', `data-value="bot" aria-pressed="${r.mode === 'bot'}"`, r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'tictactoe-mode', `data-value="local" aria-pressed="${r.mode === 'local'}"`, r.mode === 'local' ? 'active' : 'secondary')}</div><div class="duel-scores"><div class="${s.turn === 1 ? 'turn' : ''}"><span class="tic-player-mark tic-x">X</span><span>X <small>${r.mode === 'bot' ? 'You' : 'First player'}</small></span></div><span class="versus">VS</span><div class="${s.turn === -1 ? 'turn' : ''}"><span class="tic-player-mark tic-o">O</span><span>O <small>${r.mode === 'bot' ? 'The keeper' : 'Second player'}</small></span></div></div><div class="duel-grid tic-grid tictactoe-grid" role="group" aria-label="Tic-Tac-Toe board, three rows and columns">${s.board.map((v, i) => `<button id="tictactoe-${i}" class="duel-cell tic-cell tictactoe-cell ${v === 1 ? 'tic-x' : v === -1 ? 'tic-o' : ''} ${winning?.includes(i) ? 'winning' : ''}" data-action="club-tictactoe-cell" data-cell="${i}" ${canMove && !v ? '' : 'disabled'} aria-label="Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${v === 1 ? 'X' : v === -1 ? 'O' : canMove ? 'empty, available' : 'empty, unavailable'}">${v ? `<span class="tic-mark">${v === 1 ? 'X' : 'O'}</span>` : ''}</button>`).join('')}</div><div id="tictactoe-status" class="club-turn-status tic-status" role="status" tabindex="-1"><strong>${label}</strong>${s.done ? ' The match is complete.' : botFailed ? ' The offline opponent is paused. Retry or undo.' : botPending ? ' The keeper is thinking…' : ` ${r.mode === 'bot' && s.turn === -1 ? 'The keeper is thinking…' : 'Choose an empty square.'}`}</div>${toolbar('tictactoe', r)}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE CLUB CARD</span><h2>Three makes a pattern.</h2><p>X moves first. Claim a row, column or diagonal before O can close it.</p>${emblem('tictactoe')}</div>${ruleDetails('<p>Choose an empty square to place X. Three in a row, column or diagonal wins.</p><p>Against the keeper, O searches every continuation, so it cannot be beaten. Two at the table passes the same device between players.</p>', true)}<div class="club-local-note">This game has its own Club save, replay, undo and redo. No network or cabinet record is involved.</div></aside></div>`;
   }
   function regionGardensPage() {
     ensureRun('regiongardens');
@@ -793,6 +809,9 @@
           : ['archive', 'regiongardens'].includes(id)
             ? r.level
             : r.mode) +
+        (id === 'duel' && r.mode === 'bot' && r.difficulty && r.difficulty !== 'keeper'
+          ? ':' + r.difficulty
+          : '') +
         ':' +
         E().hash(JSON.stringify(r.log));
     if (state.records.some((x) => x.id === key)) return;
@@ -815,6 +834,7 @@
     state.records.unshift({
       id: key,
       type: id,
+      ...(id === 'duel' && r.mode === 'bot' ? { difficulty: r.difficulty || 'keeper' } : {}),
       label:
         id === 'regiongardens'
           ? E().regionGardens.layouts[r.level].title
@@ -833,7 +853,7 @@
                     : id === 'mahjong'
                       ? 'Mahjong Solitaire · ' + r.seed
                       : r.mode === 'bot'
-                        ? 'Against the keeper'
+                        ? 'Against the keeper · ' + E().reversi.strength(r.difficulty).name
                         : 'Two at the table',
       score: points,
       date: new Date().toISOString(),
@@ -923,12 +943,25 @@
     save();
     render();
   }
+  function stopBot(failed = false) {
+    botJob++;
+    botWorker?.terminate();
+    botWorker = null;
+    botPending = false;
+    botFailed = failed;
+  }
+  function botFailure() {
+    stopBot(true);
+    notify('The offline opponent paused. Retry or undo your move.', true);
+    render();
+  }
   function bot() {
     if (
       route.page !== 'salon' ||
       !['duel', 'tictactoe'].includes(route.id) ||
       room ||
       botPending ||
+      botFailed ||
       !E()
     )
       return;
@@ -939,35 +972,43 @@
     botPending = true;
     const job = ++botJob;
     try {
-      const source = `${cfg().engineSource || ''}\n${cfg().engineSource ? '' : `importScripts(${JSON.stringify(new URL(cfg().engine, location.href).href)});`}\nconst game=${JSON.stringify(game)};\nonmessage=e=>{try{postMessage({id:e.data.id,...(game==='duel'?AlibiClubEngines.reversi.best(e.data.state,4):AlibiClubEngines.tictactoe.best(e.data.state,9))})}catch(err){postMessage({id:e.data.id,error:err.message})}};`;
+      const source = `${cfg().engineSource || ''}\n${cfg().engineSource ? '' : `importScripts(${JSON.stringify(new URL(cfg().engine, location.href).href)});`}\nconst game=${JSON.stringify(game)};\nonmessage=e=>{try{postMessage({id:e.data.id,...(game==='duel'?AlibiClubEngines.reversi.best(e.data.state,e.data.depth):AlibiClubEngines.tictactoe.best(e.data.state,9))})}catch(err){postMessage({id:e.data.id,error:err.message})}};`;
       const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
-      botWorker = new Worker(url);
-      URL.revokeObjectURL(url);
-      botWorker.onmessage = (e) => {
-        if (e.data.id !== botJob || route.id !== game) return;
-        botPending = false;
-        botWorker.terminate();
-        botWorker = null;
-        if (e.data.error) {
-          notify(e.data.error, true);
+      let worker;
+      try {
+        botWorker = worker = new Worker(url);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+      const current = () =>
+        botWorker === worker && job === botJob && route.page === 'salon' && route.id === game;
+      worker.onmessage = (e) => {
+        if (!current()) return;
+        if (e.data?.id !== job) {
+          botFailure();
           return;
         }
-        commitGame(game, e.data.cell).then(() => {
-          if (game === 'tictactoe')
-            document.getElementById('tictactoe-status')?.focus({ preventScroll: true });
-        });
+        if (e.data.error) return botFailure();
+        stopBot();
+        commitGame(game, e.data.cell)
+          .then(() => {
+            if (game === 'tictactoe')
+              document.getElementById('tictactoe-status')?.focus({ preventScroll: true });
+          })
+          .catch(() => {
+            if (route.page === 'salon' && route.id === game) botFailure();
+          });
       };
-      botWorker.onerror = () => {
-        botPending = false;
-        botWorker?.terminate();
-        botWorker = null;
-        notify('The worker could not start. Switch to two-player mode or reload.', true);
-        render();
+      worker.onerror = () => {
+        if (current()) botFailure();
       };
-      botWorker.postMessage({ id: job, state: s });
-    } catch (e) {
-      botPending = false;
-      notify('This browser could not start the offline opponent.', true);
+      botWorker.postMessage({
+        id: job,
+        state: s,
+        depth: game === 'duel' ? E().reversi.strength(r.difficulty).depth : 9,
+      });
+    } catch (_) {
+      botFailure();
     }
     const status = document.querySelector('.club-turn-status');
     if (status && botPending) status.textContent = 'The keeper is considering the corners…';
@@ -1088,8 +1129,37 @@
           await onRoute(route);
           render();
         }
+      } else if (a === 'bot-retry') {
+        if (botFailed && route.page === 'salon' && ['duel', 'tictactoe'].includes(route.id)) {
+          botFailed = false;
+          render();
+        }
+      } else if (a === 'duel-strength') {
+        E().reversi.strength(v);
+        const r = state.runs.duel;
+        if (!r || room || r.mode !== 'bot' || (r.difficulty || 'keeper') === v) return;
+        if (saveError && (protectedSave || storageMode !== 'session'))
+          throw Error('Resolve the Club save warning before changing strength.');
+        if (r.log.length || r.redo.length) {
+          root.__clubReset = { id: 'duel', difficulty: v };
+          confirmation(
+            'Change opponent strength?',
+            'This starts a fresh match. Completed records stay in the journal.',
+            'reset-confirm',
+          );
+        } else {
+          r.difficulty = v;
+          save();
+          render();
+          document
+            .getElementById('club-control-duel-strength-' + v)
+            ?.focus({ preventScroll: true });
+        }
       } else if (a === 'duel-mode' || a === 'tictactoe-mode') {
         const mode = v;
+        if (!['bot', 'local'].includes(mode)) throw Error('Unknown match type.');
+        if (saveError && (protectedSave || storageMode !== 'session'))
+          throw Error('Resolve the Club save warning before changing mode.');
         const game = a === 'duel-mode' ? 'duel' : 'tictactoe';
         if (game === 'duel' && room) {
           try {
@@ -1106,7 +1176,7 @@
             'reset-confirm',
           );
         } else {
-          state.runs[game] = { mode, log: [], redo: [] };
+          state.runs[game] = { ...state.runs[game], mode, log: [], redo: [] };
           save();
           render();
         }
@@ -1248,10 +1318,7 @@
       } else if (a === 'undo' || a === 'redo') {
         const r = state.runs[id];
         if (!r) return;
-        botJob++;
-        botWorker?.terminate();
-        botWorker = null;
-        botPending = false;
+        stopBot();
         if (a === 'undo') {
           if (['duel', 'tictactoe'].includes(id) && r.mode === 'bot') {
             do {
@@ -1273,21 +1340,35 @@
         save();
         render();
       } else if (a === 'restart') {
-        root.__clubReset = { id };
+        root.__clubReset = { id, freshSeed: id === 'blockcabinet' };
         confirmation(
           'Start this game again?',
-          'The current moves will be cleared. Completed records are kept.',
+          id === 'blockcabinet'
+            ? 'A new seed and tray will replace this run. Completed records are kept.'
+            : 'The current moves will be cleared. Completed records are kept.',
           'reset-confirm',
         );
       } else if (a === 'reset-confirm') {
         const reset = root.__clubReset;
         if (!reset) return;
-        document.getElementById('dialog').close();
-        botJob++;
-        botWorker?.terminate();
-        botWorker = null;
-        botPending = false;
+        if (saveError && (protectedSave || storageMode !== 'session'))
+          throw Error('Resolve the Club save warning before restarting.');
         const r = state.runs[reset.id];
+        if (!r) throw Error('Unknown game.');
+        if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);
+        document.getElementById('dialog').close();
+        stopBot();
+        if (reset.freshSeed && reset.id === 'blockcabinet') {
+          const seed =
+            'BLOCK-' +
+            E()
+              .hash(r.seed + ':' + Date.now() + ':' + Math.random())
+              .toString(36)
+              .toUpperCase();
+          r.seed = seed === r.seed ? seed + 'X' : seed;
+        }
+        if (reset.difficulty !== undefined) r.difficulty = reset.difficulty;
+        selectedBlockSlot = null;
         r.log = [];
         r.redo = [];
         if (reset.mode) r.mode = reset.mode;
