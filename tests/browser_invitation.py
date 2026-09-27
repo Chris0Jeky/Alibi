@@ -1,4 +1,4 @@
-"""Eight chapters completed using real controls; dedicated story pages and epilogue."""
+"""Eight chapters completed using real controls; chapter pages and epilogue."""
 from pathlib import Path
 import json, os
 from playwright.sync_api import sync_playwright
@@ -79,11 +79,11 @@ with sync_playwright() as pw:
                 if p['type']=='witness':
                     check(action in page.locator('dialog[open]').inner_text(),f'{width}: {p["id"]} completion explains its authored action')
             page.wait_for_function('()=>!!AlibiDiagnostics.getCurrent()?.completedAt')
+            check(book['chapters'][index]['revelation'] in page.locator('dialog[open]').inner_text(),f'{width}: chapter {index+1} revelation')
+            # The completion dialog carries the revelation; next opens the following chapter (0.14.1 audit M5).
             page.locator('dialog[open] [data-action="next"]').click()
             page.wait_for_selector('.story-page')
-            check(book['chapters'][index]['revelation'] in page.locator('.story-page').inner_text(),f'{width}: chapter {index+1} continuation')
             if index<7:
-                page.locator('[data-action="story-next"]').click()
                 page.wait_for_function('(text)=>document.querySelector(".story-page")?.textContent.includes(text)',arg=book['chapters'][index+1]['brief'])
                 check(book['chapters'][index+1]['brief'] in page.locator('.story-page').inner_text(),f'{width}: next chapter introduction')
         check('EPILOGUE' in page.locator('.story-page').inner_text(),f'{width}: epilogue after eight puzzles')
