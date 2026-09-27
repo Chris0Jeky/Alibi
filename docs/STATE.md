@@ -28,6 +28,20 @@ fallback still serves 0.12.0 until q-9. It gathers the 2026-09-27 QA wave (audit
   ([PHONE-SESSION.md](PHONE-SESSION.md)) and player-data calibration
   ([CALIBRATION.md](CALIBRATION.md)).
 
+## Completed challenge routes (#434, refs #416): 27 September 2026
+
+A completed curated challenge now refuses board input by click and by Archive arrow keys, and tells
+the player to Undo or Start again. Undo stays available. Any board interaction cancels a pending
+"Clear your finished route?" confirmation. Before this, a stray legal move after completion was
+saved and un-completed the route. Opening an older Lantern Duel save that ends with Ink to move
+now saves the settled reply once. Concurrent list and board opens share one IndexedDB open. The
+optional Quiet Wing CSS is whitespace-compacted by esbuild. Verified: Node regressions (RED on
+the old launcher and storage), full `npm run verify`, and Chromium suites at 390/1280px
+(`browser_challenge_lifecycle`, `browser_challenge_library`, `browser_challenges`, `browser_quiet`,
+`browser_calm`). Not verified: a physical phone. Still open under #416: the Quiet Wing host keeps
+its old challenge handle across route changes. Details in
+[CHALLENGE-LIFECYCLE.md](gameplay/CHALLENGE-LIFECYCLE.md).
+
 ## Numbered game restore identity (#435, refs #408): 27 September 2026
 
 Backups and local saves whose Archive Heist or Lantern Gardens run has no own integer `level` are

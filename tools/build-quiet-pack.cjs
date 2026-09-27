@@ -77,7 +77,11 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
       require('esbuild').transformSync(source, { minify: true, target: 'es2022' }).code,
       'js',
     ),
-    css = emit('style', cssSource, 'css');
+    css = emit(
+      'style',
+      require('esbuild').transformSync(cssSource, { loader: 'css', minifyWhitespace: true }).code,
+      'css',
+    );
   const keeper = fs.readFileSync(path.join(dir, 'assets/kenney-keeper.png'));
   const media = { town: baseMedia['quiet-town'], keeper: emit('keeper', keeper, 'png') };
   const inlineMedia = {

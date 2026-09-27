@@ -6,6 +6,7 @@
     copy = (x) => JSON.parse(JSON.stringify(x));
   function create(registry) {
     let db = null,
+      opening = null,
       mode = 'session',
       revision = 0,
       session = new Map(),
@@ -61,7 +62,12 @@
           reject(error);
         }
       });
-    async function open() {
+    function open() {
+      return (opening ||= connect().finally(() => {
+        opening = null;
+      }));
+    }
+    async function connect() {
       if (db || protectedMode) return info();
       if (!G.indexedDB) {
         mode = 'session';
