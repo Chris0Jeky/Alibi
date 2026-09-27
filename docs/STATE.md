@@ -1,5 +1,20 @@
 # Live development state
 
+## Archive Heist vault rooms (branch `feat/archive-heist-vaults`, unreleased): 27 September 2026
+
+Refs [#346](https://github.com/Chris0Jeky/Alibi/issues/346). The 24 curated vaults from 0.13.0
+(`content/challenges/archive-vaults.json`) now also play as Archive Heist rooms 10–33 in the Games
+Room; rooms 01–09 keep their maps, indices, replays and journal records (hash-pinned). Room
+navigation is two disclosures (Rooms 01–09, Vaults 10–33) with solved markers read from existing
+record ids, end cards after rooms 09 and 33, and a bounded room action. The Games Room and Pocket
+Borough link the curated challenges; the contracts link is `#/quiet/challenges/?family=borough`
+because the current Quiet Wing router sends `challenges?family=…` to the Realm page. Measured
+ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 7,661 -> 8,475
+(+832), Quiet Wing pack 2,303,623 -> 2,305,480 raw (+1,920; it embeds the engine). New checks:
+`tests/archive-heist-vaults.test.cjs` and `tests/browser_archive_vaults.py` (local origin, 390px
+and 1280px, all 24 vaults played). Not deployed; physical Android, TalkBack and human difficulty
+remain open.
+
 ## Published web release 0.14.1: 26 September 2026
 
 Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):
