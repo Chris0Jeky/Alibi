@@ -3,6 +3,8 @@
 // overwrite a confirmed restore. Uses a fake IndexedDB that models the exact
 // shared-queue + CAS + recovery contract deterministically with deferred
 // transactions so the restore window stays open for an interleaved move.
+// Transaction completion waits for pending requests, matching IndexedDB
+// auto-commit (a transaction never completes while a request is pending).
 // Boundary: this is NOT real browser IndexedDB durability, service workers,
 // cross-tab storage events, or physical-device timing.
 const { test } = require('node:test');
@@ -21,16 +23,50 @@ function makeDisk() {
     transaction() {
       const listeners = { complete: [], error: [], abort: [] };
       let aborted = false;
+      let pending = 0;
+      let generation = 0;
+      let completed = false;
+      function fireComplete() {
+        if (aborted || completed) return;
+        if (pending !== 0) return;
+        completed = true;
+        try {
+          if (tx.oncomplete) tx.oncomplete();
+        } catch {}
+        for (const f of listeners.complete) {
+          try {
+            f();
+          } catch {}
+        }
+      }
+      function maybeComplete() {
+        if (aborted || completed) return;
+        if (pending !== 0) return;
+        const seen = generation;
+        setTimeout(() => {
+          if (aborted || completed) return;
+          if (pending !== 0) return;
+          if (seen !== generation) return;
+          fireComplete();
+        }, 30);
+      }
       const tx = {
         objectStore() {
           return {
             get(key) {
+              pending += 1;
+              generation += 1;
               const req = { result: undefined, onsuccess: null, onerror: null };
               setTimeout(() => {
-                if (aborted) return;
+                if (aborted) {
+                  pending -= 1;
+                  return;
+                }
                 const raw = disk.get(key);
                 req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
+                pending -= 1;
                 if (req.onsuccess) req.onsuccess();
+                maybeComplete();
               }, 10);
               return req;
             },
@@ -60,17 +96,7 @@ function makeDisk() {
         onerror: null,
         onabort: null,
       };
-      setTimeout(() => {
-        if (aborted) return;
-        try {
-          if (tx.oncomplete) tx.oncomplete();
-        } catch {}
-        for (const f of listeners.complete) {
-          try {
-            f();
-          } catch {}
-        }
-      }, 30);
+      maybeComplete();
       return tx;
     },
   };
@@ -159,6 +185,37 @@ async function tabWithDisk(disk, indexedDB) {
   await c.AlibiClub.flush();
   return { c, notes };
 }
+
+test('transaction completes only after chained requests settle', async () => {
+  const { indexedDB } = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  // Each get is issued synchronously or from the previous success callback, which keeps a real
+  // IndexedDB transaction active. Four 10 ms gets outlast the old fixed 30 ms completion timer.
+  const tx = db.transaction();
+  const order = [];
+  const completed = new Promise((resolve) => {
+    tx.oncomplete = () => {
+      order.push('complete');
+      resolve();
+    };
+  });
+  const store = tx.objectStore();
+  const chain = (n) => {
+    const req = store.get('state');
+    req.onsuccess = () => {
+      order.push('get' + n);
+      if (n < 4) chain(n + 1);
+    };
+  };
+  chain(1);
+  await completed;
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  assert.deepEqual(order, ['get1', 'get2', 'get3', 'get4', 'complete']);
+});
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
   const { disk, indexedDB } = makeDisk();
