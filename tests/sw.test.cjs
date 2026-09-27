@@ -165,12 +165,21 @@ function setup(failInstall = false) {
     aliasLeaf && aliasLeaf.url.endsWith('/login.html'),
     'Controlled alias matching ignores case and trailing slashes',
   );
-  const aliasNested = await x.request('/alibi/privacy', { mode: 'navigate' });
-  check(
-    aliasNested && aliasNested.url === 'https://test.invalid/',
-    'Nested alias-like paths keep the root shell',
-  );
   check(x.calls.network === 0, 'Controlled alias navigation does not require network');
+  for (const url of ['/index.html', '/unknown-leaf', '/?from=share']) {
+    const shell = await x.request(url, { mode: 'navigate' });
+    check(
+      shell && shell.url === 'https://test.invalid/',
+      `Root-level navigation ${url} keeps the shell`,
+    );
+  }
+  check(x.calls.network === 0, 'Root-level shell navigations do not require network');
+  // 0.14.1 audit M4: the shell's asset URLs are relative, so a deeper or file-like URL
+  // that received it rendered an unstyled page stuck on "Opening the puzzle cabinet…".
+  for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/404.html', '/missing.html']) {
+    const network = await x.request(url, { mode: 'navigate' });
+    check(network && network.network, `Navigation to ${url} reaches the network and its 404`);
+  }
   const js = [...x.data.get(name).keys()].find((k) => k.endsWith('.js'));
   check((await x.request(js)).release === name, 'Hashed script served from current cache');
   check(

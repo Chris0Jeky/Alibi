@@ -67,6 +67,22 @@ test('the writer emits both host conventions for every alias', () => {
 test('unknown addresses still fall through to the static 404 page', () => {
   const build = fs.readFileSync(path.join(__dirname, '..', 'tools', 'build.cjs'), 'utf8');
   assert.match(build, /not_found_handling|404\.html/, '404 handling is present');
-  assert.match(build, /This clue leads nowhere/, 'static 404 page is unchanged');
+  assert.match(build, /This clue leads nowhere/, 'static 404 page keeps its heading');
   assert.ok(!('unknown' in PATH_ROUTE_ALIASES), 'no catch-all alias redirects unknowns');
+});
+
+test('the static 404 page is styled and links home (0.14.1 audit M4)', () => {
+  const page = fs.readFileSync(path.join(__dirname, '..', 'dist', '404.html'), 'utf8');
+  assert.match(
+    page,
+    /<style>[^<]*body\{[^}]*background:#f1eee7/,
+    'the page carries its own palette',
+  );
+  assert.match(page, /<meta name="viewport" content="width=device-width,initial-scale=1">/);
+  assert.match(
+    page,
+    /<a href="\/">Return to Alibi<\/a>/,
+    'one absolute link returns home from any depth',
+  );
+  assert.doesNotMatch(page, /<(?:script|link)/, 'no script or relative asset can break at depth');
 });

@@ -42,9 +42,15 @@ http
       const sibling = file + '.html';
       if (fs.existsSync(sibling) && fs.statSync(sibling).isFile()) file = sibling;
     }
+    let status = 200;
     if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
-      res.writeHead(404).end('Not found');
-      return;
+      // Mirror the primary host's `not_found_handling: "404-page"` (wrangler.jsonc).
+      file = path.join(root, '404.html');
+      status = 404;
+      if (!fs.existsSync(file)) {
+        res.writeHead(404).end('Not found');
+        return;
+      }
     }
     res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -56,8 +62,9 @@ http
       return;
     }
     const size = fs.statSync(file).size;
+    res.statusCode = status;
     res.setHeader('Accept-Ranges', 'bytes');
-    if (req.headers.range) {
+    if (req.headers.range && status === 200) {
       const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
       let start = match?.[1] ? Number(match[1]) : 0;
       let end = match?.[2] ? Number(match[2]) : size - 1;
