@@ -41,7 +41,7 @@ def run():
                         page.on('pageerror', lambda error: page_errors.append(str(error)))
                         page.goto(URL + '/#/workshop')
                         page.wait_for_function(
-                            '() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
+                            '() => navigator.serviceWorker.controller && globalThis.AlibiDiagnostics?.getStatus().offlineReady',
                             timeout=30000,
                         )
                         page.get_by_role('button', name='Puzzle packs', exact=True).click()
@@ -57,7 +57,7 @@ def run():
                             try:
                                 page.goto(URL + f'/#/play/{puzzle["id"]}@1')
                                 page.wait_for_function(
-                                    '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id',
+                                    '(id) => globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id === id',
                                     arg=puzzle['id'],
                                 )
                                 driver.dismiss_lesson(page)
@@ -95,7 +95,7 @@ def run():
                                 try:
                                     page.reload()
                                     page.wait_for_function(
-                                        '(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id',
+                                        '(id) => globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id === id',
                                         arg=puzzle['id'], timeout=30000,
                                     )
                                     restored = driver.current(page)
