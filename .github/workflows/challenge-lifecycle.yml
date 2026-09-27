@@ -63,8 +63,9 @@ jobs:
         run: |
           set -o pipefail
           base="$RUNNER_TEMP/challenge-base"
-          mkdir -p "$base"
-          git archive "$BASE_HEAD" | tar -x -C "$base"
+          git worktree add --detach "$base" "$BASE_HEAD"
+          trap 'git worktree remove --force "$base"' EXIT
+          test "$(git -C "$base" rev-parse HEAD)" = "$BASE_HEAD"
           ln -s "$GITHUB_WORKSPACE/node_modules" "$base/node_modules"
           (cd "$base" && node tools/build.cjs) 2>&1 | tee test-results/challenge-source/base-build.log
           cp "$base/build-info.json" test-results/challenge-source/base-build-info.json
