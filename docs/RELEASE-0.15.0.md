@@ -43,7 +43,49 @@ the release pull request before deploying.
 
 ## Publication receipt
 
-Pending.
+Published 27 September 2026 from [PR #424](https://github.com/Chris0Jeky/Alibi/pull/424) merge
+commit `7677ced05586a663f5b5ef24daa3e9f8e95d1ea0`; annotated
+[`v0.15.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.15.0) points to it. The clean
+merged-source build `51f3f8ed06a1` is version 0.15.0 with `sourceDirty: false`, 510 puzzles
+(80 deferred), 294 emitted files, 133,670 application JavaScript gzip bytes and 205,233 initial
+code-plus-content gzip bytes (ceiling 205,248). Exact-head PR CI and the `main` push workflows
+(`fe12be2` puzzle cabinet; `896bb6d` Android payload, Wrenmere integration, discovery storage)
+passed; `node observatory/check.mjs` passed (SDK 3.3.0, release 0.15.0); `cloudflare:check`
+passed. `SHA256SUMS`:
+
+- `alibi-deluxe-cloudflare.zip`: `cd334c1354e382e8f1bee6e9a0b6f36aa4018dfdffca4c63dc38bb881308bd38`
+- `alibi-deluxe-play.html`: `8625162be12bf1b33a33b8a17d79e5f39cfad8dcdc1bae89f25ba83d15781565`
+
+The primary Cloudflare origin is Worker version `20bd0591-b597-4c81-b512-49e51180a9de`
+(rollback: 0.14.1's `856d1a61-fdae-4d6c-aca0-236ccc9982ca`). All 293 publicly served files
+returned HTTP 200 (HTML after the host's canonical redirects) and matched the clean build byte for
+byte (`_headers` is host configuration and is not served). `/` serves the repository CSP with the
+collector in `connect-src`, `nosniff`, `no-referrer` and the permissions policy; the served SDK is
+`assets/pulseboard.6793e71c9d6e.js` (the 0.15.0 copy) and `sw.js` precaches
+`assets/voices.d13d5395ec2c.js`. `/a/b/x.html` returns 404.
+
+Hosted smoke (a disposable-profile Chromium script kept outside the repository, at 390×844 touch
+and 1280×800, 14/14 checks, every collector request blocked and recorded): offline ready,
+version 0.15.0, the Feedback sheet opens with its kinds, Archive Heist lists vaults 10–33, the
+castle route mounts, Settings shows "Feedback and surveys", no page errors, and **no request to
+`/v1/feedback` or `/v1/survey` without a player action**. Nothing was sent to Pulseboard by this
+check.
+
+Collector (Pulseboard Worker `415057c9`, live before this release): `/readyz` reports schema 5
+and voices admitted `["alibi"]`; a CORS preflight from the primary origin to
+`/v1/feedback/alibi` returns 204; deliberately invalid `POST /v1/feedback/alibi` and
+`PUT /v1/survey/alibi` bodies return 400 `{"error":"contract"}`, so no record was stored. The
+0.15.0 label is registered by [Pulseboard#165](https://github.com/Chris0Jeky/Pulseboard/pull/165)
+(the collector already admits any well-formed Alibi version, q-28); no collector redeploy was
+needed for this release.
+
+The Sites fallback was not updated and still serves 0.12.0; its single retirement deployment is
+`HUMAN_TODO.md` q-9 (a Codex session).
+
+Not verified on the hosted origin: a real feedback, rating or survey submission end to end (kept
+out of the owner's data on purpose), the 0.14.1 → 0.15.0 service-worker update of an existing
+profile with saves (covered by `browser_update.py` and `browser_live_update.py` in CI against the
+local origin), and anything on a physical phone.
 
 ## Evidence limits
 
