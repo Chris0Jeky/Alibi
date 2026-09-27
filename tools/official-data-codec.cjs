@@ -38,7 +38,7 @@ function encode(value) {
     }
     // Preserve heterogeneous list order; group only consecutive identical record shapes.
     const groups = [];
-    for (let i = 0; i < value.length; ) {
+    for (let i = 0; i < value.length;) {
       let end = i + 1;
       if (record(value[i]))
         while (
