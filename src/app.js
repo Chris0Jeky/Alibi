@@ -489,13 +489,14 @@
       ['library', 'library', 'Puzzles'],
       ['casebooks', 'book', 'Casebooks'],
       ['salon', 'sun', 'Games room'],
-      ['settings', 'more', 'Your space'],
+      // The wing replaces a Settings tab that duplicated the top bar's always-visible Settings.
+      ['quiet', 'garden', 'The quiet wing'],
       ['quiet', 'home', 'Castle', 'castle'],
     ]
       .map(([p, ic, label, id = '']) => {
         const active = route.page === p && (!id || route.id === id);
         const shortLabel =
-          { home: 'Desk', casebooks: 'Cases', salon: 'Games', settings: 'Space' }[p] || label;
+          { home: 'Desk', casebooks: 'Cases', salon: 'Games', quiet: 'Wing' }[p + id] || label;
         return `<button aria-label="${label}" class="${active ? 'active' : ''}" data-action="navigate" data-page="${p}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${shortLabel}</span></button>`;
       })
       .join('')}</nav>`;

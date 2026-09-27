@@ -181,6 +181,10 @@ svg {
   font-family: Georgia, serif;
   font-size: 17px;
 }
+/* Phone-only Back; the rail link is hidden there. */
+.top .wing-back {
+  display: none;
+}
 .top-right {
   display: flex;
   gap: 8px;
@@ -1716,11 +1720,16 @@ dialog select {
     padding: 0 16px;
     gap: 12px;
   }
-  .top .save {
+  .top .save,
+  .brandline,
+  .header-note {
     display: none;
   }
-  .header-note {
-    font-size: 8px;
+  .top .wing-back {
+    display: inline-flex;
+    min-height: 44px;
+    font-size: 12px;
+    white-space: nowrap;
   }
   .wing-name {
     font-size: 15px;
@@ -2004,9 +2013,6 @@ dialog select {
   .wing-name {
     font-size: 14px;
   }
-  .brandline {
-    display: none;
-  }
   .world-caption {
     max-width: 92px;
   }
@@ -2085,6 +2091,11 @@ dialog select {
   width: 54px;
   height: 55px;
   margin: 0;
+}
+@media (max-width: 360px) {
+  .top .logo {
+    display: none;
+  }
 }
 /* Keep the companion above the wrapped realm caption on small phones. */
 @media (max-width: 400px) {

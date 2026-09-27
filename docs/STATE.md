@@ -55,6 +55,23 @@ its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node 
 isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`
 pass locally on a local Chromium headless shell; not deployed, no physical phone.
 
+## Games Room phone polish candidate: 27 September 2026
+
+Branch `fix/games-room-polish` answers the Games Room QA findings F07-F10, F13-F15, F17-F20,
+F23, F31 (Club plurals) and F33. At 390×844 the Duel board moved from y=728 to 440-772 of a
+779px usable height (TTT status 879 -> 690, Archive pad 834 -> 655): phone play pages collapse the
+room banner to one line and the heading to one row. Block Cabinet's phone actions stick to the
+bottom only, directly under the tray, and its ⋯ menu scrolls into view with focus (Cascade lab
+shares the surface). Finished Duel/TTT/Gardens offer Play again without a dialog; solved gardens
+offer Next garden; journal records name their game; section numbers and card engravings follow
+the card order. The phone nav's Settings tab (duplicating the top bar) became the Quiet Wing,
+and the wing header has a 44px "← Back" on phones. Application JS measured 130,955 -> 131,382
+gzip (ceiling +448); main CSS 33,903 -> 34,046 (unchanged ceiling); Quiet Wing pack
+2,303,623 -> 2,303,890 bytes. Not done here: the sidebar "NEW" badge (`src/app.js` sidebar,
+outside this slice) and the Borough Build button, still about 75px below the fold at 390×844.
+Local Node suites and the Club, Block Cabinet, block motion, Gardens, Tic-Tac-Toe, Quiet Wing
+and targeted mobile QA browser suites passed; no physical phone, hosted origin or deploy.
+
 ## Pulseboard SDK v3 (0.14.1 candidate, merged as #391, historical): 26 September 2026
 
 Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and

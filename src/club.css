@@ -663,7 +663,9 @@ body.club-experiment {
   cursor: pointer;
   list-style: none;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  min-height: 44px;
   padding: 4px 1px;
 }
 .club-rules p {
@@ -699,10 +701,30 @@ body.club-experiment {
   justify-content: center;
   flex-wrap: wrap;
 }
-.duel-modes > .btn {
+.duel-modes > .btn,
+.duel-strengths .btn {
   font-size: 10px;
   padding: 9px 12px;
   min-height: 38px;
+}
+.duel-strengths {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  padding: 0;
+  margin: -12px 0 12px;
+  text-align: center;
+}
+.duel-strengths legend {
+  margin: 0 auto 6px;
+}
+.duel-strengths p {
+  flex-basis: 100%;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
 }
 .tic-player-mark {
   display: inline-grid;
@@ -739,14 +761,6 @@ body.club-experiment {
     0 6px 0 #294d50,
     0 12px 17px #17383e18;
   border-radius: 9px;
-}
-.tic-modes .btn:last-child {
-  width: auto;
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--line);
-  padding: 9px 12px;
-  min-height: 38px;
 }
 .tic-cell.tictactoe-cell {
   background: #e7dfcf;
@@ -943,7 +957,8 @@ body.club-experiment {
   color: var(--muted);
   margin: 0 3px;
 }
-.active.btn {
+.active.btn,
+.club-playlayout .btn[aria-pressed='true'] {
   background: var(--green);
   color: var(--paper);
   border-color: var(--green);
@@ -2472,6 +2487,25 @@ body.club-experiment {
     font-size: 10px;
     min-height: 36px;
   }
+  /* Board first on phone play pages: a slim room line and a one-row heading.
+     Zen stays in the top bar; the description returns on wider screens. */
+  .main-wrap:has(.club-playlayout) .theatre-rail {
+    padding: 0 16px;
+  }
+  .main-wrap:has(.club-playlayout) .theatre-rail-title :is(svg, small),
+  .club-gameheading:has(~ .club-playlayout) :is(p, [data-action='club-zen']) {
+    display: none;
+  }
+  .club-gameheading:has(~ .club-playlayout) {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+  .club-gameheading:has(~ .club-playlayout) h1 {
+    font-size: 28px;
+    margin: 4px 0 0;
+  }
   .club-playlayout {
     gap: 23px;
   }
@@ -2488,7 +2522,7 @@ body.club-experiment {
     min-height: 38px;
     font-size: 9px;
   }
-  .duel-modes .btn:last-child {
+  .duel-modes .btn:nth-child(3) {
     width: 100%;
     background: transparent;
     color: var(--muted);
@@ -2496,14 +2530,6 @@ body.club-experiment {
     margin-top: 0;
     padding: 6px;
     min-height: 30px;
-  }
-  .tic-modes .btn:last-child {
-    width: auto;
-    background: var(--paper);
-    color: var(--ink);
-    border: 1px solid var(--line);
-    padding: 9px 8px;
-    min-height: 38px;
   }
   .duel-scores .tic-player-mark {
     width: 24px;
@@ -2518,12 +2544,12 @@ body.club-experiment {
     font-size: clamp(44px, 17vw, 74px);
   }
   .duel-scores {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     grid-template-columns: 1fr 20px 1fr;
     gap: 3px;
   }
   .duel-scores > div {
-    padding: 9px 7px;
+    padding: 7px;
     gap: 8px;
   }
   .duel-scores .lantern-piece {
