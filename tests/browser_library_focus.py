@@ -67,14 +67,15 @@ def main():
                     f"Keyboard filter retains focus at {width}px",
                 )
 
-                # Search remains the active editing control while each input event re-renders the page.
+                # Reset keeps Browse all (0.14.1 audit m4), so its control keeps focus.
                 page.locator("#library-reset-filters").focus()
                 page.keyboard.press("Enter")
+                expect(page.locator(".filter-meta")).to_contain_text(f"{OFFICIAL_COUNT} puzzles")
                 check(
-                    active_id(page) == "main",
-                    f"Removed filter control falls back to main at {width}px",
+                    active_id(page) == "library-reset-filters",
+                    f"Reset keeps Browse all and its focused control at {width}px",
                 )
-                page.locator('[data-action="browse-all"]').click()
+                # Search remains the active editing control while each input event re-renders the page.
                 search = page.locator("#library-search")
                 search.focus()
                 page.keyboard.type("sun", delay=20)
@@ -91,17 +92,16 @@ def main():
                     f"Empty search keeps the editor usable at {width}px",
                 )
 
-                # Resetting the empty state returns to the browse screen and a stable landmark.
+                # Resetting the empty state keeps Browse all; focus falls back to the result status.
                 page.locator("#library-clear-filters").focus()
                 page.keyboard.press("Enter")
-                expect(page.locator('[data-action="browse-all"]')).to_be_visible()
+                expect(page.locator(".filter-meta")).to_contain_text(f"{OFFICIAL_COUNT} puzzles")
                 check(
-                    active_id(page) == "main",
-                    f"Empty-state reset falls back to main at {width}px",
+                    active_id(page) == "library-filter-status",
+                    f"Empty-state reset falls back to the result status at {width}px",
                 )
 
                 # Each page moves to its first new puzzle, including the final page.
-                page.locator('[data-action="browse-all"]').click()
                 expected_cards = 24
                 while page.locator("#library-show-more").count():
                     first_new_index = expected_cards

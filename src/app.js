@@ -269,15 +269,10 @@
       window.scrollTo({ top: scrollY + card.getBoundingClientRect().top - 8, behavior: 'instant' });
   }
   function navigate(page, id = '', book = '') {
-    if (page === 'library' && !id)
-      library = {
-        venue: '',
-        search: '',
-        group: 'all',
-        difficulty: 'all',
-        status: 'all',
-        limit: 24,
-      };
+    if (page === 'library' && !id) {
+      library = { venue: '' };
+      clearFilters();
+    }
     const h = `#/${page}${id ? '/' + encodeURIComponent(id) : ''}${book ? '?book=' + encodeURIComponent(book) : ''}`;
     const focusSerial = ++routeFocusSerial;
     if (location.hash === h) loadRoute(focusSerial);
@@ -563,9 +558,23 @@
   function home() {
     return AlibiClub.home();
   }
+  // Filters belong to one family page, so another family starts clear (M2). Resetting keeps
+  // the current view and collection (m4).
+  function clearFilters(type = library.type) {
+    library = {
+      ...library,
+      type,
+      search: '',
+      group: 'all',
+      difficulty: 'all',
+      status: 'all',
+      limit: 24,
+    };
+  }
   function libraryPage() {
     const type = route.id,
       m = M[type];
+    if (library.type !== type) clearFilters(type);
     if (
       !type &&
       !library.search &&
@@ -631,7 +640,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'} · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, puzzle type or progress filter.</p>${B('Clear the filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
+    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
@@ -2556,7 +2565,7 @@
         render();
         break;
       case 'reset-filters':
-        library = { search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 };
+        clearFilters();
         render();
         break;
       case 'show-more': {
@@ -3177,7 +3186,9 @@
         library.limit = 24;
         render();
       } else if (el.id === 'family-filter') {
+        // Choosing a type narrows Browse all, so its other filters carry over.
         library.group = 'all';
+        library.type = el.value;
         navigate('library', el.value);
       } else if (el.id === 'draft-object') draftObject = el.value;
       else if (el.id === 'clue-kind') clueValues();
