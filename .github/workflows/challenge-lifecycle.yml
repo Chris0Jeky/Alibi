@@ -82,10 +82,20 @@ jobs:
           JS
       - name: Exercise challenge lifecycle and existing Quiet Wing controls
         run: |
-          python tests/browser_challenge_lifecycle.py
-          python tests/browser_challenge_library.py
-          python tests/browser_quiet.py
-          python tests/browser_calm.py
+          set -o pipefail
+          python -m http.server 8787 --directory dist > test-results/challenge-source/server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:8787/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
+          export ALIBI_URL=http://127.0.0.1:8787/
+          python tests/browser_challenge_lifecycle.py 2>&1 | tee test-results/challenge-source/lifecycle.log
+          python tests/browser_challenge_library.py 2>&1 | tee test-results/challenge-source/library.log
+          python tests/browser_quiet.py 2>&1 | tee test-results/challenge-source/quiet.log
+          python tests/browser_calm.py 2>&1 | tee test-results/challenge-source/calm.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
