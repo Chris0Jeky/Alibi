@@ -91,10 +91,13 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // family/tier journey props: measured 131,011 -> 132,033 gzip on the #396 base; ceiling +1,024.
 // Combined with the Archive vaults and Games Room polish: measured 133,186; ceiling +3,200 in total.
 // The 0.14.1 core-cabinet audit fixes measured 131,011 -> 131,464 alone (+448); on top of the above: measured 133,670; ceiling +3,648 in total.
-// Measured 133,690 on main e0edda4 (after #435): 6 bytes of headroom. Trim before the next raise.
+// Measured 133,690 on main e0edda4 (after #435): 6 bytes of headroom. The bundle inlines
+// content-hashed asset URLs, so an unrelated change moves its gzip size by a few bytes, and
+// single-digit headroom fails PRs at random. +128 is that noise margin only, not room for code:
+// the next feature that adds application JS trims first.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 3648,
-  'Application bundle stays under 127 KiB + 3,648 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 3776,
+  'Application bundle stays under 127 KiB + 3,776 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
