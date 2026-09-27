@@ -608,9 +608,13 @@ export async function mount({ root, preferences = null, practice = null }) {
     $('#theory-text').focus();
   }
   function saveTheory(id) {
+    const text = $('#theory-text');
+    // A blank hypothesis fails save validation, whose error dialog would discard this form.
+    text.setCustomValidity(text.value.trim() ? '' : 'Write the hypothesis before saving.');
+    if (!text.reportValidity()) return;
     const theory = {
       id,
-      text: $('#theory-text').value.trim(),
+      text: text.value.trim(),
       position: $('#theory-position').value,
       records: [...dialog.querySelectorAll('[data-citation]:checked')].map((input) => input.value),
     };
