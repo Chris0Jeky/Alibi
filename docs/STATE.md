@@ -1,10 +1,10 @@
 # Live development state
 
-## Release 0.15.0 candidate: 27 September 2026
+## Release 0.15.0: published 27 September 2026
 
-Source for 0.15.0 is `main` plus the release pull request
-([#424](https://github.com/Chris0Jeky/Alibi/pull/424)); receipt in
-[RELEASE-0.15.0.md](RELEASE-0.15.0.md). It gathers the 2026-09-27 QA wave (audits in
+Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
+tag `v0.15.0`); the publication receipt is in [RELEASE-0.15.0.md](RELEASE-0.15.0.md). The Sites
+fallback still serves 0.12.0 until q-9. It gathers the 2026-09-27 QA wave (audits in
 `docs/qa/2026-09-27/`, redesign brief in `docs/design/`):
 
 - Merged normally, after CI and review: #396 (PolyForm Strict license), #397 (budget double
