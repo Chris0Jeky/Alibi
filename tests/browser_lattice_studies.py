@@ -50,7 +50,8 @@ def run():
                             'A new collection is ready.', timeout=45000
                         )
                         expect(page.locator('dialog[open]')).to_contain_text('24 verified puzzles')
-                        driver.dismiss_lesson(page)
+                        page.get_by_role('button', name='Keep browsing', exact=True).click()
+                        expect(page.locator('dialog[open]')).to_have_count(0)
                         checks.append(f'{width}px: production Workshop imports all 24 studies')
                         for puzzle in puzzles:
                             try:
