@@ -187,7 +187,10 @@ the survey or taps a rating. */
         },
         respondent(create) {
           let key = read(KEY);
-          if (!UUID.test(key)) key = remembered;
+          if (!UUID.test(key)) {
+            key = remembered;
+            if (key && write(KEY, key)) remembered = null;
+          }
           if (!key && create && (key = id()) && !write(KEY, key)) remembered = key;
           return key;
         },
@@ -255,6 +258,7 @@ the survey or taps a rating. */
               : x.payload.id !== payload.id,
           );
           if (list.length >= MAX) return false;
+          outcomes.delete(JSON.stringify(payload));
           list.push({ payload, attempts: 0, next: 0, queued: now() });
           save(list);
           return true;
