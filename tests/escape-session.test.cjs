@@ -25,7 +25,9 @@ test('only real changes enter history and completion remains terminal', () => {
   assert.equal(room.undo(), false);
 });
 test('sessions and returned views are independent; restart clears history', () => {
-  const d = fixture(), a = api.createRoomSession(d), b = api.createRoomSession(d);
+  const d = fixture(),
+    a = api.createRoomSession(d),
+    b = api.createRoomSession(d);
   a.view(true).objects[0].title = 'changed';
   assert.equal(a.view(true).objects[0].title, 'Hatch');
   a.attempt('leave', null);
@@ -36,8 +38,17 @@ test('sessions and returned views are independent; restart clears history', () =
 });
 test('retains at most 64 undo states during reversible exploration', () => {
   const d = fixture();
-  for (const [id, from, to] of [['drop', 'held', 'lost'], ['recover', 'lost', 'held']]) {
-    d.actions.push({ ...structuredClone(d.actions[0]), id, when: { key: from }, check: {}, set: { key: to } });
+  for (const [id, from, to] of [
+    ['drop', 'held', 'lost'],
+    ['recover', 'lost', 'held'],
+  ]) {
+    d.actions.push({
+      ...structuredClone(d.actions[0]),
+      id,
+      when: { key: from },
+      check: {},
+      set: { key: to },
+    });
   }
   const room = api.createRoomSession(d);
   for (let i = 0; i < 80; i++) room.attempt(i % 2 ? 'recover' : 'drop', null);
@@ -47,7 +58,8 @@ test('retains at most 64 undo states during reversible exploration', () => {
 });
 test('rejects malformed definitions and isolates later edits to source', () => {
   assert.throws(() => api.createRoomSession({}), /room/);
-  const d = fixture(), room = api.createRoomSession(d);
+  const d = fixture(),
+    room = api.createRoomSession(d);
   d.actions[0].set.door = 'closed';
   assert.equal(room.attempt('leave', null).ok, true);
   assert.equal(room.view(true).won, true);
