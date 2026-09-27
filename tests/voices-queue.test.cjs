@@ -297,6 +297,46 @@ test('the survey key is created on the first submit, reused, and replaced after 
   assert.notEqual(taste(q).respondent, 'not-a-key', 'a malformed key is replaced');
 });
 
+test('a reset drops queued answers that still carry the old key, keeping messages', async () => {
+  const { q, calls, state } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  q.enqueue(taste(q));
+  const message = feedback(q);
+  q.enqueue(message);
+  const old = q.respondent();
+  assert.equal(q.pending().length, 3);
+  assert.equal(q.resetRespondent(), 2, 'the reset reports how many answers it removed');
+  assert.deepEqual(
+    plain(q.pending().map((x) => x.payload)),
+    [plain(message)],
+    'messages carry no key and stay queued',
+  );
+  q.enqueue(rating(q, 'scene-02'));
+  state.online = true;
+  await q.flush();
+  const sent = calls.map((c) => c.body.respondent).filter(Boolean);
+  assert.equal(sent.length, 1);
+  assert.notEqual(sent[0], old, 'the old key never leaves the device after a reset');
+  assert.equal(q.resetRespondent(), 0);
+});
+
+test('a reset whose queue rewrite fails still leaves no old-key answer to reload', () => {
+  const { q, store } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  const message = feedback(q);
+  q.enqueue(message);
+  store.setItem = () => {
+    throw Error('QuotaExceededError');
+  };
+  assert.equal(q.resetRespondent(), 1);
+  assert.deepEqual(plain(q.pending().map((x) => x.payload)), [plain(message)], 'kept this page');
+  const stored = store.map.get('alibi:voices:queue:v1');
+  assert.ok(
+    !stored || !JSON.parse(stored).some((x) => x.payload.respondent),
+    'the persisted queue cannot bring the old key back after a reload',
+  );
+});
+
 test('a memory-only respondent key is persisted when storage recovers', () => {
   const map = new Map();
   let full = true;

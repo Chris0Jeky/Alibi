@@ -4,7 +4,9 @@
 // shared-queue + CAS + recovery contract deterministically with deferred
 // transactions so the restore window stays open for an interleaved move.
 // Transaction completion waits for pending requests, matching IndexedDB
-// auto-commit (a transaction never completes while a request is pending).
+// auto-commit (a transaction never completes while a request is pending). Puts stay buffered
+// in their transaction (visible to its own later reads) and reach the disk only on complete;
+// abort discards them.
 // Boundary: this is NOT real browser IndexedDB durability, service workers,
 // cross-tab storage events, or physical-device timing.
 const { test } = require('node:test');
@@ -26,10 +28,12 @@ function makeDisk() {
       let pending = 0;
       let generation = 0;
       let completed = false;
+      const writes = new Map();
       function fireComplete() {
         if (aborted || completed) return;
         if (pending !== 0) return;
         completed = true;
+        for (const [key, value] of writes) disk.set(key, value);
         try {
           if (tx.oncomplete) tx.oncomplete();
         } catch {}
@@ -57,12 +61,15 @@ function makeDisk() {
               pending += 1;
               generation += 1;
               const req = { result: undefined, onsuccess: null, onerror: null };
+              // Requests run in queue order: only puts queued before this get are visible to it.
+              const queuedOwn = writes.has(key),
+                own = writes.get(key);
               setTimeout(() => {
                 if (aborted) {
                   pending -= 1;
                   return;
                 }
-                const raw = disk.get(key);
+                const raw = queuedOwn ? own : disk.get(key);
                 req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
                 pending -= 1;
                 if (req.onsuccess) req.onsuccess();
@@ -71,8 +78,8 @@ function makeDisk() {
               return req;
             },
             put(value, key) {
-              if (aborted) return;
-              disk.set(key, JSON.parse(JSON.stringify(value)));
+              if (aborted || completed) return;
+              writes.set(key, JSON.parse(JSON.stringify(value)));
             },
           };
         },
@@ -80,7 +87,9 @@ function makeDisk() {
           if (listeners[ev]) listeners[ev].push(fn);
         },
         abort() {
+          if (completed) return;
           aborted = true;
+          writes.clear();
           setTimeout(() => {
             try {
               if (tx.onabort) tx.onabort();
@@ -215,6 +224,51 @@ test('transaction completes only after chained requests settle', async () => {
   await completed;
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.deepEqual(order, ['get1', 'get2', 'get3', 'get4', 'complete']);
+});
+
+test('puts reach the disk only when their transaction completes; abort discards them', async () => {
+  const { disk, indexedDB } = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  disk.set('state', { rev: 1 });
+  const aborted = db.transaction();
+  const aborting = new Promise((resolve) => {
+    aborted.onabort = resolve;
+  });
+  const read = aborted.objectStore().get('state');
+  read.onsuccess = () => {
+    aborted.objectStore().put({ rev: 2 }, 'state');
+    aborted.objectStore().put({ rev: 1 }, 'recovery');
+    assert.deepEqual(disk.get('state'), { rev: 1 }, 'a put is not durable before complete');
+    aborted.abort();
+  };
+  await aborting;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepEqual(disk.get('state'), { rev: 1 }, 'an aborted put never reaches the disk');
+  assert.equal(disk.has('recovery'), false);
+  const committed = db.transaction();
+  const completing = new Promise((resolve) => {
+    committed.oncomplete = resolve;
+  });
+  const store = committed.objectStore();
+  const before = store.get('state');
+  let earlier;
+  before.onsuccess = () => {
+    earlier = before.result;
+  };
+  store.put({ rev: 2 }, 'state');
+  const own = store.get('state');
+  let seen;
+  own.onsuccess = () => {
+    seen = own.result;
+  };
+  await completing;
+  assert.deepEqual(earlier, { rev: 1 }, 'a get queued before a put does not see it');
+  assert.deepEqual(seen, { rev: 2 }, 'a transaction reads its own pending put');
+  assert.deepEqual(disk.get('state'), { rev: 2 }, 'a completed put is durable');
 });
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
