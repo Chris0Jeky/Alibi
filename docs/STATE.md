@@ -10,7 +10,7 @@ m12); touch-first instructions, live Sun & Moon count, solved-board hint, report
 m9, m21); the play bar says Casebook (m24); plurals (p1, p2). The service worker serves the
 shell only at the scope root, `index.html` and single extensionless segments, so deep URLs
 reach the styled static 404 (M4); `tools/serve.cjs` mirrors the host 404 locally. Application
-bundle ceiling +384 (130,977 -> 131,419 gzip on main after #399). New suite
+bundle ceiling +448 (131,011 -> 131,464 gzip on main after #396). New suite
 `tests/browser_core_cabinet.py` and origin scenario `unknown_paths`. Not deployed; hosted 404
 behaviour and physical phones unverified.
 

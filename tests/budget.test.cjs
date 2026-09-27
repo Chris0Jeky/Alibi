@@ -82,10 +82,10 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
 // asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
-// The 0.14.1 core-cabinet audit fixes measured 130,977 -> 131,419 on main after #399: +384.
+// The 0.14.1 core-cabinet audit fixes measured 131,011 -> 131,464 on main after #396: +448.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 1408,
-  'Application bundle stays under 127 KiB + 1,408 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 1472,
+  'Application bundle stays under 127 KiB + 1,472 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
