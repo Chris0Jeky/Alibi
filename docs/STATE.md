@@ -8,7 +8,7 @@ Implements Alibi's half of the Pulseboard "Voices" contract v1
 invitation on completion screens), a rating row on official completion screens, Settings and
 Privacy panels, and a localStorage offline queue with the contract's status handling. Journey
 events now also carry `family` and `tier` for official puzzles. The sheet, forms, rating row and
-delivery are one deferred precached chunk (19,449 bytes); startup grew 1,007 gzip bytes, so the
+delivery are one deferred precached chunk (19,704 bytes); startup grew 1,015 gzip bytes, so the
 application-bundle and precached-shell ceilings were raised by the measured delta (see
 `tests/budget.test.cjs`). Proven locally: `npm run verify` (all but the ffprobe-dependent
 asset-audio test, which fails on this machine without ffprobe on the unmodified base too), the new

@@ -77,7 +77,7 @@ a new one. Clearing site data does the same.
   by dropping a waiting one. A queued survey or rating for the same survey and subject replaces the
   older queued one; a message with the same id is queued once. Items older than 30 days are
   dropped unsent. Corrupt data is treated as empty; if storage is unavailable the queue lives in
-  memory for the page.
+  memory for the page (flushed by the same triggers), and so does the survey key.
 - Flush triggers: after the first render when the browser is idle, on `online`, after a new item
   is queued, and on `visibilitychange` to visible. A browser that reports itself offline makes no
   attempt. Items are sent one at a time.
@@ -87,8 +87,9 @@ a new one. Clearing site data does the same.
   5 minutes, 30 minutes, 2 hours, then every 6 hours, honouring a longer `Retry-After`, and ends
   that pass. Other statuses (for example `403`, `404`, `415` while the collector is not yet
   deployed or admitting Alibi) are kept and retried the same way, bounded by the 30-day drop.
-- The sheet waits up to four seconds for the result, then confirms "sent", or "saved on this
-  device" with offline wording when the browser is offline.
+- The sheet waits up to four seconds for the collector's answer. It says "sent" only after a
+  `202`, "not sent" after a `400`, and otherwise "saved on this device" (offline wording when
+  the browser is offline).
 - Settings shows "N messages waiting to send" with Delete.
 
 Other local state (`alibi:voices:state:v1`): the rating-row switch, the last rating per puzzle and
@@ -113,8 +114,8 @@ survey are not shown. The CSP `connect-src` already allows the collector origin.
 | `tools/build.cjs` | Emits `assets/voices.<hash>.js` (queue + sheet), precaches it, inlines it in the standalone file, and writes `ALIBI_VOICES = { origin, collector, chunk }`. |
 
 The chunk is deferred and precached like the Vault definitions chunk: it loads when a Voices place
-appears or on first use, and works offline. Measured when added: chunk 19,449 bytes (8,409 gzip);
-application bundle +1,007 gzip bytes including the journey family/tier props and their Privacy wording. See
+appears or on first use, and works offline. Measured when added: chunk 19,704 bytes (8,543 gzip);
+application bundle +1,015 gzip bytes including the journey family/tier props and their Privacy wording. See
 `tests/budget.test.cjs` for the ceilings.
 
 Proof: `tests/voices-queue.test.cjs`, `tests/voices.test.cjs`, `tests/browser_voices.py`

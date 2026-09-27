@@ -579,3 +579,30 @@ test('a request that never answers is abandoned after the timeout and retried la
   assert.equal(calls.length, 2, 'the queue is not stuck behind the hung request');
   assert.equal(q.pending().length, 0);
 });
+
+test('the collector outcome is reported per payload: 202 sent, 400 refused, else waiting', async () => {
+  const { q, state } = harness({ replies: [202, 400], online: true });
+  const accepted = feedback(q);
+  const refused = feedback(q, { text: 'second' });
+  q.enqueue(accepted);
+  q.enqueue(refused);
+  await q.flush();
+  assert.equal(q.outcome(accepted), 202);
+  assert.equal(q.outcome(refused), 400, 'a refusal is not reported as delivered');
+  state.online = false;
+  const waiting = feedback(q, { text: 'third' });
+  q.enqueue(waiting);
+  await q.flush();
+  assert.equal(q.outcome(waiting), undefined);
+});
+
+test('with storage unavailable the survey key stays the same for the page', () => {
+  for (const options of [{ throws: true }, { full: true }]) {
+    const { q } = harness({ store: storage({}, options) });
+    const first = rating(q).respondent;
+    assert.equal(rating(q, 'scene-02').respondent, first, 'updates still replace, not inflate');
+    assert.equal(taste(q).respondent, first);
+    q.resetRespondent();
+    assert.notEqual(taste(q).respondent, first, 'Reset still makes a new key');
+  }
+});

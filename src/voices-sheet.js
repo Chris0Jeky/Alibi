@@ -184,26 +184,30 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     focus?.focus();
   };
   // The confirmation replaces the form; if the player already closed the sheet it is a toast.
-  function thanks(sent, answers) {
-    const text = sent
-      ? answers
-        ? 'Your answers were sent.'
-        : 'Your message was sent.'
-      : G.navigator?.onLine === false
-        ? 'You’re offline. It is saved on this device and will send when you’re back online.'
-        : 'Saved on this device. It will send when the connection allows.';
+  function thanks(result, answers) {
+    const text =
+      result === 1
+        ? answers
+          ? 'Your answers were sent.'
+          : 'Your message was sent.'
+        : result === 3
+          ? 'It could not be sent: the collector refused it, and nothing was kept. Settings shows a note.'
+          : G.navigator?.onLine === false
+            ? 'You’re offline. It is saved on this device and will send when you’re back online.'
+            : 'Saved on this device. It will send when the connection allows.';
     if (sheet.open)
       show(
-        'Thank you.',
+        result === 3 ? 'Not sent.' : 'Thank you.',
         `<p>${text}</p><div class="dialog-actions"><button type="button" class="btn solo" data-vo-close>Close</button></div>`,
       );
     else toast(text);
   }
-  // True once the collector accepted the payload; after four seconds it stays queued.
+  // 1 accepted, 3 refused (400, dropped with a local note), 2 still waiting after four seconds
+  // (offline, failing, or removed meanwhile): never claims "sent" without the collector's 202.
   async function deliver(payload) {
-    const key = JSON.stringify(payload);
     await Promise.race([Q.flush(), new Promise((r) => setTimeout(r, 4e3))]);
-    return !Q.pending().some((x) => JSON.stringify(x.payload) === key);
+    const status = Q.outcome(payload);
+    return status === 202 ? 1 : status === 400 ? 3 : 2;
   }
   function open(kind, subject) {
     if (!A.eligible)
@@ -322,7 +326,9 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     // A choice that could not be queued is not remembered, so the same tap can retry.
     if (!payload || !Q.enqueue(payload)) return tell('Not sent. Try again later.');
     keep();
-    deliver(payload).then((sent) => tell(sent ? 'Thanks, sent.' : 'Saved. It sends when online.'));
+    deliver(payload).then((n) =>
+      tell(n === 1 ? 'Thanks, sent.' : n === 3 ? 'Not sent.' : 'Saved. It sends when online.'),
+    );
   }
   G.AlibiVoicesSheet = {
     // The rating row after the completion text; the Settings switch hides it.

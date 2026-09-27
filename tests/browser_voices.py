@@ -58,6 +58,7 @@ class Collector:
     def __init__(self):
         self.requests = []
         self.down = False
+        self.refuse = False
 
     def handle(self, route, request):
         path = urlparse(request.url).path
@@ -77,6 +78,9 @@ class Collector:
         self.requests.append(
             {'method': request.method, 'path': path, 'body': body, 'headers': request.headers}
         )
+        if self.refuse:
+            route.fulfill(status=400, headers=cors, content_type='application/json', body='{"error":"contract"}')
+            return
         reply = {'accepted': True, 'duplicate': False} if 'feedback' in path else {'accepted': True, 'updated': False}
         route.fulfill(status=202, headers=cors, content_type='application/json', body=json.dumps(reply))
 
@@ -498,6 +502,23 @@ with sync_playwright() as pw:
     page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
     wait_for(page, lambda: len(collector.voices()) == 1, 'GPC send')
     check(collector.voices()[0]['body']['text'] == 'Sent with GPC on.', 'GPC does not block an explicit Send')
+    page.locator('#vo-title', has_text='Thank you.').wait_for()
+    close_sheet(page)
+
+    # A 400 is dropped with a local note, and the player is told it was not sent.
+    collector.refuse = True
+    page.locator('#vo-open').click()
+    type_message(page, 'This one is refused.')
+    page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
+    page.locator('#vo-title', has_text='Not sent.').wait_for()
+    check('could not be sent' in page.locator('dialog.vo-sheet').inner_text(), 'a refused message is never reported as sent')
+    check(local(page, QUEUE) is None, 'a refused message is not kept')
+    close_sheet(page)
+    page.evaluate("location.hash='/settings'")
+    page.locator('#vo-dismiss').wait_for()
+    check('1 message could not be sent' in page.locator('#vo-panel').inner_text(), 'Settings shows the could-not-send note')
+    page.locator('#vo-dismiss').click()
+    check(page.locator('#vo-dismiss').count() == 0, 'Dismiss clears the note')
     context.close()
 
     # ---- Desktop and 320px ----

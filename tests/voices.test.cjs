@@ -194,3 +194,13 @@ test('every official puzzle maps into the contract family and tier enums and sub
     assert.ok(q.TIERS.includes(String(p.difficulty).toLowerCase()), `${p.id} tier ${p.difficulty}`);
   }
 });
+
+test('a loaded chunk flushes on every trigger, even with nothing in storage (memory queue)', async () => {
+  const h = page();
+  let flushes = 0;
+  h.context.AlibiVoicesSheet = { flush: () => flushes++ };
+  h.fire('window', 'online');
+  h.fire('document', 'visibilitychange');
+  assert.equal(flushes, 2);
+  assert.equal(h.appended.length, 0, 'no chunk load is needed');
+});

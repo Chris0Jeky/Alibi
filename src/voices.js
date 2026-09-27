@@ -46,9 +46,12 @@ place appears, on first use, or when messages are waiting. Nothing is sent from 
         if (t) t.innerHTML = '<div class="toast error">Feedback could not open. Try again.</div>';
       });
   // Flush after the first render (idle), when back online and when the page is shown again.
+  // A loaded chunk always flushes (its queue may live only in memory when storage fails).
   const kick = () => {
+    if (!eligible) return;
+    if (g.AlibiVoicesSheet) return g.AlibiVoicesSheet.flush();
     try {
-      if (eligible && g.localStorage.getItem('alibi:voices:queue:v1')) use((s) => s.flush(), 1);
+      if (g.localStorage.getItem('alibi:voices:queue:v1')) use((s) => s.flush(), 1);
     } catch {}
   };
   g.addEventListener?.('online', kick);
