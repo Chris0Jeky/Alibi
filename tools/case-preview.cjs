@@ -17,10 +17,20 @@ function buildPreview(file) {
 module.exports = { buildPreview };
 if (require.main === module) {
   try {
-    if (process.argv.length !== 4) throw new Error('Usage: node tools/case-preview.cjs <case.json> <new-preview.html>');
+    if (process.argv.length !== 4)
+      throw new Error('Usage: node tools/case-preview.cjs <case.json> <new-preview.html>');
     const { html, receipt } = buildPreview(process.argv[2]);
     // Exclusive creation refuses both existing output and symlink aliases to the input.
     fs.writeFileSync(process.argv[3], html, { encoding: 'utf8', flag: 'wx' });
-    console.log(JSON.stringify({ ...receipt, previewBytes: Buffer.byteLength(html), state: 'memory-only' }, null, 2));
-  } catch (error) { console.error(error.message); process.exitCode = 1; }
+    console.log(
+      JSON.stringify(
+        { ...receipt, previewBytes: Buffer.byteLength(html), state: 'memory-only' },
+        null,
+        2,
+      ),
+    );
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
 }

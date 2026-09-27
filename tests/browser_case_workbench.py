@@ -37,8 +37,9 @@ def run():
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.on('request', lambda request: external.append(request.url) if not request.url.startswith('file:') else None)
             page.goto(normal.as_uri())
+            page.screenshot(path=str(OUT / f'initial-{width}.png'), full_page=True)
             context.set_offline(True)
-            assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             assert page.locator('#stage-alarm').is_disabled()
             assert page.locator('#record-maintenance').count() == 0
             assert page.locator('#worked').count() == 0
@@ -57,14 +58,14 @@ def run():
                 page.locator('#story').click()
             page.locator('#check').click()
             assert 'draft is retained' in page.locator('#status').inner_text()
-            assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             for _ in range(3):
                 page.locator('#hint').click()
             assert page.locator('#hint').is_disabled()
             assert page.locator('#hint-list .hint').count() == 3
             page.locator('#reveal').click()
             assert page.locator('#worked').is_visible()
-            assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             page.locator('#reveal').click()
             assert page.locator('#worked').count() == 0
             # Real controls use the authored answer fixture, not direct state injection.
@@ -77,9 +78,9 @@ def run():
                         page.locator('#cite-' + claim['id'] + '-' + record).check()
                 page.locator('#check').click()
                 assert 'Reasoning accepted' in page.locator('#status').inner_text()
-                assert page.locator('#progress').inner_text() == f'{index + 1} of 3 stages reviewed'
+                assert page.locator('#progress').text_content() == f'{index + 1} of 3 stages reviewed'
                 page.locator('#check').click()
-                assert page.locator('#progress').inner_text() == f'{index + 1} of 3 stages reviewed'
+                assert page.locator('#progress').text_content() == f'{index + 1} of 3 stages reviewed'
                 if index < 2:
                     page.locator('#continue').click()
                     assert page.locator('#step-title').evaluate('(el) => el === document.activeElement')
@@ -89,7 +90,7 @@ def run():
             assert page.locator('#ending').is_visible()
             page.once('dialog', lambda dialog: dialog.accept())
             page.locator('#restart').click()
-            assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             assert page.locator('#verdict-bounded-window').input_value() == ''
             assert page.locator('#hint-list .hint').count() == 0
             page.locator('#theme').click()
@@ -97,7 +98,7 @@ def run():
             context.set_offline(True)
             page.reload()
             context.set_offline(True)
-            assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             assert not external, external
             assert not errors, errors
             results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'externalRequests': len(external), 'scriptErrors': len(errors)})
