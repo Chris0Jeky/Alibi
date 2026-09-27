@@ -2,7 +2,8 @@ import W from './content.mjs';
 import { escape as e, button, link } from './html.mjs';
 
 function card(r, select) {
-  const room = W.rooms.find((room) => room.puzzle === r.requires);
+  // Link to the room the record is found in (the margin is at the stair, not the study).
+  const room = W.rooms.find((room) => room.name === r.from);
   return `<article class="card evidence" data-record-id="${e(r.id)}"><small>${e(r.kind)} · ${e(r.from)}</small><h3>${e(r.title)}</h3><p>${e(r.text)}</p><p><em>${e(r.question)}</em></p>${select ? `<label class="theory-citation"><input type="checkbox" value="${e(r.id)}" data-compare-record aria-label="Compare ${e(r.title)}" aria-describedby="compare-guidance"> Compare</label>` : ''}<p>${link(`Return to ${e(room.name)}`, 'room', room.id)}</p></article>`;
 }
 

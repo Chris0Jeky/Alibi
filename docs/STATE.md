@@ -24,6 +24,19 @@ Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC sil
 only in Settings/Privacy). Sites fallback still on 0.12.0. See the
 [publication receipt](RELEASE-0.14.1.md).
 
+## Castle Chapter I completion and navigation (branch, not merged or deployed): 27 September 2026
+
+Branch `fix/castle-completion-navigation` answers the castle audit (Chapter I completable but
+never shown as finished, misleading guidance). Completion is derived from the Keeper's Study
+record (no save change): grounds mark, finished thread, done stair and a
+"Chapter I n/5 · Extra questions n/5" header. The thread sits above the map and only offers open
+rooms; the keeper's letter opens on first arrival; locked doors, pins and first completions link
+to the rooms that open them; the clock accepts 2100/21.00/21 00; the directory collapses planned
+rooms; the Quiet Wing room bar is hidden on castle pages; blank hypotheses keep their draft. The
+castle script ceiling rose by 2,816 bytes (measured 98,062 -> 100,837 of 101,120); core budgets
+are unchanged. Physical keyboards and TalkBack remain unverified. See
+[docs/castle/README.md](castle/README.md).
+
 ## Pulseboard SDK v3 (0.14.1 candidate, merged as #391, historical): 26 September 2026
 
 Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and

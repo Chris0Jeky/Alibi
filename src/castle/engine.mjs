@@ -188,7 +188,21 @@ function available(s, id) {
         ? has(s, 'clock') && has(s, 'route')
         : ids.includes(id);
 }
+// Phone keypads may lack a colon: accept 2100, 21.00 and 21 00, but store only HH:MM.
+function clockTime(text) {
+  const m = /^\s*(\d\d?)\s*[:.h -]?\s*(\d\d)\s*$/i.exec(text);
+  return m && m[1] < 24 && m[2] < 60 ? m[1].padStart(2, '0') + ':' + m[2] : null;
+}
+function clockFeedback(text) {
+  const time = clockTime(text);
+  return !time
+    ? 'Enter a 24-hour time as four digits, such as 21:17 or 2117.'
+    : time < '12'
+      ? `${time} is in the morning. Use 24-hour time: the ticket reads 21:17.`
+      : `${time} does not match a clock running 17 minutes fast.`;
+}
 function complete(s, id, answer, guided = false) {
+  if (id === 'clock') answer = clockTime(answer) ?? answer;
   if (!available(s, id) || !check(id, answer))
     return { ok: false, state: s, error: 'Check the remaining constraints before submitting.' };
   if (has(s, id)) return { ok: true, state: s, newAward: false };
@@ -202,25 +216,35 @@ function roomStatus(s, room) {
   switch (room.gate) {
     case 'planned':
       return { open: false, reason: 'This room is planned. It has no playable investigation yet.' };
+    // `via` names the rooms whose questions open this door.
     case 'observatory':
       return {
         open: has(s, 'shelves'),
         reason: 'Recover the maintenance slip in the Long Library.',
+        via: ['library'],
       };
     case 'cartography':
       return {
-        open: has(s, 'gate') || has(s, 'bridges') || has(s, 'magic'),
+        open: available(s, 'route'),
         reason: 'Solve the Gatehouse lock, or complete Bridges or Lo Shu in the museum.',
+        via: ['gatehouse', 'museum'],
       };
     case 'study':
       return {
-        open: has(s, 'clock') && has(s, 'route'),
+        open: available(s, 'inference'),
         reason: 'Correct the ticket in the Observatory and trace the Map Room footpath.',
+        via: [
+          ['clock', 'observatory'],
+          ['route', 'cartography'],
+        ]
+          .filter(([id]) => !has(s, id))
+          .map(([, room]) => room),
       };
     case 'west':
       return {
         open: has(s, 'inference'),
         reason: 'Compare the three records in the Keeper’s Study.',
+        via: ['study'],
       };
     default:
       return { open: true, reason: '' };
@@ -229,6 +253,15 @@ function roomStatus(s, room) {
 function score(s) {
   return Object.keys(s.completed).length * 10;
 }
+// Chapter I ends with the Keeper's Study conclusion, the condition that opens the stair and
+// its margin. Its five questions count one Map Room key (Gatehouse, Bridges or Lo Shu).
+function progress(s) {
+  const main =
+    ['shelves', 'clock', 'route', 'inference'].filter((id) => has(s, id)).length +
+    +['gate', 'bridges', 'magic'].some((id) => has(s, id));
+  return [main, Object.keys(s.completed).length - main];
+}
+const solved = (s, room) => has(s, room.puzzle === 'reveal' ? 'inference' : room.puzzle);
 function evidence(s) {
   return W.evidence.filter((x) => has(s, x.requires));
 }
@@ -381,7 +414,11 @@ export {
   complete,
   available,
   roomStatus,
+  clockTime,
+  clockFeedback,
   score,
+  progress,
+  solved,
   evidence,
   validate,
   validDraft,

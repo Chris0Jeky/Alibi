@@ -20,6 +20,8 @@ Implemented in the PR stack. The ticket reads 21:17; the station clock is docume
 
 The study opens onto a service stair. An unsigned margin says the writer saw Mara take the courtyard stair towards the river. It does not identify her purpose, confirm arrival, or prove who wrote it. Keep those limits in later retellings.
 
+The chapter is complete when the study conclusion is recorded; the game derives that state rather than storing a separate flag. Five questions make up the chapter (library, clock, one Map Room key, route, study); the other five are optional extras.
+
 ## Chapter II: The Missing Passage
 
 #53. Compare survey editions, household records and witness terminology. Establish what the omitted service route connected, identify the writer of the margin and corroborate the relevant observation. Give differing doorway names a spatial explanation rather than treating every inconsistency as a lie.

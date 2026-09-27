@@ -10,7 +10,7 @@ import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
 import { evidenceComparison } from './evidence-view.mjs';
 import { labelQuestions } from './investigation.mjs';
-import { listed } from './exploration.mjs';
+import { go, thread } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
@@ -45,6 +45,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   let state = store.state,
     view = 'map',
     selected = 'gatehouse',
+    greeted = false,
     era = 'today',
     mapZoom = 4,
     search = '',
@@ -114,14 +115,16 @@ export async function mount({ root, preferences = null, practice = null }) {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   motion.addEventListener('change', prefs, { signal: abort.signal });
   function navigate(next, id = '') {
-    location.hash = `#/quiet/castle/${next}${id ? '/' + id : ''}`;
+    const hash = `#/quiet/castle/${next}${id ? '/' + id : ''}`;
+    if (location.hash === hash) close();
+    else location.hash = hash;
   }
   function room() {
     return W.rooms.find((r) => r.id === selected) || W.rooms[0];
   }
   function header() {
     $('header').innerHTML =
-      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">${E.score(state)} / 100 points</span>`;
+      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }
@@ -137,7 +140,6 @@ export async function mount({ root, preferences = null, practice = null }) {
       practiceSnapshot,
       inspectablesVisible,
     });
-  const roomCard = (r) => pages().roomCard(r);
   function render() {
     if (disposed) return;
     prefs();
@@ -162,6 +164,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     const starter = [...root.querySelectorAll('[data-do="practice"]')].find(
       (candidate) => candidate.dataset.value === focus,
     );
+    starter?.closest('details')?.setAttribute('open', '');
     (starter || $('#castle-main')).focus({ preventScroll: true });
     return !!starter;
   }
@@ -170,7 +173,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!r) return;
     const status = E.roomStatus(state, r);
     if (!status.open) {
-      show(r.name, `<p>${escape(status.reason)}</p>`);
+      show(
+        r.name,
+        `<p>${escape(status.reason)}</p>${go(status.via?.filter((v) => view !== 'room' || v !== selected))}`,
+      );
       return;
     }
     selected = id;
@@ -260,9 +266,11 @@ export async function mount({ root, preferences = null, practice = null }) {
       announce(
         replace
           ? 'Castle notebook replaced. Its previous contents are available as a recovery copy.'
-          : importedNotes && state.notes === beforeNotes
-            ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
-            : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
+          : !importedNotes
+            ? 'Merged discoveries. The file had no notes to add. A recovery copy is available.'
+            : state.notes === beforeNotes
+              ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
+              : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
       );
     } finally {
       for (const control of dialog.querySelectorAll('button')) control.disabled = false;
@@ -308,7 +316,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     show(
       state.preferences.story ? 'The keeper’s letter' : 'A quiet visit',
       state.preferences.story
-        ? `<p>${escape(W.introduction)}</p><p>${escape(W.chapter.premise)}</p><p class="small">${escape(W.contentNote)}</p>`
+        ? `<p>${escape(W.introduction)}</p><p>${escape(W.chapter.premise)}</p><p class="small">${escape(W.contentNote)}</p>${go(thread(state)[1])}`
         : '<p>The museum tables, lantern puzzle and three-peg board are open. The conservatory has a place to write and paths back to your garden and companions.</p>',
     );
   }
@@ -390,7 +398,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       'The winter conservatory',
       '<p>The chair nearest the glass is warm from the afternoon sun. Someone has sharpened the guest-book pencil with a penknife.</p>' +
         quietLinks() +
-        `<p class="small">Garden, realm and companion rewards remain separate planned work. Existing creations are unchanged.</p>${button('Write in the notebook', 'notebook')}`,
+        button('Write in the notebook', 'notebook'),
     );
   }
   function puzzle(id) {
@@ -542,10 +550,16 @@ export async function mount({ root, preferences = null, practice = null }) {
       drawPuzzle();
     } else if (action === 'check') {
       const result = E.complete(state, active, answer, state.revealed.includes(active));
+      let next;
       if (result.ok) {
         if (result.newAward) {
+          next = W.rooms
+            .filter((r) => r.implemented && !E.roomStatus(state, r).open)
+            .filter((r) => E.roomStatus(result.state, r).open)
+            .map((r) => r.id);
           save(result.state);
           cue('complete');
+          if (!next.length) next = thread(state)[1];
         }
         feedback = p.after + (result.newAward ? ' 10 points added.' : '');
         header();
@@ -553,8 +567,11 @@ export async function mount({ root, preferences = null, practice = null }) {
         feedback =
           active === 'inference'
             ? 'The ticket gives a departure time. Which record actually places Finch at the tower?'
-            : result.error;
+            : active === 'clock'
+              ? E.clockFeedback(answer)
+              : result.error;
       drawPuzzle();
+      if (next?.length) $('#feedback').insertAdjacentHTML('beforeend', `<div>${go(next)}</div>`);
     }
   }
   function inspect(id) {
@@ -562,7 +579,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
     show(
       object.n,
-      `<p>No close-up artwork.</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
+      `<p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
     );
   }
   function keepObservation(id) {
@@ -591,9 +608,13 @@ export async function mount({ root, preferences = null, practice = null }) {
     $('#theory-text').focus();
   }
   function saveTheory(id) {
+    const text = $('#theory-text');
+    // A blank hypothesis fails save validation, whose error dialog would discard this form.
+    text.setCustomValidity(text.value.trim() ? '' : 'Write the hypothesis before saving.');
+    if (!text.reportValidity()) return;
     const theory = {
       id,
-      text: $('#theory-text').value.trim(),
+      text: text.value.trim(),
       position: $('#theory-position').value,
       records: [...dialog.querySelectorAll('[data-citation]:checked')].map((input) => input.value),
     };
@@ -756,14 +777,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         $('#notes-count').textContent = `${state.notes.length} / 12,000 characters`;
       } else if (el.id === 'search') {
         search = el.value;
-        const matches = W.rooms.filter(
-          (r) =>
-            listed(state, r) &&
-            (filter === 'all' || r.wing === filter) &&
-            `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
-        );
-        $('#room-results').innerHTML = matches.map(roomCard).join('');
-        $('#results-count').textContent = `${matches.length} rooms`;
+        $('#room-results').innerHTML = pages().results();
       } else if (el.id === 'map-zoom') {
         mapZoom = +el.value;
       } else if (el.id === 'clock-answer' && active === 'clock') {
@@ -804,6 +818,16 @@ export async function mount({ root, preferences = null, practice = null }) {
     },
     { signal: abort.signal },
   );
+  root.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Enter' && event.target.id === 'clock-answer') {
+        playAction('check');
+        $('#clock-answer').focus();
+      }
+    },
+    { signal: abort.signal },
+  );
   dialog.addEventListener(
     'cancel',
     (event) => {
@@ -837,9 +861,24 @@ export async function mount({ root, preferences = null, practice = null }) {
       if (!r || !E.roomStatus(state, r).open || r.id === 'museum') view = 'map';
       else selected = r.id;
     }
+    // The grounds preselect the thread's next room.
+    if (view === 'map') selected = thread(state)[1][0] || selected;
     render();
     restoredPracticeFocus = focusPracticeStarter();
     if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
+    // Until a first question is solved, arriving at the grounds opens the keeper's letter once
+    // per visit. Derived from the save; nothing new is stored. A host that left the page during
+    // mount cannot show a modal.
+    if (
+      view === 'map' &&
+      !greeted &&
+      root.host.isConnected &&
+      state.preferences.story &&
+      !Object.keys(state.completed).length
+    ) {
+      greeted = true;
+      invitation();
+    }
     showStagedImport();
   }
   const reviewStaged = () => {

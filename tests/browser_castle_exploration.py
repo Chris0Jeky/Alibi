@@ -21,9 +21,14 @@ def run():
                 page.on('request',lambda r: requests.append(r.url))
                 page.on('pageerror',lambda e: errors.append(str(e)))
                 page.goto(BASE+'#/quiet/castle/map')
+                expect(page.locator('#castle-dialog')).to_contain_text('The keeper’s letter')
+                page.keyboard.press('Escape')
                 expect(page.locator('.map-stage')).to_be_visible()
                 page.wait_for_function('() => AlibiActivities.diagnostics().offline')
                 expect(page.locator('.castle-offline')).to_have_text('Castle rooms ready offline.')
+                # The first service-worker claim re-renders the room bar above the castle; a click
+                # during that layout shift can land on another control (CI run 36283266211).
+                page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
                 assert not any('.mp4' in url for url in requests)
                 assert page.locator('.secret-route').count()==0
                 stage=page.locator('.map-stage').bounding_box()
@@ -59,7 +64,7 @@ def run():
                 page.mouse.up()
                 expect(zoom_status).to_have_text('175%')
                 assert page.locator('.map-stage').bounding_box()['width']>zoomed_width
-                expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
+                expect(page.locator('.rail h2')).to_have_text('The Long Library')
                 map_scroll.evaluate('(e)=>{e.scrollLeft=e.scrollWidth-e.clientWidth}')
                 panned_left=map_scroll.evaluate('(e)=>e.scrollLeft')
                 selected_pin=page.locator('[data-do="select"][data-value="orangery"]')
@@ -84,7 +89,7 @@ def run():
                 report['checks'].append(f'{width}: original era maps, aligned 44px doors, keyboard zoom and local panning preserve the selected room')
                 page.evaluate('location.hash="#/quiet/castle/directory"')
                 page.locator('#search').fill('Unrecorded')
-                expect(page.locator('#results-count')).to_have_text('0 rooms')
+                expect(page.locator('#results-count')).to_have_text('0 rooms to visit')
                 expect(page.locator('#room-results')).not_to_contain_text('The Unrecorded Stair')
                 page.evaluate('location.hash="#/quiet/castle/map"')
                 page.locator('[data-do="visit"][data-value="library"]').first.click()
@@ -103,7 +108,7 @@ def run():
                 text_control.focus()
                 text_control.press('Enter')
                 expect(page.locator('#castle-dialog')).to_contain_text('pencilled correction')
-                expect(page.locator('#castle-dialog')).to_contain_text('No close-up artwork.')
+                expect(page.locator('#castle-dialog')).not_to_contain_text('No close-up artwork.')
                 page.keyboard.press('Escape')
                 expect(text_control).to_be_focused()
                 toggle.uncheck()
