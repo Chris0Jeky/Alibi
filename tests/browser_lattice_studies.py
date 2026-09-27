@@ -44,7 +44,7 @@ def run():
                             '() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
                             timeout=30000,
                         )
-                        page.locator('[data-action="work-tab"][data-value="packs"]').click()
+                        page.get_by_role('button', name='Puzzle packs', exact=True).click()
                         page.locator('#pack-input').set_input_files(str(PACK))
                         expect(page.locator('dialog[open]')).to_contain_text(
                             'A new collection is ready.', timeout=45000
