@@ -1515,11 +1515,11 @@
                     .join('')}</div></details>`,
               )
               .join('')}`;
-          // Filtering shows one family, open; "all" keeps every family collapsed to its heading.
+          // Filtering shows one family, open; "all" collapses every family back to its heading.
           const show = (family) =>
             $$('.challenge-family').forEach((group) => {
               group.hidden = family !== 'all' && group.dataset.family !== family;
-              if (group.dataset.family === family) group.open = true;
+              group.open = group.dataset.family === family;
             });
           $('#challenge-family').onchange = (event) => show(event.target.value);
           if (families.includes(pick)) show(pick);

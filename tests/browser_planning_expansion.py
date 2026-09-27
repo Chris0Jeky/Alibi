@@ -57,6 +57,7 @@ def run():
                     page.locator('#challenge-family').select_option('borough')
                     assert page.locator('[data-challenge-id]:visible').count() == 16
                     page.locator('#challenge-family').select_option('all')
+                    assert page.locator('[data-challenge-id]:visible').count() == 0, 'All collapses every family again'
                 cases = DATA if not os.environ.get('ALIBI_SMOKE') else [DATA[0], DATA[-1]]
                 for c in cases:
                     if ISOLATED:

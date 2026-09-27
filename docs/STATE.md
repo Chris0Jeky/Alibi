@@ -21,7 +21,7 @@ adjacent-square taps, names Borough buildings with their scoring, and shows a co
 (difficulty, Next in family, Back to the list) with a confirmed restart. Duel endgames: the player
 keeps Gold; Ink replies by the recorded line, then the expert-depth search, and a lost line says so
 with the stored hint. Classics claim a journal stamp only when one is earned. Definitions, ids,
-revisions, replay format and storage are unchanged. Quiet Wing pack 2,303,623 -> 2,310,375 bytes;
+revisions, replay format and storage are unchanged. Quiet Wing pack 2,303,623 -> 2,310,369 bytes;
 its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node suites, budget,
 `browser_challenges.py` (isolated and served), `browser_planning_expansion.py` (built and
 isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`

@@ -121,7 +121,7 @@ for (const [prefix, limit] of [
 }
 
 // Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
-// Playable challenge library: measured 2,303,623 -> 2,310,375 bytes (+6,752); ceiling +6,784.
+// Playable challenge library: measured 2,303,623 -> 2,310,369 bytes (+6,746); ceiling +6,784.
 assert.ok(
   info.quietWingBytes < 2250 * 1024 + 6784,
   'Optional Quiet Wing pack stays below 2250 KiB + 6,784 bytes',
