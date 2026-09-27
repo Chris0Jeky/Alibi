@@ -40,7 +40,7 @@ export default {
     rules: [
       'Finch’s station ticket is stamped 21:17.',
       'The maintenance slip says this clock was exactly 17 minutes fast.',
-      'Enter the actual station departure time, in 24-hour HH:MM format.',
+      'Enter the actual station departure time in 24-hour form, such as 21:17 or 2117.',
     ],
     hints: [
       'A fast clock displays a later time than the actual time.',

@@ -188,7 +188,21 @@ function available(s, id) {
         ? has(s, 'clock') && has(s, 'route')
         : ids.includes(id);
 }
+// Phone keypads may lack a colon: accept 2100, 21.00 and 21 00, but store only HH:MM.
+function clockTime(text) {
+  const m = /^\s*(\d\d?)\s*[:.h -]?\s*(\d\d)\s*$/i.exec(text);
+  return m && m[1] < 24 && m[2] < 60 ? m[1].padStart(2, '0') + ':' + m[2] : null;
+}
+function clockFeedback(text) {
+  const time = clockTime(text);
+  return !time
+    ? 'Enter a 24-hour time as four digits, such as 21:17 or 2117.'
+    : time < '12'
+      ? `${time} is in the morning. Use 24-hour time: the ticket reads 21:17.`
+      : `${time} does not match a clock running 17 minutes fast.`;
+}
 function complete(s, id, answer, guided = false) {
+  if (id === 'clock') answer = clockTime(answer) ?? answer;
   if (!available(s, id) || !check(id, answer))
     return { ok: false, state: s, error: 'Check the remaining constraints before submitting.' };
   if (has(s, id)) return { ok: true, state: s, newAward: false };
@@ -390,6 +404,8 @@ export {
   complete,
   available,
   roomStatus,
+  clockTime,
+  clockFeedback,
   score,
   progress,
   solved,

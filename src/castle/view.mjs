@@ -553,7 +553,9 @@ export async function mount({ root, preferences = null, practice = null }) {
         feedback =
           active === 'inference'
             ? 'The ticket gives a departure time. Which record actually places Finch at the tower?'
-            : result.error;
+            : active === 'clock'
+              ? E.clockFeedback(answer)
+              : result.error;
       drawPuzzle();
     }
   }
@@ -800,6 +802,16 @@ export async function mount({ root, preferences = null, practice = null }) {
         filter = el.value;
         render();
         $('#filter').focus();
+      }
+    },
+    { signal: abort.signal },
+  );
+  root.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Enter' && event.target.id === 'clock-answer') {
+        playAction('check');
+        $('#clock-answer').focus();
       }
     },
     { signal: abort.signal },
