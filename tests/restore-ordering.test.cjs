@@ -61,12 +61,15 @@ function makeDisk() {
               pending += 1;
               generation += 1;
               const req = { result: undefined, onsuccess: null, onerror: null };
+              // Requests run in queue order: only puts queued before this get are visible to it.
+              const queuedOwn = writes.has(key),
+                own = writes.get(key);
               setTimeout(() => {
                 if (aborted) {
                   pending -= 1;
                   return;
                 }
-                const raw = writes.has(key) ? writes.get(key) : disk.get(key);
+                const raw = queuedOwn ? own : disk.get(key);
                 req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
                 pending -= 1;
                 if (req.onsuccess) req.onsuccess();
@@ -251,6 +254,11 @@ test('puts reach the disk only when their transaction completes; abort discards 
     committed.oncomplete = resolve;
   });
   const store = committed.objectStore();
+  const before = store.get('state');
+  let earlier;
+  before.onsuccess = () => {
+    earlier = before.result;
+  };
   store.put({ rev: 2 }, 'state');
   const own = store.get('state');
   let seen;
@@ -258,6 +266,7 @@ test('puts reach the disk only when their transaction completes; abort discards 
     seen = own.result;
   };
   await completing;
+  assert.deepEqual(earlier, { rev: 1 }, 'a get queued before a put does not see it');
   assert.deepEqual(seen, { rev: 2 }, 'a transaction reads its own pending put');
   assert.deepEqual(disk.get('state'), { rev: 2 }, 'a completed put is durable');
 });
