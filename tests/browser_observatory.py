@@ -249,7 +249,8 @@ with sync_playwright() as pw:
     page.goto(PUBLIC_URL)
     ready(page)
     release = page.evaluate('() => ALIBI_CONFIG.version')
-    check(page.evaluate('() => Pulseboard.version') == '3.1.0', 'the page loads Pulseboard SDK 3.1.0')
+    sdk_version = json.loads((ROOT / 'observatory.lock.json').read_text(encoding='utf-8'))['sdk']
+    check(page.evaluate('() => Pulseboard.version') == sdk_version, f'the page loads the locked Pulseboard SDK {sdk_version}')
     check(
         page.locator('script[src^="./assets/pulseboard."]').count() == 1,
         'the page loads exactly one hashed SDK asset',
