@@ -1429,6 +1429,23 @@ def scenario_unknown_paths(pw: Any, root: Path) -> None:
                 page.evaluate("Boolean(document.querySelector('.sidebar, .mobile-nav'))"),
                 f"offline /{path} still opens the cached shell",
             )
+        for path, expected_hash in (("privacy.html", "#/privacy"), ("about/index.html", "#/about")):
+            page.goto(urljoin(BASE, path), wait_until="domcontentloaded", timeout=15000)
+            wait_diag(page)
+            check(
+                page.evaluate("location.hash") == expected_hash,
+                f"offline /{path} opens its precached route document",
+            )
+        for path in ("a/b/x.html", "a/b/", "missing.html"):
+            page.goto(urljoin(BASE, path), wait_until="load", timeout=15000)
+            check(
+                page.locator("h1").first.inner_text() == "This clue leads nowhere.",
+                f"offline /{path} shows the cached styled 404",
+            )
+            check(
+                page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(241, 238, 231)",
+                f"offline /{path} fallback keeps the 404 styling",
+            )
         context.set_offline(False)
     finally:
         try:

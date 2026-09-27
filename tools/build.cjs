@@ -60,6 +60,20 @@ function writePathRouteAliases(dist) {
     write(path.join(dist, alias, 'index.html'), document);
   }
 }
+function serviceWorkerSource(release, assets) {
+  return `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
+const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
+self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(await caches.keys()).filter(k=>k.startsWith(PREFIX)),keep=new Set([CACHE,...keys.filter(k=>k!==CACHE).slice(-1)]);await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
+self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
+const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
+async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
+const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
+function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
+function navigationResponse(hit){return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit;}
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=navigationResponse(await c.match(new URL('./'+alias+'.html',self.registration.scope).href));return hit||fetch(r);}const own=/\\.html$/i.test(rel)&&navigationResponse(await c.match(r));if(own)return own;const shell=/^(?:[^/.]*|index\\.html)$/.test(rel)&&navigationResponse(await c.match(new URL('./',self.registration.scope).href));if(shell)return shell;try{return await fetch(r);}catch(error){const fallback=navigationResponse(await c.match(new URL('./404.html',self.registration.scope).href));if(fallback)return fallback;throw error;}}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+`;
+}
 function files(dir) {
   return fs
     .readdirSync(dir, { withFileTypes: true })
@@ -417,6 +431,7 @@ function build() {
   const assets = [
     './',
     './index.html',
+    './404.html',
     ...aliasShellDocuments,
     './manifest.webmanifest',
     './icons/icon-192.png',
@@ -436,23 +451,10 @@ function build() {
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
-  // Hosts may canonicalize cached alias URLs through an HTTP redirect. A
-  // manual-mode navigation cannot consume that followed-redirect response;
-  // rewrap only those cache hits while preserving their bytes and headers.
-  // The shell's asset URLs are relative, so it is served only for the scope root,
-  // index.html and single extensionless segments. Deeper or file-like URLs such as
-  // /a/b/x.html go to the network and its styled 404 instead of a stuck, unstyled shell.
-  const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
-const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
-self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(await caches.keys()).filter(k=>k.startsWith(PREFIX)),keep=new Set([CACHE,...keys.filter(k=>k!==CACHE).slice(-1)]);await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
-self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
-const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
-async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
-const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
-function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}return /^(?:[^/.]*|index\\.html)$/.test(rel)&&await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
-`;
+  // Hosts may canonicalize cached document URLs through an HTTP redirect. The
+  // navigation policy rewraps those hits, serves exact precached documents,
+  // and falls back to the styled 404 only when a non-shell network navigation fails.
+  const sw = serviceWorkerSource(release, assets);
   write(path.join(DIST, 'sw.js'), sw);
   write(
     path.join(DIST, '_headers'),
@@ -572,4 +574,5 @@ module.exports = {
   PATH_ROUTE_ALIASES,
   pathRouteAliasDocument,
   writePathRouteAliases,
+  serviceWorkerSource,
 };

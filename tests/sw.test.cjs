@@ -17,6 +17,7 @@ function setup(failInstall = false) {
   const handlers = {},
     data = new Map(),
     calls = { skip: 0, claim: 0, network: 0 };
+  let offline = false;
   const key = (x) => (typeof x === 'string' ? new URL(x, 'https://test.invalid/').href : x.url);
   const cache = {
     async open(n) {
@@ -53,6 +54,7 @@ function setup(failInstall = false) {
     caches: cache,
     fetch: async (req) => {
       calls.network++;
+      if (offline) throw new Error('simulated offline navigation');
       return { network: true, url: key(req) };
     },
     self: {
@@ -88,7 +90,16 @@ function setup(failInstall = false) {
     });
     return response ? await response : undefined;
   }
-  return { handlers, data, calls, lifecycle, request };
+  return {
+    handlers,
+    data,
+    calls,
+    lifecycle,
+    request,
+    setOffline(value) {
+      offline = Boolean(value);
+    },
+  };
 }
 (async () => {
   const standalone = fs.readFileSync(path.join(ROOT, 'alibi-deluxe-play.html'), 'utf8');
@@ -106,7 +117,7 @@ function setup(failInstall = false) {
   );
   check(
     shell.length ===
-      6 +
+      7 +
         6 +
         fs
           .readdirSync(path.join(ROOT, 'dist/assets'))
@@ -125,7 +136,7 @@ function setup(failInstall = false) {
                 n,
               ),
           ).length,
-    'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
+    'Release installs the core shell, styled 404 and six alias redirect documents, without optional activity assets',
   );
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
@@ -166,6 +177,13 @@ function setup(failInstall = false) {
     'Controlled alias matching ignores case and trailing slashes',
   );
   check(x.calls.network === 0, 'Controlled alias navigation does not require network');
+  for (const url of ['/privacy.html', '/about/index.html']) {
+    const cachedDocument = await x.request(url, { mode: 'navigate' });
+    check(
+      cachedDocument && cachedDocument.release === name,
+      `Precached HTML navigation ${url} opens without the network`,
+    );
+  }
   for (const url of ['/index.html', '/unknown-leaf', '/?from=share']) {
     const shell = await x.request(url, { mode: 'navigate' });
     check(
@@ -176,10 +194,24 @@ function setup(failInstall = false) {
   check(x.calls.network === 0, 'Root-level shell navigations do not require network');
   // 0.14.1 audit M4: the shell's asset URLs are relative, so a deeper or file-like URL
   // that received it rendered an unstyled page stuck on "Opening the puzzle cabinet…".
-  for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/404.html', '/missing.html']) {
+  for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/missing.html']) {
     const network = await x.request(url, { mode: 'navigate' });
     check(network && network.network, `Navigation to ${url} reaches the network and its 404`);
   }
+  const cached404 = await x.request('/404.html', { mode: 'navigate' });
+  check(
+    cached404 && cached404.release === name && cached404.url.endsWith('/404.html'),
+    'The styled 404 document is part of the offline release',
+  );
+  x.setOffline(true);
+  for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/missing.html']) {
+    const fallback404 = await x.request(url, { mode: 'navigate' });
+    check(
+      fallback404 && fallback404.release === name && fallback404.url.endsWith('/404.html'),
+      `Offline navigation to ${url} receives the cached styled 404`,
+    );
+  }
+  x.setOffline(false);
   const js = [...x.data.get(name).keys()].find((k) => k.endsWith('.js'));
   check((await x.request(js)).release === name, 'Hashed script served from current cache');
   check(

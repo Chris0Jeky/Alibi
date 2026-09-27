@@ -1,10 +1,9 @@
 'use strict';
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const http = require('node:http');
-const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
+const { serviceWorkerSource } = require('../tools/build.cjs');
 
 test(
   'cached aliases remain navigable after a host canonicalizes their HTML URLs',
@@ -38,7 +37,9 @@ test(
       URL,
       Response,
       caches: {
-        open: async () => ({ match: async (url) => entries.get(url) }),
+        open: async () => ({
+          match: async (value) => entries.get(typeof value === 'string' ? value : value.url),
+        }),
       },
       fetch: async () => {
         networkCalls++;
@@ -50,7 +51,17 @@ test(
         addEventListener: (type, handler) => (handlers[type] = handler),
       },
     };
-    vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../dist/sw.js'), 'utf8'), sandbox);
+    vm.runInNewContext(
+      serviceWorkerSource('redirected-navigation-test', [
+        './',
+        './privacy.html',
+        './about.html',
+        './about/index.html',
+        './login.html',
+        './404.html',
+      ]),
+      sandbox,
+    );
     async function navigate(pathname) {
       let result;
       handlers.fetch({
@@ -83,6 +94,16 @@ test(
       );
       assert.equal(await result.text(), expectedBody, 'the exact cached alias body survives');
     }
+    const redirectedDocument = await fetch(`${origin}/about/index.html`);
+    const redirectedDocumentBody = await redirectedDocument.clone().text();
+    entries.set(`${origin}/about/index.html`, redirectedDocument);
+    const exactDocument = await navigate('/about/index.html');
+    assert.equal(exactDocument.redirected, false, 'exact cached HTML navigation is rewrapped');
+    assert.equal(
+      await exactDocument.text(),
+      redirectedDocumentBody,
+      'exact cached HTML navigation preserves its body',
+    );
     assert.equal(networkCalls, 0, 'cached navigation remains available without a network request');
 
     const direct = new Response('direct cached alias', {

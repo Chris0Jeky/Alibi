@@ -1986,10 +1986,26 @@ input[type='checkbox'] {
   margin-top: 12px;
   line-height: 1.65;
 }
-/* Mouse and keyboard help is noise on a touch screen. */
-@media (pointer: coarse) {
+/* Keep keyboard help available to assistive technology on touch-first devices.
+   A fine pointer restores it visually on hybrid devices. */
+@media (hover: none) and (pointer: coarse) {
   .kb {
-    display: none;
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@media (any-pointer: fine) {
+  .kb {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
   }
 }
 .main-tools {
