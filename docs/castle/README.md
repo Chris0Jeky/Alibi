@@ -30,7 +30,7 @@ remain in history. Start with [STRATEGY.md](STRATEGY.md).
   first-solve familiarity and internal return context. [PRACTICE.md](PRACTICE.md) defines the
   read boundary and why these discoveries do not award case evidence or cross-game entitlements.
 - `tools/build-quiet-pack.cjs`: the unchanged prior Quiet Wing builder, renamed.
-- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate 96 KiB source-bundle limit; the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
+- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate source-bundle limit, 96 KiB plus a measured 2,816 bytes for the Chapter I guidance fixes (101,120 bytes); the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
 
 ## Boundaries
 
@@ -59,10 +59,21 @@ era layers keep that geometry. A native range exposes 100–175% zoom in 25% ste
 to 100%. Enlargement stays inside the labelled map scroller, retains its horizontal centre where
 possible, and survives numbered-room selection plus Today/1911 rerenders. Keyboard focus returns
 to the zoom control or the room/era control that triggered the rerender. Named entrances and the
-selected-room panel remain available at every level. The reconciled implementation still fits the
-unchanged 96 KiB Castle source-bundle limit. A secret route appears only after its deduction. The
+selected-room panel remain available at every level. The implementation fits the Castle
+source-bundle limit above. A secret route appears only after its deduction. The
 ten room illustrations use their own 1000×660 coordinates. Inspecting a locked nearby door preserves
 the current room. Floor/wing-specific views and the wider atlas remain navigation work under #45.
+
+Chapter I is complete once the Keeper's Study conclusion is recorded, the same record that opens
+the Unrecorded Stair and its margin. Completion is derived from that record, never stored: the
+grounds heading carries a "Chapter I complete" mark, the stair counts as done and the header reads
+"Chapter I n/5 · Extra questions n/5" (one Map Room key counts toward the chapter; the other five
+questions are extras). The thread card sits above the map and only offers open rooms; the grounds
+preselect its next room. Until a first question is solved, arriving at the grounds opens the
+keeper's letter once per visit. Locked doors, locked map pins and first completions link to the
+rooms that open, or were opened by, a question. The Observatory clock accepts 2100, 21.00 and 21 00
+and stores only HH:MM. The directory lists Chapter I rooms first and gathers planned rooms
+under a collapsed "Later chapters" group. The Quiet Wing room bar is omitted on castle pages.
 
 The supplied 18-second silent film has native playback controls, captions and a complete text
 alternative. It never autoplays or downloads with the activity. Closing or leaving releases its
@@ -87,6 +98,9 @@ validated synthetic save at phone and desktop widths. `python tests/browser_cast
 checks both screen sizes, pin geometry, keyboard zoom and focus, map-local panning, selected-room
 retention, hotspots, locked exits, deliberate film playback/caption loading, source release and
 actual offline scene decoding. Reports distinguish fixtures from playthroughs.
+`python tests/browser_castle_chapter.py` walks Chapter I from a fresh save through real controls
+at 390px (touch) and 1280px: the letter, thread and unlock links, clock formats, derived
+completion after reload and after import, the grouped directory and 44px targets.
 
 PR #73 passes the full repository and castle CI gates. Both actual hosts pass all five castle suites and 92 origin checks; the actual saved-game release update passes on each. Keep #2, #11, #13 and #56 open for physical Android, TalkBack and human acceptance. The release does not close those gates.
 
