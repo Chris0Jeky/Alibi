@@ -134,6 +134,8 @@
           ].includes(key) ||
           !r ||
           (r.rulesVersion !== undefined && r.rulesVersion !== 1) ||
+          (['archive', 'regiongardens'].includes(key) &&
+            (!Object.hasOwn(r, 'level') || !Number.isInteger(r.level))) ||
           !Array.isArray(r.log) ||
           r.log.length > 3000 ||
           !Array.isArray(r.redo) ||

@@ -1,0 +1,80 @@
+name: Numbered game import controls
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/backup-validation.js'
+      - 'src/club*.js'
+      - 'src/validator*.js'
+      - 'tests/**'
+      - 'package*.json'
+      - '.github/workflows/club-level-import.yml'
+permissions:
+  contents: read
+concurrency:
+  group: club-level-import-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - name: Record exact source and formatting diagnostics
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          mkdir -p test-results/club-level-source
+          git rev-parse HEAD > test-results/club-level-source/source-head.txt
+          npx --no-install prettier src/backup-validation.js > test-results/club-level-source/formatted-validator.js
+          npx --no-install prettier tests/club-level-validation.test.cjs > test-results/club-level-source/formatted-test.cjs
+      - name: Install test dependencies
+        run: |
+          test -s /etc/apt/sources.list.d/ubuntu.sources
+          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install --yes --no-install-recommends ffmpeg >/dev/null
+          fi
+          python -m pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+      - name: Verify all source tests, existing budgets and Android build
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee test-results/club-level-source/verify.log
+      - name: Exercise refused imports, cancellation and worker deadlines
+        run: |
+          python -m http.server 8787 --directory dist > test-results/club-level-source/server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:8787/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8787/ python tests/browser_club_level_import.py
+          ALIBI_URL=http://127.0.0.1:8787/ python tests/browser_backup_worker.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: club-level-import-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            test-results/club-level-source/
+            test-results/club-level-import/
+            test-results/quiet-wing/backup-worker-results.json
+            build-info.json
+          retention-days: 14
+          if-no-files-found: error
