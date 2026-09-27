@@ -194,7 +194,16 @@ the survey or taps a rating. */
           if (!key && create && (key = id()) && !write(KEY, key)) remembered = key;
           return key;
         },
-        resetRespondent: () => ((remembered = null), write(KEY, null)),
+        // Queued answers still carry the old key; sending them later would link it to the new one.
+        // Returns how many answers were removed. Messages carry no key and stay queued.
+        resetRespondent() {
+          const list = load(),
+            kept = list.filter((x) => !x.payload.respondent);
+          if (kept.length < list.length) save(kept);
+          remembered = null;
+          write(KEY, null);
+          return list.length - kept.length;
+        },
         // Built when Send is pressed: null when the text is empty or a field is invalid.
         feedback({ kind, route, subject = '', text, release, device }) {
           text = clean(text);
