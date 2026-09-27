@@ -7,8 +7,8 @@ Refs [#346](https://github.com/Chris0Jeky/Alibi/issues/346). The 24 curated vaul
 Room; rooms 01–09 keep their maps, indices, replays and journal records (hash-pinned). Room
 navigation is two disclosures (Rooms 01–09, Vaults 10–33) with solved markers read from existing
 record ids, end cards after rooms 09 and 33, and a bounded room action. The Games Room and Pocket
-Borough link the curated challenges; the contracts link is `#/quiet/challenges/?family=borough`
-because the current Quiet Wing router sends `challenges?family=…` to the Realm page. Measured
+Borough link the curated challenges at `#/quiet/challenges` (the current Quiet Wing router sends
+`challenges?family=…` to the Realm page; switch once it reads a family filter). Measured
 ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 7,661 -> 8,475
 (+832), Quiet Wing pack 2,303,623 -> 2,305,480 raw (+1,920; it embeds the engine). New checks:
 `tests/archive-heist-vaults.test.cjs` and `tests/browser_archive_vaults.py` (local origin, 390px

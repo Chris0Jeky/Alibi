@@ -222,11 +222,14 @@ def viewport(browser, base, width, name):
         f'{name}: the Games Room card names the vaults',
     )
     link = page.locator('.club-challenge-entry a', has_text='Borough contracts')
-    check(link.get_attribute('href') == '#/quiet/challenges/?family=borough', f'{name}: the Borough contracts link targets the list')
+    check(link.get_attribute('href') == '#/quiet/challenges', f'{name}: the Borough contracts link targets the list')
     shot('games-room')
     link.click()
     heading, cards = quiet_list(page)
     check(heading == 'Fixed starts. Your own route.' and cards > 0, f'{name}: the Borough contracts link lands on the challenge list')
+    page.go_back()
+    page.wait_for_selector('.club-challenge-entry')
+    check(page.evaluate('location.hash') == '#/salon', f'{name}: Back returns from the challenge list to the Games Room')
     page.goto(base + '#/salon')
     page.wait_for_selector('.club-challenge-entry')
     page.locator('.club-challenge-entry button', has_text='Curated challenges').click()
@@ -237,7 +240,7 @@ def viewport(browser, base, width, name):
     dismiss()
     check(
         page.locator('.club-playtools a', has_text='12 planning contracts').get_attribute('href')
-        == '#/quiet/challenges/?family=borough',
+        == '#/quiet/challenges',
         f'{name}: the Pocket Borough page links the planning contracts',
     )
     shot('borough')

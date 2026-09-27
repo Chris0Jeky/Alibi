@@ -11,10 +11,10 @@
     `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
-  // The slash before the query keeps the Quiet Wing route 'challenges' even where the family
-  // filter is not read, so the link still lands on the full challenge list.
-  const contracts = (text, cls) =>
-    `<a class="btn ${cls}" href="#/quiet/challenges/?family=borough">${text}</a>`;
+  // Planning contracts live in the Quiet Wing challenge list. Once that list reads a family filter,
+  // point this at #/quiet/challenges?family=borough: today the query form opens the Realm page, and
+  // the /?family= form only reaches the list through a redirect that traps the Back button.
+  const contracts = (text, cls) => `<a class="btn ${cls}" href="#/quiet/challenges">${text}</a>`;
   const cfg = () => root.ALIBI_CLUB_CONFIG || {};
   const day = () => new Date().toISOString().slice(0, 10);
   let bridge = null,
@@ -787,7 +787,10 @@
       level = maps[r.level],
       corners = E().warehouse.corners(s),
       // Solved markers read the existing journal record ids: archive:<room index>:<replay hash>.
-      solved = maps.map((_, i) => state.records.some((x) => x.id.startsWith(`archive:${i}:`))),
+      solved = maps.map(
+        (_, i) =>
+          (i === r.level && s.done) || state.records.some((x) => x.id.startsWith(`archive:${i}:`)),
+      ),
       open = solved.slice(9).filter((x) => !x).length,
       next = r.level < maps.length - 1 ? r.level + 1 : solved.indexOf(false, 9),
       pad = (i) => String(i + 1).padStart(2, '0'),
