@@ -125,8 +125,8 @@ for (const [prefix, limit] of [
 }
 
 // Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
-// The pack embeds club-engines.js: Archive vault rooms measured 2,303,623 -> 2,305,480, +1,920.
+// Challenge library (+6,746) and Archive vault rooms (+1,857) on 2,303,623: measured 2,312,249; ceiling +8,256.
 assert.ok(
-  info.quietWingBytes < 2250 * 1024 + 1920,
-  'Optional Quiet Wing pack stays below 2250 KiB + 1,920 bytes',
+  info.quietWingBytes < 2250 * 1024 + 8256,
+  'Optional Quiet Wing pack stays below 2250 KiB + 8,256 bytes',
 );
