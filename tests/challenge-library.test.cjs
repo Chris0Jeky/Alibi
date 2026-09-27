@@ -215,3 +215,14 @@ test('old Duel saves where the player also moved Ink still load', () => {
   legacy.log = [1, 2, 5, 35, 34, 3];
   assert.doesNotThrow(() => open(c.id, legacy));
 });
+
+test('the Quiet Wing list deep-links, groups by family and derives completion from replays', () => {
+  const app = fs.readFileSync('src/quiet-wing/app.js', 'utf8');
+  assert.match(app, /routePath = \(\) => location\.hash\.replace\([^)]*\)\.split\('\?'\)\[0\]/);
+  assert.match(app, /new URLSearchParams\(location\.hash\.split\('\?'\)\[1\]\)\.get\('family'\)/);
+  assert.match(app, /class="challenge-family" data-family=/);
+  assert.match(app, /A\.challengeRegistry\.replay\(run\)\.complete/);
+  assert.match(app, /'05 \/ ' \+ NAMES\[challenge\.family\]/);
+  assert.doesNotMatch(app, /id="classics-challenges" class="textbtn" style="font-size:10px"/);
+  assert.match(app, /id="classics-challenges" class="soft" style="min-height:44px/);
+});

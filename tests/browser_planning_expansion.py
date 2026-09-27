@@ -46,8 +46,11 @@ def run():
                     assert page.evaluate('registry.count') == 95
                 else:
                     page.goto(base + '/#/quiet/challenges')
-                    page.locator('[data-challenge-id]').first.wait_for(timeout=15000)
+                    page.locator('[data-challenge-id]').first.wait_for(state='attached', timeout=15000)
                     assert page.locator('[data-challenge-id]').count() == 95
+                    # Families start collapsed to their headings, so the phone list stays short.
+                    assert page.locator('[data-challenge-id]:visible').count() == 0
+                    assert page.locator('.challenge-family summary:visible').count() == 10
                     page.locator('#challenge-family').wait_for(timeout=2500)
                     page.locator('#challenge-family').select_option('warehouse')
                     assert page.locator('[data-challenge-id]:visible').count() == 36
@@ -91,6 +94,8 @@ def run():
                                 page.locator(f'[data-action="plot"][data-value="{action["cell"]}"]').click()
                     assert 'Complete in' in page.locator('.challenge-status').inner_text(), c['id']
                     assert c['difficulty'].upper() in page.locator('.result .eyebrow').inner_text().upper()
+                    if not ISOLATED:
+                        assert page.locator('[data-challenge="list"]').count() == 1
                     if c['family'] == 'borough':
                         page.locator('.challenge-objectives').wait_for(timeout=2000)
                         text = page.locator('.challenge-objectives').inner_text()

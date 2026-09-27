@@ -169,7 +169,7 @@ try:
     production_url = os.environ.get('ALIBI_URL8795')
     if production_url:
         page = p.chromium.launch().new_page(viewport={'width': 390, 'height': 900})
-        page.goto(production_url.rstrip('/') + '#/quiet/challenges')
+        page.goto(production_url.rstrip('/') + '#/quiet/challenges?family=hanoi')
         page.locator('[data-challenge-id]').first.wait_for()
         assert page.locator('[data-challenge-id]').count() == len(DATA)
         assert set(page.locator('[data-challenge-id]').evaluate_all('(es) => es.map(e => e.dataset.challengeId)')) == set(BY_ID)
@@ -208,7 +208,7 @@ try:
         page.locator('.challenge-status').filter(has_text='1 move so far').wait_for()
         for width in (390, 1280):
             page.set_viewport_size({'width': width, 'height': 900})
-            page.goto(production_url.rstrip('/') + '#/quiet/challenges')
+            page.goto(production_url.rstrip('/') + '#/quiet/challenges?family=queens')
             page.locator('[data-challenge-id="curated-classic-queens-01"]').click()
             assert_grid(page)
             assert page.locator('.challenge-grid').evaluate("e=>getComputedStyle(e).gridTemplateColumns.split(' ').length") == 8

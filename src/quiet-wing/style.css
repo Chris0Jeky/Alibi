@@ -2250,6 +2250,60 @@ dialog select {
 .challenge-pad :nth-child(2) {
   grid-column: 1;
 }
+.challenge-family summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  cursor: pointer;
+  border-top: 1px solid var(--line);
+}
+.challenge-family summary::-webkit-details-marker {
+  display: none;
+}
+.challenge-family summary::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 22px;
+}
+.challenge-family[open] summary::after {
+  content: '−';
+}
+.challenge-family h2 {
+  font-size: 22px;
+  margin: 8px 0;
+}
+.challenge-family .card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.challenge-card {
+  gap: 6px;
+  padding: 14px;
+}
+.challenge-card h3 {
+  font-size: 18px;
+  margin: 0 0 auto;
+}
+.challenge-card .pill {
+  align-self: flex-start;
+}
+.challenge-card b {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: var(--pale);
+}
+.challenge-card.done {
+  border-color: var(--green);
+}
+#challenge-family {
+  min-height: 44px;
+  margin: 8px 0 16px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
 .models .model small {
   display: block;
   margin-top: 5px;
