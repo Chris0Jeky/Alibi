@@ -30,7 +30,7 @@ remain in history. Start with [STRATEGY.md](STRATEGY.md).
   first-solve familiarity and internal return context. [PRACTICE.md](PRACTICE.md) defines the
   read boundary and why these discoveries do not award case evidence or cross-game entitlements.
 - `tools/build-quiet-pack.cjs`: the unchanged prior Quiet Wing builder, renamed.
-- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate source-bundle limit, 96 KiB plus a measured 2,816 bytes for the Chapter I guidance fixes (101,120 bytes); the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
+- `tools/build-quiet.cjs`: composes the two activity configurations without combining their downloads. Castle has a separate source-bundle limit, 96 KiB plus 2,816 bytes for the Chapter I guidance fixes (101,120 bytes; measured 100,837); the existing Quiet Wing limit is unchanged. `build-info.json` records `castleBytes` separately and excludes it from core offline bytes.
 
 ## Boundaries
 

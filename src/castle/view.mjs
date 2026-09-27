@@ -867,10 +867,12 @@ export async function mount({ root, preferences = null, practice = null }) {
     restoredPracticeFocus = focusPracticeStarter();
     if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
     // Until a first question is solved, arriving at the grounds opens the keeper's letter once
-    // per visit. Derived from the save; nothing new is stored.
+    // per visit. Derived from the save; nothing new is stored. A host that left the page during
+    // mount cannot show a modal.
     if (
       view === 'map' &&
       !greeted &&
+      root.host.isConnected &&
       state.preferences.story &&
       !Object.keys(state.completed).length
     ) {

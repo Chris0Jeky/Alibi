@@ -18,7 +18,7 @@ record (no save change): grounds mark, finished thread, done stair and a
 rooms; the keeper's letter opens on first arrival; locked doors, pins and first completions link
 to the rooms that open them; the clock accepts 2100/21.00/21 00; the directory collapses planned
 rooms; the Quiet Wing room bar is hidden on castle pages; blank hypotheses keep their draft. The
-castle script ceiling took a measured +2,816 bytes (98,062 -> 100,817 of 101,120); core budgets
+castle script ceiling rose by 2,816 bytes (measured 98,062 -> 100,837 of 101,120); core budgets
 are unchanged. Physical keyboards and TalkBack remain unverified. See
 [docs/castle/README.md](castle/README.md).
 
