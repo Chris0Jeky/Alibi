@@ -46,10 +46,35 @@ def check_landscape(page, isolated=False, screenshot=None):
     page.wait_for_function('(turn) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length > turn', arg=before)
     host.locator('[data-command="undo"]').click()
     page.wait_for_function('(turn) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === turn', arg=before)
-    host.locator('.bc-menu-toggle').click()
-    expect(host.locator('.bc-aside')).to_be_visible()
-    host.locator('.bc-menu-toggle').click()
-    expect(host.locator('.bc-aside')).not_to_be_visible()
+    menu_states = []
+
+    def menu_state(label):
+        state = host.evaluate('''(el, label) => {
+            const studio = el.querySelector('.bc-studio');
+            const toggle = el.querySelector('.bc-menu-toggle');
+            const aside = el.querySelector('.bc-aside');
+            const rect = aside?.getBoundingClientRect();
+            return {label, body: document.body.className, studio: studio?.className,
+                expanded: toggle?.getAttribute('aria-expanded'),
+                asideDisplay: aside && getComputedStyle(aside).display,
+                asideRect: rect && {x:rect.x,y:rect.y,width:rect.width,height:rect.height},
+                diagnostics: globalThis.AlibiBlockMotion?.diagnostics?.() || null};
+        }''', label)
+        menu_states.append(state)
+        return state
+
+    toggle = host.locator('.bc-menu-toggle')
+    aside = host.locator('.bc-aside')
+    menu_state('before-open')
+    toggle.click()
+    expect(toggle).to_have_attribute('aria-expanded', 'true')
+    expect(aside).to_be_visible()
+    menu_state('open')
+    toggle.click()
+    expect(toggle).to_have_attribute('aria-expanded', 'false')
+    expect(aside).not_to_be_visible()
+    menu_state('closed')
+    geometry['menuStates'] = menu_states
     host.locator('.bc-return').focus()
     page.keyboard.press('Tab')
     page.keyboard.press('Shift+Tab')

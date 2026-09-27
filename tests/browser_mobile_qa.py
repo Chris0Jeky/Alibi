@@ -46,6 +46,12 @@ class MobileQA(unittest.TestCase):
         else:
             page.goto(URL + '/#/' + route, wait_until='domcontentloaded')
             page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
+            # This suite mutates live activity state immediately. Wait until the initial
+            # service-worker claim and offline shell are settled so a late first-claim
+            # render cannot replace the Block Cabinet surface between two menu clicks.
+            page.wait_for_function(
+                '() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
+            )
         return page
 
     def dismiss_lesson(self, page):
