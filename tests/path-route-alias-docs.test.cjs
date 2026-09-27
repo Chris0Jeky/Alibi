@@ -84,5 +84,5 @@ test('the static 404 page is styled and links home (0.14.1 audit M4)', () => {
     /<a href="\/">Return to Alibi<\/a>/,
     'one absolute link returns home from any depth',
   );
-  assert.doesNotMatch(page, /<(?:script|link)/, 'no script or relative asset can break at depth');
+  assert.doesNotMatch(page, /<(?:script|link)\b/, 'no script or relative asset can break at depth');
 });
