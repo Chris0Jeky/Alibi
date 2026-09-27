@@ -105,12 +105,12 @@
           ? '<p>Clear your finished route and start again?</p><div class="row"><button class="primary" data-challenge="reset">Start again</button><button data-challenge="keep">Keep my route</button></div>'
           : `<div class="row"><button data-challenge="undo" ${n ? '' : 'disabled'}>Undo</button><button data-challenge="reset">Start again</button></div>`
       }</section>`;
-      // Keep keyboard focus on the equivalent control after each redraw.
+      // Keep keyboard focus on the equivalent control after each redraw, without scrolling.
       if (refocus)
         (
           [...host.querySelectorAll('button:enabled')].find((b) => key(b) === refocus) ||
           host.querySelector('.challenge-controls')
-        ).focus();
+        ).focus({ preventScroll: true });
     };
     const control = (kind) => {
       if (kind === 'next' || kind === 'list') return onNav(kind === 'next' ? next.id : '');
