@@ -26,6 +26,9 @@ def run():
                 expect(page.locator('.map-stage')).to_be_visible()
                 page.wait_for_function('() => AlibiActivities.diagnostics().offline')
                 expect(page.locator('.castle-offline')).to_have_text('Castle rooms ready offline.')
+                # The first service-worker claim re-renders the room bar above the castle; a click
+                # during that layout shift can land on another control (CI run 36283266211).
+                page.wait_for_function('()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
                 assert not any('.mp4' in url for url in requests)
                 assert page.locator('.secret-route').count()==0
                 stage=page.locator('.map-stage').bounding_box()
