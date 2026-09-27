@@ -1,12 +1,12 @@
 {
   "version": "0.1.0",
   "source": "Chris0Jeky/Pulseboard:observatory",
-  "sdk": "3.1.0",
+  "sdk": "3.3.0",
   "installs": {
     "observatory/pulseboard.js": {
       "project": "alibi",
-      "sdk": "3.1.0",
-      "sha256": "902e40ecc209bcf88dc9d8faec2c8002791a5d1f677bdadcdb3bc250144d3446"
+      "sdk": "3.3.0",
+      "sha256": "0f4271bf06898381133248ddb87f91551f44f957a526e3a379aede6733eff0e2"
     }
   }
 }

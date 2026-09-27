@@ -97,7 +97,10 @@ test('new vault footprints are not rotations or reflections of any old room or s
       }
     return variants.sort()[0];
   }
-  const old = [...E.warehouse.maps, ...require('../content/challenges/warehouse.json').challenges];
+  const old = [
+    ...E.warehouse.maps.slice(0, 9),
+    ...require('../content/challenges/warehouse.json').challenges,
+  ];
   const seen = new Set(old.map((c) => identity(c.map)));
   for (const c of collection()) {
     const key = identity(c.map);

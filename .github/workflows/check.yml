@@ -88,6 +88,9 @@ jobs:
       - name: Play all After Hours games and reversible assistance
         if: steps.scope.outputs.mode == 'full'
         run: python tests/browser_club.py
+      - name: Play the Archive Heist vault rooms on a local origin
+        if: steps.scope.outputs.mode == 'full'
+        run: python tests/browser_archive_vaults.py
       - name: Exercise real IndexedDB and offline play
         if: steps.scope.outputs.mode == 'full'
         run: |
@@ -95,6 +98,7 @@ jobs:
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
           python tests/browser_observatory.py
+          python tests/browser_voices.py
           python tests/browser_curation.py
           python tests/browser_discovery.py
           ALIBI_URL=http://127.0.0.1:8787 python tests/browser_discovery_storage.py

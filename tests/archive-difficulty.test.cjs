@@ -126,8 +126,10 @@ function minimumPushes(rows, maxStates = 250000) {
 }
 
 test('Archive Heist additions have independently verified minimum-push progression', () => {
-  assert.equal(E.warehouse.maps.length, 9, 'the expansion appends exactly three rooms');
-  const proofs = E.warehouse.maps.map((room) => minimumPushes(room.map));
+  // Rooms 10-33 are the curated vaults; archive-vaults.test.cjs proves their minimum pushes.
+  const rooms = E.warehouse.maps.slice(0, 9);
+  assert.equal(E.warehouse.maps.length, 33, 'the 24 vaults follow the nine ordinary rooms');
+  const proofs = rooms.map((room) => minimumPushes(room.map));
   assert.ok(proofs.every(Boolean), 'every Archive room has an independent minimum-push proof');
 
   const baseline = proofs.slice(0, 6).map((proof) => proof.pushes);

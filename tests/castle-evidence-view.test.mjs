@@ -29,3 +29,11 @@ test('empty state and record copy remain safe', () => {
   assert.doesNotMatch(evidenceBoard([altered, records[1]]), /<img/);
   assert.doesNotMatch(evidenceComparison([altered, records[1]]), /<img/);
 });
+
+test('the unsigned margin links back to the stair where it was found', () => {
+  const html = evidenceBoard(W.evidence);
+  const margin = html.slice(html.indexOf('data-record-id="margin"'));
+  assert.match(margin, /<small>Unverified testimony · The Unrecorded Stair<\/small>/);
+  assert.match(margin, /href="#\/quiet\/castle\/room\/west-stair">Return to The Unrecorded Stair</);
+  assert.doesNotMatch(margin, /room\/study/);
+});
