@@ -43,5 +43,6 @@ test('selection rejects structural reskins, bad counts and insufficient candidat
   assert.deepEqual(select([item], [], 1), [item]);
   assert.throws(() => select([item], [p], 1), /insufficient/i);
   assert.throws(() => select([item, { ...item, seed: 4 }], [], 2), /insufficient/i);
-  for (const count of [-1, 0, 1.5, Infinity]) assert.throws(() => select([item], [], count), /count/i);
+  for (const count of [-1, 0, 1.5, Infinity])
+    assert.throws(() => select([item], [], count), /count/i);
 });
