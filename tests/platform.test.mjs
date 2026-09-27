@@ -347,7 +347,19 @@ test('a provider write is no longer reported cancelled after bytes can change', 
   const started = new Promise((resolve) => {
     writeStarted = resolve;
   });
+  // Injected timers: deadlines fire only when this test fires them, never from host load.
+  let nextTimerId = 0;
+  const timers = new Map();
   const host = hostFixture({
+    setTimeout(callback, delay) {
+      const id = ++nextTimerId;
+      timers.set(id, { callback, delay, cleared: false });
+      return id;
+    },
+    clearTimeout(id) {
+      const timer = timers.get(id);
+      if (timer) timer.cleared = true;
+    },
     showSaveFilePicker: async () => ({
       async createWritable() {
         return {
@@ -381,7 +393,11 @@ test('a provider write is no longer reported cancelled after bytes can change', 
     },
   );
   await started;
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  const [writeDeadline] = timers.values();
+  assert.equal(writeDeadline.cleared, true, 'committing the write releases its deadline');
+  // A deadline that still expires after the irreversible write began cannot cancel it.
+  writeDeadline.callback();
+  await new Promise((resolve) => setImmediate(resolve));
   assert.equal(settled, false, 'the caller still waits after the irreversible write begins');
   resolveWrite();
   assert.deepEqual(await pending, {
@@ -389,6 +405,14 @@ test('a provider write is no longer reported cancelled after bytes can change', 
     value: { verifiedReadback: true, bytes: Buffer.byteLength(payload) },
   });
   assert.deepEqual(writes, [payload]);
+  assert.deepEqual(
+    [...timers.values()].map(({ delay, cleared }) => ({ delay, cleared })),
+    [
+      { delay: 5, cleared: true },
+      { delay: 5, cleared: true },
+    ],
+    'the readback deadline is armed and released without firing',
+  );
 });
 
 test('a committed backup bounds optional readback and reports unverified on timeout', async () => {
