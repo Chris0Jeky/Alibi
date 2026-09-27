@@ -1658,16 +1658,26 @@ body.club-experiment {
 .direction-pad .right {
   grid-area: 2/3;
 }
-.archive-levels {
-  display: flex;
-  flex-direction: column;
+.archive-levels div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
   gap: 6px;
+  margin-top: 9px;
 }
-.archive-levels > .btn {
-  text-align: left;
-  justify-content: start;
+.archive-levels .btn {
   font-size: 11px;
-  min-height: 39px;
+  padding: 0;
+}
+.club-challenge-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin-top: 23px;
+}
+.club-challenge-entry p {
+  flex: 1 1 260px;
+  font-size: 12px;
 }
 .club-two-panels {
   display: grid;
@@ -2685,9 +2695,6 @@ body.club-experiment {
   .archive-status {
     font-size: 11px;
     min-height: 35px;
-  }
-  .archive-levels > .btn {
-    min-height: 43px;
   }
   .club-stats {
     padding: 18px 4px;

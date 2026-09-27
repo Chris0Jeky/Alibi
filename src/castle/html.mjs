@@ -10,5 +10,5 @@ const button = (label, action, value = '', attrs = '') =>
 const link = (label, view, id = '') =>
   `<a href="#/quiet/castle/${view}${id ? '/' + id : ''}">${label}</a>`;
 const quietLinks = () =>
-  '<div class="row"><a href="#/quiet/garden">Garden</a><a href="#/quiet/realm">Realm builder</a><a href="#/quiet/pets">Companions</a></div>';
+  '<div class="row"><small>These leave the castle:</small><a href="#/quiet/garden">Garden ↗</a><a href="#/quiet/realm">Realm builder ↗</a><a href="#/quiet/pets">Companions ↗</a></div>';
 export { escape, names, places, button, link, quietLinks };

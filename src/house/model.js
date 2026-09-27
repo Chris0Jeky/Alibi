@@ -155,7 +155,8 @@
     return state;
   }
   function nextStep(state) {
-    if (state.solved) return 'The desk study is complete. The full castle is ready to explore.';
+    if (state.solved)
+      return 'The desk study is complete. Wrenmere Castle is a separate, saved investigation.';
     if (!state.letter) return 'Read the envelope on your desk.';
     if (state.visited.length < rooms.length)
       return 'Inspect the three rooms. Their windows and clocks matter.';

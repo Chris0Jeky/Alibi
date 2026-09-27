@@ -125,11 +125,11 @@ Run `npm run assets:gallery` to inspect the source-backed production asset libra
 
 Progress stays in this browser on this device. There is no mandatory account, cloud sync, advertising system, or payment service. On the primary Cloudflare site a one-line Beta notice at the top of the page (never an overlay) explains the beta usage data sent to Pulseboard: usage counts, diagnostics, and journeys with official puzzle ids and numbers only. OK accepts; Choose or the Beta button in Settings and Privacy changes it. EEA visitors get counts only until OK; GPC/DNT turns everything off. The Sites fallback, standalone file and Android app send nothing. Hosting and the collector may process ordinary request data, including IP addresses.
 
-Solutions ship with the application for offline checking and explicit reveals. Scores are not competitive or tamper-resistant. Difficulty and time estimates remain provisional until human calibration. Physical-device accessibility and Android acceptance remain open gates. The source currently has no reuse licence; that owner decision is still pending.
+Solutions ship with the application for offline checking and explicit reveals. Scores are not competitive or tamper-resistant. Difficulty and time estimates remain provisional until human calibration. Physical-device accessibility and Android acceptance remain open gates. The source is available under the [PolyForm Strict License 1.0.0](LICENSE.md): read it and use it for noncommercial purposes, but do not redistribute it or make changes or new works based on it. See [NOTICE.md](NOTICE.md).
 
 The games room now offers **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
 **Block Cabinet** and **Lantern Gardens**. Legacy Draw Dominoes and Mahjong Solitaire engines remain
-available only for existing-save compatibility. Archive Heist has nine rooms. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
+available only for existing-save compatibility. Archive Heist has nine rooms plus the 24 curated Expert and Master vaults as rooms 10–33. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
 harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
 their saves; the fifth invitation casebook extends the current catalogue.
 

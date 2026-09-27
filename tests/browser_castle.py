@@ -5,6 +5,11 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 OUTPUT = Path('test-results/castle')
+
+
+def progress(main, extra):
+    chapter = 'complete' if main == 5 else f'{main}/5'
+    return f'Chapter I {chapter} · Extra questions {extra}/5'
 BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787/').split('#')[0]
 
 
@@ -31,10 +36,10 @@ def controls(page, width, output):
         go('room/' + room)
         click('puzzle')
         expect(page.locator('#castle-dialog')).to_be_visible()
-    def check(total):
+    def check(main, extra=0):
         click('check')
-        expect(page.locator('.score')).to_have_text(f'{total} / 100 points')
-        record(f'{total // 10}: completion recorded through controls')
+        expect(page.locator('.score')).to_have_text(progress(main, extra))
+        record(f'{main}+{extra}: completion recorded through controls')
         click('close')
     def swap_to(target):
         for i, item in enumerate(target):
@@ -45,6 +50,11 @@ def controls(page, width, output):
                 expect(page.locator(f'[data-do="swap"][data-value="{i}"]')).to_have_attribute('aria-pressed', 'true')
                 click('swap', j)
     go('map')
+    expect(page.locator('#castle-dialog')).to_contain_text('The keeper’s letter')
+    expect(page.locator('#castle-dialog [data-do="visit"][data-value="library"]')).to_be_visible()
+    click('close')
+    expect(page.locator('.rail h2')).to_have_text('The Long Library')
+    record('first arrival opens the keeper letter and preselects the thread room')
     assert page.locator('[data-do="select"]').count() == 9
     record('secret stair absent before its deduction')
     click('visit', 'observatory')
@@ -52,32 +62,32 @@ def controls(page, width, output):
     click('close')
     puzzle('gatehouse')
     click('check')
-    expect(page.locator('.score')).to_have_text('0 / 100 points')
+    expect(page.locator('.score')).to_have_text(progress(0, 0))
     record('incorrect board receives no points')
     for i, value in enumerate([1, 3, 5]):
         page.locator(f'[data-wheel="{i}"]').select_option(str(value))
-    check(10)
+    check(1)
     expect(page.locator('[data-do="puzzle"]')).to_be_focused()
     record('closing puzzle restores its launch control')
     puzzle('library')
     swap_to(['atlas', 'tides', 'stars', 'moss', 'letters'])
-    check(20)
+    check(2)
     puzzle('observatory')
     page.locator('#clock-answer').fill('21:00')
-    check(30)
+    check(3)
     puzzle('cartography')
     for node in ['B', 'O', 'T']:
         click('route', node)
     click('undo')
     expect(page.locator('#board')).to_contain_text('5 minutes')
     click('route', 'T')
-    check(40)
+    check(4)
     puzzle('study')
     click('inference', 'definitely-present')
     click('check')
     expect(page.locator('#feedback')).to_contain_text('actually places Finch')
     click('inference', 'possible-not-proven')
-    check(50)
+    check(5)
     go('map')
     assert page.locator('[data-do="select"]').count() == 10
     click('visit', 'west-stair')
@@ -88,12 +98,12 @@ def controls(page, width, output):
     puzzle('orangery')
     for tile in [0, 4, 8]:
         click('lamp', tile)
-    check(60)
+    check(5, 1)
     puzzle('workshop')
     for source, target in [(0, 2), (0, 1), (2, 1), (0, 2), (1, 0), (1, 2), (0, 2)]:
         click('peg', source)
         click('peg', target)
-    check(70)
+    check(5, 2)
     go('museum')
     click('exhibit', 'bridges')
     expect(page.locator('#castle-dialog')).to_contain_text('Euler')
@@ -104,23 +114,23 @@ def controls(page, width, output):
     for node in ['N', 'S', 'I', 'E']:
         click('odd', node)
     click('verdict', 'impossible')
-    check(80)
+    check(5, 3)
     click('exhibit', 'magic')
     click('puzzle', 'magic')
     swap_to([4, 9, 2, 3, 5, 7, 8, 1, 6])
-    check(90)
+    check(5, 4)
     click('exhibit', 'ur')
     expect(page.locator('#castle-dialog')).to_contain_text('modern fair-dice model')
     click('puzzle', 'ur')
     assert page.locator('.patterns > span').count() == 16
     click('ur', 2)
-    check(100)
+    check(5, 5)
     puzzle('gatehouse')
     click('reveal')
     expect(page.locator('#feedback')).to_contain_text('records guided play')
     click('confirm-reveal')
     click('check')
-    expect(page.locator('.score')).to_have_text('100 / 100 points')
+    expect(page.locator('.score')).to_have_text(progress(5, 5))
     click('close')
     record('worked answer explicit; replay cannot duplicate points')
     go('room/library')
@@ -142,12 +152,15 @@ def controls(page, width, output):
     assert page.locator('#castle-main img').count() == 0
     record('notebook retains literal text and four earned records')
     go('directory')
-    expect(page.locator('#results-count')).to_have_text('32 rooms')
+    expect(page.locator('#results-count')).to_have_text('10 rooms to visit · 22 planned')
+    expect(page.locator('.later-rooms')).not_to_have_attribute('open', '')
+    expect(page.locator('.later-rooms .card').first).to_be_hidden()
     page.locator('#search').fill('rookery')
-    expect(page.locator('#results-count')).to_have_text('1 rooms')
+    expect(page.locator('#results-count')).to_have_text('0 rooms to visit · 1 planned')
+    expect(page.locator('.later-rooms .card')).to_be_visible()
     expect(page.locator('#room-results')).to_contain_text('Planned room')
     assert page.locator('#room-results button').count() == 0
-    record('planned content is searchable but has no fictitious unlock')
+    record('planned rooms collapse under later chapters, stay searchable and have no fictitious unlock')
     go('map')
     click('preferences')
     page.locator('[data-pref="motion"]').uncheck()
@@ -175,7 +188,7 @@ def persistent(page, context, base, note):
     page.wait_for_function('() => globalThis.AlibiCastle?.diagnostics().mode === "local"')
     page.evaluate('location.hash = "#/quiet/castle/journal"')
     expect(page.locator('#notes')).to_have_value(note)
-    expect(page.locator('.score')).to_have_text('100 / 100 points')
+    expect(page.locator('.score')).to_have_text(progress(5, 5))
     checks.append('real IndexedDB retains completed chapter and notes after reload')
     other = context.new_page()
     other.goto(base + '#/quiet/castle/journal')

@@ -7,16 +7,27 @@ it. This is a successful early qualitative playtest. Their concrete interaction/
 is tracked in [PLAYER-QA.md](docs/PLAYER-QA.md). The report does not explicitly confirm the
 affected-device freeze retest, TalkBack, measured difficulty or the complete sampler below.
 
-- [ ] q-1 — Choose the public source license: GPL-3.0, MIT, or no reuse license yet.
-  Asked in this session. Until answered, there is no open-source license grant.
+- [x] q-1 — Choose the public source license. Owner decision 2026-09-27 (in chat): public to read,
+  no right for others to modify, no monetization need → PolyForm Strict License 1.0.0
+  (`LICENSE.md`, `NOTICE.md`). Chosen over "all rights reserved" and CC BY-NC-ND 4.0.
 - [ ] q-2 — Finish physical Android acceptance (installation and initial play confirmed by owner on 2026-09-08): install, airplane-mode relaunch, backup export,
   large system text and TalkBack. Owner and another player report repeated post-completion freezes,
   including The last service; retest after the recovery update. Do not clear phone data.
   Browser emulation cannot certify that the physical-device fault is resolved.
 - [ ] q-3 — Before a store submission or substantial promotion, confirm the Alibi name and
   publisher identity. Store accounts, signing-key ownership and disclosures belong here.
+  Name: on 2026-09-27 the owner chose **Postern** as the product-name direction (over Wrenmere,
+  The Undercroft and keeping Alibi); saves, IDs, URLs and the `alibi-device` database keep their
+  names. Still open: a name-clash/trademark check you are comfortable with, and the publisher identity.
 
 A custom domain, monetization and account sync are optional future decisions, not launch gates.
+
+Owner decisions recorded 2026-09-27 (in chat):
+- Player feedback and survey answers go to **Pulseboard** (a new feedback/survey intake in the
+  collector, read in the Desk). Written feedback is stored only when a player presses Send.
+- The Sites fallback is **retired**: one final Codex deployment replaces it with a page that lets
+  players export their saves and points them to the primary site. Until that deployment, Sites
+  keeps serving 0.12.0.
 
 Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues/11).
 
@@ -66,6 +77,12 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   not part of this discovery or difficulty sample. Confirm whether the offered-game interpretations
   match the player's intention. Candidate evidence and residual limits are recorded in
   [Advanced puzzle candidates](docs/ADVANCED-PUZZLE-CANDIDATES.md).
+
+- [ ] q-9 — Retire the Sites fallback (owner decision 2026-09-27). After the first release that
+  contains the in-app "Alibi has moved" notice is live on Cloudflare, start a **Codex** session (it
+  has the Sites hosting skill; Claude sessions do not) and ask it to follow "Retiring the Sites
+  fallback" in [DEPLOYMENT.md](docs/DEPLOYMENT.md). It deploys that same build to Sites once, checks
+  the notice and export, and records the receipt. No action is needed before that release ships.
 
 ## Capacitor transition: owner gates, not a request to stop planning
 

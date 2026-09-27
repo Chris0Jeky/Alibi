@@ -8,6 +8,7 @@ require('../src/backup-validation.js');
 
 const blocks = E.blockCabinet;
 const validator = AlibiBackupValidation(C, null, () => E, 4);
+const { session, fresh } = require('./helpers/club-session.cjs');
 
 function boardWith(cells) {
   const board = Array(64).fill(0);
@@ -89,9 +90,43 @@ test('Block Cabinet detects a stuck tray and rejects untrusted replays', () => {
     /does not fit/,
   );
   assert.throws(
-    () => blocks.replay('STUCK', Array(501).fill({ slot: 0, cell: 0 })),
+    () => blocks.replay('STUCK', Array(blocks.maxMoves + 1).fill({ slot: 0, cell: 0 })),
     /Invalid Block Cabinet replay/,
   );
+});
+
+test('Block Cabinet move cap is shared and fits Club save validation', () => {
+  assert.equal(blocks.maxMoves, 500);
+  // backup-validation rejects any game history longer than 3000 entries on load.
+  assert.ok(blocks.maxMoves <= 3000);
+  assert.throws(
+    () => blocks.replay('CAP', Array(blocks.maxMoves + 1).fill({ slot: 0, cell: 0 })),
+    /Invalid Block Cabinet replay/,
+    'a log past maxMoves is refused before replaying anything',
+  );
+});
+
+test('Club refuses a Block Cabinet placement once the cabinet reaches its move cap', async () => {
+  const data = fresh();
+  data.runs.blockcabinet = { seed: 'CAPPED', log: [], redo: [] };
+  const tab = await session(data);
+  const clubBlocks = tab.context.AlibiClubEngines.blockCabinet;
+  clubBlocks.maxMoves = 1;
+  const first = clubBlocks.initial('CAPPED');
+  const opening = [0, 1, 2].flatMap((slot) =>
+    clubBlocks.placements(first, slot).map((cell) => ({ slot, cell })),
+  )[0];
+  await tab.action('block-piece', { value: String(opening.slot) });
+  await tab.action('block-cell', { cell: String(opening.cell) });
+  assert.equal(tab.state().runs.blockcabinet.log.length, 1);
+  const afterFirst = clubBlocks.replay('CAPPED', tab.state().runs.blockcabinet.log);
+  const next = [0, 1, 2].flatMap((slot) =>
+    clubBlocks.placements(afterFirst, slot).map((cell) => ({ slot, cell })),
+  )[0];
+  await tab.action('block-piece', { value: String(next.slot) });
+  await tab.action('block-cell', { cell: String(next.cell) });
+  assert.equal(tab.state().runs.blockcabinet.log.length, 1);
+  assert.ok(tab.messages.some((m) => /cabinet is full/i.test(m)));
 });
 
 test('Club backups validate Block Cabinet replay and refuse malformed moves', () => {
