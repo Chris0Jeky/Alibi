@@ -1,0 +1,48 @@
+name: Verify escape-room rehearsal
+on:
+  pull_request:
+    paths:
+      - 'tools/escape-*.cjs'
+      - 'tools/escape-ui/**'
+      - 'tests/escape-*.test.cjs'
+      - 'tests/fixtures/escape-room.cjs'
+      - 'tests/browser_escape_rooms.py'
+      - 'content/escape-rooms/**'
+      - '.github/workflows/escape-rehearsal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: escape-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  escape-rehearsal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Preserve exact source and formatter diagnostics
+        run: |
+          mkdir -p test-results/escape-rehearsal/formatted/tools test-results/escape-rehearsal/formatted/tests/fixtures
+          git rev-parse HEAD > test-results/escape-rehearsal/source-head.txt
+          for file in tools/escape-*.cjs tests/escape-*.test.cjs tests/fixtures/escape-room.cjs; do
+            npx prettier "$file" > "test-results/escape-rehearsal/formatted/$file"
+          done
+      - name: Test authored state and exhaustive recovery
+        run: node --test tests/escape-*.test.cjs
+      - name: Check formatting without changing source
+        run: npx prettier --check 'tools/escape-*.cjs' 'tests/escape-*.test.cjs' tests/fixtures/escape-room.cjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: escape-rehearsal-${{ github.run_id }}
+          path: test-results/escape-rehearsal/
+          if-no-files-found: error
