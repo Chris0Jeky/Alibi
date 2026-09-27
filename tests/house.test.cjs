@@ -181,6 +181,11 @@ test('every study state has a visible next step', () => {
     /notebook/,
   );
   assert.match(M.nextStep({ ...M.study(), solved: true }), /complete/);
+  assert.doesNotMatch(
+    M.nextStep({ ...M.study(), solved: true }),
+    /full castle/,
+    'the session desk study is not the castle',
+  );
 });
 test('imported text is escaped rather than interpreted as HTML', () => {
   const html = V.render(
