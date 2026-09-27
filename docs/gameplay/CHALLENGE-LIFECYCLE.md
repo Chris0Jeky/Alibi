@@ -32,9 +32,7 @@ standalone source, add a dependency, or increase any numeric ceiling. The asset 
 and included in the same optional cache manifest. A source wiring test covers the compiler
 boundary; a built-asset test requires exact equality with the parser output and matching hash.
 
-The focused CI builds both the unmodified PR base and the exact head with the same installed
-lockfile toolchain. It records byte deltas and requires the complete Quiet Wing pack to shrink.
-This is transfer accounting, not a claim about physical-device memory, latency or game feel.
+Measure the Quiet Wing pack before and after with `build-info.json` (`quietWingBytes`). This is transfer accounting, not a claim about physical-device memory, latency or game feel.
 
 ## Verification and remaining scope
 
@@ -46,12 +44,11 @@ three edited implementation files match main's Git blob IDs before changes. Othe
 are not treated as an exact main checkout. Local npm installation failed with registry DNS errors;
 no full local build or browser pass is claimed.
 
-`.github/workflows/challenge-lifecycle.yml` checks out and records the exact PR head, runs full
-verify and unchanged-budget checks, measures baseline/head delivery, then exercises the new
-Hanoi/legacy-Duel scenarios plus existing challenge library, Quiet Wing and calm controls.
-The new scenarios cover both 390px and 1280px, using actual buttons and synthetic real IndexedDB
-records. The legacy reply must persist without another board move and reopen offline. All
-failures remain failures, and receipts/screenshots are CI artifacts, not fabricated playtests.
+`tests/browser_challenge_lifecycle.py` exercises the Hanoi and legacy-Duel scenarios at 390px and
+1280px with actual buttons and synthetic real IndexedDB records. The legacy reply must persist
+without another board move and reopen offline. It runs with the other local browser suites. A
+per-PR workflow was removed before merge on the owner's decision (2026-09-27): it required every
+later PR to shrink Quiet Wing and to keep `tests/budget.test.cjs` unchanged, so it would fail them.
 
 Still open under #416: the Quiet Wing host retains its old challenge handle during route changes,
 and same-ID A/B/A loads need a connected-host/epoch guard. Those host changes and delayed restore
