@@ -91,6 +91,7 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // family/tier journey props: measured 131,011 -> 132,033 gzip on the #396 base; ceiling +1,024.
 // Combined with the Archive vaults and Games Room polish: measured 133,186; ceiling +3,200 in total.
 // The 0.14.1 core-cabinet audit fixes measured 131,011 -> 131,464 alone (+448); on top of the above: measured 133,670; ceiling +3,648 in total.
+// Measured 133,690 on main e0edda4 (after #435): 6 bytes of headroom. Trim before the next raise.
 assert.ok(
   info.javascriptGzipBytes < 127 * 1024 + 3648,
   'Application bundle stays under 127 KiB + 3,648 bytes gzip',
@@ -117,7 +118,7 @@ assert.ok(
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
-  // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
+  // compressed startup ceiling (below) and the 2.3 MiB total offline ceiling apply separately.
   // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
   // Voices (the precached chunk above plus its startup entry points): measured
   // 1,372,919 -> 1,395,446 bytes on the #396 base; ceiling +22,528.
@@ -129,12 +130,12 @@ assert.ok(
   'Official definitions and editorial data stay under 1 MiB',
 );
 assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stays under 2.3 MiB');
-// 2026-09-27: the combined Archive vaults, Games Room polish, Voices entry points and core-cabinet
-// fixes measured 204,905 (+105 over 200 KiB); the 0.15.0 release notes (startup data) bring it to
-// 205,232: ceiling +448 until the startup bundle is trimmed.
+// 0.15.0 measured 205,233 and raised this ceiling by 448 until the startup bundle was trimmed.
+// After #425 and #428 it measured 202,721 (a3c6ad9), and 202,748 after #435 (e0edda4), so the
+// raise is withdrawn: the ceiling is 200 KiB again.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 448,
-  'Initial code plus official data stays under 200 KiB + 448 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024,
+  'Initial code plus official data stays under 200 KiB gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.

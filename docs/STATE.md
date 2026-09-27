@@ -15,9 +15,11 @@ fallback still serves 0.12.0 until q-9. It gathers the 2026-09-27 QA wave (audit
   CI"), after conflict resolution and each PR's own review: #409, #410, #411, #412, #413 and #423.
   The merged `main` (`896bb6d`) built, and its full Node suite passed locally apart from
   `asset-audio` (no `ffprobe` here); the Android tests pass after `build:android`.
-- Combined ceilings after the merges (all commented in `tests/budget.test.cjs`): application JS
-  133,670 gzip, initial code plus official data 205,232 with the release notes (+448 over
-  200 KiB, to be trimmed), main CSS 34,079, Quiet Wing pack 2,312,559.
+- Measured at release (all commented in `tests/budget.test.cjs`): application JS 133,670 gzip
+  (ceiling 127 KiB + 3,648 = 133,696), initial code plus official data 205,233 (ceiling
+  temporarily 200 KiB + 448), main CSS 34,079, Quiet Wing pack 2,312,559. After #425, #428 and
+  #435, main measures 133,690 application JS (6 bytes of headroom) and 202,748 initial, so the
+  initial ceiling is back to 200 KiB.
 - Pulseboard: Voices intake live since 2026-09-27 (schema 5, voices admitted `["alibi"]`).
 - Review follow-ups, all non-blocking: #404, #407, #416, #417 (intermittent Block Cabinet
   landscape test), #418, #419, #420, #421 (completion-hook hardening for #11).
