@@ -30,12 +30,15 @@
     "extra/vault-binary.json",
     "extra/vault-sudoku.json",
     "extra/vault-lightup.json",
-    "extra/vault-futoshiki.json"
+    "extra/vault-futoshiki.json",
+    "extra/interlock-gardens.json",
+    "extra/interlock-routes.json"
   ],
   "deferred": [
     "extra/vault-binary.json",
     "extra/vault-sudoku.json",
     "extra/vault-lightup.json",
-    "extra/vault-futoshiki.json"
+    "extra/vault-futoshiki.json",
+    "extra/interlock-routes.json"
   ]
 }
