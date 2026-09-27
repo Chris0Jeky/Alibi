@@ -22,7 +22,9 @@ test('Lattice contains twenty-four optional studies, not silent startup growth',
     assert.equal(pack.puzzles.filter((p) => p.type === type).length, 12);
   assert.equal(new Set(pack.puzzles.map((p) => p.id)).size, 24);
   assert.equal(new Set(pack.puzzles.map((p) => p.title)).size, 24);
-  assert.ok(!require('../content/official-packs.json').packs.includes('workshop/lattice-studies.json'));
+  assert.ok(
+    !require('../content/official-packs.json').packs.includes('workshop/lattice-studies.json'),
+  );
   for (const p of pack.puzzles) {
     assert.equal(p.revision, 1);
     assert.equal(p.difficultyStatus, 'provisional');
