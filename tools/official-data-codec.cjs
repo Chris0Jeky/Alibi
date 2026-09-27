@@ -29,7 +29,12 @@ function encode(value) {
       value.every((entry) => record(entry) && signature(entry) === signature(value[0]))
     ) {
       const keys = Object.keys(value[0]);
-      return [2, keys, value.length, ...keys.map((key) => encodeValue(value.map((entry) => entry[key])))];
+      return [
+        2,
+        keys,
+        value.length,
+        ...keys.map((key) => encodeValue(value.map((entry) => entry[key]))),
+      ];
     }
     // Preserve heterogeneous list order; group only consecutive identical record shapes.
     const groups = [];
