@@ -69,6 +69,7 @@ for (const [label, pattern, reportedBytes] of deferredAssets) {
 // tools/build.cjs already leaves the deferred Pulseboard SDK and discovery storage assets out of
 // coreOfflineBytes; subtracting them again here hid ~56 KiB of real shell growth (#393).
 const coreOfflineBytes = info.coreOfflineBytes;
+const contentBytes = require('../tools/content-budget-accounting.cjs')(info);
 // CAP-03 adds the bounded Cabinet picker consumer to the startup application shell.
 // Merges through #297 add a measured net 102 gzip bytes (128,943 -> 129,045)
 // for the journey-boundary fix and the single-sourced pack cap.
@@ -121,11 +122,12 @@ assert.ok(
   // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
   // Voices (the precached chunk above plus its startup entry points): measured
   // 1,372,919 -> 1,395,446 bytes on the #396 base; ceiling +22,528.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 22528,
+  // Deferred definitions are official data too; the combined data cap below covers both.
+  contentBytes.shellBytes < 1.32 * 1024 * 1024 + 22528,
   'Precached code and shell excluding official content stay under 1.32 MiB + 22,528 bytes',
 );
 assert.ok(
-  info.officialContentBytes < 1024 * 1024,
+  contentBytes.officialBytes < 1024 * 1024,
   'Official definitions and editorial data stay under 1 MiB',
 );
 assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stays under 2.3 MiB');

@@ -44,7 +44,7 @@ jobs:
       - name: Save formatter diagnostics without changing checked-out source
         run: |
           mkdir -p test-results/interlock-source/format
-          for file in tools/official-data-codec.cjs tools/build-official-content.cjs tests/interlock-*.test.cjs tests/official-data-codec.test.cjs tests/official-deferred.test.cjs; do
+          for file in tools/official-data-codec.cjs tools/build-official-content.cjs tools/content-budget-accounting.cjs tests/content-budget-accounting.test.cjs tests/interlock-*.test.cjs tests/official-data-codec.test.cjs tests/official-deferred.test.cjs; do
             npx --no-install prettier "$file" > "test-results/interlock-source/format/$(basename "$file")"
           done
       - name: Use Ubuntu dependencies only
@@ -56,12 +56,14 @@ jobs:
             sudo apt-get install --yes --no-install-recommends ffmpeg >/dev/null
           fi
       - name: Verify unchanged budgets, all source tests and Android payload
-        run: npm run verify
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee test-results/interlock-source/verify.log
       - name: Validate selection and build the browser origin
         run: |
-          python -m unittest discover -s tests -p test_interlock_selection.py -v
-          npm run build:web
           python -m pip install -r requirements-dev.txt
+          python -m unittest discover -s tests -p 'test_*_selection.py' -v
+          npm run build:web
           python -m playwright install --with-deps chromium
       - name: Play every registered study at phone and desktop sizes
         run: |
