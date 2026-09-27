@@ -38,6 +38,15 @@ function loadCuration(config, media) {
   vm.runInContext(curationSource, ctx);
   return ctx.AlibiCuration;
 }
+test('desk news counts Sun & Moon puzzles from the catalogue (0.14.1 audit m1)', () => {
+  const data = load(path.resolve(__dirname, '..'), catalogue);
+  const ctx = { ALIBI_CURATION: data, ALIBI_CURATION_MEDIA: {}, ALIBI_CATALOG: catalogue };
+  vm.createContext(ctx);
+  vm.runInContext(curationSource, ctx);
+  const count = catalogue.puzzles.filter((p) => p.type === 'binary').length;
+  assert.ok(count > 27, 'the catalogue has grown past the old hard-coded count');
+  assert.ok(ctx.AlibiCuration.news().includes(`Explore all ${count} puzzles.`));
+});
 test('notes returns exactly empty for unknown imported id even when completed', () => {
   const data = load(path.resolve(__dirname, '..'), catalogue);
   const AlibiCuration = loadCuration(data, {});

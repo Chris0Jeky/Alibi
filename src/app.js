@@ -1050,13 +1050,13 @@
       )}</div><div class="logic-summary">${p.people.map((name, i) => `<div><strong>${esc(name)}</strong><span>${esc(p.categories[0].name)} ${esc(a[i] >= 0 ? p.categories[0].values[a[i]] : 'unknown')} · ${esc(p.categories[1].name)} ${esc(a[n + i] >= 0 ? p.categories[1].values[a[n + i]] : 'unknown')}</span></div>`).join('')}</div>`;
   }
   function witnessBoard(p, s) {
-    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts. The left and right arrows move between accounts.</p>`;
+    return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.<span class="kb"> The left and right arrows move between accounts.</span></p>`;
   }
   function controls(p, s) {
     const t = p.type;
     let content = '';
     if (t === 'bridges')
-      return `<div class="toolrow">${tool('Clear selection', 'erase', 'close', false, bridgeAnchor === null ? 'disabled' : '')}</div><p class="control-note">Repeat a pair: one bridge → two → none. Arrow keys move between islands; Enter selects. Delete cancels the selection.</p>`;
+      return `<div class="toolrow">${tool('Clear selection', 'erase', 'close', false, bridgeAnchor === null ? 'disabled' : '')}</div><p class="control-note">Repeat a pair: one bridge → two → none.<span class="kb"> Arrow keys move between islands; Enter selects. Delete cancels the selection.</span></p>`;
     if (t === 'sudoku' || t === 'futoshiki') {
       content = `<div class="numberpad" style="--keys:${p.size > 6 ? 5 : p.size}">${range(p.size)
         .map((i) => {
@@ -1066,7 +1066,7 @@
         })
         .join(
           '',
-        )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct. Keyboard: 1–${p.size}, N for notes, Delete to erase.</p>`;
+        )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct.<span class="kb"> Keyboard: 1–${p.size}, N for notes, Delete to erase.</span></p>`;
     } else if (t === 'scene')
       content = `<div class="toolrow" aria-label="Scene marking mode">${[
         ['cycle', 'Tap cycle'],
@@ -1092,13 +1092,13 @@
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
       const fill = t === 'tents' ? 'Tent' : t === 'lightup' ? 'Lantern' : 'Fill',
         mark = t === 'tents' ? 'Grass' : 'Cross';
-      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap an identical mark to clear it. Scroll outside the board.</p>`;
+      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap an identical mark to clear it. Scroll outside the board.${t === 'nonogram' ? '<span class="kb"> Right-click adds a cross.</span>' : ''}</p>`;
     } else if (t === 'aquarium')
       content = `<div class="toolrow">${tool('Set waterline', 'brush', 'aquarium', brush === 1, 'data-value="1"')}${tool('Drain tank', 'brush', 'erase', brush === 0, 'data-value="0"')}</div><p class="control-note">Tap at a height to fill that tank downwards. Tap its current top water row to lower it.</p>`;
     else if (t === 'network')
-      content = `<div class="toolrow">${tool('Turn left', 'turn-left', 'undo')}${tool('Turn right', 'turn-right', 'redo')}</div><p class="control-note">Tap to turn clockwise. Right-click or Shift+Enter turns anticlockwise. Arrows move selection.</p>`;
+      content = `<div class="toolrow">${tool('Turn left', 'turn-left', 'undo')}${tool('Turn right', 'turn-right', 'redo')}</div><p class="control-note kb">Right-click or Shift+Enter turns anticlockwise. Arrows move selection.</p>`;
     else if (t === 'dossier')
-      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs. Arrow keys move between marks.</p>`;
+      content = `<div class="toolrow">${tool('Yes', 'brush', 'check', brush === 1, 'data-value="1"')}${tool('No', 'brush', 'close', brush === 0, 'data-value="0"')}${tool('Cycle', 'brush', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${AlibiClub.assistance() === 'tidy' ? 'A ✓ projects reversible exclusions. Mint dots mark automatic notes.' : 'Automatic exclusions are off.'} Use both category tabs.<span class="kb"> Arrow keys move between marks.</span></p>`;
     else if (t === 'trail')
       content = `<div class="numberpad trail-pad" data-scroll-key="trail-keys">${range(p.size ** 2)
         .map(
@@ -1767,6 +1767,8 @@
   function showHint() {
     if (!current) return;
     globalThis.AlibiJourney?.(current, 'hint.requested');
+    // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
+    if (current.completedAt && blocked()) return;
     const hint = C.insights.deduction(current.puzzle, current.state);
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
@@ -2528,7 +2530,7 @@
     const p = current?.puzzle;
     dialog(
       'Create a puzzle issue report.',
-      `<p>Export the app version, browser information, puzzle definition and board state${p ? ' for <strong>' + esc(p.title) + '</strong>' : ''}. Personal puzzle notes are excluded.</p><p>Nothing is sent automatically. Review the file, then attach a small reproduction to <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>. Keep any personal information private.</p><p class="fine">The report includes the puzzle’s stored solution. Avoid opening it while still solving that puzzle.</p>`,
+      `<p>Export the app version and browser information${p ? `, plus the puzzle definition and board state for <strong>${esc(p.title)}</strong>` : ''}. Personal puzzle notes are excluded.</p><p>Nothing is sent automatically. Review the file, then attach a small reproduction to <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>. Keep any personal information private.</p>${p ? '<p class="fine">The report includes the puzzle’s stored solution. Avoid opening it while still solving that puzzle.</p>' : ''}`,
       [
         { label: 'Export report', action: 'export-issue', icon: 'download' },
         { label: 'Cancel', action: 'close-dialog', secondary: true },
