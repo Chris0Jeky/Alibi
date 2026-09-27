@@ -23,7 +23,7 @@ def main() -> None:
             page.goto(BASE + '#/home')
             page.locator((' .mobile-nav' if width<900 else '.sidebar')+' [data-page="quiet"][data-id="castle"]').click()
             expect(page.locator('#castle-main h1')).to_have_text('Wrenmere Castle')
-            page.locator('[data-do="visit"][data-value="library"]').first.click()
+            page.locator('#castle-dialog [data-do="visit"][data-value="library"]').click()
             page.locator('[data-do="puzzle"]').click()
             for action in ['reveal','confirm-reveal','check','close']:
                 page.locator(f'#castle-dialog [data-do="{action}"]').click()

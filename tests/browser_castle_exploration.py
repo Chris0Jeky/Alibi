@@ -21,6 +21,8 @@ def run():
                 page.on('request',lambda r: requests.append(r.url))
                 page.on('pageerror',lambda e: errors.append(str(e)))
                 page.goto(BASE+'#/quiet/castle/map')
+                expect(page.locator('#castle-dialog')).to_contain_text('The keeper’s letter')
+                page.keyboard.press('Escape')
                 expect(page.locator('.map-stage')).to_be_visible()
                 page.wait_for_function('() => AlibiActivities.diagnostics().offline')
                 expect(page.locator('.castle-offline')).to_have_text('Castle rooms ready offline.')
@@ -59,7 +61,7 @@ def run():
                 page.mouse.up()
                 expect(zoom_status).to_have_text('175%')
                 assert page.locator('.map-stage').bounding_box()['width']>zoomed_width
-                expect(page.locator('.rail h2')).to_have_text('The Gatehouse')
+                expect(page.locator('.rail h2')).to_have_text('The Long Library')
                 map_scroll.evaluate('(e)=>{e.scrollLeft=e.scrollWidth-e.clientWidth}')
                 panned_left=map_scroll.evaluate('(e)=>e.scrollLeft')
                 selected_pin=page.locator('[data-do="select"][data-value="orangery"]')

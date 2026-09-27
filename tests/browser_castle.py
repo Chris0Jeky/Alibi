@@ -50,6 +50,11 @@ def controls(page, width, output):
                 expect(page.locator(f'[data-do="swap"][data-value="{i}"]')).to_have_attribute('aria-pressed', 'true')
                 click('swap', j)
     go('map')
+    expect(page.locator('#castle-dialog')).to_contain_text('The keeper’s letter')
+    expect(page.locator('#castle-dialog [data-do="visit"][data-value="library"]')).to_be_visible()
+    click('close')
+    expect(page.locator('.rail h2')).to_have_text('The Long Library')
+    record('first arrival opens the keeper letter and preselects the thread room')
     assert page.locator('[data-do="select"]').count() == 9
     record('secret stair absent before its deduction')
     click('visit', 'observatory')

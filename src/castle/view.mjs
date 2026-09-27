@@ -45,6 +45,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   let state = store.state,
     view = 'map',
     selected = 'gatehouse',
+    greeted = false,
     era = 'today',
     mapZoom = 4,
     search = '',
@@ -313,7 +314,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     show(
       state.preferences.story ? 'The keeper’s letter' : 'A quiet visit',
       state.preferences.story
-        ? `<p>${escape(W.introduction)}</p><p>${escape(W.chapter.premise)}</p><p class="small">${escape(W.contentNote)}</p>`
+        ? `<p>${escape(W.introduction)}</p><p>${escape(W.chapter.premise)}</p><p class="small">${escape(W.contentNote)}</p>${go(thread(state)[1])}`
         : '<p>The museum tables, lantern puzzle and three-peg board are open. The conservatory has a place to write and paths back to your garden and companions.</p>',
     );
   }
@@ -861,9 +862,22 @@ export async function mount({ root, preferences = null, practice = null }) {
       if (!r || !E.roomStatus(state, r).open || r.id === 'museum') view = 'map';
       else selected = r.id;
     }
+    // The grounds preselect the thread's next room.
+    if (view === 'map') selected = thread(state)[1][0] || selected;
     render();
     restoredPracticeFocus = focusPracticeStarter();
     if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
+    // Until a first question is solved, arriving at the grounds opens the keeper's letter once
+    // per visit. Derived from the save; nothing new is stored.
+    if (
+      view === 'map' &&
+      !greeted &&
+      state.preferences.story &&
+      !Object.keys(state.completed).length
+    ) {
+      greeted = true;
+      invitation();
+    }
     showStagedImport();
   }
   const reviewStaged = () => {

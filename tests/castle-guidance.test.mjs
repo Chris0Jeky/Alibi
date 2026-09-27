@@ -167,3 +167,14 @@ test('Unlock copy points to a real door', () => {
   assert.match(W.puzzles.gate.after, /Map Room, beyond the Long Library/);
   assert.match(W.puzzles.inference.after, /Unrecorded Stair is open/);
 });
+
+test('The thread card comes before the grounds map and selected-room panel', () => {
+  for (const state of [E.initial(), solve('shelves', 'clock'), solve(...chapter)]) {
+    const html = pages(state).mapPage();
+    const thread = html.indexOf('class="thread-guide"');
+    assert.ok(thread > html.indexOf('class="scene-heading"'));
+    assert.ok(thread < html.indexOf('class="map-scroll"'));
+    assert.ok(thread < html.indexOf('class="rail"'));
+    assert.equal(html.match(/class="thread-guide"/g).length, 1);
+  }
+});
