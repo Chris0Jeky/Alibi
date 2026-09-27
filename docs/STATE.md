@@ -9,6 +9,24 @@ Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC sil
 only in Settings/Privacy). Sites fallback still on 0.12.0. See the
 [publication receipt](RELEASE-0.14.1.md).
 
+## Challenge library polish (branch `feat/challenge-library-polish`, unmerged): 27 September 2026
+
+The curated challenge library (QA findings F02–F06, F11, F12, F21, F22, F31 and F01's 10px link)
+now reads as a player surface. `#/quiet/challenges?family=<id>` opens one family; the list is
+grouped and collapsed (about 1,100px at 390px instead of 12,958px) with player-facing family
+names, difficulty chips and Completed/Continue marks derived by replaying stored runs. The
+launcher drops revision/title chrome, words refusals for players, pluralises, fills selected
+controls, draws Hanoi discs, gives Archive boards a legend, 44px arrow pad, arrow keys and
+adjacent-square taps, names Borough buildings with their scoring, and shows a completion card
+(difficulty, Next in family, Back to the list) with a confirmed restart. Duel endgames: the player
+keeps Gold; Ink replies by the recorded line, then the expert-depth search, and a lost line says so
+with the stored hint. Classics claim a journal stamp only when one is earned. Definitions, ids,
+revisions, replay format and storage are unchanged. Quiet Wing pack 2,303,623 -> 2,310,375 bytes;
+its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node suites, budget,
+`browser_challenges.py` (isolated and served), `browser_planning_expansion.py` (built and
+isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`
+pass locally on a local Chromium headless shell; not deployed, no physical phone.
+
 ## Pulseboard SDK v3 (0.14.1 candidate, merged as #391, historical): 26 September 2026
 
 Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and

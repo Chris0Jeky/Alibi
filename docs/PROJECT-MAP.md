@@ -113,8 +113,10 @@ combined staging and subsequent section validation use its bounded worker. See R
 ## Curation Cabinet
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
-independent checks and human-playtest limits. The 59 additional classic/Club challenges are
-separate experiences, never core imports or additions to the 382-puzzle count.
+independent checks and human-playtest limits. The 95 curated classic/Club challenges
+(`src/challenges.js`, `challenge-storage.js`, `challenge-launcher.js`; Quiet Wing › Challenges,
+deep link `#/quiet/challenges?family=<family id>`) are separate experiences, never core imports or
+additions to the 382-puzzle count.
 
 ## Adaptive asset delivery
 
