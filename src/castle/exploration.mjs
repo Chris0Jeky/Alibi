@@ -98,34 +98,44 @@ const extras = [
   ['museum', 'magic'],
   ['museum', 'ur'],
 ];
-export function nextThread(state) {
+export const go = (ids = []) =>
+  ids
+    .map((id) => button(`${escape(W.rooms.find((r) => r.id === id).name)} →`, 'visit', id))
+    .join('');
+// The next story step and the open rooms that advance it. Copy is static, so it is not escaped.
+export function thread(state) {
   if (!state.preferences.story)
-    return '<p>The museum tables and conservatory are open. Take the visit at your own pace.</p>';
+    return ['The museum tables and conservatory are open. Take the visit at your own pace.', []];
   if (E.has(state, 'inference'))
-    return `<p><strong>Chapter I complete.</strong> The unrecorded stair is open and its margin is in your notebook. Optional: ${E.progress(state)[1]} / 5 extra questions answered.</p>${[
-      'west-stair',
-      ...new Set(extras.filter(([, id]) => !E.has(state, id)).map(([id]) => id)),
-    ]
-      .map((id) => button(`${escape(W.rooms.find((r) => r.id === id).name)} →`, 'visit', id))
-      .join('')}`;
-  const steps = [
-    ['shelves', 'library', 'Begin with the misfiled maintenance slip in the Long Library.'],
+    return [
+      `<strong>Chapter I complete.</strong> The unrecorded stair is open and its margin is in your notebook. Optional: ${E.progress(state)[1]} / 5 extra questions answered.`,
+      ['west-stair', ...new Set(extras.filter(([, id]) => !E.has(state, id)).map(([id]) => id))],
+    ];
+  const map = E.available(state, 'route');
+  return [
+    ['shelves', 'Begin with the misfiled maintenance slip in the Long Library.', ['library']],
     [
       'clock',
-      'observatory',
       'The maintenance slip opens the Observatory. Check the station clock against it.',
+      ['observatory'],
     ],
     [
       'route',
-      'cartography',
-      'Try the Gatehouse question or a museum object to open the Map Room. Then test the route.',
+      map
+        ? 'The Map Room is open. Test the green footpath against the corrected time.'
+        : 'Open the Map Room: solve the Gatehouse wheels, or Bridges or Lo Shu in the museum. Then test the route.',
+      map ? ['cartography'] : ['gatehouse', 'museum'],
     ],
     [
       'inference',
-      'study',
       'Bring the corrected time and route to the Keeper’s Study. What do they actually establish?',
+      ['study'],
     ],
-  ];
-  const step = steps.find(([id]) => !E.has(state, id));
-  return `<p>${escape(step[2])}</p>${button('Follow this thread', 'visit', step[1])}`;
+  ]
+    .find(([id]) => !E.has(state, id))
+    .slice(1);
+}
+export function nextThread(state) {
+  const [text, rooms] = thread(state);
+  return `<p>${text}</p>${go(rooms)}`;
 }

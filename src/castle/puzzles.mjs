@@ -14,7 +14,7 @@ export default {
     ],
     solution: [1, 3, 5],
     after:
-      'The bolt draws back. A library card has been caught beneath it for years. You can now reach the Map Room.',
+      'The bolt draws back. A library card has been caught beneath it for years. The Map Room, beyond the Long Library, is now open.',
   },
   shelves: {
     title: 'The misplaced maintenance slip',
@@ -175,6 +175,6 @@ export default {
     ],
     solution: 'possible-not-proven',
     after:
-      'The ticket cannot establish that Finch was late. His whereabouts still need checking. Behind the cupboard, a latch comes loose.',
+      'The ticket cannot establish that Finch was late. His whereabouts still need checking. Behind the cupboard, a latch comes loose: the Unrecorded Stair is open.',
   },
 };

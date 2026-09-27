@@ -10,7 +10,7 @@ import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
 import { evidenceComparison } from './evidence-view.mjs';
 import { labelQuestions } from './investigation.mjs';
-import { listed } from './exploration.mjs';
+import { listed, go, thread } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
@@ -114,7 +114,9 @@ export async function mount({ root, preferences = null, practice = null }) {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   motion.addEventListener('change', prefs, { signal: abort.signal });
   function navigate(next, id = '') {
-    location.hash = `#/quiet/castle/${next}${id ? '/' + id : ''}`;
+    const hash = `#/quiet/castle/${next}${id ? '/' + id : ''}`;
+    if (location.hash === hash) close();
+    else location.hash = hash;
   }
   function room() {
     return W.rooms.find((r) => r.id === selected) || W.rooms[0];
@@ -170,7 +172,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!r) return;
     const status = E.roomStatus(state, r);
     if (!status.open) {
-      show(r.name, `<p>${escape(status.reason)}</p>`);
+      show(
+        r.name,
+        `<p>${escape(status.reason)}</p>${go(status.via?.filter((v) => view !== 'room' || v !== selected))}`,
+      );
       return;
     }
     selected = id;
@@ -542,10 +547,16 @@ export async function mount({ root, preferences = null, practice = null }) {
       drawPuzzle();
     } else if (action === 'check') {
       const result = E.complete(state, active, answer, state.revealed.includes(active));
+      let next;
       if (result.ok) {
         if (result.newAward) {
+          next = W.rooms
+            .filter((r) => r.implemented && !E.roomStatus(state, r).open)
+            .filter((r) => E.roomStatus(result.state, r).open)
+            .map((r) => r.id);
           save(result.state);
           cue('complete');
+          if (!next.length) next = thread(state)[1];
         }
         feedback = p.after + (result.newAward ? ' 10 points added.' : '');
         header();
@@ -557,6 +568,7 @@ export async function mount({ root, preferences = null, practice = null }) {
               ? E.clockFeedback(answer)
               : result.error;
       drawPuzzle();
+      if (next?.length) $('#feedback').insertAdjacentHTML('beforeend', `<div>${go(next)}</div>`);
     }
   }
   function inspect(id) {

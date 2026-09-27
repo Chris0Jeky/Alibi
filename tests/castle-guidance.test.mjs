@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import W from '../src/castle/content.mjs';
 import * as E from '../src/castle/engine.mjs';
 import { createPages } from '../src/castle/pages.mjs';
-import { nextThread } from '../src/castle/exploration.mjs';
+import { nextThread, thread, go } from '../src/castle/exploration.mjs';
 
 const solve = (...ids) =>
   ids.reduce((s, id) => {
@@ -116,4 +116,54 @@ test('Clock feedback names the format problem before the arithmetic', () => {
   assert.match(E.clockFeedback('21'), /four digits, such as 21:17 or 2117/);
   assert.match(E.clockFeedback('900'), /09:00 is in the morning/);
   assert.match(E.clockFeedback('2134'), /21:34 does not match/);
+});
+
+const status = (state, id) =>
+  E.roomStatus(
+    state,
+    W.rooms.find((r) => r.id === id),
+  );
+
+test('Locked doors name the rooms whose questions open them', () => {
+  const fresh = E.initial();
+  assert.deepEqual(status(fresh, 'observatory').via, ['library']);
+  assert.deepEqual(status(fresh, 'cartography').via, ['gatehouse', 'museum']);
+  assert.deepEqual(status(fresh, 'study').via, ['observatory', 'cartography']);
+  assert.deepEqual(status(solve('shelves', 'clock'), 'study').via, ['cartography']);
+  assert.deepEqual(status(solve('shelves', 'clock', 'gate', 'route'), 'west-stair').via, ['study']);
+  assert.equal(status(fresh, 'rookery').via, undefined, 'planned rooms promise no unlock');
+  for (const room of W.rooms.filter((r) => r.implemented))
+    for (const id of status(fresh, room.id).via || [])
+      assert.ok(
+        W.rooms.some((r) => r.id === id && r.implemented),
+        `${room.id} -> ${id}`,
+      );
+});
+
+test('The thread never sends players to a locked room', () => {
+  const states = [
+    E.initial(),
+    solve('shelves'),
+    solve('shelves', 'clock'),
+    solve('shelves', 'clock', 'magic'),
+    solve('shelves', 'clock', 'gate', 'route'),
+    solve(...chapter),
+  ];
+  for (const state of states)
+    for (const id of thread(state)[1]) assert.equal(status(state, id).open, true, id);
+  const locked = nextThread(solve('shelves', 'clock'));
+  assert.match(locked, /Open the Map Room/);
+  assert.match(locked, /data-do="visit" data-value="gatehouse"/);
+  assert.match(locked, /data-do="visit" data-value="museum"/);
+  assert.doesNotMatch(locked, /data-value="cartography"/);
+  assert.match(nextThread(solve('shelves', 'clock', 'bridges')), /data-value="cartography"/);
+  assert.equal(
+    go(['library']),
+    '<button data-do="visit" data-value="library" >The Long Library →</button>',
+  );
+});
+
+test('Unlock copy points to a real door', () => {
+  assert.match(W.puzzles.gate.after, /Map Room, beyond the Long Library/);
+  assert.match(W.puzzles.inference.after, /Unrecorded Stair is open/);
 });

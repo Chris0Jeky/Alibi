@@ -216,25 +216,35 @@ function roomStatus(s, room) {
   switch (room.gate) {
     case 'planned':
       return { open: false, reason: 'This room is planned. It has no playable investigation yet.' };
+    // `via` names the rooms whose questions open this door.
     case 'observatory':
       return {
         open: has(s, 'shelves'),
         reason: 'Recover the maintenance slip in the Long Library.',
+        via: ['library'],
       };
     case 'cartography':
       return {
-        open: has(s, 'gate') || has(s, 'bridges') || has(s, 'magic'),
+        open: available(s, 'route'),
         reason: 'Solve the Gatehouse lock, or complete Bridges or Lo Shu in the museum.',
+        via: ['gatehouse', 'museum'],
       };
     case 'study':
       return {
-        open: has(s, 'clock') && has(s, 'route'),
+        open: available(s, 'inference'),
         reason: 'Correct the ticket in the Observatory and trace the Map Room footpath.',
+        via: [
+          ['clock', 'observatory'],
+          ['route', 'cartography'],
+        ]
+          .filter(([id]) => !has(s, id))
+          .map(([, room]) => room),
       };
     case 'west':
       return {
         open: has(s, 'inference'),
         reason: 'Compare the three records in the Keeper’s Study.',
+        via: ['study'],
       };
     default:
       return { open: true, reason: '' };
