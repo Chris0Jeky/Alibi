@@ -60,8 +60,10 @@ def run():
                         page.evaluate('(id)=>{ window.saved=null;AlibiChallengeLauncher.mount(document.querySelector("#host"),registry,id,null,r=>window.saved=r); }',c['id'])
                     else:
                         page.goto(base + '/#/quiet/challenges/' + c['id'])
-                    page.locator('.challenge-launcher h2').wait_for(timeout=10000)
-                    assert page.locator('.challenge-launcher h2').inner_text() == c['title']
+                    page.locator('.challenge-launcher').wait_for(timeout=10000)
+                    assert page.locator('.challenge-launcher h2').count() == 0
+                    if not ISOLATED:
+                        assert page.locator('.pagehead h1').inner_text() == c['title']
                     assert page.locator('.challenge-grid').evaluate('(e) => e.getBoundingClientRect().right <= innerWidth')
                     if c['id'].endswith(('01','24','12')):
                         page.screenshot(path=str(OUT / f'{c["id"]}-{width}-start.png'), full_page=True)
@@ -69,7 +71,13 @@ def run():
                     for i, action in enumerate(actions):
                         if c['family'] == 'warehouse':
                             value = {'U':'up','R':'right','D':'down','L':'left'}[action]
-                            page.locator(f'[data-action="walk"][data-value="{value}"]').click()
+                            # Alternate square taps, the direction pad and arrow keys.
+                            if i % 3 == 1:
+                                page.locator(f'[data-action="step"][data-value="{value}"]').click()
+                            elif i % 3 == 2:
+                                page.keyboard.press('Arrow' + value.capitalize())
+                            else:
+                                page.locator(f'[data-action="walk"][data-value="{value}"]').click()
                         else:
                             page.locator(f'[data-action="slot"][data-value="{action["slot"]}"]').click()
                             page.locator(f'[data-action="plot"][data-value="{action["cell"]}"]').click()
@@ -81,7 +89,8 @@ def run():
                             else:
                                 page.locator(f'[data-action="slot"][data-value="{action["slot"]}"]').click()
                                 page.locator(f'[data-action="plot"][data-value="{action["cell"]}"]').click()
-                    assert 'Complete.' in page.locator('.challenge-status').inner_text(), c['id']
+                    assert 'Complete in' in page.locator('.challenge-status').inner_text(), c['id']
+                    assert c['difficulty'].upper() in page.locator('.result .eyebrow').inner_text().upper()
                     if c['family'] == 'borough':
                         page.locator('.challenge-objectives').wait_for(timeout=2000)
                         text = page.locator('.challenge-objectives').inner_text()
@@ -100,9 +109,11 @@ def run():
                         })""", arg=[c['id'],len(actions)], timeout=15000)
                         page.reload()
                     page.locator('.challenge-launcher').wait_for(timeout=15000)
-                    assert 'Complete.' in page.locator('.challenge-status').inner_text(), 'completed replay reload'
+                    assert 'Complete in' in page.locator('.challenge-status').inner_text(), 'completed replay reload'
                     if c['id'].endswith(('01','24','12')):
                         page.screenshot(path=str(OUT / f'{c["id"]}-{width}-complete.png'), full_page=True)
+                    page.locator('[data-challenge="reset"]').click()
+                    assert 'Complete in' in page.locator('.challenge-status').inner_text(), 'restart asks first'
                     page.locator('[data-challenge="reset"]').click()
                     assert '0 moves' in page.locator('.challenge-status').inner_text()
                     assert not errors, errors

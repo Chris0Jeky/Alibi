@@ -38,20 +38,24 @@ try:
     for width in (390, 1280):
         page = browser.new_page(viewport={'width': width, 'height': 900})
         page.goto(f'http://127.0.0.1:{server.server_port}/')
-        page.set_content('<main id="host"></main>')
+        page.set_content('<div class="qw-body"><main id="host"></main></div>')
         page.add_style_tag(path=str(ROOT / 'src/quiet-wing/style.css'))
         for source in ('src/quiet-wing/engine.js', 'src/club-engines.js', 'src/challenges.js', 'src/challenge-storage.js', 'src/challenge-launcher.js'):
             page.add_script_tag(path=str(ROOT / source))
         page.evaluate('(data) => { window.registry = AlibiChallenges.create(data, {quiet: QWEngine, club: AlibiClubEngines}); window.persisted = null; AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, "curated-classic-hanoi-01", null, run => window.persisted = run); }', DATA)
         page.locator('[data-action="peg"][data-value="1"]').click()
+        # A selected peg is visibly filled, not only announced.
+        assert page.locator('[aria-pressed="true"]').evaluate('e=>getComputedStyle(e).backgroundColor') != page.locator('[data-action="peg"][data-value="0"]').evaluate('e=>getComputedStyle(e).backgroundColor')
+        assert page.locator('.challenge-pegs i').count() == 3, 'Hanoi discs are drawn'
         page.locator('[data-action="peg"][data-value="2"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
         page.locator('[data-challenge="undo"]').click()
         assert '0 moves' in page.locator('.challenge-status').inner_text()
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()
         page.evaluate('() => AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, "curated-classic-hanoi-01", window.persisted, () => {})')
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
+        assert page.locator('.challenge-launcher h2').count() == 0 and 'REVISION' not in page.locator('#host').inner_text()
 
         def mount(challenge_id):
             page.evaluate('(id) => AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, id, null, () => {})', challenge_id)
@@ -60,17 +64,17 @@ try:
         sliding = BY_ID['curated-classic-sliding-01']['solutionActions'][0]
         mount('curated-classic-sliding-01')
         page.locator(f'[data-action="cell"][data-value="{sliding["cell"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         river = BY_ID['curated-classic-river-01']['solutionActions'][0]
         mount('curated-classic-river-01')
         page.locator(f'[data-action="item"][data-value="{river["item"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         jugs = BY_ID['curated-classic-jugs-01']['solutionActions'][0]
         mount('curated-classic-jugs-01')
         page.locator(f'[data-action="jug"][data-value="{jugs["i"]}"][data-kind="{jugs["kind"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         queens = BY_ID['curated-classic-queens-01']['solutionActions'][0]
         mount('curated-classic-queens-01')
@@ -78,13 +82,13 @@ try:
         assert page.locator('[data-value="8"]').get_attribute('aria-label') == 'Row 2, column 1, fixed queen'
         assert page.get_by_role('button', name='Row 1, column 1, empty', exact=True).count() == 1
         page.locator(f'[data-action="cell"][data-value="{queens["cell"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         magic = BY_ID['curated-classic-magic-01']['solutionActions'][0]
         mount('curated-classic-magic-01')
         page.locator(f'[data-action="magic"][data-value="{magic["from"]}"]').click()
         page.locator(f'[data-action="magic"][data-value="{magic["to"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         knight = BY_ID['curated-classic-knight-01']['solutionActions'][0]
         mount('curated-classic-knight-01')
@@ -92,14 +96,20 @@ try:
         assert page.locator('[data-value="0"]').get_attribute('aria-label') == 'Row 1, column 1, fixed visit 1'
         assert page.locator('.challenge-grid button').evaluate_all("es=>es.every(e=>e.getAttribute('aria-label')?.includes('column'))")
         page.locator(f'[data-action="cell"][data-value="{knight["cell"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         mount('curated-archive-01')
         assert page.locator('[data-action="walk"]').count() == 4
-        warehouse = BY_ID['curated-archive-01']['solutionPath'][0]
-        direction = {'U': 'up', 'R': 'right', 'D': 'down', 'L': 'left'}[warehouse]
-        page.locator(f'[data-action="walk"][data-value="{direction}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert page.locator('.challenge-pad button').evaluate_all('es=>es.every(e=>e.getBoundingClientRect().height>=44)')
+        assert '◇ brass plate' in page.locator('.challenge-legend').inner_text()
+        path = [{'U': 'up', 'R': 'right', 'D': 'down', 'L': 'left'}[m] for m in BY_ID['curated-archive-01']['solutionPath']]
+        page.locator(f'[data-action="walk"][data-value="{path[0]}"]').click()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
+        # Tap the adjacent square, then walk with the keyboard from the kept focus.
+        page.locator(f'[data-action="step"][data-value="{path[1]}"]').click()
+        assert '2 moves so far' in page.locator('.challenge-status').inner_text()
+        page.keyboard.press('Arrow' + path[2].capitalize())
+        assert '3 moves so far' in page.locator('.challenge-status').inner_text()
 
         assert page.evaluate('''() => {
           let found=false;
@@ -110,7 +120,7 @@ try:
               if(!v.complete && v.state.crates.some(i=>v.state.goals.includes(i))) {
                 AlibiChallengeLauncher.mount(document.querySelector('#host'),registry,c.id,run,()=>{});
                 const cells=[...document.querySelectorAll('.challenge-grid button')];
-                found=cells.some(e=>e.textContent==='▣' && e.getAttribute('aria-label').includes('crate on goal'));
+                found=cells.some(e=>e.textContent==='▣' && e.getAttribute('aria-label').includes('crate on a brass plate'));
                 if(found)return true;
               }
             }
@@ -118,16 +128,19 @@ try:
           return found;
         }'''), 'An occupied warehouse goal remains visible before completion'
 
-        duel = BY_ID['curated-duel-01']['principalVariation'][0]
+        duel = BY_ID['curated-duel-01']['principalVariation']
         mount('curated-duel-01')
-        page.locator(f'[data-action="cell"][data-value="{duel}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        page.locator(f'[data-action="cell"][data-value="{duel[0]}"]').click()
+        # Ink answers with the recorded reply; Gold is to move again.
+        assert 'Gold to move' in page.locator('.challenge-status').inner_text()
+        assert page.locator(f'[data-value="{duel[1]}"].ink.last').count() == 1
 
         borough = BY_ID['curated-borough-01']['solutionActions'][0]
         mount('curated-borough-01')
         page.locator(f'[data-action="slot"][data-value="{borough["slot"]}"]').click()
+        assert page.locator('[data-action="slot"][aria-pressed="true"]').evaluate('e=>getComputedStyle(e).backgroundColor') != page.locator('[data-action="slot"][aria-pressed="false"]').first.evaluate('e=>getComputedStyle(e).backgroundColor')
         page.locator(f'[data-action="plot"][data-value="{borough["cell"]}"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
         assert page.evaluate('''async () => { const store = AlibiChallengeStore.create(registry); await store.open(); const run = registry.begin('curated-classic-hanoi-02'); run.log.push({from: 2, to: 0}); await store.write(run); return (await store.read(run.challengeId)).log.length; }''') == 1
         assert page.evaluate('''async () => {
@@ -163,7 +176,7 @@ try:
         page.locator('[data-challenge-id="curated-classic-hanoi-01"]').click()
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()
-        assert '1 moves' in page.locator('.challenge-status').inner_text()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text()
         page.evaluate('''async () => {
           await QWApp.challengeStore.flush();
           window.originalChallengeFlush=QWApp.challengeStore.flush;
@@ -192,7 +205,7 @@ try:
         assert '0 moves' in page.locator('.challenge-status').inner_text()
         page.locator('#challenge-file').set_input_files({'name':'challenge.json','mimeType':'application/json','buffer':exported})
         page.wait_for_function("()=>window.challengeJobs.includes('challenge-run')")
-        page.locator('.challenge-status').filter(has_text='1 moves').wait_for()
+        page.locator('.challenge-status').filter(has_text='1 move so far').wait_for()
         for width in (390, 1280):
             page.set_viewport_size({'width': width, 'height': 900})
             page.goto(production_url.rstrip('/') + '#/quiet/challenges')
@@ -218,7 +231,7 @@ try:
           catch(e) { return e.message.includes('Challenges'); }
         }'''), 'Update refuses inactive session challenge saves'
         page.evaluate("location.hash='/quiet/challenges/curated-classic-hanoi-01'")
-        page.locator('.challenge-status').filter(has_text='1 moves').wait_for()
+        page.locator('.challenge-status').filter(has_text='1 move so far').wait_for()
         assert page.evaluate('(async()=> (await QWApp.challengeStore.read("curated-classic-hanoi-01")).log.length)()') == 1
         browser.close()
 finally:
