@@ -118,7 +118,8 @@ Claude sessions). Deploy the published release that first contains the notice:
    "Back up my saves" opens Settings with **Export cabinet, Club, Wing & castle**, and an export of a
    seeded save downloads. Then import that file on the primary origin.
 5. Record the saved version and deployment id in the release receipt and `docs/STATE.md`, and close
-   the `HUMAN_TODO.md` item. After this, do not deploy to Sites again.
+   the `HUMAN_TODO.md` item. After this, do not deploy to Sites again, and remove the Sites entry
+   from `tests/browser_live_update.py` (it expects every origin to receive each new release).
 
 ## Cloudflare primary site
 
@@ -158,6 +159,6 @@ Deploy the complete output including `enhanced-*` artwork. These optional files 
 from core installation, not from publication. Preserve the emitted CSP (`img-src` allows decoded
 blob images; `connect-src` lists only configured mirror origins). Five photographic alternatives
 use approved Unsplash/Pexels endpoints plus exact same-origin copies; museum detail stays local.
-Before changing a source, verify actual CORS/MIME/fingerprints and failure recovery on both
-app origins using [ASSET-DELIVERY.md](ASSET-DELIVERY.md). A first-party or CDN outage must retain
+Before changing a source, verify actual CORS/MIME/fingerprints and failure recovery on the
+primary origin using [ASSET-DELIVERY.md](ASSET-DELIVERY.md). A first-party or CDN outage must retain
 the same complete compact artwork, and must never change save stores or force an app update.
