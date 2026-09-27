@@ -10,7 +10,7 @@ import { IMPORT_LIMIT } from './backup.mjs';
 import { theoryForm } from './investigation-view.mjs';
 import { evidenceComparison } from './evidence-view.mjs';
 import { labelQuestions } from './investigation.mjs';
-import { listed, go, thread } from './exploration.mjs';
+import { go, thread } from './exploration.mjs';
 import { escape, button, link, quietLinks } from './html.mjs';
 
 let retained;
@@ -140,7 +140,6 @@ export async function mount({ root, preferences = null, practice = null }) {
       practiceSnapshot,
       inspectablesVisible,
     });
-  const roomCard = (r) => pages().roomCard(r);
   function render() {
     if (disposed) return;
     prefs();
@@ -165,6 +164,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     const starter = [...root.querySelectorAll('[data-do="practice"]')].find(
       (candidate) => candidate.dataset.value === focus,
     );
+    starter?.closest('details')?.setAttribute('open', '');
     (starter || $('#castle-main')).focus({ preventScroll: true });
     return !!starter;
   }
@@ -771,14 +771,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         $('#notes-count').textContent = `${state.notes.length} / 12,000 characters`;
       } else if (el.id === 'search') {
         search = el.value;
-        const matches = W.rooms.filter(
-          (r) =>
-            listed(state, r) &&
-            (filter === 'all' || r.wing === filter) &&
-            `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
-        );
-        $('#room-results').innerHTML = matches.map(roomCard).join('');
-        $('#results-count').textContent = `${matches.length} rooms`;
+        $('#room-results').innerHTML = pages().results();
       } else if (el.id === 'map-zoom') {
         mapZoom = +el.value;
       } else if (el.id === 'clock-answer' && active === 'clock') {

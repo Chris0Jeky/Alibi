@@ -178,3 +178,22 @@ test('The thread card comes before the grounds map and selected-room panel', () 
     assert.equal(html.match(/class="thread-guide"/g).length, 1);
   }
 });
+
+test('The directory lists enterable rooms first and collapses planned rooms', () => {
+  const html = pages(E.initial(), { view: 'directory' }).directory();
+  assert.match(html, /id="results-count">9 rooms to visit · 22 planned</);
+  const later = html.indexOf('<details class="later-rooms">');
+  assert.ok(later > 0, 'planned rooms are collapsed by default');
+  assert.match(html.slice(later), /<summary>Later chapters · 22 planned rooms<\/summary>/);
+  assert.doesNotMatch(html.slice(0, later), /class="tag">Planned room/);
+  assert.equal(html.slice(later).match(/data-do="visit"/g), null);
+  assert.doesNotMatch(html, /Twenty-two planned locations/);
+  const done = pages(solve(...chapter), { view: 'directory' }).directory();
+  assert.match(done, /10 rooms to visit · 22 planned/);
+  const found = pages(E.initial(), { view: 'directory', search: 'rookery' }).results();
+  assert.match(found, /0 rooms to visit · 1 planned/);
+  assert.match(found, /<details class="later-rooms" open>/, 'a search reveals planned matches');
+  const wing = pages(E.initial(), { view: 'directory', filter: 'Below the castle' }).results();
+  assert.match(wing, /0 rooms to visit · \d+ planned/);
+  assert.match(wing, /<details class="later-rooms" open>/, 'a wing filter reveals planned rooms');
+});

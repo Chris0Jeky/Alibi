@@ -75,14 +75,20 @@ export function createPages({
         : '<h2>Collected records</h2><p>Story records are hidden. Turn the story back on in Preferences to read them.</p>'
     }${theoryBoard(state)}</section>`;
   }
-  function directory() {
+  // Chapter I rooms first; planned rooms stay searchable under a collapsed later-chapters group.
+  function results() {
     const rooms = W.rooms.filter(
-      (r) =>
-        listed(state, r) &&
-        (filter === 'all' || r.wing === filter) &&
-        `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
-    );
-    return `<section class="page"><h1>Room directory</h1><p>The named doors lead into this chapter. Clues may uncover another entrance. Twenty-two planned locations describe later work; they have no hidden unlock condition in this build.</p><div class="filters"><label>Find a room<input id="search" type="search" value="${escape(search)}"></label><label>Wing<select id="filter"><option value="all">Every wing</option>${[...new Set(W.rooms.map((r) => r.wing))].map((w) => `<option ${filter === w ? 'selected' : ''}>${escape(w)}</option>`).join('')}</select></label></div><p class="small" id="results-count">${rooms.length} rooms</p><div class="directory" id="room-results">${rooms.map(roomCard).join('')}</div></section>`;
+        (r) =>
+          listed(state, r) &&
+          (filter === 'all' || r.wing === filter) &&
+          `${r.name} ${r.line}`.toLowerCase().includes(search.toLowerCase()),
+      ),
+      now = rooms.filter((r) => r.implemented),
+      later = rooms.filter((r) => !r.implemented);
+    return `<p class="small" id="results-count">${now.length} rooms to visit${later.length ? ` · ${later.length} planned` : ''}</p><div class="directory">${now.map(roomCard).join('')}</div>${later.length ? `<details class="later-rooms"${search || filter !== 'all' ? ' open' : ''}><summary>Later chapters · ${later.length} planned rooms</summary><div class="directory">${later.map(roomCard).join('')}</div></details>` : ''}`;
   }
-  return { roomCard, mapPage, roomPage, museumPage, notebook, directory };
+  function directory() {
+    return `<section class="page"><h1>Room directory</h1><p>Chapter I rooms come first; some open as you solve questions. Planned rooms for later chapters are gathered at the end and cannot be entered yet.</p><div class="filters"><label>Find a room<input id="search" type="search" value="${escape(search)}"></label><label>Wing<select id="filter"><option value="all">Every wing</option>${[...new Set(W.rooms.map((r) => r.wing))].map((w) => `<option ${filter === w ? 'selected' : ''}>${escape(w)}</option>`).join('')}</select></label></div><div id="room-results">${results()}</div></section>`;
+  }
+  return { roomCard, mapPage, roomPage, museumPage, notebook, directory, results };
 }

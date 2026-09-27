@@ -152,12 +152,15 @@ def controls(page, width, output):
     assert page.locator('#castle-main img').count() == 0
     record('notebook retains literal text and four earned records')
     go('directory')
-    expect(page.locator('#results-count')).to_have_text('32 rooms')
+    expect(page.locator('#results-count')).to_have_text('10 rooms to visit · 22 planned')
+    expect(page.locator('.later-rooms')).not_to_have_attribute('open', '')
+    expect(page.locator('.later-rooms .card').first).to_be_hidden()
     page.locator('#search').fill('rookery')
-    expect(page.locator('#results-count')).to_have_text('1 rooms')
+    expect(page.locator('#results-count')).to_have_text('0 rooms to visit · 1 planned')
+    expect(page.locator('.later-rooms .card')).to_be_visible()
     expect(page.locator('#room-results')).to_contain_text('Planned room')
     assert page.locator('#room-results button').count() == 0
-    record('planned content is searchable but has no fictitious unlock')
+    record('planned rooms collapse under later chapters, stay searchable and have no fictitious unlock')
     go('map')
     click('preferences')
     page.locator('[data-pref="motion"]').uncheck()

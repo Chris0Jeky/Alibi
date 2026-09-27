@@ -86,7 +86,7 @@ def run():
                 report['checks'].append(f'{width}: original era maps, aligned 44px doors, keyboard zoom and local panning preserve the selected room')
                 page.evaluate('location.hash="#/quiet/castle/directory"')
                 page.locator('#search').fill('Unrecorded')
-                expect(page.locator('#results-count')).to_have_text('0 rooms')
+                expect(page.locator('#results-count')).to_have_text('0 rooms to visit')
                 expect(page.locator('#room-results')).not_to_contain_text('The Unrecorded Stair')
                 page.evaluate('location.hash="#/quiet/castle/map"')
                 page.locator('[data-do="visit"][data-value="library"]').first.click()

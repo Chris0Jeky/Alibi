@@ -73,6 +73,7 @@ def main() -> None:
             page.screenshot(path=str(OUTPUT/f'practice-{width}.png'),full_page=True)
             report['checks'].append(f'{width}: root castle navigation, three real official solves, return context, distinct familiarity and restart/reload retention')
             page.evaluate('location.hash="#/quiet/castle/directory"')
+            page.locator('.later-rooms summary').click()
             panel=page.locator('[data-practice-room="number"]')
             expect(panel).to_contain_text('This room is planned')
             starter=panel.locator('[data-do="practice"]').first
