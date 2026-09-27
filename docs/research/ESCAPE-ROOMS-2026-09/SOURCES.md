@@ -1,0 +1,36 @@
+# Source ledger and corroboration limits
+
+Checked 27 September 2026. Primary research, developers, publishers and standards are the evidence base. This is a purposeful design review, not a systematic player-preference survey. Source descriptions below are narrow; proposed Alibi applications are our own hypotheses. No commercial room solutions or asset files were copied.
+
+| ID | Source and access | What it supports | Alibi application / limit |
+| --- | --- | --- | --- |
+| S1 | [Nicholson, Peeking Behind the Locked Door](https://scottnicholson.com/pubs/erfacwhite.pdf), 2015 white paper; text and relevant diagram inspected | Historical survey of 175 facilities; open, sequential and path-based puzzle organization. | Compare linear onboarding with parallel branches and a final join. Historical sample is not today's market or an optimal team-size prescription. |
+| S2 | [Nicholson, Ask Why](https://scottnicholson.com/pubs/askwhy.pdf), 2016 author preprint; full text | Design argument for consistency between the world and its searches, puzzles and tasks. | Give props and transformations a purpose. Design reflection is not a controlled causal study of enjoyment. |
+| S3 | [Coin Crew / PlayStation: physical to digital Escape Academy](https://blog.playstation.com/2023/06/16/how-coin-crew-entered-digital-gaming-with-escape-academy/), 2023 maker account; full text | Selective interactability, thematic consistency and observed iteration during digital development. | Prototype readable actions and observe misleading clues. Do not inherit mandatory clocks or reproduce their levels. |
+| S4 | [Fireproof: The Room](https://theroomgames.com/), official series page | Tactile object-focused puzzle presentation. | Test a small mechanism whose visible state changes; do not assume 3D rendering is required or affordable in Alibi's startup budget. |
+| S5 | [Pine Studio: Escape Simulator](https://pinestudio.com/games/escape-simulator/), official page | Object manipulation, solo/co-op play and community room editing. | Treat interaction vocabulary and author tooling as separable investments. Marketing counts and recommended group sizes are not Alibi demand measurements. |
+| S6 | [Escape Simulator room editor](https://docs.escapesimulator.com/docs/room-editor) and [editor FAQ](https://docs.escapesimulator.com/docs/room-editor/room-editor-faq), official docs | A dedicated room-authoring workflow and creator support material. | Borrow the validate/preview/repair loop, not a scripting API or another game engine. Verify detailed editor capabilities before comparing implementations. |
+| S7 | [Rusty Lake: The Past Within](https://www.rustylake.com/adventure-games/the-past-within.html), official page | Complementary perspectives make communication part of solving. | Test two offline viewpoints and a solo combined view before networking. No copied story, characters or puzzles. |
+| S8 | [Space Cowboys: Unlock!](https://www.spacecowboys-games.com/game/unlock/), official product/FAQ page | Cards represent locations/objects/clues; the companion app supplies interactions, hints and solutions. Its FAQ also addresses device permissions and alternative modes. | Prototype compact room packets and scoped assistance. Do not require a second app, camera or microphone. Publisher sales claims are not used as demand forecasts. |
+| S9 | [Thames & Kosmos: EXIT, The Professor's Last Riddle](https://www.thamesandkosmos.co.uk/product/exit-professors-riddle/), official product page | An unplugged format can use folding, marking and physical manipulation. | Explore reversible digital paper transformations with equivalent text controls; do not equate irreversible physical components with acceptable save destruction. |
+| S10 | [W3C: What's new in WCAG 2.2](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/), published guidance | Dragging alternatives and target-size/spacing requirements. | Require a non-drag single-pointer path as well as keyboard controls. Keep the product's 44px target policy distinct from the AA 24px criterion and its exceptions. This review is not a conformance audit. |
+| S11 | [Game Accessibility Guidelines: precise timing](https://gameaccessibilityguidelines.com/do-not-make-precise-timing-essential-to-gameplay-offer-alternatives-actions-that-can-be-carried-out-while-paused-or-a-skip-mechanism/), design guidance | Alternatives to essential precise timing. | Default to untimed rooms and deliberate turn-taking; optional tension should not block access. Not empirical proof of every player's timer preference. |
+| S12 | [ARctic Escape](https://arxiv.org/abs/2503.06345), 2025 research abstract | A small four-dyad qualitative AR study examines communication and spatial experience. | Keep AR as a later experiment. A small study cannot justify mandatory hardware or universal collaboration gains. |
+
+## Partial sources, not silently promoted into findings
+
+[TERPECA](https://terpeca.com/) is useful for discovering enthusiast-recognized physical experiences. Search excerpts described experienced-player eligibility, but the result pages returned a JavaScript shell in this pass. No current ranking, winner list or numerical market claim was extracted. English-language eligibility, travel exposure and veteran participation would require consideration in any reception analysis.
+
+[Pan, Lo and Neustaedter, 2017](https://doi.org/10.1145/3064663.3064767), on collaboration/awareness in real-life escape rooms, was located through an author-posted abstract. The full author PDF was not retrieved. Keep full-paper methodological review on the research queue rather than treating an abstract as a design specification.
+
+The Escaparium maker interview on [Reality Escape Pod](https://roomescapeartist.com/2025/11/18/repod-s10e7-jonathan-driscoll-sacha-stdenis-escaparium/) was located as a follow-up on theatrical room production. This pass did not transcribe or verify the full interview; no actor counts, budgets or performance claims are used.
+
+## Repository corroboration
+
+At main a3c6ad9, `src/castle/objects.mjs` provides authored inspect/note objects with room-open visibility. It is not a general inventory/use/combine contract. `src/club-engines.js` and `content/challenges/archive-vaults.json` implement Archive Heist crate-pushing challenges. Their strengths do not establish that a general escape-room system already exists. The #444/#458 evidence workbench remains a draft stack, not a deployed feature.
+
+Existing issues #47, #442, #433, #443, #451, #455 and #454 retain their respective inspector, save-adapter, delivery, semantic, co-op, playtest and reception ownership. This program adds room-specific state/recovery/content work, not competing stores or a replacement framework.
+
+## Remaining empirical work
+
+Under #454, sample positive, mixed and negative first-hand reports across physical, digital and tabletop formats using a recorded selection rule. Distinguish atmosphere, fairness, team participation, controls, recovery and repetition. Do not count store ratings as representative of all players or assign difficulty from author solve times. Record denominator, dates, platform and spoiler policy. No player study or physical room visit was conducted in this pass.
