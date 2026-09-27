@@ -82,17 +82,41 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
 // asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
+// Voices (Feedback and Report entry points, places for the rating row, survey invitation and panels,
+// flush triggers; the sheet, forms, rating row and delivery are the deferred chunk below) plus
+// family/tier journey props: measured 130,955 -> 131,952 gzip; ceiling +1,024.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 1024,
-  'Application bundle stays under 127 KiB + 1,024 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 2048,
+  'Application bundle stays under 127 KiB + 2,048 bytes gzip',
 );
+{
+  // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
+  // precached so feedback works offline, never a startup script.
+  const matches = assetNames.filter((name) => /^voices.[a-f0-9]{12}.js$/.test(name));
+  assert.equal(matches.length, 1, 'One hashed Voices chunk is emitted');
+  assert.equal(
+    fs.statSync(path.join(root, 'dist/assets', matches[0])).size,
+    info.voicesChunkBytes,
+    'Voices chunk bytes are reported',
+  );
+  assert.ok(serviceWorker.includes(`"./assets/${matches[0]}"`), 'The Voices chunk is precached');
+  assert.ok(
+    !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+    'The Voices chunk is not a startup script',
+  );
+  // Measured 19,164 bytes, 8,285 gzip.
+  assert.ok(info.voicesChunkBytes < 20 * 1024, 'The Voices chunk stays under 20 KiB');
+  assert.ok(info.voicesChunkGzipBytes < 9 * 1024, 'The Voices chunk stays under 9 KiB gzip');
+}
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
   // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
   // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024,
-  'Precached code and shell excluding official content stay under 1.32 MiB',
+  // Voices (the precached chunk above plus its startup entry points): measured
+  // 1,372,753 -> 1,394,634 bytes; ceiling +21,888.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 21888,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 21,888 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

@@ -159,6 +159,23 @@ the survey or taps a rating. */
       notes: () => [read(NOTES) || []].flat().filter((x) => x?.what),
       dismissNotes: () => write(NOTES, null),
       clear: () => save([]),
+      // The survey invitation from local state and official first-completion times:
+      // 1 first invitation, 2 "Update your answers?", 0 none. Never on a first visit: five official
+      // completions on two local days first. After answering, at most 30 days after the last
+      // answers and only after ten more completions or a new release. "Not now" waits 7 days;
+      // three of them, or "Don't ask again", stop automatic invitations.
+      due(s, times, release, t = now()) {
+        const last = s.taken;
+        return s.never || s.snoozes >= 3 || s.until > t
+          ? 0
+          : !last
+            ? times.length >= 5 && new Set(times.map((x) => new Date(x).toDateString())).size > 1
+              ? 1
+              : 0
+            : t - last.at >= 30 * 864e5 && (times.length >= last.n + 10 || release !== last.release)
+              ? 2
+              : 0;
+      },
       respondent(create) {
         let key = read(KEY);
         if (!UUID.test(key)) key = null;

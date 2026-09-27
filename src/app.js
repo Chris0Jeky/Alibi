@@ -1359,6 +1359,7 @@
       };
       $('#app').innerHTML = shell((views[route.page] || home)());
       globalThis.AlibiUsageSlot?.();
+      globalThis.AlibiVoices?.(current, records);
       for (const [key, open] of disclosures) {
         const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
         if (el) el.open = open;

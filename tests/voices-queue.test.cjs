@@ -492,3 +492,42 @@ test('unavailable or full storage keeps a working in-memory queue for the page',
   assert.equal(calls.length, 1);
   assert.equal(q.pending().length, 0, 'accepted and removed without looping');
 });
+
+test('survey invitation timing: first offer, updates, snoozes and stop', () => {
+  const { q } = harness();
+  const day = (d, h = 10) => Date.UTC(2026, 8, d, h);
+  const now = day(27);
+  const five = [day(20), day(20, 11), day(20, 12), day(20, 13), day(21)];
+  assert.equal(q.due({}, [], '0.15.0', now), 0, 'never on a first visit');
+  assert.equal(q.due({}, five.slice(0, 4), '0.15.0', now), 0, 'four completions are not enough');
+  assert.equal(
+    q.due({}, [day(20), day(20, 11), day(20, 12), day(20, 13), day(20, 14)], '0.15.0', now),
+    0,
+    'five completions on one day are not enough',
+  );
+  assert.equal(q.due({}, five, '0.15.0', now), 1, 'five on two days: the first invitation');
+  assert.equal(q.due({ snoozes: 1, until: now + 1 }, five, '0.15.0', now), 0, 'a snooze waits');
+  assert.equal(q.due({ snoozes: 2, until: now }, five, '0.15.0', now), 1, 'the snooze ends');
+  assert.equal(q.due({ snoozes: 3, until: 0 }, five, '0.15.0', now), 0, 'three snoozes stop it');
+  assert.equal(q.due({ never: 1 }, five, '0.15.0', now), 0, "Don't ask again stops it");
+  const taken = { at: day(1), n: 5, release: '0.15.0' };
+  const fifteen = Array.from({ length: 15 }, (_, i) => day(1 + (i % 20)));
+  assert.equal(q.due({ taken }, five, '0.15.0', now), 0, 'answered: no update without new play');
+  assert.equal(
+    q.due({ taken }, fifteen, '0.15.0', now),
+    0,
+    'ten more completions, but not 30 days',
+  );
+  assert.equal(q.due({ taken }, fifteen, '0.15.0', day(1) + 30 * DAY), 2, '30 days and ten more');
+  assert.equal(q.due({ taken }, five, '0.16.0', day(1) + 30 * DAY), 2, '30 days and a new release');
+  assert.equal(
+    q.due({ taken }, five, '0.15.0', day(1) + 30 * DAY),
+    0,
+    '30 days alone is not enough',
+  );
+  assert.equal(
+    q.due({ taken, snoozes: 3 }, fifteen, '0.16.0', day(1) + 40 * DAY),
+    0,
+    'stopped offers stay stopped after answering',
+  );
+});
