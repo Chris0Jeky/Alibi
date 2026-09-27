@@ -89,10 +89,7 @@ test('concurrent list and board opens share one IndexedDB connection attempt', a
     },
     module: { exports: {} },
   });
-  vm.runInContext(
-    fs.readFileSync(require.resolve('../src/challenge-storage.js'), 'utf8'),
-    context,
-  );
+  vm.runInContext(fs.readFileSync(require.resolve('../src/challenge-storage.js'), 'utf8'), context);
   const store = context.module.exports.create({ validateRun: (r) => structuredClone(r) });
   const opening = [store.open(), store.open(), store.open()];
   for (const request of requests) {
