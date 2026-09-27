@@ -4,7 +4,7 @@ A brief for Claude Design (or any designer) to redesign Alibi as **Postern**: a 
 has quietly set up inside an abandoned castle, full of small mysteries, for people who love
 logic puzzles. It is written from a code, content and QA audit of release 0.14.1 on
 2026-09-27. The recommendations are starting positions for the designer, not settled decisions;
-the owner decisions that are settled are marked as such.
+the owner decisions that are settled are marked as such (section 13 and the list below).
 
 - Owner decisions already made: the product name direction is **Postern** (2026-09-27); the source
   is PolyForm Strict; player feedback and surveys go to Pulseboard; the Sites fallback is retired.
@@ -357,15 +357,17 @@ Hours"; "Evidence" and "Guide"), arrows mean different things (→ and ↗ both 
 links), and text sizes of 7–10 px are common. A glossary of literal labels belongs in the design
 system alongside the tokens.
 
-## 13. Decisions for the owner
+## 13. Owner decisions on this brief
 
-1. Does **Wrenmere** survive as the castle's name inside Postern? (Recommended: yes.)
-2. Does **"Alibi"** survive as the logic-grid family name and crime-casebook imprint?
-   (Recommended: yes.)
-3. Signature theme: **Lamplight** (dark) by default with Daylight available, or Daylight by
-   default? (Recommended: follow the device setting on first run, Lamplight when unknown.)
-4. Estuary castle (coast and river together) as the one setting? (Recommended: yes.)
-5. May the atmosphere "rooms" system retire in favour of castle room lighting? (Recommended: yes.)
+Settled by the owner on 2026-09-27 (walkthrough q-12, accepting all five recommendations):
+
+1. **Wrenmere** stays the castle's name inside Postern.
+2. **"Alibi"** stays as the logic-grid family name ("Alibi files") and the crime-casebook imprint.
+3. Theme **follows the device** on first run, **Lamplight** (dark) when unknown; Daylight available.
+4. One setting: an **estuary castle** where the river meets the sea (coast and river together).
+5. The atmosphere **"rooms" bar retires**; its weather and lighting become the lighting of castle rooms.
+
+Still open elsewhere: publisher identity (HUMAN_TODO q-3), not needed for design work.
 
 ## 14. How this lands in code (for the implementers, not the designer)
 
