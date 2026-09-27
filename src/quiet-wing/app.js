@@ -2,7 +2,8 @@
   'use strict';
   // Keep fallback runs and pending transactions for the lifetime of this document.
   let challengeRegistry = null,
-    challengeStore = null;
+    challengeStore = null,
+    challengeStoreOpen = null;
   G.AlibiQuietWing = {
     async mount(context) {
       const root = context.root;
@@ -60,6 +61,8 @@
         classicSelected: null,
         challengeRegistry,
         challengeStore,
+        challengeStoreOpen,
+        challengeHandle: null,
         seed: 'clover',
         artURLs: { ...context.media },
         artCache: {},
@@ -294,6 +297,8 @@
       function disposeActivity() {
         A.folio?.dispose();
         A.folio = null;
+        A.challengeHandle?.dispose();
+        A.challengeHandle = null;
         clearInterval(A.gardenTimer);
         A.gardenTimer = null;
         clearTimeout(A.petTimer);
@@ -1492,6 +1497,8 @@
         }
         A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
         challengeStore = A.challengeStore;
+        A.challengeStoreOpen ||= A.challengeStore.open();
+        challengeStoreOpen = A.challengeStoreOpen;
         const NAMES = G.AlibiChallengeLauncher.names;
         if (!requested) {
           const entries = A.challengeRegistry.entries(),
@@ -1528,12 +1535,9 @@
               (button.onclick = () => navigate('challenges/' + button.dataset.challengeId)),
           );
           // Completion is derived by replaying each stored run; nothing new is stored.
-          A.challengeStore
-            .open()
-            .then(() =>
-              Promise.all(entries.map((c) => A.challengeStore.read(c.id).catch(() => null))),
-            )
-            .then(
+          A.challengeStoreOpen.then(() =>
+            Promise.all(entries.map((c) => A.challengeStore.read(c.id).catch(() => null))),
+          ).then(
               (runs) => {
                 runs.forEach((run, i) => {
                   const card = run && $(`[data-challenge-id="${entries[i].id}"]`);
@@ -1582,9 +1586,7 @@
               (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
               (to) => navigate(to ? 'challenges/' + to : list),
             ));
-        A.challengeStore
-          .open()
-          .then(() => A.challengeStore.read(challenge.id))
+        A.challengeStoreOpen.then(() => A.challengeStore.read(challenge.id))
           .catch((error) => {
             toast(error.message);
             return null;

@@ -124,6 +124,15 @@ test('completion offers the next challenge in the family and the list, then conf
   press(view.h, { challenge: 'reset' });
   assert.equal(view.saves.length, 0, 'the first press only asks');
   assert.match(view.text(), /start again\?/);
+  press(view.h, { action: 'peg', value: '0' });
+  assert.doesNotMatch(view.text(), /start again\?/, 'a board action closes the prompt');
+  assert.equal(
+    registry.replay(view.handle.save()).complete,
+    true,
+    'a completed route cannot be changed behind the prompt',
+  );
+  assert.match(view.h.innerHTML, /data-challenge="undo" disabled/);
+  press(view.h, { challenge: 'reset' });
   press(view.h, { challenge: 'keep' });
   assert.equal(registry.replay(view.handle.save()).complete, true);
   press(view.h, { challenge: 'reset' });
@@ -211,6 +220,11 @@ test('old Duel saves where the player also moved Ink still load', () => {
   run.log = c.principalVariation.slice(0, 1);
   const view = open(c.id, run);
   assert.deepEqual(view.handle.save().log, c.principalVariation.slice(0, 2));
+  assert.deepEqual(
+    view.saves.at(-1).log,
+    c.principalVariation.slice(0, 2),
+    'the settled Ink reply is persisted while opening',
+  );
   const legacy = registry.begin(c.id);
   legacy.log = [1, 2, 5, 35, 34, 3];
   assert.doesNotThrow(() => open(c.id, legacy));
@@ -225,6 +239,13 @@ test('the Quiet Wing list deep-links, groups by family and derives completion fr
   assert.match(app, /'05 \/ ' \+ NAMES\[challenge\.family\]/);
   assert.doesNotMatch(app, /id="classics-challenges" class="textbtn" style="font-size:10px"/);
   assert.match(app, /id="classics-challenges" class="soft" style="min-height:44px/);
+  assert.match(
+    app,
+    /A\.challengeHandle\?\.dispose\(\);\s*A\.challengeHandle = null;/,
+    'route changes release the previous challenge handle',
+  );
+  assert.match(app, /A\.challengeStoreOpen \|\|= A\.challengeStore\.open\(\)/);
+  assert.equal((app.match(/A\.challengeStore\.open\(\)/g) || []).length, 1);
 });
 
 test('only classics that earn a journal stamp say so', () => {

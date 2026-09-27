@@ -42,11 +42,14 @@
   }
   function mount(host, registry, id, saved, onSave = () => {}, onNav) {
     if (!host?.replaceChildren || !registry?.replay) throw Error('Challenge host is unavailable.');
-    let run = settle(registry, saved ? registry.validateRun(saved) : registry.begin(id)),
+    const initial = saved ? registry.validateRun(saved) : registry.begin(id),
+      initialMoves = initial.log.length;
+    let run = settle(registry, initial),
       selected = null,
       message = '',
       confirming = false;
     if (run.challengeId !== id) throw Error('This save belongs to another challenge.');
+    if (saved && run.log.length !== initialMoves) onSave(copy(run));
     const c = registry.get(id),
       siblings = registry.entries().filter((x) => x.family === c.family),
       next = siblings[siblings.indexOf(c) + 1];
@@ -103,7 +106,7 @@
       }${
         confirming
           ? '<p>Clear your finished route and start again?</p><div class="row"><button class="primary" data-challenge="reset">Start again</button><button data-challenge="keep">Keep my route</button></div>'
-          : `<div class="row"><button data-challenge="undo" ${n ? '' : 'disabled'}>Undo</button><button data-challenge="reset">Start again</button></div>`
+          : `<div class="row"><button data-challenge="undo" ${n && !view.complete ? '' : 'disabled'}>Undo</button><button data-challenge="reset">Start again</button></div>`
       }</section>`;
       // Keep keyboard focus on the equivalent control after each redraw, without scrolling.
       if (refocus)
@@ -115,6 +118,7 @@
     const control = (kind) => {
       if (kind === 'next' || kind === 'list') return onNav(kind === 'next' ? next.id : '');
       if (kind === 'undo') {
+        if (registry.replay(run).complete) return;
         // An Ink reply is undone together with the Gold move that prompted it.
         do run.log.pop();
         while (c.family === 'reversi' && run.log.length && registry.replay(run).state.turn < 0);
@@ -137,6 +141,13 @@
         kind = button?.dataset.action,
         value = Number(button?.dataset.value);
       if (button?.dataset.challenge) return control(button.dataset.challenge);
+      if (kind && registry.replay(run).complete) {
+        confirming = false;
+        selected = null;
+        message = '';
+        return draw();
+      }
+      if (kind) confirming = false;
       if (kind === 'peg' || kind === 'magic') {
         if (selected !== null && selected !== value) return commit({ from: selected, to: value });
         selected = selected === value ? null : value;
@@ -157,7 +168,13 @@
     };
     host.onkeydown = (event) => {
       const direction = /^Arrow(Up|Down|Left|Right)$/.exec(event.key)?.[1].toLowerCase();
-      if (!direction || c.family !== 'warehouse' || registry.replay(run).state.done) return;
+      if (!direction || c.family !== 'warehouse') return;
+      const view = registry.replay(run);
+      if (view.complete) {
+        confirming = false;
+        return draw();
+      }
+      if (view.state.done) return;
       event.preventDefault();
       commit(direction);
     };
