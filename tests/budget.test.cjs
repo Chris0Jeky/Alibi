@@ -83,10 +83,11 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
 // Archive Heist rooms 10-33 (grouped room grid, solved markers, end cards, bounded room action)
-// measured 131,409: ceiling +512.
+// measured 131,409: ceiling +512. Labelling the vaults and linking the curated challenges from the
+// Games Room and Pocket Borough measured 131,549 (+594 over 130,955): ceiling +640 in total.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 1536,
-  'Application bundle stays under 127 KiB + 1,536 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 1664,
+  'Application bundle stays under 127 KiB + 1,664 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
