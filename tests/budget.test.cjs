@@ -82,10 +82,13 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
 // asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
-// Games Room polish (Play again, journal names, section numbers) measured 131,382: ceiling +448.
+// Archive Heist rooms 10-33 (grouped room grid, solved markers, end cards, bounded room action)
+// measured 131,409: ceiling +512. Labelling the vaults and linking the curated challenges from the
+// Games Room and Pocket Borough measured 131,561 (+606 over 130,955): ceiling +640 in total.
+// Games Room polish (Play again, journal names, section numbers) on top: measured 132,127: ceiling +2,112 in total.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 1024 + 448,
-  'Application bundle stays under 127 KiB + 1,472 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 2112,
+  'Application bundle stays under 127 KiB + 2,112 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
@@ -105,11 +108,13 @@ assert.ok(
   'Initial code plus official data stays under 200 KiB gzip',
 );
 for (const [prefix, limit] of [
-  ['club-engines.', 8 * 1024],
+  // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
+  ['club-engines.', 8 * 1024 + 832],
   // Six offered Games Room games plus retained legacy compatibility surfaces use 33 KiB;
   // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
-  ['alibi.', 33 * 1024 + 256],
+  // Archive vault rooms plus Games Room polish measured 34,079 on 2026-09-27: +320.
+  ['alibi.', 33 * 1024 + 320],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))
@@ -122,4 +127,8 @@ for (const [prefix, limit] of [
 }
 
 // Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
-assert.ok(info.quietWingBytes < 2250 * 1024, 'Optional Quiet Wing pack stays below 2250 KiB');
+// Challenge library (+6,746) and Archive vault rooms (+1,857) on 2,303,623, plus Games Room polish (+310): measured 2,312,559; ceiling +8,576.
+assert.ok(
+  info.quietWingBytes < 2250 * 1024 + 8576,
+  'Optional Quiet Wing pack stays below 2250 KiB + 8,576 bytes',
+);

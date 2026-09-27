@@ -412,6 +412,8 @@
   }
   const blockCabinet = {
     size: 8,
+    // Every move replays the whole log (5–8 times per tap), so the cap stays at 500; see backup-validation (3000).
+    maxMoves: 500,
     shapes: blockShapes.map(copy),
     initial(seed = 'BLOCK-01') {
       seed = seedText(seed);
@@ -497,7 +499,8 @@
     },
     replay(seed, log) {
       seed = seedText(seed);
-      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid Block Cabinet replay.');
+      if (!Array.isArray(log) || log.length > this.maxMoves)
+        throw Error('Invalid Block Cabinet replay.');
       let s = this.initial(seed);
       for (const action of log) {
         if (
@@ -1022,6 +1025,45 @@
       ],
     },
   ];
+  // Rooms 10-33 are the 24 curated vaults of content/challenges/archive-vaults.json, in order,
+  // stored without their outer wall ('|' separates rows); tests/archive-heist-vaults.test.cjs
+  // keeps them identical. Three crates are Expert, four Master. Solutions stay in the content.
+  for (const [name, rows] of [
+    ['The eastern brass plates', '@    |   $#| $$ .| #.  |  # .'],
+    ['Crates above the bottleneck', ' #@  | $$$ |    #|#. ##|.  . '],
+    ['The staggered reading desks', '  $. |. .  |   $#| #$@#|#    '],
+    ['The divided upper gallery', '  #+ |  # .|  $  |.$ $ |  ## '],
+    ['The screened southern plates', '+$   |#$   |   # | $ #.| #  .'],
+    ['The keeper behind the crates', '    .|#  $ |.  # | #$ #|   $+'],
+    ['A passage through the lower shelves', '# #@ | $ $ |     | .#$#|. .  '],
+    ['Three crates by the east wall', '..   |   $#|    #|   $@|   $.'],
+    ['The broken northern aisle', '@#  .| $$# |  $  |   ..| #  #'],
+    ['Near goals, distant approaches', '@. . |  $$ | #  #|# $ #|   .#'],
+    ['The walled receiving bay', '.    |   # | . ##|  $$@|  .$ '],
+    ['Two labels above the pillar', '@. . | $ $ |#$ # |   .#|    #'],
+    ['Four crates round the partition', '#   ##|  #$@ | . .$ |  $##.|    $.'],
+    ['A room of competing passages', '@#..  | ##   | $    | .$$ #|  $.  '],
+    ['The divided central aisle', '#@   .|. #.$ |  .$# |  $  $|  #   '],
+    ['The long route round the wall', '.     |.#### |$  #@#|  $$$ |. .   '],
+    ['The narrow central landing', '+ .$ #|  #.  | $$   | $. # |  #  #'],
+    ['Shelves on both sides of the pillar', '@##   |  #  .| $#   | .$.$ | # $. '],
+    ['The west-wall collection', '@$   .| .#$$ |.   $ |      |.   ##'],
+    ['A four-crate crossing', '#@   #|.  .# | .# $ |  $$  | $ .  '],
+    ['A turn beyond the south shelves', '@ #  .|  $  #|. $$  | . #  |.   $ '],
+    ['Three plates beside the west wall', '+     |    $#| #  $ |.  $ .|.  $  '],
+    ['The single northern plate', '@ . # |#$ #  | $.$$ |.     | .    '],
+    ['The lower vault exchange', ' .#@  |  ##  |    $ |. #$$ | .$ . '],
+  ]) {
+    const map = rows.split('|').map((row) => '#' + row + '#'),
+      wall = map[0].replace(/./g, '#');
+    warehouseMaps.push({
+      name,
+      subtitle:
+        (rows.replace(/[^$*]/g, '').length > 3 ? 'Master vault · four' : 'Expert vault · three') +
+        ' crates. Plan before you push.',
+      map: [wall, ...map, wall],
+    });
+  }
   const warehouse = {
     maps: warehouseMaps,
     fromMap(map, level = null) {

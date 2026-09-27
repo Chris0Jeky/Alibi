@@ -1,5 +1,20 @@
 # Live development state
 
+## Archive Heist vault rooms (branch `feat/archive-heist-vaults`, unreleased): 27 September 2026
+
+Refs [#346](https://github.com/Chris0Jeky/Alibi/issues/346). The 24 curated vaults from 0.13.0
+(`content/challenges/archive-vaults.json`) now also play as Archive Heist rooms 10–33 in the Games
+Room; rooms 01–09 keep their maps, indices, replays and journal records (hash-pinned). Room
+navigation is two disclosures (Rooms 01–09, Vaults 10–33) with solved markers read from existing
+record ids, end cards after rooms 09 and 33, and a bounded room action. The Games Room and Pocket
+Borough link the curated challenges at `#/quiet/challenges` (the current Quiet Wing router sends
+`challenges?family=…` to the Realm page; switch once it reads a family filter). Measured
+ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 7,661 -> 8,475
+(+832), Quiet Wing pack 2,303,623 -> 2,305,480 raw (+1,920; it embeds the engine). New checks:
+`tests/archive-heist-vaults.test.cjs` and `tests/browser_archive_vaults.py` (local origin, 390px
+and 1280px, all 24 vaults played). Not deployed; physical Android, TalkBack and human difficulty
+remain open.
+
 ## Published web release 0.14.1: 26 September 2026
 
 Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):
@@ -8,6 +23,37 @@ build `64e09f4e5707`, 292/292 files byte-identical, 244 hosted real-origin check
 Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC silent, Beta button
 only in Settings/Privacy). Sites fallback still on 0.12.0. See the
 [publication receipt](RELEASE-0.14.1.md).
+
+## Castle Chapter I completion and navigation (branch, not merged or deployed): 27 September 2026
+
+Branch `fix/castle-completion-navigation` answers the castle audit (Chapter I completable but
+never shown as finished, misleading guidance). Completion is derived from the Keeper's Study
+record (no save change): grounds mark, finished thread, done stair and a
+"Chapter I n/5 · Extra questions n/5" header. The thread sits above the map and only offers open
+rooms; the keeper's letter opens on first arrival; locked doors, pins and first completions link
+to the rooms that open them; the clock accepts 2100/21.00/21 00; the directory collapses planned
+rooms; the Quiet Wing room bar is hidden on castle pages; blank hypotheses keep their draft. The
+castle script ceiling rose by 2,816 bytes (measured 98,062 -> 100,837 of 101,120); core budgets
+are unchanged. Physical keyboards and TalkBack remain unverified. See
+[docs/castle/README.md](castle/README.md).
+
+## Challenge library polish (branch `feat/challenge-library-polish`, unmerged): 27 September 2026
+
+The curated challenge library (QA findings F02–F06, F11, F12, F21, F22, F31 and F01's 10px link)
+now reads as a player surface. `#/quiet/challenges?family=<id>` opens one family; the list is
+grouped and collapsed (about 1,100px at 390px instead of 12,958px) with player-facing family
+names, difficulty chips and Completed/Continue marks derived by replaying stored runs. The
+launcher drops revision/title chrome, words refusals for players, pluralises, fills selected
+controls, draws Hanoi discs, gives Archive boards a legend, 44px arrow pad, arrow keys and
+adjacent-square taps, names Borough buildings with their scoring, and shows a completion card
+(difficulty, Next in family, Back to the list) with a confirmed restart. Duel endgames: the player
+keeps Gold; Ink replies by the recorded line, then the expert-depth search, and a lost line says so
+with the stored hint. Classics claim a journal stamp only when one is earned. Definitions, ids,
+revisions, replay format and storage are unchanged. Quiet Wing pack 2,303,623 -> 2,310,369 bytes;
+its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node suites, budget,
+`browser_challenges.py` (isolated and served), `browser_planning_expansion.py` (built and
+isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`
+pass locally on a local Chromium headless shell; not deployed, no physical phone.
 
 ## Games Room phone polish candidate: 27 September 2026
 

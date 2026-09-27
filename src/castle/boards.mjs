@@ -31,7 +31,7 @@ export function renderBoard({ active, answer, selection, walk }) {
       case 'shelves':
         return `<p>${selection === null ? 'Choose two books to swap.' : `Selected ${escape(answer[selection])}. Choose the other book.`}</p><div class="shelf">${answer.map((n, i) => button(escape(n), 'swap', i, `class="book" aria-pressed="${selection === i}" aria-label="Book ${i + 1}: ${escape(n)}"`)).join('')}</div>`;
       case 'clock':
-        return `<label>Corrected departure time (HH:MM)<input id="clock-answer" inputmode="numeric" maxlength="5" autocomplete="off" value="${escape(answer)}"></label>`;
+        return `<label>Corrected departure time (24-hour)<br><input id="clock-answer" inputmode="numeric" enterkeyhint="go" maxlength="5" autocomplete="off" value="${escape(answer)}"></label>`;
       case 'route':
         return routeBoard();
       case 'lamps':

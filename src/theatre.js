@@ -75,6 +75,8 @@
       : '';
   }
   function bar(quiet = false) {
+    // Castle pages carry their own navigation; the quiet room link would leave the castle.
+    if (quiet && /^#\/quiet\/castle(\/|$)/.test(G.location?.hash)) return '';
     return `<aside class="theatre-rail" aria-label="Room atmosphere"><span class="theatre-rail-title">${emblem(scene?.motif)}<span>${escape(scene?.title || 'The club')}<small>AN IMAGINED PLACE · YOUR OWN PACE</small></span></span>${quiet ? '' : '<details class="theatre-settings" data-disclosure-key="room-settings"><summary id="room-settings-summary">Room settings</summary>'}<div class="theatre-controls">${quiet ? '<a id="quiet-room-choice" href="#/home">Choose a room ↗</a>' : `${audioAvailable ? `<button type="button" data-theatre-sound aria-pressed="${sound}">Room sound ${sound ? 'on' : 'off'}</button><label>Sound <select id="room-sound-choice" data-theatre-ambience>${config.audio.map((a) => `<option value="${escape(a.id)}" ${a.id === ambience ? 'selected' : ''}>${escape(a.title)}</option>`).join('')}</select></label><label>Volume <input id="room-sound-volume" data-theatre-volume type="range" min="0" max="100" value="${Math.round(volume * 100)}"></label><span data-theatre-sound-status role="status">${escape(soundStatus)}</span>` : ''}<button type="button" data-theatre-motion aria-pressed="${movement}">${movement ? 'Still the room' : 'Let it breathe'}</button><button type="button" data-theatre-data aria-pressed="${G.AlibiDelivery?.mode() === 'local'}">${G.AlibiDelivery?.mode() === 'local' ? 'Painted edition' : 'Rich edition'}</button>`}</div>${quiet ? '' : '</details>'}</aside>`;
   }
   function room(story) {

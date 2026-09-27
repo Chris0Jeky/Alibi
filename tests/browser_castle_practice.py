@@ -23,7 +23,7 @@ def main() -> None:
             page.goto(BASE + '#/home')
             page.locator((' .mobile-nav' if width<900 else '.sidebar')+' [data-page="quiet"][data-id="castle"]').click()
             expect(page.locator('#castle-main h1')).to_have_text('Wrenmere Castle')
-            page.locator('[data-do="visit"][data-value="library"]').first.click()
+            page.locator('#castle-dialog [data-do="visit"][data-value="library"]').click()
             page.locator('[data-do="puzzle"]').click()
             for action in ['reveal','confirm-reveal','check','close']:
                 page.locator(f'#castle-dialog [data-do="{action}"]').click()
@@ -60,7 +60,7 @@ def main() -> None:
                     id,
                 )
             expect(page.locator('.practice-detail')).to_contain_text('paper constellation')
-            expect(page.locator('.score')).to_have_text('10 / 100 points')
+            expect(page.locator('.score')).to_have_text('Chapter I 1/5 · Extra questions 0/5')
             assert page.evaluate('() => AlibiDiagnostics.getPracticeSnapshot().then(s=>s.rooms.observatory.completed)')==3
             page.locator('[data-do="practice"][data-value="curated-binary-01"]').click()
             page.locator('[data-action="restart"]').click()
@@ -73,6 +73,7 @@ def main() -> None:
             page.screenshot(path=str(OUTPUT/f'practice-{width}.png'),full_page=True)
             report['checks'].append(f'{width}: root castle navigation, three real official solves, return context, distinct familiarity and restart/reload retention')
             page.evaluate('location.hash="#/quiet/castle/directory"')
+            page.locator('.later-rooms summary').click()
             panel=page.locator('[data-practice-room="number"]')
             expect(panel).to_contain_text('This room is planned')
             starter=panel.locator('[data-do="practice"]').first

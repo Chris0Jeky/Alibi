@@ -24,7 +24,7 @@
         G.clearTimeout(id);
         timers.delete(id);
       };
-      const routePath = () => location.hash.replace(/^#\/quiet\/?/, '');
+      const routePath = () => location.hash.replace(/^#\/quiet\/?/, '').split('?')[0];
       const navigate = (path) => {
         location.hash = '/quiet/' + path;
       };
@@ -1450,7 +1450,7 @@
             )
             .join(
               '',
-            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-challenges" class="textbtn" style="font-size:10px">Curated challenges</button><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
+            )}</div><div class="artifact-footer"><span style="display:flex;align-items:center;gap:12px"><img src="${context.media.keeper}" width="32" height="48" alt="A small court keeper from Kenney’s CC0 Castle Kit">Classic rules, newly written software and presentation.</span><button id="classics-challenges" class="soft" style="min-height:44px;font-size:13px">Curated challenges →</button><button id="classics-sources" class="textbtn" style="font-size:10px">About the sources</button></div>`;
         $$('[data-play]').forEach(
           (b) => (b.onclick = () => navigate('classics/' + b.dataset.play)),
         );
@@ -1490,26 +1490,69 @@
           );
           return;
         }
+        A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
+        challengeStore = A.challengeStore;
+        const NAMES = G.AlibiChallengeLauncher.names;
         if (!requested) {
-          const entries = A.challengeRegistry.entries();
+          const entries = A.challengeRegistry.entries(),
+            families = [...new Set(entries.map((c) => c.family))],
+            pick = new URLSearchParams(location.hash.split('?')[1]).get('family');
           $('#main').innerHTML =
             header(
               '05 / CURATED CHALLENGES',
               'Fixed starts. Your own route.',
               'Each challenge rebuilds from its recorded start and your legal moves. Existing classics and Club games keep their own saves.',
             ) +
-            `<label for="challenge-family">Challenge family</label><select id="challenge-family"><option value="all">All challenges</option>${[...new Set(entries.map((c) => c.family))].map((f) => `<option value="${f}">${f === 'warehouse' ? 'Archive Heist' : f === 'borough' ? 'Pocket Borough' : f} (${entries.filter((c) => c.family === f).length})</option>`).join('')}</select><div class="card-grid">${entries.map((c) => `<button class="activity-card" data-family="${c.family}" data-challenge-id="${esc(c.id)}"><div class="info"><span class="tag">${esc(c.family)}</span><h3>${esc(c.title)}</h3><p>${esc(c.instruction).slice(0, 112)}…</p><span class="pill">Open challenge →</span></div></button>`).join('')}</div>`;
-          $('#challenge-family').onchange = (event) => {
-            const family = event.target.value;
-            $$('[data-challenge-id]').forEach((button) => {
-              button.hidden = family !== 'all' && button.dataset.family !== family;
-              button.style.display = button.hidden ? 'none' : '';
+            `<label for="challenge-family">Challenge family</label> <select id="challenge-family"><option value="all">All challenges</option>${families.map((f) => `<option value="${f}" ${f === pick ? 'selected' : ''}>${NAMES[f]} (${entries.filter((c) => c.family === f).length})</option>`).join('')}</select>${families
+              .map(
+                (f) =>
+                  `<details class="challenge-family" data-family="${f}"><summary><h2>${NAMES[f]}</h2><span class="pill">${entries.filter((c) => c.family === f).length} challenges</span></summary><div class="card-grid">${entries
+                    .filter((c) => c.family === f)
+                    .map(
+                      (c) =>
+                        `<button class="activity-card challenge-card" data-family="${f}" data-challenge-id="${esc(c.id)}"><span class="tag">${NAMES[f]}${c.difficulty ? ` <b>${esc(c.difficulty)}</b>` : ''}</span><h3>${esc(c.title)}</h3><span class="pill">Open →</span></button>`,
+                    )
+                    .join('')}</div></details>`,
+              )
+              .join('')}`;
+          // Filtering shows one family, open; "all" collapses every family back to its heading.
+          const show = (family) =>
+            $$('.challenge-family').forEach((group) => {
+              group.hidden = family !== 'all' && group.dataset.family !== family;
+              group.open = group.dataset.family === family;
             });
-          };
+          $('#challenge-family').onchange = (event) => show(event.target.value);
+          if (families.includes(pick)) show(pick);
           $$('[data-challenge-id]').forEach(
             (button) =>
               (button.onclick = () => navigate('challenges/' + button.dataset.challengeId)),
           );
+          // Completion is derived by replaying each stored run; nothing new is stored.
+          A.challengeStore
+            .open()
+            .then(() =>
+              Promise.all(entries.map((c) => A.challengeStore.read(c.id).catch(() => null))),
+            )
+            .then(
+              (runs) => {
+                runs.forEach((run, i) => {
+                  const card = run && $(`[data-challenge-id="${entries[i].id}"]`);
+                  if (!card) return;
+                  const done = A.challengeRegistry.replay(run).complete;
+                  card.classList.toggle('done', done);
+                  $('.pill', card).textContent = done
+                    ? 'Completed ✓'
+                    : run.log.length
+                      ? 'Continue →'
+                      : 'Open →';
+                });
+                $$('.challenge-family').forEach((group) => {
+                  $('summary .pill', group).textContent =
+                    `${$$('.done', group).length} of ${$$('[data-challenge-id]', group).length} completed`;
+                });
+              },
+              () => {},
+            );
           return;
         }
         let challenge;
@@ -1519,18 +1562,26 @@
           navigate('challenges');
           return;
         }
+        const list = 'challenges?family=' + challenge.family;
         $('#main').innerHTML =
           header(
-            '05 / ' + esc(challenge.family),
+            '05 / ' + NAMES[challenge.family],
             esc(challenge.title),
-            'A trusted start, your legal replay.',
+            'A fixed start. Your own route.',
             `<button id="challenge-back" class="soft">← All challenges</button>`,
           ) +
-          '<div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export pre-restore save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p><div id="challenge-host"></div>';
-        $('#challenge-back').onclick = () => navigate('challenges');
-        const host = $('#challenge-host');
-        A.challengeStore ||= G.AlibiChallengeStore.create(A.challengeRegistry);
-        challengeStore = A.challengeStore;
+          '<div id="challenge-host"></div><div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export pre-restore save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p>';
+        $('#challenge-back').onclick = () => navigate(list);
+        const host = $('#challenge-host'),
+          mount = (saved) =>
+            (A.challengeHandle = G.AlibiChallengeLauncher.mount(
+              host,
+              A.challengeRegistry,
+              challenge.id,
+              saved,
+              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+              (to) => navigate(to ? 'challenges/' + to : list),
+            ));
         A.challengeStore
           .open()
           .then(() => A.challengeStore.read(challenge.id))
@@ -1541,13 +1592,7 @@
           .then((saved) => {
             if (disposed || A.route !== 'challenges' || routePath().split('/')[1] !== challenge.id)
               return;
-            A.challengeHandle = G.AlibiChallengeLauncher.mount(
-              host,
-              A.challengeRegistry,
-              challenge.id,
-              saved,
-              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
-            );
+            mount(saved);
           });
         $('#challenge-export').onclick = () => exportChallenge(A.challengeHandle?.save());
         $('#challenge-recovery').onclick = async () => {
@@ -1572,13 +1617,7 @@
               throw Error('Choose a save for this exact challenge.');
             await A.challengeStore.restore(imported);
             A.challengeHandle?.dispose();
-            A.challengeHandle = G.AlibiChallengeLauncher.mount(
-              host,
-              A.challengeRegistry,
-              challenge.id,
-              imported,
-              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
-            );
+            mount(imported);
             toast('Challenge save restored. The previous save remains available for export.');
           } catch (error) {
             toast(error.message);
@@ -1599,6 +1638,13 @@
         link.click();
         setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
+      // A classic claims a journal stamp only when solving it earns one a fresh save lacks.
+      const stamped = (id) => {
+        const fresh = E.newState(0),
+          solved = E.newState(0);
+        solved.stats.solves = [id];
+        return E.BADGES.some(([, , , test]) => test(solved) && !test(fresh));
+      };
       function getClassic() {
         let run = A.state.classics[A.classic];
         if (!run) {
@@ -1637,7 +1683,7 @@
         $('#classic-reset').onclick = () => {
           const d = modal(
             'Start this puzzle again?',
-            `<p>This resets only this puzzle’s moves. Your completed journal stamp stays.</p><button id="reset-confirm" class="primary">Start again</button>`,
+            `<p>This resets only this puzzle’s moves.${stamped(id) ? ' Your completed journal stamp stays.' : ''}</p><button id="reset-confirm" class="primary">Start again</button>`,
           );
           $('#reset-confirm').onclick = () => {
             run.actions = [];
@@ -1687,7 +1733,7 @@
         $('#classic-message').textContent =
           `${s.moves} moves${won ? ' · Complete. Nicely done.' : ' · No timer. Undo whenever you need.'}`;
         $('#classic-result').innerHTML = won
-          ? `<div class="result"><div class="eyebrow">FILE CLOSED</div><h3>You found a way.</h3><p class="micro">${s.moves} legal moves. Your stamp is in the journal.</p><button class="primary" id="next-classic">Back to the cabinet</button></div>`
+          ? `<div class="result"><div class="eyebrow">FILE CLOSED</div><h3>You found a way.</h3><p class="micro">${s.moves} legal moves.${stamped(A.classic) ? ' Your stamp is in the journal.' : ''}</p><button class="primary" id="next-classic">Back to the cabinet</button></div>`
           : '';
         if (won) $('#next-classic').onclick = () => navigate('classics');
         if (s.family === 'pour') {
