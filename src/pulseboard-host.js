@@ -13,6 +13,8 @@
   if (g.ALIBI_CONFIG?.standalone !== false || typeof document === 'undefined') return;
   // The statistics embed (0.11.3-0.14.0) kept its choice under other keys. An opt-out there becomes an
   // all-off SDK choice in the SDK's stored shape before the SDK loads; then every old key goes.
+  // When the v3 write throws, the legacy opt-out is kept and settle() repeats it via the SDK.
+  let migrationFailed = false;
   try {
     const ls = g.localStorage,
       V3 = 'pulseboard:consent:v3:alibi',
@@ -29,18 +31,22 @@
       }
     });
     if (optedOut && ls.getItem(V3) === null) {
-      ls.setItem(
-        V3,
-        JSON.stringify({
-          counts: false,
-          diagnostics: false,
-          journeys: false,
-          decided: true,
-          month: new Date().toISOString().slice(0, 7),
-        }),
-      );
+      try {
+        ls.setItem(
+          V3,
+          JSON.stringify({
+            counts: false,
+            diagnostics: false,
+            journeys: false,
+            decided: true,
+            month: new Date().toISOString().slice(0, 7),
+          }),
+        );
+      } catch {
+        migrationFailed = true;
+      }
     }
-    for (const key of old) ls.removeItem(key);
+    if (!migrationFailed) for (const key of old) ls.removeItem(key);
   } catch {}
   const sdk = () => {
     const p = g.Pulseboard;
@@ -156,6 +162,11 @@
   const settle = () => {
     if (settled) return;
     settled = true;
+    if (migrationFailed) {
+      try {
+        sdk()?.consent?.set?.({ counts: false, diagnostics: false, journeys: false });
+      } catch {}
+    }
     try {
       const bar = document.querySelector?.('[data-pulseboard-bar]');
       if (!sdk()) {
