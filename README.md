@@ -5,11 +5,11 @@
 Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and local authoring workshop. It combines carefully versioned logic puzzles with explainable deductions, durable device-local saves, atmospheric rooms, and a mobile-first path that does not require an account, a subscription, lives, or an always-on connection.
 
 [Play Alibi — primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
-[Retired Sites fallback](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) ·
+[Sites fallback (retiring)](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) ·
 [Latest release](https://github.com/Chris0Jeky/Alibi/releases/latest) ·
 [Project map](docs/PROJECT-MAP.md) · [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
 
-> **Current release: 0.15.0.** The Cloudflare site and the downloadable release are working browser/PWA editions; the Sites fallback is retired and will show a moved notice. A non-publishable Capacitor preview APK exists, but no Play Store release or completed physical-device acceptance is claimed.
+> **Current release: 0.15.0.** The Cloudflare site and the downloadable release are working browser/PWA editions; the Sites fallback still serves 0.12.0 until its single retirement deployment (`HUMAN_TODO.md` q-9), which shows a moved notice. A non-publishable Capacitor preview APK exists, but no Play Store release or completed physical-device acceptance is claimed.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 

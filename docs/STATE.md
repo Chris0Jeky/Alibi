@@ -1,10 +1,10 @@
 # Live development state
 
-## Release 0.15.0 candidate: 27 September 2026
+## Release 0.15.0: published 27 September 2026
 
-Source for 0.15.0 is `main` plus the release pull request
-([#424](https://github.com/Chris0Jeky/Alibi/pull/424)); receipt in
-[RELEASE-0.15.0.md](RELEASE-0.15.0.md). It gathers the 2026-09-27 QA wave (audits in
+Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
+tag `v0.15.0`); the publication receipt is in [RELEASE-0.15.0.md](RELEASE-0.15.0.md). The Sites
+fallback still serves 0.12.0 until q-9. It gathers the 2026-09-27 QA wave (audits in
 `docs/qa/2026-09-27/`, redesign brief in `docs/design/`):
 
 - Merged normally, after CI and review: #396 (PolyForm Strict license), #397 (budget double
@@ -15,9 +15,12 @@ Source for 0.15.0 is `main` plus the release pull request
   CI"), after conflict resolution and each PR's own review: #409, #410, #411, #412, #413 and #423.
   The merged `main` (`896bb6d`) built, and its full Node suite passed locally apart from
   `asset-audio` (no `ffprobe` here); the Android tests pass after `build:android`.
-- Combined ceilings after the merges (all commented in `tests/budget.test.cjs`): application JS
-  133,670 gzip, initial code plus official data 205,232 with the release notes (+448 over
-  200 KiB, to be trimmed), main CSS 34,079, Quiet Wing pack 2,312,559.
+- Measured at release (all commented in `tests/budget.test.cjs`): application JS 133,670 gzip
+  (ceiling 127 KiB + 3,648 = 133,696), initial code plus official data 205,233 (ceiling
+  temporarily 200 KiB + 448), main CSS 34,079, Quiet Wing pack 2,312,559. After #425, #428 and
+  #435, main measures 133,690 application JS and 202,748 initial. The +448 initial ceiling stays
+  while the Interlock studies (#427) need it. The application JS ceiling gains a 128-byte margin for hash noise (133,824), not room
+  for new code: the next feature that adds application JS trims first.
 - Pulseboard: Voices intake live since 2026-09-27 (schema 5, voices admitted `["alibi"]`).
 - Review follow-ups, all non-blocking: #404, #407, #416, #417 (intermittent Block Cabinet
   landscape test), #418, #419, #420, #421 (completion-hook hardening for #11).
