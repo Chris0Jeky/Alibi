@@ -82,9 +82,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 130,084 -> 130,678 gzip bytes (130,703 on the 0.14.0 base); the SDK stays a separate deferred
 // asset. Ceiling +256. Review fixes on #391 (carrying old-embed opt-outs into the SDK before it
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
+// Archive Heist rooms 10-33 (grouped room grid, solved markers, end cards, bounded room action)
+// measured 131,409: ceiling +512. Labelling the vaults and linking the curated challenges from the
+// Games Room and Pocket Borough measured 131,561 (+606 over 130,955): ceiling +640 in total.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 1024,
-  'Application bundle stays under 127 KiB + 1,024 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 1664,
+  'Application bundle stays under 127 KiB + 1,664 bytes gzip',
 );
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
@@ -104,7 +107,8 @@ assert.ok(
   'Initial code plus official data stays under 200 KiB gzip',
 );
 for (const [prefix, limit] of [
-  ['club-engines.', 8 * 1024],
+  // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
+  ['club-engines.', 8 * 1024 + 832],
   // Six offered Games Room games plus retained legacy compatibility surfaces use 33 KiB;
   // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
@@ -121,4 +125,8 @@ for (const [prefix, limit] of [
 }
 
 // Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
-assert.ok(info.quietWingBytes < 2250 * 1024, 'Optional Quiet Wing pack stays below 2250 KiB');
+// The pack embeds club-engines.js: Archive vault rooms measured 2,303,623 -> 2,305,480, +1,920.
+assert.ok(
+  info.quietWingBytes < 2250 * 1024 + 1920,
+  'Optional Quiet Wing pack stays below 2250 KiB + 1,920 bytes',
+);

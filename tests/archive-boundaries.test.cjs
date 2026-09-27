@@ -85,8 +85,8 @@ test('walking or pushing off an open Archive edge never wraps or records a move'
   }
 });
 
-test('all nine published Archive starts remain unfinished and replayable', () => {
-  assert.equal(W.maps.length, 9);
+test('all 33 published Archive starts remain unfinished and replayable', () => {
+  assert.equal(W.maps.length, 33);
   for (let level = 0; level < W.maps.length; level++) {
     const state = W.initial(level);
     assert.equal(state.level, level);

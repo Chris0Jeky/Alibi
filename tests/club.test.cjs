@@ -226,8 +226,9 @@ bad(
     }),
   'Club backup rejects malformed Tic-Tac-Toe replay',
 );
-// Original archive maps must actually be playable.
-for (let level = 0; level < E.warehouse.maps.length; level++) {
+// Original archive maps must actually be playable. Vaults (10-33) replay recorded solutions in
+// archive-heist-vaults.test.cjs; this breadth-first search is sized for the nine ordinary rooms.
+for (let level = 0; level < 9; level++) {
   let s = E.warehouse.initial(level);
   const t = performance.now(),
     result = E.warehouse.solve(s);
