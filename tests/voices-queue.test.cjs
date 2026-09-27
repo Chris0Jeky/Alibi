@@ -34,8 +34,8 @@ function storage(initial = {}, { throws = false, full = false } = {}) {
 }
 
 // A scripted collector: each call takes the next reply (a status, 'network' or a function).
-function harness({ replies = [], store = storage(), online = true } = {}) {
-  const context = {};
+function harness({ replies = [], store = storage(), online = true, timers = false, timeout } = {}) {
+  const context = timers ? { AbortController, setTimeout, clearTimeout } : {};
   context.globalThis = context;
   vm.createContext(context);
   vm.runInContext(source, context, { filename: 'voices-queue.js' });
@@ -49,10 +49,15 @@ function harness({ replies = [], store = storage(), online = true } = {}) {
     uuid: () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`,
     collector: COLLECTOR,
     online: () => state.online,
+    timeout,
     fetch: async (url, init) => {
       calls.push({ url, init, body: JSON.parse(init.body) });
       const reply = state.replies.length ? state.replies.shift() : 202;
       if (reply === 'network') throw TypeError('Failed to fetch');
+      if (reply === 'hang')
+        return new Promise((_, reject) =>
+          init.signal?.addEventListener('abort', () => reject(Error('AbortError'))),
+        );
       if (typeof reply === 'function') return reply();
       return {
         status: typeof reply === 'object' ? reply.status : reply,
@@ -120,6 +125,12 @@ test('feedback is exactly the pulseboard.feedback/1 payload, cleaned and bounded
     'control characters other than newline and tab become spaces, then trimmed',
   );
   assert.equal(feedback(q, { text: '   \n\t ' }), null, 'empty after trimming is not sent');
+  assert.equal(feedback(q, { text: 'a\u0085b\u009fc' }).text, 'a b c', 'C1 controls become spaces');
+  assert.equal(
+    feedback(q, { text: '\u0080\u009f' }),
+    null,
+    'C1-only text is empty, as for the collector',
+  );
   assert.equal(feedback(q, { text: 'x'.repeat(2000) }).text.length, 2000);
   assert.equal(feedback(q, { text: 'x'.repeat(2001) }), null);
   assert.equal(feedback(q, { kind: 'rant' }), null);
@@ -530,4 +541,41 @@ test('survey invitation timing: first offer, updates, snoozes and stop', () => {
     0,
     'stopped offers stay stopped after answering',
   );
+});
+
+test('several queued surveys and ratings all go in one pass', async () => {
+  const { q, calls, state, clock } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  clock.t += 1;
+  q.enqueue(rating(q, 'scene-02'));
+  clock.t += 1;
+  q.enqueue(taste(q));
+  clock.t += 1;
+  q.enqueue(feedback(q));
+  state.online = true;
+  await q.flush();
+  assert.deepEqual(
+    calls.map((c) => [c.body.survey || 'feedback', c.body.subject]),
+    [
+      ['puzzle-rating', 'scene-01'],
+      ['puzzle-rating', 'scene-02'],
+      ['alibi-taste-1', ''],
+      ['feedback', 'vault-binary-04'],
+    ],
+  );
+  assert.equal(q.pending().length, 0, 'one reconnect sends everything waiting');
+});
+
+test('a request that never answers is abandoned after the timeout and retried later', async () => {
+  const { q, calls, clock } = harness({ timers: true, timeout: 20, replies: ['hang', 202] });
+  q.enqueue(feedback(q));
+  await q.flush();
+  assert.equal(calls.length, 1);
+  assert.ok(calls[0].init.signal, 'every request carries an abort signal');
+  const [item] = q.pending();
+  assert.equal(item.attempts, 1, 'a timeout counts as a network error');
+  clock.t = item.next;
+  await q.flush();
+  assert.equal(calls.length, 2, 'the queue is not stuck behind the hung request');
+  assert.equal(q.pending().length, 0);
 });

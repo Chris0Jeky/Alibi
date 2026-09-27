@@ -37,17 +37,18 @@ place appears, on first use, or when messages are waiting. Nothing is sent from 
       s.onerror = fail;
       document.head.append(s);
     }));
-  const use = (fn) =>
+  // Only a player's own action reports a failed load; places and flushes stay silent.
+  const use = (fn, quiet) =>
     ensure()
       .then(fn)
       .catch(() => {
-        const t = $('#toasts');
+        const t = !quiet && $('#toasts');
         if (t) t.innerHTML = '<div class="toast error">Feedback could not open. Try again.</div>';
       });
   // Flush after the first render (idle), when back online and when the page is shown again.
   const kick = () => {
     try {
-      if (eligible && g.localStorage.getItem('alibi:voices:queue:v1')) use((s) => s.flush());
+      if (eligible && g.localStorage.getItem('alibi:voices:queue:v1')) use((s) => s.flush(), 1);
     } catch {}
   };
   g.addEventListener?.('online', kick);
@@ -60,7 +61,7 @@ place appears, on first use, or when messages are waiting. Nothing is sent from 
     if (!el) return;
     el.insertAdjacentHTML(where, `<section id="${id}" data-vo></section>`);
     if (g.AlibiVoicesSheet) g.AlibiVoicesSheet[id]($('#' + id));
-    else use((s) => $('#' + id) && s[id]($('#' + id)));
+    else use((s) => $('#' + id) && s[id]($('#' + id)), 1);
   };
   function decorate(run, records) {
     A.run = run;

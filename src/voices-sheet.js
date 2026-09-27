@@ -119,6 +119,8 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (!sheet) {
       sheet = doc.createElement('dialog');
       sheet.className = 'vo-sheet';
+      // Clicking plain text inside focuses the sheet, never the page behind it.
+      sheet.tabIndex = -1;
       sheet.setAttribute('aria-labelledby', 'vo-title');
       doc.body.append(sheet);
       sheet.addEventListener('keydown', (e) => {
@@ -169,6 +171,14 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (!sheet.open) sheet.showModal();
     $('#vo-title').focus();
   }
+  // A short-lived note in the app's toast area (cleared unless the app replaced it).
+  function toast(text) {
+    const area = $('#toasts'),
+      html = `<div class="toast">${text}</div>`;
+    if (!area) return;
+    area.innerHTML = html;
+    setTimeout(() => area.innerHTML === html && (area.innerHTML = ''), 5500);
+  }
   const say = (text, focus) => {
     sheet.querySelector('.vo-error').textContent = text;
     focus?.focus();
@@ -187,7 +197,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
         'Thank you.',
         `<p>${text}</p><div class="dialog-actions"><button type="button" class="btn solo" data-vo-close>Close</button></div>`,
       );
-    else if ($('#toasts')) $('#toasts').innerHTML = `<div class="toast">${text}</div>`;
+    else toast(text);
   }
   // True once the collector accepted the payload; after four seconds it stays queued.
   async function deliver(payload) {
@@ -299,8 +309,8 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       b.setAttribute('aria-pressed', on);
     }
     if (JSON.stringify(r) === before) return;
-    save({ ...s, rated: { ...s.rated, [o.subject]: r } });
-    if (!r.difficulty) return tell('Choose how it felt to send this.');
+    const keep = () => save({ ...s, rated: { ...s.rated, [o.subject]: r } });
+    if (!r.difficulty) return (keep(), tell('Choose how it felt to send this.'));
     const payload = Q.survey({
       survey: 'puzzle-rating',
       subject: o.subject,
@@ -309,7 +319,9 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       release,
       device: device(),
     });
+    // A choice that could not be queued is not remembered, so the same tap can retry.
     if (!payload || !Q.enqueue(payload)) return tell('Not sent. Try again later.');
+    keep();
     deliver(payload).then((sent) => tell(sent ? 'Thanks, sent.' : 'Saved. It sends when online.'));
   }
   G.AlibiVoicesSheet = {

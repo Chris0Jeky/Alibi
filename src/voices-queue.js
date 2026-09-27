@@ -59,14 +59,17 @@ the survey or taps a rating. */
         ],
       },
     },
-    // Control characters other than newline and tab become spaces; then trim.
+    // Control characters (C0 other than newline and tab, DEL and C1) become spaces, then the text
+    // is trimmed: exactly the collector's cleanVoiceText, so both sides agree on empty and length.
     // eslint-disable-next-line no-control-regex
     clean = (text) =>
       String(text ?? '')
-        .replace(/[\0-\x08\x0b-\x1f\x7f]/g, ' ')
+        .replace(/[\0-\x08\x0b-\x1f\x7f-\x9f]/g, ' ')
         .trim(),
     same = (a, b) =>
-      a.queued === b.queued && JSON.stringify(a.payload) === JSON.stringify(b.payload);
+      a.queued === b.queued && JSON.stringify(a.payload) === JSON.stringify(b.payload),
+    // One key per queued item: a message's id, or a survey's survey and subject.
+    tag = (x) => `${x.queued}:${x.payload.id || x.payload.survey + '/' + x.payload.subject}`;
   // Only a survey's own options, in registry order; unanswered questions are omitted.
   // An unknown option, too many choices or a missing required answer builds nothing.
   function answersFor(questions, given) {
@@ -261,10 +264,12 @@ the survey or taps a rating. */
             const tried = new Set();
             for (
               let item;
-              online() &&
-              (item = load().find((x) => x.next <= now() && !tried.has(x.queued + x.payload.id)));
+              online() && (item = load().find((x) => x.next <= now() && !tried.has(tag(x))));
             ) {
-              tried.add(item.queued + item.payload.id);
+              tried.add(tag(item));
+              // A request that hangs is abandoned after the timeout, counted as a network error.
+              const abort = G.AbortController && new G.AbortController(),
+                timer = abort && G.setTimeout(() => abort.abort(), timeout);
               let status = 0,
                 wait = 0;
               try {
@@ -278,12 +283,13 @@ the survey or taps a rating. */
                       credentials: 'omit',
                       cache: 'no-store',
                       referrerPolicy: 'no-referrer',
-                      signal: G.AbortSignal?.timeout?.(timeout),
+                      signal: abort?.signal,
                     },
                   );
                 status = response.status;
                 wait = Math.min(+response.headers?.get?.('retry-after') || 0, 86400) * 1e3;
               } catch {}
+              G.clearTimeout?.(timer);
               const list = load(),
                 at = list.findIndex((x) => same(x, item));
               if (status === 202 || status === 400) {

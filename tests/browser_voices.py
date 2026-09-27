@@ -322,10 +322,21 @@ with sync_playwright() as pw:
     check(page.locator('#vo-rate').count() == 0 and page.locator('#vo-offer').count() == 0, 'no rating or survey mid-puzzle')
     report = page.locator('.play-secondary #vo-report')
     check(report.inner_text().strip() == 'Report a problem with this puzzle', 'the puzzle screen offers Report a problem')
+    empty = page.evaluate("() => AlibiDiagnostics.getCurrent().puzzle.givens.findIndex((g) => !g)")
+    page.locator(f'#cell-{empty}').click()
+    board = page.evaluate("() => JSON.stringify(AlibiDiagnostics.getCurrent().state)")
     report.click()
     page.wait_for_function("() => document.querySelector('dialog.vo-sheet')?.open")
     check(page.locator('dialog.vo-sheet input[value="puzzle"]').is_checked(), 'Report pre-selects the puzzle kind')
     check('curated-sudoku-01' in page.locator('#vo-attached').inner_text(), 'the puzzle id is named as attached')
+    page.locator('dialog.vo-sheet legend').click()
+    page.keyboard.press('3')
+    page.keyboard.press('Control+z')
+    check(focus_inside_sheet(page), 'clicking text in the sheet keeps focus in the sheet')
+    check(
+        page.evaluate("() => JSON.stringify(AlibiDiagnostics.getCurrent().state)") == board,
+        'keys pressed in the sheet never reach the board behind it',
+    )
     type_message(page, 'The second row looks odd.')
     page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
     wait_for(page, lambda: len(collector.voices()) == 3, 'report request')
