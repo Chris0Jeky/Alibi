@@ -23,6 +23,8 @@ paid external service is needed. Never create another project just to publish an
    here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
    PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
    the collector rejects the new release's usage counts.
+   This collector deploy stays a manual step run by the release session (owner decision
+   2026-09-27, HUMAN_TODO q-13); apply any new Pulseboard D1 migration first and check `/readyz`.
    Since 0.14.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`), which
    Pulseboard's `sync:alibi` does not yet regenerate: until it does, register the release in
    Pulseboard `observatory/src/alibi-releases.mjs`, rebuild with

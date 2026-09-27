@@ -14,6 +14,7 @@ affected-device freeze retest, TalkBack, measured difficulty or the complete sam
   large system text and TalkBack. Owner and another player report repeated post-completion freezes,
   including The last service; retest after the recovery update. Do not clear phone data.
   Browser emulation cannot certify that the physical-device fault is resolved.
+  Do it in the one phone session: [PHONE-SESSION.md](docs/PHONE-SESSION.md) S1, S2 and S4.4.
 - [ ] q-3 — Before a store submission or substantial promotion, confirm the Alibi name and
   publisher identity. Store accounts, signing-key ownership and disclosures belong here.
   Name: on 2026-09-27 the owner chose **Postern** as the product-name direction (over Wrenmere,
@@ -29,6 +30,18 @@ Owner decisions recorded 2026-09-27 (in chat):
   players export their saves and points them to the primary site. Until that deployment, Sites
   keeps serving 0.12.0.
 
+Guided walkthrough decisions 2026-09-27 (in chat, decision map
+`map:v1:138d90a466198f7677266ede768edc2f877b70d74752ed4245bdcd184aeee044`):
+- [x] q-10 — Difficulty calibration: **data first**. Labels are calibrated from in-app ratings and
+  solve data by the rules in [CALIBRATION.md](docs/CALIBRATION.md); the owner plays only the puzzles
+  those rules flag. This replaces the manual difficulty sampling in q-5, q-6 and q-8.
+- [x] q-11 — Physical checks: **one session**. The device parts of q-2, q-4, q-7 and q-8 are done in
+  one scripted ~45-minute session, [PHONE-SESSION.md](docs/PHONE-SESSION.md), after the next release.
+- [x] q-12 — Redesign brief: **all five** owner decisions in §13 of
+  [POSTERN-REDESIGN-BRIEF.md](docs/design/POSTERN-REDESIGN-BRIEF.md) accepted.
+- [x] q-13 — Pulseboard collector deploys **stay manual** (`npm run deploy` in Pulseboard
+  `observatory/`, run by the release session before the Alibi deploy; see DEPLOYMENT.md).
+
 Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues/11).
 
 - [ ] q-4 — Before Quiet Wing preview promotion, run the affected-device script in
@@ -36,11 +49,17 @@ Phone recovery follow-up: [issue #11](https://github.com/Chris0Jeky/Alibi/issues
   large system text, sound/haptics and sustained full-scene performance. Local Chromium checks
   do not close this item. Hosted 0.6.0 persistence, offline and old-to-new update checks passed;
   the prior release is retained as a file rollback candidate, but a production rollback was not executed.
-  Track [issue #13](https://github.com/Chris0Jeky/Alibi/issues/13).
-- [ ] q-5 — Human-review classic difficulty and idle reward pace; import a real exported OBJ/MTL
-  into a 3D editor. Current finite geometry/ZIP checks do not prove editor interoperability.
+  Track [issue #13](https://github.com/Chris0Jeky/Alibi/issues/13). Device part: PHONE-SESSION.md S5.
+- [ ] q-5 — Human-review the Quiet Wing idle reward pace; import a real exported OBJ/MTL into a 3D
+  editor. Current finite geometry/ZIP checks do not prove editor interoperability. Classic
+  difficulty is now calibrated from player ratings (q-10, [CALIBRATION.md](docs/CALIBRATION.md)):
+  play only the classics it flags.
 
-- [ ] q-6 — Playtest the Curation Cabinet sampler (two puzzles per family) without answer reveals; record wording, solve path, guessing, timing and hint expectations in docs/curation/PLAYTEST_TEMPLATE.md. Review the 59 separate challenges for enjoyment and touch ergonomics. Machine uniqueness/replays do not calibrate difficulty.
+- [ ] q-6 — Difficulty, wording and guessing in the Curation Cabinet sampler and the 95 separate
+  challenges are now judged from player ratings, solve data and written feedback (q-10,
+  [CALIBRATION.md](docs/CALIBRATION.md)); play only what it flags, using
+  docs/curation/PLAYTEST_TEMPLATE.md for notes. Touch comfort: PHONE-SESSION.md S4. Machine
+  uniqueness/replays do not calibrate difficulty.
 
 The 0.8 theatrical edition adds an acceptance focus for q-4: compare Painted/Rich rooms, try
 Room sound and Still the room, background/return, and deliberately play a short film. Browser
@@ -54,9 +73,13 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   hypothesis, export/review a castle backup and deliberately play the captioned prologue.
   Try larger text, TalkBack and offline reopening. Record where the story, uncertainty or next
   step becomes unclear, and whether the visit feels rewarding. Browser simulations do not close
-  this item; track [issue #56](https://github.com/Chris0Jeky/Alibi/issues/56).
+  this item; track [issue #56](https://github.com/Chris0Jeky/Alibi/issues/56). Owner's phone:
+  PHONE-SESSION.md S3; a new player can report through the in-app Feedback button.
 
-- [ ] q-8 — Play the September additions on the affected phone: repeated scene tap cycles and
+- [ ] q-8 — Device parts: PHONE-SESSION.md S2 and S4. Difficulty sampling of every provisional
+  Expert/Master/Grandmaster label below is replaced by player-data calibration (q-10,
+  [CALIBRATION.md](docs/CALIBRATION.md)); the owner plays only flagged puzzles. Original scope,
+  kept for reference: play the September additions on the affected phone: repeated scene tap cycles and
   hold menus, 15×15 Nonogram panning/auto-cross, the eight-chapter invitation, and all six offered
   Games Room tables. Sample the fifteen provisional Expert puzzles across all thirteen families;
   report any easy, guess-heavy or confusing entry before treating Expert as calibrated. Separately
