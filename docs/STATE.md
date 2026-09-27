@@ -1,6 +1,31 @@
 # Live development state
 
-## Archive Heist vault rooms (branch `feat/archive-heist-vaults`, unreleased): 27 September 2026
+## Release 0.15.0 candidate: 27 September 2026
+
+Source for 0.15.0 is `main` plus the release pull request
+([#424](https://github.com/Chris0Jeky/Alibi/pull/424)); receipt in
+[RELEASE-0.15.0.md](RELEASE-0.15.0.md). It gathers the 2026-09-27 QA wave (audits in
+`docs/qa/2026-09-27/`, redesign brief in `docs/design/`):
+
+- Merged normally, after CI and review: #396 (PolyForm Strict license), #397 (budget double
+  subtraction), #398 (Sites moved notice), #399 (legacy opt-out write), #400 (fake IndexedDB
+  ordering), #402 (Postern redesign brief), #403 (Block Cabinet 500-move cap), #405 (Archive vault
+  rooms), #406 (castle Chapter I).
+- Merged with an admin override on the owner's instruction ("merge everything in order ignoring
+  CI"), after conflict resolution and each PR's own review: #409, #410, #411, #412, #413 and #423.
+  The merged `main` (`896bb6d`) built, and its full Node suite passed locally apart from
+  `asset-audio` (no `ffprobe` here); the Android tests pass after `build:android`.
+- Combined ceilings after the merges (all commented in `tests/budget.test.cjs`): application JS
+  133,670 gzip, initial code plus official data 205,232 with the release notes (+448 over
+  200 KiB, to be trimmed), main CSS 34,079, Quiet Wing pack 2,312,559.
+- Pulseboard: Voices intake live since 2026-09-27 (schema 5, voices admitted `["alibi"]`).
+- Review follow-ups, all non-blocking: #404, #407, #408, #416, #417 (intermittent Block Cabinet
+  landscape test), #418, #419, #420, #421 (completion-hook hardening for #11).
+- Human gates: [HUMAN_TODO.md](../HUMAN_TODO.md) q-2 to q-9, now organised as one phone session
+  ([PHONE-SESSION.md](PHONE-SESSION.md)) and player-data calibration
+  ([CALIBRATION.md](CALIBRATION.md)).
+
+## Archive Heist vault rooms (#405, merged; in 0.15.0): 27 September 2026
 
 Refs [#346](https://github.com/Chris0Jeky/Alibi/issues/346). The 24 curated vaults from 0.13.0
 (`content/challenges/archive-vaults.json`) now also play as Archive Heist rooms 10–33 in the Games
@@ -15,7 +40,7 @@ ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 
 and 1280px, all 24 vaults played). Not deployed; physical Android, TalkBack and human difficulty
 remain open.
 
-## Voices client half (branch `feat/voices-feedback-survey`, not deployed): 27 September 2026
+## Voices client half (#413, merged; in 0.15.0): 27 September 2026
 
 Implements Alibi's half of the Pulseboard "Voices" contract v1
 ([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md)): a quiet Feedback button in the top bar,
@@ -33,7 +58,7 @@ browser suites. NOT verified: a live collector (the Pulseboard half must deploy 
 `COLLECT_VOICE_PROJECTS` first), a physical phone, or screen-reader output. Not deployed; no
 version bump.
 
-## Core-cabinet audit fixes (branch `fix/core-cabinet-audit`, unmerged): 27 September 2026
+## Core-cabinet audit fixes (#412, merged; in 0.15.0): 27 September 2026
 
 Fixes from the 0.14.1 browser audit of the core cabinet: library filters stay with one family
 and Reset keeps Browse all (M2, m4, m5); a finished crime scene or Alibi file points at, and
@@ -56,7 +81,7 @@ Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC sil
 only in Settings/Privacy). Sites fallback still on 0.12.0. See the
 [publication receipt](RELEASE-0.14.1.md).
 
-## Castle Chapter I completion and navigation (branch, not merged or deployed): 27 September 2026
+## Castle Chapter I completion and navigation (#406, merged; in 0.15.0): 27 September 2026
 
 Branch `fix/castle-completion-navigation` answers the castle audit (Chapter I completable but
 never shown as finished, misleading guidance). Completion is derived from the Keeper's Study
@@ -69,7 +94,7 @@ castle script ceiling rose by 2,816 bytes (measured 98,062 -> 100,837 of 101,120
 are unchanged. Physical keyboards and TalkBack remain unverified. See
 [docs/castle/README.md](castle/README.md).
 
-## Challenge library polish (branch `feat/challenge-library-polish`, unmerged): 27 September 2026
+## Challenge library polish (#409, merged; in 0.15.0): 27 September 2026
 
 The curated challenge library (QA findings F02–F06, F11, F12, F21, F22, F31 and F01's 10px link)
 now reads as a player surface. `#/quiet/challenges?family=<id>` opens one family; the list is
@@ -87,7 +112,7 @@ its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node 
 isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`
 pass locally on a local Chromium headless shell; not deployed, no physical phone.
 
-## Games Room phone polish candidate: 27 September 2026
+## Games Room phone polish (#410, merged; in 0.15.0): 27 September 2026
 
 Branch `fix/games-room-polish` answers the Games Room QA findings F07-F10, F13-F15, F17-F20,
 F23, F31 (Club plurals) and F33. At 390×844 the Duel board moved from y=728 to 440-772 of a
