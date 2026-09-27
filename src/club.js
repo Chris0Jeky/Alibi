@@ -779,9 +779,27 @@
     ensureRun('archive');
     const r = state.runs.archive,
       s = currentGame('archive'),
-      level = E().warehouse.maps[r.level],
-      corners = E().warehouse.corners(s);
-    return `${heading('Archive Heist.', 'THE GAMES ROOM / 03', 'Get every record onto a brass plate. Keep a way out.')}${status()}<div class="club-playlayout"><section class="club-boardpanel archive-panel"><div class="archive-header"><div><span class="eyebrow">ROOM ${String(r.level + 1).padStart(2, '0')} / ${String(E().warehouse.maps.length).padStart(2, '0')}</span><h2>${level.name}</h2></div><span>${s.pushes} pushes</span></div><div class="archive-grid" style="--cols:${s.w}" role="group" aria-label="Archive warehouse board">${Array.from(
+      maps = E().warehouse.maps,
+      level = maps[r.level],
+      corners = E().warehouse.corners(s),
+      // Solved markers read the existing journal record ids: archive:<room index>:<replay hash>.
+      solved = maps.map((_, i) => state.records.some((x) => x.id.startsWith(`archive:${i}:`))),
+      open = solved.slice(9).filter((x) => !x).length,
+      next = r.level < maps.length - 1 ? r.level + 1 : solved.indexOf(false, 9),
+      pad = (i) => String(i + 1).padStart(2, '0'),
+      nextRoom =
+        next < 0
+          ? go('Curated challenges →', 'quiet', 'challenges', 'secondary')
+          : B(
+              r.level === 8
+                ? 'Enter the vaults →'
+                : next > r.level
+                  ? 'Next room →'
+                  : 'Room ' + pad(next) + ' →',
+              'archive-level',
+              `data-value="${next}"`,
+            );
+    return `${heading('Archive Heist.', 'THE GAMES ROOM / 03', 'Get every record onto a brass plate. Keep a way out.')}${status()}<div class="club-playlayout"><section class="club-boardpanel archive-panel"><div class="archive-header"><div><span class="eyebrow">ROOM ${pad(r.level)} / ${maps.length}</span><h2>${level.name}</h2></div><span>${s.pushes} pushes</span></div><div class="archive-grid" style="--cols:${s.w}" role="group" aria-label="Archive warehouse board">${Array.from(
       { length: s.w * s.h },
       (_, i) => {
         const wall = s.walls.includes(i),
@@ -792,16 +810,27 @@
       },
     ).join(
       '',
-    )}</div><div class="archive-status" role="status">${s.done ? '<strong>Every record in its place.</strong> Nicely planned.' : corners.length ? 'A crate is in a non-goal corner. It cannot be pulled out. Undo is your way back.' : level.subtitle}</div><div class="direction-pad">${B('↑', 'walk', 'data-value="up" aria-label="Move up"', 'up secondary')}${B('←', 'walk', 'data-value="left" aria-label="Move left"', 'left secondary')}${B('↓', 'walk', 'data-value="down" aria-label="Move down"', 'down secondary')}${B('→', 'walk', 'data-value="right" aria-label="Move right"', 'right secondary')}</div>${toolbar('archive', r)}${s.done && r.level < E().warehouse.maps.length - 1 ? B('Next room →', 'archive-level', `data-value="${r.level + 1}"`) : ''}</section><aside class="club-gameaside"><div class="desk-note"><span class="eyebrow">THE ARCHIVIST’S NOTE</span><h2>Before you push, look behind.</h2><p>You can push a crate, but never pull it. The route around a crate often matters more than the route in front.</p>${emblem('archive')}</div>${ruleDetails('<p>Use the arrow keys, the direction buttons, or tap a square next to the archivist. Walk into a crate to push it one square. You can only push one crate at a time.</p><p>Move every crate onto a brass plate. There are no hidden rules, time limits or move penalties. Corner warnings are advisory and only detect simple deadlocks.</p>', true)}<div class="archive-levels">${E()
-      .warehouse.maps.map((m, i) =>
-        B(
-          `${String(i + 1).padStart(2, '0')} · ${m.name}`,
-          'archive-level',
-          `data-value="${i}"`,
-          i === r.level ? 'active' : 'secondary',
-        ),
+    )}</div><div class="archive-status" role="status">${s.done ? '<strong>Every record in its place.</strong> Nicely planned.' : corners.length ? 'A crate is in a non-goal corner. It cannot be pulled out. Undo is your way back.' : level.subtitle}</div><div class="direction-pad">${B('↑', 'walk', 'data-value="up" aria-label="Move up"', 'up secondary')}${B('←', 'walk', 'data-value="left" aria-label="Move left"', 'left secondary')}${B('↓', 'walk', 'data-value="down" aria-label="Move down"', 'down secondary')}${B('→', 'walk', 'data-value="right" aria-label="Move right"', 'right secondary')}</div>${toolbar('archive', r)}${!s.done ? '' : r.level === 8 || r.level === maps.length - 1 ? `<div class="town-finished"><h2>${r.level < 9 ? 'The nine rooms end here.' : open ? 'The last vault is done.' : 'Every vault cleared.'}</h2><p>${r.level < 9 ? 'Next door: 24 vaults, Expert and Master.' : open ? 'Vaults still open: ' + open + '.' : 'All 24 vaults are in order.'}</p>${nextRoom}</div>` : nextRoom}</section><aside class="club-gameaside"><nav class="archive-levels" aria-label="Archive rooms">${[
+      [0, 9, 'Rooms 01–09'],
+      [9, maps.length, 'Vaults 10–33 · Expert and Master'],
+    ]
+      .map(
+        ([a, b, label]) =>
+          `<details class="club-rules" ${r.level >= a && r.level < b ? 'open' : ''}><summary>${label} · ${solved.slice(a, b).filter(Boolean).length}/${b - a} solved <span>+</span></summary><div>${maps
+            .slice(a, b)
+            .map((m, i) =>
+              B(
+                pad(a + i) + (solved[a + i] ? ' ✓' : ''),
+                'archive-level',
+                `data-value="${a + i}" aria-label="Room ${a + i + 1}, ${m.name}${solved[a + i] ? ', solved' : ''}"${a + i === r.level ? ' aria-current="true"' : ''}`,
+                a + i === r.level ? 'active' : 'secondary',
+              ),
+            )
+            .join('')}</div></details>`,
       )
-      .join('')}</div></aside></div>`;
+      .join(
+        '',
+      )}</nav><div class="desk-note"><span class="eyebrow">THE ARCHIVIST’S NOTE</span><h2>Before you push, look behind.</h2><p>You can push a crate, but never pull it. The route around a crate often matters more than the route in front.</p>${emblem('archive')}</div>${ruleDetails('<p>Use the arrow keys, the direction buttons, or tap a square next to the archivist. Walk into a crate to push it one square. You can only push one crate at a time.</p><p>Move every crate onto a brass plate. There are no hidden rules, time limits or move penalties. Corner warnings are advisory and only detect simple deadlocks.</p>', true)}</aside></div>`;
   }
   function record(id, s) {
     if (!s.done) return;
@@ -1498,7 +1527,7 @@
       } else if (a === 'archive-level') {
         const level = Number(v),
           r = state.runs.archive;
-        if (level === r.level) return;
+        if (level === r.level || !E().warehouse.maps[level]) return;
         if (r.log.length && !currentGame('archive').done) {
           root.__clubReset = { id: 'archive', level };
           confirmation(
