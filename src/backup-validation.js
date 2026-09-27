@@ -152,6 +152,7 @@
         }
         if (key === 'borough') E().borough.replay(r.seed, [...r.log, ...r.redo.slice().reverse()]);
         if (key === 'archive') {
+          if (!Number.isInteger(r.level)) throw Error('Invalid archive level.');
           let s = E().warehouse.initial(r.level);
           for (const d of [...r.log, ...r.redo.slice().reverse()]) {
             const next = E().warehouse.move(s, d);
@@ -159,8 +160,10 @@
             s = next;
           }
         }
-        if (key === 'regiongardens')
+        if (key === 'regiongardens') {
+          if (!Number.isInteger(r.level)) throw Error('Invalid garden level.');
           E().regionGardens.replay(r.level, [...r.log, ...r.redo.slice().reverse()]);
+        }
         if (key === 'blockcabinet') {
           if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
             throw Error('Invalid Block Cabinet seed.');

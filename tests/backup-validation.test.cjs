@@ -183,6 +183,31 @@ test('Club save archive replay accepts a legal walk and rejects a wall push with
   assert.deepEqual(invalid, snapshot);
 });
 
+test('Club archive and region garden runs require an explicit integer level', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  for (const [key, message] of [
+    ['archive', 'Invalid archive level.'],
+    ['regiongardens', 'Invalid garden level.'],
+  ]) {
+    for (const level of [undefined, '0', 0.5]) {
+      const run = { log: [], redo: [] };
+      if (level !== undefined) run.level = level;
+      const save = {
+        schema: 1,
+        settings: { assist: 'off', zen: false, pinned: null },
+        visit: 1,
+        lastHero: -1,
+        runs: { [key]: run },
+        records: [],
+        stamps: [],
+      };
+      const snapshot = structuredClone(save);
+      assert.throws(() => clubValidator.validateSave(save), new RegExp(message.replace('.', '\\.')));
+      assert.deepEqual(save, snapshot, `${key} level ${String(level)} leaves the source unchanged`);
+    }
+  }
+});
+
 function baseClubSave() {
   return {
     schema: 1,
