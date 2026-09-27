@@ -200,7 +200,7 @@ function parseCase(source) {
   };
 }
 function readCase(file) {
-  const fd = fs.openSync(file, 'r');
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NONBLOCK || 0));
   try {
     const stat = fs.fstatSync(fd);
     if (!stat.isFile()) fail('source', 'expected a regular file');
