@@ -132,3 +132,24 @@ test('every game family and Quiet Wing route has a complete offline room and exi
     'single-file edition makes no missing-media promises',
   );
 });
+test('the quiet room bar stays off castle pages, where its link would leave the castle', () => {
+  const realm = {
+    ALIBI_THEATRE: config.ALIBI_THEATRE,
+    location: { hash: '#/quiet/journal' },
+    document: { addEventListener() {} },
+    addEventListener() {},
+  };
+  require('node:vm').runInNewContext(
+    fs.readFileSync(path.join(root, 'src/theatre.js'), 'utf8'),
+    realm,
+    { timeout: 2000 },
+  );
+  assert.match(realm.AlibiTheatre.bar(true), /id="quiet-room-choice" href="#\/home"/);
+  for (const hash of ['#/quiet/castle', '#/quiet/castle/map', '#/quiet/castle/room/library']) {
+    realm.location.hash = hash;
+    assert.equal(realm.AlibiTheatre.bar(true), '', hash);
+    assert.match(realm.AlibiTheatre.bar(), /Room settings/, 'non-quiet bars are unchanged');
+  }
+  realm.location.hash = '#/quiet/castles';
+  assert.match(realm.AlibiTheatre.bar(true), /quiet-room-choice/);
+});
