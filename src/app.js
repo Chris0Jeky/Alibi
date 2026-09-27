@@ -479,7 +479,7 @@
   }
   function mobileNav() {
     if (route.page === 'play' && current)
-      return `<nav class="mobile-nav play-nav" aria-label="Puzzle tools"><button data-action="back-to-collection">${icon('back')}<span>Collection</span></button><button data-action="quick-panel" data-value="clues">${icon('dossier')}<span>${['scene', 'dossier'].includes(current.puzzle.type) ? 'Evidence' : 'Guide'}</span></button><button data-action="quick-panel" data-value="notes">${icon('pencil')}<span>My notes</span></button><button data-action="undo" ${current.undo.length ? '' : 'disabled'}>${icon('undo')}<span>Undo</span></button><button data-action="hint">${icon('lightup')}<span>Hint</span></button></nav>`;
+      return `<nav class="mobile-nav play-nav" aria-label="Puzzle tools"><button data-action="back-to-collection">${icon('back')}<span>${route.book ? 'Casebook' : 'Collection'}</span></button><button data-action="quick-panel" data-value="clues">${icon('dossier')}<span>${['scene', 'dossier'].includes(current.puzzle.type) ? 'Evidence' : 'Guide'}</span></button><button data-action="quick-panel" data-value="notes">${icon('pencil')}<span>My notes</span></button><button data-action="undo" ${current.undo.length ? '' : 'disabled'}>${icon('undo')}<span>Undo</span></button><button data-action="hint">${icon('lightup')}<span>Hint</span></button></nav>`;
     return `<nav class="mobile-nav" aria-label="Mobile navigation">${[
       ['home', 'home', 'Your desk'],
       ['library', 'library', 'Puzzles'],
