@@ -320,6 +320,23 @@ test('a reset drops queued answers that still carry the old key, keeping message
   assert.equal(q.resetRespondent(), 0);
 });
 
+test('a reset whose queue rewrite fails still leaves no old-key answer to reload', () => {
+  const { q, store } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  const message = feedback(q);
+  q.enqueue(message);
+  store.setItem = () => {
+    throw Error('QuotaExceededError');
+  };
+  assert.equal(q.resetRespondent(), 1);
+  assert.deepEqual(plain(q.pending().map((x) => x.payload)), [plain(message)], 'kept this page');
+  const stored = store.map.get('alibi:voices:queue:v1');
+  assert.ok(
+    !stored || !JSON.parse(stored).some((x) => x.payload.respondent),
+    'the persisted queue cannot bring the old key back after a reload',
+  );
+});
+
 test('a memory-only respondent key is persisted when storage recovers', () => {
   const map = new Map();
   let full = true;

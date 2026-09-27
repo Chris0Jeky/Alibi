@@ -199,7 +199,12 @@ the survey or taps a rating. */
         resetRespondent() {
           const list = load(),
             kept = list.filter((x) => !x.payload.respondent);
-          if (kept.length < list.length) save(kept);
+          if (kept.length < list.length) {
+            save(kept);
+            // A queue that cannot be rewritten is removed instead, so the old answers cannot
+            // reload; the kept messages stay for this page.
+            if (broken) write(QUEUE, null);
+          }
           remembered = null;
           write(KEY, null);
           return list.length - kept.length;
