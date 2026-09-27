@@ -31,6 +31,27 @@ test('curation copy and authoring surfaces stay honest', () => {
   assert.match(authoring, /`minutes` is optional/);
 });
 
+test('touch-first instructions leave mouse and keyboard help to .kb notes (0.14.1 audit m8)', () => {
+  globalThis.window = globalThis;
+  require('../src/presentation.js');
+  const pointerOnly = /right-click|shift\+enter|arrow keys|arrows move|keyboard:/i;
+  for (const [type, family] of Object.entries(globalThis.AlibiUI.data))
+    assert.doesNotMatch(family.gesture, pointerOnly, `${type} gesture is shown on phones`);
+  const app = read('src/app.js'),
+    css = read('src/app.css');
+  for (const note of app.match(/<p class="control-note[^"]*">(?:[^<]|<(?!\/p>))*<\/p>/g)) {
+    const visible = note.replace(/<span class="kb">[^<]*<\/span>/g, '');
+    if (!note.includes('control-note kb'))
+      assert.doesNotMatch(visible, pointerOnly, `touch-visible control note: ${note.slice(0, 60)}`);
+  }
+  assert.match(css, /@media \(pointer: coarse\) \{\s*\.kb \{\s*display: none;/);
+  assert.doesNotMatch(
+    app,
+    /control-note">Tap to turn clockwise/,
+    'the network turn instruction appears once, in the banner',
+  );
+});
+
 test('lanterns accept crossing beams when no lantern sees another', () => {
   const puzzle = {
       id: 'crossing-beams',

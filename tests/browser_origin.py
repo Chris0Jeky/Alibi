@@ -48,6 +48,7 @@ ORIGIN_SCENARIOS = (
     "keyboard",
     "offline",
     "shared_paths",
+    "unknown_paths",
     "malformed_draft",
     "malformed_persisted",
     "newer_database",
@@ -1381,6 +1382,65 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_unknown_paths(pw: Any, root: Path) -> None:
+    """0.14.1 audit M4: a controlling service worker no longer answers deep or file-like
+    URLs with the root shell (whose relative assets break there, leaving an unstyled
+    "Opening the puzzle cabinet…"). They reach the host's styled 404, which links home.
+    """
+    context = launch_profile(pw, root / "unknown-paths")
+    try:
+        page = new_page(context, "unknown-paths")
+        boot(page)
+        wait_page(
+            page,
+            "AlibiDiagnostics.getStatus().offlineReady === true",
+            what="offline-ready registration",
+            timeout_seconds=SW_TIMEOUT,
+        )
+        page.reload(wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+        wait_diag(page)
+        wait_page(page, "() => Boolean(navigator.serviceWorker?.controller)", what="service worker controller")
+        check(True, "service worker controls the page before unknown-path navigation")
+        for path in ("a/b/x.html", "a/b/", "missing.html", "404.html"):
+            response = page.goto(urljoin(BASE, path), wait_until="load", timeout=TIMEOUT_MS)
+            if path != "404.html":
+                check(response is not None and response.status == 404, f"controlled /{path} keeps its 404 status")
+            check(
+                page.locator("h1").first.inner_text() == "This clue leads nowhere.",
+                f"controlled /{path} shows the static 404 page, not the shell",
+            )
+            check(
+                page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(241, 238, 231)",
+                f"controlled /{path} 404 page is styled",
+            )
+            check(
+                page.evaluate("[...document.links].map((a) => a.getAttribute('href'))") == ["/"],
+                f"controlled /{path} 404 page links home",
+            )
+        screenshot(page, "unknown-path-404")
+        page.get_by_role("link", name="Return to Alibi").click()
+        wait_diag(page)
+        check(page.title().startswith("Alibi"), "the 404 home link returns to the working app")
+        context.set_offline(True)
+        for path in ("", "index.html", "?from=share#/library"):
+            page.goto(urljoin(BASE, path), wait_until="domcontentloaded", timeout=15000)
+            wait_diag(page)
+            check(
+                page.evaluate("Boolean(document.querySelector('.sidebar, .mobile-nav'))"),
+                f"offline /{path} still opens the cached shell",
+            )
+        context.set_offline(False)
+    finally:
+        try:
+            context.set_offline(False)
+        except Exception:
+            pass
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_malformed_draft(pw: Any, root: Path) -> None:
     profile = root / "malformed-draft"
     context = launch_profile(pw, profile)
@@ -1663,6 +1723,7 @@ def run() -> int:
                 scenario_keyboard,
                 scenario_offline,
                 scenario_shared_paths,
+                scenario_unknown_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_newer_database,

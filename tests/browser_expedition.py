@@ -598,10 +598,14 @@ def complete_bellweather(page: Page) -> None:
             raise AssertionError(f"unexpected Bellweather type {p['type']}")
         if index < len(BELLWEATHER_IDS) - 1:
             next_id = BELLWEATHER_IDS[index + 1]
+            check(page.locator('#dialog-title').inner_text() == f"Chapter {index + 1} of 6 complete.", 'Completion names the chapter, not the case')
             page.locator('dialog[open] [data-action="next"]').click()
             page.wait_for_selector('.story-page')
-            check(casebook['chapters'][index]['revelation'] in page.locator('.story-page').inner_text(), 'Completed chapter has a dedicated story page')
-            page.locator('[data-action="story-next"]').click()
+            story = page.locator('.story-page').inner_text()
+            check(casebook['chapters'][index + 1]['brief'] in story and casebook['chapters'][index]['revelation'] not in story, 'Next opens the following chapter without repeating the revelation')
+            # The dialog's Next button can leave the pointer on the edge of Continue to puzzle,
+            # where the 1px hover lift flickers and Playwright never sees a stable target.
+            page.mouse.move(0, 0)
             page.locator('[data-action="story-play"]').click()
             wait_check(page, "id => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=next_id, timeout=TIMEOUT_MS)
             check(current(page)["puzzle"]["id"] == next_id, f"casebook advances to {next_id}")

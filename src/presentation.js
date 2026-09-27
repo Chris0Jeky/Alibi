@@ -113,8 +113,7 @@
       color: 'rose',
       icon: 'nonogram',
       goal: 'Reveal the hidden picture by filling exactly the runs described along the edges.',
-      gesture:
-        'Choose Fill, Cross or Erase, then tap or drag over squares. Right-click adds a cross.',
+      gesture: 'Choose Fill, Cross or Erase, then tap or drag over squares.',
       rules: [
         'Each clue is the length of a consecutive run of filled squares. Read row clues left to right and column clues top to bottom.',
         'Separate different runs by at least one empty square. There may also be empty squares before and after the runs.',
@@ -238,8 +237,7 @@
       color: 'green',
       icon: 'network',
       goal: 'Rotate the tiles until every line joins a single network connected to the source.',
-      gesture:
-        'Tap a tile to turn it clockwise. Right-click or Shift+Enter turns it anticlockwise.',
+      gesture: 'Tap a tile to turn it clockwise, or use Turn left and Turn right.',
       rules: [
         'A line must meet a line on the neighbouring tile. No line may point outside the board or end against a blank edge.',
         'Every tile must connect to the circular source tile. Separate closed networks do not count.',

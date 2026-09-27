@@ -35,7 +35,7 @@ def assert_status_layout(card, expected_status):
 
 
 with sync_playwright() as pw:
-    browser = pw.chromium.launch()
+    browser = pw.chromium.launch(**({'executable_path': os.environ['CHROMIUM_PATH']} if os.environ.get('CHROMIUM_PATH') else {}))
     for width in [340, 360, 390, 1440]:
         context = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion='reduce')
         page = context.new_page()
@@ -167,10 +167,16 @@ with sync_playwright() as pw:
             if value == 1:
                 page.locator(f'[data-action="cell"][data-cell="{i}"]').click()
         expect(page.locator('dialog[open]')).to_be_visible()
+        expect(page.locator('#dialog-title')).to_have_text('Record 3 of 4 complete.')
         page.locator('dialog[open] [data-action="next"]').click()
+        # Next opens the next unsolved record rather than this record's page again (0.14.1 audit M5).
+        expect(page.locator('.story-page')).to_contain_text('RECORD 4 OF 4')
+        expect(page.get_by_role('button', name='Continue to puzzle', exact=True)).to_be_visible()
+        assert book['ending'] not in page.locator('.story-page').inner_text(), 'partial anthology stays short of its ending'
+        page.get_by_role('button', name='Back to case file', exact=True).click()
+        page.locator('.chapter[data-action="open"]').nth(2).click()
         expect(page.locator('.story-page')).to_contain_text('RECORD 3 OF 4')
         expect(page.get_by_role('button', name='Continue to the next record', exact=True)).to_be_visible()
-        assert book['ending'] not in page.locator('.story-page').inner_text(), 'partial anthology stays short of its ending'
         page.get_by_role('button', name='Revisit this puzzle', exact=True).click()
         expect(page.locator('.play-title')).to_be_visible()
         expect(page.locator('.board-instruction')).to_contain_text('Puzzle solved')

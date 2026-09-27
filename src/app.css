@@ -1986,6 +1986,12 @@ input[type='checkbox'] {
   margin-top: 12px;
   line-height: 1.65;
 }
+/* Mouse and keyboard help is noise on a touch screen. */
+@media (pointer: coarse) {
+  .kb {
+    display: none;
+  }
+}
 .main-tools {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

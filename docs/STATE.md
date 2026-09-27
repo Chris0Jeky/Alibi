@@ -33,6 +33,20 @@ browser suites. NOT verified: a live collector (the Pulseboard half must deploy 
 `COLLECT_VOICE_PROJECTS` first), a physical phone, or screen-reader output. Not deployed; no
 version bump.
 
+## Core-cabinet audit fixes (branch `fix/core-cabinet-audit`, unmerged): 27 September 2026
+
+Fixes from the 0.14.1 browser audit of the core cabinet: library filters stay with one family
+and Reset keeps Browse all (M2, m4, m5); a finished crime scene or Alibi file points at, and
+scrolls to, the final question, and a wrong scene accusation says so (M3, m10); casebook
+completions name the chapter and Next opens the next chapter (M5); journal links (M1 partial,
+m12); touch-first instructions, live Sun & Moon count, solved-board hint, report copy (m8, m1,
+m9, m21); the play bar says Casebook (m24); plurals (p1, p2). The service worker serves the
+shell only at the scope root, `index.html` and single extensionless segments, so deep URLs
+reach the styled static 404 (M4); `tools/serve.cjs` mirrors the host 404 locally. Application
+bundle ceiling +448 (131,011 -> 131,464 gzip on main after #396). New suite
+`tests/browser_core_cabinet.py` and origin scenario `unknown_paths`. Not deployed; hosted 404
+behaviour and physical phones unverified.
+
 ## Published web release 0.14.1: 26 September 2026
 
 Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):
