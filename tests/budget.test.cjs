@@ -104,7 +104,8 @@ assert.ok(
   'Initial code plus official data stays under 200 KiB gzip',
 );
 for (const [prefix, limit] of [
-  ['club-engines.', 8 * 1024],
+  // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
+  ['club-engines.', 8 * 1024 + 832],
   // Six offered Games Room games plus retained legacy compatibility surfaces use 33 KiB;
   // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
@@ -121,4 +122,8 @@ for (const [prefix, limit] of [
 }
 
 // Optional models and animated companions are downloaded after entering the wing. Core stays unchanged.
-assert.ok(info.quietWingBytes < 2250 * 1024, 'Optional Quiet Wing pack stays below 2250 KiB');
+// The pack embeds club-engines.js: Archive vault rooms measured 2,303,623 -> 2,305,480, +1,920.
+assert.ok(
+  info.quietWingBytes < 2250 * 1024 + 1920,
+  'Optional Quiet Wing pack stays below 2250 KiB + 1,920 bytes',
+);
