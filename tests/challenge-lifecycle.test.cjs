@@ -52,6 +52,24 @@ test('completed classic board actions preserve the winning route and cancel stal
   );
 });
 
+test('arrow keys on a completed Archive route also cancel stale reset consent', () => {
+  const id = 'curated-archive-vault-01',
+    run = registry.begin(id),
+    letters = { U: 'up', R: 'right', D: 'down', L: 'left' };
+  run.log = [...registry.get(id).solutionPath].map((m) => letters[m]);
+  const view = open(id, run);
+  assert.equal(registry.replay(run).complete, true);
+  view.press({ challenge: 'reset' });
+  assert.match(view.host.innerHTML, /Clear your finished route/);
+  view.host.onkeydown({ key: 'ArrowUp', preventDefault() {} });
+  assert.doesNotMatch(view.host.innerHTML, /Clear your finished route/);
+  assert.match(view.host.innerHTML, /This challenge is complete\. Undo or start again/);
+  assert.deepEqual(view.handle.save(), run, 'the finished route is unchanged');
+  view.press({ challenge: 'reset' });
+  assert.deepEqual(view.handle.save(), run, 'fresh reset consent is required');
+  assert.equal(view.saves.length, 0);
+});
+
 test('settling an old Ink-to-move save persists once without mutating its input', () => {
   const c = registry.entries().find((p) => p.family === 'reversi');
   const saved = registry.begin(c.id);

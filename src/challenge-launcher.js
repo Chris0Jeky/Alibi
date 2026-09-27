@@ -134,15 +134,22 @@
       if (kind !== 'keep') onSave(copy(run));
       draw();
     };
+    // Board input on a completed route cancels a pending reset confirmation and changes nothing.
+    // For Archive, completion is the engine's done state, so its arrow keys use the same guard.
+    const finished = () => {
+      confirming = false;
+      return (
+        registry.replay(run).complete &&
+        (say('This challenge is complete. Undo or start again to change it.'), true)
+      );
+    };
     host.onclick = (event) => {
       const button = event.target.closest('button'),
         kind = button?.dataset.action,
         value = Number(button?.dataset.value);
       if (button?.dataset.challenge) return control(button.dataset.challenge);
       if (!kind) return;
-      confirming = false;
-      if (registry.replay(run).complete)
-        return say('This challenge is complete. Undo or start again to change it.');
+      if (finished()) return;
       if (kind === 'peg' || kind === 'magic') {
         if (selected !== null && selected !== value) return commit({ from: selected, to: value });
         selected = selected === value ? null : value;
@@ -163,7 +170,7 @@
     };
     host.onkeydown = (event) => {
       const direction = /^Arrow(Up|Down|Left|Right)$/.exec(event.key)?.[1].toLowerCase();
-      if (!direction || c.family !== 'warehouse' || registry.replay(run).state.done) return;
+      if (!direction || c.family !== 'warehouse' || finished()) return;
       event.preventDefault();
       commit(direction);
     };
