@@ -127,9 +127,9 @@ export function startIntegration() {
           : 'Classic uses your existing Club save, replay and undo. Use Simple controls for seed and backup options.';
     },
     async place(slot, cell) {
-      if (run().log.length >= 500)
+      if (run().log.length >= engine().maxMoves)
         throw Error(
-          'This Classic replay reached its existing 500-move limit. Export it and start a new seed.',
+          `This Classic replay reached its ${engine().maxMoves}-move limit. Export it and start a new seed.`,
         );
       busy++;
       try {

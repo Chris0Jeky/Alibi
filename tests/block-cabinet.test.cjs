@@ -95,13 +95,10 @@ test('Block Cabinet detects a stuck tray and rejects untrusted replays', () => {
   );
 });
 
-test('Block Cabinet replays past 501 placements up to its published move cap', () => {
-  assert.equal(blocks.maxMoves, 5000);
-  assert.throws(
-    () => blocks.replay('CAP', Array(501).fill({ slot: 0, cell: 0 })),
-    /does not fit|Invalid Block Cabinet move/,
-    '501 actions reach move validation instead of the length cap',
-  );
+test('Block Cabinet move cap is shared and fits Club save validation', () => {
+  assert.equal(blocks.maxMoves, 500);
+  // backup-validation rejects any game history longer than 3000 entries on load.
+  assert.ok(blocks.maxMoves <= 3000);
   assert.throws(
     () => blocks.replay('CAP', Array(blocks.maxMoves + 1).fill({ slot: 0, cell: 0 })),
     /Invalid Block Cabinet replay/,
@@ -129,7 +126,7 @@ test('Club refuses a Block Cabinet placement once the cabinet reaches its move c
   await tab.action('block-piece', { value: String(next.slot) });
   await tab.action('block-cell', { cell: String(next.cell) });
   assert.equal(tab.state().runs.blockcabinet.log.length, 1);
-  assert.ok(tab.messages.some((m) => /cabinet/i.test(m)));
+  assert.ok(tab.messages.some((m) => /cabinet is full/i.test(m)));
 });
 
 test('Club backups validate Block Cabinet replay and refuse malformed moves', () => {

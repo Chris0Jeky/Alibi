@@ -932,7 +932,7 @@
     const r = state.runs[id],
       before = currentGame(id);
     if (id === 'blockcabinet' && r.log.length >= E().blockCabinet.maxMoves) {
-      notify('Cabinet full at 5,000 placements. Start a new cabinet.');
+      notify('This cabinet is full. Start a new cabinet.');
       return;
     }
     r.rulesVersion = 1;
