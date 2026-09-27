@@ -59,6 +59,7 @@
     brush = 1,
     paused = false,
     checking = false,
+    bad = false,
     feedback = '',
     reviewing = false,
     evidenceTab = 'clues',
@@ -1165,18 +1166,18 @@
       'quick-sheet',
     );
   }
+  // A complete scene, or both complete dossier grids, leave only the final question (M3).
+  function concluding(p, s) {
+    return p.type === 'scene'
+      ? C.sceneComplete(p, s)
+      : p.type === 'dossier' && X.dossierReady(p, s);
+  }
   function accusation(p, s) {
     if (!['scene', 'dossier', 'witness'].includes(p.type)) return '';
     if (current.completedAt) return '';
     if (p.type === 'dossier' && !p.question)
       p = { ...p, question: 'Who carried the missing object?' };
-    const ready =
-      p.type === 'scene'
-        ? C.sceneComplete(p, s)
-        : p.type === 'dossier'
-          ? X.dossierReady(p, s)
-          : true;
-    if (!ready)
+    if (p.type !== 'witness' && !concluding(p, s))
       return `<div class="locked-question">${icon('lock')}${p.type === 'scene' ? 'Fit every person and clue to unlock your accusation.' : 'Complete both category grids before answering the final question.'}</div>`;
     const people =
       p.type === 'scene'
@@ -1193,8 +1194,9 @@
       s = AlibiClub.projected(p, current.state).state,
       m = M[p.type],
       name = p.people?.find?.((x) => x.id === selectedPerson)?.name,
-      placement =
-        p.type === 'scene'
+      placement = concluding(p, s)
+        ? '<strong>Everything fits.</strong> Now answer the final question below.'
+        : p.type === 'scene'
           ? sceneMarkMode === 'cycle'
             ? `<strong>${esc(name)}</strong> is selected. Repeat taps: place → note → exclusion → X.`
             : sceneMarkMode === 'board-cross'
@@ -1209,7 +1211,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${checking && E[p.type].validate(p, s).length ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : 'Another ' + m.title.toLowerCase() + ' puzzle', 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1501,6 +1503,9 @@
   }
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
+    const p = current.puzzle,
+      ready = () => concluding(p, AlibiClub.projected(p, current.state).state),
+      was = ready();
     globalThis.AlibiJourney?.(current);
     reviewing = false;
     if (history) {
@@ -1518,6 +1523,8 @@
     completion();
     enqueueSave();
     render();
+    // The last placement reveals the conclusion panel below the tools; bring it into view.
+    if (!was && ready()) $('.accusation')?.scrollIntoView({ block: 'center' });
     return true;
   }
   function act(action, opts = {}) {
@@ -1726,7 +1733,13 @@
     if (!current || paused) return;
     checking = true;
     const p = current.puzzle,
-      issues = E[p.type].validate(p, current.state);
+      s = current.state,
+      issues = E[p.type].validate(p, s),
+      k = p.type === 'scene' && C.murderer(p, s);
+    // Witness and dossier engines report a wrong conclusion; a complete scene has one culprit (m10).
+    if (k && s.accused != null && s.accused !== k)
+      issues.push({ message: 'That suspect was not alone with the victim.' });
+    bad = issues.length > 0;
     if (issues.length) {
       globalThis.AlibiJourney?.(current, 'puzzle.failed', sessionSeconds);
       feedback =
