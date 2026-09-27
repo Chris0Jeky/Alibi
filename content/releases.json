@@ -6,11 +6,10 @@
     "tag": "v0.15.0",
     "receipt": "docs/RELEASE-0.15.0.md",
     "changes": [
-      "Send feedback from any screen with the Feedback button, report a problem with the puzzle you are on, rate a finished puzzle Too easy, Just right or Too hard, and answer an occasional short survey. Nothing is sent until you press Send, submit or tap; messages wait on your device while you are offline and send when you are back.",
-      "Play the 24 Archive Heist vaults as rooms 10–33 in the Games Room, with solved markers and an end card that leads on. The challenge library is grouped by family with real boards, an arrow pad, Completed and Continue markers, and Lantern Duel endgames where Ink answers each move.",
-      "Find your way through Wrenmere Castle: Chapter I now says when it is complete, the thread suggests the next room, locked doors name the room that opens them, and the Observatory clock accepts 21:00, 2100 or 21.00.",
-      "Keep the board in view on phones in the Games Room, see which Lantern Duel strength is chosen, and use Play again or Next garden. Library filters now belong to one puzzle type, a finished crime scene tells you to make the accusation, and casebook chapters say which chapter you completed.",
-      "Block Cabinet now stops at its 500-move limit with a clear message instead of breaking the game, and an unknown address shows a proper not-found page."
+      "Send feedback with the Feedback button, report a problem with a puzzle, rate a finished puzzle Too easy, Just right or Too hard, and take an occasional short survey. Nothing is sent until you choose to; offline messages wait and send later.",
+      "Play the 24 Archive Heist vaults as rooms 10–33, and a challenge library grouped by family with real boards and Duel endgames where Ink replies.",
+      "Wrenmere Castle shows when Chapter I is complete, suggests the next room, names the room that opens a locked door, and accepts 21:00 or 2100 at the clock.",
+      "Keep the board in view on phones in the Games Room, see the chosen Duel strength, and play again in one tap. Library filters stay with one puzzle type, and crime scenes say when to accuse."
     ]
   },
   {

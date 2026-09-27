@@ -28,8 +28,8 @@ This release gathers the 2026-09-27 QA wave and the owner's feedback decisions:
 
 No puzzle id, revision or published definition changed, and `alibi-device` stays at version 1.
 Budget ceilings raised by measured amounts (each commented in `tests/budget.test.cjs`):
-application JS 133,670 gzip (+3,648 over 127 KiB), initial code plus official data 204,905
-(+128 over 200 KiB, to be trimmed), main CSS 34,079 (+320), Quiet Wing pack 2,312,559 (+8,576),
+application JS 133,670 gzip (+3,648 over 127 KiB), initial code plus official data 205,232
+with these release notes (+448 over 200 KiB, to be trimmed), main CSS 34,079 (+320), Quiet Wing pack 2,312,559 (+8,576),
 precached shell +22,528 for the Voices chunk.
 
 Version 0.15.0 is registered in `package.json` and `content/releases.json`; the release label and
