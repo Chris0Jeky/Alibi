@@ -412,6 +412,8 @@
   }
   const blockCabinet = {
     size: 8,
+    // Every move replays the whole log (5–8 times per tap), so the cap stays at 500; see backup-validation (3000).
+    maxMoves: 500,
     shapes: blockShapes.map(copy),
     initial(seed = 'BLOCK-01') {
       seed = seedText(seed);
@@ -497,7 +499,8 @@
     },
     replay(seed, log) {
       seed = seedText(seed);
-      if (!Array.isArray(log) || log.length > 500) throw Error('Invalid Block Cabinet replay.');
+      if (!Array.isArray(log) || log.length > this.maxMoves)
+        throw Error('Invalid Block Cabinet replay.');
       let s = this.initial(seed);
       for (const action of log) {
         if (
