@@ -4,6 +4,7 @@ import W from '../src/castle/content.mjs';
 import * as E from '../src/castle/engine.mjs';
 import { createPages } from '../src/castle/pages.mjs';
 import { nextThread, thread, go } from '../src/castle/exploration.mjs';
+import { quietLinks } from '../src/castle/html.mjs';
 
 const solve = (...ids) =>
   ids.reduce((s, id) => {
@@ -211,4 +212,15 @@ test('Map pins and the selected-room panel show locked and solved states', () =>
   assert.match(rail, /data-do="visit" data-value="gatehouse"/);
   const open = pages(state, { selected: 'observatory' }).mapPage();
   assert.match(panel(open), /Enter room/);
+});
+
+test('Links that leave the castle say so', () => {
+  const links = quietLinks();
+  assert.match(links, /These leave the castle:/);
+  for (const [href, label] of [
+    ['garden', 'Garden'],
+    ['realm', 'Realm builder'],
+    ['pets', 'Companions'],
+  ])
+    assert.match(links, new RegExp(`href="#/quiet/${href}">${label} ↗</a>`));
 });

@@ -266,9 +266,11 @@ export async function mount({ root, preferences = null, practice = null }) {
       announce(
         replace
           ? 'Castle notebook replaced. Its previous contents are available as a recovery copy.'
-          : importedNotes && state.notes === beforeNotes
-            ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
-            : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
+          : !importedNotes
+            ? 'Merged discoveries. The file had no notes to add. A recovery copy is available.'
+            : state.notes === beforeNotes
+              ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
+              : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
       );
     } finally {
       for (const control of dialog.querySelectorAll('button')) control.disabled = false;
@@ -396,7 +398,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       'The winter conservatory',
       '<p>The chair nearest the glass is warm from the afternoon sun. Someone has sharpened the guest-book pencil with a penknife.</p>' +
         quietLinks() +
-        `<p class="small">Garden, realm and companion rewards remain separate planned work. Existing creations are unchanged.</p>${button('Write in the notebook', 'notebook')}`,
+        button('Write in the notebook', 'notebook'),
     );
   }
   function puzzle(id) {
@@ -577,7 +579,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (!object || view !== 'room' || !E.roomStatus(state, room()).open) return;
     show(
       object.n,
-      `<p>No close-up artwork.</p><p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
+      `<p>${escape(object.t)}</p>${object.a ? button('Keep a note', 'keep-observation', id) : ''}<p class="small" id="observation-result" role="status"></p>`,
     );
   }
   function keepObservation(id) {
