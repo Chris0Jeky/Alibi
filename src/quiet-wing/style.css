@@ -181,6 +181,10 @@ svg {
   font-family: Georgia, serif;
   font-size: 17px;
 }
+/* Phone-only Back; the rail link is hidden there. */
+.top .wing-back {
+  display: none;
+}
 .top-right {
   display: flex;
   gap: 8px;
@@ -1716,11 +1720,16 @@ dialog select {
     padding: 0 16px;
     gap: 12px;
   }
-  .top .save {
+  .top .save,
+  .brandline,
+  .header-note {
     display: none;
   }
-  .header-note {
-    font-size: 8px;
+  .top .wing-back {
+    display: inline-flex;
+    min-height: 44px;
+    font-size: 12px;
+    white-space: nowrap;
   }
   .wing-name {
     font-size: 15px;
@@ -2004,9 +2013,6 @@ dialog select {
   .wing-name {
     font-size: 14px;
   }
-  .brandline {
-    display: none;
-  }
   .world-caption {
     max-width: 92px;
   }
@@ -2086,6 +2092,11 @@ dialog select {
   height: 55px;
   margin: 0;
 }
+@media (max-width: 360px) {
+  .top .logo {
+    display: none;
+  }
+}
 /* Keep the companion above the wrapped realm caption on small phones. */
 @media (max-width: 400px) {
   .world-companion {
@@ -2148,25 +2159,161 @@ dialog select {
   padding: 2px;
   aspect-ratio: 1;
   border-radius: 5px;
-  font-size: clamp(16px, 4vw, 24px);
+  font-size: clamp(18px, 5vw, 26px);
 }
 .challenge-grid > button:disabled {
   opacity: 1;
   color: var(--ink);
-  background: #e1e8df;
+  background: var(--pale);
 }
 .challenge-controls [aria-pressed='true'] {
-  outline: 3px solid var(--ink);
-  outline-offset: -3px;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
-.challenge-pegs {
+.challenge-pegs,
+.challenge-offers {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
-.challenge-pegs strong {
+.challenge-pegs span {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 3px;
+  min-height: 118px;
+  margin-bottom: 8px;
+  border-bottom: 3px solid currentColor;
+}
+.challenge-pegs i {
+  height: 18px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #fff;
+  font: 11px/18px sans-serif;
+}
+.challenge-offers small {
   display: block;
-  margin-top: 10px;
+  font-size: 10px;
+  line-height: 1.35;
+}
+.challenge-grid > .wall:disabled {
+  background: var(--ink);
+}
+.challenge-grid > button.crate {
+  color: var(--red);
+}
+.challenge-grid > button.plate,
+.challenge-grid > button.gold {
+  color: var(--gold);
+}
+.challenge-grid > button.you {
+  color: var(--green);
+}
+.challenge-grid > .last {
+  box-shadow: inset 0 0 0 3px var(--gold);
+}
+[data-family='borough'] .challenge-grid > button {
+  font-size: 11px;
+}
+[data-family='reversi'] .challenge-grid > button {
+  font-size: min(10vw, 44px);
+  line-height: 1;
+}
+.challenge-grid > .water:disabled {
+  background: #6fa3b560;
+}
+.challenge-grid > .home:disabled {
+  background: #d98f6b60;
+}
+.challenge-grid > .garden:disabled {
+  background: #7fae6b60;
+}
+.challenge-grid > .cafe:disabled {
+  background: #d9b25560;
+}
+.challenge-grid > .library:disabled {
+  background: #9c8cc460;
+}
+.challenge-legend {
+  font-size: 12px;
+  color: var(--muted);
+}
+.challenge-legend b {
+  color: var(--ink);
+}
+.challenge-legend .gold {
+  color: var(--gold);
+}
+.challenge-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 52px);
+  gap: 6px;
+}
+.challenge-pad button {
+  min-height: 44px;
+  font-size: 20px;
+}
+.challenge-pad :first-child {
+  grid-column: 2;
+}
+.challenge-pad :nth-child(2) {
+  grid-column: 1;
+}
+.challenge-family summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  cursor: pointer;
+  border-top: 1px solid var(--line);
+}
+.challenge-family summary::-webkit-details-marker {
+  display: none;
+}
+.challenge-family summary::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 22px;
+}
+.challenge-family[open] summary::after {
+  content: '−';
+}
+.challenge-family h2 {
+  font-size: 22px;
+  margin: 8px 0;
+}
+.challenge-family .card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.challenge-card {
+  gap: 6px;
+  padding: 14px;
+}
+.challenge-card h3 {
+  font-size: 18px;
+  margin: 0 0 auto;
+}
+.challenge-card .pill {
+  align-self: flex-start;
+}
+.challenge-card b {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: var(--pale);
+}
+.challenge-card.done {
+  border-color: var(--green);
+}
+#challenge-family {
+  min-height: 44px;
+  margin: 8px 0 16px;
+  padding: 0 10px;
+  border-radius: 10px;
 }
 .models .model small {
   display: block;

@@ -78,6 +78,12 @@ any distracting voices, repetition or harshness. This acceptance remains open un
   match the player's intention. Candidate evidence and residual limits are recorded in
   [Advanced puzzle candidates](docs/ADVANCED-PUZZLE-CANDIDATES.md).
 
+- [ ] q-9 — Retire the Sites fallback (owner decision 2026-09-27). After the first release that
+  contains the in-app "Alibi has moved" notice is live on Cloudflare, start a **Codex** session (it
+  has the Sites hosting skill; Claude sessions do not) and ask it to follow "Retiring the Sites
+  fallback" in [DEPLOYMENT.md](docs/DEPLOYMENT.md). It deploys that same build to Sites once, checks
+  the notice and export, and records the receipt. No action is needed before that release ships.
+
 ## Capacitor transition: owner gates, not a request to stop planning
 
 The [Capacitor architecture package](docs/capacitor/README.md) and [program #120](https://github.com/Chris0Jeky/Alibi/issues/120)

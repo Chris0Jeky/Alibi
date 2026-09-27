@@ -20,7 +20,7 @@
   gap: 12px;
   margin: 16px 0;
 }
-details > summary {
+details:where(:not(.club-rules)) > summary {
   cursor: pointer;
   min-height: 44px;
   padding: 12px;

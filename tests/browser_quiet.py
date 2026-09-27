@@ -62,6 +62,7 @@ with sync_playwright() as pw:
    else:page.locator(f'[data-cell="{a["cell"]}"]').click()
   check(page.evaluate('(id)=>QWEngine.classicWon(QWApp.state.classics[id].state)',id),id+' completed through controls')
   check(page.locator('#classic-result').inner_text().find('You found a way')>=0,id+' completion visible')
+  check('Your stamp is in the journal.' in page.locator('#classic-result').inner_text(),id+' names the journal stamp it earns')
   page.locator('#classic-undo').click();check(not page.evaluate('(id)=>QWEngine.classicWon(QWApp.state.classics[id].state)',id),id+' undo restores prior board')
   if id=='hanoi3':shot(page,'hanoi-desktop')
  go(page,'pets')

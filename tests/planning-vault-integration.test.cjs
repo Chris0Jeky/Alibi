@@ -66,7 +66,7 @@ test('the expanded challenge library offers an accessible family filter', () => 
   const source = fs.readFileSync('src/quiet-wing/app.js', 'utf8');
   assert.match(source, /id="challenge-family"/);
   assert.match(source, /for="challenge-family"/);
-  assert.match(source, /button\.hidden = family !== 'all'/);
+  assert.match(source, /group\.hidden = family !== 'all' && group\.dataset\.family !== family/);
 });
 test('source projection omits only authoring receipts and preserves objective progress', () => {
   const data = [...old, ...added],

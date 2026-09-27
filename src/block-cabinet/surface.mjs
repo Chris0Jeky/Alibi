@@ -33,10 +33,10 @@ export function mountSurface(root, adapter, options = {}) {
     <div class="bc-stage"><div class="bc-board" role="group" aria-label="Eight by eight block puzzle board"></div>
     <div class="bc-status" role="status" aria-live="polite">Drag a piece onto the board, or select it and tap a square.</div>
     <div class="bc-tray" role="group" aria-label="Three available pieces"></div><canvas class="bc-fx" aria-hidden="true"></canvas></div>
-    <div class="bc-selection" data-selection aria-atomic="true"><span class="bc-selection-label" data-selection-label>NEXT MOVE</span><strong data-selection-title>Select a tray piece</strong><span data-selection-detail>Legal origins will be marked on the board.</span></div>
     <div class="bc-controls" role="group" aria-label="Game actions"><button type="button" data-command="undo">↶ <span>Undo</span></button><button type="button" data-command="redo">↷ <span>Redo</span></button><button type="button" data-command="rotate" hidden>⟳ <span>Rotate</span></button><button type="button" data-command="cancel" aria-label="Cancel piece">× <span>Cancel piece</span></button><button type="button" data-command="new" data-bc-restart aria-label="Start again">↻ <span>Start again</span></button></div>
+    <div class="bc-selection" data-selection aria-atomic="true"><span class="bc-selection-label" data-selection-label>NEXT MOVE</span><strong data-selection-title>Select a tray piece</strong><span data-selection-detail>Legal origins will be marked on the board.</span></div>
     <p class="bc-save" data-save></p></div>
-    <aside class="bc-aside"><div class="bc-note"><span class="bc-kicker">THE CABINETMAKER'S TABLE</span><h3>One good fit.<br>A little more room.</h3><p data-rules></p><div class="bc-illustration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+    <aside class="bc-aside" tabindex="-1" aria-label="Cabinet options"><div class="bc-note"><span class="bc-kicker">THE CABINETMAKER'S TABLE</span><h3>One good fit.<br>A little more room.</h3><p data-rules></p><div class="bc-illustration" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="bc-next"><span class="bc-kicker">OTHER MODE</span><h3>Cascade Cabinet</h3><p>Clear a line. Let the pieces fall. Chain the next clear and recover the brass relics.</p><button type="button" data-command="switch">Open the Cascade lab ↗</button></div>
     <details class="bc-help"><summary>Options & comfort</summary><p>Drag with a finger, mouse or pen. Touch pieces lift above your finger. Tap a piece and then a square for precise placement. Tab to the board; arrow keys move between squares. Escape or Cancel piece clears a selection.</p><p>Sound and vibration are optional. Your device may not support vibration. Reduced-motion settings remove the particles and movement.</p><div class="bc-options" role="group" aria-label="Comfort options"><button type="button" data-command="sound" aria-pressed="false">Sound off</button><button type="button" data-command="haptics" aria-pressed="false">Haptics off</button><button type="button" data-command="motion" aria-pressed="false">Reduce motion</button></div><p data-diagnostics></p></details>
     <div class="bc-tools" role="group" aria-label="Replay and display options"><button type="button" data-command="export">Export replay</button><button type="button" data-command="import">Import replay</button><button type="button" data-command="simple" hidden>Simple controls</button></div>
@@ -127,7 +127,7 @@ export function mountSurface(root, adapter, options = {}) {
       advanced
         ? state.relics + ' / ' + state.goal + '  ·  ' + state.charges + ' rotations'
         : state.done
-          ? 'Cabinet complete'
+          ? 'Cabinet closed'
           : 'Make room.',
     );
     text(
@@ -565,6 +565,11 @@ export function mountSurface(root, adapter, options = {}) {
       if (name === 'menu') {
         const open = $('.bc-studio').classList.toggle('bc-menu-open');
         $('[data-command="menu"]').setAttribute('aria-expanded', String(open));
+        // The phone menu opens below the tray; bring it to the player instead of off screen.
+        if (open) {
+          $('.bc-aside').scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+          $('.bc-aside').focus({ preventScroll: true });
+        }
       } else if (name === 'cancel') {
         cancelSelection();
       } else if (name === 'sound') {

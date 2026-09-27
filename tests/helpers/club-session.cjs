@@ -89,6 +89,8 @@ async function session(data = fresh(), raw = null, options = {}) {
   const club = context.AlibiClub;
   await club.init({
     render() {},
+    all: () => [],
+    records: () => [],
     settings: () => ({}),
     toast: (text) => messages.push(text),
     dialog: (...args) => dialogs.push(args),

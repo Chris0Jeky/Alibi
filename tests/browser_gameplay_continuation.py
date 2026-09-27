@@ -37,7 +37,8 @@ def run():
                     button.click()
                     page.locator('[data-action="club-reset-confirm"]').click()
                 else:
-                    assert button.evaluate('(e)=>e===document.activeElement'), 'Strength selection retains keyboard focus'
+                    # The action path is asynchronous and re-renders before restoring focus; wait for it.
+                    page.wait_for_function("(v)=>document.activeElement?.id==='club-control-duel-strength-'+v",arg=strength,timeout=5000)
                 page.wait_for_function('(v)=>AlibiClub.diagnostics().state.runs.duel.difficulty===v',arg=strength)
                 assert page.evaluate('AlibiClub.diagnostics().state.runs.duel.log.length') == 0
                 page.locator('[data-action="club-duel-cell"]:enabled').first.click()

@@ -44,6 +44,7 @@ with sync_playwright() as pw:
             for value in range(8):
                 for cell in [i for i,v in enumerate(cards) if v==value]: page.locator('[data-calm-cell="'+str(cell)+'"]').click()
         check(page.locator('#classic-result').inner_text().find('You found a way')>=0,game+' completes through actual controls')
+        check('stamp' not in page.locator('#classic-result').inner_text(),game+' claims no journal stamp it does not award')
         check(page.evaluate('(id)=>QWApp.state.stats.solves.includes(id)',game),game+' records its own completion')
         page.screenshot(path=str(OUT/(game+'-desktop.png')),full_page=True)
         page.set_viewport_size({'width':390,'height':850});page.screenshot(path=str(OUT/(game+'-mobile.png')),full_page=True)

@@ -80,35 +80,39 @@ with sync_playwright() as playwright:
             f"Enhanced Block Cabinet starts with a clear next action at {width}px",
         )
         if width <= 760:
-            menu = page.locator('.bc-host [data-command="menu"]')
-            if menu.get_attribute('aria-expanded') != 'true':
-                menu.click()
-            position = actions.evaluate(
-                """el => {
-                  const rect = el.getBoundingClientRect();
-                  return {
-                    top: rect.top + scrollY,
-                    height: rect.height,
-                    max: document.documentElement.scrollHeight - innerHeight,
-                  };
-                }"""
-            )
-            scroll_target = min(
-                position['top'] + position['height'] + 80,
-                position['max'] - 1,
-            )
-            check(
-                scroll_target > position['top'],
-                f"Phone fixture scrolls beyond the primary actions at {width}px",
-            )
-            page.evaluate("y => scrollTo(0, y)", scroll_target)
-            page.wait_for_function("(y) => Math.abs(scrollY - y) < 2", arg=scroll_target)
+            # Bottom-only sticky actions: in view at rest, never over the next-move text,
+            # and released rather than pinned over the menu once the player scrolls past them.
+            page.evaluate("scrollTo(0, 0)")
+            page.wait_for_function("() => scrollY === 0")
             action_box = actions.bounding_box()
             check(
                 action_box is not None
                 and action_box['y'] >= 0
                 and action_box['y'] + action_box['height'] <= height + 1,
-                f"Primary actions remain in the phone viewport while scrolling at {width}px",
+                f"Primary actions are in the phone viewport at rest at {width}px",
+            )
+            check(
+                action_box['y'] + action_box['height'] <= selection.bounding_box()['y'] + 1,
+                f"Primary actions do not cover the next-move text at {width}px",
+            )
+            menu = page.locator('.bc-host [data-command="menu"]')
+            if menu.get_attribute('aria-expanded') != 'true':
+                menu.click()
+            aside = page.locator('.bc-host .bc-aside')
+            page.wait_for_function(
+                """() => {
+                  const r = document.querySelector('.bc-host .bc-aside').getBoundingClientRect();
+                  return r.top >= -1 && r.top < innerHeight / 2;
+                }"""
+            )
+            check(
+                aside.evaluate('el => el === document.activeElement'),
+                f"The phone menu opens in view and takes focus at {width}px",
+            )
+            check(
+                actions.bounding_box()['y'] + actions.bounding_box()['height']
+                <= aside.bounding_box()['y'] + 1,
+                f"Primary actions release instead of covering the menu at {width}px",
             )
             page.evaluate("scrollTo(0, 0)")
             if menu.get_attribute('aria-expanded') == 'true':
