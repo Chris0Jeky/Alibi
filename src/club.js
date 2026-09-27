@@ -931,6 +931,10 @@
     }
     const r = state.runs[id],
       before = currentGame(id);
+    if (id === 'blockcabinet' && r.log.length >= E().blockCabinet.maxMoves) {
+      notify('Cabinet full at 5,000 placements. Start a new cabinet.');
+      return;
+    }
     r.rulesVersion = 1;
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
