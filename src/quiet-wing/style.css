@@ -181,7 +181,7 @@ svg {
   font-family: Georgia, serif;
   font-size: 17px;
 }
-/* Phones hide the rail's return link, so the header carries a visible one. */
+/* Phone-only Back; the rail link is hidden there. */
 .top .wing-back {
   display: none;
 }
@@ -2091,6 +2091,11 @@ dialog select {
   width: 54px;
   height: 55px;
   margin: 0;
+}
+@media (max-width: 360px) {
+  .top .logo {
+    display: none;
+  }
 }
 /* Keep the companion above the wrapped realm caption on small phones. */
 @media (max-width: 400px) {
