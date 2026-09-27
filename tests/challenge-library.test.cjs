@@ -226,3 +226,19 @@ test('the Quiet Wing list deep-links, groups by family and derives completion fr
   assert.doesNotMatch(app, /id="classics-challenges" class="textbtn" style="font-size:10px"/);
   assert.match(app, /id="classics-challenges" class="soft" style="min-height:44px/);
 });
+
+test('only classics that earn a journal stamp say so', () => {
+  const app = fs.readFileSync('src/quiet-wing/app.js', 'utf8');
+  assert.match(app, /\$\{stamped\(A\.classic\) \? ' Your stamp is in the journal\.' : ''\}/);
+  assert.doesNotMatch(app, /legal moves\. Your stamp is in the journal/);
+  const stamped = (id) => {
+    const fresh = Q.newState(0),
+      solved = Q.newState(0);
+    solved.stats.solves = [id];
+    return Q.BADGES.some(([, , , t]) => t(solved) && !t(fresh));
+  };
+  for (const id of ['tideglass-morning', 'tideglass-dusk', 'pairs-meadow', 'pairs-shore'])
+    assert.equal(stamped(id), false, id);
+  for (const id of ['hanoi3', 'river', 'jugs', 'queens', 'magic', 'knight', 'slide-town'])
+    assert.equal(stamped(id), true, id);
+});

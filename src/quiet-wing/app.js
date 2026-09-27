@@ -1638,6 +1638,13 @@
         link.click();
         setTimeout(() => URL.revokeObjectURL(link.href), 1000);
       }
+      // A classic claims a journal stamp only when solving it earns one a fresh save lacks.
+      const stamped = (id) => {
+        const fresh = E.newState(0),
+          solved = E.newState(0);
+        solved.stats.solves = [id];
+        return E.BADGES.some(([, , , test]) => test(solved) && !test(fresh));
+      };
       function getClassic() {
         let run = A.state.classics[A.classic];
         if (!run) {
@@ -1676,7 +1683,7 @@
         $('#classic-reset').onclick = () => {
           const d = modal(
             'Start this puzzle again?',
-            `<p>This resets only this puzzle’s moves. Your completed journal stamp stays.</p><button id="reset-confirm" class="primary">Start again</button>`,
+            `<p>This resets only this puzzle’s moves.${stamped(id) ? ' Your completed journal stamp stays.' : ''}</p><button id="reset-confirm" class="primary">Start again</button>`,
           );
           $('#reset-confirm').onclick = () => {
             run.actions = [];
@@ -1726,7 +1733,7 @@
         $('#classic-message').textContent =
           `${s.moves} moves${won ? ' · Complete. Nicely done.' : ' · No timer. Undo whenever you need.'}`;
         $('#classic-result').innerHTML = won
-          ? `<div class="result"><div class="eyebrow">FILE CLOSED</div><h3>You found a way.</h3><p class="micro">${s.moves} legal moves. Your stamp is in the journal.</p><button class="primary" id="next-classic">Back to the cabinet</button></div>`
+          ? `<div class="result"><div class="eyebrow">FILE CLOSED</div><h3>You found a way.</h3><p class="micro">${s.moves} legal moves.${stamped(A.classic) ? ' Your stamp is in the journal.' : ''}</p><button class="primary" id="next-classic">Back to the cabinet</button></div>`
           : '';
         if (won) $('#next-classic').onclick = () => navigate('classics');
         if (s.family === 'pour') {
