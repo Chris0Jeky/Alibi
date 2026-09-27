@@ -5,7 +5,7 @@ import { roomObjects } from './objects-runtime.mjs';
 import { escape, button, link } from './html.mjs';
 import { theoryBoard } from './investigation-view.mjs';
 import { evidenceBoard } from './evidence-view.mjs';
-import { atmosphere, nearby, nextThread, listed } from './exploration.mjs';
+import { atmosphere, nearby, nextThread, listed, go } from './exploration.mjs';
 import { practicePanel } from './practice.mjs';
 export function createPages({
   state,
@@ -30,7 +30,10 @@ export function createPages({
   function rail(r) {
     const status = E.roomStatus(state, r),
       completed = E.solved(state, r);
-    let action = button('Enter room', 'visit', r.id, 'class="primary"');
+    // A locked room offers the rooms that open it, never an Enter action.
+    let action = status.open
+      ? button('Enter room', 'visit', r.id, 'class="primary"')
+      : `<div class="row">${go(status.via)}</div>`;
     if (view === 'room' && status.open)
       action =
         r.puzzle === 'rest'
@@ -43,14 +46,27 @@ export function createPages({
                 r.puzzle,
                 'class="primary"',
               );
-    return `<aside class="rail" aria-label="Selected room"><span class="eyebrow">${escape(r.wing)}</span><h2>${escape(r.name)}</h2><p>${escape(state.preferences.story ? r.line : atmosphere(r.id).ambience)}</p><div class="status">${completed ? solvedLabel(r) : status.open ? 'The door is open' : escape(status.reason)}</div>${action}<p class="method">${escape(atmosphere(r.id).method)}</p><details><summary>About this visit</summary><p class="small">Ten points per first completion. Hints are available on every board. Replaying does not add points.</p><p class="small">${state.preferences.story ? 'The story concerns the fictional 1911 flood. You can turn it off in Preferences.' : 'You are browsing with story introductions hidden.'}</p></details>${button('Read the invitation', 'invitation')}${button('View prologue', 'film')}</aside>`;
+    return `<aside class="rail" aria-label="Selected room"><span class="eyebrow">${escape(r.wing)}</span><h2>${escape(r.name)}</h2><p>${escape(state.preferences.story ? r.line : atmosphere(r.id).ambience)}</p><div class="status">${completed ? solvedLabel(r) : status.open ? 'The door is open' : 'Locked. ' + escape(status.reason)}</div>${action}<p class="method">${escape(atmosphere(r.id).method)}</p><details><summary>About this visit</summary><p class="small">Ten points per first completion. Hints are available on every board. Replaying does not add points.</p><p class="small">${state.preferences.story ? 'The story concerns the fictional 1911 flood. You can turn it off in Preferences.' : 'You are browsing with story introductions hidden.'}</p></details>${button('Read the invitation', 'invitation')}${button('View prologue', 'film')}</aside>`;
   }
   function mapPage() {
     const visible = W.rooms.filter(
         (r) => r.implemented && (r.id !== 'west-stair' || E.has(state, 'inference')),
       ),
       zoom = zoomStep * 25;
-    return `<section class="scene-heading"><span class="eyebrow">A house of unfinished questions · Chapter I</span><h1>Wrenmere Castle</h1><p>Step through a door. Handle a question. Follow what the house has kept.</p>${E.has(state, 'inference') ? '<p class="status chapter-mark">✓ Chapter I complete</p>' : ''}</section><section class="thread-guide"><span class="eyebrow">A thread to follow</span>${nextThread(state)}</section><div class="layout"><section class="scene" aria-label="Castle grounds"><div class="scene-controls"><div class="row">${button('Today', 'era', 'today', `aria-pressed="${era === 'today'}"`)}${button('1911 survey', 'era', '1911', `aria-pressed="${era === '1911'}"`)}</div><div class="row"><input id="map-zoom" type="range" min="4" max="7" value="${zoomStep}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', zoomStep === 4 ? 'disabled' : '')}</div>${link('All rooms', 'directory')}</div><div class="map-scroll" tabindex="0" role="region" aria-label="Estate map ${zoom}%"><div class="map-stage" style="width:${zoom}%;min-width:${140 * zoomStep}px">${Art.estate(era, E.has(state, 'inference'))}${visible.map((r) => button(String(r.number).padStart(2, '0'), 'select', r.id, `class="pin${E.solved(state, r) ? ' completed' : ''}" style="left:${r.x}%;top:${r.y}%" aria-label="${escape(r.name)}, ${E.roomStatus(state, r).open ? 'open' : 'clue required'}" aria-pressed="${selected === r.id}"`)).join('')}</div></div><p class="map-help small">Choose a door. Pan or zoom.</p></section>${rail(room())}</div><section class="page"><h2>The doors of Wrenmere</h2><div class="directory">${visible.map(roomCard).join('')}</div><details><summary>Survey description</summary><p>${era === '1911' ? 'The fictional 1911 survey draws a footpath toward the orchard. Compare the shape of the path with the present-day grounds; the Map Room contains the measurements needed for the question.' : 'The present-day grounds show the castle, glasshouse, gardens and river. The numbered doors are a guide to your visit.'}${E.has(state, 'inference') ? ' A newly marked passage links the study to the unrecorded stair. Its existence makes another route possible; it does not identify who used it.' : ''}</p></details></section>`;
+    return `<section class="scene-heading"><span class="eyebrow">A house of unfinished questions · Chapter I</span><h1>Wrenmere Castle</h1><p>Step through a door. Handle a question. Follow what the house has kept.</p>${E.has(state, 'inference') ? '<p class="status chapter-mark">✓ Chapter I complete</p>' : ''}</section><section class="thread-guide"><span class="eyebrow">A thread to follow</span>${nextThread(state)}</section><div class="layout"><section class="scene" aria-label="Castle grounds"><div class="scene-controls"><div class="row">${button('Today', 'era', 'today', `aria-pressed="${era === 'today'}"`)}${button('1911 survey', 'era', '1911', `aria-pressed="${era === '1911'}"`)}</div><div class="row"><input id="map-zoom" type="range" min="4" max="7" value="${zoomStep}" aria-label="Map zoom"><output class="map-zoom-status" aria-live="polite">${zoom}%</output>${button('Reset', 'map-reset', '', zoomStep === 4 ? 'disabled' : '')}</div>${link('All rooms', 'directory')}</div><div class="map-scroll" tabindex="0" role="region" aria-label="Estate map ${zoom}%"><div class="map-stage" style="width:${zoom}%;min-width:${140 * zoomStep}px">${Art.estate(era, E.has(state, 'inference'))}${visible
+      .map((r) => {
+        const done = E.solved(state, r),
+          open = E.roomStatus(state, r).open;
+        return button(
+          String(r.number).padStart(2, '0') + (done ? '✓' : ''),
+          'select',
+          r.id,
+          `class="pin${done ? ' completed' : open ? '' : ' locked'}" style="left:${r.x}%;top:${r.y}%" aria-label="${escape(r.name)}, ${done ? 'solved' : open ? 'open' : 'locked, clue required'}" aria-pressed="${selected === r.id}"`,
+        );
+      })
+      .join(
+        '',
+      )}</div></div><p class="map-help small">Choose a door. Pan or zoom.</p></section>${rail(room())}</div><section class="page"><h2>The doors of Wrenmere</h2><div class="directory">${visible.map(roomCard).join('')}</div><details><summary>Survey description</summary><p>${era === '1911' ? 'The fictional 1911 survey draws a footpath toward the orchard. Compare the shape of the path with the present-day grounds; the Map Room contains the measurements needed for the question.' : 'The present-day grounds show the castle, glasshouse, gardens and river. The numbered doors are a guide to your visit.'}${E.has(state, 'inference') ? ' A newly marked passage links the study to the unrecorded stair. Its existence makes another route possible; it does not identify who used it.' : ''}</p></details></section>`;
   }
   function roomPage() {
     const r = room();

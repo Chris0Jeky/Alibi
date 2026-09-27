@@ -65,7 +65,7 @@ test('Completed chapter shows a persistent mark, a finished thread and a done st
   const state = solve(...chapter);
   const map = pages(state).mapPage();
   assert.match(map, /class="status chapter-mark">✓ Chapter I complete</);
-  assert.match(map, /class="pin completed"[^>]*>09</);
+  assert.match(map, /class="pin completed"[^>]*>09✓</);
   assert.match(pages(state).roomCard(stair), /<div class="tag">Chapter I complete<\/div>/);
   const thread = nextThread(state);
   assert.match(thread, /Chapter I complete\./);
@@ -196,4 +196,19 @@ test('The directory lists enterable rooms first and collapses planned rooms', ()
   const wing = pages(E.initial(), { view: 'directory', filter: 'Below the castle' }).results();
   assert.match(wing, /0 rooms to visit · \d+ planned/);
   assert.match(wing, /<details class="later-rooms" open>/, 'a wing filter reveals planned rooms');
+});
+
+test('Map pins and the selected-room panel show locked and solved states', () => {
+  const state = solve('shelves');
+  const map = pages(state, { selected: 'cartography' }).mapPage();
+  assert.match(map, /class="pin completed"[^>]*aria-label="The Long Library, solved"[^>]*>02✓</);
+  assert.match(map, /class="pin locked"[^>]*aria-label="The Map Room, locked, clue required"/);
+  assert.match(map, /class="pin"[^>]*aria-label="The Observatory, open"/);
+  const panel = (html) => html.slice(html.indexOf('<aside class="rail"'), html.indexOf('</aside>'));
+  const rail = panel(map);
+  assert.doesNotMatch(rail, /Enter room/);
+  assert.match(rail, /Locked\. Solve the Gatehouse lock/);
+  assert.match(rail, /data-do="visit" data-value="gatehouse"/);
+  const open = pages(state, { selected: 'observatory' }).mapPage();
+  assert.match(panel(open), /Enter room/);
 });

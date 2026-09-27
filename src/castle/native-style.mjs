@@ -9,7 +9,8 @@ export default `
 .map-help{margin:0;padding:12px 20px}.scene-controls{position:static;padding:14px 20px;align-items:center;border-block:1px solid #536357;background:#203739}
 .scene-controls a{min-height:44px;display:flex;align-items:center}
 .secret-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.pin{border:2px solid #d9bd88;box-shadow:0 3px 14px #061b24aa}.pin.completed{border-style:double;border-width:4px}
+.pin{border:2px solid #d9bd88;box-shadow:0 3px 14px #061b24aa}.pin.completed{border-style:double;border-width:4px}.pin.locked{border-style:dashed;background:#152827e6;color:#cfc8b0}.rail .row{margin:15px 0}
+header nav a,footer a,.row a,.evidence a{display:inline-flex;align-items:center;min-height:44px}button{min-width:44px}
 .room-stage{position:relative;aspect-ratio:1000/660;width:100%}
 .hotspot{position:absolute;transform:translate(-50%,-50%);width:44px;min-height:44px;padding:0;border-radius:50%;border:2px solid #e4c894;background:#193333ed;color:#f9dfac;box-shadow:0 2px 14px #10242477;font-size:26px;line-height:1}
 .hotspot:hover,.hotspot:focus-visible{background:#e4c894;color:#18332f;z-index:1}.hotspot.observation{border-style:dashed}
