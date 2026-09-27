@@ -84,7 +84,7 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // loads, Beta UI only where the SDK shows, traffic-source copy) measured 130,955: ceiling +320.
 // Voices (Feedback and Report entry points, places for the rating row, survey invitation and panels,
 // flush triggers; the sheet, forms, rating row and delivery are the deferred chunk below) plus
-// family/tier journey props: measured 130,977 -> 131,992 gzip on the #399 base; ceiling +1,024.
+// family/tier journey props: measured 131,011 -> 132,033 gzip on the #396 base; ceiling +1,024.
 assert.ok(
   info.javascriptGzipBytes < 127 * 1024 + 2048,
   'Application bundle stays under 127 KiB + 2,048 bytes gzip',
@@ -114,7 +114,7 @@ assert.ok(
   // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
   // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
   // Voices (the precached chunk above plus its startup entry points): measured
-  // 1,372,866 -> 1,395,392 bytes on the #399 base; ceiling +22,528.
+  // 1,372,919 -> 1,395,446 bytes on the #396 base; ceiling +22,528.
   coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 22528,
   'Precached code and shell excluding official content stay under 1.32 MiB + 22,528 bytes',
 );
