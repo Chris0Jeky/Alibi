@@ -297,6 +297,28 @@ test('the survey key is created on the first submit, reused, and replaced after 
   assert.notEqual(taste(q).respondent, 'not-a-key', 'a malformed key is replaced');
 });
 
+test('a memory-only respondent key is persisted when storage recovers', () => {
+  const map = new Map();
+  let full = true;
+  const store = {
+    map,
+    getItem: (key) => (map.has(key) ? map.get(key) : null),
+    setItem(key, value) {
+      if (full) throw Error('QuotaExceededError');
+      map.set(key, String(value));
+    },
+    removeItem: (key) => map.delete(key),
+  };
+  const { q } = harness({ store });
+  const first = rating(q).respondent;
+  assert.equal(map.has(q.KEY), false, 'the first write is retained only in memory');
+
+  full = false;
+  assert.equal(q.respondent(), first, 'the page keeps the same respondent');
+  assert.equal(JSON.parse(map.get(q.KEY)), first, 'the remembered key is persisted on recovery');
+  assert.equal(rating(harness({ store }).q).respondent, first, 'the next page reuses the key');
+});
+
 test('202 removes: POST feedback, PUT surveys, JSON only, no credentials or referrer', async () => {
   const { q, calls, store } = harness({ replies: [202, { status: 202 }] });
   const fb = feedback(q);
@@ -594,6 +616,25 @@ test('the collector outcome is reported per payload: 202 sent, 400 refused, else
   q.enqueue(waiting);
   await q.flush();
   assert.equal(q.outcome(waiting), undefined);
+});
+
+test('re-queuing an identical rating clears its earlier sent outcome', async () => {
+  const { q, state } = harness({ replies: [202, 202] });
+  const first = rating(q, 'scene-01', { difficulty: 'too-easy' });
+  q.enqueue(first);
+  await q.flush();
+  assert.equal(q.outcome(first), 202);
+
+  const changed = rating(q, 'scene-01', { difficulty: 'just-right' });
+  q.enqueue(changed);
+  await q.flush();
+  state.online = false;
+
+  const identical = rating(q, 'scene-01', { difficulty: 'too-easy' });
+  assert.deepEqual(plain(identical), plain(first), 'the new answer has the same payload identity');
+  q.enqueue(identical);
+  assert.equal(q.outcome(identical), undefined, 'queued is not reported as already sent');
+  assert.equal(q.pending().length, 1);
 });
 
 test('with storage unavailable the survey key stays the same for the page', () => {
