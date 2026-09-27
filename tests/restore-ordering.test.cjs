@@ -186,13 +186,15 @@ async function tabWithDisk(disk, indexedDB) {
   return { c, notes };
 }
 
-test('transaction completes only after a late get settles', async () => {
+test('transaction completes only after chained requests settle', async () => {
   const { indexedDB } = makeDisk();
   const db = await new Promise((resolve, reject) => {
     const req = indexedDB.open();
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
+  // Each get is issued synchronously or from the previous success callback, which keeps a real
+  // IndexedDB transaction active. Four 10 ms gets outlast the old fixed 30 ms completion timer.
   const tx = db.transaction();
   const order = [];
   const completed = new Promise((resolve) => {
@@ -201,16 +203,18 @@ test('transaction completes only after a late get settles', async () => {
       resolve();
     };
   });
-  await new Promise((resolve) => setTimeout(resolve, 25));
-  const req = tx.objectStore().get('state');
-  req.onsuccess = () => {
-    order.push('get');
+  const store = tx.objectStore();
+  const chain = (n) => {
+    const req = store.get('state');
+    req.onsuccess = () => {
+      order.push('get' + n);
+      if (n < 4) chain(n + 1);
+    };
   };
+  chain(1);
   await completed;
-  // Give a late get callback a chance to run after complete under the old
-  // fixed-timer harness, so the failure is visible instead of a race.
   await new Promise((resolve) => setTimeout(resolve, 20));
-  assert.deepEqual(order, ['get', 'complete'], 'get success runs before complete');
+  assert.deepEqual(order, ['get1', 'get2', 'get3', 'get4', 'complete']);
 });
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
