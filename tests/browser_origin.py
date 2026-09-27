@@ -1202,6 +1202,19 @@ def scenario_offline(pw: Any, root: Path) -> None:
             page.evaluate("ALIBI_DEFERRED.ready") is True,
             "deferred Vault definitions load offline from the precached shell",
         )
+        # The Voices sheet is a precached chunk too, so Feedback opens offline. This local origin is
+        # not the primary site: the sheet explains that and offers the issue-report export.
+        page.locator("#vo-open").click()
+        wait_page(
+            page,
+            "() => document.querySelector('dialog.vo-sheet')?.open",
+            what="offline Feedback sheet from the precached Voices chunk",
+        )
+        check(
+            "main Alibi site" in page.locator("dialog.vo-sheet").inner_text(),
+            "the Voices sheet opens offline from the precached shell",
+        )
+        page.keyboard.press("Escape")
         context.set_offline(False)
     finally:
         try:
