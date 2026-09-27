@@ -628,7 +628,7 @@
       capture = previewCell !== null ? E().reversi.flips(s, previewCell) : [];
     return `${heading('Lantern Duel.', 'THE GAMES ROOM / 01', 'Keep the corners. Read the room. Leave fewer choices.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><div class="duel-modes">${B('Against the keeper', 'duel-mode', 'data-value="bot"', !online && r.mode === 'bot' ? 'active' : 'secondary')}${B('Two at the table', 'duel-mode', 'data-value="local"', !online && r.mode === 'local' ? 'active' : 'secondary')}${B(online ? 'Private room ' + esc(room.code) : 'Private online room', 'online-settings', '', online ? 'active' : 'secondary')}</div>${
       !online && r.mode === 'bot'
-        ? `<fieldset class="duel-strengths"><legend>Opponent strength</legend>${Object.entries(
+        ? `<fieldset class="duel-strengths"><legend class="eyebrow">Opponent strength</legend>${Object.entries(
             E().reversi.strengths,
           )
             .map(([key, strength]) =>
