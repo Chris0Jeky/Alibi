@@ -1,6 +1,6 @@
 export default `
 .scene-heading{padding:30px 28px 22px;background:linear-gradient(115deg,#253d37,#182e33);border-bottom:1px solid #536357}
-.scene-heading h1{margin:8px 0 12px}.scene-heading p{max-width:62ch;margin:0;color:#cbd1bc}
+.scene-heading h1{margin:8px 0 12px}.scene-heading p{max-width:62ch;margin:0;color:#cbd1bc}.scene-heading .chapter-mark{display:inline-block;margin-top:14px;color:#f6e4bd}
 .castle-painting{display:block;width:100%;height:100%;object-fit:contain;opacity:1}
 .castle-plan{position:relative;width:100%;height:100%}.castle-map-caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .castle-paper{background:linear-gradient(145deg,#52654b,#213a40)}

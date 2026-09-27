@@ -121,7 +121,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   }
   function header() {
     $('header').innerHTML =
-      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">${E.score(state)} / 100 points</span>`;
+      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }

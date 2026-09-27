@@ -90,9 +90,24 @@ export function nearby(room, state) {
     })
     .join('')}</nav>`;
 }
+const extras = [
+  ['gatehouse', 'gate'],
+  ['orangery', 'lamps'],
+  ['workshop', 'hanoi'],
+  ['museum', 'bridges'],
+  ['museum', 'magic'],
+  ['museum', 'ur'],
+];
 export function nextThread(state) {
   if (!state.preferences.story)
     return '<p>The museum tables and conservatory are open. Take the visit at your own pace.</p>';
+  if (E.has(state, 'inference'))
+    return `<p><strong>Chapter I complete.</strong> The unrecorded stair is open and its margin is in your notebook. Optional: ${E.progress(state)[1]} / 5 extra questions answered.</p>${[
+      'west-stair',
+      ...new Set(extras.filter(([, id]) => !E.has(state, id)).map(([id]) => id)),
+    ]
+      .map((id) => button(`${escape(W.rooms.find((r) => r.id === id).name)} →`, 'visit', id))
+      .join('')}`;
   const steps = [
     ['shelves', 'library', 'Begin with the misfiled maintenance slip in the Long Library.'],
     [
@@ -112,7 +127,5 @@ export function nextThread(state) {
     ],
   ];
   const step = steps.find(([id]) => !E.has(state, id));
-  return step
-    ? `<p>${escape(step[2])}</p>${button('Follow this thread', 'visit', step[1])}`
-    : `<p>The unrecorded stair is open. Its unsigned margin raises the next question.</p>${button('Visit the unrecorded stair', 'visit', 'west-stair')}`;
+  return `<p>${escape(step[2])}</p>${button('Follow this thread', 'visit', step[1])}`;
 }

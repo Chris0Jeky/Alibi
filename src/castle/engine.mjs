@@ -229,6 +229,15 @@ function roomStatus(s, room) {
 function score(s) {
   return Object.keys(s.completed).length * 10;
 }
+// Chapter I ends with the Keeper's Study conclusion, the condition that opens the stair and
+// its margin. Its five questions count one Map Room key (Gatehouse, Bridges or Lo Shu).
+function progress(s) {
+  const main =
+    ['shelves', 'clock', 'route', 'inference'].filter((id) => has(s, id)).length +
+    +['gate', 'bridges', 'magic'].some((id) => has(s, id));
+  return [main, Object.keys(s.completed).length - main];
+}
+const solved = (s, room) => has(s, room.puzzle === 'reveal' ? 'inference' : room.puzzle);
 function evidence(s) {
   return W.evidence.filter((x) => has(s, x.requires));
 }
@@ -382,6 +391,8 @@ export {
   available,
   roomStatus,
   score,
+  progress,
+  solved,
   evidence,
   validate,
   validDraft,

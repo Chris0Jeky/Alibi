@@ -60,7 +60,7 @@ def main() -> None:
                     id,
                 )
             expect(page.locator('.practice-detail')).to_contain_text('paper constellation')
-            expect(page.locator('.score')).to_have_text('10 / 100 points')
+            expect(page.locator('.score')).to_have_text('Chapter I 1/5 · Extra questions 0/5')
             assert page.evaluate('() => AlibiDiagnostics.getPracticeSnapshot().then(s=>s.rooms.observatory.completed)')==3
             page.locator('[data-do="practice"][data-value="curated-binary-01"]').click()
             page.locator('[data-action="restart"]').click()
