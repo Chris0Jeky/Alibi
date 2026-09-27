@@ -1512,9 +1512,6 @@
   }
   function commit(next, { reveal = false, history = true } = {}) {
     if (!current || C.equal(next, current.state)) return false;
-    const p = current.puzzle,
-      ready = () => concluding(p, AlibiClub.projected(p, current.state).state),
-      was = ready();
     globalThis.AlibiJourney?.(current);
     reviewing = false;
     if (history) {
@@ -1532,8 +1529,6 @@
     completion();
     enqueueSave();
     render();
-    // The last placement reveals the conclusion panel below the tools; bring it into view.
-    if (!was && ready()) $('.accusation')?.scrollIntoView({ block: 'center' });
     return true;
   }
   function act(action, opts = {}) {
@@ -1561,11 +1556,12 @@
         return false;
       }
     }
-    const next = E[current.puzzle.type].reduce(current.puzzle, current.state, {
-      ...action,
-      auto: false,
-    });
-    return commit(next, opts);
+    const was = concluding(p, AlibiClub.projected(p, s).state);
+    if (!commit(E[p.type].reduce(p, s, { ...action, auto: false }), opts)) return false;
+    // The last placement reveals the conclusion panel below the tools; bring it into view.
+    if (!was && concluding(p, AlibiClub.projected(p, current.state).state))
+      $('.accusation')?.scrollIntoView({ block: 'center' });
+    return true;
   }
   function sceneMenu(kind) {
     if (current?.puzzle.type !== 'scene' || blocked()) return;
