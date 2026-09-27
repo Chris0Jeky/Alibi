@@ -113,8 +113,8 @@ survey are not shown. The CSP `connect-src` already allows the collector origin.
 | `tools/build.cjs` | Emits `assets/voices.<hash>.js` (queue + sheet), precaches it, inlines it in the standalone file, and writes `ALIBI_VOICES = { origin, collector, chunk }`. |
 
 The chunk is deferred and precached like the Vault definitions chunk: it loads when a Voices place
-appears or on first use, and works offline. Measured when added: chunk 19,164 bytes (8,285 gzip);
-application bundle +1,006 gzip bytes including the journey family/tier props and their Privacy wording. See
+appears or on first use, and works offline. Measured when added: chunk 19,206 bytes (8,297 gzip);
+application bundle +1,005 gzip bytes including the journey family/tier props and their Privacy wording. See
 `tests/budget.test.cjs` for the ceilings.
 
 Proof: `tests/voices-queue.test.cjs`, `tests/voices.test.cjs`, `tests/browser_voices.py`

@@ -4,6 +4,8 @@ rating, finishes an official puzzle, opens Settings or Privacy, or has messages 
 src/voices-queue.js to this browser and renders one modal <dialog> for both forms. */
 (function (G) {
   'use strict';
+  // A second execution (a retried load) must not register a second set of listeners.
+  if (G.AlibiVoicesSheet) return;
   const V = G.ALIBI_VOICES || {},
     A = G.AlibiVoices,
     doc = document,
@@ -316,7 +318,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       const s = state(),
         r = s.rated[A.official(A.run)?.subject] || {},
         pick = (act, value, label, on) =>
-          `<button type="button" class="chip${on ? ' active' : ''}" data-vo-act="${act}" data-value="${value}" aria-pressed="${!!on}">${label}</button>`;
+          `<button type="button" class="chip${on ? ' active' : ''}" id="vo-${value}" data-vo-act="${act}" data-value="${value}" aria-pressed="${!!on}">${label}</button>`;
       if (s.hide) return el.remove();
       el.className = 'vo-rate chips';
       el.setAttribute('role', 'group');
