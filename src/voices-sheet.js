@@ -286,11 +286,11 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (a === 'never') save({ ...s, never: 1 });
     if (a === 'delete') Q.clear();
     if (a === 'dismiss') Q.dismissNotes();
-    if (a === 'reset') (Q.resetRespondent(), save({ ...s, rated: {} }));
+    const removed = a === 'reset' && (save({ ...s, rated: {} }), Q.resetRespondent());
     refresh();
     if (a === 'reset') {
       const status = $('#vo-reset-status');
-      status.textContent = 'Reset. A new key is made the next time you answer.';
+      status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} A new key is made the next time you answer.`;
       status.focus();
     }
   });
