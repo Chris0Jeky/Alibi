@@ -32,14 +32,14 @@ function ownedFile(relative, label) {
   return full;
 }
 
-// 1. The lock pins exactly one SDK v3 artifact for alibi. The version comes from the lock, so an SDK update
-// that rewrites the lock needs no edit here; the per-install entry, the artifact header and window.Pulseboard
-// must all name that same version. Release registration is checked separately (section 3).
+// 1. The lock pins exactly one SDK v3 artifact for alibi. The version comes from the lock, so a minor or patch
+// SDK update that rewrites the lock needs no edit here (a new major is adopted deliberately); the per-install
+// entry, the artifact header and window.Pulseboard must all name that same version. Release registration is checked separately (section 3).
 const lock = JSON.parse(readFileSync(ownedFile('observatory.lock.json', 'Observatory lock'), 'utf8'));
 if (lock.source !== SOURCE) fail('Unexpected Observatory lock source');
 const SDK_VERSION = lock.sdk;
-if (typeof SDK_VERSION !== 'string' || !/^\d+\.\d+\.\d+$/.test(SDK_VERSION))
-  fail('The lock must declare "sdk" as a plain x.y.z version');
+if (typeof SDK_VERSION !== 'string' || !/^3\.\d+\.\d+$/.test(SDK_VERSION))
+  fail('The lock must declare "sdk" as a 3.x.y version; a new SDK major needs a reviewed checker change');
 if (!lock.installs || Object.getPrototypeOf(lock.installs) !== Object.prototype) fail('Unsupported Observatory lock shape');
 const entries = Object.entries(lock.installs);
 if (entries.length !== 1) fail('Alibi must have exactly one installed Pulseboard artifact');
