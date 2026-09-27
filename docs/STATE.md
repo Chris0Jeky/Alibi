@@ -19,11 +19,21 @@ Source for 0.15.0 is `main` plus the release pull request
   133,670 gzip, initial code plus official data 205,232 with the release notes (+448 over
   200 KiB, to be trimmed), main CSS 34,079, Quiet Wing pack 2,312,559.
 - Pulseboard: Voices intake live since 2026-09-27 (schema 5, voices admitted `["alibi"]`).
-- Review follow-ups, all non-blocking: #404, #407, #408, #416, #417 (intermittent Block Cabinet
+- Review follow-ups, all non-blocking: #404, #407, #416, #417 (intermittent Block Cabinet
   landscape test), #418, #419, #420, #421 (completion-hook hardening for #11).
 - Human gates: [HUMAN_TODO.md](../HUMAN_TODO.md) q-2 to q-9, now organised as one phone session
   ([PHONE-SESSION.md](PHONE-SESSION.md)) and player-data calibration
   ([CALIBRATION.md](CALIBRATION.md)).
+
+## Numbered game restore identity (#435, refs #408): 27 September 2026
+
+Backups and local saves whose Archive Heist or Lantern Gardens run has no own integer `level` are
+refused, no longer restored silently as room 0. Every published level, including 0, is still
+accepted, and games without numbered levels are unchanged. No live code path writes such a run
+without `level`, so this refuses only hand-made or corrupted saves. A malformed local record keeps
+its original bytes in protected mode. Verified: the new Node regressions (RED on the old
+validator), full `npm run verify`, and the Chromium import/worker suites at 390/1280px. Not
+verified: a physical phone. Details in [NUMBERED-LEVEL-RESTORE.md](gameplay/NUMBERED-LEVEL-RESTORE.md).
 
 ## Archive Heist vault rooms (#405, merged; in 0.15.0): 27 September 2026
 
