@@ -66,8 +66,9 @@ for (const [label, pattern, reportedBytes] of deferredAssets) {
     'Deferred official definitions stay under 12 KiB gzip',
   );
 }
-const deferredBytes = info.observatoryBytes + info.discoveryStorageBytes;
-const coreOfflineBytes = info.coreOfflineBytes - deferredBytes;
+// tools/build.cjs already leaves the deferred Pulseboard SDK and discovery storage assets out of
+// coreOfflineBytes; subtracting them again here hid ~56 KiB of real shell growth (#393).
+const coreOfflineBytes = info.coreOfflineBytes;
 // CAP-03 adds the bounded Cabinet picker consumer to the startup application shell.
 // Merges through #297 add a measured net 102 gzip bytes (128,943 -> 129,045)
 // for the journey-boundary fix and the single-sourced pack cap.
@@ -89,6 +90,7 @@ assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
   // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
+  // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
   coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024,
   'Precached code and shell excluding official content stay under 1.32 MiB',
 );
