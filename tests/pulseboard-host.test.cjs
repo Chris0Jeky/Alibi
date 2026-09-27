@@ -131,7 +131,12 @@ function page({
     document,
     location: { hash, origin: ORIGIN, protocol: 'https:', href: ORIGIN + '/', search: '' },
     ALIBI_CONFIG: { standalone, version: '0.14.1' },
-    ALIBI_CATALOG: { puzzles: [{ id: 'expert-sudoku-01' }, { id: 'scene-01' }] },
+    ALIBI_CATALOG: {
+      puzzles: [
+        { id: 'expert-sudoku-01', type: 'sudoku', difficulty: 'Expert' },
+        { id: 'scene-01', type: 'scene', difficulty: 'Gentle' },
+      ],
+    },
     localStorage: local,
     addEventListener(type, fn) {
       (windowListeners[type] ||= []).push(fn);
@@ -278,7 +283,7 @@ test('the button slot moves into Settings or Privacy and parks hidden elsewhere'
   assert.equal(h.slot.hidden, true);
 });
 
-test('journey events carry official ids and numbers only, one terminal per attempt', () => {
+test('journey events carry official ids, family, tier and numbers only, one terminal per attempt', () => {
   const sdk = fakeSdk();
   const h = page({ sdk: sdk.api });
   h.run();
@@ -298,13 +303,14 @@ test('journey events carry official ids and numbers only, one terminal per attem
   const tracked = JSON.parse(
     JSON.stringify(sdk.calls.filter((c) => c[0] === 'track').map((c) => [c[1], c[2]])),
   );
+  const id = { puzzle: 'expert-sudoku-01', family: 'sudoku', tier: 'expert' };
   assert.deepEqual(tracked, [
-    ['hint.requested', { puzzle: 'expert-sudoku-01', hint: 1 }],
-    ['puzzle.started', { puzzle: 'expert-sudoku-01' }],
-    ['puzzle.failed', { puzzle: 'expert-sudoku-01', seconds: 40, attempts: 1 }],
-    ['hint.requested', { puzzle: 'expert-sudoku-01', hint: 2 }],
-    ['puzzle.started', { puzzle: 'expert-sudoku-01' }],
-    ['puzzle.completed', { puzzle: 'expert-sudoku-01', seconds: 212, hints: 2, attempts: 2 }],
+    ['hint.requested', { ...id, hint: 1 }],
+    ['puzzle.started', id],
+    ['puzzle.failed', { ...id, seconds: 40, attempts: 1 }],
+    ['hint.requested', { ...id, hint: 2 }],
+    ['puzzle.started', id],
+    ['puzzle.completed', { ...id, seconds: 212, hints: 2, attempts: 2 }],
   ]);
   assert.deepEqual(
     sdk.calls.filter((c) => c[0] === 'count').map((c) => c[1]),
@@ -322,7 +328,16 @@ test('imported and workshop puzzles are reported as custom, never by their autho
   h.context.AlibiJourney(run);
   h.context.AlibiJourney(run, 'hint.requested');
   assert.doesNotMatch(JSON.stringify(sdk.calls), /secret/);
-  assert.equal(sdk.calls.find((c) => c[0] === 'track')[2].puzzle, 'custom');
+  for (const call of sdk.calls.filter((c) => c[0] === 'track'))
+    assert.equal(call[2].puzzle, 'custom');
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(sdk.calls.find((c) => c[0] === 'track')[2])),
+    { puzzle: 'custom' },
+    'custom puzzles carry no family or tier',
+  );
+  // A custom puzzle that copies an official type and difficulty still names neither.
+  h.context.AlibiJourney({ puzzle: { id: 'mine', type: 'sudoku', difficulty: 'Expert' } });
+  assert.doesNotMatch(JSON.stringify(sdk.calls), /sudoku|expert/);
 });
 
 test('restart, route changes, a new run and consent changes each reset the attempt', () => {
@@ -470,6 +485,8 @@ test('the real SDK renders its notice in flow and its Beta button inline in Sett
   assert.equal(
     h.context.Pulseboard.track('puzzle.completed', {
       puzzle: 'expert-sudoku-01',
+      family: 'sudoku',
+      tier: 'expert',
       seconds: 9,
       hints: 0,
       attempts: 1,

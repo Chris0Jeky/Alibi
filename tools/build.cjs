@@ -236,6 +236,23 @@ function build() {
       { minify: true, target: 'es2022' },
     ).code,
     discoveryStorageURL = `./assets/discovery-storage.${hash(discoveryStorage)}.js`;
+  // Must equal the collector origin compiled into observatory/pulseboard.js; observatory/check.mjs asserts both.
+  const OBSERVATORY_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev',
+    // The primary Cloudflare origin, the only one Pulseboard admits for Alibi (the SDK's config.origin).
+    PRIMARY_ORIGIN = 'https://alibi-after-hours-preview.commit-atlas.workers.dev';
+  // Voices (docs/FEEDBACK-AND-SURVEYS.md): the sheet, survey form, panels and delivery queue are one
+  // deferred chunk, precached in the offline shell like the Vault chunk. src/voices.js (entry points,
+  // rating row, flush triggers) is in the application bundle and loads the chunk on first use.
+  const voicesSources = ['voices-queue.js', 'voices-sheet.js'].map((f) => read(path.join(SRC, f))),
+    voicesChunk = require('esbuild').transformSync(voicesSources.join('\n'), {
+      minify: true,
+      target: 'es2022',
+      charset: 'utf8',
+    }).code,
+    voicesURL = `./assets/voices.${hash(voicesChunk)}.js`,
+    voicesConfig = (chunk) =>
+      `globalThis.ALIBI_VOICES=${JSON.stringify({ origin: PRIMARY_ORIGIN, collector: OBSERVATORY_ORIGIN, chunk })};\n`;
+  write(path.join(DIST, voicesURL), voicesChunk);
   write(path.join(DIST, observatoryURL), observatory);
   write(path.join(DIST, discoveryStorageURL), discoveryStorage);
   write(path.join(DIST, bootURL), boot);
@@ -291,6 +308,7 @@ function build() {
     read(path.join(SRC, 'activities.js')),
     read(path.join(SRC, 'app.js')),
     read(path.join(SRC, 'pulseboard-host.js')),
+    read(path.join(SRC, 'voices.js')),
   ].join('\n');
   const targetGuard = '!globalThis.ALIBI_BUILD_TARGET &&';
   if (base.split(targetGuard).length !== 2)
@@ -319,6 +337,7 @@ function build() {
         clubEngineBundle +
         observatory +
         discoveryStorage +
+        voicesChunk +
         css +
         VERSION +
         template +
@@ -334,7 +353,7 @@ function build() {
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
-      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n` +
+      `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${voicesConfig(voicesURL)}` +
       require('esbuild').transformSync(webBase, { minify: true, target: 'es2022' }).code,
     jsName = `assets/alibi.${hash(js)}.js`,
     cssName = `assets/alibi.${hash(css)}.css`;
@@ -376,8 +395,6 @@ function build() {
     ],
   };
   write(path.join(DIST, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
-  // Must equal the collector origin compiled into observatory/pulseboard.js; observatory/check.mjs asserts both.
-  const OBSERVATORY_ORIGIN = 'https://pulseboard-observatory.commit-atlas.workers.dev';
   const connectOrigins = [...delivery.origins, OBSERVATORY_ORIGIN];
   const documentPolicy = `default-src 'self'; script-src 'self' ${pathRouteAliasCspHashes().join(' ')}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ${connectOrigins.join(' ')}; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'`;
   const head = `<meta http-equiv="Content-Security-Policy" content="${documentPolicy}"><meta name="referrer" content="no-referrer"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icons/icon-192.png"><link rel="apple-touch-icon" href="./icons/icon-192.png"><link rel="stylesheet" href="./${cssName}">`;
@@ -415,6 +432,7 @@ function build() {
     workerURL,
     contentURL,
     deferredURL,
+    voicesURL,
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
@@ -457,7 +475,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Alibi · No clue here</title><body><main style="font-family:system-ui;max-width:480px;margin:15vh auto;padding:24px"><h1>This clue leads nowhere.</h1><p><a href="/">Return to Alibi</a></p></main></body></html>',
   );
   writePathRouteAliases(DIST);
-  const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}`;
+  const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${voicesConfig(null)}${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}\n${voicesSources.join('\n')}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
@@ -516,6 +534,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     observatoryBytes: Buffer.byteLength(observatory),
     discoveryStorageBytes: Buffer.byteLength(discoveryStorage),
     discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
+    voicesChunkBytes: Buffer.byteLength(voicesChunk),
+    voicesChunkGzipBytes: zlib.gzipSync(voicesChunk).length,
     officialContentBytes:
       Buffer.byteLength(contentSource) + Buffer.byteLength(deferredSource) + curation.bytes,
     curationMediaBytes: curation.bytes,

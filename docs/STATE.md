@@ -15,6 +15,24 @@ ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 
 and 1280px, all 24 vaults played). Not deployed; physical Android, TalkBack and human difficulty
 remain open.
 
+## Voices client half (branch `feat/voices-feedback-survey`, not deployed): 27 September 2026
+
+Implements Alibi's half of the Pulseboard "Voices" contract v1
+([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md)): a quiet Feedback button in the top bar,
+"Report a problem with this puzzle", the `alibi-taste-1` survey (Settings, plus a timed
+invitation on completion screens), a rating row on official completion screens, Settings and
+Privacy panels, and a localStorage offline queue with the contract's status handling. Journey
+events now also carry `family` and `tier` for official puzzles. The sheet, forms, rating row and
+delivery are one deferred precached chunk (19,704 bytes); startup grew 1,022 gzip bytes, so the
+application-bundle and precached-shell ceilings were raised by the measured delta (see
+`tests/budget.test.cjs`). Proven locally: `npm run verify` (all but the ffprobe-dependent
+asset-audio test, which fails on this machine without ffprobe on the unmodified base too), the new
+Node suites, `tests/browser_voices.py` against an intercepted collector, and the UI (3 widths),
+observatory, origin, narrow, mobile/player QA, September feedback, feedback discovery and boot
+browser suites. NOT verified: a live collector (the Pulseboard half must deploy and admit Alibi in
+`COLLECT_VOICE_PROJECTS` first), a physical phone, or screen-reader output. Not deployed; no
+version bump.
+
 ## Published web release 0.14.1: 26 September 2026
 
 Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):

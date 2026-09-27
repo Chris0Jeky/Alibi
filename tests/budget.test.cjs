@@ -86,17 +86,42 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // measured 131,409: ceiling +512. Labelling the vaults and linking the curated challenges from the
 // Games Room and Pocket Borough measured 131,561 (+606 over 130,955): ceiling +640 in total.
 // Games Room polish (Play again, journal names, section numbers) on top: measured 132,127: ceiling +2,112 in total.
+// Voices (Feedback and Report entry points, places for the rating row, survey invitation and panels,
+// flush triggers; the sheet, forms, rating row and delivery are the deferred chunk below) plus
+// family/tier journey props: measured 131,011 -> 132,033 gzip on the #396 base; ceiling +1,024.
+// Combined with the Archive vaults and Games Room polish: measured 133,186; ceiling +3,200 in total.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 2112,
-  'Application bundle stays under 127 KiB + 2,112 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 3200,
+  'Application bundle stays under 127 KiB + 3,200 bytes gzip',
 );
+{
+  // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
+  // precached so feedback works offline, never a startup script.
+  const matches = assetNames.filter((name) => /^voices.[a-f0-9]{12}.js$/.test(name));
+  assert.equal(matches.length, 1, 'One hashed Voices chunk is emitted');
+  assert.equal(
+    fs.statSync(path.join(root, 'dist/assets', matches[0])).size,
+    info.voicesChunkBytes,
+    'Voices chunk bytes are reported',
+  );
+  assert.ok(serviceWorker.includes(`"./assets/${matches[0]}"`), 'The Voices chunk is precached');
+  assert.ok(
+    !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+    'The Voices chunk is not a startup script',
+  );
+  // Measured 19,704 bytes, 8,543 gzip.
+  assert.ok(info.voicesChunkBytes < 20 * 1024, 'The Voices chunk stays under 20 KiB');
+  assert.ok(info.voicesChunkGzipBytes < 9 * 1024, 'The Voices chunk stays under 9 KiB gzip');
+}
 assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
 assert.ok(
   // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
   // compressed startup and 2.3 MiB total offline ceilings remain unchanged.
   // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024,
-  'Precached code and shell excluding official content stay under 1.32 MiB',
+  // Voices (the precached chunk above plus its startup entry points): measured
+  // 1,372,919 -> 1,395,446 bytes on the #396 base; ceiling +22,528.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 22528,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 22,528 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

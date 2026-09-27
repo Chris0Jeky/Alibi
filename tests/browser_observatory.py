@@ -272,6 +272,14 @@ with sync_playwright() as pw:
         }"""
     )
     puzzle_id = key.split('@')[0]
+    # Official puzzles also name their catalogue family and lower-cased tier (Voices contract, section 4).
+    ident = {
+        'puzzle': puzzle_id,
+        **page.evaluate(
+            "(id) => { const p = ALIBI_CATALOG.puzzles.find((c) => c.id === id); return {family: p.type, tier: p.difficulty.toLowerCase()}; }",
+            puzzle_id,
+        ),
+    }
     goto_puzzle(page, key)
     assert_bar_in_flow(page, 'puzzle at 390px')
     assert_controls_clear(page, 'puzzle with the notice showing')
@@ -337,16 +345,16 @@ with sync_playwright() as pw:
 
     wait_until(page, lambda: len(journey()) >= 3, 'journey events')
     started, failed, hint = journey()[:3]
-    check(started['name'] == 'puzzle.started' and started['props'] == {'puzzle': puzzle_id}, 'puzzle.started carries only the puzzle id')
+    check(started['name'] == 'puzzle.started' and started['props'] == ident, 'puzzle.started carries only the puzzle id, family and tier')
     check(
         failed['name'] == 'puzzle.failed'
-        and set(failed['props']) == {'puzzle', 'seconds', 'attempts'}
-        and failed['props']['puzzle'] == puzzle_id
+        and set(failed['props']) == {'puzzle', 'family', 'tier', 'seconds', 'attempts'}
+        and {k: failed['props'][k] for k in ident} == ident
         and failed['props']['attempts'] == 1
         and isinstance(failed['props']['seconds'], int),
-        'puzzle.failed carries the id, whole seconds and the attempt number',
+        'puzzle.failed carries the id, family, tier, whole seconds and the attempt number',
     )
-    check(hint['name'] == 'hint.requested' and hint['props'] == {'puzzle': puzzle_id, 'hint': 1}, 'hint.requested carries the id and hint index')
+    check(hint['name'] == 'hint.requested' and hint['props'] == {**ident, 'hint': 1}, 'hint.requested carries the id, family, tier and hint index')
     check(all(e['route'] == 'puzzle' for e in journey()), 'journey events carry the puzzle route')
     wait_until(
         page,
