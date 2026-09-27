@@ -6,6 +6,40 @@ const assert = require('node:assert/strict');
 const { session, fresh } = require('./helpers/club-session.cjs');
 const gardens = require('../content/region-gardens.json').puzzles;
 
+const finishedDuel = [
+  8,
+  7,
+  6,
+  0,
+  13,
+  9,
+  1,
+  2,
+  3,
+  4,
+  10,
+  12,
+  22,
+  11,
+  5,
+  16,
+  17,
+  25,
+  19,
+  24,
+  18,
+  26,
+  30,
+  23,
+  27,
+  28,
+  29,
+  31,
+  32,
+  33,
+  34,
+  35,
+];
 const draw = [0, 4, 8, 2, 6, 3, 5, 7, 1];
 
 test('a finished game plays again without a dialog; an unfinished one still asks', async () => {
@@ -13,11 +47,24 @@ test('a finished game plays again without a dialog; an unfinished one still asks
   data.runs.tictactoe = { mode: 'local', log: [0, 3, 1, 4, 2], redo: [] };
   data.runs.duel = { mode: 'local', log: [8], redo: [] };
   const tab = await session(data);
+  let restartFocus = 0;
+  tab.nodes.set('club-control-restart-tictactoe', {
+    focus(options) {
+      assert.equal(options.preventScroll, true);
+      restartFocus++;
+    },
+  });
   await tab.club.onRoute({ page: 'salon', id: 'tictactoe' });
-  assert.match(tab.club.roomPage('tictactoe'), />Play again</);
+  assert.match(
+    tab.club.roomPage('tictactoe'),
+    /id="club-control-restart-tictactoe"[^>]*>Play again</,
+  );
   await tab.action('restart', { id: 'tictactoe' });
   assert.equal(tab.dialogs.length, 0);
   assert.deepEqual(tab.state().runs.tictactoe.log, []);
+  assert.equal(tab.state().records.length, 1, 'the finished game reaches the journal first');
+  assert.equal(tab.state().records[0].type, 'tictactoe');
+  assert.equal(restartFocus, 1, 'focus returns to the replacement restart control');
   await tab.club.onRoute({ page: 'salon', id: 'duel' });
   assert.match(tab.club.roomPage('duel'), />Start again</);
   await tab.action('restart', { id: 'duel' });
@@ -29,6 +76,13 @@ test('a solved garden offers the next garden and leaves without confirmation', a
   const data = fresh();
   data.runs.regiongardens = { level: 0, log: gardens[0].solution, redo: [] };
   const tab = await session(data);
+  let nextFocus = 0;
+  tab.nodes.set('club-control-garden-level-1', {
+    focus(options) {
+      assert.equal(options.preventScroll, true);
+      nextFocus++;
+    },
+  });
   await tab.club.onRoute({ page: 'salon', id: 'regiongardens' });
   const page = tab.club.roomPage('regiongardens');
   assert.match(page, /data-action="club-garden-level" data-value="1">Next garden →/);
@@ -37,9 +91,69 @@ test('a solved garden offers the next garden and leaves without confirmation', a
   assert.equal(tab.dialogs.length, 0);
   assert.equal(tab.state().runs.regiongardens.level, 1);
   assert.deepEqual(tab.state().runs.regiongardens.log, []);
+  assert.equal(tab.state().records.length, 1, 'the solved garden reaches the journal first');
+  assert.match(tab.state().records[0].id, /^regiongardens:0:/);
+  assert.equal(nextFocus, 1, 'focus follows the newly selected garden');
   await tab.action('garden-cell', { cell: '0' });
   await tab.action('garden-level', { value: '2' });
   assert.equal(tab.dialogs.length, 1, 'an unsolved garden still confirms');
+});
+
+test('completed Duel setting changes journal the old result, skip confirmation and restore focus', async () => {
+  const strengthData = fresh();
+  strengthData.runs.duel = {
+    mode: 'bot',
+    difficulty: 'learner',
+    log: finishedDuel,
+    redo: [],
+  };
+  const strengthTab = await session(strengthData);
+  let strengthFocus = 0;
+  strengthTab.nodes.set('club-control-duel-strength-expert', {
+    focus() {
+      strengthFocus++;
+    },
+  });
+  await strengthTab.club.onRoute({ page: 'salon', id: 'duel' });
+  await strengthTab.action('duel-strength', { value: 'expert' });
+  assert.equal(strengthTab.dialogs.length, 0, 'a completed match does not ask again');
+  assert.equal(strengthTab.state().runs.duel.difficulty, 'expert');
+  assert.deepEqual(strengthTab.state().runs.duel.log, []);
+  assert.equal(strengthTab.state().records.length, 1);
+  assert.equal(
+    strengthTab.state().records[0].difficulty,
+    'learner',
+    'the old result keeps its strength',
+  );
+  assert.equal(strengthFocus, 1);
+
+  const modeData = fresh();
+  modeData.runs.duel = { mode: 'bot', difficulty: 'keeper', log: finishedDuel, redo: [] };
+  const modeTab = await session(modeData);
+  let modeFocus = 0;
+  modeTab.nodes.set('club-control-duel-mode-local', {
+    focus() {
+      modeFocus++;
+    },
+  });
+  await modeTab.club.onRoute({ page: 'salon', id: 'duel' });
+  await modeTab.action('duel-mode', { value: 'local' });
+  assert.equal(modeTab.dialogs.length, 0);
+  assert.equal(modeTab.state().runs.duel.mode, 'local');
+  assert.deepEqual(modeTab.state().runs.duel.log, []);
+  assert.equal(modeTab.state().records.length, 1);
+  assert.equal(modeFocus, 1);
+});
+
+test('unfinished Duel setting changes still wait for confirmation', async () => {
+  const data = fresh();
+  data.runs.duel = { mode: 'bot', difficulty: 'keeper', log: [8], redo: [] };
+  const tab = await session(data);
+  await tab.club.onRoute({ page: 'salon', id: 'duel' });
+  await tab.action('duel-strength', { value: 'expert' });
+  assert.equal(tab.dialogs.length, 1);
+  assert.equal(tab.state().runs.duel.difficulty, 'keeper');
+  assert.deepEqual(tab.state().runs.duel.log, [8]);
 });
 
 test('the keeper note and a table-for-two offer follow a solo Tic-Tac-Toe result', async () => {

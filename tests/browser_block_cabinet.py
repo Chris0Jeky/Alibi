@@ -21,7 +21,7 @@ with sync_playwright() as playwright:
     elif Path("/usr/bin/chromium").exists():
         launch["executable_path"] = "/usr/bin/chromium"
     browser = playwright.chromium.launch(**launch)
-    for width, height in [(390, 844), (1440, 1000)]:
+    for width, height in [(320, 640), (390, 844), (1440, 1000)]:
         context = browser.new_context(
             viewport={"width": width, "height": height},
             accept_downloads=True,
@@ -69,6 +69,23 @@ with sync_playwright() as playwright:
             actions.locator('[data-command="sound"], [data-command="haptics"]').count() == 0,
             f"Comfort toggles stay out of primary actions at {width}px",
         )
+        if width == 320:
+            actions.locator('[data-command="rotate"]').evaluate("el => el.removeAttribute('hidden')")
+            check(
+                actions.evaluate(
+                    """el => [...el.querySelectorAll('button')].every(button => {
+                      const outer = button.getBoundingClientRect();
+                      const label = button.querySelector('span');
+                      const range = document.createRange();
+                      range.selectNodeContents(label);
+                      return [...range.getClientRects()].every(rect =>
+                        rect.left >= outer.left - 1 && rect.right <= outer.right + 1 &&
+                        rect.top >= outer.top - 1 && rect.bottom <= outer.bottom + 1
+                      );
+                    })"""
+                ),
+                'Five primary action labels fit their controls at 320px',
+            )
         check(
             page.locator('.bc-host .bc-help [data-command="sound"]').count() == 1
             and page.locator('.bc-host .bc-help [data-command="haptics"]').count() == 1,

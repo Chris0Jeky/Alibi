@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${['plan', 'walk', 'undo', 'redo', 'restart', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   // Planning contracts live in the Quiet Wing challenge list. Once that list reads a family filter,
@@ -1210,7 +1210,12 @@
           throw Error('Resolve the Club save warning before changing strength.');
         if (r.log.length || r.redo.length) {
           await resetOrConfirm(
-            { id: 'duel', difficulty: v },
+            {
+              id: 'duel',
+              difficulty: v,
+              focusAction: 'duel-strength',
+              focusValue: v,
+            },
             'Change opponent strength?',
             'This starts a fresh match. Completed records stay in the journal.',
           );
@@ -1237,7 +1242,7 @@
         }
         if (state.runs[game].log.length || state.runs[game].redo.length) {
           await resetOrConfirm(
-            { id: game, mode },
+            { id: game, mode, focusAction: a, focusValue: mode },
             game === 'duel' ? 'Take a new seat?' : 'Start a new match?',
             'This starts a fresh match. Your completed records stay in the journal.',
           );
@@ -1257,7 +1262,12 @@
         if (level === r.level) return;
         if (r.log.length || r.redo.length) {
           await resetOrConfirm(
-            { id: 'regiongardens', level },
+            {
+              id: 'regiongardens',
+              level,
+              focusAction: 'garden-level',
+              focusValue: String(level),
+            },
             'Open another garden?',
             'This replaces the current board. Solved garden records are kept.',
           );
@@ -1406,7 +1416,12 @@
         render();
       } else if (a === 'restart') {
         await resetOrConfirm(
-          { id, freshSeed: id === 'blockcabinet' },
+          {
+            id,
+            freshSeed: id === 'blockcabinet',
+            focusAction: 'restart',
+            focusValue: id,
+          },
           'Start this game again?',
           id === 'blockcabinet'
             ? 'A new seed and tray will replace this run. Completed records are kept.'
@@ -1420,6 +1435,7 @@
         const r = state.runs[reset.id];
         if (!r) throw Error('Unknown game.');
         if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);
+        record(reset.id, currentGame(reset.id));
         document.getElementById('dialog').close();
         stopBot();
         if (reset.freshSeed && reset.id === 'blockcabinet') {
@@ -1443,6 +1459,11 @@
         selectedMahjongTile = null;
         save();
         render();
+        const focusAction = reset.focusAction || 'restart',
+          focusValue = reset.focusValue ?? reset.id;
+        document
+          .getElementById(`club-control-${focusAction}-${focusValue}`)
+          ?.focus({ preventScroll: true });
         delete root.__clubReset;
       } else if (a === 'plan') {
         selectedPlan = Number(v);
