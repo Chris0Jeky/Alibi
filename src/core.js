@@ -337,14 +337,27 @@
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
       t.placements[a.who] = a.cell;
     } else if (a.type === 'exclude') {
+      const N = p.size ** 2;
+      if (
+        !p.people.some((x) => x.id === a.who) ||
+        !Number.isInteger(a.cell) ||
+        a.cell < 0 ||
+        a.cell >= N ||
+        p.objects.some((o) => o.cell === a.cell)
+      )
+        return s;
       const arr = t.notes[a.who] || [];
       t.notes[a.who] = arr.includes(a.cell) ? arr.filter((c) => c !== a.cell) : [...arr, a.cell];
     } else if (a.type === 'clue') {
+      if (!Number.isInteger(a.index) || a.index < 0 || a.index >= p.clues.length) return s;
       t.clueMarks = t.clueMarks.includes(a.index)
         ? t.clueMarks.filter((x) => x !== a.index)
         : [...t.clueMarks, a.index];
-    } else if (a.type === 'accuse') t.accused = a.who;
-    else if (a.type === 'clear') {
+    } else if (a.type === 'accuse') {
+      if (a.who !== null && !p.people.some((x) => x.id === a.who)) return s;
+      t.accused = a.who;
+    } else if (a.type === 'clear') {
+      if (!Number.isInteger(a.cell)) return s;
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
     }
     return t;

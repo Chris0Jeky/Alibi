@@ -303,10 +303,12 @@
             }
           }
         }
-        if (a.type === 'clue')
+        if (a.type === 'clue') {
+          if (!Number.isInteger(a.index) || a.index < 0 || a.index >= p.clues.length) return s;
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
+        }
         if (a.type === 'accuse' && Number.isInteger(a.who) && a.who >= 0 && a.who < n)
           t.accused = a.who;
         return t;
