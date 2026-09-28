@@ -337,14 +337,28 @@
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
       t.placements[a.who] = a.cell;
     } else if (a.type === 'exclude') {
+      if (
+        !p.people.some((x) => x.id === a.who) ||
+        !Number.isInteger(a.cell) ||
+        a.cell < 0 ||
+        a.cell >= p.size ** 2 ||
+        p.objects.some((o) => o.cell === a.cell)
+      )
+        return s;
       const arr = t.notes[a.who] || [];
       t.notes[a.who] = arr.includes(a.cell) ? arr.filter((c) => c !== a.cell) : [...arr, a.cell];
     } else if (a.type === 'clue') {
+      const clueCount = Array.isArray(p.clues) ? p.clues.length : 0;
+      if (!Number.isInteger(a.index) || a.index < 0 || a.index >= clueCount) return s;
       t.clueMarks = t.clueMarks.includes(a.index)
         ? t.clueMarks.filter((x) => x !== a.index)
         : [...t.clueMarks, a.index];
-    } else if (a.type === 'accuse') t.accused = a.who;
-    else if (a.type === 'clear') {
+    } else if (a.type === 'accuse') {
+      if (!p.people.some((x) => x.id === a.who)) return s;
+      t.accused = a.who;
+    } else if (a.type === 'clear') {
+      if (!Number.isInteger(a.cell) || a.cell < 0 || a.cell >= p.size ** 2) return s;
+      if (!Object.values(t.placements).includes(a.cell)) return s;
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
     }
     return t;

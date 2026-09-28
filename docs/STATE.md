@@ -8,6 +8,14 @@ new-asset and index-write failures preserve the old reference and asset without 
 new file. The focused Node regression and repository verify gate pass at the candidate head. Not
 deployed; an actual disk-full or filesystem-permission failure was not induced.
 
+## Scene action validation (unreleased): 28 September 2026
+
+The crime-scene reducer now rejects malformed exclude, clue, accuse and clear actions without
+cloning or changing the current run. Valid actions retain their existing behaviour. The focused
+Node regression covers invalid-action identity and each valid action path; the repository verify
+gate also passes at the candidate head. Not deployed; no browser or physical-device check was run
+for this pure reducer guard.
+
 ## Release 0.15.0: published 27 September 2026
 
 Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
