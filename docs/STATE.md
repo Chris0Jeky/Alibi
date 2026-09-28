@@ -1,5 +1,13 @@
 # Live development state
 
+## Platform identity replacement ordering (unreleased): 28 September 2026
+
+Android artifact identity replacement now writes the new identity asset before changing
+`index.html`, and removes the old asset only after the reference update succeeds. Simulated
+new-asset and index-write failures preserve the old reference and asset without leaving a stray
+new file. The focused Node regression and repository verify gate pass at the candidate head. Not
+deployed; an actual disk-full or filesystem-permission failure was not induced.
+
 ## Release 0.15.0: published 27 September 2026
 
 Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
