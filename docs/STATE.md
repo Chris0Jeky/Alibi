@@ -1,5 +1,16 @@
 # Live development state
 
+## Scene and dossier action guards (#482): 28 September 2026
+
+Malformed Crime Scene exclude, clue, accuse and clear actions, and malformed Alibi File clue
+actions, now return the original state instead of creating a save that the next validation can
+reject. Unknown people, invalid cell or clue indexes and Crime Scene furniture cells are refused;
+valid note, clue and accusation toggles are unchanged. Verified with the focused reducer and scene
+regressions (12/12), the full `npm run verify` gate (760 passed, 3 skipped), and the exact-head
+local build. No browser or physical-device session was run because this changes pure reducers, not
+controls. Existing furniture-cell notes remain loadable because save validation is unchanged, but
+direct reducer calls can no longer toggle them; the player already disables furniture cells.
+
 ## Release 0.15.0: published 27 September 2026
 
 Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
