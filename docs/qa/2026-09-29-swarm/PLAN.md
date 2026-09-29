@@ -282,3 +282,27 @@ Wave 009 (4/4 completed) — verdicts:
 - Dossier clue-toggle guard fixed inline (75e4a18): scene reducer already
   guarded (wave-007 claim half-disproven); dossier appended unvalidated
   indexes that validateState rejects. RED→GREEN in core suite.
+- `fix-serve-harden` INTEGRATED (eb92c50): catch-all `_headers` read,
+  `createHandler` extraction with 500 + stream destroy on both dev servers,
+  gallery `require.main` guard (verified spawn-only). RED (3 fail headers,
+  2 fail gallery, API-undefined probe; the combined RED run hung on the old
+  gallery's require-time listen handle and was re-run per-file) → GREEN
+  12/12 after caller repaired a Windows-only POSIX stub root in the 500
+  test. Prettier-applied, worktree torn down.
+- `importPack` route-modal race fixed inline (5ca25c4): completion toasts
+  when validation outlived its route instead of closing the new route's
+  modal (the codebase's own "a route owns its modal" rule). UI suite 185/185.
+- Wave 012 lenses: tg-app "activities/updates do not exist" definitively
+  disproven (`src/activities.js:192` defines `AlibiActivities`) — lens
+  discounted for existence/coverage verdicts. tg-storage multipack/IDB-timing
+  and tg-quiet launcher-esc HIGHs noted as future write-tests candidates;
+  no workers (diminishing returns vs suite-backed items).
+- CONFIRMED build-curation `data:undefined` + release-prepare silent
+  `--pulseboard` fallback → `fix-tools-validate` worker enqueued.
+  update-curation-bundle partial snapshot DOWNGRADED to accepted friction
+  (deliberate loud guard, one-command recovery).
+- Visual-QA probe on fresh screenshots (desktop-home, mobile-scene): no
+  visual defects. Owner-visible observation (no code change): dominoes and
+  mahjong are fully playable via salon routes (e.g. `club.js:612`) but have
+  no home/salon cards and are skipped by the home continuation
+  (`club.js:479`) — reachable essentially only by direct navigation.
