@@ -306,3 +306,22 @@ Wave 009 (4/4 completed) — verdicts:
   mahjong are fully playable via salon routes (e.g. `club.js:612`) but have
   no home/salon cards and are skipped by the home continuation
   (`club.js:479`) — reachable essentially only by direct navigation.
+- `fix-tools-validate` INTEGRATED (b7e404c): derivative shape validation +
+  strict `--pulseboard` (usage error on missing/flag-like values, throw on
+  non-checkout paths, ambient chain only when flag absent). RED 0/6 →
+  GREEN 6/6 after caller repaired the curation fixture (`dist/assets`
+  mkdir). Adjacent curation/tools suites green. Worktree torn down.
+- Size gates: session-2 additions tripped the app gzip ceiling (+81) and the
+  precache ceiling (+739). Two trim rounds (folded dossier guard, redundant
+  check/comment removal), then measured raises with justification: app gzip
+  +96 (133,952 -> 134,048), precache +1,024 (1,408,000 -> 1,409,024); asset
+  catalogue regenerated (app.js size/hash only). Full `npm run verify`
+  EXIT 0 on the clean tree.
+- Wave-014 lens backlog (untriaged, for next session): curation-editorial
+  load() TypeError on notes missing provenance (HIGH), challenge-catalogue
+  null-challenge acceptance (HIGH), apply-update ACTIVATE→reload playable
+  gap (HIGH — extends the session-1 input-lock item), lesson-finish route
+  yank (medium), release-prepare finally-masked cleanup (medium),
+  range-clamp 416 inconsistency (low), activities flush TypeError (low),
+  boot split-brain hash (low), concurrent-stroke undo baseline (low),
+  readCommittedRuns autosave race (low).
