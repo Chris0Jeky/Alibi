@@ -17,6 +17,7 @@ on:
       - 'tests/android-build.test.cjs'
       - 'tests/android-boot-target.test.cjs'
       - 'tests/browser_android_payload.py'
+      - 'tests/browser_native_insets.py'
   push:
     branches:
       - main
@@ -35,6 +36,7 @@ on:
       - 'tests/android-build.test.cjs'
       - 'tests/android-boot-target.test.cjs'
       - 'tests/browser_android_payload.py'
+      - 'tests/browser_native_insets.py'
 
 permissions:
   contents: read
@@ -50,6 +52,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
@@ -68,6 +74,8 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
+      - name: Verify native inset ownership and PWA isolation
+        run: python tests/browser_native_insets.py
       - name: Boot local Android origin without a service worker
         run: python tests/browser_android_payload.py
       - name: Upload build receipts
@@ -78,5 +86,6 @@ jobs:
           path: |
             dist-android/android-assets.json
             dist-android/android-build-identity.json
+            test-results/native-insets
           if-no-files-found: warn
           retention-days: 14
