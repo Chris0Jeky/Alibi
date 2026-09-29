@@ -384,7 +384,13 @@ function decorateHarness(runId = 'scene-01') {
     inserted.push({ name, where, html });
     const match = html.match(/<section id="([^"]+)" data-vo><\/section>/);
     if (match) {
-      const el = { id: match[1], removed: false, remove() { this.removed = true; } };
+      const el = {
+        id: match[1],
+        removed: false,
+        remove() {
+          this.removed = true;
+        },
+      };
       voEls.push(el);
     }
   };
@@ -470,7 +476,10 @@ test('decorate() injects the Feedback and report buttons with every slot after e
   const first = [...h.voEls];
   assert.equal(first.length, 4);
   h.render();
-  assert.ok(first.every((el) => el.removed), 'a new render removes the previous places first');
+  assert.ok(
+    first.every((el) => el.removed),
+    'a new render removes the previous places first',
+  );
   assert.equal(h.filled.length, 8, 'a new render fills every slot again');
   assert.equal(h.idle.length, 1, 'one idle kick after the first render only');
 });
@@ -478,8 +487,14 @@ test('decorate() injects the Feedback and report buttons with every slot after e
 test('decorate() only offers rating and survey places on official completion screens', () => {
   const h = decorateHarness('not-a-puzzle');
   h.render();
-  assert.ok(h.inserted.some((i) => i.html.includes('vo-open')), 'Feedback stays available');
-  assert.ok(h.inserted.some((i) => i.html.includes('vo-report')), 'reporting stays available');
+  assert.ok(
+    h.inserted.some((i) => i.html.includes('vo-open')),
+    'Feedback stays available',
+  );
+  assert.ok(
+    h.inserted.some((i) => i.html.includes('vo-report')),
+    'reporting stays available',
+  );
   assert.deepEqual(
     h.filled.map(([slot]) => slot).sort(),
     ['vo-panel', 'vo-privacy'],
@@ -590,11 +605,7 @@ test('tap() forgets an unqueued choice so the same tap can retry', async () => {
   const row = ratingRow();
   row.click(h, 'rate', 'just-right');
   assert.equal(row.statusEl.textContent, 'Not sent. Try again later.');
-  assert.equal(
-    h.store.has('alibi:voices:state:v1'),
-    false,
-    'an unqueued choice is not remembered',
-  );
+  assert.equal(h.store.has('alibi:voices:state:v1'), false, 'an unqueued choice is not remembered');
   h.store.delete('alibi:voices:queue:v1');
   row.click(h, 'rate', 'just-right');
   await settleSheet(h);

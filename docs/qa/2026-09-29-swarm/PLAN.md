@@ -233,3 +233,52 @@ Wave 008 (6/6 completed) — verdicts:
   PASS, exit 0 (log `.swarm-queue/browser-ui-s2.log`).
 - Gates: `format:check` GREEN (prettier reflowed the new test),
   `tests/budget.test.cjs` GREEN (both micro-fixes within budget).
+- Commits `64b6fa0`, `4f26193`, `7c1a32e` pushed to `origin/main`.
+- Real-origin suite on fresh build (own server :8791; :8787 already held by
+  an unrelated protected process): exit 0, 270 checks PASS — byte-parity with
+  session-1's `browser-origin3.log` ("270 checks", 271 PASS lines incl.
+  summary). Log `.swarm-queue/browser-origin-s2.log`.
+
+Wave 009 (4/4 completed) — verdicts:
+- REJECTED bh-engines/high + r2/medium nonogram -1 completion laxity (third
+  sighting): decided in session 1 — leniency is the player contract, pinned
+  by regression tests. No worker.
+- REJECTED dc-src/low BlockCabinetPrototype removal: only 2 hits, both
+  definitions (`src/block-cabinet/studio.mjs:248,251`), zero in-repo readers —
+  but `studio.mjs` is reachable (`integration.mjs`, `block-motion.test.mjs`)
+  and the global matches the diagnostics-hook pattern (cf.
+  `AlibiDiagnostics`); deleting QA surface on a read-only sweep has negative
+  value. Revisit only with runtime-load evidence.
+- dc-tools: inconclusive (0 findings, 22 unresolved) — no action.
+- QUEUED for code-read triage: bh-engines/medium dossier reduce clue-toggle
+  index (`src/engines.js:306`) jointly with wave-007 core.js:353 reducer
+  clue-index medium; still open: serve.cjs:69 per-request crash (+
+  readSecurityPolicy non-ENOENT residual), build-curation data:undefined,
+  release-prepare --pulseboard, update-curation-bundle partial snapshot,
+  importPack dialog.
+- Wave 010 running: 3 session-2 workers (challenge-restore, theatre-voices,
+  combined-worker).
+- `fix-challenge-restore` INTEGRATED with caller narrowing: worker correctly
+  found the one-line write() bypass insufficient (cas() re-validates + revises)
+  but skipped the revision guard unconditionally on restore. Orchestrator
+  narrowed: restore skips guards only over records that fail validation;
+  valid records keep the conflict guard (AGENTS.md: never silently overwrite
+  concurrent edits). RED (2 fail at guard) → worker GREEN (4/4) → boundary
+  RED (stale-revision restore succeeded) → narrowed GREEN (6/6). Related
+  challenge suites green. Worktree torn down.
+- `tst-theatre-voices` INTEGRATED (test-only, +546 lines): escape/choose/
+  route/deliver/decorate/tap pinned in existing harnesses. Caller replaced
+  the worker's static-only indirect-coverage check with runtime stub probes:
+  identity-escape fails exactly the escape test; always-sent deliver fails
+  exactly the deliver test; sources restored byte-identical. Worktree down.
+- `fix-combined-worker` INTEGRATED with caller repair: sanitized sections +
+  16MB/1MB caps verified RED (0/4) → GREEN (4/4) against a fresh build, but
+  the worker's deepEqual comparisons failed across the vm-realm boundary
+  ("same structure, not reference-equal") — repaired with a JSON norm
+  helper. Adjacent worker seams (planning-vault, backup-import) green.
+  Note test 4 never RED'd on behavior (characterization only). Down.
+- `fix-serve-harden` worker written + enqueued (readSecurityPolicy catch-all,
+  createHandler extraction with 500 + stream destroy, both servers).
+- Dossier clue-toggle guard fixed inline (75e4a18): scene reducer already
+  guarded (wave-007 claim half-disproven); dossier appended unvalidated
+  indexes that validateState rejects. RED→GREEN in core suite.
