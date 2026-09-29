@@ -23,8 +23,11 @@ function fixture(t) {
     fs.copyFileSync(path.join(__dirname, 'fixtures/native-generated', source), filename);
   }
   const cordova = path.join(root, 'capacitor-cordova-android-plugins');
-  for (const [name, value] of [['src/main/AndroidManifest.xml', '<manifest/>'],
-    ['src/main/java/.gitkeep', ''], ['src/main/res/.gitkeep', '\n']]) {
+  for (const [name, value] of [
+    ['src/main/AndroidManifest.xml', '<manifest/>'],
+    ['src/main/java/.gitkeep', ''],
+    ['src/main/res/.gitkeep', '\n'],
+  ]) {
     const filename = path.join(cordova, name);
     fs.mkdirSync(path.dirname(filename), { recursive: true });
     fs.writeFileSync(filename, value);
@@ -65,7 +68,10 @@ for (const [name] of inputs) {
 test('rejects redirected Capacitor project and substituted Java target', (t) => {
   const root = fixture(t);
   const settings = path.join(root, inputs[0][0]);
-  fs.writeFileSync(settings, fs.readFileSync(settings, 'utf8').replace('../node_modules', '../outside'));
+  fs.writeFileSync(
+    settings,
+    fs.readFileSync(settings, 'utf8').replace('../node_modules', '../outside'),
+  );
   const app = path.join(root, inputs[1][0]);
   fs.writeFileSync(app, fs.readFileSync(app, 'utf8').replaceAll('VERSION_21', 'VERSION_17'));
   assert.equal(checkGeneratedInputs(root).length, 2);
@@ -81,12 +87,16 @@ for (const name of ['src/main/java/Injected.java', 'libs/injected.jar', 'extra.g
   });
 }
 
-test('rejects a symlinked parent even when its file bytes match', { skip: process.platform === 'win32' }, (t) => {
-  const root = fixture(t);
-  fs.renameSync(path.join(root, 'app'), path.join(root, 'real-app'));
-  fs.symlinkSync(path.join(root, 'real-app'), path.join(root, 'app'));
-  assert.ok(checkGeneratedInputs(root).some((message) => message.includes('symlink')));
-});
+test(
+  'rejects a symlinked parent even when its file bytes match',
+  { skip: process.platform === 'win32' },
+  (t) => {
+    const root = fixture(t);
+    fs.renameSync(path.join(root, 'app'), path.join(root, 'real-app'));
+    fs.symlinkSync(path.join(root, 'real-app'), path.join(root, 'app'));
+    assert.ok(checkGeneratedInputs(root).some((message) => message.includes('symlink')));
+  },
+);
 
 test('post-build checking permits outputs but not additional source inputs', (t) => {
   const root = fixture(t);

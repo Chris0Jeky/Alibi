@@ -68,9 +68,17 @@ test(
 
 test('installed-package smoke keeps the audited digest through Gradle and checks on-device bytes', () => {
   const smoke = read('tools/run-android-smoke.sh');
-  const java = read('android/app/src/androidTest/java/example/unapproved/alibi/preview/NativeOfflineSmokeTest.java');
-  assert.match(smoke, /EXPECTED_APK_SHA256="\$\(python tools\/android-smoke-evidence\.py prepare\)"/);
-  assert.match(smoke, /-Pandroid\.testInstrumentationRunnerArguments\.alibiExpectedApkSha256=\$EXPECTED_APK_SHA256/);
+  const java = read(
+    'android/app/src/androidTest/java/example/unapproved/alibi/preview/NativeOfflineSmokeTest.java',
+  );
+  assert.match(
+    smoke,
+    /EXPECTED_APK_SHA256="\$\(python tools\/android-smoke-evidence\.py prepare\)"/,
+  );
+  assert.match(
+    smoke,
+    /-Pandroid\.testInstrumentationRunnerArguments\.alibiExpectedApkSha256=\$EXPECTED_APK_SHA256/,
+  );
   assert.match(smoke, /record --expected-sha "\$EXPECTED_APK_SHA256"/);
   assert.ok(smoke.indexOf('rm -rf') < smoke.indexOf('connectedDebugAndroidTest'));
   assert.match(java, /getArguments\(\)\.getString\("alibiExpectedApkSha256"\)/);

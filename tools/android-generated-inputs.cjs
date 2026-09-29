@@ -34,7 +34,9 @@ function checkGeneratedInputs(root = path.resolve(__dirname, '../android')) {
         .replace(/\r\n/g, '\n');
       const actual = createHash('sha256').update(source).digest('hex');
       if (actual !== expected)
-        errors.push(`Generated Gradle input differs from Capacitor ${policy.capacitorVersion}: ${name}.`);
+        errors.push(
+          `Generated Gradle input differs from Capacitor ${policy.capacitorVersion}: ${name}.`,
+        );
     } catch (error) {
       errors.push(`Cannot verify generated input ${name}: ${error.message}`);
     }
