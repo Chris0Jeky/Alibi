@@ -233,3 +233,95 @@ Wave 008 (6/6 completed) — verdicts:
   PASS, exit 0 (log `.swarm-queue/browser-ui-s2.log`).
 - Gates: `format:check` GREEN (prettier reflowed the new test),
   `tests/budget.test.cjs` GREEN (both micro-fixes within budget).
+- Commits `64b6fa0`, `4f26193`, `7c1a32e` pushed to `origin/main`.
+- Real-origin suite on fresh build (own server :8791; :8787 already held by
+  an unrelated protected process): exit 0, 270 checks PASS — byte-parity with
+  session-1's `browser-origin3.log` ("270 checks", 271 PASS lines incl.
+  summary). Log `.swarm-queue/browser-origin-s2.log`.
+
+Wave 009 (4/4 completed) — verdicts:
+- REJECTED bh-engines/high + r2/medium nonogram -1 completion laxity (third
+  sighting): decided in session 1 — leniency is the player contract, pinned
+  by regression tests. No worker.
+- REJECTED dc-src/low BlockCabinetPrototype removal: only 2 hits, both
+  definitions (`src/block-cabinet/studio.mjs:248,251`), zero in-repo readers —
+  but `studio.mjs` is reachable (`integration.mjs`, `block-motion.test.mjs`)
+  and the global matches the diagnostics-hook pattern (cf.
+  `AlibiDiagnostics`); deleting QA surface on a read-only sweep has negative
+  value. Revisit only with runtime-load evidence.
+- dc-tools: inconclusive (0 findings, 22 unresolved) — no action.
+- QUEUED for code-read triage: bh-engines/medium dossier reduce clue-toggle
+  index (`src/engines.js:306`) jointly with wave-007 core.js:353 reducer
+  clue-index medium; still open: serve.cjs:69 per-request crash (+
+  readSecurityPolicy non-ENOENT residual), build-curation data:undefined,
+  release-prepare --pulseboard, update-curation-bundle partial snapshot,
+  importPack dialog.
+- Wave 010 running: 3 session-2 workers (challenge-restore, theatre-voices,
+  combined-worker).
+- `fix-challenge-restore` INTEGRATED with caller narrowing: worker correctly
+  found the one-line write() bypass insufficient (cas() re-validates + revises)
+  but skipped the revision guard unconditionally on restore. Orchestrator
+  narrowed: restore skips guards only over records that fail validation;
+  valid records keep the conflict guard (AGENTS.md: never silently overwrite
+  concurrent edits). RED (2 fail at guard) → worker GREEN (4/4) → boundary
+  RED (stale-revision restore succeeded) → narrowed GREEN (6/6). Related
+  challenge suites green. Worktree torn down.
+- `tst-theatre-voices` INTEGRATED (test-only, +546 lines): escape/choose/
+  route/deliver/decorate/tap pinned in existing harnesses. Caller replaced
+  the worker's static-only indirect-coverage check with runtime stub probes:
+  identity-escape fails exactly the escape test; always-sent deliver fails
+  exactly the deliver test; sources restored byte-identical. Worktree down.
+- `fix-combined-worker` INTEGRATED with caller repair: sanitized sections +
+  16MB/1MB caps verified RED (0/4) → GREEN (4/4) against a fresh build, but
+  the worker's deepEqual comparisons failed across the vm-realm boundary
+  ("same structure, not reference-equal") — repaired with a JSON norm
+  helper. Adjacent worker seams (planning-vault, backup-import) green.
+  Note test 4 never RED'd on behavior (characterization only). Down.
+- `fix-serve-harden` worker written + enqueued (readSecurityPolicy catch-all,
+  createHandler extraction with 500 + stream destroy, both servers).
+- Dossier clue-toggle guard fixed inline (75e4a18): scene reducer already
+  guarded (wave-007 claim half-disproven); dossier appended unvalidated
+  indexes that validateState rejects. RED→GREEN in core suite.
+- `fix-serve-harden` INTEGRATED (eb92c50): catch-all `_headers` read,
+  `createHandler` extraction with 500 + stream destroy on both dev servers,
+  gallery `require.main` guard (verified spawn-only). RED (3 fail headers,
+  2 fail gallery, API-undefined probe; the combined RED run hung on the old
+  gallery's require-time listen handle and was re-run per-file) → GREEN
+  12/12 after caller repaired a Windows-only POSIX stub root in the 500
+  test. Prettier-applied, worktree torn down.
+- `importPack` route-modal race fixed inline (5ca25c4): completion toasts
+  when validation outlived its route instead of closing the new route's
+  modal (the codebase's own "a route owns its modal" rule). UI suite 185/185.
+- Wave 012 lenses: tg-app "activities/updates do not exist" definitively
+  disproven (`src/activities.js:192` defines `AlibiActivities`) — lens
+  discounted for existence/coverage verdicts. tg-storage multipack/IDB-timing
+  and tg-quiet launcher-esc HIGHs noted as future write-tests candidates;
+  no workers (diminishing returns vs suite-backed items).
+- CONFIRMED build-curation `data:undefined` + release-prepare silent
+  `--pulseboard` fallback → `fix-tools-validate` worker enqueued.
+  update-curation-bundle partial snapshot DOWNGRADED to accepted friction
+  (deliberate loud guard, one-command recovery).
+- Visual-QA probe on fresh screenshots (desktop-home, mobile-scene): no
+  visual defects. Owner-visible observation (no code change): dominoes and
+  mahjong are fully playable via salon routes (e.g. `club.js:612`) but have
+  no home/salon cards and are skipped by the home continuation
+  (`club.js:479`) — reachable essentially only by direct navigation.
+- `fix-tools-validate` INTEGRATED (b7e404c): derivative shape validation +
+  strict `--pulseboard` (usage error on missing/flag-like values, throw on
+  non-checkout paths, ambient chain only when flag absent). RED 0/6 →
+  GREEN 6/6 after caller repaired the curation fixture (`dist/assets`
+  mkdir). Adjacent curation/tools suites green. Worktree torn down.
+- Size gates: session-2 additions tripped the app gzip ceiling (+81) and the
+  precache ceiling (+739). Two trim rounds (folded dossier guard, redundant
+  check/comment removal), then measured raises with justification: app gzip
+  +96 (133,952 -> 134,048), precache +1,024 (1,408,000 -> 1,409,024); asset
+  catalogue regenerated (app.js size/hash only). Full `npm run verify`
+  EXIT 0 on the clean tree.
+- Wave-014 lens backlog (untriaged, for next session): curation-editorial
+  load() TypeError on notes missing provenance (HIGH), challenge-catalogue
+  null-challenge acceptance (HIGH), apply-update ACTIVATE→reload playable
+  gap (HIGH — extends the session-1 input-lock item), lesson-finish route
+  yank (medium), release-prepare finally-masked cleanup (medium),
+  range-clamp 416 inconsistency (low), activities flush TypeError (low),
+  boot split-brain hash (low), concurrent-stroke undo baseline (low),
+  readCommittedRuns autosave race (low).

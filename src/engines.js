@@ -303,7 +303,12 @@
             }
           }
         }
-        if (a.type === 'clue')
+        if (
+          a.type === 'clue' &&
+          Number.isInteger(a.index) &&
+          a.index >= 0 &&
+          a.index < p.clues.length
+        )
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
