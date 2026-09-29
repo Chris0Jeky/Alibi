@@ -5,10 +5,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
+const { EventEmitter } = require('node:events');
 const fs = require('node:fs');
 const http = require('node:http');
 const net = require('node:net');
 const path = require('node:path');
+
+const { createHandler } = require('../tools/serve-assets.cjs');
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -117,4 +120,62 @@ test('gallery serves suffix ranges with 206 and keeps 416 for unsatisfiable rang
   });
   assert.equal(pastEnd.status, 416);
   await pastEnd.arrayBuffer();
+});
+
+function makeStubRes() {
+  const res = {
+    statusCode: 200,
+    headers: {},
+    headersSent: false,
+    destroyed: false,
+    setHeader(name, value) {
+      res.headers[name] = value;
+    },
+    writeHead(status, extra) {
+      res.statusCode = status;
+      res.headersSent = true;
+      if (extra) Object.assign(res.headers, extra);
+      return res;
+    },
+    end() {
+      return res;
+    },
+    destroy() {
+      res.destroyed = true;
+      return res;
+    },
+  };
+  return res;
+}
+
+test('gallery handler answers 500 when statSync throws', () => {
+  const stubFs = {
+    existsSync: () => true,
+    statSync: () => {
+      throw Object.assign(new Error('gone'), { code: 'ENOENT' });
+    },
+    createReadStream: () => {
+      throw new Error('unreachable');
+    },
+  };
+  const handler = createHandler('/stub-gallery-root', stubFs);
+  const res = makeStubRes();
+  assert.doesNotThrow(() => handler({ url: '/docs/foo.txt', method: 'GET', headers: {} }, res));
+  assert.equal(res.statusCode, 500);
+});
+
+test('gallery handler destroys res on stream error without throwing', () => {
+  const stream = new EventEmitter();
+  stream.pipe = () => stream;
+  const stubFs = {
+    existsSync: () => true,
+    statSync: () => ({ isFile: () => true, size: 100 }),
+    createReadStream: () => stream,
+  };
+  const handler = createHandler('/stub-gallery-root', stubFs);
+  const res = makeStubRes();
+  assert.doesNotThrow(() => handler({ url: '/docs/foo.txt', method: 'GET', headers: {} }, res));
+  assert.equal(res.statusCode, 200);
+  assert.doesNotThrow(() => stream.emit('error', new Error('mid-stream failure')));
+  assert.equal(res.destroyed, true);
 });
