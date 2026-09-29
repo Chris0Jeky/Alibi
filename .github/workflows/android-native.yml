@@ -1,0 +1,114 @@
+name: Verify Android native host
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-native-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Verify wrapper and record exact source
+        run: |
+          echo '7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172  android/gradle/wrapper/gradle-wrapper.jar' | sha256sum --check
+          mkdir -p test-results/native
+          git rev-parse HEAD > test-results/native/source-sha.txt
+          node --version > test-results/native/node.txt
+          java -version 2> test-results/native/java.txt
+      - run: npm ci
+      - name: Capture formatting diagnostics without editing source
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import * as prettier from 'prettier';
+          const files = ['tools/android-host-policy.cjs', 'tools/sync-android.cjs',
+            'tests/android-host-policy.test.cjs', 'tests/android-native-workflow.test.cjs',
+            'tests/android-build.test.cjs'];
+          for (const file of files) {
+            const source = await fs.readFile(file, 'utf8');
+            const options = await prettier.resolveConfig(file);
+            const formatted = await prettier.format(source, { ...options, filepath: file });
+            const destination = path.join('test-results/native-format', file);
+            await fs.mkdir(path.dirname(destination), { recursive: true });
+            await fs.writeFile(destination, formatted);
+          }
+          JS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-format-${{ github.event.pull_request.head.sha || github.sha }}
+          path: test-results/native-format
+          retention-days: 3
+      - name: Exercise fail-closed source and package contracts
+        run: |
+          node --test tests/android-host-policy.test.cjs tests/android-native-workflow.test.cjs tests/platform-native.test.mjs tests/platform-bootstrap.test.mjs
+          python tests/test_android_package.py
+          bash -n tools/run-android-smoke.sh
+      - name: Prepare Android tools
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          sdkmanager 'platform-tools' 'emulator' 'platforms;android-36' 'build-tools;36.0.0' 'system-images;android-36;google_apis;x86_64'
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/build-tools/36.0.0" >> "$GITHUB_PATH"
+          sdkmanager --list_installed > test-results/native/sdk-packages.txt
+      - name: Build and verify the actual native payload
+        run: npm run native:sync
+      - name: Compile, lint and assemble without rewriting dependency evidence
+        working-directory: android
+        run: ./gradlew --no-daemon --dependency-verification=strict lintDebug testDebugUnitTest assembleDebug assembleCapacitorPreview
+      - name: Inspect actual APKs, alignment and debug signatures
+        run: |
+          python tools/check-android-package.py --apk android/app/build/outputs/apk/debug/app-debug.apk --variant debug --receipt test-results/native/debug-package.json
+          python tools/check-android-package.py --apk android/app/build/outputs/apk/capacitorPreview/app-capacitorPreview.apk --variant capacitorPreview --receipt test-results/native/preview-package.json
+          for apk in android/app/build/outputs/apk/debug/*.apk android/app/build/outputs/apk/capacitorPreview/*.apk; do
+            zipalign -c -P 16 -v 4 "$apk"
+            apksigner verify --verbose --print-certs "$apk"
+          done > test-results/native/signatures-alignment.txt
+      - name: Boot the installed debug host offline and exercise native WebView navigation
+        run: bash tools/run-android-smoke.sh
+      - name: Confirm source and dependency locks stayed unchanged
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+      - name: Preserve native receipts and failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-native-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            test-results/native
+            dist-android/android-assets.json
+            dist-android/android-build-identity.json
+            android/app/build/outputs/apk/capacitorPreview/*.apk
+            android/app/build/outputs/androidTest-results/connected
+            android/app/build/reports
+          if-no-files-found: warn
+          retention-days: 7
