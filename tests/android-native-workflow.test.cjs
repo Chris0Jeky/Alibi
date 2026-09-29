@@ -58,6 +58,31 @@ test('native smoke uses actual instrumentation and fails instead of falling back
   assert.doesNotMatch(smoke, /browser_android_payload|playwright|continue-on-error/);
 });
 
-test('Gradle wrapper is executable on Unix checkouts', { skip: process.platform === 'win32' }, () => {
-  assert.notEqual(fs.statSync(path.join(root, 'android/gradlew')).mode & 0o111, 0);
+test(
+  'Gradle wrapper is executable on Unix checkouts',
+  { skip: process.platform === 'win32' },
+  () => {
+    assert.notEqual(fs.statSync(path.join(root, 'android/gradlew')).mode & 0o111, 0);
+  },
+);
+
+test('installed-package smoke keeps the audited digest through Gradle and checks on-device bytes', () => {
+  const smoke = read('tools/run-android-smoke.sh');
+  const java = read('android/app/src/androidTest/java/example/unapproved/alibi/preview/NativeOfflineSmokeTest.java');
+  assert.match(smoke, /EXPECTED_APK_SHA256="\$\(python tools\/android-smoke-evidence\.py prepare\)"/);
+  assert.match(smoke, /-Pandroid\.testInstrumentationRunnerArguments\.alibiExpectedApkSha256=\$EXPECTED_APK_SHA256/);
+  assert.match(smoke, /record --expected-sha "\$EXPECTED_APK_SHA256"/);
+  assert.ok(smoke.indexOf('rm -rf') < smoke.indexOf('connectedDebugAndroidTest'));
+  assert.match(java, /getArguments\(\)\.getString\("alibiExpectedApkSha256"\)/);
+  assert.equal((java.match(/verifyInstalledApk\(expected\);/g) || []).length, 2);
+  assert.match(java, /ApkIdentity\.verify\(new File\(installed\.sourceDir\), expected\)/);
+});
+
+test('native CI preserves the exact generated inputs and dependency failure report', () => {
+  const workflow = read('.github/workflows/android-native.yml');
+  assert.match(workflow, /android-generated-inputs\.test\.cjs/);
+  assert.match(workflow, /test_android_smoke_evidence\.py/);
+  assert.match(workflow, /test_android_apk_identity\.py/);
+  assert.match(workflow, /android\/build\/reports\/dependency-verification/);
+  assert.match(workflow, /android\/capacitor-cordova-android-plugins\/build\.gradle/);
 });

@@ -3,9 +3,12 @@ package example.unapproved.alibi.preview;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.content.pm.ApplicationInfo;
 import android.os.SystemClock;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,8 +44,19 @@ public class NativeOfflineSmokeTest {
                 + "text:document.body?.innerText?.slice(0,1500)})"));
     }
 
+    private void verifyInstalledApk(String expected) throws Exception {
+        ApplicationInfo installed = InstrumentationRegistry.getInstrumentation()
+                .getTargetContext().getApplicationInfo();
+        assertEquals("example.unapproved.alibi.preview", installed.packageName);
+        assertTrue("This smoke requires the audited standalone APK, not extra splits",
+                installed.splitSourceDirs == null || installed.splitSourceDirs.length == 0);
+        ApkIdentity.verify(new File(installed.sourceDir), expected);
+    }
+
     @Test
     public void nativeHostBootsAndNavigatesOffline() throws Exception {
+        String expected = InstrumentationRegistry.getArguments().getString("alibiExpectedApkSha256");
+        verifyInstalledApk(expected);
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
             await(scenario, "globalThis.AlibiDiagnostics && document.querySelector('#main')");
             assertEquals("true", evaluate(scenario,
@@ -73,5 +87,6 @@ public class NativeOfflineSmokeTest {
             assertEquals("0", evaluate(scenario, "globalThis.__alibiNativeSmokeWorkers"));
             evaluate(scenario, "delete globalThis.__alibiNativeSmokeWorkers");
         }
+        verifyInstalledApk(expected);
     }
 }

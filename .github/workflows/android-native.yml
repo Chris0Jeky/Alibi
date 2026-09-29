@@ -52,7 +52,8 @@ jobs:
           import * as prettier from 'prettier';
           const files = ['tools/android-host-policy.cjs', 'tools/sync-android.cjs',
             'tests/android-host-policy.test.cjs', 'tests/android-native-workflow.test.cjs',
-            'tests/android-build.test.cjs'];
+            'tests/android-build.test.cjs', 'tools/android-generated-inputs.cjs',
+            'tests/android-generated-inputs.test.cjs', 'android/gradle/generated-inputs.json'];
           for (const file of files) {
             const source = await fs.readFile(file, 'utf8');
             const options = await prettier.resolveConfig(file);
@@ -69,8 +70,10 @@ jobs:
           retention-days: 3
       - name: Exercise fail-closed source and package contracts
         run: |
-          node --test tests/android-host-policy.test.cjs tests/android-native-workflow.test.cjs tests/platform-native.test.mjs tests/platform-bootstrap.test.mjs
+          node --test tests/android-host-policy.test.cjs tests/android-generated-inputs.test.cjs tests/android-native-workflow.test.cjs tests/platform-native.test.mjs tests/platform-bootstrap.test.mjs
           python tests/test_android_package.py
+          python tests/test_android_smoke_evidence.py
+          python tests/test_android_apk_identity.py
           bash -n tools/run-android-smoke.sh
       - name: Prepare Android tools
         run: |
@@ -83,7 +86,7 @@ jobs:
         run: npm run native:sync
       - name: Compile, lint and assemble without rewriting dependency evidence
         working-directory: android
-        run: ./gradlew --no-daemon --dependency-verification=strict lintDebug testDebugUnitTest assembleDebug assembleCapacitorPreview
+        run: ./gradlew --no-daemon --dependency-verification=strict -Dorg.gradle.dependency.verification.console=verbose lintDebug testDebugUnitTest assembleDebug assembleCapacitorPreview
       - name: Inspect actual APKs, alignment and debug signatures
         run: |
           python tools/check-android-package.py --apk android/app/build/outputs/apk/debug/app-debug.apk --variant debug --receipt test-results/native/debug-package.json
@@ -120,5 +123,10 @@ jobs:
             android/app/build/outputs/apk/capacitorPreview/*.apk
             android/app/build/outputs/androidTest-results/connected
             android/app/build/reports
+            android/build/reports/dependency-verification
+            android/capacitor.settings.gradle
+            android/app/capacitor.build.gradle
+            android/capacitor-cordova-android-plugins/build.gradle
+            android/capacitor-cordova-android-plugins/cordova.variables.gradle
           if-no-files-found: warn
           retention-days: 7

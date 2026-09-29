@@ -5,6 +5,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUT="$ROOT/test-results/native"
 mkdir -p "$OUT"
+# Keep the original audited digest across Gradle's potentially rebuilding install step.
+EXPECTED_APK_SHA256="$(python tools/android-smoke-evidence.py prepare)"
+# A failed or skipped run must not reuse an earlier success receipt/report.
+rm -f "$OUT/emulator-smoke.json"
+rm -rf "$ROOT/android/app/build/outputs/androidTest-results/connected"
 export ANDROID_SERIAL=emulator-5554
 SDK="${ANDROID_HOME:?Android SDK is required}"
 export PATH="$SDK/platform-tools:$SDK/emulator:$SDK/cmdline-tools/latest/bin:$PATH"
@@ -41,27 +46,8 @@ adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
 adb shell input keyevent 82
-(cd android && ./gradlew --no-daemon --dependency-verification=strict connectedDebugAndroidTest)
-python - <<'PY'
-from pathlib import Path
-import json
-import subprocess
-import xml.etree.ElementTree as ET
-root = Path('android/app/build/outputs/androidTest-results/connected')
-reports = list(root.rglob('TEST-*.xml'))
-assert reports, 'No actual instrumentation reports were produced'
-found = []
-for report in reports:
-    suite = ET.parse(report).getroot()
-    for case in suite.iter('testcase'):
-        assert not any(case.find(kind) is not None for kind in ('failure', 'error', 'skipped')), str(report)
-        if case.get('name') == 'nativeHostBootsAndNavigatesOffline':
-            found.append(case)
-assert len(found) == 1, 'Expected exactly one successful native cold-boot smoke, not a skipped task'
-receipt = {'schemaVersion': 1, 'evidence': 'debug-android-emulator-smoke',
-           'sourceSha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
-           'api': 36, 'variant': 'debug', 'airplaneMode': True,
-           'test': 'nativeHostBootsAndNavigatesOffline', 'physicalDeviceAccepted': False,
-           'productionApproved': False}
-Path('test-results/native/emulator-smoke.json').write_text(json.dumps(receipt, indent=2) + '\n')
-PY
+# nativeHostBootsAndNavigatesOffline checks installed sourceDir before and after controls.
+(cd android && ./gradlew --no-daemon --dependency-verification=strict \
+  "-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=$EXPECTED_APK_SHA256" \
+  connectedDebugAndroidTest)
+python tools/android-smoke-evidence.py record --expected-sha "$EXPECTED_APK_SHA256"
