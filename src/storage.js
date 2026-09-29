@@ -179,6 +179,7 @@
         expectedRevision < 0
       )
         throw Error('Revision limit.');
+      const key = record.key;
       const next = AlibiCore.clone(record);
       next.rev = expectedRevision + 1;
       next.updatedAt = new Date().toISOString();
@@ -187,22 +188,22 @@
           let conflict = false;
           const tx = this.db.transaction('runs', 'readwrite'),
             os = tx.objectStore('runs'),
-            r = os.get(record.key);
+            r = os.get(key);
           this.watch(tx, reject);
           r.onsuccess = () => {
             if ((r.result?.value.rev || 0) !== expectedRevision) {
               conflict = true;
               tx.abort();
-            } else os.put({ key: record.key, value: next });
+            } else os.put({ key, value: next });
           };
           tx.oncomplete = () => resolve(next);
           tx.onerror = () => reject(tx.error);
           tx.onabort = () =>
             reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
         });
-      const old = await this.get('runs', record.key);
+      const old = await this.get('runs', key);
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
-      return this.put('runs', record.key, next);
+      return this.put('runs', key, next);
     }
     async export() {
       return {
@@ -252,7 +253,12 @@
               )
             )
               throw new ConflictError();
-            if (!backup || !Array.isArray(backup.runs) || !Array.isArray(backup.packs))
+            if (
+              backup?.format !== 'alibi-backup' ||
+              backup.schemaVersion !== 1 ||
+              !backup.runs?.every?.((r) => typeof r?.key === 'string') ||
+              !backup.packs?.every?.((p) => typeof p?.id === 'string')
+            )
               throw Error('Unsupported backup format. Nothing was changed.');
             meta.put({
               key: 'pre-restore-backup',
