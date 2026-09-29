@@ -20,6 +20,21 @@ function checked(p) {
   if (!fs.existsSync(f) || !fs.statSync(f).isFile()) throw Error('Missing asset ' + p);
   return { path: p, bytes: fs.statSync(f).size, sha256: hash(fs.readFileSync(f)) };
 }
+function mergeDetails(assets, detail, label) {
+  if (
+    !detail ||
+    !Array.isArray(detail.assets) ||
+    detail.assets.length === 0 ||
+    !Array.isArray(assets) ||
+    assets.length === 0 ||
+    !assets[0] ||
+    !Array.isArray(assets[0].derivatives) ||
+    !Array.isArray(detail.master?.derivatives)
+  )
+    throw Error('Invalid details catalogue ' + label);
+  assets[0].derivatives.push(...detail.master.derivatives);
+  return assets;
+}
 function main() {
   const assets = read(BASE + 'visuals/catalogue.json');
   const editorial = BASE + 'editorial/catalogue.json';
@@ -28,8 +43,7 @@ function main() {
   const details = BASE + 'realm/details/catalogue.json';
   if (fs.existsSync(path.join(ROOT, details))) {
     const detail = read(details);
-    detail.assets[0].derivatives.push(...detail.master.derivatives);
-    assets.push(...detail.assets);
+    assets.push(...mergeDetails(detail.assets, detail, details));
   }
   const ap = BASE + 'audio/catalogue.json';
   if (fs.existsSync(path.join(ROOT, ap)))
@@ -241,4 +255,4 @@ function main() {
   return output;
 }
 if (require.main === module) main();
-module.exports = { main, checked };
+module.exports = { main, checked, mergeDetails };

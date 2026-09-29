@@ -424,10 +424,12 @@ for (const p of generatedPuzzles) {
 if (new Set(orderedPuzzles.map((p) => p.id)).size !== orderedPuzzles.length)
   throw Error('Duplicate published puzzle ID');
 const catalogue = { ...publishedCatalog, puzzles: orderedPuzzles };
-fs.writeFileSync(
-  path.join(ROOT, 'content/catalog.json'),
-  JSON.stringify(catalogue, null, 2) + '\n',
-);
+function writeCatalogue() {
+  fs.writeFileSync(
+    path.join(ROOT, 'content/catalog.json'),
+    JSON.stringify(catalogue, null, 2) + '\n',
+  );
+}
 const books = [
   {
     id: 'last-light-at-bellweather',
@@ -614,8 +616,16 @@ const preservedBooks = publishedBooks.slice();
 for (const book of books) if (!publishedBookIds.has(book.id)) preservedBooks.push(book);
 if (new Set(preservedBooks.map((book) => book.id)).size !== preservedBooks.length)
   throw Error('Duplicate casebook ID');
-fs.writeFileSync(
-  path.join(ROOT, 'content/casebooks.json'),
-  JSON.stringify(preservedBooks, null, 2) + '\n',
-);
-console.log('TOTAL', catalogue.puzzles.length, 'TYPES', C.TYPES.length);
+function writeCasebooks() {
+  fs.writeFileSync(
+    path.join(ROOT, 'content/casebooks.json'),
+    JSON.stringify(preservedBooks, null, 2) + '\n',
+  );
+}
+function main() {
+  writeCatalogue();
+  writeCasebooks();
+  console.log('TOTAL', catalogue.puzzles.length, 'TYPES', C.TYPES.length);
+}
+if (require.main === module) main();
+module.exports = { main };

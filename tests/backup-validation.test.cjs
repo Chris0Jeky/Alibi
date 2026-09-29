@@ -183,6 +183,18 @@ test('Club save archive replay accepts a legal walk and rejects a wall push with
   assert.deepEqual(invalid, snapshot);
 });
 
+test('Club records with unparseable dates are rejected while valid ISO dates pass', () => {
+  const good = baseClubSave();
+  good.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date: FIXED_DATE }];
+  assert.doesNotThrow(() => validator.validateSave(good));
+
+  for (const date of ['not-a-date', '']) {
+    const bad = baseClubSave();
+    bad.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date }];
+    assert.throws(() => validator.validateSave(bad), /Invalid record\./);
+  }
+});
+
 function baseClubSave() {
   return {
     schema: 1,
@@ -254,4 +266,31 @@ test('a run whose key does not match its puzzle revision is rejected', () => {
 
   const mismatched = backupWith({ runs: [makeRun('sudoku-01', { key: 'sudoku-01@999' })] });
   assertRejectedUnchanged(mismatched, REVISION_MESSAGE);
+});
+
+test('Club run updatedAt must be a short parseable date string when present', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const clubSaveWith = (updatedAt) => {
+    const save = {
+      schema: 1,
+      settings: { assist: 'off', zen: false, pinned: null },
+      visit: 1,
+      lastHero: -1,
+      runs: { archive: { level: 0, log: ['up'], redo: [] } },
+      records: [],
+      stamps: [],
+    };
+    if (updatedAt !== undefined) save.runs.archive.updatedAt = updatedAt;
+    return save;
+  };
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(undefined)));
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(null)));
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(FIXED_DATE)));
+
+  for (const bad of [123, 'x'.repeat(41), 'not-a-date']) {
+    const save = clubSaveWith(bad);
+    const snapshot = structuredClone(save);
+    assert.throws(() => clubValidator.validateSave(save), /Invalid save date\./);
+    assert.deepEqual(save, snapshot);
+  }
 });

@@ -2364,8 +2364,13 @@
       'Checking the collection.',
       `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
     );
+    const startedSerial = routeSerial;
     const p = await inWorker({ type: 'pack', pack: data });
     await installPack(p);
+    if (routeSerial !== startedSerial) {
+      toast(`'${p.title}' is ready in your collection.`);
+      return;
+    }
     closeDialog();
     dialog(
       'A new collection is ready.',
@@ -2487,6 +2492,7 @@
       cl.other = value;
     } else if (!['edge', 'notEdge'].includes(kind)) cl.value = Number(value);
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
+    C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
     draft.clues.push(cl);
     dirtyDraft();
@@ -2971,6 +2977,7 @@
           );
         break;
       case 'apply-update':
+        endPaint();
         await AlibiActivities.flush();
         await AlibiClub.flush();
         if (AlibiClub.diagnostics().saveError)

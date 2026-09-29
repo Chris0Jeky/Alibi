@@ -142,6 +142,12 @@
           r.redo.length > 3000
         )
           throw Error('Invalid game history.');
+        const d = r.updatedAt;
+        if (
+          d != null &&
+          (typeof d !== 'string' || d.length > 40 || !Number.isFinite(Date.parse(d)))
+        )
+          throw Error('Invalid save date.');
         const history = [...r.log, ...r.redo.slice().reverse()];
         if (key === 'duel') {
           E().reversi.strength(r.difficulty);
@@ -199,7 +205,8 @@
           r.label.length > 100 ||
           !Number.isFinite(r.score) ||
           typeof r.date !== 'string' ||
-          r.date.length > 40
+          r.date.length > 40 ||
+          !Number.isFinite(Date.parse(r.date))
         )
           throw Error('Invalid record.');
       }
