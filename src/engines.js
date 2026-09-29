@@ -331,9 +331,15 @@
             if (row.every((i) => s.marks[i] === 0) || col.every((i) => s.marks[i] === 0))
               out.push(issue('A row or column has no remaining possibilities.'));
           }
-        for (const cl of p.clues)
-          if (cl.kind !== 'link' && a[cl.cat * n + cl.who] >= 0 && !dossierMatch(p, a, cl))
+        for (const cl of p.clues) {
+          const w = cl.kind === 'link' ? a.slice(0, n).indexOf(cl.a) : cl.who;
+          if (
+            w >= 0 &&
+            a[(cl.kind === 'link' ? 1 : cl.cat) * n + w] >= 0 &&
+            !dossierMatch(p, a, cl)
+          )
             out.push(issue(dossierClue(p, cl)));
+        }
         if (dossierReady(p, s) && s.accused !== null && a[n + s.accused] !== p.targetItem)
           out.push(issue('That person did not carry the item identified in the evidence.'));
         return out;
