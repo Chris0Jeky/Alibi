@@ -303,13 +303,15 @@
             }
           }
         }
-        if (a.type === 'clue') {
-          const clueCount = Array.isArray(p.clues) ? p.clues.length : 0;
-          if (!Number.isInteger(a.index) || a.index < 0 || a.index >= clueCount) return s;
+        if (
+          a.type === 'clue' &&
+          Number.isInteger(a.index) &&
+          a.index >= 0 &&
+          a.index < p.clues.length
+        )
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
-        }
         if (a.type === 'accuse' && Number.isInteger(a.who) && a.who >= 0 && a.who < n)
           t.accused = a.who;
         return t;

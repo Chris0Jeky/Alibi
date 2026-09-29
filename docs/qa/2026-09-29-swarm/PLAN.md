@@ -282,3 +282,46 @@ Wave 009 (4/4 completed) — verdicts:
 - Dossier clue-toggle guard fixed inline (75e4a18): scene reducer already
   guarded (wave-007 claim half-disproven); dossier appended unvalidated
   indexes that validateState rejects. RED→GREEN in core suite.
+- `fix-serve-harden` INTEGRATED (eb92c50): catch-all `_headers` read,
+  `createHandler` extraction with 500 + stream destroy on both dev servers,
+  gallery `require.main` guard (verified spawn-only). RED (3 fail headers,
+  2 fail gallery, API-undefined probe; the combined RED run hung on the old
+  gallery's require-time listen handle and was re-run per-file) → GREEN
+  12/12 after caller repaired a Windows-only POSIX stub root in the 500
+  test. Prettier-applied, worktree torn down.
+- `importPack` route-modal race fixed inline (5ca25c4): completion toasts
+  when validation outlived its route instead of closing the new route's
+  modal (the codebase's own "a route owns its modal" rule). UI suite 185/185.
+- Wave 012 lenses: tg-app "activities/updates do not exist" definitively
+  disproven (`src/activities.js:192` defines `AlibiActivities`) — lens
+  discounted for existence/coverage verdicts. tg-storage multipack/IDB-timing
+  and tg-quiet launcher-esc HIGHs noted as future write-tests candidates;
+  no workers (diminishing returns vs suite-backed items).
+- CONFIRMED build-curation `data:undefined` + release-prepare silent
+  `--pulseboard` fallback → `fix-tools-validate` worker enqueued.
+  update-curation-bundle partial snapshot DOWNGRADED to accepted friction
+  (deliberate loud guard, one-command recovery).
+- Visual-QA probe on fresh screenshots (desktop-home, mobile-scene): no
+  visual defects. Owner-visible observation (no code change): dominoes and
+  mahjong are fully playable via salon routes (e.g. `club.js:612`) but have
+  no home/salon cards and are skipped by the home continuation
+  (`club.js:479`) — reachable essentially only by direct navigation.
+- `fix-tools-validate` INTEGRATED (b7e404c): derivative shape validation +
+  strict `--pulseboard` (usage error on missing/flag-like values, throw on
+  non-checkout paths, ambient chain only when flag absent). RED 0/6 →
+  GREEN 6/6 after caller repaired the curation fixture (`dist/assets`
+  mkdir). Adjacent curation/tools suites green. Worktree torn down.
+- Size gates: session-2 additions tripped the app gzip ceiling (+81) and the
+  precache ceiling (+739). Two trim rounds (folded dossier guard, redundant
+  check/comment removal), then measured raises with justification: app gzip
+  +96 (133,952 -> 134,048), precache +1,024 (1,408,000 -> 1,409,024); asset
+  catalogue regenerated (app.js size/hash only). Full `npm run verify`
+  EXIT 0 on the clean tree.
+- Wave-014 lens backlog (untriaged, for next session): curation-editorial
+  load() TypeError on notes missing provenance (HIGH), challenge-catalogue
+  null-challenge acceptance (HIGH), apply-update ACTIVATE→reload playable
+  gap (HIGH — extends the session-1 input-lock item), lesson-finish route
+  yank (medium), release-prepare finally-masked cleanup (medium),
+  range-clamp 416 inconsistency (low), activities flush TypeError (low),
+  boot split-brain hash (low), concurrent-stroke undo baseline (low),
+  readCommittedRuns autosave race (low).

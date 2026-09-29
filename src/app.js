@@ -2364,8 +2364,13 @@
       'Checking the collection.',
       `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
     );
+    const startedSerial = routeSerial;
     const p = await inWorker({ type: 'pack', pack: data });
     await installPack(p);
+    if (routeSerial !== startedSerial) {
+      toast(`'${p.title}' is ready in your collection.`);
+      return;
+    }
     closeDialog();
     dialog(
       'A new collection is ready.',
