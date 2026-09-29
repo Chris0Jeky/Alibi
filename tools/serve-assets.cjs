@@ -31,6 +31,17 @@ http
     }
     if (name === '/') name = '/assets-source/library/index.html';
     const file = path.resolve(root, '.' + name);
+    const rel = path.relative(root, file);
+    const relPosix = rel.split(path.sep).join('/');
+    if (
+      relPosix === '' ||
+      relPosix === '..' ||
+      relPosix.startsWith('../') ||
+      path.isAbsolute(rel)
+    ) {
+      res.writeHead(403).end('Not a gallery asset');
+      return;
+    }
     const allowed = [
       'assets-source/library/',
       'assets-source/quiet-wing/',
@@ -41,9 +52,18 @@ http
       'src/illustrations/',
       'docs/',
       'tools/assets/',
-    ].some((prefix) => name.startsWith('/' + prefix));
-    if (!allowed || !file.startsWith(root + path.sep)) {
+    ].some((prefix) => {
+      if (prefix.endsWith('/')) {
+        return relPosix === prefix.slice(0, -1) || relPosix.startsWith(prefix);
+      }
+      return relPosix === prefix;
+    });
+    if (!allowed) {
       res.writeHead(403).end('Not a gallery asset');
+      return;
+    }
+    if (!['GET', 'HEAD'].includes(req.method)) {
+      res.writeHead(405).end();
       return;
     }
     if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
@@ -55,13 +75,18 @@ http
       end = size - 1,
       status = 200;
     if (req.headers.range) {
-      const match = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range);
-      if (!match) {
+      const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
+      if (!match || (!match[1] && !match[2])) {
         res.writeHead(416).end();
         return;
       }
-      start = Number(match[1]);
-      end = match[2] ? Math.min(Number(match[2]), size - 1) : size - 1;
+      if (!match[1] && match[2]) {
+        start = Math.max(0, size - Number(match[2]));
+        end = size - 1;
+      } else {
+        start = Number(match[1]);
+        end = match[2] ? Math.min(Number(match[2]), size - 1) : size - 1;
+      }
       if (start > end || start >= size) {
         res.writeHead(416, { 'Content-Range': `bytes */${size}` }).end();
         return;
