@@ -217,6 +217,17 @@ ok(
   !C.registry.dossier.validate(dossierLink, linkOpen).some((i) => i.message === linkText),
   'dossier uncommitted link endpoint skipped',
 );
+const dclue = pack.puzzles.find((p) => p.type === 'dossier'),
+  dcs = C.registry.dossier.initial(dclue);
+for (const index of [NaN, -1, dclue.clues.length, 999, 'x']) {
+  const next = C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index });
+  eq(next.clueMarks, [], 'dossier out-of-range clue toggle ignored');
+}
+eq(
+  C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index: 0 }).clueMarks,
+  [0],
+  'dossier valid clue toggle kept',
+);
 const output = {
   passed: true,
   assertions,

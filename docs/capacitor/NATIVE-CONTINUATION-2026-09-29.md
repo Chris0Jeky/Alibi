@@ -18,9 +18,24 @@ PR #486 separately verifies the native style actually emitted into the Android i
 PWA leakage and uses those emitted bytes for its computed-style checks. It preserves the original
 responsive assertions. No saved state, game rule, publisher identity or production permission changes.
 
-Both branches are reconciled with main `1bbedd87ee2d0eeb3472fd51e7aafd0915eb2476` through the exact
-fourteen non-overlapping changed blobs. The authoritative STATE/swarm records are retained intact.
-Fresh integrated-head checks are required; results from earlier heads are identified below.
+## Reconciliation and the final-diff correction
+
+The first reconciliation copied fourteen non-overlapping files from current main
+`1bbedd87ee2d0eeb3472fd51e7aafd0915eb2476`. That was complete for #486, whose final compare
+contains only its eight intended feature/document/test files. It was **not complete for #485**:
+its retained base was older. The final main-to-candidate comparison at `b58dc74` exposed eight
+additional missing or reverted files. They were restored using their exact current-main blobs:
+
+- `src/challenge-storage.js` and `src/validator-worker.js`.
+- `tests/challenge-restore.test.cjs`, `tests/core.test.cjs`, `tests/theatre.test.cjs`,
+  `tests/validator-worker.test.cjs` and `tests/voices.test.cjs`.
+- `docs/qa/2026-09-29-swarm/tasks/fix-serve-harden.md`.
+
+No main branch was changed by the incomplete intermediate draft. The correction is preservation
+of existing work, not a new implementation of those fixes. Require a complete main-to-head diff
+with no unrelated deletions/reverts and fresh exact-head checks before integration. The prior
+STATE file is preserved by its exact Git blob in the same-directory archive linked from STATE.md;
+its release and swarm history is not discarded by the new native handoff index.
 
 ## Evidence and unresolved native build blocker
 
@@ -36,13 +51,13 @@ Its Gradle verification report names **missing checksums**, not mismatches, for 
 - `com.google.guava:guava-parent:33.3.1-jre`, `guava-parent-33.3.1-jre.pom`.
 - `org.junit:junit-bom:5.10.2`, `junit-bom-5.10.2.module`.
 
-The bounded read-only metadata-evidence workflow retrieves only those two public Maven Central
-files, records their bytes and SHA-256 values, and compares published SHA-256 sidecars when
-available. It refuses redirects, excess size and checksum mismatches. This is retrieval evidence,
-not automatic trust: it never edits verification-metadata.xml, runs Gradle in a weaker mode,
-changes dependency versions or pushes source. Review the resulting exact bytes and upstream
-provenance before adding only the missing trust entries. Then rerun strict native compilation,
-actual APK audits and installed-package smoke. Do not replace the existing trust database wholesale.
+Read-only metadata run 36640697713 retrieved the two public artifacts without changing sources.
+The [reviewed repair](METADATA-REPAIR.md) records full-file agreement between the Guava POM and
+its upstream release, plus JUnit's published SHA-256 match. The patch was actually applied and
+reverse-checked in a disposable local directory while preserving all old trust bytes.
+**The canonical Gradle metadata remains unchanged.** Apply and commit that bounded repair on
+#485, then rerun strict compilation, actual APK audits and installed-package smoke. Do not replace
+the existing trust database wholesale or represent the supplied patch as an already passing build.
 
 [Gradle's verification guidance](https://docs.gradle.org/current/userguide/dependency_verification.html)
 explains why generated checksums require review and why disabling metadata verification weakens
@@ -53,8 +68,9 @@ publisher-signature verification. No new signature approval is asserted here.
 
 The repaired local focused suite passed 58 Node tests, seven synthetic receipt groups and one
 JVM group exercising the exact test hashing helper. PR #486's eight new artifact groups passed
-locally. Its Android payload workflow 36639371830 passed at `e32a92d`; broader mobile-desk and
-numbered-import workflows had failures requiring reconciliation, not a merge-ready verdict.
+locally. Its Android payload workflow 36639371830 passed at `e32a92d`; after reconciliation,
+Android payload, mobile desk, Wrenmere, numbered-import and planning-vault workflows passed at
+`96cbcb9`. Broader checks and fresh independent review remained pending at that observation.
 Local complete npm installation/build is unavailable, so source fixtures are not represented as
 full application or device verification. Current-source CI and independent review remain gates.
 

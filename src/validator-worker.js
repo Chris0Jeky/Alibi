@@ -46,23 +46,39 @@ self.onmessage = (e) => {
       )
         throw Error('Unknown combined backup. The file and all device saves are unchanged.');
       const validators = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG, () => AlibiClubEngines, 4);
-      validators.validateBackup(data.sections.cabinet);
-      validators.validateSave(data.sections.club);
+      const cabinet = validators.validateBackup(data.sections.cabinet);
+      const club = validators.validateSave(data.sections.club);
+      let quiet = data.sections.quiet;
       if (data.sections.quiet) {
         if (
           data.sections.quiet.kind !== 'alibi-quiet-wing-backup' ||
           data.sections.quiet.schema !== 1
         )
           throw Error('Unknown Quiet Wing backup. Nothing was restored.');
-        QWStore.validate(data.sections.quiet.state);
+        quiet = { ...data.sections.quiet, state: QWStore.validate(data.sections.quiet.state) };
       }
-      if (manifest.includes('castle')) AlibiCastleValidation.validateBackup(data.sections.castle);
-      value = data;
+      let castle = data.sections.castle;
+      if (manifest.includes('castle'))
+        castle = AlibiCastleValidation.validateBackup(data.sections.castle);
+      value = {
+        ...data,
+        sections: {
+          ...data.sections,
+          cabinet,
+          club,
+          ...(data.sections.quiet ? { quiet } : {}),
+          ...(manifest.includes('castle') ? { castle } : {}),
+        },
+      };
     } else if (m.type === 'cabinet-backup') {
+      if (typeof m.text === 'string' && m.text.length > 16 * 1024 * 1024)
+        throw Error('Backup exceeds the 16 MB safety limit.');
       value = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG).validateBackup(
         m.text ? parse(m.text) : m.value,
       );
     } else if (m.type === 'club-backup') {
+      if (typeof m.text === 'string' && m.text.length > 1 * 1024 * 1024)
+        throw Error('Club backup exceeds the import limit.');
       value = AlibiBackupValidation(AlibiCore, null, () => AlibiClubEngines, 4).validateSave(
         m.text ? parse(m.text) : m.value,
       );

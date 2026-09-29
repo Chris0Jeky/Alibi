@@ -153,3 +153,148 @@ test('the quiet room bar stays off castle pages, where its link would leave the 
   realm.location.hash = '#/quiet/castles';
   assert.match(realm.AlibiTheatre.bar(true), /quiet-room-choice/);
 });
+
+// The two pins below have no indirect coverage: no earlier test in this file calls
+// escape() or choose() (the castle-guard test only exercises bar()'s hash check).
+function theatreRealm({ scenes, storedChoice, hero, casebooks, delivery, media } = {}) {
+  const store = new Map();
+  if (storedChoice !== undefined) store.set('alibi-room', storedChoice);
+  const realm = {
+    ALIBI_THEATRE: { scenes, audio: [], films: [] },
+    ALIBI_CASEBOOKS: casebooks || [],
+    ALIBI_DELIVERY: delivery,
+    ALIBI_MEDIA: media,
+    localStorage: {
+      getItem: (k) => (store.has(k) ? store.get(k) : null),
+      setItem: (k, v) => store.set(k, String(v)),
+    },
+    location: { hash: '#/home' },
+    document: {
+      addEventListener() {},
+      querySelector: (sel) =>
+        sel === '[data-theatre-story]' && hero ? { dataset: { theatreStory: hero } } : null,
+    },
+    addEventListener() {},
+  };
+  require('node:vm').runInNewContext(
+    fs.readFileSync(path.join(root, 'src/theatre.js'), 'utf8'),
+    realm,
+    { timeout: 2000 },
+  );
+  return realm.AlibiTheatre;
+}
+
+test('escape() HTML-escapes scene titles, credits and sources in room strings', () => {
+  const theatre = theatreRealm({
+    scenes: [
+      {
+        id: 'reading-room',
+        title: 'Storm <script>alert("room")</script> & friends',
+        subtitle: 'Soft \'rain\' & "thunder" <low>',
+        motif: 'book',
+        motion: 'rain',
+        families: [],
+        quiet: [],
+        art: 'poison-art',
+        detail: 'poison-detail',
+      },
+    ],
+    delivery: {
+      mode: () => 'auto',
+      'poison-detail': {
+        credit: 'Curator <b>bold</b> & co',
+        source: 'https://example.invalid/c?x=1&y=<z>',
+      },
+    },
+    media: { 'poison-art': 'https://example.invalid/a?x=1&y="big"' },
+  });
+  for (const html of [theatre.room(), theatre.bar()]) {
+    assert.ok(!html.includes('<script>'), 'a broken escape must fail, not render raw markup');
+    assert.ok(html.includes('&lt;script&gt;'), 'the scene title is entity-escaped');
+    assert.ok(html.includes('&amp;'), 'ampersands are escaped');
+  }
+  const html = theatre.room();
+  assert.ok(html.includes('&quot;room&quot;'), 'double quotes are escaped');
+  assert.ok(html.includes('&#39;rain&#39;'), 'single quotes are escaped');
+  assert.ok(html.includes('&lt;low&gt;'), 'the subtitle is escaped');
+  assert.ok(!html.includes('<b>bold</b>'), 'a broken credit escape must fail');
+  assert.ok(html.includes('&lt;b&gt;bold&lt;/b&gt; &amp; co'), 'the credit is escaped');
+  assert.ok(!html.includes('y=<z>'), 'a broken source escape must fail');
+  assert.ok(html.includes('x=1&amp;y=&lt;z&gt;'), 'the credit source is escaped');
+  assert.ok(html.includes('y=&quot;big&quot;'), 'the artwork source is escaped');
+});
+
+test('choose() follows the pinned, hero, casebook, wing and family precedence', () => {
+  const scenes = [
+    { id: 'reading-room', families: [], quiet: [] },
+    { id: 'harbour', families: [], quiet: [] },
+    { id: 'glasshouse', families: [], quiet: [] },
+    { id: 'briar-house', families: [], quiet: [] },
+    { id: 'hero-room', families: [], quiet: [] },
+    { id: 'book-room', families: [], quiet: [] },
+    { id: 'quiet-nook', families: [], quiet: ['journal'] },
+    { id: 'family-room', families: ['sudoku'], quiet: [] },
+  ];
+  const id = (options, r, puzzle) => theatreRealm({ scenes, ...options }).choose(r, puzzle).id;
+  assert.equal(
+    id({ storedChoice: 'family-room', hero: 'hero-room' }, { page: 'home' }),
+    'family-room',
+    'a pinned room beats the hero story',
+  );
+  assert.equal(
+    id({ hero: 'hero-room' }, { page: 'home' }),
+    'hero-room',
+    'home follows the hero story',
+  );
+  assert.equal(
+    id({ hero: 'missing-room' }, { page: 'home', id: 'sudoku' }),
+    'family-room',
+    'an unknown hero story is ignored',
+  );
+  assert.equal(
+    id({ hero: 'hero-room' }, { page: 'play', id: 'sudoku' }),
+    'family-room',
+    'the hero story only applies at home',
+  );
+  assert.equal(
+    id({ casebooks: [{ id: 'case-1', artwork: 'book-room' }] }, { page: 'play', book: 'case-1' }),
+    'book-room',
+    'a casebook artwork match wins',
+  );
+  assert.equal(
+    id(
+      { casebooks: [{ id: 'case-9', artwork: 'missing-room' }] },
+      { page: 'play', book: 'case-9', id: 'case-9' },
+    ),
+    'reading-room',
+    'an unknown artwork falls through',
+  );
+  assert.equal(
+    id({}, { page: 'quiet', id: 'journal' }),
+    'quiet-nook',
+    'quiet pages use the wing room',
+  );
+  assert.equal(
+    id({}, { page: 'quiet', id: 'unmapped' }),
+    'reading-room',
+    'quiet pages without a match fall back',
+  );
+  assert.equal(id({}, { page: 'lab' }), 'harbour', 'the lab uses the harbour');
+  assert.equal(id({}, { page: 'play', id: 'borough' }), 'harbour', 'the borough uses the harbour');
+  assert.equal(id({}, { page: 'play', id: 'duel' }), 'glasshouse', 'duels use the glasshouse');
+  assert.equal(
+    id({}, { page: 'play', id: 'archive' }),
+    'briar-house',
+    'the archive uses Briar House',
+  );
+  assert.equal(
+    id({}, { page: 'play', id: 'unrelated' }, { type: 'sudoku' }),
+    'family-room',
+    'the puzzle family decides otherwise',
+  );
+  assert.equal(
+    id({}, { page: 'play', id: 'unrelated' }),
+    'reading-room',
+    'unknown routes rest in the reading room',
+  );
+});
