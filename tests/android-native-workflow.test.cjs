@@ -57,3 +57,7 @@ test('native smoke uses actual instrumentation and fails instead of falling back
   assert.match(smoke, /nativeHostBootsAndNavigatesOffline/);
   assert.doesNotMatch(smoke, /browser_android_payload|playwright|continue-on-error/);
 });
+
+test('Gradle wrapper is executable on Unix checkouts', { skip: process.platform === 'win32' }, () => {
+  assert.notEqual(fs.statSync(path.join(root, 'android/gradlew')).mode & 0o111, 0);
+});
