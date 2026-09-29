@@ -2487,6 +2487,7 @@
       cl.other = value;
     } else if (!['edge', 'notEdge'].includes(kind)) cl.value = Number(value);
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
+    C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
     draft.clues.push(cl);
     dirtyDraft();

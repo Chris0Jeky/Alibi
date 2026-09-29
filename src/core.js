@@ -901,6 +901,13 @@
     }
     return clone(s);
   }
+  function validateSceneClue(cl, draft) {
+    try {
+      validateSceneDraft({ ...clone(draft), clues: [...draft.clues, cl] });
+    } catch {
+      throw Error('That clue does not fit.');
+    }
+  }
   // Drafts may be unsolvable while being edited. Validate shape, not publication rules.
   function validateSceneDraft(input) {
     const p = clone(input),
@@ -1120,6 +1127,7 @@
     solverCapabilities,
     hint,
     validateDefinition,
+    validateSceneClue,
     validateSceneDraft,
     validatePack,
     validateState,
