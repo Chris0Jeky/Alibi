@@ -20,6 +20,8 @@ on:
       - 'tests/browser_native_insets.py'
       - 'tests/native_inset_payload.py'
       - 'tests/test_native_inset_payload.py'
+      - 'tests/native_inset_content.py'
+      - 'tests/test_native_inset_leaks.py'
   push:
     branches:
       - main
@@ -41,6 +43,8 @@ on:
       - 'tests/browser_native_insets.py'
       - 'tests/native_inset_payload.py'
       - 'tests/test_native_inset_payload.py'
+      - 'tests/native_inset_content.py'
+      - 'tests/test_native_inset_leaks.py'
 
 permissions:
   contents: read
@@ -79,7 +83,9 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
       - name: Reject missing or leaked emitted native styles
-        run: python tests/test_native_inset_payload.py
+        run: |
+          python tests/test_native_inset_payload.py
+          python tests/test_native_inset_leaks.py
       - name: Verify native inset ownership and PWA isolation
         run: python tests/browser_native_insets.py
       - name: Boot local Android origin without a service worker

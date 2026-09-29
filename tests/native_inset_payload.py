@@ -6,6 +6,13 @@ from pathlib import Path
 LAYER_ID = 'alibi-native-ui'
 
 
+def has_native_rules(css):
+    # Detect transformed subsets as well as the complete layer. Lifecycle-control
+    # suppression has no inset variable, but still carries this target selector.
+    css = css.lower()
+    return 'data-alibi-target' in css or '--safe-area-inset-' in css
+
+
 class Styles(HTMLParser):
     def __init__(self, text):
         super().__init__()
@@ -43,7 +50,7 @@ def validate_payloads(android_html, web_html, expected_css):
         raise ValueError('Android output needs exactly one current, complete native style layer')
     if not android.stylesheets or layers[0]['position'] >= min(android.stylesheets):
         raise ValueError('Native style must precede emitted shared stylesheets, as tested')
-    if any(style['id'] == LAYER_ID or '--safe-area-inset-' in style['css']
+    if any(style['id'] == LAYER_ID or has_native_rules(style['css'])
            or expected_css in style['css'] for style in web.styles):
         raise ValueError('Native style leaked into the web payload')
     return layers[0]['css']
@@ -55,8 +62,8 @@ def load_native_style(root: Path):
     expected = (root / 'src/platform/native-insets.css').read_bytes().decode('utf-8')
     emitted = validate_payloads(android.decode('utf-8'), web.decode('utf-8'), expected)
     for stylesheet in (root / 'dist').rglob('*.css'):
-        if '--safe-area-inset-' in stylesheet.read_text(encoding='utf-8'):
-            raise ValueError(f'Native inset consumers leaked into web stylesheet: {stylesheet.name}')
+        if has_native_rules(stylesheet.read_text(encoding='utf-8')):
+            raise ValueError(f'Native rules leaked into web stylesheet: {stylesheet.name}')
     return emitted, {'androidIndexSha256': sha256(android).hexdigest(),
                      'webIndexSha256': sha256(web).hexdigest(),
                      'nativeStyleSha256': sha256(emitted.encode('utf-8')).hexdigest()}

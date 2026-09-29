@@ -6,6 +6,7 @@ import subprocess
 
 from playwright.sync_api import sync_playwright
 from native_inset_payload import load_native_style
+from native_inset_content import verify_content_reservation
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = "\n".join((ROOT / name).read_text(encoding="utf-8") for name in (
@@ -98,6 +99,8 @@ def main():
                 }""")
                 assert values(page) == baseline, ("PWA layout changed", width, height, body)
                 checks.append(f"web-isolation:{width}x{height}:{body}")
+        checks.extend(verify_content_reservation(page, NATIVE, SHARED,
+                      ROOT / 'test-results/native-insets/content-screenshots'))
         version = browser.version
         browser.close()
     out = ROOT / "test-results/native-insets"
