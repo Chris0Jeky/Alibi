@@ -12,6 +12,8 @@ const {
   regularFiles,
 } = require('./android-host-policy.cjs');
 
+const { checkGeneratedInputs } = require('./android-generated-inputs.cjs');
+
 const ROOT = path.resolve(__dirname, '..');
 const ASSETS = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets');
 const PUBLIC = path.join(ASSETS, 'public');
@@ -68,7 +70,7 @@ function syncAndroid() {
     throw new Error(`Android host artifact check failed:\n${result.errors.join('\n')}`);
   const capacitor = require.resolve('@capacitor/cli/bin/capacitor');
   execFileSync(process.execPath, [capacitor, 'sync', 'android'], { cwd: ROOT, stdio: 'inherit' });
-  const errors = checkPublicPayload();
+  const errors = [...checkPublicPayload(), ...checkGeneratedInputs()];
   if (errors.length) throw new Error(`Capacitor payload closure failed:\n${errors.join('\n')}`);
   return { flavor: FLAVOR, public: PUBLIC };
 }
@@ -77,10 +79,10 @@ if (require.main === module) {
   if (process.argv.length === 2) syncAndroid();
   else if (process.argv.length === 3 && process.argv[2] === '--check') {
     checkSourceConfig();
-    const errors = checkPublicPayload();
+    const errors = [...checkPublicPayload(), ...checkGeneratedInputs()];
     if (errors.length) throw new Error(errors.join('\n'));
     console.log('Native sync configuration and payload closure passed.');
   } else throw new Error('Usage: node tools/sync-android.cjs [--check]');
 }
 
-module.exports = { checkPublicPayload, syncAndroid };
+module.exports = { checkPublicPayload, checkGeneratedInputs, syncAndroid };

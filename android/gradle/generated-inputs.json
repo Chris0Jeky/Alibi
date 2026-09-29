@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "capacitorVersion": "8.5.2",
+  "normalization": "CRLF-to-LF only",
+  "sha256": {
+    "capacitor.settings.gradle": "b488e162f552d6efb8286793c7871bbc1061c9bf5ca3a6a495fdeb8988a541c7",
+    "app/capacitor.build.gradle": "7051cadfdbc532197d2cfd4f8a11684d81367f23cf7952e5a208f7b6aa0833e0",
+    "capacitor-cordova-android-plugins/build.gradle": "bae71d6688b30720fdb76c7a91c01786832698006582616dac82672d62f7378d",
+    "capacitor-cordova-android-plugins/cordova.variables.gradle": "b13104b34f7738abceec358ae8226ba5e64855e97babde54a115880e9b9bd47b"
+  }
+}
