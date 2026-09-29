@@ -1,10 +1,11 @@
 """Scrollable-content geometry using the supplied emitted layer, not device acceptance."""
 from pathlib import Path
 
-VIEWPORTS = [(390, 844), (430, 800), (431, 800), (760, 480), (760, 481),
+VIEWPORTS = [(390, 844), (430, 800), (431, 800), (600, 800), (601, 800), (650, 800), (651, 800), (760, 480), (760, 481),
              (761, 481), (768, 800), (800, 800), (801, 800), (900, 400)]
 MODES = [("", "plain"), ('class="block-motion-active"', "block"),
-         ('data-house="true"', "house")]
+         ('data-house="true"', "house"), ('class="club-home"', "club-home"),
+         ('class="club-experiment"', "club-experiment"), ('class="club-zen"', "zen")]
 
 
 def geometry(page):
@@ -12,7 +13,8 @@ def geometry(page):
         const main = document.querySelector('#main');
         const nav = document.querySelector('.mobile-nav');
         const style = getComputedStyle(main);
-        return {bottom: parseFloat(style.paddingBottom), top: style.paddingTop,
+        return {bottom: parseFloat(style.paddingBottom), marginBottom: parseFloat(style.marginBottom),
+                top: style.paddingTop,
                 left: style.paddingLeft, right: style.paddingRight,
                 navVisible: nav.getClientRects().length > 0,
                 navHeight: nav.getBoundingClientRect().height};
@@ -44,13 +46,14 @@ def verify_content_reservation(page, native, shared, screenshots: Path):
                         document.documentElement.style.setProperty('--safe-area-inset-bottom', inset + 'px');
                     }""", inset)
                     actual = geometry(page)
-                    expected = baseline['bottom'] + (inset if baseline['navVisible'] else 0)
-                    assert abs(actual['bottom'] - expected) < 0.1, (label, actual, baseline, expected)
-                    for side in ('top', 'left', 'right', 'navVisible'):
+                    expected = baseline['marginBottom'] + (inset if baseline['navVisible'] else 0)
+                    assert abs(actual['marginBottom'] - expected) < 0.1, (label, actual, baseline, expected)
+                    for side in ('bottom', 'top', 'left', 'right', 'navVisible'):
                         assert actual[side] == baseline[side], (label, side, actual, baseline)
                     if actual['navVisible']:
-                        gap = actual['bottom'] - actual['navHeight']
-                        assert abs(gap - (baseline['bottom'] - baseline['navHeight'])) < 0.1, label
+                        gap = actual['bottom'] + actual['marginBottom'] - actual['navHeight']
+                        old_gap = baseline['bottom'] + baseline['marginBottom'] - baseline['navHeight']
+                        assert abs(gap - old_gap) < 0.1, label
                         page.evaluate("window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'instant'})")
                         assert page.evaluate("""() => {
                             const button = document.querySelector('#final-action');

@@ -7,22 +7,15 @@ html[data-alibi-target='android'] .settings-grid > .panel:has([data-action='inst
 }
 
 @media (max-width: 800px) {
-  /* Reserve the enlarged dock in document flow, not inside each child control.
-     The existing #main overrides still own House and fullscreen Block layouts. */
-  html[data-alibi-target='android'] .main {
-    padding-bottom: calc(95px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  /* Add only the dock's native growth outside the existing padding cascade.
+     House has its own dock; ID-specific Block and important Zen rules keep zero
+     outer margin while the ordinary mobile dock is hidden. */
+  html[data-alibi-target='android'] body:not([data-house='true']) .main {
+    margin-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   }
   html[data-alibi-target='android'] .mobile-nav {
     padding-bottom: calc(9px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
     height: calc(65px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
-  }
-}
-@media (max-width: 430px) {
-  html[data-alibi-target='android'] .main {
-    padding-bottom: calc(93px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
-  }
-  html[data-alibi-target='android'] .playing .main {
-    padding-bottom: calc(89px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
   }
 }
 @media (max-width: 768px) {

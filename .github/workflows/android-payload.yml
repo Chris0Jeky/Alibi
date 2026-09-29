@@ -22,6 +22,8 @@ on:
       - 'tests/test_native_inset_payload.py'
       - 'tests/native_inset_content.py'
       - 'tests/test_native_inset_leaks.py'
+      - 'tests/native_inset_stylesheets.py'
+      - 'tests/test_native_inset_stylesheets.py'
   push:
     branches:
       - main
@@ -45,6 +47,8 @@ on:
       - 'tests/test_native_inset_payload.py'
       - 'tests/native_inset_content.py'
       - 'tests/test_native_inset_leaks.py'
+      - 'tests/native_inset_stylesheets.py'
+      - 'tests/test_native_inset_stylesheets.py'
 
 permissions:
   contents: read
@@ -86,6 +90,7 @@ jobs:
         run: |
           python tests/test_native_inset_payload.py
           python tests/test_native_inset_leaks.py
+          python tests/test_native_inset_stylesheets.py
       - name: Verify native inset ownership and PWA isolation
         run: python tests/browser_native_insets.py
       - name: Boot local Android origin without a service worker
