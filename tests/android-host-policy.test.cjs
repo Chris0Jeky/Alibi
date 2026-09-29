@@ -17,11 +17,20 @@ function fixture(t) {
   fs.mkdirSync(source);
   fs.mkdirSync(target, { recursive: true });
   for (const dir of [source, target]) fs.writeFileSync(path.join(dir, 'index.html'), 'preview');
-  for (const name of ['cordova.js', 'cordova_plugins.js']) fs.writeFileSync(path.join(target, name), '');
-  const config = (value) => fs.writeFileSync(path.join(assets, 'capacitor.config.json'), JSON.stringify(value));
+  for (const name of ['cordova.js', 'cordova_plugins.js'])
+    fs.writeFileSync(path.join(target, name), '');
+  const config = (value) =>
+    fs.writeFileSync(path.join(assets, 'capacitor.config.json'), JSON.stringify(value));
   config(approved);
   fs.writeFileSync(path.join(assets, 'capacitor.plugins.json'), '[]');
-  return { root, source, target, assets, config, check: () => checkPublicPayload({ source, target }) };
+  return {
+    root,
+    source,
+    target,
+    assets,
+    config,
+    check: () => checkPublicPayload({ source, target }),
+  };
 }
 
 test('the pinned plugin-free preview has an exact valid sync closure', (t) => {
@@ -32,17 +41,72 @@ test('the pinned plugin-free preview has an exact valid sync closure', (t) => {
 });
 
 for (const [name, mutate] of [
-  ['remote URL', (c) => { c.server.url = 'https://example.invalid'; }],
-  ['remote navigation', (c) => { c.server.allowNavigation = ['*']; }],
-  ['changed origin', (c) => { c.server.hostname = 'other.localhost'; }],
-  ['cleartext', (c) => { c.server.cleartext = true; }],
-  ['mixed content', (c) => { c.android.allowMixedContent = true; }],
-  ['debugging', (c) => { c.android.webContentsDebuggingEnabled = true; }],
-  ['HTTP bridge', (c) => { c.plugins.CapacitorHttp = { enabled: true }; }],
-  ['unexpected native field', (c) => { c.android.overrideUserAgent = 'unreviewed'; }],
-  ['production identity', (c) => { c.appId = 'com.example.production'; }],
-  ['changed WebView floor', (c) => { c.android.minWebViewVersion = 100; }],
-  ['missing inset handling', (c) => { delete c.plugins.SystemBars; }],
+  [
+    'remote URL',
+    (c) => {
+      c.server.url = 'https://example.invalid';
+    },
+  ],
+  [
+    'remote navigation',
+    (c) => {
+      c.server.allowNavigation = ['*'];
+    },
+  ],
+  [
+    'changed origin',
+    (c) => {
+      c.server.hostname = 'other.localhost';
+    },
+  ],
+  [
+    'cleartext',
+    (c) => {
+      c.server.cleartext = true;
+    },
+  ],
+  [
+    'mixed content',
+    (c) => {
+      c.android.allowMixedContent = true;
+    },
+  ],
+  [
+    'debugging',
+    (c) => {
+      c.android.webContentsDebuggingEnabled = true;
+    },
+  ],
+  [
+    'HTTP bridge',
+    (c) => {
+      c.plugins.CapacitorHttp = { enabled: true };
+    },
+  ],
+  [
+    'unexpected native field',
+    (c) => {
+      c.android.overrideUserAgent = 'unreviewed';
+    },
+  ],
+  [
+    'production identity',
+    (c) => {
+      c.appId = 'com.example.production';
+    },
+  ],
+  [
+    'changed WebView floor',
+    (c) => {
+      c.android.minWebViewVersion = 100;
+    },
+  ],
+  [
+    'missing inset handling',
+    (c) => {
+      delete c.plugins.SystemBars;
+    },
+  ],
 ]) {
   test(`sync refuses ${name} in generated config`, (t) => {
     const f = fixture(t);
@@ -99,26 +163,30 @@ test('missing, extra and changed copied files remain detectable', (t) => {
 });
 
 for (const kind of ['copied-file', 'source-file', 'metadata', 'directory', 'source-root']) {
-  test(`sync rejects a ${kind} symlink rather than reading through it`, { skip: process.platform === 'win32' }, (t) => {
-    const f = fixture(t);
-    if (kind === 'metadata') {
-      const filename = path.join(f.assets, 'capacitor.config.json');
-      const real = path.join(f.root, 'config.json');
-      fs.renameSync(filename, real);
-      fs.symlinkSync(real, filename);
-    } else if (kind === 'source-root') {
-      const real = path.join(f.root, 'real-source');
-      fs.renameSync(f.source, real);
-      fs.symlinkSync(real, f.source, 'dir');
-    } else if (kind === 'directory') {
-      fs.symlinkSync(f.source, path.join(f.target, 'alias'), 'dir');
-    } else {
-      const dir = kind === 'source-file' ? f.source : f.target;
-      const real = path.join(f.root, 'real-index.html');
-      fs.writeFileSync(real, 'preview');
-      fs.rmSync(path.join(dir, 'index.html'));
-      fs.symlinkSync(real, path.join(dir, 'index.html'));
-    }
-    assert.match(f.check().join('\n'), /symlink|regular|directory/i);
-  });
+  test(
+    `sync rejects a ${kind} symlink rather than reading through it`,
+    { skip: process.platform === 'win32' },
+    (t) => {
+      const f = fixture(t);
+      if (kind === 'metadata') {
+        const filename = path.join(f.assets, 'capacitor.config.json');
+        const real = path.join(f.root, 'config.json');
+        fs.renameSync(filename, real);
+        fs.symlinkSync(real, filename);
+      } else if (kind === 'source-root') {
+        const real = path.join(f.root, 'real-source');
+        fs.renameSync(f.source, real);
+        fs.symlinkSync(real, f.source, 'dir');
+      } else if (kind === 'directory') {
+        fs.symlinkSync(f.source, path.join(f.target, 'alias'), 'dir');
+      } else {
+        const dir = kind === 'source-file' ? f.source : f.target;
+        const real = path.join(f.root, 'real-index.html');
+        fs.writeFileSync(real, 'preview');
+        fs.rmSync(path.join(dir, 'index.html'));
+        fs.symlinkSync(real, path.join(dir, 'index.html'));
+      }
+      assert.match(f.check().join('\n'), /symlink|regular|directory/i);
+    },
+  );
 }

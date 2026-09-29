@@ -37,7 +37,8 @@ function readRegularFile(filename, limit = Infinity) {
   const stat = fs.lstatSync(filename);
   if (!stat.isFile() || stat.isSymbolicLink())
     throw new Error(`Expected a regular file, not a symlink or special file: ${filename}.`);
-  if (stat.size > limit) throw new Error(`File exceeds the ${limit}-byte check limit: ${filename}.`);
+  if (stat.size > limit)
+    throw new Error(`File exceeds the ${limit}-byte check limit: ${filename}.`);
   return fs.readFileSync(filename);
 }
 

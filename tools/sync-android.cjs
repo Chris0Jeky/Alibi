@@ -26,7 +26,9 @@ function checkPublicPayload({ source = path.join(ROOT, 'dist-android'), target =
     if (!sourceFiles.has('index.html')) errors.push('Android source needs a nonempty index.html.');
     else if (!readRegularFile(sourceFiles.get('index.html')).length)
       errors.push('Android source needs a nonempty index.html.');
-    const copiedFiles = [...targetFiles.keys()].filter((name) => !CAPACITOR_PUBLIC_EXTRAS.has(name));
+    const copiedFiles = [...targetFiles.keys()].filter(
+      (name) => !CAPACITOR_PUBLIC_EXTRAS.has(name),
+    );
     if ([...sourceFiles.keys()].sort().join('\n') !== copiedFiles.sort().join('\n'))
       errors.push('Capacitor public payload file set differs from the checked Android payload.');
     for (const name of CAPACITOR_PUBLIC_EXTRAS) {
@@ -36,7 +38,10 @@ function checkPublicPayload({ source = path.join(ROOT, 'dist-android'), target =
         errors.push(`Generated ${name} must be empty for the plugin-free preview.`);
     }
     for (const [name, filename] of sourceFiles) {
-      if (!targetFiles.has(name) || !readRegularFile(filename).equals(readRegularFile(targetFiles.get(name))))
+      if (
+        !targetFiles.has(name) ||
+        !readRegularFile(filename).equals(readRegularFile(targetFiles.get(name)))
+      )
         errors.push(`Capacitor public payload differs for ${name}.`);
     }
     const assets = path.dirname(target);

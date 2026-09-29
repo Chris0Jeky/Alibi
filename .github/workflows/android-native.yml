@@ -75,7 +75,7 @@ jobs:
       - name: Prepare Android tools
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
-          sdkmanager 'platform-tools' 'emulator' 'platforms;android-36' 'build-tools;36.0.0' 'system-images;android-36;google_apis;x86_64'
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/build-tools/36.0.0" >> "$GITHUB_PATH"
           sdkmanager --list_installed > test-results/native/sdk-packages.txt
@@ -92,6 +92,16 @@ jobs:
             zipalign -c -P 16 -v 4 "$apk"
             apksigner verify --verbose --print-certs "$apk"
           done > test-results/native/signatures-alignment.txt
+      - name: Prepare emulator after package validation
+        run: |
+          # Record and use the hosted image's emulator when available. Updating it is
+          # not a prerequisite for compiling or auditing an APK.
+          if test ! -x "$ANDROID_HOME/emulator/emulator"; then
+            sdkmanager 'emulator'
+          fi
+          "$ANDROID_HOME/emulator/emulator" -version > test-results/native/emulator-version.txt
+          sdkmanager 'system-images;android-36;google_apis;x86_64'
+          sdkmanager --list_installed > test-results/native/sdk-packages.txt
       - name: Boot the installed debug host offline and exercise native WebView navigation
         run: bash tools/run-android-smoke.sh
       - name: Confirm source and dependency locks stayed unchanged

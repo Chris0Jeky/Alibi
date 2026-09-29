@@ -2972,6 +2972,7 @@
           );
         break;
       case 'apply-update':
+        endPaint();
         await AlibiActivities.flush();
         await AlibiClub.flush();
         if (AlibiClub.diagnostics().saveError)
