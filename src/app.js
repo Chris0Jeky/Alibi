@@ -2368,8 +2368,6 @@
     const p = await inWorker({ type: 'pack', pack: data });
     await installPack(p);
     if (routeSerial !== startedSerial) {
-      // A route owns its modal: validation outlived its route, so announce
-      // by toast instead of closing whatever the new route opened.
       toast(`'${p.title}' is ready in your collection.`);
       return;
     }

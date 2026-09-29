@@ -101,9 +101,14 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // shape guard. Three trim rounds removed ~250 bytes first (shared check instead of a parallel
 // validator, compressed guards); a tenth candidate (strict nonogram Solved gate) was reverted
 // after the UI suite proved fill-only completion is the player contract. Ceiling +128.
+// Session-2 swarm wave (2026-09-29, unreleased): five verified correctness fixes measure a net
+// +81 gzip bytes (133,887 -> 133,968): Club record date validation, drag-commit before update,
+// dossier clue-toggle guard, challenge restore recovery with conflict preservation, late-import
+// toast on route change. Two trim rounds first (redundant Array check, folded guard, comment
+// trims); gzip noise absorbed most of the saving. Ceiling +96.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 3904,
-  'Application bundle stays under 127 KiB + 3,904 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4000,
+  'Application bundle stays under 127 KiB + 4,000 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -133,8 +138,11 @@ assert.ok(
   // 1,372,919 -> 1,395,446 bytes on the #396 base; ceiling +22,528.
   // Swarm quality wave (2026-09-29, unreleased): the same ten fixes measure +603
   // bytes here (1,406,648 -> 1,407,251); ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 23552,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 23,552 bytes',
+  // Session-2 swarm wave (2026-09-29, unreleased): the five correctness fixes plus
+  // worker sanitizer/caps measure +739 bytes (1,407,251 -> 1,407,990) after two trim
+  // rounds; ceiling +1,024. Not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 24576,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 24,576 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
