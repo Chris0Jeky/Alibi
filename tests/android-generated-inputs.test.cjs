@@ -5,13 +5,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-// Before the repair, sync has no generated-Gradle boundary and accepts mutations.
-const { checkGeneratedInputs = () => [] } = require('../tools/sync-android.cjs');
+const { checkGeneratedInputs } = require('../tools/android-generated-inputs.cjs');
 const inputs = [
   ['capacitor.settings.gradle', 'capacitor.settings.gradle'],
   ['app/capacitor.build.gradle', 'capacitor.build.gradle'],
   ['capacitor-cordova-android-plugins/build.gradle', 'cordova-build.gradle'],
   ['capacitor-cordova-android-plugins/cordova.variables.gradle', 'cordova.variables.gradle'],
+  ['capacitor-cordova-android-plugins/src/main/AndroidManifest.xml', 'AndroidManifest.xml'],
 ];
 
 function fixture(t) {
@@ -24,7 +24,6 @@ function fixture(t) {
   }
   const cordova = path.join(root, 'capacitor-cordova-android-plugins');
   for (const [name, value] of [
-    ['src/main/AndroidManifest.xml', '<manifest/>'],
     ['src/main/java/.gitkeep', ''],
     ['src/main/res/.gitkeep', '\n'],
   ]) {

@@ -6,6 +6,7 @@
     "capacitor.settings.gradle": "b488e162f552d6efb8286793c7871bbc1061c9bf5ca3a6a495fdeb8988a541c7",
     "app/capacitor.build.gradle": "7051cadfdbc532197d2cfd4f8a11684d81367f23cf7952e5a208f7b6aa0833e0",
     "capacitor-cordova-android-plugins/build.gradle": "28e3fa281f4d1e388bf98abc7f5bb31e672516e385c165c719d201ed54b8236e",
-    "capacitor-cordova-android-plugins/cordova.variables.gradle": "b13104b34f7738abceec358ae8226ba5e64855e97babde54a115880e9b9bd47b"
+    "capacitor-cordova-android-plugins/cordova.variables.gradle": "b13104b34f7738abceec358ae8226ba5e64855e97babde54a115880e9b9bd47b",
+    "capacitor-cordova-android-plugins/src/main/AndroidManifest.xml": "2e3e383475f0e6cb76f0a7b46017a546663fba8e5bd1ef2a537412afac2ee9b5"
   }
 }

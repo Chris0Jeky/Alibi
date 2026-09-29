@@ -1,69 +1,57 @@
 # Live development state
 
-## Native Android continuation, unreleased: 29 September 2026
+## Android review continuation, unreleased: 29 September 2026
 
-The native work continues the existing Capacitor program [#120](https://github.com/Chris0Jeky/Alibi/issues/120),
-not a second renderer or a new save authority. Start with the
-[native-readiness audit](capacitor/NATIVE-READINESS-2026-09-29.md),
-[implementation plan](capacitor/NATIVE-FOUNDATION-PLAN.md) and
-[retry handoff](capacitor/NATIVE-CONTINUATION-2026-09-29.md).
+PR [#486](https://github.com/Chris0Jeky/Alibi/pull/486) now reserves the expanded native dock
+in the scrollable content, preserves the 95/93/89px responsive bases, and leaves House/fullscreen
+Block padding ownership intact. The new regression uses actual #main/playing/body selectors and
+hit-tests the final scrollable action. It passed 180 local source-fixture cases. Partial native
+lifecycle-suppression CSS is now rejected in inline and external web output; twelve previously
+accepted leak subcases now reject. At head `27bcf3fb182dc926f6b07cfbfd592ad695571dfc`, the Android
+payload workflow 36644982720, mobile desk and Wrenmere checks passed. Full checks and independent
+review remain separate gates; consult the exact-head PR state before merging.
 
-Two focused drafts contain the deliverables:
+PR [#485](https://github.com/Chris0Jeky/Alibi/pull/485) also pins the generated Cordova manifest,
+closing the inventory-only gap for package queries, hardware features and private components.
+Four mutation regressions reproduced the gap; 27 generated-input tests pass locally after repair.
+The expected manifest comes from the pinned CLI generator, not the different source template.
+See [GENERATED-INPUTS.md](capacitor/GENERATED-INPUTS.md).
 
-- [#485](https://github.com/Chris0Jeky/Alibi/pull/485): generated native-input auditing,
-  actual-APK policy and CI, installed-package receipt binding, architecture and continuation evidence.
-- [#486](https://github.com/Chris0Jeky/Alibi/pull/486): native inset consumers, responsive isolation
-  and verification of the actual emitted stylesheet rather than only its source constant.
+The two reviewed Maven metadata additions have been reconstructed locally into a complete XML
+file and checked against the retained expected after-digest. **The canonical repository XML is
+still unchanged.** Its strict Gradle failure therefore remains a build blocker. The authoritative
+repair and before/after/patch hashes are in [METADATA-REPAIR.md](capacitor/METADATA-REPAIR.md).
+Do not claim an APK or emulator pass from source fixtures or a supplied patch.
 
-Both were reconciled with main `1bbedd87ee2d0eeb3472fd51e7aafd0915eb2476` without replacing
-its fourteen non-overlapping changed files. This record does not claim either draft was merged,
-an APK was built by this retry, or anything was deployed. Consult their latest exact-head CI and
-review receipts before integration; the source-bound results below are not interchangeable heads.
+## Existing native work and evidence
 
-## Checked results and the next blocking step
+The existing Capacitor program [#120](https://github.com/Chris0Jeky/Alibi/issues/120) retains one
+shared renderer and save authority. Read the [readiness audit](capacitor/NATIVE-READINESS-2026-09-29.md),
+[foundation plan](capacitor/NATIVE-FOUNDATION-PLAN.md) and
+[retry handoff](capacitor/NATIVE-CONTINUATION-2026-09-29.md). #485 contains generated-input and
+copied-payload auditing, actual-APK policy/CI and installed-sourceDir receipt binding. #486 contains
+native-only inset consumption and emitted-CSS verification. No new wrapper or native plugin is added.
 
-The repaired native-focused local suite passed 58 Node tests, seven synthetic receipt groups and
-one JVM test group exercising the exact installed-APK hashing helper. At `04b2404`, Android
-payload verification passed; real Capacitor generation and generated-input checking also passed,
-but strict Gradle dependency verification stopped before APK assembly on two missing metadata
-checksums. No APK audit or emulator pass follows from those source checks.
-
-The [metadata repair](capacitor/METADATA-REPAIR.md) now contains two reviewed checksum additions,
-full provenance and an exact apply-checked patch. Guava's downloaded POM matches its upstream
-release file byte-for-byte; JUnit's module digest matches its published checksum. **The canonical
-verification-metadata.xml is unchanged.** Apply the reviewed patch on #485, commit that XML change,
-and rerun strict native compilation, APK auditing and installed-package smoke. Do not disable
-verification, replace old trust entries or treat the patch file as an already applied fix.
-
-For #486, Android payload run 36639371830 passed on `e32a92d`. Its downloaded artifact was
-hash-verified: all 144 computed-style scenarios use emitted native CSS, with exact Android/web
-index and stylesheet hashes and `sourceDirty:false`. Eight new artifact regression groups also
-pass locally. At integrated head `96cbcb9`, Android payload, mobile desk, Wrenmere, numbered import
-and planning-vault workflows passed at the last check; broader verification was still running.
-These are browser/source results, not actual phone, TalkBack or native inset-injection acceptance.
+Both branches preserve main `1bbedd87ee2d0eeb3472fd51e7aafd0915eb2476`. The incomplete earlier
+#485 reconciliation was corrected at `f32964a`: eight omitted/reverted main files were restored by
+exact Git blobs. Its final main-to-head comparison contained no unrelated source/test reversions.
+Older-head results in the handoff are historical, not acceptance of a later candidate.
 
 ## Preserved game development and release history
 
-The complete preceding STATE file is retained byte-for-byte in
+The complete preceding state record is retained byte-for-byte in
 [STATE-BEFORE-NATIVE-RETRY-2026-09-29.md](STATE-BEFORE-NATIVE-RETRY-2026-09-29.md),
-using its existing Git blob `d56913b39599122905728f409a226de31dea5714`. It stays in the same directory
-so all relative links retain their meaning. This includes the current session-2 swarm record,
-its unresolved backlog, earlier native preview evidence and all release/history sections.
-The native handoff does not remove, reclassify or supersede those observed results.
-
-Current shared-code activity remains in [the swarm plan](qa/2026-09-29-swarm/PLAN.md).
-Hosted release evidence remains in [RELEASE-0.15.0.md](RELEASE-0.15.0.md) and the archived
-per-origin receipts, not in the native draft results above. Existing research/content PRs retain
-their own integration ownership; reconcile their STATE changes rather than discarding history.
+Git blob `d56913b39599122905728f409a226de31dea5714`. It stays in the same directory so relative
+links retain their meaning. This includes session-2 swarm work, its backlog and every earlier
+release section. Current shared-code activity remains in [the swarm plan](qa/2026-09-29-swarm/PLAN.md).
+Hosted release evidence remains in [RELEASE-0.15.0.md](RELEASE-0.15.0.md), not native draft results.
+No deployment or production signing occurred in this continuation.
 
 ## Owner and device gates
 
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative. q-2/q-4/q-11 and issues
-#2/#11/#13/#118/#131 require affected-device recovery, real Android interaction, TalkBack,
-large text, gestures, IME and sustained game-feel/performance acceptance. q-3/#123 retains
-publisher/application identity and signing custody. #127/#128 retain durable native recovery
-and explicit PWA transfer. Neither a Chromium viewport nor an emulator can close physical gates.
-
-No player storage was cleared, no save format or puzzle revision changed, no new production
-permission or runtime plugin was introduced, and no signing key, Play credential or player backup
-was published by this retry. Both existing web origins remain unchanged.
+#2/#11/#13/#118/#131 retain affected-phone, real Android interaction, TalkBack, large text,
+gestures, IME and sustained game-feel checks. q-3/#123 retains publisher identity and signing
+custody; #127/#128 retain durable native recovery and explicit PWA transfer. Neither Chromium
+fixtures nor an emulator close physical-device gates. No player storage, save formats, puzzle
+revisions, application identity, production permissions or existing origins changed here.
