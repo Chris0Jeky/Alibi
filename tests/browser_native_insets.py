@@ -1,17 +1,17 @@
-"""Computed-style fixtures for the native inset layer, not Android device acceptance."""
+"""Computed-style fixtures using the emitted native layer, not Android device acceptance."""
 from pathlib import Path
 import json
 import os
 import subprocess
 
 from playwright.sync_api import sync_playwright
+from native_inset_payload import load_native_style
 
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = "\n".join((ROOT / name).read_text(encoding="utf-8") for name in (
     "src/app.css", "src/block-cabinet/style.css", "src/house/style.css"))
-NATIVE = subprocess.check_output([
-    "node", "-e", "process.stdout.write(require('./tools/build-android.cjs').NATIVE_UI_CSS)"
-], cwd=ROOT, text=True)
+# Missing, stale or duplicated native output and any PWA leakage fail before layout checks.
+NATIVE, PAYLOAD = load_native_style(ROOT)
 HTML = """<main class="main"><p>Content</p></main><nav class="mobile-nav"><button>Menu</button></nav>
 <dialog open class="quick-sheet">Actions</dialog><section class="bc-studio"><div class="bc-controls">Move</div></section>
 <section class="hx-experience">House</section><nav class="hx-mobile"><a>One</a></nav>
@@ -47,7 +47,7 @@ def main():
         for width, height in viewports:
             page.set_viewport_size({"width": width, "height": height})
             for body in ("", 'class="block-motion-active"', 'data-house="true"'):
-                # The native layer precedes the shared CSS in the actual built index.
+                # The emitted layer precedes shared CSS; the payload parser verifies that order.
                 page.set_content(f"<style>{NATIVE}</style><style>{SHARED}</style><body {body}>{HTML}</body>")
                 baseline = values(page)
                 page.evaluate("document.documentElement.dataset.alibiTarget = 'android'")
@@ -105,7 +105,7 @@ def main():
     receipt = {"evidence": "chromium-computed-style-fixtures", "browser": version,
                "sourceSha": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
                "sourceDirty": bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip()),
-               "checks": checks, "physicalDeviceAccepted": False}
+               "payload": PAYLOAD, "checks": checks, "physicalDeviceAccepted": False}
     (out / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(f"Native inset computed-style fixtures: {len(checks)} passed ({version}); no Android device claim.")
 
