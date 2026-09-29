@@ -162,3 +162,74 @@ Wave 002 (depth bug-hunts) — verdicts:
   the lens misread); bytes stay preserved. Real-origin suite 271/271 PASS
   after the revert. Lesson for future lenses: the repo's executable suites
   are the contract; two "bugs" died against them (nonogram, getAll).
+
+## Session 2 triage log (orchestrator: this session, base f41c452)
+
+Wave 007 (6/6 completed) — verdicts, all verified in-checkout:
+- REJECTED st-bh1/high cabinet 500/3000 asymmetry (second sighting of the
+  session-1 log-cap claim): live play refuses cabinet moves past 500
+  (`src/club.js:986`, "This cabinet is full"), so a longer save is
+  tamper-only and validator fail-closed is correct. Per-game replay caps
+  (tictactoe 9, dominoes 500, town 18, garden 3000) are deliberate.
+- REJECTED bh-storage/high discovery CAS success-without-write: IndexedDB
+  request error aborts the transaction by default (no preventDefault), so
+  `tx.onabort` rejects — resolve-without-write is unreachable.
+- REJECTED bh-storage/high Store.restore key-only guard and medium snapshot
+  no-error-handler: the key/id shape guard is the deliberate session-1
+  contract (sole callers pass worker-validated data); snapshot request
+  errors abort and reject via `tx.onabort`, no hang.
+- REJECTED bh-storage/low saveRun shape validation (same contract reasoning).
+- CONFIRMED bh-storage/high challenge restore refusal → `fix-challenge-restore`
+  (one condition: `restoring` bypasses `protectedIds`; `cas()` already retains
+  `recovery:+id`, so pre-restore recovery holds).
+- CONFIRMED bh-storage/medium combined-backup sanitization dropped + medium
+  unbounded cabinet/club text → `fix-combined-worker` (post sanitized
+  sections; 16 MB / 1 MB text caps mirroring the UI gates).
+- CONFIRMED st-tg/high theatre escape + voices-sheet deliver (+4 siblings, zero
+  precise test refs) → `tst-theatre-voices` (indirect-coverage check first,
+  then pin; DOM-blocked items reported, not harnessed).
+- DOWNGRADED bh-player/high cross-tab saved self-conflict to accepted risk:
+  current-key path banners and returns (app.js:376-382); the overwrite path
+  needs a 2-tab + navigate-mid-save race, CAS prevents loss.
+- PARKED (unchanged from session 1): club.js:366 cross-tab localStorage race,
+  quiet classic silent drop; pagehide loss stays accepted risk.
+- CARRY-OVER session-1 inline micro-fix never landed: apply-update omits
+  `endPaint()` (re-flagged bh-player/medium, app.js:2974) and no input lock
+  exists — orchestrator inline fix next, proven by the UI suite.
+- APPROVED-MICRO bh-storage/low Club record dates lack Date.parse check
+  (backup-validation.js:207-208): orchestrator inline fix + test.
+- NOT YET READ (next triage): core.js:353 reducer clue index, serve.cjs:69
+  per-request crash, build-curation data:undefined, release-prepare
+  --pulseboard, update-curation-bundle partial snapshot, importPack dialog.
+- Enqueued: `rr-s1-wave` review-range lens + 3 workers above. In-session
+  Workflow synthesis received: P0s are dual-version lookup audit,
+  restore-atomicity proof, import-bounds matrix; leaner-code via a constants
+  module and dispatch unification; 3-commit incremental plan adopted.
+
+Wave 008 (6/6 completed) — verdicts:
+- `rr-s1-wave` retroactive audit: session-1 wave CLEAN, 0 findings.
+  Residual noted: `serve.cjs` readSecurityPolicy rethrows non-ENOENT I/O
+  errors in the request handler — fold into the serve-hardening task with
+  the wave-007 serve.cjs:69 per-request-crash medium.
+- REJECTED tg-storage HIGHs (second sighting; spot-disproven in session 1 —
+  `tests/storage.test.cjs` covers CAS + pre-restore).
+- DISCOUNTED tg-app claims pending independent verification: lens asserted
+  `src/activities.js`/`src/updates.js` "do not exist"; all three files exist
+  (same existence-check failure mode as session-1 st-dd).
+- DISPROVEN tg-engines/medium validateSceneClue gap: covered by
+  `tests/workshop-clues.test.cjs:19-64` (lens never read it). Other
+  tg-engines/tg-club/tg-quiet HIGHs need grep verification before workers.
+- 3 session-2 workers admitted for wave 010.
+
+## Session 2 integration log
+
+- `record-dates` INTEGRATED (orchestrator inline): Club record dates now
+  require `Date.parse` validity like every run date
+  (`src/backup-validation.js`, +1 condition). RED (fail 1, missing exception)
+  → GREEN (`tests/backup-validation.test.cjs` pass 12, fail 0).
+- `apply-update-endpaint` INTEGRATED (orchestrator inline): `endPaint()` first
+  line of the apply-update case (`src/app.js:2974`; no-op when no drag).
+  DOM-dependent, no Node harness — proven by full browser UI suite 185/185
+  PASS, exit 0 (log `.swarm-queue/browser-ui-s2.log`).
+- Gates: `format:check` GREEN (prettier reflowed the new test),
+  `tests/budget.test.cjs` GREEN (both micro-fixes within budget).
