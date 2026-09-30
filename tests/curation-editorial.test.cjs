@@ -243,3 +243,58 @@ test('collectionPicker gallery with empty selection includes every museum-image 
   assert.ok(!html.includes('data-adaptive-image="salt-cover"'));
   assert.equal((html.match(/<figure>/g) || []).length, 2);
 });
+function editorialFixture(t, note) {
+  const root = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'alibi-editorial-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const dir = path.join(root, 'content/curation/editorial');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, 'puzzle-notes.json'),
+    JSON.stringify({ schema: 'alibi-editorial/v1', puzzles: [note] }),
+  );
+  fs.writeFileSync(
+    path.join(dir, 'collections.json'),
+    JSON.stringify({ schema: 'alibi-collections/v1', collections: [] }),
+  );
+  return root;
+}
+const probeCatalogue = { puzzles: [{ id: 'probe-01', type: 'aquarium', revision: 1 }] };
+function probeNote() {
+  return {
+    id: 'probe-01',
+    family: 'aquarium',
+    venue: 'salt',
+    goal: 'goal',
+    rules: [],
+    controls: 'controls',
+    hints: [{ applies: 'general tactic, not a claim of a forced move', text: 'tactic' }],
+    answer: [],
+    difficultyStatus: 'provisional; not calibrated by human playtesting',
+    provenance: { humanPlaytested: false },
+  };
+}
+function assertInvalidEditorial(root) {
+  assert.throws(
+    () => load(root, probeCatalogue),
+    (err) =>
+      err instanceof Error &&
+      !(err instanceof TypeError) &&
+      err.message.includes('Invalid editorial') &&
+      err.message.includes('probe-01'),
+  );
+}
+test('editorial load rejects a note missing provenance with a named error', (t) => {
+  const note = probeNote();
+  delete note.provenance;
+  assertInvalidEditorial(editorialFixture(t, note));
+});
+test('editorial load rejects a note missing difficultyStatus with a named error', (t) => {
+  const note = probeNote();
+  delete note.difficultyStatus;
+  assertInvalidEditorial(editorialFixture(t, note));
+});
+test('editorial load rejects a note missing hints with a named error', (t) => {
+  const note = probeNote();
+  delete note.hints;
+  assertInvalidEditorial(editorialFixture(t, note));
+});
