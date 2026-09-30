@@ -25,5 +25,26 @@ class PermissionValueTests(unittest.TestCase):
             PACKAGE.manifest_policy(self.manifest('0x2', 'unreviewed.permission'), '0.15.0', 'capacitorPreview')
 
 
+class LaunchModeValueTests(unittest.TestCase):
+    def test_exact_single_task_enum_spellings_are_equivalent(self):
+        for value in ('singleTask', '2', '0x2', '0x00000002'):
+            with self.subTest(value=value):
+                PACKAGE.manifest_policy(MANIFEST.replace('singleTask', value), '0.15.0', 'capacitorPreview')
+
+    def test_other_launch_modes_and_malformed_values_are_rejected(self):
+        for value in ('standard', 'singleTop', 'singleInstance', 'singleInstancePerTask',
+                      '0', '1', '3', '4', '18', '0x12', '-2', '2.0', '', ' 2', '2 '):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, 'launcher'):
+                PACKAGE.manifest_policy(MANIFEST.replace('singleTask', value), '0.15.0', 'capacitorPreview')
+
+    def test_actual_sdk_decoded_debug_and_preview_manifests(self):
+        from pathlib import Path
+        fixtures = Path(__file__).parent / 'fixtures/native-apk-manifests'
+        for filename, variant in [('debug.xml', 'debug'), ('preview.xml', 'capacitorPreview')]:
+            with self.subTest(variant=variant):
+                result = PACKAGE.manifest_policy((fixtures / filename).read_text(), '0.15.0', variant)
+                self.assertEqual(result['debuggable'], variant == 'debug')
+
+
 if __name__ == '__main__':
     unittest.main()

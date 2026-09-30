@@ -124,7 +124,7 @@ def manifest_policy(text: str, version: str, variant: str) -> dict:
             require(allowed, f"Unexpected exported component: {name}")
             exported.append(name)
     require(len(main) == 1 and main[0].get(ANDROID + "exported") == "true"
-            and main[0].get(ANDROID + "launchMode") == "singleTask", "Unexpected launcher contract")
+            and main[0].get(ANDROID + "launchMode") in ("singleTask", "2", "0x2", "0x00000002"), "Unexpected launcher contract")
     filters = main[0].findall("intent-filter")
     require(len(filters) == 1 and not filters[0].findall("data")
             and [n.get(ANDROID + "name") for n in filters[0].findall("action")] == ["android.intent.action.MAIN"]
