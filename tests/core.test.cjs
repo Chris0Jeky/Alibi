@@ -180,6 +180,54 @@ for (const b of books)
         .puzzles.some((p) => p.id === ch.id),
       'casebook chapter resolves ' + ch.id,
     );
+const nonoPicture = { size: 2, rowClues: [[1], [0]], colClues: [[1], [0]] };
+// Completion is deliberately forgiving of uncrossed empties: there is no
+// auto-cross, and the UI suite completes nonograms by filling only (a strict
+// gate strands real players). No all-empty puzzle ships, so the untouched
+// degenerate below cannot occur in content.
+ok(
+  C.registry.nonogram.complete(nonoPicture, { cells: [1, -1, 0, 0] }),
+  'nonogram runs match with unknown cell still completes',
+);
+ok(
+  C.registry.nonogram.complete(nonoPicture, { cells: [1, 0, 0, 0] }),
+  'nonogram crossed empty completes',
+);
+const nonoEmpty = { size: 2, rowClues: [[0], [0]], colClues: [[0], [0]] };
+ok(
+  C.registry.nonogram.complete(nonoEmpty, { cells: [-1, -1, -1, -1] }),
+  'nonogram untouched empty-clue board completes (no such puzzle ships)',
+);
+const dossierLink = {
+  size: 2,
+  people: ['Ann', 'Bob'],
+  categories: [{ values: ['A1', 'A2'] }, { values: ['B1', 'B2'] }],
+  targetItem: 0,
+  solution: [0, 1, 1, 0],
+  clues: [{ kind: 'link', a: 0, b: 1 }],
+};
+const linkText = C.extras.dossierClue(dossierLink, dossierLink.clues[0]);
+const linkBad = { marks: [1, 0, 0, 1, 1, 0, 0, 1], accused: null };
+ok(
+  C.registry.dossier.validate(dossierLink, linkBad).some((i) => i.message === linkText),
+  'dossier committed link contradiction reported',
+);
+const linkOpen = { marks: [1, 0, 0, 1, -1, -1, 0, 1], accused: null };
+ok(
+  !C.registry.dossier.validate(dossierLink, linkOpen).some((i) => i.message === linkText),
+  'dossier uncommitted link endpoint skipped',
+);
+const dclue = pack.puzzles.find((p) => p.type === 'dossier'),
+  dcs = C.registry.dossier.initial(dclue);
+for (const index of [NaN, -1, dclue.clues.length, 999, 'x']) {
+  const next = C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index });
+  eq(next.clueMarks, [], 'dossier out-of-range clue toggle ignored');
+}
+eq(
+  C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index: 0 }).clueMarks,
+  [0],
+  'dossier valid clue toggle kept',
+);
 const output = {
   passed: true,
   assertions,

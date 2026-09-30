@@ -255,3 +255,30 @@ test('a run whose key does not match its puzzle revision is rejected', () => {
   const mismatched = backupWith({ runs: [makeRun('sudoku-01', { key: 'sudoku-01@999' })] });
   assertRejectedUnchanged(mismatched, REVISION_MESSAGE);
 });
+
+test('Club run updatedAt must be a short parseable date string when present', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const clubSaveWith = (updatedAt) => {
+    const save = {
+      schema: 1,
+      settings: { assist: 'off', zen: false, pinned: null },
+      visit: 1,
+      lastHero: -1,
+      runs: { archive: { level: 0, log: ['up'], redo: [] } },
+      records: [],
+      stamps: [],
+    };
+    if (updatedAt !== undefined) save.runs.archive.updatedAt = updatedAt;
+    return save;
+  };
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(undefined)));
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(null)));
+  assert.doesNotThrow(() => clubValidator.validateSave(clubSaveWith(FIXED_DATE)));
+
+  for (const bad of [123, 'x'.repeat(41), 'not-a-date']) {
+    const save = clubSaveWith(bad);
+    const snapshot = structuredClone(save);
+    assert.throws(() => clubValidator.validateSave(save), /Invalid save date\./);
+    assert.deepEqual(save, snapshot);
+  }
+});
