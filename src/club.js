@@ -1449,17 +1449,15 @@
         render();
         delete root.__clubReset;
       } else if (a === 'plan') {
-        const slot = Number(v);
-        if (!Number.isInteger(slot) || slot < 0 || slot > 2) {
-          notify('Choose a plan.');
-          return;
-        }
+        const slot = Number(v),
+          s = currentGame('borough');
+        if (!s || s.done || !(slot in s.offers)) return;
         selectedPlan = slot;
         render();
       } else if (a === 'plot') {
         const i = Number(el.dataset.cell),
           s = currentGame('borough');
-        if (!s || s.done || !Number.isInteger(i) || i < 0 || i > 24) return;
+        if (!s || s.done || !(i in s.board)) return;
         if (s.board[i])
           notify(
             `${E().borough.typeInfo[s.board[i]].name}: ${plural(E().borough.breakdown(s)[i], 'point')}. Only side neighbours count.`,
