@@ -1,61 +1,49 @@
-# Reviewed native metadata repair, not yet applied
+# Applied native metadata repair
 
-Refs #126/#133 and PR #485. **The canonical `android/gradle/verification-metadata.xml`
-remains unchanged.** This deliverable is an exact, locally apply-checked patch and its provenance,
-not a claim that native CI is repaired. Apply it on the existing PR branch, commit the resulting
-canonical XML and rerun strict native checks before treating that blocker as resolved.
+PR #485, refs #126/#133. The canonical `android/gradle/verification-metadata.xml` now contains
+both reviewed additions. Earlier retry records that call the patch unapplied describe older
+heads and are superseded by this record. The patch remains as historical review evidence;
+do not apply it a second time. A repaired trust file is not by itself a passing native build.
 
-## Exact evidence
+## Exact scope
+
+The original 176,838 bytes, Git blob `aa58f817f15e5b7dbd20d4e5219f1c9272064829`, SHA-256
+`f104aa9b18ef575cf97b76541943093c53f6b5dd12df16297d4b34b33886adad`, become 177,437 bytes,
+Git blob `e183f62061b9bffc512ce69eaecdaaabd007214d`, SHA-256
+`aa12c80d3baf0c65e251b7391e75b1e76c4e9bf1b292dd666d3bfff1e9a89b95`.
+Only eight lines are added. Removing the two added blocks reproduces every original byte.
+The component count changes from 391 to 392; all old artifacts and digests remain untouched.
+No dependency version, repository, lockfile or verification mode changes.
+
+The additions are the Guava parent 33.3.1-jre POM and the existing JUnit BOM 5.10.2 module.
+Guava SHA-256: `55441db27e8869dfefe053059bdf478bdc7e95585642bf391f0023345fd56287`.
+JUnit SHA-256: `de23b114b3e4119a8fe6eb17bed5a3852816698bace67071579d6d927ebb080a`.
+
+## Provenance and publication
 
 Read-only run [36640697713](https://github.com/Chris0Jeky/Alibi/actions/runs/36640697713)
-succeeded at source `539a0a8e509d758f421b126b5f6dcc464a4907a7`. Artifact 11066148422 was
-downloaded, inspected and verified against ZIP SHA-256
+retrieved the two public Maven Central artifacts. Artifact 11066148422 has archive SHA-256
 `4824076c58aefac4a223a5d431ea4c3811cbeba24919a39e3e20f5dbfae17112`.
-No trust metadata or source file was edited by that workflow.
+The complete 20,206-byte Guava POM agrees with the official
+[Guava v33.3.1 root POM](https://github.com/google/guava/blob/v33.3.1/pom.xml),
+Git blob `12c82a046ff012bb99e41e40789f7b4c9f77fef0`. Its SHA-256 sidecar was not published.
+The 6,995-byte JUnit module agrees with its published Maven Central SHA-256 sidecar. These
+checks are not represented as independent publisher-signature verification.
 
-Guava's 20,206-byte `guava-parent-33.3.1-jre.pom` came from the fixed HTTPS Maven Central
-endpoint. Its SHA-256 is `55441db27e8869dfefe053059bdf478bdc7e95585642bf391f0023345fd56287`.
-That endpoint did not publish a SHA-256 sidecar (404). Instead, the complete downloaded file's
-Git blob hash was independently computed as `12c82a046ff012bb99e41e40789f7b4c9f77fef0`, exactly
-matching the upstream [Guava v33.3.1 root POM](https://github.com/google/guava/blob/v33.3.1/pom.xml)
-retrieved through the GitHub connector. The declared group, artifact and version were inspected.
-This is exact full-file agreement with the upstream release, not just matching the version label.
+The exact transformation was rerun locally and checked against the retained after-digest.
+[Run 36650833301](https://github.com/Chris0Jeky/Alibi/actions/runs/36650833301), source `ba4a851`,
+then staged only that immutable Git blob. Its fixed inline job did not check out or execute
+repository code, change branches, commit, merge, sign or deploy. The connected GitHub tools
+published the canonical file in a separate commit and removed that one-use workflow from the
+candidate tree. Routine native CI remains read-only and uses strict dependency verification.
 
-JUnit's 6,995-byte `junit-bom-5.10.2.module` declares the expected release component and Gradle
-platform constraints. Its SHA-256 is
-`de23b114b3e4119a8fe6eb17bed5a3852816698bace67071579d6d927ebb080a`, independently recomputed
-from the downloaded bytes and matching the published Maven Central `.sha256` sidecar. This
-is not a claim of publisher-signature verification. The read-only workflow preserves the exact
-fixed source URLs and labels automatic retrieval `trustApproved:false`; the two specific
-checksum additions in this patch were manually reviewed against the evidence above.
+## State history and remaining verification
 
-## Apply and verify
+The previous shortening of `docs/STATE.md` broke the phone-action history regression. Restore
+the exact main state blob `d56913b39599122905728f409a226de31dea5714` rather than altering the
+test or losing history. Current native-specific evidence lives in `docs/capacitor/` and the PR.
 
-Start with the canonical XML Git blob `aa58f817f15e5b7dbd20d4e5219f1c9272064829`, SHA-256
-`f104aa9b18ef575cf97b76541943093c53f6b5dd12df16297d4b34b33886adad`. If it has changed, reconcile
-new trust entries instead of overwriting them. The patch adds eight lines, removes none, preserves
-all previous text exactly and introduces no new version selection, repository or verification mode.
-
-```sh
-git apply --check docs/capacitor/patches/native-metadata-review.patch
-git apply docs/capacitor/patches/native-metadata-review.patch
-# Expected SHA-256: aa12c80d3baf0c65e251b7391e75b1e76c4e9bf1b292dd666d3bfff1e9a89b95
-sha256sum android/gradle/verification-metadata.xml
-git diff --check
-git diff -- android/gradle/verification-metadata.xml
-```
-
-Both `git apply --check` and actual application succeeded in a disposable local directory;
-reverse checking also succeeded. Removing the two inserted blocks reproduced every original byte.
-XML parsing verified 391 old components become 392: only the Guava parent component is new;
-within existing components only the JUnit 5.10.2 module artifact is added, keeping its previous POM
-checksum. The machine receipt records exact before/after/patch digests and explicitly says the
-canonical metadata has not been updated. This guards the handoff against silently replacing the
-trust database with the small patch or declaring its existence a passing Gradle build.
-
-After committing only the intended canonical XML change, run the current native workflow with
-`--dependency-verification=strict`, without automatic metadata regeneration. Additional missing
-artifacts, if any, require the same individual investigation. APK assembly, merged-manifest and
-payload audits, alignment/signature checks, installed-sourceDir binding and offline emulator
-controls must all complete before a native CI pass is claimed. Physical-device, recovery/migration,
-minimum-WebView and publisher/Play gates remain separate and open.
+After this commit, strict compilation, lint, APK assembly, actual package/signature/alignment
+audits and installed-package offline instrumentation must run again. No new APK or emulator
+success is claimed by this document. Physical devices, TalkBack, minimum WebView, recovery,
+PWA transfer, publisher identity and release approval remain independent open gates.
