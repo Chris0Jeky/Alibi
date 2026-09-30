@@ -1,12 +1,50 @@
 # Live development state
 
-## Platform identity replacement ordering (unreleased): 28 September 2026
+## Session-2 swarm wave (unreleased): 29 September 2026
 
-Android artifact identity replacement now writes the new identity asset before changing
-`index.html`, and removes the old asset only after the reference update succeeds. Simulated
-new-asset and index-write failures preserve the old reference and asset without leaving a stray
-new file. The focused Node regression and repository verify gate pass at the candidate head. Not
-deployed; an actual disk-full or filesystem-permission failure was not induced.
+Continued the background swarm (`auto-alibi` waves 007-015, plan in
+`docs/qa/2026-09-29-swarm/PLAN.md`) with an in-session 7-agent research sweep
+plus coordinator triage. Integrated, each RED-to-GREEN and pushed to
+`origin/main`: challenge restore over unusable saves with the conflict guard
+kept for valid records, theatre/voices pins (escape/deliver runtime-verified
+by stub probes), combined-backup sanitized sections + 16MB/1MB text caps,
+dev-server crash survival (500 + stream destroy, gallery `require.main`
+guard), curation-derivative and `--pulseboard` fail-closed validation, and
+inline micro-fixes (Club record dates, drag-commit before update, dossier
+clue-toggle guard, late-import toast on route change). Rejected with code
+evidence: cabinet 500/3000 asymmetry, discovery CAS and snapshot IDB claims
+(abort semantics), Store.restore semantic-validation demand, cross-tab saved
+self-conflict (accepted risk), BlockCabinetPrototype removal (diagnostics
+hook), third nonogram-leniency sighting (player contract). Verified: full
+`npm run verify` EXIT 0 on the clean tree, browser UI 185/185, real-origin
+270 checks, budget/catalogue green after two trim rounds and measured ceiling
+raises (+96 app gzip, +1,024 precache, catalogue regenerated). Visual probe of
+fresh screenshots: no defects. Owner-visible, no code change: dominoes and
+mahjong are playable via salon routes but have no cards and are skipped by the
+home continuation. NOT verified: hosted behaviour, physical phone. Open
+backlog in PLAN.md: wave-014 lens claims (curation-editorial/challenge
+loaders, apply-update playable gap, lesson-finish yank), cross-tab Club race,
+silent classics drop, tg lens claims.
+
+## Swarm quality wave (unreleased): 29 September 2026
+
+A background swarm (`auto-alibi`, 22 lenses + 10 workers over 6 waves, live plan in
+`docs/qa/2026-09-29-swarm/PLAN.md`) hunted bugs, test gaps and dead code across engines,
+storage, player, Club, Quiet Wing, voices, media, tools and docs. Nine fixes are integrated
+in the working tree (uncommitted), each RED-to-GREEN: Club run date validation + house date
+normalisation, workshop clue entry validation, local-server `_headers` survival, gallery
+traversal/method/range hardening, storage key capture + restore shape guard, three tool
+defects plus import guards, runBounded coverage, challenge trust pins, dossier link feedback.
+Two candidates were reverted after the repo's own suites proved them wrong: strict nonogram
+Solved (UI suite completes by filling only; leniency now pinned) and silent fallback
+getAll skip (origin suite requires the loud damage report; bytes stay preserved). Budgets:
+three trim rounds first, then measured +128 app gzip (133,952; at 133,910) and +1,024 shell
+ceilings with justification; asset catalogue regenerated. Verified: every focused Node
+regression RED-to-GREEN, full Node suite 787+ pass (only the 6 clean-tree-gated android
+checks fail on a dirty tree, by design), browser UI suite 185/185 PASS, real-origin suite
+271/271 PASS, budget GREEN. NOT verified: full `npm run verify` (needs committed sources),
+hosted behaviour, physical phone. Open backlog in PLAN.md: cross-tab Club race, silent
+classics drop, test-gap lens claims (two spot-disproven), apply-update input lock.
 
 ## Scene action validation (unreleased): 28 September 2026
 

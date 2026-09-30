@@ -19,6 +19,12 @@ module.exports = function (root, dist) {
       a.kind === 'museum-image'
         ? runtime.assets.find((r) => r.id === a.id)?.runtime
         : { path: a.derivative.file, sha256: a.derivative.sha256, mime: a.derivative.format };
+    if (typeof r?.mime !== 'string' || r.mime.length === 0)
+      throw Error('Invalid curation derivative for ' + a.id);
+    if (a.kind !== 'museum-image')
+      for (const key of ['file', 'sha256', 'format'])
+        if (typeof a.derivative?.[key] !== 'string' || a.derivative[key].length === 0)
+          throw Error('Invalid curation derivative for ' + a.id);
     if (!r || !/^src\/curation-assets\/[a-z/-]+\.(webp|svg)$/.test(r.path))
       throw Error('Invalid trusted artwork path');
     const data = fs.readFileSync(path.join(root, r.path));
