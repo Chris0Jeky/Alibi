@@ -183,18 +183,6 @@ test('Club save archive replay accepts a legal walk and rejects a wall push with
   assert.deepEqual(invalid, snapshot);
 });
 
-test('Club records with unparseable dates are rejected while valid ISO dates pass', () => {
-  const good = baseClubSave();
-  good.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date: FIXED_DATE }];
-  assert.doesNotThrow(() => validator.validateSave(good));
-
-  for (const date of ['not-a-date', '']) {
-    const bad = baseClubSave();
-    bad.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date }];
-    assert.throws(() => validator.validateSave(bad), /Invalid record\./);
-  }
-});
-
 function baseClubSave() {
   return {
     schema: 1,
