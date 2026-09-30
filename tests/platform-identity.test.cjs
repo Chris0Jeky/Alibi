@@ -70,6 +70,18 @@ test('EACCES on the new-asset write leaves index and old asset untouched', () =>
   }
 });
 
+test('same-identity replace is a no-op that never deletes the live asset', () => {
+  const { directory, oldIdentity, oldPath, html: htmlBefore } = setupArtifact();
+  try {
+    const replacement = writeIdentity(directory, { ...oldIdentity }, { replace: true });
+    assert.equal(replacement.path, oldPath);
+    assert.equal(fs.readFileSync(path.join(directory, 'index.html'), 'utf8'), htmlBefore);
+    assert.ok(fs.existsSync(path.join(directory, oldPath)));
+  } finally {
+    cleanup(directory);
+  }
+});
+
 test('index.html write failure keeps the old reference with no stray new file', () => {
   const { directory, oldPath, html: htmlBefore } = setupArtifact();
   const oldContent = fs.readFileSync(path.join(directory, oldPath), 'utf8');
