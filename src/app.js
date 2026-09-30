@@ -519,7 +519,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place and switching to the new version. Board input is paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Board input is paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -1321,7 +1321,7 @@
       document.getElementById('quiet-update').innerHTML =
         globalThis.AlibiTheatre.bar(true) +
         (updateRequested
-          ? `<div class="banner" role="status"><span>Saving your place and switching to the new version. Board input is paused until it loads.</span></div>`
+          ? `<div class="banner" role="status"><span>Saving your place for the update. Board input is paused until it loads.</span></div>`
           : waitingUpdate
             ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
             : '');
@@ -1445,11 +1445,7 @@
     } catch {}
   }
   function blocked() {
-    if (!current || paused) return true;
-    if (updateRequested) {
-      toast('Saving your place for the update. Board input is paused until the new version loads.');
-      return true;
-    }
+    if (!current || paused || updateRequested) return true;
     if (storageFatal || saveError) {
       toast('Export this session or reload before making more changes.', true);
       return true;
@@ -1519,8 +1515,7 @@
     }
   }
   function commit(next, { reveal = false, history = true } = {}) {
-    if (updateRequested) return false;
-    if (!current || C.equal(next, current.state)) return false;
+    if (updateRequested || !current || C.equal(next, current.state)) return false;
     globalThis.AlibiJourney?.(current);
     reviewing = false;
     if (history) {
