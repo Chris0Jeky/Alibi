@@ -981,12 +981,16 @@
       notify('Resolve the save conflict or export before continuing.', true);
       return;
     }
-    const r = state.runs[id],
-      before = currentGame(id);
+    const r = state.runs[id];
     if (id === 'blockcabinet' && r.log.length >= E().blockCabinet.maxMoves) {
       notify('This cabinet is full. Start a new cabinet.');
       return;
     }
+    if (r.log.length >= 3000) {
+      notify('This game is full. Start a new game.');
+      return;
+    }
+    const before = currentGame(id);
     r.rulesVersion = 1;
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
