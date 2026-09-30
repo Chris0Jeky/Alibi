@@ -9,6 +9,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
+const E = require('../src/club-engines.js');
 
 function store() {
   const data = new Map();
@@ -57,12 +58,12 @@ async function tab(storage, toasts) {
   return c;
 }
 
-function gardenSave(moves) {
+function gardenSave(moves, redo = []) {
   return {
     schema: 1,
     settings: { assist: 'off', zen: false, pinned: null },
     runs: {
-      regiongardens: { rulesVersion: 1, level: 0, log: Array(moves).fill(0), redo: [] },
+      regiongardens: { rulesVersion: 1, level: 0, log: Array(moves).fill(0), redo },
     },
     records: [],
     stamps: [],
@@ -71,8 +72,12 @@ function gardenSave(moves) {
   };
 }
 
+function gardenRun(c) {
+  return c.AlibiClub.diagnostics().state.runs.regiongardens;
+}
+
 function gardenLog(c) {
-  return c.AlibiClub.diagnostics().state.runs.regiongardens.log.length;
+  return gardenRun(c).log.length;
 }
 
 test('a move below the bound still commits', async () => {
@@ -97,4 +102,72 @@ test('a 3000-move garden refuses the next tap instead of poisoning the run', asy
     toasts.some((t) => t.includes('full')),
     'the refusal names the full game',
   );
+});
+
+function archiveWalk(moves) {
+  // Archive replays history with legality only and no length cap, so a
+  // 3000-log plus one redo entry loads; the redo guard must still refuse it.
+  let s = E.warehouse.initial(0);
+  const log = [];
+  while (log.length < moves) {
+    let grew = false;
+    for (const d of ['up', 'right', 'down', 'left']) {
+      const q = E.warehouse.move(s, d);
+      if (q !== s) {
+        s = q;
+        log.push(d);
+        grew = true;
+        break;
+      }
+    }
+    if (!grew) throw new Error('archive walk stuck before the bound');
+  }
+  let redo = null;
+  for (const d of ['up', 'right', 'down', 'left']) {
+    if (E.warehouse.move(s, d) !== s) {
+      redo = d;
+      break;
+    }
+  }
+  if (redo === null) throw new Error('no legal redo move at the walk end');
+  return { log, redo: [redo] };
+}
+
+function archiveSave(log, redo) {
+  return {
+    schema: 1,
+    settings: { assist: 'off', zen: false, pinned: null },
+    runs: { archive: { rulesVersion: 1, level: 0, log, redo } },
+    records: [],
+    stamps: [],
+    visit: 0,
+    lastHero: -1,
+  };
+}
+
+test('redo at the bound is refused without growing the log', async () => {
+  const s = store(),
+    toasts = [];
+  const { log, redo } = archiveWalk(3000);
+  s.setItem('alibi-afterhours-v1', JSON.stringify({ rev: 1, data: archiveSave(log, redo) }));
+  const c = await tab(s, toasts);
+  const run = () => c.AlibiClub.diagnostics().state.runs.archive;
+  assert.equal(run().log.length, 3000);
+  await c.AlibiClub.action({ dataset: { action: 'club-redo', id: 'archive' } });
+  assert.equal(run().log.length, 3000);
+  assert.deepEqual(run().redo, redo);
+});
+
+test('undo then redo round-trips below the bound', async () => {
+  const s = store(),
+    toasts = [];
+  s.setItem('alibi-afterhours-v1', JSON.stringify({ rev: 1, data: gardenSave(3000) }));
+  const c = await tab(s, toasts);
+  await c.AlibiClub.action({ dataset: { action: 'club-undo', id: 'regiongardens' } });
+  assert.equal(gardenLog(c), 2999);
+  assert.deepEqual(gardenRun(c).redo, [0]);
+  await c.AlibiClub.action({ dataset: { action: 'club-redo', id: 'regiongardens' } });
+  assert.equal(gardenLog(c), 3000);
+  assert.deepEqual(gardenRun(c).redo, []);
+  assert.deepEqual(toasts, []);
 });

@@ -1398,10 +1398,10 @@
         } else {
           if (['duel', 'tictactoe'].includes(id) && r.mode === 'bot') {
             do {
-              if (!r.redo.length) break;
+              if (!r.redo.length || r.log.length >= 3000) break;
               r.log.push(r.redo.pop());
             } while (r.redo.length && !currentGame(id).done && currentGame(id).turn !== 1);
-          } else if (r.redo.length) r.log.push(r.redo.pop());
+          } else if (r.redo.length && r.log.length < 3000) r.log.push(r.redo.pop());
         }
         selectedPlot = null;
         selectedDominoTile = null;
