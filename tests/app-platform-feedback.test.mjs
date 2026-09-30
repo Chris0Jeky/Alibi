@@ -30,14 +30,20 @@ function play(platform) {
     platform,
     current: { state: { cell: 0 }, undo: [], redo: [], moves: 0, hints: 0 },
     C: { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b), clone: structuredClone },
+    updateRequested: false,
     checking: false,
     feedback: '',
     completion: () => calls.push('complete'),
     enqueueSave: () => calls.push('save'),
     render: () => calls.push('render'),
   };
-  const result = vm.runInNewContext(feedback + commit + '\ncommit({cell:1});', context);
-  assert.equal(result, true, 'validated move returns synchronously');
+  // The first commit runs the full true path; the second, a different move after the
+  // update flag flips, must refuse without side effects (moves stays 1, no new calls).
+  const result = vm.runInNewContext(
+    feedback + commit + '\ncommit({cell:1});updateRequested=true;commit({cell:2});',
+    context,
+  );
+  assert.equal(result, false, 'moves refuse once an update is requested');
   assert.equal(context.current.moves, 1);
   assert.deepEqual(calls, ['complete', 'save', 'render']);
 }

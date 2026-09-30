@@ -981,12 +981,16 @@
       notify('Resolve the save conflict or export before continuing.', true);
       return;
     }
-    const r = state.runs[id],
-      before = currentGame(id);
+    const r = state.runs[id];
     if (id === 'blockcabinet' && r.log.length >= E().blockCabinet.maxMoves) {
       notify('This cabinet is full. Start a new cabinet.');
       return;
     }
+    if (r.log.length >= 3000) {
+      notify('This game is full. Start a new game.');
+      return;
+    }
+    const before = currentGame(id);
     r.rulesVersion = 1;
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
@@ -1394,10 +1398,10 @@
         } else {
           if (['duel', 'tictactoe'].includes(id) && r.mode === 'bot') {
             do {
-              if (!r.redo.length) break;
+              if (!r.redo.length || r.log.length >= 3000) break;
               r.log.push(r.redo.pop());
             } while (r.redo.length && !currentGame(id).done && currentGame(id).turn !== 1);
-          } else if (r.redo.length) r.log.push(r.redo.pop());
+          } else if (r.redo.length && r.log.length < 3000) r.log.push(r.redo.pop());
         }
         selectedPlot = null;
         selectedDominoTile = null;
