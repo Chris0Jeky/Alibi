@@ -5,12 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
-const {
-  PATH_ROUTE_ALIASES,
-  pathRouteAliasDocument,
-  files,
-  zip,
-} = require('../tools/build.cjs');
+const { PATH_ROUTE_ALIASES, pathRouteAliasDocument, files, zip } = require('../tools/build.cjs');
 
 const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
   for (let k = 0; k < 8; k++) n = n & 1 ? 0xedb88320 ^ (n >>> 1) : n >>> 1;
@@ -159,13 +154,17 @@ test('zip marks entries as deflated method 8 (mutant: flip method 8 to stored 0)
   withTempDir('alibi-zip-method-', (dir) => {
     const { locals, centrals } = parseZip(zipEntries(dir, sampleEntries()));
     for (const local of locals) assert.equal(local.method, 8, `local method of ${local.name}`);
-    for (const central of centrals) assert.equal(central.method, 8, `central method of ${central.name}`);
+    for (const central of centrals)
+      assert.equal(central.method, 8, `central method of ${central.name}`);
   });
 });
 
 test('zip central offsets point at local headers (mutant: drop name length from offset)', () => {
   withTempDir('alibi-zip-offset-', (dir) => {
-    const entries = [['long-name-here.txt', 'x'.repeat(200)], ['b.txt', 'y'.repeat(200)]];
+    const entries = [
+      ['long-name-here.txt', 'x'.repeat(200)],
+      ['b.txt', 'y'.repeat(200)],
+    ];
     const buf = zipEntries(dir, entries);
     const { locals, centrals, eocd } = parseZip(buf);
     assert.equal(centrals.length, entries.length);
@@ -194,7 +193,8 @@ test('zip sets the UTF-8 filename flag (mutant: drop the 0x800 flag)', () => {
   withTempDir('alibi-zip-flag-', (dir) => {
     const { locals, centrals } = parseZip(zipEntries(dir, sampleEntries()));
     for (const local of locals) assert.equal(local.flag, 0x800, `local flag of ${local.name}`);
-    for (const central of centrals) assert.equal(central.flag, 0x800, `central flag of ${central.name}`);
+    for (const central of centrals)
+      assert.equal(central.flag, 0x800, `central flag of ${central.name}`);
   });
 });
 
@@ -215,7 +215,10 @@ test('alias document titles the alias, routes to the target (mutant: swap alias/
   const document = pathRouteAliasDocument('my-alias', 'my-target');
   assert.ok(document.includes('<title>Alibi · my-alias</title>'), 'title names the alias');
   assert.ok(document.includes('url=/#/my-target'), 'meta refresh routes to the target');
-  assert.ok(document.includes(`var h=location.hash||'#/my-target'`), 'script defaults to the target');
+  assert.ok(
+    document.includes(`var h=location.hash||'#/my-target'`),
+    'script defaults to the target',
+  );
   assert.ok(!document.includes('#/my-alias'), 'alias never appears as a route');
 });
 
@@ -233,5 +236,8 @@ test('alias document keeps its standalone preamble (mutant: drop the doctype/hea
   const document = pathRouteAliasDocument('login', PATH_ROUTE_ALIASES.login);
   assert.ok(document.startsWith('<!doctype html><html lang="en">'), 'doctype and language survive');
   assert.ok(document.includes('<meta charset="utf-8">'), 'charset survives');
-  assert.ok(document.includes('<a href="/#/login">Continue to Alibi</a>'), 'fallback link survives');
+  assert.ok(
+    document.includes('<a href="/#/login">Continue to Alibi</a>'),
+    'fallback link survives',
+  );
 });
