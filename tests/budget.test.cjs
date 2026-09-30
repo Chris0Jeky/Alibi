@@ -106,9 +106,15 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // dossier clue-toggle guard, challenge restore recovery with conflict preservation, late-import
 // toast on route change. Two trim rounds first (redundant Array check, folded guard, comment
 // trims); gzip noise absorbed most of the saving. Ceiling +96.
+// Apply-update freeze-first (unreleased): setting updateRequested and rendering the paused-input
+// banner before the save flush, refusing board input through blocked/commit/undo during the
+// update, and resetting the flag when no worker waits or a save step throws, measures a net
+// +168 gzip bytes (133,968 -> 134,136) after trim rounds (silent freeze like the paused gate
+// instead of a per-tap toast, tightened banner copy, folded guards). The try/catch plus else
+// reset is irreducible: without it a failed save would freeze the board forever. Ceiling +128.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4000,
-  'Application bundle stays under 127 KiB + 4,000 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4128,
+  'Application bundle stays under 127 KiB + 4,128 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
