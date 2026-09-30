@@ -72,6 +72,7 @@ jobs:
         run: |
           node --test tests/android-host-policy.test.cjs tests/android-generated-inputs.test.cjs tests/android-native-workflow.test.cjs tests/platform-native.test.mjs tests/platform-bootstrap.test.mjs
           python tests/test_android_package.py
+          python tests/test_android_permission_values.py
           python tests/test_android_smoke_evidence.py
           python tests/test_android_apk_identity.py
           bash -n tools/run-android-smoke.sh
@@ -89,6 +90,8 @@ jobs:
         run: ./gradlew --no-daemon --dependency-verification=strict -Dorg.gradle.dependency.verification.console=verbose lintDebug testDebugUnitTest assembleDebug assembleCapacitorPreview
       - name: Inspect actual APKs, alignment and debug signatures
         run: |
+          apkanalyzer manifest print android/app/build/outputs/apk/debug/app-debug.apk > test-results/native/debug-manifest.xml
+          apkanalyzer manifest print android/app/build/outputs/apk/capacitorPreview/app-capacitorPreview.apk > test-results/native/preview-manifest.xml
           python tools/check-android-package.py --apk android/app/build/outputs/apk/debug/app-debug.apk --variant debug --receipt test-results/native/debug-package.json
           python tools/check-android-package.py --apk android/app/build/outputs/apk/capacitorPreview/app-capacitorPreview.apk --variant capacitorPreview --receipt test-results/native/preview-package.json
           for apk in android/app/build/outputs/apk/debug/*.apk android/app/build/outputs/apk/capacitorPreview/*.apk; do

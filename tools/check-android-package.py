@@ -94,7 +94,7 @@ def manifest_policy(text: str, version: str, variant: str) -> dict:
             f"Unexpected permission set: {permissions}")
     for permission in root.findall("permission"):
         require(permission.get(ANDROID + "name") == internal
-                and permission.get(ANDROID + "protectionLevel") in ("signature", "0x00000002"),
+                and permission.get(ANDROID + "protectionLevel") in ("signature", "2", "0x2", "0x00000002"),
                 "Unexpected declared permission or signature protection")
     exported = []
     main = []
