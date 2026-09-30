@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright
 from native_inset_payload import load_native_style
 from native_inset_stylesheets import load_shared_styles
 from native_inset_content import verify_content_reservation
+from native_inset_toasts import verify_toast_clearance
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML = """<main class="main"><p>Content</p></main><nav class="mobile-nav"><button>Menu</button></nav>
@@ -105,6 +106,7 @@ def main():
         checks = verify_components(page, native, shared)
         checks.extend(verify_content_reservation(page, native, shared,
                       ROOT / 'test-results/native-insets/content-screenshots'))
+        checks.extend(verify_toast_clearance(page, native, shared))
         version = browser.version
         browser.close()
     out = ROOT / "test-results/native-insets"
