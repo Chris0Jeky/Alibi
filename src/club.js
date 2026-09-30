@@ -1449,9 +1449,8 @@
         render();
         delete root.__clubReset;
       } else if (a === 'plan') {
-        const slot = Number(v),
-          s = currentGame('borough');
-        if (!s || s.done || !(slot in s.offers)) return;
+        const slot = Number(v);
+        if (!currentGame('borough')?.offers[slot]) return;
         selectedPlan = slot;
         render();
       } else if (a === 'plot') {
