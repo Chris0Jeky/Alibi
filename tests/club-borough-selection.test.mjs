@@ -17,7 +17,7 @@ test('out-of-range plan choices are ignored with a notice; the borough page stil
     const before = tab.messages.length;
     await tab.action('plan', { value });
     assert.equal(tab.messages.length, before + 1, `plan ${value} notifies`);
-    assert.match(tab.messages.at(-1), /three plans/i);
+    assert.match(tab.messages.at(-1), /choose a plan/i);
     const html = tab.club.roomPage('borough');
     assert.equal(
       html.includes('data-value="0" aria-pressed="true"'),

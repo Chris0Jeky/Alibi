@@ -1451,7 +1451,7 @@
       } else if (a === 'plan') {
         const slot = Number(v);
         if (!Number.isInteger(slot) || slot < 0 || slot > 2) {
-          notify('Choose one of the three plans.');
+          notify('Choose a plan.');
           return;
         }
         selectedPlan = slot;
