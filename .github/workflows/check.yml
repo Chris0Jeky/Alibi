@@ -127,6 +127,8 @@ jobs:
           python tests/browser_delivery.py
           python tests/browser_theatre.py
           ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
+          python tests/browser_challenge_library.py
+          python tests/browser_challenge_lifecycle.py
           python tests/browser_restart.py
           python tests/browser_boot.py
           python tests/browser_quiet.py
@@ -190,6 +192,8 @@ jobs:
             test-results/theatre/
             test-results/curation-check/
             test-results/challenges-replay.json
+            test-results/challenge-library/
+            test-results/challenge-lifecycle/
             test-results/large-nonogram/
             test-results/expert-browser/
             test-results/expert-control/
