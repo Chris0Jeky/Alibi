@@ -112,9 +112,15 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // +168 gzip bytes (133,968 -> 134,136) after trim rounds (silent freeze like the paused gate
 // instead of a per-tap toast, tightened banner copy, folded guards). The try/catch plus else
 // reset is irreducible: without it a failed save would freeze the board forever. Ceiling +128.
+// Scene clue-mark bound plus clear-voids-accused (unreleased), on top of the merged club-log
+// cap: bounding saved clueMarks by p.clues.length instead of the board size and voiding the
+// accusation on clear measures 134,201 combined (+65 over the 134,136 apply-freeze mark).
+// Trim rounds: the redo-cap check cannot hoist (the log grows each loop pass), and folding
+// the bound back into the shared ints() helper reintroduces the board-size bound the bound
+// test pins against. Ceiling +128.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4128,
-  'Application bundle stays under 127 KiB + 4,128 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4256,
+  'Application bundle stays under 127 KiB + 4,256 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -147,8 +153,13 @@ assert.ok(
   // Session-2 swarm wave (2026-09-29, unreleased): the five correctness fixes plus
   // worker sanitizer/caps measure +739 bytes (1,407,251 -> 1,407,990) after two trim
   // rounds; ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 24576,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 24,576 bytes',
+  // Scene clue-mark bound plus clear-voids-accused (#495, unreleased): main measures
+  // 1,408,653 (43 bytes headroom); the fix measures +222 here (1,408,653 -> 1,408,875).
+  // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
+  // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
+  // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 25600,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 25,600 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
