@@ -587,12 +587,14 @@
       if (!chain.length) {
         chain.push({ tile: tileId, left: tile.a, right: tile.b });
       } else if (end === 'left') {
-        const open = chain[0].left,
-          left = tile.a === open ? tile.b : tile.a;
+        const open = chain[0].left;
+        if (tile.a !== open && tile.b !== open) throw Error('That tile cannot play on that end.');
+        const left = tile.a === open ? tile.b : tile.a;
         chain.unshift({ tile: tileId, left, right: open });
       } else {
-        const open = chain[chain.length - 1].right,
-          right = tile.a === open ? tile.b : tile.a;
+        const open = chain[chain.length - 1].right;
+        if (tile.a !== open && tile.b !== open) throw Error('That tile cannot play on that end.');
+        const right = tile.a === open ? tile.b : tile.a;
         chain.push({ tile: tileId, left: open, right });
       }
       return chain;
