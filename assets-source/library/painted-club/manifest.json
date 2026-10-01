@@ -1,0 +1,389 @@
+{
+  "purpose": "Original source shelf, not runtime integration",
+  "assets": [
+    {
+      "file": "archive-heist.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1580800,
+      "sha256": "f3bc3a5f8ff9dff73da0d06720f432f5b9c4f000dbf5394f7d7638b60c91187a",
+      "git_blob_sha": "be8aef7e9e093b90e0e14d3f242984b4964ade89"
+    },
+    {
+      "file": "block-cabinet.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1417694,
+      "sha256": "a741318758726f8541e1d23118d176675a59cb85dca5d588ecc392bfb5666b87",
+      "git_blob_sha": "b436d136ccd0611b5d951668dd6b18a3e906086d"
+    },
+    {
+      "file": "club-welcome.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1296392,
+      "sha256": "3cc9c3a4250636b847dd93b5b7f994a9179d06a48542861aa56197ca84cf2680",
+      "git_blob_sha": "09860ddab74481b584ad4c554d58df72a9e692f1"
+    },
+    {
+      "file": "lantern-duel.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1408878,
+      "sha256": "b5625b1dbf278c0c3ba516f2ca7e2016ec4660ca1090b3b0719b4f7b88259d74",
+      "git_blob_sha": "673cb9affb60b3a68e50f74f1acb5bacc3ef5254"
+    },
+    {
+      "file": "lantern-gardens.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1273988,
+      "sha256": "57795c5de3a1b54300191be76fb8fadd492a111801e791d037d211c8b689bdc2",
+      "git_blob_sha": "ce6472d10b4ea982e0b34a75a763373fc3cf51cf"
+    },
+    {
+      "file": "living-atlas.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1330196,
+      "sha256": "9ab4e3e18415546f980cff60b2e4809c8418b07bb5b3ecb123e6efb11373bb80",
+      "git_blob_sha": "5095c961fab92aa84a04114c6871699a92a30801"
+    },
+    {
+      "file": "pocket-borough.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1568910,
+      "sha256": "e02e9aa219d52ae8016ea6c58f8c15ab82956f0e5d25dcf967a3da4c247e132d",
+      "git_blob_sha": "a2b65949b236a83c893e300ec503d4a993268d0a"
+    },
+    {
+      "file": "tic-tac-toe.webp",
+      "wave": "01",
+      "kind": "source-webp",
+      "bytes": 1547742,
+      "sha256": "48d92248f8d104d67c0be875e6ee695f1f660b5275404eedc9ab21e9642f8d7c",
+      "git_blob_sha": "3ab73919f2549343e8eed2359c5f4c1373f317fc"
+    },
+    {
+      "file": "archive-heist-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 23946,
+      "sha256": "bcf8b482b78b507213c0db1ba46b0db94f502d02a6016bfdce1fc17b6c0d414f",
+      "git_blob_sha": "d787bb3ba75876c58fbf6591a53293ecdceeaf9f"
+    },
+    {
+      "file": "archive-heist-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 81870,
+      "sha256": "590583a4b796d39757456faeadc74ae3abab408fa098351daa4ac45339dd34c1",
+      "git_blob_sha": "c58ccf7ba4b25b62fefb34eeb45d3018698aacfd"
+    },
+    {
+      "file": "block-cabinet-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 19124,
+      "sha256": "4394d91ba9f029d1c8cf6de7180d81c1d28bba21469bb97566c55cf719c67eed",
+      "git_blob_sha": "4f24efdd8101cda9eb62f6ea4abdc4bba4b9dd39"
+    },
+    {
+      "file": "block-cabinet-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 67996,
+      "sha256": "3ef93964ec53128a672da5ff692aa1bb983bd2a5d21e87d5b2ab837b16f784e0",
+      "git_blob_sha": "15449f9bf5a9e0195030ac33acfb35917a5e992a"
+    },
+    {
+      "file": "club-welcome-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 21928,
+      "sha256": "14bca332321e583705240ed7d1773aef84e6dd2a8a13c4a57f6e0b53855c3b39",
+      "git_blob_sha": "d96fab4efc6333651ff109fc0f5d965ab8f65325"
+    },
+    {
+      "file": "club-welcome-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 65352,
+      "sha256": "25bfd311ff3d782dcb0ed859052cea092a30d14cfb3c3eedb6fff874fc0f57e3",
+      "git_blob_sha": "8064f09a47c2c1c9afb0f18cc8651ecfda511c64"
+    },
+    {
+      "file": "lantern-duel-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 27208,
+      "sha256": "44fced51a9537b498bcf56d79141ca0c9eaeb81899df329d638676c6e2550fc2",
+      "git_blob_sha": "633fb5976ed36ca6a5c735439cad68966afba006"
+    },
+    {
+      "file": "lantern-duel-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 92410,
+      "sha256": "78355ad5d3f2257532d865f022050f54c7d8bdf24c20a5e918ad9a60e3dc8944",
+      "git_blob_sha": "5cfe61e808593d9cb38f3f0cd88cbf2bddda9ecf"
+    },
+    {
+      "file": "lantern-gardens-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 27824,
+      "sha256": "f14b8598574307873b3b0a22ac303f1580d531dd9712013a291b53fcb35eb741",
+      "git_blob_sha": "0099b201755e2e916aed3a031036145e715f87d9"
+    },
+    {
+      "file": "lantern-gardens-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 91434,
+      "sha256": "6e524137153225f15f56f0b48ebf795fd4623e379af8fabad055ec22c0e3062e",
+      "git_blob_sha": "24e1fcdbf8b206821f0c78780d499c9bb320b926"
+    },
+    {
+      "file": "living-atlas-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 27270,
+      "sha256": "b8b296031508a9c5d48c06045a5d57c657d3e1ecd90160a7e1b081bfa58c336c",
+      "git_blob_sha": "880f56786295f8a71ffe7cd99b02508a875e38be"
+    },
+    {
+      "file": "living-atlas-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 88456,
+      "sha256": "a81ae542689ef8df650cfa3a9e8ea96240fb5f0922ef83bcc7e71a290af1ad88",
+      "git_blob_sha": "98da0211d50afdab6ef155a5759a404a5e3f7504"
+    },
+    {
+      "file": "pocket-borough-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 31824,
+      "sha256": "f2570de8d7f598a2d85665700efa9b7d629c9baaa74345c5a027b4b734565073",
+      "git_blob_sha": "804b9ecb0333c01582697d9af3e3487dac8c9c80"
+    },
+    {
+      "file": "pocket-borough-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 109052,
+      "sha256": "98904ff4c32f6b0ac72624a6b070b61ff4cb51cfcaacc471454652e92a11fe79",
+      "git_blob_sha": "7f529ed759dc312bf87bbe34f48a3772189ec43d"
+    },
+    {
+      "file": "tic-tac-toe-320.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 24358,
+      "sha256": "9a5cb92af91a3e3c6c6024ca9041090127c84bd8a1a3e3afd92a66e03ce9a198",
+      "git_blob_sha": "76f8ceb4614ab92cd2c2a81f0b467f826fe6cf5e"
+    },
+    {
+      "file": "tic-tac-toe-640.webp",
+      "wave": "01",
+      "kind": "runtime",
+      "bytes": 84772,
+      "sha256": "bcd6c12ac03dd32f275f07ce24666620e94094370beda33fcb8c60cc834c2cf1",
+      "git_blob_sha": "285c41ca7cc5d1dad1783f18ba02a38932eca43f"
+    },
+    {
+      "file": "fresh-journal.webp",
+      "wave": "02",
+      "kind": "source-webp",
+      "bytes": 906556,
+      "sha256": "3baa4c6781a9fcf9b0d5ea4b09aee4127146604b0d1128e0b3f6eb99193a2acd",
+      "git_blob_sha": "c84452735de61bb06afbc5aef2464f8c1b6f9aeb"
+    },
+    {
+      "file": "saved-bookmarks.webp",
+      "wave": "02",
+      "kind": "source-webp",
+      "bytes": 865922,
+      "sha256": "9157ae649ac9be9e466234622c54c237201448c36256191e4e0d899ce43395e3",
+      "git_blob_sha": "96df8bdbbb01fb96972920e276b51db25e5fe46e"
+    },
+    {
+      "file": "search-notes.webp",
+      "wave": "02",
+      "kind": "source-webp",
+      "bytes": 984858,
+      "sha256": "623556787197c89ca579b31efb449ef8802ddf16d69f94c4e1eba7aee6dcee71",
+      "git_blob_sha": "c164def806c77e6012ddfe86387143c9dca811be"
+    },
+    {
+      "file": "workshop-tools.webp",
+      "wave": "02",
+      "kind": "source-webp",
+      "bytes": 1008160,
+      "sha256": "1070d804b28d35b81c7f53093f4e84939a940d57c246f8b7b1f87e06f24ad95e",
+      "git_blob_sha": "9200c598067c296da64438c5e40ae3f2e66f9862"
+    },
+    {
+      "file": "fresh-journal-280.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 11198,
+      "sha256": "b59a3da7e88e079fa85c265069d1db8b3013e51937e691425939bd710ae63ab6",
+      "git_blob_sha": "e120a45d82d945f725b4b02ec80d46e3c362e889"
+    },
+    {
+      "file": "fresh-journal-560.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 31608,
+      "sha256": "4d9465d914150fe8b883584e05e43dcc9c60530a83988e8fed0a23bf8724c0cf",
+      "git_blob_sha": "f8ca4fbdec8971f80cf430e5223502e316df2dd4"
+    },
+    {
+      "file": "saved-bookmarks-280.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 10506,
+      "sha256": "a8c855bbc203860213cffd825e79b7fe99d04cd0427c9a21342cdf987dca0169",
+      "git_blob_sha": "698cb46d2876d9bbd0c97a97a4571fd59919650e"
+    },
+    {
+      "file": "saved-bookmarks-560.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 33220,
+      "sha256": "44f6d8206a7021dedd17d6186aa3678b265c0e56ac7d3f9d7710da36da902e63",
+      "git_blob_sha": "ab6abea7e75aa7e393bac395d6a0d3ab0f5167b0"
+    },
+    {
+      "file": "search-notes-280.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 16046,
+      "sha256": "305a6b37f8a7cece094e979a9509fe40b6846484b1d76bdf5f6357e21b6e1212",
+      "git_blob_sha": "78c6509f59d12b576638bc9985fde11696be140f"
+    },
+    {
+      "file": "search-notes-560.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 45868,
+      "sha256": "e14aa5eb15363dc36d59d21fdfd7254e3fe232e929385b68b28199b0d41d43d1",
+      "git_blob_sha": "b22dada718aad91aa0f0b802d6f99f32d211d46c"
+    },
+    {
+      "file": "workshop-tools-280.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 12508,
+      "sha256": "714c8a9224c8b7542e33583fafa82b2785127d7c91ea5cc03bd9d32c7eb539ec",
+      "git_blob_sha": "803094cba65bdca229cf1ad8b75e81e8dadc454d"
+    },
+    {
+      "file": "workshop-tools-560.webp",
+      "wave": "02",
+      "kind": "runtime",
+      "bytes": 36116,
+      "sha256": "d498c5ee97e63fd31450e83a97a4ccc891f9671049ce24a221990600a97f5cf0",
+      "git_blob_sha": "a9134142d81af92f1c71183a88f623c6ee45307c"
+    },
+    {
+      "file": "copper-conservatory.webp",
+      "wave": "03",
+      "kind": "source-webp",
+      "bytes": 1434606,
+      "sha256": "407b2fd09da47db52cfc60b284913ca8997e832e1f8cca27cdd7903c2ec08a2b",
+      "git_blob_sha": "20769d02226dba4fc2a66de7a1d06114c852503a"
+    },
+    {
+      "file": "nocturne-gallery.webp",
+      "wave": "03",
+      "kind": "source-webp",
+      "bytes": 1830096,
+      "sha256": "63be7caedf0b1fdc5b1ba145c4a0c2e99062eba96359f9c4168cbf9cba4372eb",
+      "git_blob_sha": "7e1ec02c0b0e66a48d0c15af79f23609f19dd856"
+    },
+    {
+      "file": "salt-observatory.webp",
+      "wave": "03",
+      "kind": "source-webp",
+      "bytes": 1217518,
+      "sha256": "a77c964d3d3267d3487b3cf35d2cf37d113f72b8ad59bd07264a57201c592758",
+      "git_blob_sha": "102d690164932443d25f55397d7e35241878806c"
+    },
+    {
+      "file": "winter-post-office.webp",
+      "wave": "03",
+      "kind": "source-webp",
+      "bytes": 1624210,
+      "sha256": "fed9401823f2f514de32f01cc6b79c0b483ab9eff91385513625a5e3a6ef6e30",
+      "git_blob_sha": "91e6d14c5bff2a0683a4bb9059817ed9d5c32344"
+    },
+    {
+      "file": "copper-conservatory-320.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 32352,
+      "sha256": "aecc0f46f26de714061883ded91fa07a0b741d2a796f9b03a82d51f168cc8666",
+      "git_blob_sha": "cda1994b1d4eaf6b7bca206fe19de1fb4ccfdd8a"
+    },
+    {
+      "file": "copper-conservatory-640.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 105652,
+      "sha256": "08b10493f099761e03545912f76a3e6144231fc8854ebdc6c57be5ddb90050c7",
+      "git_blob_sha": "3e9ed2304c5a59b49d9b5e77f252c6432390b5a0"
+    },
+    {
+      "file": "nocturne-gallery-320.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 33540,
+      "sha256": "20f659f2188a174d29e0f85b3f236b4ef5e592765c9d3e5e0e029fc9e4da05fb",
+      "git_blob_sha": "0a1ea373a873ea044b58992cee29e6a12a66d306"
+    },
+    {
+      "file": "nocturne-gallery-640.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 112478,
+      "sha256": "66a8318e60248f9b1c380097e01a7ca006e1a161c598a9094c655d675df3399c",
+      "git_blob_sha": "a09357d5b46ecfc9ce8730ff67ac4b67ed998d80"
+    },
+    {
+      "file": "salt-observatory-320.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 30932,
+      "sha256": "b9dbe8b255d9dd8fb46abe9b340b8a5a1da38428ef9f54a3fc9ee188eee06fa6",
+      "git_blob_sha": "817ad31a19684b66779c62e04c97e26ef8f9eebf"
+    },
+    {
+      "file": "salt-observatory-640.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 92110,
+      "sha256": "6a42862d60d2f6b3f830eab0feaee3f606659bd60786a729533f2f4b12dc714a",
+      "git_blob_sha": "9c98a76e87165cc32a18ad6787e4a2b848b93745"
+    },
+    {
+      "file": "winter-post-office-320.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 24934,
+      "sha256": "2fa4947c804c14801f78108e56644da2c66301105c70e99de89c099c91519d3f",
+      "git_blob_sha": "7141428f0df4419537e55c768c94a88f3117780e"
+    },
+    {
+      "file": "winter-post-office-640.webp",
+      "wave": "03",
+      "kind": "runtime",
+      "bytes": 83128,
+      "sha256": "6854c7dfd7a49790dcfbebf376f3923b5d9b4188b248fb0bce687ec5110063e5",
+      "git_blob_sha": "883dc1e9febfb35943b3ae5e35258797368de704"
+    }
+  ]
+}
