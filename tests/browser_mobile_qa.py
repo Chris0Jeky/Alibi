@@ -269,7 +269,7 @@ class MobileQA(unittest.TestCase):
     def test_readable_navigation_and_card_names(self):
         page = self.open_page(1280, 900)
         expect(page.get_by_role('button', name=f'The puzzle collection, {OFFICIAL_COUNT} puzzles', exact=True)).to_be_visible()
-        expect(page.get_by_role('button', name='The games room, new', exact=True)).to_be_visible()
+        expect(page.get_by_role('button', name='The games room', exact=True)).to_be_visible()
         page.evaluate('location.hash = "#/library/bridges"')
         card = page.locator('.puzzle-card').first
         expect(card.locator('.card-art')).to_have_attribute('aria-hidden', 'true')
