@@ -31,3 +31,12 @@ test('sudoku box exclusion names the box', () => {
   const s = stateWith([[0, 3]]);
   assert.match(A.reason(p, s, 5, 3), /already in this box/);
 });
+
+test('candidates exclude a row-conflicting value', () => {
+  const p = { type: 'sudoku', size: 9, boxRows: 3, boxCols: 3 };
+  const cells = Array(9 * 9).fill(0);
+  cells[0] = 5;
+  const s = { cells, notes: {} };
+  const result = A.candidates(p, s, 4);
+  assert.ok(!result.includes(5), 'row conflict removes 5 from candidates');
+});
