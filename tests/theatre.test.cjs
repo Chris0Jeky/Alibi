@@ -314,9 +314,13 @@ test('desk attribution links keep a 24px target, their href and a visible focus 
     'pre-enhancement credits stay hidden once display is set',
   );
   assert.match(
-    css,
-    /\[data-adaptive-credit\]:focus-visible \{[^}]*outline:\s*3px solid #[0-9a-f]{6}/,
-    'keyboard focus keeps a visible ring over the artwork',
+    fs.readFileSync(path.join(root, 'src/app.css'), 'utf8'),
+    /a:focus-visible \{[^}]*outline:\s*3px solid #[0-9a-f]{6}/,
+    'keyboard focus keeps the shared visible ring over the artwork',
+  );
+  assert.ok(
+    !/\[data-adaptive-credit\][^{]*\{[^}]*outline:\s*(none|0)/.test(css),
+    'no credit rule suppresses the focus ring',
   );
   const theatre = theatreRealm({
     scenes: [

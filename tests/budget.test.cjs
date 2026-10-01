@@ -158,8 +158,14 @@ assert.ok(
   // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
   // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
   // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 25600,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 25,600 bytes',
+  // Desk attribution targets (#501, unreleased): min-height plus inline-flex centering on
+  // the shared credit rule with a hidden guard measures +99 here
+  // (1,409,691 -> 1,409,790). Trim rounds: the explicit focus rule is dropped (the shared
+  // a:focus-visible ring already covers every anchor) and the hidden guard is unqualified.
+  // A smaller fix cannot hold 24px: min-height needs a non-inline display, and any display
+  // declaration must re-hide pre-enhancement credits. Ceiling +1,024. Not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26624,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 26,624 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

@@ -187,14 +187,8 @@
   border-radius: 3px;
   max-width: 70%;
 }
-.theatre-stage [data-adaptive-credit][hidden],
-.club-hero [data-adaptive-credit][hidden] {
+[data-adaptive-credit][hidden] {
   display: none;
-}
-.theatre-stage [data-adaptive-credit]:focus-visible,
-.club-hero [data-adaptive-credit]:focus-visible {
-  outline: 3px solid #dbae55;
-  outline-offset: 3px;
 }
 .club-hero [data-adaptive-credit] {
   bottom: 98px;
