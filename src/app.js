@@ -475,7 +475,7 @@
     return `<button aria-label="${esc(name)}" class="nav-item ${active ? 'active' : ''}" data-action="navigate" data-page="${page}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${esc(label)}</span>${count !== '' ? `<span class="count">${count}</span>` : active ? '<span class="dot"></span>' : ''}</button>`;
   }
   function sidebar() {
-    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
+    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'table', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'quiet', 'quiet')}${navItem('Wrenmere Castle', 'castle', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
   }
   function mobileNav() {
     if (route.page === 'play' && current)
@@ -484,10 +484,10 @@
       ['home', 'home', 'Your desk'],
       ['library', 'library', 'Puzzles'],
       ['casebooks', 'book', 'Casebooks'],
-      ['salon', 'sun', 'Games room'],
+      ['salon', 'table', 'Games room'],
       // The wing replaces a Settings tab that duplicated the top bar's always-visible Settings.
-      ['quiet', 'garden', 'The quiet wing'],
-      ['quiet', 'home', 'Castle', 'castle'],
+      ['quiet', 'quiet', 'The quiet wing'],
+      ['quiet', 'castle', 'Castle', 'castle'],
     ]
       .map(([p, ic, label, id = '']) => {
         const active = route.page === p && (!id || route.id === id);
