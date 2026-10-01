@@ -376,6 +376,8 @@
           t.accused = a.who;
         return t;
       },
+      // Witness marks are advisory working notes: completion judges only the
+      // accusation, while solveState still honors marks as constraints.
       validate: (p, s) =>
         s.accused !== null && p.statements.filter((c) => truth(c, s.accused)).length !== p.trueCount
           ? [

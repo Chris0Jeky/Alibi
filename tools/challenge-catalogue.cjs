@@ -25,12 +25,18 @@ function load(root = path.resolve(__dirname, '..')) {
       !Array.isArray(pack.challenges)
     )
       throw Error('Invalid challenge source pack.');
+    if (
+      pack.challenges.some(
+        (c) => typeof c !== 'object' || c === null || typeof c.id !== 'string' || !c.id,
+      )
+    )
+      throw Error('Invalid challenge source pack.');
     return pack.challenges;
   });
   if (
     !entries.length ||
     entries.length > 128 ||
-    new Set(entries.map((c) => c?.id)).size !== entries.length
+    new Set(entries.map((c) => c.id)).size !== entries.length
   )
     throw Error('Invalid challenge source count or duplicate ID.');
   return entries;
