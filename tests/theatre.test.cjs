@@ -307,7 +307,7 @@ test('desk attribution links keep a 24px target, their href and a visible focus 
   assert.ok(rule, 'the shared credit rule still covers the desk hero and the stage');
   const minHeight = rule[1].match(/min-height:\s*(\d+)px/);
   assert.ok(minHeight && Number(minHeight[1]) >= 24, 'credit target is at least 24px tall');
-  assert.ok(/display:\s*inline-flex/.test(rule[1]), 'credit text stays vertically centred');
+  assert.ok(/display:\s*flex/.test(rule[1]), 'min-height applies to the credit box');
   assert.match(
     css,
     /\[data-adaptive-credit\]\[hidden\] \{[^}]*display:\s*none/,

@@ -158,12 +158,14 @@ assert.ok(
   // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
   // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
   // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
-  // Desk attribution targets (#501, unreleased): min-height plus inline-flex centering on
-  // the shared credit rule with a hidden guard measures +99 here
-  // (1,409,691 -> 1,409,790). Trim rounds: the explicit focus rule is dropped (the shared
-  // a:focus-visible ring already covers every anchor) and the hidden guard is unqualified.
-  // A smaller fix cannot hold 24px: min-height needs a non-inline display, and any display
-  // declaration must re-hide pre-enhancement credits. Ceiling +1,024. Not feature room.
+  // Desk attribution targets (#501, unreleased): min-height plus a blockified flex
+  // display on the shared credit rule with a hidden guard measures +73 here
+  // (1,409,691 -> 1,409,764). Trim rounds: the explicit focus rule is dropped (the shared
+  // a:focus-visible ring already covers every anchor), the hidden guard is unqualified,
+  // and align-items plus the inline- prefix are gone (absolute positioning blockifies
+  // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
+  // display, and any display declaration must re-hide pre-enhancement credits.
+  // Ceiling +1,024. Not feature room.
   coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26624,
   'Precached code and shell excluding official content stay under 1.32 MiB + 26,624 bytes',
 );
@@ -186,7 +188,8 @@ for (const [prefix, limit] of [
   // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
   // Archive vault rooms plus Games Room polish measured 34,079 on 2026-09-27: +320.
-  ['alibi.', 33 * 1024 + 320],
+  // Desk attribution targets (#501, unreleased) measured 34,112: +384.
+  ['alibi.', 33 * 1024 + 384],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))
