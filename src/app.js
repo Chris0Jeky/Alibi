@@ -1444,6 +1444,10 @@
   }
   function blocked() {
     if (!current || paused) return true;
+    if (updateRequested) {
+      toast('An update is being applied. Reload to continue playing.');
+      return true;
+    }
     if (storageFatal || saveError) {
       toast('Export this session or reload before making more changes.', true);
       return true;
