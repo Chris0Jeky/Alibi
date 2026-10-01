@@ -1,5 +1,12 @@
 # Live development state
 
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
+
 ## Session-2 swarm wave (unreleased): 29 September 2026
 
 Continued the background swarm (`auto-alibi` waves 007-015, plan in
