@@ -359,6 +359,7 @@
     } else if (a.type === 'clear') {
       if (!Number.isInteger(a.cell) || a.cell < 0 || a.cell >= p.size ** 2) return s;
       if (!Object.values(t.placements).includes(a.cell)) return s;
+      t.accused = null;
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
     }
     return t;
@@ -851,7 +852,9 @@
         !Object.entries(s.placements).every(
           ([id, c]) => p.people.some((x) => x.id === id) && Number.isInteger(c) && c >= 0 && c < N,
         ) ||
-        !ints(s.clueMarks, 0, p.clues.length - 1) ||
+        !Array.isArray(s.clueMarks) ||
+        s.clueMarks.length > p.clues.length ||
+        !s.clueMarks.every((x) => Number.isInteger(x) && x >= 0 && x < p.clues.length) ||
         !(s.accused === null || p.people.some((x) => x.id === s.accused))
       )
         throw new Error('Invalid scene save.');
