@@ -119,8 +119,11 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // the bound back into the shared ints() helper reintroduces the board-size bound the bound
 // test pins against. Ceiling +128.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4256,
-  'Application bundle stays under 127 KiB + 4,256 bytes gzip',
+  // Club pictograms: same-machine baseline 134,285 -> 134,677 gzip (+392).
+  // Two trims removed the unused garden alias and joined identical-style contours.
+  // Preserve reviewed geometry and generic controls; +448 rounded to 64 bytes.
+  info.javascriptGzipBytes < 127 * 1024 + 4704,
+  'Application bundle stays under 127 KiB + 4,704 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -158,8 +161,10 @@ assert.ok(
   // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
   // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
   // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 25600,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 25,600 bytes',
+  // Club pictograms: 1,409,653 -> 1,410,547 (+894); +896 rounded to 64 bytes.
+  // Standalone masters/hash receipts remain outside the precache. Other caps stay fixed.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26496,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 26,496 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

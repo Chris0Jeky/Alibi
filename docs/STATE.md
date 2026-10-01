@@ -1,5 +1,23 @@
 # Live development state
 
+## Club pictogram draft (unreleased): 1 October 2026
+
+Branch `art/club-pictograms-20261001` integrates original club stationery pictograms into the
+existing inline icon table. Thirteen families now have distinct masters, including Bridges;
+Games, Quiet Wing and Castle have table, leaf and battlement destination icons on phone and
+desktop. Labels, routes, controls, gameplay symbols, save contracts and Sudoku unknown-key
+fallback remain unchanged. The 29 standalone masters and reproducible hash receipts stay
+outside runtime/precache; provenance and commands are in
+`assets-source/library/club-pictograms/README.md`. No raster or branding change.
+
+Same-machine baseline at `3ce84ca`: JS 134,285 -> 134,677 gzip; core shell excluding official
+content 1,409,653 -> 1,410,547 bytes. Two trims removed a redundant garden alias and joined
+identically styled adjacent contours; only these two ceilings rise by measured, 64-byte-rounded
++448 / +896. Total offline, CSS and initial-payload ceilings remain fixed.
+Verification is recorded in the draft PR after the clean-source Android/full verify gate and
+isolated phone/desktop browser checks. Not deployed; physical-device/TalkBack acceptance and
+the owner decisions in `HUMAN_TODO.md` remain open.
+
 ## Session-3 swarm coordination (unreleased): 1 October 2026
 
 Twelve PRs merged to `origin/main` (head `a851e9c`), each with CI green,
