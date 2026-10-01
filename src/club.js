@@ -1449,11 +1449,14 @@
         render();
         delete root.__clubReset;
       } else if (a === 'plan') {
-        selectedPlan = Number(v);
+        const slot = Number(v);
+        if (!currentGame('borough')?.offers[slot]) return;
+        selectedPlan = slot;
         render();
       } else if (a === 'plot') {
         const i = Number(el.dataset.cell),
           s = currentGame('borough');
+        if (!s || s.done || !(i in s.board)) return;
         if (s.board[i])
           notify(
             `${E().borough.typeInfo[s.board[i]].name}: ${plural(E().borough.breakdown(s)[i], 'point')}. Only side neighbours count.`,
