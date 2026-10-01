@@ -1,4 +1,4 @@
-"""Observe a real deployment using disposable profiles; run explicitly, never in CI.
+"""MANUAL-ONLY: observe a real deployment using disposable profiles; run explicitly, never in CI.
 
 Seed both current published origins, then wait for test-results/live-update/deployed.json
 containing {"build": "EXPECTED_BUILD"}. The coordinator writes this only after publishing
