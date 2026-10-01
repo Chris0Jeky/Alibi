@@ -153,8 +153,13 @@ assert.ok(
   // Session-2 swarm wave (2026-09-29, unreleased): the five correctness fixes plus
   // worker sanitizer/caps measure +739 bytes (1,407,251 -> 1,407,990) after two trim
   // rounds; ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 24576,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 24,576 bytes',
+  // Scene clue-mark bound plus clear-voids-accused (#495, unreleased): main measures
+  // 1,408,653 (43 bytes headroom); the fix measures +222 here (1,408,653 -> 1,408,875).
+  // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
+  // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
+  // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 25600,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 25,600 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
