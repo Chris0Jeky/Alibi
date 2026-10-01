@@ -385,5 +385,25 @@
       "sha256": "6854c7dfd7a49790dcfbebf376f3923b5d9b4188b248fb0bce687ec5110063e5",
       "git_blob_sha": "883dc1e9febfb35943b3ae5e35258797368de704"
     }
-  ]
+  ],
+  "processing": {
+    "sharp": "0.35.4",
+    "vips": "8.18.6",
+    "webp": "1.6.0",
+    "quality": 85,
+    "alphaQuality": 95,
+    "effort": 6,
+    "presetsByWave": {
+      "01": {
+        "fastShrinkOnLoad": true
+      },
+      "02": {
+        "fastShrinkOnLoad": false
+      },
+      "03": {
+        "fastShrinkOnLoad": false
+      }
+    },
+    "note": "Wave01 derivatives were made from lossless WebP sources. Disabling WebP shrink-on-load for waves02/03 reproduces their original PNG resize path. The recorded presets reproduce all32 derivative hashes."
+  }
 }
