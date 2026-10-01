@@ -116,12 +116,7 @@
           const tx = this.db.transaction(store, 'readonly'),
             r = tx.objectStore(store).getAll();
           this.watch(tx, reject);
-          r.onsuccess = () => {
-            this.damaged[store] = [];
-            const out = r.result.map((x) => x.value);
-            out.damaged = [];
-            resolve(out);
-          };
+          r.onsuccess = () => resolve(r.result.map((x) => x.value));
           r.onerror = () => reject(r.error);
         });
       if (this.mode === 'local') {
@@ -138,14 +133,10 @@
             }
           }
         }
-        this.damaged[store] = damaged;
-        out.damaged = damaged;
+        this.damaged[store] = out.damaged = damaged;
         return out;
       }
-      this.damaged[store] = [];
-      const out = Object.values(this.memory[store]);
-      out.damaged = [];
-      return out;
+      return Object.values(this.memory[store]);
     }
     async get(store, key) {
       if (this.db)
@@ -241,8 +232,8 @@
         settings,
         preferences,
         damaged: {
-          runs: [...(runs.damaged || [])],
-          packs: [...(packs.damaged || [])],
+          runs: [...(this.damaged.runs || [])],
+          packs: [...(this.damaged.packs || [])],
           meta: [...metaDamaged],
         },
       };
