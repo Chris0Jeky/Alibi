@@ -471,8 +471,7 @@
       icon: 'network',
       initial: (p) => ({ rotations: p.tiles.map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
-        if (!Array.isArray(s?.rotations) || s.rotations.length !== p.size * p.size)
-          return s;
+        if (!Array.isArray(s?.rotations) || s.rotations.length !== p.size * p.size) return s;
         if (
           a.type !== 'rotate' ||
           !Number.isInteger(a.cell) ||
