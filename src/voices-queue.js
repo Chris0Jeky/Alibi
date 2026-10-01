@@ -224,6 +224,7 @@ the survey or taps a rating. */
             context: { device },
           };
           return payload.id &&
+            typeof release === 'string' &&
             RELEASE.test(release) &&
             KINDS.includes(kind) &&
             DEVICES.includes(device) &&
@@ -239,6 +240,7 @@ the survey or taps a rating. */
           comment = clean(comment);
           const valid =
               picked &&
+              typeof release === 'string' &&
               RELEASE.test(release) &&
               DEVICES.includes(device) &&
               comment.length <= spec.comment &&
