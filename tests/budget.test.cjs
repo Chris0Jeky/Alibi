@@ -118,9 +118,15 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the redo-cap check cannot hoist (the log grows each loop pass), and folding
 // the bound back into the shared ints() helper reintroduces the board-size bound the bound
 // test pins against. Ceiling +128.
+// Damaged-record tolerance (unreleased): getAll/export skip one corrupt localStorage
+// record, report its key and preserve its bytes instead of discarding every run.
+// Measures 134,286 -> 134,422 gzip (+136 on a base with 18 bytes of headroom).
+// Trim rounds: the IndexedDB and session paths keep their original one-liners (no
+// parse damage possible there); export reads the store's damaged map rather than
+// duplicating per-result lists. Ceiling +256.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4256,
-  'Application bundle stays under 127 KiB + 4,256 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4512,
+  'Application bundle stays under 127 KiB + 4,512 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
