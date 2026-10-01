@@ -202,6 +202,8 @@
       } catch {
         quarantined++;
       }
+    if ((store.damaged.runs || []).length + (store.damaged.packs || []).length)
+      throw Error('A saved record is damaged. Export browser data before resetting anything.');
     const d = await store.get('meta', 'workshop-draft');
     if (d) {
       try {
@@ -1859,8 +1861,14 @@
     if (current && route.book) {
       // Straight to the next chapter's page; a finished book opens its ending (M5).
       const b = books.find((x) => x.id === route.book),
-        n = b && nextChapter(b, current.puzzle.id);
-      navigate('story', keyFor((n && find(n.id)) || current.puzzle), route.book);
+        n = b && nextChapter(b, current.puzzle.id),
+        p = n && find(n.id);
+      if (n && !p) {
+        toast('The next chapter definition is missing.', true);
+        navigate('casebooks', route.book);
+        return;
+      }
+      navigate('story', keyFor(p || current.puzzle), route.book);
       return;
     }
     if (!current) {

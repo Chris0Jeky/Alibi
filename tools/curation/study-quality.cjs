@@ -11,12 +11,19 @@ const { adjacent, range } = require('../../tests/helpers/family-studies-shared.c
 function stable(value) {
   if (Array.isArray(value)) return value.map(stable);
   if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, stable(value[key])]),
+    );
   }
   return value;
 }
 function definitionHash(puzzle) {
-  return crypto.createHash('sha256').update(JSON.stringify(stable(puzzle))).digest('hex');
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify(stable(puzzle)))
+    .digest('hex');
 }
 function relabel(values) {
   const labels = new Map();
@@ -48,9 +55,13 @@ function structuralKey(puzzle) {
   let values;
   if (['nonogram', 'binary', 'futoshiki', 'trail'].includes(type)) values = puzzle.solution;
   else if (type === 'lightup') values = puzzle.walls.map((wall) => Number(wall !== -2));
-  else if (type === 'tents') values = range(size ** 2).map((cell) => Number(puzzle.trees.includes(cell)));
+  else if (type === 'tents')
+    values = range(size ** 2).map((cell) => Number(puzzle.trees.includes(cell)));
   else if (type === 'aquarium') values = puzzle.tanks;
-  else if (type === 'bridges') values = range(size ** 2).map((cell) => Number(puzzle.islands.some((island) => island.cell === cell)));
+  else if (type === 'bridges')
+    values = range(size ** 2).map((cell) =>
+      Number(puzzle.islands.some((island) => island.cell === cell)),
+    );
   else if (type === 'network') {
     values = puzzle.tiles.map((mask) => {
       const degree = [1, 2, 4, 8].filter((bit) => mask & bit).length;
@@ -58,8 +69,20 @@ function structuralKey(puzzle) {
     });
   } else throw new Error(`Unsupported study family: ${type}`);
   let variants = transforms(values, size);
-  if (type === 'binary') variants.push(...transforms(values.map((value) => 1 - value), size));
-  if (type === 'trail') variants.push(...transforms(values.map((value) => size ** 2 + 1 - value), size));
+  if (type === 'binary')
+    variants.push(
+      ...transforms(
+        values.map((value) => 1 - value),
+        size,
+      ),
+    );
+  if (type === 'trail')
+    variants.push(
+      ...transforms(
+        values.map((value) => size ** 2 + 1 - value),
+        size,
+      ),
+    );
   if (['aquarium', 'futoshiki'].includes(type)) variants = variants.map(relabel);
   return `${type}:${size}:${variants.map((value) => value.join(',')).sort()[0]}`;
 }
@@ -68,21 +91,33 @@ function metrics(puzzle) {
   const out = { size };
   if (type === 'binary') {
     out.givens = puzzle.givens.filter((v) => v >= 0).length;
-    out.rowGivens = range(size).map((r) => puzzle.givens.slice(r * size, (r + 1) * size).filter((v) => v >= 0).length);
-    out.colGivens = range(size).map((c) => puzzle.givens.filter((v, i) => i % size === c && v >= 0).length);
+    out.rowGivens = range(size).map(
+      (r) => puzzle.givens.slice(r * size, (r + 1) * size).filter((v) => v >= 0).length,
+    );
+    out.colGivens = range(size).map(
+      (c) => puzzle.givens.filter((v, i) => i % size === c && v >= 0).length,
+    );
   } else if (type === 'futoshiki') {
     out.givens = puzzle.givens.filter(Boolean).length;
-    out.horizontal = puzzle.inequalities.filter(({ a, b }) => Math.floor(a / size) === Math.floor(b / size)).length;
+    out.horizontal = puzzle.inequalities.filter(
+      ({ a, b }) => Math.floor(a / size) === Math.floor(b / size),
+    ).length;
     out.vertical = puzzle.inequalities.length - out.horizontal;
   } else if (type === 'lightup') {
     out.white = puzzle.walls.filter((v) => v === -2).length;
     out.numbered = puzzle.walls.filter((v) => v >= 0).length;
     out.bulbs = puzzle.solution.filter(Boolean).length;
-    out.maxVisiblePeers = Math.max(...puzzle.walls.map((v, cell) => v === -2 ? C.extras.visible(puzzle, cell).length : 0));
+    out.maxVisiblePeers = Math.max(
+      ...puzzle.walls.map((v, cell) => (v === -2 ? C.extras.visible(puzzle, cell).length : 0)),
+    );
   } else if (type === 'tents') {
-    const candidates = puzzle.trees.map((tree) => adjacent(tree, size).filter((cell) => !puzzle.trees.includes(cell)));
+    const candidates = puzzle.trees.map((tree) =>
+      adjacent(tree, size).filter((cell) => !puzzle.trees.includes(cell)),
+    );
     out.trees = puzzle.trees.length;
-    out.sharedCandidates = range(size ** 2).filter((cell) => candidates.filter((set) => set.includes(cell)).length > 1).length;
+    out.sharedCandidates = range(size ** 2).filter(
+      (cell) => candidates.filter((set) => set.includes(cell)).length > 1,
+    ).length;
     out.branchingTrees = candidates.filter((set) => set.length > 1).length;
     out.multipleRows = puzzle.rowTargets.filter((v) => v > 1).length;
     out.multipleCols = puzzle.colTargets.filter((v) => v > 1).length;
@@ -90,7 +125,9 @@ function metrics(puzzle) {
     const rows = C.extras.tankRows(puzzle);
     out.tanks = rows.length;
     out.tallTanks = rows.filter((r) => r.length >= 3).length;
-    out.partialTanks = rows.filter((r, tank) => puzzle.solution[tank] > 0 && puzzle.solution[tank] < r.length).length;
+    out.partialTanks = rows.filter(
+      (r, tank) => puzzle.solution[tank] > 0 && puzzle.solution[tank] < r.length,
+    ).length;
     out.interiorRows = puzzle.rowTargets.filter((v) => v > 0 && v < size).length;
     out.interiorCols = puzzle.colTargets.filter((v) => v > 0 && v < size).length;
   } else if (type === 'network') {
@@ -103,11 +140,14 @@ function metrics(puzzle) {
     out.givens = anchors.length;
     out.maxGap = Math.max(...anchors.slice(1).map((value, i) => value - anchors[i]));
     const cells = range(size ** 2).sort((a, b) => puzzle.solution[a] - puzzle.solution[b]);
-    out.turns = cells.slice(2).filter((cell, i) => cell - cells[i + 1] !== cells[i + 1] - cells[i]).length;
+    out.turns = cells
+      .slice(2)
+      .filter((cell, i) => cell - cells[i + 1] !== cells[i + 1] - cells[i]).length;
     out.detours = anchors.slice(1).filter((value, i) => {
       const a = cells[anchors[i] - 1];
       const b = cells[value - 1];
-      const distance = Math.abs(Math.floor(a / size) - Math.floor(b / size)) + Math.abs(a % size - b % size);
+      const distance =
+        Math.abs(Math.floor(a / size) - Math.floor(b / size)) + Math.abs((a % size) - (b % size));
       return value - anchors[i] > distance;
     }).length;
   } else if (type === 'bridges') {
@@ -125,11 +165,14 @@ function replay(puzzle) {
   const engine = C.registry[puzzle.type];
   let state = engine.initial(puzzle);
   C.validateState(puzzle, state);
-  const actions = puzzle.type === 'aquarium'
-    ? puzzle.solution.map((value, tank) => ({ type: 'level', tank, value }))
-    : puzzle.type === 'network'
-      ? puzzle.solution.flatMap((count, cell) => range(count).map(() => ({ type: 'rotate', cell })))
-      : puzzle.solution.map((value, cell) => ({ type: 'set', cell, value }));
+  const actions =
+    puzzle.type === 'aquarium'
+      ? puzzle.solution.map((value, tank) => ({ type: 'level', tank, value }))
+      : puzzle.type === 'network'
+        ? puzzle.solution.flatMap((count, cell) =>
+            range(count).map(() => ({ type: 'rotate', cell })),
+          )
+        : puzzle.solution.map((value, cell) => ({ type: 'set', cell, value }));
   for (const action of actions) {
     const before = JSON.stringify(state);
     const next = engine.reduce(puzzle, state, action);
