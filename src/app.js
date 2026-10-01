@@ -202,6 +202,8 @@
       } catch {
         quarantined++;
       }
+    if ((store.damaged.runs || []).length + (store.damaged.packs || []).length)
+      throw Error('A saved record is damaged. Export browser data before resetting anything.');
     const d = await store.get('meta', 'workshop-draft');
     if (d) {
       try {

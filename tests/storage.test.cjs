@@ -219,13 +219,19 @@ function restoreFixture(seed) {
       local ? 'local fallback visible to fresh store' : 'session fallback correctly ephemeral',
     );
     if (local) {
-      // Loud report plus preserved bytes is the contract (see the origin
-      // suite's malformed-persisted cases): damage must surface, and the
-      // message points at browser-level data export, not in-app recovery.
+      // One damaged record must not discard every run: getAll/export skip
+      // the bad key, report it, and preserve its bytes for browser-level
+      // recovery. Single-key reads stay loud.
       ls.setItem('alibi.v1.runs.bad', '{bad');
-      await assert.rejects(s.getAll('runs'), /A saved record is damaged/);
-      assertions++;
-      ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+      const survived = await s.getAll('runs');
+      ok(survived.length === 1, 'damaged key skipped without losing valid runs');
+      ok(survived.damaged.join(',') === 'bad', 'damaged run key reported on the result');
+      ok(s.damaged.runs.join(',') === 'bad', 'damaged run key reported on the store');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'corrupt record bytes not deleted');
+      const damagedBackup = await s.export();
+      ok(damagedBackup.runs.length === 1, 'export keeps valid runs past one damaged key');
+      ok(damagedBackup.damaged.runs.join(',') === 'bad', 'export reports the damaged run key');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'export preserves corrupt bytes');
       await assert.rejects(s.get('runs', 'bad'), /damaged/);
       assertions++;
       ok(items.has('alibi.v1.runs.bad'), 'corrupt single read preserves the record');
@@ -280,7 +286,7 @@ function restoreFixture(seed) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, saveRun key capture, lazy metadata CAS fallback refusal, export, damaged-record loud report with byte preservation, single-read corruption message, null-key iteration, restore shape guard with byte-identical refusal, destructive-restore refusal and newer-database refusal. Not real browser IndexedDB durability or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, saveRun key capture, lazy metadata CAS fallback refusal, export, damaged-record skip-and-report with byte preservation, single-read corruption message, null-key iteration, restore shape guard with byte-identical refusal, destructive-restore refusal and newer-database refusal. Not real browser IndexedDB durability or reload testing.',
       },
       null,
       2,
