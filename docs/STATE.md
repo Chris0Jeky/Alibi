@@ -1,5 +1,29 @@
 # Live development state
 
+## Session-3 swarm coordination (unreleased): 1 October 2026
+
+Twelve PRs merged to `origin/main` (head `a851e9c`), each with CI green,
+independent review and coordinator RED-to-GREEN proof where applicable:
+#484 platform identity replace ordering, #488 non-OK asset-delivery test,
+#491 challenge/editorial fail-closed loads, #495 scene clue-mark bound +
+clear-voids-accused (with measured app-JS +128 and precache +1,024 raises),
+#496 sidebar NEW-badge drop, #504 Borough plan/plot guards, #505 Voices
+non-string release rejection, #506 quiet-import 1 MB pre-parse cap, #507
+engine dimension-mismatch guards, #508 missing next-chapter routing with
+catalogue pin refresh, #509 sudoku exclusion pins, #510 candidates pin.
+Round-2 fixes: #495 precache raise (main had 43 bytes headroom), #507
+prettier, #508 catalogue pins, one #488 OUTCOME-23 flake (rerun green) and
+one duplicate-trigger verify cancellation on #510 (rerun green). Six stale
+worker worktrees triaged (2 landed, 1 published, 3 discarded with reasons in
+the lane known file). Verified: full `npm run verify` EXIT 0 (885 pass) on
+the merged main; late-review sweep found only Codex quota notices, no
+findings. NOT verified: hosted behaviour, physical phone. Still queued in
+`auto-alibi` (running, coordinator re-enabled): fix-489 (Tic-Tac-Toe fixture
+vs date validation) and fix-501 (desk attribution 24px targets) workers, plus
+wave-026 backlog outputs awaiting triage. Strict branch protection
+(`verify`, up-to-date) confirmed; three mid-session merges slipped through on
+stale-base evaluation and main CI stayed green.
+
 ## Session-2 swarm wave (unreleased): 29 September 2026
 
 Continued the background swarm (`auto-alibi` waves 007-015, plan in
