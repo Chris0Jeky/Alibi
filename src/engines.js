@@ -281,12 +281,16 @@
         accused: null,
       }),
       reduce: (p, s, a) => {
-        const t = clone(s),
-          n = p.size;
+        const n = p.size;
+        if (a.type === 'mark') {
+          if (!Array.isArray(s?.marks) || s.marks.length !== 2 * n * n) return s;
+        }
+        const t = clone(s);
         if (
           a.type === 'mark' &&
           Number.isInteger(a.cell) &&
           a.cell >= 0 &&
+          a.cell < 2 * n * n &&
           a.cell < t.marks.length &&
           [-1, 0, 1].includes(a.value)
         ) {
@@ -422,14 +426,16 @@
       icon: 'aquarium',
       initial: (p) => ({ levels: tankRows(p).map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        const rows = tankRows(p);
+        if (!Array.isArray(s?.levels) || s.levels.length !== rows.length) return s;
         if (
           a.type !== 'level' ||
           !Number.isInteger(a.tank) ||
           a.tank < 0 ||
-          a.tank >= s.levels.length ||
+          a.tank >= rows.length ||
           !Number.isInteger(a.value) ||
           a.value < 0 ||
-          a.value > tankRows(p)[a.tank].length
+          a.value > rows[a.tank].length
         )
           return s;
         const t = clone(s);
@@ -467,6 +473,7 @@
       icon: 'network',
       initial: (p) => ({ rotations: p.tiles.map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        if (!Array.isArray(s?.rotations) || s.rotations.length !== p.size * p.size) return s;
         if (
           a.type !== 'rotate' ||
           !Number.isInteger(a.cell) ||
