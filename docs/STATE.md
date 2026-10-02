@@ -1,5 +1,26 @@
 # Live development state
 
+## Test diagnostics (#519): 2 October 2026
+
+Bridges now registers 49 named, serial Node test cases instead of one file-level
+result. All 40 existing assertion call sites, fixture values and solver calls
+are retained. An injected first-fixture failure produces one named failure;
+the other 48 cases still execute and pass. Bridges plus the already named
+Night Routes/Symbols suites pass all 57 cases. Those two Night suites need no
+conversion; #519 remains open for its other listed files. No runtime, puzzle,
+save or budget changes. Full verify at clean 0289e8d passes (1,014 passed,
+three intentional skips). Muse's bounded file-only xhigh review completes with
+no HIGH/CRITICAL finding. Its MEDIUM aggregate-counter ordering concern is
+tracked under #519; the default serial run and injected-failure proof pass.
+Muse ran no commands. Hosted Node22 full gate at ffffb338 succeeds; the parent timeout-only update now requires refreshed-head CI.
+
+Interlock #427 is preserved at 271bff9 with corrected accounting and compact
+worker IDs. Its recorded startup budget is 969 gzip bytes over the unchanged
+cap, so it remains blocked under #422. The owned Interlock and restore-fixture
+checkouts were removed after preserving needed ignored evidence in primary
+test-results/goal-20261002/interlock-427/ and restore-545/. Their commits remain
+published or included in the published #432 lineage; no branch is deleted.
+
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
