@@ -1,10 +1,10 @@
 # Alibi development
 
-Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 510 puzzles, five
+Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 570 puzzles, five
 casebooks, eight After Hours games, a workshop and offline saves. It builds to static files with no runtime dependency.
-The trusted registry (`content/official-packs.json`) holds 510 puzzles across 30 packs (26 initial
-plus 4 deferred Vault packs); the bundled total is `build-info.json` `puzzles` (430 initial plus
-80 deferred).
+The trusted registry (`content/official-packs.json`) holds 570 puzzles across 32 packs (27 initial
+plus 5 deferred Vault/Interlock packs); the bundled total is `build-info.json` `puzzles` (454 initial
+plus 116 deferred).
 The root is the working source. The deluxe, After Hours and Quiet Wing bundle directories are ignored input.
 Quiet Wing is an optional lazy activity; its source and recovery map is `docs/QUIET-WING.md`.
 
@@ -27,13 +27,13 @@ Browser checks use Python + `requirements-dev.txt` in `.venv`. Set `PYTHONUTF8=1
 `tests/browser_ui.py` completes all thirteen games in an isolated document. `tests/browser_origin.py`
 uses real IndexedDB and service workers in disposable profiles. Neither proves a physical phone.
 
-| Changed seam | Required evidence |
-| --- | --- |
-| Engines, puzzles, saves | Build + Node suites and regression for changed behavior |
-| Player, controls, styling | Above + UI suite and phone/desktop visual inspection |
-| Storage or offline release | Above + real-origin browser suite |
-| Build, assets, hosting | Verify + emitted-file inspection and actual hosted responses |
-| Documentation | Compare claims to code and measured state |
+| Changed seam               | Required evidence                                            |
+| -------------------------- | ------------------------------------------------------------ |
+| Engines, puzzles, saves    | Build + Node suites and regression for changed behavior      |
+| Player, controls, styling  | Above + UI suite and phone/desktop visual inspection         |
+| Storage or offline release | Above + real-origin browser suite                            |
+| Build, assets, hosting     | Verify + emitted-file inspection and actual hosted responses |
+| Documentation              | Compare claims to code and measured state                    |
 
 ## Boundaries that matter
 
