@@ -1607,7 +1607,8 @@
           const file = $('#challenge-file').files?.[0];
           if (!file) return;
           try {
-            if (file.size > 3 * 1024 * 1024) throw Error('Challenge save exceeds 3 MB.');
+            if (file.size > 3 * 1024 * 1024)
+              throw Error('Challenge save exceeds the 3 MiB import limit.');
             if (!G.AlibiValidateImport) throw Error('Background validation is unavailable.');
             const imported = await G.AlibiValidateImport({
               type: 'challenge-run',
