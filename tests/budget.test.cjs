@@ -132,8 +132,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4704,
-  'Application bundle stays under 127 KiB + 4,704 bytes gzip',
+  // #536: route ownership through file reading, worker completion and Cabinet
+  // picker cleanup measures 134,808 gzip on f18c26e (main measured 134,711).
+  // With #540 and #534 at c35a6f0, the combined tree measures 134,907.
+  // Shared ceiling 134,944: +192 over main / +64 over #540's measured allowance.
+  info.javascriptGzipBytes < 127 * 1024 + 4896,
+  'Application bundle stays under 127 KiB + 4,896 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -182,8 +186,11 @@ assert.ok(
   // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
   // The shared pause/release helper trims 81 raw bytes; the remaining native and
   // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27008,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,008 bytes',
+  // #536 alone on f18c26e measures 1,411,312; the combined #540/#534/#536
+  // source tree measures 1,411,491. Shared ceiling +416 over main / +192 over
+  // #540 leaves 53 bytes for content-hash noise. Other ceilings are unchanged.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27424,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,424 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

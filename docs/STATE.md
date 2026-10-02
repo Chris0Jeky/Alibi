@@ -1,5 +1,31 @@
 # Live development state
 
+## Backup validation route ownership (#536): 2 October 2026
+
+Cabinet and combined validation now retain their starting route serial through
+file reading and worker delivery. Stale success does not stage data or reopen a
+restore dialog; stale failures cannot close a newer route's modal or toast an
+old error. The Cabinet document picker carries the same route through pick/read,
+releases late tokens and retains ordinary same-route failure reporting.
+
+Executed regressions: eight backup ownership cases fail on the old helpers and
+six picker cases fail against main source. Actual Cabinet and combined file
+controls reopen restore dialogs on Home before the fix, with only the genuine
+compiled worker notification held. The fix passes 22 unit cases and 19 actual
+control checks, including current restore review at 390px/1440px and new-modal
+survival after worker errors. No destructive restore is clicked in this suite.
+Independent GPT-6.1-sol/high review has no blocker; its P3 future asynchronous
+cleanup feedback edge is tracked in [#541](https://github.com/Chris0Jeky/Alibi/issues/541),
+which does not establish a shipped-browser defect.
+
+The branch includes current main f18c26e. Full verify/UI/origin qualification is
+queued for the coordinator's next test slot; no full-suite pass is claimed here.
+Measured JS is 134,808 gzip alone and 134,907 combined with #540 and #534 at
+c35a6f0; code/shell is 1,411,312 alone / 1,411,491 combined. Shared JS/shell
+ceilings cover this measured composition plus hash noise; initial-payload, CSS
+and total-offline ceilings do not increase. No deployment or physical/native-host
+acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Goal continuation: 2 October 2026
 
 Work is tracked in [ORCHESTRATOR.md](qa/2026-10-02-goal/ORCHESTRATOR.md) and
