@@ -10,7 +10,7 @@ The actual compiled-worker regressions erase native painting on baseline for bot
 generation and verification, then pass for rooms/names, route changes, generator
 fields and validation failures. Native edits remain in real IndexedDB.
 
-Local verify passes (929 Node tests, three intentional skips, Quiet Wing 581,847
+Local verify at 214e9b3 passes (929 Node tests, three intentional skips, Quiet Wing 581,847
 engine assertions and 29 contract assertions); UI 184 and real-origin 270 pass.
 Phone/desktop Workshop screenshots were inspected. Independent GPT-6.1-sol/high
 review has no blocker; its P3 obsolete save-feedback edge is tracked separately
@@ -23,6 +23,11 @@ is 134,748 -> 134,842. Code/shell is 1,410,480 -> 1,410,628 alone and 1,411,140 
 1,411,352), with no initial-payload, CSS or total-offline ceiling increase.
 No deployment, hosted acceptance or physical-phone proof is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+After main advanced to f18c26e (#533), the branch integrates it and 16 focused
+ownership/budget checks pass (measured JS 134,812; code/shell 1,411,252). Updated-head
+full qualification is queued for the coordinator's next test slot; the earlier
+full-suite counts above do not claim acceptance of the newly combined head.
 
 ## Goal continuation: 2 October 2026
 
