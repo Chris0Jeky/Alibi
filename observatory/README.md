@@ -23,9 +23,9 @@ procedure in `docs/DEPLOYMENT.md` before Alibi deploys. From Pulseboard's `obser
 `node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>` in
 the authoritative checkout, and put the printed SDK version and SHA-256 into the lock. The
 builder safely replaces an existing pristine SDK artifact; retain it until generation succeeds.
-Pulseboard's `sync:alibi`
-still targets the old `observatory/browser.js` embed and needs an SDK v3 update before
-`npm run release:prepare` works again.
+Pulseboard's `sync:alibi` now recognizes the SDK v3 lock and regenerates this
+artifact and its hash. It refuses an SDK version mismatch; adopt and review a
+new SDK version before using `npm run release:prepare` for a release sync.
 
 0.14.1's artifact was built from Pulseboard `5b53836` (SDK 3.1.0) with `0.14.1` appended to the release list,
 before Pulseboard registered it: the bytes equal what Pulseboard builds once it lists `0.14.1`.
