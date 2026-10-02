@@ -1,5 +1,60 @@
 # Live development state
 
+Current qualification: #432 consolidates the optional Lattice content and
+reviewed #544/#545 persistence tests with all original commits preserved.
+#539 and #543 are merged; combined full verify at 981df97 passes (966
+passed, three intentional skips). Clean 47cd4d0 passes the final 19 Android,
+source/import checks, 24 native imports/four aligned views and all 48 hosted
+Lattice puzzle cases. The full hosted gate remains required.
+Superseded test PRs remain open until the combined head lands.
+
+## Full CI timeout headroom (#531): 2 October 2026
+
+The full gate at 47cd4d0 was cancelled twice at its 25-minute job limit.
+Both logs have passing Node/browser output and no assertion failure: attempt
+one reaches browser_experience.py after 6m21s FFmpeg setup; attempt two reaches
+browser_challenge_library.py after 7m07s Playwright setup. The previous green
+#543 full run takes 23m26s, including 13m55s for the composite real-origin step
+and only 17s Playwright setup. A bounded independent Sol lens confirms the
+timeout cause. Increase only the job deadline to 45 minutes, retaining every
+command, scope condition and artifact. Whether that deadline suffices, and the
+remaining expedition/update/room checks, require a completed hosted run.
+
+## Lattice optional collection closeout (#432): 2 October 2026
+
+The existing Lattice candidate is refreshed onto current main, preserving all
+24 playable pack definitions and editorial receipts byte-for-byte. It remains
+an optional Workshop JSON import: twelve Lanterns and twelve Futoshiki, all
+revision 1 with provisional Expert labels. The official registry and all 510
+previous definitions/legacy data are unchanged. No new runtime loader, startup
+content, dependency or numeric budget change is introduced by this pack.
+A bounded Muse contributor xhigh file-only review completed with no findings;
+its machine reconstruction/uniqueness/import/browser checks were explicitly
+not_run. A narrow Sol review completes the previously uninspected certificate
+seam, with no blockers. Coordinator full verify passes (928 passed, three
+intentional skips), including all-board regeneration, native/independent
+uniqueness, reducer replay, answer-free openings and production import. All 48
+phone/desktop puzzle cases pass (194 browser checks), with undo/redo, guarded
+restart, saved completion and offline reopen. Representative captures for both
+families and aligned phone/desktop views were inspected. The local build pins
+clean source 03c0afa; the browser receipt pins pack SHA256 rather than local
+HEAD. The current gate first exposed one old helper-formatting issue; only that
+helper was formatted, with no data changes. Final source proof and hosted CI
+remain separate. No human calibration, physical Android/TalkBack or deployment
+is claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+## Activity guard regression integration (#512/#513): 2 October 2026
+
+The two independently reviewed test-only candidates are integrated together on
+current main, preserving their original commits. Six checks cover refusal of
+unsafe update flushes and the clean positive path; two cover overlapping or
+disconnected mounts. With the four existing activity checks, all twelve pass.
+The reviewed activities.js blob remains cce877a6897f45c263091dff442484ee8b82181c;
+no runtime code changes. One integration PR carries both tests so separate
+base refreshes do not keep invalidating each other. Full local verify passes
+(928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
+lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Backup validation route ownership (#536): 2 October 2026
 
 Cabinet and combined-backup validation capture their route before reading the
@@ -20,6 +75,23 @@ blockers; exact-head CI remains pending. Same-route concurrency and platform
 picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
 deployment or physical-device acceptance is claimed.
 
+## Restore fixture transaction activity (#476): 2 October 2026
+
+The bounded Club restore-ordering fixture now rejects requests outside its
+creation/request callback activity window and after completion/abort. Immediate
+callback microtasks remain valid; repeated/post-completion aborts throw
+InvalidStateError. The 30 ms completion delay no longer grants permission to
+later timers. This improves the fixture, not product storage. Six new tests
+produce five baseline failures; all eleven fixture tests pass after correction.
+Four semantic mutants are killed. A disposable real-origin Chromium probe
+confirms timer/finished exceptions and callback microtask acceptance. Full local
+verify at 59f2875 passes (938 passed, three intentional skips), and a fresh
+bounded Muse xhigh review has no findings; it ran no commands. The fixture's
+zero-delay activity checkpoint is an approximation; native durability remains
+separate. Issue #476 stays open for transaction serialization, pending abort
+error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Workshop worker completion ownership (#535): 2 October 2026
 
 Workshop edits and route entries now invalidate pending generation/verification.
@@ -35,7 +107,7 @@ code/shell 1,411,292 (+152); removing the duplicate generation render trims six
 emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
 160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
 passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
-Independent Sol review has no blockers; exact-head hosted CI remains pending. No deployment or physical acceptance is claimed;
+Independent Sol review has no blockers; exact-head hosted CI passed and #539 merged at be849af. No deployment or physical acceptance is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Lesson completion route ordering (#530): 2 October 2026
@@ -103,6 +175,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -117,7 +190,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 
