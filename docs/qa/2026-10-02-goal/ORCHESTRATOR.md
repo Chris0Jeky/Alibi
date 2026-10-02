@@ -8,6 +8,14 @@ Muse wave 1: three bounded file-only jobs, contributor model, high/xhigh. Review
 
 GPT 6.1 Sol medium: read-only Borough measurement, independent #512/#513 review (no blockers), and independent update-boundary confirmation. One writer per checkout. Reviews and proving checks stay separate.
 
+Muse wave 2: import review has no findings. Borough review has three LOW findings:
+two pre-existing/documentation limitations classified once, and a 700px control
+overlay confirmed by a Sol browser measurement and tracked in #529. The update
+worker supplied the pause/flush patch and unit fixtures; coordinator integrated
+it, shared the pause/release protocol and proved actual RED-to-GREEN inputs with
+Sol's disposable browser fixture. Final-flush failure and no-worker recovery are
+also exercised. #522 merged after its dry-run and exact-head CI passed.
+
 Gate ritual: relevant local checks, one independent adversarial review, exact-head CI and unresolved threads, three-minute push aging, merge commit. Existing unrelated draft art, native and research PRs retain their ownership.
 
 Human acceptance stays in [HUMAN_TODO.md](../../../HUMAN_TODO.md), especially the scripted phone session. Automated and visual browser evidence does not close those items. Raw output and synthetic screenshots are ignored; curate results here before teardown.

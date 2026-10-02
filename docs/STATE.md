@@ -9,9 +9,23 @@ findings, and #523 merged at 45102bc. The #524 candidate aligns challenge import
 byte cap and message. Source/built-worker focused checks pass (19), and the
 real-origin challenge suite proves the file gate, actual Worker rejection of
 multibyte oversize, unchanged replay on rejection and valid at-limit restore.
-The full local gate also passes for the import fix. The independent lifecycle hunt
-confirmed an incomplete update freeze across Club, optional activities and notes;
-[issue #526](https://github.com/Chris0Jeky/Alibi/issues/526) is the next high-impact slice.
+The full local gate and independent Muse review pass for the import fix (#527).
+The toolchain upgrade (#522) merged at 8072981 after install, full verify,
+Cloudflare dry-run, independent Sol review and exact-head CI passed.
+
+The #526 candidate pauses native and Shadow DOM inputs before the first save
+snapshot, cancels pending Club bot work, and checks all stores again before
+controllerchange reload. Three real-origin RED-to-GREEN cases cover Club click
+and keyboard moves, Quiet Wing realm names and cabinet notes. Rejected flushes
+preserve data and restore controls; a final controllerchange failure avoids
+reload, and a retry with no waiting worker releases the pause. The existing
+two-release/two-tab suite passes 18 checks. Sharing pause/release sites trims
+81 raw bytes; gzip remains 134,639 (+164), so the JS ceiling rises 128 bytes.
+Full gate, UI/origin QA and independent review remain pending for this candidate.
+
+Borough #528 passes its three-phone/desktop regression and full local gate;
+the independent review has no merge blockers. A confirmed 700px navigation
+overlay is tracked separately in #529, with direct measurements and hit tests.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
 

@@ -124,9 +124,13 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the IndexedDB and session paths keep their original one-liners (no
 // parse damage possible there); export reads the store's damaged map rather than
 // duplicating per-result lists. Ceiling +256.
+// #526: native/Shadow DOM input pause, Club bot cancellation and guarded final flush
+// measure 134,475 -> 134,639 (+164), exceeding the old ceiling by 79 bytes.
+// Sharing the four pause/release sites trims 81 raw bytes; gzip remains 134,639.
+// The recovery guards remain required; ceiling +128 leaves 49 bytes of headroom.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4512,
-  'Application bundle stays under 127 KiB + 4,512 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4640,
+  'Application bundle stays under 127 KiB + 4,640 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
