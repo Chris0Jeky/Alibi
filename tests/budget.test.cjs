@@ -188,6 +188,10 @@ assert.ok(
   // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
   // The shared pause/release helper trims 81 raw bytes; the remaining native and
   // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
+  // #530 plus the landed 800px Borough margin measures 1,411,140: 12 bytes
+  // beyond that ceiling. The lesson guard has only its required identity/route
+  // captures and stale check (34 emitted bytes); no redundant helper to trim.
+  // Ceiling +32 leaves 20 bytes, not feature room. JavaScript gzip ceiling unchanged.
   // #535: 1,410,480 -> 1,410,628 alone; with #533/#534 at c35a6f0:
   // 1,411,140 -> 1,411,285. The stack has only 20 bytes spare. Shared ceiling
   // +608 over main / +192 over that stack leaves 67 bytes for build-hash noise.
