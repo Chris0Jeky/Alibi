@@ -1,5 +1,21 @@
 # Live development state
 
+## Borough confirmation reachability (#497): 2 October 2026
+
+Selecting a plot or changing its chosen plan now focuses and reveals Build;
+confirmation returns focus and view to the built plot. A phone-only scroll
+margin clears fixed navigation without adding an overlay. The new regression
+fails on the old source at three phone sizes, then passes on 390×844, 320×568,
+390×650 and 1440×900, checking hit testing before any automatic button scroll,
+actual touch and keyboard confirmation, one move per action and focus return.
+It waits for initial service-worker setup before measuring so installation
+rerenders cannot shift the measured tap. Main UI suite: 184 checks pass.
+Phone/desktop screenshots were visually inspected; layout and size gates pass.
+The measured app gzip grows 101 bytes after trimming the first draft by 28;
+the ceiling grows 64 bytes for its 21-byte excess. Full local gate and independent
+review are pending. Not deployed or physically accepted; [HUMAN_TODO.md](../HUMAN_TODO.md)
+and its phone session remain open.
+
 ## Goal-swarm wave 1 (merged): 1 October 2026
 
 PR #515 merged to `origin/main` (merge `6364767`), 12 commits, CI 12/12 green,
