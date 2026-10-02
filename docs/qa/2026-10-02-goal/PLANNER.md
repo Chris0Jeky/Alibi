@@ -14,3 +14,10 @@
 | 10 | Declined lifecycle claims | Wing/Castle retained state survives failed disposal; challenge-only path untraced. No valid-action history issue found in Borough/keeper scope; chess/draughts outside scope. |
 
 Per-slice limit: one implementation, one real review, one confirmed-blocker repair and scoped verification. Three distinct red-check attempts, then preserve and park with evidence. Continue high-impact delivery before speculative infrastructure or puzzle volume. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md); browser QA does not close it. No live deployment is claimed.
+
+Current continuation: #534 merged a3228b7; #539/#543 are ready with complete local
+proof and pending CI, but overlap cloud #540/#542. Coordination is authorized
+and sent. #432 optional 24-board content passes verify 928/three skips, all 48
+phone/desktop cases and visual inspection; final publication next. #512/#513
+are integrated together with their reviewed commits and twelve focused passes;
+qualify/publish one coherent test layer before closing the originals.

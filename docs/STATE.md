@@ -1,5 +1,17 @@
 # Live development state
 
+## Activity guard regression integration (#512/#513): 2 October 2026
+
+The two independently reviewed test-only candidates are integrated together on
+current main, preserving their original commits. Six checks cover refusal of
+unsafe update flushes and the clean positive path; two cover overlapping or
+disconnected mounts. With the four existing activity checks, all twelve pass.
+The reviewed activities.js blob remains cce877a6897f45c263091dff442484ee8b82181c;
+no runtime code changes. One integration PR will carry both tests so separate
+base refreshes do not keep invalidating each other. Full gate is next, then
+exact-head CI and aging. The original PRs remain open until this integration
+lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Lesson completion route ordering (#530): 2 October 2026
 
 The lesson completion captures its lesson object and route serial before saving,
@@ -17,7 +29,7 @@ The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Fu
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
-baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+baseline regression fails after release. PR #534 merged at a3228b7 after exact-head CI and aging. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026

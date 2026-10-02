@@ -29,3 +29,19 @@ Muse wave 3: update review's two MEDIUM claims were triaged against native inert
 Lesson #530 final local proof: full verify 920 pass/three intentional skips, UI 184, mobile 14; independent Muse has no blockers. Its LOW unawaited-Promise claim is declined by Playwright's evaluate contract and the observed baseline failure. Two new bounded Muse lenses investigate other asynchronous actions and valid After Hours history, excluding the active reviewed fixes. #517/#518 were reconciled and closed without new code. The merged toolchain worktree is removed; needed ignored logs/reports moved to primary test-results/goal-20261002/toolchain-522/.
 
 #532 merged at 21091a0 after completed exact-head CI; primary fast-forwarded cleanly. #533 and #534 are published ready as the import/update/lesson stack. The landed tablet base is integrated with review credit preserved and changed-seam reproof. Wave 6 native confirmation found Workshop verification overwrites saved edits (#535) and both backup dialogs reopen over Home (#536); a bounded Workshop worker is running. History hunt found no valid-action issue in Borough/keeper scope; chess/draughts were outside the files.
+
+Activity test closeout now integrates both #512/#513 on current main, preserving
+all original commits and independent review credit. Runtime activity blob is
+unchanged; twelve focused checks pass. One ready integration PR will receive
+fresh exact-head CI, then close the superseded originals after landing. This
+avoids mutually invalidating independent test-only base refreshes.
+Workshop #539 and backup #543 are locally qualified, ready, and CI-pending;
+concurrent cloud drafts #540/#542 cover the same defects with extra adjacent
+scope. Human explicitly authorized one message to Fix Alibi editing races;
+it was sent. Keep overlapping merges pending during reconciliation. Lattice
+#432 separately passes full verify 928/three skips and all 48 actual imported
+puzzle/viewport cases (194 checks); phone/desktop captures were inspected.
+Five owned raw worker checkouts were removed without force after preserving
+patches/files in primary test-results/goal-20261002/worker-proposals/ and named
+local snapshot branches. Published integrated branches and unrelated worktrees
+remain intact.
