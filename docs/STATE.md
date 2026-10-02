@@ -1,5 +1,19 @@
 # Live development state
 
+## Lesson completion route ordering (#530): 2 October 2026
+
+The lesson completion captures its lesson object and route serial before saving,
+then checks both after the await. A newer route or replacement lesson keeps its
+screen/dialog state; ordinary completion still opens or reveals its puzzle.
+The actual real-origin IDB regression commits the learned-family preference,
+holds only its completion notification, navigates Home, then releases it. The
+baseline incorrectly opens Sudoku; the guard preserves Home. A fresh-profile
+positive control also passes. Four executed unit cases have RED/GREEN proof.
+The measured bundle remains within existing ceilings (134,747 bytes gzip);
+source asset metadata is refreshed. Full local gate and independent review are
+pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+remains open.
+
 ## Goal continuation: 2 October 2026
 
 Work is tracked in [ORCHESTRATOR.md](qa/2026-10-02-goal/ORCHESTRATOR.md) and
