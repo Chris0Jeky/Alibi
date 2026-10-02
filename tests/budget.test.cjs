@@ -182,8 +182,12 @@ assert.ok(
   // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
   // The shared pause/release helper trims 81 raw bytes; the remaining native and
   // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27008,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,008 bytes',
+  // #530 plus the landed 800px Borough margin measures 1,411,140: 12 bytes
+  // beyond that ceiling. The lesson guard has only its required identity/route
+  // captures and stale check (34 emitted bytes); no redundant helper to trim.
+  // Ceiling +32 leaves 20 bytes, not feature room. JavaScript gzip ceiling unchanged.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27040,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,040 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

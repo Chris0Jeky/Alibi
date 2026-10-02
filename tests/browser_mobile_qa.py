@@ -52,6 +52,87 @@ class MobileQA(unittest.TestCase):
         page.locator('#dialog[open] [data-action="lesson-finish"]').click()
         expect(page.locator('#dialog')).not_to_be_visible()
 
+
+    def test_lesson_finish_preserves_newer_route(self):
+        if os.environ.get('ALIBI_QA_HTML'):
+            self.skipTest('Lesson completion ordering requires the real IndexedDB origin')
+        page = self.open_page(390, 844, 'settings')
+        errors = []
+        page.on('pageerror', lambda error: errors.append(str(error)))
+        page.wait_for_function('() => AlibiDiagnostics.getStatus().mode === "indexeddb"')
+        # Native IDB commits normally. Delay only its preferences completion notification;
+        # the real storage watchdog still receives complete and clears its timer.
+        page.evaluate(r'''(()=>{
+  window.lessonRouteProbe={enabled:false,held:false};
+  const put=IDBObjectStore.prototype.put;
+  IDBObjectStore.prototype.put=function(record,...args){
+    if(lessonRouteProbe.enabled && this.name==='meta' && record?.key==='preferences' && this.transaction.db.name==='alibi-device'){
+      this.transaction.__lessonProbe=true;
+    }
+    return put.call(this,record,...args);
+  };
+  const descriptor=Object.getOwnPropertyDescriptor(IDBTransaction.prototype,'oncomplete');
+  Object.defineProperty(IDBTransaction.prototype,'oncomplete',{
+    configurable:descriptor.configurable,enumerable:descriptor.enumerable,get:descriptor.get,
+    set(callback){
+      descriptor.set.call(this,typeof callback==='function'?function(event){
+        if(this.__lessonProbe && lessonRouteProbe.enabled){
+          lessonRouteProbe.enabled=false;
+          lessonRouteProbe.held=true;
+          lessonRouteProbe.committed=true;
+          lessonRouteProbe.release=async()=>{
+            callback.call(this,event);
+            await new Promise(requestAnimationFrame);
+            await new Promise(requestAnimationFrame);
+          };
+          return;
+        }
+        return callback.call(this,event);
+      }:callback);
+    }
+  });
+})();''')
+        page.locator('[data-action="choose-lesson"]').click()
+        page.locator('[data-action="lesson"][data-type="sudoku"]').click()
+        expect(page.locator('[data-action="lesson-finish"]')).to_be_visible()
+        page.evaluate('() => lessonRouteProbe.enabled = true')
+        page.locator('[data-action="lesson-finish"]').click()
+        page.wait_for_function('() => lessonRouteProbe.held && lessonRouteProbe.committed')
+        self.assertTrue(page.evaluate('lessonRouteProbe.committed'))
+        # Verify the intended preference actually committed before release.
+        preferences = page.evaluate('''() => new Promise((resolve, reject) => {
+            const request = indexedDB.open('alibi-device', 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                const db = request.result, tx = db.transaction('meta', 'readonly');
+                const read = tx.objectStore('meta').get('preferences');
+                tx.oncomplete = () => { db.close(); resolve(read.result.value); };
+                tx.onerror = () => { db.close(); reject(tx.error); };
+            };
+        })''')
+        self.assertIn('sudoku', preferences['seen'])
+        page.evaluate('() => location.hash = "#/home"')
+        expect(page.locator('.club-welcome')).to_be_visible()
+        expect(page.locator('#dialog')).not_to_be_visible()
+        self.assertEqual(page.evaluate('location.hash'), '#/home')
+        page.evaluate('() => lessonRouteProbe.release()')
+        self.assertEqual(page.evaluate('location.hash'), '#/home')
+        expect(page.locator('.club-welcome')).to_be_visible()
+        expect(page.locator('#dialog')).not_to_be_visible()
+        self.assertFalse(errors, errors)
+
+        # Positive control in a fresh origin profile: ordinary finish still opens a puzzle.
+        positive = self.open_page(390, 844, 'settings')
+        positive_errors = []
+        positive.on('pageerror', lambda error: positive_errors.append(str(error)))
+        positive.locator('[data-action="choose-lesson"]').click()
+        positive.locator('[data-action="lesson"][data-type="sudoku"]').click()
+        positive.locator('[data-action="lesson-finish"]').click()
+        positive.wait_for_function('() => location.hash.startsWith("#/play/sudoku") && AlibiDiagnostics.getCurrent()?.puzzle.type === "sudoku"')
+        self.assertTrue(positive.evaluate('location.hash.startsWith("#/play/sudoku")'))
+        expect(positive.locator('#dialog')).not_to_be_visible()
+        self.assertFalse(positive_errors, positive_errors)
+
     def test_borough_build_reachable_after_selection(self):
         for width, height in [(390, 844), (320, 568), (390, 650), (700, 800), (700, 568), (1440, 900)]:
             with self.subTest(viewport=(width, height)):
