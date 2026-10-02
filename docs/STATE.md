@@ -1,5 +1,32 @@
 # Live development state
 
+## Current reliability delivery (#552): 3 October 2026
+
+#432 landed at a84eb31 after the exact b318e45 full hosted gate and both controls
+workflows passed. The original #512/#513/#544/#545 heads are preserved ancestors
+and GitHub records them as merged. Timeout issue #531 is closed on that proof.
+
+The current-main delivery preserves #540/#542 editing histories, #546 Bridges
+diagnostics and #550 count-parser commits alongside completion #421. It also
+fixes #538 by checking saved draft identity, epoch and route before error feedback;
+#541 retains picker errors through awaited token release and busy reset, then
+rechecks route ownership before propagating current errors. Falsy errors and
+early returns retain their behavior. Captured old source fails three of 27
+feedback cases; corrected source passes all 27. No saved data format or puzzle
+identity changes. Source 00bf312 is preserved in integration e3caa14.
+
+Independent fresh Sol review finds no HIGH/CRITICAL or new actionable lesser
+defect, with 115 focused cases passing. Coordinator integration seam passes 85.
+Clean e3caa14 measures 134,944 JS gzip, 1,411,604 shell and 204,001 startup gzip
+bytes. Feedback guards add a measured 26 gzip/34 emitted bytes; ceilings add
+only 32/32 on top of the completion allowance, with other caps unchanged.
+Combined full verify, real-browser qualification and exact-head hosted CI remain
+required before merge. Original ready PRs stay open until their commits land.
+
+Earlier sections below retain per-slice historical receipts. Interlock #427
+stays parked for its separate startup excess; physical Android/TalkBack and
+owner acceptance remain open in HUMAN_TODO.md. No deployment is claimed.
+
 ## Completion hook containment (#421): 3 October 2026
 
 Each optional completion hook has its own synchronous exception guard. A failing

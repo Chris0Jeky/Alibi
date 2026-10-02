@@ -1,5 +1,30 @@
 # Goal orchestration — 2 October 2026
 
+## Current integration checkpoint — 3 October 2026
+
+#432 merged at a84eb31 after all b318e45 hosted checks passed. Original
+#512/#513/#544/#545 heads are verified ancestors and GitHub records them merged;
+#531 is closed on completed CI. GitHub's up-to-date rule refuses #540 even with
+an identical landed-base tree. Consolidate the reviewed #540/#542, #546 and #550
+histories into the current-main #552 delivery alongside completion #421 and the
+new bounded #538/#541 feedback slice, retaining every original commit.
+
+Only receipt conflicts occur for Bridges/counts; both histories and their tests
+are retained. The feedback source merges cleanly, retaining the reviewed app
+from 00bf312. Its captured old source gives 24 passes/three failures; corrected
+source gives 27 passes. Integration e3caa14 passes 85 focused seam cases and one
+fresh independent Sol review runs 115 without HIGH/CRITICAL or new actionable
+lesser findings. Measured JS/shell/startup are 134,944 / 1,411,604 / 204,001;
+feedback allowances add only 32 gzip/32 shell for measured +26/+34. Combined
+full gate and browser proof precede the final push and hosted gate. Earlier
+per-slice reviews remain preserved; no manual Codex request is added.
+
+Read-only feasibility mapping examines existing deferral for Interlock's
+24 new initial definitions, without modifying definitions, budgets or source.
+HUMAN_TODO.md physical and owner acceptance remains open; no deployment.
+
+## Historical wave receipts
+
 3 October continuation: Muse wave 13 completed with provider timeouts and no
 completion patch or count-review report. The count slice used one independent
 Luna xhigh fallback; the completion slice used a bounded Sol medium writer and
