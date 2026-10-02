@@ -6,7 +6,10 @@ module.exports = function contentBudgetAccounting(info) {
     if (!Number.isSafeInteger(info[key]) || info[key] < 0)
       throw Error(`Invalid byte receipt: ${key}`);
   }
-  const officialBytes = info.officialContentBytes + info.deferredContentBytes;
+  // The producer receipt already combines initial, deferred and curation data.
+  const officialBytes = info.officialContentBytes;
+  if (info.deferredContentBytes > officialBytes)
+    throw Error('Deferred content exceeds the recorded official data');
   if (!Number.isSafeInteger(officialBytes) || officialBytes > info.coreOfflineBytes)
     throw Error('Official content exceeds the recorded precache');
   return { officialBytes, shellBytes: info.coreOfflineBytes - officialBytes };
