@@ -6,9 +6,12 @@ Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
 breakpoint used by the fixed navigation. Before the change, the new regression
 fails at 700x800 and 700x568: Build ends at the viewport bottom, behind a nav
 starting 65px higher, and centre hit tests fail. After the change, six phone,
-tablet and desktop sizes pass actual touch/click confirmation, plan changes,
-focus return and keyboard continuation. The download budgets pass without an
-increase. Full gate, UI suite and independent review are pending. This follows
+tablet and desktop sizes pass actual touch/click confirmation and focus return;
+the five navigation-covered sizes also pass plan changes and keyboard continuation.
+The download budgets pass without an increase. Full local verify and the UI
+suite (184 checks) pass; tablet screenshots were inspected. Independent Muse
+review finds no correctness, security or data-loss defect. Its non-blocking
+coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
 
