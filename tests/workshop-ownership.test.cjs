@@ -27,6 +27,7 @@ function fixture() {
     save = deferred(),
     notices = [],
     saves = [],
+    persisted = [],
     scrolls = [];
   let holdSave = false,
     onInput;
@@ -46,6 +47,7 @@ function fixture() {
           holdSave = false;
           await save.promise;
         }
+        persisted.push(structuredClone(value));
       },
     },
     toast: (message) => notices.push(message),
@@ -81,6 +83,7 @@ function fixture() {
     saveResult: save,
     notices,
     saves,
+    persisted,
     scrolls,
     formEdit: () =>
       onInput({
@@ -114,6 +117,37 @@ for (const operation of ['verify', 'generate']) {
       assert.deepEqual(f.scrolls, []);
     });
   }
+}
+
+for (const operation of ['generate', 'verify']) {
+  test(`draft save failure is discarded after ${operation} replaces and saves the draft`, async () => {
+    const f = fixture(),
+      original = f.state().draft,
+      replacement = { rooms: [2] };
+    f.holdSave();
+    f.edit();
+    assert.equal(f.saves.length, 1);
+    assert.deepEqual(f.saves[0].puzzle.rooms, [1]);
+    const pending = f[operation]();
+    f.worker.resolve(replacement);
+    await pending;
+    assert.equal(f.state().draft, replacement);
+    assert.equal(f.state().draftVerified, true);
+    assert.equal(f.saves.length, 2);
+    assert.deepEqual(f.persisted, [{ puzzle: replacement }]);
+
+    f.saveResult.reject(Error('obsolete draft save failure'));
+    await new Promise(setImmediate);
+    assert.deepEqual(
+      f.notices,
+      operation === 'verify' ? ['Verified. Exactly one arrangement satisfies these clues.'] : [],
+    );
+    assert.notEqual(f.state().draft, original);
+    assert.equal(f.state().draft, replacement);
+    assert.equal(f.state().draftVerified, true);
+    assert.equal(f.state().draftBusy, false);
+    assert.deepEqual(f.persisted, [{ puzzle: replacement }]);
+  });
 }
 
 for (const change of ['edit', 'navigate', 'current']) {

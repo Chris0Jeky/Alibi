@@ -2420,10 +2420,11 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    const epoch = draftEpoch,
+    const puzzle = draft,
+      epoch = draftEpoch,
       serial = routeSerial;
-    await store.put('meta', 'workshop-draft', { puzzle: draft }).catch((e) => {
-      if (epoch === draftEpoch && serial === routeSerial) toast(e.message, true);
+    await store.put('meta', 'workshop-draft', { puzzle }).catch((e) => {
+      if (puzzle === draft && epoch === draftEpoch && serial === routeSerial) toast(e.message, true);
     });
   }
   function dirtyDraft() {
