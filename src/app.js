@@ -1378,12 +1378,12 @@
         lab: () => AlibiClub.labPage(),
       };
       $('#app').innerHTML = shell((views[route.page] || home)());
+      globalThis.AlibiUsageSlot?.();
+      globalThis.AlibiVoices?.(current, records);
       {
         const mainEl = document.getElementById('main');
         if (mainEl) mainEl.inert = updateRequested;
       }
-      globalThis.AlibiUsageSlot?.();
-      globalThis.AlibiVoices?.(current, records);
       for (const [key, open] of disclosures) {
         const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
         if (el) el.open = open;
