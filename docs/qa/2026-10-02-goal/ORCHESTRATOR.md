@@ -159,3 +159,13 @@ remain applicable; hosted exact-head proof and aging are still required.
 ## Bridges qualification — 2 October 2026, 21:54 UTC
 
 Clean 0289e8d full verify passes: 1,014 passed, three intentional skips, no failures. Muse wave11 completed in 78 seconds with intact result receipt, no HIGH/CRITICAL, one MEDIUM ordering fragility in the split lower-bound aggregate counter. That concern is tracked under #519 and does not block the verified default serial run; no fix cascade is opened. Muse ran no commands. Runtime/Node API ordering and after-hook behavior are demonstrated locally by the normal 49-case run and injected one-failure/48-pass probe; hosted Node 22 proof remains pending. Final clean-head Android/Bridges source checks precede publication. No runtime/puzzle/save/budget change or physical acceptance is claimed.
+#432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+gate cancels twice at 25 minutes during passing browser output. A bounded
+Sol medium lens finds no assertion defect and confirms variable apt setup
+consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+Retain every command and scope condition; increase only the full job deadline
+to 45 minutes, then require actual completed hosted proof. No cancellation is
+waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+#546 hosted full Node22 gate succeeds at ffffb338. Parent f79fe2e timeout-only headroom is merged with receipt-only conflict resolution; Bridges and runtime blobs remain unchanged. Preserve Muse review and first-failure proof; re-prove Android/Bridges/CI-scope at the clean merge head before push.

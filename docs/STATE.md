@@ -12,7 +12,7 @@ save or budget changes. Full verify at clean 0289e8d passes (1,014 passed,
 three intentional skips). Muse's bounded file-only xhigh review completes with
 no HIGH/CRITICAL finding. Its MEDIUM aggregate-counter ordering concern is
 tracked under #519; the default serial run and injected-failure proof pass.
-Muse ran no commands; hosted Node 22 proof remains required.
+Muse ran no commands. Hosted Node22 full gate at ffffb338 succeeds; the parent timeout-only update now requires refreshed-head CI.
 
 Interlock #427 is preserved at 271bff9 with corrected accounting and compact
 worker IDs. Its recorded startup budget is 969 gzip bytes over the unchanged
@@ -24,12 +24,22 @@ published or included in the published #432 lineage; no branch is deleted.
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
-passed, three intentional skips). Clean-head Android/seam and aligned native
-import/control proof pass. Hosted cabinet job 37065506311 was cancelled at its
-25-minute ceiling after 6m21s of audio-dependency installation and 12m08s of
-real-origin checks. Later steps were skipped; this is not passing CI. One
-unchanged-head fresh-runner retry is pending, tracked under #531.
+passed, three intentional skips). Clean 47cd4d0 passes the final 19 Android,
+source/import checks, 24 native imports/four aligned views and all 48 hosted
+Lattice puzzle cases. The full hosted gate remains required.
 Superseded test PRs remain open until the combined head lands.
+
+## Full CI timeout headroom (#531): 2 October 2026
+
+The full gate at 47cd4d0 was cancelled twice at its 25-minute job limit.
+Both logs have passing Node/browser output and no assertion failure: attempt
+one reaches browser_experience.py after 6m21s FFmpeg setup; attempt two reaches
+browser_challenge_library.py after 7m07s Playwright setup. The previous green
+#543 full run takes 23m26s, including 13m55s for the composite real-origin step
+and only 17s Playwright setup. A bounded independent Sol lens confirms the
+timeout cause. Increase only the job deadline to 45 minutes, retaining every
+command, scope condition and artifact. Whether that deadline suffices, and the
+remaining expedition/update/room checks, require a completed hosted run.
 
 ## Lattice optional collection closeout (#432): 2 October 2026
 
