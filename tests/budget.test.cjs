@@ -135,12 +135,20 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Moving generation scroll after the final render removes its duplicate render:
 // six emitted bytes and three gzip bytes trimmed. The remaining guards are required.
 // Ceiling +64 covers the 61-byte excess, leaving three bytes; no feature room.
-// #540 unique follow-up to #539: generator input + owned save feedback measure
-// 134,840 gzip / 1,411,341 shell (+27/+49 over #539). Reuse the existing epoch;
-// no new worker lifecycle/helper. Ceiling +32 gzip leaves eight bytes; no feature room.
+// #536: two backup route captures/stale checks measure 134,813 -> 134,833 (+20).
+// Both independent inputs need ownership; a shared helper adds overhead.
+// Ceiling +32 covers the 17-byte excess and leaves 15 bytes; no feature room.
+// #542 unique follow-up to #543: stale errors + picker route ownership measure
+// 134,891 gzip / 1,411,498 shell. Composed with #540: 134,903 / 1,411,547.
+// Existing lifecycle/limits are reused; capture before pick/read and stale catches remain required.
+// Shared +64 gzip ceiling covers both follow-ups and leaves nine bytes; no feature room.
+// #538/#541 residual ownership: after retaining the exception on the JS stack through
+// cleanup (11 gzip/16 emitted bytes trimmed), the composed source measures 134,924 gzip
+// and 1,411,564 shell. Required identity/late-error guards exceed the shared ceilings by
+// 12/3.68 bytes. Measured +32 gzip/+16 shell leave 20/12.32 bytes, not feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4800,
-  'Application bundle stays under 127 KiB + 4,800 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4896,
+  'Application bundle stays under 127 KiB + 4,896 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -196,9 +204,13 @@ assert.ok(
   // #535 measures 1,411,292 (+152), after removing the duplicate generation render
   // (six emitted bytes). The edit/route and post-persistence checks remain required.
   // Ceiling +160 covers the 132-byte excess and leaves 28; no feature room.
-  // #540 adds 49 shell bytes over #539. Ceiling +32 leaves eleven bytes.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
+  // #536 measures 1,411,339 (+47). Each input needs its route capture/stale check;
+  // Cabinet additionally holds validated data locally before publishing it.
+  // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
+  // #542 alone: 1,411,498; with #540: 1,411,547. Shared ceiling +208
+  // leaves thirteen bytes for the measured composition and hash noise, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27456,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,456 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

@@ -1,25 +1,55 @@
 # Live development state
 
-## Workshop input/save-feedback follow-up (#540): 2 October 2026
+## Workshop and backup callback ownership (#540): 2 October 2026
 
-Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
-is narrowed to its unique behavior and stacked on #539 at 88b6928: native
-Scene generator input advances the existing draft epoch, and a draft save reports
-failure only while its captured epoch and route still own the callback. Seven
-focused units go from six baseline failures to seven passes; the twelve canonical
-worker races still pass. Actual Worker delivery through native controls proves the
-old generation title is not published after newer input, and current generation
-still works at 390px/1440px (nine checks). Baseline #539 publishes the old title.
-No core lifecycle refactor or duplicate core-race fixture remains in this diff.
-Normal merges retain the previous pushed implementation/evidence commits.
-Fresh GPT-6.1-sol/high integration review has no blockers. Measured JS/shell:
-134,840 / 1,411,341; ceilings +32/+32 leave eight/eleven bytes. The #542
-combined-source measurement is 134,903 / 1,411,547 and uses #542's shared
-ceilings when both follow-ups are integrated. Required current-head full
-verify/UI/origin and hosted CI are still pending a coordinated qualification
-slot; earlier full counts do not qualify this narrowed composition. P3 #538
-remains deferred. No merge, deployment or physical acceptance is claimed;
-[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+The unique follow-ups from #540 and #542 are consolidated with both original
+histories preserved, above the landed canonical #539/#543 fixes. Native Scene
+input advances the existing Workshop epoch. Save feedback also captures the
+saved draft identity, so a Generate or Verify replacement keeps its own feedback
+even if an earlier edit's save later fails (#538). Backup read/worker errors and
+picker completion keep their original route; the picker propagates an import
+failure only after token cleanup and busy reset, then rechecks ownership (#541).
+Current errors and original thrown values remain visible; late tokens release.
+
+Both new residual regressions have two baseline failures each. Focused corrected
+execution passes 21 Workshop and 29 backup/picker cases, with no skipped cases.
+The established unique native-control fixtures remain wired into CI: Workshop
+generator input and backup error/modal ownership. These residual failure timings
+are source-helper/adapter proofs, not native IndexedDB or physical-device claims.
+
+Catalogue/budget and branch-main receipt conflicts are reconciled for this final
+integration. Earlier full suites/composed snapshots do not qualify the changed
+source. Final independent review, clean payload/measurement, full verify, actual
+UI/origin browser checks, exact-head hosted CI and aging are pending. The
+preliminary composed web build measures 134,924 JavaScript gzip and 1,411,564
+code-shell bytes after an 11-gzip/16-emitted-byte cleanup trim. Required residual
+guards exceed the prior shared ceilings by 12/3.68 bytes; measured extensions of
+32 gzip/16 shell bytes leave 20/12.32 bytes, not feature room. A clean final-head
+build must remeasure this source. #542
+stays open until this consolidated head lands, then closes as superseded.
+Other coordinator-owned PRs and artwork/native/research lanes retain ownership.
+Deployment follows docs/DEPLOYMENT.md and its Pulseboard release dependency;
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+## Backup validation route ownership (#536): 2 October 2026
+
+Cabinet and combined-backup validation capture their route before reading the
+file. A completed validation from a departed route cannot replace the staged
+backup or open a restore dialog. Existing byte limits and error propagation are
+preserved. The actual HTTP-origin regression exports ordinary app backups,
+holds the real Worker response, navigates Home and releases it. Both baseline
+dialogs reopen over Home; both guarded cases pass, with positive Settings review
+controls and no destructive restore clicked. Twelve unit cases pass, versus
+eight passes/four failures on the baseline, covering navigation during both
+file reading and validation, retained previous state, errors and byte limits.
+Gzip measures 134,833 (+20), code/shell 1,411,339 (+47); measured 32-byte
+extensions leave 15 and 13 bytes. Both input paths need their capture/stale
+check, with validated Cabinet data held locally until ownership is confirmed.
+Full local verify passes (944 passed, three intentional skips), UI 184, mobile
+QA 16 and all 270 real-origin checks pass. Independent Sol review has no
+blockers; exact-head CI remains pending. Same-route concurrency and platform
+picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
+deployment or physical-device acceptance is claimed.
 
 ## Workshop worker completion ownership (#535): 2 October 2026
 
@@ -56,7 +86,7 @@ The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Fu
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
-baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+baseline regression fails after release. PR #534 merged at a3228b7 after completed exact-head CI and aging. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026
