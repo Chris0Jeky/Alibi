@@ -128,8 +128,14 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4576,
-  'Application bundle stays under 127 KiB + 4,576 bytes gzip',
+  // #535: draft/route ownership for worker success and failure, including late save
+  // feedback. Two trim passes share generation/verification and remove duplicate
+  // rendering/state writes: 134,579 -> 134,651 (+72). Combined with #533/#534 at
+  // c35a6f0: 134,748 -> 134,842 (+94), 90 bytes over that stack's ceiling.
+  // Shared ceiling 134,880: +256 over main, +128 over the active stack, covering
+  // that measured combined excess rather than counting both changes' margins twice.
+  info.javascriptGzipBytes < 127 * 1024 + 4832,
+  'Application bundle stays under 127 KiB + 4,832 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -175,8 +181,11 @@ assert.ok(
   // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
   // display, and any display declaration must re-hide pre-enhancement credits.
   // Ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26624,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 26,624 bytes',
+  // #535: 1,410,480 -> 1,410,628 alone; with #533/#534 at c35a6f0:
+  // 1,411,140 -> 1,411,285. The stack has only 20 bytes spare. Shared ceiling
+  // +608 over main / +192 over that stack leaves 67 bytes for build-hash noise.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

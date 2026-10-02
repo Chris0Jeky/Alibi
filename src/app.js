@@ -71,6 +71,7 @@
     library = { venue: '', search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 },
     workTab = 'scene',
     draft = null,
+    draftRevision = 0,
     draftVerified = false,
     draftShowSolution = false,
     draftMode = 'room',
@@ -2408,11 +2409,18 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    await store
-      .put('meta', 'workshop-draft', { puzzle: draft })
-      .catch((e) => toast(e.message, true));
+    const owns = draftOwner();
+    await store.put('meta', 'workshop-draft', { puzzle: draft }).catch((e) => {
+      if (owns()) toast(e.message, true);
+    });
+  }
+  function draftOwner() {
+    const revision = draftRevision,
+      serial = routeSerial;
+    return () => revision === draftRevision && serial === routeSerial;
   }
   function dirtyDraft() {
+    draftRevision++;
     draftVerified = false;
     saveDraft();
   }
@@ -2434,40 +2442,41 @@
       names,
       seed,
     };
-    draftBusy = true;
-    render();
-    try {
-      draft = await inWorker({ type: 'generate', options });
-      draft.authorSeed = seed;
-      draftVerified = true;
-      draftShowSolution = false;
-      await saveDraft();
-      render();
-      document.querySelector('.draft-editor')?.scrollIntoView({
-        behavior: settings.reducedMotion ? 'instant' : 'smooth',
-        block: 'start',
-      });
-    } finally {
-      draftBusy = false;
-      render();
-    }
+    await runDraft({ type: 'generate', options }, seed);
   }
   async function verifyDraft() {
-    if (!draft || draftBusy) return;
+    if (draft) await runDraft({ type: 'draft', puzzle: draft });
+  }
+  async function runDraft(message, seed = 0) {
+    if (draftBusy) return;
+    const owns = draftOwner();
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'draft', puzzle: draft });
+      const result = await inWorker(message);
+      if (!owns()) return;
+      draft = result;
       draftVerified = true;
+      if (seed) {
+        draft.authorSeed = seed;
+        draftShowSolution = false;
+      }
       await saveDraft();
-      toast('Verified. Exactly one arrangement satisfies these clues.');
     } catch (e) {
-      draftVerified = false;
+      if (!owns()) return;
+      if (!seed) draftVerified = false;
       throw e;
     } finally {
       draftBusy = false;
       render();
     }
+    if (!owns()) return;
+    if (seed)
+      document.querySelector('.draft-editor')?.scrollIntoView({
+        behavior: settings.reducedMotion ? 'instant' : 'smooth',
+        block: 'start',
+      });
+    else toast('Verified. Exactly one arrangement satisfies these clues.');
   }
   function clueValues() {
     if (!draft) return;
@@ -3202,6 +3211,7 @@
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
+      draftRevision++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;
@@ -3215,7 +3225,6 @@
       if (value) {
         draft.roomNames[Number(el.dataset.roomName)] = value;
         dirtyDraft();
-        draftVerified = false;
       }
     }
   });
