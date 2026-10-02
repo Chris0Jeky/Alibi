@@ -12,10 +12,16 @@ failure only after token cleanup and busy reset, then rechecks ownership (#541).
 Current errors and original thrown values remain visible; late tokens release.
 
 Both new residual regressions have two baseline failures each. Focused corrected
-execution passes 21 Workshop and 29 backup/picker cases, with no skipped cases.
+execution passes 21 Workshop and 37 backup/picker cases, with no skipped cases.
 The established unique native-control fixtures remain wired into CI: Workshop
 generator input and backup error/modal ownership. These residual failure timings
 are source-helper/adapter proofs, not native IndexedDB or physical-device claims.
+Eight additional cases run the actual picker and delegated import helpers
+together, holding worker delivery after a successful bounded read and holding
+token cleanup. Current/stale success/error ownership is covered; removing the
+delegated publication guard loses two cases and losing the serial argument loses
+the explicit picker contract. This closes the #541 fixture gap without claiming
+native-host document-provider timing.
 
 Catalogue/budget and branch-main receipt conflicts are reconciled for this final
 integration. Earlier full suites/composed snapshots do not qualify the changed

@@ -3,12 +3,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const app = fs.readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
+const app = fs.readFileSync(
+  process.env.ALIBI_APP_SOURCE || new URL('../src/app.js', import.meta.url),
+  'utf8',
+);
 const helper = app.slice(
   app.indexOf('  async function importBackupFromPicker()'),
   app.indexOf('  async function importBackup('),
 );
 assert.ok(helper && !helper.includes('async function importBackup(file)'));
+const delegate = app.slice(
+  app.indexOf('  async function importBackup('),
+  app.indexOf('  async function restoreBackup('),
+);
+assert.ok(delegate.startsWith('  async function importBackup('));
 
 class FixtureFile {
   constructor(parts, name, options) {
@@ -16,12 +24,21 @@ class FixtureFile {
     this.name = name;
     this.type = options.type;
   }
+
+  get size() {
+    return Buffer.byteLength(this.parts.join(''), 'utf8');
+  }
+
+  async text() {
+    return this.parts.join('');
+  }
 }
 
 async function picker(overrides = {}) {
   const calls = [];
   const notices = [];
   const imported = [];
+  const serials = [];
   const released = [];
   const context = {
     platform: {
@@ -42,8 +59,9 @@ async function picker(overrides = {}) {
       capabilities: () => ({ userDocuments: true }),
     },
     toast: (message, error) => notices.push({ message, error }),
-    importBackup: async (file) => {
+    importBackup: async (file, serial) => {
       imported.push(file);
+      serials.push(serial);
       if (overrides.importBackup) await overrides.importBackup(file);
     },
     File: FixtureFile,
@@ -52,7 +70,7 @@ async function picker(overrides = {}) {
     `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++,isBusy:()=>backupPickerBusy});})()`,
     context,
   );
-  return { run: factory, calls, notices, imported, released };
+  return { run: factory, calls, notices, imported, released, serials };
 }
 
 test('picker import reads the bounded cabinet document, releases its token and passes a File', async () => {
@@ -62,6 +80,7 @@ test('picker import reads the bounded cabinet document, releases its token and p
   assert.equal(fixture.imported[0].name, 'alibi-backup.json');
   assert.equal(fixture.imported[0].type, 'application/json');
   assert.equal(fixture.imported[0].parts[0], '{"format":"alibi-backup"}');
+  assert.deepEqual(fixture.serials, [1], 'forwards the picker route to delegated validation');
   assert.deepEqual(fixture.released, ['token-1']);
   assert.deepEqual(
     fixture.calls.map((call) => [call.kind, call.limit, call.options.timeoutMs]),
@@ -75,6 +94,188 @@ test('picker import reads the bounded cabinet document, releases its token and p
   assert.match(fixture.calls[1].options.operationId, /^cabinet-restore-read-[a-z0-9]+$/);
   assert.deepEqual(fixture.notices, []);
 });
+
+function deferred() {
+  let resolve, reject;
+  const promise = new Promise((yes, no) => {
+    resolve = yes;
+    reject = no;
+  });
+  return { promise, resolve, reject };
+}
+
+async function delegatedPicker() {
+  const calls = [],
+    requests = [],
+    notices = [],
+    dialogs = [],
+    released = [];
+  const validatedBackup = {
+    runs: [{ key: 'synthetic-existing' }, { key: 'synthetic-missing' }],
+    packs: [{ id: 'synthetic-pack' }],
+  };
+  const previousBackup = { runs: [{ key: 'synthetic-previous' }], packs: [] };
+  const newerBackup = { runs: [{ key: 'synthetic-newer' }], packs: [] };
+  const backupText = JSON.stringify(validatedBackup);
+  const state = { modal: 'Restore backup' };
+  const workerStarted = deferred(),
+    validation = deferred(),
+    releaseStarted = deferred(),
+    cleanup = deferred();
+  const context = {
+    previousBackup,
+    newerBackup,
+    state,
+    records: new Map([['synthetic-existing', {}]]),
+    platform: {
+      documents: {
+        pickBackup: async (options) => {
+          calls.push({ kind: 'pick', options });
+          return { ok: true, value: 'delegated-token' };
+        },
+        readLimited: async (token, limit, options) => {
+          calls.push({ kind: 'read', token, limit, options });
+          return { ok: true, value: backupText };
+        },
+        release: async (token) => {
+          released.push(token);
+          releaseStarted.resolve();
+          await cleanup.promise;
+        },
+      },
+    },
+    inWorker: (request) => {
+      requests.push(request);
+      workerStarted.resolve();
+      return validation.promise;
+    },
+    dialog: (title, body, actions) => {
+      dialogs.push({ title, body, actions });
+      state.modal = title;
+    },
+    toast: (message, error) => notices.push({ message, error }),
+    File: FixtureFile,
+  };
+  const run = await vm.runInNewContext(
+    `(async()=>{
+      let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1,pendingBackup=previousBackup;
+      ${helper}
+      ${delegate}
+      return Object.assign(importBackupFromPicker, {
+        navigate:()=>{routeSerial++;pendingBackup=newerBackup;state.modal='Newer lesson';},
+        isBusy:()=>backupPickerBusy,
+        pending:()=>pendingBackup
+      });
+    })()`,
+    context,
+    { filename: 'src/app.js picker and importBackup' },
+  );
+  return {
+    run,
+    calls,
+    requests,
+    notices,
+    dialogs,
+    released,
+    state,
+    backupText,
+    validatedBackup,
+    previousBackup,
+    newerBackup,
+    workerStarted,
+    validation,
+    releaseStarted,
+    cleanup,
+  };
+}
+
+for (const navigated of [false, true]) {
+  for (const outcome of ['success', 'rejection']) {
+    for (const releaseFails of [false, true]) {
+      test(`actual picker delegate ${navigated ? 'discards stale' : 'handles current'} validation ${outcome} after successful read; release ${releaseFails ? 'fails' : 'completes'}`, async () => {
+        const fixture = await delegatedPicker();
+        const failure = Error('Synthetic cabinet validation failed');
+        const outerErrors = [];
+        let settled = false;
+        const running = fixture.run().then(
+          () => {
+            settled = true;
+          },
+          (error) => {
+            assert.equal(
+              fixture.run.isBusy(),
+              false,
+              'cleanup finishes before outer error handling',
+            );
+            settled = true;
+            fixture.state.modal = null;
+            outerErrors.push(error);
+          },
+        );
+        await fixture.workerStarted.promise;
+        assert.equal(fixture.calls.filter((call) => call.kind === 'read').length, 1);
+        assert.equal(fixture.requests.length, 1);
+        assert.equal(fixture.requests[0].type, 'cabinet-backup');
+        assert.equal(fixture.requests[0].text, fixture.backupText);
+        assert.equal(fixture.run.pending(), fixture.previousBackup);
+        assert.equal(fixture.state.modal, 'Restore backup');
+        assert.deepEqual(fixture.dialogs, []);
+        assert.deepEqual(fixture.released, []);
+        assert.equal(fixture.run.isBusy(), true);
+        await fixture.run();
+        assert.equal(fixture.calls.filter((call) => call.kind === 'pick').length, 1);
+
+        if (navigated) fixture.run.navigate();
+        if (outcome === 'success') fixture.validation.resolve(fixture.validatedBackup);
+        else fixture.validation.reject(failure);
+        await fixture.releaseStarted.promise;
+        assert.equal(settled, false, 'delegated delivery waits for token cleanup');
+        assert.equal(fixture.run.isBusy(), true);
+        assert.deepEqual(fixture.released, ['delegated-token']);
+        assert.deepEqual(outerErrors, []);
+        const published = !navigated && outcome === 'success';
+        try {
+          assert.equal(
+            fixture.run.pending(),
+            navigated
+              ? fixture.newerBackup
+              : published
+                ? fixture.validatedBackup
+                : fixture.previousBackup,
+            'only current successful validation may replace the staged backup',
+          );
+          assert.equal(fixture.dialogs.length, published ? 1 : 0);
+          assert.equal(
+            fixture.state.modal,
+            navigated ? 'Newer lesson' : published ? 'Restore your progress.' : 'Restore backup',
+          );
+          if (published) {
+            assert.match(fixture.dialogs[0].body, /2 saved puzzles/);
+            assert.match(fixture.dialogs[0].body, /1 custom packs/);
+            assert.match(fixture.dialogs[0].body, /1 saved puzzle already exists/);
+            assert.deepEqual(
+              Array.from(fixture.dialogs[0].actions, (action) => action.action),
+              ['restore-merge', 'restore-replace', 'export', 'close-dialog'],
+            );
+          }
+        } finally {
+          if (releaseFails) fixture.cleanup.reject(Error('Synthetic token release failed'));
+          else fixture.cleanup.resolve();
+          await running;
+        }
+        assert.equal(settled, true);
+        assert.equal(fixture.run.isBusy(), false);
+        assert.deepEqual(fixture.notices, []);
+        assert.deepEqual(fixture.released, ['delegated-token']);
+        assert.deepEqual(outerErrors, !navigated && outcome === 'rejection' ? [failure] : []);
+        assert.equal(
+          fixture.state.modal,
+          navigated ? 'Newer lesson' : published ? 'Restore your progress.' : null,
+        );
+      });
+    }
+  }
+}
 
 for (const navigated of [false, true]) {
   for (const releaseFails of [false, true]) {
