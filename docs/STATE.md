@@ -9,8 +9,11 @@ The actual real-origin IDB regression commits the learned-family preference,
 holds only its completion notification, navigates Home, then releases it. The
 baseline incorrectly opens Sudoku; the guard preserves Home. A fresh-profile
 positive control also passes. Four executed unit cases have RED/GREEN proof.
-The measured bundle remains within existing ceilings (134,747 bytes gzip);
-source asset metadata is refreshed. Full local verify passes (920 passed,
+The standalone measured bundle fits existing ceilings (134,747 bytes gzip);
+on the landed tablet base it is 134,748 and code/shell is 1,411,140, exceeding
+that ceiling by 12 bytes. The two required captures/stale check add 34 emitted
+bytes with no redundant helper; a measured 32-byte shell extension leaves 20.
+The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Full local verify passes (920 passed,
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
