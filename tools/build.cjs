@@ -153,7 +153,7 @@ function build() {
       `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(require('./challenge-catalogue.cjs').validation(require('./challenge-catalogue.cjs').load(ROOT)))};`,
       read(path.join(SRC, 'challenges.js')),
       castleValidation,
-      `globalThis.ALIBI_CATALOG=${JSON.stringify({ puzzles: catalog.puzzles.map((p) => ({ id: p.id })) })};`,
+      `globalThis.ALIBI_CATALOG={puzzles:${JSON.stringify(catalog.puzzles.map((p) => p.id))}.map(id=>({id}))};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),
     worker = require('esbuild').transformSync(workerSource, {
