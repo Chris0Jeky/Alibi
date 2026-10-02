@@ -14,8 +14,10 @@ file reading and validation, retained previous state, errors and byte limits.
 Gzip measures 134,833 (+20), code/shell 1,411,339 (+47); measured 32-byte
 extensions leave 15 and 13 bytes. Both input paths need their capture/stale
 check, with validated Cabinet data held locally until ownership is confirmed.
-Full gate/review are pending; same-route concurrency and platform picker timing
-are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
+Full local verify passes (944 passed, three intentional skips), UI 184, mobile
+QA 16 and all 270 real-origin checks pass. Independent Sol review has no
+blockers; exact-head CI remains pending. Same-route concurrency and platform
+picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
 deployment or physical-device acceptance is claimed.
 
 ## Workshop worker completion ownership (#535): 2 October 2026
@@ -53,7 +55,7 @@ The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Fu
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
-baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+baseline regression fails after release. PR #534 merged at a3228b7 after completed exact-head CI and aging. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026
