@@ -22,8 +22,11 @@ WIDTHS = (390, 1440)
 def registered():
     registry = json.loads((ROOT / 'content' / 'official-packs.json').read_text(encoding='utf-8'))
     packs = [path for path in registry['packs'] if path.startswith('extra/vault-')]
-    if sorted(packs) != sorted(registry.get('deferred', [])):
-        raise AssertionError('Every registered Vault pack must be the deferred set')
+    deferred_vaults = [
+        path for path in registry.get('deferred', []) if path.startswith('extra/vault-')
+    ]
+    if sorted(packs) != sorted(deferred_vaults):
+        raise AssertionError('Every registered Vault pack must occur once in the deferred set')
     puzzles = []
     for path in packs:
         if not re.fullmatch(r'extra/vault-[a-z0-9-]+\.json', path):
