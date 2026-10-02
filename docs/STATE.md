@@ -1,33 +1,68 @@
 # Live development state
 
-Current-base note: this candidate also integrates a3228b7 (#534). Exact updated-head
-full qualification remains queued for the next coordinator test slot.
+## Backup error/picker follow-up (#542): 2 October 2026
+
+Ownership reconciliation selects #543 as the canonical #536 core fix. Draft #542
+is narrowed and stacked on #543 at 0627d57: stale file/worker failures are
+suppressed, and Cabinet picker ownership starts before pick/read, carries into
+validation, and still releases late tokens. The #543 baseline Cabinet failure
+closes a newer lesson dialog through the delegated file error handler; combined
+failure leaves an obsolete error toast. Actual compiled Worker/native file
+controls reproduce both and pass after the guard. Thirteen native checks cover
+both obsolete failures, newer-modal survival, unchanged save counts, and ordinary
+390px/1440px review; no destructive restore is clicked. Unit expectation changes
+cover stale rejection disposal while current errors still propagate. The focused
+24 route/picker cases go from ten baseline failures to all passing; twelve
+canonical Workshop races also pass. The old duplicate route-race fixture is removed.
+Normal merges retain all earlier pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. This slice measures
+134,891 JS gzip / 1,411,498 code/shell; together with #540 the actual composed
+source measures 134,903 / 1,411,547. Shared ceilings 134,912 / about 1,411,560
+leave nine/thirteen bytes; startup, CSS and total-offline ceilings do not change.
+Required current-head full verify/UI/origin and hosted CI remain pending;
+previous core/earlier-branch full counts do not qualify this composition. P3 #541
+async native cleanup remains separately deferred; VM picker tests do not claim
+native-host timing acceptance. No merge, deployment or physical acceptance is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Backup validation route ownership (#536): 2 October 2026
 
-Cabinet and combined validation now retain their starting route serial through
-file reading and worker delivery. Stale success does not stage data or reopen a
-restore dialog; stale failures cannot close a newer route's modal or toast an
-old error. The Cabinet document picker carries the same route through pick/read,
-releases late tokens and retains ordinary same-route failure reporting.
+Cabinet and combined-backup validation capture their route before reading the
+file. A completed validation from a departed route cannot replace the staged
+backup or open a restore dialog. Existing byte limits and error propagation are
+preserved. The actual HTTP-origin regression exports ordinary app backups,
+holds the real Worker response, navigates Home and releases it. Both baseline
+dialogs reopen over Home; both guarded cases pass, with positive Settings review
+controls and no destructive restore clicked. Twelve unit cases pass, versus
+eight passes/four failures on the baseline, covering navigation during both
+file reading and validation, retained previous state, errors and byte limits.
+Gzip measures 134,833 (+20), code/shell 1,411,339 (+47); measured 32-byte
+extensions leave 15 and 13 bytes. Both input paths need their capture/stale
+check, with validated Cabinet data held locally until ownership is confirmed.
+Full local verify passes (944 passed, three intentional skips), UI 184, mobile
+QA 16 and all 270 real-origin checks pass. Independent Sol review has no
+blockers; exact-head CI remains pending. Same-route concurrency and platform
+picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
+deployment or physical-device acceptance is claimed.
 
-Executed regressions: eight backup ownership cases fail on the old helpers and
-six picker cases fail against main source. Actual Cabinet and combined file
-controls reopen restore dialogs on Home before the fix, with only the genuine
-compiled worker notification held. The fix passes 22 unit cases and 19 actual
-control checks, including current restore review at 390px/1440px and new-modal
-survival after worker errors. No destructive restore is clicked in this suite.
-Independent GPT-6.1-sol/high review has no blocker; its P3 future asynchronous
-cleanup feedback edge is tracked in [#541](https://github.com/Chris0Jeky/Alibi/issues/541),
-which does not establish a shipped-browser defect.
+## Workshop worker completion ownership (#535): 2 October 2026
 
-The branch includes current main f18c26e. Full verify/UI/origin qualification is
-queued for the coordinator's next test slot; no full-suite pass is claimed here.
-Measured JS is 134,808 gzip alone and 134,907 combined with #540 and #534 at
-c35a6f0; code/shell is 1,411,312 alone / 1,411,491 combined. Shared JS/shell
-ceilings cover this measured composition plus hash noise; initial-payload, CSS
-and total-offline ceilings do not increase. No deployment or physical/native-host
-acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+Workshop edits and route entries now invalidate pending generation/verification.
+A stale worker success cannot replace or save the newer draft; a stale rejection
+cannot clear its verification state. A second check after persistence prevents
+late success messages or scrolling. Generation uses its final render once.
+The real-origin browser regression holds an actual Worker completion, paints a
+room, and reads its saved IndexedDB draft. The baseline loses that edit, both
+in place and after Home/Workshop; both cases pass with the guard. Twelve unit
+cases pass, versus four passes/eight failures on the baseline, including ordinary
+success/error and an edit during a delayed save. Gzip measures 134,813 (+65),
+code/shell 1,411,292 (+152); removing the duplicate generation render trims six
+emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
+160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
+passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
+Independent Sol review has no blockers; exact-head hosted CI remains pending. No deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Lesson completion route ordering (#530): 2 October 2026
 
 The lesson completion captures its lesson object and route serial before saving,
@@ -45,7 +80,7 @@ The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Fu
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
-baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+baseline regression fails after release. PR #534 merged at a3228b7 after completed exact-head CI and aging. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026
@@ -85,8 +120,11 @@ gate, independent review and exact-head CI passed. The confirmed 700px overlay
 is fixed in PR #532, merged at 21091a0: six viewport checks, full verify, UI QA,
 independent review and exact-head CI pass. Lesson
 completion issue #530 is reproduced with a real IndexedDB completion delay.
-The cancelled import CI run is tracked in #531; #527 has a new locally verified
-base refresh and fresh CI is running. A disposal data-loss claim was declined
+#527 merged at 44f0bd0 after completed exact-head CI, and #533 merged at
+f18c26e after its reviewed, tree-identical base refresh passed exact-head CI.
+The original import CI cancellation is tracked in #531; one source-fixture
+IndexedDB refusal with an unlogged trigger is tracked in #537. An independently
+instrumented rerun passed all 46 unchanged challenge checks. A disposal data-loss claim was declined
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.

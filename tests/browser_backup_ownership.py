@@ -54,7 +54,7 @@ def submit(page, kind, data):
     })
 
 
-cases = [f"{kind}-{outcome}" for kind in ("cabinet", "combined") for outcome in ("success", "error")]
+cases = [f"{kind}-error" for kind in ("cabinet", "combined")]
 selected = os.environ.get("ALIBI_RACE_CASE")
 if selected:
     cases = [selected]
@@ -102,7 +102,8 @@ with sync_playwright() as pw:
         if outcome == "success":
             check(not page.locator('dialog[open]').count(), case + ": restore dialog stays closed on Home")
         else:
-            check(page.locator('dialog[open] #dialog-title').inner_text() == "Choose a little lesson.",
+            check(page.locator('dialog[open]').count() == 1 and
+                  page.locator('#dialog-title').inner_text() == "Choose a little lesson.",
                   case + ": new route retains its own modal")
             check(page.locator('#toasts').inner_text() == "", case + ": no obsolete validation error")
         check(page.evaluate("() => AlibiDiagnostics.getCounts()") == before, case + ": no saved data was restored")
