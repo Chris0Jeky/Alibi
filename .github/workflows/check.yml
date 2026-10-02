@@ -101,6 +101,7 @@ jobs:
           python tests/browser_origin.py
           python tests/browser_workshop_ownership.py
           python tests/browser_backup_ownership.py
+          python tests/browser_completion_hooks.py
           python tests/browser_observatory.py
           python tests/browser_voices.py
           python tests/browser_curation.py

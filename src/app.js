@@ -1476,8 +1476,12 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
-      globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
-      globalThis.AlibiTheatre.moment('complete');
+      try {
+        globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
+      } catch {}
+      try {
+        globalThis.AlibiTheatre.moment('complete');
+      } catch {}
       paused = false;
       render();
       const mystery = ['scene', 'dossier', 'witness'].includes(p.type);
