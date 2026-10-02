@@ -131,9 +131,13 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
+// #535: Workshop edit/route epochs measure 134,748 -> 134,813 (+65).
+// Moving generation scroll after the final render removes its duplicate render:
+// six emitted bytes and three gzip bytes trimmed. The remaining guards are required.
+// Ceiling +64 covers the 61-byte excess, leaving three bytes; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4704,
-  'Application bundle stays under 127 KiB + 4,704 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4768,
+  'Application bundle stays under 127 KiB + 4,768 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -186,8 +190,11 @@ assert.ok(
   // beyond that ceiling. The lesson guard has only its required identity/route
   // captures and stale check (34 emitted bytes); no redundant helper to trim.
   // Ceiling +32 leaves 20 bytes, not feature room. JavaScript gzip ceiling unchanged.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27040,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,040 bytes',
+  // #535 measures 1,411,292 (+152), after removing the duplicate generation render
+  // (six emitted bytes). The edit/route and post-persistence checks remain required.
+  // Ceiling +160 covers the 132-byte excess and leaves 28; no feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27200,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,200 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
