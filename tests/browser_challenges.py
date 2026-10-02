@@ -206,6 +206,26 @@ try:
         page.locator('#challenge-file').set_input_files({'name':'challenge.json','mimeType':'application/json','buffer':exported})
         page.wait_for_function("()=>window.challengeJobs.includes('challenge-run')")
         page.locator('.challenge-status').filter(has_text='1 move so far').wait_for()
+        # File and actual Worker boundaries must agree on bytes before validation.
+        limit = 3 * 1024 * 1024
+        message = 'Challenge save exceeds the 3 MiB import limit.'
+        oversized = ('é' * (limit // 2 + 1)).encode('utf-8')
+        page.locator('#challenge-file').set_input_files({'name':'oversized.json','mimeType':'application/json','buffer':oversized})
+        page.get_by_text(message, exact=True).wait_for()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text(), 'oversized import preserves the current run'
+        worker_name = next(p.name for p in (ROOT / 'dist/assets').glob('validator.*.js'))
+        worker_result = page.evaluate('''async ({name, text}) => {
+          const worker = new Worker('/assets/' + name);
+          try { return await new Promise(resolve => {
+            worker.onmessage = e => resolve(e.data);
+            worker.postMessage({type:'challenge-run', text});
+          }); } finally { worker.terminate(); }
+        }''', {'name':worker_name, 'text':oversized.decode('utf-8')})
+        assert worker_result['ok'] is False and worker_result['error'] == message, worker_result
+        padded = exported + b' ' * (limit - len(exported))
+        page.locator('#challenge-file').set_input_files({'name':'boundary.json','mimeType':'application/json','buffer':padded})
+        page.get_by_text('Challenge save restored. The previous save remains available for export.', exact=True).wait_for()
+        assert '1 move so far' in page.locator('.challenge-status').inner_text(), 'at-limit valid import reaches run validation'
         for width in (390, 1280):
             page.set_viewport_size({'width': width, 'height': 900})
             page.goto(production_url.rstrip('/') + '#/quiet/challenges?family=queens')
