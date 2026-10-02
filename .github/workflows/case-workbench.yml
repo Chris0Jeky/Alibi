@@ -1,0 +1,46 @@
+name: Verify evidence-case workbench
+on:
+  pull_request:
+    paths:
+      - 'tools/case-*.cjs'
+      - 'tools/cases/**'
+      - 'tests/case-*.test.cjs'
+      - 'tests/browser_case_workbench.py'
+      - 'content/cases/**'
+      - '.github/workflows/case-workbench.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: case-workbench-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  case-workbench:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Preserve exact source and formatting diagnostics
+        run: |
+          mkdir -p test-results/case-workbench/formatted/tools test-results/case-workbench/formatted/tests
+          git rev-parse HEAD > test-results/case-workbench/source-head.txt
+          for file in tools/case-*.cjs tests/case-*.test.cjs; do
+            npx prettier "$file" > "test-results/case-workbench/formatted/$file"
+          done
+      - name: Exercise the bounded authoring contract
+        run: node --test tests/case-*.test.cjs
+      - name: Check source formatting without modifying it
+        run: npx prettier --check 'tools/case-*.cjs' 'tests/case-*.test.cjs'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: case-workbench-${{ github.run_id }}
+          path: test-results/case-workbench/
+          if-no-files-found: error
