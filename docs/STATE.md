@@ -11,11 +11,16 @@ successful-result guards preserved. Current errors still propagate.
 The coordinator resolves only catalogue/state/budget/CI conflicts: both actual
 browser scripts and artifact paths remain wired; the asset catalogue is
 regenerated from the composed app. All 44 focused ownership/budget cases pass.
-Preliminary web measures 134,907 JS gzip and 1,411,547 shell bytes, under #542's
+Clean 0992949 web measures 134,909 JS gzip and 1,411,548 shell bytes, under #542's
 already recorded shared 134,912 / 1,411,560.32 ceilings. No additional allowance
 is introduced; startup, content, CSS and total-offline ceilings remain intact.
-Current full/actual-browser qualification is pending. Earlier sibling passes
-are historical. Native-host picker timing, physical Android/TalkBack and human
+Full verify at clean 0992949 passes 981 tests with three intentional skips.
+Actual compiled Worker controls pass nine Workshop and thirteen backup checks;
+UI 184, mobile 16 and real-origin 270 pass. Phone/desktop captures at 390/1440
+were inspected. A completed independent Muse xhigh lens finds no HIGH/CRITICAL
+defects; its one LOW picker-to-validation coverage gap is tracked under #541.
+Final clean-head source/budget proof and completed hosted CI remain required.
+Earlier sibling passes are historical. Native-host picker timing, physical Android/TalkBack and human
 acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
 
 Current qualification: #432 consolidates the optional Lattice content and
