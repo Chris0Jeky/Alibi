@@ -27,7 +27,10 @@ cannot focus or submit an inert form. A final independent Sol review has no
 merge blockers. The render decorators remain adjacent, fixing two source-contract
 regressions; source asset hashes are regenerated. On the landed Borough base,
 JS gzip is 134,711 and code/shell is 1,411,081, requiring a measured 384-byte
-code/shell ceiling extension after the shared-helper trim. The final full local gate passes; refreshed-base browser proof remains pending.
+code/shell ceiling extension after the shared-helper trim. The final full local gate passes (916 passed, three intentional skips). After
+merging the refreshed import base, Android/seam checks pass (31), and the
+combined real-browser pause/reload regression plus two-release suite passes
+(four pause cases and 18 lifecycle checks, build 62c59a6a3c6a).
 
 Borough #528 merged at 9f7e09d after its three-phone/desktop regression, full local
 gate, independent review and exact-head CI passed. The confirmed 700px overlay

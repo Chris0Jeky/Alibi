@@ -3,7 +3,7 @@
 | Priority | Work | State and next action |
 | --- | --- | --- |
 | 1 | #523 wave-2 integration | Merged at 45102bc after local verify, independent Muse review, exact-head CI and aging. Primary fast-forwarded cleanly. |
-| 2 | #526 update save/reload boundary | Native Club, Shadow DOM rename and note mutation reproduced after flush. Candidate blocks all three; failure recovery, final-flush rejection and no-worker retry pass. Full gate, UI 184 and origin 270 pass. Muse findings triaged and final Sol review has no blockers. Reprove updated base and publish. |
+| 2 | #526 update save/reload boundary | Native Club, Shadow DOM rename and note mutation reproduced after flush. Candidate blocks all three; failure recovery, final-flush rejection and no-worker retry pass. Full gate, UI 184 and origin 270 pass. Muse findings triaged and final Sol review has no blockers. Updated-base Android/seam 31 and browser pause 4 + lifecycle 18 pass; publish ready PR and await CI. |
 | 3 | #524 challenge import cap / PR #527 | Full gate, actual file/Worker boundary and independent Muse review pass. Refreshed after #528 at efa683f with full local verify. Fresh CI pending after prior cancellation, tracked #531. |
 | 4 | #497 Borough / PR #528 | Merged at 9f7e09d after full verify, UI 184, four viewport checks, independent review, exact-head CI and aging. Physical acceptance remains open. |
 | 5 | #512/#513 activity regressions | Independent Sol review has no blockers; 12 changed-seam checks pass and source blob matches refreshed heads. Refresh after #528 and await exact-head CI. |
