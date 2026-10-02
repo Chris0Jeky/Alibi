@@ -48,3 +48,31 @@ the browser receipt itself pins pack SHA with local head unrecorded. The current
 formatter exposed a single old evidence-helper mismatch, fixed mechanically.
 Muse has no findings; a narrow Sol pass completes its uninspected certificate
 seam with no blockers. Final documentation gets a clean Android/source reproof.
+
+Current checkpoint: #527 merged at 44f0bd0 and #533 at f18c26e; primary is clean
+at f18c26e. Lesson #534 was retargeted to main and refreshed at c35a6f0 with an
+identical tree, preserving its review while exact-head CI runs. #512/#513 were
+refreshed again, their activity blobs remain identical and 12 seam checks pass.
+The two completed toolchain/import worktrees were removed after copying needed
+ignored proof to primary test-results/goal-20261002/toolchain-522/ and import-527/.
+
+Muse waves 7/8 hit repeated provider 503/504 responses. Workshop timed out;
+backup was interrupted when the tool host closed. No result is inferred. Two
+user-authorized Sol medium workers completed bounded source/tests in separate
+owned checkouts, with no publication rights. Coordinator integrated Workshop
+first: unit RED 4/12 to GREEN 12/12, and actual Worker/IDB browser RED/GREEN in
+both route cases. A duplicate generation render is removed before measuring
+small necessary cap extensions. Independent review and full gate precede its PR.
+Backup remains a separate next slice. Source-fixture diagnostics are tracked in
+#537; a rerun passed all 46 unchanged challenge checks, without claiming the
+original unlogged refusal is explained.
+
+Workshop final proof: full verify 932 pass/three intentional skips, UI 184, all
+15 mobile QA tests and independent Sol review pass. Source guards are unchanged
+after review; this evidence commit gets a clean Android/catalogue/budget reproof.
+
+Lattice base refresh joins landed Workshop main be849af; only documentation
+receipts conflict, both preserved. Pack/editorial bytes and all official
+content remain unchanged. Reprove Android/readiness/budget and actual Workshop
+imports on the combined head. Coordination resolved #540/#542 into adjacent
+follow-ups; #543 retains #536. No review loop or content regeneration.

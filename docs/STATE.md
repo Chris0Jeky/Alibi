@@ -23,6 +23,24 @@ helper was formatted, with no data changes. Final source proof and hosted CI
 remain separate. No human calibration, physical Android/TalkBack or deployment
 is claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
+## Workshop worker completion ownership (#535): 2 October 2026
+
+Workshop edits and route entries now invalidate pending generation/verification.
+A stale worker success cannot replace or save the newer draft; a stale rejection
+cannot clear its verification state. A second check after persistence prevents
+late success messages or scrolling. Generation uses its final render once.
+The real-origin browser regression holds an actual Worker completion, paints a
+room, and reads its saved IndexedDB draft. The baseline loses that edit, both
+in place and after Home/Workshop; both cases pass with the guard. Twelve unit
+cases pass, versus four passes/eight failures on the baseline, including ordinary
+success/error and an edit during a delayed save. Gzip measures 134,813 (+65),
+code/shell 1,411,292 (+152); removing the duplicate generation render trims six
+emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
+160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
+passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
+Independent Sol review has no blockers; exact-head hosted CI passed and #539 merged at be849af. No deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Lesson completion route ordering (#530): 2 October 2026
 
 The lesson completion captures its lesson object and route serial before saving,
@@ -80,8 +98,11 @@ gate, independent review and exact-head CI passed. The confirmed 700px overlay
 is fixed in PR #532, merged at 21091a0: six viewport checks, full verify, UI QA,
 independent review and exact-head CI pass. Lesson
 completion issue #530 is reproduced with a real IndexedDB completion delay.
-The cancelled import CI run is tracked in #531; #527 has a new locally verified
-base refresh and fresh CI is running. A disposal data-loss claim was declined
+#527 merged at 44f0bd0 after completed exact-head CI, and #533 merged at
+f18c26e after its reviewed, tree-identical base refresh passed exact-head CI.
+The original import CI cancellation is tracked in #531; one source-fixture
+IndexedDB refusal with an unlogged trigger is tracked in #537. An independently
+instrumented rerun passed all 46 unchanged challenge checks. A disposal data-loss claim was declined
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
