@@ -1,5 +1,20 @@
 # Live development state
 
+## Lattice optional collection closeout (#432): 2 October 2026
+
+The existing Lattice candidate is refreshed onto current main, preserving all
+24 playable pack definitions and editorial receipts byte-for-byte. It remains
+an optional Workshop JSON import: twelve Lanterns and twelve Futoshiki, all
+revision 1 with provisional Expert labels. The official registry and all 510
+previous definitions/legacy data are unchanged. No new runtime loader, startup
+content, dependency or numeric budget change is introduced by this pack.
+A bounded Muse contributor xhigh file-only review completed with no findings;
+its machine reconstruction/uniqueness/import/browser checks were explicitly
+not_run. Coordinator full verification, all 48 phone/desktop controls and visual
+inspection are next. Existing historical cloud evidence is not current-head
+proof. No human calibration, physical Android/TalkBack, merge or deployment is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Lesson completion route ordering (#530): 2 October 2026
 
 The lesson completion captures its lesson object and route serial before saving,
