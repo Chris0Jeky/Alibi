@@ -28,7 +28,8 @@
     protectedSave = false,
     saveQueue = Promise.resolve(),
     restoring = false,
-    loading = null;
+    loading = null,
+    updatePaused = false;
   let state = {
     schema: 1,
     settings: { zen: false, assist: 'off', pinned: null },
@@ -977,6 +978,7 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
   async function commitGame(id, value) {
+    if (updatePaused) return;
     if (saveError && storageMode !== 'session') {
       notify('Resolve the save conflict or export before continuing.', true);
       return;
@@ -1015,6 +1017,10 @@
     botPending = false;
     botFailed = failed;
   }
+  function pauseForUpdate(paused) {
+    updatePaused = !!paused;
+    if (updatePaused) stopBot();
+  }
   function botFailure() {
     stopBot(true);
     notify('The offline opponent paused. Retry or undo your move.', true);
@@ -1027,6 +1033,7 @@
       room ||
       botPending ||
       botFailed ||
+      updatePaused ||
       !E()
     )
       return;
@@ -1092,6 +1099,7 @@
       : confirmation(title, text, 'reset-confirm');
   }
   async function action(el) {
+    if (updatePaused) return;
     const a = el.dataset.action.slice(5),
       v = el.dataset.value,
       id = el.dataset.id;
@@ -1996,6 +2004,7 @@
     else stopLab();
   }
   document.addEventListener('keydown', (e) => {
+    if (updatePaused) return;
     if (e.target.closest('input,textarea,select') || document.getElementById('dialog')?.open)
       return;
     if (e.key === 'Escape' && state.settings.zen) {
@@ -2054,6 +2063,7 @@
     engine,
     save,
     refresh: render,
+    pauseForUpdate,
     flush: () => saveQueue,
     diagnostics: () => ({
       storageMode,
