@@ -10,7 +10,7 @@ const source = fs.readFileSync(
   'utf8',
 );
 function appFunction(name) {
-  const start = source.indexOf(`  async function ${name}(file) {`);
+  const start = source.indexOf(`  async function ${name}(`);
   assert.notEqual(start, -1, `${name} exists in the app`);
   const end = source.indexOf('\n  async function ', start + 1);
   assert.notEqual(end, -1, `${name} has a following function boundary`);
@@ -146,7 +146,7 @@ for (const subject of cases) {
   });
 
   for (const failingAt of ['reading', 'validation']) {
-    test(`${subject.name}: stale ${failingAt} rejection retains state and propagates the error`, async () => {
+    test(`${subject.name}: stale ${failingAt} rejection retains state without feedback`, async () => {
       const failure = deferred(),
         started = deferred();
       const f = fixture(subject, () => {
@@ -158,14 +158,26 @@ for (const subject of cases) {
         text: () => (failingAt === 'reading' ? failure.promise : Promise.resolve('backup text')),
       });
       const error = new Error('Unreadable backup');
-      const rejected = assert.rejects(importing, (actual) => actual === error);
+      const settled = assert.doesNotReject(importing);
       if (failingAt === 'validation') await started.promise;
       f.api.navigate();
       failure.reject(error);
-      await rejected;
+      await settled;
       f.assertPrevious();
     });
   }
+
+  test(`${subject.name}: a current validation error still reaches the caller`, async () => {
+    const error = new Error('Current backup validation failed');
+    const f = fixture(subject, async () => {
+      throw error;
+    });
+    await assert.rejects(
+      f.api.run({ size: 20, text: async () => 'backup text' }),
+      (actual) => actual === error,
+    );
+    f.assertPrevious();
+  });
 
   test(`${subject.name}: the byte limit still rejects before reading or validation`, async () => {
     const f = fixture(subject, async () => subject.data);

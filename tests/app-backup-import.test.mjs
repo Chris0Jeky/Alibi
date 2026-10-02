@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const app = fs.readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
 const helper = app.slice(
   app.indexOf('  async function importBackupFromPicker()'),
-  app.indexOf('  async function importBackup(file)'),
+  app.indexOf('  async function importBackup('),
 );
 assert.ok(helper && !helper.includes('async function importBackup(file)'));
 
@@ -43,7 +43,7 @@ async function picker(overrides = {}) {
     File: FixtureFile,
   };
   const factory = await vm.runInNewContext(
-    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0;${helper};return importBackupFromPicker;})()`,
+    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++});})()`,
     context,
   );
   return { run: factory, calls, notices, imported, released };
@@ -106,7 +106,7 @@ test('overlapping picker requests share one in-flight request and reset after ex
   const fixture = await picker();
   fixture.calls.length = 0;
   fixture.run = await vm.runInNewContext(
-    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0;${helper};return importBackupFromPicker;})()`,
+    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++});})()`,
     {
       platform: {
         documents: {
@@ -141,3 +141,34 @@ test('overlapping picker requests share one in-flight request and reset after ex
   resolvePick({ ok: false, code: 'cancelled' });
   await third;
 });
+
+for (const boundary of ['pick', 'read']) {
+  for (const outcome of ['success', 'failure', 'exception']) {
+    test(`picker discards ${outcome} after navigation during ${boundary} and releases its token`, async () => {
+      let resolve, reject;
+      const pending = new Promise((yes, no) => {
+        resolve = yes;
+        reject = no;
+      });
+      const fixture = await picker({ [boundary]: pending });
+      const running = fixture.run();
+      if (boundary === 'read') await new Promise(setImmediate);
+      fixture.run.navigate();
+      fixture.run.navigate();
+      if (outcome === 'exception') reject(Error('obsolete provider failure'));
+      else
+        resolve(
+          outcome === 'failure'
+            ? { ok: false, code: 'denied' }
+            : { ok: true, value: boundary === 'pick' ? 'late-token' : '{}' },
+        );
+      await running;
+      assert.deepEqual(fixture.imported, []);
+      assert.deepEqual(fixture.notices, []);
+      assert.deepEqual(
+        fixture.released,
+        boundary === 'read' ? ['token-1'] : outcome === 'success' ? ['late-token'] : [],
+      );
+    });
+  }
+}

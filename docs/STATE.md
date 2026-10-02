@@ -41,6 +41,30 @@ no runtime code changes. One integration PR carries both tests so separate
 base refreshes do not keep invalidating each other. Full local verify passes
 (928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
 lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+## Backup error/picker follow-up (#542): 2 October 2026
+
+Ownership reconciliation selects #543 as the canonical #536 core fix. Draft #542
+is narrowed and stacked on #543 at 0627d57: stale file/worker failures are
+suppressed, and Cabinet picker ownership starts before pick/read, carries into
+validation, and still releases late tokens. The #543 baseline Cabinet failure
+closes a newer lesson dialog through the delegated file error handler; combined
+failure leaves an obsolete error toast. Actual compiled Worker/native file
+controls reproduce both and pass after the guard. Thirteen native checks cover
+both obsolete failures, newer-modal survival, unchanged save counts, and ordinary
+390px/1440px review; no destructive restore is clicked. Unit expectation changes
+cover stale rejection disposal while current errors still propagate. The focused
+24 route/picker cases go from ten baseline failures to all passing; twelve
+canonical Workshop races also pass. The old duplicate route-race fixture is removed.
+Normal merges retain all earlier pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. This slice measures
+134,891 JS gzip / 1,411,498 code/shell; together with #540 the actual composed
+source measures 134,903 / 1,411,547. Shared ceilings 134,912 / about 1,411,560
+leave nine/thirteen bytes; startup, CSS and total-offline ceilings do not change.
+Required current-head full verify/UI/origin and hosted CI remain pending;
+previous core/earlier-branch full counts do not qualify this composition. P3 #541
+async native cleanup remains separately deferred; VM picker tests do not claim
+native-host timing acceptance. No merge, deployment or physical acceptance is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Backup validation route ownership (#536): 2 October 2026
 
