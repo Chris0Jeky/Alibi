@@ -139,3 +139,10 @@ mutually invalidating base refreshes; every history and review is preserved.
 No reviewed source/test logic is changed by integration; conflicts are receipts
 only. #512/#513/#544/#545 stay open until the combined head lands. Run one
 combined full gate and actual import/control seam, then exact-head hosted CI.
+
+Combined qualification full verify passes at 981df97: 966 passed, three
+intentional skips, Quiet Wing engine/contracts also green. Reviewed pack,
+activity runtime/tests and restore-fixture bytes match their respective heads.
+This receipt-only commit gets clean Android/catalogue/budget/readiness and
+actual imported phone/desktop views before publication. Existing real reviews
+remain applicable; hosted exact-head proof and aging are still required.

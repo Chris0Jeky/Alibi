@@ -2,7 +2,7 @@
 
 | Priority | Work | State and next action |
 | --- | --- | --- |
-| 1 | #432 combined qualification | 24 optional Lattice studies plus reviewed #544/#545 persistence tests, retaining every original commit. Main includes landed #539/#543. Pack/editorial bytes and runtime activity blob unchanged. Run one combined gate, import/control seam and exact-head CI. Close #512/#513/#544/#545 only after landing. |
+| 1 | #432 combined qualification | 24 optional Lattice studies plus reviewed #544/#545 persistence tests, retaining every original commit. Main includes landed #539/#543. Pack/editorial bytes and runtime activity blob unchanged. Combined full verify 966/three skips at 981df97 passes. Finish clean-head import/control proof and exact-head CI. Close #512/#513/#544/#545 only after landing. |
 | 2 | #427 Interlock studies | Existing 60-board candidate integrated with current base. Confirmed helper double-subtracts 47,931 deferred bytes; all six corrected-contract tests fail on it. Fix accounting without increasing ceilings, qualify content and actual controls, and refresh published draft when ready. |
 | 3 | Landed fixes | #523 45102bc; #522 8072981; #528 9f7e09d; #532 21091a0; #527 44f0bd0; #533 f18c26e; #534 a3228b7; #539 be849af; #543 e4343c5. Relevant local proof, independent review, exact-head CI and aging passed. Primary main is clean at e4343c5. |
 | 4 | Concurrent #540/#542 follow-ups | Fix Alibi editing races retained focused generator/save-feedback and stale-error/picker changes. No overlap with canonical merged fixes. Preserve branches, review final qualified diffs later. |

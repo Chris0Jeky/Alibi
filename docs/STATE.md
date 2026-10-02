@@ -2,7 +2,9 @@
 
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
-#539 and #543 are merged; combined local and hosted proof are pending.
+#539 and #543 are merged; combined full verify at 981df97 passes (966
+passed, three intentional skips). Final clean-head source/import proof and
+hosted CI remain required.
 Superseded test PRs remain open until the combined head lands.
 
 ## Lattice optional collection closeout (#432): 2 October 2026
