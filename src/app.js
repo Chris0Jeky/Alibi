@@ -522,7 +522,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Board input is paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -1324,11 +1324,15 @@
       document.getElementById('quiet-update').innerHTML =
         globalThis.AlibiTheatre.bar(true) +
         (updateRequested
-          ? `<div class="banner" role="status"><span>Saving your place for the update. Board input is paused until it loads.</span></div>`
+          ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>`
           : waitingUpdate
             ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
             : '');
       globalThis.AlibiTheatre.attach(route);
+      {
+        const quietHost = document.getElementById('quiet-host');
+        if (quietHost) quietHost.inert = updateRequested;
+      }
       return;
     }
     if (rendering) return;
@@ -1377,6 +1381,10 @@
       $('#app').innerHTML = shell((views[route.page] || home)());
       globalThis.AlibiUsageSlot?.();
       globalThis.AlibiVoices?.(current, records);
+      {
+        const mainEl = document.getElementById('main');
+        if (mainEl) mainEl.inert = updateRequested;
+      }
       for (const [key, open] of disclosures) {
         const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
         if (el) el.open = open;
@@ -2560,7 +2568,13 @@
       ],
     );
   }
+  function pauseForUpdate(paused) {
+    updateRequested = paused;
+    AlibiClub.pauseForUpdate(paused);
+    render();
+  }
   async function handleAction(el, e) {
+    if (updateRequested) return;
     const a = el.dataset.action,
       v = el.dataset.value,
       id = el.dataset.id;
@@ -2997,8 +3011,7 @@
         break;
       case 'apply-update':
         endPaint();
-        updateRequested = true;
-        render();
+        pauseForUpdate(true);
         try {
           await AlibiActivities.flush();
           await AlibiClub.flush();
@@ -3008,15 +3021,13 @@
           await queue;
           if (saveError)
             throw Error('The latest progress has not been saved. Export it before updating.');
-          if (registration?.waiting) {
+          if (updateRequested && registration?.waiting) {
             registration.waiting.postMessage({ type: 'ACTIVATE' });
           } else {
-            updateRequested = false;
-            render();
+            pauseForUpdate(false);
           }
         } catch (e) {
-          updateRequested = false;
-          render();
+          pauseForUpdate(false);
           throw e;
         }
         break;
@@ -3208,6 +3219,7 @@
   });
   let noteTimer = null;
   document.addEventListener('input', (e) => {
+    if (updateRequested) return;
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
@@ -3229,6 +3241,7 @@
     }
   });
   document.addEventListener('change', async (e) => {
+    if (updateRequested) return;
     const el = e.target;
     try {
       if (el.dataset.setting) {
@@ -3367,6 +3380,7 @@
     onCell(Number(el.dataset.cell), true);
   });
   document.addEventListener('keydown', (e) => {
+    if (updateRequested) return;
     if (e.defaultPrevented) return;
     if (
       !current ||
@@ -3760,12 +3774,20 @@
         navigator.serviceWorker.addEventListener('controllerchange', async () => {
           offlineReady = true;
           if (updateRequested) {
-            await enqueueSave();
-            await queue;
-            if (!saveError) location.reload();
-            else {
-              updateRequested = false;
-              render();
+            try {
+              await AlibiActivities.flush();
+              await AlibiClub.flush();
+              if (AlibiClub.diagnostics().saveError)
+                throw Error('Export or resolve the Club save problem before updating.');
+              await enqueueSave();
+              await queue;
+              if (saveError)
+                throw Error('The latest progress has not been saved. Export it before updating.');
+              if (!updateRequested) return;
+              location.reload();
+            } catch (e) {
+              pauseForUpdate(false);
+              toast(e.message || 'The update could not finish. Your progress is preserved.', true);
             }
           } else {
             waitingUpdate = false;

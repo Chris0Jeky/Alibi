@@ -24,6 +24,48 @@ is 134,748 -> 134,842. Code/shell is 1,410,480 -> 1,410,628 alone and 1,411,140 
 No deployment, hosted acceptance or physical-phone proof is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
+## Goal continuation: 2 October 2026
+
+Work is tracked in [ORCHESTRATOR.md](qa/2026-10-02-goal/ORCHESTRATOR.md) and
+[PLANNER.md](qa/2026-10-02-goal/PLANNER.md). PR #523 was refreshed at 16f203b:
+full local verify and exact-head hosted CI pass, a fresh Muse xhigh review has no
+findings, and #523 merged at 45102bc. The #524 candidate aligns challenge imports to a 3 MiB UTF-8
+byte cap and message. Source/built-worker focused checks pass (19), and the
+real-origin challenge suite proves the file gate, actual Worker rejection of
+multibyte oversize, unchanged replay on rejection and valid at-limit restore.
+The full local gate and independent Muse review pass for the import fix (#527).
+The toolchain upgrade (#522) merged at 8072981 after install, full verify,
+Cloudflare dry-run, independent Sol review and exact-head CI passed.
+
+The #526 candidate pauses native and Shadow DOM inputs before the first save
+snapshot, cancels pending Club bot work, and checks all stores again before
+controllerchange reload. Three real-origin RED-to-GREEN cases cover Club click
+and keyboard moves, Quiet Wing realm names and cabinet notes. Rejected flushes
+preserve data and restore controls; a final controllerchange failure avoids
+reload, and a retry with no waiting worker releases the pause. The existing
+two-release/two-tab suite passes 18 checks. Sharing pause/release sites trims
+81 raw bytes; gzip remains 134,639 (+164), so the JS ceiling rises 128 bytes.
+UI QA (184) and the full real-origin suite (270) pass. Muse's two MEDIUM claims
+were triaged: temporary recovery-control pause is intentional, and native Enter
+cannot focus or submit an inert form. A final independent Sol review has no
+merge blockers. The render decorators remain adjacent, fixing two source-contract
+regressions; source asset hashes are regenerated. On the landed Borough base,
+JS gzip is 134,711 and code/shell is 1,411,081, requiring a measured 384-byte
+code/shell ceiling extension after the shared-helper trim. The final full local gate passes (916 passed, three intentional skips). After
+merging the refreshed import base, Android/seam checks pass (31), and the
+combined real-browser pause/reload regression plus two-release suite passes
+(four pause cases and 18 lifecycle checks, build 62c59a6a3c6a).
+
+Borough #528 merged at 9f7e09d after its three-phone/desktop regression, full local
+gate, independent review and exact-head CI passed. The confirmed 700px overlay
+is fixed in PR #532, merged at 21091a0: six viewport checks, full verify, UI QA,
+independent review and exact-head CI pass. Lesson
+completion issue #530 is reproduced with a real IndexedDB completion delay.
+The cancelled import CI run is tracked in #531; #527 has a new locally verified
+base refresh and fresh CI is running. A disposal data-loss claim was declined
+after retained-state/retry behavior was traced.
+No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
+and the phone session remain open.
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -38,6 +80,7 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
+
 
 ## Borough confirmation reachability (#497): 2 October 2026
 
@@ -54,20 +97,6 @@ The measured app gzip grows 101 bytes after trimming the first draft by 28;
 the ceiling grows 64 bytes for its 21-byte excess. Full local verify passes;
 independent review is pending. Not deployed or physically accepted; [HUMAN_TODO.md](../HUMAN_TODO.md)
 and its phone session remain open.
-## Goal continuation: 2 October 2026
-
-Work is tracked in [ORCHESTRATOR.md](qa/2026-10-02-goal/ORCHESTRATOR.md) and
-[PLANNER.md](qa/2026-10-02-goal/PLANNER.md). PR #523 was refreshed at 16f203b:
-full local verify and exact-head hosted CI pass, a fresh Muse xhigh review has no
-findings, and #523 merged at 45102bc. The #524 candidate aligns challenge imports to a 3 MiB UTF-8
-byte cap and message. Source/built-worker focused checks pass (19), and the
-real-origin challenge suite proves the file gate, actual Worker rejection of
-multibyte oversize, unchanged replay on rejection and valid at-limit restore.
-The full local gate also passes for the import fix. The independent lifecycle hunt
-confirmed an incomplete update freeze across Club, optional activities and notes;
-[issue #526](https://github.com/Chris0Jeky/Alibi/issues/526) is the next high-impact slice.
-No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
-and the phone session remain open.
 
 ## Goal-swarm wave 1 (merged): 1 October 2026
 

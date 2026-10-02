@@ -124,6 +124,10 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the IndexedDB and session paths keep their original one-liners (no
 // parse damage possible there); export reads the store's damaged map rather than
 // duplicating per-result lists. Ceiling +256.
+// #526: native/Shadow DOM input pause, Club bot cancellation and guarded final flush
+// measure 134,475 -> 134,639 (+164), exceeding the old ceiling by 79 bytes.
+// Sharing the four pause/release sites trims 81 raw bytes; gzip remains 134,639.
+// The recovery guards remain required; ceiling +128 leaves 49 bytes of headroom.
 // Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
@@ -181,6 +185,9 @@ assert.ok(
   // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
   // display, and any display declaration must re-hide pre-enhancement credits.
   // Ceiling +1,024. Not feature room.
+  // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
+  // The shared pause/release helper trims 81 raw bytes; the remaining native and
+  // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
   // #535: 1,410,480 -> 1,410,628 alone; with #533/#534 at c35a6f0:
   // 1,411,140 -> 1,411,285. The stack has only 20 bytes spare. Shared ceiling
   // +608 over main / +192 over that stack leaves 67 bytes for build-hash noise.
