@@ -130,6 +130,86 @@ class MobileQA(unittest.TestCase):
                 expect(page.locator('.draft-editor .badge')).to_have_text('Edited draft · recheck required')
                 self.assertFalse(errors, errors)
 
+    def test_backup_validation_keeps_its_settings_route(self):
+        if os.environ.get('ALIBI_QA_HTML'):
+            self.skipTest('Native validator completion requires the real built HTTP origin.')
+        for kind, export_action, input_selector, restore_action in [
+            ('cabinet-backup', 'export', '#backup-input', 'restore-merge'),
+            ('combined-backup', 'export-all', '#all-backup-input', 'all-cabinet'),
+        ]:
+            with self.subTest(kind=kind):
+                page = self.open_page(390, 844, 'settings')
+                errors = []
+                page.on('pageerror', lambda error, target=errors: target.append(str(error)))
+                # Read an ordinary app-exported backup. No invented schema or validator stub.
+                with page.expect_download(timeout=30000) as downloaded:
+                    page.locator('[data-action="' + export_action + '"]').first.click()
+                payload = Path(downloaded.value.path()).read_bytes()
+                page.evaluate('''kind => {
+                    const Native = window.Worker;
+                    window.__backupRouteProbe = {
+                        Native, kind, pending:null,
+                        async release() {
+                            const pending = this.pending;
+                            this.pending = null;
+                            pending.callback.call(pending.worker, pending.event);
+                            // Allow the real inWorker Promise and its awaiting caller to settle.
+                            await Promise.resolve();
+                            await Promise.resolve();
+                        }
+                    };
+                    window.Worker = class extends Native {
+                        postMessage(message, ...rest) {
+                            this.backupType = message?.type;
+                            return super.postMessage(message, ...rest);
+                        }
+                        set onmessage(callback) {
+                            super.onmessage = event => {
+                                const probe = window.__backupRouteProbe;
+                                if (this.backupType === probe.kind)
+                                    probe.pending = {worker:this, event, callback};
+                                else callback.call(this, event);
+                            };
+                        }
+                    };
+                }''', kind)
+
+                def select_backup():
+                    # Cabinet input has the app's delegated change handler. Combined's
+                    # actual action installs its onchange handler and resets its value.
+                    if kind == 'combined-backup':
+                        page.locator('[data-action="import-all"]').click()
+                    page.locator(input_selector).set_input_files({
+                        'name': 'ordinary-backup.json',
+                        'mimeType': 'application/json',
+                        'buffer': payload,
+                    })
+                    page.wait_for_function('() => !!window.__backupRouteProbe.pending')
+                    self.assertTrue(page.evaluate(
+                        '() => window.__backupRouteProbe.pending.event.data.ok'))
+
+                try:
+                    # Positive control: normal completion on Settings still offers review.
+                    select_backup()
+                    page.evaluate('() => window.__backupRouteProbe.release()')
+                    expect(page.locator('dialog[open] [data-action="' + restore_action + '"]')).to_be_visible()
+                    page.locator('dialog[open] [data-action="close-dialog"]').first.click()
+                    expect(page.locator('dialog')).not_to_be_visible()
+
+                    # A real successful result must not reopen a dialog after leaving Settings.
+                    select_backup()
+                    page.evaluate('() => location.hash = "#/home"')
+                    expect(page.locator('.club-welcome')).to_be_visible()
+                    expect(page.locator('dialog')).not_to_be_visible()
+                    page.evaluate('() => window.__backupRouteProbe.release()')
+                    self.assertEqual(page.evaluate('() => location.hash'), '#/home')
+                    expect(page.locator('.club-welcome')).to_be_visible()
+                    expect(page.locator('dialog')).not_to_be_visible()
+                    self.assertFalse(errors, errors)
+                finally:
+                    page.evaluate('() => window.Worker = window.__backupRouteProbe.Native')
+
+
     def test_lesson_finish_preserves_newer_route(self):
         if os.environ.get('ALIBI_QA_HTML'):
             self.skipTest('Lesson completion ordering requires the real IndexedDB origin')

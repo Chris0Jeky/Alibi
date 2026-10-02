@@ -135,9 +135,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Moving generation scroll after the final render removes its duplicate render:
 // six emitted bytes and three gzip bytes trimmed. The remaining guards are required.
 // Ceiling +64 covers the 61-byte excess, leaving three bytes; no feature room.
+// #536: two backup route captures/stale checks measure 134,813 -> 134,833 (+20).
+// Both independent inputs need ownership; a shared helper adds overhead.
+// Ceiling +32 covers the 17-byte excess and leaves 15 bytes; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4768,
-  'Application bundle stays under 127 KiB + 4,768 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4800,
+  'Application bundle stays under 127 KiB + 4,800 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -193,8 +196,11 @@ assert.ok(
   // #535 measures 1,411,292 (+152), after removing the duplicate generation render
   // (six emitted bytes). The edit/route and post-persistence checks remain required.
   // Ceiling +160 covers the 132-byte excess and leaves 28; no feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27200,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,200 bytes',
+  // #536 measures 1,411,339 (+47). Each input needs its route capture/stale check;
+  // Cabinet additionally holds validated data locally before publishing it.
+  // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
