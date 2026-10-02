@@ -124,9 +124,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the IndexedDB and session paths keep their original one-liners (no
 // parse damage possible there); export reads the store's damaged map rather than
 // duplicating per-result lists. Ceiling +256.
+// Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
+// 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
+// trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4512,
-  'Application bundle stays under 127 KiB + 4,512 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4576,
+  'Application bundle stays under 127 KiB + 4,576 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
