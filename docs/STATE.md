@@ -1,5 +1,24 @@
 # Live development state
 
+## Count-table formatter tolerance (#548): 2 October 2026
+
+The document count check accepts horizontal cell padding and trims family
+labels while retaining the exact family set, per-family counts and registry
+sum. The real document and aligned fixture use the same assertion helper;
+incorrect counts, missing families and substituted labels still fail.
+Four cases pass. Restoring the old matcher gives three passes/one failure in
+the aligned-table regression. The actual frozen Interlock candidate table
+also passes all thirteen measured families/570 puzzles, with three corrupted
+document variants rejected. The current official registry remains 510.
+Full verify at clean 262a72a passes 967 tests with three intentional skips.
+Muse's review times out without a report; a fresh independent Luna xhigh
+review has no HIGH/CRITICAL defect. Its LOW duplicate-row weakness is inherited;
+unrelated future indented numeric rows remain a non-blocking parser limit.
+The landed SDK base is integrated with source/Android reproof required before
+publication. No runtime, content, identity, save or delivery-cap change.
+Hosted exact-head CI and aging remain required. Physical acceptance remains
+open in [HUMAN_TODO.md](../HUMAN_TODO.md); no deployment is claimed.
+
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
