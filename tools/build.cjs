@@ -6,6 +6,7 @@ const fs = require('node:fs'),
   zlib = require('node:zlib');
 const {
   browserBundle,
+  contentManifestRevision,
   sourceIdentity,
   payloadDigest,
   writeIdentity,
@@ -366,7 +367,7 @@ function build() {
     ...source,
     payloadSha256: payloadDigest(DIST),
     appVersion: VERSION,
-    contentManifestRevision: sha256(contentSource),
+    contentManifestRevision: contentManifestRevision(contentSource, deferredSource),
     rulesCompatibility: {},
   };
   const platformIdentity = writeIdentity(DIST, platformBuild);
