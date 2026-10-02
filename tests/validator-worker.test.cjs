@@ -84,6 +84,47 @@ test('combined backup returns sanitized sections with unknown keys stripped', ()
   assert.deepEqual(norm(result.value.sections.cabinet.preferences.seen), ['scene']);
 });
 
+test('combined backup accepts the same sections in any manifest order', () => {
+  const { context, results } = loadWorker();
+  const combined = combinedBackup();
+  combined.manifest = ['club', 'cabinet'];
+  combined.sections = { club: combined.sections.club, cabinet: combined.sections.cabinet };
+  const result = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(combined),
+  });
+  assert.equal(result.ok, true, result.error);
+  assert.deepEqual(norm(result.value.manifest), ['club', 'cabinet']);
+});
+
+test('combined backup rejects unknown manifest keys', () => {
+  const { context, results } = loadWorker();
+  const unknownManifest = combinedBackup();
+  unknownManifest.manifest = ['cabinet', 'club', 'bogus'];
+  unknownManifest.sections.bogus = {};
+  const manifestResult = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(unknownManifest),
+  });
+  assert.equal(manifestResult.ok, false);
+  assert.equal(
+    manifestResult.error,
+    'Unknown combined backup. The file and all device saves are unchanged.',
+  );
+
+  const extraSection = combinedBackup();
+  extraSection.sections.bogus = {};
+  const sectionResult = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(extraSection),
+  });
+  assert.equal(sectionResult.ok, false);
+  assert.equal(
+    sectionResult.error,
+    'Unknown combined backup. The file and all device saves are unchanged.',
+  );
+});
+
 test('cabinet text over 16 MB is rejected with the safety-limit message', () => {
   const { context, results } = loadWorker();
   const text = JSON.stringify(cabinetBackup()) + ' '.repeat(16 * 1024 * 1024 + 1);

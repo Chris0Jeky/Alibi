@@ -20,6 +20,7 @@
       this.memory = { runs: {}, packs: {}, meta: {} };
       this.problem = null;
       this.fatal = false;
+      this.damaged = {};
     }
     async init() {
       try {
@@ -119,19 +120,20 @@
           r.onerror = () => reject(r.error);
         });
       if (this.mode === 'local') {
-        const out = [];
+        const out = [],
+          damaged = [],
+          prefix = PREFIX + store + '.';
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith(PREFIX + store + '.')) {
+          if (key && key.startsWith(prefix)) {
             try {
               out.push(JSON.parse(localStorage.getItem(key)));
-            } catch (e) {
-              throw Error(
-                'A saved record is damaged. Export browser data before resetting anything.',
-              );
+            } catch {
+              damaged.push(key.slice(prefix.length));
             }
           }
         }
+        this.damaged[store] = out.damaged = damaged;
         return out;
       }
       return Object.values(this.memory[store]);
@@ -206,14 +208,34 @@
       return this.put('runs', key, next);
     }
     async export() {
+      const runs = await this.getAll('runs'),
+        packs = await this.getAll('packs'),
+        metaDamaged = [];
+      let settings = {},
+        preferences = {};
+      for (const key of ['settings', 'preferences'])
+        try {
+          const value = await this.get('meta', key);
+          if (key === 'settings') settings = value || {};
+          else preferences = value || {};
+        } catch (e) {
+          if (!/damaged/.test(e?.message || '')) throw e;
+          metaDamaged.push(key);
+        }
+      this.damaged.meta = metaDamaged;
       return {
         format: 'alibi-backup',
         schemaVersion: 1,
         exportedAt: new Date().toISOString(),
-        runs: await this.getAll('runs'),
-        packs: await this.getAll('packs'),
-        settings: (await this.get('meta', 'settings')) || {},
-        preferences: (await this.get('meta', 'preferences')) || {},
+        runs: [...runs],
+        packs: [...packs],
+        settings,
+        preferences,
+        damaged: {
+          runs: [...(this.damaged.runs || [])],
+          packs: [...(this.damaged.packs || [])],
+          meta: [...metaDamaged],
+        },
       };
     }
     async restore(backup, expected) {
