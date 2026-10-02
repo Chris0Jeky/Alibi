@@ -12,8 +12,8 @@ It waits for initial service-worker setup before measuring so installation
 rerenders cannot shift the measured tap. Main UI suite: 184 checks pass.
 Phone/desktop screenshots were visually inspected; layout and size gates pass.
 The measured app gzip grows 101 bytes after trimming the first draft by 28;
-the ceiling grows 64 bytes for its 21-byte excess. Full local gate and independent
-review are pending. Not deployed or physically accepted; [HUMAN_TODO.md](../HUMAN_TODO.md)
+the ceiling grows 64 bytes for its 21-byte excess. Full local verify passes;
+independent review is pending. Not deployed or physically accepted; [HUMAN_TODO.md](../HUMAN_TODO.md)
 and its phone session remain open.
 
 ## Goal-swarm wave 1 (merged): 1 October 2026
