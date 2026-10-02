@@ -220,3 +220,15 @@ to 45 minutes, then require actual completed hosted proof. No cancellation is
 waived. Human and physical acceptance remains open in HUMAN_TODO.md.
 
 #546 hosted full Node22 gate succeeds at ffffb338. Parent f79fe2e timeout-only headroom is merged with receipt-only conflict resolution; Bridges and runtime blobs remain unchanged. Preserve Muse review and first-failure proof; re-prove Android/Bridges/CI-scope at the clean merge head before push.
+
+Wave 13: Muse's count-table review times out at 300 seconds with no report;
+it supplies no review clearance. A fresh independent Luna xhigh lens reviews
+262a72a and finds no HIGH/CRITICAL defect. LOW duplicate-row weakness is
+pre-existing; future unrelated indented numeric rows are a bounded parser
+limit. Both are declined for this focused fix, not silently repaired.
+Root four cases pass, old matcher gives one aligned-regression failure/three
+passes, and actual Interlock 570/13-family table plus three corruptions are
+proved through the same helper. Full verify 967/three skips passes at clean
+262a72a. SDK sync #547 lands at 882ebb2 with its full hosted gate green;
+integrate that base and re-prove the changed seams without new review debt.
+Completion-hook Muse worker remains separate; no output is inferred.
