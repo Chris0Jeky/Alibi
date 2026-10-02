@@ -1,5 +1,18 @@
 [
   {
+    "version": "0.15.1",
+    "date": "2026-10-02",
+    "title": "Keep your latest edits and the screen you opened",
+    "tag": "v0.15.1",
+    "receipt": "docs/RELEASE-0.15.1.md",
+    "changes": [
+      "Workshop keeps newer edits while generation or checks finish, and reports save errors for the current draft.",
+      "Backup review and picker errors stay on their original screen when you navigate away.",
+      "Save & update preserves the latest moves before reloading, and lesson completion keeps the screen you opened.",
+      "Import limits count UTF-8 bytes consistently; responsive controls keep boards and offers reachable."
+    ]
+  },
+  {
     "version": "0.15.0",
     "date": "2026-09-27",
     "title": "Tell us what you think, and the vaults open",
