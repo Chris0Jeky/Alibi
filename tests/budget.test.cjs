@@ -138,9 +138,16 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // #536: two backup route captures/stale checks measure 134,813 -> 134,833 (+20).
 // Both independent inputs need ownership; a shared helper adds overhead.
 // Ceiling +32 covers the 17-byte excess and leaves 15 bytes; no feature room.
+// #540 unique follow-up to #539: generator input + owned save feedback measure
+// 134,840 gzip / 1,411,341 shell (+27/+49 over #539). Reuse the existing epoch;
+// no new worker lifecycle/helper. Ceiling +32 gzip leaves eight bytes; no feature room.
+// #542 unique follow-up to #543: stale errors + picker route ownership measure
+// 134,891 gzip / 1,411,498 shell. Composed with #540: 134,903 / 1,411,547.
+// Existing lifecycle/limits are reused; capture before pick/read and stale catches remain required.
+// Shared +64 gzip ceiling covers both follow-ups and leaves nine bytes; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4800,
-  'Application bundle stays under 127 KiB + 4,800 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4864,
+  'Application bundle stays under 127 KiB + 4,864 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -199,8 +206,11 @@ assert.ok(
   // #536 measures 1,411,339 (+47). Each input needs its route capture/stale check;
   // Cabinet additionally holds validated data locally before publishing it.
   // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
+  // #540 adds 49 shell bytes over #539. Ceiling +32 leaves eleven bytes.
+  // #542 alone: 1,411,498; with #540: 1,411,547. Shared ceiling +208
+  // leaves thirteen bytes for the measured composition and hash noise, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27440,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,440 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
