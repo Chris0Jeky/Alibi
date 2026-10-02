@@ -77,6 +77,7 @@
     draftPaint = 0,
     draftObject = 'plant',
     draftBusy = false,
+    draftEpoch = 0,
     pendingBackup = null,
     backupPickerBusy = false,
     backupPickerSerial = 0,
@@ -2413,6 +2414,7 @@
       .catch((e) => toast(e.message, true));
   }
   function dirtyDraft() {
+    draftEpoch++;
     draftVerified = false;
     saveDraft();
   }
@@ -2434,19 +2436,26 @@
       names,
       seed,
     };
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'generate', options });
+      const result = await inWorker({ type: 'generate', options });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draft.authorSeed = seed;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
       render();
       document.querySelector('.draft-editor')?.scrollIntoView({
         behavior: settings.reducedMotion ? 'instant' : 'smooth',
         block: 'start',
       });
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      throw e;
     } finally {
       draftBusy = false;
       render();
@@ -2454,14 +2463,19 @@
   }
   async function verifyDraft() {
     if (!draft || draftBusy) return;
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'draft', puzzle: draft });
+      const result = await inWorker({ type: 'draft', puzzle: draft });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draftVerified = true;
       await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
       toast('Verified. Exactly one arrangement satisfies these clues.');
     } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
       draftVerified = false;
       throw e;
     } finally {
@@ -3509,6 +3523,7 @@
     }
   });
   async function loadRoute(focusSerial = 0) {
+    draftEpoch++;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.
