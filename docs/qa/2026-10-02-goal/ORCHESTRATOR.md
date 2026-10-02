@@ -51,3 +51,22 @@ original unlogged refusal is explained.
 Workshop final proof: full verify 932 pass/three intentional skips, UI 184, all
 15 mobile QA tests and independent Sol review pass. Source guards are unchanged
 after review; this evidence commit gets a clean Android/catalogue/budget reproof.
+
+Workshop published ready as #539 at 68eff8b with review posted; final clean
+Android/catalogue/budget/race checks pass (31). Backup integrated next on its
+own branch: baseline unit 8 pass/4 fail -> 12 pass, native Worker dialogs
+RED/GREEN for both inputs, ordinary Settings review preserved. No destructive
+restore clicked. #520 was already resolved by c035982 and is now closed after
+live wiring/manual-header and guard reconciliation. Chess/draughts do not exist
+in current authoritative engines/UI; the bounded history follow-up reports
+absence, not clearance. Adjacent Workshop save-feedback issue #538 remains
+separate and non-blocking; no native failure-delivery proof is inferred.
+
+Lesson #534 merged at a3228b7 after completed exact-head CI; primary main is
+cleanly fast-forwarded. Workshop #539 retargeted to main, linked issue #535
+confirmed, then refreshed through the API. Its tree remains identical to68eff8b;
+review credit and source/browser proof are preserved, fresh CI is required.
+Backup final local proof: full verify944 pass/three intentional skips, UI184,
+mobile16, real-origin270, independent Sol review no blockers. Its parent-only
+refresh preserves the reviewed diff. Lattice #432 is being prepared separately
+on current main with its24 optional studies untouched and a bounded Muse lens.
