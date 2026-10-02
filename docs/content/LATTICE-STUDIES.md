@@ -59,13 +59,31 @@ measured delivery decision, not implied by merging this optional source pack.
 
 ## Source evidence and continuation
 
-The final-data local source run passed all six tests, no skips, in 54.30 seconds. This includes
-24 reproduced native/independent certificates, reducer replays and production pack validation.
-Published data and editorial blob hashes match the tested local bytes. Browser script syntax
-passes, but the local managed Chromium policy blocks navigation; it was not bypassed. Local npm
-registry resolution also failed. Neither limitation is a browser or build pass.
+The 2 October continuation preserves the published pack/editorial bytes while
+refreshing the candidate onto main after lesson PR #534. The full local gate at
+clean source 03c0afa passes: 928 Node tests, three intentional skips, plus the
+Quiet Wing reducer/contracts checks. This includes all 24 regenerated native and
+independent uniqueness certificates, immutable reducer replays, symmetry checks,
+answer-free openings and production pack validation. The current formatter
+first exposed one pre-existing helper-formatting mismatch; only that helper was
+formatted, with no content or logic changes.
 
-Remaining: exact-head full CI and 48 actual-control cases, screenshot inspection, independent
-editorial review and real player feedback. The PR discussion records current CI separately from
-this source receipt. No merge, release or deployment is performed. Source completion is not
-human calibration or physical Android/TalkBack acceptance.
+The real HTTP-origin Workshop importer accepts all 24 studies; all 48 puzzle and
+viewport cases at 390/1440px pass (194 checks): geometry/pointer mapping, actual
+mutation, undo/redo, guarded restart, solve, IndexedDB completion and offline
+reopen. Receipt pack SHA256 remains 7200ef48ef055cb5f385d9f197a84674e50926c6cb7b1eee193fcd70dadcce79.
+Representative initial/completion and aligned phone/desktop captures were
+inspected. Some initial driver captures retain the geometry probe's scroll
+position; aligned captures additionally show each family's whole board and
+controls. This is automated solving and browser inspection, not human playtesting.
+
+A bounded Muse contributor xhigh file-only review has no findings; it explicitly
+did not execute checks. A narrow independent Sol lens completes the previously
+uninspected certificate seam and finds no blockers. Coordinator execution supplies
+the proofs above. Historical managed-navigation/npm-resolution limits describe
+an earlier machine; current local checks succeeded without changing device policy.
+
+Remaining: final published-head hosted CI, real player feedback/calibration and
+physical Android/TalkBack in HUMAN_TODO.md. Merging this optional source pack does
+not register it as official startup content or deploy a release. Numeric budgets,
+all existing official definitions/IDs/revisions and legacy data remain unchanged.

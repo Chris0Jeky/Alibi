@@ -10,10 +10,18 @@ previous definitions/legacy data are unchanged. No new runtime loader, startup
 content, dependency or numeric budget change is introduced by this pack.
 A bounded Muse contributor xhigh file-only review completed with no findings;
 its machine reconstruction/uniqueness/import/browser checks were explicitly
-not_run. Coordinator full verification, all 48 phone/desktop controls and visual
-inspection are next. Existing historical cloud evidence is not current-head
-proof. No human calibration, physical Android/TalkBack, merge or deployment is
-claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+not_run. A narrow Sol review completes the previously uninspected certificate
+seam, with no blockers. Coordinator full verify passes (928 passed, three
+intentional skips), including all-board regeneration, native/independent
+uniqueness, reducer replay, answer-free openings and production import. All 48
+phone/desktop puzzle cases pass (194 browser checks), with undo/redo, guarded
+restart, saved completion and offline reopen. Representative captures for both
+families and aligned phone/desktop views were inspected. The local build pins
+clean source 03c0afa; the browser receipt pins pack SHA256 rather than local
+HEAD. The current gate first exposed one old helper-formatting issue; only that
+helper was formatted, with no data changes. Final source proof and hosted CI
+remain separate. No human calibration, physical Android/TalkBack or deployment
+is claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Lesson completion route ordering (#530): 2 October 2026
 
