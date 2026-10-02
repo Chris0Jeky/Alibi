@@ -1,5 +1,8 @@
 # Live development state
 
+Current-base note: this candidate also integrates a3228b7 (#534). Exact updated-head
+full qualification remains queued for the next coordinator test slot.
+
 ## Backup validation route ownership (#536): 2 October 2026
 
 Cabinet and combined validation now retain their starting route serial through
@@ -25,6 +28,25 @@ c35a6f0; code/shell is 1,411,312 alone / 1,411,491 combined. Shared JS/shell
 ceilings cover this measured composition plus hash noise; initial-payload, CSS
 and total-offline ceilings do not increase. No deployment or physical/native-host
 acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+## Lesson completion route ordering (#530): 2 October 2026
+
+The lesson completion captures its lesson object and route serial before saving,
+then checks both after the await. A newer route or replacement lesson keeps its
+screen/dialog state; ordinary completion still opens or reveals its puzzle.
+The actual real-origin IDB regression commits the learned-family preference,
+holds only its completion notification, navigates Home, then releases it. The
+baseline incorrectly opens Sudoku; the guard preserves Home. A fresh-profile
+positive control also passes. Four executed unit cases have RED/GREEN proof.
+The standalone measured bundle fits existing ceilings (134,747 bytes gzip);
+on the landed tablet base it is 134,748 and code/shell is 1,411,140, exceeding
+that ceiling by 12 bytes. The two required captures/stale check add 34 emitted
+bytes with no redundant helper; a measured 32-byte shell extension leaves 20.
+The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Full local verify passes (920 passed,
+three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
+Muse review has no merge blockers. Its LOW scheduling claim is declined:
+Playwright evaluate awaits the returned release Promise, and the actual
+baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+remains open.
 
 ## Goal continuation: 2 October 2026
 

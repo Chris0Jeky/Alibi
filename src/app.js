@@ -2075,9 +2075,12 @@
   }
   async function lessonFinish() {
     if (!lesson) return;
-    const t = lesson.type;
+    const finished = lesson,
+      serial = routeSerial,
+      t = finished.type;
     prefs.seen = [...new Set([...prefs.seen, t])];
     await savePreferences();
+    if (lesson !== finished || routeSerial !== serial) return;
     closeDialog();
     if (current?.puzzle.type === t) {
       render();
