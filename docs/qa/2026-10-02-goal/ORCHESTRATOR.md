@@ -45,3 +45,7 @@ Five owned raw worker checkouts were removed without force after preserving
 patches/files in primary test-results/goal-20261002/worker-proposals/ and named
 local snapshot branches. Published integrated branches and unrelated worktrees
 remain intact.
+
+Combined activity test full gate passes (928 passed, three intentional skips);
+source remains unchanged. Final evidence commit gets Android/seam reproof before
+a ready integration PR, preserving both earlier independent reviews.

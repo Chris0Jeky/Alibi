@@ -7,9 +7,9 @@ current main, preserving their original commits. Six checks cover refusal of
 unsafe update flushes and the clean positive path; two cover overlapping or
 disconnected mounts. With the four existing activity checks, all twelve pass.
 The reviewed activities.js blob remains cce877a6897f45c263091dff442484ee8b82181c;
-no runtime code changes. One integration PR will carry both tests so separate
-base refreshes do not keep invalidating each other. Full gate is next, then
-exact-head CI and aging. The original PRs remain open until this integration
+no runtime code changes. One integration PR carries both tests so separate
+base refreshes do not keep invalidating each other. Full local verify passes
+(928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
 lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
 
 ## Lesson completion route ordering (#530): 2 October 2026
