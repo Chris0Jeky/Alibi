@@ -2648,6 +2648,10 @@ body.club-experiment {
   .build-confirm {
     font-size: 11px;
   }
+  .build-confirm,
+  .borough-cell {
+    scroll-margin-bottom: calc(81px + env(safe-area-inset-bottom));
+  }
   .domino-hand {
     gap: 5px;
   }
