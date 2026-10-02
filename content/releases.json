@@ -9,7 +9,8 @@
       "Workshop keeps newer edits while generation or checks finish, and reports save errors for the current draft.",
       "Backup review and picker errors stay on their original screen when you navigate away.",
       "Save & update preserves the latest moves before reloading, and lesson completion keeps the screen you opened.",
-      "Import limits count UTF-8 bytes consistently; responsive controls keep boards and offers reachable."
+      "Import limits count UTF-8 bytes consistently; responsive controls keep boards and offers reachable.",
+      "Twenty-four optional Lattice Workshop studies are available as a JSON import."
     ]
   },
   {

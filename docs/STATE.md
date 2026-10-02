@@ -1,11 +1,11 @@
 # Live development state
 
-## Workshop and backup callback ownership (#540): 2 October 2026
+## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
-The unique follow-ups from #540 and #542 are consolidated with both original
-histories preserved, above the landed canonical #539/#543 fixes. Native Scene
-input advances the existing Workshop epoch. Save feedback also captures the
-saved draft identity, so a Generate or Verify replacement keeps its own feedback
+This candidate retains both reviewed #540/#542 histories and the landed
+canonical #539/#543 fixes. Their generator-input and backup-result guards stay
+in place. The residual save-feedback fix also captures the saved draft identity,
+so a Generate or Verify replacement keeps its own feedback
 even if an earlier edit's save later fails (#538). Backup read/worker errors and
 picker completion keep their original route; the picker propagates an import
 failure only after token cleanup and busy reset, then rechecks ownership (#541).
@@ -32,9 +32,9 @@ preliminary composed web build measures 134,924 JavaScript gzip and 1,411,564
 code-shell bytes after an 11-gzip/16-emitted-byte cleanup trim. Required residual
 guards exceed the prior shared ceilings by 12/3.68 bytes; measured extensions of
 32 gzip/16 shell bytes leave 20/12.32 bytes, not feature room. A clean final-head
-build must remeasure this source. #542
-stays open until this consolidated head lands, then closes as superseded.
-Other coordinator-owned PRs and artwork/native/research lanes retain ownership.
+build must remeasure this source. The peer coordinator retains #540/#542
+landing ownership; this candidate carries the additional residual fixes and
+release. Other content/artwork/native/research lanes retain ownership.
 Deployment follows docs/DEPLOYMENT.md and its Pulseboard release dependency;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
 
@@ -44,8 +44,112 @@ readiness are recorded in observatory/README.md and docs/RELEASE-0.15.1.md.
 Local pin/build assertions and 26 focused host/release cases pass; the online
 SDK remains outside the initial bundle and offline shell. npm test now caps
 Node test-file concurrency at two for the coordinated PC qualification slot.
-Helper subprocesses remain outside that cap. Final #540 qualification follows
-the owner-ordered landing of #432/#546 and is not claimed by these focused checks.
+Helper subprocesses remain outside that cap. Final qualification follows
+the owner-ordered landing of #432/#546 and the peer editing integration.
+These focused checks do not claim that final qualification.
+
+## Editing follow-up composition (#540/#542): 2 October 2026
+
+Both qualified sibling histories are preserved on reviewed #432. Workshop form
+input advances the existing draft epoch; obsolete draft-save errors stay with
+their captured epoch/route. Backup read/validation failures and native picker
+results/feedback retain route ownership, with token release and canonical
+successful-result guards preserved. Current errors still propagate.
+
+The coordinator resolves only catalogue/state/budget/CI conflicts: both actual
+browser scripts and artifact paths remain wired; the asset catalogue is
+regenerated from the composed app. All 44 focused ownership/budget cases pass.
+Clean 0992949 web measures 134,909 JS gzip and 1,411,548 shell bytes, under #542's
+already recorded shared 134,912 / 1,411,560.32 ceilings. No additional allowance
+is introduced; startup, content, CSS and total-offline ceilings remain intact.
+Full verify at clean 0992949 passes 981 tests with three intentional skips.
+Actual compiled Worker controls pass nine Workshop and thirteen backup checks;
+UI 184, mobile 16 and real-origin 270 pass. Phone/desktop captures at 390/1440
+were inspected. A completed independent Muse xhigh lens finds no HIGH/CRITICAL
+defects; its one LOW picker-to-validation coverage gap is tracked under #541.
+Final clean-head source/budget proof and completed hosted CI remain required.
+Earlier sibling passes are historical. Native-host picker timing, physical Android/TalkBack and human
+acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
+
+Current qualification: #432 consolidates the optional Lattice content and
+reviewed #544/#545 persistence tests with all original commits preserved.
+#539 and #543 are merged; combined full verify at 981df97 passes (966
+passed, three intentional skips). Clean 47cd4d0 passes the final 19 Android,
+source/import checks, 24 native imports/four aligned views and all 48 hosted
+Lattice puzzle cases. The full hosted gate remains required.
+Superseded test PRs remain open until the combined head lands.
+
+## Full CI timeout headroom (#531): 2 October 2026
+
+The full gate at 47cd4d0 was cancelled twice at its 25-minute job limit.
+Both logs have passing Node/browser output and no assertion failure: attempt
+one reaches browser_experience.py after 6m21s FFmpeg setup; attempt two reaches
+browser_challenge_library.py after 7m07s Playwright setup. The previous green
+#543 full run takes 23m26s, including 13m55s for the composite real-origin step
+and only 17s Playwright setup. A bounded independent Sol lens confirms the
+timeout cause. Increase only the job deadline to 45 minutes, retaining every
+command, scope condition and artifact. Whether that deadline suffices, and the
+remaining expedition/update/room checks, require a completed hosted run.
+
+## Lattice optional collection closeout (#432): 2 October 2026
+
+The existing Lattice candidate is refreshed onto current main, preserving all
+24 playable pack definitions and editorial receipts byte-for-byte. It remains
+an optional Workshop JSON import: twelve Lanterns and twelve Futoshiki, all
+revision 1 with provisional Expert labels. The official registry and all 510
+previous definitions/legacy data are unchanged. No new runtime loader, startup
+content, dependency or numeric budget change is introduced by this pack.
+A bounded Muse contributor xhigh file-only review completed with no findings;
+its machine reconstruction/uniqueness/import/browser checks were explicitly
+not_run. A narrow Sol review completes the previously uninspected certificate
+seam, with no blockers. Coordinator full verify passes (928 passed, three
+intentional skips), including all-board regeneration, native/independent
+uniqueness, reducer replay, answer-free openings and production import. All 48
+phone/desktop puzzle cases pass (194 browser checks), with undo/redo, guarded
+restart, saved completion and offline reopen. Representative captures for both
+families and aligned phone/desktop views were inspected. The local build pins
+clean source 03c0afa; the browser receipt pins pack SHA256 rather than local
+HEAD. The current gate first exposed one old helper-formatting issue; only that
+helper was formatted, with no data changes. Final source proof and hosted CI
+remain separate. No human calibration, physical Android/TalkBack or deployment
+is claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+## Activity guard regression integration (#512/#513): 2 October 2026
+
+The two independently reviewed test-only candidates are integrated together on
+current main, preserving their original commits. Six checks cover refusal of
+unsafe update flushes and the clean positive path; two cover overlapping or
+disconnected mounts. With the four existing activity checks, all twelve pass.
+The reviewed activities.js blob remains cce877a6897f45c263091dff442484ee8b82181c;
+no runtime code changes. One integration PR carries both tests so separate
+base refreshes do not keep invalidating each other. Full local verify passes
+(928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
+lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+## Backup error/picker follow-up (#542): 2 October 2026
+
+Ownership reconciliation selects #543 as the canonical #536 core fix. Draft #542
+is narrowed and stacked on #543 at 0627d57: stale file/worker failures are
+suppressed, and Cabinet picker ownership starts before pick/read, carries into
+validation, and still releases late tokens. The #543 baseline Cabinet failure
+closes a newer lesson dialog through the delegated file error handler; combined
+failure leaves an obsolete error toast. Actual compiled Worker/native file
+controls reproduce both and pass after the guard. Thirteen native checks cover
+both obsolete failures, newer-modal survival, unchanged save counts, and ordinary
+390px/1440px review; no destructive restore is clicked. Unit expectation changes
+cover stale rejection disposal while current errors still propagate. The focused
+24 route/picker cases go from ten baseline failures to all passing; twelve
+canonical Workshop races also pass. The old duplicate route-race fixture is removed.
+Normal merges retain all earlier pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. This slice measures
+134,891 JS gzip / 1,411,498 code/shell; together with #540 the actual composed
+source measures 134,903 / 1,411,547. Shared ceilings 134,912 / about 1,411,560
+leave nine/thirteen bytes; startup, CSS and total-offline ceilings do not change.
+Required current-head full verify/UI/origin and hosted CI remain pending;
+previous core/earlier-branch full counts do not qualify this composition. P3 #541
+async native cleanup remains separately deferred; VM picker tests do not claim
+native-host timing acceptance. No merge, deployment or physical acceptance is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Backup validation route ownership (#536): 2 October 2026
 
@@ -67,6 +171,44 @@ blockers; exact-head CI remains pending. Same-route concurrency and platform
 picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
 deployment or physical-device acceptance is claimed.
 
+## Restore fixture transaction activity (#476): 2 October 2026
+
+The bounded Club restore-ordering fixture now rejects requests outside its
+creation/request callback activity window and after completion/abort. Immediate
+callback microtasks remain valid; repeated/post-completion aborts throw
+InvalidStateError. The 30 ms completion delay no longer grants permission to
+later timers. This improves the fixture, not product storage. Six new tests
+produce five baseline failures; all eleven fixture tests pass after correction.
+Four semantic mutants are killed. A disposable real-origin Chromium probe
+confirms timer/finished exceptions and callback microtask acceptance. Full local
+verify at 59f2875 passes (938 passed, three intentional skips), and a fresh
+bounded Muse xhigh review has no findings; it ran no commands. The fixture's
+zero-delay activity checkpoint is an approximation; native durability remains
+separate. Issue #476 stays open for transaction serialization, pending abort
+error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+## Workshop input/save-feedback follow-up (#540): 2 October 2026
+
+Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
+is narrowed to its unique behavior and stacked on #539 at 88b6928: native
+Scene generator input advances the existing draft epoch, and a draft save reports
+failure only while its captured epoch and route still own the callback. Seven
+focused units go from six baseline failures to seven passes; the twelve canonical
+worker races still pass. Actual Worker delivery through native controls proves the
+old generation title is not published after newer input, and current generation
+still works at 390px/1440px (nine checks). Baseline #539 publishes the old title.
+No core lifecycle refactor or duplicate core-race fixture remains in this diff.
+Normal merges retain the previous pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. Measured JS/shell:
+134,840 / 1,411,341; ceilings +32/+32 leave eight/eleven bytes. The #542
+combined-source measurement is 134,903 / 1,411,547 and uses #542's shared
+ceilings when both follow-ups are integrated. Required current-head full
+verify/UI/origin and hosted CI are still pending a coordinated qualification
+slot; earlier full counts do not qualify this narrowed composition. P3 #538
+remains deferred. No merge, deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Workshop worker completion ownership (#535): 2 October 2026
 
 Workshop edits and route entries now invalidate pending generation/verification.
@@ -82,7 +224,7 @@ code/shell 1,411,292 (+152); removing the duplicate generation render trims six
 emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
 160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
 passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
-Independent Sol review has no blockers; exact-head hosted CI remains pending. No deployment or physical acceptance is claimed;
+Independent Sol review has no blockers; exact-head hosted CI passed and #539 merged at be849af. No deployment or physical acceptance is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Lesson completion route ordering (#530): 2 October 2026
@@ -150,6 +292,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -164,7 +307,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 

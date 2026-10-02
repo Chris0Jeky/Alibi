@@ -7,6 +7,9 @@ work and the consolidated Workshop/backup callback fixes from PR #540. Canonical
 #539/#543 keep their original issue ownership; the unique #542 history and
 regressions are preserved in the consolidated change. Residual #538 captures
 saved draft identity, and #541 checks error ownership after token cleanup.
+The landed #432 contributes 24 optional Lattice Workshop studies; their Expert
+labels remain provisional, with human calibration still open. Bridges' test
+granularity follow-up and the peer editing integration retain their own reviews.
 No save schema, published puzzle ID/revision, registered origin or service is
 changed. Pending peer content/artwork/native/research candidates are not implied
 to be included by this receipt; the final source commit will record actual scope.

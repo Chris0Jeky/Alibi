@@ -30,6 +30,45 @@ Lesson #530 final local proof: full verify 920 pass/three intentional skips, UI 
 
 #532 merged at 21091a0 after completed exact-head CI; primary fast-forwarded cleanly. #533 and #534 are published ready as the import/update/lesson stack. The landed tablet base is integrated with review credit preserved and changed-seam reproof. Wave 6 native confirmation found Workshop verification overwrites saved edits (#535) and both backup dialogs reopen over Home (#536); a bounded Workshop worker is running. History hunt found no valid-action issue in Borough/keeper scope; chess/draughts were outside the files.
 
+New content lane: #432 is integrated in a detached-origin/main-created owned
+worktree with branch codex/lattice-ready-20261002, then refreshed after #534
+landed at a3228b7. Both optional pack/editorial blobs match 69ea59a byte-for-byte;
+no previous content/legacy/registry bytes change. Muse provider recovered: the
+bounded contributor xhigh review completed, integrity ok, no findings, commands
+not_run. Coordinator now executes the full gate and all 48 imported-board cases.
+Concurrent cloud editing lane #540/#542 overlaps local #539/#543. Both local
+candidates remain ready with proof; compare before merging either version and
+preserve all published work. Cross-chat coordination requires direct user
+messaging authorization; independent content work continues.
+
+Lattice local continuation is green at 03c0afa: full verify 928/three intentional
+skips, all 48 puzzle/viewport cases: 194 checks, pack SHA unchanged, representative
+and aligned phone/desktop captures inspected. Build-info pins clean source 03c0afa;
+the browser receipt itself pins pack SHA with local head unrecorded. The current
+formatter exposed a single old evidence-helper mismatch, fixed mechanically.
+Muse has no findings; a narrow Sol pass completes its uninspected certificate
+seam with no blockers. Final documentation gets a clean Android/source reproof.
+
+Activity test closeout now integrates both #512/#513 on current main, preserving
+all original commits and independent review credit. Runtime activity blob is
+unchanged; twelve focused checks pass. One ready integration PR will receive
+fresh exact-head CI, then close the superseded originals after landing. This
+avoids mutually invalidating independent test-only base refreshes.
+Workshop #539 and backup #543 are locally qualified, ready, and CI-pending;
+concurrent cloud drafts #540/#542 cover the same defects with extra adjacent
+scope. Human explicitly authorized one message to Fix Alibi editing races;
+it was sent. Keep overlapping merges pending during reconciliation. Lattice
+#432 separately passes full verify 928/three skips and all 48 actual imported
+puzzle/viewport cases (194 checks); phone/desktop captures were inspected.
+Five owned raw worker checkouts were removed without force after preserving
+patches/files in primary test-results/goal-20261002/worker-proposals/ and named
+local snapshot branches. Published integrated branches and unrelated worktrees
+remain intact.
+
+Combined activity test full gate passes (928 passed, three intentional skips);
+source remains unchanged. Final evidence commit gets Android/seam reproof before
+a ready integration PR, preserving both earlier independent reviews.
+
 Current checkpoint: #527 merged at 44f0bd0 and #533 at f18c26e; primary is clean
 at f18c26e. Lesson #534 was retargeted to main and refreshed at c35a6f0 with an
 identical tree, preserving its review while exact-head CI runs. #512/#513 were
@@ -52,6 +91,21 @@ Workshop final proof: full verify 932 pass/three intentional skips, UI 184, all
 15 mobile QA tests and independent Sol review pass. Source guards are unchanged
 after review; this evidence commit gets a clean Android/catalogue/budget reproof.
 
+Lattice base refresh joins landed Workshop main be849af; only documentation
+receipts conflict, both preserved. Pack/editorial bytes and all official
+content remain unchanged. Reprove Android/readiness/budget and actual Workshop
+imports on the combined head. Coordination resolved #540/#542 into adjacent
+follow-ups; #543 retains #536. No review loop or content regeneration.
+
+#539 merged at be849af after green exact-head CI and aging. Coordination is
+resolved: the other chat retains #540/#542 as focused follow-ups; our #543
+retains #536 and is retargeted to main. Its base-only 978ea35 refresh has an
+identical tree and clean Android/41 focused passes. The activity integration
+joins landed main with only receipt conflicts, retaining both reviewed test
+files and all histories. #489 closed after current-contract reconciliation,
+14 Node checks and 30 actual Tic-Tac-Toe browser assertions; #488 was already
+merged. Codex quota notices on #539/#543 are informational, not findings.
+
 Workshop published ready as #539 at 68eff8b with review posted; final clean
 Android/catalogue/budget/race checks pass (31). Backup integrated next on its
 own branch: baseline unit 8 pass/4 fail -> 12 pass, native Worker dialogs
@@ -70,3 +124,57 @@ Backup final local proof: full verify944 pass/three intentional skips, UI184,
 mobile16, real-origin270, independent Sol review no blockers. Its parent-only
 refresh preserves the reviewed diff. Lattice #432 is being prepared separately
 on current main with its24 optional studies untouched and a bounded Muse lens.
+
+Wave 10: two bounded Muse file-only lenses completed with integrity ok. The
+restore-fixture xhigh review finds no defects; machine proof stays with root
+(11 fixture checks, five baseline failures, four killed mutants, native
+Chromium task/microtask probe, full verify 938/three skips). Diagnostics lens
+traces the challenge open/refusal contract but does not propose the requested
+helper; #537 remains open and its original trigger unknown. #476 is partial:
+serialization, abort-request events and stale-pin behavioural proof remain.
+
+#543 merged e4343c5 after completed exact-head CI and aging. The remaining
+reviewed Lattice/activity/fixture commits are consolidated in #432 to avoid
+mutually invalidating base refreshes; every history and review is preserved.
+No reviewed source/test logic is changed by integration; conflicts are receipts
+only. #512/#513/#544/#545 stay open until the combined head lands. Run one
+combined full gate and actual import/control seam, then exact-head hosted CI.
+
+Combined qualification full verify passes at 981df97: 966 passed, three
+intentional skips, Quiet Wing engine/contracts also green. Reviewed pack,
+activity runtime/tests and restore-fixture bytes match their respective heads.
+This receipt-only commit gets clean Android/catalogue/budget/readiness and
+actual imported phone/desktop views before publication. Existing real reviews
+remain applicable; hosted exact-head proof and aging are still required.
+
+## Editing follow-up integration — 2 October 2026, 22:02 UTC
+
+- Preserved both qualified sibling histories on #432 via merge commits. Automatic app merge retains canonical #539/#543 guards and adds only #540's generator-input/save-feedback and #542's stale-error/picker ownership. Sol's read-only map identifies the exact unique seams; this map is not a fresh review.
+- Resolved only catalogue, state, budgets and CI wiring. Both new actual-worker scripts and artifact paths remain. Generated catalogue hashes match the composed app. Current main's +32 allowance already covers #540's standalone accounting; #542's existing shared proposal is +64 gzip/+208 shell beyond main, not an added per-branch sum.
+- All 44 focused ownership/budget cases pass. Preliminary web: 510 official puzzles, 80 deferred; JS 134,907 gzip, shell 1,411,547. Existing shared ceilings 134,912/1,411,560.32 pass. Original source/content/startup/CSS/total ceilings stay unchanged. Full/actual-browser qualification is next; no merge or physical/native-host acceptance is claimed.
+- #546 publishes the separate Bridges conversion at ffffb338; source scope stays one test file plus receipts. Full 1,014/three skips, final Android/Bridges 63 and completed Muse no HIGH/CRITICAL are posted, with the MEDIUM counter concern tracked under #519. Node 22 CI remains required.
+  #432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+  24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+  gate cancels twice at 25 minutes during passing browser output. A bounded
+  Sol medium lens finds no assertion defect and confirms variable apt setup
+  consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+  Retain every command and scope condition; increase only the full job deadline
+  to 45 minutes, then require actual completed hosted proof. No cancellation is
+  waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+Wave 12 completed: independent Muse contributor xhigh review of the composed
+editing diff at 0992949 has no HIGH/CRITICAL defect. Its LOW picker-to-validation
+serial coverage gap is tracked once on #541; no fix cascade. Root execution:
+full verify 981/three skips, focused 44, native Worker Workshop nine/backup
+thirteen, UI 184, mobile 16 and real-origin 270 all pass. Phone/desktop captures
+for both flows were inspected. The reviewed timeout-only change is integrated
+with both browser scripts/artifacts retained; production and test blobs match
+the reviewed 0992949 head. Final clean-head source/budget proof remains due.
+
+#427 is parked ready at 271bff9: corrected shell accounting and compact worker
+ID projection fit shell/JS, but startup remains 969 bytes over its unchanged
+205,248 gzip ceiling. The final hosted failures also expose strict Markdown
+table whitespace parsing in docs-counts; track it separately. All 60 original
+boards remain unchanged. Needed ignored proof from removed Interlock/restore
+roots lives under primary test-results/goal-20261002/interlock-427/ and
+restore-545/. Both roots were removed without force after publication checks.
