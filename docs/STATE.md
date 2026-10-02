@@ -19,7 +19,8 @@ are source-helper/adapter proofs, not native IndexedDB or physical-device claims
 
 Catalogue/budget and branch-main receipt conflicts are reconciled for this final
 integration. Earlier full suites/composed snapshots do not qualify the changed
-source. Final independent review, clean payload/measurement, full verify, actual
+source. Independent reviews of the residual fixes, release pin and bounded test
+runner found no blockers. Final clean payload/measurement, full verify, actual
 UI/origin browser checks, exact-head hosted CI and aging are pending. The
 preliminary composed web build measures 134,924 JavaScript gzip and 1,411,564
 code-shell bytes after an 11-gzip/16-emitted-byte cleanup trim. Required residual
@@ -30,6 +31,15 @@ stays open until this consolidated head lands, then closes as superseded.
 Other coordinator-owned PRs and artwork/native/research lanes retain ownership.
 Deployment follows docs/DEPLOYMENT.md and its Pulseboard release dependency;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+The 0.15.1 release candidate pins authoritative Pulseboard SDK 3.3.1 from source
+3617e228d9b29852208edbdac68ffa1d2bf05814. Its full hash, registration and collector
+readiness are recorded in observatory/README.md and docs/RELEASE-0.15.1.md.
+Local pin/build assertions and 26 focused host/release cases pass; the online
+SDK remains outside the initial bundle and offline shell. npm test now caps
+Node test-file concurrency at two for the coordinated PC qualification slot.
+Helper subprocesses remain outside that cap. Final #540 qualification follows
+the owner-ordered landing of #432/#546 and is not claimed by these focused checks.
 
 ## Backup validation route ownership (#536): 2 October 2026
 
