@@ -1,6 +1,26 @@
 # Interlock delivery and review handoff
 
-Issue #422; draft prerequisite #425; draft content and controls #427. This is not a release.
+Issue #422; prerequisite #425 is landed; content and controls #427 remain blocked. This is not a release.
+
+## Current qualification: 2 October 2026
+
+The candidate preserves all original data/editorial JSON bytes and commits on the reviewed
+#432 Lattice/persistence base. Local npm installation now succeeds. A confirmed accounting
+defect counted 47,931 deferred bytes twice: the producer's `officialContentBytes` already combines
+initial, deferred and curation bytes. Six regression cases now enforce that emitted contract.
+The worker ID prelude uses a compact string array, mapped back to the same ordered `{id}` records;
+three compiled-worker cases retain all 570 IDs and reject old, initial and deferred collisions.
+Both deliberate mutants fail; all 15 accounting/worker cases pass. Independent Sol review found
+no confirmed blockers in that fix. Source, codec and emitted-content cases give 38 passes;
+registry-selection cases give nine passes.
+
+At clean source 3178b35, shell bytes are 1,410,153 and JavaScript is 134,832 gzip bytes, within
+their existing ceilings. Initial code/content is 206,217 gzip bytes against a strict 205,248 cap:
+969 bytes over. Threshold and dictionary-order probes did not recover the required bytes and
+were not adopted. No allowance is added. Further delivery work is tracked under #422; this head
+must not merge until its budget and full verification pass. Final-head Android and all 120 real
+phone/desktop puzzle cases are not claimed. Historical source evidence below remains scoped
+to its original head. Physical Android, TalkBack and human difficulty gates remain open.
 
 ## Delivered source
 

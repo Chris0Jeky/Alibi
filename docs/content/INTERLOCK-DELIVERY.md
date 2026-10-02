@@ -2,6 +2,12 @@
 
 Refs #422 and #161. Target: 60 new spatial-reasoning studies, without raising delivery budgets.
 
+Current candidate #427 (2 October 2026) builds locally after dependency installation and retains
+the exact JSON roundtrip contract. Corrected accounting fits shell and JavaScript ceilings,
+but initial code/content remains 969 gzip bytes over its unchanged cap at clean source 3178b35.
+The content candidate is blocked; see [current evidence](INTERLOCK-STUDIES.md). The installation
+failure below records the historical prerequisite intake, not the current environment.
+
 The existing official-content encoder packs integer arrays and homogeneous record columns.
 This change preserves those encodings and adds a deterministic dictionary for repeated strings
 of at least 32 characters. The dictionary holds immutable strings only, never shared objects.

@@ -146,3 +146,11 @@ activity runtime/tests and restore-fixture bytes match their respective heads.
 This receipt-only commit gets clean Android/catalogue/budget/readiness and
 actual imported phone/desktop views before publication. Existing real reviews
 remain applicable; hosted exact-head proof and aging are still required.
+
+## Interlock delivery checkpoint — 2 October 2026, 21:35 UTC
+
+- Preserved original #427 commits and all 60 data/editorial definitions on the reviewed #432 base. Corrected the producer/consumer accounting contract; the old helper hid 47,931 deferred bytes through double subtraction.
+- Six accounting and nine compiled-worker cases pass. Two deliberately broken variants fail. Compact ID strings mapped back to ordered `{id}` records save 2,831 emitted bytes while retaining collision refusal for every official ID. Independent Sol read-only review found no blockers.
+- Clean 3178b35 build: 570 puzzles, 32 packs, 454 initial/116 deferred. Shell 1,410,153 and JavaScript 134,832 gzip bytes fit unchanged ceilings. Initial code/content 206,217 exceeds strict 205,248 by 969; this remains a merge blocker. Source/codec/emitted-content seam: 38 pass, one budget failure. Registry selection: nine pass.
+- Bounded threshold/order probes did not recover enough startup bytes and were not adopted. Preserve/publish the blocked candidate and track further delivery work under #422. No full verify, final Android, final-head 120-case browser, release, deployment or human acceptance is claimed.
+- Begin a separate bounded #519 test-diagnostics slice in its own detached-from-main, guarded and branched checkout. Luna owns only bridges/night-routes/night-symbols test conversion; root retains integration, full proving gate, review and shipping.
