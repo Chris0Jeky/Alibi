@@ -52,6 +52,63 @@ class MobileQA(unittest.TestCase):
         page.locator('#dialog[open] [data-action="lesson-finish"]').click()
         expect(page.locator('#dialog')).not_to_be_visible()
 
+    def test_borough_build_reachable_after_selection(self):
+        for width, height in [(390, 844), (320, 568), (390, 650), (1440, 900)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'salon/borough')
+                if not os.environ.get('ALIBI_QA_HTML'):
+                    page.wait_for_function(
+                        '() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
+                        timeout=30000,
+                    )
+                errors = []
+                page.on('pageerror', lambda error: errors.append(str(error)))
+                cell = page.locator('.borough-cell:not(.built)').first
+                cell_id = cell.get_attribute('id')
+                cell.click()
+                build = page.locator('[data-action="club-build"]')
+                expect(build).to_be_enabled()
+                def geometry():
+                    return build.evaluate('''el => {
+                        const r=el.getBoundingClientRect(), nav=document.querySelector('.mobile-nav');
+                        const edge=nav && getComputedStyle(nav).display!=='none' ? nav.getBoundingClientRect().top : innerHeight;
+                        const x=r.x+r.width/2, y=r.y+r.height/2;
+                        return {x,y,top:r.top,bottom:r.bottom,edge,hit:el.contains(document.elementFromPoint(x,y)),overflow:document.documentElement.scrollWidth>innerWidth+1};
+                    }''')
+                initial = geometry()
+                page.screenshot(path=str(OUT / f'borough-selected-{width}-{height}.png'))
+                if width <= 600:
+                    self.assertGreaterEqual(initial['top'], 0, initial)
+                    self.assertLessEqual(initial['bottom'], initial['edge'], initial)
+                    self.assertTrue(initial['hit'], initial)
+                    expect(build).to_be_focused()
+                    # Changing the chosen offer must reveal confirmation again.
+                    page.locator('[data-action="club-plan"]').nth(1).click()
+                    expect(build).to_be_focused()
+                    revised = geometry()
+                    self.assertLessEqual(revised['bottom'], revised['edge'], revised)
+                    self.assertTrue(revised['hit'], revised)
+                    before = page.evaluate('AlibiClub.diagnostics().state.runs.borough.log.length')
+                    page.touchscreen.tap(revised['x'], revised['y'])
+                else:
+                    before = page.evaluate('AlibiClub.diagnostics().state.runs.borough.log.length')
+                    build.click()
+                expect(page.locator('#' + cell_id)).to_be_focused()
+                self.assertEqual(page.evaluate('AlibiClub.diagnostics().state.runs.borough.log.length'), before+1)
+                self.assertFalse(page.evaluate('document.documentElement.scrollWidth>innerWidth+1'))
+                if width <= 600:
+                    built = page.locator('#' + cell_id).bounding_box()
+                    edge = page.locator('.mobile-nav').bounding_box()['y']
+                    self.assertGreaterEqual(built['y'], 0, built)
+                    self.assertLessEqual(built['y']+built['height'], edge, built)
+                    page.locator('.borough-cell:not(.built)').first.focus()
+                    page.keyboard.press('Enter')
+                    expect(page.locator('[data-action="club-build"]')).to_be_focused()
+                    page.keyboard.press('Enter')
+                    self.assertEqual(page.evaluate('AlibiClub.diagnostics().state.runs.borough.log.length'), before+2)
+                self.assertFalse(errors, errors)
+                page.screenshot(path=str(OUT / f'borough-built-{width}-{height}.png'))
+
     def test_block_cabinet_landscape_board_tray_and_exit(self):
         metrics = []
         for width, height in [(667, 375), (844, 390)]:

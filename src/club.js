@@ -1091,6 +1091,11 @@
       ? action({ dataset: { action: 'club-reset-confirm' } })
       : confirmation(title, text, 'reset-confirm');
   }
+  function revealBoroughControl(id) {
+    const el = document.getElementById(id);
+    el?.focus({ preventScroll: true });
+    el?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+  }
   async function action(el) {
     const a = el.dataset.action.slice(5),
       v = el.dataset.value,
@@ -1453,6 +1458,7 @@
         if (!currentGame('borough')?.offers[slot]) return;
         selectedPlan = slot;
         render();
+        if (selectedPlot !== null) revealBoroughControl('club-control-build-main');
       } else if (a === 'plot') {
         const i = Number(el.dataset.cell),
           s = currentGame('borough');
@@ -1464,6 +1470,7 @@
         else {
           selectedPlot = i;
           render();
+          revealBoroughControl('club-control-build-main');
         }
       } else if (a === 'build') {
         if (selectedPlot === null) return;
@@ -1472,7 +1479,7 @@
         const move = { slot: selectedPlan, cell: selectedPlot };
         selectedPlot = null;
         await commitGame('borough', move);
-        document.getElementById('borough-' + move.cell)?.focus({ preventScroll: true });
+        revealBoroughControl('borough-' + move.cell);
       } else if (a === 'daily') {
         const seed = 'DAY-' + day();
         if (state.runs.borough?.seed === seed) {
