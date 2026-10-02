@@ -34,14 +34,30 @@ combined real-browser pause/reload regression plus two-release suite passes
 
 Borough #528 merged at 9f7e09d after its three-phone/desktop regression, full local
 gate, independent review and exact-head CI passed. The confirmed 700px overlay
-is fixed separately in PR #532: six viewport checks, full verify and UI QA pass;
-its independent review has no blockers and exact-head CI is pending. Lesson
+is fixed in PR #532, merged at 21091a0: six viewport checks, full verify, UI QA,
+independent review and exact-head CI pass. Lesson
 completion issue #530 is reproduced with a real IndexedDB completion delay.
 The cancelled import CI run is tracked in #531; #527 has a new locally verified
 base refresh and fresh CI is running. A disposal data-loss claim was declined
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+## Borough tablet navigation: 2 October 2026
+
+Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
+breakpoint used by the fixed navigation. Before the change, the new regression
+fails at 700x800 and 700x568: Build ends at the viewport bottom, behind a nav
+starting 65px higher, and centre hit tests fail. After the change, six phone,
+tablet and desktop sizes pass actual touch/click confirmation and focus return;
+the five navigation-covered sizes also pass plan changes and keyboard continuation.
+The download budgets pass without an increase. Full local verify and the UI
+suite (184 checks) pass; tablet screenshots were inspected. Independent Muse
+review finds no correctness, security or data-loss defect. Its non-blocking
+coverage wording observation is clarified in this required QA receipt. This follows
+#528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
+still holds physical-phone acceptance; no deployment is claimed.
+
+
 ## Borough confirmation reachability (#497): 2 October 2026
 
 Selecting a plot or changing its chosen plan now focuses and reveals Build;

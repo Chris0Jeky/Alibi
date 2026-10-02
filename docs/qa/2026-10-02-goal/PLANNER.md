@@ -9,8 +9,10 @@
 | 5 | #512/#513 activity regressions | Independent Sol review has no blockers; 12 changed-seam checks pass and source blob matches refreshed heads. Refresh after #528 and await exact-head CI. |
 | 6 | #522 dependency maintenance | Merged at 8072981. Install, full verify, Cloudflare dry-run, independent Sol review and exact-head CI pass. No live deployment or claim that every advisory is resolved. |
 | 7 | #530 stale lesson completion | Real committed IndexedDB preferences reproduce navigation from Home back to Sudoku. Bounded Muse guard and four unit cases have RED/GREEN proof; integrate actual browser regression, measure, review and publish. |
-| 8 | #529 Borough tablet / PR #532 | 700x800 and 700x568 baseline hit tests fail. Nav-aligned margin passes six viewport checks, full verify, UI 184 and final Android/budget 17 without ceiling increase. Independent Muse review has no blockers; CI pending. |
+| 8 | #529 Borough tablet / PR #532 | 700x800 and 700x568 baseline hit tests fail. Nav-aligned margin passes six viewport checks, full verify, UI 184 and final Android/budget 17 without ceiling increase. Merged at 21091a0 after independent Muse review, exact-head CI and aging. |
 | 9 | Lifecycle disposal claim | Declined claimed Wing/Castle loss: retained state survives failed disposal and later update flush still rejects. Challenge-only path untraced, not counted as a defect. |
 | 10 | #531 CI installation cancellation | Tracked observed dependency-install delays and cancellation near the 25-minute job limit. No workflow detour; fresh runs must complete before merge. |
 
 Per-slice limit: one implementation, one real review, one confirmed-blocker repair and scoped verification. Three distinct red-check attempts, then preserve and park with evidence. Continue high-impact delivery before speculative infrastructure or puzzle volume. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md).
+
+Wave 6: no valid-action issue found in Borough/keeper history; chess/draughts were outside the files and are not claimed verified. A stale Workshop result overwrites edits and a stale backup dialog may cross routes; actual browser confirmation is in progress. #517/#518 are closed after five byte-cap tests and direct 510-unique-ID/30-pack counting.
