@@ -2425,9 +2425,11 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    await store
-      .put('meta', 'workshop-draft', { puzzle: draft })
-      .catch((e) => toast(e.message, true));
+    const epoch = draftEpoch,
+      serial = routeSerial;
+    await store.put('meta', 'workshop-draft', { puzzle: draft }).catch((e) => {
+      if (epoch === draftEpoch && serial === routeSerial) toast(e.message, true);
+    });
   }
   function dirtyDraft() {
     draftEpoch++;
@@ -3235,6 +3237,7 @@
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
+      draftEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;

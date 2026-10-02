@@ -138,6 +138,9 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // #536: two backup route captures/stale checks measure 134,813 -> 134,833 (+20).
 // Both independent inputs need ownership; a shared helper adds overhead.
 // Ceiling +32 covers the 17-byte excess and leaves 15 bytes; no feature room.
+// #540 unique follow-up to #539: generator input + owned save feedback measure
+// 134,840 gzip / 1,411,341 shell (+27/+49 over #539). Reuse the existing epoch;
+// no new worker lifecycle/helper. Ceiling +32 gzip leaves eight bytes; no feature room.
 assert.ok(
   info.javascriptGzipBytes < 127 * 1024 + 4800,
   'Application bundle stays under 127 KiB + 4,800 bytes gzip',
@@ -199,6 +202,7 @@ assert.ok(
   // #536 measures 1,411,339 (+47). Each input needs its route capture/stale check;
   // Cabinet additionally holds validated data locally before publishing it.
   // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
+  // #540 adds 49 shell bytes over #539. Ceiling +32 leaves eleven bytes.
   coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
   'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
 );

@@ -78,6 +78,26 @@ zero-delay activity checkpoint is an approximation; native durability remains
 separate. Issue #476 stays open for transaction serialization, pending abort
 error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+## Workshop input/save-feedback follow-up (#540): 2 October 2026
+
+Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
+is narrowed to its unique behavior and stacked on #539 at 88b6928: native
+Scene generator input advances the existing draft epoch, and a draft save reports
+failure only while its captured epoch and route still own the callback. Seven
+focused units go from six baseline failures to seven passes; the twelve canonical
+worker races still pass. Actual Worker delivery through native controls proves the
+old generation title is not published after newer input, and current generation
+still works at 390px/1440px (nine checks). Baseline #539 publishes the old title.
+No core lifecycle refactor or duplicate core-race fixture remains in this diff.
+Normal merges retain the previous pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. Measured JS/shell:
+134,840 / 1,411,341; ceilings +32/+32 leave eight/eleven bytes. The #542
+combined-source measurement is 134,903 / 1,411,547 and uses #542's shared
+ceilings when both follow-ups are integrated. Required current-head full
+verify/UI/origin and hosted CI are still pending a coordinated qualification
+slot; earlier full counts do not qualify this narrowed composition. P3 #538
+remains deferred. No merge, deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Workshop worker completion ownership (#535): 2 October 2026
 
