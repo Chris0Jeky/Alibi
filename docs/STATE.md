@@ -10,8 +10,11 @@ holds only its completion notification, navigates Home, then releases it. The
 baseline incorrectly opens Sudoku; the guard preserves Home. A fresh-profile
 positive control also passes. Four executed unit cases have RED/GREEN proof.
 The measured bundle remains within existing ceilings (134,747 bytes gzip);
-source asset metadata is refreshed. Full local gate and independent review are
-pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+source asset metadata is refreshed. Full local verify passes (920 passed,
+three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
+Muse review has no merge blockers. Its LOW scheduling claim is declined:
+Playwright evaluate awaits the returned release Promise, and the actual
+baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026
