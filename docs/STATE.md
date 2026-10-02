@@ -20,11 +20,18 @@ defect, with 115 focused cases passing. Coordinator integration seam passes 85.
 Clean e3caa14 measures 134,944 JS gzip, 1,411,604 shell and 204,001 startup gzip
 bytes. Feedback guards add a measured 26 gzip/34 emitted bytes; ceilings add
 only 32/32 on top of the completion allowance, with other caps unchanged.
-Combined full verify, real-browser qualification and exact-head hosted CI remain
-required before merge. Original ready PRs stay open until their commits land.
+Combined full verify at clean e091a7f passes 1,044 tests with three intentional
+skips. UI 184, mobile 16, real-origin 270, actual Worker Workshop nine/backup
+thirteen and all eight completion-control cases pass. The latter prove real
+IndexedDB completion timestamps/state and reload at 390/1440; both view captures
+were inspected. Final clean-head reproof and exact-head hosted CI remain required
+before merge. Original ready PRs stay open until their commits land.
 
 Earlier sections below retain per-slice historical receipts. Interlock #427
-stays parked for its separate startup excess; physical Android/TalkBack and
+stays parked for its separate startup excess. A bounded exact-helper probe
+reproduces its 11,825-byte deferred gzip chunk; deferring the 24 Gardens gives
+13,683 bytes and exceeds the unchanged 12,288 ceiling. No source or registry
+change was made for that rejected alternative. Physical Android/TalkBack and
 owner acceptance remain open in HUMAN_TODO.md. No deployment is claimed.
 
 ## Completion hook containment (#421): 3 October 2026

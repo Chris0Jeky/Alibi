@@ -19,8 +19,18 @@ feedback allowances add only 32 gzip/32 shell for measured +26/+34. Combined
 full gate and browser proof precede the final push and hosted gate. Earlier
 per-slice reviews remain preserved; no manual Codex request is added.
 
-Read-only feasibility mapping examines existing deferral for Interlock's
-24 new initial definitions, without modifying definitions, budgets or source.
+Clean e091a7f full gate passes 1,044/three intentional skips; UI184/mobile16/
+origin270, native Worker Workshop9/backup13 and completion8 all pass. Completion
+captures at390/1440 were inspected; actual IDB timestamps/state survive reload.
+Source and independent review remain frozen; final clean proof/push/hosted gate
+are next.
+
+Interlock deferral is a supported runtime choice but not a viable single-flag
+budget repair. A bounded probe uses byte-identical production helpers, reproduces
+the archived original deferred chunk11,825 gzip bytes and measures13,683 with
+the24 Gardens added, above the unchanged12,288 ceiling. No source, definitions,
+registry or caps changed, and no full/browser qualification is claimed for that
+alternative. The candidate remains parked; receipts are posted to #427/#422.
 HUMAN_TODO.md physical and owner acceptance remains open; no deployment.
 
 ## Historical wave receipts
