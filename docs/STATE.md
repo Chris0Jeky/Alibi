@@ -1,5 +1,23 @@
 # Live development state
 
+## Editing follow-up composition (#540/#542): 2 October 2026
+
+Both qualified sibling histories are preserved on reviewed #432. Workshop form
+input advances the existing draft epoch; obsolete draft-save errors stay with
+their captured epoch/route. Backup read/validation failures and native picker
+results/feedback retain route ownership, with token release and canonical
+successful-result guards preserved. Current errors still propagate.
+
+The coordinator resolves only catalogue/state/budget/CI conflicts: both actual
+browser scripts and artifact paths remain wired; the asset catalogue is
+regenerated from the composed app. All 44 focused ownership/budget cases pass.
+Preliminary web measures 134,907 JS gzip and 1,411,547 shell bytes, under #542's
+already recorded shared 134,912 / 1,411,560.32 ceilings. No additional allowance
+is introduced; startup, content, CSS and total-offline ceilings remain intact.
+Current full/actual-browser qualification is pending. Earlier sibling passes
+are historical. Native-host picker timing, physical Android/TalkBack and human
+acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
+
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
@@ -41,6 +59,7 @@ no runtime code changes. One integration PR carries both tests so separate
 base refreshes do not keep invalidating each other. Full local verify passes
 (928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
 lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Backup error/picker follow-up (#542): 2 October 2026
 
 Ownership reconciliation selects #543 as the canonical #536 core fix. Draft #542
@@ -102,6 +121,7 @@ zero-delay activity checkpoint is an approximation; native durability remains
 separate. Issue #476 stays open for transaction serialization, pending abort
 error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Workshop input/save-feedback follow-up (#540): 2 October 2026
 
 Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
@@ -206,6 +226,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -220,7 +241,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 

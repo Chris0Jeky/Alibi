@@ -146,3 +146,10 @@ activity runtime/tests and restore-fixture bytes match their respective heads.
 This receipt-only commit gets clean Android/catalogue/budget/readiness and
 actual imported phone/desktop views before publication. Existing real reviews
 remain applicable; hosted exact-head proof and aging are still required.
+
+## Editing follow-up integration — 2 October 2026, 22:02 UTC
+
+- Preserved both qualified sibling histories on #432 via merge commits. Automatic app merge retains canonical #539/#543 guards and adds only #540's generator-input/save-feedback and #542's stale-error/picker ownership. Sol's read-only map identifies the exact unique seams; this map is not a fresh review.
+- Resolved only catalogue, state, budgets and CI wiring. Both new actual-worker scripts and artifact paths remain. Generated catalogue hashes match the composed app. Current main's +32 allowance already covers #540's standalone accounting; #542's existing shared proposal is +64 gzip/+208 shell beyond main, not an added per-branch sum.
+- All 44 focused ownership/budget cases pass. Preliminary web: 510 official puzzles, 80 deferred; JS 134,907 gzip, shell 1,411,547. Existing shared ceilings 134,912/1,411,560.32 pass. Original source/content/startup/CSS/total ceilings stay unchanged. Full/actual-browser qualification is next; no merge or physical/native-host acceptance is claimed.
+- #546 publishes the separate Bridges conversion at ffffb338; source scope stays one test file plus receipts. Full 1,014/three skips, final Android/Bridges 63 and completed Muse no HIGH/CRITICAL are posted, with the MEDIUM counter concern tracked under #519. Node 22 CI remains required.
