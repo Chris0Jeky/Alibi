@@ -30,6 +30,20 @@ The measured app gzip grows 101 bytes after trimming the first draft by 28;
 the ceiling grows 64 bytes for its 21-byte excess. Full local verify passes;
 independent review is pending. Not deployed or physically accepted; [HUMAN_TODO.md](../HUMAN_TODO.md)
 and its phone session remain open.
+## Goal continuation: 2 October 2026
+
+Work is tracked in [ORCHESTRATOR.md](qa/2026-10-02-goal/ORCHESTRATOR.md) and
+[PLANNER.md](qa/2026-10-02-goal/PLANNER.md). PR #523 was refreshed at 16f203b:
+full local verify and exact-head hosted CI pass, a fresh Muse xhigh review has no
+findings, and #523 merged at 45102bc. The #524 candidate aligns challenge imports to a 3 MiB UTF-8
+byte cap and message. Source/built-worker focused checks pass (19), and the
+real-origin challenge suite proves the file gate, actual Worker rejection of
+multibyte oversize, unchanged replay on rejection and valid at-limit restore.
+The full local gate also passes for the import fix. The independent lifecycle hunt
+confirmed an incomplete update freeze across Club, optional activities and notes;
+[issue #526](https://github.com/Chris0Jeky/Alibi/issues/526) is the next high-impact slice.
+No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
+and the phone session remain open.
 
 ## Goal-swarm wave 1 (merged): 1 October 2026
 

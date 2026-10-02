@@ -14,8 +14,8 @@ self.onmessage = (e) => {
         throw Error('Castle backup exceeds the 512 KiB import limit.');
       value = AlibiCastleValidation.validateBackup(parse(m.text));
     } else if (m.type === 'challenge-run') {
-      if (typeof m.text !== 'string' || m.text.length > 3 * 1024 * 1024)
-        throw Error('Challenge save exceeds the import limit.');
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 3 * 1024 * 1024)
+        throw Error('Challenge save exceeds the 3 MiB import limit.');
       value = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
         quiet: QWEngine,
         club: AlibiClubEngines,
