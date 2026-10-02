@@ -51,3 +51,11 @@ original unlogged refusal is explained.
 Workshop final proof: full verify 932 pass/three intentional skips, UI 184, all
 15 mobile QA tests and independent Sol review pass. Source guards are unchanged
 after review; this evidence commit gets a clean Android/catalogue/budget reproof.
+
+Wave 10: two bounded Muse file-only lenses completed with integrity ok. The
+restore-fixture xhigh review finds no defects; machine proof stays with root
+(11 fixture checks, five baseline failures, four killed mutants, native
+Chromium task/microtask probe, full verify 938/three skips). Diagnostics lens
+traces the challenge open/refusal contract but does not propose the requested
+helper; #537 remains open and its original trigger unknown. #476 is partial: 
+serialization, abort-request events and stale-pin behavioural proof remain.

@@ -1,5 +1,22 @@
 # Live development state
 
+## Restore fixture transaction activity (#476): 2 October 2026
+
+The bounded Club restore-ordering fixture now rejects requests outside its
+creation/request callback activity window and after completion/abort. Immediate
+callback microtasks remain valid; repeated/post-completion aborts throw
+InvalidStateError. The 30 ms completion delay no longer grants permission to
+later timers. This improves the fixture, not product storage. Six new tests
+produce five baseline failures; all eleven fixture tests pass after correction.
+Four semantic mutants are killed. A disposable real-origin Chromium probe
+confirms timer/finished exceptions and callback microtask acceptance. Full local
+verify at 59f2875 passes (938 passed, three intentional skips), and a fresh
+bounded Muse xhigh review has no findings; it ran no commands. The fixture's
+zero-delay activity checkpoint is an approximation; native durability remains
+separate. Issue #476 stays open for transaction serialization, pending abort
+error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
 ## Workshop worker completion ownership (#535): 2 October 2026
 
 Workshop edits and route entries now invalidate pending generation/verification.

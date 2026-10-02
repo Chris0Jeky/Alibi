@@ -14,3 +14,12 @@
 | 10 | Declined lifecycle claims | Wing/Castle retained state survives failed disposal; challenge-only path untraced. No valid-action history issue found in Borough/keeper scope; chess/draughts outside scope. |
 
 Per-slice limit: one implementation, one real review, one confirmed-blocker repair and scoped verification. Three distinct red-check attempts, then preserve and park with evidence. Continue high-impact delivery before speculative infrastructure or puzzle volume. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md); browser QA does not close it. No live deployment is claimed.
+
+Current checkpoint: #539 merged be849af. #543 retargeted to main at identical-
+tree 978ea35, clean Android/41 passes; #544 Workshop base d875129 passes 43;
+#432 Workshop base 701ec07 passes 33 plus four actual aligned import/control
+views. All await completed exact-head CI. Concurrent #540/#542 are focused
+follow-ups after authorized coordination. #489 closed with 14 Node/30 browser
+proof and #488 already merged. Next: publish reviewed #476 activity fixture
+(938/three skips) without closing its remaining gaps; qualify existing #427
+content after correcting confirmed deferred-byte double subtraction.
