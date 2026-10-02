@@ -2,7 +2,7 @@
 
 | Priority | Work | State and next action |
 | --- | --- | --- |
-| 1 | #543 backup route ownership | #539 parent landed; retargeted to main with issue #536 confirmed. Base-only refresh 978ea35 preserves the reviewed tree. Clean Android and 41 focused checks pass; await fresh exact-head CI and aging. |
+| 1 | #543 backup route ownership | #539 parent landed; retargeted to main with issue #536 confirmed. Base-only refresh 978ea35 preserves the reviewed tree. Clean Android and 41 focused checks pass; Exact-head CI passed; #543 merged e4343c5. |
 | 2 | #544 activity regression integration | Preserves both #512/#513 commit histories and independent reviews. Runtime activities.js blob unchanged; full verify previously 928/three skips. Join landed Workshop base, resolve only receipt conflicts, and reprove the combined seam before push. Close originals only after landing. |
 | 3 | #432 Lattice optional studies | Ready with 24 byte-identical definitions/editorial receipts, full verify 928/three skips, all 48 phone/desktop cases (194 checks), visual inspection and Muse plus narrow certificate review. Refresh onto final main and reprove the affected seam; exact-head CI required. |
 | 4 | Landed fixes | #523 45102bc; #522 8072981; #528 9f7e09d; #532 21091a0; #527 44f0bd0; #533 f18c26e; #534 a3228b7; #539 be849af. Local proof, independent review, exact-head CI and aging passed. Primary main clean at be849af. |
@@ -13,3 +13,7 @@
 | 9 | Muse and cleanup | Earlier provider failures do not count as completion. Sol completed bounded slices; Muse recovered for the Lattice review. Five raw owned leaves removed without force; patches/files/receipts and local named snapshots preserved in primary worker-proposals/. |
 
 One implementation, one real review, confirmed-blocker repair and scoped reproof per slice. Continue useful independent work while CI waits. No deployment is claimed. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md).
+
+Current consolidation: carry #544/#545 reviewed persistence tests into #432
+with every commit preserved, then one combined exact-head gate. Close the
+superseded PRs only after landing. #427 separately needs corrected accounting.

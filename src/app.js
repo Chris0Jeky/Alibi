@@ -2198,7 +2198,9 @@
   }
   async function stageAll(file) {
     if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
+    const startedSerial = routeSerial;
     const data = await inWorker({ type: 'combined-backup', text: await file.text() });
+    if (routeSerial !== startedSerial) return;
     stagedAll = data;
     dialog(
       'Choose a section to restore',
@@ -2266,7 +2268,10 @@
   }
   async function importBackup(file) {
     if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
-    pendingBackup = await inWorker({ type: 'cabinet-backup', text: await file.text() });
+    const startedSerial = routeSerial;
+    const data = await inWorker({ type: 'cabinet-backup', text: await file.text() });
+    if (routeSerial !== startedSerial) return;
+    pendingBackup = data;
     const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
     dialog(
       'Restore your progress.',
