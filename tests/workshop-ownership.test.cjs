@@ -22,11 +22,37 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+test('draft save failure is discarded after Generate replaces and saves the draft on the same route', async () => {
+  const f = fixture(),
+    original = f.state().draft;
+  f.holdSave();
+  const pending = f.save();
+  const generated = f.generate();
+  f.worker.resolve({ rooms: [2] });
+  await generated;
+  const replacement = f.state().draft;
+  assert.notEqual(replacement, original);
+  assert.equal(f.state().draftVerified, true);
+  assert.equal(f.state().draftBusy, false);
+  assert.equal(f.saves.length, 2);
+  assert.equal(f.saveInputs[0].puzzle, original);
+  assert.equal(f.saveInputs[1].puzzle, replacement);
+  assert.deepEqual(f.saves[0].puzzle.rooms, [0]);
+  assert.deepEqual(f.saves[1].puzzle.rooms, [2]);
+  f.saveResult.reject(Error('obsolete draft save failure'));
+  await pending;
+  assert.deepEqual(f.notices, []);
+  assert.equal(f.state().draft, replacement);
+  assert.deepEqual(Array.from(replacement.rooms), [2]);
+  assert.equal(f.state().draftVerified, true);
+});
+
 function fixture() {
   const worker = deferred(),
     save = deferred(),
     notices = [],
     saves = [],
+    saveInputs = [],
     scrolls = [];
   let holdSave = false,
     onInput;
@@ -41,6 +67,7 @@ function fixture() {
     inWorker: () => worker.promise,
     store: {
       put: async (table, key, value) => {
+        saveInputs.push(value);
         saves.push(structuredClone(value));
         if (holdSave) {
           holdSave = false;
@@ -81,6 +108,7 @@ function fixture() {
     saveResult: save,
     notices,
     saves,
+    saveInputs,
     scrolls,
     formEdit: () =>
       onInput({

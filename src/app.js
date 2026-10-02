@@ -2230,7 +2230,9 @@
     if (backupPickerBusy) return;
     backupPickerBusy = true;
     const serial = routeSerial;
-    let token = null;
+    let token = null,
+      pickerError,
+      pickerFailed = false;
     try {
       const operation = (stage) => ({
         operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
@@ -2275,7 +2277,8 @@
         serial,
       );
     } catch (e) {
-      if (serial === routeSerial) throw e;
+      pickerError = e;
+      pickerFailed = true;
     } finally {
       try {
         if (token) await platform.documents.release(token);
@@ -2284,6 +2287,7 @@
       }
       backupPickerBusy = false;
     }
+    if (pickerFailed && serial === routeSerial) throw pickerError;
   }
   async function importBackup(file, serial = routeSerial) {
     try {
@@ -2447,10 +2451,12 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    const epoch = draftEpoch,
+    const savedDraft = draft,
+      epoch = draftEpoch,
       serial = routeSerial;
-    await store.put('meta', 'workshop-draft', { puzzle: draft }).catch((e) => {
-      if (epoch === draftEpoch && serial === routeSerial) toast(e.message, true);
+    await store.put('meta', 'workshop-draft', { puzzle: savedDraft }).catch((e) => {
+      if (savedDraft === draft && epoch === draftEpoch && serial === routeSerial)
+        toast(e.message, true);
     });
   }
   function dirtyDraft() {
