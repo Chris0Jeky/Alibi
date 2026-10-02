@@ -89,8 +89,9 @@ self.onmessage = (e) => {
     } else if (m.type === 'quiet-state') {
       value = QWStore.validate(m.value);
     } else if (m.type === 'quiet-import') {
-      if (typeof m.text !== 'string' || m.text.length > 1 * 1024 * 1024)
-        throw Error('Quiet Wing import exceeds the 1 MB import limit.');
+      // Byte-accurate 1 MiB cap; keep the cap and message in sync with reviewImport.
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 1 * 1024 * 1024)
+        throw Error('Quiet Wing import exceeds the 1 MiB import limit.');
       const data = parse(m.text);
       if (data.kind === 'alibi-realm')
         value = { isRealm: true, next: QWEngine.validateScene(data) };

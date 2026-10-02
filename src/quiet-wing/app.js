@@ -2314,8 +2314,9 @@
       }
       async function reviewImport(f) {
         if (!f) return;
-        if (f.size > 2_000_000) {
-          toast('The import limit is 2 MB. Your current save has not changed.');
+        // Byte-accurate 1 MiB cap; keep the cap and message in sync with the worker.
+        if (f.size > 1 * 1024 * 1024) {
+          toast('Quiet Wing import exceeds the 1 MiB import limit.');
           return;
         }
         try {
