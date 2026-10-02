@@ -30,12 +30,16 @@ self.onmessage = (e) => {
           ['cabinet', 'club', 'quiet'],
           ['cabinet', 'club', 'castle'],
           ['cabinet', 'club', 'quiet', 'castle'],
-        ];
+        ],
+        sameSections = (keys) =>
+          Array.isArray(manifest) &&
+          manifest.length === keys.length &&
+          keys.every((k) => manifest.includes(k));
       if (
         !data ||
         data.format !== 'alibi-all-saves' ||
         data.schema !== 1 ||
-        !supported.some((keys) => JSON.stringify(manifest) === JSON.stringify(keys)) ||
+        !supported.some((keys) => sameSections(keys)) ||
         !data.sections ||
         Object.keys(data.sections).some((k) => !manifest.includes(k)) ||
         !manifest.every((k) => Object.hasOwn(data.sections, k)) ||

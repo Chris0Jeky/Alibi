@@ -1,5 +1,33 @@
 # Live development state
 
+## Goal-swarm wave 1 (merged): 1 October 2026
+
+PR #515 merged to `origin/main` (merge `6364767`), 12 commits, CI 12/12 green,
+one independent adversarial lens (NO-BLOCKERS), head aged past the floor:
+ffprobe-skip when missing, prettier globs widened to tool/test subdirs with a
+pin test plus the reformat, order-insensitive combined-backup manifest,
+#501 desk attribution 24px targets with kept focus ring and hidden guard
+(+73 shell bytes), damaged-local-record skip-and-report in getAll/export with
+byte preservation, boot re-raise of the exact damaged message, asset catalogue
+refresh. The boot re-raise matters: a September wave reverted a silent
+fallback getAll skip because the origin suite requires the loud damage report;
+this version keeps valid runs loaded while still surfacing the exact message,
+and `scenario_malformed_persisted` passes. Ceilings raised with trim notes
+(shell +1,024, CSS gzip +64, JS gzip +256); headroom is now thin everywhere
+(~954B shell, 64B CSS gzip, ~80B JS gzip), so the next size-adding change trims
+first. Verified on build `357cf188b484`: full `npm run verify` EXIT 0,
+origin `malformed_persisted` 14/14, UI suite 184/184. NOT verified: full
+origin suite, hosted behaviour, physical phone. Follow-ups filed: #516
+validate-pack CLI tests, #517 quiet-import 2MB-vs-1MiB cap mismatch, #518
+382-vs-510 puzzle count docs, #519 twelve bare-assert suites to node:test,
+#520 five unwired browser suites; #501 kept open pending a device check and
+linked to #515. Residual risks: the external `auto-alibi` fix-501 lane must
+reconcile with #515 before landing; omitted triage backlog for wave 2
+(reducer guards, fail-closed next-puzzle, wave-014 HIGH claims, restore
+pre-read errors, settle guard, re-observe-while-hidden, offline-ready gate,
+#489/#497/#476, Quiet Wing stale handle, lesson/apply-update gap, parked club
+race + silent drop, escape epics #460-474 and #456).
+
 ## Session-3 swarm coordination (unreleased): 1 October 2026
 
 Twelve PRs merged to `origin/main` (head `a851e9c`), each with CI green,
