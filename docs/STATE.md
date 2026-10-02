@@ -32,9 +32,10 @@ preliminary composed web build measures 134,924 JavaScript gzip and 1,411,564
 code-shell bytes after an 11-gzip/16-emitted-byte cleanup trim. Required residual
 guards exceed the prior shared ceilings by 12/3.68 bytes; measured extensions of
 32 gzip/16 shell bytes leave 20/12.32 bytes, not feature room. A clean final-head
-build must remeasure this source. The peer coordinator retains #540/#542
-landing ownership; this candidate carries the additional residual fixes and
-release. Other content/artwork/native/research lanes retain ownership.
+build must remeasure this source. After #546 landed, #540 has receipt conflicts
+against main. This separate candidate preserves its ready head and both
+original histories, and carries the residual fixes and release. Superseded
+editing PRs close only after the replacement lands. Other content/artwork/native/research lanes retain ownership.
 Deployment follows docs/DEPLOYMENT.md and its Pulseboard release dependency;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
 
@@ -45,8 +46,9 @@ Local pin/build assertions and 26 focused host/release cases pass; the online
 SDK remains outside the initial bundle and offline shell. npm test now caps
 Node test-file concurrency at two for the coordinated PC qualification slot.
 Helper subprocesses remain outside that cap. Final qualification follows
-the owner-ordered landing of #432/#546 and the peer editing integration.
-These focused checks do not claim that final qualification.
+the owner-ordered #432/#546 landings, now completed at main cc86981.
+The peer editing history is retained in this candidate. These focused checks
+do not claim final qualification.
 
 ## Editing follow-up composition (#540/#542): 2 October 2026
 
@@ -70,6 +72,27 @@ defects; its one LOW picker-to-validation coverage gap is tracked under #541.
 Final clean-head source/budget proof and completed hosted CI remain required.
 Earlier sibling passes are historical. Native-host picker timing, physical Android/TalkBack and human
 acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
+
+## Test diagnostics (#519): 2 October 2026
+
+Bridges now registers 49 named, serial Node test cases instead of one file-level
+result. All 40 existing assertion call sites, fixture values and solver calls
+are retained. An injected first-fixture failure produces one named failure;
+the other 48 cases still execute and pass. Bridges plus the already named
+Night Routes/Symbols suites pass all 57 cases. Those two Night suites need no
+conversion; #519 remains open for its other listed files. No runtime, puzzle,
+save or budget changes. Full verify at clean 0289e8d passes (1,014 passed,
+three intentional skips). Muse's bounded file-only xhigh review completes with
+no HIGH/CRITICAL finding. Its MEDIUM aggregate-counter ordering concern is
+tracked under #519; the default serial run and injected-failure proof pass.
+Muse ran no commands. Hosted Node22 full gate at ffffb338 succeeds; the parent timeout-only update now requires refreshed-head CI.
+
+Interlock #427 is preserved at 271bff9 with corrected accounting and compact
+worker IDs. Its recorded startup budget is 969 gzip bytes over the unchanged
+cap, so it remains blocked under #422. The owned Interlock and restore-fixture
+checkouts were removed after preserving needed ignored evidence in primary
+test-results/goal-20261002/interlock-427/ and restore-545/. Their commits remain
+published or included in the published #432 lineage; no branch is deleted.
 
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.

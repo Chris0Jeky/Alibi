@@ -147,6 +147,29 @@ This receipt-only commit gets clean Android/catalogue/budget/readiness and
 actual imported phone/desktop views before publication. Existing real reviews
 remain applicable; hosted exact-head proof and aging are still required.
 
+## Bridges diagnostics and CI checkpoint — 2 October 2026, 21:49 UTC
+
+- Luna's bounded #519 slice changes only tests/bridges.test.cjs: 49 named serial cases retain all 40 existing assertion call sites and solver invocations. Night Routes/Symbols were already named through their shared helper and remain unchanged; root's three-suite run passes 57 cases.
+- Root injected one failure into an ignored copy of the first fixture: one named failure, 48 later passes. Production/test source was not mutated for that probe. Muse wave11 contributor xhigh is a bounded file-only independent review of the one-file conversion; actual completion, not wrapper launch, will decide acceptance.
+- #432 full hosted job cancelled at its 25-minute limit: dependency installation 6m21s, npm verify 1m38s green, UI/curation/media/Club/Archive green, origin checks 12m08s then cancelled. Later Bellweather/update/local-room steps were skipped. Exact head 47cd remains unmerged, with one failed-job fresh-runner retry and no gate waiver. Timings are recorded on #531 and the PR.
+- #427 ready head 271bff9 remains blocked by 969 startup gzip bytes. Five examined hosted failures reproduce the same budget assertion; automatic Codex's HIGH comment is confirmed, replied to and tracked under #422. It remains open until fixed. No numeric ceiling change or speculative encoding was adopted.
+- Interlock and restore-fixture worktrees removed without force after preserving test-results, web snapshot, build receipt and ignored-state cleanup receipt in primary interlock-427/ and restore-545/. All commits remain published/included; all branches are retained. Primary remains clean.
+- Fix Alibi editing races has completed its two unique draft follow-ups with independent Sol review and exact-head hosted checks. #540/#542 remain unmerged; integration still needs current-base conflict resolution and fresh proof. No additional chat message is sent under the one-message authorization.
+
+## Bridges qualification — 2 October 2026, 21:54 UTC
+
+Clean 0289e8d full verify passes: 1,014 passed, three intentional skips, no failures. Muse wave11 completed in 78 seconds with intact result receipt, no HIGH/CRITICAL, one MEDIUM ordering fragility in the split lower-bound aggregate counter. That concern is tracked under #519 and does not block the verified default serial run; no fix cascade is opened. Muse ran no commands. Runtime/Node API ordering and after-hook behavior are demonstrated locally by the normal 49-case run and injected one-failure/48-pass probe; hosted Node 22 proof remains pending. Final clean-head Android/Bridges source checks precede publication. No runtime/puzzle/save/budget change or physical acceptance is claimed.
+#432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+gate cancels twice at 25 minutes during passing browser output. A bounded
+Sol medium lens finds no assertion defect and confirms variable apt setup
+consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+Retain every command and scope condition; increase only the full job deadline
+to 45 minutes, then require actual completed hosted proof. No cancellation is
+waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+#546 hosted full Node22 gate succeeds at ffffb338. Parent f79fe2e timeout-only headroom is merged with receipt-only conflict resolution; Bridges and runtime blobs remain unchanged. Preserve Muse review and first-failure proof; re-prove Android/Bridges/CI-scope at the clean merge head before push.
+
 ## Editing follow-up integration — 2 October 2026, 22:02 UTC
 
 - Preserved both qualified sibling histories on #432 via merge commits. Automatic app merge retains canonical #539/#543 guards and adds only #540's generator-input/save-feedback and #542's stale-error/picker ownership. Sol's read-only map identifies the exact unique seams; this map is not a fresh review.
@@ -178,3 +201,7 @@ table whitespace parsing in docs-counts; track it separately. All 60 original
 boards remain unchanged. Needed ignored proof from removed Interlock/restore
 roots lives under primary test-results/goal-20261002/interlock-427/ and
 restore-545/. Both roots were removed without force after publication checks.
+
+## Residual release integration — 2 October 2026, 23:29 UTC
+
+#432 and #546 are landed; the latter exact-head merge is cc86981. The peer #540 ready head 730add9 is preserved, with receipt conflicts against current main. The separate codex/alibi-0151-residuals candidate retains all original histories and adds #538/#541, delegated validation coverage, reviewed release notes and the authoritative 0.15.1 SDK pin. Earlier full/browser counts are historical. Final combined qualification, hosted CI, aging and deployment remain pending; superseded editing PRs close only after the replacement lands. HUMAN_TODO.md remains open.
