@@ -1,5 +1,29 @@
 # Live development state
 
+## Workshop worker ownership (#535): 2 October 2026
+
+Generation and verification now publish only for the native draft revision and
+route that started them. Edits and navigation, including away-and-back to the
+Workshop, discard old success/error callbacks. A shared worker lifecycle releases
+the busy controls; post-save announcements and scrolling also recheck ownership.
+The actual compiled-worker regressions erase native painting on baseline for both
+generation and verification, then pass for rooms/names, route changes, generator
+fields and validation failures. Native edits remain in real IndexedDB.
+
+Local verify passes (929 Node tests, three intentional skips, Quiet Wing 581,847
+engine assertions and 29 contract assertions); UI 184 and real-origin 270 pass.
+Phone/desktop Workshop screenshots were inspected. Independent GPT-6.1-sol/high
+review has no blocker; its P3 obsolete save-feedback edge is tracked separately
+in [#538](https://github.com/Chris0Jeky/Alibi/issues/538).
+
+Two trim passes share the worker lifecycle and remove duplicate render/state
+writes. JS gzip is 134,579 -> 134,651 alone; combined with #533/#534 at c35a6f0 it
+is 134,748 -> 134,842. Code/shell is 1,410,480 -> 1,410,628 alone and 1,411,140 ->
+1,411,285 combined. Shared ceilings cover that combined tree (JS 134,880; shell
+1,411,352), with no initial-payload, CSS or total-offline ceiling increase.
+No deployment, hosted acceptance or physical-phone proof is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
