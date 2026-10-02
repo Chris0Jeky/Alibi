@@ -27,12 +27,16 @@ cannot focus or submit an inert form. A final independent Sol review has no
 merge blockers. The render decorators remain adjacent, fixing two source-contract
 regressions; source asset hashes are regenerated. On the landed Borough base,
 JS gzip is 134,711 and code/shell is 1,411,081, requiring a measured 384-byte
-code/shell ceiling extension after the shared-helper trim. The final full gate
-and refreshed-base browser proof remain pending.
+code/shell ceiling extension after the shared-helper trim. The final full local gate passes; refreshed-base browser proof remains pending.
 
-Borough #528 passes its three-phone/desktop regression and full local gate;
-the independent review has no merge blockers. A confirmed 700px navigation
-overlay is tracked separately in #529, with direct measurements and hit tests.
+Borough #528 merged at 9f7e09d after its three-phone/desktop regression, full local
+gate, independent review and exact-head CI passed. The confirmed 700px overlay
+is fixed separately in PR #532: six viewport checks, full verify and UI QA pass;
+its independent review has no blockers and exact-head CI is pending. Lesson
+completion issue #530 is reproduced with a real IndexedDB completion delay.
+The cancelled import CI run is tracked in #531; #527 has a new locally verified
+base refresh and fresh CI is running. A disposal data-loss claim was declined
+after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
 ## Borough confirmation reachability (#497): 2 October 2026

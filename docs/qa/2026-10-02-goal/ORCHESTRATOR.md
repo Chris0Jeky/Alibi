@@ -19,3 +19,7 @@ also exercised. #522 merged after its dry-run and exact-head CI passed.
 Gate ritual: relevant local checks, one independent adversarial review, exact-head CI and unresolved threads, three-minute push aging, merge commit. Existing unrelated draft art, native and research PRs retain their ownership.
 
 Human acceptance stays in [HUMAN_TODO.md](../../../HUMAN_TODO.md), especially the scripted phone session. Automated and visual browser evidence does not close those items. Raw output and synthetic screenshots are ignored; curate results here before teardown.
+
+Muse wave 3: update review's two MEDIUM claims were triaged against native inert/focus behavior and error recovery; neither is a merge blocker. Final Sol review found no blockers. Tablet review found no runtime defect; its coverage wording was clarified in the required QA receipt. The lesson worker produced a guarded completion and four behavior fixtures; coordinator corrected cross-realm assertions and proved two baseline failures become four passes. An actual IDB timing regression is ready for integration. Disposal-loss claims were declined after retained-state behavior was traced.
+
+#528 merged at 9f7e09d. #527's cancelled browser-install run is recorded in #531, and the refreshed import head passes full local verify. #532 is ready for review with six viewport regressions and pending CI. The final #526 local gate is green after source hash/budget reconciliation; publication awaits refreshed-base browser proof.
