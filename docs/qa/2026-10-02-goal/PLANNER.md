@@ -1,5 +1,21 @@
 # Goal planner — 2 October 2026
 
+3 October checkpoint: #432 b318e45, #540 730add9, #546 caf2cd4 and #550
+20ea441 are reviewed and await exact-head full hosted CI. The 45-minute gate has
+already completed successfully at f79fe2e; the landed SDK refresh is being proved
+at the current heads. #550 fixes only horizontal table padding, with 967 full
+passes/three skips and 41 SDK-base checks; Interlock #427 stays parked for its
+separate 969-byte startup excess. Primary main is clean at 882ebb2.
+
+Completion #421 is implemented at 3b44204: four meaningful source regressions,
+985 full passes/three skips, UI 184/mobile 16/origin 270 and eight native control,
+dialog, IDB save/reload cases at 390/1440. Independent Sol has no blockers;
+final clean proof/publication remains. A separate bounded writer now owns only
+the #538/#541 feedback predicates and their source fixtures in the guarded
+feedback-ownership-20261003 checkout. No deployment or physical acceptance claim.
+
+The earlier rows below are historical receipts; this checkpoint states the live queue.
+
 | Priority | Work                            | State and next action                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | -------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1        | #432 combined qualification     | 24 optional Lattice studies plus reviewed #544/#545 persistence tests, retaining every original commit. Main includes landed #539/#543. Pack/editorial bytes and runtime activity blob unchanged. Combined full verify 966/three skips and final clean 47cd4d0 Android/import 19, native 24 imports/four views, hosted all48 cases pass. Full gate twice cancelled; reviewed timeout-only f79fe2e retains all checks and requires completed CI. Close #512/#513/#544/#545 only after landing. |

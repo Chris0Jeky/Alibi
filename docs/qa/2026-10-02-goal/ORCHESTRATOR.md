@@ -1,5 +1,24 @@
 # Goal orchestration — 2 October 2026
 
+3 October continuation: Muse wave 13 completed with provider timeouts and no
+completion patch or count-review report. The count slice used one independent
+Luna xhigh fallback; the completion slice used a bounded Sol medium writer and
+one independent Sol lens. Coordinator independently reproduced old-source
+three-fail/one-pass and proved four corrected cases, full 985/three skips,
+UI 184/mobile 16/origin 270 and eight real-control IDB save/reload cases. Phone
+and desktop completion captures were inspected. Guards add measured 10 gzip /
+21 shell bytes; ceilings add only 16/32. The LOW idle browser observation is
+declined; synchronous containment is the proved scope. No physical #11 cause,
+deployment or human acceptance is inferred.
+
+Current CI queue is #432 b318e45, #540 730add9, #546 caf2cd4 and #550 20ea441,
+all on the landed SDK base with earlier independent reviews preserved. The
+45-minute timeout-only change has one successful full hosted run at f79fe2e.
+Newest heads still require completed hosted proof. The completion candidate is
+stacked on #540; a separate one-writer checkout now handles confirmed #538/#541
+feedback edges using failing-first source fixtures. Coordinator retains all
+catalogue/budget/docs, full checks, publication and merge ownership.
+
 Coordinator owns integration, publication and merge. T2 authority allows reviewed scoped merges; preserve device-local saves and published puzzle identities.
 
 Primary checkout started at c035982, with seven commits already published in PR #523. After reviewed #523 merged at 45102bc, primary fast-forwarded cleanly with those commits preserved. Independent work uses detached-origin/main worktrees with scoped branches.

@@ -177,6 +177,7 @@ jobs:
             test-results/browser-origin/*.json
             test-results/workshop-ownership/
             test-results/backup-ownership/
+            test-results/completion-hooks/
             test-results/browser-backup-import.json
             test-results/browser-update/*.json
             test-results/mobile-qa/

@@ -1,5 +1,26 @@
 # Live development state
 
+## Completion hook containment (#421): 3 October 2026
+
+Each optional completion hook has its own synchronous exception guard. A failing
+Journey or Theatre hook cannot prevent the other hook, completion dialog, final
+render or queued completed-run save. Normal Journey events are unchanged.
+Four regression cases execute the actual commit/completion/save queue; old source
+fails three cases and passes the normal case. Clean 3b44204 full verify passes
+985 tests with three intentional skips. UI 184, mobile 16 and real-origin 270
+checks pass. Eight actual Sudoku-control cases at 390/1440 cover each hook failure,
+both failures and normal completion, with dialog, real IndexedDB snapshot and
+reload durability; both failure captures were inspected.
+
+The two guards measure +10 JS gzip / +21 shell bytes (134,919 / 1,411,569).
+Measured ceilings increase only 16 / 32; startup/content/other ceilings stay intact.
+One independent Sol review finds no HIGH/CRITICAL defects. The bounded test's
+extra idle browser is a declined LOW resource observation. Muse's worker timeout
+supplied no implementation or clearance. Final clean-head and hosted CI proof
+remain required. Rejected asynchronous hooks are not covered; this defensive fix
+does not establish the cause of physical Android issue #11. HUMAN_TODO.md remains
+open for physical Android/TalkBack and owner acceptance.
+
 ## Editing follow-up composition (#540/#542): 2 October 2026
 
 Both qualified sibling histories are preserved on reviewed #432. Workshop form
