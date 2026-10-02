@@ -2,7 +2,7 @@
 
 Coordinator owns integration, publication and merge. T2 authority allows reviewed scoped merges; preserve device-local saves and published puzzle identities.
 
-Primary checkout starts at c035982, with seven commits already published in PR #523. It is preserved until the reviewed PR lands. Independent work uses detached-origin/main worktrees with scoped branches.
+Primary checkout started at c035982, with seven commits already published in PR #523. After reviewed #523 merged at 45102bc, primary fast-forwarded cleanly with those commits preserved. Independent work uses detached-origin/main worktrees with scoped branches.
 
 Muse wave 1: three bounded file-only jobs, contributor model, high/xhigh. Review #523 completed with no findings. Import #524 worker produced a patch and seven tests; coordinator corrected a VM assertion and independently proved RED-to-GREEN. Player lifecycle hunt produced one confirmed update-boundary issue and two claims still requiring triage. Token usage is unreported by Muse.
 
