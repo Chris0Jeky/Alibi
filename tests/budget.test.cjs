@@ -149,9 +149,13 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // 134,909 -> 134,919 gzip (+10). Both guards are required so either hook can fail
 // without preventing the other hook, completion UI or queued save. No helper is
 // added. Ceiling +16 covers the seven-byte excess; no feature room.
+// #538/#541: saved-draft identity and ownership after awaited picker cleanup
+// measure 134,919 -> 134,945 gzip (+26), with no new lifecycle helper. The
+// explicit error flag preserves falsy thrown values. Ceiling +32 covers the
+// seventeen-byte excess; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4880,
-  'Application bundle stays under 127 KiB + 4,880 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4912,
+  'Application bundle stays under 127 KiB + 4,912 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -215,8 +219,10 @@ assert.ok(
   // leaves thirteen bytes for the measured composition and hash noise, not feature room.
   // #421: the two independent hook guards add 21 emitted bytes: 1,411,548 ->
   // 1,411,569. Ceiling +32 covers the nine-byte excess; no feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27472,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,472 bytes',
+  // #538/#541: the identity check and cleanup error capture add 34 emitted
+  // bytes: 1,411,569 -> 1,411,603. Ceiling +32 covers the eleven-byte excess.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27504,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,504 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

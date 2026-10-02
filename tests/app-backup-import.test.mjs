@@ -34,19 +34,89 @@ async function picker(overrides = {}) {
           calls.push({ kind: 'read', token, limit, options });
           return overrides.read || { ok: true, value: '{"format":"alibi-backup"}' };
         },
-        release: async (token) => released.push(token),
+        release: async (token) => {
+          released.push(token);
+          await overrides.release?.(token);
+        },
       },
       capabilities: () => ({ userDocuments: true }),
     },
     toast: (message, error) => notices.push({ message, error }),
-    importBackup: async (file) => imported.push(file),
+    importBackup: async (file) => {
+      imported.push(file);
+      await overrides.importBackup?.(file);
+    },
     File: FixtureFile,
   };
   const factory = await vm.runInNewContext(
-    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++});})()`,
+    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++, busy:()=>backupPickerBusy});})()`,
     context,
   );
   return { run: factory, calls, notices, imported, released };
+}
+
+for (const navigate of [false, true]) {
+  for (const releaseRejects of [false, true]) {
+    test(`picker import error belongs to route after held release (navigate=${navigate}, releaseRejects=${releaseRejects})`, async () => {
+      let finishRelease,
+        failRelease,
+        imports = 0;
+      const release = new Promise((resolve, reject) => {
+        finishRelease = resolve;
+        failRelease = reject;
+      });
+      const original = Error('original import failure');
+      const fixture = await picker({
+        importBackup: () => {
+          if (++imports === 1) throw original;
+        },
+        release: () => release,
+      });
+      let settled = false;
+      const running = fixture.run().then(
+        (value) => ((settled = true), { ok: true, value }),
+        (error) => ((settled = true), { ok: false, error }),
+      );
+      await new Promise(setImmediate);
+      assert.deepEqual(fixture.released, ['token-1']);
+      assert.equal(settled, false, 'import error waits for token cleanup');
+      assert.equal(fixture.run.busy(), true);
+      await fixture.run();
+      assert.equal(fixture.calls.filter((call) => call.kind === 'pick').length, 1);
+      if (navigate) fixture.run.navigate();
+      if (releaseRejects) failRelease(Error('release failure'));
+      else finishRelease();
+      const result = await running;
+      assert.equal(result.ok, navigate, 'only the current route receives the error');
+      if (!navigate) assert.equal(result.error, original);
+      else assert.equal(result.value, undefined);
+      assert.equal(fixture.run.busy(), false);
+      assert.deepEqual(fixture.released, ['token-1'], 'release is attempted once per token');
+      assert.deepEqual(fixture.notices, []);
+      await fixture.run();
+      assert.equal(imports, 2, 'picker can be reused after cleanup');
+      assert.equal(fixture.calls.filter((call) => call.kind === 'pick').length, 2);
+      assert.equal(fixture.run.busy(), false);
+    });
+  }
+}
+
+for (const error of [undefined, null, false, 0, '']) {
+  test(`picker preserves a current falsy import error (${String(error)}) after cleanup`, async () => {
+    const fixture = await picker({
+      importBackup: () => {
+        throw error;
+      },
+    });
+    const result = await fixture.run().then(
+      () => ({ ok: true }),
+      (caught) => ({ ok: false, caught }),
+    );
+    assert.equal(result.ok, false);
+    assert.equal(result.caught, error);
+    assert.deepEqual(fixture.released, ['token-1']);
+    assert.equal(fixture.run.busy(), false);
+  });
 }
 
 test('picker import reads the bounded cabinet document, releases its token and passes a File', async () => {
