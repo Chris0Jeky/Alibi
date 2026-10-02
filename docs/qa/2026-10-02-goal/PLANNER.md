@@ -30,4 +30,4 @@ The earlier rows below are historical receipts; this checkpoint states the live 
 
 One implementation, one real review, blocker repair and scoped reproof per slice. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md). Hosted, simulated and physical evidence remain distinct.
 
-#546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Await completed current-base CI.
+#546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Hosted Node22 full gate succeeds at ffffb338. Refreshed parent timeout-only merge requires clean Android/Bridges/CI-scope proof and current-head CI.
