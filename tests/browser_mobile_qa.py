@@ -53,6 +53,83 @@ class MobileQA(unittest.TestCase):
         expect(page.locator('#dialog')).not_to_be_visible()
 
 
+
+    def test_workshop_verify_preserves_edits_while_worker_pending(self):
+        if os.environ.get('ALIBI_QA_HTML'):
+            self.skipTest('Workshop worker ordering requires the real IndexedDB origin')
+        for route_change in [False, True]:
+            with self.subTest(route_change=route_change):
+                page = self.open_page(1440, 1000, 'workshop')
+                errors = []
+                page.on('pageerror', lambda error: errors.append(str(error)))
+                page.wait_for_function('() => AlibiDiagnostics.getStatus().mode === "indexeddb"')
+                page.locator('#scene-form button[type="submit"]').click()
+                expect(page.locator('.draft-editor')).to_be_visible(timeout=15000)
+                page.wait_for_function('() => !document.querySelector("[data-action=verify-draft]").disabled')
+                read_draft = r'''()=>new Promise((resolve,reject)=>{
+  const req=indexedDB.open('alibi-device',1);
+  req.onerror=()=>reject(req.error);
+  req.onsuccess=()=>{const db=req.result,tx=db.transaction('meta','readonly'),get=tx.objectStore('meta').get('workshop-draft');
+    tx.oncomplete=()=>{db.close();resolve(get.result?.value?.puzzle)};
+    tx.onerror=()=>{db.close();reject(tx.error)};
+  };
+})'''
+                before = page.evaluate(read_draft)
+                self.assertTrue(before and before['rooms'])
+                page.evaluate(r'''(()=>{
+  window.workshopProbe={enabled:false,held:false};
+  const post=Worker.prototype.postMessage;
+  Worker.prototype.postMessage=function(message,...args){
+    if(workshopProbe.enabled && message?.type==='draft')this.__workshopProbe=true;
+    return post.call(this,message,...args);
+  };
+  const descriptor=Object.getOwnPropertyDescriptor(Worker.prototype,'onmessage');
+  Object.defineProperty(Worker.prototype,'onmessage',{
+    configurable:descriptor.configurable,enumerable:descriptor.enumerable,get:descriptor.get,
+    set(callback){descriptor.set.call(this,typeof callback==='function'?function(event){
+      if(this.__workshopProbe && workshopProbe.enabled){
+        workshopProbe.enabled=false;workshopProbe.held=true;
+        workshopProbe.result=event.data;
+        workshopProbe.release=()=>callback.call(this,event);
+        return;
+      }return callback.call(this,event);
+    }:callback)}
+  });
+})();''')
+                page.evaluate('() => workshopProbe.enabled = true')
+                page.locator('[data-action="verify-draft"]').click()
+                page.wait_for_function('() => workshopProbe.held')
+                self.assertTrue(page.evaluate('workshopProbe.result.ok'))
+                if route_change:
+                    page.evaluate('() => location.hash = "#/home"')
+                    expect(page.locator('.club-welcome')).to_be_visible()
+                    page.locator('[data-action="navigate"][data-page="workshop"]').first.click()
+                    expect(page.locator('.draft-editor')).to_be_visible()
+                desired = (before['rooms'][0] + 1) % len(before['roomNames'])
+                page.locator(f'[data-action="draft-paint"][data-value="{desired}"]').click()
+                cell = page.locator('[data-action="draft-cell"][data-cell="0"]')
+                expect(cell).to_be_enabled()
+                cell.click()
+                page.wait_for_function('''desired => new Promise((resolve, reject) => {
+                    const req = indexedDB.open('alibi-device', 1);
+                    req.onerror = () => reject(req.error);
+                    req.onsuccess = () => {
+                        const db = req.result, tx = db.transaction('meta', 'readonly');
+                        const get = tx.objectStore('meta').get('workshop-draft');
+                        tx.oncomplete = () => { db.close(); resolve(get.result?.value?.puzzle.rooms[0] === desired); };
+                    };
+                })''', arg=desired)
+                edited = page.evaluate(read_draft)
+                self.assertEqual(edited['rooms'][0], desired)
+                expect(page.locator('.draft-editor .badge')).to_have_text('Edited draft · recheck required')
+                page.evaluate('() => workshopProbe.release()')
+                page.wait_for_function('() => !document.querySelector("[data-action=verify-draft]").disabled')
+                # Wait for the completed handler to settle, then inspect both durable draft and UI.
+                page.evaluate('async () => { await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); }')
+                self.assertEqual(page.evaluate(read_draft), edited)
+                expect(page.locator('.draft-editor .badge')).to_have_text('Edited draft · recheck required')
+                self.assertFalse(errors, errors)
+
     def test_lesson_finish_preserves_newer_route(self):
         if os.environ.get('ALIBI_QA_HTML'):
             self.skipTest('Lesson completion ordering requires the real IndexedDB origin')
