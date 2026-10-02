@@ -2226,7 +2226,9 @@
     if (backupPickerBusy) return;
     backupPickerBusy = true;
     const serial = routeSerial;
-    let token = null;
+    let token = null,
+      failure,
+      failed = false;
     try {
       const operation = (stage) => ({
         operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
@@ -2271,7 +2273,8 @@
         serial,
       );
     } catch (e) {
-      if (serial === routeSerial) throw e;
+      failure = e;
+      failed = true;
     } finally {
       try {
         if (token) await platform.documents.release(token);
@@ -2280,6 +2283,7 @@
       }
       backupPickerBusy = false;
     }
+    if (failed && serial === routeSerial) throw failure;
   }
   async function importBackup(file, serial = routeSerial) {
     try {

@@ -34,16 +34,22 @@ async function picker(overrides = {}) {
           calls.push({ kind: 'read', token, limit, options });
           return overrides.read || { ok: true, value: '{"format":"alibi-backup"}' };
         },
-        release: async (token) => released.push(token),
+        release: async (token) => {
+          released.push(token);
+          if (overrides.release) await overrides.release(token);
+        },
       },
       capabilities: () => ({ userDocuments: true }),
     },
     toast: (message, error) => notices.push({ message, error }),
-    importBackup: async (file) => imported.push(file),
+    importBackup: async (file) => {
+      imported.push(file);
+      if (overrides.importBackup) await overrides.importBackup(file);
+    },
     File: FixtureFile,
   };
   const factory = await vm.runInNewContext(
-    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++});})()`,
+    `(async()=>{let backupPickerBusy=false,backupPickerSerial=0,routeSerial=1;${helper};return Object.assign(importBackupFromPicker, {navigate:()=>routeSerial++,isBusy:()=>backupPickerBusy});})()`,
     context,
   );
   return { run: factory, calls, notices, imported, released };
@@ -67,6 +73,96 @@ test('picker import reads the bounded cabinet document, releases its token and p
   assert.notEqual(fixture.calls[0].options.operationId, fixture.calls[1].options.operationId);
   assert.match(fixture.calls[0].options.operationId, /^cabinet-restore-pick-[a-z0-9]+$/);
   assert.match(fixture.calls[1].options.operationId, /^cabinet-restore-read-[a-z0-9]+$/);
+  assert.deepEqual(fixture.notices, []);
+});
+
+for (const navigated of [false, true]) {
+  for (const releaseFails of [false, true]) {
+    test(`picker ${navigated ? 'discards obsolete' : 'preserves current'} import exceptions after held release ${releaseFails ? 'fails' : 'completes'}`, async () => {
+      for (const failure of [Error('worker failure'), undefined, null, false, 0, '', 'worker failure']) {
+        let beginRelease, finishRelease, failRelease;
+        const releasing = new Promise((resolve) => {
+          beginRelease = resolve;
+        });
+        const heldRelease = new Promise((resolve, reject) => {
+          finishRelease = resolve;
+          failRelease = reject;
+        });
+        let importCalls = 0;
+        const fixture = await picker({
+          importBackup: async () => {
+            if (++importCalls === 1) throw failure;
+          },
+          release: async () => {
+            if (importCalls === 1) {
+              beginRelease();
+              await heldRelease;
+            }
+          },
+        });
+        const outerErrors = [];
+        let modal = 'restore',
+          settled = false;
+        const running = fixture.run().then(
+          () => {
+            settled = true;
+          },
+          (error) => {
+            assert.equal(fixture.run.isBusy(), false, 'busy resets before the outer error handler');
+            settled = true;
+            modal = null;
+            outerErrors.push(error);
+          },
+        );
+        await releasing;
+        assert.equal(settled, false, 'the import waits for token cleanup');
+        assert.equal(fixture.run.isBusy(), true);
+        await fixture.run();
+        assert.equal(fixture.calls.filter((call) => call.kind === 'pick').length, 1);
+        if (navigated) {
+          fixture.run.navigate();
+          modal = 'newer lesson';
+        }
+        if (releaseFails) failRelease(Error('release failure'));
+        else finishRelease();
+        await running;
+        assert.equal(fixture.run.isBusy(), false);
+        assert.deepEqual(fixture.released, ['token-1']);
+        assert.deepEqual(fixture.notices, []);
+        assert.equal(outerErrors.length, navigated ? 0 : 1);
+        if (!navigated) assert.equal(outerErrors[0], failure, 'preserves the original thrown value');
+        assert.equal(modal, navigated ? 'newer lesson' : null);
+        await fixture.run();
+        assert.equal(fixture.calls.filter((call) => call.kind === 'pick').length, 2, 'cleanup leaves the picker available');
+        assert.equal(fixture.imported.length, 2);
+        assert.deepEqual(fixture.released, ['token-1', 'token-1']);
+      }
+    });
+  }
+}
+
+test('picker success survives held release failure and resets busy', async () => {
+  let beginRelease, failRelease;
+  const releasing = new Promise((resolve) => {
+    beginRelease = resolve;
+  });
+  const heldRelease = new Promise((resolve, reject) => {
+    failRelease = reject;
+  });
+  const fixture = await picker({
+    release: async () => {
+      beginRelease();
+      await heldRelease;
+    },
+  });
+  const running = fixture.run();
+  await releasing;
+  assert.equal(fixture.run.isBusy(), true);
+  failRelease(Error('release failure'));
+  await running;
+  assert.equal(fixture.run.isBusy(), false);
+  assert.equal(fixture.imported.length, 1);
+  assert.deepEqual(fixture.released, ['token-1']);
   assert.deepEqual(fixture.notices, []);
 });
 
