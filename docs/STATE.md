@@ -3,9 +3,22 @@
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
-passed, three intentional skips). Final clean-head source/import proof and
-hosted CI remain required.
+passed, three intentional skips). Clean 47cd4d0 passes the final 19 Android,
+source/import checks, 24 native imports/four aligned views and all 48 hosted
+Lattice puzzle cases. The full hosted gate remains required.
 Superseded test PRs remain open until the combined head lands.
+
+## Full CI timeout headroom (#531): 2 October 2026
+
+The full gate at 47cd4d0 was cancelled twice at its 25-minute job limit.
+Both logs have passing Node/browser output and no assertion failure: attempt
+one reaches browser_experience.py after 6m21s FFmpeg setup; attempt two reaches
+browser_challenge_library.py after 7m07s Playwright setup. The previous green
+#543 full run takes 23m26s, including 13m55s for the composite real-origin step
+and only 17s Playwright setup. A bounded independent Sol lens confirms the
+timeout cause. Increase only the job deadline to 45 minutes, retaining every
+command, scope condition and artifact. Whether that deadline suffices, and the
+remaining expedition/update/room checks, require a completed hosted run.
 
 ## Lattice optional collection closeout (#432): 2 October 2026
 
@@ -162,6 +175,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -176,7 +190,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 

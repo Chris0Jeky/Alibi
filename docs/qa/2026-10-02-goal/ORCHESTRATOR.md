@@ -146,3 +146,12 @@ activity runtime/tests and restore-fixture bytes match their respective heads.
 This receipt-only commit gets clean Android/catalogue/budget/readiness and
 actual imported phone/desktop views before publication. Existing real reviews
 remain applicable; hosted exact-head proof and aging are still required.
+
+#432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+gate cancels twice at 25 minutes during passing browser output. A bounded
+Sol medium lens finds no assertion defect and confirms variable apt setup
+consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+Retain every command and scope condition; increase only the full job deadline
+to 45 minutes, then require actual completed hosted proof. No cancellation is
+waived. Human and physical acceptance remains open in HUMAN_TODO.md.
