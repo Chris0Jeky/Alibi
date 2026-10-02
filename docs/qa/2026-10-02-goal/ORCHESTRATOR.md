@@ -146,3 +146,12 @@ activity runtime/tests and restore-fixture bytes match their respective heads.
 This receipt-only commit gets clean Android/catalogue/budget/readiness and
 actual imported phone/desktop views before publication. Existing real reviews
 remain applicable; hosted exact-head proof and aging are still required.
+
+## Bridges diagnostics and CI checkpoint — 2 October 2026, 21:49 UTC
+
+- Luna's bounded #519 slice changes only tests/bridges.test.cjs: 49 named serial cases retain all 40 existing assertion call sites and solver invocations. Night Routes/Symbols were already named through their shared helper and remain unchanged; root's three-suite run passes 57 cases.
+- Root injected one failure into an ignored copy of the first fixture: one named failure, 48 later passes. Production/test source was not mutated for that probe. Muse wave11 contributor xhigh is a bounded file-only independent review of the one-file conversion; actual completion, not wrapper launch, will decide acceptance.
+- #432 full hosted job cancelled at its 25-minute limit: dependency installation 6m21s, npm verify 1m38s green, UI/curation/media/Club/Archive green, origin checks 12m08s then cancelled. Later Bellweather/update/local-room steps were skipped. Exact head 47cd remains unmerged, with one failed-job fresh-runner retry and no gate waiver. Timings are recorded on #531 and the PR.
+- #427 ready head 271bff9 remains blocked by 969 startup gzip bytes. Five examined hosted failures reproduce the same budget assertion; automatic Codex's HIGH comment is confirmed, replied to and tracked under #422. It remains open until fixed. No numeric ceiling change or speculative encoding was adopted.
+- Interlock and restore-fixture worktrees removed without force after preserving test-results, web snapshot, build receipt and ignored-state cleanup receipt in primary interlock-427/ and restore-545/. All commits remain published/included; all branches are retained. Primary remains clean.
+- Fix Alibi editing races has completed its two unique draft follow-ups with independent Sol review and exact-head hosted checks. #540/#542 remain unmerged; integration still needs current-base conflict resolution and fresh proof. No additional chat message is sent under the one-message authorization.

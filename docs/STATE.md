@@ -1,10 +1,30 @@
 # Live development state
 
+## Test diagnostics (#519): 2 October 2026
+
+Bridges now registers 49 named, serial Node test cases instead of one file-level
+result. All 40 existing assertion call sites, fixture values and solver calls
+are retained. An injected first-fixture failure produces one named failure;
+the other 48 cases still execute and pass. Bridges plus the already named
+Night Routes/Symbols suites pass all 57 cases. Those two Night suites need no
+conversion; #519 remains open for its other listed files. No runtime, puzzle,
+save or budget changes. Full verify and independent Muse review are pending.
+
+Interlock #427 is preserved at 271bff9 with corrected accounting and compact
+worker IDs. Its recorded startup budget is 969 gzip bytes over the unchanged
+cap, so it remains blocked under #422. The owned Interlock and restore-fixture
+checkouts were removed after preserving needed ignored evidence in primary
+test-results/goal-20261002/interlock-427/ and restore-545/. Their commits remain
+published or included in the published #432 lineage; no branch is deleted.
+
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
-passed, three intentional skips). Final clean-head source/import proof and
-hosted CI remain required.
+passed, three intentional skips). Clean-head Android/seam and aligned native
+import/control proof pass. Hosted cabinet job 37065506311 was cancelled at its
+25-minute ceiling after 6m21s of audio-dependency installation and 12m08s of
+real-origin checks. Later steps were skipped; this is not passing CI. One
+unchanged-head fresh-runner retry is pending, tracked under #531.
 Superseded test PRs remain open until the combined head lands.
 
 ## Lattice optional collection closeout (#432): 2 October 2026
@@ -162,6 +182,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -176,7 +197,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 
