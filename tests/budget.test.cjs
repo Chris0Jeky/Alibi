@@ -124,12 +124,16 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the IndexedDB and session paths keep their original one-liners (no
 // parse damage possible there); export reads the store's damaged map rather than
 // duplicating per-result lists. Ceiling +256.
+// #526: native/Shadow DOM input pause, Club bot cancellation and guarded final flush
+// measure 134,475 -> 134,639 (+164), exceeding the old ceiling by 79 bytes.
+// Sharing the four pause/release sites trims 81 raw bytes; gzip remains 134,639.
+// The recovery guards remain required; ceiling +128 leaves 49 bytes of headroom.
 // Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4576,
-  'Application bundle stays under 127 KiB + 4,576 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4704,
+  'Application bundle stays under 127 KiB + 4,704 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -175,8 +179,11 @@ assert.ok(
   // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
   // display, and any display declaration must re-hide pre-enhancement credits.
   // Ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26624,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 26,624 bytes',
+  // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
+  // The shared pause/release helper trims 81 raw bytes; the remaining native and
+  // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27008,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,008 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,

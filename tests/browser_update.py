@@ -213,6 +213,217 @@ def make_sudoku_move(page, expected_moves: int) -> dict:
     return current(page)
 
 
+def update_pause_setup(page, server, release_a, release_b, route):
+    server.root = release_a
+    base = f'http://127.0.0.1:{server.server_address[1]}'
+    page.goto(base + '/#/play/sudoku-01@1')
+    page.wait_for_function('()=>window.AlibiDiagnostics?.getCurrent()')
+    dismiss_lesson(page)
+    page.wait_for_function('()=>AlibiDiagnostics.getStatus().offlineReady')
+    if not page.evaluate('!!navigator.serviceWorker.controller'):
+        page.reload()
+        page.wait_for_function('()=>window.AlibiDiagnostics?.getCurrent()')
+        dismiss_lesson(page)
+    page.evaluate('(route)=>location.hash=route', route)
+    if '/quiet/' in route:
+        page.wait_for_function('()=>AlibiActivities.diagnostics().active && window.QWApp?.state')
+        page.wait_for_selector('#realmname')
+        page.evaluate('()=>QWApp.flush()')
+    elif '/salon/archive' in route:
+        page.wait_for_selector('[data-action="club-walk"][data-value="right"]')
+        page.evaluate('()=>AlibiClub.flush()')
+    else:
+        page.wait_for_function('()=>AlibiDiagnostics.getCurrent()?.puzzle.type==="sudoku"')
+        dismiss_lesson(page)
+        page.locator('[data-action="evidence-tab"][data-value="notes"]').click()
+        page.wait_for_selector('#play-notes')
+    server.root = release_b
+    page.evaluate('async ()=>{const r=await navigator.serviceWorker.ready;await r.update()}')
+    page.wait_for_function('async ()=>!!(await navigator.serviceWorker.getRegistration())?.waiting')
+    page.wait_for_selector('[data-action="apply-update"]')
+    assert page.evaluate('!!navigator.serviceWorker.controller')
+    assert page.evaluate('AlibiDiagnostics.getStatus().mode') == 'indexeddb'
+    page.evaluate('''()=>{
+      window.probeGate={entered:false};
+      const original=AlibiActivities.flush.bind(AlibiActivities);
+      probeGate.original=original;
+      const gate=new Promise((resolve,reject)=>Object.assign(probeGate,{resolve,reject}));
+      AlibiActivities.flush=async()=>{await original();probeGate.entered=true;await gate};
+    }''')
+    page.locator('[data-action="apply-update"]').first.click()
+    page.wait_for_function('()=>probeGate.entered')
+    return base
+
+def update_pause_raw_click(page, locator):
+    locator.scroll_into_view_if_needed()
+    box = locator.bounding_box()
+    assert box, 'Probe control must have a real rendered box'
+    page.mouse.click(box['x'] + box['width']/2, box['y'] + box['height']/2)
+
+def update_pause_frozen(page, locator):
+    return locator.evaluate('''el=>{
+      for(let node=el;node;node=node.parentElement || node.getRootNode()?.host){
+        if(node.inert)return true;
+      }return false;
+    }''')
+
+def update_pause_state(page, case):
+    if case == 'club':
+        return page.evaluate('AlibiClub.diagnostics().state.runs.archive.log')
+    if case == 'wing':
+        return page.evaluate('QWApp.state.scene.name')
+    return page.evaluate('AlibiDiagnostics.getCurrent().note')
+
+def update_pause_edit_field(page, locator, text):
+    # Native typing must not focus an inert ancestor, including a shadow host.
+    if update_pause_frozen(page, locator):
+        update_pause_raw_click(page, locator)
+        page.keyboard.type(text)
+        page.keyboard.press('Tab')
+    else:
+        locator.fill(text)
+        locator.press('Tab')
+
+def update_pause_probe_case(pw, server, release_a, release_b, case):
+    route = {'club':'#/salon/archive', 'wing':'#/quiet/realm', 'notes':'#/play/sudoku-01@1'}[case]
+    with tempfile.TemporaryDirectory(prefix='p-', dir=str(ROOT)) as profile:
+        launch = {'headless':True, 'args':['--no-sandbox']}
+        if os.environ.get('CHROMIUM_PATH'):
+            launch['executable_path'] = os.environ['CHROMIUM_PATH']
+        context = pw.chromium.launch_persistent_context(profile, viewport={'width':1440,'height':1000}, **launch)
+        try:
+            page = context.pages[0]
+            page.set_default_timeout(15000)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            base = update_pause_setup(page, server, release_a, release_b, route)
+            version = page.evaluate('ALIBI_CONFIG.version')
+            assert page.locator('.banner[role="status"]').filter(has_text='Controls are paused').is_visible()
+            before = update_pause_state(page, case)
+            if case == 'club':
+                update_pause_raw_click(page, page.locator('[data-action="club-walk"][data-value="right"]').first)
+                after_click = update_pause_state(page, case)
+                page.locator('body').click(position={'x':2,'y':2})
+                page.keyboard.press('ArrowRight')
+                after = update_pause_state(page, case)
+            else:
+                field = page.locator('#realmname' if case=='wing' else '#play-notes')
+                if not field.count() and case=='notes':
+                    field=page.locator('#quick-notes')
+                assert field.count(), f'{case} field must exist'
+                update_pause_edit_field(page, field, 'late update probe')
+                after_click = None
+                after = update_pause_state(page, case)
+            page.screenshot(path=str(REPORT_PATH.parent / f'update-pause-{case}.png'), full_page=True)
+            # Reject while the real waiting worker is still waiting: app must undo all pauses.
+            page.evaluate('()=>probeGate.reject(Error("probe save failure"))')
+            page.wait_for_function('()=>!document.querySelector("#main")?.inert && !document.querySelector("#quiet-host")?.inert')
+            page.wait_for_timeout(150)
+            assert page.evaluate('ALIBI_CONFIG.version') == version, 'Rejected save must not reload release B'
+            assert page.evaluate('async()=>!!(await navigator.serviceWorker.getRegistration())?.waiting'), 'Rejected save must not ACTIVATE'
+            preserved = update_pause_state(page,case)
+            assert preserved == after, 'Failure recovery must preserve current data'
+            if case=='club':
+                control = '[data-action="club-undo"][data-id="archive"]' if preserved else '[data-action="club-walk"][data-value="right"]'
+                update_pause_raw_click(page,page.locator(control).first)
+                resumed=update_pause_state(page,case)
+                assert resumed != preserved, 'Club controls must work after rejection'
+                page.evaluate('()=>AlibiClub.flush()')
+            else:
+                field=page.locator('#realmname' if case=='wing' else '#play-notes')
+                if not field.count():field=page.locator('#quick-notes')
+                assert not update_pause_frozen(page,field), 'Fields must become interactive after rejection'
+                update_pause_edit_field(page,field,'recovered update probe')
+                resumed=update_pause_state(page,case)
+                assert resumed=='recovered update probe','Field must work after rejection'
+                page.wait_for_timeout(300)
+                if case=='wing':page.evaluate('()=>QWApp.flush()')
+            page.reload()
+            if case=='wing':page.wait_for_function('()=>window.QWApp?.state')
+            elif case=='club':page.wait_for_function('()=>window.AlibiClub?.diagnostics().state.runs.archive')
+            else:page.wait_for_function('()=>window.AlibiDiagnostics?.getCurrent()')
+            assert update_pause_state(page,case)==resumed, 'Recovered edits must survive reload'
+            assert not errors, errors
+            return {'case':case,'setup':'real controlled SW, real waiting B, real IndexedDB, completed activities flush held',
+                    'before':before,'after_click':after_click,'after':after,'frozen':after==before,
+                    'recovery':'unpaused, no activation, current data retained, resumed edit survives reload', 'errors':errors}
+        finally:
+            context.close()
+
+def update_pause_controller_recovery(pw, server, release_a, release_b):
+    with tempfile.TemporaryDirectory(prefix='p-', dir=str(ROOT)) as profile:
+        launch = {'headless': True, 'args': ['--no-sandbox']}
+        if os.environ.get('CHROMIUM_PATH'):
+            launch['executable_path'] = os.environ['CHROMIUM_PATH']
+        context = pw.chromium.launch_persistent_context(profile, viewport={'width': 1440, 'height': 1000}, **launch)
+        try:
+            page = context.pages[0]
+            page.set_default_timeout(15000)
+            errors = []
+            page.on('pageerror', lambda error: errors.append(str(error)))
+            update_pause_setup(page, server, release_a, release_b, '#/salon/archive')
+            version = page.evaluate('ALIBI_CONFIG.version')
+            before = update_pause_state(page, 'club')
+            # Let the first save finish and activate B, then reject the controllerchange flush.
+            page.evaluate('''()=>{
+              AlibiActivities.flush=async()=>{throw Error('probe controller save failure')};
+              probeGate.resolve();
+            }''')
+            page.wait_for_function('()=>!document.querySelector("#main")?.inert')
+            page.wait_for_function('()=>document.querySelector("#toasts")?.textContent.includes("probe controller save failure")')
+            assert page.evaluate('ALIBI_CONFIG.version') == version, 'Failed final flush must not reload the document'
+            assert not page.evaluate('async()=>!!(await navigator.serviceWorker.getRegistration())?.waiting'), 'B must have activated to exercise controllerchange'
+            assert update_pause_state(page, 'club') == before, 'Final flush failure must preserve replay'
+            # Retry with no waiting worker: the request must release both input pauses.
+            page.evaluate('()=>AlibiActivities.flush=probeGate.original')
+            page.locator('[data-action="apply-update"]').first.click()
+            page.wait_for_function('()=>!document.querySelector("#main")?.inert')
+            assert page.evaluate('ALIBI_CONFIG.version') == version, 'No waiting worker must not reload'
+            update_pause_raw_click(page, page.locator('[data-action="club-walk"][data-value="right"]').first)
+            assert update_pause_state(page, 'club') != before, 'Club pause must release after no-worker retry'
+            page.evaluate('()=>AlibiClub.flush()')
+            assert not errors, errors
+            return {'case': 'controllerchange', 'passed': True, 'recovery': 'final flush rejection avoids reload; no-worker retry restores controls', 'errors': errors}
+        finally:
+            context.close()
+
+
+def run_update_pause_checks() -> dict:
+    report = {"passed": False, "cases": []}
+    started = time.monotonic()
+    fixture = server = None
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fixture, release_a, release_b = make_releases()
+        server = MutableStaticServer(release_a)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        with sync_playwright() as pw:
+            for case in ["club", "wing", "notes"]:
+                result = update_pause_probe_case(pw, server, release_a, release_b, case)
+                report["cases"].append(result)
+                assert result["frozen"], f"{case}: native input mutated data during update pause"
+                print(f"PASS Update pause and rejection recovery: {case}", flush=True)
+            report['cases'].append(update_pause_controller_recovery(pw, server, release_a, release_b))
+            print('PASS Controllerchange failure and no-worker recovery', flush=True)
+        report["passed"] = True
+    except Exception as error:
+        report["error"] = f"{type(error).__name__}: {error}"
+        report["traceback"] = traceback.format_exc()
+        print(f"FAIL Update pause: {report['error']}", flush=True)
+    finally:
+        if server is not None:
+            server.shutdown()
+            server.server_close()
+        if fixture is not None:
+            fixture.cleanup()
+        report["elapsed_seconds"] = round(time.monotonic() - started, 3)
+        pause_report_path = REPORT_PATH.with_name("browser-update-pause.json")
+        pause_report_path.parent.mkdir(parents=True, exist_ok=True)
+        pause_report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        print(json.dumps({"report": str(pause_report_path), **report}, indent=2), flush=True)
+    return report
+
+
 def run() -> dict:
     checks: list[str] = []
     errors: list[str] = []
@@ -419,5 +630,6 @@ def run() -> dict:
 
 
 if __name__ == "__main__":
+    pause_outcome = run_update_pause_checks()
     outcome = run()
-    raise SystemExit(0 if outcome["passed"] else 1)
+    raise SystemExit(0 if pause_outcome["passed"] and outcome["passed"] else 1)
