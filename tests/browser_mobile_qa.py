@@ -134,7 +134,7 @@ class MobileQA(unittest.TestCase):
         self.assertFalse(positive_errors, positive_errors)
 
     def test_borough_build_reachable_after_selection(self):
-        for width, height in [(390, 844), (320, 568), (390, 650), (1440, 900)]:
+        for width, height in [(390, 844), (320, 568), (390, 650), (700, 800), (700, 568), (1440, 900)]:
             with self.subTest(viewport=(width, height)):
                 page = self.open_page(width, height, 'salon/borough')
                 if not os.environ.get('ALIBI_QA_HTML'):
@@ -158,7 +158,7 @@ class MobileQA(unittest.TestCase):
                     }''')
                 initial = geometry()
                 page.screenshot(path=str(OUT / f'borough-selected-{width}-{height}.png'))
-                if width <= 600:
+                if width <= 800:
                     self.assertGreaterEqual(initial['top'], 0, initial)
                     self.assertLessEqual(initial['bottom'], initial['edge'], initial)
                     self.assertTrue(initial['hit'], initial)
@@ -177,7 +177,7 @@ class MobileQA(unittest.TestCase):
                 expect(page.locator('#' + cell_id)).to_be_focused()
                 self.assertEqual(page.evaluate('AlibiClub.diagnostics().state.runs.borough.log.length'), before+1)
                 self.assertFalse(page.evaluate('document.documentElement.scrollWidth>innerWidth+1'))
-                if width <= 600:
+                if width <= 800:
                     built = page.locator('#' + cell_id).bounding_box()
                     edge = page.locator('.mobile-nav').bounding_box()['y']
                     self.assertGreaterEqual(built['y'], 0, built)
