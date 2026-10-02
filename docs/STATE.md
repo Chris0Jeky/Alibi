@@ -21,7 +21,14 @@ preserve data and restore controls; a final controllerchange failure avoids
 reload, and a retry with no waiting worker releases the pause. The existing
 two-release/two-tab suite passes 18 checks. Sharing pause/release sites trims
 81 raw bytes; gzip remains 134,639 (+164), so the JS ceiling rises 128 bytes.
-Full gate, UI/origin QA and independent review remain pending for this candidate.
+UI QA (184) and the full real-origin suite (270) pass. Muse's two MEDIUM claims
+were triaged: temporary recovery-control pause is intentional, and native Enter
+cannot focus or submit an inert form. A final independent Sol review has no
+merge blockers. The render decorators remain adjacent, fixing two source-contract
+regressions; source asset hashes are regenerated. On the landed Borough base,
+JS gzip is 134,711 and code/shell is 1,411,081, requiring a measured 384-byte
+code/shell ceiling extension after the shared-helper trim. The final full gate
+and refreshed-base browser proof remain pending.
 
 Borough #528 passes its three-phone/desktop regression and full local gate;
 the independent review has no merge blockers. A confirmed 700px navigation

@@ -179,8 +179,11 @@ assert.ok(
   // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
   // display, and any display declaration must re-hide pre-enhancement credits.
   // Ceiling +1,024. Not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26624,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 26,624 bytes',
+  // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
+  // The shared pause/release helper trims 81 raw bytes; the remaining native and
+  // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27008,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,008 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
