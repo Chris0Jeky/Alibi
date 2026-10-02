@@ -131,15 +131,16 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
 // 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
 // trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
+// #535: Workshop edit/route epochs measure 134,748 -> 134,813 (+65).
+// Moving generation scroll after the final render removes its duplicate render:
+// six emitted bytes and three gzip bytes trimmed. The remaining guards are required.
+// Ceiling +64 covers the 61-byte excess, leaving three bytes; no feature room.
+// #540 unique follow-up to #539: generator input + owned save feedback measure
+// 134,840 gzip / 1,411,341 shell (+27/+49 over #539). Reuse the existing epoch;
+// no new worker lifecycle/helper. Ceiling +32 gzip leaves eight bytes; no feature room.
 assert.ok(
-  // #535: draft/route ownership for worker success and failure, including late save
-  // feedback. Two trim passes share generation/verification and remove duplicate
-  // rendering/state writes: 134,579 -> 134,651 (+72). Combined with #533/#534 at
-  // c35a6f0: 134,748 -> 134,842 (+94), 90 bytes over that stack's ceiling.
-  // Shared ceiling 134,880: +256 over main, +128 over the active stack, covering
-  // that measured combined excess rather than counting both changes' margins twice.
-  info.javascriptGzipBytes < 127 * 1024 + 4832,
-  'Application bundle stays under 127 KiB + 4,832 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4800,
+  'Application bundle stays under 127 KiB + 4,800 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -192,9 +193,10 @@ assert.ok(
   // beyond that ceiling. The lesson guard has only its required identity/route
   // captures and stale check (34 emitted bytes); no redundant helper to trim.
   // Ceiling +32 leaves 20 bytes, not feature room. JavaScript gzip ceiling unchanged.
-  // #535: 1,410,480 -> 1,410,628 alone; with #533/#534 at c35a6f0:
-  // 1,411,140 -> 1,411,285. The stack has only 20 bytes spare. Shared ceiling
-  // +608 over main / +192 over that stack leaves 67 bytes for build-hash noise.
+  // #535 measures 1,411,292 (+152), after removing the duplicate generation render
+  // (six emitted bytes). The edit/route and post-persistence checks remain required.
+  // Ceiling +160 covers the 132-byte excess and leaves 28; no feature room.
+  // #540 adds 49 shell bytes over #539. Ceiling +32 leaves eleven bytes.
   coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27232,
   'Precached code and shell excluding official content stay under 1.32 MiB + 27,232 bytes',
 );

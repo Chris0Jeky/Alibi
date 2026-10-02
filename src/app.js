@@ -71,13 +71,13 @@
     library = { venue: '', search: '', group: 'all', difficulty: 'all', status: 'all', limit: 24 },
     workTab = 'scene',
     draft = null,
-    draftRevision = 0,
     draftVerified = false,
     draftShowSolution = false,
     draftMode = 'room',
     draftPaint = 0,
     draftObject = 'plant',
     draftBusy = false,
+    draftEpoch = 0,
     pendingBackup = null,
     backupPickerBusy = false,
     backupPickerSerial = 0,
@@ -2420,18 +2420,14 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    const owns = draftOwner();
+    const epoch = draftEpoch,
+      serial = routeSerial;
     await store.put('meta', 'workshop-draft', { puzzle: draft }).catch((e) => {
-      if (owns()) toast(e.message, true);
+      if (epoch === draftEpoch && serial === routeSerial) toast(e.message, true);
     });
   }
-  function draftOwner() {
-    const revision = draftRevision,
-      serial = routeSerial;
-    return () => revision === draftRevision && serial === routeSerial;
-  }
   function dirtyDraft() {
-    draftRevision++;
+    draftEpoch++;
     draftVerified = false;
     saveDraft();
   }
@@ -2453,41 +2449,51 @@
       names,
       seed,
     };
-    await runDraft({ type: 'generate', options }, seed);
-  }
-  async function verifyDraft() {
-    if (draft) await runDraft({ type: 'draft', puzzle: draft });
-  }
-  async function runDraft(message, seed = 0) {
-    if (draftBusy) return;
-    const owns = draftOwner();
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      const result = await inWorker(message);
-      if (!owns()) return;
+      const result = await inWorker({ type: 'generate', options });
+      if (startedEpoch !== draftEpoch) return;
       draft = result;
+      draft.authorSeed = seed;
       draftVerified = true;
-      if (seed) {
-        draft.authorSeed = seed;
-        draftShowSolution = false;
-      }
+      draftShowSolution = false;
       await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
     } catch (e) {
-      if (!owns()) return;
-      if (!seed) draftVerified = false;
+      if (startedEpoch !== draftEpoch) return;
       throw e;
     } finally {
       draftBusy = false;
       render();
     }
-    if (!owns()) return;
-    if (seed)
-      document.querySelector('.draft-editor')?.scrollIntoView({
-        behavior: settings.reducedMotion ? 'instant' : 'smooth',
-        block: 'start',
-      });
-    else toast('Verified. Exactly one arrangement satisfies these clues.');
+    document.querySelector('.draft-editor')?.scrollIntoView({
+      behavior: settings.reducedMotion ? 'instant' : 'smooth',
+      block: 'start',
+    });
+  }
+  async function verifyDraft() {
+    if (!draft || draftBusy) return;
+    const startedEpoch = draftEpoch;
+    draftBusy = true;
+    render();
+    try {
+      const result = await inWorker({ type: 'draft', puzzle: draft });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
+      draftVerified = true;
+      await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
+      toast('Verified. Exactly one arrangement satisfies these clues.');
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      draftVerified = false;
+      throw e;
+    } finally {
+      draftBusy = false;
+      render();
+    }
   }
   function clueValues() {
     if (!draft) return;
@@ -3226,7 +3232,7 @@
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
-      draftRevision++;
+      draftEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;
@@ -3240,6 +3246,7 @@
       if (value) {
         draft.roomNames[Number(el.dataset.roomName)] = value;
         dirtyDraft();
+        draftVerified = false;
       }
     }
   });
@@ -3535,6 +3542,7 @@
     }
   });
   async function loadRoute(focusSerial = 0) {
+    draftEpoch++;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.

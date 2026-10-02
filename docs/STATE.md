@@ -1,36 +1,44 @@
 # Live development state
 
-Current-base note: this candidate also integrates a3228b7 (#534). Exact updated-head
-full qualification remains queued for the next coordinator test slot.
+## Workshop input/save-feedback follow-up (#540): 2 October 2026
 
-## Workshop worker ownership (#535): 2 October 2026
-
-Generation and verification now publish only for the native draft revision and
-route that started them. Edits and navigation, including away-and-back to the
-Workshop, discard old success/error callbacks. A shared worker lifecycle releases
-the busy controls; post-save announcements and scrolling also recheck ownership.
-The actual compiled-worker regressions erase native painting on baseline for both
-generation and verification, then pass for rooms/names, route changes, generator
-fields and validation failures. Native edits remain in real IndexedDB.
-
-Local verify at 214e9b3 passes (929 Node tests, three intentional skips, Quiet Wing 581,847
-engine assertions and 29 contract assertions); UI 184 and real-origin 270 pass.
-Phone/desktop Workshop screenshots were inspected. Independent GPT-6.1-sol/high
-review has no blocker; its P3 obsolete save-feedback edge is tracked separately
-in [#538](https://github.com/Chris0Jeky/Alibi/issues/538).
-
-Two trim passes share the worker lifecycle and remove duplicate render/state
-writes. JS gzip is 134,579 -> 134,651 alone; combined with #533/#534 at c35a6f0 it
-is 134,748 -> 134,842. Code/shell is 1,410,480 -> 1,410,628 alone and 1,411,140 ->
-1,411,285 combined. Shared ceilings cover that combined tree (JS 134,880; shell
-1,411,352), with no initial-payload, CSS or total-offline ceiling increase.
-No deployment, hosted acceptance or physical-phone proof is claimed;
+Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
+is narrowed to its unique behavior and stacked on #539 at 88b6928: native
+Scene generator input advances the existing draft epoch, and a draft save reports
+failure only while its captured epoch and route still own the callback. Seven
+focused units go from six baseline failures to seven passes; the twelve canonical
+worker races still pass. Actual Worker delivery through native controls proves the
+old generation title is not published after newer input, and current generation
+still works at 390px/1440px (nine checks). Baseline #539 publishes the old title.
+No core lifecycle refactor or duplicate core-race fixture remains in this diff.
+Normal merges retain the previous pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. Measured JS/shell:
+134,840 / 1,411,341; ceilings +32/+32 leave eight/eleven bytes. The #542
+combined-source measurement is 134,903 / 1,411,547 and uses #542's shared
+ceilings when both follow-ups are integrated. Required current-head full
+verify/UI/origin and hosted CI are still pending a coordinated qualification
+slot; earlier full counts do not qualify this narrowed composition. P3 #538
+remains deferred. No merge, deployment or physical acceptance is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
-After main advanced to f18c26e (#533), the branch integrates it and 16 focused
-ownership/budget checks pass (measured JS 134,812; code/shell 1,411,252). Updated-head
-full qualification is queued for the coordinator's next test slot; the earlier
-full-suite counts above do not claim acceptance of the newly combined head.
+## Workshop worker completion ownership (#535): 2 October 2026
+
+Workshop edits and route entries now invalidate pending generation/verification.
+A stale worker success cannot replace or save the newer draft; a stale rejection
+cannot clear its verification state. A second check after persistence prevents
+late success messages or scrolling. Generation uses its final render once.
+The real-origin browser regression holds an actual Worker completion, paints a
+room, and reads its saved IndexedDB draft. The baseline loses that edit, both
+in place and after Home/Workshop; both cases pass with the guard. Twelve unit
+cases pass, versus four passes/eight failures on the baseline, including ordinary
+success/error and an edit during a delayed save. Gzip measures 134,813 (+65),
+code/shell 1,411,292 (+152); removing the duplicate generation render trims six
+emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
+160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
+passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
+Independent Sol review has no blockers; exact-head hosted CI remains pending. No deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Lesson completion route ordering (#530): 2 October 2026
 
 The lesson completion captures its lesson object and route serial before saving,
@@ -88,8 +96,11 @@ gate, independent review and exact-head CI passed. The confirmed 700px overlay
 is fixed in PR #532, merged at 21091a0: six viewport checks, full verify, UI QA,
 independent review and exact-head CI pass. Lesson
 completion issue #530 is reproduced with a real IndexedDB completion delay.
-The cancelled import CI run is tracked in #531; #527 has a new locally verified
-base refresh and fresh CI is running. A disposal data-loss claim was declined
+#527 merged at 44f0bd0 after completed exact-head CI, and #533 merged at
+f18c26e after its reviewed, tree-identical base refresh passed exact-head CI.
+The original import CI cancellation is tracked in #531; one source-fixture
+IndexedDB refusal with an unlogged trigger is tracked in #537. An independently
+instrumented rerun passed all 46 unchanged challenge checks. A disposal data-loss claim was declined
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
