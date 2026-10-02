@@ -124,3 +124,18 @@ Backup final local proof: full verify944 pass/three intentional skips, UI184,
 mobile16, real-origin270, independent Sol review no blockers. Its parent-only
 refresh preserves the reviewed diff. Lattice #432 is being prepared separately
 on current main with its24 optional studies untouched and a bounded Muse lens.
+
+Wave 10: two bounded Muse file-only lenses completed with integrity ok. The
+restore-fixture xhigh review finds no defects; machine proof stays with root
+(11 fixture checks, five baseline failures, four killed mutants, native
+Chromium task/microtask probe, full verify 938/three skips). Diagnostics lens
+traces the challenge open/refusal contract but does not propose the requested
+helper; #537 remains open and its original trigger unknown. #476 is partial:
+serialization, abort-request events and stale-pin behavioural proof remain.
+
+#543 merged e4343c5 after completed exact-head CI and aging. The remaining
+reviewed Lattice/activity/fixture commits are consolidated in #432 to avoid
+mutually invalidating base refreshes; every history and review is preserved.
+No reviewed source/test logic is changed by integration; conflicts are receipts
+only. #512/#513/#544/#545 stay open until the combined head lands. Run one
+combined full gate and actual import/control seam, then exact-head hosted CI.
