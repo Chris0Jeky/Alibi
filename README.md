@@ -15,7 +15,7 @@ Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and lo
 
 ## What Alibi has become
 
- Alibi started as a compact puzzle club. It is now developing along three connected product lines:
+Alibi started as a compact puzzle club. It is now developing along three connected product lines:
 
 1. **The Cabinet** — a large, versioned catalogue of logic puzzles and illustrated casebooks with lessons, notes, undo/redo, reasoning hints, completion explanations, favorites, and local backups.
 2. **The House** — Wrenmere, the Games Room, Quiet Wing, gardens, companions, small creative systems, and optional atmospheric experiences that make the project somewhere to revisit rather than a menu of disposable levels.
@@ -25,8 +25,8 @@ The product direction is not “add every possible minigame.” It is to build a
 
 ## What ships today
 
-- **510 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
-- **Five illustrated mystery casebooks:** including the six-record *Last Light at Bellweather* sequence and the longer unfinished invitation.
+- **570 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
+- **Five illustrated mystery casebooks:** including the six-record _Last Light at Bellweather_ sequence and the longer unfinished invitation.
 - **Six Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, and Lantern Gardens. Legacy Dominoes and Mahjong saves remain readable/exportable for compatibility.
 - **A tactile Block Cabinet and experimental Cascade surface:** built on explicit, separate save contracts rather than silently replacing the original game.
 - **Learn-by-doing lessons:** every puzzle family has an interactive introduction; selected families can explain a deduction from the current board without reading the stored solution.
@@ -34,7 +34,7 @@ The product direction is not “add every possible minigame.” It is to build a
 - **Durable local play:** automatic device-local saves, revision-pinned continuations, undo/redo, notes, favorites, recovery checks, and JSON backups.
 - **Offline installation:** the complete core remains usable after installation. Optional room and media packs are delivered separately so they do not inflate the critical path.
 - **Local authoring:** create and validate a mystery, verify uniqueness where the family contract supports it, and export or install a local pack.
-- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. The published catalogue holds 510 puzzles, including the 80 Vault studies and six 15×15 Picture Logic studies alongside the earlier Expert, crime-scene and advanced variations; difficulty and human-calibration gates remain open pending player feedback.
+- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. This source catalogue holds 570 puzzles, including the 80 Vault studies, 60 Interlock studies and six 15×15 Picture Logic studies alongside the earlier Expert, crime-scene and advanced variations. Interlock's initial-download budget gate remains open; difficulty and human-calibration gates remain open pending player feedback.
 
 ## Direction
 
@@ -93,14 +93,14 @@ Windows users can use `.venv\Scripts\python.exe` and set `PYTHONUTF8=1`.
 
 ## Architecture at a glance
 
-| Layer | Main ownership |
-| --- | --- |
-| Pure engines and content contracts | `src/core.js`, `src/engines.js`, `src/bridges.js`, `content/`, `schemas/` |
-| Reasoning hints and evidence recaps | `src/insights.js` |
-| Saves, revisions, transactions, and recovery | `src/storage.js` |
-| Player, lessons, workshop, and PWA | `src/app.js`, `src/presentation.js` |
-| House, cabinet, and responsive design | `src/app.css`, `src/cabinet.css`, `src/expedition.css`, `src/artwork/` |
-| Build, provenance, and acceptance | `tools/`, `tests/`, `.github/workflows/` |
+| Layer                                        | Main ownership                                                            |
+| -------------------------------------------- | ------------------------------------------------------------------------- |
+| Pure engines and content contracts           | `src/core.js`, `src/engines.js`, `src/bridges.js`, `content/`, `schemas/` |
+| Reasoning hints and evidence recaps          | `src/insights.js`                                                         |
+| Saves, revisions, transactions, and recovery | `src/storage.js`                                                          |
+| Player, lessons, workshop, and PWA           | `src/app.js`, `src/presentation.js`                                       |
+| House, cabinet, and responsive design        | `src/app.css`, `src/cabinet.css`, `src/expedition.css`, `src/artwork/`    |
+| Build, provenance, and acceptance            | `tools/`, `tests/`, `.github/workflows/`                                  |
 
 [AGENTS.md](AGENTS.md) is the agent entry point. [STATE.md](docs/STATE.md) is the live handoff. [CONTRIBUTING.md](CONTRIBUTING.md) explains scoped changes and verification.
 
@@ -143,7 +143,7 @@ locally, but a static deployment does not enable public online play.
 The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
 classic boards, credited museum artwork and 95 separately versioned challenges. Enter from the
 home desk, the main navigation or the Wing tab on phones. The Curation Cabinet adds 208 puzzles across four anthologies; later
-trusted packs and the 80 Vault studies bring the catalogue to 510.
+trusted packs, the 80 Vault studies and 60 Interlock studies bring this source catalogue to 570.
 Difficulty remains provisional and missing times are not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
 See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
 

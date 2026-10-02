@@ -2,14 +2,14 @@
 
 ## The original publishing bundle
 
-| Bundle path | What it is | Disposition |
-| --- | --- | --- |
-| `alibi-deluxe-source/alibi/` | Editable 0.2.0 code, content, tests and docs | Imported into this root in four logical commits |
-| `alibi-deluxe-cloudflare/` | Already-built static release | Rebuilt from source, not a second app |
-| `alibi-deluxe-play.html` | Self-contained preview | Regenerated, ignored; used by isolated browser suite |
-| `START-HERE.html` | Standalone upload guide | Retained with original input |
-| `verification/` | Prior reports/screenshots | Historical evidence only |
-| Manifest, build info, checksums | Original release identity | Build `04628f8c5791` reproduced before edits |
+| Bundle path                     | What it is                                   | Disposition                                          |
+| ------------------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| `alibi-deluxe-source/alibi/`    | Editable 0.2.0 code, content, tests and docs | Imported into this root in four logical commits      |
+| `alibi-deluxe-cloudflare/`      | Already-built static release                 | Rebuilt from source, not a second app                |
+| `alibi-deluxe-play.html`        | Self-contained preview                       | Regenerated, ignored; used by isolated browser suite |
+| `START-HERE.html`               | Standalone upload guide                      | Retained with original input                         |
+| `verification/`                 | Prior reports/screenshots                    | Historical evidence only                             |
+| Manifest, build info, checksums | Original release identity                    | Build `04628f8c5791` reproduced before edits         |
 
 The supplied input remains untouched and ignored on this machine. Git contains the actual working
 source and history, not duplicate deployment folders. No second repository is needed.
@@ -28,58 +28,59 @@ flowchart TD
   Browser --> Backup[Player-controlled JSON backup]
 ```
 
-| Region | Responsibility |
-| --- | --- |
-| `src/core.js` | Scene and number/picture engines, base validation, solver, scene generation |
-| `src/engines.js` | Dossier, witness, lightup, tents, aquarium, network and trail engines |
-| `src/bridges.js` | Bounded Hashi engine, visibility graph, uniqueness solver and capacity deductions |
-| `src/insights.js` | Clue-based reasoning hints and completed-record explanations |
-| `src/storage.js` | Revision-conditional saves, labeled fallbacks and atomic restore |
-| `src/app.js` | Routes, player, lessons, workshop, journal, backup and PWA lifecycle |
-| `src/voices.js`, `src/voices-queue.js`, `src/voices-sheet.js` | Player feedback, the taste survey and puzzle ratings sent to Pulseboard on request, with an offline queue ([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md)) |
-| `content/theatre.json`, `src/theatre.js`, `src/theatre.css` | Eight local rooms, optional sound/films, scene controls and presentation lifecycle |
-| `src/asset-delivery.js`, `tools/build-delivery.cjs` | Verified optional image delivery, exact mirrors and bounded cache slots |
-| `src/presentation.js` | Family rules, lessons, icons and decorative board previews |
-| `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
-| `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
-| `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 510 puzzles across 30 bounded packs (26 initial, 4 deferred Vault); the bundled total is `build-info.json` `puzzles` |
-| `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
-| `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
-| `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
-| `schemas/`, `examples/` | Pack format and portable authoring examples |
-| `tools/` | Build, local server, pack validation, generation and bundling |
-| `tests/` | Pure contracts, worker simulation, isolated controls and real-origin acceptance |
-| `.github/` | CI and contribution templates |
-| `wrangler.jsonc` | Existing Cloudflare primary site and static output |
-| `.openai/hosting.json` | Exact Sites fallback project and static output; no credential |
+| Region                                                        | Responsibility                                                                                                                                                   |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core.js`                                                 | Scene and number/picture engines, base validation, solver, scene generation                                                                                      |
+| `src/engines.js`                                              | Dossier, witness, lightup, tents, aquarium, network and trail engines                                                                                            |
+| `src/bridges.js`                                              | Bounded Hashi engine, visibility graph, uniqueness solver and capacity deductions                                                                                |
+| `src/insights.js`                                             | Clue-based reasoning hints and completed-record explanations                                                                                                     |
+| `src/storage.js`                                              | Revision-conditional saves, labeled fallbacks and atomic restore                                                                                                 |
+| `src/app.js`                                                  | Routes, player, lessons, workshop, journal, backup and PWA lifecycle                                                                                             |
+| `src/voices.js`, `src/voices-queue.js`, `src/voices-sheet.js` | Player feedback, the taste survey and puzzle ratings sent to Pulseboard on request, with an offline queue ([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md))   |
+| `content/theatre.json`, `src/theatre.js`, `src/theatre.css`   | Eight local rooms, optional sound/films, scene controls and presentation lifecycle                                                                               |
+| `src/asset-delivery.js`, `tools/build-delivery.cjs`           | Verified optional image delivery, exact mirrors and bounded cache slots                                                                                          |
+| `src/presentation.js`                                         | Family rules, lessons, icons and decorative board previews                                                                                                       |
+| `src/app.css`, `src/cabinet.css`, `src/expedition.css`        | Base boards/themes and public mobile cabinet styling                                                                                                             |
+| `src/artwork/`, `src/icons/`                                  | Original casebook covers and supplied install icons                                                                                                              |
+| `content/catalog.json`                                        | 116 preserved published definitions; stable IDs and revisions                                                                                                    |
+| `content/official-packs.json`, `content/curation/packs/`      | Explicit trusted source registry: 570 puzzles across 32 bounded packs (27 initial, 5 deferred Vault/Interlock); the bundled total is `build-info.json` `puzzles` |
+| `content/curation/editorial/`, `src/curation.js`              | Four standalone anthologies, provisional difficulty and completion-gated answer notes                                                                            |
+| `content/legacy.json`                                         | Forty compatibility fixtures, not more playable catalogue entries                                                                                                |
+| `content/casebooks.json`                                      | Five casebooks: Bellweather, the invitation and three earlier anthologies                                                                                        |
+| `schemas/`, `examples/`                                       | Pack format and portable authoring examples                                                                                                                      |
+| `tools/`                                                      | Build, local server, pack validation, generation and bundling                                                                                                    |
+| `tests/`                                                      | Pure contracts, worker simulation, isolated controls and real-origin acceptance                                                                                  |
+| `.github/`                                                    | CI and contribution templates                                                                                                                                    |
+| `wrangler.jsonc`                                              | Existing Cloudflare primary site and static output                                                                                                               |
+| `.openai/hosting.json`                                        | Exact Sites fallback project and static output; no credential                                                                                                    |
 
 ## Games and content
 
-| Family | Count | Main interaction |
-| --- | ---: | --- |
-| Tidal bridges | 32 | Tap island pairs to cycle bridge counts |
-| Crime scenes | 43 | Spatial placement followed by an accusation |
-| Alibi files | 29 | People/room/object deduction matrices |
-| Witness statements | 31 | Truth counts and culprit selection |
-| Picture logic | 40 | Nonogram paint, cross, clear |
-| Lanterns | 52 | Illumination and numbered-wall constraints |
-| Tents & trees | 32 | Tree matching and edge counts |
-| Aquariums | 32 | Shared water levels within tanks |
-| Signal paths | 32 | Connected network rotations |
-| Number trails | 32 | Consecutive path through every square |
-| Sudoku | 49 | Row, column and box constraints |
-| Sun & moon | 55 | Balanced binary lines without triples |
-| Futoshiki | 51 | Latin square and inequality constraints |
+| Family             | Count | Main interaction                            |
+| ------------------ | ----: | ------------------------------------------- |
+| Tidal bridges      |    44 | Tap island pairs to cycle bridge counts     |
+| Crime scenes       |    43 | Spatial placement followed by an accusation |
+| Alibi files        |    29 | People/room/object deduction matrices       |
+| Witness statements |    31 | Truth counts and culprit selection          |
+| Picture logic      |    40 | Nonogram paint, cross, clear                |
+| Lanterns           |    52 | Illumination and numbered-wall constraints  |
+| Tents & trees      |    44 | Tree matching and edge counts               |
+| Aquariums          |    44 | Shared water levels within tanks            |
+| Signal paths       |    44 | Connected network rotations                 |
+| Number trails      |    44 | Consecutive path through every square       |
+| Sudoku             |    49 | Row, column and box constraints             |
+| Sun & moon         |    55 | Balanced binary lines without triples       |
+| Futoshiki          |    51 | Latin square and inequality constraints     |
 
 Bellweather adds six original, chronological records, and the unfinished invitation adds eight
 continuous records. The earlier three casebooks are anthologies of existing puzzles. Casebook
 entries reference catalogue IDs; they are not extra copies. Daily choices rotate from the catalogue
 using the device date. All progress is device-local.
 
-The 510 total is the trusted-registry count (`content/official-packs.json`, 30 packs); the bundled
-total is `build-info.json` `puzzles`, with `deferredPuzzles` for the precached Vault chunk. The older
-382 figure was the 23-pack baseline before the 48 Night studies and 80 Vault studies.
+The 570 total is this source's trusted-registry count (`content/official-packs.json`, 32 packs);
+the bundled total is `build-info.json` `puzzles`, with 454 initial and 116 deferred definitions.
+Interlock's initial-download budget gate remains open. The published 510-puzzle prefix is
+unchanged; the older 382 figure was the 23-pack baseline before Night and Vault studies.
 
 ## Known content work
 
@@ -121,7 +122,7 @@ combined staging and subsequent section validation use its bounded worker. See R
 independent checks and human-playtest limits. The 95 curated classic/Club challenges
 (`src/challenges.js`, `challenge-storage.js`, `challenge-launcher.js`; Quiet Wing › Challenges,
 deep link `#/quiet/challenges?family=<family id>`) are separate experiences, never core imports or
-additions to the 510-puzzle trusted-registry count.
+additions to the 570-puzzle trusted-registry count.
 
 ## Adaptive asset delivery
 

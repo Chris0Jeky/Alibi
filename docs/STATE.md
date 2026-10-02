@@ -1,5 +1,18 @@
 # Live development state
 
+Interlock candidate #427 is preserved on the reviewed #432 base, with the
+original 60 definitions/editorial receipts unchanged. At clean source 3178b35,
+the corrected official-byte accounting and compact worker ID table pass all
+15 regression cases; two deliberately broken variants are killed. The source,
+codec and emitted-content seam passes 38 cases; the budget case fails because
+initial code/content measures 206,217 gzip bytes against a strict 205,248 cap
+(969 over). Shell is 1,410,153 bytes and fits the existing ceiling; JavaScript
+is 134,832 gzip bytes, also within its existing ceiling. No ceilings are raised.
+Nine registry-selection tests pass. Sol independent accounting/worker review
+finds no blockers. Full verify, final-head Android and 120 real-control cases
+are not claimed for this parked candidate. Further delivery work is tracked
+under #422; physical comfort/calibration remain in HUMAN_TODO.md.
+
 Current qualification: #432 consolidates the optional Lattice content and
 reviewed #544/#545 persistence tests with all original commits preserved.
 #539 and #543 are merged; combined full verify at 981df97 passes (966
@@ -162,6 +175,7 @@ instrumented rerun passed all 46 unchanged challenge checks. A disposal data-los
 after retained-state/retry behavior was traced.
 No deployment or physical-device acceptance is claimed. [HUMAN_TODO.md](../HUMAN_TODO.md)
 and the phone session remain open.
+
 ## Borough tablet navigation: 2 October 2026
 
 Follow-up #529 moves Borough's confirmation/plot scroll margin to the 800px
@@ -176,7 +190,6 @@ review finds no correctness, security or data-loss defect. Its non-blocking
 coverage wording observation is clarified in this required QA receipt. This follows
 #528 and preserves its separate phone fix/review. [HUMAN_TODO.md](../HUMAN_TODO.md)
 still holds physical-phone acceptance; no deployment is claimed.
-
 
 ## Borough confirmation reachability (#497): 2 October 2026
 

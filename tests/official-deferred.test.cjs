@@ -26,16 +26,17 @@ function startup(extra = {}) {
   return context;
 }
 
-test('registry defers exactly the four Vault packs, all of which stay registered', () => {
+test('registry defers Vault and Interlock Routes, all of which stay registered', () => {
   assert.deepEqual(registry.deferred, [
     'extra/vault-binary.json',
     'extra/vault-sudoku.json',
     'extra/vault-lightup.json',
     'extra/vault-futoshiki.json',
+    'extra/interlock-routes.json',
   ]);
   for (const file of registry.deferred) assert.ok(registry.packs.includes(file));
   const { catalog, deferred: keys } = partition(root, false);
-  assert.equal(keys.size, 80);
+  assert.equal(keys.size, 116);
   assert.equal(JSON.stringify(catalog), JSON.stringify(load(root, false)));
 });
 
@@ -61,9 +62,9 @@ test('startup carries listing entries only and reads no definition fields', () =
   const marker = context.ALIBI_DEFERRED;
   assert.equal(marker.ready, false);
   assert.match(marker.url, /^\.\/assets\/official-deferred\.[a-f0-9]{12}\.js$/);
-  assert.equal(marker.keys.length, 80);
+  assert.equal(marker.keys.length, 116);
   const listed = context.ALIBI_CATALOG.puzzles.filter((p) => marker.has(p));
-  assert.equal(listed.length, 80);
+  assert.equal(listed.length, 116);
   for (const entry of listed) {
     assert.deepEqual(
       Object.keys(entry).filter((key) => !content.LISTING_FIELDS.includes(key)),
@@ -93,6 +94,7 @@ test('initial plus deferred scripts reproduce the full official catalogue exactl
 
 test('a tampered listing entry fails closed and swaps nothing', () => {
   for (const tamper of [
+    (p) => (p.find((x) => x.id === 'interlock-bridges-12').title = 'Forged'),
     (p) => (p.find((x) => x.id === 'vault-futoshiki-20').title = 'Forged'),
     (p) => (p.find((x) => x.id === 'vault-binary-01').revision = 2),
     (p) => (p.find((x) => x.id === 'vault-lightup-07').extra = 1),
