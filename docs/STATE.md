@@ -13,8 +13,9 @@ cases pass, versus four passes/eight failures on the baseline, including ordinar
 success/error and an edit during a delayed save. Gzip measures 134,813 (+65),
 code/shell 1,411,292 (+152); removing the duplicate generation render trims six
 emitted bytes and three gzip bytes. Measured ceiling extensions are 64 gzip and
-160 shell bytes, leaving three and 28 bytes. Full gate and independent review
-are pending. No deployment or physical acceptance is claimed;
+160 shell bytes, leaving three and 28 bytes. Full local verify passes (932
+passed, three intentional skips), UI 184 and all 15 mobile QA tests pass.
+Independent Sol review has no blockers; exact-head hosted CI remains pending. No deployment or physical acceptance is claimed;
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Lesson completion route ordering (#530): 2 October 2026

@@ -47,3 +47,7 @@ small necessary cap extensions. Independent review and full gate precede its PR.
 Backup remains a separate next slice. Source-fixture diagnostics are tracked in
 #537; a rerun passed all 46 unchanged challenge checks, without claiming the
 original unlogged refusal is explained.
+
+Workshop final proof: full verify 932 pass/three intentional skips, UI 184, all
+15 mobile QA tests and independent Sol review pass. Source guards are unchanged
+after review; this evidence commit gets a clean Android/catalogue/budget reproof.

@@ -2,7 +2,7 @@
 
 | Priority | Work | State and next action |
 | --- | --- | --- |
-| 1 | #535 Workshop stale verification | Integrated separate Sol slice after Muse provider retries timed out. Unit baseline 4 pass/8 fail becomes 12 pass; actual native Worker/IDB regression passes in-place and after Home/Workshop. Duplicate render trimmed; measured budget extensions 64 gzip/160 shell bytes. Finish full gate, independent review and ready PR. |
+| 1 | #535 Workshop stale verification | Integrated separate Sol slice after Muse provider retries timed out. Unit baseline 4 pass/8 fail becomes 12 pass; actual native Worker/IDB regression passes in-place and after Home/Workshop. Duplicate render trimmed; measured budget extensions 64 gzip/160 shell bytes. Full gate 932 pass/three skips, UI 184, mobile 15 and independent Sol review pass. Publish ready PR and await exact-head CI. |
 | 2 | #536 backup route ownership | Sol guard and 12 tests ready in owned worker checkout; four baseline failures reproduced. Actual Cabinet/combined Worker completions reopen dialogs over Home. Integrate as the next separate layer with browser RED/GREEN and review; no destructive restore or platform-picker claim. |
 | 3 | #530 lesson / PR #534 | Full verify 920 pass/three skips, UI 184, mobile 14 and independent Muse no blockers. Final Android/seam 23 and actual lesson/Borough checks pass. Retargeted to main and refreshed at c35a6f0 after #533; tree unchanged, exact-head CI pending. |
 | 4 | #512/#513 activity regressions | Independent Sol no blockers. Refreshed after #533 at 29a6c7e/a4ef5f8; all three activities.js blobs identical and 12 seam tests pass. Await exact-head CI and aging. |
