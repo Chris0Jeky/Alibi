@@ -21,8 +21,9 @@ function rightsFor(asset) {
   const receipt = cityReceiptByModel.get(asset.id);
   return {
     author: 'Kenney',
-    sourcePage:
-      asset.source.includes('/town/') ? townDownload.source : 'https://kenney.nl/assets/castle-kit',
+    sourcePage: asset.source.includes('/town/')
+      ? townDownload.source
+      : 'https://kenney.nl/assets/castle-kit',
     licenceVersion: receipt?.licence === 'CC0-1.0' ? 'CC0 1.0' : receipt?.licence,
     receipt: 'assets-source/quiet-wing/city/receipt.json',
   };
@@ -75,7 +76,10 @@ write(path.join(realmDir, 'catalogue.json'), {
       `assets-source/library/realm/thumbnails/scene-${id}.png`,
       `assets-source/library/realm/thumbnails/scene-${id}-alt.png`,
     ],
-    metadata: { views: ['isometric', 'alternate isometric'], rights: { author: 'Alibi', licenceVersion: 'Original work' } },
+    metadata: {
+      views: ['isometric', 'alternate isometric'],
+      rights: { author: 'Alibi', licenceVersion: 'Original work' },
+    },
     provenance: 'Original Alibi composition from retained and original library modules.',
     accessibility: 'Two static rendered views accompany the GLB.',
     integration: 'Candidate library only; no runtime import.',
@@ -102,7 +106,10 @@ write(path.join(companionDir, 'catalogue.json'), {
     provenance: asset.provenance,
     accessibility:
       'Named, layered SVG rig plus a PNG fallback for every practical state; reduced motion remains static.',
-    integration: asset.integrationReference || asset.integration || 'src/quiet-wing/pets.js and src/quiet-wing/pet-view.js',
+    integration:
+      asset.integrationReference ||
+      asset.integration ||
+      'src/quiet-wing/pets.js and src/quiet-wing/pet-view.js',
     qa: 'All eight named practical states, layer identifiers and static thumbnails are checked by tests/asset-models.test.cjs.',
   })),
 });
