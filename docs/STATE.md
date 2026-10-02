@@ -23,6 +23,38 @@ helper was formatted, with no data changes. Final source proof and hosted CI
 remain separate. No human calibration, physical Android/TalkBack or deployment
 is claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
+## Activity guard regression integration (#512/#513): 2 October 2026
+
+The two independently reviewed test-only candidates are integrated together on
+current main, preserving their original commits. Six checks cover refusal of
+unsafe update flushes and the clean positive path; two cover overlapping or
+disconnected mounts. With the four existing activity checks, all twelve pass.
+The reviewed activities.js blob remains cce877a6897f45c263091dff442484ee8b82181c;
+no runtime code changes. One integration PR carries both tests so separate
+base refreshes do not keep invalidating each other. Full local verify passes
+(928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
+lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+## Backup validation route ownership (#536): 2 October 2026
+
+Cabinet and combined-backup validation capture their route before reading the
+file. A completed validation from a departed route cannot replace the staged
+backup or open a restore dialog. Existing byte limits and error propagation are
+preserved. The actual HTTP-origin regression exports ordinary app backups,
+holds the real Worker response, navigates Home and releases it. Both baseline
+dialogs reopen over Home; both guarded cases pass, with positive Settings review
+controls and no destructive restore clicked. Twelve unit cases pass, versus
+eight passes/four failures on the baseline, covering navigation during both
+file reading and validation, retained previous state, errors and byte limits.
+Gzip measures 134,833 (+20), code/shell 1,411,339 (+47); measured 32-byte
+extensions leave 15 and 13 bytes. Both input paths need their capture/stale
+check, with validated Cabinet data held locally until ownership is confirmed.
+Full local verify passes (944 passed, three intentional skips), UI 184, mobile
+QA 16 and all 270 real-origin checks pass. Independent Sol review has no
+blockers; exact-head CI remains pending. Same-route concurrency and platform
+picker timing are outside this slice. [HUMAN_TODO.md](../HUMAN_TODO.md) remains open; no
+deployment or physical-device acceptance is claimed.
+
 ## Workshop worker completion ownership (#535): 2 October 2026
 
 Workshop edits and route entries now invalidate pending generation/verification.
@@ -58,7 +90,7 @@ The JavaScript gzip ceiling is unchanged; source asset metadata is refreshed. Fu
 three intentional skips), UI 184 and all 14 mobile QA tests pass. Independent
 Muse review has no merge blockers. Its LOW scheduling claim is declined:
 Playwright evaluate awaits the returned release Promise, and the actual
-baseline regression fails after release. Exact-head CI is pending. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
+baseline regression fails after release. PR #534 merged at a3228b7 after completed exact-head CI and aging. No deployment or physical acceptance; [HUMAN_TODO.md](../HUMAN_TODO.md)
 remains open.
 
 ## Goal continuation: 2 October 2026

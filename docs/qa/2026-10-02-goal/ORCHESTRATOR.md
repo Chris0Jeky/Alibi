@@ -49,6 +49,26 @@ formatter exposed a single old evidence-helper mismatch, fixed mechanically.
 Muse has no findings; a narrow Sol pass completes its uninspected certificate
 seam with no blockers. Final documentation gets a clean Android/source reproof.
 
+Activity test closeout now integrates both #512/#513 on current main, preserving
+all original commits and independent review credit. Runtime activity blob is
+unchanged; twelve focused checks pass. One ready integration PR will receive
+fresh exact-head CI, then close the superseded originals after landing. This
+avoids mutually invalidating independent test-only base refreshes.
+Workshop #539 and backup #543 are locally qualified, ready, and CI-pending;
+concurrent cloud drafts #540/#542 cover the same defects with extra adjacent
+scope. Human explicitly authorized one message to Fix Alibi editing races;
+it was sent. Keep overlapping merges pending during reconciliation. Lattice
+#432 separately passes full verify 928/three skips and all 48 actual imported
+puzzle/viewport cases (194 checks); phone/desktop captures were inspected.
+Five owned raw worker checkouts were removed without force after preserving
+patches/files in primary test-results/goal-20261002/worker-proposals/ and named
+local snapshot branches. Published integrated branches and unrelated worktrees
+remain intact.
+
+Combined activity test full gate passes (928 passed, three intentional skips);
+source remains unchanged. Final evidence commit gets Android/seam reproof before
+a ready integration PR, preserving both earlier independent reviews.
+
 Current checkpoint: #527 merged at 44f0bd0 and #533 at f18c26e; primary is clean
 at f18c26e. Lesson #534 was retargeted to main and refreshed at c35a6f0 with an
 identical tree, preserving its review while exact-head CI runs. #512/#513 were
@@ -76,3 +96,31 @@ receipts conflict, both preserved. Pack/editorial bytes and all official
 content remain unchanged. Reprove Android/readiness/budget and actual Workshop
 imports on the combined head. Coordination resolved #540/#542 into adjacent
 follow-ups; #543 retains #536. No review loop or content regeneration.
+
+#539 merged at be849af after green exact-head CI and aging. Coordination is
+resolved: the other chat retains #540/#542 as focused follow-ups; our #543
+retains #536 and is retargeted to main. Its base-only 978ea35 refresh has an
+identical tree and clean Android/41 focused passes. The activity integration
+joins landed main with only receipt conflicts, retaining both reviewed test
+files and all histories. #489 closed after current-contract reconciliation,
+14 Node checks and 30 actual Tic-Tac-Toe browser assertions; #488 was already
+merged. Codex quota notices on #539/#543 are informational, not findings.
+
+Workshop published ready as #539 at 68eff8b with review posted; final clean
+Android/catalogue/budget/race checks pass (31). Backup integrated next on its
+own branch: baseline unit 8 pass/4 fail -> 12 pass, native Worker dialogs
+RED/GREEN for both inputs, ordinary Settings review preserved. No destructive
+restore clicked. #520 was already resolved by c035982 and is now closed after
+live wiring/manual-header and guard reconciliation. Chess/draughts do not exist
+in current authoritative engines/UI; the bounded history follow-up reports
+absence, not clearance. Adjacent Workshop save-feedback issue #538 remains
+separate and non-blocking; no native failure-delivery proof is inferred.
+
+Lesson #534 merged at a3228b7 after completed exact-head CI; primary main is
+cleanly fast-forwarded. Workshop #539 retargeted to main, linked issue #535
+confirmed, then refreshed through the API. Its tree remains identical to68eff8b;
+review credit and source/browser proof are preserved, fresh CI is required.
+Backup final local proof: full verify944 pass/three intentional skips, UI184,
+mobile16, real-origin270, independent Sol review no blockers. Its parent-only
+refresh preserves the reviewed diff. Lattice #432 is being prepared separately
+on current main with its24 optional studies untouched and a bounded Muse lens.
