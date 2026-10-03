@@ -356,3 +356,83 @@ test('current validation errors remain visible and do not write or mount', async
   assert.equal(h.mounts.length, 0);
   assert.equal(view.input.value, '');
 });
+
+test('an admitted restore never exposes an old initial read as an editable board', async () => {
+  const h = harness(),
+    view = h.open('A');
+  const pending = h.importFile(view);
+  await tick();
+  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
+  await tick();
+  assert.equal(h.restores.length, 1);
+  h.reads[0].resolve({ challengeId: 'A', log: ['old'] });
+  await tick();
+  assert.equal(h.mounts.length, 0, 'old moves cannot be queued behind the restore');
+  assert.equal(h.A.challengeHandle, null);
+  h.restores[0].resolve();
+  await pending;
+  assert.deepEqual(h.A.challengeHandle.saved.log, ['imported']);
+});
+
+test('restore admission disposes the existing board until the replacement is ready', async () => {
+  const h = harness(),
+    view = h.open('A');
+  await tick();
+  h.reads[0].resolve({ challengeId: 'A', log: ['before'] });
+  await tick();
+  const old = h.A.challengeHandle;
+  const pending = h.importFile(view);
+  await tick();
+  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
+  await tick();
+  assert.equal(old.disposed, true);
+  assert.equal(old.host.inert, true);
+  assert.equal(h.A.challengeHandle, null);
+  h.restores[0].resolve();
+  await pending;
+  assert.equal(old.host.inert, false);
+  assert.deepEqual(h.A.challengeHandle.saved.log, ['imported']);
+});
+
+test('a refused restore resumes the exact in-memory pre-import board and reports failure', async () => {
+  const h = harness(),
+    view = h.open('A');
+  await tick();
+  h.reads[0].resolve({ challengeId: 'A', log: ['latest move'] });
+  await tick();
+  const old = h.A.challengeHandle;
+  const pending = h.importFile(view);
+  await tick();
+  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
+  await tick();
+  h.restores[0].reject(Error('restore refused'));
+  await pending;
+  assert.notEqual(h.A.challengeHandle, old, 'old listeners are not revived');
+  assert.deepEqual(h.A.challengeHandle.saved.log, ['latest move']);
+  assert.equal(old.host.inert, false);
+  assert.equal(view.input.value, '');
+  assert.deepEqual(h.messages, ['restore refused']);
+});
+
+test('a refused early restore waits for its original read before resuming and never locks the next route', async () => {
+  const h = harness(),
+    a = h.open('A');
+  const pending = h.importFile(a);
+  await tick();
+  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
+  await tick();
+  h.restores[0].reject(Error('restore refused'));
+  await tick();
+  const b = h.open('B');
+  await tick();
+  h.reads[1].resolve({ challengeId: 'B', log: ['B'] });
+  await tick();
+  const current = h.A.challengeHandle;
+  h.reads[0].resolve({ challengeId: 'A', log: ['old'] });
+  await pending;
+  assert.equal(h.A.challengeHandle, current);
+  assert.equal(current.disposed, false);
+  assert.notEqual(current.host.inert, true);
+  assert.equal(b.input.value, '');
+  assert.equal(h.mounts.length, 1);
+});

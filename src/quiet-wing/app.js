@@ -1600,18 +1600,19 @@
               },
             );
           };
-        let importing = false;
-        A.challengeStore
+        let importing = false,
+          restoring = false;
+        const loading = A.challengeStore
           .open()
           .then(() => A.challengeStore.read(challenge.id))
           .catch((error) => {
             if (isCurrent()) toast(error.message);
             return null;
-          })
-          .then((saved) => {
-            if (!isCurrent() || A.challengeHandle) return;
-            mount(saved);
           });
+        loading.then((saved) => {
+          if (!isCurrent() || A.challengeHandle || restoring) return;
+          mount(saved);
+        });
         $('#challenge-export').onclick = () => {
           if (isCurrent()) exportChallenge(A.challengeHandle?.save());
         };
@@ -1642,14 +1643,28 @@
             if (!isCurrent()) return;
             if (imported.challengeId !== challenge.id)
               throw Error('Choose a save for this exact challenge.');
-            await A.challengeStore.restore(imported);
+            const previous = A.challengeHandle?.save();
+            restoring = true;
+            host.inert = true;
+            A.challengeHandle?.dispose();
+            A.challengeHandle = null;
+            try {
+              await A.challengeStore.restore(imported);
+            } catch (error) {
+              const saved = previous ?? (await loading);
+              restoring = false;
+              mount(saved);
+              throw error;
+            }
+            restoring = false;
             if (!isCurrent()) return;
             mount(imported);
             toast('Challenge save restored. The previous save remains available for export.');
           } catch (error) {
             if (isCurrent()) toast(error.message);
           } finally {
-            importing = false;
+            importing = restoring = false;
+            host.inert = false;
             input.value = '';
           }
         };

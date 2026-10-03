@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-03: challenge restore admission review correction (#560)
+
+Independent review found that an initial read could expose the old board while
+a restore was pending, allowing its moves to overwrite imported progress.
+Restore admission now detaches that handle, makes the captured host inert and
+suppresses the initial mount. A refused restore resumes the exact pre-import
+run, or awaits the original read, without remounting a departed route. Three
+new regressions fail before this correction; all 16 host and 64 related source
+cases pass afterwards. Browser acceptance, final-head CI and renewed independent
+review remain required. No save format, byte ceiling or physical acceptance
+changes. Earlier 12/60 counts below describe the initial slice, not this head.
+
 ## 2026-10-03: challenge view ownership (draft)
 
 Refs #416 item 3. Challenge loads, exports, recovery and imports now belong to a
