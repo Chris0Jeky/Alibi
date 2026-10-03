@@ -17,3 +17,12 @@ One implementation, one real review, blocker repair and scoped reproof per slice
 #546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Hosted Node22 full gate succeeds at ffffb338. Refreshed parent timeout-only merge requires clean Android/Bridges/CI-scope proof and current-head CI.
 
 #432 and #546 have now landed, with #546 merge cc86981. Preserve #540 ready head 730add9; its receipt conflicts are resolved on the separate codex/alibi-0151-residuals release candidate. Qualify that combined source once, preserving all histories, and close superseded editing PRs only after landing. Residual #538/#541 and release-doc #551 repairs are reviewed; final full/browser/hosted/deployment gates remain open.
+
+## Final completion/count integration - 3 October 2026
+
+#553 landed43f573b with exact-head local/hosted qualification and no deployment.
+The later #552 b0f71b0 handoff retains completion hooks and #550 count-parser
+work. Preserve both histories, the 0.15.1 SDK and #553 delegated-picker fixtures.
+Confirmed pre-completion Journey failures in commit/endPaint need focused guards
+and broad-throw regressions. Remove the idle fixture browser. Final combined
+source/budget/review/full/browser/hosted/publication gates remain pending.

@@ -205,3 +205,12 @@ restore-545/. Both roots were removed without force after publication checks.
 ## Residual release integration — 2 October 2026, 23:29 UTC
 
 #432 and #546 are landed; the latter exact-head merge is cc86981. The peer #540 ready head 730add9 is preserved, with receipt conflicts against current main. The separate codex/alibi-0151-residuals candidate retains all original histories and adds #538/#541, delegated validation coverage, reviewed release notes and the authoritative 0.15.1 SDK pin. Earlier full/browser counts are historical. Final combined qualification, hosted CI, aging and deployment remain pending; superseded editing PRs close only after the replacement lands. HUMAN_TODO.md remains open.
+
+## Final completion/count integration - 3 October 2026
+
+#553 landed43f573b with exact-head local/hosted qualification and no deployment.
+The later #552 b0f71b0 handoff retains completion hooks and #550 count-parser
+work. Preserve both histories, the 0.15.1 SDK and #553 delegated-picker fixtures.
+Confirmed pre-completion Journey failures in commit/endPaint need focused guards
+and broad-throw regressions. Remove the idle fixture browser. Final combined
+source/budget/review/full/browser/hosted/publication gates remain pending.

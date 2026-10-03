@@ -1476,8 +1476,12 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
-      globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
-      globalThis.AlibiTheatre.moment('complete');
+      try {
+        globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
+      } catch {}
+      try {
+        globalThis.AlibiTheatre.moment('complete');
+      } catch {}
       paused = false;
       render();
       const mystery = ['scene', 'dossier', 'witness'].includes(p.type);
@@ -1527,7 +1531,9 @@
   }
   function commit(next, { reveal = false, history = true } = {}) {
     if (updateRequested || !current || C.equal(next, current.state)) return false;
-    globalThis.AlibiJourney?.(current);
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     if (history) {
       current.undo.push(C.clone(current.state));
@@ -3356,7 +3362,9 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
-    globalThis.AlibiJourney?.(current);
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
