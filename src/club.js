@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${'plan walk undo redo restart duel-mode duel-strength tictactoe-mode archive-level assist lab-quality build block-piece block-cell mahjong-tile domino-tile domino-end domino-draw domino-pass domino-use-seed'.split(' ').includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   // Planning contracts live in the Quiet Wing challenge list. Once that list reads a family filter,
@@ -580,22 +580,16 @@
   function currentGame(id) {
     const r = state.runs[id];
     if (!r) return null;
-    if (id === 'duel') {
-      let s = E().reversi.initial();
-      for (const i of r.log) s = E().reversi.move(s, i);
+    if (id === 'duel' || id === 'archive') {
+      const engine = E()[id === 'duel' ? 'reversi' : 'warehouse'];
+      let s = engine.initial(r.level);
+      for (const move of r.log) s = engine.move(s, move);
       return s;
     }
     if (id === 'tictactoe') return E().tictactoe.replay(r.log);
     if (id === 'blockcabinet') return E().blockCabinet.replay(r.seed, r.log);
     if (id === 'regiongardens') return E().regionGardens.replay(r.level, r.log);
-    if (id === 'dominoes') return E().dominoes.replay(r.seed, r.log);
-    if (id === 'mahjong') return E().mahjong.replay(r.seed, r.log);
-    if (id === 'borough') return E().borough.replay(r.seed, r.log);
-    if (id === 'archive') {
-      let s = E().warehouse.initial(r.level);
-      for (const d of r.log) s = E().warehouse.move(s, d);
-      return s;
-    }
+    if (['dominoes', 'mahjong', 'borough'].includes(id)) return E()[id].replay(r.seed, r.log);
     return null;
   }
   function heading(title, kicker, description) {
@@ -854,7 +848,7 @@
       key =
         id +
         ':' +
-        (id === 'borough' || id === 'blockcabinet' || id === 'dominoes' || id === 'mahjong'
+        (['borough', 'blockcabinet', 'dominoes', 'mahjong'].includes(id)
           ? r.seed
           : ['archive', 'regiongardens'].includes(id)
             ? r.level
@@ -1091,7 +1085,7 @@
       { label: 'Cancel', action: 'close-dialog', secondary: true },
     ]);
   }
-  // A finished game is already in the journal, so replacing it needs no confirmation.
+  // Finished games replay immediately; reset-confirm retains their result before replacement.
   function resetOrConfirm(next, title, text) {
     root.__clubReset = next;
     return again(next.id)
@@ -1437,6 +1431,7 @@
         const r = state.runs[reset.id];
         if (!r) throw Error('Unknown game.');
         if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);
+        record(reset.id, currentGame(reset.id));
         document.getElementById('dialog').close();
         stopBot();
         if (reset.freshSeed && reset.id === 'blockcabinet') {
@@ -1460,6 +1455,7 @@
         selectedMahjongTile = null;
         save();
         render();
+        if (reset.id === 'regiongardens') revealBoroughControl('garden-status');
         delete root.__clubReset;
       } else if (a === 'plan') {
         const slot = Number(v);

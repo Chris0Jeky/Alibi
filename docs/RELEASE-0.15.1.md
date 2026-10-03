@@ -72,6 +72,14 @@ Public packages and checksums are attached to
 - `alibi-deluxe-play.html`: `d2e0ebb96c4824e77a47cc9d5235550d56083853a2f2832bdbe5b5b063948657`
 - Web payload: `1cfde8475b0585bb8b89b554e66670302dd8ad7a7bbb91f27da24ef639028ea2`
 
+## Later repository work
+
+Games Room [#556](https://github.com/Chris0Jeky/Alibi/pull/556) landed afterward at
+`c6fed0e3bcd0f0cde6f8cb9ef44c542c75c5306e`. Its result-retention/focus changes
+are outside this published source, build, package and tag. The later publication
+documentation merge preserves that owner’s notes without redeploying its code or
+claiming its independent acceptance as part of this release.
+
 ## Registered SDK and remaining acceptance
 
 Pulseboard [#186](https://github.com/Chris0Jeky/Pulseboard/pull/186), source
