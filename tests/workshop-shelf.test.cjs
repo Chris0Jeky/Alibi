@@ -24,7 +24,8 @@ test('shelf produces five deterministic files with byte-exact pack downloads', (
     const output = first.files.find((item) => item.path === 'assets/workshop/' + file.path);
     assert.deepEqual(output.data, file.data);
   }
-  const metadata = first.files.find((file) => file.path === 'assets/workshop/catalogue.json');
+  const metadata = first.files.find((file) => /\/catalogue\.[a-f0-9]{64}\.json$/.test(file.path));
+  assert.ok(metadata, 'metadata uses a full content-derived filename');
   assert.deepEqual(JSON.parse(metadata.data), catalogue.manifest);
 });
 test('shelf is script-free, links only to same-origin resources and explains explicit import', () => {

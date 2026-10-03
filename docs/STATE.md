@@ -1,5 +1,36 @@
 # Live development state
 
+## 4 October recovery update
+
+The interrupted handoff was saved as commit 962463f but was not attached to a PR.
+It is now submitted in [#571](https://github.com/Chris0Jeky/Alibi/pull/571), together
+with its complete history archive and preservation tests. The checkpoint sections
+below retain the previous observations; this update supersedes their #570 head
+and pending-review information, not their recorded historical evidence.
+
+Workshop discovery [#570](https://github.com/Chris0Jeky/Alibi/pull/570) is at
+`7e4a565b1517c1ec43707c4d530a989a08e3e570`. Its public metadata now has a full
+content-hash filename rather than a stable URL under immutable asset caching.
+The two reviewed distribution sums remain corrected. All fourteen acquisition/
+offline browser cases and 82 selected source cases pass on that head; its actual
+artifact, four downloaded JSON files and five Android-indexed optional resources
+were checked. Full repository CI and independent re-review still precede merge.
+See [the recovery evidence update](qa/2026-10-04-gameplay-recovery.md) and
+[the cache correction](qa/2026-10-04-workshop-cache.md).
+
+Practice-count correction [#572](https://github.com/Chris0Jeky/Alibi/pull/572) is
+submitted separately at `9e5287d867d929dad8b74d46df77ff443ef41a05`. It preserves
+full-definition equality, exposes incomplete familiarity as a verified lower
+bound and keeps earned details and practice controls. Seven source cases pass;
+full CI, six real-browser cases and independent review remain required. It starts
+no network operation and refreshes on the next room snapshot, not through a new
+live observer. #389 item 3 stays with #459. No unpublished codec optimization is
+claimed recovered or integrated by this continuation.
+
+The rest of this file is the retained 3 October checkpoint. Recheck current
+GitHub before acting; neither this document nor an old green check authorizes
+merging a changed head. Source merges are not a deployment.
+
 ## Reading this ledger
 
 This is the current continuation index for the 3 October gameplay/content pass.

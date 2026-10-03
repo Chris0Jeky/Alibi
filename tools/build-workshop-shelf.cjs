@@ -44,11 +44,13 @@ function buildShelf(root = path.resolve(__dirname, '..')) {
     },
   ).code;
   const stylesheet = `collections.${createHash('sha256').update(css).digest('hex').slice(0, 12)}.css`;
+  const metadata = Buffer.from(JSON.stringify(catalogue.manifest, null, 2) + '\n');
+  const metadataHash = createHash('sha256').update(metadata).digest('hex');
   const files = [
     ...catalogue.files.map((file) => ({ path: 'assets/workshop/' + file.path, data: file.data })),
     {
-      path: 'assets/workshop/catalogue.json',
-      data: Buffer.from(JSON.stringify(catalogue.manifest, null, 2) + '\n'),
+      path: `assets/workshop/catalogue.${metadataHash}.json`,
+      data: metadata,
     },
     { path: 'assets/workshop/' + stylesheet, data: Buffer.from(css) },
     {
