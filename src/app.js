@@ -2197,92 +2197,116 @@
     );
   }
   async function stageAll(file) {
-    if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
-    const startedSerial = routeSerial;
-    const data = await inWorker({ type: 'combined-backup', text: await file.text() });
-    if (routeSerial !== startedSerial) return;
-    stagedAll = data;
-    dialog(
-      'Choose a section to restore',
-      `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
-      [
-        { label: 'Review cabinet restore', action: 'all-cabinet' },
-        { label: 'Review Club restore', action: 'all-club' },
-        ...(data.sections.quiet
-          ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
-          : []),
-        ...(data.sections.castle ? [{ label: 'Review castle restore', action: 'all-castle' }] : []),
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+    const serial = routeSerial;
+    try {
+      if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
+      const data = await inWorker({ type: 'combined-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      stagedAll = data;
+      dialog(
+        'Choose a section to restore',
+        `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
+        [
+          { label: 'Review cabinet restore', action: 'all-cabinet' },
+          { label: 'Review Club restore', action: 'all-club' },
+          ...(data.sections.quiet
+            ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
+            : []),
+          ...(data.sections.castle
+            ? [{ label: 'Review castle restore', action: 'all-castle' }]
+            : []),
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function importBackupFromPicker() {
     if (backupPickerBusy) return;
     backupPickerBusy = true;
+    const serial = routeSerial;
     let token = null;
     try {
-      const operation = (stage) => ({
-        operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
-        timeoutMs: 30000,
-      });
-      const fail = (code, reading = false) => {
-        toast(
-          code === 'cancelled'
-            ? 'No backup was selected. Nothing was changed.'
-            : code === 'protected'
-              ? 'That backup is larger than 16 MB. Choose a smaller backup.'
-              : reading
-                ? 'The selected backup could not be read. Choose a JSON backup file.'
-                : 'The backup picker could not finish. Try again from Restore backup.',
-          code !== 'cancelled',
-        );
-      };
-      const picked = await platform.documents.pickBackup(operation('pick'));
-      if (!picked?.ok) {
-        fail(picked?.code);
-        return;
-      }
-      token = picked.value;
-      if (typeof token !== 'string' || !token) {
-        fail('invalid');
-        return;
-      }
-      const read = await platform.documents.readLimited(token, 16 * 1024 * 1024, operation('read'));
-      if (!read?.ok) {
-        fail(read?.code, true);
-        return;
-      }
-      if (typeof read.value !== 'string') {
-        fail('invalid', true);
-        return;
-      }
-      await importBackup(new File([read.value], 'alibi-backup.json', { type: 'application/json' }));
-    } finally {
       try {
-        if (token) await platform.documents.release(token);
-      } catch {
-        /* Cleanup must not replace the picker or import failure. */
+        const operation = (stage) => ({
+          operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
+          timeoutMs: 30000,
+        });
+        const fail = (code, reading = false) => {
+          if (serial !== routeSerial) return;
+          toast(
+            code === 'cancelled'
+              ? 'No backup was selected. Nothing was changed.'
+              : code === 'protected'
+                ? 'That backup is larger than 16 MB. Choose a smaller backup.'
+                : reading
+                  ? 'The selected backup could not be read. Choose a JSON backup file.'
+                  : 'The backup picker could not finish. Try again from Restore backup.',
+            code !== 'cancelled',
+          );
+        };
+        const picked = await platform.documents.pickBackup(operation('pick'));
+        if (!picked?.ok) {
+          fail(picked?.code);
+          return;
+        }
+        token = picked.value;
+        if (serial !== routeSerial) return;
+        if (typeof token !== 'string' || !token) {
+          fail('invalid');
+          return;
+        }
+        const read = await platform.documents.readLimited(
+          token,
+          16 * 1024 * 1024,
+          operation('read'),
+        );
+        if (serial !== routeSerial) return;
+        if (!read?.ok) {
+          fail(read?.code, true);
+          return;
+        }
+        if (typeof read.value !== 'string') {
+          fail('invalid', true);
+          return;
+        }
+        await importBackup(
+          new File([read.value], 'alibi-backup.json', { type: 'application/json' }),
+          serial,
+        );
+      } finally {
+        try {
+          if (token) await platform.documents.release(token);
+        } catch {
+          /* Cleanup must not replace the picker or import failure. */
+        }
+        backupPickerBusy = false;
       }
-      backupPickerBusy = false;
+    } catch (e) {
+      if (serial === routeSerial) throw e;
     }
   }
-  async function importBackup(file) {
-    if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
-    const startedSerial = routeSerial;
-    const data = await inWorker({ type: 'cabinet-backup', text: await file.text() });
-    if (routeSerial !== startedSerial) return;
-    pendingBackup = data;
-    const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
-    dialog(
-      'Restore your progress.',
-      `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
-      [
-        { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
-        { label: 'Replace device data', action: 'restore-replace', danger: true },
-        { label: 'Export current progress', action: 'export', secondary: true },
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+  async function importBackup(file, serial = routeSerial) {
+    try {
+      if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
+      const data = await inWorker({ type: 'cabinet-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      pendingBackup = data;
+      const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
+      dialog(
+        'Restore your progress.',
+        `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
+        [
+          { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
+          { label: 'Replace device data', action: 'restore-replace', danger: true },
+          { label: 'Export current progress', action: 'export', secondary: true },
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function restoreBackup(replace = false) {
     if (!pendingBackup) return;
@@ -2425,9 +2449,13 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    await store
-      .put('meta', 'workshop-draft', { puzzle: draft })
-      .catch((e) => toast(e.message, true));
+    const puzzle = draft,
+      epoch = draftEpoch,
+      serial = routeSerial;
+    await store.put('meta', 'workshop-draft', { puzzle }).catch((e) => {
+      if (puzzle === draft && epoch === draftEpoch && serial === routeSerial)
+        toast(e.message, true);
+    });
   }
   function dirtyDraft() {
     draftEpoch++;
@@ -3235,6 +3263,7 @@
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
+      draftEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;

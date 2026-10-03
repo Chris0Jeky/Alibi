@@ -169,3 +169,39 @@ to 45 minutes, then require actual completed hosted proof. No cancellation is
 waived. Human and physical acceptance remains open in HUMAN_TODO.md.
 
 #546 hosted full Node22 gate succeeds at ffffb338. Parent f79fe2e timeout-only headroom is merged with receipt-only conflict resolution; Bridges and runtime blobs remain unchanged. Preserve Muse review and first-failure proof; re-prove Android/Bridges/CI-scope at the clean merge head before push.
+
+## Editing follow-up integration — 2 October 2026, 22:02 UTC
+
+- Preserved both qualified sibling histories on #432 via merge commits. Automatic app merge retains canonical #539/#543 guards and adds only #540's generator-input/save-feedback and #542's stale-error/picker ownership. Sol's read-only map identifies the exact unique seams; this map is not a fresh review.
+- Resolved only catalogue, state, budgets and CI wiring. Both new actual-worker scripts and artifact paths remain. Generated catalogue hashes match the composed app. Current main's +32 allowance already covers #540's standalone accounting; #542's existing shared proposal is +64 gzip/+208 shell beyond main, not an added per-branch sum.
+- All 44 focused ownership/budget cases pass. Preliminary web: 510 official puzzles, 80 deferred; JS 134,907 gzip, shell 1,411,547. Existing shared ceilings 134,912/1,411,560.32 pass. Original source/content/startup/CSS/total ceilings stay unchanged. Full/actual-browser qualification is next; no merge or physical/native-host acceptance is claimed.
+- #546 publishes the separate Bridges conversion at ffffb338; source scope stays one test file plus receipts. Full 1,014/three skips, final Android/Bridges 63 and completed Muse no HIGH/CRITICAL are posted, with the MEDIUM counter concern tracked under #519. Node 22 CI remains required.
+  #432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+  24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+  gate cancels twice at 25 minutes during passing browser output. A bounded
+  Sol medium lens finds no assertion defect and confirms variable apt setup
+  consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+  Retain every command and scope condition; increase only the full job deadline
+  to 45 minutes, then require actual completed hosted proof. No cancellation is
+  waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+Wave 12 completed: independent Muse contributor xhigh review of the composed
+editing diff at 0992949 has no HIGH/CRITICAL defect. Its LOW picker-to-validation
+serial coverage gap is tracked once on #541; no fix cascade. Root execution:
+full verify 981/three skips, focused 44, native Worker Workshop nine/backup
+thirteen, UI 184, mobile 16 and real-origin 270 all pass. Phone/desktop captures
+for both flows were inspected. The reviewed timeout-only change is integrated
+with both browser scripts/artifacts retained; production and test blobs match
+the reviewed 0992949 head. Final clean-head source/budget proof remains due.
+
+#427 is parked ready at 271bff9: corrected shell accounting and compact worker
+ID projection fit shell/JS, but startup remains 969 bytes over its unchanged
+205,248 gzip ceiling. The final hosted failures also expose strict Markdown
+table whitespace parsing in docs-counts; track it separately. All 60 original
+boards remain unchanged. Needed ignored proof from removed Interlock/restore
+roots lives under primary test-results/goal-20261002/interlock-427/ and
+restore-545/. Both roots were removed without force after publication checks.
+
+## Residual release integration — 2 October 2026, 23:29 UTC
+
+#432 and #546 are landed; the latter exact-head merge is cc86981. The peer #540 ready head 730add9 is preserved, with receipt conflicts against current main. The separate codex/alibi-0151-residuals candidate retains all original histories and adds #538/#541, delegated validation coverage, reviewed release notes and the authoritative 0.15.1 SDK pin. Earlier full/browser counts are historical. Final combined qualification, hosted CI, aging and deployment remain pending; superseded editing PRs close only after the replacement lands. HUMAN_TODO.md remains open.

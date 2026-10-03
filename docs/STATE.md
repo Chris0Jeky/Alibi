@@ -1,5 +1,78 @@
 # Live development state
 
+## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
+
+This candidate retains both reviewed #540/#542 histories and the landed
+canonical #539/#543 fixes. Their generator-input and backup-result guards stay
+in place. The residual save-feedback fix also captures the saved draft identity,
+so a Generate or Verify replacement keeps its own feedback
+even if an earlier edit's save later fails (#538). Backup read/worker errors and
+picker completion keep their original route; the picker propagates an import
+failure only after token cleanup and busy reset, then rechecks ownership (#541).
+Current errors and original thrown values remain visible; late tokens release.
+
+Both new residual regressions have two baseline failures each. Focused corrected
+execution passes 21 Workshop and 37 backup/picker cases, with no skipped cases.
+The established unique native-control fixtures remain wired into CI: Workshop
+generator input and backup error/modal ownership. These residual failure timings
+are source-helper/adapter proofs, not native IndexedDB or physical-device claims.
+Eight additional cases run the actual picker and delegated import helpers
+together, holding worker delivery after a successful bounded read and holding
+token cleanup. Current/stale success/error ownership is covered; removing the
+delegated publication guard loses two cases and losing the serial argument loses
+the explicit picker contract. This closes the #541 fixture gap without claiming
+native-host document-provider timing.
+
+Catalogue/budget and branch-main receipt conflicts are reconciled for this final
+integration. Earlier full suites/composed snapshots do not qualify the changed
+source. Independent reviews of the residual fixes, release pin and bounded test
+runner found no blockers. Final clean payload/measurement, full verify, actual
+UI/origin browser checks, exact-head hosted CI and aging are pending. The
+preliminary composed web build measures 134,924 JavaScript gzip and 1,411,564
+code-shell bytes after an 11-gzip/16-emitted-byte cleanup trim. Required residual
+guards exceed the prior shared ceilings by 12/3.68 bytes; measured extensions of
+32 gzip/16 shell bytes leave 20/12.32 bytes, not feature room. A clean final-head
+build must remeasure this source. After #546 landed, #540 has receipt conflicts
+against main. This separate candidate preserves its ready head and both
+original histories, and carries the residual fixes and release. Superseded
+editing PRs close only after the replacement lands. Other content/artwork/native/research lanes retain ownership.
+Deployment follows docs/DEPLOYMENT.md and its Pulseboard release dependency;
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+The 0.15.1 release candidate pins authoritative Pulseboard SDK 3.3.1 from source
+3617e228d9b29852208edbdac68ffa1d2bf05814. Its full hash, registration and collector
+readiness are recorded in observatory/README.md and docs/RELEASE-0.15.1.md.
+Local pin/build assertions and 26 focused host/release cases pass; the online
+SDK remains outside the initial bundle and offline shell. npm test now caps
+Node test-file concurrency at two for the coordinated PC qualification slot.
+Helper subprocesses remain outside that cap. Final qualification follows
+the owner-ordered #432/#546 landings, now completed at main cc86981.
+The peer editing history is retained in this candidate. These focused checks
+do not claim final qualification.
+
+## Editing follow-up composition (#540/#542): 2 October 2026
+
+Both qualified sibling histories are preserved on reviewed #432. Workshop form
+input advances the existing draft epoch; obsolete draft-save errors stay with
+their captured epoch/route. Backup read/validation failures and native picker
+results/feedback retain route ownership, with token release and canonical
+successful-result guards preserved. Current errors still propagate.
+
+The coordinator resolves only catalogue/state/budget/CI conflicts: both actual
+browser scripts and artifact paths remain wired; the asset catalogue is
+regenerated from the composed app. All 44 focused ownership/budget cases pass.
+Clean 0992949 web measures 134,909 JS gzip and 1,411,548 shell bytes, under #542's
+already recorded shared 134,912 / 1,411,560.32 ceilings. No additional allowance
+is introduced; startup, content, CSS and total-offline ceilings remain intact.
+Full verify at clean 0992949 passes 981 tests with three intentional skips.
+Actual compiled Worker controls pass nine Workshop and thirteen backup checks;
+UI 184, mobile 16 and real-origin 270 pass. Phone/desktop captures at 390/1440
+were inspected. A completed independent Muse xhigh lens finds no HIGH/CRITICAL
+defects; its one LOW picker-to-validation coverage gap is tracked under #541.
+Final clean-head source/budget proof and completed hosted CI remain required.
+Earlier sibling passes are historical. Native-host picker timing, physical Android/TalkBack and human
+acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
+
 ## Test diagnostics (#519): 2 October 2026
 
 Bridges now registers 49 named, serial Node test cases instead of one file-level
@@ -76,6 +149,31 @@ base refreshes do not keep invalidating each other. Full local verify passes
 (928 passed, three intentional skips); exact-head CI and aging remain required. The original PRs remain open until this integration
 lands. [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
 
+## Backup error/picker follow-up (#542): 2 October 2026
+
+Ownership reconciliation selects #543 as the canonical #536 core fix. Draft #542
+is narrowed and stacked on #543 at 0627d57: stale file/worker failures are
+suppressed, and Cabinet picker ownership starts before pick/read, carries into
+validation, and still releases late tokens. The #543 baseline Cabinet failure
+closes a newer lesson dialog through the delegated file error handler; combined
+failure leaves an obsolete error toast. Actual compiled Worker/native file
+controls reproduce both and pass after the guard. Thirteen native checks cover
+both obsolete failures, newer-modal survival, unchanged save counts, and ordinary
+390px/1440px review; no destructive restore is clicked. Unit expectation changes
+cover stale rejection disposal while current errors still propagate. The focused
+24 route/picker cases go from ten baseline failures to all passing; twelve
+canonical Workshop races also pass. The old duplicate route-race fixture is removed.
+Normal merges retain all earlier pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. This slice measures
+134,891 JS gzip / 1,411,498 code/shell; together with #540 the actual composed
+source measures 134,903 / 1,411,547. Shared ceilings 134,912 / about 1,411,560
+leave nine/thirteen bytes; startup, CSS and total-offline ceilings do not change.
+Required current-head full verify/UI/origin and hosted CI remain pending;
+previous core/earlier-branch full counts do not qualify this composition. P3 #541
+async native cleanup remains separately deferred; VM picker tests do not claim
+native-host timing acceptance. No merge, deployment or physical acceptance is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
 ## Backup validation route ownership (#536): 2 October 2026
 
 Cabinet and combined-backup validation capture their route before reading the
@@ -112,6 +210,27 @@ zero-delay activity checkpoint is an approximation; native durability remains
 separate. Issue #476 stays open for transaction serialization, pending abort
 error events and a behavioural stale-pin mutation. Hosted CI/aging are pending;
 [HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance remains open.
+
+## Workshop input/save-feedback follow-up (#540): 2 October 2026
+
+Ownership reconciliation selects #539 as the canonical #535 core fix. Draft #540
+is narrowed to its unique behavior and stacked on #539 at 88b6928: native
+Scene generator input advances the existing draft epoch, and a draft save reports
+failure only while its captured epoch and route still own the callback. Seven
+focused units go from six baseline failures to seven passes; the twelve canonical
+worker races still pass. Actual Worker delivery through native controls proves the
+old generation title is not published after newer input, and current generation
+still works at 390px/1440px (nine checks). Baseline #539 publishes the old title.
+No core lifecycle refactor or duplicate core-race fixture remains in this diff.
+Normal merges retain the previous pushed implementation/evidence commits.
+Fresh GPT-6.1-sol/high integration review has no blockers. Measured JS/shell:
+134,840 / 1,411,341; ceilings +32/+32 leave eight/eleven bytes. The #542
+combined-source measurement is 134,903 / 1,411,547 and uses #542's shared
+ceilings when both follow-ups are integrated. Required current-head full
+verify/UI/origin and hosted CI are still pending a coordinated qualification
+slot; earlier full counts do not qualify this narrowed composition. P3 #538
+remains deferred. No merge, deployment or physical acceptance is claimed;
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
 ## Workshop worker completion ownership (#535): 2 October 2026
 

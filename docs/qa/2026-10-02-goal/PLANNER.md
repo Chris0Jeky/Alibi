@@ -15,3 +15,5 @@
 One implementation, one real review, blocker repair and scoped reproof per slice. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md). Hosted, simulated and physical evidence remain distinct.
 
 #546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Hosted Node22 full gate succeeds at ffffb338. Refreshed parent timeout-only merge requires clean Android/Bridges/CI-scope proof and current-head CI.
+
+#432 and #546 have now landed, with #546 merge cc86981. Preserve #540 ready head 730add9; its receipt conflicts are resolved on the separate codex/alibi-0151-residuals release candidate. Qualify that combined source once, preserving all histories, and close superseded editing PRs only after landing. Residual #538/#541 and release-doc #551 repairs are reviewed; final full/browser/hosted/deployment gates remain open.

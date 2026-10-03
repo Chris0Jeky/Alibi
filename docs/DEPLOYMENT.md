@@ -21,16 +21,22 @@ paid external service is needed. Never create another project just to publish an
    `npm run release:prepare -- <version> --publish`. It sets the package version, registers the
    release label in a temporary Pulseboard worktree, regenerates the pinned Observatory adapter
    here and opens the Pulseboard PR. Commit the Alibi files with the release. After the Pulseboard
-   PR merges, deploy its collector (`npm run deploy` in `observatory/`) before deploying Alibi, or
-   the collector rejects the new release's usage counts.
+   PR merges, the Pulseboard release owner establishes collector readiness before
+   deploying Alibi. Alibi's `releasePattern` also admits well-formed semantic
+   versions; registration maintains release history and satisfies the pinned
+   artifact checker.
    This collector deploy stays a manual step run by the release session (owner decision
    2026-09-27, HUMAN_TODO q-13); apply any new Pulseboard D1 migration first and check `/readyz`.
-   Since 0.14.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`), which
-   Pulseboard's `sync:alibi` does not yet regenerate: until it does, register the release in
-   Pulseboard `observatory/src/alibi-releases.mjs`, rebuild with
-   `node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>` after
-   `git rm observatory/pulseboard.js`, update `observatory.lock.json`, and run
-   `node observatory/check.mjs` after a build.
+   Since 0.14.1 the pinned artifact is the Pulseboard SDK v3 (`observatory/pulseboard.js`).
+   Pulseboard's `sync:alibi` recognizes that lock layout and refuses an SDK version
+   mismatch. A reviewed SDK upgrade or a separately coordinated registration can
+   use the authoritative builder directly:
+   `node adapters/build-sdk.mjs alibi <Alibi checkout> observatory/pulseboard.js <version>`.
+   The builder safely replaces a pristine existing artifact; retain it until
+   generation succeeds. Install the exact supplied bytes, update both SDK versions
+   and the full-file hash in `observatory.lock.json`, then run
+   `node observatory/check.mjs` after a build. Keep collector deployment with its
+   existing owner and retain the registration/source/readiness receipts.
 1. Run `npm ci`, `npm run verify`, and all browser acceptance suites in CI. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. Build the merged source. Record its full Git SHA and `build-info.json`.
