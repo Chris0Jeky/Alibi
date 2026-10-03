@@ -36,7 +36,7 @@ try:
             if menu.is_visible():
                 menu.click()
             page.locator('.bc-host [data-command="switch"]').click()
-            dialog = page.get_by_role('dialog', name='Cascade Cabinet', exact=True)
+            dialog = page.get_by_role('dialog', name='Cascade Cabinet.', exact=True)
             dialog.wait_for()
             controls = dialog.locator('.bc-controls')
             controls.locator('[data-command="rotate"]').wait_for()
