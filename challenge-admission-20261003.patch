@@ -1,0 +1,125 @@
+diff --git a/src/quiet-wing/app.js b/src/quiet-wing/app.js
+index ba4fa25..8ccff79 100644
+--- a/src/quiet-wing/app.js
++++ b/src/quiet-wing/app.js
+@@ -1603,2 +1603,3 @@
+-        let importing = false;
+-        A.challengeStore
++        let importing = false,
++          restoring = false;
++        const loading = A.challengeStore
+@@ -1610,4 +1610,0 @@
+-          })
+-          .then((saved) => {
+-            if (!isCurrent() || A.challengeHandle) return;
+-            mount(saved);
+@@ -1614,0 +1612,4 @@
++        loading.then((saved) => {
++          if (!isCurrent() || A.challengeHandle || restoring) return;
++          mount(saved);
++        });
+@@ -1645 +1646,14 @@
+-            await A.challengeStore.restore(imported);
++            const previous = A.challengeHandle?.save();
++            restoring = true;
++            host.inert = true;
++            A.challengeHandle?.dispose();
++            A.challengeHandle = null;
++            try {
++              await A.challengeStore.restore(imported);
++            } catch (error) {
++              const saved = previous ?? (await loading);
++              restoring = false;
++              mount(saved);
++              throw error;
++            }
++            restoring = false;
+@@ -1652 +1666,2 @@
+-            importing = false;
++            importing = restoring = false;
++            host.inert = false;
+diff --git a/tests/challenge-host-ownership.test.cjs b/tests/challenge-host-ownership.test.cjs
+index 1148772..802ff07 100644
+--- a/tests/challenge-host-ownership.test.cjs
++++ b/tests/challenge-host-ownership.test.cjs
+@@ -358,0 +359,80 @@ test('current validation errors remain visible and do not write or mount', async
++
++test('an admitted restore never exposes an old initial read as an editable board', async () => {
++  const h = harness(),
++    view = h.open('A');
++  const pending = h.importFile(view);
++  await tick();
++  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
++  await tick();
++  assert.equal(h.restores.length, 1);
++  h.reads[0].resolve({ challengeId: 'A', log: ['old'] });
++  await tick();
++  assert.equal(h.mounts.length, 0, 'old moves cannot be queued behind the restore');
++  assert.equal(h.A.challengeHandle, null);
++  h.restores[0].resolve();
++  await pending;
++  assert.deepEqual(h.A.challengeHandle.saved.log, ['imported']);
++});
++
++test('restore admission disposes the existing board until the replacement is ready', async () => {
++  const h = harness(),
++    view = h.open('A');
++  await tick();
++  h.reads[0].resolve({ challengeId: 'A', log: ['before'] });
++  await tick();
++  const old = h.A.challengeHandle;
++  const pending = h.importFile(view);
++  await tick();
++  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
++  await tick();
++  assert.equal(old.disposed, true);
++  assert.equal(old.host.inert, true);
++  assert.equal(h.A.challengeHandle, null);
++  h.restores[0].resolve();
++  await pending;
++  assert.equal(old.host.inert, false);
++  assert.deepEqual(h.A.challengeHandle.saved.log, ['imported']);
++});
++
++test('a refused restore resumes the exact in-memory pre-import board and reports failure', async () => {
++  const h = harness(),
++    view = h.open('A');
++  await tick();
++  h.reads[0].resolve({ challengeId: 'A', log: ['latest move'] });
++  await tick();
++  const old = h.A.challengeHandle;
++  const pending = h.importFile(view);
++  await tick();
++  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
++  await tick();
++  h.restores[0].reject(Error('restore refused'));
++  await pending;
++  assert.notEqual(h.A.challengeHandle, old, 'old listeners are not revived');
++  assert.deepEqual(h.A.challengeHandle.saved.log, ['latest move']);
++  assert.equal(old.host.inert, false);
++  assert.equal(view.input.value, '');
++  assert.deepEqual(h.messages, ['restore refused']);
++});
++
++test('a refused early restore waits for its original read before resuming and never locks the next route', async () => {
++  const h = harness(),
++    a = h.open('A');
++  const pending = h.importFile(a);
++  await tick();
++  h.validations[0].resolve({ challengeId: 'A', log: ['imported'] });
++  await tick();
++  h.restores[0].reject(Error('restore refused'));
++  await tick();
++  const b = h.open('B');
++  await tick();
++  h.reads[1].resolve({ challengeId: 'B', log: ['B'] });
++  await tick();
++  const current = h.A.challengeHandle;
++  h.reads[0].resolve({ challengeId: 'A', log: ['old'] });
++  await pending;
++  assert.equal(h.A.challengeHandle, current);
++  assert.equal(current.disposed, false);
++  assert.notEqual(current.host.inert, true);
++  assert.equal(b.input.value, '');
++  assert.equal(h.mounts.length, 1);
++});
