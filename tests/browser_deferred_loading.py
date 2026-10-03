@@ -72,13 +72,15 @@ def run():
 
                         if scenario == 'leave-and-resume':
                             page.get_by_role('link', name='Back to puzzles', exact=True).press('Enter')
-                            expect(page.locator('input[type="search"]').first).to_be_visible()
+                            expect(page.get_by_role('heading', name='The puzzle collection.', exact=True)).to_be_visible()
                             held[0].fulfill(status=200, content_type='text/javascript', body=payload)
                             page.wait_for_function('()=>ALIBI_DEFERRED.ready')
                             assert page.evaluate('AlibiDiagnostics.getCurrent()') is None
                             assert page.evaluate('AlibiDiagnostics.getCounts().records') == 0
                             assert not page.locator('dialog[open]').count()
                             cases.append({'width': width, 'case': 'pending-navigation-rejects-late-open'})
+                            page.locator('.family-card[data-action="navigate"][data-page="library"][data-id="binary"]').click()
+                            expect(page.locator('input[type="search"]').first).to_be_visible()
                             page.locator('input[type="search"]').first.fill(PUZZLE['title'])
                             page.locator(f'[id="library-card-{PUZZLE["id"]}@1"]').click()
                         else:
