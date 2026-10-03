@@ -1,5 +1,14 @@
 # Live development state
 
+## 2026-10-03: narrow Cascade actions (#562, follows #556)
+
+Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text
+extending beyond their buttons. Below 371px, only the Cascade dialog now uses
+three columns and normal-flow actions, preserving 44px targets, readable labels
+and the selectable tray. Classic and wider layouts retain their current rules.
+The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
+close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
+CI and independent review remain gates; physical Android/TalkBack is unverified.
 ## 2026-10-03: challenge restore admission review correction (#560)
 
 Independent review found that an initial read could expose the old board while
@@ -1353,3 +1362,12 @@ dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
 Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
 assertions pass after this change. Full exact-head CI, origin storage/offline,
 independent review and physical/human acceptance remain required.
+
+### Cascade current-main integration
+
+The narrow-Cascade CSS and actual-control fixture remain byte-identical to
+reviewed 8f5618d. Landed Challenge #560 is incorporated without altering its
+runtime or tests; only additive state-note conflicts were resolved. Earlier
+eight green workflows and the three browser cases are historical evidence.
+Recheck all current-head workflows and independent review before merge.
+Physical Android and TalkBack acceptance remain in HUMAN_TODO.md.
