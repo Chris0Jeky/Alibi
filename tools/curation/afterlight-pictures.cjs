@@ -26,6 +26,8 @@ function build(source) {
   const invalidCollection = () => Error('Expected a complete ten-study Afterlight collection');
   if (source?.schemaVersion !== 1 || !Array.isArray(source.studies) || source.studies.length !== 10)
     throw invalidCollection();
+  if (source.packId !== 'alibi-afterlight-workshop')
+    throw Error('Invalid pack header: expected alibi-afterlight-workshop');
   const expectedIds = new Set(
     Array.from(
       { length: 10 },

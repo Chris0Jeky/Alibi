@@ -1,0 +1,132 @@
+name: Reconcile reviewed gameplay branches
+on:
+  push:
+    branches: [codex/afterlight-workshop-20261003]
+    paths: [.github/workflows/reconcile-reviewed-gameplay.yml]
+permissions:
+  contents: read
+jobs:
+  integrate:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == 'f3b04156a4b554331a6657b4af0e5aa33ff09037'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    env:
+      TARGET_MAIN: eeb995d8d9b3e0a67638c8e361bd2f6e36861659
+      SAVED_BASE: 299f10efd7ec2aa33f007a8ee2ed68ee96293d32
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Preserve pinned main and reviewed source while resolving state notes
+        shell: python
+        run: |
+          import hashlib, json, os, subprocess, tempfile
+          from collections import Counter
+          from pathlib import Path
+          def git(*args):
+              return subprocess.check_output(['git',*args])
+          main=os.environ['TARGET_MAIN']
+          base=os.environ['SAVED_BASE']
+          assert git('ls-remote','origin','refs/heads/main').decode().split()[0]==main
+          incoming=set(git('diff','--name-only',base,main).decode().splitlines())
+          expected_incoming={'.github/workflows/challenge-ownership-controls.yml','docs/STATE.md','docs/qa/2026-10-03-challenge-recovery.md','docs/qa/2026-10-03-challenge-final-base.md','src/quiet-wing/app.js','tests/browser_challenge_ownership.py','tests/challenge-host-ownership.test.cjs','tests/challenge-browser-readiness.test.cjs'}
+          assert incoming==expected_incoming,incoming
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          out=Path('test-results/reviewed-gameplay-recovery')
+          out.mkdir(parents=True,exist_ok=True)
+          targets=[('codex/afterlight-workshop-20261003',os.environ['GITHUB_SHA'],'afterlight'),('codex/cascade-narrow-controls-20261003','8f5618d9a585def68a00afde7bc8b34ae8e54df5','cascade')]
+          receipts=[]
+          for branch,expected,label in targets:
+              assert git('ls-remote','origin','refs/heads/'+branch).decode().split()[0]==expected
+              git('checkout','--detach',expected)
+              ancestor=git('merge-base','HEAD',main).decode().strip()
+              assert ancestor==base,(label,ancestor)
+              result=subprocess.run(['git','merge','--no-commit','--no-ff',main])
+              conflicts=set(git('diff','--name-only','--diff-filter=U').decode().splitlines())
+              assert result.returncode in (0,1)
+              assert conflicts<={'docs/STATE.md'},conflicts
+              if conflicts:
+                  ours,theirs,common=(git('show',ref+':docs/STATE.md') for ref in ('HEAD',main,ancestor))
+                  with tempfile.TemporaryDirectory() as folder:
+                      paths=[Path(folder)/name for name in ('ours','base','theirs')]
+                      for p,data in zip(paths,(ours,common,theirs)):p.write_bytes(data)
+                      git('merge-file','--union',*(str(p) for p in paths))
+                      merged=paths[0].read_bytes()
+                  counts=Counter(merged.splitlines())
+                  for parent in (ours,theirs):
+                      assert all(counts[line]>=n for line,n in Counter(parent.splitlines()).items())
+                  Path('docs/STATE.md').write_bytes(merged)
+              allowed=set(incoming)
+              if label=='afterlight':
+                  helper='.github/workflows/reconcile-reviewed-gameplay.yml'
+                  git('rm',helper)
+                  allowed.add(helper)
+                  allowed.add('docs/curation/AFTERLIGHT-PICTURES.md')
+                  state=Path('docs/STATE.md')
+                  text=state.read_text()
+                  for old,new in [('51 source/readiness/authoring regressions','53 source/readiness/authoring regressions'),('all fifty-one Afterlight cases now pass','all fifty-three Afterlight cases now pass')]:
+                      assert text.count(old)==1,old
+                      text=text.replace(old,new)
+                  text+='\n### Afterlight fixed pack identity\n\nThe compiler now pins alibi-afterlight-workshop as well as study IDs 01 through\n10. Two new regressions fail the prior compiler and prove that a syntactically\nvalid replacement identity cannot overwrite the existing JSON through --write.\nThe authored pack bytes remain unchanged. This branch integrates landed #560;\ncurrent-head full CI, all twenty browser cases and independent re-review remain\nrequired. No deployment or physical-device acceptance is claimed.\n'
+                  state.write_text(text)
+                  guide=Path('docs/curation/AFTERLIGHT-PICTURES.md')
+                  text=guide.read_text()
+                  assert text.count('currently runs 51')==1
+                  text=text.replace('currently runs 51','currently runs 53')
+                  text=text.replace('eight membership and fifteen metadata/CLI regressions.','eight membership, fifteen metadata/CLI and two fixed-pack-identity regressions.')
+                  guide.write_text(text)
+                  tests=sorted(str(p) for p in Path('tests').glob('afterlight-*.test.cjs'))
+                  subprocess.run(['node','tools/curation/afterlight-pictures.cjs','--check'],check=True)
+                  assert hashlib.sha256(Path('content/workshop/afterlight-pictures.json').read_bytes()).hexdigest()=='b8c69faa5e2b43b1daee5c2d318b912f87b4262678b2582895952d0d8ef7bceb'
+                  subprocess.run(['npx','--no-install','prettier','--check','tools/curation/afterlight-pictures.cjs',*tests],check=True)
+              else:
+                  tests=['tests/games-room-polish.test.cjs']
+                  state=Path('docs/STATE.md')
+                  state.write_text(state.read_text()+'\n### Cascade current-main integration\n\nThe narrow-Cascade CSS and actual-control fixture remain byte-identical to\nreviewed 8f5618d. Landed Challenge #560 is incorporated without altering its\nruntime or tests; only additive state-note conflicts were resolved. Earlier\neight green workflows and the three browser cases are historical evidence.\nRecheck all current-head workflows and independent review before merge.\nPhysical Android and TalkBack acceptance remain in HUMAN_TODO.md.\n')
+              tests+=['tests/challenge-host-ownership.test.cjs','tests/challenge-browser-readiness.test.cjs']
+              check=subprocess.run(['node','--test',*tests],capture_output=True,text=True)
+              (out/(label+'-tests.log')).write_text(check.stdout+check.stderr)
+              assert check.returncode==0,(label,check.stdout,check.stderr)
+              git('add','docs/STATE.md')
+              if label=='afterlight':git('add','docs/curation/AFTERLIGHT-PICTURES.md')
+              actual=set(git('diff','--cached','--name-only',expected).decode().splitlines())
+              assert actual<=allowed,(label,actual-allowed)
+              for name in incoming-{'docs/STATE.md'}:
+                  assert git('show',':'+name)==git('show',main+':'+name),name
+              git('diff','--cached','--check')
+              git('commit','-m','Integrate landed challenge ownership into '+label+'; retain reviewed behavior and state history')
+              sha=git('rev-parse','HEAD').decode().strip()
+              (out/(label+'-source.patch')).write_bytes(git('diff','--binary','4cd90da91691977a5f2a8eaa479f232498a3f3b5','HEAD'))
+              (out/(label+'-tree.txt')).write_bytes(git('ls-tree','-r','HEAD'))
+              receipts.append({'branch':branch,'expectedRef':expected,'head':sha,'main':main,'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'targetedTests':tests,'fullFinalHeadCI':'required','physicalDevice':False})
+          (out/'receipt.json').write_text(json.dumps(receipts,indent=2)+'\n')
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: reviewed-gameplay-recovery
+          path: test-results/reviewed-gameplay-recovery/
+          retention-days: 14
+      - name: Publish the two unchanged owned branches atomically
+        shell: python
+        run: |
+          import json, os, subprocess
+          from pathlib import Path
+          receipts=json.loads(Path('test-results/reviewed-gameplay-recovery/receipt.json').read_text())
+          assert len(receipts)==2
+          def ref(branch):
+              return subprocess.check_output(['git','ls-remote','origin','refs/heads/'+branch],text=True).split()[0]
+          assert ref('main')==os.environ['TARGET_MAIN']
+          for r in receipts:assert ref(r['branch'])==r['expectedRef']
+          subprocess.run(['git','push','--atomic','origin',*[r['head']+':refs/heads/'+r['branch'] for r in receipts]],check=True)
