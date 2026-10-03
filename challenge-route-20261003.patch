@@ -1,0 +1,100 @@
+diff --git a/src/quiet-wing/app.js b/src/quiet-wing/app.js
+index eaf2181..fbf2bab 100644
+--- a/src/quiet-wing/app.js
++++ b/src/quiet-wing/app.js
+@@ -13 +13,2 @@
+-      let disposed = false;
++      let disposed = false,
++        challengeView = null;
+@@ -294,0 +296,3 @@
++        challengeView = null;
++        A.challengeHandle?.dispose();
++        A.challengeHandle = null;
+@@ -1465 +1469,3 @@
+-        const requested = routePath().split('/')[1] || '';
++        const owner = (challengeView = {}),
++          isCurrent = () => !disposed && challengeView === owner,
++          requested = routePath().split('/')[1] || '';
+@@ -1537,0 +1544 @@
++                if (!isCurrent()) return;
+@@ -1574 +1581,3 @@
+-        $('#challenge-back').onclick = () => navigate(list);
++        $('#challenge-back').onclick = () => {
++          if (isCurrent()) navigate(list);
++        };
+@@ -1576,2 +1585,5 @@
+-          mount = (saved) =>
+-            (A.challengeHandle = G.AlibiChallengeLauncher.mount(
++          input = $('#challenge-file'),
++          mount = (saved) => {
++            if (!isCurrent()) return;
++            A.challengeHandle?.dispose();
++            A.challengeHandle = G.AlibiChallengeLauncher.mount(
+@@ -1582,3 +1594,9 @@
+-              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
+-              (to) => navigate(to ? 'challenges/' + to : list),
+-            ));
++              (run) => A.challengeStore.write(run).catch((error) => {
++                if (isCurrent()) toast(error.message);
++              }),
++              (to) => {
++                if (isCurrent()) navigate(to ? 'challenges/' + to : list);
++              },
++            );
++          };
++        let importing = false;
+@@ -1589 +1607 @@
+-            toast(error.message);
++            if (isCurrent()) toast(error.message);
+@@ -1593,2 +1611 @@
+-            if (disposed || A.route !== 'challenges' || routePath().split('/')[1] !== challenge.id)
+-              return;
++            if (!isCurrent() || A.challengeHandle) return;
+@@ -1597 +1614,3 @@
+-        $('#challenge-export').onclick = () => exportChallenge(A.challengeHandle?.save());
++        $('#challenge-export').onclick = () => {
++          if (isCurrent()) exportChallenge(A.challengeHandle?.save());
++        };
+@@ -1598,0 +1618 @@
++          if (!isCurrent()) return;
+@@ -1600 +1620,2 @@
+-            exportChallenge(await A.challengeStore.recovery(challenge.id), 'previous');
++            const saved = await A.challengeStore.recovery(challenge.id);
++            if (isCurrent()) exportChallenge(saved, 'previous');
+@@ -1602 +1623 @@
+-            toast(error.message);
++            if (isCurrent()) toast(error.message);
+@@ -1605,3 +1626,6 @@
+-        $('#challenge-import').onclick = () => $('#challenge-file').click();
+-        $('#challenge-file').onchange = async () => {
+-          const file = $('#challenge-file').files?.[0];
++        $('#challenge-import').onclick = () => {
++          if (isCurrent() && !importing) input.click();
++        };
++        input.onchange = async () => {
++          if (!isCurrent() || importing) return;
++          const file = input.files?.[0];
+@@ -1608,0 +1633 @@
++          importing = true;
+@@ -1613,4 +1638,4 @@
+-            const imported = await G.AlibiValidateImport({
+-              type: 'challenge-run',
+-              text: await file.text(),
+-            });
++            const text = await file.text();
++            if (!isCurrent()) return;
++            const imported = await G.AlibiValidateImport({ type: 'challenge-run', text });
++            if (!isCurrent()) return;
+@@ -1620 +1645 @@
+-            A.challengeHandle?.dispose();
++            if (!isCurrent()) return;
+@@ -1624 +1649,4 @@
+-            toast(error.message);
++            if (isCurrent()) toast(error.message);
++          } finally {
++            importing = false;
++            input.value = '';
+@@ -1626 +1653,0 @@
+-          $('#challenge-file').value = '';
+@@ -1628,0 +1656 @@
++
