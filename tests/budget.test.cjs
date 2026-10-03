@@ -209,8 +209,12 @@ assert.ok(
   // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
   // #542 alone: 1,411,498; with #540: 1,411,547. Shared ceiling +208
   // leaves thirteen bytes for the measured composition and hash noise, not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27456,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,456 bytes',
+  // #552/#555: four independent synchronous hook guards measure 1,411,565 -> 1,411,618
+  // (+53). Each ordinary/completion entry must survive its own optional hook failure.
+  // Existing JS gzip/startup ceilings pass; shell excess is 41.68 bytes. A measured
+  // +48 shell allowance leaves 6.32 bytes for identity/hash noise, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27504,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 27,504 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
