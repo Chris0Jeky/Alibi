@@ -1,0 +1,71 @@
+name: Publish bounded Block replay cache
+on:
+  push:
+    branches: [codex/block-replay-cache-20261003]
+    paths: [.github/workflows/publish-block-cache-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '584457c83aeb4082cfd72769df4c29734b050f91'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Apply only the exact locally tested source delta
+        run: |
+          set -eu
+          echo '2ef17e742e3cdb069fa44b0acf169abe34fdf75e36e76ec7091b006fdbdd0ae3  src/club.js' | sha256sum -c -
+          echo '8e0dd083e1918e9a51c7fb9a5e7ec7d6519dda0a6ba22746e3863bf8450fe49c  src/club-engines.js' | sha256sum -c -
+          git apply block-cache-source.patch
+          echo 'ae3499e6c5b73ed86d4d0ad78fc60c6d7688392bbb1eabccecbc8c7911044e64  src/club.js' | sha256sum -c -
+          echo '9f6097d8c1ab17d4c2498887a7fd6e070da5bf76e85fa5a20a3135742e447f92  src/club-engines.js' | sha256sum -c -
+      - run: npm ci
+      - name: Format and verify source plus unchanged budgets
+        run: |
+          npx --no-install prettier --write tests/block-replay-cache.test.cjs tests/club-run-defaults.test.cjs
+          node --test tests/block-replay-cache.test.cjs tests/block-cabinet.test.cjs tests/club-*.test.cjs
+          npm run build:web
+          node --test tests/budget.test.cjs
+      - name: Bind the existing actual-control lane to exact head and record scope
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('.github/workflows/games-recovery-controls.yml');s=p.read_text()
+          before='      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n'
+          assert s.count(before)==1
+          s=s.replace(before,before+'        with:\n          ref: ${{ github.event.pull_request.head.sha || github.sha }}\n          persist-credentials: false\n')
+          before='node --test tests/duel-*.test.cjs tests/club-fresh-seed.test.cjs'
+          assert s.count(before)==1
+          s=s.replace(before,before+' tests/block-replay-cache.test.cjs tests/club-run-defaults.test.cjs')
+          p.write_text(s)
+          p=Path('docs/STATE.md')
+          p.write_text(p.read_text()+'\n## 2026-10-03: gameplay closeout and replay work\n\nCascade #562 and the ten Afterlight pictures #565 are merged after exact-head\nfull CI, browser artifacts and independent review. Issues #418 and #563 are\nclosed; these source merges are not a deployment or physical-device acceptance.\nRefs #404: one bounded Block replay entry validates all moves, reuses unchanged\nprefixes and returns independent states. The 500-move cap stays unchanged.\nDefault-run deduplication preserves every seed/mode/level and recovers the\ncache byte cost. Source tests and unchanged budget assertions pass; final-head\nfull CI, actual Block controls and independent review remain required. See\ndocs/gameplay/BLOCK-REPLAY-CACHE.md. No save/schema/puzzle revision changes.\n')
+      - name: Commit bounded changes, remove staging helpers and publish this branch only
+        env:
+          TARGET_BRANCH: codex/block-replay-cache-20261003
+        run: |
+          set -eu
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git rm block-cache-source.patch .github/workflows/publish-block-cache-20261003.yml
+          git add src/club.js src/club-engines.js tests/block-replay-cache.test.cjs tests/club-run-defaults.test.cjs docs/STATE.md .github/workflows/games-recovery-controls.yml
+          python - <<'PY'
+          import subprocess
+          allowed={'src/club.js','src/club-engines.js','tests/block-replay-cache.test.cjs','tests/club-run-defaults.test.cjs','docs/STATE.md','.github/workflows/games-recovery-controls.yml','block-cache-source.patch','.github/workflows/publish-block-cache-20261003.yml'}
+          actual=set(subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines())
+          assert actual<=allowed,actual
+          PY
+          git diff --cached --check
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'perf(block): cache validated replay prefixes within unchanged save and byte limits'
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
