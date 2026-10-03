@@ -68,6 +68,7 @@ try:
             page = context.new_page()
             errors, downloads = [], []
             page.on('pageerror',lambda error:errors.append(str(error)))
+            page.on('console',lambda message:print('browser:',message.type,message.text,flush=True) if message.type=='error' else None)
             page.on('download',lambda download:downloads.append(download.suggested_filename))
             page.goto(base+'/#/quiet/challenges/'+A)
             page.locator('.challenge-status').wait_for(timeout=30000)
@@ -82,12 +83,13 @@ try:
             # Export B during its pending read may not export the old A handle.
             page.evaluate('ownershipProbe.holdReads=true;ownershipProbe.old=ownershipProbe.current')
             route(B)
-            page.wait_for_function('ownershipProbe.reads.length===1')
+            page.wait_for_function('()=>ownershipProbe.reads.length===1')
             page.locator('#challenge-export').click()
             page.get_by_text('Finish opening this challenge before exporting it.',exact=True).wait_for()
             assert page.evaluate('ownershipProbe.old.wasDisposed') is True
             assert not downloads, downloads
             results.append({'width':width,'case':'export-cannot-use-previous-handle'})
+            print(json.dumps(results[-1]),flush=True)
 
             # Hold A/B/A reads and complete only the newest A first.
             for id,n in ((A,2),(B,3),(A,4)):
@@ -100,17 +102,18 @@ try:
             page.evaluate('async()=>{for(let i=0;i<20;i++)await Promise.resolve();}')
             assert page.evaluate('ownershipProbe.current===ownershipProbe.kept && ownershipProbe.mounts.length===ownershipProbe.count')
             results.append({'width':width,'case':'same-id-return-rejects-old-loads'})
+            print(json.dumps(results[-1]),flush=True)
 
             # Validate real files in the real worker, delaying only successful replies.
             page.evaluate('ownershipProbe.holdReads=false;ownershipProbe.holdValidation=true')
             run_a = page.evaluate('JSON.stringify(ownershipProbe.current.save())')
             page.locator('#challenge-file').set_input_files({'name':'A.json','mimeType':'application/json','buffer':run_a.encode()})
-            page.wait_for_function('ownershipProbe.validations.length===1')
+            page.wait_for_function('()=>ownershipProbe.validations.length===1')
             route(B)
             page.locator('.challenge-status').wait_for()
             run_b = page.evaluate('JSON.stringify(ownershipProbe.current.save())')
             page.locator('#challenge-file').set_input_files({'name':'B.json','mimeType':'application/json','buffer':run_b.encode()})
-            page.wait_for_function('ownershipProbe.validations.length===2')
+            page.wait_for_function('()=>ownershipProbe.validations.length===2')
             page.evaluate('ownershipProbe.validations[0]()')
             page.evaluate('async()=>{for(let i=0;i<20;i++)await Promise.resolve();}')
             assert page.evaluate('ownershipProbe.writes') == 0
@@ -119,13 +122,14 @@ try:
             page.get_by_text('Challenge save restored. The previous save remains available for export.',exact=True).wait_for()
             assert page.evaluate('ownershipProbe.writes') == 1
             results.append({'width':width,'case':'stale-validation-never-writes-or-clears-new-input'})
+            print(json.dumps(results[-1]),flush=True)
 
             # A real admitted restore can finish, but cannot replace a later view.
             page.evaluate('ownershipProbe.holdValidation=false;ownershipProbe.holdRestores=true')
             route(A)
             page.locator('.challenge-status').wait_for()
             page.locator('#challenge-file').set_input_files({'name':'A.json','mimeType':'application/json','buffer':run_a.encode()})
-            page.wait_for_function('ownershipProbe.restores.length===1')
+            page.wait_for_function('()=>ownershipProbe.restores.length===1')
             route(B)
             page.locator('.challenge-status').wait_for()
             page.evaluate('ownershipProbe.kept=ownershipProbe.current;ownershipProbe.count=ownershipProbe.mounts.length;ownershipProbe.restores[0]()')
@@ -134,6 +138,7 @@ try:
             assert page.evaluate('ownershipProbe.writes') == 2
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             results.append({'width':width,'case':'admitted-restore-cannot-replace-new-view'})
+            print(json.dumps(results[-1]),flush=True)
             page.screenshot(path=str(OUT/f'challenge-{width}.png'),full_page=True)
             assert not errors, errors
             context.close()
