@@ -162,7 +162,7 @@ def main():
                         }""", arg={"cell": cell, "value": value, "moves": moves}, timeout=2000)
                         if always:
                             assert page.evaluate("ordinaryJourneyAttempts") > 0, name
-                    page.wait_for_function("AlibiDiagnostics.getCurrent()?.completedAt && !AlibiDiagnostics.getStatus().pendingSaves")
+                    page.wait_for_function("() => AlibiDiagnostics.getCurrent()?.completedAt && !AlibiDiagnostics.getStatus().pendingSaves")
                     completed = current(page)
                     if puzzle["type"] == "nonogram":
                         assert [value == 1 for value in completed["state"]["cells"]] == [
