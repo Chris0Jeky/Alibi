@@ -133,6 +133,8 @@ traces the challenge open/refusal contract but does not propose the requested
 helper; #537 remains open and its original trigger unknown. #476 is partial:
 serialization, abort-request events and stale-pin behavioural proof remain.
 
+3 October #476 serialization slice: completed Muse wave14 identifies queue/abort gaps and a historical fallback save race. Root reproduces the latter with actual source and an independent caller lens; normal same-tab saves are queued, cross-tab local fallback remains unqualified and tracked #554. The bounded fixture respects earlier overlapping unfinished scopes (including queued multi-store writers), gating reads/completion until start and releasing on commit/abort. Five new tests fail on the old fixture, then 16 pass; focused 24 and native Chromium 5 ordering traces pass. Full clean 294852c verify 1,049/three skips and completed Muse wave15 file-only review pass. An added exported-save case directly kills the persist restoring-guard deletion: disk reverts at N+2 while memory stays restored, closing the behavioural proof gap (17 fixture/25 focused passes). Its independent Luna review finds no defects and runs all 17 cases. Final head CI pending. Disk keys remain Club-scoped; pending-request AbortError remains open. No production save or physical-device claim.
+
 #543 merged e4343c5 after completed exact-head CI and aging. The remaining
 reviewed Lattice/activity/fixture commits are consolidated in #432 to avoid
 mutually invalidating base refreshes; every history and review is preserved.

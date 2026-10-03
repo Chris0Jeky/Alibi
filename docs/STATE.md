@@ -257,6 +257,26 @@ deployment or physical-device acceptance is claimed.
 
 ## Restore fixture transaction activity (#476): 2 October 2026
 
+The 3 October follow-up serializes overlapping scopes in creation order when
+either transaction is readwrite, including earlier transactions still waiting
+to start. Reads and completion timers wait for their transaction to start;
+commit/abort release successors after buffered state is settled. Five new
+cases fail on the previous fixture, then all 16 cases pass, along with the
+24-case Club/restore seam. Five disposable native Chromium ordering cases
+match the expected readwrite/readonly, multi-store queue and abort-release
+traces. The fixture's map still models Club keys rather than full object-store
+isolation. A separate exported-save regression now directly exercises persist's
+restore guard, bypassing the public action guard. Removing only that guard
+replaces disk with old state at N+2 while memory retains the restored state;
+the regression detects it. All 17 fixture cases pass. Pending-request
+AbortError delivery remains open under #476. Production storage is unchanged;
+the fallback CAS limitation is tracked in #554. Muse's completed file-only
+scheduling review has no findings; the added behavioral case's independent
+Luna review finds no defects and passes all 17 fixture cases. Full local
+verify at 294852c passes 1,049/three intentional skips
+before that test addition. Current-head qualification remains required;
+HUMAN_TODO.md stays open.
+
 The bounded Club restore-ordering fixture now rejects requests outside its
 creation/request callback activity window and after completion/abort. Immediate
 callback microtasks remain valid; repeated/post-completion aborts throw
