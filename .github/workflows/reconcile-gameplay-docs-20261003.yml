@@ -1,0 +1,102 @@
+name: Reconcile gameplay documentation bases
+on:
+  push:
+    branches: [codex/challenge-route-ownership-20261003]
+    paths: [.github/workflows/reconcile-gameplay-docs-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  reconcile:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '85825983d3d38413ca67de7052124c84d137b468'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      TARGET_MAIN: 299f10efd7ec2aa33f007a8ee2ed68ee96293d32
+      REVIEWED_BASE: fc51d98808774b67e48129cdc7a2aa79409b4fd7
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Merge only the pinned documentation changes and preserve every state note
+        shell: python
+        run: |
+          import json, os, subprocess, tempfile
+          from collections import Counter
+          from pathlib import Path
+          def git(*args):
+              return subprocess.run(['git',*args],check=True,capture_output=True).stdout
+          main=os.environ['TARGET_MAIN']
+          allowed={'docs/STATE.md','docs/RELEASE-0.15.1.md'}
+          assert set(git('diff','--name-only',os.environ['REVIEWED_BASE'],main).decode().splitlines())<=allowed
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          targets=[
+              ('codex/challenge-route-ownership-20261003',os.environ['GITHUB_SHA'],'85825983d3d38413ca67de7052124c84d137b468',['tests/challenge-host-ownership.test.cjs','tests/challenge-browser-readiness.test.cjs']),
+              ('codex/cascade-narrow-controls-20261003','1dd22c47d90aeffe8905e365cee41f3718b52dd4','1dd22c47d90aeffe8905e365cee41f3718b52dd4',['tests/games-room-polish.test.cjs']),
+              ('codex/afterlight-workshop-20261003','fee1aa2ed777f1666ac41938af8b605ab2cf5b44','fee1aa2ed777f1666ac41938af8b605ab2cf5b44',['tests/afterlight-studies.test.cjs','tests/afterlight-readiness.test.cjs','tests/afterlight-membership.test.cjs']),
+          ]
+          receipts=[]
+          out=Path('test-results/gameplay-docs-integration')
+          out.mkdir(parents=True,exist_ok=True)
+          for branch,expected,source,tests in targets:
+              assert git('ls-remote','origin','refs/heads/'+branch).decode().split()[0]==expected
+              git('checkout','--detach',expected)
+              common=git('merge-base','HEAD',main).decode().strip()
+              result=subprocess.run(['git','merge','--no-commit','--no-ff',main])
+              conflicts=git('diff','--name-only','--diff-filter=U').decode().splitlines()
+              assert result.returncode in (0,1)
+              assert set(conflicts)<={'docs/STATE.md'},(branch,conflicts)
+              if conflicts:
+                  ours,theirs,ancestor=(git('show',ref+':docs/STATE.md') for ref in ('HEAD',main,common))
+                  with tempfile.TemporaryDirectory() as folder:
+                      paths=[Path(folder)/name for name in ('ours','base','theirs')]
+                      for p,data in zip(paths,(ours,ancestor,theirs)):p.write_bytes(data)
+                      git('merge-file','--union',*(str(p) for p in paths))
+                      merged=paths[0].read_bytes()
+                  counts=Counter(merged.splitlines())
+                  for parent in (ours,theirs):
+                      assert all(counts[line]>=n for line,n in Counter(parent.splitlines()).items())
+                  Path('docs/STATE.md').write_bytes(merged)
+                  git('add','docs/STATE.md')
+              helper='.github/workflows/reconcile-gameplay-docs-20261003.yml'
+              if Path(helper).exists():git('rm',helper)
+              changes=git('diff','--cached','--name-only',source).decode().splitlines()
+              assert set(changes)<=allowed,(branch,changes)
+              git('diff','--cached','--check')
+              git('commit','-m','Merge pinned documentation main into '+branch.split('/')[-1]+'; preserve tested runtime bytes')
+              candidate=git('rev-parse','HEAD').decode().strip()
+              label=branch.split('/')[-1]
+              test=subprocess.run(['node','--test',*tests],capture_output=True,text=True)
+              (out/(label+'.log')).write_text(test.stdout+test.stderr)
+              assert test.returncode==0,(branch,test.stdout,test.stderr)
+              (out/(label+'.patch')).write_bytes(git('diff','--binary',source,'HEAD'))
+              receipts.append({'branch':branch,'expectedRef':expected,'testedSource':source,'candidate':candidate,'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'main':main,'changedPaths':changes,'targetedTests':tests,'fullFinalHeadCI':'still required','physicalDevice':False})
+          (out/'receipt.json').write_text(json.dumps(receipts,indent=2)+'\n')
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: gameplay-docs-integration
+          path: test-results/gameplay-docs-integration/
+          retention-days: 7
+      - name: Atomically publish only the three unchanged isolated branches
+        shell: python
+        run: |
+          import json,os,subprocess
+          from pathlib import Path
+          def git(*args):
+              return subprocess.check_output(['git',*args],text=True)
+          receipts=json.loads(Path('test-results/gameplay-docs-integration/receipt.json').read_text())
+          assert len(receipts)==3
+          assert git('ls-remote','origin','refs/heads/main').split()[0]==os.environ['TARGET_MAIN']
+          for r in receipts:
+              assert git('ls-remote','origin','refs/heads/'+r['branch']).split()[0]==r['expectedRef']
+          subprocess.run(['git','push','--atomic','origin',*[r['candidate']+':refs/heads/'+r['branch'] for r in receipts]],check=True)
