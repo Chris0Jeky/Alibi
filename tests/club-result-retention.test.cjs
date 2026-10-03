@@ -140,3 +140,17 @@ test('Play again exposes a stable focus target across a completed-to-fresh rende
   await tab.action('restart', { id: 'tictactoe' });
   assert.equal(tab.club.roomPage('tictactoe').split(id).length - 1, 1);
 });
+
+test('Next garden moves focus to the new board status after the old control disappears', async () => {
+  const tab = await open(fixture('regiongardens'), 'regiongardens');
+  let focused = 0;
+  tab.nodes.set('garden-status', {
+    focus() {
+      focused++;
+    },
+    scrollIntoView() {},
+  });
+  await tab.action('garden-level', { value: '1' });
+  assert.equal(focused, 1);
+  assert.equal(tab.state().runs.regiongardens.level, 1);
+});

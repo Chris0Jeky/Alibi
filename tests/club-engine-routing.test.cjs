@@ -7,7 +7,8 @@ const E = require('../src/club-engines.js');
 const text = fs.readFileSync(require.resolve('../src/club.js'), 'utf8');
 const source = text.slice(text.indexOf('function currentGame('), text.indexOf('function heading('));
 const spec = {
-  duel: ['reversi', {}], tictactoe: ['tictactoe', {}],
+  duel: ['reversi', {}],
+  tictactoe: ['tictactoe', {}],
   blockcabinet: ['blockCabinet', { seed: 'BLOCK-01' }],
   regiongardens: ['regionGardens', { level: 0 }],
   dominoes: ['dominoes', { seed: 'DOMINO-01' }],
@@ -25,7 +26,10 @@ for (const [id, [engine, options]] of Object.entries(spec)) {
     else if (id === 'duel') expected = E[engine].initial();
     else if (id === 'archive') expected = E[engine].initial(run.level);
     else expected = E[engine].replay(run.seed ?? run.level, run.log);
-    assert.deepEqual(JSON.parse(JSON.stringify(context.read(id))), JSON.parse(JSON.stringify(expected)));
+    assert.deepEqual(
+      JSON.parse(JSON.stringify(context.read(id))),
+      JSON.parse(JSON.stringify(expected)),
+    );
     assert.equal(context.read('not-a-game'), null);
     assert.deepEqual(run.log, [], 'routing never mutates the journal input');
   });

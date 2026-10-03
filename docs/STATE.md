@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-03: Games Room replay journal and focus (draft #556)
+
+Refs #418. Completed results are retained before replay, Next garden or a
+finished match seat/strength change, using the existing bounded idempotent
+journal. Play again has a stable control ID; garden resets focus the new board
+status. Shared engine routing and action membership remove duplicate emitted
+code instead of raising byte ceilings. All 71 targeted source regressions and
+the unchanged emitted budget test pass in branch publication. Final-head full
+CI, actual browser focus/persistence and independent review remain required.
+Local browser navigation is blocked by managed browser policy; do not mistake
+source control tests for browser acceptance. HUMAN_TODO.md remains open.
+
 ## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
 This candidate retains both reviewed #540/#542 histories and the landed
