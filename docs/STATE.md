@@ -1,5 +1,28 @@
 # Live development state
 
+## 0.15.1 published closeout: 3 October 2026
+
+Reviewed [#559](https://github.com/Chris0Jeky/Alibi/pull/559) merged at
+`98be800d0715a25695fe99480bb801fd30397220`. Its nine exact-head workflows and four merged-main workflows pass;
+all #540/#542/#550/#552 histories are preserved and GitHub recognizes those PRs
+as merged. #553's async ownership fixes and #557's Club diagnostics are included.
+The primary serves clean build `0e84cab82d67`, Worker `988c9f8b-5eb1-4325-83e8-4a6f7f2cbc40` at 100%.
+Full receipt: [RELEASE-0.15.1.md](RELEASE-0.15.1.md).
+
+Fresh merged Windows verify: 1063pass/0fail/3 intentional filename skips;
+Quiet Wing581847+29. Android payload, SDK, formatter and primary dry run pass.
+Reviewed-source actual browsers pass completion12/UI184/origin270/Workshop9/
+backup13/intercepted SDK89/mobile16. Actual primary 0.15.0-to-0.15.1 Save & update
+preserves two moves, exact state and pinned definition, including offline reload.
+All293 public output files match; HTTPS headers/manifest/icons/unknown-path404 pass.
+SDK3.3.1 remains the registered byte-exact 0.15.1 artifact. Prior0.15.0 Worker
+20bd0591-b597-4c81-b512-49e51180a9de is retained as rollback; rollback was not run.
+
+Below are historical candidate/review receipts, not the current publication gate.
+Physical issue#11/file-picker/TalkBack acceptance stays open in
+[HUMAN_TODO.md](../HUMAN_TODO.md). No further backlog scope was implemented during
+closeout; optional hosted rooms, retired Sites and owner-held lanes remain separate.
+
 ## Final completion/count integration for 0.15.1: 3 October 2026
 
 PR #553 landed at 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a after its
