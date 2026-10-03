@@ -43,6 +43,7 @@ test('optional pack bytes remain part of the complete distribution accounting', 
     'discoveryStorageBytes',
     'blockMotionBytes',
     'houseBytes',
+    'workshopCollectionBytes',
   ];
   assert.equal(
     names.reduce((n, key) => n + info[key], 0),
