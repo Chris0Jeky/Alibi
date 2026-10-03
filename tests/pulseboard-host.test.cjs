@@ -379,7 +379,7 @@ test('application lifecycle calls the journey helper with fixed names and elapse
   );
   assert.match(
     appSource,
-    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.completed', sessionSeconds\);/,
+    /current\.firstCompletedAt = current\.firstCompletedAt \|\| current\.completedAt;\s*try \{\s*globalThis\.AlibiJourney\?\.\(current, 'puzzle\.completed', sessionSeconds\);/,
   );
   assert.match(
     appSource,

@@ -1,5 +1,50 @@
 # Live development state
 
+## Final completion/count integration for 0.15.1: 3 October 2026
+
+PR #553 landed at 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a after its
+exact-head ten hosted workflows, full Windows verify (1044 pass/three intentional
+filename skips), source review and serial UI184/origin270/Workshop9/backup13/
+intercepted SDK89/mobile16 checks. Two runner configuration failures were corrected
+without repository source changes; their logs remain retained. Deployment has not
+begun. The registered 0.15.1 SDK 3.3.1 pin remains unchanged.
+
+The late peer #552 handoff at b0f71b0239cfb0786a0e713e9bde5b9ebd640efa
+adds distinct synchronous completion-hook containment and #550's aligned count
+table parser/regressions. This separate integration retains that entire history
+alongside #553's stack-based picker cleanup and eight delegated-validation cases.
+The peer's P2 (now tracked separately as #555) identified a Journey call before normal completion;
+independent source review also reproduced it before painted-move completion.
+Both entry paths now have bounded guards and broad-throw regressions, retaining
+independent completion Journey/Theatre guards. Fresh actual-source tests against
+exact peer b0f71b0 give four passes/two expected failures; the composed focused
+completion/count/Workshop/picker/route/SDK set passes 85 cases. All thirteen app
+catalogue receipts match 205346 bytes and SHA-256
+b6df354ee5f68e1a7cfaf92450fa9557e30c31e5bf2ba4d5dce59d7aa327b092.
+The completion fixture removes its unused browser and adds broad-throw Sudoku
+commit and Nonogram painted-control cases at 390/1440, for twelve cases total.
+Python compilation and selector/embedded-script checks pass; actual execution is
+pending a fresh shared-PC slot. Browser runtime acceptance is not implied.
+
+Peer-reported qualification at e091a7f/5ff9be7 (full1044/three skips,
+UI184/mobile16/origin270/Worker9+13/completion8, final133) is historical evidence
+for that peer source, not final combined acceptance. Its count-parser repair
+preserves the exact family set, per-family totals and registry sum. Completion
+does not establish physical issue #11's cause or asynchronous hook rejection.
+Fresh final combined budgets, review, full/browser/hosted gates and publication
+remain pending. Superseded PRs close only after preserved-history landing.
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+The clean composed web measurement at ef0e55f passes the existing JavaScript
+gzip/startup ceilings: 134934/204203 bytes. Code-shell is 1411618, a 53-byte
+increase over qualified #553 and 41.68 bytes over its ceiling. Four independent
+hook guards remain required; a measured 48-byte shell-only allowance leaves
+6.32 bytes, not feature room. The original failing budget output is retained.
+Independent Sol/high review of the source/fixture integration found no product
+blockers; its unbounded saved-state read finding is corrected with an internal
+three-second deadline and reviewed again. Fresh final-head full/browser/hosted
+qualification remains required. The registered 0.15.1 SDK pin is byte-exact.
+
 ## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
 This candidate retains both reviewed #540/#542 histories and the landed
