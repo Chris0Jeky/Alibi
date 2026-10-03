@@ -1,0 +1,99 @@
+name: Reconcile reviewed gameplay history
+on:
+  push:
+    branches: [codex/gameplay-result-retention-20261003]
+    paths: [.github/workflows/reconcile-gameplay-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  reconcile:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == 'cf77a14d606ed59eeb87073ec983a76255033965'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      REVIEWED_HEAD: cf77a14d606ed59eeb87073ec983a76255033965
+      TARGET_MAIN: 98be800d0715a25695fe99480bb801fd30397220
+      ORIGINAL_MAIN: 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a
+      TARGET_BRANCH: codex/gameplay-result-retention-20261003
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Merge pinned history, resolving only additive state notes
+        shell: python
+        run: |
+          import os, subprocess, tempfile
+          from pathlib import Path
+          from collections import Counter
+          def git(*args, check=True):
+              return subprocess.run(['git', *args], check=check, capture_output=True).stdout
+          head, main = os.environ['REVIEWED_HEAD'], os.environ['TARGET_MAIN']
+          assert git('rev-parse','HEAD^').decode().strip() == head
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          base = git('merge-base','HEAD',main).decode().strip()
+          assert base == os.environ['ORIGINAL_MAIN']
+          result = subprocess.run(['git','merge','--no-commit','--no-ff',main])
+          unresolved = git('diff','--name-only','--diff-filter=U').decode().splitlines()
+          assert result.returncode in (0,1)
+          assert set(unresolved) <= {'docs/STATE.md'}, unresolved
+          if unresolved:
+              ours = git('show','HEAD:docs/STATE.md')
+              theirs = git('show',main+':docs/STATE.md')
+              common = git('show',base+':docs/STATE.md')
+              with tempfile.TemporaryDirectory() as folder:
+                  paths = [Path(folder)/name for name in ('ours','base','theirs')]
+                  for p, data in zip(paths,(ours,common,theirs)): p.write_bytes(data)
+                  git('merge-file','--union',*(str(p) for p in paths))
+                  merged = paths[0].read_bytes()
+              counts = Counter(merged.splitlines())
+              for original in (ours,theirs):
+                  assert all(counts[line] >= count for line,count in Counter(original.splitlines()).items())
+              Path('docs/STATE.md').write_bytes(merged)
+              git('add','docs/STATE.md')
+          path = Path('docs/STATE.md')
+          source = path.read_text()
+          heading = '# Live development state\n'
+          assert source.startswith(heading)
+          note = '\n## 2026-10-03: Games Room integration candidate (#556)\n\nThe exact reviewed gameplay source and both browser suites from cf77a14 are\nretained while integrating main 98be800. Only additive state-note conflicts\nare resolved; both parent histories and their previous notes are preserved.\nThe earlier eight green workflows and clean Codex review are historical\nevidence. Refreshed exact-head full CI and review are required before merge.\nIssue #418 retains its Cascade 320px visual residual. Physical Android and\nTalkBack remain in HUMAN_TODO.md; browser checks do not close those gates.\n'
+          path.write_text(heading + note + source[len(heading):])
+          git('add','docs/STATE.md')
+          git('rm','.github/workflows/reconcile-gameplay-20261003.yml')
+          paths = git('diff','--cached','--name-only',main).decode().splitlines()
+          expected = {'.github/workflows/club-results-controls.yml','src/club.js','tests/club-result-retention.test.cjs','tests/club-engine-routing.test.cjs','tests/browser_club_results.py','docs/STATE.md'}
+          assert set(paths) == expected, paths
+          for path in expected - {'docs/STATE.md'}:
+              assert git('show',':'+path) == git('show',head+':'+path), path
+          git('diff','--cached','--check')
+          git('commit','-m','Merge pinned main into reviewed gameplay result retention; preserve both state histories')
+      - run: npm ci
+      - name: Verify the clean integrated source
+        run: |
+          set -o pipefail
+          mkdir -p test-results/gameplay-recovery
+          npm run verify 2>&1 | tee test-results/gameplay-recovery/verify.log
+          git rev-parse HEAD > test-results/gameplay-recovery/source-head.txt
+          git diff --binary "$ORIGINAL_MAIN" HEAD > test-results/gameplay-recovery/integration.patch
+          git ls-tree -r HEAD > test-results/gameplay-recovery/git-tree.txt
+          cp build-info.json test-results/gameplay-recovery/build-info.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: gameplay-integration-evidence
+          path: test-results/gameplay-recovery/
+          retention-days: 7
+      - name: Publish only the unchanged target branch
+        run: |
+          set -eu
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
