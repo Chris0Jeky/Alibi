@@ -107,7 +107,8 @@ def run():
                         saved = page.evaluate('AlibiDiagnostics.getCurrent()')
                         page.evaluate("location.hash='/home'")
                         page.wait_for_function('()=>AlibiDiagnostics.getCurrent()===null && !AlibiDiagnostics.getStatus().pendingSaves')
-                        page.goto(URL + '/#/play/' + PUZZLE['id'], wait_until='domcontentloaded')
+                        # A changed query forces a new document; a fragment-only goto does not.
+                        page.goto(URL + '/?resume-check=' + scenario + '#/play/' + PUZZLE['id'], wait_until='domcontentloaded')
                         page.wait_for_function('(id)=>globalThis.AlibiDiagnostics?.getCurrent()?.puzzle.id===id', arg=PUZZLE['id'], timeout=5000)
                         resumed = page.evaluate('AlibiDiagnostics.getCurrent()')
                         assert resumed['state'] == saved['state']
