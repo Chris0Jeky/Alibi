@@ -561,21 +561,18 @@
   }
   function ensureRun(id) {
     if (!E()) return;
-    if (id === 'duel' && !state.runs.duel) state.runs.duel = { mode: 'bot', log: [], redo: [] };
-    if (id === 'tictactoe' && !state.runs.tictactoe)
-      state.runs.tictactoe = { mode: 'bot', log: [], redo: [] };
-    if (id === 'blockcabinet' && !state.runs.blockcabinet)
-      state.runs.blockcabinet = { seed: 'BLOCK-01', log: [], redo: [] };
-    if (id === 'dominoes' && !state.runs.dominoes)
-      state.runs.dominoes = { seed: 'DOMINO-01', log: [], redo: [] };
-    if (id === 'mahjong' && !state.runs.mahjong)
-      state.runs.mahjong = { seed: 'MAHJONG-01', log: [], redo: [] };
-    if (id === 'borough' && !state.runs.borough)
-      state.runs.borough = { seed: 'EVENING-01', log: [], redo: [] };
-    if (id === 'regiongardens' && !state.runs.regiongardens)
-      state.runs.regiongardens = { level: 0, log: [], redo: [] };
-    if (id === 'archive' && !state.runs.archive)
-      state.runs.archive = { level: 0, log: [], redo: [] };
+    const defaults = {
+      __proto__: null,
+      duel: { mode: 'bot' },
+      tictactoe: { mode: 'bot' },
+      blockcabinet: { seed: 'BLOCK-01' },
+      dominoes: { seed: 'DOMINO-01' },
+      mahjong: { seed: 'MAHJONG-01' },
+      borough: { seed: 'EVENING-01' },
+      regiongardens: { level: 0 },
+      archive: { level: 0 },
+    };
+    if (defaults[id] && !state.runs[id]) state.runs[id] = { ...defaults[id], log: [], redo: [] };
   }
   function currentGame(id) {
     const r = state.runs[id];

@@ -410,9 +410,11 @@
   function blockTray(seed, turn) {
     return [0, 1, 2].map((slot) => blockPiece(seed, turn * 3 + slot));
   }
+  // One bounded, ephemeral replay entry; never stored in a run or returned by reference.
+  let blockReplay = null;
   const blockCabinet = {
     size: 8,
-    // Every move replays the whole log (5–8 times per tap), so the cap stays at 500; see backup-validation (3000).
+    // Keep the existing cap until long-run reload and physical-phone qualification; see #404.
     maxMoves: 500,
     shapes: blockShapes.map(copy),
     initial(seed = 'BLOCK-01') {
@@ -501,8 +503,7 @@
       seed = seedText(seed);
       if (!Array.isArray(log) || log.length > this.maxMoves)
         throw Error('Invalid Block Cabinet replay.');
-      let s = this.initial(seed);
-      for (const action of log) {
+      const moves = Array.from(log, (action) => {
         if (
           !action ||
           typeof action !== 'object' ||
@@ -511,9 +512,20 @@
           !integer(action.cell, 0, 63)
         )
           throw Error('Invalid Block Cabinet move.');
-        s = this.move(s, action.slot, action.cell);
-      }
-      return s;
+        return action.slot * 64 + action.cell;
+      });
+      // Compare every move, not only length or the last action: restored/edited logs can diverge.
+      const prior = blockReplay,
+        reuse =
+          prior &&
+          prior.seed === seed &&
+          prior.moves.length <= moves.length &&
+          prior.moves.every((move, index) => move === moves[index]);
+      let s = reuse ? prior.state : this.initial(seed);
+      for (let i = reuse ? prior.moves.length : 0; i < moves.length; i++)
+        s = this.move(s, Math.floor(moves[i] / 64), moves[i] % 64);
+      blockReplay = { seed, moves, state: s };
+      return copy(s);
     },
   };
   const dominoTiles = [];

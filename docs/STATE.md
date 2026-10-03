@@ -1421,3 +1421,15 @@ within the unchanged import cap. All seventy Afterlight tests pass. Cascade
 merge conflict; #562 must merge first. The ten puzzle definitions are unchanged.
 Current-head full CI, browser coverage, independent review and aging remain
 required. No deployment or physical Android/TalkBack acceptance is claimed.
+
+## 2026-10-03: gameplay closeout and replay work
+
+Cascade #562 and the ten Afterlight pictures #565 are merged after exact-head
+full CI, browser artifacts and independent review. Issues #418 and #563 are
+closed; these source merges are not a deployment or physical-device acceptance.
+Refs #404: one bounded Block replay entry validates all moves, reuses unchanged
+prefixes and returns independent states. The 500-move cap stays unchanged.
+Default-run deduplication preserves every seed/mode/level and recovers the
+cache byte cost. Source tests and unchanged budget assertions pass; final-head
+full CI, actual Block controls and independent review remain required. See
+docs/gameplay/BLOCK-REPLAY-CACHE.md. No save/schema/puzzle revision changes.
