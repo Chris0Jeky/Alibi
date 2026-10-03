@@ -1336,7 +1336,7 @@ independent review and physical/human acceptance remain required.
 Ten newly authored 15 by 15 Picture Logic drawings are supplied as a data-only
 Workshop import, not silently added to the official or startup registry. Exact
 pixel blueprints, board-specific editorial notes, a reproducible clue compiler
-and the actual JSON pack live with 28 source/readiness regressions. Native and
+and the actual JSON pack live with 51 source/readiness/authoring regressions. Native and
 independent solvers agree on one answer per board; all 2,250 squares are derived
 without reading answers and applied through the production reducer. The old
 510-definition prefix is byte-pinned. No save, dependency or budget changes.
@@ -1347,3 +1347,15 @@ the data-first calibration direction, not human difficulty claims. The new lane
 requires all twenty actual Workshop/control/offline board/viewport scenarios;
 full final-head CI and independent review remain merge gates. Physical Android
 and TalkBack remain unverified in HUMAN_TODO.md.
+
+### Afterlight authoring review correction
+
+The fixed membership guard is now followed by the production pack validator,
+including metadata, rule and bounded uniqueness checks before any --write.
+Fifteen new source/CLI cases reproduced fourteen failures before correction;
+all fifty-one Afterlight cases now pass. Invalid metadata and ambiguous pixels
+leave the prior pack byte-for-byte intact. The existing membership CLI uses
+the same isolated real-validator fixture. The focused command in the guide and
+CI is node --test tests/afterlight-*.test.cjs, including every authoring suite.
+The ten puzzle definitions and their JSON hash remain unchanged. Final-head
+full CI, twenty real-origin cases and re-review are still merge gates.
