@@ -1433,3 +1433,19 @@ Default-run deduplication preserves every seed/mode/level and recovers the
 cache byte cost. Source tests and unchanged budget assertions pass; final-head
 full CI, actual Block controls and independent review remain required. See
 docs/gameplay/BLOCK-REPLAY-CACHE.md. No save/schema/puzzle revision changes.
+
+## 2026-10-03: bounded deferred puzzle loading (#389 item 2)
+
+A pending play route clears the previous board after saving/leaving and shows
+Opening puzzle with a Back to puzzles link. Shared definition attempts expire
+after ten seconds and release their handlers/timers for retry. Saved pinned
+definitions resume without waiting for a catalogue request. Route serials reject
+late navigation results; the worker/content atomic validator remains unchanged.
+Thirteen new loader/route cases and the existing emitted-content tests cover
+stall, retry, synchronous setup, invalid delivery and saved revisions. Initial
+regressions reproduced six failures across ten cases. Actual-browser loading,
+retry and real IndexedDB resume are gated separately at phone/desktop widths.
+The current source fits unchanged budgets; thirteen app catalogue receipts were
+regenerated. Item 1 practice counts and item 3 identity/#459 remain open. This is
+stacked on #566; current-head full CI, browser evidence and independent review
+precede merge. No save schema, puzzle revision or deployment changes.
