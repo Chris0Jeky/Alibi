@@ -1,0 +1,85 @@
+name: Publish bounded challenge route fix
+on:
+  push:
+    branches: [codex/challenge-route-ownership-20261003]
+    paths: [.github/workflows/publish-challenge-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '038792e150aca5aac34d877915296b37cdb9ef1f'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Apply exact source delta
+        run: |
+          set -eu
+          echo '5df94954178f8644dcc9654db3211366760fe786aadde0ea4736ddded6735d82  src/quiet-wing/app.js' | sha256sum -c -
+          git apply --unidiff-zero challenge-route-20261003.patch
+          echo 'e8e03f6a896c0bafbfc7120965282c1136755456b7ce8d5bbed6d2a3ca7de12e  src/quiet-wing/app.js' | sha256sum -c -
+      - run: npm ci
+      - name: Format and rerun host and challenge regressions
+        run: |
+          npx --no-install prettier --write src/quiet-wing/app.js tests/challenge-host-ownership.test.cjs
+          node --test tests/challenge-*.test.cjs tests/challenges.test.cjs tests/validator-challenge-import.test.cjs
+          git diff --check
+      - name: Package locked build tools for offline local validation
+        shell: python
+        run: |
+          import hashlib, json, os, platform, tarfile
+          from pathlib import Path
+          directories = ['.bin', 'esbuild', '@esbuild', 'prettier', 'three', 'sharp', '@img', '@capacitor/core', 'tslib', 'semver', 'detect-libc', '@emnapi']
+          paths = [Path('node_modules') / name for name in directories if (Path('node_modules') / name).exists()]
+          receipt = {'head': os.environ['GITHUB_SHA'], 'lockSha256': hashlib.sha256(Path('package-lock.json').read_bytes()).hexdigest(), 'platform': platform.platform(), 'paths': [str(p) for p in paths], 'purpose': 'Local source build and browser verification; no credentials or user data'}
+          Path('build-toolchain-receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          with tarfile.open('build-toolchain.tgz', 'w:gz') as archive:
+              archive.add('build-toolchain-receipt.json')
+              for path in paths:
+                  archive.add(path)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: locked-build-toolchain
+          path: |
+            build-toolchain.tgz
+            build-toolchain-receipt.json
+          retention-days: 3
+      - name: Record scope without claiming unrun acceptance
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('docs/STATE.md')
+          text = path.read_text()
+          heading = '# Live development state\n'
+          assert text.startswith(heading)
+          note = '\n## 2026-10-03: challenge view ownership (draft)\n\nRefs #416 item 3. Challenge loads, exports, recovery and imports now belong to a\nparticular view instance, not just a route ID. Leaving disposes and clears the\nhandle; delayed A/B/A work cannot replace the new A. Imports check ownership\nafter file reading, worker validation and restore completion, and clear only\nthe captured input. Already-admitted storage transactions are not cancelled.\nTwelve actual-host source regressions reproduced ten failures before the fix;\nall twelve and the sixty-test challenge suite pass after it. Full exact-head\nCI, browser route races and independent review remain required before merge.\nNo physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.\n'
+          path.write_text(heading + note + text[len(heading):])
+      - name: Publish only this branch and remove staging helpers
+        env:
+          TARGET_BRANCH: codex/challenge-route-ownership-20261003
+        run: |
+          set -eu
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git diff --name-only | sort > /tmp/challenge-changed
+          python - <<'PY'
+          from pathlib import Path
+          paths = set(Path('/tmp/challenge-changed').read_text().splitlines())
+          assert paths <= {'src/quiet-wing/app.js', 'tests/challenge-host-ownership.test.cjs', 'docs/STATE.md'}, paths
+          assert 'src/quiet-wing/app.js' in paths
+          PY
+          git rm .github/workflows/publish-challenge-20261003.yml challenge-route-20261003.patch
+          git add src/quiet-wing/app.js tests/challenge-host-ownership.test.cjs docs/STATE.md
+          git -c user.name='Cristian Tcaci' -c user.email='59696583+Chris0Jeky@users.noreply.github.com' commit -m 'fix(challenges): bind async loads exports and restores to their view'
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
