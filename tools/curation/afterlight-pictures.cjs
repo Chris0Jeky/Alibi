@@ -22,13 +22,20 @@ function runs(line) {
 }
 
 function build(source) {
-  if (source?.schemaVersion !== 1 || !Array.isArray(source.studies))
-    throw Error('Expected version-one authored blueprints');
-  const ids = new Set();
+  const invalidCollection = () => Error('Expected a complete ten-study Afterlight collection');
+  if (source?.schemaVersion !== 1 || !Array.isArray(source.studies) || source.studies.length !== 10)
+    throw invalidCollection();
+  const expectedIds = new Set(
+    Array.from(
+      { length: 10 },
+      (_, index) => `afterlight-picture-${String(index + 1).padStart(2, '0')}`,
+    ),
+  );
+  // Check the complete fixed membership before reading pixels or constructing output.
+  for (const study of source.studies) {
+    if (!expectedIds.delete(study?.id)) throw invalidCollection();
+  }
   const puzzles = source.studies.map((study) => {
-    if (!/^afterlight-picture-\d{2}$/.test(study.id) || ids.has(study.id))
-      throw Error('Expected unique Afterlight picture IDs');
-    ids.add(study.id);
     if (study.rows?.length !== 15 || !Array.from(study.rows).every((row) => /^[.#]{15}$/.test(row)))
       throw Error('Expected fifteen complete rows of fifteen pixels');
     const solution = study.rows
