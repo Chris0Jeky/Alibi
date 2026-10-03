@@ -8,6 +8,8 @@ on:
       - 'src/block-cabinet/**'
       - 'tests/duel-*.test.cjs'
       - 'tests/club-fresh-seed.test.cjs'
+      - 'tests/block-replay-cache.test.cjs'
+      - 'tests/club-run-defaults.test.cjs'
       - 'tests/browser_gameplay_continuation.py'
       - 'tests/browser_block_cabinet.py'
       - '.github/workflows/games-recovery-controls.yml'
@@ -25,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 25eede1c448bf86df5cd9c9031d14ce53b052106
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
