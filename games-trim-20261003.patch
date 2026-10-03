@@ -1,0 +1,28 @@
+--- a/src/club.js
++++ b/src/club.js
+@@ -11 +11 @@
+-    `<button ${['plan', 'walk', 'undo', 'redo', 'restart', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
++    `<button ${'plan walk undo redo restart duel-mode duel-strength tictactoe-mode archive-level assist lab-quality build block-piece block-cell mahjong-tile domino-tile domino-end domino-draw domino-pass domino-use-seed'.split(' ').includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+@@ -583,3 +583,4 @@
+-    if (id === 'duel') {
+-      let s = E().reversi.initial();
+-      for (const i of r.log) s = E().reversi.move(s, i);
++    if (id === 'duel' || id === 'archive') {
++      const engine = E()[id === 'duel' ? 'reversi' : 'warehouse'];
++      let s = engine.initial(r.level);
++      for (const move of r.log) s = engine.move(s, move);
+@@ -591,8 +592 @@
+-    if (id === 'dominoes') return E().dominoes.replay(r.seed, r.log);
+-    if (id === 'mahjong') return E().mahjong.replay(r.seed, r.log);
+-    if (id === 'borough') return E().borough.replay(r.seed, r.log);
+-    if (id === 'archive') {
+-      let s = E().warehouse.initial(r.level);
+-      for (const d of r.log) s = E().warehouse.move(s, d);
+-      return s;
+-    }
++    if (['dominoes', 'mahjong', 'borough'].includes(id)) return E()[id].replay(r.seed, r.log);
+@@ -857 +851 @@
+-        (id === 'borough' || id === 'blockcabinet' || id === 'dominoes' || id === 'mahjong'
++        (['borough', 'blockcabinet', 'dominoes', 'mahjong'].includes(id)
+@@ -1463,0 +1458 @@
++        if (reset.id === 'regiongardens') revealBoroughControl('garden-status');
