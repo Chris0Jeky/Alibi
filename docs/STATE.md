@@ -1363,6 +1363,43 @@ Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
 assertions pass after this change. Full exact-head CI, origin storage/offline,
 independent review and physical/human acceptance remain required.
 
+## 2026-10-03: Afterlight optional picture studies (#563)
+
+Ten newly authored 15 by 15 Picture Logic drawings are supplied as a data-only
+Workshop import, not silently added to the official or startup registry. Exact
+pixel blueprints, board-specific editorial notes, a reproducible clue compiler
+and the actual JSON pack live with 70 source/readiness/authoring regressions. Native and
+independent solvers agree on one answer per board; all 2,250 squares are derived
+without reading answers and applied through the production reducer. The old
+510-definition prefix is byte-pinned. No save, dependency or budget changes.
+Two trial drawings were rejected (ambiguity and a stalled line-deduction path).
+See docs/curation/AFTERLIGHT-PICTURES.md for manual import, evidence boundaries
+and continuation. Five Expert and five Tricky labels are provisional, following
+the data-first calibration direction, not human difficulty claims. The new lane
+requires all twenty actual Workshop/control/offline board/viewport scenarios;
+full final-head CI and independent review remain merge gates. Physical Android
+and TalkBack remain unverified in HUMAN_TODO.md.
+
+### Afterlight authoring review correction
+
+The fixed membership guard is now followed by the production pack validator,
+including metadata, rule and bounded uniqueness checks before any --write.
+Fifteen new source/CLI cases reproduced fourteen failures before correction;
+all seventy Afterlight cases now pass. Invalid metadata and ambiguous pixels
+leave the prior pack byte-for-byte intact. The existing membership CLI uses
+the same isolated real-validator fixture. The focused command in the guide and
+CI is node --test tests/afterlight-*.test.cjs, including every authoring suite.
+The ten puzzle definitions and their JSON hash remain unchanged. Final-head
+full CI, twenty real-origin cases and re-review are still merge gates.
+
+### Afterlight fixed pack identity
+
+The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through
+10. Two new regressions fail the prior compiler and prove that a syntactically
+valid replacement identity cannot overwrite the existing JSON through --write.
+The authored pack bytes remain unchanged. This branch integrates landed #560;
+current-head full CI, all twenty browser cases and independent re-review remain
+required. No deployment or physical-device acceptance is claimed.
 ### Cascade current-main integration
 
 The narrow-Cascade CSS and actual-control fixture remain byte-identical to
@@ -1371,3 +1408,16 @@ runtime or tests; only additive state-note conflicts were resolved. Earlier
 eight green workflows and the three browser cases are historical evidence.
 Recheck all current-head workflows and independent review before merge.
 Physical Android and TalkBack acceptance remain in HUMAN_TODO.md.
+
+### Afterlight authored story boundary
+
+Nonogram import permits omitted stories, but this fixed authored pack now
+requires nonblank string stories up to 1200 UTF-16 code units, matching existing
+scene-authoring bounds without changing runtime validation. Seventeen new
+source/real-CLI cases reproduce sixteen old failures; every invalid story leaves
+the prior JSON intact, and maximum-length Unicode stories remain exact and well
+within the unchanged import cap. All seventy Afterlight tests pass. Cascade
+#562 is included at its pinned reviewed source to prevent another state-note
+merge conflict; #562 must merge first. The ten puzzle definitions are unchanged.
+Current-head full CI, browser coverage, independent review and aging remain
+required. No deployment or physical Android/TalkBack acceptance is claimed.
