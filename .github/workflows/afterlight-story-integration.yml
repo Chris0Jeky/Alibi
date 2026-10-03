@@ -1,0 +1,115 @@
+name: Verify Afterlight story and preserve Cascade integration
+on:
+  push:
+    branches: [codex/afterlight-workshop-20261003]
+    paths: [.github/workflows/afterlight-story-integration.yml]
+permissions:
+  contents: read
+jobs:
+  integrate:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '4c008a0f74185d941b793838e268e4c7b8f1ae8b'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      PREVIOUS_SOURCE: 4c008a0f74185d941b793838e268e4c7b8f1ae8b
+      CASCADE_SOURCE: 3430ff562fbfcc7aefaababffa66b54e49fd6c14
+      COMMON_BASE: eeb995d8d9b3e0a67638c8e361bd2f6e36861659
+      TARGET_BRANCH: codex/afterlight-workshop-20261003
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Reproduce the story bug against the exact previous compiler
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p test-results/afterlight-story-review
+          cp tools/curation/afterlight-pictures.cjs "$RUNNER_TEMP/afterlight-fixed.cjs"
+          git show "$PREVIOUS_SOURCE:tools/curation/afterlight-pictures.cjs" > tools/curation/afterlight-pictures.cjs
+          status=0
+          node --test tests/afterlight-story.test.cjs > test-results/afterlight-story-review/red.log 2>&1 || status=$?
+          mv "$RUNNER_TEMP/afterlight-fixed.cjs" tools/curation/afterlight-pictures.cjs
+          test "$status" = 1
+          grep -q '^# fail 16$' test-results/afterlight-story-review/red.log
+          grep -q '^# pass 1$' test-results/afterlight-story-review/red.log
+          git diff --exit-code
+      - name: Integrate the pinned reviewed Cascade source and correct current proof counts
+        shell: python
+        run: |
+          import json, os, subprocess, tempfile
+          from collections import Counter
+          from pathlib import Path
+          def git(*args):return subprocess.check_output(['git',*args])
+          cascade=os.environ['CASCADE_SOURCE']
+          assert git('rev-parse','HEAD^').decode().strip()==os.environ['PREVIOUS_SOURCE']
+          base=git('merge-base','HEAD',cascade).decode().strip()
+          assert base==os.environ['COMMON_BASE']
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          result=subprocess.run(['git','merge','--no-commit','--no-ff',cascade])
+          conflicts=set(git('diff','--name-only','--diff-filter=U').decode().splitlines())
+          assert result.returncode in (0,1)
+          assert conflicts<={'docs/STATE.md'},conflicts
+          if conflicts:
+              ours,theirs,common=(git('show',r+':docs/STATE.md') for r in ('HEAD',cascade,base))
+              with tempfile.TemporaryDirectory() as folder:
+                  paths=[Path(folder)/n for n in ('ours','base','theirs')]
+                  for p,data in zip(paths,(ours,common,theirs)):p.write_bytes(data)
+                  git('merge-file','--union',*(str(p) for p in paths))
+                  merged=paths[0].read_bytes()
+              counts=Counter(merged.splitlines())
+              for old in (ours,theirs):assert all(counts[line]>=n for line,n in Counter(old.splitlines()).items())
+              Path('docs/STATE.md').write_bytes(merged)
+          p=Path('docs/STATE.md'); text=p.read_text()
+          for old,new in [('53 source/readiness/authoring regressions','70 source/readiness/authoring regressions'),('all fifty-three Afterlight cases now pass','all seventy Afterlight cases now pass')]:
+              assert text.count(old)==1,old
+              text=text.replace(old,new)
+          text+='\n### Afterlight authored story boundary\n\nNonogram import permits omitted stories, but this fixed authored pack now\nrequires nonblank string stories up to 1200 UTF-16 code units, matching existing\nscene-authoring bounds without changing runtime validation. Seventeen new\nsource/real-CLI cases reproduce sixteen old failures; every invalid story leaves\nthe prior JSON intact, and maximum-length Unicode stories remain exact and well\nwithin the unchanged import cap. All seventy Afterlight tests pass. Cascade\n#562 is included at its pinned reviewed source to prevent another state-note\nmerge conflict; #562 must merge first. The ten puzzle definitions are unchanged.\nCurrent-head full CI, browser coverage, independent review and aging remain\nrequired. No deployment or physical Android/TalkBack acceptance is claimed.\n'
+          p.write_text(text)
+          p=Path('docs/curation/AFTERLIGHT-PICTURES.md');text=p.read_text()
+          assert text.count('currently runs 53')==1
+          text=text.replace('currently runs 53','currently runs 70')
+          text=text.replace('eight membership, fifteen metadata/CLI and two fixed-pack-identity regressions.','eight membership, fifteen metadata/CLI, two fixed-pack-identity and seventeen\nstory/CLI regressions. Authored stories are required nonblank text of at most\n1200 UTF-16 code units, matching the existing scene-authoring bound. This is an\nauthoring check, not a change to the generic nonogram import contract.')
+          p.write_text(text)
+          git('add','docs/STATE.md','docs/curation/AFTERLIGHT-PICTURES.md')
+          git('rm','.github/workflows/afterlight-story-integration.yml')
+          incoming=set(git('diff','--name-only',base,cascade).decode().splitlines())
+          expected={'.github/workflows/cascade-controls.yml','src/block-cabinet/style.css','tests/browser_cascade_controls.py','docs/STATE.md','docs/qa/2026-10-03-cascade-recovery.md','docs/qa/2026-10-03-cascade-final-base.md'}
+          assert incoming==expected,incoming
+          changed=set(git('diff','--cached','--name-only',os.environ['PREVIOUS_SOURCE']).decode().splitlines())
+          assert changed<=incoming|{'tools/curation/afterlight-pictures.cjs','tests/afterlight-story.test.cjs','docs/curation/AFTERLIGHT-PICTURES.md'},changed
+          for name in incoming-{'docs/STATE.md'}:assert git('show',':'+name)==git('show',cascade+':'+name),name
+          git('diff','--cached','--check')
+          git('commit','-m','Integrate reviewed Cascade source and retain complete Afterlight story validation evidence')
+      - name: Verify all current authoring and shared gameplay cases
+        run: |
+          set -o pipefail
+          npx --no-install prettier --check tools/curation/afterlight-pictures.cjs tests/afterlight-*.test.cjs
+          node --test tests/afterlight-*.test.cjs tests/challenge-host-ownership.test.cjs tests/challenge-browser-readiness.test.cjs tests/games-room-polish.test.cjs 2>&1 | tee test-results/afterlight-story-review/green.log
+          node tools/curation/afterlight-pictures.cjs --check
+          echo 'b8c69faa5e2b43b1daee5c2d318b912f87b4262678b2582895952d0d8ef7bceb  content/workshop/afterlight-pictures.json' | sha256sum -c -
+          git rev-parse HEAD > test-results/afterlight-story-review/source-head.txt
+          git rev-parse HEAD^{tree} > test-results/afterlight-story-review/tree.txt
+          git diff --binary "$PREVIOUS_SOURCE" HEAD > test-results/afterlight-story-review/source.patch
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: afterlight-story-review
+          path: test-results/afterlight-story-review/
+          retention-days: 14
+      - name: Publish only if the owned branch is still unchanged
+        run: |
+          set -eu
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"

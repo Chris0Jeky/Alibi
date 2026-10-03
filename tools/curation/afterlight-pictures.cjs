@@ -39,6 +39,10 @@ function build(source) {
     if (!expectedIds.delete(study?.id)) throw invalidCollection();
   }
   const puzzles = source.studies.map((study) => {
+    // Nonogram import does not require a story; this fixed authored collection does.
+    // Match the existing scene-authoring text bound without changing runtime validation.
+    if (typeof study.story !== 'string' || !study.story.trim() || study.story.length > 1200)
+      throw Error(`Invalid story for ${study.id}: expected non-empty text up to 1200 characters`);
     if (study.rows?.length !== 15 || !Array.from(study.rows).every((row) => /^[.#]{15}$/.test(row)))
       throw Error('Expected fifteen complete rows of fifteen pixels');
     const solution = study.rows
