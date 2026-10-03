@@ -67,7 +67,9 @@ because a Send is an explicit submission rather than measurement.
 player submits the survey or taps a rating (never for a message, never on load). It lets this
 installation replace its own earlier answer instead of counting as another respondent. It is never
 sent with usage counts, diagnostics or journeys; the collector stores only a one-way hash of it.
-Reset in Privacy removes it (and the device's memory of its ratings); the next submission creates
+Reset in Privacy removes it, the device's memory of its ratings and any unsent survey answers or
+ratings still carrying it (messages carry no key and stay queued), so no queued answer sends the
+old key after the reset (a request already in flight still completes); the next submission creates
 a new one. Clearing site data does the same.
 
 ## Offline queue and delivery

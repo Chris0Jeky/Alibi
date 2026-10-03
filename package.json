@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "private": true,
   "license": "PolyForm-Strict-1.0.0",
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
@@ -16,9 +16,9 @@
     "check:android:host": "node tools/check-android-artifact.cjs --flavor=capacitor-preview",
     "native:sync": "node tools/sync-android.cjs",
     "start": "node tools/serve.cjs",
-    "test": "node --test tests/*.test.cjs tests/*.test.mjs && node tests/quiet-wing/engines.cjs && node tests/quiet-wing/contracts.cjs",
-    "format": "prettier --write \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
-    "format:check": "prettier --check \"src/**/*.{js,mjs,css,html}\" \"tools/*.cjs\" \"tests/*.cjs\" \"optional-online/*.mjs\" \"tests/*.mjs\" package.json",
+    "test": "node --test --test-concurrency=2 tests/*.test.cjs tests/*.test.mjs && node tests/quiet-wing/engines.cjs && node tests/quiet-wing/contracts.cjs",
+    "format": "prettier --write \"src/**/*.{js,mjs,css,html}\" \"tools/**/*.cjs\" \"tests/**/*.cjs\" \"optional-online/*.mjs\" \"tests/**/*.mjs\" package.json",
+    "format:check": "prettier --check \"src/**/*.{js,mjs,css,html}\" \"tools/**/*.cjs\" \"tests/**/*.cjs\" \"optional-online/*.mjs\" \"tests/**/*.mjs\" package.json",
     "verify": "npm run format:check && npm run build:android && npm test",
     "generate": "node tools/generate-content.cjs",
     "bundle": "node tools/package.cjs",
@@ -41,7 +41,7 @@
     "prettier": "3.9.6",
     "sharp": "0.35.4",
     "three": "0.185.1",
-    "wrangler": "4.129.1"
+    "wrangler": "4.146.0"
   },
   "overrides": {
     "miniflare@5.20260907.0-alpha": {

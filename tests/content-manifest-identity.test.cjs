@@ -5,11 +5,7 @@ const crypto = require('node:crypto');
 const { contentManifestRevision, sha256 } = require('../tools/platform-identity.cjs');
 
 function expected(initial, deferred) {
-  const frame = [
-    'alibi-official-content-1',
-    ['initial', initial],
-    ['deferred', deferred],
-  ];
+  const frame = ['alibi-official-content-1', ['initial', initial], ['deferred', deferred]];
   return crypto.createHash('sha256').update(JSON.stringify(frame)).digest('hex');
 }
 

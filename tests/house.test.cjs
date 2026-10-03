@@ -123,6 +123,24 @@ test('most recent activity can be a game or a puzzle', () => {
   );
   assert.equal(M.nextActivity([], []), null);
 });
+test('game projection normalises non-string run dates for the activity sort', () => {
+  const state = {
+    runs: {
+      tictactoe: { log: [1], updatedAt: 123 },
+      duel: { log: [1], updatedAt: 'x' },
+    },
+  };
+  const E = {
+    tictactoe: { replay: () => ({ done: false }) },
+    reversi: { initial: () => ({}), move: (s) => s },
+  };
+  const games = M.gameRuns(state, E);
+  assert.deepEqual(
+    games.map((g) => g.updatedAt),
+    ['123', 'x'],
+  );
+  assert.doesNotThrow(() => M.nextActivity([], games));
+});
 test('game projection skips completed, unknown and unreadable runs without repairs', () => {
   const state = {
     runs: {

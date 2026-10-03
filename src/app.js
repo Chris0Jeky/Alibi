@@ -77,6 +77,7 @@
     draftPaint = 0,
     draftObject = 'plant',
     draftBusy = false,
+    draftEpoch = 0,
     pendingBackup = null,
     backupPickerBusy = false,
     backupPickerSerial = 0,
@@ -202,6 +203,8 @@
       } catch {
         quarantined++;
       }
+    if ((store.damaged.runs || []).length + (store.damaged.packs || []).length)
+      throw Error('A saved record is damaged. Export browser data before resetting anything.');
     const d = await store.get('meta', 'workshop-draft');
     if (d) {
       try {
@@ -475,7 +478,7 @@
     return `<button aria-label="${esc(name)}" class="nav-item ${active ? 'active' : ''}" data-action="navigate" data-page="${page}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${esc(label)}</span>${count !== '' ? `<span class="count">${count}</span>` : active ? '<span class="dot"></span>' : ''}</button>`;
   }
   function sidebar() {
-    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon', '', 'NEW')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
+    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
   }
   function mobileNav() {
     if (route.page === 'play' && current)
@@ -519,7 +522,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -1186,11 +1189,9 @@
         : p.people.map((name, id) => ({ name, id }));
     return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : p.type === 'witness' ? `Who ${X.witnessAction(p)}?` : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : typeof p.action === 'string' && p.action.trim() ? `Choose the only candidate who ${esc(X.witnessAction(p))}; your T/F notes do not affect your answer.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect your answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' || p.questionContext ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
   }
-  function playPage() {
-    return playPageInner();
-  }
   function playPageInner() {
-    if (!current) return '';
+    if (!current)
+      return '<h1 role="status">Opening puzzle…</h1><a class="btn secondary" href="#/library">Back to puzzles</a>';
     const p = current.puzzle,
       s = AlibiClub.projected(p, current.state).state,
       m = M[p.type],
@@ -1320,10 +1321,16 @@
       }
       document.getElementById('quiet-update').innerHTML =
         globalThis.AlibiTheatre.bar(true) +
-        (waitingUpdate
-          ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
-          : '');
+        (updateRequested
+          ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>`
+          : waitingUpdate
+            ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
+            : '');
       globalThis.AlibiTheatre.attach(route);
+      {
+        const quietHost = document.getElementById('quiet-host');
+        if (quietHost) quietHost.inert = updateRequested;
+      }
       return;
     }
     if (rendering) return;
@@ -1364,7 +1371,7 @@
         about: aboutPage,
         login: loginPage,
         changelog: () => globalThis.AlibiUpdates.page(),
-        play: playPage,
+        play: playPageInner,
         salon: () => AlibiClub.roomPage(route.id),
         club: () => AlibiClub.profile(),
         lab: () => AlibiClub.labPage(),
@@ -1372,6 +1379,10 @@
       $('#app').innerHTML = shell((views[route.page] || home)());
       globalThis.AlibiUsageSlot?.();
       globalThis.AlibiVoices?.(current, records);
+      {
+        const mainEl = document.getElementById('main');
+        if (mainEl) mainEl.inert = updateRequested;
+      }
       for (const [key, open] of disclosures) {
         const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
         if (el) el.open = open;
@@ -1443,7 +1454,7 @@
     } catch {}
   }
   function blocked() {
-    if (!current || paused) return true;
+    if (!current || paused || updateRequested) return true;
     if (storageFatal || saveError) {
       toast('Export this session or reload before making more changes.', true);
       return true;
@@ -1463,8 +1474,12 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
-      globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
-      globalThis.AlibiTheatre.moment('complete');
+      try {
+        globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
+      } catch {}
+      try {
+        globalThis.AlibiTheatre.moment('complete');
+      } catch {}
       paused = false;
       render();
       const mystery = ['scene', 'dossier', 'witness'].includes(p.type);
@@ -1513,8 +1528,10 @@
     }
   }
   function commit(next, { reveal = false, history = true } = {}) {
-    if (!current || C.equal(next, current.state)) return false;
-    globalThis.AlibiJourney?.(current);
+    if (updateRequested || !current || C.equal(next, current.state)) return false;
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     if (history) {
       current.undo.push(C.clone(current.state));
@@ -1824,7 +1841,7 @@
     render();
   }
   function undo(redo = false) {
-    if (!current || paused || saveError || storageFatal) return;
+    if (!current || paused || saveError || storageFatal || updateRequested) return;
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
@@ -1857,8 +1874,14 @@
     if (current && route.book) {
       // Straight to the next chapter's page; a finished book opens its ending (M5).
       const b = books.find((x) => x.id === route.book),
-        n = b && nextChapter(b, current.puzzle.id);
-      navigate('story', keyFor((n && find(n.id)) || current.puzzle), route.book);
+        n = b && nextChapter(b, current.puzzle.id),
+        p = n && find(n.id);
+      if (n && !p) {
+        toast('The next chapter definition is missing.', true);
+        navigate('casebooks', route.book);
+        return;
+      }
+      navigate('story', keyFor(p || current.puzzle), route.book);
       return;
     }
     if (!current) {
@@ -2057,9 +2080,12 @@
   }
   async function lessonFinish() {
     if (!lesson) return;
-    const t = lesson.type;
+    const finished = lesson,
+      serial = routeSerial,
+      t = finished.type;
     prefs.seen = [...new Set([...prefs.seen, t])];
     await savePreferences();
+    if (lesson !== finished || routeSerial !== serial) return;
     closeDialog();
     if (current?.puzzle.type === t) {
       render();
@@ -2175,87 +2201,116 @@
     );
   }
   async function stageAll(file) {
-    if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
-    const data = await inWorker({ type: 'combined-backup', text: await file.text() });
-    stagedAll = data;
-    dialog(
-      'Choose a section to restore',
-      `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
-      [
-        { label: 'Review cabinet restore', action: 'all-cabinet' },
-        { label: 'Review Club restore', action: 'all-club' },
-        ...(data.sections.quiet
-          ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
-          : []),
-        ...(data.sections.castle ? [{ label: 'Review castle restore', action: 'all-castle' }] : []),
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+    const serial = routeSerial;
+    try {
+      if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
+      const data = await inWorker({ type: 'combined-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      stagedAll = data;
+      dialog(
+        'Choose a section to restore',
+        `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
+        [
+          { label: 'Review cabinet restore', action: 'all-cabinet' },
+          { label: 'Review Club restore', action: 'all-club' },
+          ...(data.sections.quiet
+            ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
+            : []),
+          ...(data.sections.castle
+            ? [{ label: 'Review castle restore', action: 'all-castle' }]
+            : []),
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function importBackupFromPicker() {
     if (backupPickerBusy) return;
     backupPickerBusy = true;
+    const serial = routeSerial;
     let token = null;
     try {
-      const operation = (stage) => ({
-        operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
-        timeoutMs: 30000,
-      });
-      const fail = (code, reading = false) => {
-        toast(
-          code === 'cancelled'
-            ? 'No backup was selected. Nothing was changed.'
-            : code === 'protected'
-              ? 'That backup is larger than 16 MB. Choose a smaller backup.'
-              : reading
-                ? 'The selected backup could not be read. Choose a JSON backup file.'
-                : 'The backup picker could not finish. Try again from Restore backup.',
-          code !== 'cancelled',
-        );
-      };
-      const picked = await platform.documents.pickBackup(operation('pick'));
-      if (!picked?.ok) {
-        fail(picked?.code);
-        return;
-      }
-      token = picked.value;
-      if (typeof token !== 'string' || !token) {
-        fail('invalid');
-        return;
-      }
-      const read = await platform.documents.readLimited(token, 16 * 1024 * 1024, operation('read'));
-      if (!read?.ok) {
-        fail(read?.code, true);
-        return;
-      }
-      if (typeof read.value !== 'string') {
-        fail('invalid', true);
-        return;
-      }
-      await importBackup(new File([read.value], 'alibi-backup.json', { type: 'application/json' }));
-    } finally {
       try {
-        if (token) await platform.documents.release(token);
-      } catch {
-        /* Cleanup must not replace the picker or import failure. */
+        const operation = (stage) => ({
+          operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
+          timeoutMs: 30000,
+        });
+        const fail = (code, reading = false) => {
+          if (serial !== routeSerial) return;
+          toast(
+            code === 'cancelled'
+              ? 'No backup was selected. Nothing was changed.'
+              : code === 'protected'
+                ? 'That backup is larger than 16 MB. Choose a smaller backup.'
+                : reading
+                  ? 'The selected backup could not be read. Choose a JSON backup file.'
+                  : 'The backup picker could not finish. Try again from Restore backup.',
+            code !== 'cancelled',
+          );
+        };
+        const picked = await platform.documents.pickBackup(operation('pick'));
+        if (!picked?.ok) {
+          fail(picked?.code);
+          return;
+        }
+        token = picked.value;
+        if (serial !== routeSerial) return;
+        if (typeof token !== 'string' || !token) {
+          fail('invalid');
+          return;
+        }
+        const read = await platform.documents.readLimited(
+          token,
+          16 * 1024 * 1024,
+          operation('read'),
+        );
+        if (serial !== routeSerial) return;
+        if (!read?.ok) {
+          fail(read?.code, true);
+          return;
+        }
+        if (typeof read.value !== 'string') {
+          fail('invalid', true);
+          return;
+        }
+        await importBackup(
+          new File([read.value], 'alibi-backup.json', { type: 'application/json' }),
+          serial,
+        );
+      } finally {
+        try {
+          if (token) await platform.documents.release(token);
+        } catch {
+          /* Cleanup must not replace the picker or import failure. */
+        }
+        backupPickerBusy = false;
       }
-      backupPickerBusy = false;
+    } catch (e) {
+      if (serial === routeSerial) throw e;
     }
   }
-  async function importBackup(file) {
-    if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
-    pendingBackup = await inWorker({ type: 'cabinet-backup', text: await file.text() });
-    const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
-    dialog(
-      'Restore your progress.',
-      `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
-      [
-        { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
-        { label: 'Replace device data', action: 'restore-replace', danger: true },
-        { label: 'Export current progress', action: 'export', secondary: true },
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+  async function importBackup(file, serial = routeSerial) {
+    try {
+      if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
+      const data = await inWorker({ type: 'cabinet-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      pendingBackup = data;
+      const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
+      dialog(
+        'Restore your progress.',
+        `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
+        [
+          { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
+          { label: 'Replace device data', action: 'restore-replace', danger: true },
+          { label: 'Export current progress', action: 'export', secondary: true },
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function restoreBackup(replace = false) {
     if (!pendingBackup) return;
@@ -2364,8 +2419,13 @@
       'Checking the collection.',
       `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
     );
+    const startedSerial = routeSerial;
     const p = await inWorker({ type: 'pack', pack: data });
     await installPack(p);
+    if (routeSerial !== startedSerial) {
+      toast(`'${p.title}' is ready in your collection.`);
+      return;
+    }
     closeDialog();
     dialog(
       'A new collection is ready.',
@@ -2393,11 +2453,16 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    await store
-      .put('meta', 'workshop-draft', { puzzle: draft })
-      .catch((e) => toast(e.message, true));
+    const puzzle = draft,
+      epoch = draftEpoch,
+      serial = routeSerial;
+    await store.put('meta', 'workshop-draft', { puzzle }).catch((e) => {
+      if (puzzle === draft && epoch === draftEpoch && serial === routeSerial)
+        toast(e.message, true);
+    });
   }
   function dirtyDraft() {
+    draftEpoch++;
     draftVerified = false;
     saveDraft();
   }
@@ -2419,34 +2484,45 @@
       names,
       seed,
     };
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'generate', options });
+      const result = await inWorker({ type: 'generate', options });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draft.authorSeed = seed;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
-      render();
-      document.querySelector('.draft-editor')?.scrollIntoView({
-        behavior: settings.reducedMotion ? 'instant' : 'smooth',
-        block: 'start',
-      });
+      if (startedEpoch !== draftEpoch) return;
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      throw e;
     } finally {
       draftBusy = false;
       render();
     }
+    document.querySelector('.draft-editor')?.scrollIntoView({
+      behavior: settings.reducedMotion ? 'instant' : 'smooth',
+      block: 'start',
+    });
   }
   async function verifyDraft() {
     if (!draft || draftBusy) return;
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'draft', puzzle: draft });
+      const result = await inWorker({ type: 'draft', puzzle: draft });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draftVerified = true;
       await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
       toast('Verified. Exactly one arrangement satisfies these clues.');
     } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
       draftVerified = false;
       throw e;
     } finally {
@@ -2487,6 +2563,7 @@
       cl.other = value;
     } else if (!['edge', 'notEdge'].includes(kind)) cl.value = Number(value);
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
+    C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
     draft.clues.push(cl);
     dirtyDraft();
@@ -2535,7 +2612,13 @@
       ],
     );
   }
+  function pauseForUpdate(paused) {
+    updateRequested = paused;
+    AlibiClub.pauseForUpdate(paused);
+    render();
+  }
   async function handleAction(el, e) {
+    if (updateRequested) return;
     const a = el.dataset.action,
       v = el.dataset.value,
       id = el.dataset.id;
@@ -2971,17 +3054,25 @@
           );
         break;
       case 'apply-update':
-        await AlibiActivities.flush();
-        await AlibiClub.flush();
-        if (AlibiClub.diagnostics().saveError)
-          throw Error('Export or resolve the Club save problem before updating.');
-        await enqueueSave();
-        await queue;
-        if (saveError)
-          throw Error('The latest progress has not been saved. Export it before updating.');
-        if (registration?.waiting) {
-          updateRequested = true;
-          registration.waiting.postMessage({ type: 'ACTIVATE' });
+        endPaint();
+        pauseForUpdate(true);
+        try {
+          await AlibiActivities.flush();
+          await AlibiClub.flush();
+          if (AlibiClub.diagnostics().saveError)
+            throw Error('Export or resolve the Club save problem before updating.');
+          await enqueueSave();
+          await queue;
+          if (saveError)
+            throw Error('The latest progress has not been saved. Export it before updating.');
+          if (updateRequested && registration?.waiting) {
+            registration.waiting.postMessage({ type: 'ACTIVATE' });
+          } else {
+            pauseForUpdate(false);
+          }
+        } catch (e) {
+          pauseForUpdate(false);
+          throw e;
         }
         break;
       case 'reload':
@@ -3172,9 +3263,11 @@
   });
   let noteTimer = null;
   document.addEventListener('input', (e) => {
+    if (updateRequested) return;
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
+      draftEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;
@@ -3193,6 +3286,7 @@
     }
   });
   document.addEventListener('change', async (e) => {
+    if (updateRequested) return;
     const el = e.target;
     try {
       if (el.dataset.setting) {
@@ -3266,7 +3360,9 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
-    globalThis.AlibiJourney?.(current);
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
@@ -3331,6 +3427,7 @@
     onCell(Number(el.dataset.cell), true);
   });
   document.addEventListener('keydown', (e) => {
+    if (updateRequested) return;
     if (e.defaultPrevented) return;
     if (
       !current ||
@@ -3482,6 +3579,7 @@
     }
   });
   async function loadRoute(focusSerial = 0) {
+    draftEpoch++;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.
@@ -3511,36 +3609,24 @@
       book: new URLSearchParams(query || '').get('book') || '',
     };
     if (
-      ![
-        'home',
-        'library',
-        'play',
-        'casebooks',
-        'story',
-        'journal',
-        'settings',
-        'workshop',
-        'privacy',
-        'about',
-        'login',
-        'changelog',
-        'salon',
-        'lab',
-        'club',
-        'quiet',
-      ].includes(route.page)
+      !'home library play casebooks story journal settings workshop privacy about login changelog salon lab club quiet'
+        .split(' ')
+        .includes(route.page)
     )
       route.page = 'home';
     if (route.page !== 'play') caseReturn = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
+    current = null;
+    if (route.page !== 'quiet') await AlibiActivities.leave();
+    if (serial !== routeSerial) return;
     let late;
     if (route.page === 'play') {
       const [pid, revision] = id.split('@'),
         catalog = find(pid),
-        key = revision ? pid + '@' + Number(revision) : null,
-        pinned = key ? records.get(key)?.puzzle : null;
+        pinned = records.get(pid + '@' + (revision ? Number(revision) : catalog?.revision))?.puzzle;
       // A saved run carries its own definition; a new run waits for the deferred chunk.
       if (!pinned && deferred?.has(catalog)) {
+        render();
         await deferred.ensure().catch(() => 0);
         if (serial !== routeSerial) return;
         late = deferred.has(catalog);
@@ -3571,15 +3657,12 @@
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';
       } else {
-        current = null;
         caseReturn = null;
         route.page = 'library';
         route.id = '';
         if (!late) toast('That puzzle revision is not in this collection.', true);
       }
-    } else current = null;
-    if (route.page !== 'quiet') await AlibiActivities.leave();
-    if (serial !== routeSerial) return;
+    }
     await AlibiClub.onRoute(route);
     if (serial !== routeSerial) return;
     render();
@@ -3724,12 +3807,20 @@
         navigator.serviceWorker.addEventListener('controllerchange', async () => {
           offlineReady = true;
           if (updateRequested) {
-            await enqueueSave();
-            await queue;
-            if (!saveError) location.reload();
-            else {
-              updateRequested = false;
-              render();
+            try {
+              await AlibiActivities.flush();
+              await AlibiClub.flush();
+              if (AlibiClub.diagnostics().saveError)
+                throw Error('Export or resolve the Club save problem before updating.');
+              await enqueueSave();
+              await queue;
+              if (saveError)
+                throw Error('The latest progress has not been saved. Export it before updating.');
+              if (!updateRequested) return;
+              location.reload();
+            } catch (e) {
+              pauseForUpdate(false);
+              toast(e.message || 'The update could not finish. Your progress is preserved.', true);
             }
           } else {
             waitingUpdate = false;

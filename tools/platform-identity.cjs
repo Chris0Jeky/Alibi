@@ -146,13 +146,27 @@ function writeIdentity(directory, identity, { replace = false } = {}) {
   const source = identitySource(identity);
   const name = `assets/alibi-platform-identity.${sha256(source).slice(0, 12)}.js`;
   if (replace) {
-    const index = path.join(directory, 'index.html');
-    const html = fs.readFileSync(index, 'utf8');
-    const reference = `src="./${previous[0]}"`;
-    if (html.split(reference).length !== 2)
-      throw new Error('Expected one platform identity reference.');
-    fs.writeFileSync(index, html.replace(reference, `src="./${name}"`));
-    fs.rmSync(path.join(directory, previous[0]));
+    const next = path.join(directory, name);
+    fs.writeFileSync(next, source);
+    try {
+      const index = path.join(directory, 'index.html');
+      const html = fs.readFileSync(index, 'utf8');
+      const reference = `src="./${previous[0]}"`;
+      if (html.split(reference).length !== 2)
+        throw new Error('Expected one platform identity reference.');
+      fs.writeFileSync(index, html.replace(reference, `src="./${name}"`));
+    } catch (error) {
+      if (name !== previous[0]) {
+        try {
+          fs.rmSync(next);
+        } catch {}
+      }
+      throw error;
+    }
+    if (name !== previous[0]) {
+      fs.rmSync(path.join(directory, previous[0]));
+    }
+    return { source, path: name };
   }
   fs.writeFileSync(path.join(directory, name), source);
   return { source, path: name };

@@ -42,11 +42,13 @@
   }
   function mount(host, registry, id, saved, onSave = () => {}, onNav) {
     if (!host?.replaceChildren || !registry?.replay) throw Error('Challenge host is unavailable.');
-    let run = settle(registry, saved ? registry.validateRun(saved) : registry.begin(id)),
+    let run = saved ? registry.validateRun(saved) : registry.begin(id),
       selected = null,
       message = '',
       confirming = false;
     if (run.challengeId !== id) throw Error('This save belongs to another challenge.');
+    const unsettledLength = run.log.length;
+    run = settle(registry, run);
     const c = registry.get(id),
       siblings = registry.entries().filter((x) => x.family === c.family),
       next = siblings[siblings.indexOf(c) + 1];
@@ -132,11 +134,22 @@
       if (kind !== 'keep') onSave(copy(run));
       draw();
     };
+    // Board input on a completed route cancels a pending reset confirmation and changes nothing.
+    // For Archive, completion is the engine's done state, so its arrow keys use the same guard.
+    const finished = () => {
+      confirming = false;
+      return (
+        registry.replay(run).complete &&
+        (say('This challenge is complete. Undo or start again to change it.'), true)
+      );
+    };
     host.onclick = (event) => {
       const button = event.target.closest('button'),
         kind = button?.dataset.action,
         value = Number(button?.dataset.value);
       if (button?.dataset.challenge) return control(button.dataset.challenge);
+      if (!kind) return;
+      if (finished()) return;
       if (kind === 'peg' || kind === 'magic') {
         if (selected !== null && selected !== value) return commit({ from: selected, to: value });
         selected = selected === value ? null : value;
@@ -157,11 +170,12 @@
     };
     host.onkeydown = (event) => {
       const direction = /^Arrow(Up|Down|Left|Right)$/.exec(event.key)?.[1].toLowerCase();
-      if (!direction || c.family !== 'warehouse' || registry.replay(run).state.done) return;
+      if (!direction || c.family !== 'warehouse' || finished()) return;
       event.preventDefault();
       commit(direction);
     };
     draw();
+    if (run.log.length !== unsettledLength) onSave(copy(run));
     return {
       save: () => copy(run),
       dispose: () => {

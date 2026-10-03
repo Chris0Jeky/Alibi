@@ -52,8 +52,20 @@ function verifyCollection(name, types) {
   });
   test(`${name}: no semantic reskins against prior content or sibling collections`, () => {
     const ids = new Set(pack.puzzles.map((p) => p.id));
-    const supported = ['nonogram', 'binary', 'futoshiki', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'bridges'];
-    const other = load(process.cwd(), false).puzzles.filter((p) => !ids.has(p.id) && supported.includes(p.type));
+    const supported = [
+      'nonogram',
+      'binary',
+      'futoshiki',
+      'lightup',
+      'tents',
+      'aquarium',
+      'network',
+      'trail',
+      'bridges',
+    ];
+    const other = load(process.cwd(), false).puzzles.filter(
+      (p) => !ids.has(p.id) && supported.includes(p.type),
+    );
     const seen = new Set(other.map(Q.structuralKey));
     for (const p of pack.puzzles) {
       const key = Q.structuralKey(p);
@@ -64,14 +76,22 @@ function verifyCollection(name, types) {
   test(`${name}: selected structures meet the documented reasoning constraints`, () => {
     for (const p of pack.puzzles) {
       const m = Q.metrics(p);
-      if (p.type === 'lightup') assert.ok(m.white >= 31 && m.numbered >= 6 && m.numbered <= 11 && m.maxVisiblePeers >= 7);
+      if (p.type === 'lightup')
+        assert.ok(m.white >= 31 && m.numbered >= 6 && m.numbered <= 11 && m.maxVisiblePeers >= 7);
       if (p.type === 'tents') {
         assert.ok(m.trees >= 10 && m.sharedCandidates >= 4 && m.branchingTrees >= 9);
         assert.ok(m.multipleRows >= 3 && m.multipleCols >= 3);
         assert.ok(p.rowTargets.filter((v) => v === 0).length <= 1);
         assert.ok(p.colTargets.filter((v) => v === 0).length <= 1);
       }
-      if (p.type === 'aquarium') assert.ok(m.tanks === 9 && m.tallTanks >= 4 && m.partialTanks >= 4 && m.interiorRows >= 6 && m.interiorCols >= 6);
+      if (p.type === 'aquarium')
+        assert.ok(
+          m.tanks === 9 &&
+            m.tallTanks >= 4 &&
+            m.partialTanks >= 4 &&
+            m.interiorRows >= 6 &&
+            m.interiorCols >= 6,
+        );
       if (p.type === 'network') {
         assert.equal(m.locked, 0);
         assert.ok(m.junctions >= 7);
@@ -79,8 +99,16 @@ function verifyCollection(name, types) {
         // It is not a human difficulty score.
         assert.ok(notes.studies.find((n) => n.id === p.id).proof.independentNodes > 1);
       }
-      if (p.type === 'trail') assert.ok(m.givens <= 6 && m.maxGap >= 11 && m.turns >= 18 && m.detours >= 2);
-      if (p.type === 'bridges') assert.ok(m.islands === 16 && m.routes === 19 && m.crossings >= 2 && m.unused >= 3 && m.doubles >= 6);
+      if (p.type === 'trail')
+        assert.ok(m.givens <= 6 && m.maxGap >= 11 && m.turns >= 18 && m.detours >= 2);
+      if (p.type === 'bridges')
+        assert.ok(
+          m.islands === 16 &&
+            m.routes === 19 &&
+            m.crossings >= 2 &&
+            m.unused >= 3 &&
+            m.doubles >= 6,
+        );
       if (p.type === 'binary') {
         assert.ok(m.givens >= 12 && m.givens <= 18);
         assert.ok([...m.rowGivens, ...m.colGivens].every((n) => n >= 1 && n <= 4));

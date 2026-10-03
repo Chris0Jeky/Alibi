@@ -194,7 +194,21 @@ the survey or taps a rating. */
           if (!key && create && (key = id()) && !write(KEY, key)) remembered = key;
           return key;
         },
-        resetRespondent: () => ((remembered = null), write(KEY, null)),
+        // Queued answers still carry the old key; sending them later would link it to the new one.
+        // Returns how many answers were removed. Messages carry no key and stay queued.
+        resetRespondent() {
+          const list = load(),
+            kept = list.filter((x) => !x.payload.respondent);
+          if (kept.length < list.length) {
+            save(kept);
+            // A queue that cannot be rewritten is removed instead, so the old answers cannot
+            // reload; the kept messages stay for this page.
+            if (broken) write(QUEUE, null);
+          }
+          remembered = null;
+          write(KEY, null);
+          return list.length - kept.length;
+        },
         // Built when Send is pressed: null when the text is empty or a field is invalid.
         feedback({ kind, route, subject = '', text, release, device }) {
           text = clean(text);
@@ -210,6 +224,7 @@ the survey or taps a rating. */
             context: { device },
           };
           return payload.id &&
+            typeof release === 'string' &&
             RELEASE.test(release) &&
             KINDS.includes(kind) &&
             DEVICES.includes(device) &&
@@ -225,6 +240,7 @@ the survey or taps a rating. */
           comment = clean(comment);
           const valid =
               picked &&
+              typeof release === 'string' &&
               RELEASE.test(release) &&
               DEVICES.includes(device) &&
               comment.length <= spec.comment &&

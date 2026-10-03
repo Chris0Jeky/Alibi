@@ -242,3 +242,223 @@ test('only classics that earn a journal stamp say so', () => {
   for (const id of ['hanoi3', 'river', 'jugs', 'queens', 'magic', 'knight', 'slide-town'])
     assert.equal(stamped(id), true, id);
 });
+
+// Trust-boundary pins for src/challenges.js create()/validateRequirements.
+// Tampered classic starts and archive maps are already pinned in
+// tests/challenges.test.cjs:63-72; borough completion flow (not shape
+// rejection) is exercised in tests/planning-vault-integration.test.cjs:98.
+
+test('the registry rejects malformed curated envelopes', () => {
+  const base = structuredClone(registry.get('curated-classic-hanoi-01'));
+  const fresh = (id) => ({ ...structuredClone(base), id });
+  const make = (entries) => () => Challenges.create(entries, { quiet: Q, club: E });
+
+  // A known-good single entry is accepted, so every rejection below blames the mutation.
+  const single = Challenges.create([fresh('curated-classic-hanoi-90')], { quiet: Q, club: E });
+  assert.equal(single.count, 1);
+
+  // Duplicate ids and non-1 revisions share one rejection.
+  assert.throws(make([base, fresh(base.id)]), /Invalid trusted challenge revision\./);
+  for (const revision of [0, 2, undefined]) {
+    const entry = fresh('curated-classic-hanoi-91');
+    entry.revision = revision;
+    assert.throws(make([entry]), /Invalid trusted challenge revision\./, `revision ${revision}`);
+  }
+
+  // Curated ids keep their release-owned shape.
+  for (const id of [
+    'bogus',
+    'curated-unknown-01',
+    'curated-classic-',
+    'curated-classic-HANOI-01',
+    'curated-classic-01!',
+    '',
+  ]) {
+    assert.throws(make([fresh(id)]), /Invalid trusted challenge ID\./, id || '(empty)');
+  }
+
+  // The pack holds 1 to 128 challenges, as an array or a { challenges } pack.
+  assert.throws(make([]), /Expected 1 to 128 trusted challenges\./);
+  assert.throws(make({ challenges: [] }), /Expected 1 to 128 trusted challenges\./);
+  assert.throws(
+    () => Challenges.create(null, { quiet: Q, club: E }),
+    /Expected 1 to 128 trusted challenges\./,
+  );
+  const many = Array.from({ length: 129 }, (_, i) => fresh(`curated-classic-hanoi-t${i}`));
+  assert.throws(make(many), /Expected 1 to 128 trusted challenges\./);
+
+  // Engine slots fall back to globals; only a present-but-incomplete slot refuses.
+  // (This harness loads both engine modules, so {} resolves via the fallback.)
+  const lone = [fresh('curated-classic-hanoi-92')];
+  const noBorough = { warehouse: E.warehouse, reversi: E.reversi };
+  assert.doesNotThrow(() => Challenges.create(lone, {}));
+  assert.throws(
+    () => Challenges.create(lone, { quiet: {}, club: E }),
+    /Challenge engines are unavailable\./,
+  );
+  assert.throws(
+    () => Challenges.create(lone, { quiet: Q, club: {} }),
+    /Challenge engines are unavailable\./,
+  );
+  assert.throws(
+    () => Challenges.create(lone, { quiet: Q, club: noBorough }),
+    /Challenge engines are unavailable\./,
+  );
+
+  // A well-formed id can still name a family the registry does not run.
+  const strange = fresh('curated-classic-shape-01');
+  strange.family = 'nope';
+  assert.throws(make([strange]), /Unsupported challenge mechanism\./);
+});
+
+test('borough requirements pin their exact shape', () => {
+  const contract = structuredClone(
+    registry.entries().find((c) => c.family === 'borough' && c.requirements),
+  );
+  const [model] = contract.requirements;
+  const entryWith = (requirements) => {
+    const entry = structuredClone(contract);
+    entry.id = 'curated-borough-shape-01';
+    if (requirements === undefined) delete entry.requirements;
+    else entry.requirements = requirements;
+    return [entry];
+  };
+  const shape = (requirements) => () =>
+    Challenges.create(entryWith(requirements), { quiet: Q, club: E });
+
+  // Every requirement carries exactly these four keys with engine-known names.
+  assert.throws(shape([{ ...model, extra: 1 }]), /Invalid Borough requirement\./);
+  const withoutCount = { ...model };
+  delete withoutCount.count;
+  assert.throws(shape([withoutCount]), /Invalid Borough requirement\./);
+  assert.throws(shape([null]), /Invalid Borough requirement\./);
+  assert.throws(shape([{ ...model, building: 'castle' }]), /Invalid Borough requirement\./);
+  assert.throws(shape([{ ...model, neighbor: 'castle' }]), /Invalid Borough requirement\./);
+
+  // Ranges are inclusive integers: minimumNeighbors 1-4, count 1-18.
+  for (const minimumNeighbors of [0, 5, 1.5, '1']) {
+    assert.throws(
+      shape([{ ...model, minimumNeighbors }]),
+      /Invalid Borough requirement\./,
+      `minimumNeighbors ${minimumNeighbors}`,
+    );
+  }
+  for (const badCount of [0, 19, 1.5]) {
+    assert.throws(
+      shape([{ ...model, count: badCount }]),
+      /Invalid Borough requirement\./,
+      `count ${badCount}`,
+    );
+  }
+
+  // The list itself holds 1 to 3 entries and never repeats a key.
+  assert.throws(shape([]), /Invalid Borough requirements\./);
+  assert.throws(shape({}), /Invalid Borough requirements\./);
+  assert.throws(
+    shape([
+      { ...model, minimumNeighbors: 1, count: 1 },
+      { ...model, minimumNeighbors: 2, count: 1 },
+      { ...model, minimumNeighbors: 3, count: 1 },
+      { ...model, minimumNeighbors: 4, count: 1 },
+    ]),
+    /Invalid Borough requirements\./,
+  );
+  assert.throws(shape([model, { ...model }]), /Duplicate Borough requirement\./);
+
+  // Accepted shapes still replay: omission, a relaxed count and one extra
+  // satisfiable clause all complete from the curated solution.
+  for (const requirements of [
+    undefined,
+    [{ ...model, count: 1 }],
+    [model, { ...model, minimumNeighbors: 1, count: 1 }],
+  ]) {
+    const only = Challenges.create(entryWith(requirements), { quiet: Q, club: E });
+    assert.equal(only.count, 1);
+    const run = only.begin('curated-borough-shape-01');
+    run.log = structuredClone(contract.solutionActions);
+    assert.equal(only.replay(run).complete, true);
+  }
+});
+
+test('borough adjacency never wraps at row edges', () => {
+  const board = (cells) => {
+    const plots = Array(25).fill(null);
+    for (const [i, v] of cells) plots[i] = v;
+    return plots;
+  };
+  const actual = (cells, minimumNeighbors = 1) =>
+    Challenges.boroughRequirements(
+      {
+        requirements: [{ building: 'home', neighbor: 'garden', minimumNeighbors, count: 1 }],
+      },
+      { board: board(cells) },
+    )[0].actual;
+  assert.equal(
+    actual([
+      [5, 'home'],
+      [4, 'garden'],
+    ]),
+    0,
+    'i-1 must not wrap to the previous row',
+  );
+  assert.equal(
+    actual([
+      [10, 'home'],
+      [9, 'garden'],
+    ]),
+    0,
+    'row starts exclude the row above end',
+  );
+  assert.equal(
+    actual([
+      [5, 'home'],
+      [6, 'garden'],
+    ]),
+    1,
+  );
+  assert.equal(
+    actual([
+      [4, 'home'],
+      [9, 'garden'],
+    ]),
+    1,
+    'i+5 crosses rows legitimately',
+  );
+  assert.equal(
+    actual([
+      [0, 'home'],
+      [5, 'garden'],
+    ]),
+    1,
+  );
+  assert.equal(
+    actual([
+      [0, 'home'],
+      [6, 'garden'],
+    ]),
+    0,
+    'diagonals never count',
+  );
+  assert.equal(
+    actual(
+      [
+        [6, 'home'],
+        [1, 'garden'],
+        [11, 'garden'],
+      ],
+      2,
+    ),
+    1,
+    'two edge neighbours satisfy a count of 2',
+  );
+  assert.equal(
+    actual(
+      [
+        [6, 'home'],
+        [1, 'garden'],
+      ],
+      2,
+    ),
+    0,
+  );
+});

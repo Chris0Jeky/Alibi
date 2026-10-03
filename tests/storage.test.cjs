@@ -1,4 +1,6 @@
-/* Persistence fallback contracts in a Node VM. Does not emulate IndexedDB transactions. */
+/* Persistence fallback contracts in a Node VM, plus a minimal synchronous
+   IndexedDB fixture for the restore shape guard. Not a real browser
+   IndexedDB durability, service worker, or cross-tab test. */
 'use strict';
 const fs = require('node:fs'),
   vm = require('node:vm'),
@@ -60,6 +62,80 @@ function setup(local = true, newer = false) {
     ls,
   };
 }
+function restoreFixture(seed) {
+  const disk = {
+    runs: new Map(Object.entries(seed.runs)),
+    packs: new Map(),
+    meta: new Map(),
+  };
+  let aborted = false;
+  const request = (result) => {
+    const pending = { result, onsuccess: null, onerror: null };
+    setTimeout(() => {
+      if (!aborted && pending.onsuccess) pending.onsuccess();
+    }, 0);
+    return pending;
+  };
+  const tx = {
+    oncomplete: null,
+    onerror: null,
+    onabort: null,
+    listeners: { complete: [], error: [], abort: [] },
+    addEventListener(ev, fn) {
+      this.listeners[ev].push(fn);
+    },
+    abort() {
+      aborted = true;
+      setTimeout(() => {
+        for (const f of this.listeners.abort)
+          try {
+            f();
+          } catch {}
+        if (this.onabort) this.onabort();
+      }, 0);
+    },
+    objectStore(name) {
+      const table = disk[name];
+      return {
+        get(key) {
+          return request(
+            table.has(key) ? { key, value: structuredClone(table.get(key)) } : undefined,
+          );
+        },
+        getAll() {
+          return request(
+            [...table.entries()].map(([key, value]) => ({
+              key,
+              value: structuredClone(value),
+            })),
+          );
+        },
+        put(entry) {
+          table.set(entry.key, structuredClone(entry.value));
+        },
+        clear() {
+          table.clear();
+        },
+      };
+    },
+  };
+  return {
+    disk,
+    db: {
+      transaction() {
+        setTimeout(() => {
+          if (aborted) return;
+          for (const f of tx.listeners.complete)
+            try {
+              f();
+            } catch {}
+          if (tx.oncomplete) tx.oncomplete();
+        }, 20);
+        return tx;
+      },
+    },
+  };
+}
 (async () => {
   for (const local of [true, false]) {
     const { Store, compareAndSwapMeta, items, ls } = setup(local),
@@ -73,6 +149,17 @@ function setup(local = true, newer = false) {
     await assert.rejects(s.saveRun(r, 0), (e) => e.name === 'ConflictError');
     assertions++;
     ok((await s.get('runs', r.key)).rev === 1, 'stale write did not replace save');
+    const capture = {
+      key: 'scene-01@1',
+      rev: 1,
+      state: { placements: {} },
+      schemaVersion: 1,
+    };
+    const capturedSave = s.saveRun(capture, 1);
+    capture.key = 'scene-02@1';
+    ok((await capturedSave).rev === 2, 'key-captured save increments revision');
+    ok((await s.get('runs', 'scene-01@1')).rev === 2, 'write landed under the original key');
+    ok((await s.get('runs', 'scene-02@1')) === undefined, 'mutated key was not written');
     await s.put('meta', 'preferences', { seen: ['scene'], favorites: ['scene-01'] });
     await s.put('packs', 'example-pack', { revision: 1 });
     if (local) {
@@ -132,10 +219,19 @@ function setup(local = true, newer = false) {
       local ? 'local fallback visible to fresh store' : 'session fallback correctly ephemeral',
     );
     if (local) {
+      // One damaged record must not discard every run: getAll/export skip
+      // the bad key, report it, and preserve its bytes for browser-level
+      // recovery. Single-key reads stay loud.
       ls.setItem('alibi.v1.runs.bad', '{bad');
-      await assert.rejects(s.getAll('runs'), /damaged/);
-      assertions++;
-      ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+      const survived = await s.getAll('runs');
+      ok(survived.length === 1, 'damaged key skipped without losing valid runs');
+      ok(survived.damaged.join(',') === 'bad', 'damaged run key reported on the result');
+      ok(s.damaged.runs.join(',') === 'bad', 'damaged run key reported on the store');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'corrupt record bytes not deleted');
+      const damagedBackup = await s.export();
+      ok(damagedBackup.runs.length === 1, 'export keeps valid runs past one damaged key');
+      ok(damagedBackup.damaged.runs.join(',') === 'bad', 'export reports the damaged run key');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'export preserves corrupt bytes');
       await assert.rejects(s.get('runs', 'bad'), /damaged/);
       assertions++;
       ok(items.has('alibi.v1.runs.bad'), 'corrupt single read preserves the record');
@@ -145,6 +241,38 @@ function setup(local = true, newer = false) {
       ok((await s.getAll('runs')).length === 1, 'null storage key skipped without crashing');
       ls.key = realKey;
     }
+  }
+  {
+    const { Store: GuardedStore } = setup(true),
+      target = await new GuardedStore().init(),
+      keyless = restoreFixture({
+        runs: { 'scene-01@1': { key: 'scene-01@1', rev: 1 } },
+      });
+    target.db = keyless.db;
+    const before = JSON.stringify([...keyless.disk.runs.entries()]);
+    await assert.rejects(
+      target.restore({ runs: [{ rev: 1 }], packs: [] }),
+      /Unsupported backup format/,
+    );
+    assertions++;
+    ok(
+      JSON.stringify([...keyless.disk.runs.entries()]) === before,
+      'rejected restore left the prior run byte-identical',
+    );
+    const valid = restoreFixture({
+      runs: { 'scene-01@1': { key: 'scene-01@1', rev: 1 } },
+    });
+    target.db = valid.db;
+    await target.restore({
+      format: 'alibi-backup',
+      schemaVersion: 1,
+      runs: [{ key: 'scene-01@1', rev: 2 }],
+      packs: [{ id: 'example-pack' }],
+      settings: {},
+      preferences: {},
+    });
+    ok(valid.disk.runs.get('scene-01@1').rev === 2, 'well-formed restore still replaces runs');
+    ok(valid.disk.packs.has('example-pack'), 'well-formed restore still replaces packs');
   }
   const { Store } = setup(true, true),
     s = await new Store().init();
@@ -158,7 +286,7 @@ function setup(local = true, newer = false) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, lazy metadata CAS fallback refusal, export, corruption preservation, single-read corruption message, null-key iteration, destructive-restore refusal and newer-database refusal. Not IndexedDB transaction or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, saveRun key capture, lazy metadata CAS fallback refusal, export, damaged-record skip-and-report with byte preservation, single-read corruption message, null-key iteration, restore shape guard with byte-identical refusal, destructive-restore refusal and newer-database refusal. Not real browser IndexedDB durability or reload testing.',
       },
       null,
       2,

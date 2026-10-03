@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..'),
   input = path.join(root, 'assets-source/quiet-wing/museum'),
   output = path.join(root, 'src/quiet-wing/assets/museum');
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
-(async () => {
+async function main() {
   const ledger = JSON.parse(fs.readFileSync(path.join(input, 'rights.json')));
   fs.mkdirSync(output, { recursive: true });
   const receipt = {};
@@ -43,7 +43,11 @@ const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
   }
   fs.writeFileSync(path.join(output, 'rights.json'), JSON.stringify(receipt, null, 2) + '\n');
   console.log(JSON.stringify(receipt, null, 2));
-})().catch((e) => {
-  console.error(e);
-  process.exitCode = 1;
-});
+}
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e);
+    process.exitCode = 1;
+  });
+}
+module.exports = { main };

@@ -6,6 +6,7 @@
     copy = (x) => JSON.parse(JSON.stringify(x));
   function create(registry) {
     let db = null,
+      opening = null,
       mode = 'session',
       revision = 0,
       session = new Map(),
@@ -61,7 +62,12 @@
           reject(error);
         }
       });
-    async function open() {
+    function open() {
+      return (opening ||= connect().finally(() => {
+        opening = null;
+      }));
+    }
+    async function connect() {
       if (db || protectedMode) return info();
       if (!G.indexedDB) {
         mode = 'session';
@@ -142,7 +148,7 @@
             throw Error('Challenge storage is protected. Export or reload before writing.');
           const id = checked.challengeId,
             expected = revisions.get(id) || 0;
-          if (protectedIds.has(id))
+          if (protectedIds.has(id) && !restoring)
             throw Error('This challenge save is protected and was preserved.');
           if (expected >= Number.MAX_SAFE_INTEGER) throw revisionLimit(id);
           const record = { schema: 1, revision: expected + 1, run: checked };
@@ -191,22 +197,30 @@
             );
           };
           const read = tx.objectStore(STORE).get(id);
+          let existingCorrupt = false;
           read.onsuccess = () => {
             if (read.result !== undefined) {
               try {
                 validateRecord(read.result, id);
               } catch (error) {
-                protectedError = error;
-                tx.abort();
-                return;
+                // Explicit restore replaces an unusable save; its bytes are
+                // still retained at recovery:+id below.
+                if (!restoring) {
+                  protectedError = error;
+                  tx.abort();
+                  return;
+                }
+                existingCorrupt = true;
               }
-              if (read.result.revision >= Number.MAX_SAFE_INTEGER) {
+              if (!existingCorrupt && read.result.revision >= Number.MAX_SAFE_INTEGER) {
                 protectedError = revisionLimit(id);
                 tx.abort();
                 return;
               }
             }
-            if ((read.result?.revision || 0) !== expected) {
+            // Explicit restore replaces only unusable bytes outright; a valid
+            // record keeps its revision guard so concurrent edits still conflict.
+            if (!existingCorrupt && (read.result?.revision || 0) !== expected) {
               conflict = true;
               tx.abort();
               return;

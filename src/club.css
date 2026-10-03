@@ -2253,6 +2253,12 @@ body.club-experiment {
     font-size: 24px;
   }
 }
+@media (max-width: 800px) {
+  .build-confirm,
+  .borough-cell {
+    scroll-margin-bottom: calc(81px + env(safe-area-inset-bottom));
+  }
+}
 @media (max-width: 600px) {
   .club-home .main,
   .club-experiment .main {

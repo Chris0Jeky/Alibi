@@ -16,7 +16,9 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    # The full browser gate approaches 25 minutes before variable apt setup.
+    # Allow dependency-install headroom without dropping any proving checks.
+    timeout-minutes: 45
     env:
       PYTHONUTF8: '1'
       ALIBI_EVENT_NAME: ${{ github.event_name }}
@@ -97,6 +99,9 @@ jobs:
           npm start > /tmp/alibi-server.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
+          python tests/browser_workshop_ownership.py
+          python tests/browser_backup_ownership.py
+          python tests/browser_completion_hooks.py
           python tests/browser_observatory.py
           python tests/browser_voices.py
           python tests/browser_curation.py
@@ -127,6 +132,8 @@ jobs:
           python tests/browser_delivery.py
           python tests/browser_theatre.py
           ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
+          python tests/browser_challenge_library.py
+          python tests/browser_challenge_lifecycle.py
           python tests/browser_restart.py
           python tests/browser_boot.py
           python tests/browser_quiet.py
@@ -168,6 +175,9 @@ jobs:
             tests/quiet-wing/*-results.json
             tests/screenshots/
             test-results/browser-origin/*.json
+            test-results/workshop-ownership/
+            test-results/backup-ownership/
+            test-results/completion-hooks/
             test-results/browser-backup-import.json
             test-results/browser-update/*.json
             test-results/mobile-qa/
@@ -190,6 +200,8 @@ jobs:
             test-results/theatre/
             test-results/curation-check/
             test-results/challenges-replay.json
+            test-results/challenge-library/
+            test-results/challenge-lifecycle/
             test-results/large-nonogram/
             test-results/expert-browser/
             test-results/expert-control/

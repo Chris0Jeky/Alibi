@@ -281,12 +281,16 @@
         accused: null,
       }),
       reduce: (p, s, a) => {
-        const t = clone(s),
-          n = p.size;
+        const n = p.size;
+        if (a.type === 'mark') {
+          if (!Array.isArray(s?.marks) || s.marks.length !== 2 * n * n) return s;
+        }
+        const t = clone(s);
         if (
           a.type === 'mark' &&
           Number.isInteger(a.cell) &&
           a.cell >= 0 &&
+          a.cell < 2 * n * n &&
           a.cell < t.marks.length &&
           [-1, 0, 1].includes(a.value)
         ) {
@@ -303,7 +307,12 @@
             }
           }
         }
-        if (a.type === 'clue')
+        if (
+          a.type === 'clue' &&
+          Number.isInteger(a.index) &&
+          a.index >= 0 &&
+          a.index < p.clues.length
+        )
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
@@ -331,9 +340,15 @@
             if (row.every((i) => s.marks[i] === 0) || col.every((i) => s.marks[i] === 0))
               out.push(issue('A row or column has no remaining possibilities.'));
           }
-        for (const cl of p.clues)
-          if (cl.kind !== 'link' && a[cl.cat * n + cl.who] >= 0 && !dossierMatch(p, a, cl))
+        for (const cl of p.clues) {
+          const w = cl.kind === 'link' ? a.slice(0, n).indexOf(cl.a) : cl.who;
+          if (
+            w >= 0 &&
+            a[(cl.kind === 'link' ? 1 : cl.cat) * n + w] >= 0 &&
+            !dossierMatch(p, a, cl)
+          )
             out.push(issue(dossierClue(p, cl)));
+        }
         if (dossierReady(p, s) && s.accused !== null && a[n + s.accused] !== p.targetItem)
           out.push(issue('That person did not carry the item identified in the evidence.'));
         return out;
@@ -361,6 +376,8 @@
           t.accused = a.who;
         return t;
       },
+      // Witness marks are advisory working notes: completion judges only the
+      // accusation, while solveState still honors marks as constraints.
       validate: (p, s) =>
         s.accused !== null && p.statements.filter((c) => truth(c, s.accused)).length !== p.trueCount
           ? [
@@ -409,14 +426,16 @@
       icon: 'aquarium',
       initial: (p) => ({ levels: tankRows(p).map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        const rows = tankRows(p);
+        if (!Array.isArray(s?.levels) || s.levels.length !== rows.length) return s;
         if (
           a.type !== 'level' ||
           !Number.isInteger(a.tank) ||
           a.tank < 0 ||
-          a.tank >= s.levels.length ||
+          a.tank >= rows.length ||
           !Number.isInteger(a.value) ||
           a.value < 0 ||
-          a.value > tankRows(p)[a.tank].length
+          a.value > rows[a.tank].length
         )
           return s;
         const t = clone(s);
@@ -454,6 +473,7 @@
       icon: 'network',
       initial: (p) => ({ rotations: p.tiles.map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        if (!Array.isArray(s?.rotations) || s.rotations.length !== p.size * p.size) return s;
         if (
           a.type !== 'rotate' ||
           !Number.isInteger(a.cell) ||

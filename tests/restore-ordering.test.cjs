@@ -4,7 +4,11 @@
 // shared-queue + CAS + recovery contract deterministically with deferred
 // transactions so the restore window stays open for an interleaved move.
 // Transaction completion waits for pending requests, matching IndexedDB
-// auto-commit (a transaction never completes while a request is pending).
+// auto-commit (a transaction never completes while a request is pending). Puts stay buffered
+// in their transaction (visible to its own later reads) and reach the disk only on complete;
+// abort discards them. Creation and request callbacks allow immediate microtasks;
+// activity expires before subsequently queued timer callbacks. The 30 ms
+// completion delay controls interleaving, not permission to enqueue requests.
 // Boundary: this is NOT real browser IndexedDB durability, service workers,
 // cross-tab storage events, or physical-device timing.
 const { test } = require('node:test');
@@ -26,10 +30,30 @@ function makeDisk() {
       let pending = 0;
       let generation = 0;
       let completed = false;
+      let active = false;
+      let activityEpoch = 0;
+      function activate() {
+        active = true;
+        const epoch = ++activityEpoch;
+        // Defer deactivation past callback microtasks, but queue it before timers
+        // that the caller creates after this transaction/request callback.
+        setTimeout(() => {
+          if (epoch === activityEpoch) active = false;
+        }, 0);
+      }
+      function requireActive() {
+        if (aborted || completed || !active)
+          throw Object.assign(Error('The transaction is inactive.'), {
+            name: 'TransactionInactiveError',
+          });
+      }
+      const writes = new Map();
       function fireComplete() {
         if (aborted || completed) return;
         if (pending !== 0) return;
         completed = true;
+        active = false;
+        for (const [key, value] of writes) disk.set(key, value);
         try {
           if (tx.oncomplete) tx.oncomplete();
         } catch {}
@@ -54,25 +78,32 @@ function makeDisk() {
         objectStore() {
           return {
             get(key) {
+              requireActive();
               pending += 1;
               generation += 1;
               const req = { result: undefined, onsuccess: null, onerror: null };
+              // Requests run in queue order: only puts queued before this get are visible to it.
+              const queuedOwn = writes.has(key),
+                own = writes.get(key);
               setTimeout(() => {
                 if (aborted) {
                   pending -= 1;
                   return;
                 }
-                const raw = disk.get(key);
+                const raw = queuedOwn ? own : disk.get(key);
                 req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
                 pending -= 1;
+                activate();
                 if (req.onsuccess) req.onsuccess();
                 maybeComplete();
               }, 10);
               return req;
             },
             put(value, key) {
-              if (aborted) return;
-              disk.set(key, JSON.parse(JSON.stringify(value)));
+              requireActive();
+              generation += 1;
+              writes.set(key, JSON.parse(JSON.stringify(value)));
+              maybeComplete();
             },
           };
         },
@@ -80,7 +111,13 @@ function makeDisk() {
           if (listeners[ev]) listeners[ev].push(fn);
         },
         abort() {
+          if (completed || aborted)
+            throw Object.assign(Error('The transaction has finished.'), {
+              name: 'InvalidStateError',
+            });
           aborted = true;
+          active = false;
+          writes.clear();
           setTimeout(() => {
             try {
               if (tx.onabort) tx.onabort();
@@ -96,6 +133,7 @@ function makeDisk() {
         onerror: null,
         onabort: null,
       };
+      activate();
       maybeComplete();
       return tx;
     },
@@ -215,6 +253,162 @@ test('transaction completes only after chained requests settle', async () => {
   await completed;
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.deepEqual(order, ['get1', 'get2', 'get3', 'get4', 'complete']);
+});
+
+test('puts reach the disk only when their transaction completes; abort discards them', async () => {
+  const { disk, indexedDB } = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  disk.set('state', { rev: 1 });
+  const aborted = db.transaction();
+  const aborting = new Promise((resolve) => {
+    aborted.onabort = resolve;
+  });
+  const read = aborted.objectStore().get('state');
+  read.onsuccess = () => {
+    aborted.objectStore().put({ rev: 2 }, 'state');
+    aborted.objectStore().put({ rev: 1 }, 'recovery');
+    assert.deepEqual(disk.get('state'), { rev: 1 }, 'a put is not durable before complete');
+    aborted.abort();
+  };
+  await aborting;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepEqual(disk.get('state'), { rev: 1 }, 'an aborted put never reaches the disk');
+  assert.equal(disk.has('recovery'), false);
+  const committed = db.transaction();
+  const completing = new Promise((resolve) => {
+    committed.oncomplete = resolve;
+  });
+  const store = committed.objectStore();
+  const before = store.get('state');
+  let earlier;
+  before.onsuccess = () => {
+    earlier = before.result;
+  };
+  store.put({ rev: 2 }, 'state');
+  const own = store.get('state');
+  let seen;
+  own.onsuccess = () => {
+    seen = own.result;
+  };
+  await completing;
+  assert.deepEqual(earlier, { rev: 1 }, 'a get queued before a put does not see it');
+  assert.deepEqual(seen, { rev: 2 }, 'a transaction reads its own pending put');
+  assert.deepEqual(disk.get('state'), { rev: 2 }, 'a completed put is durable');
+});
+
+async function fixtureTransaction() {
+  const { disk, indexedDB } = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  const tx = db.transaction();
+  return { disk, tx, store: tx.objectStore() };
+}
+
+test('creation and request callback microtasks can enqueue writes', async () => {
+  const { disk, tx, store } = await fixtureTransaction();
+  const completed = new Promise((resolve) => {
+    tx.oncomplete = resolve;
+  });
+  store.put('creation', 'creation');
+  await Promise.resolve();
+  store.put('creation microtask', 'creation-microtask');
+  const req = store.get('creation');
+  req.onsuccess = () => {
+    store.put('callback', 'callback');
+    Promise.resolve().then(() => {
+      store.put('callback microtask', 'callback-microtask');
+    });
+  };
+  await completed;
+  assert.deepEqual([...disk.keys()].sort(), [
+    'callback',
+    'callback-microtask',
+    'creation',
+    'creation-microtask',
+  ]);
+});
+
+test('an unrelated timer cannot enqueue requests while a read is pending', async () => {
+  const { disk, tx, store } = await fixtureTransaction();
+  let finished = false;
+  const completed = new Promise((resolve) => {
+    tx.oncomplete = () => {
+      finished = true;
+      resolve();
+    };
+  });
+  store.get('state');
+  await new Promise((resolve) => setTimeout(resolve, 1));
+  assert.equal(finished, false, 'the transaction has not completed');
+  assert.throws(() => store.put('late', 'late'), { name: 'TransactionInactiveError' });
+  assert.throws(() => store.get('state'), { name: 'TransactionInactiveError' });
+  await completed;
+  assert.equal(disk.has('late'), false);
+});
+
+test('put after completion throws and preserves the committed value', async () => {
+  const { disk, tx, store } = await fixtureTransaction();
+  const completed = new Promise((resolve) => {
+    tx.oncomplete = resolve;
+  });
+  store.put('committed', 'state');
+  await completed;
+  assert.throws(() => store.put('late', 'state'), { name: 'TransactionInactiveError' });
+  assert.equal(disk.get('state'), 'committed');
+});
+
+test('put after abort throws and never commits its buffered value', async () => {
+  const { disk, tx, store } = await fixtureTransaction();
+  const aborted = new Promise((resolve) => {
+    tx.onabort = resolve;
+  });
+  store.put('buffered', 'state');
+  tx.abort();
+  assert.throws(() => store.put('late', 'state'), { name: 'TransactionInactiveError' });
+  await aborted;
+  assert.equal(disk.has('state'), false);
+});
+
+test('abort after completion throws without emitting an abort event', async () => {
+  const { disk, tx, store } = await fixtureTransaction();
+  let aborts = 0,
+    caught;
+  tx.onabort = () => {
+    aborts += 1;
+  };
+  const completed = new Promise((resolve) => {
+    tx.oncomplete = () => {
+      try {
+        tx.abort();
+      } catch (error) {
+        caught = error.name;
+      }
+      resolve();
+    };
+  });
+  store.put('committed', 'state');
+  await completed;
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.equal(caught, 'InvalidStateError');
+  assert.equal(aborts, 0);
+  assert.equal(disk.get('state'), 'committed');
+});
+
+test('a second abort throws InvalidStateError', async () => {
+  const { tx } = await fixtureTransaction();
+  const aborted = new Promise((resolve) => {
+    tx.onabort = resolve;
+  });
+  tx.abort();
+  assert.throws(() => tx.abort(), { name: 'InvalidStateError' });
+  await aborted;
 });
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
