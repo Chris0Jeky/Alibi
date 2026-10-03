@@ -10,7 +10,8 @@
       const body = root.querySelector('.qw-body');
       const listeners = new AbortController();
       const downloads = new Set();
-      let disposed = false;
+      let disposed = false,
+        challengeView = null;
       const timers = new Set();
       const setTimeout = (fn, ms) => {
         const id = G.setTimeout(() => {
@@ -292,6 +293,9 @@
         return `<section class="pagehead"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${text}</p></div>${extra}${art ? `<img class="room-illustration" src="${art.image}" alt="" width="1200" height="600">` : ''}</section>`;
       }
       function disposeActivity() {
+        challengeView = null;
+        A.challengeHandle?.dispose();
+        A.challengeHandle = null;
         A.folio?.dispose();
         A.folio = null;
         clearInterval(A.gardenTimer);
@@ -1462,7 +1466,9 @@
         $('#classics-challenges').onclick = () => navigate('challenges');
       }
       function challengesPage() {
-        const requested = routePath().split('/')[1] || '';
+        const owner = (challengeView = {}),
+          isCurrent = () => !disposed && challengeView === owner,
+          requested = routePath().split('/')[1] || '';
         if (
           !G.ALIBI_CHALLENGE_DATA ||
           !G.AlibiChallenges ||
@@ -1535,6 +1541,7 @@
             )
             .then(
               (runs) => {
+                if (!isCurrent()) return;
                 runs.forEach((run, i) => {
                   const card = run && $(`[data-challenge-id="${entries[i].id}"]`);
                   if (!card) return;
@@ -1571,61 +1578,83 @@
             `<button id="challenge-back" class="soft">← All challenges</button>`,
           ) +
           '<div id="challenge-host"></div><div class="row"><button id="challenge-export" class="soft">Export challenge</button><button id="challenge-import" class="soft">Restore challenge</button><button id="challenge-recovery" class="soft">Export pre-restore save</button><input id="challenge-file" type="file" accept="application/json,.json" hidden></div><p class="micro subtle">These controls cover this challenge only. Cabinet, Club and Quiet Wing backups remain separate.</p>';
-        $('#challenge-back').onclick = () => navigate(list);
+        $('#challenge-back').onclick = () => {
+          if (isCurrent()) navigate(list);
+        };
         const host = $('#challenge-host'),
-          mount = (saved) =>
-            (A.challengeHandle = G.AlibiChallengeLauncher.mount(
+          input = $('#challenge-file'),
+          mount = (saved) => {
+            if (!isCurrent()) return;
+            A.challengeHandle?.dispose();
+            A.challengeHandle = G.AlibiChallengeLauncher.mount(
               host,
               A.challengeRegistry,
               challenge.id,
               saved,
-              (run) => A.challengeStore.write(run).catch((error) => toast(error.message)),
-              (to) => navigate(to ? 'challenges/' + to : list),
-            ));
+              (run) =>
+                A.challengeStore.write(run).catch((error) => {
+                  if (isCurrent()) toast(error.message);
+                }),
+              (to) => {
+                if (isCurrent()) navigate(to ? 'challenges/' + to : list);
+              },
+            );
+          };
+        let importing = false;
         A.challengeStore
           .open()
           .then(() => A.challengeStore.read(challenge.id))
           .catch((error) => {
-            toast(error.message);
+            if (isCurrent()) toast(error.message);
             return null;
           })
           .then((saved) => {
-            if (disposed || A.route !== 'challenges' || routePath().split('/')[1] !== challenge.id)
-              return;
+            if (!isCurrent() || A.challengeHandle) return;
             mount(saved);
           });
-        $('#challenge-export').onclick = () => exportChallenge(A.challengeHandle?.save());
+        $('#challenge-export').onclick = () => {
+          if (isCurrent()) exportChallenge(A.challengeHandle?.save());
+        };
         $('#challenge-recovery').onclick = async () => {
+          if (!isCurrent()) return;
           try {
-            exportChallenge(await A.challengeStore.recovery(challenge.id), 'previous');
+            const saved = await A.challengeStore.recovery(challenge.id);
+            if (isCurrent()) exportChallenge(saved, 'previous');
           } catch (error) {
-            toast(error.message);
+            if (isCurrent()) toast(error.message);
           }
         };
-        $('#challenge-import').onclick = () => $('#challenge-file').click();
-        $('#challenge-file').onchange = async () => {
-          const file = $('#challenge-file').files?.[0];
+        $('#challenge-import').onclick = () => {
+          if (isCurrent() && !importing) input.click();
+        };
+        input.onchange = async () => {
+          if (!isCurrent() || importing) return;
+          const file = input.files?.[0];
           if (!file) return;
+          importing = true;
           try {
             if (file.size > 3 * 1024 * 1024)
               throw Error('Challenge save exceeds the 3 MiB import limit.');
             if (!G.AlibiValidateImport) throw Error('Background validation is unavailable.');
-            const imported = await G.AlibiValidateImport({
-              type: 'challenge-run',
-              text: await file.text(),
-            });
+            const text = await file.text();
+            if (!isCurrent()) return;
+            const imported = await G.AlibiValidateImport({ type: 'challenge-run', text });
+            if (!isCurrent()) return;
             if (imported.challengeId !== challenge.id)
               throw Error('Choose a save for this exact challenge.');
             await A.challengeStore.restore(imported);
-            A.challengeHandle?.dispose();
+            if (!isCurrent()) return;
             mount(imported);
             toast('Challenge save restored. The previous save remains available for export.');
           } catch (error) {
-            toast(error.message);
+            if (isCurrent()) toast(error.message);
+          } finally {
+            importing = false;
+            input.value = '';
           }
-          $('#challenge-file').value = '';
         };
       }
+
       function exportChallenge(run, suffix = 'challenge') {
         if (!run) {
           toast('Finish opening this challenge before exporting it.');

@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-03: challenge view ownership (draft)
+
+Refs #416 item 3. Challenge loads, exports, recovery and imports now belong to a
+particular view instance, not just a route ID. Leaving disposes and clears the
+handle; delayed A/B/A work cannot replace the new A. Imports check ownership
+after file reading, worker validation and restore completion, and clear only
+the captured input. Already-admitted storage transactions are not cancelled.
+Twelve actual-host source regressions reproduced ten failures before the fix;
+all twelve and the sixty-test challenge suite pass after it. Full exact-head
+CI, browser route races and independent review remain required before merge.
+No physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.
+
 ## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
 This candidate retains both reviewed #540/#542 histories and the landed
