@@ -1,5 +1,14 @@
 # Live development state
 
+## 2026-10-03: narrow Cascade actions (#562, follows #556)
+
+Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text
+extending beyond their buttons. Below 371px, only the Cascade dialog now uses
+three columns and normal-flow actions, preserving 44px targets, readable labels
+and the selectable tray. Classic and wider layouts retain their current rules.
+The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
+close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
+CI and independent review remain gates; physical Android/TalkBack is unverified.
 ## 2026-10-03: challenge restore admission review correction (#560)
 
 Independent review found that an initial read could expose the old board while
@@ -1359,7 +1368,7 @@ independent review and physical/human acceptance remain required.
 Ten newly authored 15 by 15 Picture Logic drawings are supplied as a data-only
 Workshop import, not silently added to the official or startup registry. Exact
 pixel blueprints, board-specific editorial notes, a reproducible clue compiler
-and the actual JSON pack live with 53 source/readiness/authoring regressions. Native and
+and the actual JSON pack live with 70 source/readiness/authoring regressions. Native and
 independent solvers agree on one answer per board; all 2,250 squares are derived
 without reading answers and applied through the production reducer. The old
 510-definition prefix is byte-pinned. No save, dependency or budget changes.
@@ -1376,7 +1385,7 @@ and TalkBack remain unverified in HUMAN_TODO.md.
 The fixed membership guard is now followed by the production pack validator,
 including metadata, rule and bounded uniqueness checks before any --write.
 Fifteen new source/CLI cases reproduced fourteen failures before correction;
-all fifty-three Afterlight cases now pass. Invalid metadata and ambiguous pixels
+all seventy Afterlight cases now pass. Invalid metadata and ambiguous pixels
 leave the prior pack byte-for-byte intact. The existing membership CLI uses
 the same isolated real-validator fixture. The focused command in the guide and
 CI is node --test tests/afterlight-*.test.cjs, including every authoring suite.
@@ -1391,3 +1400,24 @@ valid replacement identity cannot overwrite the existing JSON through --write.
 The authored pack bytes remain unchanged. This branch integrates landed #560;
 current-head full CI, all twenty browser cases and independent re-review remain
 required. No deployment or physical-device acceptance is claimed.
+### Cascade current-main integration
+
+The narrow-Cascade CSS and actual-control fixture remain byte-identical to
+reviewed 8f5618d. Landed Challenge #560 is incorporated without altering its
+runtime or tests; only additive state-note conflicts were resolved. Earlier
+eight green workflows and the three browser cases are historical evidence.
+Recheck all current-head workflows and independent review before merge.
+Physical Android and TalkBack acceptance remain in HUMAN_TODO.md.
+
+### Afterlight authored story boundary
+
+Nonogram import permits omitted stories, but this fixed authored pack now
+requires nonblank string stories up to 1200 UTF-16 code units, matching existing
+scene-authoring bounds without changing runtime validation. Seventeen new
+source/real-CLI cases reproduce sixteen old failures; every invalid story leaves
+the prior JSON intact, and maximum-length Unicode stories remain exact and well
+within the unchanged import cap. All seventy Afterlight tests pass. Cascade
+#562 is included at its pinned reviewed source to prevent another state-note
+merge conflict; #562 must merge first. The ten puzzle definitions are unchanged.
+Current-head full CI, browser coverage, independent review and aging remain
+required. No deployment or physical Android/TalkBack acceptance is claimed.
