@@ -1189,11 +1189,9 @@
         : p.people.map((name, id) => ({ name, id }));
     return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : p.type === 'witness' ? `Who ${X.witnessAction(p)}?` : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : typeof p.action === 'string' && p.action.trim() ? `Choose the only candidate who ${esc(X.witnessAction(p))}; your T/F notes do not affect your answer.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect your answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' || p.questionContext ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
   }
-  function playPage() {
-    return playPageInner();
-  }
   function playPageInner() {
-    if (!current) return '';
+    if (!current)
+      return '<h1 role="status">Opening puzzle…</h1><a class="btn secondary" href="#/library">Back to puzzles</a>';
     const p = current.puzzle,
       s = AlibiClub.projected(p, current.state).state,
       m = M[p.type],
@@ -1373,7 +1371,7 @@
         about: aboutPage,
         login: loginPage,
         changelog: () => globalThis.AlibiUpdates.page(),
-        play: playPage,
+        play: playPageInner,
         salon: () => AlibiClub.roomPage(route.id),
         club: () => AlibiClub.profile(),
         lab: () => AlibiClub.labPage(),
@@ -3611,36 +3609,24 @@
       book: new URLSearchParams(query || '').get('book') || '',
     };
     if (
-      ![
-        'home',
-        'library',
-        'play',
-        'casebooks',
-        'story',
-        'journal',
-        'settings',
-        'workshop',
-        'privacy',
-        'about',
-        'login',
-        'changelog',
-        'salon',
-        'lab',
-        'club',
-        'quiet',
-      ].includes(route.page)
+      !'home library play casebooks story journal settings workshop privacy about login changelog salon lab club quiet'
+        .split(' ')
+        .includes(route.page)
     )
       route.page = 'home';
     if (route.page !== 'play') caseReturn = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
+    current = null;
+    if (route.page !== 'quiet') await AlibiActivities.leave();
+    if (serial !== routeSerial) return;
     let late;
     if (route.page === 'play') {
       const [pid, revision] = id.split('@'),
         catalog = find(pid),
-        key = revision ? pid + '@' + Number(revision) : null,
-        pinned = key ? records.get(key)?.puzzle : null;
+        pinned = records.get(pid + '@' + (revision ? Number(revision) : catalog?.revision))?.puzzle;
       // A saved run carries its own definition; a new run waits for the deferred chunk.
       if (!pinned && deferred?.has(catalog)) {
+        render();
         await deferred.ensure().catch(() => 0);
         if (serial !== routeSerial) return;
         late = deferred.has(catalog);
@@ -3671,15 +3657,12 @@
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';
       } else {
-        current = null;
         caseReturn = null;
         route.page = 'library';
         route.id = '';
         if (!late) toast('That puzzle revision is not in this collection.', true);
       }
-    } else current = null;
-    if (route.page !== 'quiet') await AlibiActivities.leave();
-    if (serial !== routeSerial) return;
+    }
     await AlibiClub.onRoute(route);
     if (serial !== routeSerial) return;
     render();
