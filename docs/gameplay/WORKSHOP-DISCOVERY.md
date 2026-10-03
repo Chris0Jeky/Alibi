@@ -88,3 +88,21 @@ Local source was reconciled to merged #567, canonical tree
 identities, not hosted release identities. No application build or player-facing
 change is claimed by the foundation. The next integration must retain measured
 byte accounting, actual browser controls and physical-device limits above.
+
+### Integration ruling
+
+The source-pinned catalogue now feeds five outputs: an HTML page under
+collections/ and data, metadata and a stylesheet under assets/workshop/. Putting
+the data and style under assets/ keeps them in the existing complete runtime
+payload digest, without extending that identity contract or precaching them.
+
+The entry uses the build pipeline's existing source-composition stage, scoped by
+explicit packDesk/authorGuide boundaries and one-match copy guards. It adds one
+ordinary browser-only link and shortens equivalent duplicate pack-desk wording.
+It changes no importer handlers, route ownership, saved data or runtime globals;
+there is no observer. Unknown upstream boundaries/copy fail the build rather than
+silently omitting the link. The unchanged src/app.js and its source catalogue
+receipts are retained; composed behavior is tested explicitly and through the
+actual built application. This replaces the plan's direct monolith edit, avoiding
+a second runtime integration hook. The coupling to exact copy is deliberate and
+must be reviewed when that copy changes. Native/standalone targets hide the link.
