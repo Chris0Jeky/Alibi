@@ -41,20 +41,21 @@ Files: create `content/workshop/catalogue.json`, `tools/workshop-catalogue.cjs`,
   `manifest` plus `{ path, data }` download files. Implement `loadCatalogue(root)`
   using bounded regular-file reads and the complete existing official catalogue.
 - [x] Provide `node tools/workshop-catalogue.cjs --check`, read-only JSON output.
-- [ ] Run source tests, formatter and existing Afterlight/Lattice source tests;
+- [x] Run source tests, formatter and existing Afterlight/Lattice source tests;
   publish the complete foundation in a draft PR and request independent review.
 
 ## Task 2: static download shelf and measured integration, child PR
 
 Files: create a shelf renderer and `src/workshop-collections.css`; integrate
-`tools/build.cjs`; link from the existing pack desk in `src/app.js`; regenerate
-only relevant app catalogue receipts; add emitted-output and real-browser tests.
+`tools/build.cjs`; compose the existing pack desk through the bounded
+`tools/workshop-entry.cjs` adapter; preserve original app/catalogue source bytes;
+add emitted-output and real-browser tests. The spec records the coupling tradeoff.
 
-- [ ] Test script-free/escaped rendering, relative same-origin downloads, digest and
+- [x] Test script-free/escaped rendering, relative same-origin downloads, digest and
   family totals, missing-source fail-before-write and deterministic output.
-- [ ] Integrate shelf files into the existing output and payload accounting once.
+- [x] Integrate shelf files into the existing output and payload accounting once.
   Verify exclusion from startup/precache and inclusion in total/Android delivery.
-- [ ] Link only supported browser targets. Keep exact importer behavior and recover
+- [x] Link only supported browser targets. Keep exact importer behavior and recover
   added app bytes through shorter equivalent pack-desk copy, not higher limits.
 - [ ] Exercise actual shelf navigation, JSON download and Workshop import, duplicate
   refusal, cancelled selection, saved play/undo/reload and offline repeat play at
