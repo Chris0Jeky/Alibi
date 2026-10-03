@@ -1,0 +1,67 @@
+name: Publish bounded Games Room source fix
+on:
+  push:
+    branches: [codex/gameplay-result-retention-20261003]
+    paths: [.github/workflows/publish-gameplay-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '9ed040577dc1949b92f7242f93f4ed829151b1f9'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Apply the exact locally tested source delta
+        shell: python
+        run: |
+          import hashlib
+          from pathlib import Path
+          path = Path('src/club.js')
+          source = path.read_bytes()
+          assert hashlib.sha256(source).hexdigest() == '2134b34c52ff0dcb52bda6638550a604c47e209b0a09332a3400a5c84357f21b'
+          edits = [
+              (b"'walk', 'undo', 'redo',", b"'walk', 'undo', 'redo', 'restart',"),
+              (b'// A finished game is already in the journal, so replacing it needs no confirmation.', b'// Finished games replay immediately; reset-confirm retains their result before replacement.'),
+              (b"if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);\n        document", b"if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);\n        record(reset.id, currentGame(reset.id));\n        document"),
+          ]
+          for before, after in edits:
+              assert source.count(before) == 1
+              source = source.replace(before, after, 1)
+          assert hashlib.sha256(source).hexdigest() == 'ed28b25930f2279ac933fe8174a409815248a5252c2cac031ae5a92640a5088f'
+          path.write_bytes(source)
+      - run: npm ci
+      - name: Format and rerun the actual Club regressions
+        run: |
+          npx --no-install prettier --write src/club.js tests/club-result-retention.test.cjs
+          node --test tests/club-*.test.cjs tests/duel-*.test.cjs tests/games-room-polish.test.cjs
+          git diff --check
+      - name: Publish only this branch and remove the one-shot publisher
+        env:
+          TARGET_BRANCH: codex/gameplay-result-retention-20261003
+        run: |
+          set -eu
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git diff --name-only | sort > /tmp/gameplay-changed
+          python - <<'PY'
+          from pathlib import Path
+          paths = set(Path('/tmp/gameplay-changed').read_text().splitlines())
+          assert paths <= {'src/club.js', 'tests/club-result-retention.test.cjs'}, paths
+          assert 'src/club.js' in paths
+          PY
+          git rm .github/workflows/publish-gameplay-20261003.yml
+          git add src/club.js tests/club-result-retention.test.cjs
+          git -c user.name='Cristian Tcaci' -c user.email='59696583+Chris0Jeky@users.noreply.github.com' commit -m 'fix(club): retain completed results before replay or changing seats'
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
