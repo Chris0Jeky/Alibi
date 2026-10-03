@@ -41,7 +41,7 @@ PROBE = r'''(() => {
     api.mount=(...args)=>{
       const handle=mount(...args), dispose=handle.dispose;
       handle.dispose=()=>{handle.wasDisposed=true;return dispose();};
-      p.current=handle;p.mounts.push(handle);
+      p.host=args[0];p.current=handle;p.mounts.push(handle);
       return handle;
     };
     return api;
@@ -158,7 +158,7 @@ try:
             page.evaluate('async()=>{for(let i=0;i<20;i++)await Promise.resolve();}')
             assert page.locator('#challenge-host button').count()==0
             page.evaluate('ownershipProbe.holdReads=false;ownershipProbe.admissions[0]()')
-            page.wait_for_function('()=>!document.querySelector("#challenge-host").inert && ownershipProbe.current.save().log.length===2')
+            page.wait_for_function('()=>!!ownershipProbe.host?.isConnected && !ownershipProbe.host.inert && !!ownershipProbe.current && !ownershipProbe.current.wasDisposed && ownershipProbe.current.save().log.length===2')
             assert page.evaluate('ownershipProbe.current.save().log') == imported['log']
             assert page.evaluate('(id)=>ownershipProbe.store.read(id).then(run=>run.log)', A) == imported['log']
             results.append({'width':width,'case':'late-initial-read-stays-inert-during-restore-admission'})
@@ -172,7 +172,7 @@ try:
             assert page.locator('#challenge-host').evaluate('host=>host.inert && host.onclick===null && host.onkeydown===null')
             assert page.locator('#challenge-host button').count()==0
             page.evaluate('ownershipProbe.admissions[1]()')
-            page.wait_for_function('()=>!document.querySelector("#challenge-host").inert && ownershipProbe.current!==ownershipProbe.kept && !ownershipProbe.current.wasDisposed')
+            page.wait_for_function('()=>!!ownershipProbe.host?.isConnected && !ownershipProbe.host.inert && !!ownershipProbe.current && !ownershipProbe.current.wasDisposed && ownershipProbe.current!==ownershipProbe.kept')
             page.reload()
             page.locator('.challenge-status').wait_for()
             assert page.evaluate('ownershipProbe.current.save().log') == imported['log']
