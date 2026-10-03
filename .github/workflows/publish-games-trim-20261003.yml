@@ -10,9 +10,9 @@ jobs:
     if: >-
       github.repository == 'Chris0Jeky/Alibi' &&
       github.actor == 'Chris0Jeky' &&
-      github.event.before == '15f1b4c887f8c5423bd30e32d4eba967c3b09da2'
+      github.event.before == '5deaf771cc450e48328f29650c70ce4041e88f31'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -41,11 +41,11 @@ jobs:
           });
           JS
       - run: npm ci
-      - name: Verify source regressions and unchanged budgets
+      - name: Verify source regressions and unchanged web budgets
         run: |
           npx --no-install prettier --write src/club.js tests/club-result-retention.test.cjs tests/club-engine-routing.test.cjs
           node --test tests/club-*.test.cjs tests/duel-*.test.cjs tests/games-room-polish.test.cjs
-          npm run build:android
+          npm run build:web
           node --test tests/budget.test.cjs
           git diff --check
       - name: Record measured scope
@@ -57,7 +57,7 @@ jobs:
           assert text.startswith(heading)
           note='\n## 2026-10-03: Games Room replay journal and focus (draft #556)\n\nRefs #418. Completed results are retained before replay, Next garden or a\nfinished match seat/strength change, using the existing bounded idempotent\njournal. Play again has a stable control ID; garden resets focus the new board\nstatus. Shared engine routing and action membership remove duplicate emitted\ncode instead of raising byte ceilings. All 71 targeted source regressions and\nthe unchanged emitted budget test pass in branch publication. Final-head full\nCI, actual browser focus/persistence and independent review remain required.\nLocal browser navigation is blocked by managed browser policy; do not mistake\nsource control tests for browser acceptance. HUMAN_TODO.md remains open.\n'
           path.write_text(heading+note+text[len(heading):])
-      - name: Publish only the branch and remove staging helpers
+      - name: Commit, verify clean source and publish only this branch
         env:
           TARGET_BRANCH: codex/gameplay-result-retention-20261003
         run: |
@@ -74,4 +74,6 @@ jobs:
           git rm .github/workflows/publish-games-trim-20261003.yml games-trim-20261003.patch
           git add src/club.js tests/club-result-retention.test.cjs tests/club-engine-routing.test.cjs docs/STATE.md
           git -c user.name='Cristian Tcaci' -c user.email='59696583+Chris0Jeky@users.noreply.github.com' commit -m 'fix(club): focus new gardens and recover payload headroom by deduplication'
+          npm run verify
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
           git push origin "HEAD:refs/heads/$TARGET_BRANCH"
