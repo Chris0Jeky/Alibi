@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "collections": [
+    {
+      "id": "lattice",
+      "source": "lattice-studies.json",
+      "packId": "alibi-lattice-workshop",
+      "packVersion": 1,
+      "bytes": 18509,
+      "sha256": "7200ef48ef055cb5f385d9f197a84674e50926c6cb7b1eee193fcd70dadcce79",
+      "description": "Twenty-four advanced studies: twelve Lanterns and twelve 7×7 Futoshiki boards. Difficulty labels are provisional."
+    },
+    {
+      "id": "afterlight",
+      "source": "afterlight-pictures.json",
+      "packId": "alibi-afterlight-workshop",
+      "packVersion": 1,
+      "bytes": 12634,
+      "sha256": "b8c69faa5e2b43b1daee5c2d318b912f87b4262678b2582895952d0d8ef7bceb",
+      "description": "Ten original 15×15 pictures, from a filigree lantern to an observatory dome. Difficulty labels are provisional."
+    }
+  ]
+}

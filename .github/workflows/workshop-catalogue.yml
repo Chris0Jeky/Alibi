@@ -1,0 +1,47 @@
+name: Workshop catalogue sources
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+      - 'tools/workshop-catalogue.cjs'
+      - 'tools/official-catalogue.cjs'
+      - 'src/core.js'
+      - 'src/engines.js'
+      - 'src/bridges.js'
+      - 'tests/workshop-catalogue.test.cjs'
+      - '.github/workflows/workshop-catalogue.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workshop-catalogue-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Verify exact catalogue source without publishing or installing
+        run: |
+          set -o pipefail
+          mkdir -p test-results/workshop-catalogue
+          git rev-parse HEAD > test-results/workshop-catalogue/source-head.txt
+          node tools/workshop-catalogue.cjs --check > test-results/workshop-catalogue/catalogue.json
+          node --test tests/workshop-catalogue.test.cjs tests/afterlight-*.test.cjs tests/lattice-*.test.cjs 2>&1 | tee test-results/workshop-catalogue/source-tests.log
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: workshop-catalogue-source
+          path: test-results/workshop-catalogue/
+          retention-days: 14
+          if-no-files-found: error
