@@ -35,6 +35,16 @@ Fresh final combined budgets, review, full/browser/hosted gates and publication
 remain pending. Superseded PRs close only after preserved-history landing.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
 
+The clean composed web measurement at ef0e55f passes the existing JavaScript
+gzip/startup ceilings: 134934/204203 bytes. Code-shell is 1411618, a 53-byte
+increase over qualified #553 and 41.68 bytes over its ceiling. Four independent
+hook guards remain required; a measured 48-byte shell-only allowance leaves
+6.32 bytes, not feature room. The original failing budget output is retained.
+Independent Sol/high review of the source/fixture integration found no product
+blockers; its unbounded saved-state read finding is corrected with an internal
+three-second deadline and reviewed again. Fresh final-head full/browser/hosted
+qualification remains required. The registered 0.15.1 SDK pin is byte-exact.
+
 ## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
 This candidate retains both reviewed #540/#542 histories and the landed
