@@ -9,6 +9,9 @@
 // abort discards them. Creation and request callbacks allow immediate microtasks;
 // activity expires before subsequently queued timer callbacks. The 30 ms
 // completion delay controls interleaving, not permission to enqueue requests.
+// Overlapping scopes wait in creation order whenever either transaction writes,
+// including a predecessor still waiting to start. Scope scheduling is bounded;
+// the disk map models Club keys, not full object-store isolation or IDB events.
 // Boundary: this is NOT real browser IndexedDB durability, service workers,
 // cross-tab storage events, or physical-device timing.
 const { test } = require('node:test');
@@ -21,10 +24,38 @@ const root = path.resolve(__dirname, '..');
 
 function makeDisk() {
   const disk = new Map();
+  const transactions = [];
+  function startReadyTransactions() {
+    for (const entry of transactions) {
+      if (entry.started || entry.finished) continue;
+      const blocked = transactions
+        .slice(0, transactions.indexOf(entry))
+        .some(
+          (earlier) =>
+            !earlier.finished &&
+            (entry.mode === 'readwrite' || earlier.mode === 'readwrite') &&
+            [...entry.scope].some((name) => earlier.scope.has(name)),
+        );
+      if (!blocked) entry.start();
+    }
+  }
   const db = {
     onversionchange: null,
     close() {},
-    transaction() {
+    transaction(names, mode = 'readonly') {
+      const entry = {
+        scope: new Set(Array.isArray(names) ? names : [names]),
+        mode,
+        started: false,
+        finished: false,
+        requests: [],
+        start() {
+          entry.started = true;
+          for (const request of entry.requests) request();
+          entry.requests.length = 0;
+          maybeComplete();
+        },
+      };
       const listeners = { complete: [], error: [], abort: [] };
       let aborted = false;
       let pending = 0;
@@ -52,6 +83,7 @@ function makeDisk() {
         if (aborted || completed) return;
         if (pending !== 0) return;
         completed = true;
+        entry.finished = true;
         active = false;
         for (const [key, value] of writes) disk.set(key, value);
         try {
@@ -62,9 +94,10 @@ function makeDisk() {
             f();
           } catch {}
         }
+        startReadyTransactions();
       }
       function maybeComplete() {
-        if (aborted || completed) return;
+        if (aborted || completed || !entry.started) return;
         if (pending !== 0) return;
         const seen = generation;
         setTimeout(() => {
@@ -85,18 +118,21 @@ function makeDisk() {
               // Requests run in queue order: only puts queued before this get are visible to it.
               const queuedOwn = writes.has(key),
                 own = writes.get(key);
-              setTimeout(() => {
-                if (aborted) {
+              const runRequest = () =>
+                setTimeout(() => {
+                  if (aborted) {
+                    pending -= 1;
+                    return;
+                  }
+                  const raw = queuedOwn ? own : disk.get(key);
+                  req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
                   pending -= 1;
-                  return;
-                }
-                const raw = queuedOwn ? own : disk.get(key);
-                req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
-                pending -= 1;
-                activate();
-                if (req.onsuccess) req.onsuccess();
-                maybeComplete();
-              }, 10);
+                  activate();
+                  if (req.onsuccess) req.onsuccess();
+                  maybeComplete();
+                }, 10);
+              if (entry.started) runRequest();
+              else entry.requests.push(runRequest);
               return req;
             },
             put(value, key) {
@@ -127,6 +163,9 @@ function makeDisk() {
                 f();
               } catch {}
             }
+            entry.finished = true;
+            entry.requests.length = 0;
+            startReadyTransactions();
           }, 0);
         },
         oncomplete: null,
@@ -134,7 +173,8 @@ function makeDisk() {
         onabort: null,
       };
       activate();
-      maybeComplete();
+      transactions.push(entry);
+      startReadyTransactions();
       return tx;
     },
   };
@@ -233,7 +273,7 @@ test('transaction completes only after chained requests settle', async () => {
   });
   // Each get is issued synchronously or from the previous success callback, which keeps a real
   // IndexedDB transaction active. Four 10 ms gets outlast the old fixed 30 ms completion timer.
-  const tx = db.transaction();
+  const tx = db.transaction('club', 'readwrite');
   const order = [];
   const completed = new Promise((resolve) => {
     tx.oncomplete = () => {
@@ -263,7 +303,7 @@ test('puts reach the disk only when their transaction completes; abort discards 
     req.onerror = () => reject(req.error);
   });
   disk.set('state', { rev: 1 });
-  const aborted = db.transaction();
+  const aborted = db.transaction('club', 'readwrite');
   const aborting = new Promise((resolve) => {
     aborted.onabort = resolve;
   });
@@ -278,7 +318,7 @@ test('puts reach the disk only when their transaction completes; abort discards 
   await new Promise((resolve) => setTimeout(resolve, 50));
   assert.deepEqual(disk.get('state'), { rev: 1 }, 'an aborted put never reaches the disk');
   assert.equal(disk.has('recovery'), false);
-  const committed = db.transaction();
+  const committed = db.transaction('club', 'readwrite');
   const completing = new Promise((resolve) => {
     committed.oncomplete = resolve;
   });
@@ -307,9 +347,161 @@ async function fixtureTransaction() {
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
-  const tx = db.transaction();
+  const tx = db.transaction('club', 'readwrite');
   return { disk, tx, store: tx.objectStore() };
 }
+
+async function scopedFixture() {
+  const fixture = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = fixture.indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return { ...fixture, db };
+}
+
+function completedTransaction(tx, order, label) {
+  return new Promise((resolve) => {
+    tx.oncomplete = () => {
+      order.push(label);
+      resolve();
+    };
+  });
+}
+
+test(
+  'overlapping readwrite transactions read the previous committed revision',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const first = db.transaction('club', 'readwrite');
+    const firstDone = completedTransaction(first, order, 'first complete');
+    first.objectStore('club').put({ rev: 2 }, 'state');
+    const second = db.transaction('club', 'readwrite');
+    const secondDone = completedTransaction(second, order, 'second complete');
+    const read = second.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('second read');
+    };
+    await Promise.all([firstDone, secondDone]);
+    assert.deepEqual(seen, { rev: 2 });
+    assert.deepEqual(order, ['first complete', 'second read', 'second complete']);
+  },
+);
+
+test('readonly transactions wait for earlier overlapping writers', { timeout: 1000 }, async () => {
+  const { disk, db } = await scopedFixture();
+  disk.set('state', { rev: 1 });
+  const order = [];
+  const writer = db.transaction('club', 'readwrite');
+  const writerDone = completedTransaction(writer, order, 'writer complete');
+  writer.objectStore('club').put({ rev: 2 }, 'state');
+  const reader = db.transaction('club', 'readonly');
+  const readerDone = completedTransaction(reader, order, 'reader complete');
+  const read = reader.objectStore('club').get('state');
+  let seen;
+  read.onsuccess = () => {
+    seen = read.result;
+    order.push('reader read');
+  };
+  await Promise.all([writerDone, readerDone]);
+  assert.deepEqual(seen, { rev: 2 });
+  assert.deepEqual(order, ['writer complete', 'reader read', 'reader complete']);
+});
+
+test(
+  'readwrite transactions wait for earlier overlapping readers to finish',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const reader = db.transaction('club', 'readonly');
+    const readerDone = completedTransaction(reader, order, 'reader complete');
+    const read = reader.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('reader read');
+    };
+    const writer = db.transaction('club', 'readwrite');
+    const writerDone = completedTransaction(writer, order, 'writer complete');
+    writer.objectStore('club').put({ rev: 2 }, 'state');
+    await Promise.all([readerDone, writerDone]);
+    assert.deepEqual(seen, { rev: 1 });
+    assert.deepEqual(order, ['reader read', 'reader complete', 'writer complete']);
+    assert.deepEqual(disk.get('state'), { rev: 2 });
+  },
+);
+
+test(
+  'a waiting multi-store writer cannot be bypassed by a later overlapping writer',
+  { timeout: 1000 },
+  async () => {
+    const { db } = await scopedFixture();
+    const order = [];
+    const first = db.transaction('club', 'readwrite');
+    const firstDone = completedTransaction(first, order, 'first complete');
+    first.objectStore('club').put('first', 'state');
+    const middle = db.transaction(['club', 'meta'], 'readwrite');
+    const middleDone = completedTransaction(middle, order, 'middle complete');
+    middle.objectStore('meta').put('middle', 'marker');
+    const last = db.transaction('meta', 'readwrite');
+    const lastDone = completedTransaction(last, order, 'last complete');
+    const read = last.objectStore('meta').get('marker');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('last read');
+    };
+    await Promise.all([firstDone, middleDone, lastDone]);
+    assert.equal(seen, 'middle');
+    assert.deepEqual(order, ['first complete', 'middle complete', 'last read', 'last complete']);
+  },
+);
+
+test(
+  'aborting the earlier writer releases the queued reader without its buffered writes',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const writer = db.transaction('club', 'readwrite');
+    writer.objectStore('club').put({ rev: 2 }, 'state');
+    const aborted = new Promise((resolve) => {
+      writer.onabort = () => {
+        order.push('writer abort');
+        resolve();
+      };
+    });
+    const reader = db.transaction('club', 'readwrite');
+    const readerDone = completedTransaction(reader, order, 'reader complete');
+    const read = reader.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('reader read');
+    };
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const beforeAbort = [...order];
+    writer.abort();
+    await Promise.all([aborted, readerDone]);
+    assert.deepEqual(
+      beforeAbort,
+      [],
+      'a queued request cannot observe the disk before its predecessor finishes',
+    );
+    assert.deepEqual(seen, { rev: 1 });
+    assert.deepEqual(order, ['writer abort', 'reader read', 'reader complete']);
+    assert.deepEqual(disk.get('state'), { rev: 1 });
+  },
+);
 
 test('creation and request callback microtasks can enqueue writes', async () => {
   const { disk, tx, store } = await fixtureTransaction();
