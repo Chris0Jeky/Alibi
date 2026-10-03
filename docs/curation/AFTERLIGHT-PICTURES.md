@@ -44,11 +44,14 @@ not a publication receipt. This is the recovered, newly authored deliverable.
 `content/curation/editorial/afterlight-blueprints.json` retains every explicit
 pixel row, the intended drawing and a board-specific reasoning focus. It contains
 no random seed search, imported commercial puzzle, runtime generator or external
-asset. The compiler derives row and column clues from those fixed pixels.
+asset. The compiler derives row and column clues from those fixed pixels. It requires
+all ten study IDs, then uses the production pack validator to check metadata,
+rules and bounded uniqueness before any output write. A rejected compile leaves
+the previous pack unchanged; fixed membership is not a substitute for validation.
 
 ```sh
 node tools/curation/afterlight-pictures.cjs --check
-node --test tests/afterlight-studies.test.cjs tests/afterlight-readiness.test.cjs
+node --test tests/afterlight-*.test.cjs
 ```
 
 `--write` regenerates the reviewed JSON during authoring. Never run it over an
@@ -68,6 +71,14 @@ corrupted-answer refusal, duplicate IDs, rotation/reflection novelty against all
 compatible official and Workshop pictures, and the unchanged 510-definition
 prefix. This establishes bounded mechanical correctness, not enjoyment or an
 independent editorial approval. Source inspection can reveal offline answers.
+
+The focused command currently runs 51 source/readiness/authoring cases, including
+eight membership and fifteen metadata/CLI regressions. Real CLI fixtures cover
+missing studies, malformed titles and headers, unsupported difficulty and an
+ambiguous drawing. They require validation errors, not missing-module failures,
+and verify the previous output bytes survive. A valid CLI compile must reproduce
+the exact accepted pack. The shared fixture copies the real production validator,
+not a replacement validator, into an isolated temporary repository.
 
 ## Browser gate and continuation
 

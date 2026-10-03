@@ -2,6 +2,7 @@
 // Compile fixed authored pixels, not random seeds or runtime-generated boards.
 const fs = require('node:fs');
 const path = require('node:path');
+const { validatePack } = require('../../src/core.js');
 const root = path.resolve(__dirname, '../..');
 const sourcePath = path.join(root, 'content/curation/editorial/afterlight-blueprints.json');
 const packPath = path.join(root, 'content/workshop/afterlight-pictures.json');
@@ -63,7 +64,7 @@ function build(source) {
       ),
     };
   });
-  return {
+  const pack = {
     schemaVersion: 1,
     id: source.packId,
     version: 1,
@@ -71,6 +72,10 @@ function build(source) {
     author: 'Alibi',
     puzzles,
   };
+  // Use the same bounded metadata, rule and uniqueness checks as Workshop import.
+  // Keep authored bytes unchanged, and refuse before --write can touch the old pack.
+  validatePack(pack, true);
+  return pack;
 }
 
 function serialize(pack) {

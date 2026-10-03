@@ -41,7 +41,7 @@ jobs:
           mkdir -p test-results/afterlight-source
           git rev-parse HEAD > test-results/afterlight-source/source-head.txt
           node tools/curation/afterlight-pictures.cjs --check
-          node --test tests/afterlight-studies.test.cjs tests/afterlight-readiness.test.cjs
+          node --test tests/afterlight-*.test.cjs
           sha256sum content/workshop/afterlight-pictures.json > test-results/afterlight-source/pack-sha256.txt
       - name: Install test dependencies
         run: |

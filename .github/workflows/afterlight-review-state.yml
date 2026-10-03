@@ -1,0 +1,55 @@
+name: Record verified Afterlight review corrections
+on:
+  push:
+    branches: [codex/afterlight-workshop-20261003]
+    paths: [.github/workflows/afterlight-review-state.yml]
+permissions:
+  contents: read
+jobs:
+  record:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '694fd3611cb7624a99e6e5608213a23f71818064'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Verify every Afterlight source regression and preserve the exact pack
+        run: |
+          npx --no-install prettier --check tools/curation/afterlight-pictures.cjs tests/afterlight-*.test.cjs tests/helpers/afterlight-cli.cjs
+          node --test tests/afterlight-*.test.cjs
+          node tools/curation/afterlight-pictures.cjs --check
+          echo 'b8c69faa5e2b43b1daee5c2d318b912f87b4262678b2582895952d0d8ef7bceb  content/workshop/afterlight-pictures.json' | sha256sum -c -
+      - name: Correct only the stale state count and append review evidence
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('docs/STATE.md')
+          text=p.read_text()
+          before='and the actual JSON pack live with 28 source/readiness regressions.'
+          assert text.count(before)==1
+          text=text.replace(before,'and the actual JSON pack live with 51 source/readiness/authoring regressions.')
+          note='\n### Afterlight authoring review correction\n\nThe fixed membership guard is now followed by the production pack validator,\nincluding metadata, rule and bounded uniqueness checks before any --write.\nFifteen new source/CLI cases reproduced fourteen failures before correction;\nall fifty-one Afterlight cases now pass. Invalid metadata and ambiguous pixels\nleave the prior pack byte-for-byte intact. The existing membership CLI uses\nthe same isolated real-validator fixture. The focused command in the guide and\nCI is node --test tests/afterlight-*.test.cjs, including every authoring suite.\nThe ten puzzle definitions and their JSON hash remain unchanged. Final-head\nfull CI, twenty real-origin cases and re-review are still merge gates.\n'
+          p.write_text(text+note)
+      - name: Publish only the state correction and remove this one-shot file
+        env:
+          TARGET_BRANCH: codex/afterlight-workshop-20261003
+        run: |
+          set -eu
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          test "$(git diff --name-only)" = 'docs/STATE.md'
+          git rm .github/workflows/afterlight-review-state.yml
+          git add docs/STATE.md
+          git diff --cached --check
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'docs(state): record complete Afterlight authoring validation evidence'
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"

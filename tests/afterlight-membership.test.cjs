@@ -1,10 +1,7 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { writeFixture } = require('./helpers/afterlight-cli.cjs');
 const { build } = require('../tools/curation/afterlight-pictures.cjs');
 const blueprint = require('../content/curation/editorial/afterlight-blueprints.json');
 const pack = require('../content/workshop/afterlight-pictures.json');
@@ -63,36 +60,12 @@ test('the fixed membership may be reordered without changing any puzzle definiti
 });
 
 test('--write leaves the existing pack byte-for-byte intact when a study is missing', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-afterlight-membership-'));
-  try {
-    const script = path.join(root, 'tools/curation/afterlight-pictures.cjs');
-    const sourcePath = path.join(root, 'content/curation/editorial/afterlight-blueprints.json');
-    const targetPath = path.join(root, 'content/workshop/afterlight-pictures.json');
-    for (const file of [script, sourcePath, targetPath])
-      fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.copyFileSync(require.resolve('../tools/curation/afterlight-pictures.cjs'), script);
-    const original = fs.readFileSync(
-      require.resolve('../content/workshop/afterlight-pictures.json'),
-    );
-    fs.writeFileSync(targetPath, original);
-    const source = structuredClone(blueprint);
-    source.studies.pop();
-    fs.writeFileSync(sourcePath, JSON.stringify(source));
-    const result = spawnSync(process.execPath, [script, '--write'], {
-      cwd: root,
-      encoding: 'utf8',
-      timeout: 10000,
-    });
-    assert.ifError(result.error);
-    assert.equal(result.signal, null);
-    assert.notEqual(result.status, 0, '--write must refuse an incomplete collection');
-    assert.match(result.stderr, /complete ten-study Afterlight collection/);
-    assert.deepEqual(
-      fs.readFileSync(targetPath),
-      original,
-      'a failed compile must not touch the existing bytes',
-    );
-  } finally {
-    fs.rmSync(root, { recursive: true, force: true });
-  }
+  const source = structuredClone(blueprint);
+  source.studies.pop();
+  const { result, before, after } = writeFixture(source);
+  assert.ifError(result.error);
+  assert.equal(result.signal, null);
+  assert.notEqual(result.status, 0, '--write must refuse an incomplete collection');
+  assert.match(result.stderr, /complete ten-study Afterlight collection/);
+  assert.deepEqual(after, before, 'a failed compile must not touch the existing bytes');
 });
