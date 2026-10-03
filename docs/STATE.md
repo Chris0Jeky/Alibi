@@ -75,6 +75,17 @@ acceptance remain in HUMAN_TODO.md. Deferred #538/#541 remain open.
 
 ## Test diagnostics (#519): 2 October 2026
 
+Club storage now registers 13 named serial cases while preserving all 52
+check expressions, four fixture helpers and 37 existing awaits. The normal
+run passes all 13 cases; an injected first assertion yields one failure and
+12 later passes. A three-case filtered run records only its 18 successful
+checks, and reports passed/complete false. The JSON artifact names actual
+executed and failed groups, so a failed or partial run cannot claim full
+qualification. Shared visit/conflict cases retain their ordered VM fixtures;
+select those dependent cases together. This is Node VM/source-contract proof,
+not browser persistence or physical acceptance. Independent review and hosted
+head qualification remain pending; #519 stays open for the other suites.
+
 Bridges now registers 49 named, serial Node test cases instead of one file-level
 result. All 40 existing assertion call sites, fixture values and solver calls
 are retained. An injected first-fixture failure produces one named failure;

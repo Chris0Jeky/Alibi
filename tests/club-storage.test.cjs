@@ -1,5 +1,6 @@
 'use strict';
 // Storage contract fixtures only. This is NOT a real browser IndexedDB test.
+const { test, after } = require('node:test');
 const fs = require('node:fs'),
   vm = require('node:vm'),
   path = require('node:path'),
@@ -10,18 +11,35 @@ const check = (ok, label) => {
   assert.ok(ok, label);
   checks.push(label);
 };
-const blockIntegration = fs.readFileSync(
-  path.join(root, 'src/block-cabinet/integration.mjs'),
-  'utf8',
-);
-check(
-  blockIntegration.includes('await club().flush();'),
-  'Block Cabinet integration flushes the Club queue after actions',
-);
-check(
-  !blockIntegration.includes('await club().save();'),
-  'Block Cabinet integration does not enqueue a duplicate Club CAS write',
-);
+const groupNames = [
+  'Block Cabinet source guards',
+  'Local fallback save and initial visit',
+  'Visit rotation, pinning and unpinning',
+  'Old-session revision conflict',
+  'Future schema preservation',
+  'Malformed JSON preservation',
+  'Unreadable fallback record during persist',
+  'Denied storage session warning',
+  'Club source guards',
+  'Aborted IndexedDB fixture protection',
+  'Deferred shared-town reset-intent race',
+  'Restore keeper source guards',
+  'Tic-Tac-Toe move, undo, replacement and reload',
+];
+const executedGroups = [],
+  failedGroups = [];
+function group(name, run) {
+  test(name, { concurrency: false }, async () => {
+    executedGroups.push(name);
+    try {
+      await run();
+    } catch (error) {
+      failedGroups.push(name);
+      throw error;
+    }
+  });
+}
+
 function store() {
   const data = new Map();
   return {
@@ -63,9 +81,123 @@ async function tab(storage) {
   await c.AlibiClub.init({ toast() {}, render() {}, settings: () => ({}) });
   return c;
 }
-(async () => {
-  const s = store(),
-    a = await tab(s);
+async function tabWith(storage, extra = {}, bridgeExtra = {}) {
+  const dialogs = [];
+  const c = {
+    console,
+    URL,
+    URLSearchParams,
+    Math,
+    Date,
+    JSON,
+    Number,
+    Promise,
+    setTimeout,
+    clearTimeout,
+    localStorage: storage,
+    location: { hash: '' },
+    document: {
+      addEventListener() {},
+      createElement() {
+        return {};
+      },
+      body: { append() {} },
+    },
+    ...extra,
+  };
+  c.globalThis = c;
+  vm.createContext(c);
+  for (const f of ['core', 'backup-validation', 'club-engines', 'club'])
+    vm.runInContext(fs.readFileSync(path.join(root, 'src/' + f + '.js'), 'utf8'), c);
+  await c.AlibiClub.init({
+    toast() {},
+    render() {},
+    settings: () => ({}),
+    dialog(title, body, actions) {
+      dialogs.push({ title, body, actions });
+    },
+    navigate() {},
+    ...bridgeExtra,
+  });
+  c.__capturedDialogs = dialogs;
+  return c;
+}
+function abortingIndexedDB() {
+  const abortError = Object.assign(Error('Club storage transaction aborted.'), {
+    name: 'AbortError',
+  });
+  const listeners = { complete: [], error: [], abort: [] };
+  const tx = {
+    error: abortError,
+    onabort: null,
+    abort() {},
+    addEventListener(type, fn) {
+      (listeners[type] = listeners[type] || []).push(fn);
+    },
+    objectStore() {
+      return {
+        get() {
+          const req = { result: undefined, error: abortError, onsuccess: null, onerror: null };
+          setTimeout(() => {
+            for (const fn of listeners.error || []) {
+              try {
+                fn();
+              } catch {}
+            }
+            if (typeof req.onerror === 'function') req.onerror();
+          }, 0);
+          return req;
+        },
+      };
+    },
+  };
+  const dbStub = {
+    close() {},
+    transaction() {
+      return tx;
+    },
+    onversionchange: null,
+  };
+  return {
+    open() {
+      const req = {
+        result: dbStub,
+        error: null,
+        onsuccess: null,
+        onerror: null,
+        onblocked: null,
+        onupgradeneeded: null,
+        transaction: null,
+      };
+      setTimeout(() => {
+        if (typeof req.onsuccess === 'function') req.onsuccess();
+      }, 0);
+      return req;
+    },
+  };
+}
+
+let s, a, b, c, d;
+const clubSource = fs.readFileSync(path.join(root, 'src/club.js'), 'utf8');
+
+group('Block Cabinet source guards', async () => {
+  const blockIntegration = fs.readFileSync(
+    path.join(root, 'src/block-cabinet/integration.mjs'),
+    'utf8',
+  );
+  check(
+    blockIntegration.includes('await club().flush();'),
+    'Block Cabinet integration flushes the Club queue after actions',
+  );
+  check(
+    !blockIntegration.includes('await club().save();'),
+    'Block Cabinet integration does not enqueue a duplicate Club CAS write',
+  );
+});
+
+group('Local fallback save and initial visit', async () => {
+  s = store();
+  a = await tab(s);
   const pendingSave = a.AlibiClub.save();
   check(typeof pendingSave?.then === 'function', 'Club save exposes an awaitable completion');
   await pendingSave;
@@ -82,19 +214,25 @@ async function tab(storage) {
     'Games Room fallback does not invent an IndexedDB recovery key',
   );
   check(a.AlibiClub.diagnostics().hero === 0, 'First visit starts with first edition');
-  const b = await tab(s);
+});
+
+group('Visit rotation, pinning and unpinning', async () => {
+  b = await tab(s);
   check(b.AlibiClub.diagnostics().hero === 1, 'A new tab load rotates to next edition');
   check(b.AlibiClub.diagnostics().state.visit === 2, 'Visit number persists');
   await b.AlibiClub.onRoute({ page: 'home' });
   check(b.AlibiClub.diagnostics().hero === 1, 'Navigation does not rotate edition');
   await b.AlibiClub.action({ dataset: { action: 'club-pin' } });
   await b.AlibiClub.save();
-  const c = await tab(s);
+  c = await tab(s);
   check(c.AlibiClub.diagnostics().hero === 1, 'Pinned edition survives a new load');
   await c.AlibiClub.action({ dataset: { action: 'club-pin' } });
   await c.AlibiClub.save();
-  const d = await tab(s);
+  d = await tab(s);
   check(d.AlibiClub.diagnostics().hero === 2, 'Unpinning resumes rotation on the next visit');
+});
+
+group('Old-session revision conflict', async () => {
   await a.AlibiClub.action({ dataset: { action: 'club-assist', value: 'tidy' } });
   await a.AlibiClub.save();
   check(
@@ -105,6 +243,9 @@ async function tab(storage) {
     JSON.parse(s.getItem('alibi-afterhours-v1')).data.settings.assist === 'off',
     'Conflicting old save does not overwrite newer preferences',
   );
+});
+
+group('Future schema preservation', async () => {
   const raw = s.getItem('alibi-afterhours-v1');
   const bad = JSON.parse(raw);
   bad.data.schema = 99;
@@ -119,6 +260,9 @@ async function tab(storage) {
     s.getItem('alibi-afterhours-v1') === preserved,
     'Future-version envelope is not replaced by initial visit write',
   );
+});
+
+group('Malformed JSON preservation', async () => {
   s.setItem('alibi-afterhours-v1', '{broken');
   const corrupt = await tab(s);
   check(s.getItem('alibi-afterhours-v1') === '{broken', 'Malformed JSON remains untouched');
@@ -126,6 +270,9 @@ async function tab(storage) {
     corrupt.AlibiClub.diagnostics().storageMode === 'session',
     'Unreadable save switches new work to temporary session',
   );
+});
+
+group('Unreadable fallback record during persist', async () => {
   const ps = store(),
     writer = await tab(ps);
   await writer.AlibiClub.save();
@@ -139,6 +286,9 @@ async function tab(storage) {
     ps.getItem('alibi-afterhours-v1') === '{broken',
     'Failed persist does not overwrite the unreadable record',
   );
+});
+
+group('Denied storage session warning', async () => {
   const denied = {
     getItem() {
       throw Error('denied');
@@ -157,7 +307,9 @@ async function tab(storage) {
     temp.AlibiClub.diagnostics().saveError.includes('only in this tab'),
     'Session-only warning is exposed',
   );
-  const clubSource = fs.readFileSync(path.join(root, 'src/club.js'), 'utf8');
+});
+
+group('Club source guards', async () => {
   check(
     /VersionError[\s\S]*\|\|\s*db/.test(clubSource),
     'Unknown IndexedDB read stays protected instead of falling back (source guard)',
@@ -166,101 +318,9 @@ async function tab(storage) {
     clubSource.includes('__clubReset === intent'),
     'Delayed borough confirmation only consumes its own reset intent (source guard)',
   );
-  async function tabWith(storage, extra = {}, bridgeExtra = {}) {
-    const dialogs = [];
-    const c = {
-      console,
-      URL,
-      URLSearchParams,
-      Math,
-      Date,
-      JSON,
-      Number,
-      Promise,
-      setTimeout,
-      clearTimeout,
-      localStorage: storage,
-      location: { hash: '' },
-      document: {
-        addEventListener() {},
-        createElement() {
-          return {};
-        },
-        body: { append() {} },
-      },
-      ...extra,
-    };
-    c.globalThis = c;
-    vm.createContext(c);
-    for (const f of ['core', 'backup-validation', 'club-engines', 'club'])
-      vm.runInContext(fs.readFileSync(path.join(root, 'src/' + f + '.js'), 'utf8'), c);
-    await c.AlibiClub.init({
-      toast() {},
-      render() {},
-      settings: () => ({}),
-      dialog(title, body, actions) {
-        dialogs.push({ title, body, actions });
-      },
-      navigate() {},
-      ...bridgeExtra,
-    });
-    c.__capturedDialogs = dialogs;
-    return c;
-  }
-  function abortingIndexedDB() {
-    const abortError = Object.assign(Error('Club storage transaction aborted.'), {
-      name: 'AbortError',
-    });
-    const listeners = { complete: [], error: [], abort: [] };
-    const tx = {
-      error: abortError,
-      onabort: null,
-      abort() {},
-      addEventListener(type, fn) {
-        (listeners[type] = listeners[type] || []).push(fn);
-      },
-      objectStore() {
-        return {
-          get() {
-            const req = { result: undefined, error: abortError, onsuccess: null, onerror: null };
-            setTimeout(() => {
-              for (const fn of listeners.error || []) {
-                try {
-                  fn();
-                } catch {}
-              }
-              if (typeof req.onerror === 'function') req.onerror();
-            }, 0);
-            return req;
-          },
-        };
-      },
-    };
-    const dbStub = {
-      close() {},
-      transaction() {
-        return tx;
-      },
-      onversionchange: null,
-    };
-    return {
-      open() {
-        const req = {
-          result: dbStub,
-          error: null,
-          onsuccess: null,
-          onerror: null,
-          onblocked: null,
-          onupgradeneeded: null,
-          transaction: null,
-        };
-        setTimeout(() => {
-          if (typeof req.onsuccess === 'function') req.onsuccess();
-        }, 0);
-        return req;
-      },
-    };
-  }
+});
+
+group('Aborted IndexedDB fixture protection', async () => {
   const unknownStore = store();
   const unknownTab = await tabWith(unknownStore, { indexedDB: abortingIndexedDB() });
   check(
@@ -282,6 +342,9 @@ async function tab(storage) {
     unknownStore.getItem('alibi-afterhours-v1') === null,
     'Temporary session persist does not create a divergent save',
   );
+});
+
+group('Deferred shared-town reset-intent race', async () => {
   const raceStore = store();
   const seedTab = await tab(raceStore);
   await seedTab.AlibiClub.save();
@@ -348,6 +411,9 @@ async function tab(storage) {
     raceTab.__capturedDialogs.length === 0,
     'Shared-town confirmation stays hidden once the URL has left that town',
   );
+});
+
+group('Restore keeper source guards', async () => {
   const restoreAt = clubSource.indexOf("a === 'restore-confirm'");
   check(restoreAt !== -1, 'Club restore-confirm path exists');
   const restoreEnd = clubSource.indexOf("else if (a === 'duel-mode'", restoreAt);
@@ -383,6 +449,9 @@ async function tab(storage) {
   console.log(
     'NOTE browser-only boundary: Node has no Worker/IndexedDB interleaving, so this is a source-contract guard that a late keeper reply is ignored after restore begins.',
   );
+});
+
+group('Tic-Tac-Toe move, undo, replacement and reload', async () => {
   // Commit-game contract through the public Club action path. Same VM +
   // localStorage boundary as above: no real IndexedDB or browser durability.
   const gs = store(),
@@ -427,12 +496,20 @@ async function tab(storage) {
       reloaded.AlibiClub.diagnostics().state.runs.tictactoe.redo.length === 0,
     'Reloaded tab replays the committed move log with cleared redo',
   );
+});
+
+after(() => {
+  const complete = executedGroups.length === groupNames.length && failedGroups.length === 0;
   fs.writeFileSync(
     path.join(root, 'tests/club-storage-results.json'),
     JSON.stringify(
       {
-        passed: true,
+        passed: complete && failedGroups.length === 0,
+        complete,
         assertions: checks.length,
+        expectedGroups: groupNames,
+        executedGroups,
+        failedGroups,
         scope:
           'Separate Node VM sessions sharing a localStorage fixture. Tests fallback, rotation, pinning, conflicts, unknown IndexedDB reads, reset-intent races, restore keeper invalidation and one Tic-Tac-Toe commitGame contract. Not real IndexedDB transactions, Worker interleaving or browser durability.',
         checks,
@@ -441,8 +518,15 @@ async function tab(storage) {
       2,
     ),
   );
-  console.log('PASS ' + checks.length + ' Club storage / visit contract assertions.');
-})().catch((e) => {
-  console.error(e);
-  process.exitCode = 1;
+  console.log(
+    (complete && failedGroups.length === 0 ? 'PASS ' : 'INCOMPLETE OR FAILED ') +
+      checks.length +
+      ' Club storage / visit contract assertions; ' +
+      executedGroups.length +
+      '/' +
+      groupNames.length +
+      ' groups executed, ' +
+      failedGroups.length +
+      ' failed.',
+  );
 });
