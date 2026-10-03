@@ -4,7 +4,7 @@ import os
 import tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-from browser_origin import boot, route, current, read_idb, wait_diag, dismiss_dialog
+from browser_origin import boot, route, current, wait_diag, dismiss_dialog
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "test-results" / "completion-hooks"
@@ -13,6 +13,32 @@ PUZZLE = next(p for p in json.loads((ROOT / "content/catalog.json").read_text())
               if p["id"] == "sudoku-01")
 PAINT_PUZZLE = next(p for p in json.loads((ROOT / "content/catalog.json").read_text())["puzzles"]
                     if p["id"] == "nonogram-01")
+
+
+def read_saved_run(page, key):
+    return page.evaluate("""(key) => new Promise((resolve, reject) => {
+      let db, settled = false;
+      const finish = (error, value) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        db?.close();
+        if (error) reject(error);
+        else resolve(value ?? null);
+      };
+      const timer = setTimeout(() => finish(Error('completed save read timeout')), 3000);
+      const request = indexedDB.open('alibi-device');
+      request.onerror = () => finish(request.error || Error('completed save open failed'));
+      request.onsuccess = () => {
+        db = request.result;
+        if (settled) { db.close(); return; }
+        try {
+          const read = db.transaction('runs', 'readonly').objectStore('runs').get(key);
+          read.onerror = () => finish(read.error || Error('completed save read failed'));
+          read.onsuccess = () => finish(null, read.result?.value);
+        } catch (error) { finish(error); }
+      };
+    })""", key)
 
 
 def failure_diagnostics(page, key, errors, identity):
@@ -148,12 +174,14 @@ def main():
                     assert page.locator("dialog[open]").count() == 1, name
                     assert "Every constraint is satisfied" in page.locator("dialog[open]").inner_text(), name
                     assert not page.evaluate("AlibiDiagnostics.getStatus().saveError"), name
-                    stored = read_idb(page, "runs", key)
+                    stored = read_saved_run(page, key)
                     assert stored["completedAt"] == completed["completedAt"], name
                     assert stored["firstCompletedAt"] == completed["firstCompletedAt"], name
                     assert stored["state"] == completed["state"], name
                     if journey and theatre:
                         page.screenshot(path=str(OUT / f"complete-{width}.png"), full_page=True)
+                    if always:
+                        page.screenshot(path=str(OUT / f"complete-{name}.png"), full_page=True)
                     dismiss_dialog(page)
                     page.reload(wait_until="domcontentloaded")
                     wait_diag(page)
