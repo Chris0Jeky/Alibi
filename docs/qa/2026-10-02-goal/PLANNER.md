@@ -14,7 +14,7 @@
 
 One implementation, one real review, blocker repair and scoped reproof per slice. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md). Hosted, simulated and physical evidence remain distinct.
 
-Active #476 slice (3 October): overlapping readwrite/readonly scopes now wait for all earlier overlapping unfinished transactions, including queued multi-store writers. Five baseline failures become16fixture passes; Club/restore seam24 and native Chromium5 pass. Pending abort-error delivery/stale-pin mutation remain open. Muse's existing fallback race is independently reproduced and tracked554; ordinary same-tab player queue protects that seam. Fresh review and CI pending.
+Active #476 slice (3 October): overlapping readwrite/readonly scopes now wait for all earlier overlapping unfinished transactions, including queued multi-store writers. Five baseline failures become16fixture passes; Club/restore seam24 and native Chromium5 pass. An exported-save case kills only the persist restoring-guard mutant (old disk atN+2, restored memory), bringing17fixture passes. Only pending abort-error delivery remains open. Full local1049/three skips precedes added case; Muse scheduling review clear, scoped added-case review/final CI pending. Existing fallback race tracked554; ordinary same-tab player queue protects that seam.
 
 #546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Hosted Node22 full gate succeeds at ffffb338. Refreshed parent timeout-only merge requires clean Android/Bridges/CI-scope proof and current-head CI.
 

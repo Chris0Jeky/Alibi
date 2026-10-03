@@ -642,6 +642,29 @@ test('stale old-state snapshot cannot overwrite a confirmed restore', async () =
   );
 });
 
+test('an exported save cannot persist stale state while a confirmed restore is in flight', async () => {
+  const { disk, indexedDB } = makeDisk();
+  const { c } = await tabWithDisk(disk, indexedDB);
+  const pre = JSON.parse(JSON.stringify(disk.get('state')));
+  const next = JSON.parse(JSON.stringify(c.AlibiClub.diagnostics().state));
+  next.settings.pinned = 999;
+  next.visit = 777;
+  c.__alibiPendingClub = next;
+  const restoreP = c.AlibiClub.action({ dataset: { action: 'club-restore-confirm' } });
+  // save() bypasses action()'s restoring check, exercising persist's own guard.
+  const staleP = c.AlibiClub.save();
+  await restoreP;
+  await staleP;
+  await c.AlibiClub.flush();
+  const state = disk.get('state');
+  assert.equal(state.data.settings.pinned, 999, 'the replacement remains on disk');
+  assert.equal(state.data.visit, 777, 'the restored visit marker remains on disk');
+  assert.equal(state.rev, pre.rev + 1, 'an old-state save cannot add a stale N+2 write');
+  assert.deepEqual(disk.get('recovery'), pre, 'the true pre-restore recovery copy survives');
+  assert.equal(c.AlibiClub.diagnostics().state.settings.pinned, 999);
+  assert.equal(c.AlibiClub.diagnostics().saveError, '');
+});
+
 test('restore failure preserves existing state and error semantics', async () => {
   const { disk, indexedDB } = makeDisk();
   const { c } = await tabWithDisk(disk, indexedDB);
