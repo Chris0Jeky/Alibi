@@ -210,8 +210,9 @@ replaces disk with old state at N+2 while memory retains the restored state;
 the regression detects it. All 17 fixture cases pass. Pending-request
 AbortError delivery remains open under #476. Production storage is unchanged;
 the fallback CAS limitation is tracked in #554. Muse's completed file-only
-scheduling review has no findings; the added behavioral case receives a scoped
-fresh lens. Full local verify at 294852c passes 1,049/three intentional skips
+scheduling review has no findings; the added behavioral case's independent
+Luna review finds no defects and passes all 17 fixture cases. Full local
+verify at 294852c passes 1,049/three intentional skips
 before that test addition. Current-head qualification remains required;
 HUMAN_TODO.md stays open.
 
