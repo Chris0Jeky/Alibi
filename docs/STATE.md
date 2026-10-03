@@ -9,6 +9,29 @@ and the selectable tray. Classic and wider layouts retain their current rules.
 The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
 close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
 CI and independent review remain gates; physical Android/TalkBack is unverified.
+## 2026-10-03: challenge restore admission review correction (#560)
+
+Independent review found that an initial read could expose the old board while
+a restore was pending, allowing its moves to overwrite imported progress.
+Restore admission now detaches that handle, makes the captured host inert and
+suppresses the initial mount. A refused restore resumes the exact pre-import
+run, or awaits the original read, without remounting a departed route. Three
+new regressions fail before this correction; all 16 host and 64 related source
+cases pass afterwards. Browser acceptance, final-head CI and renewed independent
+review remain required. No save format, byte ceiling or physical acceptance
+changes. Earlier 12/60 counts below describe the initial slice, not this head.
+
+## 2026-10-03: challenge view ownership (draft)
+
+Refs #416 item 3. Challenge loads, exports, recovery and imports now belong to a
+particular view instance, not just a route ID. Leaving disposes and clears the
+handle; delayed A/B/A work cannot replace the new A. Imports check ownership
+after file reading, worker validation and restore completion, and clear only
+the captured input. Already-admitted storage transactions are not cancelled.
+Twelve actual-host source regressions reproduced ten failures before the fix;
+all twelve and the sixty-test challenge suite pass after it. Full exact-head
+CI, browser route races and independent review remain required before merge.
+No physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.
 ## 0.15.1 published closeout: 3 October 2026
 
 Reviewed [#559](https://github.com/Chris0Jeky/Alibi/pull/559) merged at
@@ -1339,3 +1362,12 @@ dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
 Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
 assertions pass after this change. Full exact-head CI, origin storage/offline,
 independent review and physical/human acceptance remain required.
+
+### Cascade current-main integration
+
+The narrow-Cascade CSS and actual-control fixture remain byte-identical to
+reviewed 8f5618d. Landed Challenge #560 is incorporated without altering its
+runtime or tests; only additive state-note conflicts were resolved. Earlier
+eight green workflows and the three browser cases are historical evidence.
+Recheck all current-head workflows and independent review before merge.
+Physical Android and TalkBack acceptance remain in HUMAN_TODO.md.
