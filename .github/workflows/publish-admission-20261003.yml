@@ -1,0 +1,67 @@
+name: Publish bounded restore admission repair
+on:
+  push:
+    branches: [codex/challenge-route-ownership-20261003]
+    paths: [.github/workflows/publish-admission-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == '1117390f8cac3cb0482cad90651758bc7318c709'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Apply exact reviewed delta
+        run: |
+          set -eu
+          echo '97da0dc8f32770ac5b99ec2559d97c600b19406488d99641b4d2372943ea3f38  src/quiet-wing/app.js' | sha256sum -c -
+          git apply --unidiff-zero challenge-admission-20261003.patch
+          echo 'a966e628a7191600f2bd16f3d117aa43e566ac6a41a98bafffa07c643b315ed3  src/quiet-wing/app.js' | sha256sum -c -
+          echo '838e61085fcccc42b48d424182ae5cfc2c454d3a5abde769c71675d6f0260d3e  tests/challenge-host-ownership.test.cjs' | sha256sum -c -
+      - run: npm ci
+      - name: Verify controlled ownership and unchanged budgets
+        run: |
+          npx --no-install prettier --check src/quiet-wing/app.js tests/challenge-host-ownership.test.cjs
+          node --test tests/challenge-*.test.cjs tests/challenges.test.cjs tests/validator-challenge-import.test.cjs
+          npm run build:web
+          node --test tests/budget.test.cjs
+          git diff --check
+      - name: Record review correction without claiming later acceptance
+        shell: python
+        run: |
+          from pathlib import Path
+          path=Path('docs/STATE.md');text=path.read_text();heading='# Live development state\n'
+          assert text.startswith(heading)
+          note='\n## 2026-10-03: challenge restore admission review correction (#560)\n\nIndependent review found that an initial read could expose the old board while\na restore was pending, allowing its moves to overwrite imported progress.\nRestore admission now detaches that handle, makes the captured host inert and\nsuppresses the initial mount. A refused restore resumes the exact pre-import\nrun, or awaits the original read, without remounting a departed route. Three\nnew regressions fail before this correction; all 16 host and 64 related source\ncases pass afterwards. Browser acceptance, final-head CI and renewed independent\nreview remain required. No save format, byte ceiling or physical acceptance\nchanges. Earlier 12/60 counts below describe the initial slice, not this head.\n'
+          path.write_text(heading+note+text[len(heading):])
+      - name: Commit, verify clean source and publish only this branch
+        env:
+          TARGET_BRANCH: codex/challenge-route-ownership-20261003
+        run: |
+          set -eu
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git diff --name-only > /tmp/admission-changed
+          python - <<'PY'
+          from pathlib import Path
+          paths=set(Path('/tmp/admission-changed').read_text().splitlines())
+          assert paths == {'src/quiet-wing/app.js','tests/challenge-host-ownership.test.cjs','docs/STATE.md'},paths
+          PY
+          git rm .github/workflows/publish-admission-20261003.yml challenge-admission-20261003.patch
+          git add src/quiet-wing/app.js tests/challenge-host-ownership.test.cjs docs/STATE.md
+          git -c user.name='Cristian Tcaci' -c user.email='59696583+Chris0Jeky@users.noreply.github.com' commit -m 'fix(challenges): prevent old-board edits during admitted restores'
+          npm run verify
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
