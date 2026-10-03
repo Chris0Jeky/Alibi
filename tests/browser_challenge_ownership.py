@@ -1,5 +1,6 @@
 """Built-origin challenge controls with delayed real IndexedDB and worker completions.
-The probe wraps existing APIs only in the test page. It does not replace validation,
+The probe wraps existing APIs only in the test page and can delay restore admission.
+It does not replace validation,
 engines or storage. Browser emulation does not prove physical-device acceptance.
 """
 import json
@@ -15,7 +16,7 @@ OUT = Path(os.environ.get('ALIBI_EVIDENCE', str(ROOT / 'test-results/challenge-o
 OUT.mkdir(parents=True, exist_ok=True)
 A, B = 'curated-classic-hanoi-01', 'curated-classic-sliding-01'
 PROBE = r'''(() => {
-  const p = globalThis.ownershipProbe = {reads:[],validations:[],restores:[],mounts:[],writes:0};
+  const p = globalThis.ownershipProbe = {reads:[],validations:[],restores:[],admissions:[],mounts:[],writes:0};
   const hold = (list,value) => new Promise(resolve=>list.push(()=>resolve(value)));
   const watch = (key,wrap) => {
     let current;
@@ -27,7 +28,7 @@ PROBE = r'''(() => {
       const store=create(...args), read=store.read, restore=store.restore;
       p.store=store;
       store.read=async(...args)=>{const value=await read(...args);return p.holdReads?hold(p.reads,value):value;};
-      store.restore=async(...args)=>{p.writes++;const value=await restore(...args);return p.holdRestores?hold(p.restores,value):value;};
+      store.restore=async(...args)=>{p.writes++;if(p.holdAdmission)await hold(p.admissions,null);const value=await restore(...args);return p.holdRestores?hold(p.restores,value):value;};
       return store;
     };
     return api;
@@ -138,6 +139,45 @@ try:
             assert page.evaluate('ownershipProbe.writes') == 2
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             results.append({'width':width,'case':'admitted-restore-cannot-replace-new-view'})
+            print(json.dumps(results[-1]),flush=True)
+
+            # Review regression: once the host admits a restore, a late initial read
+            # must not expose an old editable board. Delay entry to the real restore
+            # here, rather than claiming a transaction has already committed.
+            imported = json.loads(run_a)
+            imported['log'] = [{'from':1,'to':2}, {'from':2,'to':1}]
+            restored_file = json.dumps(imported).encode()
+            page.evaluate('ownershipProbe.holdRestores=false;ownershipProbe.holdAdmission=true;ownershipProbe.holdReads=true')
+            read_index = page.evaluate('ownershipProbe.reads.length')
+            route(A)
+            page.wait_for_function('(n)=>ownershipProbe.reads.length===n+1',arg=read_index)
+            page.locator('#challenge-file').set_input_files({'name':'A-two-moves.json','mimeType':'application/json','buffer':restored_file})
+            page.wait_for_function('()=>ownershipProbe.admissions.length===1')
+            assert page.locator('#challenge-host').evaluate('host=>host.inert')
+            page.evaluate('(n)=>ownershipProbe.reads[n]()',read_index)
+            page.evaluate('async()=>{for(let i=0;i<20;i++)await Promise.resolve();}')
+            assert page.locator('#challenge-host button').count()==0
+            page.evaluate('ownershipProbe.holdReads=false;ownershipProbe.admissions[0]()')
+            page.wait_for_function('()=>!document.querySelector("#challenge-host").inert && ownershipProbe.current.save().log.length===2')
+            assert page.evaluate('ownershipProbe.current.save().log') == imported['log']
+            assert page.evaluate('(id)=>ownershipProbe.store.read(id).then(run=>run.log)', A) == imported['log']
+            results.append({'width':width,'case':'late-initial-read-stays-inert-during-restore-admission'})
+            print(json.dumps(results[-1]),flush=True)
+
+            # A board that is already open is also detached before the import writes.
+            page.evaluate('ownershipProbe.kept=ownershipProbe.current')
+            page.locator('#challenge-file').set_input_files({'name':'A-again.json','mimeType':'application/json','buffer':restored_file})
+            page.wait_for_function('()=>ownershipProbe.admissions.length===2')
+            assert page.evaluate('ownershipProbe.kept.wasDisposed')
+            assert page.locator('#challenge-host').evaluate('host=>host.inert && host.onclick===null && host.onkeydown===null')
+            assert page.locator('#challenge-host button').count()==0
+            page.evaluate('ownershipProbe.admissions[1]()')
+            page.wait_for_function('()=>!document.querySelector("#challenge-host").inert && ownershipProbe.current!==ownershipProbe.kept && !ownershipProbe.current.wasDisposed')
+            page.reload()
+            page.locator('.challenge-status').wait_for()
+            assert page.evaluate('ownershipProbe.current.save().log') == imported['log']
+            assert page.evaluate('ownershipProbe.store.info().mode') == 'indexeddb'
+            results.append({'width':width,'case':'existing-board-detached-and-restored-progress-survives-reload'})
             print(json.dumps(results[-1]),flush=True)
             page.screenshot(path=str(OUT/f'challenge-{width}.png'),full_page=True)
             assert not errors, errors
