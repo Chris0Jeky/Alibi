@@ -147,7 +147,7 @@
   }
 
   function dateMarker(value) {
-    return typeof value === 'string' && value.length > 0 && Number.isFinite(Date.parse(value));
+    return typeof value === 'string' && Number.isFinite(Date.parse(value));
   }
 
   function roomFor(roomId) {
@@ -209,18 +209,24 @@
     }
 
     function build(runs, available) {
-      const completed = new Set();
+      const completed = new Set(),
+        pending = new Set();
       if (available && catalogueValid) {
         for (const candidate of Array.isArray(runs) ? runs : []) {
           try {
             const run = validateRun ? validateRun(candidate) : candidate,
-              key = typeof run?.key === 'string' ? run.key : '',
+              key = run?.key,
               puzzle = byKey.get(key);
-            if (!puzzle || !sameDefinition(run.puzzle, puzzle)) continue;
+            if (!puzzle) continue;
             const markedFirst = dateMarker(run.firstCompletedAt),
               markedCurrent = dateMarker(run.completedAt);
-            if (!markedFirst && (!markedCurrent || !isCurrentCompletion?.(run, puzzle))) continue;
-            completed.add(key);
+            if (!markedFirst && !markedCurrent) continue;
+            if (G.ALIBI_DEFERRED?.has(puzzle)) pending.add(puzzle.type);
+            else if (
+              sameDefinition(run.puzzle, puzzle) &&
+              (markedFirst || isCurrentCompletion?.(run, puzzle))
+            )
+              completed.add(key);
           } catch {
             // A malformed save is quarantined by the Cabinet and cannot grant familiarity.
           }
@@ -247,6 +253,7 @@
                 family: binding.family,
                 label: binding.label,
                 completed: roomCompleted,
+                pending: pending.has(binding.family),
                 total: totals.get(binding.family) || 0,
                 starters,
                 detail: roomCompleted >= 3 ? binding.detail : null,
