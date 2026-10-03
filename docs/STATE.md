@@ -1,5 +1,52 @@
 # Live development state
 
+## Goal closeout — 3 October 2026, 00:56 UTC
+
+The owner ended expansion and requested submission, saved work, updated docs and
+cleanup. This checkpoint records that bounded closeout. The sections below it
+are historical qualification receipts; their pending statements describe the
+heads and times named there, rather than current merge status.
+
+Main is clean at `43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a` (#553,
+0.15.1 source). #432's 24 optional Lattice studies and #546's Bridges test
+conversion have landed. The Workshop/backup fixes #539/#543 and preserved
+#540/#542 histories are also in main. This session makes no deployment claim.
+
+| Saved work | Qualification and remaining gate at this checkpoint |
+| --- | --- |
+| [#557 Club diagnostics](https://github.com/Chris0Jeky/Alibi/pull/557), `532b6e9d5567f37d223d8b01e4eafcb2cce992c8` | Ready, mergeable, no failed checks or unresolved review threads; full hosted CI is still running. Thirteen serial named cases preserve 52 checks. Full local verify passed 1,056 tests with three intentional skips at source/test-identical `3f4aaad`; final clean Android/focused checks pass 15. Injected failure continues through the other twelve groups; filtered runs report incomplete qualification. Completed Muse review found no defects. |
+| [#558 restore serialization](https://github.com/Chris0Jeky/Alibi/pull/558), `66bd7f34af8816ab758aa0a1c1e6b8ebe4df2db0` | Ready, mergeable, no failed checks or unresolved review threads; full hosted CI is still running. All 17 ordering cases pass, including public save during restore; final clean Android/focused checks pass 27. Full local verify passed 1,049 tests with three intentional skips at `294852c`, before the final behavioral case. Mutations fail the new ordering/save cases; five disposable Chromium IndexedDB ordering traces agree with the fixture. Muse scheduling review and an independent scoped save-case review found no blockers. |
+| [#552 completion integration](https://github.com/Chris0Jeky/Alibi/pull/552), `b0f71b0239cfb0786a0e713e9bde5b9ebd640efa` | Saved and reviewed, with successful hosted checks, but conflicts with landed #553. The coordinating lane owns draft [#559](https://github.com/Chris0Jeky/Alibi/pull/559), which is still being qualified; preserve its ownership and the original histories. #550's parser repair is also saved and awaits that integration. |
+| [#427 Interlock](https://github.com/Chris0Jeky/Alibi/pull/427), `271bff9b19a88719b0606a4fccbc1f361383b56d` | Parked ready. All 60 original boards are preserved, but startup is 206,217 gzip bytes against an unchanged 205,248 ceiling: 969 over. Failed CI is not waived; #422 tracks the budget blocker. |
+
+#476 remains partial: #558 adds transaction serialization and behavioral
+stale-save proof, while pending-request abort events remain unimplemented. The
+empty abort-preparation checkout was removed without edits or new commits.
+#519 remains partial after Bridges and the submitted Club conversion. #537's
+original IndexedDB refusal remains unclassified. #554 tracks local-fallback
+cross-tab revision qualification; #555 tracks optional Journey failure before a
+move is committed. Neither is claimed fixed by the test-only PRs.
+
+Independent draft #556 (completed-result retention) and #560 (challenge route
+ownership) keep their writers and gates. Their open CI is not this session's
+qualification. No additional coordination message is sent under the earlier
+one-message authorization.
+
+Implementation worktrees were removed with plain Git removal after publication
+checks and preservation of needed ignored proof. Raw logs, probes, build receipts,
+views and cleanup inventories live in local `test-results/goal-20261002/`,
+including `archived/club-diagnostics-20261003/` and
+`archived/restore-serialization-20261003/`. No owned browser, server, Muse job or
+implementation agent remains active. The temporary documentation checkout is
+removed after this receipt is pushed; unrelated asset, native, research and old
+worktrees are preserved.
+
+No physical Android, TalkBack, native document-provider timing or affected-phone
+freeze acceptance is inferred. [HUMAN_TODO.md](../HUMAN_TODO.md), especially q-2
+and the combined phone session, remains open. Use the updated
+[planner](qa/2026-10-02-goal/PLANNER.md) for the pending lanes and the
+[orchestrator](qa/2026-10-02-goal/ORCHESTRATOR.md) for the evidence history.
+
 ## Residual async ownership and 0.15.1 candidate (#538/#541): 2 October 2026
 
 This candidate retains both reviewed #540/#542 histories and the landed
