@@ -10,6 +10,11 @@ saved draft identity, and #541 checks error ownership after token cleanup.
 The landed #432 contributes 24 optional Lattice Workshop studies; their Expert
 labels remain provisional, with human calibration still open. Bridges' test
 granularity follow-up and the peer editing integration retain their own reviews.
+The final completion/count integration preserves peer #552/#550 history, guards
+independent synchronous completion hooks, and contains the ordinary Journey calls
+before commit and painted-move completion (#555). The family-table regression
+accepts aligned Markdown while retaining exact family/count/registry assertions.
+These final changes require fresh combined qualification before publication.
 No save schema, published puzzle ID/revision, registered origin or service is
 changed. Pending peer content/artwork/native/research candidates are not implied
 to be included by this receipt; the final source commit will record actual scope.
