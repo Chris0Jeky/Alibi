@@ -150,6 +150,7 @@ remain applicable; hosted exact-head proof and aging are still required.
 ## Bridges diagnostics and CI checkpoint — 2 October 2026, 21:49 UTC
 
 - Luna's bounded #519 slice changes only tests/bridges.test.cjs: 49 named serial cases retain all 40 existing assertion call sites and solver invocations. Night Routes/Symbols were already named through their shared helper and remain unchanged; root's three-suite run passes 57 cases.
+- 3 October Club diagnostics follow-up: completed Muse wave14 maps shared-state groups; Sol medium implements only tests/club-storage.test.cjs. Coordinator AST comparison proves52 identical checks/four helpers/37 awaits. Default13 pass; injected first assertion1fail/12laterpass; filtered3groups/18checks writes passed:false/complete:false and actual names. Full clean3f4aaad verify1056/three intentional skips and completed wave15 Muse xhigh file-only review clear. Preserve dependent fixture ordering and VM/source-only boundaries. No app or puzzle changes. Final clean-head seam/hosted proof pending; HUMAN_TODO.md remains open.
 - Root injected one failure into an ignored copy of the first fixture: one named failure, 48 later passes. Production/test source was not mutated for that probe. Muse wave11 contributor xhigh is a bounded file-only independent review of the one-file conversion; actual completion, not wrapper launch, will decide acceptance.
 - #432 full hosted job cancelled at its 25-minute limit: dependency installation 6m21s, npm verify 1m38s green, UI/curation/media/Club/Archive green, origin checks 12m08s then cancelled. Later Bellweather/update/local-room steps were skipped. Exact head 47cd remains unmerged, with one failed-job fresh-runner retry and no gate waiver. Timings are recorded on #531 and the PR.
 - #427 ready head 271bff9 remains blocked by 969 startup gzip bytes. Five examined hosted failures reproduce the same budget assertion; automatic Codex's HIGH comment is confirmed, replied to and tracked under #422. It remains open until fixed. No numeric ceiling change or speculative encoding was adopted.
@@ -205,3 +206,12 @@ restore-545/. Both roots were removed without force after publication checks.
 ## Residual release integration — 2 October 2026, 23:29 UTC
 
 #432 and #546 are landed; the latter exact-head merge is cc86981. The peer #540 ready head 730add9 is preserved, with receipt conflicts against current main. The separate codex/alibi-0151-residuals candidate retains all original histories and adds #538/#541, delegated validation coverage, reviewed release notes and the authoritative 0.15.1 SDK pin. Earlier full/browser counts are historical. Final combined qualification, hosted CI, aging and deployment remain pending; superseded editing PRs close only after the replacement lands. HUMAN_TODO.md remains open.
+
+## Final completion/count integration - 3 October 2026
+
+#553 landed43f573b with exact-head local/hosted qualification and no deployment.
+The later #552 b0f71b0 handoff retains completion hooks and #550 count-parser
+work. Preserve both histories, the 0.15.1 SDK and #553 delegated-picker fixtures.
+Confirmed pre-completion Journey failures in commit/endPaint need focused guards
+and broad-throw regressions. Remove the idle fixture browser. Final combined
+source/budget/review/full/browser/hosted/publication gates remain pending.
