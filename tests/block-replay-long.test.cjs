@@ -54,6 +54,19 @@ test('late historical corruption still fails and does not poison the valid long 
   E.replay(fixture.seed, log);
   const corrupted = structuredClone(log);
   corrupted[200] = { ...corrupted[199] };
-  assert.throws(() => E.replay(fixture.seed, corrupted), /does not fit|cabinet is closed/);
-  assert.deepEqual(E.replay(fixture.seed, log), answer);
+  const original = E.move;
+  let calls = 0;
+  E.move = function (...args) {
+    calls++;
+    return original.apply(this, args);
+  };
+  try {
+    assert.throws(() => E.replay(fixture.seed, corrupted), /does not fit|cabinet is closed/);
+    assert.ok(calls > 0, 'the legal prefix was evaluated before discovering corruption');
+    calls = 0;
+    assert.deepEqual(E.replay(fixture.seed, log), answer);
+    assert.equal(calls, 0, 'the prior valid cache must survive, not be recomputed');
+  } finally {
+    E.move = original;
+  }
 });

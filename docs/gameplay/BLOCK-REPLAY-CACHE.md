@@ -63,12 +63,21 @@ instead of 5,360. Evaluating every prefix from zero through 268 requires 268
 instead of 36,046 moves. All log validation and copying still occur, so these are
 not total instruction counts or promises of a matching wall-clock speedup.
 
-The four tests pass with the landed cache. Substituting the original uncached
-engine reproduces two work-count failures while both semantic checks still pass.
-No arbitrary timing threshold, larger cap, weakened legality or skipped test is
-used. Existing source tests cover undo, redo, restore-shaped edits and deep-copy
-isolation; this fixture extends their history length, not their browser claims.
+The initial four-case version passed with the landed cache. Substituting the
+original uncached engine reproduced two work-count failures while both initial
+semantic checks passed. Review then exposed a missing failure-cleanup assertion:
+correct returned state alone does not prove the cache survived a rejected log.
 
+The fourth case now also counts rule moves during corruption and recovery. It
+requires the invalid replay to evaluate its legal prefix, then the valid recovery
+to perform zero moves. A mutant that clears the cache before a divergent replay
+passed all four initial cases; it fails the strengthened assertion with 268
+unnecessary recovery moves. The real implementation passes all four strengthened
+cases. Instrumentation restores the original method even if an assertion fails.
+No arbitrary timing threshold, larger cap, weakened legality or skip is used.
+
+Existing source tests cover undo, redo, restore-shaped edits and deep-copy
+isolation; this fixture extends their history length, not their browser claims.
 Remaining acceptance still includes a valid run at the 500-move boundary,
 real-origin reload/undo there, memory measurements and constrained/physical-phone
 input latency. This below-cap fixture does not authorize lifting maxMoves and
