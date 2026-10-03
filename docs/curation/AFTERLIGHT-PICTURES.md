@@ -72,8 +72,8 @@ compatible official and Workshop pictures, and the unchanged 510-definition
 prefix. This establishes bounded mechanical correctness, not enjoyment or an
 independent editorial approval. Source inspection can reveal offline answers.
 
-The focused command currently runs 51 source/readiness/authoring cases, including
-eight membership and fifteen metadata/CLI regressions. Real CLI fixtures cover
+The focused command currently runs 53 source/readiness/authoring cases, including
+eight membership, fifteen metadata/CLI and two fixed-pack-identity regressions. Real CLI fixtures cover
 missing studies, malformed titles and headers, unsupported difficulty and an
 ambiguous drawing. They require validation errors, not missing-module failures,
 and verify the previous output bytes survive. A valid CLI compile must reproduce

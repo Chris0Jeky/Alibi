@@ -1,5 +1,28 @@
 # Live development state
 
+## 2026-10-03: challenge restore admission review correction (#560)
+
+Independent review found that an initial read could expose the old board while
+a restore was pending, allowing its moves to overwrite imported progress.
+Restore admission now detaches that handle, makes the captured host inert and
+suppresses the initial mount. A refused restore resumes the exact pre-import
+run, or awaits the original read, without remounting a departed route. Three
+new regressions fail before this correction; all 16 host and 64 related source
+cases pass afterwards. Browser acceptance, final-head CI and renewed independent
+review remain required. No save format, byte ceiling or physical acceptance
+changes. Earlier 12/60 counts below describe the initial slice, not this head.
+
+## 2026-10-03: challenge view ownership (draft)
+
+Refs #416 item 3. Challenge loads, exports, recovery and imports now belong to a
+particular view instance, not just a route ID. Leaving disposes and clears the
+handle; delayed A/B/A work cannot replace the new A. Imports check ownership
+after file reading, worker validation and restore completion, and clear only
+the captured input. Already-admitted storage transactions are not cancelled.
+Twelve actual-host source regressions reproduced ten failures before the fix;
+all twelve and the sixty-test challenge suite pass after it. Full exact-head
+CI, browser route races and independent review remain required before merge.
+No physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.
 ## 0.15.1 published closeout: 3 October 2026
 
 Reviewed [#559](https://github.com/Chris0Jeky/Alibi/pull/559) merged at
@@ -1336,7 +1359,7 @@ independent review and physical/human acceptance remain required.
 Ten newly authored 15 by 15 Picture Logic drawings are supplied as a data-only
 Workshop import, not silently added to the official or startup registry. Exact
 pixel blueprints, board-specific editorial notes, a reproducible clue compiler
-and the actual JSON pack live with 51 source/readiness/authoring regressions. Native and
+and the actual JSON pack live with 53 source/readiness/authoring regressions. Native and
 independent solvers agree on one answer per board; all 2,250 squares are derived
 without reading answers and applied through the production reducer. The old
 510-definition prefix is byte-pinned. No save, dependency or budget changes.
@@ -1353,9 +1376,18 @@ and TalkBack remain unverified in HUMAN_TODO.md.
 The fixed membership guard is now followed by the production pack validator,
 including metadata, rule and bounded uniqueness checks before any --write.
 Fifteen new source/CLI cases reproduced fourteen failures before correction;
-all fifty-one Afterlight cases now pass. Invalid metadata and ambiguous pixels
+all fifty-three Afterlight cases now pass. Invalid metadata and ambiguous pixels
 leave the prior pack byte-for-byte intact. The existing membership CLI uses
 the same isolated real-validator fixture. The focused command in the guide and
 CI is node --test tests/afterlight-*.test.cjs, including every authoring suite.
 The ten puzzle definitions and their JSON hash remain unchanged. Final-head
 full CI, twenty real-origin cases and re-review are still merge gates.
+
+### Afterlight fixed pack identity
+
+The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through
+10. Two new regressions fail the prior compiler and prove that a syntactically
+valid replacement identity cannot overwrite the existing JSON through --write.
+The authored pack bytes remain unchanged. This branch integrates landed #560;
+current-head full CI, all twenty browser cases and independent re-review remain
+required. No deployment or physical-device acceptance is claimed.
