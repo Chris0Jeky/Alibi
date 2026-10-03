@@ -1,5 +1,32 @@
 # Live development state
 
+## Saved closeout follow-up — 3 October 2026, 01:11 UTC
+
+Main is clean at `297fbf81a6925e09b9c4d79d945a129f6a30a7b5` after
+[#557](https://github.com/Chris0Jeky/Alibi/pull/557) merged at 01:04:23 UTC.
+All three exact-head hosted jobs succeeded, including full verify at 01:01:23.
+The earlier 00:56 checkpoint below is retained as historical evidence.
+
+[#558](https://github.com/Chris0Jeky/Alibi/pull/558) completed all three hosted
+jobs at original head `66bd7f3`. A normal merge was refused because branch policy
+requires the current base. The normal server merge preserves that reviewed head
+and main as parents at `4f32ed629a8bf8dd19edb29b0565aee0234c9a50`.
+Its restore-test and product/build inputs are byte-identical to the reviewed head;
+main adds only the already reviewed Club tests and docs. Root runs both actual
+test files together on the resulting tree: all 30 named cases pass, no skips.
+Fresh-head hosted CI and aging remain required; no admin override is used.
+
+The documentation-only closeout [#561](https://github.com/Chris0Jeky/Alibi/pull/561)
+is saved as a child of #558 to avoid invalidating its renewed qualification.
+Its diff against the parent contains only STATE, PLANNER and ORCHESTRATOR.
+The existing independent docs review has no blockers. Merge #558 first; retain
+its branch, then retarget #561 to main and confirm its base/CI/conflict state
+before merging. The revised goal closes after this submission and local cleanup,
+with these merge gates explicitly pending. Needed proof and the final docs are
+archived under local `test-results/goal-20261002/archived/goal-closeout-20261003/`.
+No owned runtime remains active; unrelated worktrees are preserved.
+[HUMAN_TODO.md](../HUMAN_TODO.md) physical acceptance and deployment remain open.
+
 ## Goal closeout — 3 October 2026, 00:56 UTC
 
 The owner ended expansion and requested submission, saved work, updated docs and
@@ -14,8 +41,8 @@ conversion have landed. The Workshop/backup fixes #539/#543 and preserved
 
 | Saved work | Qualification and remaining gate at this checkpoint |
 | --- | --- |
-| [#557 Club diagnostics](https://github.com/Chris0Jeky/Alibi/pull/557), `532b6e9d5567f37d223d8b01e4eafcb2cce992c8` | Ready, mergeable, no failed checks or unresolved review threads; full hosted CI is still running. Thirteen serial named cases preserve 52 checks. Full local verify passed 1,056 tests with three intentional skips at source/test-identical `3f4aaad`; final clean Android/focused checks pass 15. Injected failure continues through the other twelve groups; filtered runs report incomplete qualification. Completed Muse review found no defects. |
-| [#558 restore serialization](https://github.com/Chris0Jeky/Alibi/pull/558), `66bd7f34af8816ab758aa0a1c1e6b8ebe4df2db0` | Ready, mergeable, no failed checks or unresolved review threads; full hosted CI is still running. All 17 ordering cases pass, including public save during restore; final clean Android/focused checks pass 27. Full local verify passed 1,049 tests with three intentional skips at `294852c`, before the final behavioral case. Mutations fail the new ordering/save cases; five disposable Chromium IndexedDB ordering traces agree with the fixture. Muse scheduling review and an independent scoped save-case review found no blockers. |
+| [#557 Club diagnostics](https://github.com/Chris0Jeky/Alibi/pull/557), `532b6e9d5567f37d223d8b01e4eafcb2cce992c8` | Ready, conflict-free per the separate API mergeability check, with no failed checks or unresolved review threads; full hosted CI is still running. Thirteen serial named cases preserve 52 checks. Full local verify passed 1,056 tests with three intentional skips at source/test-identical `3f4aaad`; final clean Android/focused checks pass 15. Injected failure continues through the other twelve groups; filtered runs report incomplete qualification. Completed Muse review found no defects. |
+| [#558 restore serialization](https://github.com/Chris0Jeky/Alibi/pull/558), `66bd7f34af8816ab758aa0a1c1e6b8ebe4df2db0` | Ready, conflict-free per the separate API mergeability check, with no failed checks or unresolved review threads; full hosted CI is still running. All 17 ordering cases pass, including public save during restore; final clean Android/focused checks pass 27. Full local verify passed 1,049 tests with three intentional skips at `294852c`, before the final behavioral case. Mutations fail the new ordering/save cases; five disposable Chromium IndexedDB ordering traces agree with the fixture. Muse scheduling review and an independent scoped save-case review found no blockers. |
 | [#552 completion integration](https://github.com/Chris0Jeky/Alibi/pull/552), `b0f71b0239cfb0786a0e713e9bde5b9ebd640efa` | Saved and reviewed, with successful hosted checks, but conflicts with landed #553. The coordinating lane owns draft [#559](https://github.com/Chris0Jeky/Alibi/pull/559), which is still being qualified; preserve its ownership and the original histories. #550's parser repair is also saved and awaits that integration. |
 | [#427 Interlock](https://github.com/Chris0Jeky/Alibi/pull/427), `271bff9b19a88719b0606a4fccbc1f361383b56d` | Parked ready. All 60 original boards are preserved, but startup is 206,217 gzip bytes against an unchanged 205,248 ceiling: 969 over. Failed CI is not waived; #422 tracks the budget blocker. |
 

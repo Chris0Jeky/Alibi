@@ -219,7 +219,7 @@ statements as a current routing checkpoint; it does not erase historical proof.
 - Main is clean at `43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a` (#553). #432 and #546 have landed. The reviewed Workshop/backup fixes and original #540/#542 histories are preserved in main. No deployment is performed by this closeout.
 - #557 is ready at `532b6e9d5567f37d223d8b01e4eafcb2cce992c8`. Its Club-only test conversion preserves all 52 checks and shared ordering in 13 named serial groups. Root verifies exact AST check/helper/await preservation, all groups passing, injected failure with twelve later passes, and a three-group filtered run that reports incomplete qualification. Full local verify at source/test-identical `3f4aaad` passes 1,056 with three intentional skips; final clean Android/focused proof passes 15. Muse wave15 completes its independent file-only review with intact integrity and no findings; commands are run by root, not Muse.
 - #558 is ready at `66bd7f34af8816ab758aa0a1c1e6b8ebe4df2db0`. The fixture blocks overlapping transactions behind all earlier unfinished conflicts, including a waiting multi-scope predecessor, and releases buffered state on commit/abort. Five cases fail the old fixture; a waiting-predecessor mutant fails the new case. The exported save-during-restore case kills deletion of only the existing persist guard: disk becomes stale at revision N+2 while memory is restored. All 17 cases and final clean Android/focused 27 pass. Five disposable native Chromium ordering traces agree. Full local verify 1,049/three skips is scoped to `294852c`, before the final case. Muse scheduling review and the separate fresh Luna save-case review have no blockers. This is test-fixture/API proof, not a physical-phone reproduction.
-- One combined API pulse at 00:56 records #557/#558 with one pending full CI job each, zero failed checks and zero unresolved threads. Both are mergeable; no merge or final full-CI pass is inferred. The other two applicable workflows for each already succeeded. Existing exact-head artifacts and review comments are on the PRs.
+- One combined API pulse at 00:56 records #557/#558 with one pending full CI job each, zero failed checks and zero unresolved threads. Both are conflict-free per separate API mergeability checks; protected-branch merge eligibility is still blocked, and no merge or final full-CI pass is inferred. The other two applicable workflows for each already succeeded. Existing exact-head artifacts and review comments are on the PRs.
 - #552 `b0f71b0` and #550 `20ea441` remain published with successful CI but conflicts against landed main. The coordinating writer owns draft #559. Other draft writers retain #556/#560. One earlier human-authorized coordination message has already been used; none is added here.
 - #427 remains parked at `271bff9`, 969 startup gzip bytes over the unchanged 205,248 ceiling. Preserve all 60 boards and the failed-gate evidence. #422, #476, #519, #537, #554 and #555 retain their stated residual scope; no new implementation is opened during closeout.
 - Needed ignored proof was copied into primary `test-results/goal-20261002/archived/club-diagnostics-20261003/` and `archived/restore-serialization-20261003/` before plain worktree removal. Earlier six integration roots have corresponding archives. The empty `restore-abort-events-20261003` checkout had no edits or new commits and was removed after confirming its HEAD is published in #558. No owned server, browser, Muse job or implementation agent remains active. Unrelated worktrees and branches remain untouched.
@@ -232,3 +232,39 @@ than rewriting earlier evidence or resetting qualified source heads merely for
 receipts. [HUMAN_TODO.md](../../../HUMAN_TODO.md) remains the physical/human
 acceptance boundary. The revised goal may close after this submission and cleanup,
 with pending project work explicitly saved for its next owner.
+
+
+## Saved closeout follow-up — 3 October 2026, 01:11 UTC
+
+#557 completed all three exact-head hosted workflows, full verify at 01:01:23.
+Root merged it normally with an exact-head guard at 01:04:23, preserving commits
+as `297fbf81a6925e09b9c4d79d945a129f6a30a7b5`; primary fast-forwarded cleanly.
+No unresolved review thread or failing check was waived.
+
+#558's original `66bd7f3` also completed all three workflows, full verify at
+01:06:55. Root confirmed unchanged product/build inputs and ran main's Club
+suite with the byte-identical reviewed restore suite: 30 named passes. A normal
+merge was refused because strict branch policy requires an up-to-date head.
+The server update preserves both original parents as
+`4f32ed629a8bf8dd19edb29b0565aee0234c9a50` (66bd7f3, 297fbf8). Fixture/product
+bytes are unchanged; no fresh review is manufactured for the base refresh.
+Fresh-head hosted CI and aging remain gates. The exact actual stacked-tree
+files pass all 30 cases again; raw logs and the initial proof comment are archived.
+
+#561's original `5789f17` documentation-only diff received one fresh-context
+Luna review: no HIGH/CRITICAL or other confirmed defect. Its LOW traceability
+ambiguity about API mergeability versus protected-branch eligibility is clarified
+in the historical receipt. Root preserves both landed Club and refreshed restore
+histories in merge commits, resolving only planner receipt conflicts. The child
+is retargeted to #558's branch; the full diff against that parent is exactly the
+three docs. Existing review applies. Merge the oldest parent first, retain its
+branch, retarget #561 to main after landing and confirm the API base/CI/conflicts.
+No merge or final hosted pass is claimed for these renewed heads.
+
+The owner-requested submission/save/docs/cleanup closeout is complete once this
+ready child is pushed and its temporary checkout removed. Final proof and docs
+are saved OUT under `test-results/goal-20261002/archived/goal-closeout-20261003/`;
+the PR receives the actual cleanup receipt. No owned runtime or worker remains
+active. Other writers, branches and uncertain old worktrees are preserved.
+[HUMAN_TODO.md](../../../HUMAN_TODO.md) remains open; no deployment or physical
+phone/TalkBack acceptance is inferred.
