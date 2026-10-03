@@ -1,0 +1,90 @@
+name: Reconcile challenge gameplay integration
+on:
+  push:
+    branches: [codex/challenge-route-ownership-20261003]
+    paths: [.github/workflows/reconcile-challenges-20261003.yml]
+permissions:
+  contents: read
+jobs:
+  reconcile:
+    if: >-
+      github.repository == 'Chris0Jeky/Alibi' &&
+      github.actor == 'Chris0Jeky' &&
+      github.event.before == 'bb53518692eb92d8816d9f4c8ac9864058899e61'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      REVIEWED_HEAD: bb53518692eb92d8816d9f4c8ac9864058899e61
+      INTEGRATION_BASE: fc51d98808774b67e48129cdc7a2aa79409b4fd7
+      ORIGINAL_MAIN: 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a
+      TARGET_BRANCH: codex/challenge-route-ownership-20261003
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Merge the pinned gameplay base without altering reviewed challenge code
+        shell: python
+        run: |
+          import os, subprocess, tempfile
+          from pathlib import Path
+          from collections import Counter
+          def git(*args):
+              return subprocess.run(['git',*args],check=True,capture_output=True).stdout
+          head, base = os.environ['REVIEWED_HEAD'], os.environ['INTEGRATION_BASE']
+          assert git('rev-parse','HEAD^').decode().strip() == head
+          git('config','user.name','github-actions[bot]')
+          git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com')
+          ancestor=git('merge-base','HEAD',base).decode().strip()
+          assert ancestor==os.environ['ORIGINAL_MAIN']
+          result=subprocess.run(['git','merge','--no-commit','--no-ff',base])
+          conflicts=git('diff','--name-only','--diff-filter=U').decode().splitlines()
+          assert result.returncode in (0,1)
+          assert set(conflicts)<= {'docs/STATE.md'},conflicts
+          if conflicts:
+              ours,theirs,common=(git('show',ref+':docs/STATE.md') for ref in ('HEAD',base,ancestor))
+              with tempfile.TemporaryDirectory() as folder:
+                  paths=[Path(folder)/name for name in ('ours','base','theirs')]
+                  for p,data in zip(paths,(ours,common,theirs)):p.write_bytes(data)
+                  git('merge-file','--union',*(str(p) for p in paths))
+                  merged=paths[0].read_bytes()
+              counts=Counter(merged.splitlines())
+              for source in (ours,theirs):
+                  assert all(counts[line]>=n for line,n in Counter(source.splitlines()).items())
+              Path('docs/STATE.md').write_bytes(merged)
+              git('add','docs/STATE.md')
+          git('rm','.github/workflows/reconcile-challenges-20261003.yml')
+          expected={'.github/workflows/challenge-ownership-controls.yml','src/quiet-wing/app.js','tests/challenge-host-ownership.test.cjs','tests/challenge-browser-readiness.test.cjs','tests/browser_challenge_ownership.py','docs/STATE.md'}
+          actual=set(git('diff','--cached','--name-only',base).decode().splitlines())
+          assert actual==expected,(actual,expected)
+          for path in expected-{'docs/STATE.md'}:
+              assert git('show',':'+path)==git('show',head+':'+path),path
+          git('diff','--cached','--check')
+          git('commit','-m','Merge reviewed gameplay base into challenge route ownership without changing either runtime delta')
+      - run: npm ci
+      - name: Verify clean integration and capture exact source
+        run: |
+          set -o pipefail
+          mkdir -p test-results/challenge-integration
+          npm run verify 2>&1 | tee test-results/challenge-integration/verify.log
+          git rev-parse HEAD > test-results/challenge-integration/source-head.txt
+          git diff --binary "$INTEGRATION_BASE" HEAD > test-results/challenge-integration/integration.patch
+          git ls-tree -r HEAD > test-results/challenge-integration/git-tree.txt
+          cp build-info.json test-results/challenge-integration/build-info.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: challenge-integration-evidence
+          path: test-results/challenge-integration/
+          retention-days: 7
+      - name: Publish the isolated branch only if unchanged
+        run: |
+          set -eu
+          test "$(git ls-remote origin "refs/heads/$TARGET_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
