@@ -50,6 +50,10 @@ try:
             page.screenshot(path=str(OUT/f'cascade-{width}.png'), full_page=True)
             (OUT/f'geometry-{width}.json').write_text(json.dumps(measurements,indent=2)+'\n')
             assert len(measurements)==5, measurements
+            if width==320:
+                tray=dialog.locator('.bc-tray').bounding_box()
+                actions=controls.bounding_box()
+                assert tray['y']+tray['height']<=actions['y']+1, (tray,actions)
             for button in measurements:
                 assert button['width']>=44 and button['height']>=44, button
                 assert 0<=button['left'] and button['right']<=width, button

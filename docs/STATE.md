@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-03: narrow Cascade actions (#562, follows #556)
+
+Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text
+extending beyond their buttons. Below 371px, only the Cascade dialog now uses
+three columns and normal-flow actions, preserving 44px targets, readable labels
+and the selectable tray. Classic and wider layouts retain their current rules.
+The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
+close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
+CI and independent review remain gates; physical Android/TalkBack is unverified.
+
 ## 2026-10-03: Games Room replay journal and focus (draft #556)
 
 Refs #418. Completed results are retained before replay, Next garden or a
