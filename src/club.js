@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${['plan', 'walk', 'undo', 'redo', 'restart', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   // Planning contracts live in the Quiet Wing challenge list. Once that list reads a family filter,
@@ -1091,7 +1091,7 @@
       { label: 'Cancel', action: 'close-dialog', secondary: true },
     ]);
   }
-  // A finished game is already in the journal, so replacing it needs no confirmation.
+  // Finished games replay immediately; reset-confirm retains their result before replacement.
   function resetOrConfirm(next, title, text) {
     root.__clubReset = next;
     return again(next.id)
@@ -1437,6 +1437,7 @@
         const r = state.runs[reset.id];
         if (!r) throw Error('Unknown game.');
         if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);
+        record(reset.id, currentGame(reset.id));
         document.getElementById('dialog').close();
         stopBot();
         if (reset.freshSeed && reset.id === 'blockcabinet') {

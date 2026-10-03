@@ -88,7 +88,10 @@ test('Next garden retains the original level and score before replacing its boar
   assert.equal(tab.state().records[0]?.score, gardens[0].solution.length);
 });
 
-for (const [name, value] of [['duel-strength', 'learner'], ['duel-mode', 'local']]) {
+for (const [name, value] of [
+  ['duel-strength', 'learner'],
+  ['duel-mode', 'local'],
+]) {
   test(`${name}: a finished match is recorded using the old strength and seat`, async () => {
     const tab = await open(fixture('duel'), 'duel');
     await tab.action(name, { value });
