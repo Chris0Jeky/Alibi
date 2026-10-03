@@ -1,5 +1,26 @@
 # Live development state
 
+## 2026-10-03: Games Room integration candidate (#556)
+
+The exact reviewed gameplay source and both browser suites from cf77a14 are
+retained while integrating main 98be800. Only additive state-note conflicts
+are resolved; both parent histories and their previous notes are preserved.
+The earlier eight green workflows and clean Codex review are historical
+evidence. Refreshed exact-head full CI and review are required before merge.
+Issue #418 retains its Cascade 320px visual residual. Physical Android and
+TalkBack remain in HUMAN_TODO.md; browser checks do not close those gates.
+
+## 2026-10-03: Games Room replay journal and focus (draft #556)
+
+Refs #418. Completed results are retained before replay, Next garden or a
+finished match seat/strength change, using the existing bounded idempotent
+journal. Play again has a stable control ID; garden resets focus the new board
+status. Shared engine routing and action membership remove duplicate emitted
+code instead of raising byte ceilings. All 71 targeted source regressions and
+the unchanged emitted budget test pass in branch publication. Final-head full
+CI, actual browser focus/persistence and independent review remain required.
+Local browser navigation is blocked by managed browser policy; do not mistake
+source control tests for browser acceptance. HUMAN_TODO.md remains open.
 ## Final completion/count integration for 0.15.1: 3 October 2026
 
 PR #553 landed at 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a after its
