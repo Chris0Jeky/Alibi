@@ -1299,3 +1299,20 @@ dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
 Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
 assertions pass after this change. Full exact-head CI, origin storage/offline,
 independent review and physical/human acceptance remain required.
+
+## 2026-10-03: Afterlight optional picture studies (#563)
+
+Ten newly authored 15 by 15 Picture Logic drawings are supplied as a data-only
+Workshop import, not silently added to the official or startup registry. Exact
+pixel blueprints, board-specific editorial notes, a reproducible clue compiler
+and the actual JSON pack live with 28 source/readiness regressions. Native and
+independent solvers agree on one answer per board; all 2,250 squares are derived
+without reading answers and applied through the production reducer. The old
+510-definition prefix is byte-pinned. No save, dependency or budget changes.
+Two trial drawings were rejected (ambiguity and a stalled line-deduction path).
+See docs/curation/AFTERLIGHT-PICTURES.md for manual import, evidence boundaries
+and continuation. Five Expert and five Tricky labels are provisional, following
+the data-first calibration direction, not human difficulty claims. The new lane
+requires all twenty actual Workshop/control/offline board/viewport scenarios;
+full final-head CI and independent review remain merge gates. Physical Android
+and TalkBack remain unverified in HUMAN_TODO.md.

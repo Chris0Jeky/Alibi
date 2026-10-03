@@ -1,0 +1,80 @@
+name: Afterlight Workshop controls
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'content/workshop/**'
+      - 'content/curation/editorial/afterlight-blueprints.json'
+      - 'tools/curation/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'package*.json'
+      - '.github/workflows/afterlight-controls.yml'
+permissions:
+  contents: read
+concurrency:
+  group: afterlight-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - name: Record source and formatter diagnostics
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          mkdir -p test-results/afterlight-source
+          git rev-parse HEAD > test-results/afterlight-source/source-head.txt
+          node tools/curation/afterlight-pictures.cjs --check
+          node --test tests/afterlight-studies.test.cjs tests/afterlight-readiness.test.cjs
+          sha256sum content/workshop/afterlight-pictures.json > test-results/afterlight-source/pack-sha256.txt
+      - name: Install test dependencies
+        run: |
+          test -s /etc/apt/sources.list.d/ubuntu.sources
+          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install --yes --no-install-recommends ffmpeg >/dev/null
+          fi
+          python -m pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+      - name: Verify source, existing budgets and Android payload
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee test-results/afterlight-source/verify.log
+      - name: Import and play the whole optional collection
+        run: |
+          python -m http.server 8787 --directory dist > test-results/afterlight-source/server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:8787/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_afterlight_studies.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: afterlight-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            test-results/afterlight-source/
+            test-results/afterlight-controls/
+            build-info.json
+          if-no-files-found: error
+          retention-days: 14

@@ -4,7 +4,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
 test('Afterlight supplies ten separately importable authored 15 by 15 pictures', () => {
-  assert.ok(fs.existsSync('content/workshop/afterlight-pictures.json'), 'the actual optional pack must be present');
+  assert.ok(
+    fs.existsSync('content/workshop/afterlight-pictures.json'),
+    'the actual optional pack must be present',
+  );
   const pack = JSON.parse(fs.readFileSync('content/workshop/afterlight-pictures.json'));
   assert.equal(pack.puzzles.length, 10);
   for (const p of pack.puzzles) {
@@ -32,14 +35,20 @@ const digest = (value) => crypto.createHash('sha256').update(JSON.stringify(valu
 const prior = load(process.cwd(), false).puzzles;
 const canonical = (p) => {
   const variants = [];
-  for (let flip = 0; flip < 2; flip++) for (let turns = 0; turns < 4; turns++) {
-    variants.push(p.solution.map((_, cell) => {
-      let row = Math.floor(cell / p.size), col = cell % p.size;
-      if (flip) col = p.size - col - 1;
-      for (let turn = 0; turn < turns; turn++) [row, col] = [p.size - col - 1, row];
-      return p.solution[row * p.size + col];
-    }).join(''));
-  }
+  for (let flip = 0; flip < 2; flip++)
+    for (let turns = 0; turns < 4; turns++) {
+      variants.push(
+        p.solution
+          .map((_, cell) => {
+            let row = Math.floor(cell / p.size),
+              col = cell % p.size;
+            if (flip) col = p.size - col - 1;
+            for (let turn = 0; turn < turns; turn++) [row, col] = [p.size - col - 1, row];
+            return p.solution[row * p.size + col];
+          })
+          .join(''),
+      );
+    }
   return variants.sort()[0];
 };
 
@@ -53,14 +62,25 @@ test('the production importer accepts the whole pack and rejects corrupted answe
 test('the authored blueprints reproduce every shipped byte without rewriting old content', () => {
   const before = JSON.stringify(blueprint);
   assert.deepEqual(B.build(blueprint), pack);
-  assert.equal(B.serialize(pack), fs.readFileSync('content/workshop/afterlight-pictures.json', 'utf8'));
+  assert.equal(
+    B.serialize(pack),
+    fs.readFileSync('content/workshop/afterlight-pictures.json', 'utf8'),
+  );
   assert.equal(JSON.stringify(blueprint), before);
-  assert.equal(digest(prior.slice(0, 510)), 'a08a479cccc1f8126bc1e0361355a8389ef63ccabe3577a38513a9b1a40900ef');
-  assert.ok(!require('../content/official-packs.json').packs.includes('workshop/afterlight-pictures.json'));
+  assert.equal(
+    digest(prior.slice(0, 510)),
+    'a08a479cccc1f8126bc1e0361355a8389ef63ccabe3577a38513a9b1a40900ef',
+  );
+  assert.ok(
+    !require('../content/official-packs.json').packs.includes('workshop/afterlight-pictures.json'),
+  );
   assert.equal(new Set(pack.puzzles.map((p) => p.id)).size, 10);
   assert.equal(new Set(pack.puzzles.map((p) => p.title)).size, 10);
   for (const p of pack.puzzles) {
-    assert.equal(prior.some((old) => old.id === p.id), false);
+    assert.equal(
+      prior.some((old) => old.id === p.id),
+      false,
+    );
     assert.equal(Object.hasOwn(p, 'minutes'), false);
     assert.ok(['Tricky', 'Expert'].includes(p.difficulty));
   }
@@ -69,11 +89,21 @@ test('the authored blueprints reproduce every shipped byte without rewriting old
 test('malformed pixels, incomplete rows and repeated IDs are refused before compilation', () => {
   for (const mutation of [
     (b) => b.studies[0].rows.pop(),
-    (b) => { b.studies[0].rows[0] = '.'.repeat(14); },
-    (b) => { b.studies[0].rows[0] = 'x'.repeat(15); },
-    (b) => { delete b.studies[0].rows[1]; },
-    (b) => { b.studies[1].id = b.studies[0].id; },
-    (b) => { b.schemaVersion = 2; },
+    (b) => {
+      b.studies[0].rows[0] = '.'.repeat(14);
+    },
+    (b) => {
+      b.studies[0].rows[0] = 'x'.repeat(15);
+    },
+    (b) => {
+      delete b.studies[0].rows[1];
+    },
+    (b) => {
+      b.studies[1].id = b.studies[0].id;
+    },
+    (b) => {
+      b.schemaVersion = 2;
+    },
   ]) {
     const candidate = structuredClone(blueprint);
     mutation(candidate);
@@ -99,10 +129,12 @@ for (const puzzle of pack.puzzles) {
   });
 
   test(`${puzzle.id}: all 225 squares follow sound answer-independent production deductions`, () => {
-    const publicPuzzle = new Proxy(puzzle, { get(target, key) {
-      if (key === 'solution') throw Error('A deduction must not read the answer');
-      return target[key];
-    } });
+    const publicPuzzle = new Proxy(puzzle, {
+      get(target, key) {
+        if (key === 'solution') throw Error('A deduction must not read the answer');
+        return target[key];
+      },
+    });
     let state = C.registry.nonogram.initial(publicPuzzle);
     for (let step = 0; step < 225; step++) {
       const before = JSON.stringify(state);
@@ -112,7 +144,11 @@ for (const puzzle of pack.puzzles) {
       const cell = hint.cells[0];
       assert.equal(state.cells[cell], -1, 'each step resolves an unknown square');
       assert.equal(hint.value, puzzle.solution[cell]);
-      state = C.registry.nonogram.reduce(publicPuzzle, state, { type: 'set', cell, value: hint.value });
+      state = C.registry.nonogram.reduce(publicPuzzle, state, {
+        type: 'set',
+        cell,
+        value: hint.value,
+      });
       assert.notEqual(JSON.stringify(state), before, 'the production move must change state');
     }
     assert.equal(C.registry.nonogram.complete(publicPuzzle, state), true);
@@ -126,7 +162,9 @@ test('no picture is a rotation or reflection of the official or optional collect
     const source = JSON.parse(fs.readFileSync('content/workshop/' + filename));
     collections.push(...(source.puzzles || []));
   }
-  const seen = new Set(collections.filter((p) => p.type === 'nonogram' && p.size === 15).map(canonical));
+  const seen = new Set(
+    collections.filter((p) => p.type === 'nonogram' && p.size === 15).map(canonical),
+  );
   for (const p of pack.puzzles) {
     const key = canonical(p);
     assert.equal(seen.has(key), false, p.id);
