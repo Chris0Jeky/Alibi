@@ -1,5 +1,35 @@
 # Live development state
 
+## 4 October return-link correction, after the identity handoff
+
+#459 now also carries the bounded House navigation repair tracked in #573.
+An old home render finishing after a play/salon hash change no longer erases the
+captured return destination. Abandoned routes and missing-puzzle fallbacks still
+clear it; normal return restores the exact finder location and keyboard opener.
+No new observer, router or save owner is introduced.
+
+Eight new source cases reproduced three failures/five passes before correction;
+all eight plus 32 existing House/focus cases pass after it. Four source-mode
+browser cases at390/1440px fail on the original controller and pass on the fix,
+retaining board state, undo history and move count. The phone screenshot was
+inspected. These source/session-only results are not actual-origin acceptance.
+A local origin probe is policy-blocked; the exact-head workflow must supply its
+four actual-origin cases separately, alongside existing whole-repository gates.
+
+The fetched full-workflow log for37165729669 referenced a nonexistent helper and
+source lines/workflow jobs inconsistent with the checked-in files. That payload
+is not source-consistent proof and must not motivate edits to nonexistent code.
+Fresh verification retains exact head/tree, tested-file hashes and a source
+archive. See [return-link and evidence recovery](qa/2026-10-04-house-return-recovery.md).
+The House defect is independently reproduced; it is not claimed to explain every
+reported Vault, Planning or full-workflow failure.
+
+#459 and #572 remain unmerged. #572 at05cb2c2 inherits the older55180ff7 parent;
+it must incorporate this correction without reverting the handoff before final
+qualification. The dated identity report now explicitly labels its historical
+checkpoint and acknowledges merged #570 and incorporated #571. The earlier state
+below is retained as a checkpoint, not a current-head acceptance receipt.
+
 ## 4 October continuation
 
 Read [AGENTS.md](../AGENTS.md), [Project map](PROJECT-MAP.md),
