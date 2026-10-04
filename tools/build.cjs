@@ -6,6 +6,7 @@ const fs = require('node:fs'),
   zlib = require('node:zlib');
 const {
   browserBundle,
+  contentManifestRevision,
   sourceIdentity,
   payloadDigest,
   writeIdentity,
@@ -121,8 +122,10 @@ function zip(entries, out) {
 }
 function build() {
   const source = sourceIdentity(ROOT);
+  const workshopShelf = require('./build-workshop-shelf.cjs').buildShelf(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
+  for (const file of workshopShelf.files) write(path.join(DIST, file.path), file.data);
   const platformSource = browserBundle(
     ROOT,
     process.env.ALIBI_PLATFORM_ENTRY || 'src/platform/browser-entry.mjs',
@@ -306,7 +309,7 @@ function build() {
     read(path.join(SRC, 'house-loader.js')),
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
-    read(path.join(SRC, 'app.js')),
+    require('./workshop-entry.cjs').composePackDesk(read(path.join(SRC, 'app.js'))),
     read(path.join(SRC, 'pulseboard-host.js')),
     read(path.join(SRC, 'voices.js')),
   ].join('\n');
@@ -349,7 +352,8 @@ function build() {
         JSON.stringify(curation.media) +
         JSON.stringify(delivery.entries) +
         JSON.stringify(theatre) +
-        JSON.stringify(house.config),
+        JSON.stringify(house.config) +
+        workshopShelf.files.map((file) => hash(file.data)).join(''),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
@@ -366,7 +370,7 @@ function build() {
     ...source,
     payloadSha256: payloadDigest(DIST),
     appVersion: VERSION,
-    contentManifestRevision: sha256(contentSource),
+    contentManifestRevision: contentManifestRevision(contentSource, deferredSource),
     rulesCompatibility: {},
   };
   const platformIdentity = writeIdentity(DIST, platformBuild);
@@ -518,6 +522,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     enhancementBytes: delivery.bytes,
     ambienceBytes: ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     experienceOfflineBytes: experience.manifest.bytes,
+    workshopCollectionBytes: workshopShelf.bytes,
     coreOfflineBytes:
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
@@ -528,7 +533,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       Buffer.byteLength(observatory) -
       Buffer.byteLength(discoveryStorage) -
       blockMotion.bytes -
-      house.bytes,
+      house.bytes -
+      workshopShelf.bytes,
     houseBytes: house.bytes,
     houseScriptGzipBytes: house.scriptGzipBytes,
     houseCssGzipBytes: house.cssGzipBytes,

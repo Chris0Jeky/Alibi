@@ -112,6 +112,7 @@ function setup(failInstall = false) {
           .readdirSync(path.join(ROOT, 'dist/assets'))
           .filter(
             (n) =>
+              n !== 'workshop' &&
               !n.startsWith('folio-') &&
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
@@ -127,10 +128,19 @@ function setup(failInstall = false) {
           ).length,
     'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
   );
+  const optional = setup();
+  await optional.lifecycle('install');
+  for (const file of require('../tools/build-workshop-shelf.cjs').buildShelf(ROOT).files) {
+    const response = await optional.request('/' + file.path, {
+      mode: file.path.endsWith('.html') ? 'navigate' : 'cors',
+    });
+    check(response?.network, 'Optional collection is not precached: ' + file.path);
+  }
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
       (n) =>
+        n !== 'workshop' &&
         !n.startsWith('folio-') &&
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&

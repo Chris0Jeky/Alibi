@@ -9,6 +9,19 @@ const IDENTITY_ASSET = /^assets\/alibi-platform-identity\.[0-9a-f]{12}\.js$/;
 const IDENTITY_PREFIX = 'globalThis.ALIBI_PLATFORM_BUILD=';
 const sha256 = (value) => crypto.createHash('sha256').update(value).digest('hex');
 
+/** Full initial/deferred bytes, with versioned roles and unambiguous framing. */
+function contentManifestRevision(initialSource, deferredSource) {
+  if (typeof initialSource !== 'string' || typeof deferredSource !== 'string')
+    throw new TypeError('Official content identity requires source strings.');
+  return sha256(
+    JSON.stringify([
+      'alibi-official-content-1',
+      ['initial', initialSource],
+      ['deferred', deferredSource],
+    ]),
+  );
+}
+
 function browserBundle(root, entry = 'src/platform/browser-entry.mjs') {
   return require('esbuild').buildSync({
     entryPoints: [path.join(root, entry)],
@@ -161,6 +174,7 @@ function writeIdentity(directory, identity, { replace = false } = {}) {
 
 module.exports = {
   browserBundle,
+  contentManifestRevision,
   dirtyPaths,
   IDENTITY_ASSET,
   identityAssets,
