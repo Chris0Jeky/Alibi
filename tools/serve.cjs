@@ -59,9 +59,7 @@ function createHandler(rootDir, fsLib = fs) {
   }
   if (!cachedCsp && !warnedMissingPolicy) {
     warnedMissingPolicy = true;
-    console.error(
-      'Alibi: dist/_headers is missing a Content-Security-Policy; serving without CSP',
-    );
+    console.error('Alibi: dist/_headers is missing a Content-Security-Policy; serving without CSP');
   }
   return (req, res) => {
     let name;
