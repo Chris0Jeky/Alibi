@@ -284,16 +284,15 @@
         const n = p.size;
         if (a.type === 'mark') {
           if (!Array.isArray(s?.marks) || s.marks.length !== 2 * n * n) return s;
-        }
-        const t = clone(s);
-        if (
-          a.type === 'mark' &&
-          Number.isInteger(a.cell) &&
-          a.cell >= 0 &&
-          a.cell < 2 * n * n &&
-          a.cell < t.marks.length &&
-          [-1, 0, 1].includes(a.value)
-        ) {
+          if (
+            !Number.isInteger(a.cell) ||
+            a.cell < 0 ||
+            a.cell >= 2 * n * n ||
+            a.cell >= s.marks.length ||
+            ![-1, 0, 1].includes(a.value)
+          )
+            return s;
+          const t = clone(s);
           t.accused = null;
           t.marks[a.cell] = a.value;
           if (a.value === 1 && a.auto !== false) {
@@ -306,19 +305,24 @@
               if (k !== r) t.marks[cat * n * n + k * n + c] = 0;
             }
           }
+          return t;
         }
-        if (
-          a.type === 'clue' &&
-          Number.isInteger(a.index) &&
-          a.index >= 0 &&
-          a.index < p.clues.length
-        )
+        if (a.type === 'clue') {
+          const clueCount = Array.isArray(p.clues) ? p.clues.length : 0;
+          if (!Number.isInteger(a.index) || a.index < 0 || a.index >= clueCount) return s;
+          const t = clone(s);
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
-        if (a.type === 'accuse' && Number.isInteger(a.who) && a.who >= 0 && a.who < n)
+          return t;
+        }
+        if (a.type === 'accuse') {
+          if (!Number.isInteger(a.who) || a.who < 0 || a.who >= n) return s;
+          const t = clone(s);
           t.accused = a.who;
-        return t;
+          return t;
+        }
+        return s;
       },
       validate: (p, s) => {
         const out = [],

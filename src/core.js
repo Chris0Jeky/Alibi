@@ -361,6 +361,8 @@
       if (!Object.values(t.placements).includes(a.cell)) return s;
       t.accused = null;
       for (const [id, c] of Object.entries(t.placements)) if (c === a.cell) delete t.placements[id];
+    } else {
+      return s;
     }
     return t;
   }
