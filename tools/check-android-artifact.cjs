@@ -4,7 +4,12 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
-const { payloadDigest, readIdentity, identitySource } = require('./platform-identity.cjs');
+const {
+  contentManifestRevision,
+  payloadDigest,
+  readIdentity,
+  identitySource,
+} = require('./platform-identity.cjs');
 const {
   ANDROID_DIST,
   HOST_ONLY,
@@ -92,18 +97,26 @@ function expectedCosts(entries) {
   };
 }
 
-function currentContentManifestRevision(root, errors) {
-  const directory = path.join(root, 'dist', 'assets');
-  const candidates = files(directory).filter((filename) =>
-    /^official-content\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
-  );
-  if (candidates.length !== 1) {
-    errors.push(
-      `Current web build needs exactly one official-content asset; found ${candidates.length}.`,
+function contentRevisions(directory, errors, label) {
+  const paths = [];
+  const sources = ['official-content', 'official-deferred'].map((role) => {
+    const candidates = files(path.join(directory, 'assets')).filter((filename) =>
+      new RegExp(`^${role}\\.[0-9a-f]{12}\\.js$`).test(path.basename(filename)),
     );
-    return '';
-  }
-  return sha256(fs.readFileSync(candidates[0]));
+    if (candidates.length !== 1) {
+      errors.push(`${label} needs exactly one ${role} asset; found ${candidates.length}.`);
+      return null;
+    }
+    paths.push(relative(directory, candidates[0]));
+    return fs.readFileSync(candidates[0]);
+  });
+  if (sources.some((source) => source === null)) return { receipt: '', runtime: '', paths };
+  const [initial, deferred] = sources;
+  return {
+    receipt: sha256(initial),
+    runtime: contentManifestRevision(initial.toString('utf8'), deferred.toString('utf8')),
+    paths,
+  };
 }
 
 function inspectAndroidArtifact({
@@ -142,11 +155,17 @@ function inspectAndroidArtifact({
   const packageJson = readJson(path.join(root, 'package.json'), errors);
   const webInfo = readJson(path.join(root, 'build-info.json'), errors);
   const expectedSourceSha = sourceSha(root);
-  const expectedContentManifestRevision = currentContentManifestRevision(root, errors);
+  const expectedContent = contentRevisions(path.join(root, 'dist'), errors, 'Current web build');
+  const actualContent = contentRevisions(directory, errors, 'Android payload');
+  need(
+    actualContent.runtime === expectedContent.runtime &&
+      JSON.stringify(actualContent.paths) === JSON.stringify(expectedContent.paths),
+    'Android official content differs from the current web build.',
+  );
   need(identity.appVersion === packageJson.version, 'Android and package versions differ.');
   need(identity.sourceSha === expectedSourceSha, 'Android source SHA is stale.');
   need(
-    identity.contentManifestRevision === expectedContentManifestRevision,
+    identity.contentManifestRevision === expectedContent.receipt,
     'Android content manifest revision is stale.',
   );
   need(
@@ -239,7 +258,7 @@ function inspectAndroidArtifact({
       sourceDirty: false,
       payloadSha256: identity.payloadSha256,
       appVersion: packageJson.version,
-      contentManifestRevision: expectedContentManifestRevision,
+      contentManifestRevision: expectedContent.runtime,
       rulesCompatibility: {},
       flavor: identity.flavor,
     };
