@@ -2,15 +2,20 @@
 const http = require('node:http'),
   fs = require('node:fs'),
   path = require('node:path');
-function readSecurityPolicy(root) {
+function readSecurityPolicy(root, fsLib = fs) {
   let headers;
   try {
-    headers = fs.readFileSync(path.join(root, '_headers'), 'utf8');
+    headers = fsLib.readFileSync(path.join(root, '_headers'), 'utf8');
   } catch {
     return null;
   }
-  const match = headers.match(/Content-Security-Policy: (.+)/);
-  return match ? match[1].trim() : null;
+  try {
+    if (typeof headers !== 'string') return null;
+    const match = headers.match(/Content-Security-Policy: (.+)/);
+    return match ? match[1].trim() : null;
+  } catch {
+    return null;
+  }
 }
 let warnedMissingPolicy = false;
 const root = path.resolve(__dirname, '../dist'),
@@ -44,6 +49,18 @@ function pipeFile(res, fsLib, file, options) {
   stream.pipe(res);
 }
 function createHandler(rootDir, fsLib = fs) {
+  // Load and validate _headers once at startup. A missing or CSP-less file
+  // is a controlled fallback (serve without CSP), never an uncaught throw.
+  let cachedCsp = null;
+  try {
+    cachedCsp = readSecurityPolicy(rootDir, fsLib);
+  } catch {
+    cachedCsp = null;
+  }
+  if (!cachedCsp && !warnedMissingPolicy) {
+    warnedMissingPolicy = true;
+    console.error('Alibi: dist/_headers is missing a Content-Security-Policy; serving without CSP');
+  }
   return (req, res) => {
     let name;
     try {
@@ -78,14 +95,8 @@ function createHandler(rootDir, fsLib = fs) {
       res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Cache-Control', 'no-cache');
-      const csp = readSecurityPolicy(rootDir);
-      if (csp) {
-        res.setHeader('Content-Security-Policy', csp);
-      } else if (!warnedMissingPolicy) {
-        warnedMissingPolicy = true;
-        console.error(
-          'Alibi: dist/_headers is missing a Content-Security-Policy; serving without CSP',
-        );
+      if (cachedCsp) {
+        res.setHeader('Content-Security-Policy', cachedCsp);
       }
       if (!['GET', 'HEAD'].includes(req.method)) {
         res.writeHead(405).end();
