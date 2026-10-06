@@ -91,7 +91,8 @@ for (const puzzle of [scene, dossier]) {
     const s = C.registry[puzzle.type].initial(puzzle);
     s.accused = puzzle.type === 'scene' ? 'a' : 0;
     s.clueMarks = [0];
-    for (const action of [{ type: 'unknown' }, { type: 'constructor' }, {}]) unchanged(puzzle, s, action);
+    for (const action of [{ type: 'unknown' }, { type: 'constructor' }, {}])
+      unchanged(puzzle, s, action);
   });
 }
 
