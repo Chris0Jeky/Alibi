@@ -287,7 +287,6 @@
           if (
             !Number.isInteger(a.cell) ||
             a.cell < 0 ||
-            a.cell >= 2 * n * n ||
             a.cell >= s.marks.length ||
             ![-1, 0, 1].includes(a.value)
           )
@@ -1114,7 +1113,7 @@
       }
     }
     if (p.type === 'trail') {
-      const i = p.solution.findIndex((v, i) => s.cells[i] !== v);
+      const i = p.solution.findIndex((v, i) => v !== s.cells[i]);
       if (i >= 0) {
         action = { type: 'set', cell: i, value: p.solution[i] };
         message = `Look between the nearest fixed numbers around ${p.solution[i]}. The remaining number of steps limits the route.`;
