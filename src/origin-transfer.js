@@ -1,5 +1,5 @@
 /* Device-local origin transfer. Checksum, version and shape are pure.
-   Apply keeps a recovery copy and rolls every included store back together.
+   Apply retains recovery and rolls back only domains whose writes were attempted.
    Separate IndexedDB databases are not one transaction. No network. */
 (function (G) {
   'use strict';
@@ -143,18 +143,24 @@
   }
   async function applyOriginTransfer(validated, ports, options = {}) {
     if (options?.confirmed !== true) fail('Import needs explicit confirmation.');
-    const before = {};
+    const before = {},
+      attempted = [];
     let retained = false;
     try {
       for (const name of SECTIONS) before[name] = await ports.read(name);
       await ports.retain(before);
       retained = true;
-      for (const name of SECTIONS) await ports.write(name, validated.payload[name]);
+      for (const name of SECTIONS) {
+        // A rejected write may already have changed its domain. Record it first,
+        // but never roll an untouched later domain back to an older snapshot.
+        attempted.push(name);
+        await ports.write(name, validated.payload[name]);
+      }
     } catch (error) {
       if (!retained) fail(String(error?.message || 'Import could not read the current saves.'));
       try {
-        for (const name of SECTIONS) await ports.write(name, before[name]);
-        for (const name of SECTIONS)
+        for (const name of attempted) await ports.write(name, before[name]);
+        for (const name of attempted)
           if (!sameAfterRollback(name, await ports.read(name), before[name]))
             throw Error('Rollback did not match the recovery copy.');
       } catch (rollbackError) {

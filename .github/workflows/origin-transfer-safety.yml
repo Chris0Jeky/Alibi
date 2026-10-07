@@ -1,0 +1,58 @@
+name: Origin transfer safety
+on:
+  pull_request:
+    paths:
+      - 'src/origin-transfer.js'
+      - 'tests/origin-transfer*.test.cjs'
+      - '.github/workflows/origin-transfer-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  origin-transfer-safety:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Preserve exact source identity
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          mkdir -p test-results/origin-transfer-safety
+          printf '{"sourceSha":"%s","treeSha":"%s"}\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" > test-results/origin-transfer-safety/source-head.json
+          sha256sum src/origin-transfer.js tests/origin-transfer*.test.cjs | tee test-results/origin-transfer-safety/inputs.sha256
+      - name: Exercise all transfer coordinator contracts
+        run: |
+          set -o pipefail
+          node --test tests/origin-transfer*.test.cjs 2>&1 | tee test-results/origin-transfer-safety/source-tests.log
+      - run: npm ci
+        id: dependencies
+        if: ${{ !cancelled() }}
+      - name: Require pinned formatting, complete build and unchanged budgets
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee test-results/origin-transfer-safety/full-verify.log
+      - name: Verify source was not rewritten during qualification
+        if: ${{ !cancelled() }}
+        run: |
+          sha256sum --check test-results/origin-transfer-safety/inputs.sha256
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: origin-transfer-safety-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            test-results/origin-transfer-safety/
+            build-info.json
+          if-no-files-found: error
+          retention-days: 14
