@@ -369,7 +369,7 @@ function build() {
     ...source,
     payloadSha256: payloadDigest(DIST),
     appVersion: VERSION,
-    contentManifestRevision: sha256(contentSource),
+    contentManifestRevision: contentManifestRevision(contentSource, deferredSource),
     rulesCompatibility: {},
   };
   const platformIdentity = writeIdentity(DIST, platformBuild);
@@ -569,6 +569,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   write(path.join(ROOT, 'build-info.json'), JSON.stringify(info, null, 2));
   console.log(JSON.stringify(info, null, 2));
 }
+// Startup content names the deferred chunk, but a 12-character filename hash is not the
+// definition identity. Bind both payloads so two different Vault bodies cannot share it.
+function contentManifestRevision(contentSource, deferredSource) {
+  return sha256(`${contentSource}\0${deferredSource}`);
+}
 if (require.main === module) build();
 module.exports = {
   build,
@@ -577,4 +582,5 @@ module.exports = {
   PATH_ROUTE_ALIASES,
   pathRouteAliasDocument,
   writePathRouteAliases,
+  contentManifestRevision,
 };
