@@ -664,46 +664,43 @@ test('a second abort throws InvalidStateError', async () => {
   await aborted;
 });
 
-test(
-  'explicit abort delivers pending AbortError callbacks before the transaction abort event',
-  async () => {
-    const { disk, db } = await scopedFixture();
-    const order = [];
-    const writer = db.transaction('club', 'readwrite');
-    writer.objectStore('club').put('held', 'state');
-    const blocked = db.transaction('club', 'readonly');
-    const waiting = blocked.objectStore('club').get('state');
-    waiting.onsuccess = () => order.push('blocked-success');
-    waiting.onerror = () => {
-      order.push('blocked-error:' + waiting.error?.name + ':' + String(waiting.result));
-    };
-    blocked.onerror = () => order.push('blocked-tx-error');
-    blocked.oncomplete = () => order.push('blocked-complete');
-    blocked.onabort = () => order.push('blocked-abort');
-    const active = db.transaction('meta', 'readwrite');
-    const inflight = active.objectStore('meta').get('marker');
-    inflight.onsuccess = () => order.push('inflight-success');
-    inflight.onerror = () => {
-      order.push('inflight-error:' + inflight.error?.name + ':' + String(inflight.result));
-    };
-    active.onerror = () => order.push('active-tx-error');
-    active.oncomplete = () => order.push('active-complete');
-    active.onabort = () => order.push('active-abort');
-    active.abort();
-    blocked.abort();
-    await new Promise((resolve) => setTimeout(resolve, 40));
-    assert.deepEqual(order, [
-      'inflight-error:AbortError:undefined',
-      'active-tx-error',
-      'active-abort',
-      'blocked-error:AbortError:undefined',
-      'blocked-tx-error',
-      'blocked-abort',
-    ]);
-    assert.equal(disk.get('state'), 'held');
-    assert.equal(disk.has('marker'), false);
-  },
-);
+test('explicit abort delivers pending AbortError callbacks before the transaction abort event', async () => {
+  const { disk, db } = await scopedFixture();
+  const order = [];
+  const writer = db.transaction('club', 'readwrite');
+  writer.objectStore('club').put('held', 'state');
+  const blocked = db.transaction('club', 'readonly');
+  const waiting = blocked.objectStore('club').get('state');
+  waiting.onsuccess = () => order.push('blocked-success');
+  waiting.onerror = () => {
+    order.push('blocked-error:' + waiting.error?.name + ':' + String(waiting.result));
+  };
+  blocked.onerror = () => order.push('blocked-tx-error');
+  blocked.oncomplete = () => order.push('blocked-complete');
+  blocked.onabort = () => order.push('blocked-abort');
+  const active = db.transaction('meta', 'readwrite');
+  const inflight = active.objectStore('meta').get('marker');
+  inflight.onsuccess = () => order.push('inflight-success');
+  inflight.onerror = () => {
+    order.push('inflight-error:' + inflight.error?.name + ':' + String(inflight.result));
+  };
+  active.onerror = () => order.push('active-tx-error');
+  active.oncomplete = () => order.push('active-complete');
+  active.onabort = () => order.push('active-abort');
+  active.abort();
+  blocked.abort();
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  assert.deepEqual(order, [
+    'inflight-error:AbortError:undefined',
+    'active-tx-error',
+    'active-abort',
+    'blocked-error:AbortError:undefined',
+    'blocked-tx-error',
+    'blocked-abort',
+  ]);
+  assert.equal(disk.get('state'), 'held');
+  assert.equal(disk.has('marker'), false);
+});
 
 test('preventDefault preserves error bubbling while stopPropagation suppresses it', async () => {
   const { db } = await scopedFixture();
