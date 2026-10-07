@@ -1,5 +1,26 @@
 # Live development state
 
+## 2026-10-07: older backlog wave
+
+Eight Grok 4.7 high worker tasks and two GPT 6.1 Sol medium coordinators produced
+fix PRs #587 (mobile QA readiness/diagnostics), #588 (Desk heading scale),
+#589 (restore fixture abort errors), #590 (accessible touch keyboard help), and #591 (practice counts and complete content identity).
+The #389 Android identity mismatch found in review was red-proved and corrected;
+the final Android build, artifact check and budget pass. Muse refused both lane starts
+because the registry assigns this repository to another host; no swarm ran.
+
+PR #588 merged as ea47351a after seven exact-head CI passes and independent review. Other fixes retain their pending or parked gates.
+
+Focused Node and Chromium proof is recorded in
+[WAVE.md](qa/2026-10-07-backlog/WAVE.md). Local full UI failures remain recorded; #590 also exceeds
+the unchanged CSS gzip ceiling by five bytes and has an unwired browser helper.
+Its four CI failures were investigated; both defects remain explicit park conditions.
+CI/review, combined budget and
+merge gates remain explicit. #347's implementation is present with specific
+coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
+decisions. No deployment or physical-device approval was inferred.
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+
 ## 2026-10-03: narrow Cascade actions (#562, follows #556)
 
 Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text
@@ -9,6 +30,7 @@ and the selectable tray. Classic and wider layouts retain their current rules.
 The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
 close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
 CI and independent review remain gates; physical Android/TalkBack is unverified.
+
 ## 2026-10-03: challenge restore admission review correction (#560)
 
 Independent review found that an initial read could expose the old board while
@@ -32,6 +54,7 @@ Twelve actual-host source regressions reproduced ten failures before the fix;
 all twelve and the sixty-test challenge suite pass after it. Full exact-head
 CI, browser route races and independent review remain required before merge.
 No physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.
+
 ## 0.15.1 published closeout: 3 October 2026
 
 Reviewed [#559](https://github.com/Chris0Jeky/Alibi/pull/559) merged at
@@ -84,6 +107,7 @@ the unchanged emitted budget test pass in branch publication. Final-head full
 CI, actual browser focus/persistence and independent review remain required.
 Local browser navigation is blocked by managed browser policy; do not mistake
 source control tests for browser acceptance. HUMAN_TODO.md remains open.
+
 ## Final completion/count integration for 0.15.1: 3 October 2026
 
 PR #553 landed at 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a after its
@@ -1414,12 +1438,12 @@ full CI, twenty real-origin cases and re-review are still merge gates.
 
 ### Afterlight fixed pack identity
 
-The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through
-10. Two new regressions fail the prior compiler and prove that a syntactically
+The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through 10. Two new regressions fail the prior compiler and prove that a syntactically
 valid replacement identity cannot overwrite the existing JSON through --write.
 The authored pack bytes remain unchanged. This branch integrates landed #560;
 current-head full CI, all twenty browser cases and independent re-review remain
 required. No deployment or physical-device acceptance is claimed.
+
 ### Cascade current-main integration
 
 The narrow-Cascade CSS and actual-control fixture remain byte-identical to
