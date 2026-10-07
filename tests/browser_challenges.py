@@ -35,7 +35,7 @@ def store_diagnostics(page):
         storeInfo = {mode: 'diagnostic-error', protected: null, revision: null, error: String((error && error.message) || error)};
       }
       const probe = await new Promise((resolve) => {
-        let settled = false;
+        let settled = false, timer = null;
         const begin = performance.now();
         const finish = (outcome, name, message) => {
           if (settled) return;
@@ -50,12 +50,12 @@ def store_diagnostics(page):
           finish('error', error && error.name, String((error && error.message) || error));
           return;
         }
-        const timer = setTimeout(() => finish('timeout', 'TimeoutError', 'indexedDB.open timed out after 2200 ms'), 2200);
+        timer = setTimeout(() => finish('timeout', 'TimeoutError', 'indexedDB.open timed out after 2200 ms'), 2200);
         request.onsuccess = () => { try { request.result.close(); } catch {} finish('success', null, null); };
         request.onerror = () => { const err = request.error; finish('error', err && err.name, String((err && err.message) || err)); };
         request.onblocked = () => finish('blocked', 'BlockedError', 'indexedDB.open is blocked by another connection');
       });
-      return {mode: storeInfo.mode, protected: storeInfo.protected, revision: storeInfo.revision, outcome: probe.outcome, name: probe.name, message: probe.message, elapsedMs: probe.elapsedMs, totalMs: Math.round(performance.now() - start)};
+      return {mode: storeInfo.mode, protected: storeInfo.protected, revision: storeInfo.revision, storeError: storeInfo.error || null, outcome: probe.outcome, name: probe.name, message: probe.message, elapsedMs: probe.elapsedMs, totalMs: Math.round(performance.now() - start)};
     }''')
 
 def run_storage_check(page, script):
