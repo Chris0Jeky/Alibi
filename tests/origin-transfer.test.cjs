@@ -219,6 +219,126 @@ test('apply does not run until confirmation and leaves the current saves', async
   assert.equal(ports.recovery(), null);
 });
 
+function cabinetBackupPorts(initial, options = {}) {
+  const data = structuredClone(initial);
+  let recovery = null;
+  let writes = 0;
+  let failed = false;
+  let clock = 0;
+  return {
+    writeCount: () => writes,
+    recovery: () => recovery,
+    async read(name) {
+      if (name !== 'cabinet') return structuredClone(data[name]);
+      const viewed = structuredClone(data.cabinet);
+      clock += 1;
+      viewed.exportedAt = new Date(Date.UTC(2026, 0, 1, 0, 0, clock)).toISOString();
+      const stamp = (run) => {
+        run.elapsed = 1000 + clock;
+      };
+      if (options.everyRun) viewed.runs.forEach(stamp);
+      else {
+        const current = viewed.runs.find((run) => run.key === options.currentKey);
+        if (current) stamp(current);
+      }
+      if (options.noteOnRead && clock > 1) viewed.runs[0].note = options.noteOnRead;
+      return viewed;
+    },
+    async write(name, value) {
+      writes += 1;
+      if (options.failOnWrite === writes && !failed) {
+        failed = true;
+        throw Error('disk failed');
+      }
+      assert.ok(recovery, 'a recovery copy exists before any write');
+      if (name === 'cabinet') {
+        const stored = structuredClone(value);
+        delete stored.exportedAt;
+        data.cabinet = stored;
+        return;
+      }
+      data[name] = structuredClone(value);
+    },
+    async retain(snapshot) {
+      assert.equal(writes, 0);
+      recovery = structuredClone(snapshot);
+    },
+    async release() {
+      recovery = null;
+    },
+    stored() {
+      return structuredClone(data);
+    },
+  };
+}
+
+function withoutLiveCabinet(section) {
+  const copy = structuredClone(section);
+  delete copy.exportedAt;
+  for (const run of copy.runs) delete run.elapsed;
+  return copy;
+}
+
+test('a fresh cabinet export time does not undo a rollback that restored every section', async () => {
+  const validated = await transfer.validateOriginTransfer(await fileFor(sample()));
+  const initial = other();
+  initial.cabinet.runs[0].elapsed = 5;
+  const currentKey = initial.cabinet.runs[0].key;
+  const ports = cabinetBackupPorts(initial, { failOnWrite: 2, currentKey });
+  const before = ports.stored();
+  await assert.rejects(
+    transfer.applyOriginTransfer(validated, ports, { confirmed: true }),
+    (error) => {
+      assert.match(error.message, /Existing saves were not changed/);
+      assert.doesNotMatch(error.message, /Rollback did not match/);
+      return true;
+    },
+  );
+  const after = ports.stored();
+  assert.deepEqual(withoutLiveCabinet(after.cabinet), withoutLiveCabinet(before.cabinet));
+  assert.equal(after.cabinet.exportedAt, undefined);
+  assert.equal(after.cabinet.runs[0].elapsed, ports.recovery().cabinet.runs[0].elapsed);
+  assert.deepEqual(after.club, before.club);
+  assert.deepEqual(after.quiet, before.quiet);
+  assert.deepEqual(after.castle, before.castle);
+  assert.deepEqual(after.challenges, before.challenges);
+  assert.ok(ports.recovery());
+});
+
+test('elapsed drift on two puzzles still keeps the recovery copy', async () => {
+  const validated = await transfer.validateOriginTransfer(await fileFor(sample()));
+  const initial = other();
+  initial.cabinet.runs[0].elapsed = 5;
+  initial.cabinet.runs.push({ key: 'other@2', rev: 1, elapsed: 3 });
+  const ports = cabinetBackupPorts(initial, { failOnWrite: 2, everyRun: true });
+  await assert.rejects(
+    transfer.applyOriginTransfer(validated, ports, { confirmed: true }),
+    /Rollback did not match the recovery copy/,
+  );
+  const after = ports.stored();
+  assert.equal(after.cabinet.runs[0].elapsed, ports.recovery().cabinet.runs[0].elapsed);
+  assert.equal(after.cabinet.runs[1].elapsed, ports.recovery().cabinet.runs[1].elapsed);
+  assert.deepEqual(after.club, initial.club);
+  assert.deepEqual(after.quiet, initial.quiet);
+  assert.deepEqual(after.castle, initial.castle);
+  assert.deepEqual(after.challenges, initial.challenges);
+  assert.ok(ports.recovery());
+});
+
+test('a changed puzzle note still reports that rollback did not match', async () => {
+  const validated = await transfer.validateOriginTransfer(await fileFor(sample()));
+  const initial = other();
+  initial.cabinet.runs[0].note = 'kept';
+  const ports = cabinetBackupPorts(initial, { failOnWrite: 2, noteOnRead: 'tampered' });
+  await assert.rejects(
+    transfer.applyOriginTransfer(validated, ports, { confirmed: true }),
+    /Rollback did not match the recovery copy/,
+  );
+  assert.equal(ports.stored().cabinet.runs[0].note, 'kept');
+  assert.notEqual(ports.stored().cabinet.runs[0].note, 'tampered');
+  assert.ok(ports.recovery());
+});
+
 test('a failure after the first store write restores every included store from the recovery copy', async () => {
   const validated = await transfer.validateOriginTransfer(await fileFor(sample()));
   const ports = memoryPorts(other(), { failOnWrite: 2 });

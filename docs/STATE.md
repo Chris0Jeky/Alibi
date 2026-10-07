@@ -8,7 +8,8 @@ challenge saves. Its checksum is SHA-256 of the payload string. Import checks
 the version, checksum and shape, shows what will be replaced, and writes only
 after explicit confirmation. The five databases are not one transaction: the
 current saves stay in `alibi-origin-recovery` until every write succeeds, and a
-failed import rolls them back. Legacy `alibi-backup` and `alibi-all-saves` files
+failed import rolls them back. That check ignores a fresh cabinet export time
+and the open puzzle's elapsed. Legacy `alibi-backup` and `alibi-all-saves` files
 are unchanged. There is still no account and no upload. Physical TalkBack and a
 phone move stay in HUMAN_TODO.md.
 

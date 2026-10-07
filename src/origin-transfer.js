@@ -116,6 +116,31 @@
       `Challenges: ${noun(payload.challenges.runs.length, 'replay', 'replays')}`,
     ];
   }
+  // cabinetBackup stamps exportedAt on every read and the open puzzle's elapsed.
+  function sameAfterRollback(name, live, saved) {
+    if (name !== 'cabinet') return JSON.stringify(live) === JSON.stringify(saved);
+    if (!isObject(live) || !isObject(saved)) return false;
+    const left = JSON.parse(JSON.stringify(live)),
+      right = JSON.parse(JSON.stringify(saved));
+    delete left.exportedAt;
+    delete right.exportedAt;
+    if (
+      !Array.isArray(left.runs) ||
+      !Array.isArray(right.runs) ||
+      left.runs.length !== right.runs.length
+    )
+      return false;
+    let drift = 0;
+    for (let i = 0; i < left.runs.length; i += 1) {
+      const a = left.runs[i],
+        b = right.runs[i];
+      if (!isObject(a) || !isObject(b)) return false;
+      if (a.elapsed !== b.elapsed) drift += 1;
+      delete a.elapsed;
+      delete b.elapsed;
+    }
+    return drift < 2 && JSON.stringify(left) === JSON.stringify(right);
+  }
   async function applyOriginTransfer(validated, ports, options = {}) {
     if (options?.confirmed !== true) fail('Import needs explicit confirmation.');
     const before = {};
@@ -130,7 +155,7 @@
       try {
         for (const name of SECTIONS) await ports.write(name, before[name]);
         for (const name of SECTIONS)
-          if (JSON.stringify(await ports.read(name)) !== JSON.stringify(before[name]))
+          if (!sameAfterRollback(name, await ports.read(name), before[name]))
             throw Error('Rollback did not match the recovery copy.');
       } catch (rollbackError) {
         throw Error(`Import failed and the recovery copy was kept. ${rollbackError.message}`);

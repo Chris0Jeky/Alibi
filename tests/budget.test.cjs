@@ -149,9 +149,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Origin transfer (AL1): the app bundle, not the validator worker, measures
 // 138,286 gzip. Checksum, shape and the five-store rollback stay in that module.
 // Ceiling +3,360 over 127 KiB + 4,896 covers the 3,342-byte excess and leaves 18.
+// Rollback compare ignores a fresh cabinet export time and one open-puzzle elapsed
+// value. Measured 138,442 gzip (+156). Ceiling +160 covers the 138-byte excess
+// and leaves 22, not feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 8256,
-  'Application bundle stays under 127 KiB + 8,256 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 8416,
+  'Application bundle stays under 127 KiB + 8,416 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -218,8 +221,10 @@ assert.ok(
   // +48 shell allowance leaves 6.32 bytes for identity/hash noise, not feature room.
   // Origin transfer (AL1) measures shell 1,422,591 (+10,967). The same module is
   // precached with the app. Ceiling +10,976 leaves 9.32 bytes, not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 38480,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 38,480 bytes',
+  // The rollback compare measures shell 1,423,127 (+536). Excess is 527 bytes.
+  // Ceiling +544 leaves 17.32 bytes, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 39024,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 39,024 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -231,9 +236,12 @@ assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stay
 // stays for now: the draft Interlock studies (#427) measure about 205,075 on top of main.
 // Origin transfer (AL1) measures 207,629 gzip (+2,381 over 200 KiB + 448).
 // Ceiling +2,400 leaves 19 bytes, not feature room.
+// The rollback compare measures 207,783 gzip (+154), including the platform
+// identity file. Ceiling +192 covers the 135-byte excess and leaves 57 for a
+// clean identity hash, not feature room.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 2848,
-  'Initial code plus official data stays under 200 KiB + 2,848 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3040,
+  'Initial code plus official data stays under 200 KiB + 3,040 bytes gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
