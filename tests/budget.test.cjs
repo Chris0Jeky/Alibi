@@ -146,9 +146,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // cleanup (11 gzip/16 emitted bytes trimmed), the composed source measures 134,924 gzip
 // and 1,411,564 shell. Required identity/late-error guards exceed the shared ceilings by
 // 12/3.68 bytes. Measured +32 gzip/+16 shell leave 20/12.32 bytes, not feature room.
+// Origin transfer (AL1): the app bundle, not the validator worker, measures
+// 138,286 gzip. Checksum, shape and the five-store rollback stay in that module.
+// Ceiling +3,360 over 127 KiB + 4,896 covers the 3,342-byte excess and leaves 18.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 4896,
-  'Application bundle stays under 127 KiB + 4,896 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 8256,
+  'Application bundle stays under 127 KiB + 8,256 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -213,8 +216,10 @@ assert.ok(
   // (+53). Each ordinary/completion entry must survive its own optional hook failure.
   // Existing JS gzip/startup ceilings pass; shell excess is 41.68 bytes. A measured
   // +48 shell allowance leaves 6.32 bytes for identity/hash noise, not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27504,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,504 bytes',
+  // Origin transfer (AL1) measures shell 1,422,591 (+10,967). The same module is
+  // precached with the app. Ceiling +10,976 leaves 9.32 bytes, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 38480,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 38,480 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -224,9 +229,11 @@ assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stay
 // 0.15.0 measured 205,233 and raised this ceiling by 448 until the startup bundle is trimmed.
 // After #425 and #428 it measured 202,721 (a3c6ad9), and 202,748 after #435 (e0edda4). The raise
 // stays for now: the draft Interlock studies (#427) measure about 205,075 on top of main.
+// Origin transfer (AL1) measures 207,629 gzip (+2,381 over 200 KiB + 448).
+// Ceiling +2,400 leaves 19 bytes, not feature room.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 448,
-  'Initial code plus official data stays under 200 KiB + 448 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024 + 2848,
+  'Initial code plus official data stays under 200 KiB + 2,848 bytes gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.

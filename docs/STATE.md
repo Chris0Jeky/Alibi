@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-07: device-local origin transfer
+
+Settings can download one `alibi-origin-transfer` version 1 file and import it on
+another origin. The file carries the cabinet, Club, Quiet Wing, castle and
+challenge saves. Its checksum is SHA-256 of the payload string. Import checks
+the version, checksum and shape, shows what will be replaced, and writes only
+after explicit confirmation. The five databases are not one transaction: the
+current saves stay in `alibi-origin-recovery` until every write succeeds, and a
+failed import rolls them back. Legacy `alibi-backup` and `alibi-all-saves` files
+are unchanged. There is still no account and no upload. Physical TalkBack and a
+phone move stay in HUMAN_TODO.md.
+
 ## 2026-10-03: narrow Cascade actions (#562, follows #556)
 
 Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text

@@ -2040,9 +2040,30 @@
     if (document.hidden) stopPoll();
     else startPoll();
   });
+  async function replaceSave(next) {
+    if (restoring) throw Error('A Club restore is already in progress.');
+    if (storageMode === 'session' || saveError)
+      throw Error('Restore needs healthy device storage. Export this session before reloading.');
+    if (Object.keys(next?.runs || {}).length) await engine();
+    const replacement = validateSave(next);
+    restoring = true;
+    const revBefore = rev;
+    try {
+      await persist(replacement);
+      if (saveError) {
+        const message = saveError;
+        if (rev === revBefore) saveError = '';
+        throw Error(message);
+      }
+      state = replacement;
+    } finally {
+      restoring = false;
+    }
+  }
   root.AlibiClub = {
     init,
     reviewBackup,
+    replaceSave,
     validateBackup: async (value) => {
       await engine();
       return validateSave(value);
