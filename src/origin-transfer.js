@@ -192,7 +192,8 @@
       if (!rows.some((row) => row.name === name)) return null;
     }
     return new Promise((resolve, reject) => {
-      let request, created = false;
+      let request,
+        created = false;
       try {
         request = indexedDB.open(name);
       } catch (error) {
@@ -213,7 +214,8 @@
         }
         resolve(request.result);
       };
-      request.onerror = () => (created ? resolve(null) : reject(request.error || Error('Storage could not open.')));
+      request.onerror = () =>
+        created ? resolve(null) : reject(request.error || Error('Storage could not open.'));
     });
   }
   async function readRecord(name, storeName, key) {
@@ -297,7 +299,10 @@
   }
   async function writeCastle(section) {
     const record =
-      section.record || (section.state ? { schema: 1, revision: section.state.revision || 1, state: section.state } : null);
+      section.record ||
+      (section.state
+        ? { schema: 1, revision: section.state.revision || 1, state: section.state }
+        : null);
     if (!record) {
       const db = await openExisting('alibi-castle-v1');
       if (db) {
@@ -331,7 +336,12 @@
           keys.result.forEach((key, index) => {
             const value = values.result[index];
             if (typeof key === 'string' && !key.startsWith('recovery:') && value)
-              rows.push({ id: key, schema: value.schema, revision: value.revision, run: value.run });
+              rows.push({
+                id: key,
+                schema: value.schema,
+                revision: value.revision,
+                run: value.run,
+              });
           });
           set(rows);
         };

@@ -140,16 +140,13 @@ test('export then confirmed import deep-equals cabinet, Club, Quiet Wing, castle
   const text = await fileFor(origin);
   const ports = memoryPorts(other());
   const validated = await transfer.validateOriginTransfer(text);
-  assert.deepEqual(
-    transfer.previewOriginTransfer(validated),
-    [
-      'Cabinet: 1 saved puzzle, 1 custom pack',
-      'Club: 1 game, 1 record',
-      'Quiet Wing: included',
-      'Castle: included',
-      'Challenges: 1 replay',
-    ],
-  );
+  assert.deepEqual(transfer.previewOriginTransfer(validated), [
+    'Cabinet: 1 saved puzzle, 1 custom pack',
+    'Club: 1 game, 1 record',
+    'Quiet Wing: included',
+    'Castle: included',
+    'Challenges: 1 replay',
+  ]);
   await transfer.applyOriginTransfer(validated, ports, { confirmed: true });
   assert.deepEqual(ports.snapshot(), origin);
   assert.equal(ports.recovery(), null);
@@ -226,10 +223,13 @@ test('a failure after the first store write restores every included store from t
   const validated = await transfer.validateOriginTransfer(await fileFor(sample()));
   const ports = memoryPorts(other(), { failOnWrite: 2 });
   const before = ports.snapshot();
-  await assert.rejects(transfer.applyOriginTransfer(validated, ports, { confirmed: true }), (error) => {
-    assert.match(error.message, /Existing saves were not changed/);
-    return true;
-  });
+  await assert.rejects(
+    transfer.applyOriginTransfer(validated, ports, { confirmed: true }),
+    (error) => {
+      assert.match(error.message, /Existing saves were not changed/);
+      return true;
+    },
+  );
   assert.deepEqual(ports.snapshot(), before);
   assert.deepEqual(ports.recovery(), before);
 });
@@ -244,7 +244,10 @@ test('settings has one transfer entry point on the 44px button with an accessibl
   const marker = app.indexOf('id="origin-transfer"');
   assert.equal((app.match(/id="origin-transfer"/g) || []).length, 1);
   assert.ok(settingsAt !== -1 && marker > settingsAt && marker < privacyAt);
-  const section = app.slice(marker, app.indexOf('<section class="panel"><h2>Cabinet, Club', marker));
+  const section = app.slice(
+    marker,
+    app.indexOf('<section class="panel"><h2>Cabinet, Club', marker),
+  );
   assert.match(section, /B\('Download save transfer', 'origin-export', 'download'\)/);
   assert.match(section, /B\('Import save transfer', 'origin-import', 'upload', 'secondary'\)/);
   assert.match(
@@ -252,7 +255,10 @@ test('settings has one transfer entry point on the 44px button with an accessibl
     /const B = \(label, action, ic = '', cls = '', attrs = ''\) =>\s*`<button class="btn /,
   );
   assert.match(css, /\.btn \{[^}]*min-height:\s*44px;/);
-  const picker = app.slice(app.indexOf("case 'origin-import':"), app.indexOf("case 'origin-import-confirm':"));
+  const picker = app.slice(
+    app.indexOf("case 'origin-import':"),
+    app.indexOf("case 'origin-import-confirm':"),
+  );
   const confirm = app.slice(
     app.indexOf("case 'origin-import-confirm':"),
     app.indexOf("case 'all-cabinet':"),
