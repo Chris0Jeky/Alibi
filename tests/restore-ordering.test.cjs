@@ -6,7 +6,9 @@
 // Transaction completion waits for pending requests, matching IndexedDB
 // auto-commit (a transaction never completes while a request is pending). Puts stay buffered
 // in their transaction (visible to its own later reads) and reach the disk only on complete;
-// abort discards them. Creation and request callbacks allow immediate microtasks;
+// abort discards them. An explicit abort fails each still-pending request with
+// AbortError, running those callbacks before the transaction abort event, and
+// does not also complete. Creation and request callbacks allow immediate microtasks;
 // activity expires before subsequently queued timer callbacks. The 30 ms
 // completion delay controls interleaving, not permission to enqueue requests.
 // Overlapping scopes wait in creation order whenever either transaction writes,
@@ -57,12 +59,57 @@ function makeDisk() {
         },
       };
       const listeners = { complete: [], error: [], abort: [] };
+      const pendingRequests = [];
       let aborted = false;
       let pending = 0;
       let generation = 0;
       let completed = false;
       let active = false;
       let activityEpoch = 0;
+      function forgetRequest(req) {
+        const index = pendingRequests.indexOf(req);
+        if (index !== -1) pendingRequests.splice(index, 1);
+      }
+      // One delivery: the abort task reports still-open requests, and a later
+      // request timer must not succeed or report the same request again.
+      function failAborted(req) {
+        if (req.done) return;
+        req.done = true;
+        req.result = undefined;
+        req.error = Object.assign(Error('The transaction was aborted.'), {
+          name: 'AbortError',
+        });
+        forgetRequest(req);
+        pending -= 1;
+        const event = {
+          target: req,
+          currentTarget: req,
+          bubbles: true,
+          cancelable: true,
+          defaultPrevented: false,
+          cancelBubble: false,
+          preventDefault() {
+            this.defaultPrevented = true;
+          },
+          stopPropagation() {
+            this.cancelBubble = true;
+          },
+        };
+        try {
+          if (req.onerror) req.onerror(event);
+        } catch {}
+        if (!event.cancelBubble) {
+          event.currentTarget = tx;
+          try {
+            if (tx.onerror) tx.onerror(event);
+          } catch {}
+          for (const listener of listeners.error) {
+            try {
+              listener(event);
+            } catch {}
+          }
+        }
+      }
       function activate() {
         active = true;
         const epoch = ++activityEpoch;
@@ -114,18 +161,28 @@ function makeDisk() {
               requireActive();
               pending += 1;
               generation += 1;
-              const req = { result: undefined, onsuccess: null, onerror: null };
+              const req = {
+                result: undefined,
+                error: null,
+                onsuccess: null,
+                onerror: null,
+                done: false,
+              };
+              pendingRequests.push(req);
               // Requests run in queue order: only puts queued before this get are visible to it.
               const queuedOwn = writes.has(key),
                 own = writes.get(key);
               const runRequest = () =>
                 setTimeout(() => {
+                  if (req.done) return;
                   if (aborted) {
-                    pending -= 1;
+                    failAborted(req);
                     return;
                   }
                   const raw = queuedOwn ? own : disk.get(key);
                   req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
+                  req.done = true;
+                  forgetRequest(req);
                   pending -= 1;
                   activate();
                   if (req.onsuccess) req.onsuccess();
@@ -154,7 +211,11 @@ function makeDisk() {
           aborted = true;
           active = false;
           writes.clear();
+          const doomed = pendingRequests.slice();
           setTimeout(() => {
+            // Request errors share this task and run before abort. Success
+            // callbacks still precede complete on the commit path.
+            for (const req of doomed) failAborted(req);
             try {
               if (tx.onabort) tx.onabort();
             } catch {}
@@ -601,6 +662,65 @@ test('a second abort throws InvalidStateError', async () => {
   tx.abort();
   assert.throws(() => tx.abort(), { name: 'InvalidStateError' });
   await aborted;
+});
+
+test('explicit abort delivers pending AbortError callbacks before the transaction abort event', async () => {
+  const { disk, db } = await scopedFixture();
+  const order = [];
+  const writer = db.transaction('club', 'readwrite');
+  writer.objectStore('club').put('held', 'state');
+  const blocked = db.transaction('club', 'readonly');
+  const waiting = blocked.objectStore('club').get('state');
+  waiting.onsuccess = () => order.push('blocked-success');
+  waiting.onerror = () => {
+    order.push('blocked-error:' + waiting.error?.name + ':' + String(waiting.result));
+  };
+  blocked.onerror = () => order.push('blocked-tx-error');
+  blocked.oncomplete = () => order.push('blocked-complete');
+  blocked.onabort = () => order.push('blocked-abort');
+  const active = db.transaction('meta', 'readwrite');
+  const inflight = active.objectStore('meta').get('marker');
+  inflight.onsuccess = () => order.push('inflight-success');
+  inflight.onerror = () => {
+    order.push('inflight-error:' + inflight.error?.name + ':' + String(inflight.result));
+  };
+  active.onerror = () => order.push('active-tx-error');
+  active.oncomplete = () => order.push('active-complete');
+  active.onabort = () => order.push('active-abort');
+  active.abort();
+  blocked.abort();
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  assert.deepEqual(order, [
+    'inflight-error:AbortError:undefined',
+    'active-tx-error',
+    'active-abort',
+    'blocked-error:AbortError:undefined',
+    'blocked-tx-error',
+    'blocked-abort',
+  ]);
+  assert.equal(disk.get('state'), 'held');
+  assert.equal(disk.has('marker'), false);
+});
+
+test('preventDefault preserves error bubbling while stopPropagation suppresses it', async () => {
+  const { db } = await scopedFixture();
+  const tx = db.transaction('club', 'readwrite');
+  const cancelled = tx.objectStore('club').get('state');
+  const stopped = tx.objectStore('club').get('marker');
+  const seen = [];
+  cancelled.onerror = (event) => event.preventDefault();
+  stopped.onerror = (event) => event.stopPropagation();
+  tx.onerror = (event) => {
+    assert.equal(event.target, cancelled);
+    assert.equal(event.currentTarget, tx);
+    assert.equal(event.defaultPrevented, true);
+    seen.push('property');
+  };
+  tx.addEventListener('error', () => seen.push('listener'));
+  const aborted = new Promise((resolve) => (tx.onabort = resolve));
+  tx.abort();
+  await aborted;
+  assert.deepEqual(seen, ['property', 'listener']);
 });
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
