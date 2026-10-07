@@ -1,5 +1,17 @@
 'use strict';
 const { after, test } = require('node:test');
+
+// The results file is evidence of a green run: skip it when any case failed.
+let failed = false;
+const named = (name, run) =>
+  test(name, async (...args) => {
+    try {
+      await run(...args);
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
+  });
 const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path');
@@ -27,7 +39,7 @@ const ok = (v, m) => {
 const results = [];
 
 // Every published solution remains locally feasible as correct placements are added.
-test('published solutions stay locally feasible', () => {
+named('published solutions stay locally feasible', () => {
   for (const p of pack.puzzles) {
     const engine = C.registry[p.type];
     let s = engine.initial(p);
@@ -55,7 +67,7 @@ test('published solutions stay locally feasible', () => {
   }
 });
 
-test('dossier projection never edits saved manual state', () => {
+named('dossier projection never edits saved manual state', () => {
   const dossier = pack.puzzles.find((p) => p.type === 'dossier'),
     ds = C.registry.dossier.initial(dossier),
     n = dossier.size;
@@ -73,7 +85,7 @@ test('dossier projection never edits saved manual state', () => {
   eq(A.project(dossier, ds, false).state, ds, 'Assistance off leaves the board alone');
 });
 
-test('nonogram picture lines project derived crosses', () => {
+named('nonogram picture lines project derived crosses', () => {
   const non = { type: 'nonogram', size: 3, rowClues: [[1], [1], [1]], colClues: [[1], [1], [1]] },
     ns = { cells: [1, -1, -1, -1, -1, -1, -1, -1, -1], notes: {} };
   eq(A.project(non, ns).state.cells[1], 0, 'Finished picture line gets derived crosses');
@@ -81,7 +93,7 @@ test('nonogram picture lines project derived crosses', () => {
   ok(!A.project(non, ns).derived[1], 'Picture row premise removal removes its projection');
 });
 
-test('zero wall excludes an adjacent lantern', () => {
+named('zero wall excludes an adjacent lantern', () => {
   const wall = { type: 'lightup', size: 3, walls: [-2, 0, -2, -2, -2, -2, -2, -2, -2] };
   ok(
     A.reason(wall, { cells: Array(9).fill(-1) }, 0, 1).includes('numbered'),
@@ -89,7 +101,7 @@ test('zero wall excludes an adjacent lantern', () => {
   );
 });
 
-test('candidates and deductions work without a stored solution', () => {
+named('candidates and deductions work without a stored solution', () => {
   const sudo = pack.puzzles.find((p) => p.type === 'sudoku'),
     ss = C.registry.sudoku.initial(sudo),
     i = ss.cells.findIndex((v) => !v),
@@ -106,7 +118,7 @@ test('candidates and deductions work without a stored solution', () => {
 });
 
 // Deterministic town rules, boundaries, replay and scoring.
-test('town rules, replay, scoring and boundaries', () => {
+named('town rules, replay, scoring and boundaries', () => {
   for (let seed = 0; seed < 80; seed++) {
     let s = E.borough.initial('CHECK-' + seed);
     eq(s, E.borough.initial('CHECK-' + seed), 'Seed determinism ' + seed);
@@ -146,7 +158,7 @@ test('town rules, replay, scoring and boundaries', () => {
 });
 
 // Full legal matches, immutability, passes and AI validity.
-test('reversi matches, passes and bounded search', () => {
+named('reversi matches, passes and bounded search', () => {
   let sawPass = false;
   for (let k = 0; k < 80; k++) {
     let s = E.reversi.initial(),
@@ -186,7 +198,7 @@ test('reversi matches, passes and bounded search', () => {
 });
 
 // Tic-Tac-Toe is deliberately small enough to exhaust every reachable state.
-test('tic-tac-toe exhaustive states and minimax keeper', () => {
+named('tic-tac-toe exhaustive states and minimax keeper', () => {
   const tic = E.tictactoe,
     ticStates = new Map();
   function visitTic(s) {
@@ -229,7 +241,7 @@ test('tic-tac-toe exhaustive states and minimax keeper', () => {
   bad(() => tic.replay([{ cell: 0 }]), 'Tic-Tac-Toe replay rejects malformed move values');
 });
 
-test('club backup rejects unsupported tic-tac-toe saves', () => {
+named('club backup rejects unsupported tic-tac-toe saves', () => {
   const clubValidator = AlibiBackupValidation(C, null, () => E, 4),
     validClub = {
       schema: 1,
@@ -261,7 +273,7 @@ test('club backup rejects unsupported tic-tac-toe saves', () => {
 
 // Original archive maps must actually be playable. Vaults (10-33) replay recorded solutions in
 // archive-heist-vaults.test.cjs; this breadth-first search is sized for the nine ordinary rooms.
-test('archive rooms are playable and feedback rooms are harder', () => {
+named('archive rooms are playable and feedback rooms are harder', () => {
   for (let level = 0; level < 9; level++) {
     let s = E.warehouse.initial(level);
     const t = performance.now(),
@@ -299,6 +311,7 @@ test('archive rooms are playable and feedback rooms are harder', () => {
 });
 
 after(() => {
+  if (failed) return;
   fs.writeFileSync(
     path.join(__dirname, 'club-results.json'),
     JSON.stringify(

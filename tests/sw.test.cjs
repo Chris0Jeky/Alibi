@@ -1,5 +1,17 @@
 /* Simulated CacheStorage/service-worker lifecycle, not a real offline browser test. */
 const { after, test } = require('node:test');
+
+// The results file is evidence of a green run: skip it when any case failed.
+let failed = false;
+const named = (name, run) =>
+  test(name, async (...args) => {
+    try {
+      await run(...args);
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
+  });
 const fs = require('node:fs'),
   vm = require('node:vm'),
   assert = require('node:assert/strict');
@@ -92,7 +104,7 @@ function setup(failInstall = false) {
 }
 let x;
 
-test('standalone keeps exact game source', () => {
+named('standalone keeps exact game source', () => {
   const standalone = fs.readFileSync(path.join(ROOT, 'alibi-deluxe-play.html'), 'utf8');
   const clubConfig = JSON.parse(standalone.match(/globalThis\.ALIBI_CLUB_CONFIG=(.*);\n/)[1]);
   check(
@@ -101,7 +113,7 @@ test('standalone keeps exact game source', () => {
   );
 });
 
-test('release install caches the emitted shell', async () => {
+named('release install caches the emitted shell', async () => {
   x = setup();
   await x.lifecycle('install');
   const shell = JSON.parse(code.match(/SHELL=(\[.*?\])/)[1]);
@@ -135,7 +147,7 @@ test('release install caches the emitted shell', async () => {
   );
 });
 
-test('optional collection is not precached', async () => {
+named('optional collection is not precached', async () => {
   const optional = setup();
   await optional.lifecycle('install');
   for (const file of require('../tools/build-workshop-shelf.cjs').buildShelf(ROOT).files) {
@@ -146,7 +158,7 @@ test('optional collection is not precached', async () => {
   }
 });
 
-test('offline release includes core assets', () => {
+named('offline release includes core assets', () => {
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
@@ -172,13 +184,13 @@ test('offline release includes core assets', () => {
   }
 });
 
-test('activation claims clients without forcing install', async () => {
+named('activation claims clients without forcing install', async () => {
   check(x.calls.skip === 0, 'Installation never forces activation');
   await x.lifecycle('activate');
   check(x.calls.claim === 1, 'Activation claims clients');
 });
 
-test('navigation and alias routing use the cached shell', async () => {
+named('navigation and alias routing use the cached shell', async () => {
   const page = await x.request('/#/play/scene-01', { mode: 'navigate' });
   check(page.release === name, 'Navigation uses the coherent active-release shell');
   check(x.calls.network === 0, 'Cached navigation does not require network');
@@ -203,7 +215,7 @@ test('navigation and alias routing use the cached shell', async () => {
   check(x.calls.network === 0, 'Root-level shell navigations do not require network');
 });
 
-test('deeper navigation reaches the network', async () => {
+named('deeper navigation reaches the network', async () => {
   // 0.14.1 audit M4: the shell's asset URLs are relative, so a deeper or file-like URL
   // that received it rendered an unstyled page stuck on "Opening the puzzle cabinet…".
   for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/404.html', '/missing.html']) {
@@ -212,7 +224,7 @@ test('deeper navigation reaches the network', async () => {
   }
 });
 
-test('fetch routing for scripts, updates and mutations', async () => {
+named('fetch routing for scripts, updates and mutations', async () => {
   const js = [...x.data.get(name).keys()].find((k) => k.endsWith('.js'));
   check((await x.request(js)).release === name, 'Hashed script served from current cache');
   check(
@@ -236,7 +248,7 @@ test('fetch routing for scripts, updates and mutations', async () => {
   );
 });
 
-test('cache cleanup and explicit activation', async () => {
+named('cache cleanup and explicit activation', async () => {
   x.data.set('unrelated-cache', new Map());
   x.data.set('alibi-shell-obsolete', new Map());
   await x.lifecycle('activate');
@@ -251,14 +263,14 @@ test('cache cleanup and explicit activation', async () => {
   check(x.calls.skip === 1, 'Explicit update action permits activation');
 });
 
-test('interrupted install rolls back', async () => {
+named('interrupted install rolls back', async () => {
   const bad = setup(true);
   await assert.rejects(bad.lifecycle('install'), /simulated network/);
   check(!bad.data.has(name), 'Interrupted install deletes only its incomplete release cache');
   check(bad.calls.skip === 0, 'Interrupted install does not activate');
 });
 
-test('built html references and manifest icons', () => {
+named('built html references and manifest icons', () => {
   const html = fs.readFileSync(path.join(ROOT, 'dist/index.html'), 'utf8');
   for (const match of html.matchAll(/(?:src|href)="\.\/([^"#]+)"/g))
     check(fs.existsSync(path.join(ROOT, 'dist', match[1])), 'HTML reference exists: ' + match[1]);
@@ -271,6 +283,7 @@ test('built html references and manifest icons', () => {
 });
 
 after(() => {
+  if (failed) return;
   fs.writeFileSync(
     path.join(ROOT, 'tests/sw-results.json'),
     JSON.stringify(
