@@ -323,17 +323,25 @@ test('filesystem loader agrees with the pure compiler and the complete official 
 });
 test('filesystem loader refuses symlink sources without following them', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-shelf-'));
+  let outside = null;
   try {
     const dir = path.join(temp, 'content/workshop');
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(path.join(source, 'catalogue.json'), path.join(dir, 'catalogue.json'));
-    fs.symlinkSync(
-      path.join(source, policy.collections[0].source),
-      path.join(dir, policy.collections[0].source),
-    );
+    const link = path.join(dir, policy.collections[0].source);
+    try {
+      fs.symlinkSync(path.join(source, policy.collections[0].source), link);
+    } catch (error) {
+      // A file symlink needs a privilege this Windows host may not have. A junction is
+      // still not a regular file, so the loader must refuse it before reading the target.
+      if (process.platform !== 'win32' || error?.code !== 'EPERM') throw error;
+      outside = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-shelf-target-'));
+      fs.symlinkSync(outside, link, 'junction');
+    }
     assert.throws(() => loadCatalogue(temp), /regular|symlink/);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
+    if (outside) fs.rmSync(outside, { recursive: true, force: true });
   }
 });
 
