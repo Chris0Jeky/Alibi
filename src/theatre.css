@@ -147,9 +147,10 @@
   margin-bottom: 22px;
 }
 .theatre-stage-copy h3 {
-  font:
-    clamp(32px, 4vw, 52px)/1.05 Georgia,
-    serif;
+  font-family: Georgia, serif;
+  font-size: var(--text-h3);
+  font-weight: 400;
+  line-height: 1.05;
   letter-spacing: -0.04em;
   margin: 0 0 18px;
   color: inherit;
@@ -515,9 +516,6 @@ html[data-large='true'] .theatre-note {
   .theatre-stage-copy {
     padding: 28px 23px;
     max-width: 100%;
-  }
-  .theatre-stage-copy h3 {
-    font-size: 38px;
   }
   .theatre-stage:after {
     background: linear-gradient(90deg, #071b26c9, #071b2680);
