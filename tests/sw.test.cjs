@@ -106,7 +106,7 @@ function setup(failInstall = false) {
   );
   check(
     shell.length ===
-      6 +
+      7 +
         6 +
         fs
           .readdirSync(path.join(ROOT, 'dist/assets'))
@@ -126,7 +126,7 @@ function setup(failInstall = false) {
                 n,
               ),
           ).length,
-    'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
+    'Release installs the core shell, offline 404 and six alias redirect documents, without optional activity assets',
   );
   const optional = setup();
   await optional.lifecycle('install');
