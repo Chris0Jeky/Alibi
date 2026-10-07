@@ -1986,10 +1986,18 @@ input[type='checkbox'] {
   margin-top: 12px;
   line-height: 1.65;
 }
-/* Mouse and keyboard help is noise on a touch screen. */
-@media (pointer: coarse) {
+/* Keep keyboard help accessible; only touch-only screens visually clip it. */
+@media (hover: none) and (pointer: coarse) and (not (any-pointer: fine)) {
   .kb {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 .main-tools {
