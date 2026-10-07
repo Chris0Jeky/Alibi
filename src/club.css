@@ -2930,3 +2930,65 @@ body.club-experiment {
     font-size: 8px;
   }
 }
+/* Short landscape: Lantern Duel only (#duel-0). Tic-Tac-Toe reuses .duel-grid. */
+@media (min-width: 600px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .shell:has(#duel-0) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shell:has(#duel-0) > .sidebar,
+  .main-wrap:has(#duel-0) .theatre-rail,
+  .main:has(#duel-0) > .club-gameheading .row {
+    display: none;
+  }
+  /* The title stays in the accessibility tree; above 800px there is no bottom nav, so
+     the Games room button returns below. */
+  .main:has(#duel-0) > .club-gameheading > div:first-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .main:has(#duel-0) > .club-gameheading {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .shell:has(#duel-0) .main {
+    padding-block-start: 4px;
+    padding-inline: 10px;
+  }
+  .club-boardpanel:has(#duel-0) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px 10px;
+    align-items: start;
+    padding: 6px;
+  }
+  .club-boardpanel:has(#duel-0) > .duel-grid {
+    grid-column: 1;
+    grid-row: 1 / span 8;
+    width: calc(100dvh - 148px);
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    border-width: 4px;
+    gap: 1px;
+  }
+  .club-boardpanel:has(#duel-0)
+    > :is(.duel-modes, .duel-strengths, .duel-scores, .club-turn-status, .club-playtools) {
+    grid-column: 2;
+    min-width: 0;
+    margin: 0;
+  }
+}
+@media (min-width: 801px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .main:has(#duel-0) > .club-gameheading .row {
+    display: flex;
+    margin: 0 0 4px;
+  }
+  .club-boardpanel:has(#duel-0) > .duel-grid {
+    width: calc(100dvh - 190px);
+  }
+}

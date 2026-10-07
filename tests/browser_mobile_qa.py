@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright, expect
 from official_fixture import OFFICIAL_COUNT
 from block_landscape_cases import check_landscape
 from bridge_landscape_cases import check_bridge_landscape
+from duel_landscape_cases import check_duel_landscape
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'mobile-qa'
@@ -641,6 +642,24 @@ class MobileQA(unittest.TestCase):
                                             minimum, selector)
                 self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width + 1)
                 self.assertEqual(page.evaluate('AlibiDiagnostics.getCurrent().moves'), 0)
+
+    def test_duel_landscape_board_is_above_the_fold(self):
+        for width, height in [(667, 375), (844, 390)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'salon/duel')
+                check_duel_landscape(page, screenshot=OUT / f'duel-landscape-{width}.png')
+
+    def test_duel_portrait_and_desktop_geometry_unchanged(self):
+        for width, height, grid_width in [(390, 844, 332), (1280, 900, 480)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'salon/duel')
+                page.locator('#duel-0').wait_for()
+                size = page.locator('.duel-grid').evaluate(
+                    'el => { const r = el.getBoundingClientRect(); return {w:Math.round(r.width), h:Math.round(r.height)}; }')
+                self.assertEqual(size['w'], grid_width, size)
+                self.assertEqual(size['h'], grid_width, size)
+                if width == 1280:
+                    expect(page.locator('.sidebar')).to_be_visible()
 
 
 if __name__ == '__main__':
