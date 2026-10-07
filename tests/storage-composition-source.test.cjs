@@ -14,7 +14,8 @@ test('the counted bootstrap sends both owners to the existing pinned compiler', 
   const start = build.indexOf('    boot = ');
   const end = build.indexOf('    bootURL = ', start);
   assert.ok(start >= 0 && end > start);
-  const expression = build.slice(start + '    boot = '.length, end).trim().replace(/,$/, '');
+  const selection = build.slice(start + '    boot = '.length, end);
+  const expression = selection.trim().replace(/,$/, '');
   const calls = [];
   const output = vm.runInNewContext(expression, {
     SRC: path.join(root, 'src'),
@@ -40,7 +41,9 @@ test('the counted bootstrap sends both owners to the existing pinned compiler', 
   assert.equal(output, 'synthetic compiled bootstrap');
 });
 test('application composition no longer duplicates the storage owner', () => {
-  const base = build.slice(build.indexOf('  const base = ['), build.indexOf('  const targetGuard'));
+  const start = build.indexOf('  const base = [');
+  const end = build.indexOf('  const targetGuard');
+  const base = build.slice(start, end);
   assert.ok(base.includes("read(path.join(SRC, 'updates.js'))"));
   assert.ok(!base.includes("read(path.join(SRC, 'storage.js'))"));
 });
