@@ -56,3 +56,11 @@ Not run in this session:
 `HUMAN_TODO.md` still has open device items, including q-2 and q-4 through q-9, and the Block Cabinet tactile candidate says no physical Android result is claimed. Those items were not changed.
 
 Node proof here is the 49-test command plus source reading. It does not show pixels, focus in a real document, or a worker thread executing the search.
+## Coordinator's fresh browser verification
+
+After the Grok mapping pass, the coordinator independently ran the 32-test Duel/fresh-seed/result/recovery subset (32 passed), built this isolated checkout, and ran both actual Chromium suites:
+
+- `tests/browser_gameplay_continuation.py`: 10 strength/recovery scenarios passed at 390px and 1280px, including real worker responses, strength-change cancellation and focus.
+- `tests/browser_block_cabinet.py`: 78 assertions passed at 390px and 1440px, including enhanced Start again confirmation and distinct seed, simple controls, explicit seed replay and actual board controls.
+
+These runs use the built standalone document. They do not certify real-origin IndexedDB persistence, offline reload, or physical Android/TalkBack. The issue's implemented behavior is present; remaining named source-test gaps above do not imply a reproduced defect. `HUMAN_TODO.md` device gates remain open.
