@@ -47,6 +47,11 @@ class MobileQA(unittest.TestCase):
         else:
             page.goto(URL + '/#/' + route, wait_until='domcontentloaded')
             page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
+            # Keep the existing worker-readiness budget; isolated fixtures never wait here.
+            page.wait_for_function(
+                '()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
+                timeout=30000,
+            )
         return page
 
     def dismiss_lesson(self, page):
