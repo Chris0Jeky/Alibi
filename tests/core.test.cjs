@@ -1,5 +1,17 @@
 'use strict';
 const { after, test } = require('node:test');
+
+// The results file is evidence of a green run: skip it when any case failed.
+let failed = false;
+const named = (name, run) =>
+  test(name, async (...args) => {
+    try {
+      await run(...args);
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
+  });
 const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path');
@@ -51,11 +63,11 @@ function solvedState(p) {
   else p.solution.forEach((value, cell) => apply({ type: 'set', cell, value }));
   return s;
 }
-test('catalog declares 116 puzzles and 13 types', () => {
+named('catalog declares 116 puzzles and 13 types', () => {
   ok(pack.puzzles.length === 116, '116 puzzles');
   ok(C.TYPES.length === 13, '13 types');
 });
-test('published puzzles have one solution and honor reducer contracts', () => {
+named('published puzzles have one solution and honor reducer contracts', () => {
   for (const p of pack.puzzles) {
     const start = performance.now();
     C.validateDefinition(p);
@@ -101,7 +113,7 @@ test('published puzzles have one solution and honor reducer contracts', () => {
     });
   }
 });
-test('legacy puzzles stay retained with the same fields', () => {
+named('legacy puzzles stay retained with the same fields', () => {
   for (const legacy of old.puzzles) {
     const p = pack.puzzles.find((p) => p.id === legacy.id);
     ok(!!p, p.id + ' retained');
@@ -112,7 +124,7 @@ test('legacy puzzles stay retained with the same fields', () => {
     assertions++;
   }
 });
-test('generated scenes each have one solution', () => {
+named('generated scenes each have one solution', () => {
   for (let seed = 1; seed <= 25; seed++) {
     const p = C.createSceneDraft({ seed });
     ok(C.solve(p).solutions.length === 1, 'generated scene unique ' + seed);
@@ -120,7 +132,7 @@ test('generated scenes each have one solution', () => {
     assertions++;
   }
 });
-test('definitions and packs reject unsafe ids, duplicates, and future schemas', () => {
+named('definitions and packs reject unsafe ids, duplicates, and future schemas', () => {
   for (const type of C.TYPES) {
     const p = C.clone(pack.puzzles.find((p) => p.type === type));
     p.id = '__proto__';
@@ -135,12 +147,12 @@ test('definitions and packs reject unsafe ids, duplicates, and future schemas', 
   future.schemaVersion = 99;
   throws(() => C.validatePack(future, false), 'future format rejected');
 });
-test('solution count stops at two', () => {
+named('solution count stops at two', () => {
   const small = C.clone(pack.puzzles.find((p) => p.type === 'sudoku' && p.size === 4));
   small.givens.fill(0);
   ok(C.solve(small).solutions.length === 2, 'solution count stops at two');
 });
-test('an extra dossier YES cannot complete the grid', () => {
+named('an extra dossier YES cannot complete the grid', () => {
   const dossier = pack.puzzles.find((p) => p.type === 'dossier'),
     ds = solvedState(dossier);
   const spare = ds.marks.findIndex((v) => v !== 1);
@@ -148,7 +160,7 @@ test('an extra dossier YES cannot complete the grid', () => {
   ok(!C.registry.dossier.complete(dossier, ds), 'extra YES cannot bypass dossier completion');
   ok(C.registry.dossier.validate(dossier, ds).length > 0, 'duplicate dossier YES reported');
 });
-test('wrong accusations are rejected', () => {
+named('wrong accusations are rejected', () => {
   for (const type of ['scene', 'dossier', 'witness']) {
     const p = pack.puzzles.find((p) => p.type === type),
       s = solvedState(p);
@@ -158,7 +170,7 @@ test('wrong accusations are rejected', () => {
     ok(!C.registry[type].complete(p, s), type + ' wrong accusation rejected');
   }
 });
-test('invalid levels, rotations, and obstacle edits are ignored', () => {
+named('invalid levels, rotations, and obstacle edits are ignored', () => {
   const aqu = pack.puzzles.find((p) => p.type === 'aquarium'),
     as = C.registry.aquarium.initial(aqu);
   eq(
@@ -184,7 +196,7 @@ test('invalid levels, rotations, and obstacle edits are ignored', () => {
     );
   }
 });
-test('casebook chapters resolve in the official catalogue', () => {
+named('casebook chapters resolve in the official catalogue', () => {
   const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
   ok(books.length === 5, 'five casebooks');
   ok(books[0].format === 'continuous', 'Bellweather keeps continuous casebook framing');
@@ -201,7 +213,7 @@ test('casebook chapters resolve in the official catalogue', () => {
         'casebook chapter resolves ' + ch.id,
       );
 });
-test('nonogram completion allows unknown and crossed empties', () => {
+named('nonogram completion allows unknown and crossed empties', () => {
   const nonoPicture = { size: 2, rowClues: [[1], [0]], colClues: [[1], [0]] };
   // Completion is deliberately forgiving of uncrossed empties: there is no
   // auto-cross, and the UI suite completes nonograms by filling only (a strict
@@ -221,7 +233,7 @@ test('nonogram completion allows unknown and crossed empties', () => {
     'nonogram untouched empty-clue board completes (no such puzzle ships)',
   );
 });
-test('dossier link contradictions and clue toggles', () => {
+named('dossier link contradictions and clue toggles', () => {
   const dossierLink = {
     size: 2,
     people: ['Ann', 'Bob'],
@@ -254,6 +266,7 @@ test('dossier link contradictions and clue toggles', () => {
   );
 });
 after(() => {
+  if (failed) return;
   const output = {
     passed: true,
     assertions,
