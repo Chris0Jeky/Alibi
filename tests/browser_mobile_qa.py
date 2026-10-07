@@ -46,9 +46,10 @@ class MobileQA(unittest.TestCase):
         else:
             page.goto(URL + '/#/' + route, wait_until='domcontentloaded')
             page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
-            # Bounded by set_default_timeout above. Isolated ALIBI_QA_HTML never waits here.
+            # Keep the existing worker-readiness budget; isolated fixtures never wait here.
             page.wait_for_function(
-                '()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady'
+                '()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady',
+                timeout=30000,
             )
         return page
 
