@@ -29,6 +29,16 @@ def check_duel_landscape(page, screenshot=None):
         assert cell['left'] >= 0 and cell['right'] <= geometry['width'], geometry
         assert cell['width'] >= 28 and cell['height'] >= 28, geometry
         assert cell['exposed'], geometry
+    # The page title stays reachable, and a way back exists: the bottom nav up to 800px wide,
+    # the Games room button above it (no bottom nav there).
+    assert page.locator('h1').count() == 1
+    if geometry['width'] > 800:
+        back = page.locator('.club-gameheading').get_by_role('button', name='Games room')
+        expect(back).to_be_visible()
+        box = back.bounding_box()
+        assert box['y'] >= 0 and box['y'] + box['height'] <= geometry['height'], box
+    else:
+        expect(page.locator('.mobile-nav')).to_be_visible()
     if screenshot:
         page.screenshot(path=str(screenshot))
     before = page.evaluate('AlibiClub.diagnostics().state.runs.duel.log.length')

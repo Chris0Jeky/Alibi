@@ -2938,11 +2938,26 @@ body.club-experiment {
   }
   .shell:has(#duel-0) > .sidebar,
   .main-wrap:has(#duel-0) .theatre-rail,
-  .main:has(#duel-0) > .club-gameheading {
+  .main:has(#duel-0) > .club-gameheading .row {
     display: none;
   }
+  /* The title stays in the accessibility tree; above 800px there is no bottom nav, so
+     the Games room button returns below. */
+  .main:has(#duel-0) > .club-gameheading > div:first-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .main:has(#duel-0) > .club-gameheading {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
   .shell:has(#duel-0) .main {
-    padding: 4px 10px 8px;
+    padding-block-start: 4px;
+    padding-inline: 10px;
   }
   .club-boardpanel:has(#duel-0) {
     display: grid;
@@ -2966,5 +2981,14 @@ body.club-experiment {
     grid-column: 2;
     min-width: 0;
     margin: 0;
+  }
+}
+@media (min-width: 801px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .main:has(#duel-0) > .club-gameheading .row {
+    display: flex;
+    margin: 0 0 4px;
+  }
+  .club-boardpanel:has(#duel-0) > .duel-grid {
+    width: calc(100dvh - 190px);
   }
 }
