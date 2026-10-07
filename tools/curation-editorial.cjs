@@ -18,9 +18,10 @@ function load(root, catalogue) {
       n.provenance === null ||
       Array.isArray(n.provenance) ||
       (typeof n.difficultyStatus !== 'string' && !Array.isArray(n.difficultyStatus)) ||
-      !Array.isArray(n.hints)
+      !Array.isArray(n.hints) ||
+      n.hints.length === 0
     )
-      throw Error('Invalid editorial: ' + (n?.id ?? n));
+      throw Error('Invalid editorial ID: ' + (n?.id ?? n));
     if (seen.has(n.id) || known.get(n.id)?.type !== n.family)
       throw Error('Invalid editorial ID: ' + n.id);
     seen.add(n.id);
@@ -34,7 +35,7 @@ function load(root, catalogue) {
       rules: n.rules,
       controls: n.controls,
       tactic:
-        n.hints.find((h) => h.applies === 'general tactic, not a claim of a forced move')?.text ||
+        n.hints.find((h) => h?.applies === 'general tactic, not a claim of a forced move')?.text ||
         '',
       answer: n.answer,
       difficultyStatus: n.difficultyStatus,
