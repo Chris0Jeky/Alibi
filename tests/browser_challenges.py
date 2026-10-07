@@ -23,6 +23,58 @@ def assert_grid(page):
         cells.every(r=>r.width>=24 && r.right<=innerWidth);
     }'''), 'Board cells must retain their spatial rows and columns'
 
+def store_diagnostics(page):
+    return page.evaluate('''async () => {
+      const start = performance.now();
+      let storeInfo = {mode: 'unknown', protected: null, revision: null};
+      try {
+        const probeStore = AlibiChallengeStore.create(registry);
+        await probeStore.open();
+        storeInfo = probeStore.info();
+      } catch (error) {
+        storeInfo = {mode: 'diagnostic-error', protected: null, revision: null, error: String((error && error.message) || error)};
+      }
+      const probe = await new Promise((resolve) => {
+        let settled = false, timer = null;
+        const begin = performance.now();
+        const finish = (outcome, name, message) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve({outcome, name: name || null, message: message || null, elapsedMs: Math.round(performance.now() - begin)});
+        };
+        let request = null;
+        try {
+          request = indexedDB.open('alibi-challenges-v1', 1);
+        } catch (error) {
+          finish('error', error && error.name, String((error && error.message) || error));
+          return;
+        }
+        timer = setTimeout(() => finish('timeout', 'TimeoutError', 'indexedDB.open timed out after 2200 ms'), 2200);
+        request.onsuccess = () => { try { request.result.close(); } catch {} finish('success', null, null); };
+        request.onerror = () => { const err = request.error; finish('error', err && err.name, String((err && err.message) || err)); };
+        request.onblocked = () => finish('blocked', 'BlockedError', 'indexedDB.open is blocked by another connection');
+      });
+      return {mode: storeInfo.mode, protected: storeInfo.protected, revision: storeInfo.revision, storeError: storeInfo.error || null, outcome: probe.outcome, name: probe.name, message: probe.message, elapsedMs: probe.elapsedMs, totalMs: Math.round(performance.now() - start)};
+    }''')
+
+def run_storage_check(page, script):
+    try:
+        result = page.evaluate(script)
+    except Exception as error:
+        try:
+            diagnostics = store_diagnostics(page)
+        except Exception as diagnostic_error:
+            diagnostics = {'diagnosticError': str(diagnostic_error)}
+        raise AssertionError(f'Challenge storage check failed: {error} diagnostics {json.dumps(diagnostics, sort_keys=True)}')
+    if not result:
+        try:
+            diagnostics = store_diagnostics(page)
+        except Exception as diagnostic_error:
+            diagnostics = {'diagnosticError': str(diagnostic_error)}
+        raise AssertionError(f'Challenge storage check returned falsy result: {result!r} diagnostics {json.dumps(diagnostics, sort_keys=True)}')
+    return result
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
@@ -142,15 +194,15 @@ try:
         page.locator(f'[data-action="plot"][data-value="{borough["cell"]}"]').click()
         assert '1 move so far' in page.locator('.challenge-status').inner_text()
 
-        assert page.evaluate('''async () => { const store = AlibiChallengeStore.create(registry); await store.open(); const run = registry.begin('curated-classic-hanoi-02'); run.log.push({from: 2, to: 0}); await store.write(run); return (await store.read(run.challengeId)).log.length; }''') == 1
-        assert page.evaluate('''async () => {
+        assert run_storage_check(page, '''async () => { const store = AlibiChallengeStore.create(registry); await store.open(); const run = registry.begin('curated-classic-hanoi-02'); run.log.push({from: 2, to: 0}); await store.write(run); return (await store.read(run.challengeId)).log.length; }''') == 1
+        assert run_storage_check(page, '''async () => {
           const store=AlibiChallengeStore.create(registry);await store.open();
           const id='curated-classic-hanoi-02', before=await store.read(id);
           await store.restore(registry.begin(id));
           await store.write(before);
           return JSON.stringify(await store.recovery(id))===JSON.stringify(before);
         }''')
-        assert page.evaluate('''async () => {
+        assert run_storage_check(page, '''async () => {
           const db = await new Promise((resolve,reject)=>{const r=indexedDB.open('alibi-challenges-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
           for (const readFirst of [true,false]) {
             const id=registry.entries()[readFirst?0:1].id, future={schema:2,revision:0,unrecognised:'keep exactly'};
