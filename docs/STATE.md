@@ -23,6 +23,8 @@ local-write expectation changes. Browser wiring adds two passing cases.
 Local dependencies and native navigation remain unavailable; no local full
 build or browser pass is claimed. Exact-head CI, all unchanged byte ceilings,
 52 native/emitted-app scenarios, independent review and aging are merge gates.
+The first CI receipt and bootstrap-size repair are recorded in the QA note;
+the storage owner remains eager and fully counted in the existing bootstrap.
 Details: [storage policy and evidence](qa/STORAGE-READONLY-2026-10-07.md).
 
 ## Related work, not implicitly qualified
@@ -45,3 +47,9 @@ TalkBack, publishing, origin and other owner gates. No database version,
 published puzzle identity, numerical budget or production deployment is changed.
 Use the exact current PR head and its artifacts rather than historic counts
 when qualifying a merge. Do not discard the previous state or failed receipts.
+
+### Block Cabinet phone action hierarchy candidate, 2026-09-17
+
+The historical candidate and proving checks remain in the linked gameplay-base archive;
+physical Android touch, TalkBack, comfort review and human acceptance stay open.
+Neither newer source proofs nor browser screenshots turn that candidate into a device signoff.

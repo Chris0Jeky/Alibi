@@ -64,3 +64,36 @@ existing aging gate pass. #585 remains historical negative evidence; close or
 supersede it only after the replacement is accepted. This change does not qualify
 #579/#593's multi-domain transfer, read access when the existing probe itself is
 denied, physical Android/TalkBack, or deployment. HUMAN_TODO.md remains authoritative.
+
+## First exact-head receipt and bounded follow-up
+
+Run 37690219555 at 69bad00 collected a source-bound archive, verified unchanged
+inputs and built both targets. Its 35 focused contracts pass. The full Node
+selection passed 1,329 of 1,331 cases; the two failures were the application
+budget and the moved historical phone-action note, not a weakened save test.
+Pinned formatting requested two line wraps; its exact proposals are adopted.
+
+Application gzip measured 135,037 versus the strict unchanged 134,944 ceiling.
+Net shell measured 1,411,931, also above its unchanged limit. Keep the save owner
+in the existing bootstrap and compile that complete bootstrap with pinned
+esbuild. Remove it from application composition, without adding a startup
+request or pretending its eager bytes are deferred. The complete bootstrap
+remains in aggregate initial and offline accounting. Six emitted assertions
+check single ownership, no premature persistence/Core access, real-Core session
+CAS/export, generic local refusal, full byte accounting and standalone delivery.
+Routing and recovery controls retain the compiled-boot equivalence suite.
+Two source-composition regressions fail before this adjustment and pass after.
+
+The historical phone-action heading and explicit open human gates are restored
+inline as well as retained in the byte-identical archive. No test expectation
+is weakened. The native run completed all 25 source scenarios at 390px and
+reached the emitted-app refusal/unsaved-state/raw-preservation checks. It then
+failed because Undo matched both desktop and phone buttons. Scope that click
+to the primary #main control; do not remove the blocked-edit assertion.
+Native acceptance still requires the full 52 cases at both widths on the new
+head. Local source/legacy/state/composition checks now pass 39/39. No new full
+build, byte or native pass is claimed before the replacement CI receipt.
+
+The first artifact ZIP digest is
+9692574d8ac2b10c524a39d525ab5609a8488542ed6b5a90b455f1fdffa021dc.
+All six captured input hashes match its archive and source-head identity.

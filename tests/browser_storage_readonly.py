@@ -166,7 +166,7 @@ def app_recovery(browser, base, width, report):
         edited = page.evaluate('AlibiDiagnostics.getCurrent()')
         assert edited['moves'] == 1 and edited['rev'] == 7
         assert page.evaluate('(key)=>localStorage.getItem(key)', PREFIX + key) == original
-        page.locator('[data-action="undo"]').click()
+        page.locator('#main [data-action="undo"]').click()
         assert page.evaluate('AlibiDiagnostics.getCurrent().state') == edited['state']
         with page.expect_download() as pending:
             page.locator('.banner.warn [data-action="export"]').first.click()

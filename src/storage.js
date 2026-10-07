@@ -218,7 +218,9 @@
           !Number.isSafeInteger(old.rev) ||
           old.rev < 0)
       )
-        throw Error('A saved record is damaged or from an unsupported version. Nothing was changed.');
+        throw Error(
+          'A saved record is damaged or from an unsupported version. Nothing was changed.',
+        );
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }

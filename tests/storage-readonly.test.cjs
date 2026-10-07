@@ -74,7 +74,10 @@ for (const raw of [
     const f = await local({ items });
     const input = record('synthetic@1', 'unsaved session edit');
     const before = structuredClone(input);
-    await assert.rejects(f.store.saveRun(input, raw === undefined ? 0 : 1), /read-only.*IndexedDB/i);
+    await assert.rejects(
+      f.store.saveRun(input, raw === undefined ? 0 : 1),
+      /read-only.*IndexedDB/i,
+    );
     assert.deepEqual(input, before, 'caller state must remain available for export');
     assert.equal(items.get(PREFIX + 'runs.synthetic@1'), raw, 'raw bytes must not change');
     assert.deepEqual(f.writes, [], 'no run write may be attempted');
