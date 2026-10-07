@@ -64,6 +64,19 @@ def outcome(page):
     return page.evaluate('window.outcome')
 
 
+def failure_snapshot(page, key):
+    """Read only the failing synthetic fixture; never mask its original error."""
+    try:
+        return page.evaluate('''async key => {
+          const locks = navigator.locks?.query ? await navigator.locks.query() : null;
+          const raw = key ? localStorage.getItem('alibi.v1.runs.' + key) : null;
+          return {mode: window.store?.mode, outcome: window.outcome ?? null,
+                  stored: raw === null ? null : raw.slice(0, 4096), locks};
+        }''', key)
+    except Exception as error:
+        return {'diagnosticError': f'{type(error).__name__}: {error}'[:1000]}
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     report = {'passed': False, 'scope': 'source Store; native cross-page Web Locks and localStorage',
@@ -81,9 +94,12 @@ def run():
             if executable:
                 options['executable_path'] = executable
             browser = pw.chromium.launch(**options)
+            report['browserVersion'] = browser.version
             try:
                 for width in (390, 1280):
                     context = browser.new_context(viewport={'width': width, 'height': 900})
+                    key = None
+                    a = b = None
                     try:
                         a, b = context.new_page(), context.new_page()
                         for page in (a, b):
@@ -144,6 +160,12 @@ def run():
                         }''')
                         assert result == {'mode': 'session', 'results': ['saved', 'ConflictError']}
                         report['cases'].append({'width': width, 'case': 'denied storage retains synchronous session CAS'})
+                    except Exception:
+                        # Gather only after the original assertion has failed. Do not
+                        # add timing or storage reads to the contested critical path.
+                        report['failureContext'] = {'width': width, 'key': key,
+                            'pages': [failure_snapshot(page, key) for page in (a, b)]}
+                        raise
                     finally:
                         context.close()
             finally:
