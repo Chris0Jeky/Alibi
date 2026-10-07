@@ -69,11 +69,7 @@ test('Desk theatre stage h3 rules use the shared token under the page title', ()
     assert.doesNotMatch(body, /clamp\(|font-size:\s*\d+px/);
   }
   const [h1, h2, h3] = ['h1', 'h2', 'h3'].map((name) => tokenSteps(name));
-  assert.deepEqual(
-    [h1.length, h2.length, h3.length],
-    [2, 2, 2],
-    'desktop and phone steps',
-  );
+  assert.deepEqual([h1.length, h2.length, h3.length], [2, 2, 2], 'desktop and phone steps');
   for (let i = 0; i < 2; i++) {
     assert.ok(h1[i] >= h2[i] && h2[i] >= h3[i], `h1 >= h2 >= h3 at breakpoint ${i}`);
   }
