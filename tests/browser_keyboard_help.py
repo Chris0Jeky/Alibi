@@ -22,6 +22,7 @@ with sync_playwright() as p:
             else:
                 assert m['width'] > 20 and m['height'] > 5 and m['clip'] == 'auto', (name, m)
         tree = cdp.send('Accessibility.getFullAXTree')['nodes']
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), name
         assert sum(HELP in node.get('name', {}).get('value', '') for node in tree if not node.get('ignored')) >= 2, name
         print('PASS', name, 'geometry and accessibility')
         page.add_style_tag(content='.kb { display: none !important; }')
