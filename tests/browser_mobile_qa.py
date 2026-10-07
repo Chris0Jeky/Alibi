@@ -46,6 +46,10 @@ class MobileQA(unittest.TestCase):
         else:
             page.goto(URL + '/#/' + route, wait_until='domcontentloaded')
             page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
+            # Bounded by set_default_timeout above. Isolated ALIBI_QA_HTML never waits here.
+            page.wait_for_function(
+                '()=>navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady'
+            )
         return page
 
     def dismiss_lesson(self, page):
