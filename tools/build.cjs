@@ -224,7 +224,10 @@ function build() {
     }).code,
     engineURL = `./assets/club-engines.${hash(clubEngineBundle)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
-    boot = read(path.join(SRC, 'boot.js')),
+    boot = require('esbuild').transformSync(read(path.join(SRC, 'boot.js')), {
+      minify: true,
+      target: 'es2022',
+    }).code,
     bootURL = `./assets/boot.${hash(boot)}.js`;
   // The Pulseboard SDK (observatory/pulseboard.js, pinned by observatory.lock.json) is emitted verbatim as its
   // own hashed asset and loaded by the last deferred script of the web index only. It is online-only: not in the

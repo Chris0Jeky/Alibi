@@ -27,3 +27,23 @@ browser suite and full build remain CI gates at submission. No numeric budget,
 published puzzle, database version, release or deployed origin is changed.
 HUMAN_TODO.md retains physical Android/TalkBack and hosted-response acceptance.
 The hybrid-input keyboard-help question in #420 item 3 remains open.
+
+## Pinned build and native browser follow-up
+
+Actions at fb19e315581eb2c5782908a838ac2e6aecc48347 ran all 32 native
+Chromium navigation cases successfully. The original candidate failed only
+the shell budget in the dedicated lane: 1,411,901 bytes against a strict
+1,411,624.32-byte ceiling. No ceiling is changed.
+
+The existing pinned esbuild compiler now compacts the boot script, as it
+already does other emitted JavaScript. The source stays readable and unchanged.
+Boot bytes fall from 5,284 to 3,874 (1,410 bytes); gzip falls from 2,311 to 1,931.
+Fourteen new emitted-boot cases bind the exact compiler output and compare
+alias routing, query precedence, recovery controls and readiness cleanup.
+Before this change, only the expected unminified-output assertion failed.
+
+The temporary toolchain-export step was removed after the locked dependencies
+were recovered for local validation. Browser execution precedes the unchanged
+budget gate so a budget failure cannot erase independent navigation evidence.
+Local synthetic commits anchor the reconciled source archive; only hosted
+receipts claim exact GitHub commit identity.
