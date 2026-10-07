@@ -80,3 +80,5 @@ Verified: the two host test files above (19 pass). The vm probe above, against `
 Not verified: `observatory/check.mjs`, `observatory/check.local.mjs` (no build), `tests/browser_observatory.py`, a live collector, or any Pulseboard checkout newer than the pinned 3.3.1 bytes.
 
 Residual risk: none in product behaviour. This note does not change runtime. The `migrationFailed` gap above remains until the upstream hook is rebuilt and pinned.
+
+Coordinator verification: the two named host suites were independently rerun (19 pass). `node observatory/check.mjs` reaches its local-build prerequisite and reports missing `dist/_headers` in this evidence-only checkout; no emitted build gate is claimed here.
