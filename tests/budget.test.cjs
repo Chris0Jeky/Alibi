@@ -213,8 +213,11 @@ assert.ok(
   // (+53). Each ordinary/completion entry must survive its own optional hook failure.
   // Existing JS gzip/startup ceilings pass; shell excess is 41.68 bytes. A measured
   // +48 shell allowance leaves 6.32 bytes for identity/hash noise, not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 27504,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 27,504 bytes',
+  // #580 Lantern Duel short-landscape layout (one scoped, minified media query) measures
+  // 1,411,538 -> 1,412,302 (+764); the rule cannot shrink below its selectors, so excess is 678 bytes.
+  // Ceiling +704 leaves 26 bytes; no feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 28208,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 28,208 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -236,7 +239,8 @@ for (const [prefix, limit] of [
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
   // Archive vault rooms plus Games Room polish measured 34,079 on 2026-09-27: +320.
   // Desk attribution targets (#501, unreleased) measured 34,112: +384.
-  ['alibi.', 33 * 1024 + 384],
+  // #580 Duel short-landscape layout measures 34,157 -> 34,338 gzip (+181): +576 in total.
+  ['alibi.', 33 * 1024 + 576],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))
