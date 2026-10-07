@@ -1,4 +1,17 @@
 /* Simulated CacheStorage/service-worker lifecycle, not a real offline browser test. */
+const { after, test } = require('node:test');
+
+// The results file is evidence of a green run: skip it when any case failed.
+let failed = false;
+const named = (name, run) =>
+  test(name, async (...args) => {
+    try {
+      await run(...args);
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
+  });
 const fs = require('node:fs'),
   vm = require('node:vm'),
   assert = require('node:assert/strict');
@@ -11,7 +24,6 @@ let count = 0;
 const check = (ok, msg) => {
   assert.ok(ok, msg);
   count++;
-  console.log('PASS', msg);
 };
 function setup(failInstall = false) {
   const handlers = {},
@@ -90,14 +102,19 @@ function setup(failInstall = false) {
   }
   return { handlers, data, calls, lifecycle, request };
 }
-(async () => {
+let x;
+
+named('standalone keeps exact game source', () => {
   const standalone = fs.readFileSync(path.join(ROOT, 'alibi-deluxe-play.html'), 'utf8');
   const clubConfig = JSON.parse(standalone.match(/globalThis\.ALIBI_CLUB_CONFIG=(.*);\n/)[1]);
   check(
     clubConfig.engineSource === fs.readFileSync(path.join(ROOT, 'src/club-engines.js'), 'utf8'),
     'Standalone keeps exact game source including adjacent crate symbols',
   );
-  const x = setup();
+});
+
+named('release install caches the emitted shell', async () => {
+  x = setup();
   await x.lifecycle('install');
   const shell = JSON.parse(code.match(/SHELL=(\[.*?\])/)[1]);
   check(
@@ -128,6 +145,9 @@ function setup(failInstall = false) {
           ).length,
     'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
   );
+});
+
+named('optional collection is not precached', async () => {
   const optional = setup();
   await optional.lifecycle('install');
   for (const file of require('../tools/build-workshop-shelf.cjs').buildShelf(ROOT).files) {
@@ -136,6 +156,9 @@ function setup(failInstall = false) {
     });
     check(response?.network, 'Optional collection is not precached: ' + file.path);
   }
+});
+
+named('offline release includes core assets', () => {
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
@@ -159,9 +182,15 @@ function setup(failInstall = false) {
       'Offline release includes ' + asset,
     );
   }
+});
+
+named('activation claims clients without forcing install', async () => {
   check(x.calls.skip === 0, 'Installation never forces activation');
   await x.lifecycle('activate');
   check(x.calls.claim === 1, 'Activation claims clients');
+});
+
+named('navigation and alias routing use the cached shell', async () => {
   const page = await x.request('/#/play/scene-01', { mode: 'navigate' });
   check(page.release === name, 'Navigation uses the coherent active-release shell');
   check(x.calls.network === 0, 'Cached navigation does not require network');
@@ -184,12 +213,18 @@ function setup(failInstall = false) {
     );
   }
   check(x.calls.network === 0, 'Root-level shell navigations do not require network');
+});
+
+named('deeper navigation reaches the network', async () => {
   // 0.14.1 audit M4: the shell's asset URLs are relative, so a deeper or file-like URL
   // that received it rendered an unstyled page stuck on "Opening the puzzle cabinet…".
   for (const url of ['/alibi/privacy', '/a/b/x.html', '/a/b/', '/404.html', '/missing.html']) {
     const network = await x.request(url, { mode: 'navigate' });
     check(network && network.network, `Navigation to ${url} reaches the network and its 404`);
   }
+});
+
+named('fetch routing for scripts, updates and mutations', async () => {
   const js = [...x.data.get(name).keys()].find((k) => k.endsWith('.js'));
   check((await x.request(js)).release === name, 'Hashed script served from current cache');
   check(
@@ -211,6 +246,9 @@ function setup(failInstall = false) {
     (await x.request('/assets/old-hash.js')).release === old,
     'An old open tab can fetch its exact earlier script hash',
   );
+});
+
+named('cache cleanup and explicit activation', async () => {
   x.data.set('unrelated-cache', new Map());
   x.data.set('alibi-shell-obsolete', new Map());
   await x.lifecycle('activate');
@@ -223,10 +261,16 @@ function setup(failInstall = false) {
   check(x.calls.skip === 0, 'Unknown messages cannot trigger activation');
   x.handlers.message({ data: { type: 'ACTIVATE' } });
   check(x.calls.skip === 1, 'Explicit update action permits activation');
+});
+
+named('interrupted install rolls back', async () => {
   const bad = setup(true);
   await assert.rejects(bad.lifecycle('install'), /simulated network/);
   check(!bad.data.has(name), 'Interrupted install deletes only its incomplete release cache');
   check(bad.calls.skip === 0, 'Interrupted install does not activate');
+});
+
+named('built html references and manifest icons', () => {
   const html = fs.readFileSync(path.join(ROOT, 'dist/index.html'), 'utf8');
   for (const match of html.matchAll(/(?:src|href)="\.\/([^"#]+)"/g))
     check(fs.existsSync(path.join(ROOT, 'dist', match[1])), 'HTML reference exists: ' + match[1]);
@@ -236,6 +280,10 @@ function setup(failInstall = false) {
     manifest.icons.some((i) => i.purpose === 'maskable'),
     'Android maskable icon included',
   );
+});
+
+after(() => {
+  if (failed) return;
   fs.writeFileSync(
     path.join(ROOT, 'tests/sw-results.json'),
     JSON.stringify(
@@ -248,8 +296,4 @@ function setup(failInstall = false) {
       2,
     ),
   );
-  console.log('PASS', count, 'service-worker and build assertions');
-})().catch((e) => {
-  console.error(e);
-  process.exitCode = 1;
 });
