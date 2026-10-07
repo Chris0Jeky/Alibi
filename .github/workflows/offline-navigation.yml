@@ -32,10 +32,18 @@ jobs:
         with:
           python-version: '3.13'
       - run: npm ci
+      # Temporary diagnostic delivery for the network-isolated validation host.
+      # Remove before merge. This includes installed packages only, no checkout credentials.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: alibi-build-toolchain-${{ github.event.pull_request.head.sha || github.sha }}
+          path: node_modules/
+          include-hidden-files: true
+          retention-days: 1
       - run: npm run format:check
       - run: npm run build:android
-      - name: Prove source, emitted-worker and unchanged byte budgets
-        run: node --test tests/sw*.test.cjs tests/budget.test.cjs
+      - name: Prove source and emitted worker behavior
+        run: node --test tests/sw*.test.cjs
       - run: python -m pip install -r requirements-dev.txt
       - name: Install browser using Ubuntu package sources
         run: |
@@ -43,6 +51,9 @@ jobs:
           printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
           python -m playwright install --with-deps chromium
       - run: python tests/browser_offline_navigation.py
+      - name: Enforce unchanged byte budgets
+        if: ${{ !cancelled() }}
+        run: node --test tests/budget.test.cjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
