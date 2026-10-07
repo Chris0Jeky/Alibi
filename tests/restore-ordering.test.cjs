@@ -81,9 +81,34 @@ function makeDisk() {
         });
         forgetRequest(req);
         pending -= 1;
+        const event = {
+          target: req,
+          currentTarget: req,
+          bubbles: true,
+          cancelable: true,
+          defaultPrevented: false,
+          cancelBubble: false,
+          preventDefault() {
+            this.defaultPrevented = true;
+          },
+          stopPropagation() {
+            this.cancelBubble = true;
+          },
+        };
         try {
-          if (req.onerror) req.onerror();
+          if (req.onerror) req.onerror(event);
         } catch {}
+        if (!event.cancelBubble) {
+          event.currentTarget = tx;
+          try {
+            if (tx.onerror) tx.onerror(event);
+          } catch {}
+          for (const listener of listeners.error) {
+            try {
+              listener(event);
+            } catch {}
+          }
+        }
       }
       function activate() {
         active = true;
@@ -669,14 +694,37 @@ test(
     await new Promise((resolve) => setTimeout(resolve, 40));
     assert.deepEqual(order, [
       'inflight-error:AbortError:undefined',
+      'active-tx-error',
       'active-abort',
       'blocked-error:AbortError:undefined',
+      'blocked-tx-error',
       'blocked-abort',
     ]);
     assert.equal(disk.get('state'), 'held');
     assert.equal(disk.has('marker'), false);
   },
 );
+
+test('preventDefault preserves error bubbling while stopPropagation suppresses it', async () => {
+  const { db } = await scopedFixture();
+  const tx = db.transaction('club', 'readwrite');
+  const cancelled = tx.objectStore('club').get('state');
+  const stopped = tx.objectStore('club').get('marker');
+  const seen = [];
+  cancelled.onerror = (event) => event.preventDefault();
+  stopped.onerror = (event) => event.stopPropagation();
+  tx.onerror = (event) => {
+    assert.equal(event.target, cancelled);
+    assert.equal(event.currentTarget, tx);
+    assert.equal(event.defaultPrevented, true);
+    seen.push('property');
+  };
+  tx.addEventListener('error', () => seen.push('listener'));
+  const aborted = new Promise((resolve) => (tx.onabort = resolve));
+  tx.abort();
+  await aborted;
+  assert.deepEqual(seen, ['property', 'listener']);
+});
 
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
   const { disk, indexedDB } = makeDisk();
