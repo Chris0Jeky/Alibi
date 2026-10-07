@@ -21,3 +21,13 @@ Physical Android/TalkBack and actual browser practice pending/failure rendering 
 ## Residual risk
 
 Grok 4.7 high reached its 25-turn cap after the useful changes, so the coordinator owns completion. Muse lane creation was refused because current host kraspyon differs from registry owner desktop-ihkoojs; no bypass or Muse job ran. HUMAN_TODO.md remains authoritative and was not edited. Root owns central STATE updates and publication. Existing PR #572 practice interactions require root integration review.
+
+## Final Android identity correction
+
+The first independent Grok review found a HIGH producer/consumer defect: the Android runtime copied the complete web content revision, but its receipt and checker still expected only the startup script hash. A clean baseline build:android passed, while the added regression failed on receipt hash 95d1e511... versus complete revision 7a76937c... (exit 1). An earlier baseline attempt failed the clean-source precondition after a test edit; that attempt is not counted as regression proof.
+
+The receipt now preserves the runtime revision. The checker computes the authoritative shared helper from exactly one startup and one deferred UTF-8 asset. The new regression compares web, Android runtime and receipt revisions, and requires the artifact inspector to accept the result. Other direct assumptions were searched: standalone preview-house hashes the complete catalogue JSON and needs no change.
+
+Coordinator checks on the correction: npm.cmd run build:android exit 0; npm.cmd run check:android exit 0; Android-build, Android-boot-target, platform-identity, content-manifest-revision and budget suites with no isolation and concurrency 1 pass 24/24, zero skips/cancellations (49824ms). Prettier and diff check pass. Measured JavaScript gzip remains 134941 bytes; core offline bytes 1892676. No budget ceilings, save formats, IDs or database versions change.
+
+Second and final independent review: fresh read-only GPT-6.1 Sol medium reviewed only the three-file fix diff, found no CRITICAL/HIGH blockers or additional actionable findings. Its static check confirms unique asset selection, UTF-8 input order, receipt/runtime agreement and the regression. It ran no tests or physical-device checks. The subsequent amendment only adds this evidence; exact-head artifact regeneration/check remains the final local step. HUMAN_TODO.md remains authoritative and unchanged.
