@@ -7,6 +7,7 @@ const { test } = require('node:test');
 const esbuild = require('esbuild');
 const root = path.resolve(__dirname, '..');
 const source = fs.readFileSync(path.join(root, 'src/boot.js'), 'utf8');
+const bootstrapSource = source + '\n' + fs.readFileSync(path.join(root, 'src/storage.js'), 'utf8');
 const names = fs
   .readdirSync(path.join(root, 'dist/assets'))
   .filter((name) => /^boot\.[a-f0-9]{12}\.js$/.test(name));
@@ -77,8 +78,11 @@ function boot(code, { hash = '', pathname = '/', search = '', target } = {}) {
 }
 
 test('boot is the exact pinned compiler output, not unminified startup overhead', () => {
-  assert.equal(emitted, esbuild.transformSync(source, { minify: true, target: 'es2022' }).code);
-  assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source));
+  assert.equal(
+    emitted,
+    esbuild.transformSync(bootstrapSource, { minify: true, target: 'es2022' }).code,
+  );
+  assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(bootstrapSource));
 });
 for (const [hash, expected] of [
   ['#/games', '#/salon'],

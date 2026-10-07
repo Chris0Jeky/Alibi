@@ -1,5 +1,6 @@
 /* Device-local persistence. IndexedDB transactions keep a save and its revision atomic.
-   The fallback is deliberately labelled: localStorage is not a cross-tab transaction. */
+   The localStorage fallback coordinates cooperating writers with Web Locks, not
+   an IndexedDB transaction. Without locking, existing local run records stay read-only. */
 (function (root) {
   'use strict';
   const PREFIX = 'alibi.v1.',
@@ -149,7 +150,7 @@
         });
       if (this.mode === 'local') {
         const v = localStorage.getItem(PREFIX + store + '.' + key);
-        if (!v) return undefined;
+        if (v === null) return undefined;
         try {
           return JSON.parse(v);
         } catch (e) {
@@ -203,9 +204,48 @@
           tx.onabort = () =>
             reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
         });
-      const old = await this.get('runs', key);
-      if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
-      return this.put('runs', key, next);
+      const commit = (old) => {
+        if (
+          old !== undefined &&
+          (!old ||
+            old.schemaVersion !== 1 ||
+            old.key !== key ||
+            !Number.isSafeInteger(old.rev) ||
+            old.rev < 0)
+        )
+          throw Error(
+            'A saved record is damaged or from an unsupported version. Nothing was changed.',
+          );
+        if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
+        return this.put('runs', key, next);
+      };
+      // No await between the session revision read and its synchronous memory write.
+      if (this.mode !== 'local') return commit(this.memory.runs[key]);
+      const locks = root.navigator?.locks;
+      if (typeof locks?.request !== 'function' || typeof root.AbortController !== 'function')
+        throw Error(
+          'This browser cannot safely save local progress. Export this session and reopen Alibi with IndexedDB available.',
+        );
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      try {
+        return await locks.request(
+          PREFIX + 'runs.' + key,
+          { mode: 'exclusive', signal: controller.signal },
+          async () => {
+            clearTimeout(timer);
+            return commit(await this.get('runs', key));
+          },
+        );
+      } catch (error) {
+        if (controller.signal.aborted)
+          throw Error(
+            'Waiting to save timed out. Export this session, close other Alibi tabs, and reload.',
+          );
+        throw error;
+      } finally {
+        clearTimeout(timer);
+      }
     }
     async export() {
       const runs = await this.getAll('runs'),

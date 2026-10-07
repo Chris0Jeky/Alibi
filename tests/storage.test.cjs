@@ -29,6 +29,9 @@ function setup(local = true, newer = false) {
     };
   const ctx = {
     structuredClone,
+    AbortController,
+    // Sequential fallback fixture; cross-context exclusion has its own browser suite.
+    navigator: { locks: { request: async (_name, _options, callback) => callback() } },
     Date,
     console,
     localStorage: ls,

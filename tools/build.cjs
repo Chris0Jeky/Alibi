@@ -224,10 +224,13 @@ function build() {
     }).code,
     engineURL = `./assets/club-engines.${hash(clubEngineBundle)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
-    boot = require('esbuild').transformSync(read(path.join(SRC, 'boot.js')), {
-      minify: true,
-      target: 'es2022',
-    }).code,
+    // The save owner is defined before application initialization, but accesses
+    // Core and persistence only on use. Keep it in the already-counted bootstrap
+    // rather than adding another request or duplicating it in the app bundle.
+    boot = require('esbuild').transformSync(
+      ['boot.js', 'storage.js'].map((file) => read(path.join(SRC, file))).join('\n'),
+      { minify: true, target: 'es2022' },
+    ).code,
     bootURL = `./assets/boot.${hash(boot)}.js`;
   // The Pulseboard SDK (observatory/pulseboard.js, pinned by observatory.lock.json) is emitted verbatim as its
   // own hashed asset and loaded by the last deferred script of the web index only. It is online-only: not in the
@@ -294,7 +297,6 @@ function build() {
     core,
     engines,
     bridges,
-    read(path.join(SRC, 'storage.js')),
     read(path.join(SRC, 'presentation.js')),
     read(path.join(SRC, 'asset-library.js')),
     read(path.join(SRC, 'asset-delivery.js')),
