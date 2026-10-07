@@ -145,11 +145,9 @@
     if (options?.confirmed !== true) fail('Import needs explicit confirmation.');
     const before = {},
       attempted = [];
-    let retained = false;
     try {
       for (const name of SECTIONS) before[name] = await ports.read(name);
       await ports.retain(before);
-      retained = true;
       for (const name of SECTIONS) {
         // A rejected write may already have changed its domain. Record it first,
         // but never roll an untouched later domain back to an older snapshot.
@@ -157,7 +155,8 @@
         await ports.write(name, validated.payload[name]);
       }
     } catch (error) {
-      if (!retained) fail(String(error?.message || 'Import could not read the current saves.'));
+      if (!attempted.length)
+        fail(String(error?.message || 'Import could not read the current saves.'));
       try {
         for (const name of attempted) await ports.write(name, before[name]);
         for (const name of attempted)
