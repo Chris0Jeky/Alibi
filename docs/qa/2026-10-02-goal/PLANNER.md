@@ -14,6 +14,8 @@
 
 One implementation, one real review, blocker repair and scoped reproof per slice. Human acceptance remains in [HUMAN_TODO.md](../../../HUMAN_TODO.md). Hosted, simulated and physical evidence remain distinct.
 
+Active #476 slice (3 October): overlapping readwrite/readonly scopes wait for all earlier overlapping unfinished transactions, including queued multi-store writers. Five baseline failures become 16 fixture passes; Club/restore seam 24 and native Chromium 5 pass. An exported-save case kills only the persist restoring-guard mutant (old disk at N+2, restored memory), bringing 17 fixture passes and 25 focused passes. Only pending abort-error delivery remains open. Full local 1,049/three skips precedes the added case; Muse scheduling review and scoped Luna added-case review find no defects. Final head CI pending. Existing fallback race tracked #554; ordinary same-tab player queue protects that seam.
+
 #546 Bridges diagnostics is ready at ffffb338: 49 named cases preserve40assertion call sites; Night Routes/Symbols already each havefour named cases. Full1,014/three skips and final63pass. Completed Muse no HIGH/CRITICAL; MEDIUM filtered aggregate-counter concern tracked519. Hosted Node22 full gate succeeds at ffffb338. Refreshed parent timeout-only merge requires clean Android/Bridges/CI-scope proof and current-head CI.
 
 Active #519 slice (3 October): Club storage has 13 named serial groups, retaining52 checks/four helpers/37 awaits. Injected first failure yields1fail/12pass; filtered3groups/18checks reports incomplete. Full clean3f4aaad verify1056/three skips; completed Muse xhigh review clear. Final clean-head seam/current-head CI precede landing. Separate from the coordinating chat's remaining #552/#550 release integration.
