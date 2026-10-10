@@ -4,13 +4,15 @@
 
 The IndexedDB save transaction now distinguishes an absent row from a present
 unknown envelope before accepting revision CAS. Future schemas, missing/unsafe
-revisions and mismatched envelope/value keys refuse without replacing recovery
-bytes. Known revision-zero backup runs remain writable, preserving the existing
+revisions, mismatched envelope/value keys and rows rejected by the application's
+full run validator refuse without replacing recovery bytes. Validation occurs on
+the row read inside the CAS transaction. Known revision-zero backup runs remain writable, preserving the existing
 nonnegative revision format. No puzzle IDs, database version or byte limits change.
 The original guard failed six focused cases; the corrected storage/revision/
-restore/recovery selection passes 21 cases plus 58 legacy storage assertions.
-An actual-origin autosave/reload regression is added; browser, emitted-build,
-hosted exact-head and independent review gates remain pending for this candidate.
+restore/recovery selection passes 44 cases plus 58 legacy storage assertions.
+Three malformed-content regressions fail before the review fix and pass after it.
+Actual-origin autosave/reload regressions cover future and malformed known-schema
+rows; browser, emitted-build, hosted exact-head and fix review gates remain pending.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
 ## 7 October 2026: cabinet fallback safety candidate

@@ -112,6 +112,7 @@ test('the penultimate cabinet revision can advance exactly to the safe limit', a
 function indexedRun(value, envelopeKey = 'precision-study@1') {
   let persisted = value === undefined ? undefined : { key: envelopeKey, value };
   const store = new (loadStorage())();
+  store.validateRun = cabinetValidator().validateRun;
   store.db = {
     transaction() {
       const tx = {
@@ -145,6 +146,9 @@ for (const [label, old] of [
   ['mismatched key', { ...savedRun(0), key: 'another-study@1' }],
   ['null value', null],
   ['invalid revision', savedRun(-1)],
+  ['missing puzzle', { ...savedRun(0), puzzle: undefined }],
+  ['invalid counters', { ...savedRun(0), moves: -1 }],
+  ['invalid history', { ...savedRun(0), undo: 'retain this damaged history' }],
 ]) {
   test(`IndexedDB preserves an existing ${label} run on revision-zero save`, async () => {
     const fixture = indexedRun(old);

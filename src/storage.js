@@ -199,7 +199,14 @@
           this.watch(tx, reject);
           r.onsuccess = () => {
             const old = r.result?.value;
+            let invalid = false;
+            try {
+              if (old !== undefined) this.validateRun?.(old);
+            } catch {
+              invalid = true;
+            }
             if (
+              invalid ||
               (r.result !== undefined &&
                 (!old ||
                   r.result.key !== key ||
@@ -231,6 +238,7 @@
         throw Error(
           'A saved record is damaged or from an unsupported version. Nothing was changed.',
         );
+      if (old !== undefined) this.validateRun?.(old);
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }
