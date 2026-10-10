@@ -1,12 +1,14 @@
 /* Device-local persistence. IndexedDB transactions keep a save and its revision atomic.
-   The fallback is deliberately labelled: localStorage is not a cross-tab transaction. */
+   Local run records are read-only without IndexedDB; session writes stay ephemeral. */
 (function (root) {
   'use strict';
   const PREFIX = 'alibi.v1.',
     DB = 'alibi-device',
     VERSION = 1,
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
-    aborted = () => Error('Storage transaction aborted.');
+    aborted = () => Error('Storage transaction aborted.'),
+    readOnly = () =>
+      Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
   class ConflictError extends Error {
     constructor() {
       super('This puzzle changed in another tab. Reload its latest save or export this session.');
@@ -81,6 +83,7 @@
         localStorage.setItem(PREFIX + 'probe', '1');
         localStorage.removeItem(PREFIX + 'probe');
         this.mode = 'local';
+        this.problem = readOnly().message;
       } catch (e) {
         this.mode = 'session';
       }
@@ -149,7 +152,7 @@
         });
       if (this.mode === 'local') {
         const v = localStorage.getItem(PREFIX + store + '.' + key);
-        if (!v) return undefined;
+        if (v === null) return undefined;
         try {
           return JSON.parse(v);
         } catch (e) {
@@ -168,9 +171,10 @@
           tx.onerror = () => reject(tx.error);
           tx.onabort = () => reject(tx.error || aborted());
         });
-      if (this.mode === 'local')
+      if (this.mode === 'local') {
+        if (store === 'runs') throw readOnly();
         localStorage.setItem(PREFIX + store + '.' + key, JSON.stringify(value));
-      else this.memory[store][key] = value;
+      } else this.memory[store][key] = value;
       return value;
     }
     async saveRun(record, expectedRevision) {
@@ -181,6 +185,7 @@
         expectedRevision < 0
       )
         throw Error('Revision limit.');
+      if (!this.db && this.mode === 'local') throw readOnly();
       const key = record.key;
       const next = AlibiCore.clone(record);
       next.rev = expectedRevision + 1;
@@ -203,7 +208,19 @@
           tx.onabort = () =>
             reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
         });
-      const old = await this.get('runs', key);
+      // Session memory belongs to this Store. Compare and write without yielding.
+      const old = this.memory.runs[key];
+      if (
+        old !== undefined &&
+        (!old ||
+          old.schemaVersion !== 1 ||
+          old.key !== key ||
+          !Number.isSafeInteger(old.rev) ||
+          old.rev < 0)
+      )
+        throw Error(
+          'A saved record is damaged or from an unsupported version. Nothing was changed.',
+        );
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }
