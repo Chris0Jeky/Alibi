@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-11: Lantern Duel credential host binding (#605)
+
+Room seats and pending idempotent retries capture the full normalized API address.
+Polls and moves refuse before fetch after API settings change, including a Club
+restore or a failed create/join at another address. Room response fields cannot
+replace the captured address or credential; saved session seats retain that binding.
+Existing same-host polling, moves and lost-reply retries remain supported.
+Four behavioral regressions reproduce the original credential exposure. Focused
+Club source checks pass; emitted builds, real-origin restore controls and fresh
+independent review are pending. Network tests use synthetic intercepted hosts.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-03: narrow Cascade actions (#562, follows #556)
 
 Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text

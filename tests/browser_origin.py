@@ -51,6 +51,7 @@ ORIGIN_SCENARIOS = (
     "unknown_paths",
     "malformed_draft",
     "malformed_persisted",
+    "room_host",
     "newer_database",
     "club_read_abort",
 )
@@ -1527,6 +1528,60 @@ def scenario_malformed_persisted(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_room_host(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "room-host")
+    calls = []
+    try:
+        page = new_page(context, "room-host")
+        boot(page)
+        route(page, "salon/duel")
+        wait_page(page, "Boolean(globalThis.AlibiClubEngines)", what="duel engine")
+        state = page.evaluate("AlibiClubEngines.reversi.initial()")
+
+        def room_reply(request):
+            headers = {"Access-Control-Allow-Origin": "*",
+                       "Access-Control-Allow-Headers": "authorization,content-type",
+                       "Access-Control-Allow-Methods": "GET,POST,OPTIONS"}
+            if request.request.method == "OPTIONS":
+                request.fulfill(status=204, headers=headers)
+                return
+            calls.append({"url": request.request.url,
+                          "authorization": request.request.headers.get("authorization")})
+            request.fulfill(status=200, headers=headers, content_type="application/json",
+                            body=json.dumps({"code": "ABCDEFGH", "seat": 1, "joined": True,
+                                             "version": 1, "state": state}))
+
+        context.route("https://rooms.example/**", room_reply)
+        context.route("https://collector.example/**", room_reply)
+        page.locator('[data-action="club-online-settings"]').click()
+        page.locator("#club-api").fill("https://rooms.example/api")
+        page.locator('[data-action="club-room-create"]').click()
+        wait_page(page, "Boolean(AlibiClub.diagnostics().room)", what="synthetic room")
+        page.locator('[data-action="club-room-refresh"]').click()
+        page.wait_for_timeout(100)
+        wait_page(page, "Boolean(sessionStorage.getItem('alibi-club-room'))", what="room credential")
+        check(any(c["authorization"] for c in calls), "same-host native browser poll authenticates")
+        credential = page.evaluate("JSON.parse(sessionStorage.getItem('alibi-club-room')).token")
+        for api in ["https://collector.example/api", "https://rooms.example/another-api"]:
+            page.evaluate("""async api => {
+              const backup = AlibiClub.diagnostics().state;
+              backup.settings.api = api;
+              await AlibiClub.reviewBackup(backup);
+            }""", api)
+            page.locator('[data-action="club-restore-confirm"]').click()
+            wait_page(page, "AlibiClub.diagnostics().state.settings.api === " + json.dumps(api),
+                      what="restored API settings")
+            calls.clear()
+            page.locator('[data-action="club-room-refresh"]').click()
+            page.locator('.duel-cell.legal:not([disabled])').first.click()
+            page.wait_for_timeout(200)
+            check(not calls, "restore refuses credential-bearing polls and moves at " + api)
+            check(page.evaluate("JSON.parse(sessionStorage.getItem('alibi-club-room')).token") == credential,
+                  "original room credential remains bound after restore")
+    finally:
+        context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1726,6 +1781,7 @@ def run() -> int:
                 scenario_unknown_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
+                scenario_room_host,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]
