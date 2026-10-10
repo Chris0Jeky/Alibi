@@ -95,6 +95,16 @@ test('all filters combine without rewriting their inputs', () => {
   assert.deepEqual(M.catalogue(fixtures, [], { ...route, family: 'binary', q: 'bridge' }), []);
   assert.equal(JSON.stringify(fixtures), before);
 });
+
+test('unknown save keys do not become catalogue entries or mutate the saves', () => {
+  const saves = [record(fixtures[0]), { key: 'ghost@99', moves: 9 }];
+  const before = structuredClone(saves);
+  assert.deepEqual(M.catalogue(fixtures, saves, route).map(M.key), fixtures.map(M.key));
+  assert.deepEqual(M.catalogue(fixtures, saves, { ...route, progress: 'active' }).map(M.key), [
+    'binary-01@1',
+  ]);
+  assert.deepEqual(saves, before);
+});
 test('continue uses a pinned definition and deterministic timestamp order', () => {
   const older = record(puzzle('removed'), { updatedAt: '2025-01-01' });
   const current = record(fixtures[0]);
