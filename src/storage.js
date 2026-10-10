@@ -193,7 +193,17 @@
             r = os.get(key);
           this.watch(tx, reject);
           r.onsuccess = () => {
-            if ((r.result?.value.rev || 0) !== expectedRevision) {
+            const old = r.result?.value;
+            if (
+              (r.result !== undefined &&
+                (!old ||
+                  r.result.key !== key ||
+                  old.key !== key ||
+                  old.schemaVersion !== 1 ||
+                  !Number.isSafeInteger(old.rev) ||
+                  old.rev < 0)) ||
+              (old?.rev ?? 0) !== expectedRevision
+            ) {
               conflict = true;
               tx.abort();
             } else os.put({ key, value: next });

@@ -108,3 +108,68 @@ test('the penultimate cabinet revision can advance exactly to the safe limit', a
   assert.equal(saved.rev, Number.MAX_SAFE_INTEGER);
   assert.equal(store.memory.runs[record.key].rev, Number.MAX_SAFE_INTEGER);
 });
+
+function indexedRun(value, envelopeKey = 'precision-study@1') {
+  let persisted = value === undefined ? undefined : { key: envelopeKey, value };
+  const store = new (loadStorage())();
+  store.db = {
+    transaction() {
+      const tx = {
+        addEventListener() {},
+        abort() {
+          queueMicrotask(() => tx.onabort());
+        },
+        objectStore() {
+          return {
+            get() {
+              const request = { result: structuredClone(persisted) };
+              queueMicrotask(() => request.onsuccess());
+              return request;
+            },
+            put(entry) {
+              persisted = structuredClone(entry);
+              queueMicrotask(() => tx.oncomplete());
+            },
+          };
+        },
+      };
+      return tx;
+    },
+  };
+  return { store, persisted: () => structuredClone(persisted) };
+}
+
+for (const [label, old] of [
+  ['missing revision', { ...savedRun(0), rev: undefined }],
+  ['future schema', { ...savedRun(0), schemaVersion: 9, future: { note: 'retain me' } }],
+  ['mismatched key', { ...savedRun(0), key: 'another-study@1' }],
+  ['null value', null],
+  ['invalid revision', savedRun(-1)],
+]) {
+  test(`IndexedDB preserves an existing ${label} run on revision-zero save`, async () => {
+    const fixture = indexedRun(old);
+    const before = fixture.persisted();
+    await assert.rejects(fixture.store.saveRun(savedRun(0), 0), { name: 'ConflictError' });
+    assert.deepEqual(fixture.persisted(), before);
+  });
+}
+
+test('IndexedDB distinguishes absence from an invalid envelope key and preserves normal CAS', async () => {
+  const empty = indexedRun(undefined);
+  assert.equal((await empty.store.saveRun(savedRun(0), 0)).rev, 1);
+  assert.equal((await empty.store.saveRun(savedRun(1), 1)).rev, 2);
+  await assert.rejects(empty.store.saveRun(savedRun(1), 1), { name: 'ConflictError' });
+  assert.equal(empty.persisted().value.rev, 2);
+  const wrongKey = indexedRun(savedRun(1), 'another-study@1');
+  const before = wrongKey.persisted();
+  await assert.rejects(wrongKey.store.saveRun(savedRun(1), 1), { name: 'ConflictError' });
+  assert.deepEqual(wrongKey.persisted(), before);
+});
+
+test('an accepted revision-zero backup run can still advance through IndexedDB CAS', async () => {
+  const record = cabinetValidator().validateRun(savedRun(0));
+  const fixture = indexedRun(structuredClone(record));
+  assert.equal((await fixture.store.saveRun(record, 0)).rev, 1);
+  assert.equal(fixture.persisted().value.rev, 1);
+  await assert.rejects(fixture.store.saveRun(record, 0), { name: 'ConflictError' });
+});

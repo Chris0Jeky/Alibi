@@ -1,5 +1,18 @@
 # Live development state
 
+## 2026-10-11: quarantined Cabinet revision guard (#599)
+
+The IndexedDB save transaction now distinguishes an absent row from a present
+unknown envelope before accepting revision CAS. Future schemas, missing/unsafe
+revisions and mismatched envelope/value keys refuse without replacing recovery
+bytes. Known revision-zero backup runs remain writable, preserving the existing
+nonnegative revision format. No puzzle IDs, database version or byte limits change.
+The original guard failed six focused cases; the corrected storage/revision/
+restore/recovery selection passes 21 cases plus 58 legacy storage assertions.
+An actual-origin autosave/reload regression is added; browser, emitted-build,
+hosted exact-head and independent review gates remain pending for this candidate.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-03: narrow Cascade actions (#562, follows #556)
 
 Refs #418 item 3. The 320px built-origin probe reproduced Rotate and Cancel text
