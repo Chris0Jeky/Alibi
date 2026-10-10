@@ -52,6 +52,7 @@ ORIGIN_SCENARIOS = (
     "malformed_draft",
     "malformed_persisted",
     "room_host",
+    "room_version",
     "newer_database",
     "club_read_abort",
 )
@@ -1585,6 +1586,72 @@ def scenario_room_host(pw: Any, root: Path) -> None:
         context.close()
 
 
+def scenario_room_version(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "room-version")
+    held = []
+    try:
+        page = new_page(context, "room-version")
+        boot(page)
+        route(page, "salon/duel")
+        wait_page(page, "Boolean(globalThis.AlibiClubEngines)", what="duel engine")
+        states = page.evaluate("""() => {
+          const E = AlibiClubEngines.reversi, values = [E.initial()];
+          for (let i = 0; i < 4; i++) values.push(E.move(values.at(-1), E.legal(values.at(-1))[0]));
+          return values;
+        }""")
+        api = urljoin(BASE, "api")
+        version = 5
+        hold_method = "GET"
+
+        def reply(request, revision):
+            request.fulfill(status=200, content_type="application/json", body=json.dumps({
+                "code": "ABCDEFGH", "seat": 1, "joined": True,
+                "version": revision, "state": states[revision - 5]}))
+
+        def room_reply(request):
+            if request.request.url.endswith("/state") or request.request.url.endswith("/move"):
+                if request.request.method == hold_method:
+                    held.append(request)
+                    return
+            reply(request, version)
+
+        context.route(api + "/**", room_reply)
+        route(page, "salon")
+        page.locator('[data-action="club-online-settings"]').click()
+        page.locator("#club-api").fill(api)
+        page.locator('[data-action="club-room-create"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 5", what="synthetic room v5")
+        page.locator('[data-action="club-room-refresh"]').click()
+        page.wait_for_timeout(100)
+        check(len(held) == 1, "native poll v5 is held before the move")
+        version = 6
+        page.locator('.duel-cell.legal:not([disabled])').first.click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 6", what="accepted move v6")
+        reply(held.pop(), 5)
+        page.wait_for_timeout(100)
+        check(page.evaluate("AlibiClub.diagnostics().room.version") == 6,
+              "delayed native poll cannot rewind successful move")
+        hold_method = "POST"
+        version = 7
+        page.locator('[data-action="club-room-refresh"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 7", what="opponent move v7")
+        page.locator('.duel-cell.legal:not([disabled])').first.click()
+        page.wait_for_timeout(100)
+        check(len(held) == 1, "native move v8 is held before newer poll")
+        version = 9
+        page.locator('[data-action="club-room-refresh"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 9", what="accepted poll v9")
+        reply(held.pop(), 8)
+        page.wait_for_timeout(100)
+        check(page.evaluate("AlibiClub.diagnostics().room.version") == 9,
+              "delayed native move cannot rewind newer poll")
+        board = page.evaluate("""Array.from(document.querySelectorAll('.duel-cell'), el =>
+          el.querySelector('.gold') ? 1 : el.querySelector('.ink') ? -1 : 0)""")
+        check(board == states[4]["board"], "native controls retain the newest visible board")
+    finally:
+        context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1785,6 +1852,7 @@ def run() -> int:
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_room_host,
+                scenario_room_version,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]

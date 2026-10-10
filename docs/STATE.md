@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-11: Lantern Duel response ordering candidate (#604)
+
+Poll and move completions retain room identity and accept only safe integer versions
+at least as new as the accepted snapshot. Equal versions keep its board and joined
+state; newer versions replace it. Four red regressions reproduce rewinds and invalid
+version acceptance; 22 focused Node cases pass after repair. A real-origin delayed
+response scenario is added, with execution and emitted build evidence pending.
+This layers on #608's API credential binding. Physical/two-device multiplayer and
+deployment acceptance remain unverified; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.
