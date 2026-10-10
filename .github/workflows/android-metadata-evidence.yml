@@ -1,0 +1,97 @@
+name: Inspect missing Android metadata checksums
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/android-metadata-evidence.yml'
+      - 'android/gradle/verification-metadata.xml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metadata-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Retain two exact published metadata artifacts for manual trust review
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.request import build_opener, HTTPRedirectHandler
+          from urllib.error import HTTPError
+          import hashlib
+          import json
+          import re
+          import subprocess
+
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  raise ValueError('Metadata evidence must not follow redirects')
+
+          opener = build_opener(NoRedirect)
+          out = Path('test-results/native-metadata')
+          out.mkdir(parents=True, exist_ok=True)
+          base = 'https://repo.maven.apache.org/maven2/'
+          paths = (
+              'com/google/guava/guava-parent/33.3.1-jre/guava-parent-33.3.1-jre.pom',
+              'org/junit/junit-bom/5.10.2/junit-bom-5.10.2.module',
+          )
+
+          def fetch(url):
+              with opener.open(url, timeout=30) as response:
+                  if response.status != 200 or response.geturl() != url:
+                      raise ValueError('Unexpected metadata response')
+                  data = response.read(1048577)
+              if not data or len(data) > 1048576:
+                  raise ValueError('Empty or oversized metadata evidence')
+              return data
+
+          records = []
+          for path in paths:
+              url = base + path
+              data = fetch(url)
+              name = path.rsplit('/', 1)[1]
+              (out / name).write_bytes(data)
+              digest = hashlib.sha256(data).hexdigest()
+              record = {'url': url, 'file': name, 'bytes': len(data), 'sha256': digest,
+                        'publishedSha256Matches': False, 'trustApproved': False}
+              try:
+                  sidecar = fetch(url + '.sha256')
+              except HTTPError as error:
+                  if error.code != 404:
+                      raise
+                  record['publishedSha256Status'] = 'not-published-404'
+              else:
+                  (out / (name + '.sha256')).write_bytes(sidecar)
+                  expected = sidecar.decode('ascii').strip()
+                  if not re.fullmatch('[0-9a-fA-F]{64}', expected) or expected.lower() != digest:
+                      raise ValueError('Published checksum mismatch: ' + name)
+                  record['publishedSha256Matches'] = True
+                  record['publishedSha256Status'] = 'matched'
+              records.append(record)
+          receipt = {'schemaVersion': 1, 'evidence': 'official-maven-metadata-retrieval',
+                     'sourceSha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+                     'existingVerificationMetadataSha256': hashlib.sha256(
+                         Path('android/gradle/verification-metadata.xml').read_bytes()).hexdigest(),
+                     'artifacts': records, 'trustApproved': False}
+          (out / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          print(json.dumps(receipt, indent=2))
+          PY
+      - name: Verify no source or trust metadata was changed
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+      - name: Preserve public metadata evidence, never credentials or player data
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-metadata-${{ github.event.pull_request.head.sha || github.sha }}
+          path: test-results/native-metadata
+          if-no-files-found: warn
+          retention-days: 7

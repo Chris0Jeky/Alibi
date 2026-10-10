@@ -187,11 +187,13 @@ test('Capacitor sync checks exact public bytes and sibling config files', () => 
     fs.mkdirSync(target, { recursive: true });
     fs.writeFileSync(path.join(source, 'index.html'), 'preview');
     fs.writeFileSync(path.join(target, 'index.html'), 'preview');
-    fs.writeFileSync(path.join(target, 'cordova.js'), 'generated');
-    fs.writeFileSync(path.join(target, 'cordova_plugins.js'), 'generated');
-    for (const name of ['capacitor.config.json', 'capacitor.plugins.json']) {
-      fs.writeFileSync(path.join(fixture, 'assets', name), '{}');
-    }
+    fs.writeFileSync(path.join(target, 'cordova.js'), '');
+    fs.writeFileSync(path.join(target, 'cordova_plugins.js'), '');
+    fs.copyFileSync(
+      path.join(ROOT, 'capacitor.config.json'),
+      path.join(fixture, 'assets', 'capacitor.config.json'),
+    );
+    fs.writeFileSync(path.join(fixture, 'assets', 'capacitor.plugins.json'), '[]');
     assert.deepEqual(checkPublicPayload({ source, target }), []);
     fs.writeFileSync(path.join(target, 'unexpected.js'), 'stale');
     assert.match(checkPublicPayload({ source, target }).join('\n'), /file set differs/);
