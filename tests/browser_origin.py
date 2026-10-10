@@ -1553,6 +1553,7 @@ def scenario_room_host(pw: Any, root: Path) -> None:
 
         context.route("https://rooms.example/**", room_reply)
         context.route("https://collector.example/**", room_reply)
+        route(page, "salon")
         page.locator('[data-action="club-online-settings"]').click()
         page.locator("#club-api").fill("https://rooms.example/api")
         page.locator('[data-action="club-room-create"]').click()
