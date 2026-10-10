@@ -1537,6 +1537,8 @@ def scenario_room_host(pw: Any, root: Path) -> None:
         route(page, "salon/duel")
         wait_page(page, "Boolean(globalThis.AlibiClubEngines)", what="duel engine")
         state = page.evaluate("AlibiClubEngines.reversi.initial()")
+        api = urljoin(BASE, "api")
+        collector = "https://pulseboard-observatory.commit-atlas.workers.dev/test-room-api"
 
         def room_reply(request):
             headers = {"Access-Control-Allow-Origin": "*",
@@ -1551,11 +1553,11 @@ def scenario_room_host(pw: Any, root: Path) -> None:
                             body=json.dumps({"code": "ABCDEFGH", "seat": 1, "joined": True,
                                              "version": 1, "state": state}))
 
-        context.route("https://rooms.example/**", room_reply)
-        context.route("https://collector.example/**", room_reply)
+        context.route(api + "/**", room_reply)
+        context.route(collector + "/**", room_reply)
         route(page, "salon")
         page.locator('[data-action="club-online-settings"]').click()
-        page.locator("#club-api").fill("https://rooms.example/api")
+        page.locator("#club-api").fill(api)
         page.locator('[data-action="club-room-create"]').click()
         wait_page(page, "Boolean(AlibiClub.diagnostics().room)", what="synthetic room")
         page.locator('[data-action="club-room-refresh"]').click()
@@ -1563,7 +1565,7 @@ def scenario_room_host(pw: Any, root: Path) -> None:
         wait_page(page, "Boolean(sessionStorage.getItem('alibi-club-room'))", what="room credential")
         check(any(c["authorization"] for c in calls), "same-host native browser poll authenticates")
         credential = page.evaluate("JSON.parse(sessionStorage.getItem('alibi-club-room')).token")
-        for api in ["https://collector.example/api", "https://rooms.example/another-api"]:
+        for api in [collector, urljoin(BASE, "another-api")]:
             page.evaluate("""async api => {
               const backup = AlibiClub.diagnostics().state;
               backup.settings.api = api;
