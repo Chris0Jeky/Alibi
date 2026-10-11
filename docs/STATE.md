@@ -1,5 +1,9 @@
 # Live development state
 
+## 2026-10-11: authoritative Cabinet backup candidate (#602)
+
+File-only candidate: cabinetBackup now keeps the authoritative store.export bytes for clean rows and offers a separate Cabinet session payload only when a dirty local version diverges from a newer committed row. No verification run was executed here; proving command node --test tests/app-cabinet-export.test.cjs and hosted proof remain with the driver.
+
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present
