@@ -337,6 +337,20 @@ test('a reset whose queue rewrite fails still leaves no old-key answer to reload
   );
 });
 
+test('a reset reports failed key removal and preserves the stored respondent', () => {
+  const { q, store } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  const old = q.respondent(),
+    remove = store.removeItem.bind(store);
+  store.removeItem = (key) => {
+    if (key === q.KEY) throw Error('SecurityError');
+    remove(key);
+  };
+  assert.equal(q.resetRespondent(), false);
+  assert.equal(store.getItem(q.KEY), JSON.stringify(old));
+  assert.equal(q.respondent(), old);
+});
+
 test('a memory-only respondent key is persisted when storage recovers', () => {
   const map = new Map();
   let full = true;
