@@ -60,6 +60,29 @@ test('fixed queens and knight prefixes reject replay edits while ordinary legacy
   assert.equal(ordinary.moves, 0);
 });
 
+test('borough log gate matches strict replay: exact keys and in-range slot/cell', () => {
+  const boroughId = registry.entries().find((c) => c.family === 'borough').id;
+  for (const bad of [
+    { slot: 0, cell: 0, extra: 1 },
+    { slot: 99, cell: 99 },
+    { slot: 3, cell: 0 },
+    { slot: 0, cell: 25 },
+  ]) {
+    const run = registry.begin(boroughId);
+    run.log = [bad];
+    assert.throws(() => registry.replay(run), /Invalid challenge replay action/);
+  }
+  const good = registry.begin(boroughId);
+  good.log = [{ slot: 0, cell: 0 }];
+  assert.equal(registry.replay(good).state.turn, 1);
+  const illegal = registry.begin(boroughId);
+  illegal.log = [
+    { slot: 0, cell: 0 },
+    { slot: 1, cell: 0 },
+  ];
+  assert.throws(() => registry.replay(illegal), /Choose a plan/);
+});
+
 test('registry refuses tampered starts before a challenge can be launched', () => {
   const bad = structuredClone(raw);
   bad.find((c) => c.id === 'curated-classic-sliding-01').startState.tiles = [

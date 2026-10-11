@@ -232,7 +232,16 @@
       );
     if (c.family === 'reversi') return Number.isInteger(action) && action >= 0 && action < 36;
     if (c.family === 'borough')
-      return actionShape(action) && Number.isInteger(action.slot) && Number.isInteger(action.cell);
+      return (
+        actionShape(action) &&
+        Object.keys(action).sort().join(',') === 'cell,slot' &&
+        Number.isInteger(action.slot) &&
+        action.slot >= 0 &&
+        action.slot <= 2 &&
+        Number.isInteger(action.cell) &&
+        action.cell >= 0 &&
+        action.cell <= 24
+      );
     return actionShape(action);
   }
   function apply(c, state, action, Q, E) {
