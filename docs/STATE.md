@@ -1,5 +1,21 @@
 # Live development state
 
+## 2026-10-11: older browser data discovery candidate (#603)
+
+Candidate, not a release: `Store.legacySnapshot()` inventories raw
+`alibi.v1.*` localStorage bytes read-only (probe excluded, no
+parse/migrate/delete/fallback change); `init()` records a separate
+`legacyInventory`/`legacyProblem` without altering IDB authority or
+fatal blocked/newer-version behavior. The shell warns separately with a
+count and an `Export older browser data` action that downloads a raw
+`alibi-legacy-browser-data` archive, not an `alibi-backup` restore.
+Regression: `tests/storage-legacy-recovery.test.cjs`. Proving command
+`node --test --test-concurrency=2 tests/storage-legacy-recovery.test.cjs tests/storage-readonly.test.cjs`
+passed 31 cases after integration repaired three cross-realm fixture assertions.
+Storage and app syntax checks and diff whitespace checks passed. Build,
+actual-origin UI/download and hosted proof remain pending, with no
+physical-device or migration claim.
+
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present

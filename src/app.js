@@ -523,7 +523,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${legacyBanner()}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -2128,6 +2128,36 @@
     download(`alibi-backup-${new Date().toISOString().slice(0, 10)}.json`, await cabinetBackup());
     toast('Backup exported. Keep a copy outside this browser.');
   }
+  async function exportLegacy() {
+    const entries = store.legacySnapshot();
+    download(`alibi-legacy-browser-data-${new Date().toISOString().slice(0, 10)}.json`, {
+      format: 'alibi-legacy-browser-data',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      entries,
+      note: 'Raw archive of older browser bytes kept separately. It does not restore or replace current progress and is not an alibi-backup import candidate.',
+    });
+    toast(
+      `Older browser data exported separately (${entries.length} record${entries.length === 1 ? '' : 's'}). It has not been migrated or restored.`,
+    );
+  }
+  function retryLegacyCheck() {
+    try {
+      store.legacyInventory = store.legacySnapshot();
+      store.legacyProblem = null;
+    } catch (e) {
+      store.legacyInventory = [];
+      store.legacyProblem = e?.message || String(e);
+    }
+    render();
+  }
+  function legacyBanner() {
+    if (store.legacyProblem)
+      return `<div class="banner warn"><span>Older browser data could not be checked, so recovery is unavailable. Reload or retry the check; nothing has been migrated.</span><div class="row">${B('Retry older-data check', 'retry-legacy', 'refresh', 'small secondary')}${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div></div>`;
+    const count = store.legacyInventory?.length || 0;
+    if (!count) return '';
+    return `<div class="banner warn"><span>${count} older browser record${count === 1 ? '' : 's'} exist${count === 1 ? 's' : ''} separately and ${count === 1 ? 'has' : 'have'} not been migrated. Cabinet export stays authoritative.</span><div class="row">${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div></div>`;
+  }
   let stagedAll = null;
   async function exportAll() {
     const cabinet = await cabinetBackup();
@@ -2963,6 +2993,12 @@
         break;
       case 'export':
         await exportBackup();
+        break;
+      case 'export-legacy':
+        await exportLegacy();
+        break;
+      case 'retry-legacy':
+        retryLegacyCheck();
         break;
       case 'export-all':
         await exportAll();
