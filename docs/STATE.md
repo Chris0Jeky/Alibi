@@ -12,7 +12,13 @@ bytes. All 15 failed jobs identify that budget assertion; one artifact-upload
 failure follows its skipped browser step. The existing esbuild minifier now
 compacts the worker in a private scope; emitted-worker assertions exercise its
 actual fetch/install behavior instead of depending on internal variable names.
-Fresh build, budget and browser proof are pending.
+Clean source 6b8b152a builds to web dbb4e386dde2 and measures 1,412,571 shell
+bytes, 221.32 below the unchanged ceiling. Its local full run passes 1,440 cases
+with three intentional skips and the pre-existing Windows symlink EPERM failure;
+22 focused emitted-worker/budget cases pass. Castle hosted browser checks reach
+their update fixture, which still expected an unminified variable name. The
+fixture now replaces exactly one serialized release value; its construction
+passes. Fresh combined browser/update and hosted gates remain pending.
 
 The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
 web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
