@@ -19,48 +19,70 @@ module.exports = function buildExperience(root, dist) {
     return url;
   }
   const realm = read('realm/catalogue.json');
-  const model = (a) => ({
-    id: a.id,
-    title: a.title,
-    model: emit(a.derivatives.find((p) => p.endsWith('.glb'))),
-    image: emit(a.derivatives.find((p) => p.endsWith('.png'))),
-    credit: a.design === 'reused' ? 'Kenney · CC0' : 'Alibi · original design',
-  });
+  const model = (a) => {
+    const glb = a.derivatives.find((p) => p.endsWith('.glb'));
+    if (!glb) throw new Error(`Invalid realm catalogue: ${a.id} is missing a .glb derivative`);
+    const png = a.derivatives.find((p) => p.endsWith('.png'));
+    if (!png) throw new Error(`Invalid realm catalogue: ${a.id} is missing a .png derivative`);
+    return {
+      id: a.id,
+      title: a.title,
+      model: emit(glb),
+      image: emit(png),
+      credit: a.design === 'reused' ? 'Kenney · CC0' : 'Alibi · original design',
+    };
+  };
   const manifest = {
     scenes: realm.scenes.map(model),
     modules: [...realm.assets, ...read('realm/details/catalogue.json').assets].map(model),
-    companions: read('companions/catalogue.json').assets.map((a) => ({
-      id: a.id,
-      title: a.title,
-      states: Object.fromEntries(
-        a.derivatives
-          .filter((p) => p.endsWith('.svg'))
-          .map((p) => [path.parse(p).name.slice(a.id.length + 1), emit(p)]),
-      ),
-    })),
-    audio: read('audio/catalogue.json').assets.map((a) => ({
-      id: a.id,
-      title: a.description,
-      url: emit(a.derivatives.ogg),
-      loop: a.id.startsWith('ambience-'),
-    })),
-    films: read('motion/catalogue.json').items.map((a) => ({
-      id: a.id,
-      title: a.title,
-      url: emit(base + 'motion/' + a.derivatives.find((d) => d.type === 'mp4').path, false),
-      image: emit(base + 'motion/' + a.derivatives.find((d) => d.type === 'poster').path),
-      duration: a.metadata.durationSec,
-    })),
+    companions: read('companions/catalogue.json').assets.map((a) => {
+      const svgs = a.derivatives.filter((p) => p.endsWith('.svg'));
+      if (svgs.length === 0)
+        throw new Error(`Invalid companions catalogue: ${a.id} is missing an .svg derivative`);
+      return {
+        id: a.id,
+        title: a.title,
+        states: Object.fromEntries(
+          svgs.map((p) => [path.parse(p).name.slice(a.id.length + 1), emit(p)]),
+        ),
+      };
+    }),
+    audio: read('audio/catalogue.json').assets.map((a) => {
+      if (!a.derivatives || !a.derivatives.ogg)
+        throw new Error(`Invalid audio catalogue: ${a.id} is missing an ogg derivative`);
+      return {
+        id: a.id,
+        title: a.description,
+        url: emit(a.derivatives.ogg),
+        loop: a.id.startsWith('ambience-'),
+      };
+    }),
+    films: read('motion/catalogue.json').items.map((a) => {
+      const mp4 = a.derivatives.find((d) => d.type === 'mp4');
+      if (!mp4 || !mp4.path)
+        throw new Error(`Invalid motion catalogue: ${a.id} is missing an mp4 derivative`);
+      const poster = a.derivatives.find((d) => d.type === 'poster');
+      if (!poster || !poster.path)
+        throw new Error(`Invalid motion catalogue: ${a.id} is missing a poster derivative`);
+      return {
+        id: a.id,
+        title: a.title,
+        url: emit(base + 'motion/' + mp4.path, false),
+        image: emit(base + 'motion/' + poster.path),
+        duration: a.metadata.durationSec,
+      };
+    }),
     editorial: [],
   };
   const editorial = path.join(root, base, 'editorial/catalogue.json');
   if (fs.existsSync(editorial)) {
     const data = JSON.parse(fs.readFileSync(editorial, 'utf8'));
-    manifest.editorial = (Array.isArray(data) ? data : data.assets).map((a) => ({
-      id: a.id,
-      title: a.title,
-      image: emit(a.derivatives.find((p) => p.endsWith('.webp'))),
-    }));
+    manifest.editorial = (Array.isArray(data) ? data : data.assets).map((a) => {
+      const webp = a.derivatives.find((p) => p.endsWith('.webp'));
+      if (!webp)
+        throw new Error(`Invalid editorial catalogue: ${a.id} is missing a .webp derivative`);
+      return { id: a.id, title: a.title, image: emit(webp) };
+    });
   }
   manifest.files = [...offline];
   manifest.bytes = [...files.values()]
