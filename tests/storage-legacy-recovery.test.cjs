@@ -136,18 +136,15 @@ test('successful IDB keeps mode while legacy rows are inventoried exactly', asyn
   assert.equal(store.mode, 'indexeddb');
   assert.equal(store.legacyProblem, null);
   const inv = plain(store.legacyInventory);
-  assert.deepEqual(
-    inv,
-    [
-      { key: PREFIX + 'runs.p1@1', value: JSON.stringify(VALID) },
-      { key: PREFIX + 'runs.damaged', value: '{bad' },
-      { key: PREFIX + 'runs.empty', value: '' },
-      { key: PREFIX + 'runs.future@9', value: JSON.stringify(FUTURE) },
-      { key: PREFIX + 'packs.custom', value: JSON.stringify({ id: 'custom' }) },
-      { key: PREFIX + 'meta.settings', value: '{"theme":"night"}' },
-      { key: PREFIX + 'mystery-unknown', value: 'raw-bytes' },
-    ],
-  );
+  assert.deepEqual(inv, [
+    { key: PREFIX + 'runs.p1@1', value: JSON.stringify(VALID) },
+    { key: PREFIX + 'runs.damaged', value: '{bad' },
+    { key: PREFIX + 'runs.empty', value: '' },
+    { key: PREFIX + 'runs.future@9', value: JSON.stringify(FUTURE) },
+    { key: PREFIX + 'packs.custom', value: JSON.stringify({ id: 'custom' }) },
+    { key: PREFIX + 'meta.settings', value: '{"theme":"night"}' },
+    { key: PREFIX + 'mystery-unknown', value: 'raw-bytes' },
+  ]);
   assert.deepEqual(f.writes, [], 'inventory must attempt no writes');
   // Re-read returns the same exact raw strings without parsing.
   assert.deepEqual(plain(store.legacySnapshot()), inv);
@@ -287,7 +284,8 @@ test('app export action re-reads raw bytes and refuses a failed snapshot without
   const f = context({ items: legacyItems() });
   const store = await new f.Store().init();
   f.items.set(PREFIX + 'runs.added-after-init', '\u0000new raw bytes');
-  const downloads = [], notices = [];
+  const downloads = [],
+    notices = [];
   const app = {
     store,
     Date,
@@ -307,7 +305,9 @@ test('app export action re-reads raw bytes and refuses a failed snapshot without
   assert.equal(notices.length, 1);
   assert.deepEqual(f.writes, []);
   Object.defineProperty(f.root.localStorage, 'length', {
-    get() { throw Error('Storage denied'); },
+    get() {
+      throw Error('Storage denied');
+    },
   });
   await assert.rejects(app.runExport(), /could not be checked/);
   assert.equal(downloads.length, 1, 'failed snapshot must produce no new archive');

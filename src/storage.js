@@ -33,9 +33,7 @@
         if (!ls) throw Error('localStorage is unavailable.');
         count = ls.length;
       } catch (e) {
-        throw Error(
-          'Older browser data could not be checked: ' + (e?.message || String(e)),
-        );
+        throw Error('Older browser data could not be checked: ' + (e?.message || String(e)));
       }
       const entries = [];
       for (let i = 0; i < count; i++) {
@@ -43,9 +41,7 @@
         try {
           key = ls.key(i);
         } catch (e) {
-          throw Error(
-            'Older browser data could not be checked: ' + (e?.message || String(e)),
-          );
+          throw Error('Older browser data could not be checked: ' + (e?.message || String(e)));
         }
         if (key === null || key === undefined)
           throw Error('Older browser data could not be fully read: a storage key is missing.');
@@ -54,9 +50,7 @@
         try {
           value = ls.getItem(key);
         } catch (e) {
-          throw Error(
-            'Older browser data could not be read: ' + (e?.message || String(e)),
-          );
+          throw Error('Older browser data could not be read: ' + (e?.message || String(e)));
         }
         if (value === null || value === undefined)
           throw Error('Older browser data changed while reading; nothing was exported.');
