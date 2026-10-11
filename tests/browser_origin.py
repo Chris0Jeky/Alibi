@@ -52,6 +52,7 @@ ORIGIN_SCENARIOS = (
     "malformed_draft",
     "malformed_persisted",
     "quarantined_run",
+    "legacy_browser_recovery",
     "newer_database",
     "club_read_abort",
 )
@@ -1572,6 +1573,53 @@ def scenario_quarantined_run(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_legacy_browser_recovery(pw: Any, root: Path) -> None:
+    for width in (390, 1280):
+        context = launch_profile(pw, root / f"legacy-recovery-{width}")
+        try:
+            page = new_page(context, "legacy-browser-recovery")
+            page.set_viewport_size({"width": width, "height": 900})
+            boot(page)
+            route(page, "play/lightup-01@1")
+            move_first_cell(page, "legacy fixture first commits a current IDB run")
+            row = wait_run(page, "lightup-01@1", 1)
+            route(page, "settings")
+            wait_status(page, lambda s: not s["pendingSaves"], "current IDB save settles before legacy seeding")
+            row = read_idb(page, "runs", row["key"])
+            entries = [
+                {"key": "alibi.v1.runs." + row["key"], "value": json.dumps({**row, "rev": 0, "note": "Older separate browser progress"})},
+                {"key": "alibi.v1.runs.broken", "value": "{bad"},
+                {"key": "alibi.v1.runs.empty", "value": ""},
+                {"key": "alibi.v1.future.unknown", "value": '{"schemaVersion":9,"bytes":"preserve"}'},
+            ]
+            page.evaluate("""entries => {
+              for (const {key, value} of entries) localStorage.setItem(key, value);
+              localStorage.setItem('unrelated.synthetic', 'outside archive');
+              localStorage.setItem('alibi.v1.probe', 'excluded');
+            }""", entries)
+            page.reload(wait_until="domcontentloaded")
+            wait_diag(page)
+            check(page.evaluate("AlibiDiagnostics.storage") == "indexeddb", "healthy IndexedDB remains authoritative with older browser bytes present")
+            button = page.locator('[data-action="export-legacy"]').first
+            check(button.is_visible(), "older browser data gets an explicit recovery action")
+            check("4 older browser records" in page_text(page), "the warning reports separately retained legacy records")
+            page.screenshot(path=str(RESULTS / f"legacy-recovery-{width}.png"), full_page=True)
+            with page.expect_download() as info:
+                button.click()
+            raw = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+            check(raw["format"] == "alibi-legacy-browser-data", "raw recovery is clearly separate from normal restore")
+            check(sorted(raw["entries"], key=lambda r: r["key"]) == sorted(entries, key=lambda r: r["key"]), "raw download preserves valid malformed empty and future strings exactly")
+            with page.expect_download() as info:
+                page.locator('[data-action="export"]').first.click()
+            backup = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+            check(next(r for r in backup["runs"] if r["key"] == row["key"]) == row, "normal export keeps current IndexedDB progress rather than older colliding bytes")
+            check(read_idb(page, "runs", row["key"]) == row, "legacy discovery and export leave IndexedDB untouched")
+            retained = page.evaluate("keys => keys.map(key => ({key, value: localStorage.getItem(key)}))", [r["key"] for r in entries])
+            check(retained == entries, "legacy recovery leaves original browser strings untouched")
+        finally:
+            context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1772,6 +1820,7 @@ def run() -> int:
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_quarantined_run,
+                scenario_legacy_browser_recovery,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]
