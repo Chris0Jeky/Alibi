@@ -145,15 +145,14 @@ def make_releases() -> tuple[tempfile.TemporaryDirectory, Path, Path]:
 
     sw_path = release_b / "sw.js"
     sw = sw_path.read_text(encoding="utf-8")
-    sw = re.sub(
-        rf'const BUILD="{re.escape(original_build)}"',
-        'const BUILD="fixture-b"',
-        sw,
-        count=1,
-    )
+    build_marker = json.dumps(original_build)
+    if sw.count(build_marker) != 1:
+        temp.cleanup()
+        raise AssertionError("Expected exactly one worker release marker")
+    sw = sw.replace(build_marker, json.dumps("fixture-b"), 1)
     sw = sw.replace(old_js_ref, f"./assets/{new_js_name}")
     if (
-        'const BUILD="fixture-b"' not in sw
+        json.dumps("fixture-b") not in sw
         or f"./assets/{new_js_name}" not in sw
         or old_js_ref in sw
     ):

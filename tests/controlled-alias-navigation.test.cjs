@@ -94,18 +94,32 @@ test('the offline shell precaches every alias redirect document', () => {
   }
 });
 
-function loadAliasRoute() {
-  const routes = serviceWorker.match(/const ALIAS_ROUTES=(\[[^\]]*\]);/);
-  assert.ok(routes, 'sw.js embeds the alias route table');
-  const matcher = serviceWorker.match(/function aliasRoute\(pathname\)\{[^}]*\}/);
-  assert.ok(matcher, 'sw.js embeds the alias pathname matcher');
-  const sandbox = {};
-  vm.runInNewContext(`${routes[0]}${matcher[0]}`, sandbox, { filename: 'dist/sw.js' });
-  return vm.runInNewContext('aliasRoute', sandbox);
+async function navigate(pathname) {
+  const origin = 'https://test.invalid';
+  const handlers = {};
+  vm.runInNewContext(
+    serviceWorker,
+    {
+      URL,
+      caches: { open: async () => ({ match: async (url) => new URL(url).pathname }) },
+      fetch: async () => 'network',
+      self: {
+        location: { origin },
+        registration: { scope: origin + '/' },
+        addEventListener: (type, handler) => (handlers[type] = handler),
+      },
+    },
+    { filename: 'dist/sw.js' },
+  );
+  let result;
+  handlers.fetch({
+    request: { url: origin + pathname, method: 'GET', mode: 'navigate' },
+    respondWith: (promise) => (result = promise),
+  });
+  return result;
 }
 
-test('controlled alias navigations map to their redirect document', () => {
-  const aliasRoute = loadAliasRoute();
+test('controlled alias navigations map to their cached redirect document', async () => {
   for (const [pathname, expected] of [
     ['/privacy', 'privacy'],
     ['/privacy/', 'privacy'],
@@ -114,32 +128,20 @@ test('controlled alias navigations map to their redirect document', () => {
     ['/PRIVACY', 'privacy'],
     ['/About//', 'about'],
   ]) {
-    assert.equal(aliasRoute(pathname), expected, pathname);
+    assert.equal(await navigate(pathname), `/${expected}.html`, pathname);
   }
 });
 
-test('unknown, nested and root paths keep the root shell', () => {
-  const aliasRoute = loadAliasRoute();
-  for (const pathname of [
-    '/',
-    '',
-    '/library',
-    '/privacy/archive',
-    '/settings',
-    '/alibi/privacy',
-    '/foo/',
+test('root and extensionless paths use the shell while nested paths use the network', async () => {
+  for (const [pathname, expected] of [
+    ['/', '/'],
+    ['', '/'],
+    ['/library', '/'],
+    ['/privacy/archive', 'network'],
+    ['/settings', '/'],
+    ['/alibi/privacy', 'network'],
+    ['/foo/', 'network'],
   ]) {
-    assert.equal(aliasRoute(pathname), null, pathname);
+    assert.equal(await navigate(pathname), expected, pathname);
   }
-});
-
-test('the navigate branch prefers the cached alias document', () => {
-  assert.ok(
-    serviceWorker.includes('aliasRoute(u.pathname)'),
-    'sw.js navigate branch consults aliasRoute before the root shell',
-  );
-  assert.ok(
-    serviceWorker.includes("'./'+alias+'.html'"),
-    'sw.js navigate branch answers the cached alias document',
-  );
 });

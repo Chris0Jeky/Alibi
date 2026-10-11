@@ -205,6 +205,42 @@ test('a key that becomes active while its read is pending keeps its local snapsh
   assert.match(world.saveError(), /another tab/, 'conflict is surfaced');
 });
 
+for (const readBeforeFailure of [false, true]) {
+  test(`an inactive failed-CAS snapshot survives a broadcast ${readBeforeFailure ? 'read begun before' : 'received after'} the failure`, async () => {
+    const alpha = 'alpha@1';
+    const beta = 'beta@1';
+    const world = makeWorld({
+      localRows: {
+        [alpha]: runRow(alpha, 1, 'alpha-unsaved', 3),
+        [beta]: runRow(beta, 1, 'beta-local'),
+      },
+      activeKey: alpha,
+      storedRows: { [alpha]: runRow(alpha, 2, 'alpha-committed', 9) },
+      holdGet: true,
+    });
+    const read = readBeforeFailure ? world.fireSaved(alpha, 1) : null;
+    if (readBeforeFailure) assert.equal(world.saveError(), '', 'read begins without a save error');
+    world.enqueue();
+    await world.drain();
+    assert.equal(world.counters.save, 1, 'actual queued save attempts CAS');
+    assert.match(world.saveError(), /CAS conflict/, 'failed CAS surfaces the sticky save error');
+    world.activate(beta);
+    const notification = read || world.fireSaved(alpha, 2);
+    assert.equal(world.pending.length, 1, 'broadcast read remains held until after navigation');
+    world.releaseNext();
+    await notification;
+    assert.equal(world.marker(alpha), 'alpha-unsaved', 'inactive recoverable edits are preserved');
+    assert.equal(world.recRev(alpha), 1, 'inactive local revision is preserved');
+    assert.equal(world.expected(alpha), 1, 'failed CAS authority is not advanced');
+    assert.equal(
+      world.stored.get(alpha).state.marker,
+      'alpha-committed',
+      'committed row is untouched',
+    );
+    assert.match(world.saveError(), /CAS conflict/, 'recovery warning remains visible');
+  });
+}
+
 test('equal or older stored rows for the active puzzle do not replace local state', async () => {
   const key = 'fixture@1';
   const world = makeWorld({

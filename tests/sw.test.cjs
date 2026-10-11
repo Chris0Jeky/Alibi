@@ -116,14 +116,10 @@ named('standalone keeps exact game source', () => {
 named('release install caches the emitted shell', async () => {
   x = setup();
   await x.lifecycle('install');
-  const shell = JSON.parse(code.match(/SHELL=(\[.*?\])/)[1]);
-  check(
-    x.data.get(name).size === shell.length,
-    'Release installs exactly the emitted shell entries',
-  );
+  const shell = [...x.data.get(name).keys()];
   check(
     shell.length ===
-      6 +
+      7 +
         6 +
         fs
           .readdirSync(path.join(ROOT, 'dist/assets'))
@@ -143,7 +139,7 @@ named('release install caches the emitted shell', async () => {
                 n,
               ),
           ).length,
-    'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
+    'Release installs the core shell, offline 404 and six alias redirect documents, without optional activity assets',
   );
 });
 
