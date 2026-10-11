@@ -7,8 +7,11 @@ save error exists. This preserves recoverable cached edits after navigation, als
 when the read began before the failed CAS save. Clean inactive refreshes and the
 active-snapshot guards remain covered. Two regressions fail before the change;
 all seven handler cases pass after it, and an early-only guard fails the race case.
-The real-origin scenario exercises actual CAS refusal, navigation and broadcasts
-at phone and desktop widths; execution and fresh build proof are pending.
+Clean source f29df3c1 builds web f8e782ab9288 and its Android browser-preview
+artifact; all eight source/budget cases pass. The real-origin scenario passes
+35 checks at phone and desktop widths using actual CAS refusal, navigation and
+broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
+CI remains pending; physical-device acceptance is separate.
 Inactive catalogue refreshes remain paused until reload while the error persists.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
