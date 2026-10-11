@@ -516,6 +516,24 @@ test('solution-free insight deductions avoid the solution and opt-in reveals mat
   assert.deepEqual(reveal.action, { type: 'set', cell: 0, value: unique.solution[0] });
 });
 
+test('deduction forces the only remaining route', () => {
+  const state = E.initial(unique);
+  state.cells[0] = 1;
+  state.cells[1] = 1;
+  assert.deepEqual(E.validate(unique, state), []);
+  const forced = C.bridges.deduction(unique, state);
+  assert.ok(forced, 'deduction finds the forced route');
+  assert.equal(forced.rule, 'Count the available routes');
+  const source = C.bridges.coordinate(unique, 2);
+  const target = C.bridges.coordinate(unique, 3);
+  assert.equal(source, 'C3');
+  assert.equal(target, 'E3');
+  assert.ok(
+    forced.message.includes(source) && forced.message.includes(target),
+    `deduction names ${source} and ${target}`,
+  );
+});
+
 let checked = 0;
 for (const puzzle of [unique, longPath, twoOrMore])
   test(`lower-bound deductions are sound across valid partial boards: ${puzzle.id}`, () => {
