@@ -148,7 +148,9 @@ export function legal(s, slot, cell, rotation = 0) {
     !s ||
     s.done ||
     !integer(slot, 0, 2) ||
+    !Array.isArray(s.tray) ||
     s.tray[slot] === null ||
+    !integer(s.tray[slot], 0, SHAPES.length - 1) ||
     !integer(cell, 0, 63) ||
     !integer(rotation, 0, 3) ||
     (rotation && !s.charges)
