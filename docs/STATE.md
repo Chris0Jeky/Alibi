@@ -5,8 +5,9 @@
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
 successes, independent review and recorded merge receipts. Main is 3b041670.
 The integration branch preserves the reviewed commits from #609, #611, #581,
-#576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined build, browser,
-interaction review and hosted gates are pending; this is not a release claim.
+#576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
+review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
+qualification are recorded in PR #624; this is not a primary release claim.
 The first combined hosted build exceeded the unchanged shell ceiling by 316.68
 bytes. All 15 failed jobs identify that budget assertion; one artifact-upload
 failure follows its skipped browser step. The existing esbuild minifier now
@@ -17,8 +18,13 @@ bytes, 221.32 below the unchanged ceiling. Its local full run passes 1,440 cases
 with three intentional skips and the pre-existing Windows symlink EPERM failure;
 22 focused emitted-worker/budget cases pass. Castle hosted browser checks reach
 their update fixture, which still expected an unminified variable name. The
-fixture now replaces exactly one serialized release value; its construction
-passes. Fresh combined browser/update and hosted gates remain pending.
+fixture now replaces exactly one serialized release value. Clean source
+15c37582 builds to web 9dd71793721b / Android 1bc8c397 and passes 39 focused
+emitted-worker/budget/identity cases, both Quiet Wing suites, 375 real-origin
+checks across all 16 scenarios, 184 UI checks and 18 two-release update checks.
+There are no browser page errors. Phone/desktop recovery views are inspected;
+physical Android/TalkBack remains distinct. Subsequent checkpoint edits change
+only this evidence record; current-host responses are recorded in PR #624.
 
 The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
 web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
