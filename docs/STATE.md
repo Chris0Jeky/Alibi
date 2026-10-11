@@ -1,5 +1,18 @@
 # Live development state
 
+## 2026-10-11: survey-key reset failure candidate
+
+Resetting the survey key now returns an explicit failure when storage refuses
+key removal, and the Privacy status reports that failure instead of promising a
+new key. A narrow regression refuses only key removal while queue writes remain
+available; it preserves the stored key and the respondent read. All 29 queue
+cases pass. The same new assertion fails against the previous implementation
+(1 instead of false), with the other 28 cases passing. Successful zero-answer
+and answer-removal resets retain their existing controls. An actual Privacy
+button failure/recovery control is added to the existing Voices browser suite;
+its build, browser and hosted gates remain pending. No collector change or
+physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: challenge save ownership regression
 
 The existing launcher harness now checks that a valid published challenge save

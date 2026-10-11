@@ -337,40 +337,18 @@ test('a reset whose queue rewrite fails still leaves no old-key answer to reload
   );
 });
 
-test('a reset that cannot remove the survey key reports failure, not success', () => {
+test('a reset reports failed key removal and preserves the stored respondent', () => {
   const { q, store } = harness({ online: false });
   q.enqueue(rating(q, 'scene-01'));
-  const old = q.respondent();
-  assert.ok(old, 'a survey key exists before the reset');
-  // Quota/private-mode simulation: reads work, writes fail.
-  store.setItem = () => {
-    throw Error('QuotaExceededError');
+  const old = q.respondent(),
+    remove = store.removeItem.bind(store);
+  store.removeItem = (key) => {
+    if (key === q.KEY) throw Error('SecurityError');
+    remove(key);
   };
-  store.removeItem = () => {
-    throw Error('QuotaExceededError');
-  };
-  // Same path as src/voices-sheet.js:289: the sheet branches on this return value.
-  let result;
-  try {
-    result = q.resetRespondent();
-  } catch {
-    result = false;
-  }
-  assert.ok(!result, 'the reset reports failure when the key was not removed');
-  assert.equal(
-    store.getItem(q.KEY),
-    JSON.stringify(old),
-    'the old key is still stored, so no success may be claimed',
-  );
-});
-
-test('a reset with writable storage clears the survey key and reports success', () => {
-  const { q, store } = harness({ online: false });
-  q.enqueue(rating(q, 'scene-01'));
-  assert.ok(q.respondent(), 'a survey key exists before the reset');
-  const result = q.resetRespondent();
-  assert.ok(result, 'the reset reports success');
-  assert.equal(store.getItem(q.KEY), null, 'the survey key is cleared');
+  assert.equal(q.resetRespondent(), false);
+  assert.equal(store.getItem(q.KEY), JSON.stringify(old));
+  assert.equal(q.respondent(), old);
 });
 
 test('a memory-only respondent key is persisted when storage recovers', () => {
