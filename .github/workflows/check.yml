@@ -83,6 +83,8 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_ui.py
         if: steps.scope.outputs.mode == 'full'
+      - run: python tests/browser_keyboard_help.py
+        if: steps.scope.outputs.mode == 'full'
       - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=390 python tests/browser_ui.py
         if: steps.scope.outputs.mode == 'full'
       - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=1280 python tests/browser_ui.py
