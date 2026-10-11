@@ -3,7 +3,7 @@
 ## Current overnight checkpoint, 2026-10-11
 
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
-successes, independent review and recorded merge receipts. Main is 3b041670.
+successes, independent review and recorded merge receipts. PR #624 and its eleven source PRs are now merged at 666cbb79 with all 22 reported hosted checks successful.
 The integration branch preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
@@ -41,6 +41,18 @@ direct dependency only. Physical Android/TalkBack, collector readiness, signing,
 publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 Entries below retain their historical candidate evidence; this checkpoint
 supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: replayable Borough backup compatibility regression
+
+A numeric Borough seed with a real replayed move remains accepted by the existing
+engine and backup validator. One regression checks the complete accepted save
+and unchanged input. All 15 backup-validation cases pass; a disposable copy with
+the worker-proposed string-only seed guard fails specifically with "Invalid Pocket
+Borough seed." The incompatible production guard is not included. Independent
+read-only review found no HIGH/CRITICAL defect. This pins engine/backup semantics;
+actual restore transactions and historical UI generation are not newly verified.
+Exact-head hosted CI remains required before merge. Owner/device gates remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: Lantern Duel response ordering candidate (#604)
 
