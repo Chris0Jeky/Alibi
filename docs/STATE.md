@@ -1,5 +1,19 @@
 # Live development state
 
+## 2026-10-11: second qualified integration candidate
+
+This candidate preserves the reviewed source histories of #571 (1a2e8557,
+including #561), #626 (d9a44960), #578 (c79d878d), #590 (1d504464) and
+#628 (285df3dc), based on main f8d5093e. It combines dated handoff preservation,
+numeric Borough backup validation, individually named audio assertions,
+touch guidance and actual Theatre control regressions. Production sources,
+content, tools and dependencies match the previously qualified #590 source
+56c5be27 byte-for-byte. Source-specific controls and independent reviews are
+recorded in those PRs; combined build, browser and exact-head hosted gates remain
+pending at this checkpoint. No source PR merge or primary deployment is claimed.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance
+and the existing release and owner gates.
+
 ## 2026-10-11: recovered dated handoffs
 
 The original 3 October ledger is retained byte-for-byte in
