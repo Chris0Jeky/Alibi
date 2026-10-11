@@ -27,36 +27,23 @@
       this.legacyProblem = null;
     }
     legacySnapshot() {
-      let ls, count;
       try {
-        ls = root.localStorage;
-        if (!ls) throw Error('localStorage is unavailable.');
-        count = ls.length;
+        const ls = root.localStorage,
+          keys = Array.from({ length: ls.length }, (_, i) => ls.key(i)),
+          entries = [];
+        for (const key of keys) {
+          if (key == null) throw Error('A storage key is missing.');
+          if (!key.startsWith(PREFIX) || key === PREFIX + 'probe') continue;
+          const value = ls.getItem(key);
+          if (value == null) throw Error('Browser data changed while reading.');
+          entries.push({ key, value });
+        }
+        if (keys.length !== ls.length || keys.some((key, i) => key !== ls.key(i)))
+          throw Error('Browser data changed while reading.');
+        return entries;
       } catch (e) {
-        throw Error('Older browser data could not be checked: ' + (e?.message || String(e)));
+        throw Error('Older browser data could not be checked: ' + e.message);
       }
-      const entries = [];
-      for (let i = 0; i < count; i++) {
-        let key;
-        try {
-          key = ls.key(i);
-        } catch (e) {
-          throw Error('Older browser data could not be checked: ' + (e?.message || String(e)));
-        }
-        if (key === null || key === undefined)
-          throw Error('Older browser data could not be fully read: a storage key is missing.');
-        if (!key.startsWith(PREFIX) || key === PREFIX + 'probe') continue;
-        let value;
-        try {
-          value = ls.getItem(key);
-        } catch (e) {
-          throw Error('Older browser data could not be read: ' + (e?.message || String(e)));
-        }
-        if (value === null || value === undefined)
-          throw Error('Older browser data changed while reading; nothing was exported.');
-        entries.push({ key, value: String(value) });
-      }
-      return entries;
     }
     async init() {
       try {

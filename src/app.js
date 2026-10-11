@@ -2129,34 +2129,18 @@
     toast('Backup exported. Keep a copy outside this browser.');
   }
   async function exportLegacy() {
-    const entries = store.legacySnapshot();
-    download(`alibi-legacy-browser-data-${new Date().toISOString().slice(0, 10)}.json`, {
+    download('alibi-legacy-browser-data.json', {
       format: 'alibi-legacy-browser-data',
       schemaVersion: 1,
       exportedAt: new Date().toISOString(),
-      entries,
-      note: 'Raw archive of older browser bytes kept separately. It does not restore or replace current progress and is not an alibi-backup import candidate.',
+      entries: store.legacySnapshot(),
     });
-    toast(
-      `Older browser data exported separately (${entries.length} record${entries.length === 1 ? '' : 's'}). It has not been migrated or restored.`,
-    );
-  }
-  function retryLegacyCheck() {
-    try {
-      store.legacyInventory = store.legacySnapshot();
-      store.legacyProblem = null;
-    } catch (e) {
-      store.legacyInventory = [];
-      store.legacyProblem = e?.message || String(e);
-    }
-    render();
+    toast('Older browser data exported separately. Nothing has been migrated.');
   }
   function legacyBanner() {
-    if (store.legacyProblem)
-      return `<div class="banner warn"><span>Older browser data could not be checked, so recovery is unavailable. Reload or retry the check; nothing has been migrated.</span><div class="row">${B('Retry older-data check', 'retry-legacy', 'refresh', 'small secondary')}${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div></div>`;
-    const count = store.legacyInventory?.length || 0;
-    if (!count) return '';
-    return `<div class="banner warn"><span>${count} older browser record${count === 1 ? '' : 's'} exist${count === 1 ? 's' : ''} separately and ${count === 1 ? 'has' : 'have'} not been migrated. Cabinet export stays authoritative.</span><div class="row">${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div></div>`;
+    const count = store.legacyInventory.length;
+    if (!count && !store.legacyProblem) return '';
+    return `<div class="banner warn"><span>${store.legacyProblem ? esc(store.legacyProblem) + ' Try exporting again.' : `${count} older browser record${count === 1 ? '' : 's'} found. They have not been migrated.`}</span>${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div>`;
   }
   let stagedAll = null;
   async function exportAll() {
@@ -2996,9 +2980,6 @@
         break;
       case 'export-legacy':
         await exportLegacy();
-        break;
-      case 'retry-legacy':
-        retryLegacyCheck();
         break;
       case 'export-all':
         await exportAll();

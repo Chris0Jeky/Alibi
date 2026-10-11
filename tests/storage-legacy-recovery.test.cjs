@@ -228,6 +228,26 @@ test('vanished prefixed value throws rather than returning partial recovery', as
   assert.deepEqual(plain(store.legacyInventory), []);
 });
 
+for (const replace of [false, true]) {
+  test(`concurrent legacy key ${replace ? 'replacement' : 'addition'} refuses a partial archive`, async () => {
+    const f = context({ items: legacyItems() });
+    const store = await new f.Store().init();
+    const get = f.root.localStorage.getItem.bind(f.root.localStorage);
+    let changed = false;
+    f.root.localStorage.getItem = (key) => {
+      const value = get(key);
+      if (!changed) {
+        changed = true;
+        if (replace) f.items.delete('other-app-key');
+        f.items.set(PREFIX + 'added', 'concurrent bytes');
+      }
+      return value;
+    };
+    assert.throws(() => store.legacySnapshot(), /changed while reading/);
+    assert.equal(store.mode, 'indexeddb');
+  });
+}
+
 test('blocked open stays fatal with no fallback writes; legacy check still runs', async () => {
   const items = legacyItems();
   const f = context({
@@ -272,15 +292,16 @@ test('app shell warns separately with count plus explicit export-legacy button',
   assert.ok(appSource.includes('legacyBanner()'), 'shell warning hook');
   assert.ok(appSource.includes('banner warn'), 'existing shell warning style');
   assert.ok(/not been migrated/.test(appSource), 'not-migrated wording');
-  assert.ok(/Cabinet export stays authoritative/.test(appSource), 'cabinet stays authoritative');
-  assert.ok(/recovery is unavailable/i.test(appSource), 'unavailable/retry wording');
-  assert.ok(appSource.includes('retry-legacy'), 'retry path');
+  assert.ok(
+    appSource.includes('Try exporting again.'),
+    'failed recovery can be retried through the export action',
+  );
 });
 
 test('app export action re-reads raw bytes and refuses a failed snapshot without downloading', async () => {
   const at = appSource.indexOf('async function exportLegacy()');
   assert.ok(at >= 0, 'exportLegacy helper exists');
-  const body = appSource.slice(at, appSource.indexOf('function retryLegacyCheck', at));
+  const body = appSource.slice(at, appSource.indexOf('function legacyBanner', at));
   const f = context({ items: legacyItems() });
   const store = await new f.Store().init();
   f.items.set(PREFIX + 'runs.added-after-init', '\u0000new raw bytes');
@@ -296,7 +317,7 @@ test('app export action re-reads raw bytes and refuses a failed snapshot without
   vm.runInContext(body + '\nglobalThis.runExport = exportLegacy;', app);
   await app.runExport();
   assert.equal(downloads.length, 1);
-  assert.match(downloads[0].name, /^alibi-legacy-browser-data-.*\.json$/);
+  assert.equal(downloads[0].name, 'alibi-legacy-browser-data.json');
   assert.equal(downloads[0].data.format, 'alibi-legacy-browser-data');
   assert.equal(downloads[0].data.schemaVersion, 1);
   assert.ok(Number.isFinite(Date.parse(downloads[0].data.exportedAt)));
