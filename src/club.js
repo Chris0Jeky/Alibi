@@ -1642,9 +1642,9 @@
       ],
     );
   }
-  async function request(path, method = 'GET', body, token) {
-    const base = apiBase();
+  async function request(path, method = 'GET', body, token, base = apiBase()) {
     if (!base) throw Error('Deploy the optional room server, then enter its HTTPS API address.');
+    if (base !== apiBase()) throw Error('The room API has changed. Rejoin before using this room.');
     const response = await fetch(base + path, {
       method,
       headers: {
@@ -1677,24 +1677,36 @@
       .replaceAll('=', '');
   }
   function roomAttemptFor(kind, code = '') {
-    if (!roomAttempt || roomAttempt.kind !== kind || roomAttempt.code !== code)
-      roomAttempt = { kind, code, requestId: privateRoomToken(), seatToken: privateRoomToken() };
+    const api = apiBase();
+    if (
+      !roomAttempt ||
+      roomAttempt.kind !== kind ||
+      roomAttempt.code !== code ||
+      roomAttempt.api !== api
+    )
+      roomAttempt = {
+        kind,
+        code,
+        api,
+        requestId: privateRoomToken(),
+        seatToken: privateRoomToken(),
+      };
     return roomAttempt;
   }
   async function requestRoomSeat(path, intent) {
     const payload = { requestId: intent.requestId, seatToken: intent.seatToken };
     try {
-      return await request(path, 'POST', payload);
+      return await request(path, 'POST', payload, undefined, intent.api);
     } catch (error) {
       if (error.status && error.status < 500) throw error;
-      return request(path, 'POST', payload);
+      return request(path, 'POST', payload, undefined, intent.api);
     }
   }
   function rememberRoom() {
     try {
       sessionStorage.setItem(
         'alibi-club-room',
-        JSON.stringify({ code: room.code, token: room.token, seat: room.seat, api: apiBase() }),
+        JSON.stringify({ code: room.code, token: room.token, seat: room.seat, api: room.api }),
       );
     } catch {
       notify('This browser could not save your room credential. Keep this tab open.', true);
@@ -1723,7 +1735,7 @@
       await configureApi();
       const intent = roomAttemptFor('create');
       const result = await requestRoomSeat('/rooms', intent);
-      room = { ...result, token: intent.seatToken };
+      room = { ...result, token: intent.seatToken, api: intent.api };
       roomAttempt = null;
       roomError = '';
       rememberRoom();
@@ -1747,7 +1759,7 @@
       if (!/^[A-Z2-9]{8}$/.test(code || '')) throw Error('Enter the eight-character room code.');
       const intent = roomAttemptFor('join', code);
       const result = await requestRoomSeat('/rooms/' + code + '/join', intent);
-      room = { ...result, token: intent.seatToken };
+      room = { ...result, token: intent.seatToken, api: intent.api };
       roomAttempt = null;
       roomError = '';
       rememberRoom();
@@ -1765,10 +1777,16 @@
     if (!room || document.hidden || route.page !== 'salon' || route.id !== 'duel') return;
     const current = room;
     try {
-      const value = await request('/rooms/' + room.code + '/state', 'GET', undefined, room.token);
+      const value = await request(
+        '/rooms/' + room.code + '/state',
+        'GET',
+        undefined,
+        room.token,
+        room.api,
+      );
       if (room !== current) return;
       const changed = value.version !== room.version || value.joined !== room.joined;
-      Object.assign(room, value);
+      Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       if (changed) render();
     } catch (e) {
@@ -1790,9 +1808,10 @@
         'POST',
         { cell, expectedVersion: room.version, moveId: crypto.randomUUID() },
         room.token,
+        room.api,
       );
       if (room !== current) return;
-      Object.assign(room, value);
+      Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       render();
     } catch (e) {
