@@ -594,6 +594,29 @@ test('tap() reports a refused or waiting delivery without ever claiming it was s
   );
 });
 
+test('a hanging rating send stays queued and reports waiting at the four-second deadline', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const timers = [];
+  h.context.setTimeout = (fn, ms) => timers.push({ fn, ms });
+  h.context.fetch = (...args) => {
+    h.calls.fetch.push(args);
+    return new Promise(() => {});
+  };
+  row.click(h, 'rate', 'just-right');
+  assert.equal(h.calls.fetch.length, 1);
+  assert.equal(timers.length, 1);
+  assert.equal(timers[0].ms, 4000);
+  assert.equal(row.statusEl.textContent, '');
+  timers[0].fn();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(row.statusEl.textContent, 'Saved. It sends when online.');
+  assert.equal(JSON.parse(h.store.get('alibi:voices:queue:v1')).length, 1);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+  });
+});
+
 test('tap() forgets an unqueued choice so the same tap can retry', async () => {
   const queued = Array.from({ length: 20 }, (_, i) => ({
     payload: { id: `queued-${i}`, text: 'waiting' },
