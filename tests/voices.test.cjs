@@ -375,7 +375,7 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
   assert.equal(queue.outcome(third), undefined, 'anything else is still waiting, never sent');
 });
 
-function decorateHarness(runId = 'scene-01') {
+function decorateHarness(runId = 'scene-01', standalone = false) {
   const listeners = { window: {}, document: {} };
   const store = new Map();
   const inserted = [];
@@ -437,7 +437,7 @@ function decorateHarness(runId = 'scene-01') {
   const context = {
     document,
     location: { origin: PRIMARY, hash: '#/play/scene-01' },
-    ALIBI_CONFIG: { standalone: false, version: '0.15.0' },
+    ALIBI_CONFIG: { standalone, version: '0.15.0' },
     ALIBI_VOICES: { origin: PRIMARY, collector: COLLECTOR, chunk: './assets/voices.x.js' },
     ALIBI_CATALOG: { puzzles: [{ id: 'scene-01', type: 'scene', difficulty: 'Gentle' }] },
     localStorage: {
@@ -482,6 +482,13 @@ test('decorate() injects the Feedback and report buttons with every slot after e
   );
   assert.equal(h.filled.length, 8, 'a new render fills every slot again');
   assert.equal(h.idle.length, 1, 'one idle kick after the first render only');
+});
+
+test('decorate() adds no rating or survey places to a standalone official completion', () => {
+  const h = decorateHarness('scene-01', true);
+  h.render();
+  assert.deepEqual(h.filled.map(([slot]) => slot).sort(), ['vo-panel', 'vo-privacy']);
+  assert.ok(h.inserted.every((i) => !i.html.includes('vo-rate') && !i.html.includes('vo-offer')));
 });
 
 test('decorate() only offers rating and survey places on official completion screens', () => {
