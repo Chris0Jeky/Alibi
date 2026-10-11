@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-11: reset candidate refreshed against qualified integration
+
+PR #629 merged as d6ed7571 after all seven reported hosted checks succeeded.
+It preserves #571/#561/#626/#578/#590/#628 source histories. The reset candidate
+now includes that main commit; the only merge conflict was this state ledger,
+and both qualified records are retained below. Prior reset review still applies
+to the unchanged queue and Privacy logic. Rebuilt-head browser, emitted budget
+and hosted qualification remain pending. Conservative failure feedback when
+storage reads and removal both fail is recorded as a MEDIUM limitation: page-only
+key rotation works, but durable removal cannot be confirmed. No primary release
+or physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: survey-key reset failure candidate
 
 Resetting the survey key now returns an explicit failure when storage refuses
@@ -21,6 +33,53 @@ Queue deletion order is unchanged: a failed key removal is not an atomic rollbac
 or collector-side deletion. No physical-device acceptance is inferred; see
 [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## 2026-10-11: second qualified integration candidate
+
+This candidate preserves the reviewed source histories of #571 (1a2e8557,
+including #561), #626 (d9a44960), #578 (c79d878d), #590 (1d504464) and
+#628 (285df3dc), based on main f8d5093e. It combines dated handoff preservation,
+numeric Borough backup validation, individually named audio assertions,
+touch guidance and actual Theatre control regressions. Content, tools and dependencies match the previously qualified #590 source
+56c5be27 byte-for-byte. The refreshed #590 hosted mobile gate exposed 320-pixel
+overflow and an obstructed disclosure click. An isolated comparison reproduces
+the overflow and removes it by bounding clipped keyboard help to the existing
+one-pixel screen-reader geometry; both disclosure controls pass locally.
+The CSS fix is qualified on clean source bbf56404 (web e0e0db826344,
+Android artifact 6bd34d92). Formatter, 74 focused Node cases with audio decoding,
+37 keyboard/AX checks, 55 core checks, 102 Theatre checks, all 18 real-origin
+mobile cases and 184 UI checks pass. Phone/desktop and 320-pixel disclosure
+views are inspected. CSS gzip is 34,451 against the unchanged 34,464 ceiling;
+shell is 1,412,662 against 1,412,792.32. Fresh combined and fix-diff independent
+reviews found no HIGH/CRITICAL defect. Source-specific controls and reviews
+remain recorded in their PRs; exact-head hosted gates remain pending.
+The initial local mobile helper formed a double-slash URL and failed readiness;
+its interrupted run is not a passing suite. The corrected real-origin suite
+passes both cases from the actual hosted failure without a flaky dismissal. No source PR merge or primary deployment is claimed.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance
+and the existing release and owner gates.
+
+## 2026-10-11: recovered dated handoffs
+
+The original 3 October ledger is retained byte-for-byte in
+[STATE-HISTORY-2026-10-03.md](STATE-HISTORY-2026-10-03.md), alongside the
+[Workshop discovery receipt](qa/2026-10-03-workshop-discovery.md) and
+[4 October recovery receipt](qa/2026-10-04-gameplay-recovery.md).
+The original continuation index remains in preserved commit
+[cb823f37](https://github.com/Chris0Jeky/Alibi/blob/cb823f37e0af2851ed9f0f17656cf3b8eed116c3/docs/STATE.md).
+These dated records preserve their observations and pending gates; they do not
+assert current PR status or repeat their historical checks on today's head.
+Source merges are not a deployment.
+The [3 October goal closeout](https://github.com/Chris0Jeky/Alibi/blob/9c7bcf8f3bdf2ce3eb5104fc0f41231915f17fb2/docs/STATE.md)
+and its [planner](qa/2026-10-02-goal/PLANNER.md) and
+[orchestrator](qa/2026-10-02-goal/ORCHESTRATOR.md) retain that session's
+submission and cleanup receipts as historical evidence.
+
+Continuation references remain [PROJECT-MAP.md](PROJECT-MAP.md),
+[Workshop discovery](gameplay/WORKSHOP-DISCOVERY.md), its
+[implementation plan](superpowers/plans/2026-10-03-workshop-discovery.md), and
+[HUMAN_TODO.md](../HUMAN_TODO.md). Historical #404, #389 and #433 follow-ups
+remain subject to live issue state and their own acceptance evidence.
+
 ## 2026-10-11: challenge save ownership regression
 
 The existing launcher harness now checks that a valid published challenge save
@@ -28,7 +87,8 @@ is refused when opening another challenge, with the original input preserved.
 The same-challenge acceptance control remains intact. Eight launcher/lifecycle
 cases pass; removing the ownership guard causes the new case to fail with
 "Missing expected exception". Fresh independent review found no HIGH/CRITICAL
-finding. This change adds no runtime bytes; exact-head CI and merge are pending.
+finding. This test-only change merged as f8d5093e in #625 after all six
+reported exact-head hosted checks succeeded.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
 ## Current overnight checkpoint, 2026-10-11
@@ -36,8 +96,10 @@ finding. This change adds no runtime bytes; exact-head CI and merge are pending.
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
 successes, independent review and recorded merge receipts. PR #624 merged as
 666cbb79 with all 22 hosted checks green. GitHub also marks its eleven source
-PRs merged at that commit; issues #604 and #619 are closed. Main is 666cbb79.
+PRs merged at that commit; issues #604 and #619 are closed. #625 then
+merged as f8d5093e, the current main at this handoff recovery checkpoint.
 The integration preserves the reviewed commits from #609, #611, #581,
+
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
 qualification are recorded in PR #624; this is not a primary release claim.
@@ -78,6 +140,18 @@ direct dependency only. Physical Android/TalkBack, collector readiness, signing,
 publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 Entries below retain their historical candidate evidence; this checkpoint
 supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: replayable Borough backup compatibility regression
+
+A numeric Borough seed with a real replayed move remains accepted by the existing
+engine and backup validator. One regression checks the complete accepted save
+and unchanged input. All 15 backup-validation cases pass; a disposable copy with
+the worker-proposed string-only seed guard fails specifically with "Invalid Pocket
+Borough seed." The incompatible production guard is not included. Independent
+read-only review found no HIGH/CRITICAL defect. This pins engine/backup semantics;
+actual restore transactions and historical UI generation are not newly verified.
+Exact-head hosted CI remains required before merge. Owner/device gates remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: Lantern Duel response ordering candidate (#604)
 
@@ -250,3 +324,15 @@ Regression coverage executes the actual handler and enqueueSave code in a VM
 fixture. Evidence pending: the caller owns the proving check
 (`node --test --test-concurrency=2 tests/app-broadcast-revision.test.cjs`),
 formatting, catalogue hashes, builds and native-origin proof after integration.
+
+## 2026-10-11: named audio and saved-note checks (#578)
+
+The existing assertions now register as 26 audio cases and two saved-note key
+cases. Receipt checks, derivative iteration, thresholds and conditional ffprobe
+behavior are preserved; runtime and asset bytes are unchanged. All 28 cases pass
+with the installed ffprobe exercised. A disposable test-memory receipt mutation
+fails exactly the first audio case while the remaining 27 pass; baseline files
+pass their two file-level cases. Independent review found no HIGH/CRITICAL issue.
+Formatting and diff checks pass. Exact-head hosted CI remains required. This is
+partial test-reporting work for #519; physical listening and device acceptance
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
