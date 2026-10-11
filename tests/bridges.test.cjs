@@ -516,6 +516,16 @@ test('solution-free insight deductions avoid the solution and opt-in reveals mat
   assert.deepEqual(reveal.action, { type: 'set', cell: 0, value: unique.solution[0] });
 });
 
+test('hint reveals first mismatched solution cell', () => {
+  const state = E.initial(unique);
+  const expected = unique.solution.findIndex((value, index) => value !== state.cells[index]);
+  const reveal = C.hint(unique, state);
+  assert.strictEqual(reveal.action.cell, expected);
+  assert.strictEqual(reveal.action.value, unique.solution[expected]);
+  const solved = { cells: [...unique.solution], notes: {} };
+  assert.strictEqual(C.hint(unique, solved).action, null);
+});
+
 let checked = 0;
 for (const puzzle of [unique, longPath, twoOrMore])
   test(`lower-bound deductions are sound across valid partial boards: ${puzzle.id}`, () => {
