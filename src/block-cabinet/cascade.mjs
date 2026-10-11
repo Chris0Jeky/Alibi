@@ -148,12 +148,13 @@ export function legal(s, slot, cell, rotation = 0) {
     !s ||
     s.done ||
     !integer(slot, 0, 2) ||
-    s.tray[slot] === null ||
+    s.tray?.[slot] === null ||
     !integer(cell, 0, 63) ||
     !integer(rotation, 0, 3) ||
     (rotation && !s.charges)
   )
     return false;
+  if (!Array.isArray(s.tray) || !integer(s.tray[slot], 0, SHAPES.length - 1)) return false;
   const x = cell % 8,
     y = Math.floor(cell / 8);
   return shape(s.tray[slot], rotation).cells.every(
