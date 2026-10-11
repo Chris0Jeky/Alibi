@@ -1,5 +1,17 @@
 # Offline navigation recovery
 
+## 11 October integration context
+
+The original submission and follow-up below are historical receipts. The current
+candidate integrates main `bbeb22f84ce518beeb55d8ca929a463a220ae8cb`; its earlier
+`aa72f5b2` integration retains main's combined bootstrap/storage compilation and
+the matching emitted-boot contract through the conflict. That integration passes
+32 source navigation cases and independent review. New emitted/local-origin and
+candidate-hosted response proof is pending; public-site baseline responses do not
+qualify the candidate. No numeric ceiling, deployment or device signoff is inferred.
+
+## Original 7 October submission
+
 Refs #420, items 1 and 2. Based on main 8b7f632e50b43c634540f09ad368380743b1b90b,
 whose only change from the source archive a853990 is a historical report.
 

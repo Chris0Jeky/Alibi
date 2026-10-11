@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-11: offline navigation recovery candidate (#581)
+
+This unmerged candidate keeps online host responses and uses the current release's
+cached styled 404 only after a rejected navigation fetch. Existing alias redirects
+retain query and fragment behavior; missing assets do not receive HTML. The main
+bootstrap and storage owner remain intact after integration, with unchanged budgets.
+All 32 source navigation cases pass and independent review finds no HIGH/CRITICAL
+blockers. Emitted builds, current-head CI, local-origin navigation and candidate
+hosted responses remain qualification gates. The existing public-host response
+baseline is not candidate proof. No deployment or physical-device acceptance is
+claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
+
 ## 2026-10-07: older backlog wave
 
 Eight Grok 4.7 high worker tasks and two GPT 6.1 Sol medium coordinators produced
