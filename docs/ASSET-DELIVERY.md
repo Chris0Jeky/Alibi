@@ -124,9 +124,7 @@ resolution images, persisted preference, cached detail offline, never-visited ga
 an actual offline Sudoku move/reload, HTTP failure and reconnection. CI runs it alongside the
 existing UI, origin and update suites. Screenshots/results live in `test-results/delivery/`.
 
-`python tests/browser_theatre.py` tests all eight rooms offline, local AudioContext operation,
-keyboard choices, preference persistence, Night contrast and actual requested film playback.
-`tests/theatre.test.cjs` checks all thirteen family mappings and actual emitted assets.
+`tests/theatre.test.cjs` checks all eight rooms offline, all thirteen family mappings and actual emitted assets.
 
 For each real external mirror, additionally verify its actual CORS, MIME, hashes, CSP,
 timeout behavior and provider terms from each live app origin. Tests with controlled CDN responses
