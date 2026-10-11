@@ -1,5 +1,39 @@
 # Live development state
 
+## 2026-10-11: qualified overnight integration and preview
+
+PR #633 merged as 73017566 after all seven reported hosted checks passed.
+It preserves #630/#631/#632 and their independent reviews. Together with
+#594/#592/#607/#610/#608/#614/#609/#624/#625/#629, this is eleven qualified
+merge operations; source PRs marked merged with an integration are not extra
+operations. The combined source passes 55 focused Node cases, 129 Voices
+assertions, 104 Theatre assertions, 184 UI checks and 18 real-origin mobile
+cases. The earlier full local run retains one pre-existing Windows symlink
+EPERM and three intentional skips; it is not full local green.
+
+Exact clean PR source d443146e builds web 0178f7a4c92f and Android browser-preview
+artifact d3be963b. Existing Worker version a5e7aeea-016c-4ba0-94f7-63d09424e380
+is a version preview, not a primary promotion. Its 18 emitted/budget/archive
+cases, 12 HTTPS response/byte checks, 55 shared-path and 26 unknown-path browser
+checks, and two 320px mobile cases pass. Six primary response samples are
+unchanged. CSS gzip is 34,451 bytes under 34,464; shell is 1,412,594 bytes under
+1,412,792.32. The registered 0.15.1 SDK pin passes; fresh read-only collector
+readiness is HTTP 200, schema 5, ready and Alibi admitted, matching the existing
+owner receipt. No collector deployment or migration occurred.
+
+The existing invitation-timing test now pins 30 days minus one millisecond and
+nine additional completions as ineligible, retaining the positive 30-day/ten-
+completion and new-release controls. Runtime and saved formats are unchanged.
+
+Finished Muse drafts through wave 433 are preserved on explicitly unqualified
+checkpoint branches. Duplicate guard expansions and compatibility tightenings
+were declined. Required proof artifacts and checksums survive outside removed
+owned trees; the occupied primary and foreign/legacy dirty trees were untouched.
+PRs #617/#618 remain parked for measured budget failures and current conflicts;
+#579/#593 retain transfer-integrity gates. Native, creative and other draft
+stacks retain their own gates. Physical Android/TalkBack, signing, publisher and
+editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: third qualified integration candidate
 
 This candidate preserves the reviewed source heads of #630 (c7e7e5e8),
