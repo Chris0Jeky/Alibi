@@ -1,6 +1,6 @@
 'use strict';
-// Load-time shape pins for tools/challenge-catalogue.cjs: null/non-object
-// challenges and empty ids fail at load, before runtime/validation mapping.
+// Build fail-fast pin: entries the runtime trusted registry rejects must
+// throw in tools/challenge-catalogue.cjs load(), before worker embedding.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -14,10 +14,10 @@ function fixtureRoot(challenges) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(
     path.join(dir, 'registry.json'),
-    JSON.stringify({ schema: 1, packs: ['test.json'] }),
+    JSON.stringify({ schema: 1, packs: ['pack.json'] }),
   );
   fs.writeFileSync(
-    path.join(dir, 'test.json'),
+    path.join(dir, 'pack.json'),
     JSON.stringify({
       schema: 'alibi-curation-challenges/v1',
       notASchema1ImportPack: true,
@@ -27,38 +27,53 @@ function fixtureRoot(challenges) {
   return root;
 }
 
-function assertLoadRejects(t, challenges) {
+function assertLoadThrows(t, challenges, pattern = /Invalid challenge source entry\./) {
   const root = fixtureRoot(challenges);
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  try {
-    catalogue.load(root);
-  } catch (error) {
-    assert.ok(error instanceof Error, 'rejection is a clean Error');
-    assert.match(error.message, /Invalid challenge source (pack|count)/);
-    return;
-  }
-  assert.fail('expected load to throw');
+  assert.throws(() => catalogue.load(root), pattern);
 }
 
-test('a null challenge is rejected at load with a clean Error', (t) => {
-  assertLoadRejects(t, [null]);
+test('junk id entry is rejected at load before worker embedding', (t) => {
+  assertLoadThrows(t, [{ id: 'x' }]);
 });
 
-test('non-object challenges are rejected at load with a clean Error', (t) => {
-  for (const bad of ['test-challenge-01', 42, true]) assertLoadRejects(t, [bad]);
+test('entries mirror the runtime id and revision gate', (t) => {
+  // Junk ids/revisions pass the old pack envelope but must fail at load.
+  for (const bad of [
+    [{ id: 'bogus' }],
+    [{ id: 'curated-unknown-01', revision: 1 }],
+    [{ id: 'curated-classic-HANOI-01', revision: 1 }],
+    [{ id: 'curated-classic-hanoi-01' }],
+    [{ id: 'curated-classic-hanoi-01', revision: 0 }],
+    [{ id: 'curated-classic-hanoi-01', revision: 2 }],
+    [{ id: 'curated-classic-hanoi-01', revision: '1' }],
+  ])
+    assertLoadThrows(t, bad);
+  // Null/non-object/empty-id shapes already failed at load; keep them failing.
+  for (const bad of [[null], ['curated-classic-hanoi-01'], [{}], [{ id: '' }]])
+    assertLoadThrows(t, bad, /Invalid challenge source (pack|entry)\./);
 });
 
-test('empty-id challenges are rejected at load with a clean Error', (t) => {
-  assertLoadRejects(t, [{ id: '' }]);
-  assertLoadRejects(t, [{}]);
-});
-
-test('duplicate ids are rejected on the validated id basis', (t) => {
-  assertLoadRejects(t, [{ id: 'test-challenge-01' }, { id: 'test-challenge-01' }]);
-});
-
-test('valid packs still load', (t) => {
-  const root = fixtureRoot([{ id: 'test-challenge-01' }]);
+test('duplicate ids are still rejected', (t) => {
+  const entry = { id: 'curated-classic-hanoi-01', revision: 1 };
+  const root = fixtureRoot([entry, { ...entry }]);
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  assert.deepEqual(catalogue.load(root), [{ id: 'test-challenge-01' }]);
+  assert.throws(() => catalogue.load(root), /Invalid challenge source/);
+});
+
+test('valid curated entries still load', (t) => {
+  const challenges = [{ id: 'curated-classic-hanoi-01', revision: 1 }];
+  const root = fixtureRoot(challenges);
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  assert.deepEqual(catalogue.load(root), challenges);
+});
+
+test('runtime gate rejects the same junk entry', () => {
+  const Challenges = require('../src/challenges.js');
+  const quiet = { classicInitial: {}, classicMove: {}, classicWon: {} };
+  const club = { warehouse: {}, reversi: {}, borough: {} };
+  assert.throws(
+    () => Challenges.create([{ id: 'x' }], { quiet, club }),
+    /Invalid trusted challenge ID\./,
+  );
 });

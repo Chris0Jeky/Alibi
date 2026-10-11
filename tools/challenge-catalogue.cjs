@@ -34,6 +34,16 @@ function load(root = path.resolve(__dirname, '..')) {
     return pack.challenges;
   });
   if (
+    entries.some(
+      (c) =>
+        typeof c !== 'object' ||
+        c === null ||
+        !/^curated-(classic|archive|duel|borough)-[a-z0-9-]+$/.test(c.id || '') ||
+        c.revision !== 1,
+    )
+  )
+    throw Error('Invalid challenge source entry.');
+  if (
     !entries.length ||
     entries.length > 128 ||
     new Set(entries.map((c) => c.id)).size !== entries.length
