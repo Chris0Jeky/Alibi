@@ -51,6 +51,7 @@ ORIGIN_SCENARIOS = (
     "unknown_paths",
     "malformed_draft",
     "malformed_persisted",
+    "quarantined_run",
     "newer_database",
     "club_read_abort",
 )
@@ -1527,6 +1528,50 @@ def scenario_malformed_persisted(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_quarantined_run(pw: Any, root: Path) -> None:
+    key = "lightup-04@1"
+    unknown = {"key": key, "schemaVersion": 9, "rev": 0,
+               "future": {"note": "Synthetic progress to preserve"}}
+    cases = [unknown, {"key": key, "schemaVersion": 1, "rev": 0, "note": "Missing puzzle"},
+             {"key": key, "schemaVersion": 1, "rev": 0, "puzzle": {}, "state": {}, "moves": -1}]
+    for i, unknown in enumerate(cases):
+        context = launch_profile(pw, root / f"quarantined-run-{i}")
+        try:
+            seed = new_page(context, "quarantined-run-seed")
+            seed_database(seed)
+            seed.evaluate(
+                """({key, value}) => new Promise((resolve, reject) => {
+                  const request = indexedDB.open('alibi-device', 1);
+                  request.onerror = () => reject(request.error);
+                  request.onsuccess = () => {
+                    const db = request.result;
+                    const tx = db.transaction('runs', 'readwrite');
+                    tx.objectStore('runs').put({key, value});
+                    tx.oncomplete = () => { db.close(); resolve(); };
+                    tx.onabort = () => { db.close(); reject(tx.error); };
+                  };
+                })""", {"key": key, "value": unknown},
+            )
+            seed.close()
+            page = new_page(context, "quarantined-run")
+            boot(page)
+            check(page.evaluate("AlibiDiagnostics.getCounts().quarantined") == 1,
+                  "revision-zero run is quarantined at boot")
+            route(page, "play/" + key)
+            wait_page(page, "Boolean(AlibiDiagnostics.getCurrent())", what="new puzzle run")
+            page.wait_for_timeout(16000)
+            check(read_idb(page, "runs", key) == unknown,
+                  "ordinary autosave preserves the exact quarantined record")
+            check("Not saved" in page.locator("#save-state").inner_text(),
+                  "refused autosave exposes the unsaved-session recovery state")
+            page.reload(wait_until="domcontentloaded")
+            wait_diag(page)
+            check(read_idb(page, "runs", key) == unknown,
+                  "quarantined record survives reload after the refusal")
+        finally:
+            context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1726,6 +1771,7 @@ def run() -> int:
                 scenario_unknown_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
+                scenario_quarantined_run,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]
