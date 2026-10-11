@@ -132,6 +132,62 @@ test('a malformed committed read makes the adapter unavailable and open accepts 
   assert.equal(await adapter.open(puzzle.id, 'kitchen'), false);
 });
 
+test('a saved Vault completion counts from its listing before load, after load failure, and after the definition arrives', async () => {
+  const api = practiceApi(),
+    { listing } = require('../tools/build-official-content.cjs'),
+    catalogue = load(process.cwd()),
+    full = catalogue.puzzles.find((puzzle) => puzzle.id === 'vault-binary-01'),
+    entry = listing(full),
+    puzzles = catalogue.puzzles.map((puzzle) => (puzzle === full ? entry : puzzle)),
+    partial = { ...catalogue, puzzles },
+    binary = puzzles.filter((puzzle) => puzzle.type === 'binary').length;
+  assert.equal(full.type, 'binary');
+  assert.equal(entry.solution, undefined);
+  const room = async (runs) =>
+    (
+      await api
+        .create({
+          catalogue: partial,
+          readRuns: async () => runs,
+          isCurrentCompletion: () => false,
+        })
+        .snapshot()
+    ).rooms.observatory;
+  const saved = runFor(full, { firstCompletedAt: '2026-09-01T10:00:00.000Z' });
+  const pending = await room([saved]);
+  assert.equal(pending.completed, 1, 'listing identity keeps the saved completion');
+  assert.equal(pending.total, binary);
+  assert.equal(
+    (
+      await room([
+        runFor(
+          { ...full, title: 'Changed definition' },
+          { firstCompletedAt: saved.firstCompletedAt },
+        ),
+      ])
+    ).completed,
+    0,
+  );
+  assert.equal(
+    (await room([runFor(full, { completedAt: '2026-09-02T10:00:00.000Z' })])).completed,
+    0,
+    'a current completion still needs the definition body',
+  );
+  for (const key of Object.keys(entry)) delete entry[key];
+  Object.assign(entry, full);
+  assert.equal((await room([saved])).completed, 1);
+  assert.equal((await room([saved])).total, binary);
+  assert.equal(
+    (
+      await room([
+        runFor({ ...full, solution: ['tampered'] }, { firstCompletedAt: saved.firstCompletedAt }),
+      ])
+    ).completed,
+    0,
+    'once the definition is present only the exact body counts',
+  );
+});
+
 test('the Castle panel emits bound practice controls and escapes catalogue labels', async () => {
   const { practicePanel } = await import('../src/castle/practice.mjs');
   const html = practicePanel(
