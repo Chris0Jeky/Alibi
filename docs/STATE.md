@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-11: preserve inactive failed-save snapshots (#619)
+
+Cabinet broadcast refreshes now stop after their asynchronous read when a sticky
+save error exists. This preserves recoverable cached edits after navigation, also
+when the read began before the failed CAS save. Clean inactive refreshes and the
+active-snapshot guards remain covered. Two regressions fail before the change;
+all seven handler cases pass after it, and an early-only guard fails the race case.
+The real-origin scenario exercises actual CAS refusal, navigation and broadcasts
+at phone and desktop widths; execution and fresh build proof are pending.
+Inactive catalogue refreshes remain paused until reload while the error persists.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.
@@ -11,6 +23,7 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present
@@ -46,6 +59,7 @@ merge gates remain explicit. #347's implementation is present with specific
 coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
 decisions. No deployment or physical-device approval was inferred.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+
 ## 2026-10-11: Club backup guard regressions
 
 Four source tests cover a minimal accepted Club save, an Archive no-op replay,

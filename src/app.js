@@ -385,6 +385,7 @@
         return;
       }
       const r = await store.get('runs', e.data.key);
+      if (saveError) return;
       if (r) {
         try {
           validateRun(r);
