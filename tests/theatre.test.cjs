@@ -350,3 +350,90 @@ test('desk attribution links keep a 24px target, their href and a visible focus 
     'the desk hero credit stays a real link to its source',
   );
 });
+
+test('film stays offline without video src', () => {
+  const listeners = {};
+  const status = { textContent: '' };
+  const videoAttrs = {};
+  const video = {
+    get src() {
+      return videoAttrs.src;
+    },
+    set src(value) {
+      videoAttrs.src = String(value);
+    },
+    hasAttribute: (name) => name in videoAttrs,
+    getAttribute: (name) => (name in videoAttrs ? videoAttrs[name] : null),
+    removeAttribute: (name) => delete videoAttrs[name],
+    pause() {},
+    load() {},
+    play: () => Promise.resolve(),
+    readyState: 0,
+  };
+  const closeButton = {};
+  const dialog = {
+    innerHTML: '',
+    open: false,
+    showModal() {
+      this.open = true;
+    },
+    close() {
+      this.open = false;
+    },
+    remove() {},
+    addEventListener() {},
+    querySelector: (sel) => {
+      if (sel === 'video') return video;
+      if (sel === '[data-close-film]') return closeButton;
+      if (sel.includes('status')) return status;
+      return null;
+    },
+  };
+  const realm = {
+    ALIBI_THEATRE: {
+      scenes: [{ id: 'reading-room', families: [], quiet: [] }],
+      audio: [],
+      films: [{ id: 'film-1', title: 'Alibi — Test film', url: 'films/test.mp4', duration: 42 }],
+    },
+    ALIBI_MEDIA: { 'club-reading-room': 'poster.png' },
+    navigator: { onLine: false },
+    localStorage: {
+      getItem: () => null,
+      setItem: () => {},
+    },
+    location: { hash: '#/home' },
+    setTimeout,
+    clearTimeout,
+    document: {
+      hidden: false,
+      documentElement: { dataset: {} },
+      body: {
+        dataset: {},
+        classList: { contains: () => false },
+        append() {},
+      },
+      createElement: (tag) => (tag === 'dialog' ? dialog : {}),
+      querySelector: () => null,
+      querySelectorAll: () => [],
+      addEventListener: (type, fn) => ((listeners[type] ||= []).push(fn)),
+    },
+    addEventListener() {},
+  };
+  require('node:vm').runInNewContext(
+    fs.readFileSync(path.join(root, 'src/theatre.js'), 'utf8'),
+    realm,
+    { timeout: 2000 },
+  );
+  const onClick = (listeners.click || [])[0];
+  assert.ok(onClick, 'the theatre click handler is registered');
+  const filmButton = {
+    dataset: { theatreFilm: 'film-1' },
+    hasAttribute: (name) => name === 'data-theatre-film',
+  };
+  onClick({ target: { closest: (sel) => (sel === 'button' ? filmButton : null) } });
+  const match = dialog.innerHTML.match(/<p role="status">(.*?)<\/p>/);
+  if (match) status.textContent = match[1];
+  assert.match(status.textContent, /needs a connection/, 'offline film explains the connection need');
+  assert.equal(video.hasAttribute('src'), false, 'offline film never sets a video source');
+  assert.equal(video.getAttribute('src'), null, 'offline video has no src attribute');
+});
