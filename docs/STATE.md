@@ -1,5 +1,22 @@
 # Live development state
 
+## 2026-10-11: third qualified integration candidate
+
+This candidate preserves the reviewed source heads of #630 (c7e7e5e8),
+#631 (84a0cfb5) and #632 (5c5d4a42), based on main d6ed7571. The eight changed
+runtime/tool/test files match their reviewed sources exactly. Only STATE had
+merge conflicts; the full base ledger and all three added records are retained.
+A faulty external merge helper briefly dropped ledger text in an unpublished
+intermediate commit; the complete ledger was reconstructed before qualification.
+Fresh combined interaction/history review found no HIGH/CRITICAL defect.
+Clean source b14fcbad builds web 9a90ccfb2311 / Android artifact 3bcb41ab and
+passes formatter, 55 focused Node cases, 129 Voices assertions, 104 Theatre
+assertions, 184 UI checks and all 18 real-origin mobile cases without page
+errors. Existing emitted budgets pass. Source-specific baseline/guard controls
+and phone/desktop views remain recorded in the original PRs. Exact-head hosted
+qualification remains pending. No primary release, collector readiness or
+physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: reset candidate refreshed against qualified integration
 
 PR #629 merged as d6ed7571 after all seven reported hosted checks succeeded.
