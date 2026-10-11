@@ -78,7 +78,7 @@ function createHandler(rootDir, fsLib = fs) {
       if (req.headers.range) {
         const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
         if (!match || (!match[1] && !match[2])) {
-          res.writeHead(416).end();
+          res.writeHead(416, { 'Content-Range': `bytes */${size}` }).end();
           return;
         }
         if (!match[1] && match[2]) {
