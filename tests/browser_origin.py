@@ -55,6 +55,7 @@ ORIGIN_SCENARIOS = (
     "room_version",
     "quarantined_run",
     "broadcast_readback",
+    "inactive_broadcast",
     "newer_database",
     "club_read_abort",
 )
@@ -1750,6 +1751,68 @@ def scenario_broadcast_readback(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_inactive_broadcast(pw: Any, root: Path) -> None:
+    for width in (390, 1280):
+        context = launch_profile(pw, root / f"inactive-broadcast-{width}")
+        try:
+            page = new_page(context, "inactive-broadcast")
+            page.set_viewport_size({"width": width, "height": 900})
+            boot(page)
+            key = "lightup-01@1"
+            route(page, f"play/{key}")
+            move_first_cell(page, "inactive conflict baseline uses the actual board control")
+            baseline = wait_run(page, key, 1)
+            wait_page(page, "!AlibiDiagnostics.getStatus().pendingSaves", what="baseline save settles")
+            writer = new_page(context, "inactive-broadcast-writer")
+            writer.goto(SEED_PAGE, wait_until="domcontentloaded")
+            newer = {**baseline, "rev": baseline["rev"] + 1, "note": "Synthetic committed other-tab note"}
+            writer.evaluate("""value => new Promise((resolve, reject) => {
+              const open = indexedDB.open('alibi-device', 1);
+              open.onerror = () => reject(open.error);
+              open.onsuccess = () => {
+                const db = open.result, tx = db.transaction('runs', 'readwrite');
+                tx.objectStore('runs').put({key: value.key, value});
+                tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onabort = () => { db.close(); reject(tx.error); };
+              };
+            })""", newer)
+            move_first_cell(page, "local board edit reaches the actual stale-revision CAS save")
+            wait_status(page, lambda s: "another tab" in s["saveError"] and not s["pendingSaves"],
+                        "actual saveRun refuses the stale revision")
+            local = current(page)
+            check(local["state"] != newer["state"], "recoverable local board differs from committed board")
+            check(local["rev"] == baseline["rev"], "failed save retains its original local revision")
+            page.screenshot(path=str(RESULTS / f"inactive-broadcast-{width}-before.png"), full_page=True)
+            route(page, "home")
+            wait_page(page, "!AlibiDiagnostics.getCurrent()", what="navigation makes the conflicted row inactive")
+            page.evaluate("""key => {
+              const get = AlibiStorage.Store.prototype.get;
+              AlibiStorage.Store.prototype.get = async function(table, target) {
+                const row = await get.call(this, table, target);
+                if (table === 'runs' && target === key)
+                  setTimeout(() => { globalThis.inactiveBroadcastReadDone = true; }, 0);
+                return row;
+              };
+            }""", key)
+            writer.evaluate("""({key, rev}) => {
+              globalThis.syntheticChannel = new BroadcastChannel('alibi-saves');
+              syntheticChannel.postMessage({type: 'saved', key, rev});
+            }""", {"key": key, "rev": newer["rev"]})
+            wait_page(page, "globalThis.inactiveBroadcastReadDone === true",
+                      what="inactive broadcast read and handler continuation complete")
+            route(page, f"play/{key}")
+            recovered = current(page)
+            for field in ("state", "note", "rev"):
+                check(recovered[field] == local[field], f"inactive broadcast preserves recoverable {field}")
+            check(read_idb(page, "runs", key) == newer, "inactive broadcast leaves newer committed bytes intact")
+            check("another tab" in page.evaluate("AlibiDiagnostics.getStatus().saveError"),
+                  "conflict recovery warning remains present after returning to play")
+            check("Not saved" in page.locator("#save-state").inner_text(), "returned local snapshot remains Not saved")
+            page.screenshot(path=str(RESULTS / f"inactive-broadcast-{width}-after.png"), full_page=True)
+        finally:
+            context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1953,6 +2016,7 @@ def run() -> int:
                 scenario_room_version,
                 scenario_quarantined_run,
                 scenario_broadcast_readback,
+                scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]

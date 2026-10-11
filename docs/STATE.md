@@ -31,6 +31,20 @@ completion screens receive neither rating nor survey slots. Removing each guard
 fails its assertion. All 47 combined cases and formatting pass. Voices artifact
 fixtures come from an existing build; fresh emitted/browser/hosted proof has not
 run for this test-only slice. No production behavior changes.
+
+## 2026-10-11: preserve inactive failed-save snapshots (#619)
+
+Cabinet broadcast refreshes now stop after their asynchronous read when a sticky
+save error exists. This preserves recoverable cached edits after navigation, also
+when the read began before the failed CAS save. Clean inactive refreshes and the
+active-snapshot guards remain covered. Two regressions fail before the change;
+all seven handler cases pass after it, and an early-only guard fails the race case.
+Clean source f29df3c1 builds web f8e782ab9288 and its Android browser-preview
+artifact; all eight source/budget cases pass. The real-origin scenario passes
+35 checks at phone and desktop widths using actual CAS refusal, navigation and
+broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
+CI remains pending; physical-device acceptance is separate.
+Inactive catalogue refreshes remain paused until reload while the error persists.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
 ## 2026-10-11: Lantern Duel credential host binding (#605)
