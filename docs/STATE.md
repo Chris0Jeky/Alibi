@@ -11,6 +11,21 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: quarantined Cabinet revision guard (#599)
+
+The IndexedDB save transaction now distinguishes an absent row from a present
+unknown envelope before accepting revision CAS. Future schemas, missing/unsafe
+revisions, mismatched envelope/value keys and rows rejected by the application's
+full run validator refuse without replacing recovery bytes. Validation occurs on
+the row read inside the CAS transaction. Known revision-zero backup runs remain writable, preserving the existing
+nonnegative revision format. No puzzle IDs, database version or byte limits change.
+The original guard failed six focused cases; the corrected storage/revision/
+restore/recovery selection passes 44 cases plus 58 legacy storage assertions.
+Three malformed-content regressions fail before the review fix and pass after it.
+Actual-origin autosave/reload regressions cover future and malformed known-schema
+rows; browser, emitted-build, hosted exact-head and fix review gates remain pending.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-07: older backlog wave
 
 Eight Grok 4.7 high worker tasks and two GPT 6.1 Sol medium coordinators produced
