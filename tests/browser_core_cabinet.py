@@ -243,18 +243,27 @@ def home_checks(page, width):
     dismiss(page)
 
 
+def keyboard_is_clipped(page):
+    return page.locator(".board-column .kb").evaluate_all("""nodes => nodes.length > 0 && nodes.every(node => {
+        const style = getComputedStyle(node);
+        return style.display !== 'none' && style.clipPath === 'inset(50%)';
+    })""")
+
+
 def touch_copy(page, width, touch):
     play(page, "network-01@1")
     board = page.locator(".board-column").inner_text()
     if touch:
+        board = page.locator(".control-note:not(.kb)").inner_text()
         check(
             not re.search(r"Right-click|Shift\+Enter|Arrows? move", board),
             f"{width}: touch network copy has no mouse or keyboard instructions (m8)",
         )
         check(board.count("clockwise") == 1, f"{width}: the network instruction appears once (m8)")
+        check(keyboard_is_clipped(page), f"{width}: touch network clips keyboard help without removing accessible text (m8)")
         page.screenshot(path=str(OUT / f"network-touch-{width}.png"))
         play(page, "sudoku-01@1")
-        check("Keyboard:" not in page.locator(".board-column").inner_text(), f"{width}: touch Sudoku hides keyboard copy (m8)")
+        check(keyboard_is_clipped(page), f"{width}: touch Sudoku clips keyboard help without removing accessible text (m8)")
     else:
         check("Shift+Enter" in board, f"{width}: desktop network copy keeps its keyboard help (m8)")
 
