@@ -74,6 +74,7 @@ with sync_playwright() as pw:
   page.locator('.theatre-rail').screenshot(path=str(OUT/f'sound-controls-{width}.png'))
   page.locator('[data-theatre-motion]').click()
   check(not page.evaluate('AlibiTheatre.diagnostics().streamingAudio'),'Still-room preference disposes sound and animation')
+  check(page.locator('[data-theatre-sound-status]').inner_text()=='','Still-room preference clears the stopped playback status immediately')
   check(page.locator('[data-theatre-sound]').get_attribute('aria-pressed')=='false','Sound control accurately reflects stopped playback')
   check(page.locator('.theatre-weather i').first.evaluate('(e)=>getComputedStyle(e).animationName')=='none','Still room stops decorative animation')
   page.reload(); page.wait_for_function('()=>window.AlibiTheatre')

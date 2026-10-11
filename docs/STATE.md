@@ -1,5 +1,87 @@
 # Live development state
 
+## 2026-10-11: third qualified integration candidate
+
+This candidate preserves the reviewed source heads of #630 (c7e7e5e8),
+#631 (84a0cfb5) and #632 (5c5d4a42), based on main d6ed7571. The eight changed
+runtime/tool/test files match their reviewed sources exactly. Only STATE had
+merge conflicts; the full base ledger and all three added records are retained.
+A faulty external merge helper briefly dropped ledger text in an unpublished
+intermediate commit; the complete ledger was reconstructed before qualification.
+Fresh combined interaction/history review found no HIGH/CRITICAL defect.
+Clean source b14fcbad builds web 9a90ccfb2311 / Android artifact 3bcb41ab and
+passes formatter, 55 focused Node cases, 129 Voices assertions, 104 Theatre
+assertions, 184 UI checks and all 18 real-origin mobile cases without page
+errors. Existing emitted budgets pass. Source-specific baseline/guard controls
+and phone/desktop views remain recorded in the original PRs. Exact-head hosted
+qualification remains pending. No primary release, collector readiness or
+physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: reset candidate refreshed against qualified integration
+
+PR #629 merged as d6ed7571 after all seven reported hosted checks succeeded.
+It preserves #571/#561/#626/#578/#590/#628 source histories. The reset candidate
+now includes that main commit; the only merge conflict was this state ledger,
+and both qualified records are retained below. Prior reset review still applies
+to the unchanged queue and Privacy logic. Clean refreshed source 30b97488
+(web c0197a1e2ce1 / Android artifact 718cd5a2) passes formatter, 47 focused
+Node cases, 129 Voices assertions, 184 UI checks and all 18 real-origin mobile
+cases with no page errors. The unchanged emitted budgets pass. The prior
+375-case storage proof remains scoped to source 609c1ff4; storage code did not
+change in this base refresh. Exact-head hosted qualification remains pending. Conservative failure feedback when
+storage reads and removal both fail is recorded as a MEDIUM limitation: page-only
+key rotation works, but durable removal cannot be confirmed. No primary release
+or physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: survey-key reset failure candidate
+
+Resetting the survey key now returns an explicit failure when storage refuses
+key removal, and the Privacy status reports that failure instead of promising a
+new key. A narrow regression refuses only key removal while queue writes remain
+available; it preserves the stored key and the respondent read. All 29 queue
+cases pass. The same new assertion fails against the previous implementation
+(1 instead of false), with the other 28 cases passing. Successful zero-answer
+and answer-removal resets retain their existing controls. An actual Privacy
+button failure/recovery control is added to the existing Voices browser suite;
+clean source 609c1ff4 builds web 6912ac1775d9 / Android artifact 1d339606.
+Formatter and 47 focused Node cases, 129 Voices browser assertions, 184 UI
+checks and 375 real-origin storage checks pass with no page errors. A disposable
+compiled guard-removal control fails specifically at the new failure-status
+assertion; the source retains successful reset and new-key controls. Phone,
+desktop and the actual failure status are inspected. Fresh independent review
+found no HIGH/CRITICAL defect. Hosted exact-head qualification remains pending.
+Queue deletion order is unchanged: a failed key removal is not an atomic rollback
+or collector-side deletion. No physical-device acceptance is inferred; see
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: configured release-checkout lookup
+
+Release preparation now checks PULSEBOARD_REPO and the direct Pulseboard
+sibling before deriving a linked-worktree sibling from Alibi Git. A valid
+configured checkout works when Alibi is a source archive without .git. A
+disposable real filesystem regression fails on the previous eager Git probe
+(five existing cases pass, one new case fails); all six pass after the fix.
+The same case checks direct-sibling lookup and refusal of an invalid explicit
+path. Existing release-record and Windows symlink failure controls remain.
+No collector checkout, release version, registration, publication or deployment
+was changed. Broader qualification and independent review remain pending;
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains release/device owner gates.
+
+## 2026-10-11: stopped room sound reports its actual state
+
+The existing reduced/hidden stop step now runs before refreshing Theatre status
+and controls. Choosing Still the room stops playback and clears its displayed
+Playing message immediately; the redundant final sound-button loop is removed.
+One assertion extends the existing actual-control suite. The original qualified
+build fails that assertion after successful playback and audio disposal. Clean
+source 5201b392 builds web d188a296c490 / Android artifact 3e6139c1 and passes
+formatter, 18 focused Node cases, 104 Theatre assertions, 184 UI checks and
+all 18 real-origin mobile cases without page errors. Both phone and desktop
+views show Room sound off and no stale playback status. Fresh independent
+review found no HIGH/CRITICAL defect. Exact-head hosted qualification remains
+pending; no physical preference-change or primary release is claimed.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains owner/device gates.
+
 ## 2026-10-11: second qualified integration candidate
 
 This candidate preserves the reviewed source histories of #571 (1a2e8557,
