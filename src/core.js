@@ -978,7 +978,7 @@
     for (const c of p.clues) {
       if (!c || !ids.includes(c.who)) fail();
       if (['left', 'above', 'sameRoom', 'differentRoom'].includes(c.kind)) {
-        if (!ids.includes(c.other)) fail();
+        if (!ids.includes(c.other) || c.other === c.who) fail();
       } else if (['room', 'notRoom'].includes(c.kind)) {
         if (!int(c.value, p.roomNames.length)) fail();
       } else if (['row', 'col'].includes(c.kind)) {
