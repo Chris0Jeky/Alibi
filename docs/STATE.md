@@ -266,3 +266,15 @@ Regression coverage executes the actual handler and enqueueSave code in a VM
 fixture. Evidence pending: the caller owns the proving check
 (`node --test --test-concurrency=2 tests/app-broadcast-revision.test.cjs`),
 formatting, catalogue hashes, builds and native-origin proof after integration.
+
+## 2026-10-11: named audio and saved-note checks (#578)
+
+The existing assertions now register as 26 audio cases and two saved-note key
+cases. Receipt checks, derivative iteration, thresholds and conditional ffprobe
+behavior are preserved; runtime and asset bytes are unchanged. All 28 cases pass
+with the installed ffprobe exercised. A disposable test-memory receipt mutation
+fails exactly the first audio case while the remaining 27 pass; baseline files
+pass their two file-level cases. Independent review found no HIGH/CRITICAL issue.
+Formatting and diff checks pass. Exact-head hosted CI remains required. This is
+partial test-reporting work for #519; physical listening and device acceptance
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
