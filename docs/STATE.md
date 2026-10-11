@@ -13,7 +13,11 @@ On source `602fc9e33fe37b45f425ec3844d41592aa28598d`, clean web build
 checks and 184 UI checks. Phone/desktop scenarios download the actual device
 and session files and restore each into isolated profiles. Fresh reviews found
 no HIGH/CRITICAL defect; pre-existing dirty inactive broadcast replacement is
-tracked in #619. Current-base hosted qualification is still required. No
+tracked in #619. Current-base8a1454c3 clean build `d6c2fc411a0c`
+passes16 source cases but fails the unchanged code/shell ceiling:1,412,997
+bytes versus1,412,792.32, a204.68-byte excess. Started hosted failures are
+real failures. The candidate is parked until a sound budget fix and current-main
+qualification; no ceiling increase or fragile copy-only trim is applied. No
 physical Android/TalkBack or deployment acceptance is inferred.
 
 ## 2026-10-11: Lantern Duel credential host binding (#605)
