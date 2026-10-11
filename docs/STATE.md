@@ -22,6 +22,15 @@ that defect; excluding only canonical404 from the shell matcher makes35 source
 worker cases pass. Normal shell paths, aliases, assets, API exclusions and unknown
 save protection remain intact. Fixed emitted/native/HTTPS and current-head hosted
 qualification remain required. The first candidate version is not production.
+
+## 2026-10-11: House and standalone feedback gate regressions
+
+Two additional cases reuse the existing House and Voices harnesses: the letter
+with incomplete observations cannot solve the study, and standalone official
+completion screens receive neither rating nor survey slots. Removing each guard
+fails its assertion. All 47 combined cases and formatting pass. Voices artifact
+fixtures come from an existing build; fresh emitted/browser/hosted proof has not
+run for this test-only slice. No production behavior changes.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
 ## 2026-10-11: Lantern Duel credential host binding (#605)
@@ -35,6 +44,7 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present
@@ -70,6 +80,7 @@ merge gates remain explicit. #347's implementation is present with specific
 coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
 decisions. No deployment or physical-device approval was inferred.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+
 ## 2026-10-11: Club backup guard regressions
 
 Four source tests cover a minimal accepted Club save, an Archive no-op replay,

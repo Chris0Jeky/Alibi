@@ -195,6 +195,14 @@ test('conclusion requires the letter and observations, not just a guessed answer
   assert.deepEqual(wrong.visited, all.visited);
   assert.equal(M.reduce(wrong, { type: 'answer', id: 'maps' }).solved, true);
 });
+test('the letter alone with incomplete observations cannot unlock a conclusion', () => {
+  let state = M.reduce(M.study(), { type: 'letter' });
+  state = M.reduce(state, { type: 'inspect', id: 'study' });
+  const denied = M.reduce(state, { type: 'answer', id: 'maps' });
+  assert.equal(denied.solved, false);
+  assert.equal(denied.answer, '');
+});
+
 test('hint escalation is bounded and does not complete the study', () => {
   let s = M.study();
   for (let i = 0; i < 10; i++) s = M.reduce(s, { type: 'hint' });
