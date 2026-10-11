@@ -10,8 +10,16 @@ cases pass. The same new assertion fails against the previous implementation
 (1 instead of false), with the other 28 cases passing. Successful zero-answer
 and answer-removal resets retain their existing controls. An actual Privacy
 button failure/recovery control is added to the existing Voices browser suite;
-its build, browser and hosted gates remain pending. No collector change or
-physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+clean source 609c1ff4 builds web 6912ac1775d9 / Android artifact 1d339606.
+Formatter and 47 focused Node cases, 129 Voices browser assertions, 184 UI
+checks and 375 real-origin storage checks pass with no page errors. A disposable
+compiled guard-removal control fails specifically at the new failure-status
+assertion; the source retains successful reset and new-key controls. Phone,
+desktop and the actual failure status are inspected. Fresh independent review
+found no HIGH/CRITICAL defect. Hosted exact-head qualification remains pending.
+Queue deletion order is unchanged: a failed key removal is not an atomic rollback
+or collector-side deletion. No physical-device acceptance is inferred; see
+[HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: challenge save ownership regression
 
