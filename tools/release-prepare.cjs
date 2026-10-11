@@ -100,15 +100,23 @@ function findPulseboard(explicit) {
   const candidates = [
     process.env.PULSEBOARD_REPO,
     path.join(path.dirname(ROOT), 'Pulseboard'),
-    // A linked worktree lives below the main checkout; look beside that checkout too.
-    path.join(
-      path.dirname(
-        run('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT }),
-      ),
-      '..',
-      'Pulseboard',
-    ),
   ].filter(Boolean);
+  // A linked worktree lives below the main checkout; look beside that checkout too.
+  // The git probe is lazy: a failing probe degrades to not-found so explicit and ambient
+  // candidates are still evaluated (e.g. ROOT without .git with PULSEBOARD_REPO set).
+  try {
+    candidates.push(
+      path.join(
+        path.dirname(
+          run('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT }),
+        ),
+        '..',
+        'Pulseboard',
+      ),
+    );
+  } catch {
+    // No git checkout to derive a sibling from; evaluate the candidates above.
+  }
   // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
   const found = candidates.find((c) => fs.existsSync(path.join(c, '.git')));
   if (!found)

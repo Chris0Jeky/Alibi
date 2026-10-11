@@ -58,6 +58,66 @@ test('versions compare numerically', () => {
   assert.equal(compareVersions('1.2.3', '1.2.3'), 0);
 });
 
+test('findPulseboard returns PULSEBOARD_REPO when the git probe fails', (t) => {
+  const childProcess = require('node:child_process');
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const modulePath = require.resolve('../tools/release-prepare.cjs');
+  const originalSpawn = childProcess.spawnSync;
+  const previousEnv = process.env.PULSEBOARD_REPO;
+  const checkout = fs.mkdtempSync(path.join(os.tmpdir(), 'pulseboard-'));
+  fs.mkdirSync(path.join(checkout, '.git'));
+  // release-prepare.cjs destructures spawnSync at load time, so stub first, then reload.
+  childProcess.spawnSync = () => ({
+    status: 128,
+    stdout: '',
+    stderr: 'fatal: not a git repository',
+  });
+  delete require.cache[modulePath];
+  t.after(() => {
+    childProcess.spawnSync = originalSpawn;
+    delete require.cache[modulePath];
+    if (previousEnv === undefined) delete process.env.PULSEBOARD_REPO;
+    else process.env.PULSEBOARD_REPO = previousEnv;
+    fs.rmSync(checkout, { recursive: true, force: true });
+  });
+  process.env.PULSEBOARD_REPO = checkout;
+  const { findPulseboard } = require('../tools/release-prepare.cjs');
+  assert.equal(findPulseboard(undefined), path.resolve(checkout));
+});
+
+test('findPulseboard without a checkout still throws not-found when the git probe fails', (t) => {
+  const childProcess = require('node:child_process');
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const modulePath = require.resolve('../tools/release-prepare.cjs');
+  const originalSpawn = childProcess.spawnSync;
+  const originalExists = fs.existsSync;
+  const previousEnv = process.env.PULSEBOARD_REPO;
+  const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'pulseboard-missing-'));
+  childProcess.spawnSync = () => ({
+    status: 128,
+    stdout: '',
+    stderr: 'fatal: not a git repository',
+  });
+  // Force every candidate to miss so a failing probe must degrade to the not-found error.
+  fs.existsSync = () => false;
+  delete require.cache[modulePath];
+  t.after(() => {
+    childProcess.spawnSync = originalSpawn;
+    fs.existsSync = originalExists;
+    delete require.cache[modulePath];
+    if (previousEnv === undefined) delete process.env.PULSEBOARD_REPO;
+    else process.env.PULSEBOARD_REPO = previousEnv;
+    fs.rmSync(empty, { recursive: true, force: true });
+  });
+  process.env.PULSEBOARD_REPO = empty;
+  const { findPulseboard } = require('../tools/release-prepare.cjs');
+  assert.throws(() => findPulseboard(undefined), /Pulseboard checkout not found/);
+});
+
 test('only Windows symlink EPERM failures are tolerated', () => {
   const eperm = 'Error: EPERM: operation not permitted, symlink a -> b\n';
   const summary = (...names) =>
