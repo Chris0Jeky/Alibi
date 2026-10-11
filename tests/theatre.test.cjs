@@ -350,3 +350,82 @@ test('desk attribution links keep a 24px target, their href and a visible focus 
     'the desk hero credit stays a real link to its source',
   );
 });
+
+test('startSound stays silent when reduced motion is on', () => {
+  let reducedMotion = false;
+  let audioCreated = 0;
+  const statusEl = { textContent: '' };
+  const listeners = {};
+  const store = new Map([['alibi-room-motion', 'on']]);
+  const realm = {
+    ALIBI_THEATRE: {
+      scenes: [
+        {
+          id: 'reading-room',
+          title: 'Reading room',
+          subtitle: 'A quiet corner',
+          motif: 'book',
+          motion: 'rain',
+          families: [],
+          quiet: [],
+          art: 'room-art',
+          detail: '',
+        },
+      ],
+      audio: [{ id: 'rain', title: 'Rain', url: 'rain.mp3', loop: true }],
+      films: [],
+    },
+    ALIBI_MEDIA: { 'room-art': 'art.png' },
+    localStorage: {
+      getItem: (k) => (store.has(k) ? store.get(k) : null),
+      setItem: (k, v) => store.set(k, String(v)),
+    },
+    location: { hash: '#/home', href: 'https://example.invalid/' },
+    navigator: {},
+    matchMedia: () => ({ matches: reducedMotion, addEventListener() {} }),
+    Audio: function (url) {
+      audioCreated += 1;
+      this.url = url;
+      this.play = () => Promise.resolve();
+      this.pause = () => {};
+      this.removeAttribute = () => {};
+      this.load = () => {};
+    },
+    setTimeout: (fn, ms) => {
+      const timer = setTimeout(fn, ms);
+      if (timer.unref) timer.unref();
+      return timer;
+    },
+    clearTimeout,
+    document: {
+      hidden: false,
+      documentElement: { dataset: {} },
+      body: { dataset: {}, classList: { contains: () => false } },
+      addEventListener: (type, handler) => {
+        listeners[type] = handler;
+      },
+      querySelector: () => null,
+      querySelectorAll: (sel) => (sel === '[data-theatre-sound-status]' ? [statusEl] : []),
+      createElement: () => ({}),
+    },
+    addEventListener() {},
+  };
+  require('node:vm').runInNewContext(
+    fs.readFileSync(path.join(root, 'src/theatre.js'), 'utf8'),
+    realm,
+    { timeout: 2000 },
+  );
+  const theatre = realm.AlibiTheatre;
+  theatre.attach({ page: 'home' });
+  const soundButton = { hasAttribute: (name) => name === 'data-theatre-sound', dataset: {} };
+  listeners.click({ target: { closest: (sel) => (sel === 'button' ? soundButton : null) } });
+  assert.equal(audioCreated, 1, 'sound starts while movement is allowed');
+  audioCreated = 0;
+  const statusBefore = statusEl.textContent;
+  reducedMotion = true;
+  listeners.change({
+    target: { matches: (sel) => sel === '[data-theatre-ambience]', value: 'rain' },
+  });
+  assert.equal(audioCreated, 0, 'reduced motion keeps the room silent');
+  assert.equal(statusEl.textContent, statusBefore, 'sound status is unchanged while silent');
+});
