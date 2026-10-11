@@ -45,7 +45,7 @@ test('touch-first instructions leave mouse and keyboard help to .kb notes (0.14.
       assert.doesNotMatch(visible, pointerOnly, `touch-visible control note: ${note.slice(0, 60)}`);
   }
   assert.match(css, /@media \(pointer: coarse\) and \(not \(any-pointer: fine\)\)/);
-  assert.match(css, /\.kb \{[^}]*clip: rect\(0, 0, 0, 0\)/);
+  assert.match(css, /\.kb \{[^}]*clip-path: inset\(50%\)/);
   assert.doesNotMatch(css, /\.kb \{[^}]*display: none/);
   assert.doesNotMatch(
     app,
