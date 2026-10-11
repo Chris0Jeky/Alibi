@@ -511,6 +511,17 @@ test('a rating changed while the older one is in flight still sends the newer an
   assert.equal(q.pending().length, 0);
 });
 
+test('enqueue refuses the twenty-first waiting item', () => {
+  const { q } = harness({ online: false });
+  for (let i = 0; i < 20; i++) {
+    assert.equal(q.enqueue(feedback(q, { text: 'message ' + i })), true);
+  }
+  assert.equal(q.pending().length, 20);
+  assert.equal(q.enqueue(feedback(q, { text: 'one too many' })), false);
+  assert.equal(q.pending().length, 20);
+  assert.equal(q.pending()[0].payload.text, 'message 0', 'first item intact');
+});
+
 test('at most twenty items wait; the twenty-first is refused, not a silent loss', () => {
   const { q, clock } = harness();
   for (let i = 0; i < 20; i++) {
