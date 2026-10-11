@@ -188,3 +188,45 @@ test('retirement deletes only the known legacy image cache without delaying use'
   assert.ok(await x.api.resolve('art'));
   assert.deepEqual(deleted, ['alibi-enhanced-images-v1']);
 });
+
+test('validated length and fingerprint gates pin src/asset-delivery.js validated:35-65', async () => {
+  const snippet = source.split('\n').slice(34, 66).join('\n');
+  assert.match(snippet, /async function validated/);
+  const validated = vm.runInNewContext(`${snippet}\nvalidated;`, {
+    G: { crypto: crypto.webcrypto },
+    Blob,
+    Uint8Array,
+    MAX_BYTES: 1024 * 1024,
+  });
+  const pin = { bytes: bytes.length, sha256: entry.sha256, mime: entry.mime };
+  const fakeResponse = (chunks) => {
+    let index = 0;
+    return {
+      ok: true,
+      type: 'basic',
+      status: 200,
+      headers: {
+        get: (name) =>
+          String(name).toLowerCase() === 'content-type' ? entry.mime : null,
+      },
+      body: {
+        getReader: () => ({
+          async read() {
+            if (index < chunks.length) return { value: chunks[index++], done: false };
+            return { value: undefined, done: true };
+          },
+          async cancel() {},
+        }),
+      },
+    };
+  };
+  await assert.rejects(
+    validated(fakeResponse([bytes.slice(0, bytes.length - 1)]), pin),
+    /length mismatch/,
+  );
+  await assert.rejects(
+    validated(fakeResponse([Buffer.alloc(bytes.length)]), pin),
+    /fingerprint mismatch/,
+  );
+  assert.ok((await validated(fakeResponse([bytes]), pin)) instanceof Blob);
+});
