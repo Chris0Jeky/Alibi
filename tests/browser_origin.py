@@ -54,6 +54,7 @@ ORIGIN_SCENARIOS = (
     "room_host",
     "room_version",
     "quarantined_run",
+    "broadcast_readback",
     "newer_database",
     "club_read_abort",
 )
@@ -1695,6 +1696,60 @@ def scenario_room_version(pw: Any, root: Path) -> None:
         context.close()
 
 
+def scenario_broadcast_readback(pw: Any, root: Path) -> None:
+    for width in (390, 1280):
+        context = launch_profile(pw, root / f"broadcast-readback-{width}")
+        try:
+            page = new_page(context, "broadcast-readback")
+            page.set_viewport_size({"width": width, "height": 900})
+            boot(page)
+            route(page, "play/lightup-01@1")
+            move_first_cell(page, "active synthetic run is saved through its actual control")
+            key = "lightup-01@1"
+            baseline = wait_run(page, key, 1)
+            wait_page(page, "!AlibiDiagnostics.getStatus().pendingSaves", what="initial save completion")
+            active = current(page)
+            page.evaluate("""key => {
+              const get = AlibiStorage.Store.prototype.get;
+              AlibiStorage.Store.prototype.get = async function(table, target) {
+                if (table === 'runs' && target === key && !globalThis.heldBroadcastRead) {
+                  globalThis.heldBroadcastRead = true;
+                  await new Promise(resolve => { globalThis.releaseBroadcastRead = resolve; });
+                }
+                return get.call(this, table, target);
+              };
+            }""", key)
+            writer = new_page(context, "broadcast-writer")
+            writer.goto(SEED_PAGE, wait_until="domcontentloaded")
+            writer.evaluate("""({key, rev}) => {
+              globalThis.syntheticChannel = new BroadcastChannel('alibi-saves');
+              syntheticChannel.postMessage({type: 'saved', key, rev});
+            }""", {"key": key, "rev": baseline["rev"]})
+            wait_page(page, "Boolean(globalThis.releaseBroadcastRead)", what="held broadcast storage read")
+            newer = {**baseline, "rev": baseline["rev"] + 2, "note": "Other tab synthetic progress"}
+            writer.evaluate("""value => new Promise((resolve, reject) => {
+              const open = indexedDB.open('alibi-device', 1);
+              open.onerror = () => reject(open.error);
+              open.onsuccess = () => {
+                const db = open.result, tx = db.transaction('runs', 'readwrite');
+                tx.objectStore('runs').put({key: value.key, value});
+                tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onabort = () => { db.close(); reject(tx.error); };
+              };
+            })""", newer)
+            page.evaluate("releaseBroadcastRead()")
+            wait_status(page, lambda s: "another tab" in s["saveError"],
+                        "delayed read surfaces the active snapshot conflict")
+            check(current(page)["rev"] == active["rev"], "active revision is not rebased from the read")
+            check(current(page)["state"] == active["state"], "active board remains the local snapshot")
+            check("Not saved" in page.locator("#save-state").inner_text(), "actual save control reports refusal")
+            page.screenshot(path=str(RESULTS / f"broadcast-readback-{width}.png"), full_page=True)
+            page.wait_for_timeout(16500)
+            check(read_idb(page, "runs", key) == newer, "autosave preserves the newer committed bytes")
+        finally:
+            context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1897,6 +1952,7 @@ def run() -> int:
                 scenario_room_host,
                 scenario_room_version,
                 scenario_quarantined_run,
+                scenario_broadcast_readback,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]
