@@ -62,6 +62,43 @@ function createHandler(rootDir, fsLib = fs) {
     console.error('Alibi: dist/_headers is missing a Content-Security-Policy; serving without CSP');
   }
   return (req, res) => {
+    try {
+      const headersFs = fsLib && typeof fsLib.readFileSync === 'function' ? fsLib : fs;
+      let raw;
+      try {
+        raw = headersFs.readFileSync(path.join(rootDir, '_headers'), 'utf8');
+      } catch {
+        res.writeHead(500).end('Missing security policy');
+        return;
+      }
+      try {
+        const match = raw.match(/Content-Security-Policy: (.+)/);
+        const policy = match ? match[1].trim() : null;
+        if (!policy) {
+          res.writeHead(500).end('Missing security policy');
+          return;
+        }
+        if (!cachedCsp) cachedCsp = policy;
+      } catch {
+        res.writeHead(500).end('Missing security policy');
+        return;
+      }
+    } catch {
+      try {
+        if (res.headersSent) {
+          res.destroy();
+        } else {
+          res.writeHead(500).end('Missing security policy');
+        }
+      } catch {
+        try {
+          res.destroy();
+        } catch {
+          // Last resort: nothing left to tear down.
+        }
+      }
+      return;
+    }
     let name;
     try {
       name = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
