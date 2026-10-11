@@ -43,7 +43,13 @@ function registry(root) {
 function readPacks(root, files) {
   const dir = path.join(root, 'content');
   return files.map((file) => {
-    if (!/^[a-z0-9/-]+\.json$/.test(file) || file.includes('..'))
+    if (
+      typeof file !== 'string' ||
+      path.isAbsolute(file) ||
+      file.startsWith('/') ||
+      !/^[a-z0-9/-]+\.json$/.test(file) ||
+      file.includes('..')
+    )
       throw Error('Invalid official pack path');
     const bytes = fs.readFileSync(path.join(dir, file));
     if (bytes.length > 3 * 1024 * 1024) throw Error('Official source pack exceeds 3 MB');
