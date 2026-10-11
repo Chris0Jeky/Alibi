@@ -11,10 +11,17 @@ touch guidance and actual Theatre control regressions. Content, tools and depend
 overflow and an obstructed disclosure click. An isolated comparison reproduces
 the overflow and removes it by bounding clipped keyboard help to the existing
 one-pixel screen-reader geometry; both disclosure controls pass locally.
-The CSS fix awaits budget and real-origin qualification; the hosted disclosure
-failure is not dismissed as flaky. Source-specific controls and independent reviews are
-recorded in those PRs; combined build, browser and exact-head hosted gates remain
-pending at this checkpoint. No source PR merge or primary deployment is claimed.
+The CSS fix is qualified on clean source bbf56404 (web e0e0db826344,
+Android artifact 6bd34d92). Formatter, 74 focused Node cases with audio decoding,
+37 keyboard/AX checks, 55 core checks, 102 Theatre checks, all 18 real-origin
+mobile cases and 184 UI checks pass. Phone/desktop and 320-pixel disclosure
+views are inspected. CSS gzip is 34,451 against the unchanged 34,464 ceiling;
+shell is 1,412,662 against 1,412,792.32. Fresh combined and fix-diff independent
+reviews found no HIGH/CRITICAL defect. Source-specific controls and reviews
+remain recorded in their PRs; exact-head hosted gates remain pending.
+The initial local mobile helper formed a double-slash URL and failed readiness;
+its interrupted run is not a passing suite. The corrected real-origin suite
+passes both cases from the actual hosted failure without a flaky dismissal. No source PR merge or primary deployment is claimed.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance
 and the existing release and owner gates.
 
