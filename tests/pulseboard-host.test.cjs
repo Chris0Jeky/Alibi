@@ -340,6 +340,54 @@ test('imported and workshop puzzles are reported as custom, never by their autho
   assert.doesNotMatch(JSON.stringify(sdk.calls), /sudoku|expert/);
 });
 
+test('redacts-workshop-ids to custom with no family, tier or solution leakage', () => {
+  const sdk = fakeSdk();
+  const h = page({ sdk: sdk.api });
+  h.run();
+  assert.ok(
+    !h.context.ALIBI_CATALOG.puzzles.some((p) => p.id === 'workshop-x'),
+    'the faked catalogue contains no workshop-x id',
+  );
+  const workshopRun = {
+    puzzle: {
+      id: 'workshop-x',
+      answer: 'secret-answer',
+      board: [[1, 2], [3, 4]],
+      note: 'secret-note',
+      solution: 'secret-solution',
+      type: 'sudoku',
+      difficulty: 'Expert',
+    },
+    answer: 'secret-answer',
+    board: [[1, 2], [3, 4]],
+    note: 'secret-note',
+  };
+  assert.equal(h.context.AlibiJourney(workshopRun, 'puzzle.started'), true);
+  const workshopTracks = sdk.calls.filter((c) => c[0] === 'track');
+  assert.equal(workshopTracks.length, 1, 'one journey event for the workshop start');
+  const props = workshopTracks[0][1] === 'puzzle.started' ? workshopTracks[0][2] : null;
+  assert.ok(props, 'the workshop event is puzzle.started');
+  assert.deepEqual(JSON.parse(JSON.stringify(props)), { puzzle: 'custom' });
+  assert.equal('family' in props, false, 'no family key for custom puzzles');
+  assert.equal('tier' in props, false, 'no tier key for custom puzzles');
+  for (const key of ['answer', 'board', 'note', 'solution', 'cells', 'type', 'difficulty'])
+    assert.equal(key in props, false, `no ${key} key leaks into journey props`);
+  assert.doesNotMatch(
+    JSON.stringify(sdk.calls),
+    /workshop-x|secret-answer|secret-note|secret-solution/,
+    'no authored id or solution material leaves the device',
+  );
+  const officialRun = { puzzle: { id: 'expert-sudoku-01' } };
+  assert.equal(h.context.AlibiJourney(officialRun, 'puzzle.started'), true);
+  const official = sdk.calls.filter((c) => c[0] === 'track').at(-1);
+  assert.equal(official[1], 'puzzle.started');
+  assert.deepEqual(JSON.parse(JSON.stringify(official[2])), {
+    puzzle: 'expert-sudoku-01',
+    family: 'sudoku',
+    tier: 'expert',
+  });
+});
+
 test('restart, route changes, a new run and consent changes each reset the attempt', () => {
   const sdk = fakeSdk();
   const h = page({ sdk: sdk.api });
