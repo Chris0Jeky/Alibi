@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { payloadDigest, readIdentity, identitySource } = require('./platform-identity.cjs');
+const { contentManifestRevision } = require('./build.cjs');
 const {
   ANDROID_DIST,
   HOST_ONLY,
@@ -94,16 +95,18 @@ function expectedCosts(entries) {
 
 function currentContentManifestRevision(root, errors) {
   const directory = path.join(root, 'dist', 'assets');
-  const candidates = files(directory).filter((filename) =>
-    /^official-content\.[0-9a-f]{12}\.js$/.test(path.basename(filename)),
-  );
-  if (candidates.length !== 1) {
-    errors.push(
-      `Current web build needs exactly one official-content asset; found ${candidates.length}.`,
-    );
-    return '';
+  const assets = files(directory);
+  const sources = [];
+  for (const name of ['official-content', 'official-deferred']) {
+    const pattern = new RegExp(`^${name}\\.[0-9a-f]{12}\\.js$`);
+    const candidates = assets.filter((filename) => pattern.test(path.basename(filename)));
+    if (candidates.length !== 1) {
+      errors.push(`Current web build needs exactly one ${name} asset; found ${candidates.length}.`);
+      return '';
+    }
+    sources.push(fs.readFileSync(candidates[0], 'utf8'));
   }
-  return sha256(fs.readFileSync(candidates[0]));
+  return contentManifestRevision(...sources);
 }
 
 function inspectAndroidArtifact({
