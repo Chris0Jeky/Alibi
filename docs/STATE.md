@@ -1,5 +1,20 @@
 # Live development state
 
+## 2026-10-11: Theatre guarded-start control coverage
+
+Two small additions to the existing browser suite pin the reduced-preference
+recording guard and the offline-status film-source guard, with ordinary playback
+controls and restoration of overridden globals. Fixture 01cf6d25 serves preserved
+clean 72843be8 / web ce33c615123e with unchanged source at current main f8d5093e:
+all 102 actual-origin checks pass with no runtime errors. Each separate guard
+removal fails its specific new assertion. Network emulation alone reported online
+after reload, so the offline-status branch is explicitly controlled; this is no
+physical offline-detection or preference-change claim. No runtime/content bytes
+change. Fresh independent review is clean; current-head CI remains required.
+See [the proof and limits](qa/2026-10-11-theatre-guard-controls.md) and
+[HUMAN_TODO.md](../HUMAN_TODO.md). #625 has already merged as f8d5093e after all
+six reported hosted checks; older pending labels below are historical.
+
 ## 2026-10-11: challenge save ownership regression
 
 The existing launcher harness now checks that a valid published challenge save
