@@ -6,8 +6,12 @@ PR #629 merged as d6ed7571 after all seven reported hosted checks succeeded.
 It preserves #571/#561/#626/#578/#590/#628 source histories. The reset candidate
 now includes that main commit; the only merge conflict was this state ledger,
 and both qualified records are retained below. Prior reset review still applies
-to the unchanged queue and Privacy logic. Rebuilt-head browser, emitted budget
-and hosted qualification remain pending. Conservative failure feedback when
+to the unchanged queue and Privacy logic. Clean refreshed source 30b97488
+(web c0197a1e2ce1 / Android artifact 718cd5a2) passes formatter, 47 focused
+Node cases, 129 Voices assertions, 184 UI checks and all 18 real-origin mobile
+cases with no page errors. The unchanged emitted budgets pass. The prior
+375-case storage proof remains scoped to source 609c1ff4; storage code did not
+change in this base refresh. Exact-head hosted qualification remains pending. Conservative failure feedback when
 storage reads and removal both fail is recorded as a MEDIUM limitation: page-only
 key rotation works, but durable removal cannot be confirmed. No primary release
 or physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
