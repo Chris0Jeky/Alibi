@@ -10,6 +10,20 @@ response scenario is added, with execution and emitted build evidence pending.
 This layers on #608's API credential binding. Physical/two-device multiplayer and
 deployment acceptance remain unverified; see [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## 2026-10-11: offline navigation recovery candidate (#581)
+
+This unmerged candidate preserves online host responses and uses the current
+release's cached styled 404 only after a rejected navigation fetch. Actual HTTPS
+candidate193660ee/webb29349567707 passed11 byte/status checks and55 shared-path
+browser checks; sampled primary responses matched the pre-upload baseline.
+Its unknown-path browser scenario found the host's canonical `/404` treated as
+a shell route after `/404.html` redirects. Three source regressions reproduce
+that defect; excluding only canonical404 from the shell matcher makes35 source
+worker cases pass. Normal shell paths, aliases, assets, API exclusions and unknown
+save protection remain intact. Fixed emitted/native/HTTPS and current-head hosted
+qualification remain required. The first candidate version is not production.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.

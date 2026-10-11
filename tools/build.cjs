@@ -424,6 +424,7 @@ function build() {
   const assets = [
     './',
     './index.html',
+    './404.html',
     ...aliasShellDocuments,
     './manifest.webmanifest',
     './icons/icon-192.png',
@@ -447,8 +448,9 @@ function build() {
   // manual-mode navigation cannot consume that followed-redirect response;
   // rewrap only those cache hits while preserving their bytes and headers.
   // The shell's asset URLs are relative, so it is served only for the scope root,
-  // index.html and single extensionless segments. Deeper or file-like URLs such as
-  // /a/b/x.html go to the network and its styled 404 instead of a stuck, unstyled shell.
+  // index.html and single extensionless segments except the host's canonical /404. Deeper URLs such as
+  // /a/b/x.html go to the network, or the current cached 404 if offline, instead of
+  // a stuck, unstyled shell. Known .html and /index.html aliases use their cached redirect.
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
 const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
@@ -457,8 +459,9 @@ self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.sk
 const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
 const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
-function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}return /^(?:[^/.]*|index\\.html)$/.test(rel)&&await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase().replace(/(?:\\/index)?\\.html$/,'');const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
+async function missingNavigation(request,cache){try{return await fetch(request);}catch(error){const hit=await cache.match(new URL('./404.html',self.registration.scope).href);if(!hit)throw error;return new Response(hit.body,{status:404,statusText:'Not Found',headers:hit.headers});}}
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}if(rel!=='404'&&/^(?:[^/.]*|index\\.html)$/.test(rel))return await c.match(new URL('./',self.registration.scope).href)||fetch(r);return missingNavigation(r,c);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
   write(path.join(DIST, 'sw.js'), sw);
   write(
