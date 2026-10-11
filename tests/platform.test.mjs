@@ -534,6 +534,27 @@ test('lifecycle subscriptions own and dispose only their listeners', async () =>
   leaseB.dispose();
 });
 
+test('asset registration rejects traversal URLs and duplicate handles', () => {
+  const asset = {
+    id: 'castle.prologue.poster',
+    revision: '1',
+    status: 'bundled',
+    url: './assets/prologue.webp',
+    digest: 'a'.repeat(64),
+    bytes: 512,
+  };
+  const register = (assets) => createWebPlatform({ host: hostFixture(), build: BUILD, assets });
+  assert.doesNotThrow(() => register([asset]));
+  assert.throws(() => register([{ ...asset, url: '../evil' }]), {
+    name: 'TypeError',
+    message: 'Asset URL must be a reviewed local relative URL.',
+  });
+  assert.throws(() => register([asset, asset]), {
+    name: 'TypeError',
+    message: 'Duplicate platform asset entry.',
+  });
+});
+
 test('assets and external destinations are resolved only through reviewed allowlists', async () => {
   const opened = [];
   const host = hostFixture({
