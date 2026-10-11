@@ -198,7 +198,24 @@
             r = os.get(key);
           this.watch(tx, reject);
           r.onsuccess = () => {
-            if ((r.result?.value.rev || 0) !== expectedRevision) {
+            const old = r.result?.value;
+            let invalid = false;
+            try {
+              if (old !== undefined) this.validateRun?.(old);
+            } catch {
+              invalid = true;
+            }
+            if (
+              invalid ||
+              (r.result !== undefined &&
+                (!old ||
+                  r.result.key !== key ||
+                  old.key !== key ||
+                  old.schemaVersion !== 1 ||
+                  !Number.isSafeInteger(old.rev) ||
+                  old.rev < 0)) ||
+              (old?.rev ?? 0) !== expectedRevision
+            ) {
               conflict = true;
               tx.abort();
             } else os.put({ key, value: next });
@@ -221,6 +238,7 @@
         throw Error(
           'A saved record is damaged or from an unsupported version. Nothing was changed.',
         );
+      if (old !== undefined) this.validateRun?.(old);
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }
