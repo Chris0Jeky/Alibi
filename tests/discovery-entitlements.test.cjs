@@ -74,6 +74,37 @@ test('fingerprints are stable across object key order and sensitive to edited co
   assert.notEqual(D.fingerprint(a), D.fingerprint({ ...a, revision: 2 }));
 });
 
+test('stable fingerprint ignores key order', () => {
+  assert.equal(D.fingerprint({ b: 1, a: 2 }), D.fingerprint({ a: 2, b: 1 }));
+  const ordered = puzzle('fp-order');
+  const reordered = {};
+  for (const key of Object.keys(ordered).reverse()) reordered[key] = ordered[key];
+  assert.deepEqual(Object.keys(reordered).sort(), Object.keys(ordered).sort());
+  assert.equal(D.fingerprint(ordered), D.fingerprint(reordered));
+});
+
+test('reordered definition still validates and grants', () => {
+  const definition = puzzle('scene-01');
+  const registration = source(definition);
+  const reorderedDefinition = {};
+  for (const key of Object.keys(definition).reverse())
+    reorderedDefinition[key] = definition[key];
+  assert.equal(D.fingerprint(definition), D.fingerprint(reorderedDefinition));
+  const prerequisite = requires(registration.sourceKey);
+  const ordered = entitlement('room:study', 'room-access', prerequisite);
+  const reordered = {
+    prerequisite: { sourceKey: prerequisite.sourceKey, op: prerequisite.op, schema: 1 },
+    category: ordered.category,
+    entitlementKey: ordered.entitlementKey,
+    schema: ordered.schema,
+  };
+  const event = receipt(registration, '2026-09-01T09:00:00Z');
+  const first = apply(D.emptyState(), [registration], [ordered], [event]).state;
+  const second = apply(D.emptyState(), [registration], [reordered], [event]).state;
+  assert.deepEqual(second, first);
+  assert.equal(second.owned.length, 1);
+});
+
 test('bootstrap emits only exact registered first completions and deduplicates revisions', () => {
   const sceneV1 = puzzle('scene-01', 1);
   const sceneV2 = puzzle('scene-01', 2, { title: 'Reviewed scene' });
