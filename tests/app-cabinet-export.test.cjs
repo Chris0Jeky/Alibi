@@ -261,21 +261,17 @@ test('copy actions download the staged immutable snapshots, and do nothing witho
   assert.equal(downloads.length, 0);
   const device = { format: 'alibi-backup', runs: [{ key: 'a', moves: 9 }] };
   const session = { format: 'alibi-backup', runs: [{ key: 'a', moves: 1 }] };
-  ctx.offer({
-    title: 'Copies',
-    message: 'Keep both.',
-    deviceName: 'device.json',
-    deviceData: device,
-    sessionName: 'session.json',
-    sessionData: session,
-  });
+  ctx.offer(device, session, 'device.json');
   device.runs[0].moves = 100;
   session.runs[0].moves = 100;
   ctx.click('download-device-copy');
   ctx.click('download-session-copy');
   assert.deepEqual(clone(downloads), [
     { name: 'device.json', data: { format: 'alibi-backup', runs: [{ key: 'a', moves: 9 }] } },
-    { name: 'session.json', data: { format: 'alibi-backup', runs: [{ key: 'a', moves: 1 }] } },
+    {
+      name: 'alibi-cabinet-session.json',
+      data: { format: 'alibi-backup', runs: [{ key: 'a', moves: 1 }] },
+    },
   ]);
   assert.deepEqual(clone(ctx.dialog.actions.map((a) => a.action)), [
     'download-device-copy',
@@ -297,8 +293,9 @@ test('regular and combined callers download standard envelopes and offer diverge
         saveError: '',
         cabinetBackup: async () => ({ data: clone(data), session: clone(session) }),
         download: (name, payload) => downloads.push({ name, payload }),
-        offerCabinetCopies: (options) => offers.push(options),
+
         toast: () => {},
+        dialog: (...args) => offers.push(args),
         AlibiClub: {
           flush: async () => {},
           diagnostics: () => ({ state: { player: 'kept' }, saveError: '' }),
@@ -314,16 +311,22 @@ test('regular and combined callers download standard envelopes and offer diverge
       };
       const caller = combined ? 'exportAll' : 'exportBackup';
       await vm.runInNewContext(
-        `${sliceFn('  async function ' + caller + '() {')} ${caller}()`,
+        `let stagedCabinet = null; ${offerSrc} ${sliceFn('  async function ' + caller + '() {')} ${caller}()`,
         ctx,
       );
       assert.equal(downloads.length, divergent ? 0 : 1);
       assert.equal(offers.length, divergent ? 1 : 0);
-      const payload = clone(divergent ? offers[0].deviceData : downloads[0].payload);
+      if (divergent) {
+        const start = source.indexOf("case 'download-device-copy':");
+        const end = source.indexOf("case 'import-all':", start);
+        vm.runInNewContext(`switch ('download-device-copy') { ${source.slice(start, end)} }`, ctx);
+        vm.runInNewContext(`switch ('download-session-copy') { ${source.slice(start, end)} }`, ctx);
+      }
+      const payload = clone(downloads[0].payload);
       assert.equal(payload.format, combined ? 'alibi-all-saves' : 'alibi-backup');
       assert.deepEqual(combined ? payload.sections.cabinet : payload, data);
       if (combined) assert.deepEqual(payload.sections.club, { player: 'kept' });
-      if (divergent) assert.deepEqual(clone(offers[0].sessionData), session);
+      if (divergent) assert.deepEqual(clone(downloads[1].payload), session);
     }
   }
 });

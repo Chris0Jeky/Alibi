@@ -2145,56 +2145,37 @@
     data.settings = C.clone(settings);
     data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
-    if (!divergentByKey.size) return { data, session: null };
-    const session = C.clone(data);
-    session.runs = [...new Map([...deviceByKey, ...divergentByKey]).values()].map((r) =>
-      C.clone(r),
-    );
-    return { data, session };
+    return {
+      data,
+      session: divergentByKey.size
+        ? {
+            ...data,
+            runs: [...new Map([...deviceByKey, ...divergentByKey]).values()],
+          }
+        : null,
+    };
   }
   async function exportBackup() {
     const { data, session } = await cabinetBackup();
-    const name = `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    if (!session) {
-      download(name, data);
-      toast('Backup exported. Keep a copy outside this browser.');
-      return;
-    }
-    offerCabinetCopies({
-      title: 'Two Cabinet copies to keep.',
-      message:
-        'Another tab changed the device progress, and this session has different edits. The device backup keeps the committed progress; the Cabinet session backup keeps this session\u2019s edits. Both copies can be kept.',
-      deviceName: name,
-      deviceData: data,
-      sessionName: `alibi-cabinet-session-${new Date().toISOString().slice(0, 10)}.json`,
-      sessionData: session,
-    });
+    offerCabinetCopies(data, session, `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    if (!session) toast('Backup exported. Keep a copy outside this browser.');
   }
   let stagedAll = null;
   let stagedCabinet = null;
-  function offerCabinetCopies({
-    title,
-    message,
-    deviceName,
-    deviceData,
-    sessionName,
-    sessionData,
-  }) {
-    stagedCabinet = {
-      deviceName,
-      deviceData: C.clone(deviceData),
-      sessionName,
-      sessionData: C.clone(sessionData),
-    };
+  function offerCabinetCopies(data, session, filename) {
+    if (!session) {
+      download(filename, data);
+      return;
+    }
+    stagedCabinet = C.clone([data, session, filename]);
     dialog(
-      title,
-      `<p>${message}</p><p class="fine">Download each file separately; nothing else is stored or changed.</p>`,
+      'Keep both copies',
+      '<p>Device progress and session edits differ. Download both backups.</p>',
       [
-        { label: 'Download device backup', action: 'download-device-copy', icon: 'download' },
+        { label: 'Device backup', action: 'download-device-copy' },
         {
-          label: 'Download Cabinet session backup',
+          label: 'Cabinet session backup',
           action: 'download-session-copy',
-          icon: 'download',
           secondary: true,
         },
         { label: 'Close', action: 'close-dialog', secondary: true },
@@ -2244,12 +2225,7 @@
         'Castle was not included: ' + error.message + ' Export the castle notebook separately.',
       );
     }
-    const combinedWarnings = cabinetSession
-      ? [
-          ...warnings,
-          'Divergent Cabinet session edits have a separate copy; this file keeps the committed device progress.',
-        ]
-      : [...warnings];
+    if (cabinetSession) warnings.push('Cabinet session edits are separate.');
     const combined = {
       format: 'alibi-all-saves',
       schema: 1,
@@ -2260,7 +2236,7 @@
       sections,
       ...(raw ? { recovery: { quiet: raw } } : {}),
       warnings: [
-        ...combinedWarnings,
+        ...warnings,
         saveError,
         AlibiClub.diagnostics().saveError,
         globalThis.QWStore?.info().blocked
@@ -2268,29 +2244,8 @@
           : '',
       ].filter(Boolean),
     };
-    if (!cabinetSession) {
-      download('alibi-all-saves.json', combined);
-      const exported = manifest
-        .map(
-          (section) =>
-            ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing', castle: 'Castle' })[section],
-        )
-        .join(', ');
-      toast(
-        `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
-        warnings.length > 0,
-      );
-      return;
-    }
-    offerCabinetCopies({
-      title: 'Device backup and Cabinet session copy.',
-      message:
-        'Another tab changed the device progress, and this session has different Cabinet edits. The combined file keeps the committed device progress; the Cabinet session backup keeps this session\u2019s edits. Both copies can be kept.',
-      deviceName: 'alibi-all-saves.json',
-      deviceData: combined,
-      sessionName: `alibi-cabinet-session-${new Date().toISOString().slice(0, 10)}.json`,
-      sessionData: cabinetSession,
-    });
+    offerCabinetCopies(combined, cabinetSession, 'alibi-all-saves.json');
+    if (!cabinetSession) toast(warnings.join(' ') || 'Device saves exported.', warnings.length > 0);
   }
   async function stageAll(file) {
     const serial = routeSerial;
@@ -3059,10 +3014,10 @@
         await exportAll();
         break;
       case 'download-device-copy':
-        if (stagedCabinet) download(stagedCabinet.deviceName, stagedCabinet.deviceData);
+        if (stagedCabinet) download(stagedCabinet[2], stagedCabinet[0]);
         break;
       case 'download-session-copy':
-        if (stagedCabinet) download(stagedCabinet.sessionName, stagedCabinet.sessionData);
+        if (stagedCabinet) download('alibi-cabinet-session.json', stagedCabinet[1]);
         break;
       case 'import-all':
         $('#all-backup-input').value = '';
