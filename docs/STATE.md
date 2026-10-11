@@ -41,6 +41,7 @@ successes, independent review and recorded merge receipts. PR #624 merged as
 PRs merged at that commit; issues #604 and #619 are closed. #625 then
 merged as f8d5093e, the current main at this handoff recovery checkpoint.
 The integration preserves the reviewed commits from #609, #611, #581,
+
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
 qualification are recorded in PR #624; this is not a primary release claim.
@@ -81,6 +82,18 @@ direct dependency only. Physical Android/TalkBack, collector readiness, signing,
 publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 Entries below retain their historical candidate evidence; this checkpoint
 supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: replayable Borough backup compatibility regression
+
+A numeric Borough seed with a real replayed move remains accepted by the existing
+engine and backup validator. One regression checks the complete accepted save
+and unchanged input. All 15 backup-validation cases pass; a disposable copy with
+the worker-proposed string-only seed guard fails specifically with "Invalid Pocket
+Borough seed." The incompatible production guard is not included. Independent
+read-only review found no HIGH/CRITICAL defect. This pins engine/backup semantics;
+actual restore transactions and historical UI generation are not newly verified.
+Exact-head hosted CI remains required before merge. Owner/device gates remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: Lantern Duel response ordering candidate (#604)
 
