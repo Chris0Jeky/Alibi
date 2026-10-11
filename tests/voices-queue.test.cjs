@@ -605,6 +605,79 @@ test('survey invitation timing: first offer, updates, snoozes and stop', () => {
   );
 });
 
+test('due() gates first and repeat invitations', () => {
+  const { q } = harness();
+  const DAY = 864e5;
+  // Local noons keep the one-day/two-day split fixed whatever the machine time zone is.
+  const at = (d, h = 12) => new Date(2026, 9, d, h, 0, 0).getTime();
+  const t = at(15);
+  const fresh = () => ({ taken: undefined, snoozes: 0, until: 0, never: false });
+  const fiveOneDay = [at(10, 10), at(10, 11), at(10, 12), at(10, 13), at(10, 14)];
+  const fourTwoDays = [at(10, 10), at(10, 11), at(10, 12), at(11, 12)];
+  const fiveTwoDays = [at(10, 10), at(10, 11), at(10, 12), at(10, 13), at(11, 12)];
+  assert.equal(q.due(fresh(), fiveTwoDays, '0.15.0', t), 1, 'five times on two days invite once');
+  assert.equal(q.due(fresh(), fourTwoDays, '0.15.0', t), 0, 'four times are not enough');
+  assert.equal(q.due(fresh(), fiveOneDay, '0.15.0', t), 0, 'five times on one day are not enough');
+  assert.equal(
+    q.due({ ...fresh(), snoozes: 2 }, fiveTwoDays, '0.15.0', t),
+    1,
+    'two snoozes still invite once the wait ends',
+  );
+  const last = { at: t - 30 * DAY, n: 5, release: '0.15.0' };
+  const fifteen = Array.from({ length: 15 }, (_, i) => at(1) + i * 36e5);
+  const fourteen = fifteen.slice(0, 14);
+  assert.equal(
+    q.due({ ...fresh(), taken: last }, fifteen, '0.15.0', t),
+    2,
+    '30 days and ten more completions invite again',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: last }, fourteen, '0.15.0', t),
+    0,
+    'nine more completions are not enough',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: { ...last, at: t - 30 * DAY + 1 } }, fifteen, '0.15.0', t),
+    0,
+    'a millisecond short of 30 days is not enough',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: last }, fiveTwoDays, '0.16.0', t),
+    2,
+    '30 days and a new release invite again without ten more',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: last }, fiveTwoDays, '0.15.0', t),
+    0,
+    '30 days alone without new play or a release is not enough',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: { ...last, at: t - 30 * DAY + 1 } }, fiveTwoDays, '0.16.0', t),
+    0,
+    'a new release a millisecond short of 30 days is not enough',
+  );
+  assert.equal(
+    q.due({ ...fresh(), snoozes: 3 }, fiveTwoDays, '0.15.0', t),
+    0,
+    'three snoozes stop the first invitation',
+  );
+  assert.equal(
+    q.due({ ...fresh(), never: true }, fiveTwoDays, '0.15.0', t),
+    0,
+    "Don't ask again stops the first invitation",
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: last, snoozes: 3 }, fifteen, '0.16.0', t),
+    0,
+    'three snoozes stop repeat invitations',
+  );
+  assert.equal(
+    q.due({ ...fresh(), taken: last, never: true }, fifteen, '0.16.0', t),
+    0,
+    "Don't ask again stops repeat invitations",
+  );
+});
+
 test('several queued surveys and ratings all go in one pass', async () => {
   const { q, calls, state, clock } = harness({ online: false });
   q.enqueue(rating(q, 'scene-01'));
