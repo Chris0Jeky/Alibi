@@ -254,7 +254,7 @@ def touch_copy(page, width, touch):
     play(page, "network-01@1")
     board = page.locator(".board-column").inner_text()
     if touch:
-        board = page.locator(".control-note:not(.kb)").inner_text()
+        board = page.locator(".board-instruction").inner_text()
         check(
             not re.search(r"Right-click|Shift\+Enter|Arrows? move", board),
             f"{width}: touch network copy has no mouse or keyboard instructions (m8)",
