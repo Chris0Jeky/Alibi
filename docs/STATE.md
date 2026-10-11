@@ -2,8 +2,8 @@
 
 ## Current overnight checkpoint, 2026-10-11
 
-PRs #594, #592, #607, #610, #608 and #614 have merged with exact-head hosted
-successes, independent review and recorded merge receipts. Main is 9b5b9521.
+PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
+successes, independent review and recorded merge receipts. Main is 3b041670.
 The integration branch preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined build, browser,
 interaction review and hosted gates are pending; this is not a release claim.
