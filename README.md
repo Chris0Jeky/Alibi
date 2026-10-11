@@ -83,7 +83,6 @@ python -m venv .venv
 # Activate the environment, then:
 python -m pip install -r requirements-dev.txt
 python -m playwright install chromium
-python tests/browser_ui.py
 python tests/browser_origin.py
 python tests/browser_update.py
 python tests/browser_expedition.py
