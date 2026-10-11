@@ -123,7 +123,7 @@ named('release install caches the emitted shell', async () => {
   );
   check(
     shell.length ===
-      6 +
+      7 +
         6 +
         fs
           .readdirSync(path.join(ROOT, 'dist/assets'))
@@ -143,7 +143,7 @@ named('release install caches the emitted shell', async () => {
                 n,
               ),
           ).length,
-    'Release installs the core shell plus the six alias redirect documents, without optional activity assets',
+    'Release installs the core shell, offline 404 and six alias redirect documents, without optional activity assets',
   );
 });
 
