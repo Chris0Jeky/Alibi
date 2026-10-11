@@ -1,20 +1,21 @@
 # Live development state
 
-## 2026-10-11: older browser data discovery candidate (#603)
+## 2026-10-11: older browser data discovery candidate (#603 / PR #618)
 
-Candidate, not a release: `Store.legacySnapshot()` inventories raw
-`alibi.v1.*` localStorage bytes read-only (probe excluded, no
-parse/migrate/delete/fallback change); `init()` records a separate
-`legacyInventory`/`legacyProblem` without altering IDB authority or
-fatal blocked/newer-version behavior. The shell warns separately with a
-count and an `Export older browser data` action that downloads a raw
-`alibi-legacy-browser-data` archive, not an `alibi-backup` restore.
-Regression: `tests/storage-legacy-recovery.test.cjs`. Proving command
-`node --test --test-concurrency=2 tests/storage-legacy-recovery.test.cjs tests/storage-readonly.test.cjs`
-passed 31 cases after integration repaired three cross-realm fixture assertions.
-Storage and app syntax checks and diff whitespace checks passed. Build,
-actual-origin UI/download and hosted proof remain pending, with no
-physical-device or migration claim.
+The read-only raw `alibi.v1.*` inventory and separate recovery export preserve
+malformed, empty, unknown and colliding strings without migration or deletion.
+Healthy IndexedDB remains authoritative. The export action re-reads storage and
+refuses incomplete snapshots, including changing key sets. All 33 focused source
+cases pass. Clean candidate `068c263d`, web `bd95b000813f`, passed 33 actual-origin
+checks at 390/1280 and all 184 UI checks with zero uncaught errors; both recovery
+layouts were inspected. Fresh independent reviews found no HIGH/CRITICAL defects.
+Fallback warning clarity is tracked in #620.
+
+**Parked gate:** code/shell 1,413,294 bytes exceeds the unchanged 1,412,792.32-byte
+ceiling by 502 bytes after a bounded trim. Started hosted jobs fail this gate;
+current-main integration and a passing budget remain required before merge.
+This is candidate proof, not a release or physical-device acceptance.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
 
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
