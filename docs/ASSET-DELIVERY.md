@@ -119,7 +119,7 @@ A system font is a functional font fallback; a missing model icon is not a funct
 
 `npm run verify` includes delivery response/timeout/cache regressions, the nonblocking activity
 regression, emitted-file accounting and the existing shell/budget checks.
-`python tests/browser_delivery.py` exercises real-origin 390px/1280px controls, decoded high/low
+`python tests/browser_origin.py` exercises real-origin 390px/1280px controls, decoded high/low
 resolution images, persisted preference, cached detail offline, never-visited gallery fallback,
 an actual offline Sudoku move/reload, HTTP failure and reconnection. CI runs it alongside the
 existing UI, origin and update suites. Screenshots/results live in `test-results/delivery/`.
