@@ -19,6 +19,20 @@ Actual main 666cbb79 merges without content changes; nine catalogue/copy/wiring
 source cases pass afterward. Independent production-seam and capture-fix reviews
 found no HIGH/CRITICAL finding. Exact-head hosted CI remains required.
 
+The actually-started hosted verify run 38108652168 failed three old core-cabinet
+copy assertions: whole-board text includes the intentionally clipped accessible
+guidance. Its 51 passes and three failures are retained. The fixture now reads
+Network's primary instruction and checks computed clipping separately for Network
+and Sudoku. An initial local selector correction used a nonexistent control note
+and timed out; the selector is corrected to the actual primary instruction.
+At local 974be5c4, serving the unchanged clean 56c5be27 artifact, all 55 actual-origin
+core-cabinet checks pass with no page errors. A display:none control fails exactly
+both computed-clipping assertions while both primary-copy checks pass. This check
+measures computed styling; the separate 37-check helper supplies Bridges/Network
+accessibility-tree evidence. No independent Sudoku AX claim is made. Current main
+f8d5093e is incorporated, with no new runtime/CSS bytes. Fresh scoped fixture review
+has no HIGH/CRITICAL finding; current-head hosted CI must still pass.
+
 Physical mixed-input hardware and Android/TalkBack remain unverified in
 [HUMAN_TODO.md](../../../HUMAN_TODO.md). No primary deployment is claimed.
 This supersedes the budget/UI blockers below, which retain historical evidence.

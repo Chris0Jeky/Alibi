@@ -61,6 +61,16 @@ supersedes their old pending labels. The primary checkout remains untouched.
 
 ## 2026-10-11: touch keyboard guidance resumed (#590)
 
+Hosted verify's three old core-cabinet text assertions failed on the retained
+clipped guidance. The corrected fixture reads the primary Network instruction
+and checks computed clipping separately for Network/Sudoku. Local 974be5c4 serves
+the unchanged clean 56c5be27 artifact: 55 actual-origin checks pass with no errors;
+a display:none control fails exactly both clipping assertions. This is computed
+styling proof, with Bridges/Network AX covered separately; no Sudoku AX claim.
+Current main f8d5093e is incorporated. Fresh scoped review is clean, but the
+published head must pass its new hosted gate. The first local correction's wrong
+selector failed and was corrected, not waived.
+
 Coarse-primary/no-fine-pointer guidance stays in the accessibility tree through
 absolute positioning and inset clipping. Actual rendered Bridges/Network checks
 are wired into CI and cover accessible text, negative controls, overflow and
