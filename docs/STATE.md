@@ -2,8 +2,31 @@
 
 ## 2026-10-11: authoritative Cabinet backup candidate (#602)
 
-File-only candidate: cabinetBackup now keeps the authoritative store.export bytes for clean rows and offers a separate Cabinet session payload only when a dirty local version diverges from a newer committed row. No verification run was executed here; proving command node --test tests/app-cabinet-export.test.cjs and hosted proof remain with the driver.
+Candidate, not a release: acknowledged full-row snapshots keep clean cached runs
+from replacing the committed export. Dirty active, inactive and local-only edits
+remain recoverable; different committed and session copies get explicit download
+choices in normal and combined exports. Restores retain revisions, so matching
+only revision numbers would be unsafe.
+On source `602fc9e33fe37b45f425ec3844d41592aa28598d`, clean web build
+`e2ad9f4d552a` passed the unchanged shell budget (1,412,777 bytes against
+1,412,792.32), 16 export/broadcast source cases, 187 focused real-origin
+checks and 184 UI checks. Phone/desktop scenarios download the actual device
+and session files and restore each into isolated profiles. Fresh reviews found
+no HIGH/CRITICAL defect; pre-existing dirty inactive broadcast replacement is
+tracked in #619. Current-base hosted qualification is still required. No
+physical Android/TalkBack or deployment acceptance is inferred.
 
+## 2026-10-11: Lantern Duel credential host binding (#605)
+
+Room seats and pending idempotent retries capture the full normalized API address.
+Polls and moves refuse before fetch after API settings change, including a Club
+restore or a failed create/join at another address. Room response fields cannot
+replace the captured address or credential; saved session seats retain that binding.
+Existing same-host polling, moves and lost-reply retries remain supported.
+Four behavioral regressions reproduce the original credential exposure. Focused
+Club source checks pass; emitted builds, real-origin restore controls and fresh
+independent review are pending. Network tests use synthetic intercepted hosts.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present
