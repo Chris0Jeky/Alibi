@@ -205,7 +205,8 @@
           r.label.length > 100 ||
           !Number.isFinite(r.score) ||
           typeof r.date !== 'string' ||
-          r.date.length > 40
+          r.date.length > 40 ||
+          !Number.isFinite(Date.parse(r.date))
         )
           throw Error('Invalid record.');
       }
