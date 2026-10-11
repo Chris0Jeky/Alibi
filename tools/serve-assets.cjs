@@ -29,6 +29,19 @@ function createHandler(rootDir, fsLib = fs) {
       res.writeHead(400).end();
       return;
     }
+    // Gallery URLs never contain dot segments: `new URL` already normalised
+    // bare `..`, so any surviving `.`/`..` arrived encoded (`%2e`, `%2f`,
+    // `%5c`) and `path.resolve` below would collapse it into a resolved path
+    // the prefix allowlist then trusts. Reject the gallery-prefix escape
+    // before resolving.
+    if (
+      path.posix.normalize(name) !== name ||
+      name.split(/[\\/]/).includes('.') ||
+      name.split(/[\\/]/).includes('..')
+    ) {
+      res.writeHead(403).end('Not a gallery asset');
+      return;
+    }
     try {
       if (name === '/') name = '/assets-source/library/index.html';
       const file = path.resolve(rootDir, '.' + name);
