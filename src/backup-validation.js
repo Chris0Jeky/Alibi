@@ -159,7 +159,11 @@
           if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
           E().tictactoe.replay(history);
         }
-        if (key === 'borough') E().borough.replay(r.seed, history);
+        if (key === 'borough') {
+          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+            throw Error('Invalid Pocket Borough seed.');
+          E().borough.replay(r.seed, history);
+        }
         if (key === 'archive') {
           let s = E().warehouse.initial(r.level);
           for (const d of history) {

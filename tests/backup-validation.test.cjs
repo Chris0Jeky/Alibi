@@ -282,3 +282,39 @@ test('Club run updatedAt must be a short parseable date string when present', ()
     assert.deepEqual(save, snapshot);
   }
 });
+
+test('invalid Pocket Borough seeds are rejected before replay and inputs are unchanged', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const buildSave = (log, withSeed, seed) => {
+    const save = baseClubSave();
+    const run = { rulesVersion: 1, log, redo: [] };
+    if (withSeed) run.seed = seed;
+    save.runs.borough = run;
+    return save;
+  };
+  const expectRejected = (save) => {
+    const snapshot = structuredClone(save);
+    try {
+      clubValidator.validateSave(save);
+    } catch (error) {
+      assert.equal(error.name, 'Error');
+      assert.equal(error.message, 'Invalid Pocket Borough seed.');
+      assert.deepEqual(save, snapshot);
+      return;
+    }
+    assert.fail('expected rejection with Invalid Pocket Borough seed.');
+  };
+  expectRejected(buildSave([], false));
+  expectRejected(buildSave([], true, undefined));
+  expectRejected(buildSave([], true, null));
+  expectRejected(buildSave([], true, ''));
+  expectRejected(buildSave([], true, 123));
+  expectRejected(buildSave([{ sentinel: true }], true, 'bad seed'));
+  expectRejected(buildSave([{ sentinel: true }], true, 'A'.repeat(33)));
+
+  for (const seed of ['EVENING-01', 'evening-01', 'A'.repeat(32)]) {
+    const save = buildSave([], true, seed);
+    const accepted = clubValidator.validateSave(save);
+    assert.equal(accepted.runs.borough.seed, seed);
+  }
+});
