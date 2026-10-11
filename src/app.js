@@ -2567,10 +2567,42 @@
       who = f.get('who'),
       value = f.get('value'),
       cl = { kind, who };
+    const ids = draft.people.map((p) => p.id),
+      int = (x, max) => Number.isInteger(x) && x >= 0 && x < max;
+    if (
+      ![
+        'room',
+        'notRoom',
+        'row',
+        'col',
+        'near',
+        'edge',
+        'notEdge',
+        'left',
+        'above',
+        'sameRoom',
+        'differentRoom',
+      ].includes(kind)
+    )
+      throw Error('That clue does not fit.');
+    if (!ids.includes(who)) throw Error('That clue does not fit.');
     if (['left', 'above', 'sameRoom', 'differentRoom'].includes(kind)) {
       if (value === who) throw Error('Choose two different people for a relational clue.');
+      if (!ids.includes(value) || value === who) throw Error('That clue does not fit.');
       cl.other = value;
-    } else if (!['edge', 'notEdge'].includes(kind)) cl.value = Number(value);
+    } else if (['room', 'notRoom'].includes(kind)) {
+      const v = Number(value);
+      if (!int(v, draft.roomNames.length)) throw Error('That clue does not fit.');
+      cl.value = v;
+    } else if (['row', 'col'].includes(kind)) {
+      const v = Number(value);
+      if (!int(v, draft.size)) throw Error('That clue does not fit.');
+      cl.value = v;
+    } else if (kind === 'near') {
+      const v = Number(value);
+      if (!int(v, draft.size * draft.size)) throw Error('That clue does not fit.');
+      cl.value = v;
+    }
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
     C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
