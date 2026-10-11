@@ -7,6 +7,12 @@ successes, independent review and recorded merge receipts. Main is 3b041670.
 The integration branch preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined build, browser,
 interaction review and hosted gates are pending; this is not a release claim.
+The first combined hosted build exceeded the unchanged shell ceiling by 316.68
+bytes. All 15 failed jobs identify that budget assertion; one artifact-upload
+failure follows its skipped browser step. The existing esbuild minifier now
+compacts the worker in a private scope; emitted-worker assertions exercise its
+actual fetch/install behavior instead of depending on internal variable names.
+Fresh build, budget and browser proof are pending.
 
 The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
 web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin

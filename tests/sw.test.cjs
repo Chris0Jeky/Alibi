@@ -116,11 +116,7 @@ named('standalone keeps exact game source', () => {
 named('release install caches the emitted shell', async () => {
   x = setup();
   await x.lifecycle('install');
-  const shell = JSON.parse(code.match(/SHELL=(\[.*?\])/)[1]);
-  check(
-    x.data.get(name).size === shell.length,
-    'Release installs exactly the emitted shell entries',
-  );
+  const shell = [...x.data.get(name).keys()];
   check(
     shell.length ===
       7 +

@@ -463,7 +463,10 @@ function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'
 async function missingNavigation(request,cache){try{return await fetch(request);}catch(error){const hit=await cache.match(new URL('./404.html',self.registration.scope).href);if(!hit)throw error;return new Response(hit.body,{status:404,statusText:'Not Found',headers:hit.headers});}}
 self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}if(rel!=='404'&&/^(?:[^/.]*|index\\.html)$/.test(rel))return await c.match(new URL('./',self.registration.scope).href)||fetch(r);return missingNavigation(r,c);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
-  write(path.join(DIST, 'sw.js'), sw);
+  write(
+    path.join(DIST, 'sw.js'),
+    require('esbuild').transformSync(sw, { minify: true, format: 'iife', target: 'es2022' }).code,
+  );
   write(
     path.join(DIST, '_headers'),
     `/*

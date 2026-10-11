@@ -17,7 +17,7 @@ function section(start, end) {
 const definitions = vm.runInNewContext(
   `${section('const PATH_ROUTE_ALIASES = ', '\nfunction pathRouteAliasScript')}
 ${section('  const aliasShellDocuments = ', '  // Hosts may canonicalize')}
-${section('  const sw = `', "  write(path.join(DIST, 'sw.js')")}
+${section('  const sw = `', "  write(\n    path.join(DIST, 'sw.js')")}
 ({code: sw, shell: assets, aliases: Object.keys(PATH_ROUTE_ALIASES)})`,
   {
     release: 'navigation-fixture',
