@@ -80,6 +80,7 @@ with sync_playwright() as pw:
   check(page.evaluate('AlibiTheatre.diagnostics().choice')=='glasshouse','Room choice survives offline reload')
   check(page.evaluate('AlibiTheatre.diagnostics().still'),'Still preference survives reload')
   page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+  check(page.locator('.theatre-dialog video').get_attribute('src') is None,'Offline film never assigns a video source')
   page.wait_for_function('()=>/connection|unavailable/.test(document.querySelector(".theatre-dialog [role=status]").textContent)')
   check(True,'Offline film explains availability and retains local activity')
   check(page.locator('.theatre-dialog video').evaluate('(v)=>v.paused'),'Offline film does not play or trap navigation')
