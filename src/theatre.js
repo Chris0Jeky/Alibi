@@ -145,6 +145,10 @@
     refreshControls();
   }
   function refreshControls() {
+    if (reduced() || document.hidden) {
+      sound = false;
+      stopSound();
+    }
     document.querySelectorAll('[data-theatre-sound-status]').forEach((s) => {
       s.textContent = soundStatus;
     });
