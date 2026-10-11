@@ -1,10 +1,22 @@
 # Live development state
 
+## 2026-10-11: challenge save ownership regression
+
+The existing launcher harness now checks that a valid published challenge save
+is refused when opening another challenge, with the original input preserved.
+The same-challenge acceptance control remains intact. Eight launcher/lifecycle
+cases pass; removing the ownership guard causes the new case to fail with
+"Missing expected exception". Fresh independent review found no HIGH/CRITICAL
+finding. This change adds no runtime bytes; exact-head CI and merge are pending.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## Current overnight checkpoint, 2026-10-11
 
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
-successes, independent review and recorded merge receipts. Main is 3b041670.
-The integration branch preserves the reviewed commits from #609, #611, #581,
+successes, independent review and recorded merge receipts. PR #624 merged as
+666cbb79 with all 22 hosted checks green. GitHub also marks its eleven source
+PRs merged at that commit; issues #604 and #619 are closed. Main is 666cbb79.
+The integration preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
 qualification are recorded in PR #624; this is not a primary release claim.
@@ -24,7 +36,11 @@ emitted-worker/budget/identity cases, both Quiet Wing suites, 375 real-origin
 checks across all 16 scenarios, 184 UI checks and 18 two-release update checks.
 There are no browser page errors. Phone/desktop recovery views are inspected;
 physical Android/TalkBack remains distinct. Subsequent checkpoint edits change
-only this evidence record; current-host responses are recorded in PR #624.
+only this evidence record. Clean source 72843be8 builds web ce33c615123e /
+Android 444d158d; its existing-Worker candidate 1178c5d6 passes 11 HTTPS
+response/byte checks and 81 hosted navigation checks. Six sampled primary
+responses retain their pre-upload status/hash. Current-host receipts are in
+PR #624; the primary was not promoted.
 
 The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
 web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
