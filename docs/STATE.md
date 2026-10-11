@@ -11,6 +11,26 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-07: older backlog wave
+
+Eight Grok 4.7 high worker tasks and two GPT 6.1 Sol medium coordinators produced
+fix PRs #587 (mobile QA readiness/diagnostics), #588 (Desk heading scale),
+#589 (restore fixture abort errors), #590 (accessible touch keyboard help), and #591 (practice counts and complete content identity).
+The #389 Android identity mismatch found in review was red-proved and corrected;
+the final Android build, artifact check and budget pass. Muse refused both lane starts
+because the registry assigns this repository to another host; no swarm ran.
+
+PR #588 merged as ea47351a after seven exact-head CI passes and independent review. Other fixes retain their pending or parked gates.
+
+Focused Node and Chromium proof is recorded in
+[WAVE.md](qa/2026-10-07-backlog/WAVE.md). Local full UI failures remain recorded; #590 also exceeds
+the unchanged CSS gzip ceiling by five bytes and has an unwired browser helper.
+Its four CI failures were investigated; both defects remain explicit park conditions.
+CI/review, combined budget and
+merge gates remain explicit. #347's implementation is present with specific
+coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
+decisions. No deployment or physical-device approval was inferred.
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
 
 ## 7 October 2026: cabinet fallback safety candidate
 
