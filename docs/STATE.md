@@ -1,5 +1,23 @@
 # Live development state
 
+## 2026-10-11: recovered dated handoffs
+
+The original 3 October ledger is retained byte-for-byte in
+[STATE-HISTORY-2026-10-03.md](STATE-HISTORY-2026-10-03.md), alongside the
+[Workshop discovery receipt](qa/2026-10-03-workshop-discovery.md) and
+[4 October recovery receipt](qa/2026-10-04-gameplay-recovery.md).
+The original continuation index remains in preserved commit
+[cb823f37](https://github.com/Chris0Jeky/Alibi/blob/cb823f37e0af2851ed9f0f17656cf3b8eed116c3/docs/STATE.md).
+These dated records preserve their observations and pending gates; they do not
+assert current PR status or repeat their historical checks on today's head.
+Source merges are not a deployment.
+
+Continuation references remain [PROJECT-MAP.md](PROJECT-MAP.md),
+[Workshop discovery](gameplay/WORKSHOP-DISCOVERY.md), its
+[implementation plan](superpowers/plans/2026-10-03-workshop-discovery.md), and
+[HUMAN_TODO.md](../HUMAN_TODO.md). Historical #404, #389 and #433 follow-ups
+remain subject to live issue state and their own acceptance evidence.
+
 ## 2026-10-11: challenge save ownership regression
 
 The existing launcher harness now checks that a valid published challenge save
@@ -7,7 +25,8 @@ is refused when opening another challenge, with the original input preserved.
 The same-challenge acceptance control remains intact. Eight launcher/lifecycle
 cases pass; removing the ownership guard causes the new case to fail with
 "Missing expected exception". Fresh independent review found no HIGH/CRITICAL
-finding. This change adds no runtime bytes; exact-head CI and merge are pending.
+finding. This test-only change merged as f8d5093e in #625 after all six
+reported exact-head hosted checks succeeded.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
 ## Current overnight checkpoint, 2026-10-11
@@ -15,7 +34,8 @@ finding. This change adds no runtime bytes; exact-head CI and merge are pending.
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
 successes, independent review and recorded merge receipts. PR #624 merged as
 666cbb79 with all 22 hosted checks green. GitHub also marks its eleven source
-PRs merged at that commit; issues #604 and #619 are closed. Main is 666cbb79.
+PRs merged at that commit; issues #604 and #619 are closed. #625 then
+merged as f8d5093e, the current main at this handoff recovery checkpoint.
 The integration preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
