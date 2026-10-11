@@ -127,6 +127,7 @@
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
+  store.validateRun = validateRun;
   function isCurrentCompletion(run, puzzle) {
     try {
       const projected = globalThis.AlibiClub?.projected?.(puzzle, run.state)?.state || run.state;
