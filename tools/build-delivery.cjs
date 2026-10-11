@@ -13,7 +13,12 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
   if (policy.schemaVersion !== 1 || !policy.mirrors || Array.isArray(policy.mirrors))
     throw Error('Invalid delivery policy');
   for (const a of registry.assets.filter((a) => a.kind === 'museum-image')) {
-    const data = fs.readFileSync(path.join(root, a.derivative.file));
+    // Legitimate derivatives live under src/curation-assets (registry policy.derivativeRoot),
+    // not under assets-source/curation, so confine reads to that exact directory.
+    const file = path.resolve(root, a.derivative.file);
+    if (!file.startsWith(path.join(root, 'src/curation-assets') + path.sep))
+      throw Error('Enhancement escaped source directory');
+    const data = fs.readFileSync(file);
     const sha256 = crypto.createHash('sha256').update(data).digest('hex');
     if (sha256 !== a.derivative.sha256 || data.length > 1024 * 1024)
       throw Error('Invalid enhancement: ' + a.id);

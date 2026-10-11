@@ -189,3 +189,75 @@ test('retirement deletes only the known legacy image cache without delaying use'
   assert.ok(await x.api.resolve('art'));
   assert.deepEqual(deleted, ['alibi-enhanced-images-v1']);
 });
+
+test('museum-image derivative traversal throws before read while in-directory builds', () => {
+  const path = require('node:path'),
+    os = require('node:os');
+  const buildDelivery = require('../tools/build-delivery.cjs');
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-delivery-'));
+  const dist = path.join(fixture, 'dist/assets');
+  fs.mkdirSync(path.join(fixture, 'content'), { recursive: true });
+  fs.mkdirSync(path.join(fixture, 'assets-source/curation'), { recursive: true });
+  fs.mkdirSync(path.join(fixture, 'src/curation-assets/museum'), { recursive: true });
+  fs.mkdirSync(dist, { recursive: true });
+  fs.writeFileSync(
+    path.join(fixture, 'content/asset-delivery.json'),
+    JSON.stringify({ schemaVersion: 1, mirrors: {} }),
+  );
+  const id = 'test-image';
+  const legitBytes = Buffer.from('legitimate derivative bytes');
+  const legitRel = 'src/curation-assets/museum/legit.webp';
+  fs.writeFileSync(path.join(fixture, legitRel), legitBytes);
+  const legitEntry = {
+    id,
+    kind: 'museum-image',
+    artist: 'Fixture Artist',
+    source: { objectPage: 'https://example.invalid/object' },
+    derivative: {
+      file: legitRel,
+      sha256: crypto.createHash('sha256').update(legitBytes).digest('hex'),
+    },
+  };
+  const writeRegistry = (assets) =>
+    fs.writeFileSync(
+      path.join(fixture, 'assets-source/curation/registry.json'),
+      JSON.stringify({ schemaVersion: 1, assets }),
+    );
+  writeRegistry([legitEntry]);
+  const built = buildDelivery(fixture, path.join(fixture, 'dist'), {
+    [id]: './compact-test-image',
+  });
+  assert.ok(built.entries[id]);
+  assert.equal(
+    built.entries[id].sha256,
+    crypto.createHash('sha256').update(legitBytes).digest('hex'),
+  );
+  const secretBytes = Buffer.from('traversal target bytes');
+  fs.writeFileSync(path.join(fixture, 'src/escape.txt'), secretBytes);
+  const traversalEntry = {
+    ...legitEntry,
+    derivative: {
+      file: 'src/curation-assets/museum/../../escape.txt',
+      sha256: crypto.createHash('sha256').update(secretBytes).digest('hex'),
+    },
+  };
+  writeRegistry([traversalEntry]);
+  const readFileSync = fs.readFileSync;
+  const reads = [];
+  fs.readFileSync = (...args) => {
+    reads.push(String(args[0]));
+    return readFileSync(...args);
+  };
+  try {
+    assert.throws(
+      () => buildDelivery(fixture, path.join(fixture, 'dist'), { [id]: './compact-test-image' }),
+      /escaped/,
+    );
+  } finally {
+    fs.readFileSync = readFileSync;
+  }
+  assert.ok(
+    !reads.some((file) => file.endsWith('escape.txt')),
+    'traversal target must not be read',
+  );
+});
