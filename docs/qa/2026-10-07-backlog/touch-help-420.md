@@ -1,0 +1,17 @@
+# Touch keyboard help (#420 item 3)
+
+Keyboard help stays in the accessibility tree on devices with a coarse primary pointer and no available fine pointer. A mixed-input device with `any-pointer: fine` and desktop retain visible help. Both inline spans and full help paragraphs use the existing markup.
+
+Verified: `node --test tests/curation-copy.test.cjs` (3 passed), Prettier check for changed CSS/test, and `tests/browser_keyboard_help.py` with actual Chromium touch and desktop contexts. Both geometry and accessibility-tree checks pass; injecting the former display:none rule removes the text and is detected in each context.
+
+Not verified: physical mixed-input tablet/keyboard, Android/TalkBack, full application UI suite and final emitted release inspection. `HUMAN_TODO.md` physical-device gates remain open. Offline404 and HTML-alias items belong to the separate active PR; this slice only addresses item3.
+
+The first candidate exceeded the unchanged offline shell ceiling. The coordinator removed unnecessary clipping declarations and the redundant hover restriction. Actual touch/desktop geometry, accessibility, no-horizontal-overflow and both negative controls pass after this correction. The corrected Android build passes; its offline shell is 1,411,612 bytes below the unchanged 1,411,624.32-byte limit, and JavaScript gzip is 134,907 bytes below 134,944. The CSS gzip is 34,181 bytes against the strict 34,176-byte ceiling: the budget gate still fails by five bytes. Published for review with merge blocked; no ceiling was raised. The corrected rule requires a completed independent review before merge.
+
+Coordinator release/build gate: own `npm ci` and `npm run build` pass, and `dist/assets/alibi.d96adf3204a5.css` contains the corrected rule. The full UI suite passed177 assertions, then timed out at `browser_ui.py:169` while `dismiss()` selected hidden `[data-action="close-dialog"].first` after a bad pack. The initial attempt had timed out at the unchanged home screenshot's5s budget; a runner-only60s screenshot budget let the suite proceed, without changing tracked tests or assertions.
+
+The hidden-close failure reproduced in a narrow bad-pack probe against the unaffected Games Room evidence checkout (product source2758d91). Baseline blobs: app.css `2d3a8013937875b0c0da659c973677245e5bb433`, browser_ui.py `2aafea8e2abfd6b17ebb1d59f7296ebb5810cf49`. The baseline probe sees a hidden first close control, and the same five-second click times out. This patch does not alter that helper or import flow. Full UI is not green; no runtime defect in this CSS seam was reproduced.
+
+Independent Grok4.7 high read-only review completed with no major issues. Its twelve-turn partial was finalized in the same review session; no fix loop. Phone/desktop generated screenshots (`tests/screenshots/mobile-aquarium.png`, `desktop-lightup.png`) were visually inspected: controls and board layout remain intact. Hosted release, service worker and deployment are untouched.
+
+Baseline timing detail: one final probe initially observed a visible close control, then its `not visible` assertion passed before the click; the click still timed out and the dialog was no longer open afterward. This is a transient asynchronous dialog-close race, not evidence that the first control is always permanently hidden. The baseline probe command was the shared venv Python running `test-results/baseline-dialog.py` in the unaffected347 checkout (exit0).
