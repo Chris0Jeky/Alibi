@@ -30,7 +30,7 @@ function load(root = path.resolve(__dirname, '..')) {
         (c) => typeof c !== 'object' || c === null || typeof c.id !== 'string' || !c.id,
       )
     )
-      throw Error('Invalid challenge source pack.');
+      throw Error(`Invalid challenge source pack: ${p}.`);
     return pack.challenges;
   });
   if (
