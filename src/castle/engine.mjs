@@ -202,12 +202,34 @@ function clockFeedback(text) {
       : `${time} does not match a clock running 17 minutes fast.`;
 }
 function complete(s, id, answer, guided = false) {
-  if (id === 'clock') answer = clockTime(answer) ?? answer;
-  if (!available(s, id) || !check(id, answer))
-    return { ok: false, state: s, error: 'Check the remaining constraints before submitting.' };
+  const failed = () => ({
+    ok: false,
+    state: s,
+    error: 'Check the remaining constraints before submitting.',
+  });
+  if (!ids.includes(id) || answer === undefined) return failed();
+  if (id === 'clock') {
+    try {
+      answer = clockTime(answer) ?? answer;
+    } catch {
+      return failed();
+    }
+    if (answer === undefined) return failed();
+  }
+  try {
+    if (JSON.stringify(answer) === undefined) return failed();
+  } catch {
+    return failed();
+  }
+  if (!available(s, id) || !check(id, answer)) return failed();
   if (has(s, id)) return { ok: true, state: s, newAward: false };
-  const n = clone(s);
-  n.completed[id] = { answer: clone(answer), guided: !!guided };
+  let n;
+  try {
+    n = clone(s);
+    n.completed[id] = { answer: clone(answer), guided: !!guided };
+  } catch {
+    return failed();
+  }
   n.revision++;
   delete n.drafts[id];
   return { ok: true, state: n, newAward: true };

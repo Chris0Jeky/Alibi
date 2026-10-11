@@ -91,3 +91,18 @@ test('Planned rooms are not presented as undiscovered content', () => {
   for (const r of W.rooms.filter((r) => !r.implemented))
     assert.equal(E.roomStatus(E.initial(), r).open, false);
 });
+test('Castle submit with no draft returns ok:false with the same state and no throw', () => {
+  const state = E.initial();
+  assert.equal(E.available(state, 'gate'), true);
+  let result;
+  assert.doesNotThrow(() => {
+    result = E.complete(state, 'gate', undefined);
+  });
+  assert.equal(result.ok, false);
+  assert.strictEqual(result.state, state);
+  assert.equal(result.error, 'Check the remaining constraints before submitting.');
+  const control = E.complete(E.initial(), 'gate', W.puzzles.gate.solution);
+  assert.equal(control.ok, true);
+  assert.equal(control.newAward, true);
+  assert.deepEqual(control.state.completed.gate.answer, W.puzzles.gate.solution);
+});
