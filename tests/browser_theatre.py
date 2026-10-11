@@ -79,8 +79,13 @@ with sync_playwright() as pw:
   page.reload(); page.wait_for_function('()=>window.AlibiTheatre')
   check(page.evaluate('AlibiTheatre.diagnostics().choice')=='glasshouse','Room choice survives offline reload')
   check(page.evaluate('AlibiTheatre.diagnostics().still'),'Still preference survives reload')
-  page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
-  check(page.locator('.theatre-dialog video').get_attribute('src') is None,'Offline film never assigns a video source')
+  # Chromium network emulation may keep onLine true; pin the offline-status branch.
+  page.evaluate("()=>{if(Object.hasOwn(navigator,'onLine'))throw Error('Unexpected own online status');Object.defineProperty(navigator,'onLine',{value:false,configurable:true})}")
+  try:
+   page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+   check(page.locator('.theatre-dialog video').get_attribute('src') is None,'Offline status never assigns a video source')
+  finally:
+   page.evaluate("()=>{delete navigator.onLine}")
   page.wait_for_function('()=>/connection|unavailable/.test(document.querySelector(".theatre-dialog [role=status]").textContent)')
   check(True,'Offline film explains availability and retains local activity')
   check(page.locator('.theatre-dialog video').evaluate('(v)=>v.paused'),'Offline film does not play or trap navigation')
