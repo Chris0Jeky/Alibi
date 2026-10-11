@@ -54,6 +54,18 @@ with sync_playwright() as pw:
   page.locator('[data-theatre-ambience]').select_option('waves')
   page.wait_for_function('()=>document.querySelector("[data-theatre-sound-status]").textContent.includes("Playing beach waves")')
   page.wait_for_function('async()=>{const c=await caches.open("alibi-ambience-v1");return (await c.keys()).length===2}')
+  # Controlled preference read proves the start guard without firing the stop listener.
+  page.evaluate('''()=>{window.audioConstructions=0;window.originalAudio=Audio;window.originalMatchMedia=matchMedia;
+   window.Audio=new Proxy(Audio,{construct(target,args){audioConstructions++;return Reflect.construct(target,args)}})}''')
+  try:
+   page.locator('[data-theatre-ambience]').select_option('rain')
+   page.wait_for_function('()=>document.querySelector("[data-theatre-sound-status]").textContent.startsWith("Playing")')
+   check(page.evaluate('audioConstructions===1'),'Ordinary ambience change constructs one recording')
+   page.evaluate('''()=>{window.matchMedia=q=>q==='(prefers-reduced-motion: reduce)'?{matches:true}:originalMatchMedia(q)}''')
+   page.locator('[data-theatre-ambience]').select_option('waves')
+   check(page.evaluate('audioConstructions===1'),'Reduced preference read blocks another recording before playback')
+  finally:
+   page.evaluate('()=>{window.Audio=originalAudio;window.matchMedia=originalMatchMedia}')
   page.locator('[data-theatre-sound]').click()
   c.set_offline(True)
   page.locator('[data-theatre-sound]').click()
