@@ -3,6 +3,20 @@ const fs = require('node:fs'),
   path = require('node:path'),
   crypto = require('node:crypto');
 module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experience) {
+  const town = baseMedia?.['quiet-town'];
+  const inlineTown = inlineBase?.['quiet-town'];
+  if (
+    typeof town !== 'string' ||
+    town.length === 0 ||
+    typeof inlineTown !== 'string' ||
+    inlineTown.length === 0
+  ) {
+    const error = new Error(
+      'missing quiet-town media: baseMedia and inlineBase must each include a non-empty quiet-town entry',
+    );
+    error.code = 'MISSING_QUIET_TOWN_MEDIA';
+    throw error;
+  }
   const dir = path.join(root, 'src/quiet-wing');
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
