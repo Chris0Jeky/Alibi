@@ -93,3 +93,17 @@ when qualifying a merge. Do not discard the previous state or failed receipts.
 The historical candidate and proving checks remain in the linked gameplay-base archive;
 physical Android touch, TalkBack, comfort review and human acceptance stay open.
 Neither newer source proofs nor browser screenshots turn that candidate into a device signoff.
+
+## 2026-10-11: active Cabinet broadcast revision candidate (#601)
+
+This checkout owns only `src/app.js`, `tests/app-broadcast-revision.test.cjs` and
+this note. The BroadcastChannel `saved` handler now rechecks the returned run's
+key against the active puzzle after the asynchronous read completes: the active
+records entry and its expected revision are never replaced from the
+notification, a newer stored revision surfaces the existing another-tab
+conflict, and equal/older rows return without touching local state. The early
+higher-notification short-circuit and non-active refresh behavior are intact.
+Regression coverage executes the actual handler and enqueueSave code in a VM
+fixture. Evidence pending: the caller owns the proving check
+(`node --test --test-concurrency=2 tests/app-broadcast-revision.test.cjs`),
+formatting, catalogue hashes, builds and native-origin proof after integration.
