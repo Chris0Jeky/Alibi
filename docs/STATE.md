@@ -11,6 +11,10 @@ The original continuation index remains in preserved commit
 These dated records preserve their observations and pending gates; they do not
 assert current PR status or repeat their historical checks on today's head.
 Source merges are not a deployment.
+The [3 October goal closeout](https://github.com/Chris0Jeky/Alibi/blob/9c7bcf8f3bdf2ce3eb5104fc0f41231915f17fb2/docs/STATE.md)
+and its [planner](qa/2026-10-02-goal/PLANNER.md) and
+[orchestrator](qa/2026-10-02-goal/ORCHESTRATOR.md) retain that session's
+submission and cleanup receipts as historical evidence.
 
 Continuation references remain [PROJECT-MAP.md](PROJECT-MAP.md),
 [Workshop discovery](gameplay/WORKSHOP-DISCOVERY.md), its
