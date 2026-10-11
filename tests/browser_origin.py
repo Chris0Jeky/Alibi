@@ -51,6 +51,7 @@ ORIGIN_SCENARIOS = (
     "unknown_paths",
     "malformed_draft",
     "malformed_persisted",
+    "room_host",
     "quarantined_run",
     "newer_database",
     "club_read_abort",
@@ -1386,7 +1387,7 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
 def scenario_unknown_paths(pw: Any, root: Path) -> None:
     """0.14.1 audit M4: a controlling service worker no longer answers deep or file-like
     URLs with the root shell (whose relative assets break there, leaving an unstyled
-    "Opening the puzzle cabinet…"). They reach the host's styled 404, which links home.
+    "Opening the puzzle cabinetâ€¦"). They reach the host's styled 404, which links home.
     """
     context = launch_profile(pw, root / "unknown-paths")
     try:
@@ -1528,6 +1529,61 @@ def scenario_malformed_persisted(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_room_host(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "room-host")
+    calls = []
+    try:
+        page = new_page(context, "room-host")
+        boot(page)
+        route(page, "salon/duel")
+        wait_page(page, "Boolean(globalThis.AlibiClubEngines)", what="duel engine")
+        state = page.evaluate("AlibiClubEngines.reversi.initial()")
+        api = urljoin(BASE, "api")
+        collector = "https://pulseboard-observatory.commit-atlas.workers.dev/test-room-api"
+
+        def room_reply(request):
+            headers = {"Access-Control-Allow-Origin": "*",
+                       "Access-Control-Allow-Headers": "authorization,content-type",
+                       "Access-Control-Allow-Methods": "GET,POST,OPTIONS"}
+            if request.request.method == "OPTIONS":
+                request.fulfill(status=204, headers=headers)
+                return
+            calls.append({"url": request.request.url,
+                          "authorization": request.request.headers.get("authorization")})
+            request.fulfill(status=200, headers=headers, content_type="application/json",
+                            body=json.dumps({"code": "ABCDEFGH", "seat": 1, "joined": True,
+                                             "version": 1, "state": state}))
+
+        context.route(api + "/**", room_reply)
+        context.route(collector + "/**", room_reply)
+        route(page, "salon")
+        page.locator('[data-action="club-online-settings"]').click()
+        page.locator("#club-api").fill(api)
+        page.locator('[data-action="club-room-create"]').click()
+        wait_page(page, "Boolean(AlibiClub.diagnostics().room)", what="synthetic room")
+        page.locator('[data-action="club-room-refresh"]').click()
+        page.wait_for_timeout(100)
+        wait_page(page, "Boolean(sessionStorage.getItem('alibi-club-room'))", what="room credential")
+        check(any(c["authorization"] for c in calls), "same-host native browser poll authenticates")
+        credential = page.evaluate("JSON.parse(sessionStorage.getItem('alibi-club-room')).token")
+        for api in [collector, urljoin(BASE, "another-api")]:
+            page.evaluate("""async api => {
+              const backup = AlibiClub.diagnostics().state;
+              backup.settings.api = api;
+              await AlibiClub.reviewBackup(backup);
+            }""", api)
+            page.locator('[data-action="club-restore-confirm"]').click()
+            wait_page(page, "AlibiClub.diagnostics().state.settings.api === " + json.dumps(api),
+                      what="restored API settings")
+            calls.clear()
+            page.locator('[data-action="club-room-refresh"]').click()
+            page.locator('.duel-cell.legal:not([disabled])').first.click()
+            page.wait_for_timeout(200)
+            check(not calls, "restore refuses credential-bearing polls and moves at " + api)
+            check(page.evaluate("JSON.parse(sessionStorage.getItem('alibi-club-room')).token") == credential,
+                  "original room credential remains bound after restore")
+    finally:
+        context.close()
 def scenario_quarantined_run(pw: Any, root: Path) -> None:
     key = "lightup-04@1"
     unknown = {"key": key, "schemaVersion": 9, "rev": 0,
@@ -1771,6 +1827,7 @@ def run() -> int:
                 scenario_unknown_paths,
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
+                scenario_room_host,
                 scenario_quarantined_run,
                 scenario_newer_database,
                 scenario_club_read_abort,
