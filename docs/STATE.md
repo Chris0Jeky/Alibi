@@ -1,5 +1,29 @@
 # Live development state
 
+## Current overnight checkpoint, 2026-10-11
+
+PRs #594, #592, #607, #610, #608 and #614 have merged with exact-head hosted
+successes, independent review and recorded merge receipts. Main is 9b5b9521.
+The integration branch preserves the reviewed commits from #609, #611, #581,
+#576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined build, browser,
+interaction review and hosted gates are pending; this is not a release claim.
+
+The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
+web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
+navigation checks, including canonical 404 handling. All six sampled primary
+responses retain their pre-upload status/hash; the primary was not promoted.
+#623 clean source f29df3c1 passed its build/budget and 35 actual-origin
+failed-CAS/navigation/broadcast checks. Its later metadata-only commit refreshes
+13 source catalogue references after a demonstrated hosted digest failure.
+
+#617 and #618 remain parked on the unchanged offline shell budget: measured
+excesses are 204.68 and 502 bytes respectively despite bounded functional proof.
+Nested Miniflare still carries the older Sharp dependency; #609 patches the
+direct dependency only. Physical Android/TalkBack, collector readiness, signing,
+publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Entries below retain their historical candidate evidence; this checkpoint
+supersedes their old pending labels. The primary checkout remains untouched.
+
 ## 2026-10-11: Lantern Duel response ordering candidate (#604)
 
 Poll and move completions retain room identity and accept only safe integer versions
