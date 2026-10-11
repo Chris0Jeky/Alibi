@@ -114,7 +114,15 @@ async function setup(network = async () => Promise.reject(networkError)) {
 test('the production shell precaches its offline 404 document', () => {
   assert.ok(definitions.shell.includes('./404.html'));
 });
-for (const pathname of ['a/b/x.html', 'a/b/', 'missing.html', '404.html', 'privacy/private.html']) {
+for (const pathname of [
+  'a/b/x.html',
+  'a/b/',
+  'missing.html',
+  '404.html',
+  '404',
+  '404?from=share',
+  'privacy/private.html',
+]) {
   test(`offline non-shell navigation ${pathname} returns the current release 404`, async () => {
     const worker = await setup();
     const response = await worker.request(pathname);
@@ -187,3 +195,10 @@ for (const [url, overrides] of [
     assert.equal(worker.calls.network, 0);
   });
 }
+
+test('online canonical 404 route retains the host document instead of the cached shell', async () => {
+  const response = new Response(notFound, { status: 200 });
+  const worker = await setup(async () => response);
+  assert.equal(await worker.request('404'), response);
+  assert.equal(worker.calls.network, 1);
+});

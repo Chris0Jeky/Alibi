@@ -2,15 +2,18 @@
 
 ## 2026-10-11: offline navigation recovery candidate (#581)
 
-This unmerged candidate keeps online host responses and uses the current release's
-cached styled 404 only after a rejected navigation fetch. Existing alias redirects
-retain query and fragment behavior; missing assets do not receive HTML. The main
-bootstrap and storage owner remain intact after integration, with unchanged budgets.
-All 32 source navigation cases pass and independent review finds no HIGH/CRITICAL
-blockers. Emitted builds, current-head CI, local-origin navigation and candidate
-hosted responses remain qualification gates. The existing public-host response
-baseline is not candidate proof. No deployment or physical-device acceptance is
-claimed; [HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
+This unmerged candidate preserves online host responses and uses the current
+release's cached styled 404 only after a rejected navigation fetch. Actual HTTPS
+candidate193660ee/webb29349567707 passed11 byte/status checks and55 shared-path
+browser checks; sampled primary responses matched the pre-upload baseline.
+Its unknown-path browser scenario found the host's canonical `/404` treated as
+a shell route after `/404.html` redirects. Three source regressions reproduce
+that defect; excluding only canonical404 from the shell matcher makes35 source
+worker cases pass. Normal shell paths, aliases, assets, API exclusions and unknown
+save protection remain intact. Fixed emitted/native/HTTPS and current-head hosted
+qualification remain required. The first candidate version is not production.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.
