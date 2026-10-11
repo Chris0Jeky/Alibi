@@ -24,7 +24,7 @@ function load(root, catalogue) {
     if (seen.has(n.id) || known.get(n.id)?.type !== n.family)
       throw Error('Invalid editorial ID: ' + n.id);
     seen.add(n.id);
-    if (n.provenance.humanPlaytested !== false || !n.difficultyStatus.includes('provisional'))
+    if (n.provenance.humanPlaytested !== false || n.difficultyStatus !== 'provisional')
       throw Error('Unverified calibration claim');
     return {
       id: n.id,
