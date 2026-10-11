@@ -54,6 +54,18 @@ with sync_playwright() as pw:
   page.locator('[data-theatre-ambience]').select_option('waves')
   page.wait_for_function('()=>document.querySelector("[data-theatre-sound-status]").textContent.includes("Playing beach waves")')
   page.wait_for_function('async()=>{const c=await caches.open("alibi-ambience-v1");return (await c.keys()).length===2}')
+  # Controlled preference read proves the start guard without firing the stop listener.
+  page.evaluate('''()=>{window.audioConstructions=0;window.originalAudio=Audio;window.originalMatchMedia=matchMedia;
+   window.Audio=new Proxy(Audio,{construct(target,args){audioConstructions++;return Reflect.construct(target,args)}})}''')
+  try:
+   page.locator('[data-theatre-ambience]').select_option('rain')
+   page.wait_for_function('()=>document.querySelector("[data-theatre-sound-status]").textContent.startsWith("Playing")')
+   check(page.evaluate('audioConstructions===1'),'Ordinary ambience change constructs one recording')
+   page.evaluate('''()=>{window.matchMedia=q=>q==='(prefers-reduced-motion: reduce)'?{matches:true}:originalMatchMedia(q)}''')
+   page.locator('[data-theatre-ambience]').select_option('waves')
+   check(page.evaluate('audioConstructions===1'),'Reduced preference read blocks another recording before playback')
+  finally:
+   page.evaluate('()=>{window.Audio=originalAudio;window.matchMedia=originalMatchMedia}')
   page.locator('[data-theatre-sound]').click()
   c.set_offline(True)
   page.locator('[data-theatre-sound]').click()
@@ -67,7 +79,13 @@ with sync_playwright() as pw:
   page.reload(); page.wait_for_function('()=>window.AlibiTheatre')
   check(page.evaluate('AlibiTheatre.diagnostics().choice')=='glasshouse','Room choice survives offline reload')
   check(page.evaluate('AlibiTheatre.diagnostics().still'),'Still preference survives reload')
-  page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+  # Chromium network emulation may keep onLine true; pin the offline-status branch.
+  page.evaluate("()=>{if(Object.hasOwn(navigator,'onLine'))throw Error('Unexpected own online status');Object.defineProperty(navigator,'onLine',{value:false,configurable:true})}")
+  try:
+   page.locator('.theatre-screenings summary').click(); page.locator('[data-theatre-film]').first.click()
+   check(page.locator('.theatre-dialog video').get_attribute('src') is None,'Offline status never assigns a video source')
+  finally:
+   page.evaluate("()=>{delete navigator.onLine}")
   page.wait_for_function('()=>/connection|unavailable/.test(document.querySelector(".theatre-dialog [role=status]").textContent)')
   check(True,'Offline film explains availability and retains local activity')
   check(page.locator('.theatre-dialog video').evaluate('(v)=>v.paused'),'Offline film does not play or trap navigation')
