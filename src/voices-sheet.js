@@ -33,7 +33,10 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       try {
         s = JSON.parse(G.localStorage.getItem(STATE));
       } catch {}
-      return { ...s, rated: { ...s?.rated } };
+      if (!s || typeof s !== 'object' || Array.isArray(s)) s = {};
+      const rated =
+        s.rated && typeof s.rated === 'object' && !Array.isArray(s.rated) ? s.rated : {};
+      return { ...s, rated: { ...rated } };
     },
     save = (s) => {
       try {
