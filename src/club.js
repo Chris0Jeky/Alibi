@@ -1784,9 +1784,12 @@
         room.token,
         room.api,
       );
-      if (room !== current) return;
-      const changed = value.version !== room.version || value.joined !== room.joined;
-      Object.assign(room, value, { api: current.api, token: current.token });
+      if (room !== current || !Number.isSafeInteger(value.version) || value.version < room.version)
+        return;
+      const changed = value.version !== room.version || !!roomError;
+      // A version names one snapshot; equal replies cannot replace an already accepted board.
+      if (value.version > room.version)
+        Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       if (changed) render();
     } catch (e) {
@@ -1810,8 +1813,10 @@
         room.token,
         room.api,
       );
-      if (room !== current) return;
-      Object.assign(room, value, { api: current.api, token: current.token });
+      if (room !== current || !Number.isSafeInteger(value.version) || value.version < room.version)
+        return;
+      if (value.version > room.version)
+        Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       render();
     } catch (e) {

@@ -401,7 +401,7 @@ function deriveAndroidPayload({
     sourceSha: commit,
     artifactSha256: treeDigest(target, new Set(['android-build-identity.json'])),
     webBuild: webInfo.build,
-    contentManifestRevision: content.sha256,
+    contentManifestRevision: runtimeIdentity.contentManifestRevision,
     rulesCompatibility: {},
     rulesSourceDigest: sourceDigest(root),
     saveEnvelopeVersions: {

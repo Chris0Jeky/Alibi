@@ -10,6 +10,101 @@ cases pass; removing the ownership guard causes the new case to fail with
 finding. This change adds no runtime bytes; exact-head CI and merge are pending.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
 
+## Current overnight checkpoint, 2026-10-11
+
+PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
+successes, independent review and recorded merge receipts. PR #624 merged as
+666cbb79 with all 22 hosted checks green. GitHub also marks its eleven source
+PRs merged at that commit; issues #604 and #619 are closed. Main is 666cbb79.
+The integration preserves the reviewed commits from #609, #611, #581,
+#576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
+review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
+qualification are recorded in PR #624; this is not a primary release claim.
+The first combined hosted build exceeded the unchanged shell ceiling by 316.68
+bytes. All 15 failed jobs identify that budget assertion; one artifact-upload
+failure follows its skipped browser step. The existing esbuild minifier now
+compacts the worker in a private scope; emitted-worker assertions exercise its
+actual fetch/install behavior instead of depending on internal variable names.
+Clean source 6b8b152a builds to web dbb4e386dde2 and measures 1,412,571 shell
+bytes, 221.32 below the unchanged ceiling. Its local full run passes 1,440 cases
+with three intentional skips and the pre-existing Windows symlink EPERM failure;
+22 focused emitted-worker/budget cases pass. Castle hosted browser checks reach
+their update fixture, which still expected an unminified variable name. The
+fixture now replaces exactly one serialized release value. Clean source
+15c37582 builds to web 9dd71793721b / Android 1bc8c397 and passes 39 focused
+emitted-worker/budget/identity cases, both Quiet Wing suites, 375 real-origin
+checks across all 16 scenarios, 184 UI checks and 18 two-release update checks.
+There are no browser page errors. Phone/desktop recovery views are inspected;
+physical Android/TalkBack remains distinct. Subsequent checkpoint edits change
+only this evidence record. Clean source 72843be8 builds web ce33c615123e /
+Android 444d158d; its existing-Worker candidate 1178c5d6 passes 11 HTTPS
+response/byte checks and 81 hosted navigation checks. Six sampled primary
+responses retain their pre-upload status/hash. Current-host receipts are in
+PR #624; the primary was not promoted.
+
+The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
+web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
+navigation checks, including canonical 404 handling. All six sampled primary
+responses retain their pre-upload status/hash; the primary was not promoted.
+#623 clean source f29df3c1 passed its build/budget and 35 actual-origin
+failed-CAS/navigation/broadcast checks. Its later metadata-only commit refreshes
+13 source catalogue references after a demonstrated hosted digest failure.
+
+#617 and #618 remain parked on the unchanged offline shell budget: measured
+excesses are 204.68 and 502 bytes respectively despite bounded functional proof.
+Nested Miniflare still carries the older Sharp dependency; #609 patches the
+direct dependency only. Physical Android/TalkBack, collector readiness, signing,
+publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Entries below retain their historical candidate evidence; this checkpoint
+supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: Lantern Duel response ordering candidate (#604)
+
+Poll and move completions retain room identity and accept only safe integer versions
+at least as new as the accepted snapshot. Equal versions keep its board and joined
+state; newer versions replace it. Four red regressions reproduce rewinds and invalid
+version acceptance; 22 focused Node cases pass after repair. A real-origin delayed
+response scenario is added, with execution and emitted build evidence pending.
+This layers on #608's API credential binding. Physical/two-device multiplayer and
+deployment acceptance remain unverified; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: offline navigation recovery candidate (#581)
+
+This unmerged candidate preserves online host responses and uses the current
+release's cached styled 404 only after a rejected navigation fetch. Actual HTTPS
+candidate193660ee/webb29349567707 passed11 byte/status checks and55 shared-path
+browser checks; sampled primary responses matched the pre-upload baseline.
+Its unknown-path browser scenario found the host's canonical `/404` treated as
+a shell route after `/404.html` redirects. Three source regressions reproduce
+that defect; excluding only canonical404 from the shell matcher makes35 source
+worker cases pass. Normal shell paths, aliases, assets, API exclusions and unknown
+save protection remain intact. Fixed emitted/native/HTTPS and current-head hosted
+qualification remain required. The first candidate version is not production.
+
+## 2026-10-11: House and standalone feedback gate regressions
+
+Two additional cases reuse the existing House and Voices harnesses: the letter
+with incomplete observations cannot solve the study, and standalone official
+completion screens receive neither rating nor survey slots. Removing each guard
+fails its assertion. All 47 combined cases and formatting pass. Voices artifact
+fixtures come from an existing build; fresh emitted/browser/hosted proof has not
+run for this test-only slice. No production behavior changes.
+
+## 2026-10-11: preserve inactive failed-save snapshots (#619)
+
+Cabinet broadcast refreshes now stop after their asynchronous read when a sticky
+save error exists. This preserves recoverable cached edits after navigation, also
+when the read began before the failed CAS save. Clean inactive refreshes and the
+active-snapshot guards remain covered. Two regressions fail before the change;
+all seven handler cases pass after it, and an early-only guard fails the race case.
+Clean source f29df3c1 builds web f8e782ab9288 and its Android browser-preview
+artifact; all eight source/budget cases pass. The real-origin scenario passes
+35 checks at phone and desktop widths using actual CAS refusal, navigation and
+broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
+CI remains pending; physical-device acceptance is separate.
+Inactive catalogue refreshes remain paused until reload while the error persists.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.
