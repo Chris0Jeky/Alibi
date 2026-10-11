@@ -195,6 +195,21 @@ function baseClubSave() {
   };
 }
 
+test('Club backup preserves a replayable numeric Borough seed and its moves', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const save = baseClubSave();
+  save.runs.borough = {
+    rulesVersion: 1,
+    seed: 123,
+    log: [{ slot: 0, cell: 0 }],
+    redo: [],
+  };
+  const snapshot = structuredClone(save);
+  assert.equal(E.borough.replay(save.runs.borough.seed, save.runs.borough.log).turn, 1);
+  assert.deepEqual(clubValidator.validateSave(save), snapshot);
+  assert.deepEqual(save, snapshot);
+});
+
 test('invalid Club seeds are rejected before replay and inputs are unchanged', () => {
   assert.deepEqual(validator.validateSave(baseClubSave()), baseClubSave());
 
