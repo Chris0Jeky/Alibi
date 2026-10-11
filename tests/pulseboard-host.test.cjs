@@ -324,7 +324,18 @@ test('imported and workshop puzzles are reported as custom, never by their autho
   const sdk = fakeSdk();
   const h = page({ sdk: sdk.api });
   h.run();
-  const run = { puzzle: { id: 'my secret puzzle name' } };
+  const run = {
+    puzzle: {
+      id: 'my secret puzzle name',
+      answer: 'synthetic private answer',
+      board: [[1, 2], [3, 4]],
+      note: 'synthetic private note',
+      solution: 'synthetic private solution',
+    },
+    answer: 'synthetic private answer',
+    board: [[1, 2], [3, 4]],
+    note: 'synthetic private note',
+  };
   h.context.AlibiJourney(run);
   h.context.AlibiJourney(run, 'hint.requested');
   assert.doesNotMatch(JSON.stringify(sdk.calls), /secret/);
