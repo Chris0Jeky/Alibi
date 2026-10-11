@@ -8,19 +8,19 @@ function load(root, catalogue) {
   const collections = read('collections.json');
   if (notes.schema !== 'alibi-editorial/v1' || collections.schema !== 'alibi-collections/v1')
     throw Error('Unsupported trusted editorial schema');
+  if (!Array.isArray(notes.puzzles)) throw Error('Invalid editorial: puzzles missing puzzles');
+  if (!Array.isArray(collections.collections))
+    throw Error('Invalid editorial collection: collections missing collections');
   const known = new Map(catalogue.puzzles.map((p) => [p.id, p]));
   const seen = new Set();
   const entries = notes.puzzles.map((n) => {
-    if (
-      typeof n !== 'object' ||
-      n === null ||
-      typeof n.provenance !== 'object' ||
-      n.provenance === null ||
-      Array.isArray(n.provenance) ||
-      (typeof n.difficultyStatus !== 'string' && !Array.isArray(n.difficultyStatus)) ||
-      !Array.isArray(n.hints)
-    )
-      throw Error('Invalid editorial: ' + (n?.id ?? n));
+    if (typeof n !== 'object' || n === null)
+      throw Error('Invalid editorial: ' + (n?.id ?? n) + ' missing note');
+    if (typeof n.provenance !== 'object' || n.provenance === null || Array.isArray(n.provenance))
+      throw Error('Invalid editorial: ' + n.id + ' missing provenance');
+    if (!Array.isArray(n.hints)) throw Error('Invalid editorial: ' + n.id + ' missing hints');
+    if (typeof n.difficultyStatus !== 'string' && !Array.isArray(n.difficultyStatus))
+      throw Error('Invalid editorial: ' + n.id + ' missing difficultyStatus');
     if (seen.has(n.id) || known.get(n.id)?.type !== n.family)
       throw Error('Invalid editorial ID: ' + n.id);
     seen.add(n.id);
@@ -42,7 +42,11 @@ function load(root, catalogue) {
   });
   const assigned = new Set();
   for (const c of collections.collections) {
+    if (typeof c !== 'object' || c === null)
+      throw Error('Invalid editorial collection: ' + (c?.id ?? c) + ' missing collection');
     if (!/^[a-z]+$/.test(c.id)) throw Error('Invalid venue');
+    if (!Array.isArray(c.puzzleIds))
+      throw Error('Invalid editorial collection: ' + c.id + ' missing puzzleIds');
     for (const id of c.puzzleIds) {
       if (!seen.has(id) || assigned.has(id) || entries.find((n) => n.id === id).venue !== c.id)
         throw Error('Invalid anthology membership');

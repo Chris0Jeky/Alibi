@@ -273,28 +273,78 @@ function probeNote() {
     provenance: { humanPlaytested: false },
   };
 }
-function assertInvalidEditorial(root) {
+function assertInvalidEditorial(root, field) {
   assert.throws(
     () => load(root, probeCatalogue),
     (err) =>
       err instanceof Error &&
       !(err instanceof TypeError) &&
       err.message.includes('Invalid editorial') &&
-      err.message.includes('probe-01'),
+      err.message.includes('probe-01') &&
+      (field === undefined || err.message.includes(field)),
   );
 }
 test('editorial load rejects a note missing provenance with a named error', (t) => {
   const note = probeNote();
   delete note.provenance;
-  assertInvalidEditorial(editorialFixture(t, note));
+  assertInvalidEditorial(editorialFixture(t, note), 'provenance');
 });
 test('editorial load rejects a note missing difficultyStatus with a named error', (t) => {
   const note = probeNote();
   delete note.difficultyStatus;
-  assertInvalidEditorial(editorialFixture(t, note));
+  assertInvalidEditorial(editorialFixture(t, note), 'difficultyStatus');
 });
 test('editorial load rejects a note missing hints with a named error', (t) => {
   const note = probeNote();
   delete note.hints;
-  assertInvalidEditorial(editorialFixture(t, note));
+  assertInvalidEditorial(editorialFixture(t, note), 'hints');
+});
+function editorialFixtureRaw(t, puzzles, collections) {
+  const root = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'alibi-editorial-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const dir = path.join(root, 'content/curation/editorial');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(
+    path.join(dir, 'puzzle-notes.json'),
+    JSON.stringify({ schema: 'alibi-editorial/v1', puzzles }),
+  );
+  fs.writeFileSync(
+    path.join(dir, 'collections.json'),
+    JSON.stringify({ schema: 'alibi-collections/v1', collections }),
+  );
+  return root;
+}
+test('editorial load rejects non-array puzzles with a named error', (t) => {
+  const root = editorialFixtureRaw(t, {}, []);
+  assert.throws(
+    () => load(root, probeCatalogue),
+    (err) =>
+      err instanceof Error &&
+      !(err instanceof TypeError) &&
+      err.message.includes('Invalid editorial') &&
+      err.message.includes('puzzles'),
+  );
+});
+test('editorial load rejects non-array collections with a named error', (t) => {
+  const root = editorialFixtureRaw(t, [probeNote()], {});
+  assert.throws(
+    () => load(root, probeCatalogue),
+    (err) =>
+      err instanceof Error &&
+      !(err instanceof TypeError) &&
+      err.message.includes('Invalid editorial') &&
+      err.message.includes('collections'),
+  );
+});
+test('editorial load rejects a collection missing puzzleIds with a named error', (t) => {
+  const root = editorialFixtureRaw(t, [probeNote()], [{ id: 'salt' }]);
+  assert.throws(
+    () => load(root, probeCatalogue),
+    (err) =>
+      err instanceof Error &&
+      !(err instanceof TypeError) &&
+      err.message.includes('Invalid editorial') &&
+      err.message.includes('salt') &&
+      err.message.includes('puzzleIds'),
+  );
 });
