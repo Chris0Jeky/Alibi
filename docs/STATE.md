@@ -20,6 +20,14 @@ merge gates remain explicit. #347's implementation is present with specific
 coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
 decisions. No deployment or physical-device approval was inferred.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+## 2026-10-11: Club backup guard regressions
+
+Four source tests cover a minimal accepted Club save, an Archive no-op replay,
+an otherwise replayable 3001-move history, and 121 records below the byte cap.
+They use the real validator and engines. Each archive/history/record guard removal
+makes its corresponding test fail; the unchanged validator passes all four.
+No production code or save format changes. Independent review and hosted exact-head
+verification remain pending. [HUMAN_TODO.md](../HUMAN_TODO.md) retains device acceptance.
 
 ## 7 October 2026: cabinet fallback safety candidate
 
