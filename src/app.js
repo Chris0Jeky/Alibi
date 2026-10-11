@@ -387,6 +387,14 @@
       if (r) {
         try {
           validateRun(r);
+          if (r.key === current?.key) {
+            if (r.rev > (revs.get(current.key) || 0)) {
+              saveError =
+                'This puzzle changed in another tab. Export this session or reload its latest save.';
+              render();
+            }
+            return;
+          }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
           if (!current) render();
