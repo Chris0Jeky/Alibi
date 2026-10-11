@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-11: challenge save ownership regression
+
+The existing launcher harness now checks that a valid published challenge save
+is refused when opening another challenge, with the original input preserved.
+The same-challenge acceptance control remains intact. Eight launcher/lifecycle
+cases pass; removing the ownership guard causes the new case to fail with
+"Missing expected exception". Fresh independent review found no HIGH/CRITICAL
+finding. This change adds no runtime bytes; exact-head CI and merge are pending.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
 Room seats and pending idempotent retries capture the full normalized API address.
@@ -11,6 +21,7 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
 The IndexedDB save transaction now distinguishes an absent row from a present
@@ -46,6 +57,7 @@ merge gates remain explicit. #347's implementation is present with specific
 coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
 decisions. No deployment or physical-device approval was inferred.
 [HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+
 ## 2026-10-11: Club backup guard regressions
 
 Four source tests cover a minimal accepted Club save, an Archive no-op replay,
