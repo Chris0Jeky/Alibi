@@ -338,6 +338,8 @@
       t.placements[a.who] = a.cell;
     } else if (a.type === 'exclude') {
       if (
+        typeof a.who !== 'string' ||
+        ['__proto__', 'constructor', 'prototype'].includes(a.who) ||
         !p.people.some((x) => x.id === a.who) ||
         !Number.isInteger(a.cell) ||
         a.cell < 0 ||
@@ -354,7 +356,12 @@
         ? t.clueMarks.filter((x) => x !== a.index)
         : [...t.clueMarks, a.index];
     } else if (a.type === 'accuse') {
-      if (!p.people.some((x) => x.id === a.who)) return s;
+      if (
+        typeof a.who !== 'string' ||
+        ['__proto__', 'constructor', 'prototype'].includes(a.who) ||
+        !p.people.some((x) => x.id === a.who)
+      )
+        return s;
       t.accused = a.who;
     } else if (a.type === 'clear') {
       if (!Number.isInteger(a.cell) || a.cell < 0 || a.cell >= p.size ** 2) return s;

@@ -311,7 +311,8 @@
           a.type === 'clue' &&
           Number.isInteger(a.index) &&
           a.index >= 0 &&
-          a.index < p.clues.length
+          a.index < (Array.isArray(p.clues) ? p.clues.length : 0) &&
+          Array.isArray(t.clueMarks)
         )
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
