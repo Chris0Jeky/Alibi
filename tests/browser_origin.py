@@ -53,6 +53,7 @@ ORIGIN_SCENARIOS = (
     "malformed_persisted",
     "room_host",
     "room_version",
+    "quarantined_run",
     "newer_database",
     "club_read_abort",
 )
@@ -1387,7 +1388,7 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
 def scenario_unknown_paths(pw: Any, root: Path) -> None:
     """0.14.1 audit M4: a controlling service worker no longer answers deep or file-like
     URLs with the root shell (whose relative assets break there, leaving an unstyled
-    "Opening the puzzle cabinet…"). They reach the host's styled 404, which links home.
+    "Opening the puzzle cabinetâ€¦"). They reach the host's styled 404, which links home.
     """
     context = launch_profile(pw, root / "unknown-paths")
     try:
@@ -1584,6 +1585,48 @@ def scenario_room_host(pw: Any, root: Path) -> None:
                   "original room credential remains bound after restore")
     finally:
         context.close()
+def scenario_quarantined_run(pw: Any, root: Path) -> None:
+    key = "lightup-04@1"
+    unknown = {"key": key, "schemaVersion": 9, "rev": 0,
+               "future": {"note": "Synthetic progress to preserve"}}
+    cases = [unknown, {"key": key, "schemaVersion": 1, "rev": 0, "note": "Missing puzzle"},
+             {"key": key, "schemaVersion": 1, "rev": 0, "puzzle": {}, "state": {}, "moves": -1}]
+    for i, unknown in enumerate(cases):
+        context = launch_profile(pw, root / f"quarantined-run-{i}")
+        try:
+            seed = new_page(context, "quarantined-run-seed")
+            seed_database(seed)
+            seed.evaluate(
+                """({key, value}) => new Promise((resolve, reject) => {
+                  const request = indexedDB.open('alibi-device', 1);
+                  request.onerror = () => reject(request.error);
+                  request.onsuccess = () => {
+                    const db = request.result;
+                    const tx = db.transaction('runs', 'readwrite');
+                    tx.objectStore('runs').put({key, value});
+                    tx.oncomplete = () => { db.close(); resolve(); };
+                    tx.onabort = () => { db.close(); reject(tx.error); };
+                  };
+                })""", {"key": key, "value": unknown},
+            )
+            seed.close()
+            page = new_page(context, "quarantined-run")
+            boot(page)
+            check(page.evaluate("AlibiDiagnostics.getCounts().quarantined") == 1,
+                  "revision-zero run is quarantined at boot")
+            route(page, "play/" + key)
+            wait_page(page, "Boolean(AlibiDiagnostics.getCurrent())", what="new puzzle run")
+            page.wait_for_timeout(16000)
+            check(read_idb(page, "runs", key) == unknown,
+                  "ordinary autosave preserves the exact quarantined record")
+            check("Not saved" in page.locator("#save-state").inner_text(),
+                  "refused autosave exposes the unsaved-session recovery state")
+            page.reload(wait_until="domcontentloaded")
+            wait_diag(page)
+            check(read_idb(page, "runs", key) == unknown,
+                  "quarantined record survives reload after the refusal")
+        finally:
+            context.close()
 
 
 def scenario_room_version(pw: Any, root: Path) -> None:
@@ -1853,6 +1896,7 @@ def run() -> int:
                 scenario_malformed_persisted,
                 scenario_room_host,
                 scenario_room_version,
+                scenario_quarantined_run,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]
