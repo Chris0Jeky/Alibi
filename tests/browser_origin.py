@@ -53,6 +53,7 @@ ORIGIN_SCENARIOS = (
     "malformed_persisted",
     "quarantined_run",
     "broadcast_readback",
+    "cabinet_export_race",
     "newer_database",
     "club_read_abort",
 )
@@ -1627,6 +1628,77 @@ def scenario_broadcast_readback(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_cabinet_export_race(pw: Any, root: Path) -> None:
+    key = "lightup-01@1"
+    for width in (390, 1280):
+        for kind in ("clean-inactive", "dirty-active", "dirty-inactive"):
+            context = launch_profile(pw, root / f"cabinet-export-{width}-{kind}")
+            try:
+                page = new_page(context, "cabinet-export-race")
+                page.add_init_script("globalThis.BroadcastChannel = undefined;")
+                page.set_viewport_size({"width": width, "height": 900})
+                boot(page)
+                route(page, "play/" + key)
+                move_first_cell(page, "export fixture starts with a real saved move")
+                baseline = wait_run(page, key, 1)
+                wait_status(page, lambda s: not s["pendingSaves"], "initial save finishes")
+                if kind == "clean-inactive":
+                    route(page, "home")
+                    wait_status(page, lambda s: not s["pendingSaves"], "inactive baseline is acknowledged")
+                writer = new_page(context, "cabinet-export-writer")
+                boot(writer)
+                newer = writer.evaluate("""async key => {
+                  const store = await new AlibiStorage.Store().init();
+                  const old = await store.get('runs', key);
+                  const saved = await store.saveRun({...old, note: 'Other tab committed progress'}, old.rev);
+                  store.db.close();
+                  return saved;
+                }""", key)
+                check(newer["rev"] > baseline["rev"], "a second tab commits a newer generation without a notification")
+                if kind != "clean-inactive":
+                    write_note(page, "Unsaved Cabinet session edits")
+                    wait_status(page, lambda s: bool(s["saveError"]), "local stale save is refused")
+                    if kind == "dirty-inactive":
+                        route(page, "home")
+                if kind != "dirty-active":
+                    route(page, "settings")
+                export = page.locator('[data-action="export"]').first
+                if kind == "clean-inactive":
+                    with page.expect_download() as info:
+                        export.click()
+                    device = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    session = None
+                else:
+                    export.click()
+                    wait_page(page, "Boolean(document.querySelector('[data-action=\"download-device-copy\"]'))", what="explicit device/session choice")
+                    page.screenshot(path=str(RESULTS / f"cabinet-export-{width}-{kind}.png"), full_page=True)
+                    with page.expect_download() as info:
+                        page.locator('[data-action="download-device-copy"]').click()
+                    device = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    with page.expect_download() as info:
+                        page.locator('[data-action="download-session-copy"]').click()
+                    session = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    check(next(r for r in session["runs"] if r["key"] == key)["note"] == "Unsaved Cabinet session edits", "session download retains the actual unsaved note")
+                check(next(r for r in device["runs"] if r["key"] == key) == newer, "device download retains exact newer committed bytes")
+                check(read_idb(writer, "runs", key) == newer, "export leaves committed IndexedDB bytes unchanged")
+                for label, backup in (("device", device), ("session", session)):
+                    if backup is None:
+                        continue
+                    check(backup["format"] == "alibi-backup" and backup["schemaVersion"] == 1, "download retains the existing Cabinet import envelope")
+                    restored_context = launch_profile(pw, root / f"cabinet-restore-{width}-{kind}-{label}")
+                    try:
+                        restored_page = new_page(restored_context, "cabinet-copy-restore")
+                        boot(restored_page)
+                        route(restored_page, "settings")
+                        input_backup(restored_page, backup)
+                        click_reload_action(restored_page, '[data-action="restore-merge"]')
+                        check(read_idb(restored_page, "runs", key) == next(r for r in backup["runs"] if r["key"] == key), "download restores its exact selected progress into an isolated profile")
+                    finally:
+                        restored_context.close()
+            finally:
+                context.close()
+
+
 def scenario_newer_database(pw: Any, root: Path) -> None:
     profile = root / "newer-database"
     context = launch_profile(pw, profile)
@@ -1828,6 +1900,7 @@ def run() -> int:
                 scenario_malformed_persisted,
                 scenario_quarantined_run,
                 scenario_broadcast_readback,
+                scenario_cabinet_export_race,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]

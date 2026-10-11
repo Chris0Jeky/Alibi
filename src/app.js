@@ -2139,13 +2139,17 @@
       else divergentByKey.set(key, local);
     }
     data.runs = [...deviceByKey.values()];
-    data.packs = [...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values()];
+    data.packs = [
+      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
+    ];
     data.settings = C.clone(settings);
     data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
     if (!divergentByKey.size) return { data, session: null };
     const session = C.clone(data);
-    session.runs = [...new Map([...deviceByKey, ...divergentByKey]).values()].map((r) => C.clone(r));
+    session.runs = [...new Map([...deviceByKey, ...divergentByKey]).values()].map((r) =>
+      C.clone(r),
+    );
     return { data, session };
   }
   async function exportBackup() {
@@ -2168,7 +2172,14 @@
   }
   let stagedAll = null;
   let stagedCabinet = null;
-  function offerCabinetCopies({ title, message, deviceName, deviceData, sessionName, sessionData }) {
+  function offerCabinetCopies({
+    title,
+    message,
+    deviceName,
+    deviceData,
+    sessionName,
+    sessionData,
+  }) {
     stagedCabinet = {
       deviceName,
       deviceData: C.clone(deviceData),
