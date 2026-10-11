@@ -3,7 +3,7 @@
 ## Current overnight checkpoint, 2026-10-11
 
 PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
-successes, independent review and recorded merge receipts. Main is 3b041670.
+successes, independent review and recorded merge receipts. PR #624 and its eleven source PRs are merged at 666cbb79 with all 22 reported hosted checks successful.
 The integration branch preserves the reviewed commits from #609, #611, #581,
 #576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
 review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
@@ -41,6 +41,20 @@ direct dependency only. Physical Android/TalkBack, collector readiness, signing,
 publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 Entries below retain their historical candidate evidence; this checkpoint
 supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: touch keyboard guidance resumed (#590)
+
+Coarse-primary/no-fine-pointer guidance stays in the accessibility tree through
+absolute positioning and inset clipping. Actual rendered Bridges/Network checks
+are wired into CI and cover accessible text, negative controls, overflow and
+Network keyboard actions. Clean 56c5be27 passes Android build, 21 emitted/budget
+cases, 37 keyboard-help checks and all 184 UI checks with no page errors.
+Phone/desktop boards are inspected. CSS gzip is 34,454 under strict 34,464;
+shell is 1,412,625 under strict 1,412,792.32. Main 666cbb79 merges without content
+changes, with nine catalogue/copy/wiring cases green afterward. Independent
+review is clean; exact-head hosted qualification remains required. This
+supersedes historical #590 budget/UI blockers below; physical-device and owner
+gates remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: Lantern Duel response ordering candidate (#604)
 

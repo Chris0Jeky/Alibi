@@ -1,5 +1,30 @@
 # Touch keyboard help (#420 item 3)
 
+## Current qualification, 2026-10-11
+
+The resumed candidate uses the same coarse-primary/no-fine-pointer boundary with
+absolute positioning and `clip-path: inset(50%)`, retaining accessibility-tree
+text. The helper now renders the actual Bridges inline hint and Network help
+paragraph, checks both input profiles, accessibility, overflow and display:none
+negative controls, and exercises Network ArrowRight/Enter/Shift+Enter controls.
+It is wired into full CI. Viewport screenshots retain the pointer profile;
+full-page capture changed Chromium's input media during the earlier probe.
+
+Clean source 56c5be27 builds web ddb50c87bb28 / Android 083ab530 and passes 21
+emitted/budget/Android/copy/wiring cases, 37 keyboard-help checks and all 184 UI
+checks, with no page errors. Phone/desktop rendered boards are visually inspected.
+Node's budget measurement is CSS gzip 34,454 against strict 34,464 and shell
+1,412,625 against strict 1,412,792.32; JavaScript gzip is 132,892. No ceiling changed.
+Actual main 666cbb79 merges without content changes; nine catalogue/copy/wiring
+source cases pass afterward. Independent production-seam and capture-fix reviews
+found no HIGH/CRITICAL finding. Exact-head hosted CI remains required.
+
+Physical mixed-input hardware and Android/TalkBack remain unverified in
+[HUMAN_TODO.md](../../../HUMAN_TODO.md). No primary deployment is claimed.
+This supersedes the budget/UI blockers below, which retain historical evidence.
+
+## Historical candidate evidence
+
 Keyboard help stays in the accessibility tree on devices with a coarse primary pointer and no available fine pointer. A mixed-input device with `any-pointer: fine` and desktop retain visible help. Both inline spans and full help paragraphs use the existing markup.
 
 Verified: `node --test tests/curation-copy.test.cjs` (3 passed), Prettier check for changed CSS/test, and `tests/browser_keyboard_help.py` with actual Chromium touch and desktop contexts. Both geometry and accessibility-tree checks pass; injecting the former display:none rule removes the text and is detected in each context.
