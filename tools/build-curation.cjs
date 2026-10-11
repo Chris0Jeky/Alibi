@@ -9,6 +9,8 @@ module.exports = function (root, dist) {
   const runtime = JSON.parse(
     fs.readFileSync(path.join(root, 'assets-source/curation/runtime.json'), 'utf8'),
   );
+  if (!Array.isArray(registry?.assets))
+    throw Error('Invalid curation registry: assets must be an array');
   const media = {},
     inlineMedia = {},
     assets = [];
@@ -21,6 +23,13 @@ module.exports = function (root, dist) {
           throw Error('Invalid curation derivative for ' + a.id);
     if (typeof a.source !== 'object' || a.source === null)
       throw Error('Invalid curation source for ' + a.id);
+    if (
+      typeof a.source.objectPage !== 'string' ||
+      a.source.objectPage.length === 0
+    )
+      throw Error('Invalid curation source for ' + a.id);
+    if (a.kind === 'museum-image' && !Array.isArray(runtime?.assets))
+      throw Error('Invalid curation runtime for ' + a.id);
     const r =
       a.kind === 'museum-image'
         ? runtime.assets.find((r) => r.id === a.id)?.runtime
