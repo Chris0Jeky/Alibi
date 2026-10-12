@@ -40,14 +40,49 @@ function compact(fragment) {
   // Adjacent unfilled paths inherit identical styling; combine their contours only.
   return fragment.replace(/<path d="([^"]*)"\/><path d="([^"]*)"\/>/g, '<path d="$1 $2"/>');
 }
-function sync(root, check = false) {
+function safePath(root, file) {
+  root = path.resolve(root);
+  const relative = path.relative(root, file);
+  const unsafe = () => {
+    throw Error('Unsafe pictogram path: ' + relative);
+  };
+  if (relative.startsWith('..') || path.isAbsolute(relative)) unsafe();
+  let cursor = root;
+  const identities = [];
+  for (const part of ['', ...relative.split(path.sep)]) {
+    if (part) cursor = path.join(cursor, part);
+    let stat;
+    try {
+      stat = fs.lstatSync(cursor);
+    } catch (e) {
+      if (e.code === 'ENOENT' && cursor === file) break;
+      throw e;
+    }
+    if (stat.isSymbolicLink() || (!stat.isDirectory() && (!stat.isFile() || stat.nlink !== 1)))
+      unsafe();
+    const real = fs.realpathSync.native(cursor);
+    if (real.toLowerCase() !== path.resolve(cursor).toLowerCase()) unsafe();
+    identities.push([cursor, stat.dev, stat.ino]);
+  }
+  return identities;
+}
+function unchanged(root, file, identities) {
+  const now = safePath(root, file);
+  for (const [cursor, dev, ino] of identities) {
+    if (!now.some(([p, d, i]) => p === cursor && d === dev && i === ino))
+      throw Error('Unsafe pictogram path changed: ' + file);
+  }
+}
+async function sync(root, check = false) {
+  root = path.resolve(root);
   const directory = path.join(root, 'assets-source/library/club-pictograms');
+  safePath(root, path.join(directory, 'pictograms.json'));
+  safePath(root, path.join(root, '.prettierrc.json'));
+  safePath(root, path.join(root, 'src/presentation.js'));
   const masters = JSON.parse(fs.readFileSync(path.join(directory, 'pictograms.json'), 'utf8'));
+  const outputs = [];
   const update = (file, expected) => {
-    if (check) {
-      if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== expected)
-        throw Error('Stale pictogram output: ' + path.relative(root, file));
-    } else fs.writeFileSync(file, expected);
+    outputs.push({ file, expected, identity: safePath(root, file) });
   };
   const sha256 = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
   const receipts = {};
@@ -85,12 +120,30 @@ function sync(root, check = false) {
     ';';
   // Match repository formatting without adding a runtime loader or duplicate table.
   const prettier = require('prettier');
-  return prettier
-    .format(source.replace(match[0], table), {
-      parser: 'babel',
-      ...JSON.parse(fs.readFileSync(path.join(root, '.prettierrc.json'), 'utf8')),
-    })
-    .then((formatted) => update(file, formatted));
+  const formatted = await prettier.format(source.replace(match[0], table), {
+    parser: 'babel',
+    ...JSON.parse(fs.readFileSync(path.join(root, '.prettierrc.json'), 'utf8')),
+  });
+  update(file, formatted);
+  // Validate every output before the first mutation, including --check.
+  for (const output of outputs) unchanged(root, output.file, output.identity);
+  for (const { file, expected, identity } of outputs) {
+    unchanged(root, file, identity);
+    if (check) {
+      if (!fs.existsSync(file) || fs.readFileSync(file, 'utf8') !== expected)
+        throw Error('Stale pictogram output: ' + path.relative(root, file));
+      continue;
+    }
+    const temporary = path.join(path.dirname(file), '.pictogram-' + crypto.randomUUID() + '.tmp');
+    try {
+      fs.writeFileSync(temporary, expected, { flag: 'wx' });
+      safePath(root, temporary);
+      unchanged(root, file, identity);
+      fs.renameSync(temporary, file);
+    } finally {
+      if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+    }
+  }
 }
 if (require.main === module)
   sync(path.resolve(__dirname, '../..'), process.argv.includes('--check'))
