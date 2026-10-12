@@ -37,7 +37,7 @@ function loadStore(indexedDB) {
 
 // Minimal synchronous IndexedDB double: raw records keyed by id, staged puts
 // applied on commit and discarded on abort.
-function database(seeds = {}) {
+function database(seeds = {}, abortWrites = false) {
   const disk = new Map(Object.entries(seeds));
   const db = {
     close() {},
@@ -60,6 +60,10 @@ function database(seeds = {}) {
                 request.onsuccess?.({ target: request });
                 queueMicrotask(() => {
                   if (transaction.aborted) return;
+                  if (abortWrites && staged.length) {
+                    transaction.abort();
+                    return;
+                  }
                   for (const [k, v] of staged) disk.set(k, v);
                   transaction.oncomplete?.();
                 });
@@ -155,4 +159,32 @@ test('restore after a fresh read replaces and retains recovery', async () => {
   await store.restore(registry.begin(ID));
   assert.equal(disk.get(ID).revision, 2);
   assert.deepEqual(disk.get(`recovery:${ID}`).record, validRecord());
+});
+
+test('committed restore unprotects only its challenge and later edits survive reopening', async () => {
+  const other = 'curated-classic-hanoi-02';
+  const { store, disk } = await openStore({ [ID]: corruptRecord(), [other]: corruptRecord() });
+  await assert.rejects(store.read(ID), /unsupported and was preserved/);
+  await assert.rejects(store.read(other), /unsupported and was preserved/);
+  const run = registry.begin(ID);
+  await store.restore(run);
+  run.log.push({ from: 1, to: 2 });
+  await store.write(run);
+  const reopened = await openStore(Object.fromEntries(disk));
+  assert.deepEqual(await reopened.store.read(ID), run);
+  assert.equal(disk.get(ID).revision, 2);
+  assert.deepEqual(disk.get(`recovery:${ID}`).record, corruptRecord());
+  await assert.rejects(store.write(registry.begin(other)), /protected and was preserved/);
+  assert.deepEqual(disk.get(other), corruptRecord());
+});
+
+test('aborted restore leaves the challenge protected and original bytes intact', async () => {
+  const { indexedDB, disk } = database({ [ID]: corruptRecord() }, true);
+  const store = loadStore(indexedDB).create(registry);
+  await store.open();
+  await assert.rejects(store.read(ID), /unsupported and was preserved/);
+  await assert.rejects(store.restore(registry.begin(ID)), /storage failed/);
+  await assert.rejects(store.write(registry.begin(ID)), /protected and was preserved/);
+  assert.deepEqual(disk.get(ID), corruptRecord());
+  assert.equal(disk.has(`recovery:${ID}`), false);
 });

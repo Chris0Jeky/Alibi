@@ -162,6 +162,7 @@
           }
           revision = record.revision;
           revisions.set(id, record.revision);
+          if (restoring) protectedIds.delete(id);
           return copy(checked);
         });
       return queue;
