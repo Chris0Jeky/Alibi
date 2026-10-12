@@ -1,5 +1,7 @@
 # Alibi
 
+<p align="center"><img src="docs/assets/hero.svg" alt="Alibi" width="100%"></p>
+
 Alibi is a static, device-local puzzle cabinet: thirteen logic families, illustrated casebooks, and a workshop that does not need an account.
 
 [![Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/workflows/check.yml/badge.svg)](https://github.com/Chris0Jeky/Alibi/actions/workflows/check.yml)
@@ -81,6 +83,8 @@ The workshop validates a definition, checks uniqueness where that family’s con
 Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, and the separate challenge export, before you change site, browser, or device.
 
 ## Architecture
+
+<p align="center"><img src="docs/assets/architecture.svg" alt="Alibi architecture" width="100%"></p>
 
 ```mermaid
 flowchart TD
