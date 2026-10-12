@@ -11,10 +11,15 @@ All four failing hosted workflows at the original head report the numeric-seed
 regression and the release-shell budget assertion. The exact main base
 `1ee2de7c` measures 1,412,593 shell bytes and 132,870 JavaScript gzip bytes.
 The compact repair measures 1,412,793 shell bytes (+200) and 132,891 JavaScript
-gzip bytes (+21), exceeding the strict 1,412,792.32-byte shell limit by less than
-one byte. Three trim attempts exhausted this turn's budget; the ceiling is
-unchanged and the PR is not ready to land. Full verification and hosted checks
-remain required. Physical acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+gzip bytes (+21) before commit; clean source `045c44ca` measures 1,412,794 and
+132,892 respectively. Both exceed the strict 1,412,792.32-byte shell limit.
+Three trim attempts exhausted this turn's budget; the ceiling is unchanged.
+Full verification at `045c44ca` passes formatting and both-target build, then
+reports 1,490 passes, three skips and two failures: the budget and the unrelated
+Windows file-symlink EPERM in `workshop-catalogue.test.cjs`. One independent
+Luna xhigh review found no blocker in the seed repair. The PR is not ready to
+land; release-budget repair and green hosted checks remain required. Physical
+acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: automatic Voices flush test qualification
 
