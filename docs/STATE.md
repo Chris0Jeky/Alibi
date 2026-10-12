@@ -1,5 +1,19 @@
 # Live development state
 
+## 2026-10-12: Challenge restore protection repair
+
+An explicit Challenge restore now clears only the restored challenge's old
+protection flag after the replacement transaction commits. Previously, a
+corrupt read followed by a successful restore left subsequent moves unable
+to save until reload. The original record remains under `recovery:<id>`;
+failed restores and other protected challenge IDs remain protected.
+
+The new persistence regression fails on the previous source and passes with
+the repair; all 19 focused restore/storage/revision/lifecycle cases pass.
+Current-head full and actual-origin browser qualification is pending. No
+deployment or physical Android/TalkBack acceptance is claimed; remaining
+owner actions are in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-11: qualified overnight integration and preview
 
 PR #633 merged as 73017566 after all seven reported hosted checks passed.
