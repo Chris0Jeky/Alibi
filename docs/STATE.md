@@ -1,5 +1,23 @@
 # Live development state
 
+## 2026-10-12: bounded Challenge recovery export candidate
+
+PR #635 merged as eadee7a6 after all nine hosted checks passed, preserving the
+committed-restore protection repair. The next candidate keeps ordinary
+playable pre-restore exports and offers a distinctly labeled raw recovery
+archive for corrupt, future-version or mismatched originals. Original record
+and recovery metadata remain intact; raw archives are not playable imports.
+Explicit restore also retains falsy JSON originals instead of losing them
+through a truthiness check.
+
+Raw serialization refuses non-JSON values and uses a conservative escaping
+and traversal budget with a 3 MiB file ceiling. It can refuse smaller archives;
+refused records remain stored. The baseline has eight passing and six failing
+source cases; the initial repair passes 41 focused ownership/storage/export
+cases. Clean build, actual controls at 390/1280, UI/origin suites and independent
+review must accompany qualification. No deployment or physical Android/provider
+acceptance is claimed; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: Challenge restore protection repair
 
 An explicit Challenge restore now clears only the restored challenge's old
