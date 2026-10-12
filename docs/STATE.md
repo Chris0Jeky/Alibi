@@ -10,8 +10,14 @@ failed restores and other protected challenge IDs remain protected.
 
 The new persistence regression fails on the previous source and passes with
 the repair; all 19 focused restore/storage/revision/lifecycle cases pass.
-Current-head full and actual-origin browser qualification is pending. No
-deployment or physical Android/TalkBack acceptance is claimed; remaining
+Clean source 2b4ffcc5 builds web 7c2cad8d1c5a and passes the extended real
+IndexedDB Challenge fixture at 390/1280 plus all 375 full real-origin checks,
+without page errors. Formatting and both-target build pass. The full Node
+run has 1,474 passes, three skips and one unchanged Windows file-symlink
+EPERM; it does not reach the subsequent bare-assert Quiet Wing suites and
+is not full local green. One independent read-only review found no defects.
+Hosted qualification remains required for [PR #635](https://github.com/Chris0Jeky/Alibi/pull/635).
+No deployment or physical Android/TalkBack acceptance is claimed; remaining
 owner actions are in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-11: qualified overnight integration and preview
