@@ -48,6 +48,56 @@ function main() {
       })),
     );
   const details = BASE + 'realm/details/catalogue.json';
+  const painted = BASE + 'painted-club/';
+  if (fs.existsSync(path.join(ROOT, painted, 'manifest.json'))) {
+    const shelf = read(painted + 'manifest.json').assets;
+    for (const master of shelf.filter((a) => a.kind === 'source-webp')) {
+      const id = master.file.replace(/\.webp$/, '');
+      const integrated = ['club-welcome', 'lantern-duel', 'pocket-borough'].includes(id);
+      assets.push({
+        id: 'painted-' + id,
+        title: id.replaceAll('-', ' '),
+        category: 'painted-club',
+        status: integrated ? 'current' : 'proposed',
+        design: 'original',
+        source: painted + master.file,
+        derivatives: shelf
+          .filter((a) => a.file.startsWith(id + '-') && a.kind === 'runtime')
+          .map((a) => painted + a.file),
+        provenance: {
+          author: 'Alibi project',
+          method: 'Existing generated painted source, draft #525; original wave prompts retained',
+          license: 'Existing project rights unchanged; no new grant',
+        },
+        accessibility:
+          'Decorative empty alt; labels and actions are independent; SVG fallback retained',
+        integration: integrated
+          ? 'Club Desk/card optional enhancement; 320px only; masters outside release and precache'
+          : 'Source shelf only; no runtime activation',
+        qa: { scope: 'Hash-verified import; runtime and visual gates documented separately' },
+      });
+    }
+  }
+  const vector = BASE + 'vector-pilot/lantern-counter-vignette.svg';
+  if (fs.existsSync(path.join(ROOT, vector)))
+    assets.push({
+      id: 'vector-lantern-pilot',
+      title: 'Tea beside the lantern table',
+      category: 'vector-pilot',
+      status: 'proposed',
+      design: 'original',
+      source: vector,
+      derivatives: [],
+      provenance: {
+        author: 'Alibi project',
+        method: 'Original native SVG geometry; no raster embedding or tracing',
+        license: 'Project original; no separate public reuse grant',
+      },
+      accessibility:
+        'Complete static SVG; optional lifecycle-controlled motion in source review page',
+      integration: 'Source alternative only; excluded from runtime and precache',
+      qa: { scope: 'Chromium pixel inspection at 390 and 1440; art acceptance remains separate' },
+    });
   if (fs.existsSync(path.join(ROOT, details))) {
     const detail = read(details);
     assets.push(...mergeDetails(detail.assets, detail, details));
