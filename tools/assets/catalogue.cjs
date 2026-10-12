@@ -88,7 +88,7 @@ function main() {
       status: 'proposed',
       design: 'original',
       source: vector,
-      derivatives: [],
+      derivatives: [BASE + 'vector-pilot/lantern-counter-vignette-preview.png'],
       provenance: {
         author: 'Alibi project',
         method: 'Original native SVG geometry; no raster embedding or tracing',

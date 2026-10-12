@@ -2,6 +2,10 @@
 
 `lantern-counter-vignette.svg` is original native SVG geometry (800×800, ten editable named layers). An engraved brass lantern, sage branch, petrol/ivory counters, tea and stationery share the existing warm ivory/petrol/sage/brass direction. `review.html` compares it directly with #525's painted Lantern Duel derivative. The vector finish is intentionally cleaner; the existing painted originals are preserved.
 
+![Individual 800×800 Chromium preview of the editable vector master](lantern-counter-vignette-preview.png)
+
+This PNG is a review derivative. The SVG remains the editable master and stays separate from runtime.
+
 Actual Chromium pixels were inspected at 390 and 1440 widths. Cup placement and an out-of-bounds grain detail were corrected. The SVG has no image embedding, tracing, external content, animation or script. The source review page offers explicit restrained motion with pause, reduced-motion, document visibility and IntersectionObserver handling. This remains a proposed source alternative, outside runtime and precache.
 
 ## First painting integration candidate

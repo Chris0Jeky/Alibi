@@ -4,8 +4,8 @@
   "counts": {
     "original": 121,
     "reused": 80,
-    "derivatives": 366,
-    "uniqueFiles": 509
+    "derivatives": 367,
+    "uniqueFiles": 510
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -3566,7 +3566,9 @@
       "status": "proposed",
       "design": "original",
       "source": "assets-source/library/vector-pilot/lantern-counter-vignette.svg",
-      "derivatives": [],
+      "derivatives": [
+        "assets-source/library/vector-pilot/lantern-counter-vignette-preview.png"
+      ],
       "provenance": {
         "author": "Alibi project",
         "method": "Original native SVG geometry; no raster embedding or tracing",
@@ -3582,6 +3584,11 @@
           "path": "assets-source/library/vector-pilot/lantern-counter-vignette.svg",
           "bytes": 14935,
           "sha256": "6dd8c4e370b3563c9effc0e0bfa36514f0c4aaa4ac3cb5661e064d9c56f6ebdc"
+        },
+        {
+          "path": "assets-source/library/vector-pilot/lantern-counter-vignette-preview.png",
+          "bytes": 170412,
+          "sha256": "2b570591d8714e5da54bed0e9ca9e2cf76baf168d56351e60819a3d486a2db01"
         }
       ]
     },
