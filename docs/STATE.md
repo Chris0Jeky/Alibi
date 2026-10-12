@@ -1,5 +1,14 @@
 # Live development state
 
+## 12 October 2026: isolated pictogram alias-safety repair (draft)
+
+A child of draft #521 rejects pre-existing symlinks, Windows junctions and hard
+links in generator inputs/outputs and --check. All six causal regressions fail
+before and pass after repair; five original icon contracts and byte-exact normal
+write/check runs pass. See PICTOGRAM-ALIAS-SAFETY.md. The source draft's conflicts
+with main, physical-device acceptance and HUMAN_TODO.md decisions remain open.
+No merge or deployment; repository gate results are in the child draft PR.
+
 ## Club pictogram draft (unreleased): 1 October 2026
 
 Branch `art/club-pictograms-20261001` integrates original club stationery pictograms into the
