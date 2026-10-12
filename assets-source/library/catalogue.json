@@ -4,8 +4,8 @@
   "counts": {
     "original": 121,
     "reused": 80,
-    "derivatives": 363,
-    "uniqueFiles": 506
+    "derivatives": 366,
+    "uniqueFiles": 509
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -3004,7 +3004,8 @@
       "source": "assets-source/library/painted-club/club-welcome.webp",
       "derivatives": [
         "assets-source/library/painted-club/club-welcome-320.webp",
-        "assets-source/library/painted-club/club-welcome-640.webp"
+        "assets-source/library/painted-club/club-welcome-640.webp",
+        "assets-source/library/painted-club/fallbacks/club-welcome.svg"
       ],
       "provenance": {
         "author": "Alibi project",
@@ -3031,6 +3032,11 @@
           "path": "assets-source/library/painted-club/club-welcome-640.webp",
           "bytes": 65352,
           "sha256": "25bfd311ff3d782dcb0ed859052cea092a30d14cfb3c3eedb6fff874fc0f57e3"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/club-welcome.svg",
+          "bytes": 333,
+          "sha256": "d6f7b3c8b598e5676d0443b3c697b9e1b0964aee564f01380980f602690f08a5"
         }
       ]
     },
@@ -3043,7 +3049,8 @@
       "source": "assets-source/library/painted-club/lantern-duel.webp",
       "derivatives": [
         "assets-source/library/painted-club/lantern-duel-320.webp",
-        "assets-source/library/painted-club/lantern-duel-640.webp"
+        "assets-source/library/painted-club/lantern-duel-640.webp",
+        "assets-source/library/painted-club/fallbacks/lantern-duel.svg"
       ],
       "provenance": {
         "author": "Alibi project",
@@ -3070,6 +3077,11 @@
           "path": "assets-source/library/painted-club/lantern-duel-640.webp",
           "bytes": 92410,
           "sha256": "78355ad5d3f2257532d865f022050f54c7d8bdf24c20a5e918ad9a60e3dc8944"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/lantern-duel.svg",
+          "bytes": 474,
+          "sha256": "bcd1908b9bf822d37419a751758afb0f22d37ad7042c726b0d782f2f84e99166"
         }
       ]
     },
@@ -3160,7 +3172,8 @@
       "source": "assets-source/library/painted-club/pocket-borough.webp",
       "derivatives": [
         "assets-source/library/painted-club/pocket-borough-320.webp",
-        "assets-source/library/painted-club/pocket-borough-640.webp"
+        "assets-source/library/painted-club/pocket-borough-640.webp",
+        "assets-source/library/painted-club/fallbacks/pocket-borough.svg"
       ],
       "provenance": {
         "author": "Alibi project",
@@ -3187,6 +3200,11 @@
           "path": "assets-source/library/painted-club/pocket-borough-640.webp",
           "bytes": 109052,
           "sha256": "98904ff4c32f6b0ac72624a6b070b61ff4cb51cfcaacc471454652e92a11fe79"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/pocket-borough.svg",
+          "bytes": 362,
+          "sha256": "9e0a7f56271d09070c60d57bd0200ddd34bf0299afd3e5b04a270b8c336a246d"
         }
       ]
     },
@@ -3562,8 +3580,8 @@
       "files": [
         {
           "path": "assets-source/library/vector-pilot/lantern-counter-vignette.svg",
-          "bytes": 14937,
-          "sha256": "bb42309ee947558e5682b94bf53d9588a82585bcee9e4845ccf1b84e697f07c1"
+          "bytes": 14935,
+          "sha256": "6dd8c4e370b3563c9effc0e0bfa36514f0c4aaa4ac3cb5661e064d9c56f6ebdc"
         }
       ]
     },

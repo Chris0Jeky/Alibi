@@ -63,7 +63,8 @@ function main() {
         source: painted + master.file,
         derivatives: shelf
           .filter((a) => a.file.startsWith(id + '-') && a.kind === 'runtime')
-          .map((a) => painted + a.file),
+          .map((a) => painted + a.file)
+          .concat(integrated ? [painted + 'fallbacks/' + id + '.svg'] : []),
         provenance: {
           author: 'Alibi project',
           method: 'Existing generated painted source, draft #525; original wave prompts retained',
