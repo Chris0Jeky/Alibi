@@ -75,7 +75,11 @@ test('mismatched origin never flushes nor loads the chunk', async () => {
   h.context.AlibiVoicesSheet = { flush: () => flushes++ };
   await triggers(h);
   assert.equal(flushes, 0, 'kick/decorate must not flush on a mismatched origin');
-  assert.equal(h.appended.length, 0, 'kick/decorate must not load the chunk on a mismatched origin');
+  assert.equal(
+    h.appended.length,
+    0,
+    'kick/decorate must not load the chunk on a mismatched origin',
+  );
 });
 
 test('mismatched origin with no sheet loaded attempts no send', async () => {
