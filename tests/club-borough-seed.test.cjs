@@ -46,3 +46,20 @@ test('borough run with a valid seed and empty history validates', () => {
     validateSave(validSave({ borough: { seed: 'BOROUGH-1', log: [], redo: [] } })),
   );
 });
+
+test('borough numeric seeds remain valid without changing the saved seed', () => {
+  for (const seed of [123, 0, -123]) {
+    const save = validSave({ borough: { seed, log: [], redo: [] } });
+    assert.deepEqual(validateSave(save), save);
+    assert.equal(save.runs.borough.seed, seed);
+  }
+});
+
+test('borough rejects non-finite numbers and non-seed values', () => {
+  for (const seed of [NaN, Infinity, -Infinity, true, {}, [], 1.5, ' ', 'A'.repeat(33)]) {
+    assert.throws(
+      () => validateSave(validSave({ borough: { seed, log: [], redo: [] } })),
+      /Invalid Borough seed|Use 1/,
+    );
+  }
+});

@@ -1,5 +1,21 @@
 # Live development state
 
+## 2026-10-12: PR #639 Borough seed repair
+
+The landing repair preserves finite numeric Borough seeds without rewriting saved
+values, and refuses missing, null, empty and non-seed values. Replay retains the
+engine's existing character and length validation. All 21 focused backup/seed
+tests pass; the existing numeric-history test failed before the repair.
+
+All four failing hosted workflows at the original head report the numeric-seed
+regression and the release-shell budget assertion. The exact main base
+`1ee2de7c` measures 1,412,593 shell bytes and 132,870 JavaScript gzip bytes.
+The compact repair measures 1,412,793 shell bytes (+200) and 132,891 JavaScript
+gzip bytes (+21), exceeding the strict 1,412,792.32-byte shell limit by less than
+one byte. Three trim attempts exhausted this turn's budget; the ceiling is
+unchanged and the PR is not ready to land. Full verification and hosted checks
+remain required. Physical acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush

@@ -160,7 +160,7 @@
           E().tictactoe.replay(history);
         }
         if (key === 'borough') {
-          if (typeof r.seed !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(r.seed))
+          if (typeof r.seed === 'string' ? !r.seed : !Number.isFinite(r.seed))
             throw Error('Invalid Borough seed.');
           E().borough.replay(r.seed, history);
         }
