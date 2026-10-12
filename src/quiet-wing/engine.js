@@ -654,10 +654,11 @@
   }
   function validateState(o) {
     if (!o || o.schema !== 1) throw Error('Unknown save version. Kept unchanged.');
-    let n = newState(Date.now());
-    if (Number.isInteger(o.revision)) {
-      if (!Number.isSafeInteger(o.revision)) throw Error('Unsafe save revision.');
-      n.revision = Math.max(0, o.revision);
+    let n = newState(Date.now()),
+      revision = o.revision;
+    if (Number.isInteger(revision)) {
+      if (!Number.isSafeInteger(revision)) throw Error('Unsafe revision.');
+      n.revision = Math.max(0, revision);
     }
     n.scene = validateScene(o.scene);
     if (!o.pets || !['cat', 'fox', 'owl', 'dragon'].includes(o.pets.selected))

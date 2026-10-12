@@ -87,7 +87,7 @@ def revision_boundaries(browser, base):
             unsafe = {**seed, 'revision': maximum+1}
             with page.expect_file_chooser() as chooser: page.locator('#backup-import').click()
             chooser.value.set_files({'name':'unsafe-revision.json','mimeType':'application/json','buffer':json.dumps({'kind':'alibi-quiet-wing-backup','schema':1,'state':unsafe}).encode()})
-            page.get_by_text(re.compile('Unsafe save revision')).last.wait_for()
+            page.get_by_text(re.compile('Unsafe revision')).last.wait_for()
             check(stored(page)==seed, f'{width}: actual import worker refuses unsafe revision without mutation')
             close_dialogs(page)
             check(boundary_edit(page,'Normal saved edit'), f'{width}: ordinary edit still saves')
