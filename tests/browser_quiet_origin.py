@@ -33,8 +33,13 @@ def stored(page, key='state'):
     })''', key)
 
 def boundary_edit(page, name):
-    page.locator('#realmname').fill(name)
-    page.locator('#realmname').press('Tab')
+    control = page.locator('#realmname')
+    if not control.is_visible():
+        page.locator('[data-ract="palette"]').click()
+        control = page.locator('#mobile-name')
+    control.fill(name)
+    control.press('Tab')
+    close_dialogs(page)
     return page.evaluate('()=>QWApp.flush().then(()=>true,()=>false)')
 
 def close_dialogs(page):

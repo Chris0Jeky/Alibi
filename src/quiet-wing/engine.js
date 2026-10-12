@@ -654,9 +654,11 @@
   }
   function validateState(o) {
     if (!o || o.schema !== 1) throw Error('Unknown save version. Kept unchanged.');
-    if (Number.isInteger(o.revision) && !Number.isSafeInteger(o.revision))
-      throw Error('Unsafe save revision. Kept unchanged.');
     let n = newState(Date.now());
+    if (Number.isInteger(o.revision)) {
+      if (!Number.isSafeInteger(o.revision)) throw Error('Unsafe save revision.');
+      n.revision = Math.max(0, o.revision);
+    }
     n.scene = validateScene(o.scene);
     if (!o.pets || !['cat', 'fox', 'owl', 'dragon'].includes(o.pets.selected))
       throw Error('Invalid companion.');
@@ -740,7 +742,6 @@
       } catch {}
     }
     n.savedAt = Number.isFinite(o.savedAt) ? o.savedAt : Date.now();
-    n.revision = Number.isInteger(o.revision) && o.revision >= 0 ? o.revision : 0;
     return n;
   }
   G.QWEngine = {
