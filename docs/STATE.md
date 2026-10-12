@@ -1,9 +1,23 @@
 # Live development state
 
-## 2026-10-12: bounded Challenge recovery export candidate
+## 2026-10-12: automatic Voices flush test qualification
+
+PR #638 adds four source-harness cases for automatic eligibility-gated flush
+triggers, including standalone and mismatched origins and an eligible control.
+Its four initial hosted jobs fail on the new test's Prettier formatting;
+qualification is correcting that cause without changing runtime or test logic.
+One independent read-only review found no HIGH/CRITICAL defect. The null-selector
+harness covers slotless renders; it does not certify fallback Settings/Privacy
+chunk loading or actual delivery. The corresponding P2 review concern was
+classified once and declined for this formatting repair. All four gate cases and the existing queue suite pass. Removing only kick's
+eligibility guard in a copied-source fixture fails all three negative cases
+while the eligible control passes. Final hosted checks remain required. Physical acceptance
+remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: bounded Challenge recovery export
 
 PR #635 merged as eadee7a6 after all nine hosted checks passed, preserving the
-committed-restore protection repair. The next candidate keeps ordinary
+committed-restore protection repair. The recovery export repair keeps ordinary
 playable pre-restore exports and offers a distinctly labeled raw recovery
 archive for corrupt, future-version or mismatched originals. Original record
 and recovery metadata remain intact; raw archives are not playable imports.
@@ -20,8 +34,9 @@ Challenge controls fixture and all 375 full real-origin checks with no page
 errors. Phone success and desktop refusal screenshots were inspected. The two
 Quiet Wing bare-assert suites pass separately. The full Node run has 1,481
 passes, three skips and one unchanged Windows file-symlink EPERM, so it is not
-full local green. One independent read-only review found no blocking defects;
-hosted qualification remains required. No deployment or physical Android/provider
+full local green. One independent read-only review found no blocking defects.
+PR #637 merged as d9eb071e after all nine hosted checks passed at 4b4f6e43;
+automatic Codex review completed without findings. No deployment or physical Android/provider
 acceptance is claimed; see [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: Challenge restore protection repair
