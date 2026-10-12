@@ -1,5 +1,29 @@
 # Live development state
 
+## 2026-10-12: bounded Challenge recovery export candidate
+
+PR #635 merged as eadee7a6 after all nine hosted checks passed, preserving the
+committed-restore protection repair. The next candidate keeps ordinary
+playable pre-restore exports and offers a distinctly labeled raw recovery
+archive for corrupt, future-version or mismatched originals. Original record
+and recovery metadata remain intact; raw archives are not playable imports.
+Explicit restore also retains falsy JSON originals instead of losing them
+through a truthiness check.
+
+Raw serialization refuses non-JSON values and uses a conservative escaping
+and traversal budget with a 3 MiB file ceiling. It can refuse smaller archives;
+refused records remain stored. The baseline has eight passing and six failing
+source cases; the formatted repair passes all 42 focused ownership/storage/export
+cases. Clean source d2d59bb8 builds web 050812f7ebec and passes 14 actual
+recovery/restore/reload scenarios at 390/1280, 184 UI checks, the existing
+Challenge controls fixture and all 375 full real-origin checks with no page
+errors. Phone success and desktop refusal screenshots were inspected. The two
+Quiet Wing bare-assert suites pass separately. The full Node run has 1,481
+passes, three skips and one unchanged Windows file-symlink EPERM, so it is not
+full local green. One independent read-only review found no blocking defects;
+hosted qualification remains required. No deployment or physical Android/provider
+acceptance is claimed; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: Challenge restore protection repair
 
 An explicit Challenge restore now clears only the restored challenge's old
@@ -16,7 +40,8 @@ without page errors. Formatting and both-target build pass. The full Node
 run has 1,474 passes, three skips and one unchanged Windows file-symlink
 EPERM; it does not reach the subsequent bare-assert Quiet Wing suites and
 is not full local green. One independent read-only review found no defects.
-Hosted qualification remains required for [PR #635](https://github.com/Chris0Jeky/Alibi/pull/635).
+All nine hosted checks passed for [PR #635](https://github.com/Chris0Jeky/Alibi/pull/635),
+which merged as eadee7a6.
 No deployment or physical Android/TalkBack acceptance is claimed; remaining
 owner actions are in [HUMAN_TODO.md](../HUMAN_TODO.md).
 

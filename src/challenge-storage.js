@@ -227,7 +227,7 @@
               return;
             }
             const store = tx.objectStore(STORE);
-            if (restoring && read.result)
+            if (restoring && read.result !== undefined)
               store.put({ at: Date.now(), record: read.result }, 'recovery:' + id);
             store.put(record, id);
           };
@@ -237,14 +237,19 @@
       });
     }
     async function recovery(id) {
-      const value =
-        mode === 'indexeddb'
-          ? await request('readonly', (s, done) => {
-              s.get('recovery:' + id).onsuccess = (e) => done(e.target.result);
-            })
-          : null;
-      if (!value?.record) return null;
-      return registry.validateRun(value.record.run);
+      if (mode !== 'indexeddb') return null;
+      const value = await request('readonly', (s, done) => {
+        s.get('recovery:' + id).onsuccess = (e) => done(e.target.result);
+      });
+      if (value === undefined) return null;
+      const record = value?.record;
+      if (record?.schema === 1 && Number.isSafeInteger(record.revision) && record.revision > 0) {
+        try {
+          const run = registry.validateRun(record.run);
+          if (run.challengeId === id) return run;
+        } catch {}
+      }
+      return { format: 'alibi-challenge-recovery', schema: 1, challengeId: id, recovery: value };
     }
     function info() {
       return { mode, protected: protectedMode, revision };
