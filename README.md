@@ -1,72 +1,135 @@
 # Alibi
 
-**A little room to think.**
+Alibi is a static, device-local puzzle cabinet: thirteen logic families, illustrated casebooks, and a workshop that does not need an account.
 
-Alibi is an offline-first illustrated puzzle cabinet, mystery collection, and local authoring workshop. It combines carefully versioned logic puzzles with explainable deductions, durable device-local saves, atmospheric rooms, and a mobile-first path that does not require an account, a subscription, lives, or an always-on connection.
+[![Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/workflows/check.yml/badge.svg)](https://github.com/Chris0Jeky/Alibi/actions/workflows/check.yml)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22-339933)](package.json)
+[![License: PolyForm Strict 1.0.0](https://img.shields.io/badge/license-PolyForm%20Strict%201.0.0-blue)](LICENSE.md)
 
-[Play Alibi — primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
-[Sites fallback (retiring)](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) ·
+[Play the primary site](https://alibi-after-hours-preview.commit-atlas.workers.dev/) ·
+[Sites fallback](https://alibi-puzzle-club.jeky-tck.chatgpt.site/) ·
 [Latest release](https://github.com/Chris0Jeky/Alibi/releases/latest) ·
-[Project map](docs/PROJECT-MAP.md) · [Roadmap](ROADMAP.md) · [Make a puzzle](docs/AUTHORING.md)
+[Project map](docs/PROJECT-MAP.md) ·
+[Roadmap](ROADMAP.md) ·
+[Author a puzzle](docs/AUTHORING.md)
 
-> **Current release: 0.15.0.** The Cloudflare site and the downloadable release are working browser/PWA editions; the Sites fallback still serves 0.12.0 until its single retirement deployment (`HUMAN_TODO.md` q-9), which shows a moved notice. A non-publishable Capacitor preview APK exists, but no Play Store release or completed physical-device acceptance is claimed.
+Source package **0.15.1**. The recorded Cloudflare publication is the same version ([receipt](docs/RELEASE-0.15.1.md), 3 October 2026). Commits after that receipt are not automatically deployed. The Sites address is the retiring fallback; see [Status](#status-and-roadmap). A Capacitor Android preview exists in the tree. There is no Play Store release and no completed physical-device acceptance.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 
-## What Alibi has become
+## What it is
 
- Alibi started as a compact puzzle club. It is now developing along three connected product lines:
+Alibi started as a compact puzzle club and grew into one static site you can install. The solvers, the catalogue, and the saves stay in the browser. Progress is an IndexedDB record on that origin, pinned to the puzzle revision you actually opened, so a later content edit does not silently rewrite a game in progress.
 
-1. **The Cabinet** — a large, versioned catalogue of logic puzzles and illustrated casebooks with lessons, notes, undo/redo, reasoning hints, completion explanations, favorites, and local backups.
-2. **The House** — Wrenmere, the Games Room, Quiet Wing, gardens, companions, small creative systems, and optional atmospheric experiences that make the project somewhere to revisit rather than a menu of disposable levels.
-3. **The Workshop** — local puzzle authoring, validation, revision-aware content, asset provenance, and increasingly explicit solver contracts for checking definitions without pretending every family supports every kind of partial-state reasoning.
+It is built as three layers that share that contract:
 
-The product direction is not “add every possible minigame.” It is to build a calm, coherent place for deduction, curiosity, and thoughtful play, with strong offline behavior and honest evidence about what has actually been tested.
+1. **The cabinet.** Versioned logic puzzles and five illustrated casebooks, with lessons, notes, undo and redo, reasoning hints, a reopenable conclusion, favorites, and a JSON backup you control.
+2. **The house.** The Games Room, Quiet Wing, Wrenmere, eight atmospheric rooms, companions, and optional media that load beside the core instead of inflating it.
+3. **The workshop.** Local authoring and validation. A pack you install on your own device is not a public publication.
 
-## What ships today
+The point is a calm place to deduce something, leave, and come back to the same board. Offline. Without an account.
 
-- **510 puzzles across thirteen families:** crime scenes, logic grids, witness deductions, nonograms, tidal bridges, lanterns, tents, aquariums, networks, number trails, Sudoku, binary puzzles, and Futoshiki.
-- **Five illustrated mystery casebooks:** including the six-record *Last Light at Bellweather* sequence and the longer unfinished invitation.
-- **Six Games Room games:** Lantern Duel, Pocket Borough, Archive Heist, Tic-Tac-Toe, Block Cabinet, and Lantern Gardens. Legacy Dominoes and Mahjong saves remain readable/exportable for compatibility.
-- **A tactile Block Cabinet and experimental Cascade surface:** built on explicit, separate save contracts rather than silently replacing the original game.
-- **Learn-by-doing lessons:** every puzzle family has an interactive introduction; selected families can explain a deduction from the current board without reading the stored solution.
-- **Reviewable conclusions:** solved mysteries can reopen their final placements, pairings, or truth assignments.
-- **Durable local play:** automatic device-local saves, revision-pinned continuations, undo/redo, notes, favorites, recovery checks, and JSON backups.
-- **Offline installation:** the complete core remains usable after installation. Optional room and media packs are delivered separately so they do not inflate the critical path.
-- **Local authoring:** create and validate a mystery, verify uniqueness where the family contract supports it, and export or install a local pack.
-- **Quiet Wing and Curation Cabinet:** relaxing activities, a realm builder, companions, credited museum art, and separately versioned challenge collections. The published catalogue holds 510 puzzles, including the 80 Vault studies and six 15×15 Picture Logic studies alongside the earlier Expert, crime-scene and advanced variations; difficulty and human-calibration gates remain open pending player feedback.
+## Features
 
-## Direction
+Counts below are the trusted registry in `content/official-packs.json`: 30 packs, 510 puzzles. Four Vault packs (80 puzzles) are deferred and loaded after startup. The other 430 are in the initial bundle. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
 
-The next work is less about raw catalogue size and more about making the existing world trustworthy, legible, and pleasant to keep using.
+### Thirteen families
 
-### Now: player evidence and content quality
+Player names come from `src/presentation.js`. Engines live in `src/core.js` (crime scenes, Sudoku, picture logic, Sun & moon, Futoshiki), `src/engines.js` (alibi files, witness statements, lanterns, tents, aquariums, signal paths, number trails), and `src/bridges.js` (tidal bridges).
 
-- Human-playtest representative puzzles in every family and record real instruction ambiguity, solve time, difficulty, comfort, and story response.
-- Evaluate the opt-in Wrenmere Desk candidate against hosted behavior and physical-device gates before claiming acceptance.
-- Curate definitions deliberately while preserving old revisions for existing saves.
-- Improve deterministic browser acceptance, publication receipts, update recovery, keyboard behavior, and narrow-screen interaction.
-- Keep beta usage data disclosed, answer-free, reversible, and visibly separate from puzzle progress.
+| Family | Id | Puzzles |
+| --- | --- | ---: |
+| Tidal bridges | `bridges` | 32 |
+| Crime scenes | `scene` | 43 |
+| Alibi files | `dossier` | 29 |
+| Witness statements | `witness` | 31 |
+| Picture logic | `nonogram` | 40 |
+| Lanterns | `lightup` | 52 |
+| Tents & trees | `tents` | 32 |
+| Aquariums | `aquarium` | 32 |
+| Signal paths | `network` | 32 |
+| Number trails | `trail` | 32 |
+| Sudoku | `sudoku` | 49 |
+| Sun & moon | `binary` | 55 |
+| Futoshiki | `futoshiki` | 51 |
+| **Total** | | **510** |
 
-### Next: stronger reasoning and authoring contracts
+Inside that 510: thirteen 16-puzzle curation packs (208), the night studies, six 15×15 picture-logic studies, and the 80 Vault studies. Difficulty labels are provisional until player ratings and solve data say otherwise ([calibration](docs/CALIBRATION.md)). Hints in `src/insights.js` reason from the clues and the current board. They do not read `solution`. An explicit reveal is a separate, labeled action.
 
-- Separate “solve a definition” from “solve from this partial player state” and fail closed where a family cannot yet support the latter honestly.
-- Expand explainable deductions only when they can be tested without consulting a shipped answer.
-- Add revision-aware draft history, ambiguity checks, clue consistency checks, and portable unfinished work without conflating local authoring with public publishing.
+### Casebooks
 
-### Then: deliberate Android delivery
+`content/casebooks.json` has five books:
 
-- Implement the reviewed Capacitor packages in dependency order.
-- Preserve the PWA, local IndexedDB authority, revision-pinned saves, explicit transfer, and recovery boundaries.
-- Complete real Android, TalkBack, keyboard, safe-area, haptic, offline-update, signing, and store-account gates before claiming a native release.
+- *The Last Light at Bellweather* — six continuous records.
+- *The unfinished invitation* — eight continuous records.
+- *The Briar House papers*, *The midnight departure*, and *Secrets under glass* — anthologies of existing puzzles, four chapters each.
 
-Accounts, sync, payments, remote player data, competitive scoring, and public multiplayer remain optional future services. They should be introduced only when a demonstrated player need justifies the privacy, conflict-resolution, retention, moderation, and operating cost they add.
+### Games Room
 
-See the [roadmap](ROADMAP.md) for the evidence gates behind those horizons.
+`src/club.js` offers six tables plus the living atlas: Lantern Duel, Tic-Tac-Toe, Lantern Gardens, Block Cabinet, Pocket Borough, and Archive Heist (nine rooms, then 24 Expert and Master vaults). Pocket Borough can open today’s town from the device date (`DAY-` plus the UTC date). Draw Dominoes and Mahjong Solitaire stay in `src/club-engines.js` for saved games; they are not on the offered-game list. Cascade Cabinet (`src/block-cabinet/cascade.mjs`) is a separate lab mode with its own replay rules, not a replacement for Block Cabinet saves. Club progress uses IndexedDB database `alibi-afterhours-v1`.
 
-## Run locally
+### Quiet Wing, rooms, and workshop
 
-Requirements: Node.js 22 or newer. The game and static build have **zero runtime dependencies**; development tooling is pinned separately.
+Quiet Wing (`src/activities.js`, `src/quiet-wing/`) is optional and loaded when you enter it: a realm builder, four companions (cat, fox, owl, dragon), gardens, and 95 release-owned challenges in `content/challenges/`. Those challenges are not part of the 510. The Curation Cabinet’s editorial layer is the 208-puzzle subset above, not a second app.
+
+`content/theatre.json` defines eight atmospheric rooms and four short films. Room sound and films are extras; the puzzles still run without them. See [theatrical edition](docs/THEATRICAL-EDITION.md) and [asset delivery](docs/ASSET-DELIVERY.md).
+
+The workshop validates a definition, checks uniqueness where that family’s contract allows it, and can export or install a local pack. Imports are JSON, checked in a bounded worker (3 MB and 150 puzzles per pack). Local install is not publication.
+
+### Saves and offline
+
+Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, and the separate challenge export, before you change site, browser, or device.
+
+## Architecture
+
+```mermaid
+flowchart TD
+  subgraph engines [Pure rules]
+    Core["src/core.js"]
+    Extra["src/engines.js"]
+    Bridges["src/bridges.js"]
+    ClubEngines["src/club-engines.js"]
+    Insights["src/insights.js"]
+  end
+  Registry["content/official-packs.json"] --> Build["tools/build.cjs"]
+  engines --> Build
+  App["src/app.js player, lessons, workshop"] --> Build
+  Club["src/club.js Games Room"] --> Build
+  Quiet["src/quiet-wing via src/activities.js"] --> Build
+  Theatre["src/theatre.js and content/theatre.json"] --> Build
+  Build --> Dist["dist static files and sw.js"]
+  Dist --> Primary["Cloudflare Worker alibi-after-hours-preview"]
+  Dist --> Sites["Sites fallback, retirement still open"]
+  Primary --> Browser["Browser or installed PWA"]
+  Sites --> Browser
+  Browser --> Device[("IndexedDB alibi-device v1")]
+  Browser --> ClubDb[("IndexedDB alibi-afterhours-v1")]
+  Browser --> Backup["Player JSON backup"]
+  Browser -.->|"explicit Send, survey, or rating"| Pulse["Pulseboard on the primary origin only"]
+  Rooms["optional-online private rooms"] -.->|"not enabled by the static deploy"| Browser
+```
+
+| Region | What it owns |
+| --- | --- |
+| `src/core.js`, `src/engines.js`, `src/bridges.js` | Puzzle rules, validation, bounded solvers |
+| `src/insights.js` | Clue-based hints and completed-record explanations |
+| `src/storage.js` | Cabinet saves, revisions, conflict detection, restore |
+| `src/app.js`, `src/presentation.js` | Routes, player, lessons, workshop, family copy |
+| `src/club.js`, `src/club-engines.js`, `src/atlas.js` | Games Room, legacy tables, harbour atlas |
+| `src/block-cabinet/` | Block Cabinet surface and the Cascade lab |
+| `src/activities.js`, `src/quiet-wing/`, `src/challenges.js` | Optional wing and the 95 challenges |
+| `src/theatre.js`, `src/asset-delivery.js` | Rooms, sound/film presentation, optional images |
+| `src/voices.js`, `src/voices-queue.js` | Feedback, survey, and ratings queue |
+| `tools/` | Build, localhost server, pack validation, release prep |
+| `tests/`, `.github/workflows/` | Node contracts and browser acceptance |
+| `wrangler.jsonc`, `.openai/hosting.json` | Primary Worker and the Sites project |
+| `optional-online/` | Separate private-room Worker; off unless you run it |
+
+[AGENTS.md](AGENTS.md) is the agent entry. [STATE.md](docs/STATE.md) is the live handoff. [CONTRIBUTING.md](CONTRIBUTING.md) is the human one.
+
+## Quickstart
+
+Node.js 22 or newer (`package.json` `engines`). The shipped game has no runtime dependencies. esbuild, Wrangler, Prettier, Sharp, and Capacitor are devDependencies.
 
 ```sh
 npm ci
@@ -74,9 +137,17 @@ npm run verify
 npm start
 ```
 
-Open `http://127.0.0.1:8787`. The server serves the last production build, so run `npm run build` after editing. It binds to the local machine only.
+Open `http://127.0.0.1:8787`. `npm start` is `node tools/serve.cjs`. It binds to `127.0.0.1` and serves `dist/`, the last production build. `npm run verify` formats, runs `tools/build.cjs` via the Android payload step, then the Node suites. After you edit source, run `npm run build` before `npm start`. `npm test` checks a clean source commit and the build receipts first; a dirty tree stops with a rebuild instruction.
 
-Optional real-browser acceptance tooling:
+Check one authoring example without the full suite:
+
+```sh
+node tools/validate-pack.cjs examples/twelve-families.json
+```
+
+That file is a teaching pack for the original families, not extra catalogue.
+
+Optional browser acceptance uses Python and Playwright:
 
 ```sh
 python -m venv .venv
@@ -89,79 +160,73 @@ python tests/browser_update.py
 python tests/browser_expedition.py
 ```
 
-Windows users can use `.venv\Scripts\python.exe` and set `PYTHONUTF8=1`.
+On Windows, use `.venv\Scripts\python.exe` and set `PYTHONUTF8=1`. `tests/browser_ui.py` drives the thirteen families in an isolated document. `tests/browser_origin.py` uses real IndexedDB and service workers in a disposable profile. Neither is a physical phone.
 
-## Architecture at a glance
+Developer asset gallery, not a public route:
 
-| Layer | Main ownership |
+```sh
+npm run assets:gallery
+```
+
+That serves the source-backed library at `http://127.0.0.1:8790/`.
+
+The main CI workflow is [Verify puzzle cabinet](.github/workflows/check.yml) (Node 22, `npm run verify`, then the browser suites). Other workflows under `.github/workflows/` cover narrower controls. A green run is not physical-device acceptance.
+
+## Tech stack
+
+| Piece | Choice |
 | --- | --- |
-| Pure engines and content contracts | `src/core.js`, `src/engines.js`, `src/bridges.js`, `content/`, `schemas/` |
-| Reasoning hints and evidence recaps | `src/insights.js` |
-| Saves, revisions, transactions, and recovery | `src/storage.js` |
-| Player, lessons, workshop, and PWA | `src/app.js`, `src/presentation.js` |
-| House, cabinet, and responsive design | `src/app.css`, `src/cabinet.css`, `src/expedition.css`, `src/artwork/` |
-| Build, provenance, and acceptance | `tools/`, `tests/`, `.github/workflows/` |
+| Language | JavaScript. Engines are plain functions, no DOM and no network |
+| App runtime dependencies | None |
+| Build | `tools/build.cjs` emits hashed static files, a service worker, and `build-info.json` |
+| Tooling | Node `>=22`, esbuild 0.28.2, Prettier 3.9.6, Sharp 0.35.5, Wrangler 4.146.0 |
+| Player storage | IndexedDB `alibi-device` version 1, plus `alibi-afterhours-v1` for the club |
+| Hosting | Cloudflare Workers static assets (`wrangler.jsonc`). Sites config remains in `.openai/hosting.json` |
+| Android | Capacitor 8.5.2 preview flavors via `npm run build:android`. Not a store artifact |
+| Tests | `node --test` and Playwright (`requirements-dev.txt`) |
+| Feedback collector | Pinned Pulseboard SDK on the primary origin only (`observatory/`) |
 
-[AGENTS.md](AGENTS.md) is the agent entry point. [STATE.md](docs/STATE.md) is the live handoff. [CONTRIBUTING.md](CONTRIBUTING.md) explains scoped changes and verification.
+## Status and roadmap
 
-## Editions, assets, and deployment
+**Shipped in source, and published on Cloudflare at 0.15.1.** Thirteen families, 510 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, and the beta/feedback client. The receipt is [docs/RELEASE-0.15.1.md](docs/RELEASE-0.15.1.md). On 12 October 2026 the primary origin returned HTTP 200, and `assets/alibi-platform-identity.14eff263d1b0.js` reported `appVersion` 0.15.1 with source `98be800d0715a25695fe99480bb801fd30397220`, the same commit the receipt names. Games Room work that landed after that tag is outside that published build. Treat [docs/STATE.md](docs/STATE.md) as the handoff for everything newer.
 
-Cloudflare is the primary public site; the earlier ChatGPT Sites address remains a fallback for existing installations. Browser storage does not move automatically between origins. Export the Cabinet, Club, Quiet Wing, and any separate challenge backups before changing site address, browser, or device.
+**Sites.** Owner decision 2026-09-27: retire `https://alibi-puzzle-club.jeky-tck.chatgpt.site/` with one deployment that shows a moved notice and an export path. That deployment is still open ([HUMAN_TODO.md](HUMAN_TODO.md) q-9). On 12 October 2026 that origin returned HTTP 200 and its platform identity reported `appVersion` 0.12.0. Current `src/boot.js` shows “Alibi has moved” only when the page is opened on that Sites host, so the notice is not in the 0.12.0 shell. Nothing redirects, and nothing deletes the saves that live there.
 
-Useful references:
+**Not claimed.** Production Android, a Play Store listing, cloud sync, accounts, public multiplayer, tamper-resistant scores, a content marketplace, calibrated difficulty across the catalogue, or a licence to reuse the source. The written list is in [ROADMAP.md](ROADMAP.md) under “Not currently claimed”. Physical Android, TalkBack, and the affected-device freeze retest stay in [HUMAN_TODO.md](HUMAN_TODO.md). Two people have played and enjoyed it (owner report, 2026-09-09). That is an early qualitative note, not a device matrix. See [player QA](docs/PLAYER-QA.md).
 
+**Roadmap, last reconciled in that file on 23 September 2026.** It is a plan, not a changelog:
+
+- **A.** Human evidence for pacing, wording, and difficulty, with old revisions kept for existing saves.
+- **B.** Per-family solver contracts. Fail closed when a family cannot honestly solve from a partial board.
+- **C.** Wrenmere as an optional mobile home, with the classic cabinet kept as the recovery path.
+- **D.** Capacitor Android, after signing, transfer, TalkBack, and store gates. Preview APKs are not that release.
+- **E.** Accounts, sync, public scores, and payments only if a real player need shows up and the privacy and conflict costs are accepted.
+
+The working title in the app, database, and URLs is Alibi. On 2026-09-27 the owner recorded **Postern** as the product-name direction. That is not a rename and not a trademark clearance ([NOTICE.md](NOTICE.md), [HUMAN_TODO.md](HUMAN_TODO.md) q-3).
+
+## Privacy, licence, and contributing
+
+Progress stays in this browser on this device. There is no mandatory account, advertising system, or payment service. On the primary Cloudflare site a one-line Beta notice (never an overlay) explains usage data sent to Pulseboard: counts, diagnostics, and journeys with official puzzle ids, family, tier, and numbers only. OK accepts. Choose, or the Beta button in Settings and Privacy, changes it. EEA visitors get counts only until OK. GPC or DNT turns collection off. Separately, a player can send feedback, answer a short survey, and rate an official puzzle ([how it works](docs/FEEDBACK-AND-SURVEYS.md)). Nothing in that channel is sent until they press Send, submit, or tap, whatever their Beta choices. Messages carry no identifier. Surveys and ratings carry a random survey key created on the device, resettable in Privacy. Unsent items wait on the device (at most 20, for 30 days). The Sites fallback, the standalone file, and the Android preview send nothing. Hosting and the collector can still see ordinary request data, including IP addresses. Read [security and privacy](docs/SECURITY-AND-PRIVACY.md) before making a stronger claim.
+
+Solutions ship with the app so checking and explicit reveals work offline. Scores are not competitive and not tamper-resistant. Backups are unencrypted. Notes can contain personal information.
+
+Report a suspected secret exposure, unsafe import, or save-loss bug through [SECURITY.md](SECURITY.md). Do not attach a real player database to a public issue.
+
+The source is [PolyForm Strict License 1.0.0](LICENSE.md). You may read it and use the software for noncommercial purposes. You may not distribute it, change it, or make new works based on it. This is source-available, not open source. See [NOTICE.md](NOTICE.md). Bug reports and suggestions are welcome as issues. Code or content contributions need a separate written agreement with the maintainer first; open an issue before a pull request. [CONTRIBUTING.md](CONTRIBUTING.md) has the verification loop.
+
+## Links
+
+- [Project map](docs/PROJECT-MAP.md)
+- [Live handoff](docs/STATE.md) and [owner decisions](HUMAN_TODO.md)
+- [Roadmap](ROADMAP.md)
+- [Authoring](docs/AUTHORING.md)
 - [After Hours map](docs/AFTER-HOURS-MAP.md)
-- [Quiet Wing contracts and recovery](docs/QUIET-WING.md)
+- [Quiet Wing](docs/QUIET-WING.md)
 - [Theatrical edition](docs/THEATRICAL-EDITION.md)
-- [Asset library, provenance, and regeneration](docs/ASSET-LIBRARY.md)
-- [Asset delivery strategy](docs/ASSET-DELIVERY.md)
-- [Cloudflare deployment and publication receipts](docs/DEPLOYMENT.md)
-- [Android and Capacitor transition](docs/ANDROID.md)
-- [Player QA and evidence](docs/PLAYER-QA.md)
-
-Run `npm run assets:gallery` to inspect the source-backed production asset library at `http://127.0.0.1:8790/`.
-
-## Privacy, provenance, and limitations
-
-Progress stays in this browser on this device. There is no mandatory account, cloud sync, advertising system, or payment service. On the primary Cloudflare site a one-line Beta notice at the top of the page (never an overlay) explains the beta usage data sent to Pulseboard: usage counts, diagnostics, and journeys with official puzzle ids, their family and tier, and numbers only. OK accepts; Choose or the Beta button in Settings and Privacy changes it. EEA visitors get counts only until OK; GPC/DNT turns everything off. Separately, players can send feedback, answer a short survey and rate official puzzles ([how it works](docs/FEEDBACK-AND-SURVEYS.md)): nothing is sent unless they press Send, submit or tap, whatever their Beta choices. Messages carry no identifier; surveys and ratings carry a random survey key made on the device so a new answer replaces the old one, resettable in Privacy. Unsent items wait on the device (at most 20, for 30 days) and can be deleted in Settings. The Sites fallback, standalone file and Android app send nothing. Hosting and the collector may process ordinary request data, including IP addresses.
-
-Solutions ship with the application for offline checking and explicit reveals. Scores are not competitive or tamper-resistant. Difficulty and time estimates remain provisional until human calibration. Physical-device accessibility and Android acceptance remain open gates. The source is available under the [PolyForm Strict License 1.0.0](LICENSE.md): read it and use it for noncommercial purposes, but do not redistribute it or make changes or new works based on it. See [NOTICE.md](NOTICE.md).
-
-The games room now offers **Lantern Duel**, **Pocket Borough**, **Archive Heist**, **Tic-Tac-Toe**,
-**Block Cabinet** and **Lantern Gardens**. Legacy Draw Dominoes and Mahjong Solitaire engines remain
-available only for existing-save compatibility. Archive Heist has nine rooms plus the 24 curated Expert and Master vaults as rooms 10–33. Choose reversible assistance, rotate or pin the illustrated desk, explore the living
-harbour, or enter Zen. The original 116 puzzles and four original casebooks remain available with
-their saves; the fifth invitation casebook extends the current catalogue.
-
-[Full bundle map](docs/AFTER-HOURS-MAP.md) · [Cloudflare deployment](docs/DEPLOYMENT.md) ·
-[Owner/device follow-up](HUMAN_TODO.md). Settings can export cabinet, Club and Quiet Wing together;
-challenge exports remain separate. Export before moving to another website address. Optional private-room server source is included and tested
-locally, but a static deployment does not enable public online play.
-
-## Quiet Wing and Curation Cabinet
-
-The optional wing includes a realm builder, four companions, a timestamp garden, relaxing games,
-classic boards, credited museum artwork and 95 separately versioned challenges. Enter from the
-home desk, the main navigation or the Wing tab on phones. The Curation Cabinet adds 208 puzzles across four anthologies; later
-trusted packs and the 80 Vault studies bring the catalogue to 510.
-Difficulty remains provisional and missing times are not invented. Settings exports cabinet, Club and Quiet Wing sections together; challenge exports are separate.
-See [integration, evidence and recovery](docs/QUIET-WING.md) and [remaining gates](HUMAN_TODO.md).
-
-## Local asset library
-
-Run `npm run assets:gallery` to inspect the source-backed production library at
-`http://127.0.0.1:8790/`: puzzle highlights, real reward stamps, category/teaching exports,
-realm modules and companion states, sound previews and authored motion. Large production files
-stay outside the offline game build. [Delivery, provenance and regeneration](docs/ASSET-LIBRARY.md).
-
-The [theatrical edition](docs/THEATRICAL-EDITION.md) adds eight atmospheric rooms, locally composed
-sound, credited optional photography and short films. The [delivery strategy](docs/ASSET-DELIVERY.md)
-keeps complete artwork, controls and play available offline after installation.
-
-## Player feedback update
-
-Version 0.8.1 adds family-first browsing, clearer rules and cell notes, scene candidate letters and
-board crosses, dedicated casebook story pages, and four larger 8×8 Sun & Moon boards.
-Two real players enjoyed the game; structured physical-device and difficulty checks remain open.
-See [the QA plan and evidence](docs/PLAYER-QA.md).
-Read [security and privacy](docs/SECURITY-AND-PRIVACY.md), [asset provenance](docs/ASSETS.md), [NOTICE.md](NOTICE.md), and [owner/device follow-up](HUMAN_TODO.md) before making stronger public claims.
+- [Asset library](docs/ASSET-LIBRARY.md) and [asset delivery](docs/ASSET-DELIVERY.md)
+- [Deployment](docs/DEPLOYMENT.md) and [Android / Capacitor](docs/ANDROID.md)
+- [0.15.1 release receipt](docs/RELEASE-0.15.1.md)
+- [Player QA](docs/PLAYER-QA.md)
+- [Security](SECURITY.md) and [privacy notes](docs/SECURITY-AND-PRIVACY.md)
+- [Licence](LICENSE.md) and [notice](NOTICE.md)
+- [Contributing](CONTRIBUTING.md)
