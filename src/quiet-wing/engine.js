@@ -654,6 +654,8 @@
   }
   function validateState(o) {
     if (!o || o.schema !== 1) throw Error('Unknown save version. Kept unchanged.');
+    if (Number.isInteger(o.revision) && !Number.isSafeInteger(o.revision))
+      throw Error('Unsafe save revision. Kept unchanged.');
     let n = newState(Date.now());
     n.scene = validateScene(o.scene);
     if (!o.pets || !['cat', 'fox', 'owl', 'dragon'].includes(o.pets.selected))

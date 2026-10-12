@@ -1,5 +1,19 @@
 # Live development state
 
+## 2026-10-12: Quiet Wing revision precision guard candidate
+
+Quiet Wing rejects unsafe integer revisions on load/import and refuses writes
+or restores once its revision cannot advance safely. The database and save
+schema stay unchanged; original records and previous recovery remain available.
+The baseline reproduced two synthetic atomic-IDB writers succeeding at the same
+unsafe revision, with the stale writer overwriting the first. Both boundary
+regressions failed on unchanged source. The repair passes 43 storage assertions
+and 581,851 pure-engine assertions, including the final safe increment, protected
+overflow originals, fallback byte retention and legacy missing revisions.
+Clean build and actual 390/1280 origin controls, raw export, refused import/restore
+and reload remain required before qualification. No physical or hosted acceptance
+is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
@@ -11,7 +25,9 @@ harness covers slotless renders; it does not certify fallback Settings/Privacy
 chunk loading or actual delivery. The corresponding P2 review concern was
 classified once and declined for this formatting repair. All four gate cases and the existing queue suite pass. Removing only kick's
 eligibility guard in a copied-source fixture fails all three negative cases
-while the eligible control passes. Final hosted checks remain required. Physical acceptance
+while the eligible control passes. PR #638 merged as 1ee2de7c after all four hosted
+checks passed at 461d2860, with the current main/Git merge base confirmed as
+d9eb071e and the non-blocking P2 thread classified and resolved. Physical acceptance
 remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: bounded Challenge recovery export
