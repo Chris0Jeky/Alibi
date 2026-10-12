@@ -1,6 +1,6 @@
 # Alibi
 
-<p align="center"><img src="docs/assets/hero.svg" alt="Alibi" width="100%"></p>
+<p align="center"><img src="docs/assets/alibi-loop.svg" alt="Alibi workflow, animated" width="100%"></p>
 
 Alibi is a static, device-local puzzle cabinet: thirteen logic families, illustrated casebooks, and a workshop that does not need an account.
 
