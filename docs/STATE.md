@@ -1,5 +1,63 @@
 # Live development state
 
+## 14 October 2026: current-main source-only motion qualification
+
+PR #647 source head d5da1b6378355a6adacdd30f22201fb2d1c1a90b is integrated
+with current main 3d041caf61b46b54a1ba046a50132f760192d758, preserving both
+commit histories and every earlier STATE block. Both preview folders are
+byte-identical to that PR source. No runtime, catalogue, precache, dependency,
+save, budget ceiling or deployment changes are introduced.
+
+Fresh local checks: both preview controllers pass `node --check`, and
+`node --test tests/asset-catalogue.test.cjs` passes 2/2 hash/count/spoiler cases.
+Each existing `verify_preview.py` passes all 24 browser checks with zero page
+errors or network requests. Initial pixels match the unchanged static SVG;
+both loops have zero changed seam pixels. R2 phone/desktop images at 390/1440
+were inspected. Reports and screenshots are retained in ignored
+`test-results/motion-r1-current-main/` and `test-results/motion-r2-current-main/`.
+The shared Python environment lacked Pillow, so its dependency was installed
+only in ignored `test-results/motion-python-deps/`, without changing that environment.
+
+Full gameplay/build, fresh encoded-export decoding, hosted qualification at
+the integration head, deployment and physical-device acceptance were not rerun.
+The prior independent source review and dated export/owner acceptance receipts
+remain historical; HUMAN_TODO.md decisions and physical gates remain open.
+
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
+## 13 October 2026: provisional v2 source acceptance and optional motion draft
+
+Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
+lantern renders, plus the responsive LAS card: “Yeah, I guess these are good enough
+for being SVGs.” This does not accept the later failed coarse studies, pixel variant,
+runtime deployment, licensing or merge. The proposed conversion pivot is stopped.
+Earlier sources, painted assets and archives remain unchanged.
+
+`assets-source/library/vector-pilot/motion-v2-20261013/index.html` compares an exact,
+script-free copy of the lantern v2 master with a separate optional flame-light and
+steam preview. Counters and the scene geometry remain stationary. Initial pixels
+match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
+handling is an explicit DOM-contract probe, not physical phone certification.
+This addition changes no runtime/catalogue/precache/budget/dependency file. Build
+emission and exact-head hosted gates are recorded in the draft PR. Existing owner
+choices in HUMAN_TODO.md remain open.
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
