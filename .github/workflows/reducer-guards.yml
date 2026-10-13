@@ -1,0 +1,58 @@
+name: Reducer guard qualification
+on:
+  pull_request:
+    paths:
+      - 'src/core.js'
+      - 'src/engines.js'
+      - 'tests/scene-reducer-guards.test.cjs'
+      - 'tools/build.cjs'
+      - '.github/workflows/reducer-guards.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reducer-guards:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Preserve exact source before qualification
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          mkdir -p test-results/reducer-guards
+          printf '{"sourceSha":"%s","treeSha":"%s"}\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" > test-results/reducer-guards/source-head.json
+          git archive --format=tar --prefix=source/ HEAD | gzip -n > test-results/reducer-guards/source.tar.gz
+          sha256sum src/core.js src/engines.js tests/scene-reducer-guards.test.cjs tools/build.cjs tests/budget.test.cjs > test-results/reducer-guards/inputs.sha256
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Exercise reducer rejection and valid-action controls
+        run: |
+          set -o pipefail
+          node --test tests/scene-reducer-guards.test.cjs 2>&1 | tee test-results/reducer-guards/source-tests.log
+      - run: npm ci
+      - name: Require full formatting, both builds and all original budget gates
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee test-results/reducer-guards/verify.log
+      - name: Check source was not rewritten
+        if: ${{ !cancelled() }}
+        run: |
+          sha256sum --check test-results/reducer-guards/inputs.sha256
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: reducer-guards-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            test-results/reducer-guards/
+            build-info.json
+          if-no-files-found: error
+          retention-days: 14

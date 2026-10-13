@@ -1,0 +1,48 @@
+name: Club result controls
+on:
+  pull_request:
+    paths:
+      - 'src/club.js'
+      - 'src/club-engines.js'
+      - 'tests/club-result-retention.test.cjs'
+      - 'tests/club-engine-routing.test.cjs'
+      - 'tests/browser_club_results.py'
+      - '.github/workflows/club-results-controls.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: club-result-controls-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: node --test tests/club-result-retention.test.cjs tests/club-engine-routing.test.cjs
+      - run: npm run build:web
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Record exact source and exercise built-origin controls
+        run: |
+          mkdir -p test-results/club-results
+          git rev-parse HEAD > test-results/club-results/source-head.txt
+          cp build-info.json test-results/club-results/build-info.json
+          python tests/browser_club_results.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: club-result-controls
+          path: test-results/club-results/
+          retention-days: 7

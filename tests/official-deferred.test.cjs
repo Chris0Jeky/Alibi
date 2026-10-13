@@ -21,7 +21,7 @@ const { load, partition } = require('../tools/official-catalogue.cjs');
 const content = require('../tools/build-official-content.cjs');
 
 function startup(extra = {}) {
-  const context = { ...extra };
+  const context = { setTimeout, clearTimeout, ...extra };
   vm.runInNewContext(initial, context, { timeout: 2000 });
   return context;
 }
@@ -136,18 +136,20 @@ test('ensure() injects the same-origin chunk once, rejects on failure and can re
   const context = startup({
     document,
     addEventListener: (type, fn) => type === 'load' && (loadHandler = fn),
-    setTimeout: (fn) => fn(),
+    requestIdleCallback: (fn) => fn(),
   });
   const marker = context.ALIBI_DEFERRED;
   assert.equal(typeof loadHandler, 'function', 'an idle kick is scheduled after load');
   const first = marker.ensure();
   assert.equal(marker.ensure(), first, 'concurrent callers share one request');
+  await Promise.resolve();
   assert.equal(appended.length, 1);
   assert.equal(appended[0].src, marker.url);
   appended[0].onerror();
   await assert.rejects(first, /did not load/);
   assert.equal(appended[0].removed, true);
   const second = marker.ensure();
+  await Promise.resolve();
   assert.equal(appended.length, 2, 'a retry injects a fresh element');
   vm.runInNewContext(deferred, context);
   appended[1].onload();
@@ -159,6 +161,7 @@ test('ensure() injects the same-origin chunk once, rejects on failure and can re
   const tampered = startup({ document, addEventListener() {} });
   tampered.ALIBI_CATALOG.puzzles.find((p) => p.id === 'vault-sudoku-01').title = 'Forged';
   const failed = tampered.ALIBI_DEFERRED.ensure();
+  await Promise.resolve();
   assert.throws(() => vm.runInNewContext(deferred, tampered), /do(es)? not match/);
   appended.at(-1).onload();
   await assert.rejects(failed, /did not load/);
@@ -193,6 +196,9 @@ test('the application refuses to create a run from a listing entry', () => {
   assert.equal(context.getRun(entry).puzzle.solution.length, 81);
   assert.equal(records.size, 1);
   // Play waits for the chunk only when no saved copy is pinned, and never runs on a listing.
-  assert.match(app, /if \(!pinned && deferred\?\.has\(catalog\)\) \{\s+await deferred\.ensure\(\)/);
+  assert.match(
+    app,
+    /if \(!pinned && deferred\?\.has\(catalog\)\) \{\s+render\(\);\s+await deferred\.ensure\(\)/,
+  );
   assert.match(app, /catalog && !late &&/);
 });

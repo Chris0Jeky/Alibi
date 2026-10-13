@@ -5,7 +5,9 @@ function linePatterns(size, clues) {
   const out = [];
   function place(at, start, line) {
     const run = clues[at];
-    const remaining = clues.slice(at + 1).reduce((sum, value) => sum + value, 0) + Math.max(0, clues.length - at - 1);
+    const remaining =
+      clues.slice(at + 1).reduce((sum, value) => sum + value, 0) +
+      Math.max(0, clues.length - at - 1);
     const last = size - run - remaining;
     for (let offset = start; offset <= last; offset++) {
       const next = line.slice();
@@ -97,7 +99,11 @@ function countNonogram(puzzle, limit = 2) {
     }
   }
 
-  search(rows, cols, Array.from({ length: size }, () => Array(size).fill(-1)));
+  search(
+    rows,
+    cols,
+    Array.from({ length: size }, () => Array(size).fill(-1)),
+  );
   return { count, first, nodes };
 }
 

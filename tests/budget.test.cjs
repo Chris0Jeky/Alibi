@@ -118,12 +118,37 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Trim rounds: the redo-cap check cannot hoist (the log grows each loop pass), and folding
 // the bound back into the shared ints() helper reintroduces the board-size bound the bound
 // test pins against. Ceiling +128.
+// Damaged-record tolerance (unreleased): getAll/export skip one corrupt localStorage
+// record, report its key and preserve its bytes instead of discarding every run.
+// Measures 134,286 -> 134,422 gzip (+136 on a base with 18 bytes of headroom).
+// Trim rounds: the IndexedDB and session paths keep their original one-liners (no
+// parse damage possible there); export reads the store's damaged map rather than
+// duplicating per-result lists. Ceiling +256.
+// #526: native/Shadow DOM input pause, Club bot cancellation and guarded final flush
+// measure 134,475 -> 134,639 (+164), exceeding the old ceiling by 79 bytes.
+// Sharing the four pause/release sites trims 81 raw bytes; gzip remains 134,639.
+// The recovery guards remain required; ceiling +128 leaves 49 bytes of headroom.
+// Borough confirmation reveal (#497): focus/scroll after plot, offer and build adds
+// 101 gzip bytes (134,480 -> 134,581). Removing duplicate focus and viewport branches
+// trims the first draft from 134,609. Raise 64 bytes for the 21-byte excess; no feature room.
+// #535: Workshop edit/route epochs measure 134,748 -> 134,813 (+65).
+// Moving generation scroll after the final render removes its duplicate render:
+// six emitted bytes and three gzip bytes trimmed. The remaining guards are required.
+// Ceiling +64 covers the 61-byte excess, leaving three bytes; no feature room.
+// #536: two backup route captures/stale checks measure 134,813 -> 134,833 (+20).
+// Both independent inputs need ownership; a shared helper adds overhead.
+// Ceiling +32 covers the 17-byte excess and leaves 15 bytes; no feature room.
+// #542 unique follow-up to #543: stale errors + picker route ownership measure
+// 134,891 gzip / 1,411,498 shell. Composed with #540: 134,903 / 1,411,547.
+// Existing lifecycle/limits are reused; capture before pick/read and stale catches remain required.
+// Shared +64 gzip ceiling covers both follow-ups and leaves nine bytes; no feature room.
+// #538/#541 residual ownership: after retaining the exception on the JS stack through
+// cleanup (11 gzip/16 emitted bytes trimmed), the composed source measures 134,924 gzip
+// and 1,411,564 shell. Required identity/late-error guards exceed the shared ceilings by
+// 12/3.68 bytes. Measured +32 gzip/+16 shell leave 20/12.32 bytes, not feature room.
 assert.ok(
-  // Club pictograms: same-machine baseline 134,285 -> 134,677 gzip (+392).
-  // Two trims removed the unused garden alias and joined identical-style contours.
-  // Preserve reviewed geometry and generic controls; +448 rounded to 64 bytes.
-  info.javascriptGzipBytes < 127 * 1024 + 4704,
-  'Application bundle stays under 127 KiB + 4,704 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 4896,
+  'Application bundle stays under 127 KiB + 4,896 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -161,10 +186,38 @@ assert.ok(
   // Trim rounds: the accused reset is one statement, and the explicit clue-count bound
   // cannot fold back into ints() (its board-size length cap rejects valid 30-mark saves
   // on smaller boards, pinned by the bound test). Ceiling +1,024. Not feature room.
-  // Club pictograms: 1,409,653 -> 1,410,547 (+894); +896 rounded to 64 bytes.
-  // Standalone masters/hash receipts remain outside the precache. Other caps stay fixed.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 26496,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 26,496 bytes',
+  // Desk attribution targets (#501, unreleased): min-height plus a blockified flex
+  // display on the shared credit rule with a hidden guard measures +73 here
+  // (1,409,691 -> 1,409,764). Trim rounds: the explicit focus rule is dropped (the shared
+  // a:focus-visible ring already covers every anchor), the hidden guard is unqualified,
+  // and align-items plus the inline- prefix are gone (absolute positioning blockifies
+  // the box anyway). A smaller fix cannot hold 24px: min-height needs a non-inline
+  // display, and any display declaration must re-hide pre-enhancement credits.
+  // Ceiling +1,024. Not feature room.
+  // #526 on the landed Borough base: 1,410,423 -> 1,411,081 (+658).
+  // The shared pause/release helper trims 81 raw bytes; the remaining native and
+  // recovery guards are required. Excess is 337 bytes; ceiling +384 leaves 47.
+  // #530 plus the landed 800px Borough margin measures 1,411,140: 12 bytes
+  // beyond that ceiling. The lesson guard has only its required identity/route
+  // captures and stale check (34 emitted bytes); no redundant helper to trim.
+  // Ceiling +32 leaves 20 bytes, not feature room. JavaScript gzip ceiling unchanged.
+  // #535 measures 1,411,292 (+152), after removing the duplicate generation render
+  // (six emitted bytes). The edit/route and post-persistence checks remain required.
+  // Ceiling +160 covers the 132-byte excess and leaves 28; no feature room.
+  // #536 measures 1,411,339 (+47). Each input needs its route capture/stale check;
+  // Cabinet additionally holds validated data locally before publishing it.
+  // Ceiling +32 covers the 19-byte excess, leaving 13; no feature room.
+  // #542 alone: 1,411,498; with #540: 1,411,547. Shared ceiling +208
+  // leaves thirteen bytes for the measured composition and hash noise, not feature room.
+  // #552/#555: four independent synchronous hook guards measure 1,411,565 -> 1,411,618
+  // (+53). Each ordinary/completion entry must survive its own optional hook failure.
+  // Existing JS gzip/startup ceilings pass; shell excess is 41.68 bytes. A measured
+  // +48 shell allowance leaves 6.32 bytes for identity/hash noise, not feature room.
+  // #580 Lantern Duel short-landscape layout (two scoped, minified media queries) measure
+  // 1,411,538 -> 1,412,758 (+1,220); the rules cannot shrink below their selectors, so excess is 1,134 bytes.
+  // Ceiling +1,168 leaves 34 bytes; no feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 28672,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 28,672 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -185,7 +238,9 @@ for (const [prefix, limit] of [
   // the visible first-visit sharing notice adds a measured 170 gzip bytes in 0.12.0.
   // Initial JS, engine, combined initial payload and offline budgets remain unchanged.
   // Archive vault rooms plus Games Room polish measured 34,079 on 2026-09-27: +320.
-  ['alibi.', 33 * 1024 + 320],
+  // Desk attribution targets (#501, unreleased) measured 34,112: +384.
+  // #580 Duel short-landscape layout measures 34,157 -> 34,427 gzip (+270): +672 in total.
+  ['alibi.', 33 * 1024 + 672],
 ]) {
   const files = fs
     .readdirSync(path.join(root, 'dist/assets'))

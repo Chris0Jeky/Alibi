@@ -446,6 +446,20 @@ with sync_playwright() as pw:
     copy = page.locator('.privacy-copy').inner_text()
     for phrase in ('Nothing is sent unless you press Send', 'survey key', 'one-way hash', '365 days', '400 days', 'Global Privacy Control', 'up to 20 items', '30 days'):
         check(phrase in copy, f'Privacy explains: {phrase}')
+    old_key = local(page, KEY)
+    page.evaluate("""key => {
+        window.__voiceRemove = Storage.prototype.removeItem;
+        Storage.prototype.removeItem = function(name) {
+            if (name === key) throw new DOMException('Refused', 'SecurityError');
+            return window.__voiceRemove.call(this, name);
+        };
+    }""", KEY)
+    try:
+        page.locator('#vo-reset').click()
+        check(page.locator('#vo-reset-status').inner_text() == 'Reset failed on this device. Try again.', 'failed key removal reports failure')
+        check(local(page, KEY) == old_key, 'failed reset retains the stored survey key')
+    finally:
+        page.evaluate('Storage.prototype.removeItem = window.__voiceRemove; delete window.__voiceRemove')
     page.locator('#vo-reset').click()
     check(local(page, KEY) is None, 'Reset removes the survey key')
     check(page.evaluate("() => document.activeElement?.id") == 'vo-reset-status', 'focus moves to the reset confirmation')

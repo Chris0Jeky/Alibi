@@ -14,8 +14,8 @@ self.onmessage = (e) => {
         throw Error('Castle backup exceeds the 512 KiB import limit.');
       value = AlibiCastleValidation.validateBackup(parse(m.text));
     } else if (m.type === 'challenge-run') {
-      if (typeof m.text !== 'string' || m.text.length > 3 * 1024 * 1024)
-        throw Error('Challenge save exceeds the import limit.');
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 3 * 1024 * 1024)
+        throw Error('Challenge save exceeds the 3 MiB import limit.');
       value = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
         quiet: QWEngine,
         club: AlibiClubEngines,
@@ -30,12 +30,16 @@ self.onmessage = (e) => {
           ['cabinet', 'club', 'quiet'],
           ['cabinet', 'club', 'castle'],
           ['cabinet', 'club', 'quiet', 'castle'],
-        ];
+        ],
+        sameSections = (keys) =>
+          Array.isArray(manifest) &&
+          manifest.length === keys.length &&
+          keys.every((k) => manifest.includes(k));
       if (
         !data ||
         data.format !== 'alibi-all-saves' ||
         data.schema !== 1 ||
-        !supported.some((keys) => JSON.stringify(manifest) === JSON.stringify(keys)) ||
+        !supported.some((keys) => sameSections(keys)) ||
         !data.sections ||
         Object.keys(data.sections).some((k) => !manifest.includes(k)) ||
         !manifest.every((k) => Object.hasOwn(data.sections, k)) ||
@@ -85,8 +89,9 @@ self.onmessage = (e) => {
     } else if (m.type === 'quiet-state') {
       value = QWStore.validate(m.value);
     } else if (m.type === 'quiet-import') {
-      if (typeof m.text !== 'string' || m.text.length > 1 * 1024 * 1024)
-        throw Error('Quiet Wing import exceeds the 1 MB import limit.');
+      // Byte-accurate 1 MiB cap; keep the cap and message in sync with reviewImport.
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 1 * 1024 * 1024)
+        throw Error('Quiet Wing import exceeds the 1 MiB import limit.');
       const data = parse(m.text);
       if (data.kind === 'alibi-realm')
         value = { isRealm: true, next: QWEngine.validateScene(data) };

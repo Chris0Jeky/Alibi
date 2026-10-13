@@ -142,24 +142,44 @@ function restoreFixture(seed) {
       s = await new Store().init();
     ok(s.mode === (local ? 'local' : 'session'), 'honest ' + s.mode + ' mode');
     const r = { key: 'scene-01@1', rev: 0, state: { placements: {} }, schemaVersion: 1 };
-    const one = await s.saveRun(r, 0);
-    ok(one.rev === 1, 'revision increment');
-    ok(r.rev === 0, 'save does not mutate caller');
-    ok((await s.get('runs', r.key)).rev === 1, 'saved record retrievable');
-    await assert.rejects(s.saveRun(r, 0), (e) => e.name === 'ConflictError');
-    assertions++;
-    ok((await s.get('runs', r.key)).rev === 1, 'stale write did not replace save');
-    const capture = {
-      key: 'scene-01@1',
-      rev: 1,
-      state: { placements: {} },
-      schemaVersion: 1,
-    };
-    const capturedSave = s.saveRun(capture, 1);
-    capture.key = 'scene-02@1';
-    ok((await capturedSave).rev === 2, 'key-captured save increments revision');
-    ok((await s.get('runs', 'scene-01@1')).rev === 2, 'write landed under the original key');
-    ok((await s.get('runs', 'scene-02@1')) === undefined, 'mutated key was not written');
+    if (local) {
+      // Seed a legacy durable record directly, not through the now-protected writer.
+      const saved = JSON.stringify({ ...r, rev: 2 });
+      ls.setItem('alibi.v1.runs.' + r.key, saved);
+      await assert.rejects(s.saveRun(r, 0), /read-only.*IndexedDB/);
+      assertions++;
+      ok(r.rev === 0, 'refused local save does not mutate caller');
+      ok((await s.get('runs', r.key)).rev === 2, 'legacy local save remains readable');
+      await assert.rejects(s.saveRun(r, 2), /read-only.*IndexedDB/);
+      assertions++;
+      ok(items.get('alibi.v1.runs.' + r.key) === saved, 'local refusal preserves exact bytes');
+      const capture = { ...r };
+      const refused = s.saveRun(capture, 2);
+      capture.key = 'scene-02@1';
+      await assert.rejects(refused, /read-only/);
+      assertions++;
+      ok(items.get('alibi.v1.runs.' + r.key) === saved, 'caller mutation cannot replace a save');
+      ok((await s.get('runs', 'scene-02@1')) === undefined, 'mutated key was not written');
+    } else {
+      const one = await s.saveRun(r, 0);
+      ok(one.rev === 1, 'revision increment');
+      ok(r.rev === 0, 'save does not mutate caller');
+      ok((await s.get('runs', r.key)).rev === 1, 'saved record retrievable');
+      await assert.rejects(s.saveRun(r, 0), (e) => e.name === 'ConflictError');
+      assertions++;
+      ok((await s.get('runs', r.key)).rev === 1, 'stale write did not replace save');
+      const capture = {
+        key: 'scene-01@1',
+        rev: 1,
+        state: { placements: {} },
+        schemaVersion: 1,
+      };
+      const capturedSave = s.saveRun(capture, 1);
+      capture.key = 'scene-02@1';
+      ok((await capturedSave).rev === 2, 'key-captured save increments revision');
+      ok((await s.get('runs', 'scene-01@1')).rev === 2, 'write landed under the original key');
+      ok((await s.get('runs', 'scene-02@1')) === undefined, 'mutated key was not written');
+    }
     await s.put('meta', 'preferences', { seen: ['scene'], favorites: ['scene-01'] });
     await s.put('packs', 'example-pack', { revision: 1 });
     if (local) {
@@ -219,13 +239,19 @@ function restoreFixture(seed) {
       local ? 'local fallback visible to fresh store' : 'session fallback correctly ephemeral',
     );
     if (local) {
-      // Loud report plus preserved bytes is the contract (see the origin
-      // suite's malformed-persisted cases): damage must surface, and the
-      // message points at browser-level data export, not in-app recovery.
+      // One damaged record must not discard every run: getAll/export skip
+      // the bad key, report it, and preserve its bytes for browser-level
+      // recovery. Single-key reads stay loud.
       ls.setItem('alibi.v1.runs.bad', '{bad');
-      await assert.rejects(s.getAll('runs'), /A saved record is damaged/);
-      assertions++;
-      ok(items.has('alibi.v1.runs.bad'), 'corrupt record not deleted');
+      const survived = await s.getAll('runs');
+      ok(survived.length === 1, 'damaged key skipped without losing valid runs');
+      ok(survived.damaged.join(',') === 'bad', 'damaged run key reported on the result');
+      ok(s.damaged.runs.join(',') === 'bad', 'damaged run key reported on the store');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'corrupt record bytes not deleted');
+      const damagedBackup = await s.export();
+      ok(damagedBackup.runs.length === 1, 'export keeps valid runs past one damaged key');
+      ok(damagedBackup.damaged.runs.join(',') === 'bad', 'export reports the damaged run key');
+      ok(items.get('alibi.v1.runs.bad') === '{bad', 'export preserves corrupt bytes');
       await assert.rejects(s.get('runs', 'bad'), /damaged/);
       assertions++;
       ok(items.has('alibi.v1.runs.bad'), 'corrupt single read preserves the record');
@@ -280,7 +306,7 @@ function restoreFixture(seed) {
         passed: true,
         assertions,
         scope:
-          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, saveRun key capture, lazy metadata CAS fallback refusal, export, damaged-record loud report with byte preservation, single-read corruption message, null-key iteration, restore shape guard with byte-identical refusal, destructive-restore refusal and newer-database refusal. Not real browser IndexedDB durability or reload testing.',
+          'Node VM: exact cabinet fallback keys, session/local fallback, sequential revision conflict, saveRun key capture, lazy metadata CAS fallback refusal, export, damaged-record skip-and-report with byte preservation, single-read corruption message, null-key iteration, restore shape guard with byte-identical refusal, destructive-restore refusal and newer-database refusal. Not real browser IndexedDB durability or reload testing.',
       },
       null,
       2,

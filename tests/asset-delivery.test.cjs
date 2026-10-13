@@ -106,6 +106,7 @@ for (const [label, value] of [
   ['HTML', () => response(bytes, 200, 'text/html')],
   ['partial', () => response(bytes, 206)],
   ['oversize', () => response(Buffer.alloc(100))],
+  ['truncated', () => response(bytes.subarray(0, bytes.length - 1))],
   ['wrong hash', () => response(Buffer.alloc(bytes.length))],
   ['opaque', () => ({ ok: false, type: 'opaque' })],
 ]) {
