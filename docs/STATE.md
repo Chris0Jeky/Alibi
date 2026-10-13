@@ -1,5 +1,38 @@
 # Live development state
 
+## 2026-10-14: asset pilot composition parked at the shell ceiling
+
+The isolated asset candidate preserves #643 (`05a04ca2`) and source-only #647
+(`d5da1b63`) with merge commits. No explicit current owner hold on reviewed
+repository-source integration was found; the latest #643 owner comment asks to
+continue the painted-card family within existing ceilings. Generic historic
+draft/unmerged checkpoints and limited art acceptance do not grant production
+or physical-device acceptance. All sixteen masters, 32 derivatives, vector
+studies and both motion siblings remain preserved. Only three 320px paintings
+are selected for optional runtime delivery; thirteen stay source-only.
+
+Standalone source `b910b003` builds clean web `529ebd6aed0d` and the Android
+browser-preview artifact, with shell excluding official content 1,412,792 bytes
+and startup 205,153 gzip bytes. Formatting, the scoped design scan and twenty
+focused catalogue/delivery/budget checks pass. The isolated player/Club suites
+pass 184/118 checks; stable real-origin adaptive delivery passes sixteen. Six
+additional phone/desktop assertions verify visible painting decode and the
+hidden phone welcome fallback; screenshots were inspected. The full Node run
+was interrupted after no further output during the bounded run and is not full
+green.
+
+Combining the pilot with pause repair `25bb3aae` (including #649) produces
+source `86bb60a9`, clean web `39f252f1fc87` and an Android browser-preview
+artifact. The unchanged budget test fails: shell 1,412,963 exceeds 1,412,792.32
+by 170.68 bytes. Startup 205,211 remains below 205,248. Nineteen focused
+catalogue/delivery cases pass on the stable combined output; all 48 painting
+source blobs remain byte-identical to #643. This combined candidate
+is parked; no ceiling, saved identity, master or dependency changed. No broader
+compaction, hosted qualification, new motion lifecycle run, deployment or
+physical-device acceptance is claimed. Existing owner gates remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md). The source-only motion lane can qualify
+separately; runtime paintings need a later measured composition that fits.
+
 ## 13 October 2026: source material study 02
 
 The original vector pilot is retained as a v1 study below the owner's quality bar.
