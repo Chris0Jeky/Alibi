@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-14: PR #639 third landing checkpoint
+
+Current main `3d041caf` merged cleanly into the retained PR branch. The 21
+focused backup/Borough tests pass. Fresh web/Android builds still measure
+1,412,794 shell bytes against the unchanged 1,412,792.32 ceiling; the budget
+test fails. No new source repair or ceiling change was made. This third land
+turn parks the PR pending a separately scoped byte-compliant repair and fresh
+full/hosted verification. Existing review dispositions stand; physical checks
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: PR #639 Borough seed repair
 
 The landing repair preserves finite numeric Borough seeds without rewriting saved
