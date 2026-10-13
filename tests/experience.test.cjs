@@ -54,3 +54,73 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
     'Larger field notes remain a deliberate download',
   );
 });
+test('Authored companions emit their named states', () => {
+  const files = fs.readdirSync(path.join(dist, 'assets'));
+  const activity = fs.readFileSync(
+    path.join(
+      dist,
+      'assets',
+      files.find((f) => /^quiet-activity\..*\.js$/.test(f)),
+    ),
+    'utf8',
+  );
+  const marker = 'globalThis.QWExperience=';
+  const at = activity.indexOf(marker);
+  assert.ok(at >= 0, 'Quiet activity emits the experience manifest');
+  let end = at + marker.length;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (; end < activity.length; end++) {
+    const c = activity[end];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (c === '\\') escaped = true;
+      else if (c === '"') quoted = false;
+      continue;
+    }
+    if (c === '"') quoted = true;
+    else if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) {
+        end++;
+        break;
+      }
+    }
+  }
+  const manifest = activity.slice(at + marker.length, end);
+  assert.equal(depth, 0, 'Quiet activity emits the experience manifest');
+  // Pinned from emitted SVG names, not catalogue metadata.
+  const states = (id) => {
+    const idAt = manifest.indexOf(`id:"${id}"`);
+    if (idAt < 0) return [];
+    const statesAt = manifest.indexOf('states:{', idAt);
+    const nextId = manifest.indexOf('id:"', idAt + 1);
+    if (statesAt < 0 || (nextId >= 0 && statesAt > nextId)) return [];
+    const body = manifest.slice(statesAt + 'states:{'.length, manifest.indexOf('}', statesAt));
+    return [...body.matchAll(/(?:"([A-Za-z]+)"|([A-Za-z]+))\s*:/g)].map(
+      (match) => match[1] || match[2],
+    );
+  };
+  assert.deepEqual(
+    states('cat'),
+    ['idle', 'look', 'attention', 'happy', 'sleepy', 'pet', 'feed', 'celebrate'],
+    'cat',
+  );
+  assert.deepEqual(
+    states('fox'),
+    ['idle', 'look', 'attention', 'happy', 'sleepy', 'pet', 'feed', 'celebrate'],
+    'fox',
+  );
+  assert.deepEqual(
+    states('owl'),
+    ['idle', 'look', 'attention', 'happy', 'sleepy', 'pet', 'feed', 'celebrate'],
+    'owl',
+  );
+  assert.deepEqual(
+    states('dragon'),
+    ['idle', 'look', 'attention', 'happy', 'sleepy', 'pet', 'feed', 'celebrate'],
+    'dragon',
+  );
+});
