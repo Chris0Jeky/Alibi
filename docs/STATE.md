@@ -1,5 +1,31 @@
 # Live development state
 
+## 2026-10-12: Quiet Wing revision precision guard parked at the shell budget
+
+Quiet Wing rejects unsafe integer revisions on load/import and refuses writes
+or restores once its revision cannot advance safely. The database and save
+schema stay unchanged; original records and previous recovery remain available.
+The baseline reproduced two synthetic atomic-IDB writers succeeding at the same
+unsafe revision, with the stale writer overwriting the first. Both boundary
+regressions failed on unchanged source. The repair passes 43 storage assertions,
+581,856 pure-engine assertions and five import-worker tests, including the final
+safe increment, protected overflow originals, fallback byte retention and legacy
+revision defaults. Independent review found no HIGH/CRITICAL defect. A clean
+build at b4a880b1 emits web build 01295f2621a2. The eight real-origin boundary
+cases at 390/1280 pass 58 checks with zero page errors: actual edits, stale-tab
+refusal, import/restore refusal, raw recovery export and reload preserve originals.
+Phone and desktop screenshots were inspected.
+
+Qualification is parked after three distinct shell-budget attempts. Emitted
+core bytes excluding official content are 1,412,795 against the unchanged
+1,412,792.32 ceiling (2.68 bytes over). The first full Node run also hit the
+unchanged Windows file-symlink EPERM; it was not fully green. The first origin
+run passed its existing prefix but stopped on a phone-hidden desktop field;
+the scoped retry uses the existing mobile name dialog. The full origin suite's
+remaining tail and hosted final gate are not certified. No merge, deployment or
+physical acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md). The separate
+localStorage interleaving issue #596 remains open.
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
@@ -11,7 +37,9 @@ harness covers slotless renders; it does not certify fallback Settings/Privacy
 chunk loading or actual delivery. The corresponding P2 review concern was
 classified once and declined for this formatting repair. All four gate cases and the existing queue suite pass. Removing only kick's
 eligibility guard in a copied-source fixture fails all three negative cases
-while the eligible control passes. Final hosted checks remain required. Physical acceptance
+while the eligible control passes. PR #638 merged as 1ee2de7c after all four hosted
+checks passed at 461d2860, with the current main/Git merge base confirmed as
+d9eb071e and the non-blocking P2 thread classified and resolved. Physical acceptance
 remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: bounded Challenge recovery export
