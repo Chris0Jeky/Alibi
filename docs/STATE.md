@@ -1,5 +1,21 @@
 # Live development state
 
+## 2026-10-14: pause accessibility and landscape repair (#648)
+
+The pause-only inert wrapper now exists only while paused, preserving the
+unpaused Bridges direct-child landscape grid. Resuming via Return or Escape
+restores focus to the stable pause control. The new layout-parent assertion
+fails on the previous head; hosted mobile failures also reproduce the missing
+lower islands. Existing puzzle identities, saves and byte ceilings are unchanged.
+
+Repair source passes 24 pause checks at phone/desktop sizes, all 18 real-origin
+mobile cases and 187 UI cases; screenshots of the landscape board and focused
+phone cover were inspected. The 26 focused Node cases and emitted budget pass;
+web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling).
+The first full verify correctly refused the dirty Android source; clean-source
+verification and renewed independent review are required at the final head.
+Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
