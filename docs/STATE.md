@@ -1,5 +1,22 @@
 # Live development state
 
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
 ## 13 October 2026: provisional v2 source acceptance and optional motion draft
 
 Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
