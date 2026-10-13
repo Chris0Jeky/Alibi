@@ -51,6 +51,8 @@ with sync_playwright() as pw:
         )
         page.wait_for_timeout(80)
         dismiss(page)
+        check(page.locator('.board-card > .board-wrap').count() == 1,
+              f"{name}: unpaused board retains its layout parent")
         page.locator('.board-card button[data-action="cell"]').first.focus()
         before = page.evaluate("() => JSON.stringify(AlibiDiagnostics.getCurrent().state)")
         page.keyboard.press("Escape")
@@ -99,6 +101,14 @@ with sync_playwright() as pw:
         page.locator('.paused-cover [data-action="pause"]').click()
         page.wait_for_timeout(60)
         check(page.locator(".paused-cover").count() == 0, f"{name}: resume hides the cover")
+        check(page.evaluate("document.activeElement.id") == "play-pause",
+              f"{name}: resume restores focus to the pause control")
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(60)
+        page.keyboard.press("Escape")
+        page.wait_for_timeout(60)
+        check(page.evaluate("document.activeElement.id") == "play-pause",
+              f"{name}: Escape resume restores focus")
         page.keyboard.press("1")
         page.wait_for_timeout(40)
         resumed = page.evaluate("() => JSON.stringify(AlibiDiagnostics.getCurrent().state)")
