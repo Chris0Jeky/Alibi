@@ -7,11 +7,18 @@ unknown-key fallback preserved. The source catalogue records the actual merged
 app bytes; both evidence histories are retained. Budget assertions and ceilings
 are byte-exact current main, with no new increase. Existing pictogram, alias and
 fallback contracts and formatting pass. A clean same-toolchain current-main build
-passes the shell budget; this individual icon integration adds 894 shell bytes
-and exceeds its ceiling by about 696 bytes. Startup still fits. Final clean-head
+passes the shell budget; this individual icon integration adds 895 shell bytes
+and exceeds its ceiling by about 697 bytes. Startup still fits. Final clean-head
 measurements and hosted results belong in the draft PR and reconciliation handoff.
 This is separate from the prior combined painting-plus-icon startup limitation.
 No art regeneration, budget relaxation, deployment or physical-device acceptance.
+
+The deterministic 52-assertion isolated-document pictogram browser driver now runs
+beside the existing UI suite in the full verification lane, with screenshots
+retained in that lane's artifact. Its network-aborted scope does not require a
+manual-only exemption and does not prove real-origin or physical-device behavior.
+The earlier unchanged budget gate still stops that hosted lane before browser
+execution; local browser evidence is reported separately, never as a hosted pass.
 
 ## 12 October 2026: isolated pictogram alias-safety repair (draft)
 

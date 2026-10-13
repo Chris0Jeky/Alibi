@@ -1,7 +1,8 @@
-"""MANUAL-ONLY: isolated-document phone/desktop icon and navigation QA.
+"""Deterministic isolated-document phone/desktop icon and navigation regression.
 
 This driver aborts network requests and opens the built standalone document. It
-is run explicitly for visual inspection; it does not certify a native origin,
+is run in the full verification lane; its screenshots support visual inspection.
+It does not certify a native origin,
 service workers, physical devices or installed-product acceptance.
 """
 import json
