@@ -15,6 +15,24 @@ web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling
 The first full verify correctly refused the dirty Android source; clean-source
 verification and renewed independent review are required at the final head.
 Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+## 2026-10-12: README reconciled to the source
+
+The root README was rewritten against the current tree. Counts come from
+`content/official-packs.json` (30 packs, 510 puzzles, 430 initial, 80 deferred),
+`content/casebooks.json` (five books), and `content/challenges/` (95). Family
+names match `src/presentation.js`. Games Room cards match `src/club.js`. Package
+version 0.15.1 matches `package.json` and the recorded Cloudflare receipt in
+`docs/RELEASE-0.15.1.md`. On 12 October 2026 the primary origin's platform
+identity script reported appVersion 0.15.1 and source
+`98be800d0715a25695fe99480bb801fd30397220`. The Sites origin reported
+appVersion 0.12.0. No runtime, content, save schema, or deployment change.
+Local README link check: 52 relative links resolve; `src/artwork/bellweather.webp`
+exists. Badge URLs returned HTTP 200. `npm ci` installed the lockfile.
+`node tools/validate-pack.cjs examples/twelve-families.json` returned valid,
+12 puzzles. `npm run build` emitted version 0.15.1, 510 puzzles, 13 types,
+5 casebooks and 80 deferred puzzles. `npm start` served that build at
+http://127.0.0.1:8787 and the homepage returned HTTP 200. Full `npm run verify`
+was not rerun for this documentation edit.
 
 ## 2026-10-12: automatic Voices flush test qualification
 
