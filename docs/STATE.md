@@ -1,5 +1,34 @@
 # Live development state
 
+## 2026-10-14: bounded PR queue reconciliation
+
+Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
+closed as superseded by current main, with its branch/history preserved. The
+candidate integrates the complete #648 pause-repair, #641 README and #647
+source-preview histories using merge commits. State conflicts retain both
+added records and the existing ledger. No release or deployment is implied.
+
+Exact pause source 25bb3aae passes clean-source full Windows verify: 1,490 Node
+passes, zero failures, three intentional filename skips, plus Quiet Wing
+581,847 assertions and 29 contracts. Muse's renewed file-only review completes
+with report_status=ok and integrity=ok, without findings. The final integration
+retains that runtime byte-for-byte; clean both-target build, unchanged budgets,
+focused checks and hosted qualification still bind at its final head.
+
+The runtime painting candidate remains parked: composition 86bb60a9 measures
+shell 1,412,963 against 1,412,792.32 (170.68 bytes over), startup 205,211 against
+205,248. All painting masters/derivatives and source-preview records survive.
+The Quiet Wing revision-limit repair also remains parked in composition:
+17ef2af7 measures shell 1,412,948 (155.68 over), startup 204,268 (980 under).
+Its standalone qualified source ac6a6783 passed 98 actual-origin browser checks,
+import/engine/contracts and the same budget (1,412,778), but is not a safe
+combined landing. No ceilings were increased or custom decoder introduced.
+
+Other draft stacks retain their own budget, transfer-integrity, native,
+editorial and dependency gates; #500's explicit human skim hold remains.
+Physical Android/TalkBack, publisher and Sites-retirement conditions stay in
+[HUMAN_TODO.md](../HUMAN_TODO.md). Source previews are not production artwork.
+
 ## 2026-10-14: pause accessibility and landscape repair (#648)
 
 The pause-only inert wrapper now exists only while paused, preserving the
