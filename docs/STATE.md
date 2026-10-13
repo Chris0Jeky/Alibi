@@ -489,3 +489,29 @@ pass their two file-level cases. Independent review found no HIGH/CRITICAL issue
 Formatting and diff checks pass. Exact-head hosted CI remains required. This is
 partial test-reporting work for #519; physical listening and device acceptance
 remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-13: club icon and painting qualification blocker
+
+The isolated candidate starts at painting head `d1c56e3d84bdfd66be540aaa1e11256905ee6383`.
+It imports the pictogram masters and alias-safe generator, maps the thirteen family icons and
+three shell destinations, and regenerates current catalogue receipts. Source IDs, puzzle rules,
+saves, labels and budget ceilings are unchanged. A frozen 56-key SVG fixture derived from that
+base plus reviewed masters proves exact runtime fragment equality before and after the bounded
+table compaction.
+
+The painting baseline is exactly 1,412,792 shell bytes and 205,148 startup gzip bytes (limits:
+1,412,792 and 205,248; baseline JavaScript gzip 132,962). The uncompacted combined candidate
+measures 1,413,730 shell bytes and 205,547 startup gzip bytes: +938 and +299. One shared shape
+serializer brings shell to 1,412,564 (-228 headroom) but startup to 205,530 (+282 over the
+unchanged cap; JavaScript gzip 133,345). In isolation the pre-compaction presentation source is
+29,928 bytes / 24,320 minified / 9,536 gzip; round 1 is 28,968 / 23,136 / 9,574. The second-round
+path-token dictionary variants (2, 4, 6 and 7 tokens) measure respectively 29,389 / 23,060 /
+9,667; 29,388 / 23,059 / 9,675; 29,326 / 22,997 / 9,683; and 29,289 / 22,960 / 9,696. All
+four worsen gzip, so round 2 was discarded without runtime changes. The current candidate is
+blocked by startup budget and is not qualified. Focused pictogram/alias tests pass 12/12 and
+catalogue regeneration reports 121 original, 80 reused, 367 derivatives and 510 unique files.
+The budget test fails only at the startup gzip assertion. Browser verification could not start:
+the configured Python launcher reports `Failed to find real location of C:\Program Files\Python313\python.exe`;
+no screenshot or device result is claimed. Dependencies were resolved for local validation only
+from the already-pinned sibling cache. Preserve the receipts and measurements with this checkpoint;
+do not raise a ceiling or merge the candidate as qualified.
