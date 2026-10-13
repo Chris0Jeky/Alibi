@@ -12,7 +12,7 @@ Earlier sources, painted assets and archives remain unchanged.
 script-free copy of the lantern v2 master with a separate optional flame-light and
 steam preview. Counters and the scene geometry remain stationary. Initial pixels
 match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
-and rendered loop endpoints pass 22 browser checks at 390/1440 px. Hidden-document
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
 handling is an explicit DOM-contract probe, not physical phone certification.
 This addition changes no runtime/catalogue/precache/budget/dependency file. Build
 emission and exact-head hosted gates are recorded in the draft PR. Existing owner
