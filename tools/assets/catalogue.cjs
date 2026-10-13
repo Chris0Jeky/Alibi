@@ -88,7 +88,11 @@ function main() {
       status: 'proposed',
       design: 'original',
       source: vector,
-      derivatives: [BASE + 'vector-pilot/lantern-counter-vignette-preview.png'],
+      derivatives: [
+        BASE + 'vector-pilot/lantern-counter-vignette-preview.png',
+        BASE + 'vector-pilot/quality-02/lantern-counter-vignette-v2.svg',
+        BASE + 'vector-pilot/quality-02/lantern-counter-vignette-v2-preview.png',
+      ],
       provenance: {
         author: 'Alibi project',
         method: 'Original native SVG geometry; no raster embedding or tracing',
@@ -97,7 +101,10 @@ function main() {
       accessibility:
         'Complete static SVG; optional lifecycle-controlled motion in source review page',
       integration: 'Source alternative only; excluded from runtime and precache',
-      qa: { scope: 'Chromium pixel inspection at 390 and 1440; art acceptance remains separate' },
+      qa: {
+        scope:
+          'V1 retained below requested quality; V2 material study inspected in Chromium at 390 and 1440; art acceptance remains separate',
+      },
     });
   if (fs.existsSync(path.join(ROOT, details))) {
     const detail = read(details);

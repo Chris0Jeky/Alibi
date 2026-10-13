@@ -1,5 +1,7 @@
 # Lantern table editable pilot — 12 October 2026
 
+**Version 1 study.** The owner found this below the requested pictorial quality bar. It remains unchanged for comparison with [material study 02](quality-02/README.md). Neither version is finished or production-accepted art.
+
 `lantern-counter-vignette.svg` is original native SVG geometry (800×800, ten editable named layers). An engraved brass lantern, sage branch, petrol/ivory counters, tea and stationery share the existing warm ivory/petrol/sage/brass direction. `review.html` compares it directly with #525's painted Lantern Duel derivative. The vector finish is intentionally cleaner; the existing painted originals are preserved.
 
 ![Individual 800×800 Chromium preview of the editable vector master](lantern-counter-vignette-preview.png)

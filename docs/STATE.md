@@ -1,5 +1,13 @@
 # Live development state
 
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
 ## 12 October 2026: optional painted-art pilot (unpublished)
 
 This branch imports #525's source shelf and registers all sixteen paintings.
