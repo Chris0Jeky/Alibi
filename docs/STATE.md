@@ -1,5 +1,22 @@
 # Live development state
 
+## 2026-10-14: Quiet Wing and pause composition remains over the shell budget
+
+The standalone Quiet Wing revision guard remains qualified on branch
+`codex/quiet-revision-qualified-20261014` (head 3c46ed66; runtime build source
+ac6a6783): emitted shell excluding official content was 1,412,778 bytes under
+the 1,412,792.32-byte ceiling, with 14.32 bytes remaining. The pause/layout
+candidate is head 25bb3aae and measured 1,412,764 bytes, with 28.32 bytes
+remaining. Their no-ff composition builds as web build 69b3448be7ad, but emits
+1,412,948 shell bytes, 155.68 over the unchanged ceiling. The unchanged budget
+assertion fails on that shell assertion. Startup code plus content gzip is
+204,268 bytes against its 205,248-byte ceiling, 980 bytes under.
+
+The composed candidate is parked with both original live-state records retained.
+No source was further compacted and no budget was raised. Hosted final checks,
+independent review and physical Android/TalkBack acceptance remain outstanding;
+see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: Quiet Wing revision limit copy clears the shell budget
 
 PR #640's revision precision guard and its save/recovery behavior are retained.
@@ -45,6 +62,22 @@ the scoped retry uses the existing mobile name dialog. The full origin suite's
 remaining tail and hosted final gate are not certified. No merge, deployment or
 physical acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md). The separate
 localStorage interleaving issue #596 remains open.
+
+## 2026-10-14: pause accessibility and landscape repair (#648)
+
+The pause-only inert wrapper now exists only while paused, preserving the
+unpaused Bridges direct-child landscape grid. Resuming via Return or Escape
+restores focus to the stable pause control. The new layout-parent assertion
+fails on the previous head; hosted mobile failures also reproduce the missing
+lower islands. Existing puzzle identities, saves and byte ceilings are unchanged.
+
+Repair source passes 24 pause checks at phone/desktop sizes, all 18 real-origin
+mobile cases and 187 UI cases; screenshots of the landscape board and focused
+phone cover were inspected. The 26 focused Node cases and emitted budget pass;
+web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling).
+The first full verify correctly refused the dirty Android source; clean-source
+verification and renewed independent review are required at the final head.
+Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: automatic Voices flush test qualification
 
