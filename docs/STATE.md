@@ -1,5 +1,25 @@
 # Live development state
 
+## 2026-10-14: Quiet Wing revision limit copy clears the shell budget
+
+PR #640's revision precision guard and its save/recovery behavior are retained.
+The only runtime edit shortens the safe-limit error to “Save revision reached
+its safe limit. Export raw recovery.” No predicate or byte ceiling changed. The
+original copy left emitted shell bytes 2.68 bytes over the existing ceiling;
+the clean Android build and existing budget assertion now pass on merge commit
+ac6a6783. Web build b5c5350a8033 reports the exact clean source SHA, and the
+Android browser-preview artifact check reports 297 files with no errors.
+
+Prettier passes for the changed storage file. The budget assertion passes; the
+Quiet Wing engine and contract suites pass 581,856 and 43 assertions, and all
+five quiet-import tests pass. The disposable real-origin Chromium suite passes
+all 98 checks at 390px and 1280px, including save/recovery boundaries and
+reload, with no browser page errors. Its local synthetic server logged client
+connection-aborted traces while Chromium closed requests; the suite exited 0.
+Hosted CI and physical Android/TalkBack acceptance remain separate; see
+[HUMAN_TODO.md](../HUMAN_TODO.md). The separate localStorage interleaving issue
+#596 remains open.
+
 ## 2026-10-12: Quiet Wing revision precision guard parked at the shell budget
 
 Quiet Wing rejects unsafe integer revisions on load/import and refuses writes
