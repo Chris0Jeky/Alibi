@@ -1,5 +1,57 @@
 # Live development state
 
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
+## 12 October 2026: optional painted-art pilot (unpublished)
+
+This branch imports #525's source shelf and registers all sixteen paintings.
+Only welcome desk, Lantern Duel and Pocket Borough use existing verified optional
+320px delivery, with meaningful SVG fallbacks. The eight-slot cache and budgets
+are unchanged; masters stay outside runtime/precache. The separate native-vector
+lantern study remains proposed. See assets-source/library/vector-pilot/README.md.
+Browser and exact-head evidence is in the draft PR. Combined #521 qualification,
+physical-device checks and HUMAN_TODO.md owner decisions remain open. No deploy.
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
+## 13 October 2026: provisional v2 source acceptance and optional motion draft
+
+Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
+lantern renders, plus the responsive LAS card: “Yeah, I guess these are good enough
+for being SVGs.” This does not accept the later failed coarse studies, pixel variant,
+runtime deployment, licensing or merge. The proposed conversion pivot is stopped.
+Earlier sources, painted assets and archives remain unchanged.
+
+`assets-source/library/vector-pilot/motion-v2-20261013/index.html` compares an exact,
+script-free copy of the lantern v2 master with a separate optional flame-light and
+steam preview. Counters and the scene geometry remain stationary. Initial pixels
+match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
+handling is an explicit DOM-contract probe, not physical phone certification.
+This addition changes no runtime/catalogue/precache/budget/dependency file. Build
+emission and exact-head hosted gates are recorded in the draft PR. Existing owner
+choices in HUMAN_TODO.md remain open.
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
