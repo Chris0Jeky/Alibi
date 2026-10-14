@@ -120,6 +120,23 @@ handling is an explicit DOM-contract probe, not physical phone certification.
 This addition changes no runtime/catalogue/precache/budget/dependency file. Build
 emission and exact-head hosted gates are recorded in the draft PR. Existing owner
 choices in HUMAN_TODO.md remain open.
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
+## 12 October 2026: optional painted-art pilot (unpublished)
+
+This branch imports #525's source shelf and registers all sixteen paintings.
+Only welcome desk, Lantern Duel and Pocket Borough use existing verified optional
+320px delivery, with meaningful SVG fallbacks. The eight-slot cache and budgets
+are unchanged; masters stay outside runtime/precache. The separate native-vector
+lantern study remains proposed. See assets-source/library/vector-pilot/README.md.
+Browser and exact-head evidence is in the draft PR. Combined #521 qualification,
+physical-device checks and HUMAN_TODO.md owner decisions remain open. No deploy.
 
 ## 2026-10-12: automatic Voices flush test qualification
 
