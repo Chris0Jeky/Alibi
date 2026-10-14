@@ -488,8 +488,13 @@ with sync_playwright() as pw:
     check(page.evaluate("() => !document.querySelector('.vo-sheet')?.open"), 'the invitation is inline, never a dialog over the board')
     page.locator('.play-end').screenshot(path=str(SHOTS / 'voices-invitation-390.png'))
     check(not collector.voices(), 'the invitation sends nothing')
-    page.locator('#vo-offer button', has_text='Not now').click()
+    page.locator('#vo-offer button', has_text='Not now').focus()
+    page.keyboard.press('Enter')
     check(page.locator('#vo-offer').count() == 0, 'Not now removes the invitation')
+    check(
+        page.evaluate("() => document.activeElement?.id === 'main'"),
+        'Not now leaves focus on main',
+    )
     state = local(page, 'alibi:voices:state:v1')
     check(state['snoozes'] == 1 and state['until'] - page.evaluate('Date.now()') == 7 * 864e5, 'Not now snoozes for 7 days')
     goto_puzzle(page, 'sudoku-01@1')
