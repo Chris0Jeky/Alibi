@@ -1,10 +1,16 @@
 # Live development state
 
+## 2026-10-14: a held N leaves Cell notes on
+
+Holding N turns Cell notes on once. A later press still turns them off. This merge keeps the Escape, restore, and voices focus guards.
+
+An isolated desktop page showed the old behavior first: the first N turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. No page errors. The asset catalogue records the combined `src/app.js` at 206,770 bytes, sha256 `20d743cb09065d66a23ea30ed659d90f935ca9a259cb9643c45e4fc4fe0879b2`. `tests/budget.test.cjs` passed on the combined local web build `20db11ab954e` at 203,259 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: Not now leaves focus on the page
 
 Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
 
-The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. This merge keeps the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. That change kept the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: a held Escape does not flicker pause
 

@@ -3482,6 +3482,8 @@
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
       if (paused) return;
+      // A held N turns notes on, then each repeat would turn them off.
+      if (e.repeat) return;
       e.preventDefault();
       pencil = !pencil;
       if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
