@@ -2,9 +2,15 @@
 
 ## 2026-10-14: a held digit leaves a cell note in place
 
-Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the Escape and restore guards.
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the Escape, restore, and voices focus guards.
 
-An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. No page errors. The asset catalogue records the combined `src/app.js` at 206,772 bytes, sha256 `f558be2162c92de4d0470b2a977ba59a7db7a4c96ba48b65e2dc34939852c383`. `tests/budget.test.cjs` passed on the combined local web build `2ac1dbe876b3` at 203,267 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. No page errors. The asset catalogue records the combined `src/app.js` at 206,772 bytes, sha256 `f558be2162c92de4d0470b2a977ba59a7db7a4c96ba48b65e2dc34939852c383`. `tests/budget.test.cjs` passed on the combined local web build `e98b24564cdd` at 203,266 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: Not now leaves focus on the page
+
+Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
+
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. That change kept the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: a held Escape does not flicker pause
 
