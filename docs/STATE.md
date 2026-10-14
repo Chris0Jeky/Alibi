@@ -1,5 +1,37 @@
 # Live development state
 
+## 2026-10-14: 0.15.2 artwork published
+
+PR #659 merged as `030d5812198507793154568532bc059d5700980f`, closing #655 and
+#658. The primary Cloudflare origin now serves 0.15.2, build `ae20e9724548`,
+from that clean source; Worker `8ee83c79-94e8-4cd1-aa68-b31fecdd9a0a`.
+The public v0.15.2 tag and all 16 release attachments match the qualified
+source/artifact hashes. The 301 public files return HTTP200 with exact SHA256,
+correct MIME/security headers and an unknown-path 404.
+
+Startup headroom is 2,121 bytes (203,127 against 205,248); deferred content
+is 11,490 against 12,288. Six Scene variations use the existing precached
+deferred file; all 510 identities/revisions and pinned saves remain intact.
+Three optional paintings and navigation/family pictograms are now available
+on the primary site. The codec and ceilings remain unchanged.
+
+All hosted acceptance/control lanes pass. Windows full verification passes
+1,510 Node tests, Quiet Wing 581,847 assertions and 29 contracts; the merged
+build passes focused32, UI187 and origin381. Vault controls pass801; hosted
+paintings pass24, durability19, backup/restore32 and offline23. Actual
+0.15.1 to 0.15.2 Save & update preserves two Sudoku moves and the pinned
+definition, followed by a successful offline reload. Phone/desktop visuals
+were inspected; these checks do not certify physical devices.
+
+Pulseboard #231 is merged/deployed, schema5 and ready with Alibi admitted;
+SDK3.3.1 remains pinned. Source, public file, collector and release receipts
+are in [RELEASE-0.15.2.md](RELEASE-0.15.2.md). Packager scenario drift is
+tracked in #661; the full current report is retained explicitly. Owned worker
+evidence survives outside disposable worktrees in the artwork-0152 archive.
+The prior 0.15.1 Worker is retained; rollback was not executed. Physical
+Android/TalkBack and other owner conditions remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: 0.15.2 release qualification
 
 The release candidate fixes relative pictogram contours (#655) and regenerates
@@ -266,6 +298,43 @@ the scoped retry uses the existing mobile name dialog. The full origin suite's
 remaining tail and hosted final gate are not certified. No merge, deployment or
 physical acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md). The separate
 localStorage interleaving issue #596 remains open.
+
+## 2026-10-14: PR #639 merged with the budget recovery
+
+Main `59f47e90` (artwork budget recovery, shell 1,406,273 against the 1,412,792.32 ceiling) is merged into
+the PR branch, which clears the shell-budget failure recorded below; the Borough seed repair itself is
+unchanged. The checkpoint below predates this merge.
+
+## 2026-10-14: PR #639 third landing checkpoint
+
+Current main `3d041caf` merged cleanly into the retained PR branch. The 21
+focused backup/Borough tests pass. Fresh web/Android builds still measure
+1,412,794 shell bytes against the unchanged 1,412,792.32 ceiling; the budget
+test fails. No new source repair or ceiling change was made. This third land
+turn parks the PR pending a separately scoped byte-compliant repair and fresh
+full/hosted verification. Existing review dispositions stand; physical checks
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: PR #639 Borough seed repair
+
+The landing repair preserves finite numeric Borough seeds without rewriting saved
+values, and refuses missing, null, empty and non-seed values. Replay retains the
+engine's existing character and length validation. All 21 focused backup/seed
+tests pass; the existing numeric-history test failed before the repair.
+
+All four failing hosted workflows at the original head report the numeric-seed
+regression and the release-shell budget assertion. The exact main base
+`1ee2de7c` measures 1,412,593 shell bytes and 132,870 JavaScript gzip bytes.
+The compact repair measures 1,412,793 shell bytes (+200) and 132,891 JavaScript
+gzip bytes (+21) before commit; clean source `045c44ca` measures 1,412,794 and
+132,892 respectively. Both exceed the strict 1,412,792.32-byte shell limit.
+Three trim attempts exhausted this turn's budget; the ceiling is unchanged.
+Full verification at `045c44ca` passes formatting and both-target build, then
+reports 1,490 passes, three skips and two failures: the budget and the unrelated
+Windows file-symlink EPERM in `workshop-catalogue.test.cjs`. One independent
+Luna xhigh review found no blocker in the seed repair. The PR is not ready to
+land; release-budget repair and green hosted checks remain required. Physical
+acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-12: automatic Voices flush test qualification
 
