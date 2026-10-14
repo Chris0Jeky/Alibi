@@ -192,7 +192,7 @@ The main CI workflow is [Verify puzzle cabinet](.github/workflows/check.yml) (No
 
 ## Status and roadmap
 
-**Shipped in source at 0.15.2.** Thirteen families, 510 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms. Cloudflare publication is pending; source/build, publication, public-file, and same-origin save/update receipts are tracked in the [0.15.2 release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md).
+**Shipped in source at 0.15.2.** Thirteen families, 510 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms. Source/build, Cloudflare publication, public-file, and same-origin save/update receipts are tracked in the [0.15.2 release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md).
 
 **Sites.** Owner decision 2026-09-27: retire `https://alibi-puzzle-club.jeky-tck.chatgpt.site/` with one deployment that shows a moved notice and an export path. That deployment is still open ([HUMAN_TODO.md](HUMAN_TODO.md) q-9). On 12 October 2026 that origin returned HTTP 200 and its platform identity reported `appVersion` 0.12.0. Current `src/boot.js` shows “Alibi has moved” only when the page is opened on that Sites host, so the notice is not in the 0.12.0 shell. Nothing redirects, and nothing deletes the saves that live there.
 
