@@ -2,9 +2,15 @@
 
 ## 2026-10-14: a held digit leaves a cell note in place
 
-Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the Escape, restore, and voices focus guards.
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the held-N, Escape, restore, and voices focus guards.
 
-An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. No page errors. The asset catalogue records the combined `src/app.js` at 206,772 bytes, sha256 `f558be2162c92de4d0470b2a977ba59a7db7a4c96ba48b65e2dc34939852c383`. `tests/budget.test.cjs` passed on the combined local web build `e98b24564cdd` at 203,266 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. The same page leaves a held N on, and a later N turns it off. No page errors. The asset catalogue records the combined `src/app.js` at 206,872 bytes, sha256 `6cba9ab0e95b9a29af229eaedd4339646d35d8250b9b01667d0634cdfd79e45e`. `tests/budget.test.cjs` passed on the combined local web build `743aa6ed8a75` at 203,269 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held N leaves Cell notes on
+
+Holding N turns Cell notes on once. A later press still turns them off. That change kept the Escape, restore, and voices focus guards.
+
+An isolated desktop page showed the old behavior first: the first N turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. No page errors. The asset catalogue records the combined `src/app.js` at 206,770 bytes, sha256 `20d743cb09065d66a23ea30ed659d90f935ca9a259cb9643c45e4fc4fe0879b2`. `tests/budget.test.cjs` passed on the combined local web build `20db11ab954e` at 203,259 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: Not now leaves focus on the page
 
