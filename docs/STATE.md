@@ -1,5 +1,35 @@
 # Live development state
 
+## 2026-10-14: artwork budget recovery
+
+PR #650 merged as c800be5a; its complete README and motion-preview histories
+are on main, and qualification tracker #653 is closed. The artwork integration
+preserves the original #525/#643 and #521/#642 histories, all 60 painting-shelf
+files and 29 pictogram SVG masters byte-for-byte. Three 320px paintings use
+optional delivery on the Desk and Games Room; navigation and family pictograms
+use the reviewed masters. Source vector studies remain proposed.
+
+Removing unused old-home selectors saves 7,585 emitted CSS bytes without
+changing any retained rule. Three numeric selection thresholds in the existing
+official-content encoder recover startup gzip; the runtime decoder is identical.
+No byte ceiling is changed. Combined runtime source 96db0a7e builds f61029df2828:
+shell 1,406,273 against 1,412,792.32, startup 205,181 against 205,248. All 510
+puzzle definitions, IDs/revisions and initial/deferred JSON order remain exact;
+the only content-global additions are the three intended artwork delivery entries.
+
+That clean source passes full Windows verify: 1,504 Node passes, zero failures,
+three intentional filename skips, Quiet Wing 581,847 assertions and 29 contracts.
+UI187, pictogram navigation52 and actual-origin375 pass. All 48 painting hashes
+and 32 derivatives reproduce; Cloudflare dry-run passes. Muse's bounded encoder
+worker completed successfully; both new regressions fail with the previous
+encoder and pass with the tuned encoder. Independent Sol review found no
+HIGH/CRITICAL blocker; future relative-contour compaction is tracked in #655.
+
+The integration PR carries final head, browser/visual and hosted qualification.
+Startup margin remains narrow. This is source qualification, with no production
+release or deployment. Physical Android/TalkBack, publisher and other owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: bounded PR queue reconciliation
 
 Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
@@ -120,6 +150,69 @@ handling is an explicit DOM-contract probe, not physical phone certification.
 This addition changes no runtime/catalogue/precache/budget/dependency file. Build
 emission and exact-head hosted gates are recorded in the draft PR. Existing owner
 choices in HUMAN_TODO.md remain open.
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
+## 12 October 2026: optional painted-art pilot (unpublished)
+
+This branch imports #525's source shelf and registers all sixteen paintings.
+Only welcome desk, Lantern Duel and Pocket Borough use existing verified optional
+320px delivery, with meaningful SVG fallbacks. The eight-slot cache and budgets
+are unchanged; masters stay outside runtime/precache. The separate native-vector
+lantern study remains proposed. See assets-source/library/vector-pilot/README.md.
+Browser and exact-head evidence is in the draft PR. Combined #521 qualification,
+physical-device checks and HUMAN_TODO.md owner decisions remain open. No deploy.
+## 13 October 2026: pictogram default-branch reconciliation (draft, budget-blocked)
+
+Current main is incorporated with original icon masters, generator safety tests and
+unknown-key fallback preserved. The source catalogue records the actual merged
+app bytes; both evidence histories are retained. Budget assertions and ceilings
+are byte-exact current main, with no new increase. Existing pictogram, alias and
+fallback contracts and formatting pass. A clean same-toolchain current-main build
+passes the shell budget; this individual icon integration adds 895 shell bytes
+and exceeds its ceiling by about 697 bytes. Startup still fits. Final clean-head
+measurements and hosted results belong in the draft PR and reconciliation handoff.
+This is separate from the prior combined painting-plus-icon startup limitation.
+No art regeneration, budget relaxation, deployment or physical-device acceptance.
+
+The deterministic 52-assertion isolated-document pictogram browser driver now runs
+beside the existing UI suite in the full verification lane, with screenshots
+retained in that lane's artifact. Its network-aborted scope does not require a
+manual-only exemption and does not prove real-origin or physical-device behavior.
+The earlier unchanged budget gate still stops that hosted lane before browser
+execution; local browser evidence is reported separately, never as a hosted pass.
+
+## 12 October 2026: isolated pictogram alias-safety repair (draft)
+
+A child of draft #521 rejects pre-existing symlinks, Windows junctions and hard
+links in generator inputs/outputs and --check. All six causal regressions fail
+before and pass after repair; five original icon contracts and byte-exact normal
+write/check runs pass. See PICTOGRAM-ALIAS-SAFETY.md. The source draft's conflicts
+with main, physical-device acceptance and HUMAN_TODO.md decisions remain open.
+No merge or deployment; repository gate results are in the child draft PR.
+
+## Club pictogram draft (unreleased): 1 October 2026
+
+Branch `art/club-pictograms-20261001` integrates original club stationery pictograms into the
+existing inline icon table. Thirteen families now have distinct masters, including Bridges;
+Games, Quiet Wing and Castle have table, leaf and battlement destination icons on phone and
+desktop. Labels, routes, controls, gameplay symbols, save contracts and Sudoku unknown-key
+fallback remain unchanged. The 29 standalone masters and reproducible hash receipts stay
+outside runtime/precache; provenance and commands are in
+`assets-source/library/club-pictograms/README.md`. No raster or branding change.
+
+Same-machine baseline at `3ce84ca`: JS 134,285 -> 134,677 gzip; core shell excluding official
+content 1,409,653 -> 1,410,547 bytes. Two trims removed a redundant garden alias and joined
+identically styled adjacent contours; only these two ceilings rise by measured, 64-byte-rounded
++448 / +896. Total offline, CSS and initial-payload ceilings remain fixed.
+Verification is recorded in the draft PR after the clean-source Android/full verify gate and
+isolated phone/desktop browser checks. Not deployed; physical-device/TalkBack acceptance and
+the owner decisions in `HUMAN_TODO.md` remain open.
 
 ## 2026-10-12: automatic Voices flush test qualification
 

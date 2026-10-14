@@ -85,6 +85,9 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_pause_focus.py
         if: steps.scope.outputs.mode == 'full'
+      - name: Verify phone and desktop pictogram navigation
+        if: steps.scope.outputs.mode == 'full'
+        run: python tests/browser_club_pictograms.py
       - run: python tests/browser_keyboard_help.py
         if: steps.scope.outputs.mode == 'full'
       - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=390 python tests/browser_ui.py
@@ -190,6 +193,7 @@ jobs:
             test-results/browser-expedition/**/*.png
             test-results/*.png
             test-results/afterhours-club/
+            test-results/club-pictograms/
             test-results/browser-restart/
             test-results/browser-rooms/
             test-results/browser-boot/
