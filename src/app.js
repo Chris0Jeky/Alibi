@@ -3458,6 +3458,8 @@
       undo(true);
       return;
     }
+    // Number, arrow, and pencil shortcuts must not swallow Ctrl, Cmd, or Alt.
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
       if (paused) return;
       e.preventDefault();

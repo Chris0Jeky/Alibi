@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
+
+Play-board keyboard handling returns after the existing Ctrl+Z and Ctrl+Y cases when Ctrl, Cmd, or Alt is held. Those combinations no longer place a digit, move the selection, or toggle notes. Shift+Enter on a network tile is unchanged.
+
+An isolated desktop Chromium page places digit 1, Ctrl+Z undoes it, and Ctrl+1 leaves the sudoku state unchanged without cancelling the key. The same page's existing bridge and network keyboard checks pass. `tests/budget.test.cjs` passes on the local web build: initial code and content gzip is 203,163 bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Hosted checks at `f3e3a918` failed only the asset-catalogue size pin for `src/app.js`. The catalogue now records that file at 205,965 bytes. Gzip ceilings are unchanged. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: storage contract cases
 
 `tests/storage.test.cjs` was one async pass/fail blob under `node --test`. It is now four serial cases: local fallback, session fallback, rejected restore, and a newer IndexedDB. Every previous assertion is unchanged. A full run still records 58 assertions in `tests/storage-results.json`, and that file is written only when all four cases ran and passed. Breaking the local revision check fails that case and leaves the other three passing. Save behavior is unchanged. Issue 519 stays open for any remaining suite that is still one blob. Physical device checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
