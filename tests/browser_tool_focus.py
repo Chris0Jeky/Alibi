@@ -91,6 +91,31 @@ with sync_playwright() as p:
     page.keyboard.press("Enter")
     check(page.locator(".paused-cover").count() == 0, "a later Enter resumes")
 
+    page.locator(".cell:not(.given)").first.click()
+    page.locator('[data-action="pencil"]').click()
+    check(page.locator('[data-action="pencil"].active').count() == 1, "notes are on before the number key")
+    page.locator('[data-action="value"][data-value="1"]').focus()
+
+    def cell_notes():
+        return page.evaluate(
+            """() => {
+              const cell = Number((document.querySelector('.cell.selected')?.id || '').replace('cell-', ''));
+              return (AlibiDiagnostics.getCurrent().state.notes?.[cell] || []).join('');
+            }"""
+        )
+
+    page.keyboard.down("Enter")
+    check(cell_notes() == "1", "the first Enter adds note 1")
+    page.keyboard.down("Enter")
+    held_notes = cell_notes()
+    print("RESULT", "value-hold", held_notes, flush=True)
+    check(held_notes == "1", "a repeated Enter leaves note 1")
+    page.keyboard.up("Enter")
+    page.keyboard.press("Enter")
+    check(cell_notes() == "", "a later Enter removes note 1")
+    page.locator('[data-action="pencil"]').click()
+    check(page.locator('[data-action="pencil"].active').count() == 0, "notes are off before N")
+
     pencil.focus()
     page.keyboard.press("n")
     page.wait_for_function(

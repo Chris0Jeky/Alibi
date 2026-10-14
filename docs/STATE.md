@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: a held Enter leaves a cell note in place
+
+Holding Enter on number key 1 adds that note once. A later press still removes it. Enlarge board, Pause, and Cell notes still stay on when Enter repeats.
+
+An isolated desktop page showed the old behavior first: the first Enter added note 1 and the repeat removed it. After the change, the repeat leaves note 1 and the next press removes it. Zoom, pause, Cell notes, number key 2, and the phone page still pass. A repeated N leaves notes on. The September page was not re-run for this commit. The asset catalogue records the combined `src/app.js` at 208,323 bytes, sha256 `33a0553ba7e4adfc10517c6d42c25f6bc37216f59b474fbfbab422b60d1c2680`. `tests/budget.test.cjs` passed on the combined local web build `9e03d02ac628` at 203,465 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,756. The measured sourceSha was still `34a63681` because the edit was uncommitted. sourceDirty true. Payload `30318f2e86d18eb3a913d90d65569e324de5b97e78029ecc0dbf28ec67516730`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a held Enter leaves zoom and pause in place
 
 Holding Enter on Enlarge board enlarges the board once. Holding Enter on Pause pauses once. A later press still returns the board to its previous size or resumes. Cell notes still stay on when Enter repeats, and a later press still turns them off. This merge keeps the held-N guard.
