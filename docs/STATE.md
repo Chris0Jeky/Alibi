@@ -1,5 +1,41 @@
 # Live development state
 
+## 2026-10-14: a held Enter leaves a clue check and a favorite in place
+
+Holding Enter on a clue or a favorite checked it, and the key repeat removed it. A separate later press still removes the check or the favorite. Cell notes, number keys, board size, pause, and the held digit guard are unchanged.
+
+An isolated page checked the first scene clue, favorited the first listed puzzle, and checked the first mobile clue. Each repeat left that choice in place, and the next press removed it. The same build still leaves a repeated Enter on Cell notes, a number key, board size, and pause in place. No page errors. The asset catalogue records `src/app.js` at 208,521 bytes, sha256 `8ecfaff2c216fd5eb196ddca0cc84a4e6f4f8d1a9085734794d86fae45205b4a`. `tests/budget.test.cjs` passed on local web build `4535d53c9536` at 203,491 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,781. The measured sourceSha was still `73589add` because this edit was uncommitted. sourceDirty true. Payload `9f89dfc81e1adb1158e7237dcc8c1a05d360f052113cabaa61e6b48b61018dc4`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: held Enter and a held digit both leave a cell note
+
+This merge keeps the Enter guards and the held-digit guard. A repeated Enter on number key 1 leaves note 1. A repeated digit key 1 also leaves note 1. A later press removes it. Zoom, pause, and Cell notes stay on when Enter repeats.
+
+The combined desktop page showed each repeat leaving the note, the enlarged board, and the pause in place. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,425 bytes, sha256 `e9f8f80b553d6b0d6bf06037c27277f95374ff58777393896adf1b1db1584444`. `tests/budget.test.cjs` passed on the combined local web build `9dcabedacc9e` at 203,471 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,764. The measured sourceSha was still `c6807ad8` because the merge was uncommitted. sourceDirty true. Payload `e4abca030f0fd8ed9fcca6b4cf2c3fff1f5009301437db44c8f1e9a3261db3b0`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves a cell note in place
+
+Holding Enter on number key 1 adds that note once. A later press still removes it. Enlarge board, Pause, and Cell notes still stay on when Enter repeats.
+
+An isolated desktop page showed the old behavior first: the first Enter added note 1 and the repeat removed it. After the change, the repeat leaves note 1 and the next press removes it. Zoom, pause, Cell notes, number key 2, and the phone page still pass. A repeated N leaves notes on. The September page was not re-run for this commit. The asset catalogue records the combined `src/app.js` at 208,323 bytes, sha256 `33a0553ba7e4adfc10517c6d42c25f6bc37216f59b474fbfbab422b60d1c2680`. `tests/budget.test.cjs` passed on the combined local web build `9e03d02ac628` at 203,465 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,756. The measured sourceSha was still `34a63681` because the edit was uncommitted. sourceDirty true. Payload `30318f2e86d18eb3a913d90d65569e324de5b97e78029ecc0dbf28ec67516730`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves zoom and pause in place
+
+Holding Enter on Enlarge board enlarges the board once. Holding Enter on Pause pauses once. A later press still returns the board to its previous size or resumes. Cell notes still stay on when Enter repeats, and a later press still turns them off. This merge keeps the held-N guard.
+
+An isolated desktop page showed the old zoom and pause behavior first: the first Enter changed the control and the repeat changed it back. After the change, a repeated Enter leaves the board enlarged and paused, and a later press restores the normal size and resumes. Cell notes, number key 2, and the phone page still keep focus. A repeated N leaves notes on. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,265 bytes, sha256 `cce0dee6da557d448b8de8908ade4c90a97d3ba57de2b5d3e2405f7be9d5feff`. `tests/budget.test.cjs` passed on the combined local web build `9dfedfd46063` at 203,454 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,748. The measured sourceSha was still `2307147e` because the merge was uncommitted. sourceDirty true. Payload `ebfb42addfa9e63d8dad83ae2dbe790cd463a3b1f0038810bb80d3bd3b24f350`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves Cell notes on
+
+Holding Enter on the focused Cell notes button turns notes on once. A later press still turns them off. Pressing N still toggles notes.
+
+An isolated desktop page showed the old behavior first: the first Enter turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. Cell notes and number key 2 stay focused, including a 390px page. Removing a favorite returns focus to the page. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,086 bytes, sha256 `da4da22649c39839374d02a23410c697ea0e8de25e1a3f9a38746e0617a8d1da`. `tests/budget.test.cjs` passed on the combined local web build `e654623a050e` at 203,443 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: tool buttons keep focus when the board redraws
+
+A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square. This merge keeps the Escape, restore, and voices focus guards.
+
+An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 207,800 bytes, sha256 `4665d4c6383145b536f42101c2e70e0a5b044947a5d3eeeb7aa261dd82ea9cee`. `tests/budget.test.cjs` passed on the combined local web build `482d954a3476` at 203,413 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a held digit leaves a cell note in place
 
 Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the held-N, Escape, restore, and voices focus guards.

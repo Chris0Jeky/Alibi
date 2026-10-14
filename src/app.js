@@ -1349,6 +1349,19 @@
     const active = document.activeElement,
       focusID = active?.closest('.paused-cover') ? 'play-pause' : active?.id,
       focusFallbackID = active?.dataset.focusFallback,
+      focusAction = !focusID && active?.dataset?.action ? active.dataset.action : '',
+      focusHasValue =
+        !!focusAction && Object.prototype.hasOwnProperty.call(active.dataset, 'value'),
+      focusValue = focusHasValue ? active.dataset.value : '',
+      focusDataId = focusAction && active.dataset.id ? active.dataset.id : '',
+      focusSelector = focusAction
+        ? `[data-action="${CSS.escape(focusAction)}"]${
+            focusHasValue ? `[data-value="${CSS.escape(focusValue)}"]` : ''
+          }${focusDataId ? `[data-id="${CSS.escape(focusDataId)}"]` : ''}`
+        : '',
+      focusMatchIndex = focusSelector
+        ? [...document.querySelectorAll(focusSelector)].indexOf(active)
+        : -1,
       selection = ['INPUT', 'TEXTAREA'].includes(active?.tagName)
         ? [active.selectionStart, active.selectionEnd]
         : null,
@@ -1426,6 +1439,16 @@
               el.setSelectionRange(...selection);
             } catch {}
         } else {
+          const fallback = document.getElementById(focusFallbackID) || $('#main');
+          if (isFocusTarget(fallback)) {
+            fallback.focus();
+            usedFocusFallback = true;
+          }
+        }
+      } else if (focusMatchIndex >= 0) {
+        const el = document.querySelectorAll(focusSelector)[focusMatchIndex];
+        if (isFocusTarget(el)) el.focus({ preventScroll: true });
+        else {
           const fallback = document.getElementById(focusFallbackID) || $('#main');
           if (isFocusTarget(fallback)) {
             fallback.focus();
@@ -3458,6 +3481,21 @@
       return;
     onCell(Number(el.dataset.cell), true);
   });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      // A held Enter turns Cell notes, a number key, board size, pause, a clue, or a favorite on, then each repeat would turn it off.
+      if (
+        e.repeat &&
+        e.key === 'Enter' &&
+        e.target?.closest?.(
+          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"], [data-action="clue"], [data-action="quick-clue"], [data-action="favorite"]',
+        )
+      )
+        e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener('keydown', (e) => {
     if (updateRequested) return;
     if (e.defaultPrevented) return;
