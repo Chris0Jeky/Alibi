@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: save conflicts freeze notes and an open paint stroke
+
+Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
+
+An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. `tests/budget.test.cjs` passes on the local web build: initial code and content gzip is 203,222 bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. The asset catalogue records `src/app.js` at 206,233 bytes. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: storage contract cases
 
 `tests/storage.test.cjs` was one async pass/fail blob under `node --test`. It is now four serial cases: local fallback, session fallback, rejected restore, and a newer IndexedDB. Every previous assertion is unchanged. A full run still records 58 assertions in `tests/storage-results.json`, and that file is written only when all four cases ran and passed. Breaking the local revision check fails that case and leaves the other three passing. Save behavior is unchanged. Issue 519 stays open for any remaining suite that is still one blob. Physical device checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
