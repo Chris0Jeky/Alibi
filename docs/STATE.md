@@ -4,7 +4,7 @@
 
 A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square.
 
-An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. This merge also keeps the save-conflict guard. The asset catalogue records the combined `src/app.js` at 207,353 bytes. `tests/budget.test.cjs` passed on that local web build at 203,380 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. This merge also keeps the save-conflict guard. The asset catalogue records the combined `src/app.js` at 207,494 bytes. `tests/budget.test.cjs` passed on that local web build at 203,392 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 

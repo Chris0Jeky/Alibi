@@ -1352,10 +1352,11 @@
       focusHasValue =
         !!focusAction && Object.prototype.hasOwnProperty.call(active.dataset, 'value'),
       focusValue = focusHasValue ? active.dataset.value : '',
+      focusDataId = focusAction && active.dataset.id ? active.dataset.id : '',
       focusSelector = focusAction
         ? `[data-action="${CSS.escape(focusAction)}"]${
             focusHasValue ? `[data-value="${CSS.escape(focusValue)}"]` : ''
-          }`
+          }${focusDataId ? `[data-id="${CSS.escape(focusDataId)}"]` : ''}`
         : '',
       focusMatchIndex = focusSelector
         ? [...document.querySelectorAll(focusSelector)].indexOf(active)
