@@ -1,5 +1,9 @@
 # Live development state
 
+## 14 October 2026: source motion oracle and package scope
+
+Unassigned follow-ups #651/#652 are addressed on this source-only child branch. The decoded checker now retains every frame and requires repeated readable change in disjoint quarters. A real encoded black-first/frozen-rest regression reproduces the old maximum-difference false positive; both 4/24fps corrupt-first controls, genuine all-still, early-motion/frozen-rest and retained R1 are rejected by the temporal gate. Unchanged accepted Alibi and separately delivered LAS R2 clips pass. Four focused temporal tests and the committed encoded-control driver pass. The source README now describes only its actual Alibi entry and keeps LAS provenance separate. Static SVG, motion CSS/controller, historical receipts and accepted clips remain unchanged. Pre-commit full verify reached the expected clean-tree Android guard; final committed-head verify and hosted gates remain to be recorded. No generation, runtime/budget/dependency change, merge/deploy or owner-choice closure.
+
 ## Asset continuation batch — 13 October 2026
 
 Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
