@@ -79,22 +79,39 @@ function onlyHostSymlinkFailures(output, platform = process.platform) {
   );
 }
 
+// A present --pulseboard flag must carry a real path: a missing value, or a value that is
+// itself a flag, is a usage error, never a silent fallback to an ambient checkout.
+function pulseboardOption(argv) {
+  const i = argv.indexOf('--pulseboard');
+  if (i < 0) return undefined;
+  const value = argv[i + 1];
+  if (typeof value !== 'string' || value.startsWith('--'))
+    throw Error('Usage: npm run release:prepare -- <x.y.z> [--pulseboard <path>] [--publish]');
+  return value;
+}
+
 function findPulseboard(explicit) {
-  const candidates = [
-    explicit,
-    process.env.PULSEBOARD_REPO,
-    path.join(path.dirname(ROOT), 'Pulseboard'),
-    // A linked worktree lives below the main checkout; look beside that checkout too.
-    path.join(
+  // An explicit path must itself be a checkout; the ambient chain below runs only when the
+  // flag is absent.
+  if (explicit !== undefined) {
+    if (fs.existsSync(path.join(explicit, '.git'))) return path.resolve(explicit);
+    throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
+  }
+  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
+  let found = [process.env.PULSEBOARD_REPO, path.join(path.dirname(ROOT), 'Pulseboard')]
+    .filter(Boolean)
+    .find((c) => fs.existsSync(path.join(c, '.git')));
+  // Probe Alibi Git only when a configured or direct sibling checkout was not found.
+  if (!found) {
+    const candidate = path.join(
       path.dirname(
         run('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT }),
       ),
       '..',
       'Pulseboard',
-    ),
-  ].filter(Boolean);
-  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
-  const found = candidates.find((c) => fs.existsSync(path.join(c, '.git')));
+    );
+    if (fs.existsSync(path.join(candidate, '.git'))) found = candidate;
+  }
   if (!found)
     throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
   return path.resolve(found);
@@ -103,10 +120,6 @@ function findPulseboard(explicit) {
 function main(argv) {
   const version = argv.find((a) => !a.startsWith('--'));
   const flag = (name) => argv.includes(name);
-  const option = (name) => {
-    const i = argv.indexOf(name);
-    return i >= 0 ? argv[i + 1] : undefined;
-  };
   if (!version || !SEMVER.test(version))
     throw Error('Usage: npm run release:prepare -- <x.y.z> [--pulseboard <path>] [--publish]');
 
@@ -120,7 +133,7 @@ function main(argv) {
     console.log(`package.json: ${pkg.version} -> ${version}`);
   }
 
-  const pulseboard = findPulseboard(option('--pulseboard'));
+  const pulseboard = findPulseboard(pulseboardOption(argv));
   run('git', ['fetch', '-q', 'origin'], { cwd: pulseboard });
   run('git', ['cat-file', '-e', 'origin/main:observatory/adapters/sync-alibi.mjs'], {
     cwd: pulseboard,
@@ -220,4 +233,10 @@ if (require.main === module)
     console.error(error.message);
     process.exit(1);
   }
-module.exports = { releaseRecordProblems, compareVersions, onlyHostSymlinkFailures };
+module.exports = {
+  releaseRecordProblems,
+  compareVersions,
+  onlyHostSymlinkFailures,
+  findPulseboard,
+  pulseboardOption,
+};
