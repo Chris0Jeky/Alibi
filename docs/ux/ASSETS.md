@@ -1,5 +1,12 @@
 # Asset ledger and delivery policy
 
+The 2026-10-01 club pictogram wave uses 29 original hand-authored masters in
+`assets-source/library/club-pictograms/`. Its README records provenance, runtime key mapping
+and reproducible commands; `hashes.json` records exact source/export hashes. Matching live
+paths remain in `src/presentation.js`, with no new loader/request, while SVG masters remain
+outside precache. Root/phone navigation keeps its labels and destinations; the optional house
+preview vocabulary below is unchanged. No raster assets or puzzle definitions are altered.
+
 ## Shipped
 
 | Asset | Origin | Use | Delivery |
