@@ -1,5 +1,37 @@
 # Live development state
 
+## 2026-10-14: 0.15.2 artwork published
+
+PR #659 merged as `030d5812198507793154568532bc059d5700980f`, closing #655 and
+#658. The primary Cloudflare origin now serves 0.15.2, build `ae20e9724548`,
+from that clean source; Worker `8ee83c79-94e8-4cd1-aa68-b31fecdd9a0a`.
+The public v0.15.2 tag and all 16 release attachments match the qualified
+source/artifact hashes. The 301 public files return HTTP200 with exact SHA256,
+correct MIME/security headers and an unknown-path 404.
+
+Startup headroom is 2,121 bytes (203,127 against 205,248); deferred content
+is 11,490 against 12,288. Six Scene variations use the existing precached
+deferred file; all 510 identities/revisions and pinned saves remain intact.
+Three optional paintings and navigation/family pictograms are now available
+on the primary site. The codec and ceilings remain unchanged.
+
+All hosted acceptance/control lanes pass. Windows full verification passes
+1,510 Node tests, Quiet Wing 581,847 assertions and 29 contracts; the merged
+build passes focused32, UI187 and origin381. Vault controls pass801; hosted
+paintings pass24, durability19, backup/restore32 and offline23. Actual
+0.15.1 to 0.15.2 Save & update preserves two Sudoku moves and the pinned
+definition, followed by a successful offline reload. Phone/desktop visuals
+were inspected; these checks do not certify physical devices.
+
+Pulseboard #231 is merged/deployed, schema5 and ready with Alibi admitted;
+SDK3.3.1 remains pinned. Source, public file, collector and release receipts
+are in [RELEASE-0.15.2.md](RELEASE-0.15.2.md). Packager scenario drift is
+tracked in #661; the full current report is retained explicitly. Owned worker
+evidence survives outside disposable worktrees in the artwork-0152 archive.
+The prior 0.15.1 Worker is retained; rollback was not executed. Physical
+Android/TalkBack and other owner conditions remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: 0.15.2 release qualification
 
 The release candidate fixes relative pictogram contours (#655) and regenerates
