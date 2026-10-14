@@ -10,6 +10,7 @@ const { ANDROID_DIST, deriveAndroidPayload, sourceSha } = require('../tools/buil
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
 const { checkPublicPayload } = require('../tools/sync-android.cjs');
 const { readIdentity, payloadDigest } = require('../tools/platform-identity.cjs');
+const { contentManifestRevision } = require('../tools/build.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
 const WEB_DIST = path.join(ROOT, 'dist');
@@ -34,6 +35,26 @@ test('generated Android payload satisfies the closed artifact contract', () => {
   assert.match(result.sourceSha, /^[0-9a-f]{40}$/);
   assert.ok(result.files > 20);
   assert.ok(result.bytes > 0);
+});
+
+test('web, Android runtime and receipt share the complete content revision', () => {
+  const assetNames = fs.readdirSync(path.join(WEB_DIST, 'assets'));
+  const read = (pattern) => {
+    const names = assetNames.filter((name) => pattern.test(name));
+    assert.equal(names.length, 1);
+    return fs.readFileSync(path.join(WEB_DIST, 'assets', names[0]), 'utf8');
+  };
+  const expected = contentManifestRevision(
+    read(/^official-content\.[0-9a-f]{12}\.js$/),
+    read(/^official-deferred\.[0-9a-f]{12}\.js$/),
+  );
+  const web = readIdentity(WEB_DIST).identity;
+  const android = readIdentity(ANDROID_DIST).identity;
+  const receipt = readJson(path.join(ANDROID_DIST, 'android-build-identity.json'));
+  assert.equal(web.contentManifestRevision, expected);
+  assert.equal(android.contentManifestRevision, expected);
+  assert.equal(receipt.contentManifestRevision, expected);
+  assert.deepEqual(inspectAndroidArtifact().errors, []);
 });
 
 test('Android replaces the web runtime identity with explicit browser-preview capabilities', () => {

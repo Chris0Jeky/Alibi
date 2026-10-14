@@ -281,15 +281,17 @@
         accused: null,
       }),
       reduce: (p, s, a) => {
-        const t = clone(s),
-          n = p.size;
-        if (
-          a.type === 'mark' &&
-          Number.isInteger(a.cell) &&
-          a.cell >= 0 &&
-          a.cell < t.marks.length &&
-          [-1, 0, 1].includes(a.value)
-        ) {
+        const n = p.size;
+        if (a.type === 'mark') {
+          if (!Array.isArray(s?.marks) || s.marks.length !== 2 * n * n) return s;
+          if (
+            !Number.isInteger(a.cell) ||
+            a.cell < 0 ||
+            a.cell >= s.marks.length ||
+            ![-1, 0, 1].includes(a.value)
+          )
+            return s;
+          const t = clone(s);
           t.accused = null;
           t.marks[a.cell] = a.value;
           if (a.value === 1 && a.auto !== false) {
@@ -302,19 +304,24 @@
               if (k !== r) t.marks[cat * n * n + k * n + c] = 0;
             }
           }
+          return t;
         }
-        if (
-          a.type === 'clue' &&
-          Number.isInteger(a.index) &&
-          a.index >= 0 &&
-          a.index < p.clues.length
-        )
+        if (a.type === 'clue') {
+          const clueCount = Array.isArray(p.clues) ? p.clues.length : 0;
+          if (!Number.isInteger(a.index) || a.index < 0 || a.index >= clueCount) return s;
+          const t = clone(s);
           t.clueMarks = t.clueMarks.includes(a.index)
             ? t.clueMarks.filter((x) => x !== a.index)
             : [...t.clueMarks, a.index];
-        if (a.type === 'accuse' && Number.isInteger(a.who) && a.who >= 0 && a.who < n)
+          return t;
+        }
+        if (a.type === 'accuse') {
+          if (!Number.isInteger(a.who) || a.who < 0 || a.who >= n) return s;
+          const t = clone(s);
           t.accused = a.who;
-        return t;
+          return t;
+        }
+        return s;
       },
       validate: (p, s) => {
         const out = [],
@@ -372,6 +379,8 @@
           t.accused = a.who;
         return t;
       },
+      // Witness marks are advisory working notes: completion judges only the
+      // accusation, while solveState still honors marks as constraints.
       validate: (p, s) =>
         s.accused !== null && p.statements.filter((c) => truth(c, s.accused)).length !== p.trueCount
           ? [
@@ -420,14 +429,16 @@
       icon: 'aquarium',
       initial: (p) => ({ levels: tankRows(p).map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        const rows = tankRows(p);
+        if (!Array.isArray(s?.levels) || s.levels.length !== rows.length) return s;
         if (
           a.type !== 'level' ||
           !Number.isInteger(a.tank) ||
           a.tank < 0 ||
-          a.tank >= s.levels.length ||
+          a.tank >= rows.length ||
           !Number.isInteger(a.value) ||
           a.value < 0 ||
-          a.value > tankRows(p)[a.tank].length
+          a.value > rows[a.tank].length
         )
           return s;
         const t = clone(s);
@@ -465,6 +476,7 @@
       icon: 'network',
       initial: (p) => ({ rotations: p.tiles.map(() => 0), notes: {} }),
       reduce: (p, s, a) => {
+        if (!Array.isArray(s?.rotations) || s.rotations.length !== p.size * p.size) return s;
         if (
           a.type !== 'rotate' ||
           !Number.isInteger(a.cell) ||
@@ -1101,7 +1113,7 @@
       }
     }
     if (p.type === 'trail') {
-      const i = p.solution.findIndex((v, i) => s.cells[i] !== v);
+      const i = p.solution.findIndex((v, i) => v !== s.cells[i]);
       if (i >= 0) {
         action = { type: 'set', cell: i, value: p.solution[i] };
         message = `Look between the nearest fixed numbers around ${p.solution[i]}. The remaining number of steps limits the route.`;

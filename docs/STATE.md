@@ -1,757 +1,836 @@
 # Live development state
 
-## Session-2 swarm wave (unreleased): 29 September 2026
-
-Continued the background swarm (`auto-alibi` waves 007-015, plan in
-`docs/qa/2026-09-29-swarm/PLAN.md`) with an in-session 7-agent research sweep
-plus coordinator triage. Integrated, each RED-to-GREEN and pushed to
-`origin/main`: challenge restore over unusable saves with the conflict guard
-kept for valid records, theatre/voices pins (escape/deliver runtime-verified
-by stub probes), combined-backup sanitized sections + 16MB/1MB text caps,
-dev-server crash survival (500 + stream destroy, gallery `require.main`
-guard), curation-derivative and `--pulseboard` fail-closed validation, and
-inline micro-fixes (Club record dates, drag-commit before update, dossier
-clue-toggle guard, late-import toast on route change). Rejected with code
-evidence: cabinet 500/3000 asymmetry, discovery CAS and snapshot IDB claims
-(abort semantics), Store.restore semantic-validation demand, cross-tab saved
-self-conflict (accepted risk), BlockCabinetPrototype removal (diagnostics
-hook), third nonogram-leniency sighting (player contract). Verified: full
-`npm run verify` EXIT 0 on the clean tree, browser UI 185/185, real-origin
-270 checks, budget/catalogue green after two trim rounds and measured ceiling
-raises (+96 app gzip, +1,024 precache, catalogue regenerated). Visual probe of
-fresh screenshots: no defects. Owner-visible, no code change: dominoes and
-mahjong are playable via salon routes but have no cards and are skipped by the
-home continuation. NOT verified: hosted behaviour, physical phone. Open
-backlog in PLAN.md: wave-014 lens claims (curation-editorial/challenge
-loaders, apply-update playable gap, lesson-finish yank), cross-tab Club race,
-silent classics drop, tg lens claims.
-
-## Swarm quality wave (unreleased): 29 September 2026
-
-A background swarm (`auto-alibi`, 22 lenses + 10 workers over 6 waves, live plan in
-`docs/qa/2026-09-29-swarm/PLAN.md`) hunted bugs, test gaps and dead code across engines,
-storage, player, Club, Quiet Wing, voices, media, tools and docs. Nine fixes are integrated
-in the working tree (uncommitted), each RED-to-GREEN: Club run date validation + house date
-normalisation, workshop clue entry validation, local-server `_headers` survival, gallery
-traversal/method/range hardening, storage key capture + restore shape guard, three tool
-defects plus import guards, runBounded coverage, challenge trust pins, dossier link feedback.
-Two candidates were reverted after the repo's own suites proved them wrong: strict nonogram
-Solved (UI suite completes by filling only; leniency now pinned) and silent fallback
-getAll skip (origin suite requires the loud damage report; bytes stay preserved). Budgets:
-three trim rounds first, then measured +128 app gzip (133,952; at 133,910) and +1,024 shell
-ceilings with justification; asset catalogue regenerated. Verified: every focused Node
-regression RED-to-GREEN, full Node suite 787+ pass (only the 6 clean-tree-gated android
-checks fail on a dirty tree, by design), browser UI suite 185/185 PASS, real-origin suite
-271/271 PASS, budget GREEN. NOT verified: full `npm run verify` (needs committed sources),
-hosted behaviour, physical phone. Open backlog in PLAN.md: cross-tab Club race, silent
-classics drop, test-gap lens claims (two spot-disproven), apply-update input lock.
-
-## Scene action validation (unreleased): 28 September 2026
-
-The crime-scene reducer now rejects malformed exclude, clue, accuse and clear actions without
-cloning or changing the current run. Valid actions retain their existing behaviour. The focused
-Node regression covers invalid-action identity and each valid action path; the repository verify
-gate also passes at the candidate head. Not deployed; no browser or physical-device check was run
-for this pure reducer guard.
-
-## Release 0.15.0: published 27 September 2026
-
-Published from the release pull request ([#424](https://github.com/Chris0Jeky/Alibi/pull/424),
-tag `v0.15.0`); the publication receipt is in [RELEASE-0.15.0.md](RELEASE-0.15.0.md). The Sites
-fallback still serves 0.12.0 until q-9. It gathers the 2026-09-27 QA wave (audits in
-`docs/qa/2026-09-27/`, redesign brief in `docs/design/`):
-
-- Merged normally, after CI and review: #396 (PolyForm Strict license), #397 (budget double
-  subtraction), #398 (Sites moved notice), #399 (legacy opt-out write), #400 (fake IndexedDB
-  ordering), #402 (Postern redesign brief), #403 (Block Cabinet 500-move cap), #405 (Archive vault
-  rooms), #406 (castle Chapter I).
-- Merged with an admin override on the owner's instruction ("merge everything in order ignoring
-  CI"), after conflict resolution and each PR's own review: #409, #410, #411, #412, #413 and #423.
-  The merged `main` (`896bb6d`) built, and its full Node suite passed locally apart from
-  `asset-audio` (no `ffprobe` here); the Android tests pass after `build:android`.
-- Measured at release (all commented in `tests/budget.test.cjs`): application JS 133,670 gzip
-  (ceiling 127 KiB + 3,648 = 133,696), initial code plus official data 205,233 (ceiling
-  temporarily 200 KiB + 448), main CSS 34,079, Quiet Wing pack 2,312,559. After #425, #428 and
-  #435, main measures 133,690 application JS and 202,748 initial. The +448 initial ceiling stays
-  while the Interlock studies (#427) need it. The application JS ceiling gains a 128-byte margin for hash noise (133,824), not room
-  for new code: the next feature that adds application JS trims first.
-- Pulseboard: Voices intake live since 2026-09-27 (schema 5, voices admitted `["alibi"]`).
-- Review follow-ups, all non-blocking: #404, #407, #416, #417 (intermittent Block Cabinet
-  landscape test), #418, #419, #420, #421 (completion-hook hardening for #11).
-- Human gates: [HUMAN_TODO.md](../HUMAN_TODO.md) q-2 to q-9, now organised as one phone session
-  ([PHONE-SESSION.md](PHONE-SESSION.md)) and player-data calibration
-  ([CALIBRATION.md](CALIBRATION.md)).
-
-## Completed challenge routes (#434, refs #416): 27 September 2026
-
-A completed curated challenge now refuses board input by click and by Archive arrow keys, and tells
-the player to Undo or Start again. Undo stays available. Any board interaction cancels a pending
-"Clear your finished route?" confirmation. Before this, a stray legal move after completion was
-saved and un-completed the route. Opening an older Lantern Duel save that ends with Ink to move
-now saves the settled reply once. Concurrent list and board opens share one IndexedDB open. The
-optional Quiet Wing CSS is whitespace-compacted by esbuild. Verified: Node regressions (RED on
-the old launcher and storage), full `npm run verify`, and Chromium suites at 390/1280px
-(`browser_challenge_lifecycle`, `browser_challenge_library`, `browser_challenges`, `browser_quiet`,
-`browser_calm`). Not verified: a physical phone. Still open under #416: the Quiet Wing host keeps
-its old challenge handle across route changes. Details in
-[CHALLENGE-LIFECYCLE.md](gameplay/CHALLENGE-LIFECYCLE.md).
-
-## Numbered game restore identity (#435, refs #408): 27 September 2026
-
-Backups and local saves whose Archive Heist or Lantern Gardens run has no own integer `level` are
-refused, no longer restored silently as room 0. Every published level, including 0, is still
-accepted, and games without numbered levels are unchanged. No live code path writes such a run
-without `level`, so this refuses only hand-made or corrupted saves. A malformed local record keeps
-its original bytes in protected mode. Verified: the new Node regressions (RED on the old
-validator), full `npm run verify`, and the Chromium import/worker suites at 390/1280px. Not
-verified: a physical phone. Details in [NUMBERED-LEVEL-RESTORE.md](gameplay/NUMBERED-LEVEL-RESTORE.md).
-
-## Archive Heist vault rooms (#405, merged; in 0.15.0): 27 September 2026
-
-Refs [#346](https://github.com/Chris0Jeky/Alibi/issues/346). The 24 curated vaults from 0.13.0
-(`content/challenges/archive-vaults.json`) now also play as Archive Heist rooms 10–33 in the Games
-Room; rooms 01–09 keep their maps, indices, replays and journal records (hash-pinned). Room
-navigation is two disclosures (Rooms 01–09, Vaults 10–33) with solved markers read from existing
-record ids, end cards after rooms 09 and 33, and a bounded room action. The Games Room and Pocket
-Borough link the curated challenges at `#/quiet/challenges` (the current Quiet Wing router sends
-`challenges?family=…` to the Realm page; switch once it reads a family filter). Measured
-ceilings raised: startup JS gzip 130,955 -> 131,549 (+640), `club-engines` gzip 7,661 -> 8,475
-(+832), Quiet Wing pack 2,303,623 -> 2,305,480 raw (+1,920; it embeds the engine). New checks:
-`tests/archive-heist-vaults.test.cjs` and `tests/browser_archive_vaults.py` (local origin, 390px
-and 1280px, all 24 vaults played). Not deployed; physical Android, TalkBack and human difficulty
-remain open.
-
-## Voices client half (#413, merged; in 0.15.0): 27 September 2026
-
-Implements Alibi's half of the Pulseboard "Voices" contract v1
-([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md)): a quiet Feedback button in the top bar,
-"Report a problem with this puzzle", the `alibi-taste-1` survey (Settings, plus a timed
-invitation on completion screens), a rating row on official completion screens, Settings and
-Privacy panels, and a localStorage offline queue with the contract's status handling. Journey
-events now also carry `family` and `tier` for official puzzles. The sheet, forms, rating row and
-delivery are one deferred precached chunk (19,704 bytes); startup grew 1,022 gzip bytes, so the
-application-bundle and precached-shell ceilings were raised by the measured delta (see
-`tests/budget.test.cjs`). Proven locally: `npm run verify` (all but the ffprobe-dependent
-asset-audio test, which fails on this machine without ffprobe on the unmodified base too), the new
-Node suites, `tests/browser_voices.py` against an intercepted collector, and the UI (3 widths),
-observatory, origin, narrow, mobile/player QA, September feedback, feedback discovery and boot
-browser suites. NOT verified: a live collector (the Pulseboard half must deploy and admit Alibi in
-`COLLECT_VOICE_PROJECTS` first), a physical phone, or screen-reader output. Not deployed; no
-version bump.
-
-## Core-cabinet audit fixes (#412, merged; in 0.15.0): 27 September 2026
-
-Fixes from the 0.14.1 browser audit of the core cabinet: library filters stay with one family
-and Reset keeps Browse all (M2, m4, m5); a finished crime scene or Alibi file points at, and
-scrolls to, the final question, and a wrong scene accusation says so (M3, m10); casebook
-completions name the chapter and Next opens the next chapter (M5); journal links (M1 partial,
-m12); touch-first instructions, live Sun & Moon count, solved-board hint, report copy (m8, m1,
-m9, m21); the play bar says Casebook (m24); plurals (p1, p2). The service worker serves the
-shell only at the scope root, `index.html` and single extensionless segments, so deep URLs
-reach the styled static 404 (M4); `tools/serve.cjs` mirrors the host 404 locally. Application
-bundle ceiling +448 (131,011 -> 131,464 gzip on main after #396). New suite
-`tests/browser_core_cabinet.py` and origin scenario `unknown_paths`. Not deployed; hosted 404
-behaviour and physical phones unverified.
-
-## Published web release 0.14.1: 26 September 2026
-
-Published from `76e2d2f` as [`v0.14.1`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.1):
-Cloudflare Worker `856d1a61-fdae-4d6c-aca0-236ccc9982ca` (rollback `e667fd5c-784b-4754-b6f0-90be31293e1a`),
-build `64e09f4e5707`, 292/292 files byte-identical, 244 hosted real-origin checks and 25/25 live
-Pulseboard SDK checks (in-flow notice at 390px, region hint, 202 counts, GPC silent, Beta button
-only in Settings/Privacy). Sites fallback still on 0.12.0. See the
-[publication receipt](RELEASE-0.14.1.md).
-
-## Castle Chapter I completion and navigation (#406, merged; in 0.15.0): 27 September 2026
-
-Branch `fix/castle-completion-navigation` answers the castle audit (Chapter I completable but
-never shown as finished, misleading guidance). Completion is derived from the Keeper's Study
-record (no save change): grounds mark, finished thread, done stair and a
-"Chapter I n/5 · Extra questions n/5" header. The thread sits above the map and only offers open
-rooms; the keeper's letter opens on first arrival; locked doors, pins and first completions link
-to the rooms that open them; the clock accepts 2100/21.00/21 00; the directory collapses planned
-rooms; the Quiet Wing room bar is hidden on castle pages; blank hypotheses keep their draft. The
-castle script ceiling rose by 2,816 bytes (measured 98,062 -> 100,837 of 101,120); core budgets
-are unchanged. Physical keyboards and TalkBack remain unverified. See
-[docs/castle/README.md](castle/README.md).
-
-## Challenge library polish (#409, merged; in 0.15.0): 27 September 2026
-
-The curated challenge library (QA findings F02–F06, F11, F12, F21, F22, F31 and F01's 10px link)
-now reads as a player surface. `#/quiet/challenges?family=<id>` opens one family; the list is
-grouped and collapsed (about 1,100px at 390px instead of 12,958px) with player-facing family
-names, difficulty chips and Completed/Continue marks derived by replaying stored runs. The
-launcher drops revision/title chrome, words refusals for players, pluralises, fills selected
-controls, draws Hanoi discs, gives Archive boards a legend, 44px arrow pad, arrow keys and
-adjacent-square taps, names Borough buildings with their scoring, and shows a completion card
-(difficulty, Next in family, Back to the list) with a confirmed restart. Duel endgames: the player
-keeps Gold; Ink replies by the recorded line, then the expert-depth search, and a lost line says so
-with the stored hint. Classics claim a journal stamp only when one is earned. Definitions, ids,
-revisions, replay format and storage are unchanged. Quiet Wing pack 2,303,623 -> 2,310,369 bytes;
-its ceiling alone rose by the measured delta rounded to 64 bytes (+6,784). Node suites, budget,
-`browser_challenges.py` (isolated and served), `browser_planning_expansion.py` (built and
-isolated, 72 each), `browser_calm.py`, `browser_quiet.py` and the new `browser_challenge_library.py`
-pass locally on a local Chromium headless shell; not deployed, no physical phone.
-
-## Games Room phone polish (#410, merged; in 0.15.0): 27 September 2026
-
-Branch `fix/games-room-polish` answers the Games Room QA findings F07-F10, F13-F15, F17-F20,
-F23, F31 (Club plurals) and F33. At 390×844 the Duel board moved from y=728 to 440-772 of a
-779px usable height (TTT status 879 -> 690, Archive pad 834 -> 655): phone play pages collapse the
-room banner to one line and the heading to one row. Block Cabinet's phone actions stick to the
-bottom only, directly under the tray, and its ⋯ menu scrolls into view with focus (Cascade lab
-shares the surface). Finished Duel/TTT/Gardens offer Play again without a dialog; solved gardens
-offer Next garden; journal records name their game; section numbers and card engravings follow
-the card order. The phone nav's Settings tab (duplicating the top bar) became the Quiet Wing,
-and the wing header has a 44px "← Back" on phones. Application JS measured 130,955 -> 131,382
-gzip (ceiling +448); main CSS 33,903 -> 34,046 (unchanged ceiling); Quiet Wing pack
-2,303,623 -> 2,303,890 bytes. Not done here: the sidebar "NEW" badge (`src/app.js` sidebar,
-outside this slice) and the Borough Build button, still about 75px below the fold at 390×844.
-Local Node suites and the Club, Block Cabinet, block motion, Gardens, Tic-Tac-Toe, Quiet Wing
-and targeted mobile QA browser suites passed; no physical phone, hosted origin or deploy.
-
-## Pulseboard SDK v3 (0.14.1 candidate, merged as #391, historical): 26 September 2026
-
-Branch `feat/pulseboard-sdk-v3` replaces the aggregate statistics embed and
-`src/observatory-loader.js` with the Pulseboard SDK v3 (`observatory/pulseboard.js`, built
-from Pulseboard `5b53836` (SDK 3.1.0) for release 0.14.1) and `src/pulseboard-host.js`. The Beta notice is
-in flow at the top of the page; the Beta button renders inline in Settings and Privacy only.
-Puzzle journeys carry official ids and numbers only. Version 0.14.1 must be registered in
-Pulseboard and `alibi` admitted to `COLLECT_PRODUCT_PROJECTS` before this deploys
-([release record](RELEASE-0.14.1.md)). Pulseboard's `sync:alibi` still targets the old embed, so
-`npm run release:prepare` fails until it learns SDK v3. The application bundle budget took a
-measured +256-byte ceiling (130,084 -> 130,678 gzip). Local `npm run verify`,
-`node observatory/check.mjs` and the browser suites observatory (82), origin (244), UI at 390px,
-narrow layout, mobile QA, player QA, September feedback, curation, discovery, boot and Android
-payload passed; not deployed.
-
-## Published web release 0.14.0: 26 September 2026
-
-Published from `985515e` as [`v0.14.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.14.0):
-Cloudflare Worker `e667fd5c-784b-4754-b6f0-90be31293e1a`, 292/292 files byte-identical,
-244 hosted real-origin checks (Vault chunk offline included). Sites fallback still on
-0.12.0. Open follow-ups: [#389](https://github.com/Chris0Jeky/Alibi/issues/389) (Vault
-chunk LOWs), [#387](https://github.com/Chris0Jeky/Alibi/issues/387) (intermittent test).
-See the [publication receipt](RELEASE-0.14.0.md).
-
-## Release 0.14.0 candidate: 26 September 2026 (historical)
-
-Branch `release/0.14.0` publishes the 80 Vault studies merged in #385 (510 puzzles,
-30 packs; provisional 47 Expert / 33 Master) through the precached deferred chunk. The
-release label was registered with `npm run release:prepare -- 0.14.0 --publish`, which
-opened [Pulseboard#124](https://github.com/Chris0Jeky/Pulseboard/pull/124) unattended; it
-merged and the collector deployed as Worker `1fdd08f8-a81f-436c-ab41-90762ce79fbd`
-(rollback `6735ac3b-2187-4c91-a50f-ac2822ae35f9`) before Alibi. #354 is closed as superseded.
-
-## Published web release 0.13.0: 26 September 2026 (historical)
-
-Every later section below is historical: its deployment status and next-step directives
-predate this release (0.13.0 deployed the Settings-slot Usage sharing change).
-
-[PR #386](https://github.com/Chris0Jeky/Alibi/pull/386) merged as `fa9dc0e`;
-[`v0.13.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.13.0) and its assets
-point there. Clean build `81d973e4d783` (430 puzzles). Cloudflare Worker
-`65d60c13-1cb6-4567-8637-92e2fe249afc` serves it: all 291 files matched byte for byte
-and 243 hosted real-origin checks passed. The Pulseboard collector admitting 0.13.0
-deployed first. The Sites fallback still serves 0.12.0 (no Sites tooling this session).
-Intermittent local test failure tracked as [#387](https://github.com/Chris0Jeky/Alibi/issues/387).
-Next: [PR #385](https://github.com/Chris0Jeky/Alibi/pull/385) delivers #354's 80 Vault
-studies through a precached deferred chunk (199,942 initial gzip bytes), superseding #354.
-See the [publication receipt](RELEASE-0.13.0.md).
-
-## Release 0.13.0 candidate: 26 September 2026 (historical)
-
-Branch `release/0.13.0` carried version 0.13.0, its release record and the
-[receipt draft](RELEASE-0.13.0.md): 36 new challenges (#357), Duel strengths /
-Cabinet restarts / opponent retry (#366), Usage sharing in Settings, Club
-hardening and stale-async fixes (#383, from a Muse bug-hunt plus a Codex
-follow-up). The catalogue stays at 430 puzzles; #354's 80 Vault studies wait
-for deferred delivery (a replacement PR is in progress).
-
-Retroactive audit of the previous merge wave: main's full CI Verify for #366
-had been cancelled by the docs-only #381 push; a dispatched full run on
-`b1c1977` passed, local verify passed, and #382 now gives main pushes a
-per-commit concurrency group so this cannot recur.
-
-Release registration is automated (#384): `npm run release:prepare -- <version>
-[--publish]` validates the record, sets the version, runs the Pulseboard sync in
-a temporary worktree and its tests, and opens the Pulseboard PR. Proven locally:
-the 0.13.0 no-change path and a full unpublished 0.13.1 scratch path. Pulseboard
-#109 admitted 0.13.0 (it also derives test expectations from the registry) and the
-collector deployed as Worker version `ed739cc8-b136-4c28-864f-6b34f9b2ee95`
-(rollback `bffba8a7-d066-46a8-887a-bf1c916f2648`); `/healthz` and `/readyz` 200. No
-live 0.13.0 count was sent. Collector deployment remains a manual step: automating it
-needs a Cloudflare token in Pulseboard Actions (owner decision).
-
-## Coordinator merge wave: 26 September 2026 (historical)
-
-Merged, each with exact-head green CI, head age, an independent review and
-resolved threads: #281 research docs, #350 Vault authoring foundation
-(+ #369 fail-closed profiles, coordinator recipe test), #357 planning vaults
-and challenge registry, #365 lossless official-content delivery, #366 Duel
-strengths, Cabinet restarts and opponent recovery (+ #370/#371 test pins).
-Stacked fixes #369-#372 merged into their bases first. Owner hotfixes
-(fcc8d4b-3e00ef5) moved main mid-flight; branches re-refreshed onto each base.
-
-Two CI trigger gaps observed: conflicting PRs get zero pull_request runs (no
-merge ref), and one push fired only 2 of 5 workflows (selective drop,
-unexplained). Required-conversation-resolution blocked #350 until four bot
-threads were answered; #357/#366 had three more between them.
-
-#354 stays draft: measured 205,448 initial gzip bytes vs the 204,800 limit,
-with vault content costing 7,495 bytes inside the initial script, so it needs
-deferred (non-initial, precached) delivery plus recertification
-(vault-binary-03 recomputes residual 8 vs stored 15, below the 12 bar) and
-the 80-board actual-control matrix. Design-system audits posted on #219
-(inversion fixed; adoption remainder quantified) and #220 (remainder
-quantified with token proposal); both need visual review before migration.
-
-## Usage sharing moved into the Settings slot: 26 September 2026 (historical; deployed in 0.13.0)
-
-Source `d64b911` answers the owner's "can't find the setting" report: the
-hotfix banner rendered above the app header and read as a cookie notice. The
-generated control now moves into a real slot panel inside Settings (second
-panel) and Privacy, with a fail-closed fallback line when the adapter cannot
-load; the app rescues the node across re-renders. Local `npm run verify`,
-`node observatory/check.mjs` and 73 intercepted Observatory browser assertions
-passed. NOT deployed per owner request; the live Cloudflare origin still
-serves the banner hotfix (`6b11d27969d7`). Deploy with the next release.
-Separately, [issue #380](https://github.com/Chris0Jeky/Alibi/issues/380) seeds
-the in-app feedback-pipeline proposal (description field plus direct or
-GitHub-issue submit); the owner contact decision is open.
-
-## Hotfix: Usage sharing confined to Settings: 26 September 2026 (historical; superseded by 0.13.0)
-
-Source `afabf32` (three commits on `main`) fixes the player-reported floating
-Usage sharing popup: the loader now hides the generated control on every route
-except Settings and Privacy, where it renders as a static top-of-page box.
-Sharing still defaults on for eligible visits; no default change was made.
-Version stays 0.12.0 (Pulseboard registration unchanged); clean build is
-`6b11d27969d7` with 130,366 startup JavaScript gzip bytes against the extended
-130,432-byte ceiling. Cloudflare Worker version
-`c8a8b8d5-7521-4779-98f1-545da40e2cac` serves the hotfix. Local `npm run
-verify`, `node observatory/check.mjs`, 65 intercepted Observatory browser
-assertions and a live disposable-profile smoke (collector blocked, no popup on
-home at 390px, settings/privacy box visible, opt-out persists, no page errors)
-all passed. The Sites fallback still serves the pre-hotfix build (saved
-version 23); it never loads the control and no Sites deploy tooling was
-available in this session. Full CI matrix and physical-device confirmation are
-pending. See [the hotfix receipt](HOTFIX-2026-09-26-USAGE-SHARING.md).
-Rollback: Worker `8edf7ab7-a92e-4963-be7a-d1bebcd68fe8`.
-
-## Lossless official-content delivery merged: 26 September 2026 (historical)
-
-PR #365 merged the lossless record/column encoder for the five startup JSON
-globals with byte-identical restore, decoder bytes inside the counted content
-script, and VM-executed install tests. It unblocks the Vault collection #354
-delivery gate pending full-payload re-measurement.
-
-## Published web release 0.12.0: 25 September 2026 (historical)
-
-[PR #364](https://github.com/Chris0Jeky/Alibi/pull/364) merged as
-`0ebe3541837561a3f12da373ccfe266dc6a2260e`; annotated
-[`v0.12.0`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.12.0)
-and the public release assets point to that source. The clean build is
-0.12.0 / `f2b20d3ee6c0`, with 430 puzzles and 130,290 startup JavaScript
-gzip bytes. All seven exact-head CI checks passed; merged-source Verify,
-Cloudflare dry run and release bundle passed. Cloudflare Worker version
-`8edf7ab7-a92e-4963-be7a-d1bebcd68fe8` and Sites saved version 23
-(deployment `appgdep_6ab6c0dc2c848191913d93bd136c2f2a`) now serve the
-same source. All 291 public files returned HTTP 200 on each origin; both
-origins passed 214 hosted real-origin storage/offline browser checks. The
-primary origin's default-on Usage sharing sent a bounded aggregate count,
-and opt-out stopped further sends in live Chromium. The separate Sites
-origin stays outside collector admission. See the
-[0.12.0 publication receipt](RELEASE-0.12.0.md) for build digests, HTTP
-comparison, rollback references and evidence limits.
-
-`HUMAN_TODO.md` q-1 through q-8 remain open, especially physical Android,
-TalkBack and human difficulty calibration. Issue #220 remains open for larger
-and decorative radii; issue #219 remains open for cross-room type work.
-
-## Club persistence and restore hardening merged: 25 September 2026 (historical)
-
-The Club storage closeout is now on `main`. PR #376 added backup-envelope
-validation coverage and merged as `2856e8f9057ea808a8d152f5dc2a41ee6ee93449`.
-PR #377 then serialized restore replacement, invalidated the pending bot keeper
-and preserved persist-before-replace ordering; it merged as
-`8452662f803139d5d51d65657f3b42d1a2389443`. PR #378 added fail-closed handling
-for IndexedDB read or transaction failures (no writable localStorage fork),
-bound delayed Borough reset confirmation to its own intent, and added a live
-Chromium regression for an aborted Club read; it merged as
-`69b8c42cccb721000e9628e3d12476d124724a9a` from exact head
-`3a3a1fd7164b612262f01ca1bf1e74959c2352d2`.
-
-At that exact head, local `npm.cmd run verify` passed 598 tests (595 passed,
-3 skipped, 0 failed) with 581,847 assertions; both web and Android receipts
-reported `sourceDirty: false`. The focused Club/restore/backup suite passed 14
-tests, including 51 Club assertions. The focused real-origin Chromium scenario
-passed 30 checks, the full real-origin suite on the same test content passed
-243 checks, and exact-head hosted Verify, browser controls and Android payload
-checks all passed. This is a source checkpoint only: no new release, tag or
-deployment is claimed.
-
-The evidence does not certify physical-device behavior, TalkBack, human
-accessibility calibration, or real browser Worker interleaving. `HUMAN_TODO.md`
-q-1 through q-8 remain open.
-
-## Published web release 0.11.6: 25 September 2026 (historical)
-
-[PR #335](https://github.com/Chris0Jeky/Alibi/pull/335) repaired the Cabinet restore
-race and merged as `aa93c3340c108a4d90afcd0d955f551ce35da3b1`; it closed
-[issue #333](https://github.com/Chris0Jeky/Alibi/issues/333). Exact-head
-[Verify](https://github.com/Chris0Jeky/Alibi/actions/runs/36122242738) and the
-other applicable checks passed, the focused second review found no new blocker,
-and the head passed the three-minute merge age. A clean build of the merged commit
-is 0.11.6 / `db7e68c1bfa6`, with 382 puzzles, 130,271 JavaScript gzip bytes and
-`sourceDirty: false`. Local Verify passed (529 Node tests, 3 skipped), along with
-pack validation, Observatory check, Cloudflare dry run, bundle packaging, and
-214 local real-origin browser checks. The first bundle attempt lacked the local
-`ffprobe` path; rerunning with the installed Krita tool passed.
-
-Annotated tag [`v0.11.6`](https://github.com/Chris0Jeky/Alibi/releases/tag/v0.11.6)
-points to that deployed source. Cloudflare now serves it as Worker version
-`107707f3-1e5d-442c-94b3-c87c6ec73ae6` at
-https://alibi-after-hours-preview.commit-atlas.workers.dev/. The existing Sites
-fallback serves the same build at https://alibi-puzzle-club.jeky-tck.chatgpt.site/
-from saved version 22, deployment `appgdep_6ab64e1a75ac8191b8308d22bdb4cb15`.
-The two local build directories matched across all 292 files before packaging.
-Each public origin passed all 214 hosted real-origin browser checks, including
-IndexedDB restore/recovery, offline reload and in-progress navigation. All 291
-public files returned HTTP 200: Cloudflare bytes matched the built files; Sites
-matched all non-HTML bytes and transformed ten HTML pages. Cloudflare retained
-HTTP CSP and WebP MIME; Sites still lacks the repository HTTP CSP and serves the
-sampled WebP as `application/octet-stream` (existing hosting limits, issue #6).
-See [the release record](RELEASE-0.11.6.md) for rollback and digest receipts.
-
-`HUMAN_TODO.md` q-1 through q-8 remain open. In particular, the web publication
-does not certify the affected physical Android phone, TalkBack, or the provisional
-Picture Logic difficulty labels. The Android artifact remains a preview. Earlier
-source-only and pre-publication checkpoints below are historical.
-
-## 0.12.0 source candidate: 25 September 2026 (historical)
-
-The proposed next web release combines 48 Night studies across eight families
-with the merged Desk type ramp, the approved radius slice and Block Cabinet
-visual stability. Its source catalogue has 430 puzzles in 26 packs. Version
-registration and Pulseboard's release contract are complete in this candidate.
-The candidate now includes the statistical-only, default-on Usage sharing adapter
-for eligible visitors without a stored opt-out, including return visitors, on
-the primary Cloudflare origin, with an open
-notice, immediate opt-out and preserved prior off choices. The separate Sites
-fallback origin remains outside collector admission. Pulseboard's production
-admission switch is live and its aggregate-only hosted boundary has been probed.
-Pulseboard PR #96 merged the automatic-delivery and malformed-preference repair;
-PR #97 adds a fail-closed storage-probe cleanup. The regenerated Alibi adapter
-passed 48 real Chromium assertions after idle-route and denied-cleanup
-regressions failed against their prior artifacts. Integrated local Verify
-passed 582 Node tests with three skips; 184 controls, 480 Night controls and
-214 real-origin storage/offline checks passed. Exact-head hosted integration,
-both existing deployments and hosted-origin acceptance remain to be completed.
-No 0.12.0 tag or public release exists yet. See [the candidate release record](RELEASE-0.12.0.md)
-and `HUMAN_TODO.md` for human difficulty and physical-device gates.
-
-## Night Gardens source merged: 25 September 2026
-
-Merged PR #342 adds 18 original Lanterns, Tents and Aquariums boards, bringing
-the source catalogue to 400 puzzles across 24 packs. Exact registered-catalogue and
-Night Gardens source checks pass locally (seven focused tests), including native
-and independent unique answers, reducer replay, definition receipts and the
-published-definition baseline. Exact-head hosted Verify and real-control browser
-checks passed before merge.
-Expert/Master labels remain provisional pending #161 and
-`HUMAN_TODO.md` q-8; no new web release is claimed.
-
-## Shared type ramp merged: 25 September 2026
-
-A first #219 layer defines the approved seven type steps and maps Desk/page,
-feature, section and card headings in the shared chrome to their roles. At 390px,
-the Desk h1/h2 compute to 32px/25px; at 1280px, 36px/28px. The phone Desk title
-stays on one line and 320px, 390px and 1280px rendered views have no horizontal
-overflow. The dedicated token regression, 12 real-origin mobile QA scenarios,
-184 isolated core UI checks and the isolated After Hours browser suite passed.
-PR #353 merged after exact-head hosted Verify and Android checks passed. The rest
-of the cross-room type migration in #219 remains open; physical-device evidence
-has not yet been gathered.
-
-## Approved radius mapping candidate: 25 September 2026
-
-The owner approved eight small scalar mappings from issue #220. This source pass
-maps 56 declarations across seven bundled CSS files onto the existing 8px, 12px
-and 16px tokens. On the Desk, the desktop nav radius computes to 8px instead of
-7px and the phone hero computes to 16px instead of 17px; neither 390px nor
-1280px has horizontal overflow. Local Verify passed with 542 Node tests and
-three skips, 184 isolated UI checks and 12 real-origin phone QA tests passed.
-The full four-token collapse remains open: larger panel/theatre radii, true
-circles, game-board geometry and named decorative exceptions were not changed.
-Hosted and physical-device evidence has not yet been gathered for this pass.
-
-## Night collection certificate foundation: 25 September 2026
-
-Merged PR #341 adds offline definition receipts, structural duplicate
-checks, independent uniqueness checks and production reducer replay for proposed
-harder studies. It adds no playable puzzle or runtime code. On the current main
-base, local Verify passed with 542 Node tests and three skips, both Quiet Wing
-suites, and a clean 382-puzzle build; exact-head hosted Verify passed. The 48
-proposed Night boards remain in stacked PRs; human difficulty and device checks
-remain open under #161 and `HUMAN_TODO.md` q-8.
-
-## Backup validation QA: 25 September 2026
-
-Six direct tests now cover duplicate run and custom-pack records, starter-catalogue
-collisions, and saved-run counter, note and undo bounds. They use the actual backup
-validator and catalogue; no production behavior changed. The six-test direct Node
-run passed on the original base. PR #349's exact-head hosted source gate passed
-before merge, and PR #351's integrated head passed the same gate. Browser import,
-physical Android and destructive-restore behavior remain separate evidence.
-
-## Desk action sizing merged: 25 September 2026
-
-A bounded #221 follow-up raises the Desk hero's two quiet actions from 10px/33px
-on a 390px phone to 12px/44px, and raises its adjacent 43px actions to 44px.
-At 320px, 390px and 1280px, the page has no horizontal overflow. A 320x568
-Chromium touch run cycled the edition and pinned the desk without a page error.
-The 12 real-origin mobile QA tests and 184 isolated browser UI checks passed,
-including controls across all thirteen game families. Local format and Android
-build passed. The concurrent Node suite in `npm.cmd run verify` stopped
-progressing in `tests/platform.test.mjs` and was interrupted; that file passed
-all 16 tests alone. The serial Node suite passed 529 with three skips, and both
-Quiet Wing suites passed. PR #351's exact-head hosted Verify and Android checks
-passed before merge. Physical-phone acceptance and the wider #221 button
-recipe work stay open.
-
-## Block Cabinet visual stability merged: 25 September 2026
-
-Issue #160's ordinary-placement and line-clear blink paths are reproduced in a
-real built Chromium origin. The placement lock had dimmed all 64 cells to 40%
-opacity for roughly 15 frames. A Classic clear hid an unrelated stationary
-piece for 18 frames. The source candidate keeps locked cells opaque and leaves
-pieces unchanged across every clear wave in semantic HTML; Canvas animates only
-changing cells. The focused Node suites passed 26 tests; the built-origin
-Classic and Cascade browser suites passed 78 and 90 checks, including ordinary
-and reduced motion and stationary pieces through both clear modes. This does
-not establish that every instance of the player's flashing report is gone on
-the affected physical phone. Local full Verify passed on the source and browser
-test commit (535 Node tests passed, three skipped; Android build passed).
-PR #352's exact-head hosted Verify and Android checks passed before merge.
-
-## Night Routes source candidate: 25 September 2026
-
-The stacked #343 candidate adds 18 original Signal Paths, Number Trails and
-Bridges boards, bringing the proposed catalogue to 418 puzzles in 25 packs.
-The six focused Routes/catalogue tests pass locally, including independent
-unique-answer receipts and production reducer replay. An independent review
-found no confirmed correctness blocker. Hosted full Verify and real-control
-browser checks remain pending; human difficulty and physical-device acceptance
-remain open under #161 and `HUMAN_TODO.md` q-8.
-
-## Night Symbols source candidate: 25 September 2026
-
-The stacked #344 candidate adds 12 original Sun & Moon and Futoshiki boards.
-The proposed Night collection totals 48 additions and 430 puzzles across 26
-packs. Its six focused Symbols/catalogue tests pass locally, including exact
-definition receipts, independent unique answers and reducer replay; independent
-review found no confirmed correctness blocker. Hosted full Verify and real-control
-browser checks remain pending. Expert/Master labels, human solve paths and
-physical-device acceptance remain open under #161 and `HUMAN_TODO.md` q-8.
-
-## Repository and release checkpoint: 25 September 2026
-
-PR #330 merged the 0.11.6 source candidate with merge commit
-`287fc38757d8628bfa8a0b6912adf90aadca0219`. Its exact head
-`3adfde9db7c68c2c78741a1e99c6090ec0f4cc9c` passed [Verify puzzle cabinet](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890060)
-and [Verify Android payload](https://github.com/Chris0Jeky/Alibi/actions/runs/36087890051).
-Independent review found no confirmed CRITICAL/HIGH issue. The earlier failure on pre-fix head
-`9ebf813` was corrected and is retained as history in [the release record](RELEASE-0.11.6.md).
-
-The source catalogue now contains 382 puzzles across 23 packs. Release 0.11.6 includes six
-new Picture Logic studies, Lantern and Tents hint improvements, Archive boundary corrections,
-a Reversi depth correction and the refreshed Observatory release check. Local
-`npm.cmd run verify` passed with 526 Node tests (523 passed, 3 skipped), both Quiet Wing suites,
-and a 130,014-byte JavaScript gzip bundle, 34 bytes below the fixed cap. Pulseboard PR #86
-registered 0.11.6 and its `v0.11.6` catalogue tag. PR #87 merged connection improvements as
-`ad42c96520b79c406c1395908a9dcdb009178c54`: no-argument checkout discovery, structured JSON
-receipts, and a read-only scheduled/manual watch. The local no-argument checker discovers the
-sibling Alibi checkout and reports it in sync; its adapter SHA-256 is
-`f63eb983e77c118a0c70ba8cdc37e9f6f9ba67868fdd508d70f98f43095f95e8`. Hosted watch
-[36090389677](https://github.com/Chris0Jeky/Pulseboard/actions/runs/36090389677) succeeded on
-that Pulseboard main commit.
-
-This is a source merge only. No 0.11.6 tag, deployment or public GitHub release was created;
-0.11.5 remains the latest deployed release. PR #329 remains draft because head `e0efa24` is
-55 bytes over the unchanged JavaScript gzip cap. #281 remains draft pending maintainer
-architecture acceptance. See [the repository sweep](REPO-SWEEP-2026-09-25.md).
-
-The primary checkout's tracked files are clean on `main` after the documentation refresh. The
-merged release worktree and local branch were removed with ordinary Git removal after confirming
-there were no tracked or untracked edits; its ignored contents were generated builds, dependencies
-and test results. Thirteen Git worktrees remain registered, including asset worktrees,
-unique-commit work and the dirty external review worktree. Windows refused plain removal of 18 old
-local directories, now outside the registry. That dirty review worktree and the refused
-directories remain preserved.
-`HUMAN_TODO.md` q-1 through q-8 remain open, including source licensing, physical Android and
-TalkBack checks, and human calibration.
-
-## Curation guard coverage: 25 September 2026
-
-Focused Node coverage now checks that editorial notes do not attach to imported IDs or
-other puzzle revisions, that editorial and museum text is escaped, and that the
-gallery filters artwork by venue and kind. Eight focused tests pass. This adds no
-runtime logic, content, save-schema change or published puzzle ID. Full Verify,
-browser and physical-device checks remain separate evidence gates.
-
-## 0.11.6 publication preflight: 25 September 2026
-
-PR #332 merged focused curation tests as `da19969` after exact-head Verify and
-fresh-context review. The 0.11.6 source at `84be37f` passed local Verify,
-example-pack validation, Observatory check and a Cloudflare dry run; its clean
-build is `024c5bc9bd9d` with 382 puzzles and 130,014 JavaScript gzip bytes.
-Read-only HTTPS checks still found the previous builds on both existing origins.
-No 0.11.6 tag, deployment or public GitHub release has been created. A real
-IndexedDB two-connection check then reproduced [restore issue #333](https://github.com/Chris0Jeky/Alibi/issues/333):
-a save made between the pre-restore snapshot and replacement vanished from both
-live runs and the recovery copy. The next release needs a verified fix before
-publication. See [the release record](RELEASE-0.11.6.md); `HUMAN_TODO.md`
-q-1 through q-8 remain open.
-
-The issue #333 fix candidate at `cbfdf0e30688c4c6ed6acc05adec4ee427b32b12`
-reads recovery data and replaces Cabinet records in one IndexedDB write
-transaction. A merge rejects a stale snapshot and retains another tab's fresh
-preferences; a queued error aborts the transaction. Both real-origin regressions
-failed before their fixes and passed afterward. Local Verify passed (529 Node
-tests passed, 3 skipped) and the full origin suite passed 214 checks. The clean
-build is `7af1c8978307` with 130,271 JavaScript gzip bytes. The safety fix
-needed a measured 256-byte increase to the previous bundle limit; the new
-strict limit is 130,304 bytes.
-The first independent review found the preference loss and it was fixed; a
-fresh review of that logic change and exact-head CI are still required before
-merge or publication.
-
-## Source reconciliation checkpoint: 24 September 2026
-
-This working tree starts from main `6da00fcd701a4ffa4ed01614e16cc8752fa1032c`, after
-Tents reasoning PR #324 merged. A clean main checkout passed `npm.cmd run verify` at that
-commit: 519 passed, 3 skipped and 0 failed; the emitted JavaScript measured 130,012 gzip
-bytes, below the existing 127 KiB cap. The build still identifies the source version as
-0.11.5; this is a source checkpoint, not a new release or deployment.
-
-House wait PR #311 includes child #315. Their combined changes replace fixed sleeps with
-predicate waits for route and restored opener focus, and add three Node regressions that
-execute the actual browser predicates. The two House browser suites keep their existing
-focus assertions. See PR #311 for exact-head CI and review receipts; source-level predicates
-do not establish physical-browser, phone, or accessibility acceptance.
-
-The 24 September Muse wait branches #313, #316 and #318 are being requalified against current
-main. PR #281 remains draft pending its maintainer architecture acceptance. Human acceptance
-for physical Android/TalkBack use and provisional puzzle calibration remains open in
-`HUMAN_TODO.md`.
-
-## Matching and review continuation: 24 September 2026
-
-The Tents review also identified a distinct shared-tree witness on tents-04. The latest
-hint-only correction uses the existing augmenting-path matcher with its sides reversed,
-requiring each placed or forced tent to have a distinct adjacent tree. It checks existing
-assignments and the whole hypothetical forced set, without changing engine validation,
-reading stored answers, installing hypothetical marks or adding a puzzle-search fallback.
-Two further tests were observed failing before correction; 25 hint tests now pass. The
-independent arbitrary-mark model additionally checks partial matching, and a positive case
-requires reassignment rather than greedy pairing. The 621 official steps remain unchanged.
-
-The wrong-C1 browser/Undo scenario passed at both widths in run 36060033384. The new shared-
-tree browser scenario and current emitted bundle still need latest-head CI. The formatted
-predecessor c70faaf built at 130,112 gzip bytes, 64 bytes over the unchanged cap. Reusing core
-number-grid groups and reducing repeated wording addresses size without removing rules or
-raising limits; 2,210 peer sets across 54 number boards matched the earlier geometry. See
-[TENTS-REASONING.md](TENTS-REASONING.md) for limits and exact evidence scope.
-
-House child #315 joined #311 as `2a5fca0f266ca424d694c5c2e86d7f310d66fbca`. Earlier source
-checkpoints below remain dated history; live GitHub status and PR #311 hold the latest
-combined-head CI and review receipts.
-
-## Latest continuation: 24 September 2026, after 21:00 UTC
-
-The source baseline is now main `93852f76a3b3014d463a6dab55b7d657efc836ef`.
-#320 merged as `db4925fb28f5e1dce348f7d53712722005605ed4` after final-head full Verify,
-four dedicated lanes and independent review. All four inline findings were addressed.
-The source catalogue is 382 puzzles across 23 packs, including 40 Picture Logic entries;
-the six new pictures remain provisionally rated. #161 and q-8 stay open.
-#326 merged as `93852f76a3b3014d463a6dab55b7d657efc836ef` after full Verify, Android payload
-and independent review. It normalizes Reversi depth without changing the normal worker path.
-
-#324's combined head 4bad87b also completed all five workflows, but review 4098104696 found
-that incorrect crosses could force a tent into a fulfilled perpendicular line. The correction
-validates the whole forced set on a copied board and reports the conflict instead of a move.
-Three new regressions failed before the fix. The current 23-test hint run passes, retaining
-872 compatible-board deductions and 621 official Tents steps. An independent arbitrary-mark
-check covers 1,568 locally legal positions: 1,532 safe moves, 14 conflicts and 22 fallbacks.
-The browser route adds wrong-cross advice, no-mutation checks, Undo and resumed valid play
-at both 390px and 1440px. Python compilation passes. See TENTS-REASONING.md.
-
-Require the corrected head's exact CI, current bundle budget and independent review; older
-4bad87b results do not qualify new bytes. No published puzzle, save schema, dependency,
-resource cap or deployment changes are part of this continuation. Local npm registry access
-was retried and remains blocked. Full local build/browser success is not claimed.
-
-The earlier checkpoint below is retained as dated history. Its pending-merge statements are
-superseded by the latest continuation above, not erased from the evidence trail.
-
-## Gameplay continuation: 24 September 2026, evening
-
-This checkpoint starts from main `753b5d0476b79abde633a579227264556f996380`.
-It records source work, not a deployment. Live GitHub takes precedence for later PR status.
-The previous STATE is preserved byte-for-byte in
-[the gameplay-base archive](STATE-ARCHIVE-2026-09-24-GAMEPLAY-BASE.md), including all earlier
-maintenance, source/CI, hosted-origin, Android preview and rollback references.
-
-### Landed gameplay
-
-#317 fixed Archive map occupants, missing rows, completion and board-edge handling, preserving
-all nine rooms and replay identities. It merged as `12817918456cff0b4d92ac61e59ccc2126e1aeed`.
-#322 added four answer-independent Lantern deductions and merged as
-`753b5d0476b79abde633a579227264556f996380`. Both had full exact-head verification, independent
-review and unchanged-head checks before merge. Their PRs retain detailed evidence.
-
-### Picture Logic expansion, #319 / #320
-
-Six original revision-1 15x15 pictures propose 382 source puzzles across 23 trusted packs.
-All earlier 376 definitions remain unchanged. Labels are provisional, not human calibration.
-The first full Verify failed in `browser_expert_families.py`: its fixed 21-card Expert count
-could not include the two new Expert boards (actual 23). This was not an origin-storage or
-puzzle-solver failure. The complete log was recovered as artifact `10829779903`.
-
-Head `9d156c64f3cfeccc50c6c92eff375f6d33987df5` derives expected Expert revision keys from the
-trusted registry and checks exact displayed membership as well as count. The temporary log
-collection job was removed; no extra Actions permission or weakened verification remains.
-All five workflows passed on that head. Review then identified the 24-card pagination
-boundary; head `2ce1807f90998fa2478b019e2df73aff55865fc4` also expands Show more before exact
-membership checks. Five controlled list sizes and a non-progressing control were checked.
-Require that final head's full CI and review before merging. Keep #161 and human q-8 open.
-
-### Tents reasoning, #323
-
-Four local rules extend the existing hint seam: tree adjacency, tent spacing, fulfilled line
-counts and forced remaining sites. Seven new plus five existing source tests pass, including
-872 independently checked deductions over 880 compatible small-board states and 621 official
-steps with answer access blocked. See [TENTS-REASONING.md](TENTS-REASONING.md).
-The existing reasoning browser workflow now checks Lantern and Tents controls. Require its
-receipts, full exact-head CI/budgets and independent review before merge. No complete-solver,
-automatic-move, save-schema or puzzle-revision change is introduced.
-
-A later bundle check measured 130,141 gzip bytes, 93 bytes over the unchanged 127 KiB limit.
-Shorter explanations for Tents, Lanterns and number hints preserve their rules and reduce the
-actual emitted bundle to 130,029 bytes on head `7a5b744`. Twenty combined hint source tests and
-both reasoning browser suites pass. The separate historical phone-action warning below was
-restored after its existing source test caught the loss from the condensed handoff.
-
-### Reversi search boundary, #325 / #326
-
-The engine accepted fractional depths that never reached the recursive zero-depth stop.
-Three new regressions reproduce the defect on a bounded seven-empty-square endgame. Head
-`541209500f2f0f24eb09602e1d66249565829038` normalizes invalid values to four and retains the
-existing one-to-five integer clamp. Nine Reversi/Club/challenge subtests pass locally; the
-published corrected source blob matches the tested bytes. Require final-head CI and review.
-The shipped worker uses depth four, so this is not a reproduction of the reported phone freeze.
-No game rules, replay versions or published Archive layouts changed.
+## 2026-10-14: a held digit leaves a cell note in place
+
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the held-N, Escape, restore, and voices focus guards.
+
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. The same page leaves a held N on, and a later N turns it off. No page errors. The asset catalogue records the combined `src/app.js` at 206,872 bytes, sha256 `6cba9ab0e95b9a29af229eaedd4339646d35d8250b9b01667d0634cdfd79e45e`. `tests/budget.test.cjs` passed on the combined local web build `743aa6ed8a75` at 203,269 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held N leaves Cell notes on
+
+Holding N turns Cell notes on once. A later press still turns them off. That change kept the Escape, restore, and voices focus guards.
+
+An isolated desktop page showed the old behavior first: the first N turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. No page errors. The asset catalogue records the combined `src/app.js` at 206,770 bytes, sha256 `20d743cb09065d66a23ea30ed659d90f935ca9a259cb9643c45e4fc4fe0879b2`. `tests/budget.test.cjs` passed on the combined local web build `20db11ab954e` at 203,259 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: Not now leaves focus on the page
+
+Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
+
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. That change kept the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Escape does not flicker pause
+
+Holding Escape to close How to play no longer pauses the board on the key repeat. Holding Escape on the board pauses once. A separate press still pauses, and the next press resumes.
+
+An isolated desktop page showed the old behavior first: the repeat after the help dialog closed paused the board. After the change, that repeat leaves the board running, and a later press still pauses. That branch recorded `src/app.js` at 206,670 bytes and a local web build of 203,262 initial gzip bytes, under the existing 205,248 ceiling. Build `5b0c8db24867` was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a restore button runs one restore
+
+Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
+
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: save conflicts freeze notes and an open paint stroke
+
+Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
+
+An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. A later press does not start a new stroke. That change recorded `src/app.js` at 206,364 bytes and a local web build of 203,234 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
+
+Play-board keyboard handling returns after the existing Ctrl+Z and Ctrl+Y cases when Ctrl, Cmd, or Alt is held. Those combinations no longer place a digit, move the selection, or toggle notes. Shift+Enter on a network tile is unchanged.
+
+An isolated desktop Chromium page places digit 1, Ctrl+Z undoes it, and Ctrl+1 leaves the sudoku state unchanged without cancelling the key. The same page's existing bridge and network keyboard checks pass. `tests/budget.test.cjs` passed on that local web build at 203,163 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Hosted checks at `f3e3a918` failed only the asset-catalogue size pin. That change alone recorded `src/app.js` at 205,965 bytes. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: storage contract cases
+
+`tests/storage.test.cjs` was one async pass/fail blob under `node --test`. It is now four serial cases: local fallback, session fallback, rejected restore, and a newer IndexedDB. Every previous assertion is unchanged. A full run still records 58 assertions in `tests/storage-results.json`, and that file is written only when all four cases ran and passed. Breaking the local revision check fails that case and leaves the other three passing. Save behavior is unchanged. Issue 519 stays open for any remaining suite that is still one blob. Physical device checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-14: 0.15.2 artwork published
+
+PR #659 merged as `030d5812198507793154568532bc059d5700980f`, closing #655 and
+#658. The primary Cloudflare origin now serves 0.15.2, build `ae20e9724548`,
+from that clean source; Worker `8ee83c79-94e8-4cd1-aa68-b31fecdd9a0a`.
+The public v0.15.2 tag and all 16 release attachments match the qualified
+source/artifact hashes. The 301 public files return HTTP200 with exact SHA256,
+correct MIME/security headers and an unknown-path 404.
+
+Startup headroom is 2,121 bytes (203,127 against 205,248); deferred content
+is 11,490 against 12,288. Six Scene variations use the existing precached
+deferred file; all 510 identities/revisions and pinned saves remain intact.
+Three optional paintings and navigation/family pictograms are now available
+on the primary site. The codec and ceilings remain unchanged.
+
+All hosted acceptance/control lanes pass. Windows full verification passes
+1,510 Node tests, Quiet Wing 581,847 assertions and 29 contracts; the merged
+build passes focused32, UI187 and origin381. Vault controls pass801; hosted
+paintings pass24, durability19, backup/restore32 and offline23. Actual
+0.15.1 to 0.15.2 Save & update preserves two Sudoku moves and the pinned
+definition, followed by a successful offline reload. Phone/desktop visuals
+were inspected; these checks do not certify physical devices.
+
+Pulseboard #231 is merged/deployed, schema5 and ready with Alibi admitted;
+SDK3.3.1 remains pinned. Source, public file, collector and release receipts
+are in [RELEASE-0.15.2.md](RELEASE-0.15.2.md). Packager scenario drift is
+tracked in #661; the full current report is retained explicitly. Owned worker
+evidence survives outside disposable worktrees in the artwork-0152 archive.
+The prior 0.15.1 Worker is retained; rollback was not executed. Physical
+Android/TalkBack and other owner conditions remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-14: 0.15.2 release qualification
+
+The release candidate fixes relative pictogram contours (#655) and regenerates
+missing or corrupt painting derivatives from verified masters (#658). All 48
+painting hashes and 32 derivatives reproduce without changing image bytes.
+Six revision-1 Crime Scene variations use the existing precached deferred file:
+424 definitions load initially and 86 remain available on demand and offline.
+The unchanged codec saves 2,216 startup gzip bytes through that deferral.
+
+The 0.15.2 candidate measures startup 203,125 against 205,248 (2,123 bytes
+headroom), shell 1,406,272 against 1,412,792.32 and deferred content 11,490
+against 12,288. Deferred delivery passes 16 real-control browser cases and the
+focused offline origin checks; full final-head qualification remains pending.
+Pulseboard registration is PR #231, with the pinned SDK still version 3.3.1.
+
+Publication is pending final checks, review and collector readiness. The primary
+still serves 0.15.1; the existing Worker is retained for rollback. Deployment,
+same-origin save/update and public release receipts belong in
+[RELEASE-0.15.2.md](RELEASE-0.15.2.md) after execution. Physical device and owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-14: artwork budget recovery
+
+PR #650 merged as c800be5a; its complete README and motion-preview histories
+are on main, and qualification tracker #653 is closed. The artwork integration
+preserves the original #525/#643 and #521/#642 histories, all 60 painting-shelf
+files and 29 pictogram SVG masters byte-for-byte. Three 320px paintings use
+optional delivery on the Desk and Games Room; navigation and family pictograms
+use the reviewed masters. Source vector studies remain proposed.
+
+Removing unused old-home selectors saves 7,585 emitted CSS bytes without
+changing any retained rule. Three numeric selection thresholds in the existing
+official-content encoder recover startup gzip; the runtime decoder is identical.
+No byte ceiling is changed. Combined runtime source 96db0a7e builds f61029df2828:
+shell 1,406,273 against 1,412,792.32, startup 205,181 against 205,248. All 510
+puzzle definitions, IDs/revisions and initial/deferred JSON order remain exact;
+the only content-global additions are the three intended artwork delivery entries.
+
+That clean source passes full Windows verify: 1,504 Node passes, zero failures,
+three intentional filename skips, Quiet Wing 581,847 assertions and 29 contracts.
+UI187, pictogram navigation52 and actual-origin375 pass. All 48 painting hashes
+and 32 derivatives reproduce; Cloudflare dry-run passes. Muse's bounded encoder
+worker completed successfully; both new regressions fail with the previous
+encoder and pass with the tuned encoder. Independent Sol review found no
+HIGH/CRITICAL blocker; future relative-contour compaction is tracked in #655.
+
+The integration PR carries final head, browser/visual and hosted qualification.
+Startup margin remains narrow. This is source qualification, with no production
+release or deployment. Physical Android/TalkBack, publisher and other owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-14: bounded PR queue reconciliation
+
+Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
+closed as superseded by current main, with its branch/history preserved. The
+candidate integrates the complete #648 pause-repair, #641 README and #647
+source-preview histories using merge commits. State conflicts retain both
+added records and the existing ledger. No release or deployment is implied.
+
+Exact pause source 25bb3aae passes clean-source full Windows verify: 1,490 Node
+passes, zero failures, three intentional filename skips, plus Quiet Wing
+581,847 assertions and 29 contracts. Muse's renewed file-only review completes
+with report_status=ok and integrity=ok, without findings. The final integration
+retains that runtime byte-for-byte; clean both-target build, unchanged budgets,
+focused checks and hosted qualification still bind at its final head.
+
+The runtime painting candidate remains parked: composition 86bb60a9 measures
+shell 1,412,963 against 1,412,792.32 (170.68 bytes over), startup 205,211 against
+205,248. All painting masters/derivatives and source-preview records survive.
+The Quiet Wing revision-limit repair also remains parked in composition:
+17ef2af7 measures shell 1,412,948 (155.68 over), startup 204,268 (980 under).
+Its standalone qualified source ac6a6783 passed 98 actual-origin browser checks,
+import/engine/contracts and the same budget (1,412,778), but is not a safe
+combined landing. No ceilings were increased or custom decoder introduced.
+
+Other draft stacks retain their own budget, transfer-integrity, native,
+editorial and dependency gates; #500's explicit human skim hold remains.
+Physical Android/TalkBack, publisher and Sites-retirement conditions stay in
+[HUMAN_TODO.md](../HUMAN_TODO.md). Source previews are not production artwork.
+
+## 2026-10-14: pause accessibility and landscape repair (#648)
+
+The pause-only inert wrapper now exists only while paused, preserving the
+unpaused Bridges direct-child landscape grid. Resuming via Return or Escape
+restores focus to the stable pause control. The new layout-parent assertion
+fails on the previous head; hosted mobile failures also reproduce the missing
+lower islands. Existing puzzle identities, saves and byte ceilings are unchanged.
+
+Repair source passes 24 pause checks at phone/desktop sizes, all 18 real-origin
+mobile cases and 187 UI cases; screenshots of the landscape board and focused
+phone cover were inspected. The 26 focused Node cases and emitted budget pass;
+web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling).
+The first full verify correctly refused the dirty Android source; clean-source
+verification and renewed independent review are required at the final head.
+Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+## 2026-10-12: README reconciled to the source
+
+The root README was rewritten against the current tree. Counts come from
+`content/official-packs.json` (30 packs, 510 puzzles, 430 initial, 80 deferred),
+`content/casebooks.json` (five books), and `content/challenges/` (95). Family
+names match `src/presentation.js`. Games Room cards match `src/club.js`. Package
+version 0.15.1 matches `package.json` and the recorded Cloudflare receipt in
+`docs/RELEASE-0.15.1.md`. On 12 October 2026 the primary origin's platform
+identity script reported appVersion 0.15.1 and source
+`98be800d0715a25695fe99480bb801fd30397220`. The Sites origin reported
+appVersion 0.12.0. No runtime, content, save schema, or deployment change.
+Local README link check: 52 relative links resolve; `src/artwork/bellweather.webp`
+exists. Badge URLs returned HTTP 200. `npm ci` installed the lockfile.
+`node tools/validate-pack.cjs examples/twelve-families.json` returned valid,
+12 puzzles. `npm run build` emitted version 0.15.1, 510 puzzles, 13 types,
+5 casebooks and 80 deferred puzzles. `npm start` served that build at
+http://127.0.0.1:8787 and the homepage returned HTTP 200. Full `npm run verify`
+was not rerun for this documentation edit.
+
+## 14 October 2026: current-main source-only motion qualification
+
+PR #647 source head d5da1b6378355a6adacdd30f22201fb2d1c1a90b is integrated
+with current main 3d041caf61b46b54a1ba046a50132f760192d758, preserving both
+commit histories and every earlier STATE block. Both preview folders are
+byte-identical to that PR source. No runtime, catalogue, precache, dependency,
+save, budget ceiling or deployment changes are introduced.
+
+Fresh local checks: both preview controllers pass `node --check`, and
+`node --test tests/asset-catalogue.test.cjs` passes 2/2 hash/count/spoiler cases.
+Each existing `verify_preview.py` passes all 24 browser checks with zero page
+errors or network requests. Initial pixels match the unchanged static SVG;
+both loops have zero changed seam pixels. R2 phone/desktop images at 390/1440
+were inspected. Reports and screenshots are retained in ignored
+`test-results/motion-r1-current-main/` and `test-results/motion-r2-current-main/`.
+The shared Python environment lacked Pillow, so its dependency was installed
+only in ignored `test-results/motion-python-deps/`, without changing that environment.
+
+Full gameplay/build, fresh encoded-export decoding, hosted qualification at
+the integration head, deployment and physical-device acceptance were not rerun.
+The prior independent source review and dated export/owner acceptance receipts
+remain historical; HUMAN_TODO.md decisions and physical gates remain open.
+
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
+## 13 October 2026: provisional v2 source acceptance and optional motion draft
+
+Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
+lantern renders, plus the responsive LAS card: “Yeah, I guess these are good enough
+for being SVGs.” This does not accept the later failed coarse studies, pixel variant,
+runtime deployment, licensing or merge. The proposed conversion pivot is stopped.
+Earlier sources, painted assets and archives remain unchanged.
+
+`assets-source/library/vector-pilot/motion-v2-20261013/index.html` compares an exact,
+script-free copy of the lantern v2 master with a separate optional flame-light and
+steam preview. Counters and the scene geometry remain stationary. Initial pixels
+match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
+handling is an explicit DOM-contract probe, not physical phone certification.
+This addition changes no runtime/catalogue/precache/budget/dependency file. Build
+emission and exact-head hosted gates are recorded in the draft PR. Existing owner
+choices in HUMAN_TODO.md remain open.
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
+## 12 October 2026: optional painted-art pilot (unpublished)
+
+This branch imports #525's source shelf and registers all sixteen paintings.
+Only welcome desk, Lantern Duel and Pocket Borough use existing verified optional
+320px delivery, with meaningful SVG fallbacks. The eight-slot cache and budgets
+are unchanged; masters stay outside runtime/precache. The separate native-vector
+lantern study remains proposed. See assets-source/library/vector-pilot/README.md.
+Browser and exact-head evidence is in the draft PR. Combined #521 qualification,
+physical-device checks and HUMAN_TODO.md owner decisions remain open. No deploy.
+## 13 October 2026: pictogram default-branch reconciliation (draft, budget-blocked)
+
+Current main is incorporated with original icon masters, generator safety tests and
+unknown-key fallback preserved. The source catalogue records the actual merged
+app bytes; both evidence histories are retained. Budget assertions and ceilings
+are byte-exact current main, with no new increase. Existing pictogram, alias and
+fallback contracts and formatting pass. A clean same-toolchain current-main build
+passes the shell budget; this individual icon integration adds 895 shell bytes
+and exceeds its ceiling by about 697 bytes. Startup still fits. Final clean-head
+measurements and hosted results belong in the draft PR and reconciliation handoff.
+This is separate from the prior combined painting-plus-icon startup limitation.
+No art regeneration, budget relaxation, deployment or physical-device acceptance.
+
+The deterministic 52-assertion isolated-document pictogram browser driver now runs
+beside the existing UI suite in the full verification lane, with screenshots
+retained in that lane's artifact. Its network-aborted scope does not require a
+manual-only exemption and does not prove real-origin or physical-device behavior.
+The earlier unchanged budget gate still stops that hosted lane before browser
+execution; local browser evidence is reported separately, never as a hosted pass.
+
+## 12 October 2026: isolated pictogram alias-safety repair (draft)
+
+A child of draft #521 rejects pre-existing symlinks, Windows junctions and hard
+links in generator inputs/outputs and --check. All six causal regressions fail
+before and pass after repair; five original icon contracts and byte-exact normal
+write/check runs pass. See PICTOGRAM-ALIAS-SAFETY.md. The source draft's conflicts
+with main, physical-device acceptance and HUMAN_TODO.md decisions remain open.
+No merge or deployment; repository gate results are in the child draft PR.
+
+## Club pictogram draft (unreleased): 1 October 2026
+
+Branch `art/club-pictograms-20261001` integrates original club stationery pictograms into the
+existing inline icon table. Thirteen families now have distinct masters, including Bridges;
+Games, Quiet Wing and Castle have table, leaf and battlement destination icons on phone and
+desktop. Labels, routes, controls, gameplay symbols, save contracts and Sudoku unknown-key
+fallback remain unchanged. The 29 standalone masters and reproducible hash receipts stay
+outside runtime/precache; provenance and commands are in
+`assets-source/library/club-pictograms/README.md`. No raster or branding change.
+
+Same-machine baseline at `3ce84ca`: JS 134,285 -> 134,677 gzip; core shell excluding official
+content 1,409,653 -> 1,410,547 bytes. Two trims removed a redundant garden alias and joined
+identically styled adjacent contours; only these two ceilings rise by measured, 64-byte-rounded
++448 / +896. Total offline, CSS and initial-payload ceilings remain fixed.
+Verification is recorded in the draft PR after the clean-source Android/full verify gate and
+isolated phone/desktop browser checks. Not deployed; physical-device/TalkBack acceptance and
+the owner decisions in `HUMAN_TODO.md` remain open.
+
+## 2026-10-14: PR #640 merged with the budget recovery
+
+Main `030d5812` (0.15.2 release, with the artwork budget recovery that brought the shell back under
+the 1,412,792.32 ceiling) is merged into the PR branch, which clears the shell-budget parking recorded
+below; the revision-precision guard itself is unchanged. The checkpoint below predates this merge.
+
+## 2026-10-12: Quiet Wing revision precision guard parked at the shell budget
+
+Quiet Wing rejects unsafe integer revisions on load/import and refuses writes
+or restores once its revision cannot advance safely. The database and save
+schema stay unchanged; original records and previous recovery remain available.
+The baseline reproduced two synthetic atomic-IDB writers succeeding at the same
+unsafe revision, with the stale writer overwriting the first. Both boundary
+regressions failed on unchanged source. The repair passes 43 storage assertions,
+581,856 pure-engine assertions and five import-worker tests, including the final
+safe increment, protected overflow originals, fallback byte retention and legacy
+revision defaults. Independent review found no HIGH/CRITICAL defect. A clean
+build at b4a880b1 emits web build 01295f2621a2. The eight real-origin boundary
+cases at 390/1280 pass 58 checks with zero page errors: actual edits, stale-tab
+refusal, import/restore refusal, raw recovery export and reload preserve originals.
+Phone and desktop screenshots were inspected.
+
+Qualification is parked after three distinct shell-budget attempts. Emitted
+core bytes excluding official content are 1,412,795 against the unchanged
+1,412,792.32 ceiling (2.68 bytes over). The first full Node run also hit the
+unchanged Windows file-symlink EPERM; it was not fully green. The first origin
+run passed its existing prefix but stopped on a phone-hidden desktop field;
+the scoped retry uses the existing mobile name dialog. The full origin suite's
+remaining tail and hosted final gate are not certified. No merge, deployment or
+physical acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md). The separate
+localStorage interleaving issue #596 remains open.
+
+## 2026-10-14: PR #639 merged with the budget recovery
+
+Main `59f47e90` (artwork budget recovery, shell 1,406,273 against the 1,412,792.32 ceiling) is merged into
+the PR branch, which clears the shell-budget failure recorded below; the Borough seed repair itself is
+unchanged. The checkpoint below predates this merge.
+
+## 2026-10-14: PR #639 third landing checkpoint
+
+Current main `3d041caf` merged cleanly into the retained PR branch. The 21
+focused backup/Borough tests pass. Fresh web/Android builds still measure
+1,412,794 shell bytes against the unchanged 1,412,792.32 ceiling; the budget
+test fails. No new source repair or ceiling change was made. This third land
+turn parks the PR pending a separately scoped byte-compliant repair and fresh
+full/hosted verification. Existing review dispositions stand; physical checks
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: PR #639 Borough seed repair
+
+The landing repair preserves finite numeric Borough seeds without rewriting saved
+values, and refuses missing, null, empty and non-seed values. Replay retains the
+engine's existing character and length validation. All 21 focused backup/seed
+tests pass; the existing numeric-history test failed before the repair.
+
+All four failing hosted workflows at the original head report the numeric-seed
+regression and the release-shell budget assertion. The exact main base
+`1ee2de7c` measures 1,412,593 shell bytes and 132,870 JavaScript gzip bytes.
+The compact repair measures 1,412,793 shell bytes (+200) and 132,891 JavaScript
+gzip bytes (+21) before commit; clean source `045c44ca` measures 1,412,794 and
+132,892 respectively. Both exceed the strict 1,412,792.32-byte shell limit.
+Three trim attempts exhausted this turn's budget; the ceiling is unchanged.
+Full verification at `045c44ca` passes formatting and both-target build, then
+reports 1,490 passes, three skips and two failures: the budget and the unrelated
+Windows file-symlink EPERM in `workshop-catalogue.test.cjs`. One independent
+Luna xhigh review found no blocker in the seed repair. The PR is not ready to
+land; release-budget repair and green hosted checks remain required. Physical
+acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: automatic Voices flush test qualification
+
+PR #638 adds four source-harness cases for automatic eligibility-gated flush
+triggers, including standalone and mismatched origins and an eligible control.
+Its four initial hosted jobs fail on the new test's Prettier formatting;
+qualification is correcting that cause without changing runtime or test logic.
+One independent read-only review found no HIGH/CRITICAL defect. The null-selector
+harness covers slotless renders; it does not certify fallback Settings/Privacy
+chunk loading or actual delivery. The corresponding P2 review concern was
+classified once and declined for this formatting repair. All four gate cases and the existing queue suite pass. Removing only kick's
+eligibility guard in a copied-source fixture fails all three negative cases
+while the eligible control passes. PR #638 merged as 1ee2de7c after all four hosted
+checks passed at 461d2860, with the current main/Git merge base confirmed as
+d9eb071e and the non-blocking P2 thread classified and resolved. Physical acceptance
+remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: bounded Challenge recovery export
+
+PR #635 merged as eadee7a6 after all nine hosted checks passed, preserving the
+committed-restore protection repair. The recovery export repair keeps ordinary
+playable pre-restore exports and offers a distinctly labeled raw recovery
+archive for corrupt, future-version or mismatched originals. Original record
+and recovery metadata remain intact; raw archives are not playable imports.
+Explicit restore also retains falsy JSON originals instead of losing them
+through a truthiness check.
+
+Raw serialization refuses non-JSON values and uses a conservative escaping
+and traversal budget with a 3 MiB file ceiling. It can refuse smaller archives;
+refused records remain stored. The baseline has eight passing and six failing
+source cases; the formatted repair passes all 42 focused ownership/storage/export
+cases. Clean source d2d59bb8 builds web 050812f7ebec and passes 14 actual
+recovery/restore/reload scenarios at 390/1280, 184 UI checks, the existing
+Challenge controls fixture and all 375 full real-origin checks with no page
+errors. Phone success and desktop refusal screenshots were inspected. The two
+Quiet Wing bare-assert suites pass separately. The full Node run has 1,481
+passes, three skips and one unchanged Windows file-symlink EPERM, so it is not
+full local green. One independent read-only review found no blocking defects.
+PR #637 merged as d9eb071e after all nine hosted checks passed at 4b4f6e43;
+automatic Codex review completed without findings. No deployment or physical Android/provider
+acceptance is claimed; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: Challenge restore protection repair
+
+An explicit Challenge restore now clears only the restored challenge's old
+protection flag after the replacement transaction commits. Previously, a
+corrupt read followed by a successful restore left subsequent moves unable
+to save until reload. The original record remains under `recovery:<id>`;
+failed restores and other protected challenge IDs remain protected.
+
+The new persistence regression fails on the previous source and passes with
+the repair; all 19 focused restore/storage/revision/lifecycle cases pass.
+Clean source 2b4ffcc5 builds web 7c2cad8d1c5a and passes the extended real
+IndexedDB Challenge fixture at 390/1280 plus all 375 full real-origin checks,
+without page errors. Formatting and both-target build pass. The full Node
+run has 1,474 passes, three skips and one unchanged Windows file-symlink
+EPERM; it does not reach the subsequent bare-assert Quiet Wing suites and
+is not full local green. One independent read-only review found no defects.
+All nine hosted checks passed for [PR #635](https://github.com/Chris0Jeky/Alibi/pull/635),
+which merged as eadee7a6.
+No deployment or physical Android/TalkBack acceptance is claimed; remaining
+owner actions are in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: qualified overnight integration and preview
+
+PR #633 merged as 73017566 after all seven reported hosted checks passed.
+It preserves #630/#631/#632 and their independent reviews. Together with
+#594/#592/#607/#610/#608/#614/#609/#624/#625/#629, this is eleven qualified
+merge operations; source PRs marked merged with an integration are not extra
+operations. The combined source passes 55 focused Node cases, 129 Voices
+assertions, 104 Theatre assertions, 184 UI checks and 18 real-origin mobile
+cases. The earlier full local run retains one pre-existing Windows symlink
+EPERM and three intentional skips; it is not full local green.
+
+Exact clean PR source d443146e builds web 0178f7a4c92f and Android browser-preview
+artifact d3be963b. Existing Worker version a5e7aeea-016c-4ba0-94f7-63d09424e380
+is a version preview, not a primary promotion. Its 18 emitted/budget/archive
+cases, 12 HTTPS response/byte checks, 55 shared-path and 26 unknown-path browser
+checks, and two 320px mobile cases pass. Six primary response samples are
+unchanged. CSS gzip is 34,451 bytes under 34,464; shell is 1,412,594 bytes under
+1,412,792.32. The registered 0.15.1 SDK pin passes; fresh read-only collector
+readiness is HTTP 200, schema 5, ready and Alibi admitted, matching the existing
+owner receipt. No collector deployment or migration occurred.
+
+The existing invitation-timing test now pins 30 days minus one millisecond and
+nine additional completions as ineligible, retaining the positive 30-day/ten-
+completion and new-release controls. Runtime and saved formats are unchanged.
+
+Finished Muse drafts through wave 433 are preserved on explicitly unqualified
+checkpoint branches. Duplicate guard expansions and compatibility tightenings
+were declined. Required proof artifacts and checksums survive outside removed
+owned trees; the occupied primary and foreign/legacy dirty trees were untouched.
+PRs #617/#618 remain parked for measured budget failures and current conflicts;
+#579/#593 retain transfer-integrity gates. Native, creative and other draft
+stacks retain their own gates. Physical Android/TalkBack, signing, publisher and
+editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: third qualified integration candidate
+
+This candidate preserves the reviewed source heads of #630 (c7e7e5e8),
+#631 (84a0cfb5) and #632 (5c5d4a42), based on main d6ed7571. The eight changed
+runtime/tool/test files match their reviewed sources exactly. Only STATE had
+merge conflicts; the full base ledger and all three added records are retained.
+A faulty external merge helper briefly dropped ledger text in an unpublished
+intermediate commit; the complete ledger was reconstructed before qualification.
+Fresh combined interaction/history review found no HIGH/CRITICAL defect.
+Clean source b14fcbad builds web 9a90ccfb2311 / Android artifact 3bcb41ab and
+passes formatter, 55 focused Node cases, 129 Voices assertions, 104 Theatre
+assertions, 184 UI checks and all 18 real-origin mobile cases without page
+errors. Existing emitted budgets pass. Source-specific baseline/guard controls
+and phone/desktop views remain recorded in the original PRs. Exact-head hosted
+qualification remains pending. No primary release, collector readiness or
+physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: reset candidate refreshed against qualified integration
+
+PR #629 merged as d6ed7571 after all seven reported hosted checks succeeded.
+It preserves #571/#561/#626/#578/#590/#628 source histories. The reset candidate
+now includes that main commit; the only merge conflict was this state ledger,
+and both qualified records are retained below. Prior reset review still applies
+to the unchanged queue and Privacy logic. Clean refreshed source 30b97488
+(web c0197a1e2ce1 / Android artifact 718cd5a2) passes formatter, 47 focused
+Node cases, 129 Voices assertions, 184 UI checks and all 18 real-origin mobile
+cases with no page errors. The unchanged emitted budgets pass. The prior
+375-case storage proof remains scoped to source 609c1ff4; storage code did not
+change in this base refresh. Exact-head hosted qualification remains pending. Conservative failure feedback when
+storage reads and removal both fail is recorded as a MEDIUM limitation: page-only
+key rotation works, but durable removal cannot be confirmed. No primary release
+or physical-device acceptance is inferred; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: survey-key reset failure candidate
+
+Resetting the survey key now returns an explicit failure when storage refuses
+key removal, and the Privacy status reports that failure instead of promising a
+new key. A narrow regression refuses only key removal while queue writes remain
+available; it preserves the stored key and the respondent read. All 29 queue
+cases pass. The same new assertion fails against the previous implementation
+(1 instead of false), with the other 28 cases passing. Successful zero-answer
+and answer-removal resets retain their existing controls. An actual Privacy
+button failure/recovery control is added to the existing Voices browser suite;
+clean source 609c1ff4 builds web 6912ac1775d9 / Android artifact 1d339606.
+Formatter and 47 focused Node cases, 129 Voices browser assertions, 184 UI
+checks and 375 real-origin storage checks pass with no page errors. A disposable
+compiled guard-removal control fails specifically at the new failure-status
+assertion; the source retains successful reset and new-key controls. Phone,
+desktop and the actual failure status are inspected. Fresh independent review
+found no HIGH/CRITICAL defect. Hosted exact-head qualification remains pending.
+Queue deletion order is unchanged: a failed key removal is not an atomic rollback
+or collector-side deletion. No physical-device acceptance is inferred; see
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: configured release-checkout lookup
+
+Release preparation now checks PULSEBOARD_REPO and the direct Pulseboard
+sibling before deriving a linked-worktree sibling from Alibi Git. A valid
+configured checkout works when Alibi is a source archive without .git. A
+disposable real filesystem regression fails on the previous eager Git probe
+(five existing cases pass, one new case fails); all six pass after the fix.
+The same case checks direct-sibling lookup and refusal of an invalid explicit
+path. Existing release-record and Windows symlink failure controls remain.
+No collector checkout, release version, registration, publication or deployment
+was changed. Broader qualification and independent review remain pending;
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains release/device owner gates.
+
+## 2026-10-11: stopped room sound reports its actual state
+
+The existing reduced/hidden stop step now runs before refreshing Theatre status
+and controls. Choosing Still the room stops playback and clears its displayed
+Playing message immediately; the redundant final sound-button loop is removed.
+One assertion extends the existing actual-control suite. The original qualified
+build fails that assertion after successful playback and audio disposal. Clean
+source 5201b392 builds web d188a296c490 / Android artifact 3e6139c1 and passes
+formatter, 18 focused Node cases, 104 Theatre assertions, 184 UI checks and
+all 18 real-origin mobile cases without page errors. Both phone and desktop
+views show Room sound off and no stale playback status. Fresh independent
+review found no HIGH/CRITICAL defect. Exact-head hosted qualification remains
+pending; no physical preference-change or primary release is claimed.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains owner/device gates.
+
+## 2026-10-11: second qualified integration candidate
+
+This candidate preserves the reviewed source histories of #571 (1a2e8557,
+including #561), #626 (d9a44960), #578 (c79d878d), #590 (1d504464) and
+#628 (285df3dc), based on main f8d5093e. It combines dated handoff preservation,
+numeric Borough backup validation, individually named audio assertions,
+touch guidance and actual Theatre control regressions. Content, tools and dependencies match the previously qualified #590 source
+56c5be27 byte-for-byte. The refreshed #590 hosted mobile gate exposed 320-pixel
+overflow and an obstructed disclosure click. An isolated comparison reproduces
+the overflow and removes it by bounding clipped keyboard help to the existing
+one-pixel screen-reader geometry; both disclosure controls pass locally.
+The CSS fix is qualified on clean source bbf56404 (web e0e0db826344,
+Android artifact 6bd34d92). Formatter, 74 focused Node cases with audio decoding,
+37 keyboard/AX checks, 55 core checks, 102 Theatre checks, all 18 real-origin
+mobile cases and 184 UI checks pass. Phone/desktop and 320-pixel disclosure
+views are inspected. CSS gzip is 34,451 against the unchanged 34,464 ceiling;
+shell is 1,412,662 against 1,412,792.32. Fresh combined and fix-diff independent
+reviews found no HIGH/CRITICAL defect. Source-specific controls and reviews
+remain recorded in their PRs; exact-head hosted gates remain pending.
+The initial local mobile helper formed a double-slash URL and failed readiness;
+its interrupted run is not a passing suite. The corrected real-origin suite
+passes both cases from the actual hosted failure without a flaky dismissal. No source PR merge or primary deployment is claimed.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance
+and the existing release and owner gates.
+
+## 2026-10-11: recovered dated handoffs
+
+The original 3 October ledger is retained byte-for-byte in
+[STATE-HISTORY-2026-10-03.md](STATE-HISTORY-2026-10-03.md), alongside the
+[Workshop discovery receipt](qa/2026-10-03-workshop-discovery.md) and
+[4 October recovery receipt](qa/2026-10-04-gameplay-recovery.md).
+The original continuation index remains in preserved commit
+[cb823f37](https://github.com/Chris0Jeky/Alibi/blob/cb823f37e0af2851ed9f0f17656cf3b8eed116c3/docs/STATE.md).
+These dated records preserve their observations and pending gates; they do not
+assert current PR status or repeat their historical checks on today's head.
+Source merges are not a deployment.
+The [3 October goal closeout](https://github.com/Chris0Jeky/Alibi/blob/9c7bcf8f3bdf2ce3eb5104fc0f41231915f17fb2/docs/STATE.md)
+and its [planner](qa/2026-10-02-goal/PLANNER.md) and
+[orchestrator](qa/2026-10-02-goal/ORCHESTRATOR.md) retain that session's
+submission and cleanup receipts as historical evidence.
+
+Continuation references remain [PROJECT-MAP.md](PROJECT-MAP.md),
+[Workshop discovery](gameplay/WORKSHOP-DISCOVERY.md), its
+[implementation plan](superpowers/plans/2026-10-03-workshop-discovery.md), and
+[HUMAN_TODO.md](../HUMAN_TODO.md). Historical #404, #389 and #433 follow-ups
+remain subject to live issue state and their own acceptance evidence.
+
+## 2026-10-11: challenge save ownership regression
+
+The existing launcher harness now checks that a valid published challenge save
+is refused when opening another challenge, with the original input preserved.
+The same-challenge acceptance control remains intact. Eight launcher/lifecycle
+cases pass; removing the ownership guard causes the new case to fail with
+"Missing expected exception". Fresh independent review found no HIGH/CRITICAL
+finding. This test-only change merged as f8d5093e in #625 after all six
+reported exact-head hosted checks succeeded.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
+## Current overnight checkpoint, 2026-10-11
+
+PRs #594, #592, #607, #610, #608, #614 and #609 have merged with exact-head hosted
+successes, independent review and recorded merge receipts. PR #624 merged as
+666cbb79 with all 22 hosted checks green. GitHub also marks its eleven source
+PRs merged at that commit; issues #604 and #619 are closed. #625 then
+merged as f8d5093e, the current main at this handoff recovery checkpoint.
+The integration preserves the reviewed commits from #609, #611, #581,
+
+#576, #591, #612, #613, #615, #616, #621, #622 and #623. Combined interaction
+review found no HIGH/CRITICAL defect. Exact-head CI and current candidate-host
+qualification are recorded in PR #624; this is not a primary release claim.
+The first combined hosted build exceeded the unchanged shell ceiling by 316.68
+bytes. All 15 failed jobs identify that budget assertion; one artifact-upload
+failure follows its skipped browser step. The existing esbuild minifier now
+compacts the worker in a private scope; emitted-worker assertions exercise its
+actual fetch/install behavior instead of depending on internal variable names.
+Clean source 6b8b152a builds to web dbb4e386dde2 and measures 1,412,571 shell
+bytes, 221.32 below the unchanged ceiling. Its local full run passes 1,440 cases
+with three intentional skips and the pre-existing Windows symlink EPERM failure;
+22 focused emitted-worker/budget cases pass. Castle hosted browser checks reach
+their update fixture, which still expected an unminified variable name. The
+fixture now replaces exactly one serialized release value. Clean source
+15c37582 builds to web 9dd71793721b / Android 1bc8c397 and passes 39 focused
+emitted-worker/budget/identity cases, both Quiet Wing suites, 375 real-origin
+checks across all 16 scenarios, 184 UI checks and 18 two-release update checks.
+There are no browser page errors. Phone/desktop recovery views are inspected;
+physical Android/TalkBack remains distinct. Subsequent checkpoint edits change
+only this evidence record. Clean source 72843be8 builds web ce33c615123e /
+Android 444d158d; its existing-Worker candidate 1178c5d6 passes 11 HTTPS
+response/byte checks and 81 hosted navigation checks. Six sampled primary
+responses retain their pre-upload status/hash. Current-host receipts are in
+PR #624; the primary was not promoted.
+
+The corrected #581 Cloudflare candidate dd0417dc at clean source 5e57390b,
+web 0c967f93134f, passed 11 HTTPS response/byte checks and 81 real-origin
+navigation checks, including canonical 404 handling. All six sampled primary
+responses retain their pre-upload status/hash; the primary was not promoted.
+#623 clean source f29df3c1 passed its build/budget and 35 actual-origin
+failed-CAS/navigation/broadcast checks. Its later metadata-only commit refreshes
+13 source catalogue references after a demonstrated hosted digest failure.
+
+#617 and #618 remain parked on the unchanged offline shell budget: measured
+excesses are 204.68 and 502 bytes respectively despite bounded functional proof.
+Nested Miniflare still carries the older Sharp dependency; #609 patches the
+direct dependency only. Physical Android/TalkBack, collector readiness, signing,
+publisher and editorial acceptance remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Entries below retain their historical candidate evidence; this checkpoint
+supersedes their old pending labels. The primary checkout remains untouched.
+
+## 2026-10-11: replayable Borough backup compatibility regression
+
+A numeric Borough seed with a real replayed move remains accepted by the existing
+engine and backup validator. One regression checks the complete accepted save
+and unchanged input. All 15 backup-validation cases pass; a disposable copy with
+the worker-proposed string-only seed guard fails specifically with "Invalid Pocket
+Borough seed." The incompatible production guard is not included. Independent
+read-only review found no HIGH/CRITICAL defect. This pins engine/backup semantics;
+actual restore transactions and historical UI generation are not newly verified.
+Exact-head hosted CI remains required before merge. Owner/device gates remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: Lantern Duel response ordering candidate (#604)
+
+Poll and move completions retain room identity and accept only safe integer versions
+at least as new as the accepted snapshot. Equal versions keep its board and joined
+state; newer versions replace it. Four red regressions reproduce rewinds and invalid
+version acceptance; 22 focused Node cases pass after repair. A real-origin delayed
+response scenario is added, with execution and emitted build evidence pending.
+This layers on #608's API credential binding. Physical/two-device multiplayer and
+deployment acceptance remain unverified; see [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-11: offline navigation recovery candidate (#581)
+
+This unmerged candidate preserves online host responses and uses the current
+release's cached styled 404 only after a rejected navigation fetch. Actual HTTPS
+candidate193660ee/webb29349567707 passed11 byte/status checks and55 shared-path
+browser checks; sampled primary responses matched the pre-upload baseline.
+Its unknown-path browser scenario found the host's canonical `/404` treated as
+a shell route after `/404.html` redirects. Three source regressions reproduce
+that defect; excluding only canonical404 from the shell matcher makes35 source
+worker cases pass. Normal shell paths, aliases, assets, API exclusions and unknown
+save protection remain intact. Fixed emitted/native/HTTPS and current-head hosted
+qualification remain required. The first candidate version is not production.
+
+## 2026-10-11: House and standalone feedback gate regressions
+
+Two additional cases reuse the existing House and Voices harnesses: the letter
+with incomplete observations cannot solve the study, and standalone official
+completion screens receive neither rating nor survey slots. Removing each guard
+fails its assertion. All 47 combined cases and formatting pass. Voices artifact
+fixtures come from an existing build; fresh emitted/browser/hosted proof has not
+run for this test-only slice. No production behavior changes.
+
+## 2026-10-11: preserve inactive failed-save snapshots (#619)
+
+Cabinet broadcast refreshes now stop after their asynchronous read when a sticky
+save error exists. This preserves recoverable cached edits after navigation, also
+when the read began before the failed CAS save. Clean inactive refreshes and the
+active-snapshot guards remain covered. Two regressions fail before the change;
+all seven handler cases pass after it, and an early-only guard fails the race case.
+Clean source f29df3c1 builds web f8e782ab9288 and its Android browser-preview
+artifact; all eight source/budget cases pass. The real-origin scenario passes
+35 checks at phone and desktop widths using actual CAS refusal, navigation and
+broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
+CI remains pending; physical-device acceptance is separate.
+Inactive catalogue refreshes remain paused until reload while the error persists.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
+## 2026-10-11: Lantern Duel credential host binding (#605)
+
+Room seats and pending idempotent retries capture the full normalized API address.
+Polls and moves refuse before fetch after API settings change, including a Club
+restore or a failed create/join at another address. Room response fields cannot
+replace the captured address or credential; saved session seats retain that binding.
+Existing same-host polling, moves and lost-reply retries remain supported.
+Four behavioral regressions reproduce the original credential exposure. Focused
+Club source checks pass; emitted builds, real-origin restore controls and fresh
+independent review are pending. Network tests use synthetic intercepted hosts.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
+## 2026-10-11: quarantined Cabinet revision guard (#599)
+
+The IndexedDB save transaction now distinguishes an absent row from a present
+unknown envelope before accepting revision CAS. Future schemas, missing/unsafe
+revisions, mismatched envelope/value keys and rows rejected by the application's
+full run validator refuse without replacing recovery bytes. Validation occurs on
+the row read inside the CAS transaction. Known revision-zero backup runs remain writable, preserving the existing
+nonnegative revision format. No puzzle IDs, database version or byte limits change.
+The original guard failed six focused cases; the corrected storage/revision/
+restore/recovery selection passes 44 cases plus 58 legacy storage assertions.
+Three malformed-content regressions fail before the review fix and pass after it.
+Actual-origin autosave/reload regressions cover future and malformed known-schema
+rows; browser, emitted-build, hosted exact-head and fix review gates remain pending.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+
+## 2026-10-07: older backlog wave
+
+Eight Grok 4.7 high worker tasks and two GPT 6.1 Sol medium coordinators produced
+fix PRs #587 (mobile QA readiness/diagnostics), #588 (Desk heading scale),
+#589 (restore fixture abort errors), #590 (accessible touch keyboard help), and #591 (practice counts and complete content identity).
+The #389 Android identity mismatch found in review was red-proved and corrected;
+the final Android build, artifact check and budget pass. Muse refused both lane starts
+because the registry assigns this repository to another host; no swarm ran.
+
+PR #588 merged as ea47351a after seven exact-head CI passes and independent review. Other fixes retain their pending or parked gates.
+
+Focused Node and Chromium proof is recorded in
+[WAVE.md](qa/2026-10-07-backlog/WAVE.md). Local full UI failures remain recorded; #590 also exceeds
+the unchanged CSS gzip ceiling by five bytes and has an unwired browser helper.
+Its four CI failures were investigated; both defects remain explicit park conditions.
+CI/review, combined budget and
+merge gates remain explicit. #347's implementation is present with specific
+coverage gaps; #401 requires its upstream SDK hook; #407 and #220 retain owner
+decisions. No deployment or physical-device approval was inferred.
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative.
+
+## 2026-10-11: Club backup guard regressions
+
+Four source tests cover a minimal accepted Club save, an Archive no-op replay,
+an otherwise replayable 3001-move history, and 121 records below the byte cap.
+They use the real validator and engines. Each archive/history/record guard removal
+makes its corresponding test fail; the unchanged validator passes all four.
+No production code or save format changes. Independent review and hosted exact-head
+verification remain pending. [HUMAN_TODO.md](../HUMAN_TODO.md) retains device acceptance.
+
+## 7 October 2026: cabinet fallback safety candidate
+
+Base main: `cde5f56cb02dea6471972a1fe85b0724a01e75a5`.
+This branch is an unmerged candidate, not a published release or deployment.
+The prior state is preserved byte-for-byte in
+[STATE-BEFORE-STORAGE-READONLY-2026-10-07.md](STATE-BEFORE-STORAGE-READONLY-2026-10-07.md)
+using its existing Git blob `c52c61ed95817ef9f343530271515efdeeafb3e0`.
+Its historical release evidence and older lane notes remain available there.
+
+Refs #554. The candidate takes the issue's explicit fail-closed option:
+localStorage cabinet run writes are read-only, even with Web Locks. Reads,
+export, old/future records and the existing error surface remain. Session CAS
+compares and writes without an intervening await; IndexedDB remains unchanged.
+The application retains its existing first-save-error behavior, rather than
+adding an implicit session overlay or a new durable save owner.
+
+The new source suite reproduces 17 failures and one passing control on the old
+storage, then passes all 18 after repair. The 35-case storage/revision/restore/
+recovery/update selection passes, retaining 58 legacy assertions with explicit
+local-write expectation changes. Browser wiring adds two passing cases.
+Local dependencies and native navigation remain unavailable; no local full
+build or browser pass is claimed. Exact-head CI, all unchanged byte ceilings,
+52 native/emitted-app scenarios, independent review and aging are merge gates.
+The first CI receipt and bootstrap-size repair are recorded in the QA note;
+the storage owner remains eager and fully counted in the existing bootstrap.
+Details: [storage policy and evidence](qa/STORAGE-READONLY-2026-10-07.md).
+
+## Related work, not implicitly qualified
+
+- #585 has a retained native two-success counterexample. A later diagnostic-only
+  green run did not change the storage implementation and is not a repair.
+  This candidate is based directly on main, not on #585 or its parent #581.
+- #581's offline navigation has separate current-base, browser and review gates.
+- #593's bounded attempted-domain rollback repair does not qualify #579's
+  multi-domain save transfer. Same-domain concurrency, semantic validation and
+  inherited parent budget increases remain separate blockers.
+- Main already includes #587's mobile QA startup/diagnostics and #589's fixture
+  AbortError ordering changes. Their merges are source landings, not a new
+  deployment or physical-device acceptance claim.
+
+## Preserved human and release boundaries
+
+[HUMAN_TODO.md](../HUMAN_TODO.md) remains authoritative for physical Android,
+TalkBack, publishing, origin and other owner gates. No database version,
+published puzzle identity, numerical budget or production deployment is changed.
+Use the exact current PR head and its artifacts rather than historic counts
+when qualifying a merge. Do not discard the previous state or failed receipts.
 
 ### Block Cabinet phone action hierarchy candidate, 2026-09-17
 
@@ -759,64 +838,28 @@ The historical candidate and proving checks remain in the linked gameplay-base a
 physical Android touch, TalkBack, comfort review and human acceptance stay open.
 Neither newer source proofs nor browser screenshots turn that candidate into a device signoff.
 
-## Evidence and remaining boundaries
+## 2026-10-11: active Cabinet broadcast revision candidate (#601)
 
-The local workspace is an uploaded source ZIP reconciled at changed seams, not a fresh full
-checkout/build of main. npm registry DNS and local Chromium origin policy block full local
-verification. Focused Node checks and Python compilation supplement GitHub Actions; they do
-not replace full build, browser, offline or Android payload gates.
+This checkout owns only `src/app.js`, `tests/app-broadcast-revision.test.cjs` and
+this note. The BroadcastChannel `saved` handler now rechecks the returned run's
+key against the active puzzle after the asynchronous read completes: the active
+records entry and its expected revision are never replaced from the
+notification, a newer stored revision surfaces the existing another-tab
+conflict, and equal/older rows return without touching local state. The early
+higher-notification short-circuit and non-active refresh behavior are intact.
+Regression coverage executes the actual handler and enqueueSave code in a VM
+fixture. Evidence pending: the caller owns the proving check
+(`node --test --test-concurrency=2 tests/app-broadcast-revision.test.cjs`),
+formatting, catalogue hashes, builds and native-origin proof after integration.
 
-Version 0.11.5's published 376-puzzle release and the separate Cloudflare/Sites origin receipts
-remain dated history in [RELEASE-0.11.5.md](RELEASE-0.11.5.md) and the state archives. No new
-hosted-origin probe, deployment, rollback, store submission or physical-device acceptance is
-claimed. Android remains a non-publishable preview; the Capacitor owner gates remain open.
+## 2026-10-11: named audio and saved-note checks (#578)
 
-[HUMAN_TODO.md](../HUMAN_TODO.md) retains device, TalkBack, difficulty, recognizability and
-explanation-quality acceptance. #281/#282 still require the maintainer architecture skim;
-source tests do not approve that ADR. Review live open PRs before overlapping another lane.
-
-## Planning vault integration recovery: 25 September 2026
-
-PR #357 now wires its existing 24 Archive vaults and 12 Borough contracts into
-one trusted source registry for both the optional launcher and validation worker.
-All 59 earlier challenge definitions and starting identities remain intact.
-Independent push minima, native immutable replays, source projection and actual
-emitted-worker checks cover all 95 challenges. The legacy audit also covers 95.
-The two #357 data files remain byte-identical to c60c3285; no older handoff map
-replaces them. See docs/curation/PLANNING-VAULTS.md for proof limits and the missing
-historical generator, and the new read-only planning control workflow for the
-real-origin gate. Isolated controls pass all 72 cases; this does not certify
-origin persistence, physical Android, TalkBack or calibrated human difficulty.
-No budget increase, merge, deployment or release is implied.
-
-## Vault authoring foundation: 26 September 2026
-
-PR #350 (#345/#161) adds six authoring-only files: bounded independent Sudoku
-enumeration, answer-free elementary-method profiles with fail-closed unsupported
-markers, symmetry/digit-renaming identities, native/independent uniqueness
-certificates, seeded Sudoku recipes and a read-only authoring workflow. No
-playable puzzle, runtime generator, save format, budget or deployment change.
-Coordinator review verified the bounds and added recipe
-determinism/uniqueness coverage. Stored profiles must be recomputed after
-production hint changes; human difficulty stays under #161 / q-8. The
-dependent Vault collection #354 was retargeted to main after the merge.
-
-## Games Room recovery draft
-
-The #347 continuation adds bounded Duel strengths and fresh confirmed Cabinet
-restarts, with explicit worker-error retry and stale-reply guards. See
-[Games recovery](curation/GAMES-RECOVERY.md) for the source and browser receipts.
-Eighteen source tests and ten/76 standalone browser checks pass. The measured
-JavaScript exceeds the unchanged cap; no full-CI, merge or release claim is made.
-Physical-device and human gates remain in HUMAN_TODO.md.
-
-### Games Room budget recovery
-
-The gameplay slice moves enhancement metadata into the existing official data
-asset and retains the same startup global. All values are independently compared
-with the asset builder; no metadata, request, shell entry or byte accounting is
-dropped. The measured 430-puzzle build is 129,651 JavaScript gzip bytes and
-203,370 combined initial bytes, below unchanged 130,304 and 204,800 limits.
-Twenty-three focused checks, ten actual-worker standalone scenarios and 76 Block
-assertions pass after this change. Full exact-head CI, origin storage/offline,
-independent review and physical/human acceptance remain required.
+The existing assertions now register as 26 audio cases and two saved-note key
+cases. Receipt checks, derivative iteration, thresholds and conditional ffprobe
+behavior are preserved; runtime and asset bytes are unchanged. All 28 cases pass
+with the installed ffprobe exercised. A disposable test-memory receipt mutation
+fails exactly the first audio case while the remaining 27 pass; baseline files
+pass their two file-level cases. Independent review found no HIGH/CRITICAL issue.
+Formatting and diff checks pass. Exact-head hosted CI remains required. This is
+partial test-reporting work for #519; physical listening and device acceptance
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).

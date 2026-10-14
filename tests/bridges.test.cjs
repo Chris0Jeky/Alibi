@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const path = require('node:path');
+const { after, test: nodeTest } = require('node:test');
 
 const ROOT = path.resolve(__dirname, '..');
 require(path.join(ROOT, 'src', 'core.js'));
@@ -265,34 +266,43 @@ function cellFromCoordinate(p, coordinate) {
 const passed = [];
 const failures = [];
 function test(name, fn) {
-  try {
-    fn();
-    passed.push(name);
-    console.log('PASS', name);
-  } catch (error) {
-    failures.push({ name, message: error.message, stack: error.stack });
-    console.error('FAIL', name, '-', error.message);
-  }
+  nodeTest(name, () => {
+    try {
+      fn();
+      passed.push(name);
+    } catch (error) {
+      failures.push({ name, message: error.message, stack: error.stack });
+      throw error;
+    }
+  });
 }
 
-test('small fixtures validate and cover four to eight islands', () => {
-  for (const puzzle of [unique, longPath, twoOrMore]) {
+for (const puzzle of [unique, longPath, twoOrMore])
+  test(`small fixture validates and covers four to eight islands: ${puzzle.id}`, () => {
     assert.ok(
       puzzle.islands.length >= 4 && puzzle.islands.length <= 8,
       `${puzzle.id}: island range`,
     );
     assert.doesNotThrow(() => C.validateDefinition(puzzle), `${puzzle.id}: definition`);
-  }
+  });
+
+test('solver result agrees with independent oracle: test-bridges-unique', () => {
+  compareSolver(unique, 1, 2);
 });
 
-test('unique, zero, and bounded-two solver results agree with independent oracle', () => {
-  compareSolver(unique, 1, 2);
+test('solver result agrees with independent oracle: test-bridges-long-path', () => {
   compareSolver(longPath, 1, 2);
+});
+
+test('solver result agrees with independent oracle: test-bridges-zero', () => {
   compareSolver(zero, 0, 2);
+});
+
+test('solver result agrees with independent oracle: test-bridges-two-solutions', () => {
   compareSolver(twoOrMore, 2, 2);
 });
 
-test('partial positive bridge assignments are honored by the solver', () => {
+test('partial positive bridge assignment is honored by the solver: test-bridges-unique', () => {
   const partial = E.initial(unique);
   partial.cells[0] = 1;
   const expected = oracleSolutions(unique, partial);
@@ -304,7 +314,9 @@ test('partial positive bridge assignments are honored by the solver', () => {
     assignmentKey(unique, actual.solutions[0], C.bridges.graph(unique)),
     assignmentKey(unique, expected[0], oracleGraph(unique)),
   );
+});
 
+test('impossible partial bridge assignment yields no solver result: test-bridges-unique', () => {
   const impossible = E.initial(unique);
   impossible.cells[0] = 2;
   assert.equal(oracleSolutions(unique, impossible).length, 0);
@@ -362,124 +374,128 @@ test('reducer is immutable and cycles connection values one, two, zero', () => {
   );
 });
 
-test('dangerous reducer indices and values are refused', () => {
-  const initial = E.initial(unique);
-  const invalidActions = [
-    { type: 'set', cell: -1, value: 1 },
-    { type: 'set', cell: initial.cells.length, value: 1 },
-    { type: 'set', cell: '__proto__', value: 1 },
-    { type: 'set', cell: 0.5, value: 1 },
-    { type: 'set', cell: 0, value: -1 },
-    { type: 'set', cell: 0, value: 3 },
-    { type: 'set', cell: 0, value: Number.NaN },
-    { type: 'connect', from: '__proto__', to: 2 },
-  ];
-  for (const action of invalidActions)
+const initial = E.initial(unique);
+const invalidActions = [
+  { type: 'set', cell: -1, value: 1 },
+  { type: 'set', cell: initial.cells.length, value: 1 },
+  { type: 'set', cell: '__proto__', value: 1 },
+  { type: 'set', cell: 0.5, value: 1 },
+  { type: 'set', cell: 0, value: -1 },
+  { type: 'set', cell: 0, value: 3 },
+  { type: 'set', cell: 0, value: Number.NaN },
+  { type: 'connect', from: '__proto__', to: 2 },
+];
+for (const action of invalidActions)
+  test(`dangerous reducer action is refused: ${JSON.stringify(action)}`, () => {
     assert.strictEqual(E.reduce(unique, initial, action), initial, JSON.stringify(action));
-});
+  });
 
-test('invalid headers and states reject without broad coercion', () => {
-  const badHeaders = [
-    ['null input', () => null],
-    ['missing id', (p) => delete p.id],
-    [
-      'unsafe id',
-      (p) => {
-        p.id = '__proto__';
-      },
-    ],
-    [
-      'reserved id',
-      (p) => {
-        p.id = 'constructor';
-      },
-    ],
-    [
-      'revision zero',
-      (p) => {
-        p.revision = 0;
-      },
-    ],
-    [
-      'empty title',
-      (p) => {
-        p.title = '';
-      },
-    ],
-    [
-      'long subtitle',
-      (p) => {
-        p.subtitle = 'x'.repeat(121);
-      },
-    ],
-    [
-      'unknown difficulty',
-      (p) => {
-        p.difficulty = 'Impossible';
-      },
-    ],
-    [
-      'size four',
-      (p) => {
-        p.size = 4;
-      },
-    ],
-    [
-      'duplicate island',
-      (p) => {
-        p.islands[1].cell = p.islands[0].cell;
-      },
-    ],
-    [
-      'island out of range',
-      (p) => {
-        p.islands[0].cell = 25;
-      },
-    ],
-    [
-      'island count zero',
-      (p) => {
-        p.islands[0].count = 0;
-      },
-    ],
-    [
-      'solution wrong length',
-      (p) => {
-        p.solution = [1, 1, 1];
-      },
-    ],
-    [
-      'solution dangerous value',
-      (p) => {
-        p.solution[0] = 3;
-      },
-    ],
-    [
-      'solution not connected',
-      (p) => {
-        p.solution = [0, 0, 0, 0];
-      },
-    ],
-  ];
-  for (const [name, mutate] of badHeaders) {
+const badHeaders = [
+  ['null input', () => null],
+  ['missing id', (p) => delete p.id],
+  [
+    'unsafe id',
+    (p) => {
+      p.id = '__proto__';
+    },
+  ],
+  [
+    'reserved id',
+    (p) => {
+      p.id = 'constructor';
+    },
+  ],
+  [
+    'revision zero',
+    (p) => {
+      p.revision = 0;
+    },
+  ],
+  [
+    'empty title',
+    (p) => {
+      p.title = '';
+    },
+  ],
+  [
+    'long subtitle',
+    (p) => {
+      p.subtitle = 'x'.repeat(121);
+    },
+  ],
+  [
+    'unknown difficulty',
+    (p) => {
+      p.difficulty = 'Impossible';
+    },
+  ],
+  [
+    'size four',
+    (p) => {
+      p.size = 4;
+    },
+  ],
+  [
+    'duplicate island',
+    (p) => {
+      p.islands[1].cell = p.islands[0].cell;
+    },
+  ],
+  [
+    'island out of range',
+    (p) => {
+      p.islands[0].cell = 25;
+    },
+  ],
+  [
+    'island count zero',
+    (p) => {
+      p.islands[0].count = 0;
+    },
+  ],
+  [
+    'solution wrong length',
+    (p) => {
+      p.solution = [1, 1, 1];
+    },
+  ],
+  [
+    'solution dangerous value',
+    (p) => {
+      p.solution[0] = 3;
+    },
+  ],
+  [
+    'solution not connected',
+    (p) => {
+      p.solution = [0, 0, 0, 0];
+    },
+  ],
+];
+for (const [name, mutate] of badHeaders)
+  test(`invalid bridge definition header is rejected: ${name}`, () => {
     const candidate = mutate.length === 0 ? mutate() : C.clone(unique);
     if (candidate) mutate(candidate);
     assert.throws(() => C.validateDefinition(candidate), name);
-  }
+  });
 
-  const valid = E.initial(unique);
-  const invalidStates = [
-    null,
-    [],
-    {},
-    { cells: [0, 0, 0], notes: {} },
-    { cells: [0, 0, 0, 3], notes: {} },
-    { cells: [0, 0, 0, Number.NaN], notes: {} },
-    { cells: [0, 0, 0, 0], notes: [] },
-    { cells: [0, 0, 0, 0], notes: { marked: true } },
-  ];
-  for (const state of invalidStates)
+const valid = E.initial(unique);
+const invalidStates = [
+  null,
+  [],
+  {},
+  { cells: [0, 0, 0], notes: {} },
+  { cells: [0, 0, 0, 3], notes: {} },
+  { cells: [0, 0, 0, Number.NaN], notes: {} },
+  { cells: [0, 0, 0, 0], notes: [] },
+  { cells: [0, 0, 0, 0], notes: { marked: true } },
+];
+for (const state of invalidStates)
+  test(`invalid bridge state is rejected: ${JSON.stringify(state)}`, () => {
     assert.throws(() => C.validateState(unique, state), 'invalid state');
+  });
+
+test('valid bridge state is copied without aliasing: test-bridges-unique', () => {
   const copy = C.validateState(unique, valid);
   assert.deepEqual(copy, valid);
   assert.notStrictEqual(copy, valid);
@@ -500,9 +516,9 @@ test('solution-free insight deductions avoid the solution and opt-in reveals mat
   assert.deepEqual(reveal.action, { type: 'set', cell: 0, value: unique.solution[0] });
 });
 
-test('lower-bound deductions are sound across all valid partial boards', () => {
-  let checked = 0;
-  for (const puzzle of [unique, longPath, twoOrMore]) {
+let checked = 0;
+for (const puzzle of [unique, longPath, twoOrMore])
+  test(`lower-bound deductions are sound across valid partial boards: ${puzzle.id}`, () => {
     const graph = oracleGraph(puzzle);
     const engineGraph = C.bridges.graph(puzzle);
     const stateCount = 3 ** graph.edges.length;
@@ -544,16 +560,20 @@ test('lower-bound deductions are sound across all valid partial boards', () => {
         );
       checked++;
     }
-  }
+  });
+
+test('lower-bound deductions check at least one valid partial board', () => {
   assert.ok(checked > 0, 'at least one valid partial deduction was checked');
 });
 
-const report = {
-  root: ROOT,
-  passed: failures.length === 0,
-  passedTests: passed.length,
-  failedTests: failures.length,
-  failures,
-};
-console.log(JSON.stringify(report, null, 2));
-if (failures.length) process.exitCode = 1;
+after(() => {
+  const report = {
+    root: ROOT,
+    passed: failures.length === 0,
+    passedTests: passed.length,
+    failedTests: failures.length,
+    failures,
+  };
+  console.log(JSON.stringify(report, null, 2));
+  if (failures.length) process.exitCode = 1;
+});

@@ -15,6 +15,12 @@ module.exports = function (root, dist) {
   let bytes = 0;
   for (const a of registry.assets) {
     if (!['museum-image', 'venue-cover', 'family-icon'].includes(a.kind)) continue;
+    if (a.kind !== 'museum-image')
+      for (const key of ['file', 'sha256', 'format'])
+        if (typeof a.derivative?.[key] !== 'string' || a.derivative[key].length === 0)
+          throw Error('Invalid curation derivative for ' + a.id);
+    if (typeof a.source !== 'object' || a.source === null)
+      throw Error('Invalid curation source for ' + a.id);
     const r =
       a.kind === 'museum-image'
         ? runtime.assets.find((r) => r.id === a.id)?.runtime

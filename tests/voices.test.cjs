@@ -375,7 +375,7 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
   assert.equal(queue.outcome(third), undefined, 'anything else is still waiting, never sent');
 });
 
-function decorateHarness(runId = 'scene-01') {
+function decorateHarness(runId = 'scene-01', standalone = false) {
   const listeners = { window: {}, document: {} };
   const store = new Map();
   const inserted = [];
@@ -437,7 +437,7 @@ function decorateHarness(runId = 'scene-01') {
   const context = {
     document,
     location: { origin: PRIMARY, hash: '#/play/scene-01' },
-    ALIBI_CONFIG: { standalone: false, version: '0.15.0' },
+    ALIBI_CONFIG: { standalone, version: '0.15.0' },
     ALIBI_VOICES: { origin: PRIMARY, collector: COLLECTOR, chunk: './assets/voices.x.js' },
     ALIBI_CATALOG: { puzzles: [{ id: 'scene-01', type: 'scene', difficulty: 'Gentle' }] },
     localStorage: {
@@ -482,6 +482,13 @@ test('decorate() injects the Feedback and report buttons with every slot after e
   );
   assert.equal(h.filled.length, 8, 'a new render fills every slot again');
   assert.equal(h.idle.length, 1, 'one idle kick after the first render only');
+});
+
+test('decorate() adds no rating or survey places to a standalone official completion', () => {
+  const h = decorateHarness('scene-01', true);
+  h.render();
+  assert.deepEqual(h.filled.map(([slot]) => slot).sort(), ['vo-panel', 'vo-privacy']);
+  assert.ok(h.inserted.every((i) => !i.html.includes('vo-rate') && !i.html.includes('vo-offer')));
 });
 
 test('decorate() only offers rating and survey places on official completion screens', () => {
@@ -592,6 +599,29 @@ test('tap() reports a refused or waiting delivery without ever claiming it was s
     { difficulty: 'too-hard' },
     'a waiting tap is still kept locally',
   );
+});
+
+test('a hanging rating send stays queued and reports waiting at the four-second deadline', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const timers = [];
+  h.context.setTimeout = (fn, ms) => timers.push({ fn, ms });
+  h.context.fetch = (...args) => {
+    h.calls.fetch.push(args);
+    return new Promise(() => {});
+  };
+  row.click(h, 'rate', 'just-right');
+  assert.equal(h.calls.fetch.length, 1);
+  assert.equal(timers.length, 1);
+  assert.equal(timers[0].ms, 4000);
+  assert.equal(row.statusEl.textContent, '');
+  timers[0].fn();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(row.statusEl.textContent, 'Saved. It sends when online.');
+  assert.equal(JSON.parse(h.store.get('alibi:voices:queue:v1')).length, 1);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+  });
 });
 
 test('tap() forgets an unqueued choice so the same tap can retry', async () => {

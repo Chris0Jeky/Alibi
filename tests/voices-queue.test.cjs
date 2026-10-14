@@ -337,6 +337,20 @@ test('a reset whose queue rewrite fails still leaves no old-key answer to reload
   );
 });
 
+test('a reset reports failed key removal and preserves the stored respondent', () => {
+  const { q, store } = harness({ online: false });
+  q.enqueue(rating(q, 'scene-01'));
+  const old = q.respondent(),
+    remove = store.removeItem.bind(store);
+  store.removeItem = (key) => {
+    if (key === q.KEY) throw Error('SecurityError');
+    remove(key);
+  };
+  assert.equal(q.resetRespondent(), false);
+  assert.equal(store.getItem(q.KEY), JSON.stringify(old));
+  assert.equal(q.respondent(), old);
+});
+
 test('a memory-only respondent key is persisted when storage recovers', () => {
   const map = new Map();
   let full = true;
@@ -590,6 +604,16 @@ test('survey invitation timing: first offer, updates, snoozes and stop', () => {
     q.due({ taken }, fifteen, '0.15.0', now),
     0,
     'ten more completions, but not 30 days',
+  );
+  assert.equal(
+    q.due({ taken }, fifteen, '0.15.0', day(1) + 30 * DAY - 1),
+    0,
+    'wait the full 30 days',
+  );
+  assert.equal(
+    q.due({ taken }, fifteen.slice(0, 14), '0.15.0', day(1) + 30 * DAY),
+    0,
+    'nine more is not enough',
   );
   assert.equal(q.due({ taken }, fifteen, '0.15.0', day(1) + 30 * DAY), 2, '30 days and ten more');
   assert.equal(q.due({ taken }, five, '0.16.0', day(1) + 30 * DAY), 2, '30 days and a new release');

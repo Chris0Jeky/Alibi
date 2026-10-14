@@ -121,8 +121,10 @@ function zip(entries, out) {
 }
 function build() {
   const source = sourceIdentity(ROOT);
+  const workshopShelf = require('./build-workshop-shelf.cjs').buildShelf(ROOT);
   fs.rmSync(DIST, { recursive: true, force: true });
   fs.mkdirSync(DIST, { recursive: true });
+  for (const file of workshopShelf.files) write(path.join(DIST, file.path), file.data);
   const platformSource = browserBundle(
     ROOT,
     process.env.ALIBI_PLATFORM_ENTRY || 'src/platform/browser-entry.mjs',
@@ -222,7 +224,12 @@ function build() {
     }).code,
     engineURL = `./assets/club-engines.${hash(clubEngineBundle)}.js`,
     workerURL = `./assets/validator.${hash(worker)}.js`,
-    boot = read(path.join(SRC, 'boot.js')),
+    // Define storage in the existing, fully counted bootstrap without another
+    // startup request. Core and persistence are only accessed when invoked.
+    boot = require('esbuild').transformSync(
+      ['boot.js', 'storage.js'].map((file) => read(path.join(SRC, file))).join('\n'),
+      { minify: true, target: 'es2022' },
+    ).code,
     bootURL = `./assets/boot.${hash(boot)}.js`;
   // The Pulseboard SDK (observatory/pulseboard.js, pinned by observatory.lock.json) is emitted verbatim as its
   // own hashed asset and loaded by the last deferred script of the web index only. It is online-only: not in the
@@ -289,7 +296,6 @@ function build() {
     core,
     engines,
     bridges,
-    read(path.join(SRC, 'storage.js')),
     read(path.join(SRC, 'presentation.js')),
     read(path.join(SRC, 'asset-library.js')),
     read(path.join(SRC, 'asset-delivery.js')),
@@ -306,7 +312,7 @@ function build() {
     read(path.join(SRC, 'house-loader.js')),
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
-    read(path.join(SRC, 'app.js')),
+    require('./workshop-entry.cjs').composePackDesk(read(path.join(SRC, 'app.js'))),
     read(path.join(SRC, 'pulseboard-host.js')),
     read(path.join(SRC, 'voices.js')),
   ].join('\n');
@@ -349,7 +355,8 @@ function build() {
         JSON.stringify(curation.media) +
         JSON.stringify(delivery.entries) +
         JSON.stringify(theatre) +
-        JSON.stringify(house.config),
+        JSON.stringify(house.config) +
+        workshopShelf.files.map((file) => hash(file.data)).join(''),
     ),
     cfg = { version: VERSION, build: release, standalone: false };
   const js =
@@ -366,7 +373,7 @@ function build() {
     ...source,
     payloadSha256: payloadDigest(DIST),
     appVersion: VERSION,
-    contentManifestRevision: sha256(contentSource),
+    contentManifestRevision: contentManifestRevision(contentSource, deferredSource),
     rulesCompatibility: {},
   };
   const platformIdentity = writeIdentity(DIST, platformBuild);
@@ -417,6 +424,7 @@ function build() {
   const assets = [
     './',
     './index.html',
+    './404.html',
     ...aliasShellDocuments,
     './manifest.webmanifest',
     './icons/icon-192.png',
@@ -440,8 +448,9 @@ function build() {
   // manual-mode navigation cannot consume that followed-redirect response;
   // rewrap only those cache hits while preserving their bytes and headers.
   // The shell's asset URLs are relative, so it is served only for the scope root,
-  // index.html and single extensionless segments. Deeper or file-like URLs such as
-  // /a/b/x.html go to the network and its styled 404 instead of a stuck, unstyled shell.
+  // index.html and single extensionless segments except the host's canonical /404. Deeper URLs such as
+  // /a/b/x.html go to the network, or the current cached 404 if offline, instead of
+  // a stuck, unstyled shell. Known .html and /index.html aliases use their cached redirect.
   const sw = `/* One coherent offline release. Save data lives in IndexedDB, never this cache. */
 const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,SHELL=${JSON.stringify(assets)};
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
@@ -450,10 +459,14 @@ self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.sk
 const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
 const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
-function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase();const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
-self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}return /^(?:[^/.]*|index\\.html)$/.test(rel)&&await c.match(new URL('./',self.registration.scope).href)||fetch(r);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
+function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase().replace(/(?:\\/index)?\\.html$/,'');const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
+async function missingNavigation(request,cache){try{return await fetch(request);}catch(error){const hit=await cache.match(new URL('./404.html',self.registration.scope).href);if(!hit)throw error;return new Response(hit.body,{status:404,statusText:'Not Found',headers:hit.headers});}}
+self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin||(u.pathname.endsWith('/sw.js')||u.pathname.startsWith('/api/')))return;event.respondWith((async()=>{const c=await caches.open(CACHE),rel=u.pathname.slice(self.registration.scope.replace(self.location.origin,'').length);if(/^quiet-wing-sources(?:\\.[a-f0-9]{12})?\\.html$/.test(rel))return await c.match(r)||await priorRelease(r)||fetch(r);if(r.mode==='navigate'){const alias=aliasRoute(u.pathname);if(alias){const hit=await c.match(new URL('./'+alias+'.html',self.registration.scope).href);return hit?.redirected?new Response(hit.body,{status:hit.status,statusText:hit.statusText,headers:hit.headers}):hit||fetch(r);}if(rel!=='404'&&/^(?:[^/.]*|index\\.html)$/.test(rel))return await c.match(new URL('./',self.registration.scope).href)||fetch(r);return missingNavigation(r,c);}const hit=await c.match(r);if(hit)return hit;if(u.pathname.includes('/assets/')){const prior=await priorRelease(r);if(prior)return prior;}return fetch(r);})());});
 `;
-  write(path.join(DIST, 'sw.js'), sw);
+  write(
+    path.join(DIST, 'sw.js'),
+    require('esbuild').transformSync(sw, { minify: true, format: 'iife', target: 'es2022' }).code,
+  );
   write(
     path.join(DIST, '_headers'),
     `/*
@@ -518,6 +531,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     enhancementBytes: delivery.bytes,
     ambienceBytes: ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
     experienceOfflineBytes: experience.manifest.bytes,
+    workshopCollectionBytes: workshopShelf.bytes,
     coreOfflineBytes:
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
@@ -528,7 +542,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       Buffer.byteLength(observatory) -
       Buffer.byteLength(discoveryStorage) -
       blockMotion.bytes -
-      house.bytes,
+      house.bytes -
+      workshopShelf.bytes,
     houseBytes: house.bytes,
     houseScriptGzipBytes: house.scriptGzipBytes,
     houseCssGzipBytes: house.cssGzipBytes,
@@ -564,6 +579,11 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
   write(path.join(ROOT, 'build-info.json'), JSON.stringify(info, null, 2));
   console.log(JSON.stringify(info, null, 2));
 }
+// Startup content names the deferred chunk, but a 12-character filename hash is not the
+// definition identity. Bind both payloads so two different Vault bodies cannot share it.
+function contentManifestRevision(contentSource, deferredSource) {
+  return sha256(`${contentSource}\0${deferredSource}`);
+}
 if (require.main === module) build();
 module.exports = {
   build,
@@ -572,4 +592,5 @@ module.exports = {
   PATH_ROUTE_ALIASES,
   pathRouteAliasDocument,
   writePathRouteAliases,
+  contentManifestRevision,
 };

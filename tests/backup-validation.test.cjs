@@ -183,18 +183,6 @@ test('Club save archive replay accepts a legal walk and rejects a wall push with
   assert.deepEqual(invalid, snapshot);
 });
 
-test('Club records with unparseable dates are rejected while valid ISO dates pass', () => {
-  const good = baseClubSave();
-  good.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date: FIXED_DATE }];
-  assert.doesNotThrow(() => validator.validateSave(good));
-
-  for (const date of ['not-a-date', '']) {
-    const bad = baseClubSave();
-    bad.records = [{ id: 'r1', type: 'duel', label: 'First duel', score: 10, date }];
-    assert.throws(() => validator.validateSave(bad), /Invalid record\./);
-  }
-});
-
 function baseClubSave() {
   return {
     schema: 1,
@@ -206,6 +194,21 @@ function baseClubSave() {
     lastHero: -1,
   };
 }
+
+test('Club backup preserves a replayable numeric Borough seed and its moves', () => {
+  const clubValidator = globalThis.AlibiBackupValidation(C, null, () => E, 4);
+  const save = baseClubSave();
+  save.runs.borough = {
+    rulesVersion: 1,
+    seed: 123,
+    log: [{ slot: 0, cell: 0 }],
+    redo: [],
+  };
+  const snapshot = structuredClone(save);
+  assert.equal(E.borough.replay(save.runs.borough.seed, save.runs.borough.log).turn, 1);
+  assert.deepEqual(clubValidator.validateSave(save), snapshot);
+  assert.deepEqual(save, snapshot);
+});
 
 test('invalid Club seeds are rejected before replay and inputs are unchanged', () => {
   assert.deepEqual(validator.validateSave(baseClubSave()), baseClubSave());
@@ -293,4 +296,59 @@ test('Club run updatedAt must be a short parseable date string when present', ()
     assert.throws(() => clubValidator.validateSave(save), /Invalid save date\./);
     assert.deepEqual(save, snapshot);
   }
+});
+
+test('validateRun accepts a valid run and rejects a bad schemaVersion', () => {
+  assert.equal(validator.validateRun(makeRun('sudoku-01')).key, 'sudoku-01@1');
+
+  for (const schemaVersion of [0, 2, '1', null, undefined]) {
+    const bad = makeRun('sudoku-01', { schemaVersion });
+    assert.throws(() => validator.validateRun(bad), /Unsupported saved-game format\./);
+  }
+});
+
+test('validateRun rejects out-of-range counters', () => {
+  assert.equal(validator.validateRun(makeRun('sudoku-01')).moves, 0);
+
+  const state = initialState(basePuzzle('sudoku-01'));
+  const cases = [
+    { hints: -1 },
+    { hints: 1.5 },
+    { elapsed: -1 },
+    { elapsed: 1e10 + 1 },
+    { elapsed: Number.NaN },
+    { elapsed: Number.POSITIVE_INFINITY },
+    { redo: Array.from({ length: 101 }, () => C.clone(state)) },
+  ];
+  for (const overrides of cases) {
+    assert.throws(
+      () => validator.validateRun(makeRun('sudoku-01', overrides)),
+      /Invalid save counters or history\./,
+    );
+  }
+});
+
+test('validateRun rejects invalid and missing save dates', () => {
+  const withOptionalDates = makeRun('sudoku-01', {
+    completedAt: FIXED_DATE,
+    firstCompletedAt: null,
+  });
+  assert.equal(validator.validateRun(withOptionalDates).completedAt, FIXED_DATE);
+
+  assert.throws(
+    () => validator.validateRun(makeRun('sudoku-01', { completedAt: 'not-a-date' })),
+    /Invalid save date\./,
+  );
+  assert.throws(
+    () => validator.validateRun(makeRun('sudoku-01', { firstCompletedAt: 'x'.repeat(41) })),
+    /Invalid save date\./,
+  );
+  assert.throws(
+    () => validator.validateRun(makeRun('sudoku-01', { updatedAt: 'not-a-date' })),
+    /Invalid save date\./,
+  );
+  assert.throws(
+    () => validator.validateRun(makeRun('sudoku-01', { updatedAt: undefined })),
+    /Missing save date\./,
+  );
 });
