@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: tool buttons keep focus when the board redraws
+
+A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square.
+
+An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. The asset catalogue records `src/app.js` at 206,954 bytes. `tests/budget.test.cjs` passed on that local web build at 203,329 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
 
 Play-board keyboard handling returns after the existing Ctrl+Z and Ctrl+Y cases when Ctrl, Cmd, or Alt is held. Those combinations no longer place a digit, move the selection, or toggle notes. Shift+Enter on a network tile is unchanged.
