@@ -1,5 +1,9 @@
 # Live development state
 
+## 2026-10-14: storage contract cases
+
+`tests/storage.test.cjs` was one async pass/fail blob under `node --test`. It is now four serial cases: local fallback, session fallback, rejected restore, and a newer IndexedDB. Every previous assertion is unchanged. A full run still records 58 assertions in `tests/storage-results.json`, and that file is written only when all four cases ran and passed. Breaking the local revision check fails that case and leaves the other three passing. Save behavior is unchanged. Issue 519 stays open for any remaining suite that is still one blob. Physical device checks remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: 0.15.2 artwork published
 
 PR #659 merged as `030d5812198507793154568532bc059d5700980f`, closing #655 and
