@@ -38,7 +38,7 @@ function svg(fragment) {
 }
 function compact(fragment) {
   // Adjacent unfilled paths inherit identical styling; combine their contours only.
-  return fragment.replace(/<path d="([^"]*)"\/><path d="([^"]*)"\/>/g, '<path d="$1 $2"/>');
+  return fragment.replace(/<path d="([^"]*)"\/><path d="(\s*M[^"]*)"\/>/g, '<path d="$1 $2"/>');
 }
 function safePath(root, file) {
   root = path.resolve(root);
