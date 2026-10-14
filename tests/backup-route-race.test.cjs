@@ -197,3 +197,71 @@ for (const subject of cases) {
     f.assertPrevious();
   });
 }
+
+function restoreHarness(store) {
+  let reloads = 0;
+  const context = {
+    queue: Promise.resolve(),
+    store,
+    channel: null,
+    closeDialog() {},
+    location: {
+      reload() {
+        reloads += 1;
+      },
+    },
+  };
+  vm.runInNewContext(
+    `
+    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false;
+    ${appFunction('restoreBackup')}
+    globalThis.api = { run: restoreBackup };
+  `,
+    context,
+    { filename: 'src/app.js' },
+  );
+  return {
+    run: context.api.run,
+    reloads: () => reloads,
+  };
+}
+
+test('restoreBackup starts one restore when a second call arrives during the first', async () => {
+  const started = deferred();
+  const restoring = deferred();
+  let restores = 0;
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    restore() {
+      restores += 1;
+      if (restores === 1) started.resolve();
+      return restoring.promise;
+    },
+  });
+  const first = harness.run(true);
+  await started.promise;
+  const second = harness.run(true);
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(restores, 1);
+  restoring.resolve();
+  await first;
+  await second;
+  assert.equal(harness.reloads(), 1);
+});
+
+test('restoreBackup can run again after the first restore fails', async () => {
+  let restores = 0;
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    restore() {
+      restores += 1;
+      if (restores === 1) return Promise.reject(new Error('disk busy'));
+      return Promise.resolve();
+    },
+  });
+  await assert.rejects(harness.run(true), /disk busy/);
+  await harness.run(true);
+  assert.equal(restores, 2);
+  assert.equal(harness.reloads(), 1);
+});
