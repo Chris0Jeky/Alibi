@@ -4,13 +4,19 @@
 
 Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
 
-The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. Before this merge, that local web build was 203,233 initial gzip bytes and the voices chunk was 20,048 bytes. This merge keeps the restore guard. `src/app.js` is still 206,561 bytes. The combined local web build `b236d4340873` is 203,252 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is still 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. This merge keeps the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Escape does not flicker pause
+
+Holding Escape to close How to play no longer pauses the board on the key repeat. Holding Escape on the board pauses once. A separate press still pauses, and the next press resumes.
+
+An isolated desktop page showed the old behavior first: the repeat after the help dialog closed paused the board. After the change, that repeat leaves the board running, and a later press still pauses. That branch recorded `src/app.js` at 206,670 bytes and a local web build of 203,262 initial gzip bytes, under the existing 205,248 ceiling. Build `5b0c8db24867` was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: a restore button runs one restore
 
 Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
 
-A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. This merge also keeps the save-conflict guard. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
