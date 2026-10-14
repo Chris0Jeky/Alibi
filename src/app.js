@@ -79,6 +79,7 @@
     draftBusy = false,
     draftEpoch = 0,
     pendingBackup = null,
+    restoreBusy = false,
     backupPickerBusy = false,
     backupPickerSerial = 0,
     installEvent = null,
@@ -2324,44 +2325,49 @@
     }
   }
   async function restoreBackup(replace = false) {
-    if (!pendingBackup) return;
-    if (store.mode !== 'indexeddb')
-      throw Error(
-        'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
-      );
-    await queue;
-    let b = pendingBackup,
-      expected;
-    if (!replace) {
-      const raw = await store.export(),
-        runs = new Map(raw.runs.map((r) => [r.key, r])),
-        combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
-      expected = raw;
-      for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
-      for (const p of b.packs) {
-        if (combinedPacks.has(p.id)) {
-          if (!C.equal(combinedPacks.get(p.id), p))
-            throw Error(
-              'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
-            );
-        } else combinedPacks.set(p.id, p);
+    if (restoreBusy || !pendingBackup) return;
+    restoreBusy = true;
+    try {
+      if (store.mode !== 'indexeddb')
+        throw Error(
+          'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
+        );
+      await queue;
+      let b = pendingBackup,
+        expected;
+      if (!replace) {
+        const raw = await store.export(),
+          runs = new Map(raw.runs.map((r) => [r.key, r])),
+          combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
+        expected = raw;
+        for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
+        for (const p of b.packs) {
+          if (combinedPacks.has(p.id)) {
+            if (!C.equal(combinedPacks.get(p.id), p))
+              throw Error(
+                'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
+              );
+          } else combinedPacks.set(p.id, p);
+        }
+        b = await inWorker({
+          type: 'cabinet-backup',
+          value: {
+            ...b,
+            runs: [...runs.values()],
+            packs: [...combinedPacks.values()],
+            settings: raw.settings,
+            preferences: raw.preferences,
+          },
+        });
       }
-      b = await inWorker({
-        type: 'cabinet-backup',
-        value: {
-          ...b,
-          runs: [...runs.values()],
-          packs: [...combinedPacks.values()],
-          settings: raw.settings,
-          preferences: raw.preferences,
-        },
-      });
+      await store.restore(b, expected);
+      pendingBackup = null;
+      channel?.postMessage({ type: 'restored' });
+      closeDialog();
+      location.reload();
+    } finally {
+      restoreBusy = false;
     }
-    await store.restore(b, expected);
-    pendingBackup = null;
-    channel?.postMessage({ type: 'restored' });
-    closeDialog();
-    location.reload();
   }
   async function inWorker(message) {
     const workerText = globalThis.ALIBI_WORKER_SOURCE

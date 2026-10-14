@@ -1,10 +1,16 @@
 # Live development state
 
+## 2026-10-14: a restore button runs one restore
+
+Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
+
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. This merge also keeps the save-conflict guard. The asset catalogue records the combined `src/app.js` at 206,561 bytes. `tests/budget.test.cjs` passed on that local web build at 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
 Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
 
-An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. A later press does not start a new stroke. The asset catalogue records the combined `src/app.js` at 206,364 bytes. The combined local web build is 203,234 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. A later press does not start a new stroke. That change recorded `src/app.js` at 206,364 bytes and a local web build of 203,234 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
 
