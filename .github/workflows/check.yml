@@ -94,6 +94,8 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_note_digit_repeat.py
         if: steps.scope.outputs.mode == 'full'
+      - run: python tests/browser_escape_repeat.py
+        if: steps.scope.outputs.mode == 'full'
       - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=390 python tests/browser_ui.py
         if: steps.scope.outputs.mode == 'full'
       - run: ALIBI_CURATION_UI=1 ALIBI_UI_WIDTH=1280 python tests/browser_ui.py

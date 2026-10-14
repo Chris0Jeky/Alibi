@@ -2,15 +2,21 @@
 
 ## 2026-10-14: a held digit leaves a cell note in place
 
-Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged.
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the Escape and restore guards.
 
-An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, build `ede5a41d791e` keeps note 1, and the next press removes it. No page errors. The asset catalogue records `src/app.js` at 206,663 bytes. `tests/budget.test.cjs` passed on that local web build at 203,267 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. No page errors. The asset catalogue records the combined `src/app.js` at 206,772 bytes, sha256 `f558be2162c92de4d0470b2a977ba59a7db7a4c96ba48b65e2dc34939852c383`. `tests/budget.test.cjs` passed on the combined local web build `2ac1dbe876b3` at 203,267 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Escape does not flicker pause
+
+Holding Escape to close How to play no longer pauses the board on the key repeat. Holding Escape on the board pauses once. A separate press still pauses, and the next press resumes.
+
+An isolated desktop page showed the old behavior first: the repeat after the help dialog closed paused the board. After the change, that repeat leaves the board running, and a later press still pauses. That branch recorded `src/app.js` at 206,670 bytes and a local web build of 203,262 initial gzip bytes, under the existing 205,248 ceiling. Build `5b0c8db24867` was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: a restore button runs one restore
 
 Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
 
-A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. This merge also keeps the save-conflict guard. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
