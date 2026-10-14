@@ -101,7 +101,17 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
   const paintedPath = path.join(root, 'assets-source/library/painted-club/manifest.json');
   if (fs.existsSync(paintedPath)) {
     const shelf = JSON.parse(fs.readFileSync(paintedPath)).assets;
-    for (const id of ['club-welcome', 'lantern-duel', 'pocket-borough']) {
+    const slots = {
+      'club-welcome': 'desk',
+      'lantern-duel': 'duel',
+      'pocket-borough': 'borough',
+      'tic-tac-toe': 'tictactoe',
+      'lantern-gardens': 'regiongardens',
+      'block-cabinet': 'blockcabinet',
+      'archive-heist': 'archive',
+      'living-atlas': 'lab',
+    };
+    for (const [id, slot] of Object.entries(slots)) {
       const file = id + '-320.webp';
       const record = shelf.find((a) => a.file === file);
       const data = fs.readFileSync(path.join(path.dirname(paintedPath), file));
@@ -116,9 +126,7 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       const svg = fs.readFileSync(path.join(path.dirname(paintedPath), 'fallbacks', id + '.svg'));
       const url = `./assets/enhanced-painted-${id}.${sha256.slice(0, 12)}.webp`;
       fs.writeFileSync(path.join(dist, url), data);
-      entries[
-        'art-' + { 'club-welcome': 'desk', 'lantern-duel': 'duel', 'pocket-borough': 'borough' }[id]
-      ] = {
+      entries['art-' + slot] = {
         fallback: 'data:image/svg+xml,' + encodeURIComponent(svg.toString('utf8')),
         urls: [url],
         sha256,

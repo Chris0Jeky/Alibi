@@ -5,8 +5,17 @@ const fs = require('node:fs'),
   os = require('node:os');
 const buildDelivery = require('../tools/build-delivery.cjs');
 const root = path.resolve(__dirname, '..');
-const ids = ['club-welcome', 'lantern-duel', 'pocket-borough'];
-test('three paintings use verified optional delivery with meaningful SVG fallbacks', () => {
+const ids = [
+  'club-welcome',
+  'lantern-duel',
+  'pocket-borough',
+  'tic-tac-toe',
+  'lantern-gardens',
+  'block-cabinet',
+  'archive-heist',
+  'living-atlas',
+];
+test('eight selected paintings use verified optional delivery with meaningful SVG fallbacks', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-painted-'));
   try {
     for (const p of [
@@ -32,13 +41,23 @@ test('three paintings use verified optional delivery with meaningful SVG fallbac
         path.join(root, shelf, id + '-320.webp'),
         path.join(fixture, shelf, id + '-320.webp'),
       );
-      fs.copyFileSync(
-        path.join(root, shelf, 'fallbacks', id + '.svg'),
-        path.join(fixture, shelf, 'fallbacks', id + '.svg'),
-      );
+      if (fs.existsSync(path.join(root, shelf, 'fallbacks', id + '.svg')))
+        fs.copyFileSync(
+          path.join(root, shelf, 'fallbacks', id + '.svg'),
+          path.join(fixture, shelf, 'fallbacks', id + '.svg'),
+        );
     }
     const built = buildDelivery(fixture, path.join(fixture, 'dist'), {});
-    assert.deepEqual(Object.keys(built.entries), ['art-desk', 'art-duel', 'art-borough']);
+    assert.deepEqual(Object.keys(built.entries), [
+      'art-desk',
+      'art-duel',
+      'art-borough',
+      'art-tictactoe',
+      'art-regiongardens',
+      'art-blockcabinet',
+      'art-archive',
+      'art-lab',
+    ]);
     assert.deepEqual(built.origins, []);
     for (const entry of Object.values(built.entries)) {
       assert.equal(entry.urls.length, 1);
@@ -49,7 +68,7 @@ test('three paintings use verified optional delivery with meaningful SVG fallbac
       assert.doesNotMatch(svg, /<image|<script|https:/);
       assert.ok(entry.bytes < 1024 * 1024);
     }
-    assert.ok(built.bytes < 90000);
+    assert.equal(built.bytes, 203482);
     fs.appendFileSync(path.join(fixture, shelf, 'lantern-duel-320.webp'), 'corruption');
     assert.throws(
       () => buildDelivery(fixture, path.join(fixture, 'dist'), {}),
