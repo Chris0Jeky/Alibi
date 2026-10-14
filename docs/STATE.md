@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: a held Enter leaves a clue check and a favorite in place
+
+Holding Enter on a clue or a favorite checked it, and the key repeat removed it. A separate later press still removes the check or the favorite. Cell notes, number keys, board size, pause, and the held digit guard are unchanged.
+
+An isolated page checked the first scene clue, favorited the first listed puzzle, and checked the first mobile clue. Each repeat left that choice in place, and the next press removed it. The same build still leaves a repeated Enter on Cell notes, a number key, board size, and pause in place. No page errors. The asset catalogue records `src/app.js` at 208,521 bytes, sha256 `8ecfaff2c216fd5eb196ddca0cc84a4e6f4f8d1a9085734794d86fae45205b4a`. `tests/budget.test.cjs` passed on local web build `4535d53c9536` at 203,491 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,781. The measured sourceSha was still `73589add` because this edit was uncommitted. sourceDirty true. Payload `9f89dfc81e1adb1158e7237dcc8c1a05d360f052113cabaa61e6b48b61018dc4`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: held Enter and a held digit both leave a cell note
 
 This merge keeps the Enter guards and the held-digit guard. A repeated Enter on number key 1 leaves note 1. A repeated digit key 1 also leaves note 1. A later press removes it. Zoom, pause, and Cell notes stay on when Enter repeats.

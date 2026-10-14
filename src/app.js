@@ -3484,12 +3484,12 @@
   document.addEventListener(
     'keydown',
     (e) => {
-      // A held Enter turns Cell notes, a number key, board size, or pause on, then each repeat would turn it off.
+      // A held Enter turns Cell notes, a number key, board size, pause, a clue, or a favorite on, then each repeat would turn it off.
       if (
         e.repeat &&
         e.key === 'Enter' &&
         e.target?.closest?.(
-          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"]',
+          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"], [data-action="clue"], [data-action="quick-clue"], [data-action="favorite"]',
         )
       )
         e.preventDefault();
