@@ -33,7 +33,7 @@ The point is a calm place to deduce something, leave, and come back to the same 
 
 ## Features
 
-Counts below are the trusted registry in `content/official-packs.json`: 30 packs, 510 puzzles. Four Vault packs (80 puzzles) are deferred and loaded after startup. The other 430 are in the initial bundle. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
+Counts below are the trusted registry in `content/official-packs.json`: 30 packs, 510 puzzles. Four Vault packs and six advanced Crime Scene variations (86 puzzles) are deferred and loaded after startup from a precached file. The other 424 are in the initial bundle. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
 
 ### Thirteen families
 

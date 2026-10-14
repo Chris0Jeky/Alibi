@@ -12,11 +12,35 @@ const hash = (b) => crypto.createHash('sha256').update(b).digest('hex');
   const checkOnly = process.argv.includes('--check');
   for (const item of entries) {
     if (!/^[a-z0-9-]+\.webp$/.test(item.file)) throw Error('Unsafe asset filename');
+  }
+  for (const item of entries.filter((entry) => entry.kind !== 'runtime')) {
     const bytes = fs.readFileSync(path.join(root, item.file));
     if (bytes.length !== item.bytes || hash(bytes) !== item.sha256) throw Error('Changed input: ' + item.file);
   }
+  const runtimes = entries.filter((entry) => entry.kind === 'runtime');
+  if (checkOnly) {
+    for (const item of runtimes) {
+      const bytes = fs.readFileSync(path.join(root, item.file));
+      if (bytes.length !== item.bytes || hash(bytes) !== item.sha256) {
+        throw Error('Changed input: ' + item.file);
+      }
+    }
+  } else {
+    for (const item of runtimes) {
+      let stats;
+      try {
+        stats = fs.lstatSync(path.join(root, item.file));
+      } catch (error) {
+        if (error && error.code === 'ENOENT') continue;
+        throw error;
+      }
+      if (stats.isSymbolicLink() || !stats.isFile() || stats.nlink !== 1) {
+        throw Error('Unsafe output: ' + item.file);
+      }
+    }
+  }
   let count = 0;
-  for (const item of entries.filter((entry) => entry.kind === 'runtime')) {
+  for (const item of runtimes) {
     const match = item.file.match(/^(.*)-(280|320|560|640)\.webp$/);
     if (!match) throw Error('Unsupported derivative: ' + item.file);
     const master = entries.find((entry) => entry.kind === 'source-webp' && entry.file === match[1] + '.webp');

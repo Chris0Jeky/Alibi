@@ -67,6 +67,9 @@ test('Pictogram generator rejects executable SVG, external content and unsafe ke
 });
 test('Runtime compaction joins only adjacent equally styled open contours', () => {
   assert.equal(compact('<path d="M1 2"/><path d="M3 4"/>'), '<path d="M1 2 M3 4"/>');
+  assert.equal(compact('<path d="M1 2"/><path d="m3 4"/>'), '<path d="M1 2"/><path d="m3 4"/>');
+  assert.equal(compact('<path d="M1 2Z"/><path d="m3 4"/>'), '<path d="M1 2Z"/><path d="m3 4"/>');
+  assert.equal(compact('<path d="M1 2"/><path d="  M3 4"/>'), '<path d="M1 2   M3 4"/>');
   const filled = '<path d="M1 2"/><path d="M3 4" fill="currentColor"/>';
   assert.equal(compact(filled), filled);
 });

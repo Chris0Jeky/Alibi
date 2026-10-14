@@ -43,7 +43,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 510 puzzles across 30 bounded packs (26 initial, 4 deferred Vault); the bundled total is `build-info.json` `puzzles` |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 510 puzzles across 30 bounded packs (25 initial, 5 deferred); the bundled total is `build-info.json` `puzzles` |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
@@ -78,7 +78,7 @@ entries reference catalogue IDs; they are not extra copies. Daily choices rotate
 using the device date. All progress is device-local.
 
 The 510 total is the trusted-registry count (`content/official-packs.json`, 30 packs); the bundled
-total is `build-info.json` `puzzles`, with `deferredPuzzles` for the precached Vault chunk. The older
+total is `build-info.json` `puzzles`, with `deferredPuzzles` for the precached Vault and Crime Scene chunk. The older
 382 figure was the 23-pack baseline before the 48 Night studies and 80 Vault studies.
 
 ## Known content work
