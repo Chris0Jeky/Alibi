@@ -15,6 +15,9 @@ def main():
     frozen=out/'early-motion-frozen-rest.mp4'
     subprocess.run([ffmpeg,'-hide_banner','-loglevel','error','-n','-i',str(a.accepted_video),'-vf','trim=end=1,setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=7','-t','8','-c:v','libx264','-crf','20','-pix_fmt','yuv420p',str(frozen)],check=True)
     cases.extend([('early-motion-frozen-rest',frozen,False),('accepted-r2',a.accepted_video,True)])
+    flashes=out/'one-flash-per-quarter.mp4'
+    subprocess.run([ffmpeg,'-hide_banner','-loglevel','error','-n','-loop','1','-framerate','24','-i',str(still),'-t','8','-vf','drawbox=x=0:y=0:w=iw:h=ih:color=black:t=fill:enable=eq(mod(n\\,48)\\,6)','-c:v','libx264','-crf','20','-pix_fmt','yuv420p',str(flashes)],check=True)
+    cases.append(('one-flash-per-quarter',flashes,False))
     if a.r1_video:cases.append(('retained-r1',a.r1_video,False))
     results=[]
     for name,clip,expected in cases:

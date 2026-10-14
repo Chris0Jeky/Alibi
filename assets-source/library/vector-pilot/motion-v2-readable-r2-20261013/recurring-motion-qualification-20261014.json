@@ -2,233 +2,9 @@
   "issue": 651,
   "old_oracle_reproduced_false_positive": "4fps, one black opening frame followed by 31 frozen frames qualifies at max-change1.0 in all regions",
   "single_black_24fps_old_behavior": "The old fps4 filter skipped the corrupt opening frame; the revised decoder retains every actual frame and rejects it on temporal coverage.",
-  "new_gate": "At least two threshold-qualified adjacent/phase-separated pairs in every disjoint quarter for every Alibi region; unchanged local thresholds. LAS train alone requires two quarters because it is an intermittent one-way passage.",
+  "new_gate": "Two readable comparisons sharing no frame endpoint per disjoint quarter, at unchanged pixel thresholds; one isolated transient cannot count several times through overlapping edges. All Alibi regions require all four quarters. LAS train requires two quarters because it is intentionally intermittent.",
   "causal_negatives": "All negative CLI exits carry the recurring-motion assertion, not missing-file/decoder/format errors.",
   "results": [
-    {
-      "name": "black-first-4fps",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "6f7fd20cfd4d92cf9fa13e05b5f107387f5c7eca410be53d7c154ccd08fbc9fb",
-      "decoded_frames": 32,
-      "fps": 4.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "black-first-24fps",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "f63b2a65052cf930fdcfccbb1dcdf983a3483f24fc89fce35355aac32f24f748",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "all-still",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "783dd5ce498dc37876c66a3fb15a82857f352cdc38ea8700360b1ee55b181b3f",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "accepted-r2",
-      "expected_pass": true,
-      "actual_pass": true,
-      "sha256": "2a4d58ab0ed34199fe11d052815cf170b4adf1af6927a710ab6b1ba6b551d9d2",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 4,
-          "required_passing_quarters": 4,
-          "passes": true
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 4,
-          "required_passing_quarters": 4,
-          "passes": true
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 4,
-          "required_passing_quarters": 4,
-          "passes": true
-        }
-      }
-    },
-    {
-      "name": "early-motion-frozen-rest",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "ce3295836dd8fc712345d6cf639cb65fef46e824c1472e912ce400e722fdcc46",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 1,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "alibi-r1",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "bac1d85f13757d529e6dc8ed82f672ec43da0ee44dd099ec065e62fb3b4b369d",
-      "decoded_frames": 96,
-      "fps": 12.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "original-all-still",
-      "expected_pass": false,
-      "actual_pass": false,
-      "sha256": "783dd5ce498dc37876c66a3fb15a82857f352cdc38ea8700360b1ee55b181b3f",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "steam": {
-          "required_minimum": 0.04,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "flame": {
-          "required_minimum": 0.025,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        },
-        "glass": {
-          "required_minimum": 0.015,
-          "passing_quarters": 0,
-          "required_passing_quarters": 4,
-          "passes": false
-        }
-      }
-    },
-    {
-      "name": "las-accepted-r2",
-      "expected_pass": true,
-      "actual_pass": true,
-      "sha256": "4131ce90cc954453a4f1d9bb7755d51aaa0ac797c56e4842405bc0f560bfe0d3",
-      "decoded_frames": 192,
-      "fps": 24.0,
-      "regions": {
-        "window": {
-          "required_minimum": 0.025,
-          "passing_quarters": 4,
-          "required_passing_quarters": 4,
-          "passes": true
-        },
-        "falling_rain": {
-          "required_minimum": 0.0035,
-          "passing_quarters": 4,
-          "required_passing_quarters": 4,
-          "passes": true
-        },
-        "train_band": {
-          "required_minimum": 0.06,
-          "passing_quarters": 4,
-          "required_passing_quarters": 2,
-          "passes": true
-        }
-      }
-    },
     {
       "name": "black-first-4fps",
       "expected_pass": false,
@@ -239,19 +15,19 @@
       "regions": {
         "steam": {
           "required_minimum": 0.04,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         },
         "flame": {
           "required_minimum": 0.025,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         },
         "glass": {
           "required_minimum": 0.015,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         }
@@ -267,19 +43,19 @@
       "regions": {
         "steam": {
           "required_minimum": 0.04,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         },
         "flame": {
           "required_minimum": 0.025,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         },
         "glass": {
           "required_minimum": 0.015,
-          "passing_quarters": 1,
+          "passing_quarters": 0,
           "required_passing_quarters": 4,
           "passes": false
         }
@@ -370,6 +146,34 @@
       }
     },
     {
+      "name": "one-flash-per-quarter",
+      "expected_pass": false,
+      "actual_pass": false,
+      "sha256": "9f3713e4c450ffc93fac07f63f8c2d430e70179d10f4b033f79a1d83ec5ce8e9",
+      "decoded_frames": 192,
+      "fps": 24.0,
+      "regions": {
+        "steam": {
+          "required_minimum": 0.04,
+          "passing_quarters": 0,
+          "required_passing_quarters": 4,
+          "passes": false
+        },
+        "flame": {
+          "required_minimum": 0.025,
+          "passing_quarters": 0,
+          "required_passing_quarters": 4,
+          "passes": false
+        },
+        "glass": {
+          "required_minimum": 0.015,
+          "passing_quarters": 0,
+          "required_passing_quarters": 4,
+          "passes": false
+        }
+      }
+    },
+    {
       "name": "retained-r1",
       "expected_pass": false,
       "actual_pass": false,
@@ -396,6 +200,34 @@
           "passes": false
         }
       }
+    },
+    {
+      "name": "separately-delivered-las-r2",
+      "actual_pass": true,
+      "expected_pass": true,
+      "sha256": "4131ce90cc954453a4f1d9bb7755d51aaa0ac797c56e4842405bc0f560bfe0d3",
+      "decoded_frames": 192,
+      "fps": 24.0,
+      "regions": {
+        "window": {
+          "required_minimum": 0.025,
+          "passing_quarters": 4,
+          "required_passing_quarters": 4,
+          "passes": true
+        },
+        "falling_rain": {
+          "required_minimum": 0.0035,
+          "passing_quarters": 4,
+          "required_passing_quarters": 4,
+          "passes": true
+        },
+        "train_band": {
+          "required_minimum": 0.06,
+          "passing_quarters": 4,
+          "required_passing_quarters": 2,
+          "passes": true
+        }
+      }
     }
   ],
   "preserved_source_hashes": {
@@ -410,5 +242,9 @@
   },
   "accepted_alibi_mp4_sha256": "2a4d58ab0ed34199fe11d052815cf170b4adf1af6927a710ab6b1ba6b551d9d2",
   "accepted_las_mp4_sha256": "4131ce90cc954453a4f1d9bb7755d51aaa0ac797c56e4842405bc0f560bfe0d3",
-  "quality_limits": "Temporal checks supplement prior full normal-speed playback and owner acceptance; no art/runtime/physical-device acceptance inferred."
+  "quality_limits": "Temporal checks supplement prior full normal-speed playback and owner acceptance; no art/runtime/physical-device acceptance inferred.",
+  "review_regression": "Fresh review reproduced one flash in each quarter passing through overlapping pairs. The added fifth unit test was observed red, then the independent-pair fix and actual encoded per-quarter-flash control passed. Original first-fix receipts remain in Git at62c2b975 and private evidence.",
+  "focused_tests": 5,
+  "encoded_cases": 7,
+  "accepted_source_and_clip_changes": false
 }

@@ -21,8 +21,15 @@ def recurring_regions(images, fps, asset):
                     diff=ImageChops.difference(crops[first],crops[first+gap]);pixels=diff.tobytes()
                     fraction=sum(max(pixels[i:i+3])>=6 for i in range(0,len(pixels),3))/(diff.width*diff.height)
                     pairs.append({'first_frame':first,'second_frame':first+gap,'changed_fraction_threshold6':fraction})
-            changed=sum(pair['changed_fraction_threshold6']>=minimum for pair in pairs)
-            windows.append({'quarter':quarter+1,'start_frame':start,'end_frame_exclusive':stop,'qualifying_pairs':changed,'passes':changed>=2,'pairs':pairs})
+            qualifying=[pair for pair in pairs if pair['changed_fraction_threshold6']>=minimum]
+            # A corrupt frame can differ from several neighbours. Counting
+            # those overlapping edges would turn one glitch into many events.
+            independent=[]
+            for i,first in enumerate(qualifying):
+                endpoints={first['first_frame'],first['second_frame']}
+                second=next((pair for pair in qualifying[i+1:] if endpoints.isdisjoint({pair['first_frame'],pair['second_frame']})),None)
+                if second:independent=[first,second];break
+            windows.append({'quarter':quarter+1,'start_frame':start,'end_frame_exclusive':stop,'qualifying_pairs':len(qualifying),'independent_pairs':independent,'passes':len(independent)>=2,'pairs':pairs})
         # A one-way train is intentionally absent in part of its eight-second
         # loop. Rain/window and all Alibi effects must recur in every quarter.
         required=2 if asset=='las' and name=='train_band' else 4
