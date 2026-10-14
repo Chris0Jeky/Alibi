@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: held Enter and a held digit both leave a cell note
+
+This merge keeps the Enter guards and the held-digit guard. A repeated Enter on number key 1 leaves note 1. A repeated digit key 1 also leaves note 1. A later press removes it. Zoom, pause, and Cell notes stay on when Enter repeats.
+
+The combined desktop page showed each repeat leaving the note, the enlarged board, and the pause in place. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,425 bytes, sha256 `e9f8f80b553d6b0d6bf06037c27277f95374ff58777393896adf1b1db1584444`. `tests/budget.test.cjs` passed on the combined local web build `9dcabedacc9e` at 203,471 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,764. The measured sourceSha was still `c6807ad8` because the merge was uncommitted. sourceDirty true. Payload `e4abca030f0fd8ed9fcca6b4cf2c3fff1f5009301437db44c8f1e9a3261db3b0`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a held Enter leaves a cell note in place
 
 Holding Enter on number key 1 adds that note once. A later press still removes it. Enlarge board, Pause, and Cell notes still stay on when Enter repeats.
@@ -24,9 +30,15 @@ A play control without an id stays focused when the board redraws. Cell notes an
 
 An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 207,800 bytes, sha256 `4665d4c6383145b536f42101c2e70e0a5b044947a5d3eeeb7aa261dd82ea9cee`. `tests/budget.test.cjs` passed on the combined local web build `482d954a3476` at 203,413 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
+## 2026-10-14: a held digit leaves a cell note in place
+
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the held-N, Escape, restore, and voices focus guards.
+
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, the repeat keeps note 1, and the next press removes it. The same page leaves a held N on, and a later N turns it off. No page errors. The asset catalogue records the combined `src/app.js` at 206,872 bytes, sha256 `6cba9ab0e95b9a29af229eaedd4339646d35d8250b9b01667d0634cdfd79e45e`. `tests/budget.test.cjs` passed on the combined local web build `743aa6ed8a75` at 203,269 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a held N leaves Cell notes on
 
-Holding N turns Cell notes on once. A later press still turns them off. This merge keeps the Escape, restore, and voices focus guards.
+Holding N turns Cell notes on once. A later press still turns them off. That change kept the Escape, restore, and voices focus guards.
 
 An isolated desktop page showed the old behavior first: the first N turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. No page errors. The asset catalogue records the combined `src/app.js` at 206,770 bytes, sha256 `20d743cb09065d66a23ea30ed659d90f935ca9a259cb9643c45e4fc4fe0879b2`. `tests/budget.test.cjs` passed on the combined local web build `20db11ab954e` at 203,259 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
