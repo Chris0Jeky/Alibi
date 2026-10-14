@@ -1,10 +1,16 @@
 # Live development state
 
+## 2026-10-14: a held digit leaves a cell note in place
+
+Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged.
+
+An isolated desktop page turned notes on, selected an empty square, and held 1. Before the guard, build `0f83210ddcb7` cleared the note. After the guard, build `ede5a41d791e` keeps note 1, and the next press removes it. No page errors. The asset catalogue records `src/app.js` at 206,663 bytes. `tests/budget.test.cjs` passed on that local web build at 203,267 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a restore button runs one restore
 
 Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
 
-A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. This merge also keeps the save-conflict guard. The asset catalogue records the combined `src/app.js` at 206,561 bytes. `tests/budget.test.cjs` passed on that local web build at 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. This merge also keeps the save-conflict guard. That branch recorded `src/app.js` at 206,561 bytes and a local web build of 203,251 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
