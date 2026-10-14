@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: a held N leaves Cell notes on
+
+Holding N turns Cell notes on once. A later press still turns them off.
+
+An isolated desktop page showed the old behavior first: the first N turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. No page errors. The asset catalogue records `src/app.js` at 206,464 bytes. `tests/budget.test.cjs` passed on that local web build at 203,238 initial gzip bytes, under the existing 205,248 ceiling. Build `9cec66e6e324` was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
 Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
