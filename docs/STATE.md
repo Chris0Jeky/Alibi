@@ -1,5 +1,34 @@
 # Live development state
 
+## 2026-10-14: bounded PR queue reconciliation
+
+Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
+closed as superseded by current main, with its branch/history preserved. The
+candidate integrates the complete #648 pause-repair, #641 README and #647
+source-preview histories using merge commits. State conflicts retain both
+added records and the existing ledger. No release or deployment is implied.
+
+Exact pause source 25bb3aae passes clean-source full Windows verify: 1,490 Node
+passes, zero failures, three intentional filename skips, plus Quiet Wing
+581,847 assertions and 29 contracts. Muse's renewed file-only review completes
+with report_status=ok and integrity=ok, without findings. The final integration
+retains that runtime byte-for-byte; clean both-target build, unchanged budgets,
+focused checks and hosted qualification still bind at its final head.
+
+The runtime painting candidate remains parked: composition 86bb60a9 measures
+shell 1,412,963 against 1,412,792.32 (170.68 bytes over), startup 205,211 against
+205,248. All painting masters/derivatives and source-preview records survive.
+The Quiet Wing revision-limit repair also remains parked in composition:
+17ef2af7 measures shell 1,412,948 (155.68 over), startup 204,268 (980 under).
+Its standalone qualified source ac6a6783 passed 98 actual-origin browser checks,
+import/engine/contracts and the same budget (1,412,778), but is not a safe
+combined landing. No ceilings were increased or custom decoder introduced.
+
+Other draft stacks retain their own budget, transfer-integrity, native,
+editorial and dependency gates; #500's explicit human skim hold remains.
+Physical Android/TalkBack, publisher and Sites-retirement conditions stay in
+[HUMAN_TODO.md](../HUMAN_TODO.md). Source previews are not production artwork.
+
 ## 2026-10-14: pause accessibility and landscape repair (#648)
 
 The pause-only inert wrapper now exists only while paused, preserving the
@@ -15,6 +44,82 @@ web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling
 The first full verify correctly refused the dirty Android source; clean-source
 verification and renewed independent review are required at the final head.
 Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+## 2026-10-12: README reconciled to the source
+
+The root README was rewritten against the current tree. Counts come from
+`content/official-packs.json` (30 packs, 510 puzzles, 430 initial, 80 deferred),
+`content/casebooks.json` (five books), and `content/challenges/` (95). Family
+names match `src/presentation.js`. Games Room cards match `src/club.js`. Package
+version 0.15.1 matches `package.json` and the recorded Cloudflare receipt in
+`docs/RELEASE-0.15.1.md`. On 12 October 2026 the primary origin's platform
+identity script reported appVersion 0.15.1 and source
+`98be800d0715a25695fe99480bb801fd30397220`. The Sites origin reported
+appVersion 0.12.0. No runtime, content, save schema, or deployment change.
+Local README link check: 52 relative links resolve; `src/artwork/bellweather.webp`
+exists. Badge URLs returned HTTP 200. `npm ci` installed the lockfile.
+`node tools/validate-pack.cjs examples/twelve-families.json` returned valid,
+12 puzzles. `npm run build` emitted version 0.15.1, 510 puzzles, 13 types,
+5 casebooks and 80 deferred puzzles. `npm start` served that build at
+http://127.0.0.1:8787 and the homepage returned HTTP 200. Full `npm run verify`
+was not rerun for this documentation edit.
+
+## 14 October 2026: current-main source-only motion qualification
+
+PR #647 source head d5da1b6378355a6adacdd30f22201fb2d1c1a90b is integrated
+with current main 3d041caf61b46b54a1ba046a50132f760192d758, preserving both
+commit histories and every earlier STATE block. Both preview folders are
+byte-identical to that PR source. No runtime, catalogue, precache, dependency,
+save, budget ceiling or deployment changes are introduced.
+
+Fresh local checks: both preview controllers pass `node --check`, and
+`node --test tests/asset-catalogue.test.cjs` passes 2/2 hash/count/spoiler cases.
+Each existing `verify_preview.py` passes all 24 browser checks with zero page
+errors or network requests. Initial pixels match the unchanged static SVG;
+both loops have zero changed seam pixels. R2 phone/desktop images at 390/1440
+were inspected. Reports and screenshots are retained in ignored
+`test-results/motion-r1-current-main/` and `test-results/motion-r2-current-main/`.
+The shared Python environment lacked Pillow, so its dependency was installed
+only in ignored `test-results/motion-python-deps/`, without changing that environment.
+
+Full gameplay/build, fresh encoded-export decoding, hosted qualification at
+the integration head, deployment and physical-device acceptance were not rerun.
+The prior independent source review and dated export/owner acceptance receipts
+remain historical; HUMAN_TODO.md decisions and physical gates remain open.
+
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
+## 13 October 2026: provisional v2 source acceptance and optional motion draft
+
+Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
+lantern renders, plus the responsive LAS card: “Yeah, I guess these are good enough
+for being SVGs.” This does not accept the later failed coarse studies, pixel variant,
+runtime deployment, licensing or merge. The proposed conversion pivot is stopped.
+Earlier sources, painted assets and archives remain unchanged.
+
+`assets-source/library/vector-pilot/motion-v2-20261013/index.html` compares an exact,
+script-free copy of the lantern v2 master with a separate optional flame-light and
+steam preview. Counters and the scene geometry remain stationary. Initial pixels
+match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
+handling is an explicit DOM-contract probe, not physical phone certification.
+This addition changes no runtime/catalogue/precache/budget/dependency file. Build
+emission and exact-head hosted gates are recorded in the draft PR. Existing owner
+choices in HUMAN_TODO.md remain open.
 
 ## 2026-10-12: automatic Voices flush test qualification
 
