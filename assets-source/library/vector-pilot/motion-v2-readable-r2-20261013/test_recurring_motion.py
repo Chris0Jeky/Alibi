@@ -21,6 +21,11 @@ class RecurringMotionTests(unittest.TestCase):
         frames=self.frames()
         for i in [6,54,102,150]:frames[i]=Image.new('RGB',(320,320),'black')
         self.assertFalse(self.passes(frames))
+    def test_short_flash_spanning_two_samples_is_not_recurring_motion(self):
+        frames=self.frames()
+        for quarter in range(4):
+            for i in range(quarter*48+18,quarter*48+25):frames[i]=Image.new('RGB',(320,320),'black')
+        self.assertFalse(self.passes(frames))
     def test_recurring_changes_in_every_quarter_are_accepted(self):
         frames=[Image.new('RGB',(320,320),'black' if i//6%2 else 'ivory') for i in range(192)]
         self.assertTrue(self.passes(frames))

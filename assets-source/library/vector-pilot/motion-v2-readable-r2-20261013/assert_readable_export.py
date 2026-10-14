@@ -29,7 +29,12 @@ def recurring_regions(images, fps, asset):
                 endpoints={first['first_frame'],first['second_frame']}
                 second=next((pair for pair in qualifying[i+1:] if endpoints.isdisjoint({pair['first_frame'],pair['second_frame']})),None)
                 if second:independent=[first,second];break
-            windows.append({'quarter':quarter+1,'start_frame':start,'end_frame_exclusive':stop,'qualifying_pairs':len(qualifying),'independent_pairs':independent,'passes':len(independent)>=2,'pairs':pairs})
+            adjacent=sum(pair['second_frame']-pair['first_frame']==max(1,round(fps/4)) for pair in qualifying)
+            # The two continuously moving Alibi effects must change through
+            # several adjacent phases. Entry/exit around one short flash gives
+            # at most two transitions even with distinct comparison endpoints.
+            required_adjacent=3 if asset=='alibi' and name in ('steam','flame') else 0
+            windows.append({'quarter':quarter+1,'start_frame':start,'end_frame_exclusive':stop,'qualifying_pairs':len(qualifying),'qualifying_adjacent_pairs':adjacent,'required_adjacent_pairs':required_adjacent,'independent_pairs':independent,'passes':len(independent)>=2 and adjacent>=required_adjacent,'pairs':pairs})
         # A one-way train is intentionally absent in part of its eight-second
         # loop. Rain/window and all Alibi effects must recur in every quarter.
         required=2 if asset=='las' and name=='train_band' else 4

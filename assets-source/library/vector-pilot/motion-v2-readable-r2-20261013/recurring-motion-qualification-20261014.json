@@ -2,7 +2,7 @@
   "issue": 651,
   "old_oracle_reproduced_false_positive": "4fps, one black opening frame followed by 31 frozen frames qualifies at max-change1.0 in all regions",
   "single_black_24fps_old_behavior": "The old fps4 filter skipped the corrupt opening frame; the revised decoder retains every actual frame and rejects it on temporal coverage.",
-  "new_gate": "Two readable comparisons sharing no frame endpoint per disjoint quarter, at unchanged pixel thresholds; one isolated transient cannot count several times through overlapping edges. All Alibi regions require all four quarters. LAS train requires two quarters because it is intentionally intermittent.",
+  "new_gate": "Two readable frame comparisons with distinct endpoints in each disjoint quarter. Continuously moving Alibi steam/flame additionally require three threshold-qualified adjacent quarter-second comparisons per quarter; slower glass/light uses phase-separated comparisons. All pixel thresholds unchanged. LAS train remains intermittent and requires two quarters.",
   "causal_negatives": "All negative CLI exits carry the recurring-motion assertion, not missing-file/decoder/format errors.",
   "results": [
     {
@@ -14,21 +14,57 @@
       "fps": 4.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
         }
       }
@@ -42,21 +78,57 @@
       "fps": 24.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
         }
       }
@@ -70,21 +142,57 @@
       "fps": 24.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
         }
       }
@@ -98,21 +206,57 @@
       "fps": 24.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 1,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            4,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 1,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            4,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 1,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
         }
       }
@@ -126,21 +270,57 @@
       "fps": 24.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 4,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            7,
+            7,
+            7,
+            7
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": true
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 4,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            7,
+            6,
+            6,
+            6
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": true
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 4,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            1,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": true
         }
       }
@@ -154,22 +334,122 @@
       "fps": 24.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
+        }
+      }
+    },
+    {
+      "name": "short-flash-per-quarter",
+      "expected_pass": false,
+      "actual_pass": false,
+      "sha256": "500349a56d6b4fe0309c13aee9c828cef7898e2635754dcdc35a8f5190766483",
+      "decoded_frames": 192,
+      "fps": 24.0,
+      "regions": {
+        "steam": {
+          "minimum": 0.04,
+          "passing_quarters": 0,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "passes": false
+        },
+        "flame": {
+          "minimum": 0.025,
+          "passing_quarters": 0,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "passes": false
+        },
+        "glass": {
+          "minimum": 0.015,
+          "passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "passes": true
         }
       }
     },
@@ -182,21 +462,57 @@
       "fps": 12.0,
       "regions": {
         "steam": {
-          "required_minimum": 0.04,
+          "minimum": 0.04,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "flame": {
-          "required_minimum": 0.025,
+          "minimum": 0.025,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            3,
+            3,
+            3,
+            3
+          ],
           "passes": false
         },
         "glass": {
-          "required_minimum": 0.015,
+          "minimum": 0.015,
           "passing_quarters": 0,
-          "required_passing_quarters": 4,
+          "required_quarters": 4,
+          "adjacent_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "adjacent_required": [
+            0,
+            0,
+            0,
+            0
+          ],
           "passes": false
         }
       }
@@ -243,8 +559,9 @@
   "accepted_alibi_mp4_sha256": "2a4d58ab0ed34199fe11d052815cf170b4adf1af6927a710ab6b1ba6b551d9d2",
   "accepted_las_mp4_sha256": "4131ce90cc954453a4f1d9bb7755d51aaa0ac797c56e4842405bc0f560bfe0d3",
   "quality_limits": "Temporal checks supplement prior full normal-speed playback and owner acceptance; no art/runtime/physical-device acceptance inferred.",
-  "review_regression": "Fresh review reproduced one flash in each quarter passing through overlapping pairs. The added fifth unit test was observed red, then the independent-pair fix and actual encoded per-quarter-flash control passed. Original first-fix receipts remain in Git at62c2b975 and private evidence.",
-  "focused_tests": 5,
-  "encoded_cases": 7,
-  "accepted_source_and_clip_changes": false
+  "review_regression": "Two fresh-review rounds found overlapping single-frame counting, then a seven-frame flash spanning distinct endpoints. Both were independently observed red in regressions and fixed; all six unit cases and eight real encoded cases now pass. No third review round was requested. The final adjacent-phase change is causally tested but not independently re-reviewed.",
+  "focused_tests": 6,
+  "encoded_cases": 8,
+  "accepted_source_and_clip_changes": false,
+  "limits": "Recurring numeric region changes cannot distinguish every possible flicker/art defect. Full normal-speed playback, source/static geometry inspection and owner art acceptance remain separate. No universal corrupt-video detector or new visual acceptance claimed."
 }
