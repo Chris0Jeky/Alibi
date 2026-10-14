@@ -3484,8 +3484,12 @@
   document.addEventListener(
     'keydown',
     (e) => {
-      // A held Enter on Cell notes turns them on, then each repeat would turn them off.
-      if (e.repeat && e.key === 'Enter' && e.target?.closest?.('[data-action="pencil"]'))
+      // A held Enter turns Cell notes, board size, or pause on, then each repeat would turn it off.
+      if (
+        e.repeat &&
+        e.key === 'Enter' &&
+        e.target?.closest?.('[data-action="pencil"], #play-zoom, [data-action="pause"]')
+      )
         e.preventDefault();
     },
     true,
@@ -3514,6 +3518,8 @@
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
       if (paused) return;
+      // A held N turns notes on, then each repeat would turn them off.
+      if (e.repeat) return;
       e.preventDefault();
       pencil = !pencil;
       if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
