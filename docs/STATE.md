@@ -1,5 +1,35 @@
 # Live development state
 
+## 2026-10-14: artwork budget recovery
+
+PR #650 merged as c800be5a; its complete README and motion-preview histories
+are on main, and qualification tracker #653 is closed. The artwork integration
+preserves the original #525/#643 and #521/#642 histories, all 60 painting-shelf
+files and 29 pictogram SVG masters byte-for-byte. Three 320px paintings use
+optional delivery on the Desk and Games Room; navigation and family pictograms
+use the reviewed masters. Source vector studies remain proposed.
+
+Removing unused old-home selectors saves 7,585 emitted CSS bytes without
+changing any retained rule. Three numeric selection thresholds in the existing
+official-content encoder recover startup gzip; the runtime decoder is identical.
+No byte ceiling is changed. Combined runtime source 96db0a7e builds f61029df2828:
+shell 1,406,273 against 1,412,792.32, startup 205,181 against 205,248. All 510
+puzzle definitions, IDs/revisions and initial/deferred JSON order remain exact;
+the only content-global additions are the three intended artwork delivery entries.
+
+That clean source passes full Windows verify: 1,504 Node passes, zero failures,
+three intentional filename skips, Quiet Wing 581,847 assertions and 29 contracts.
+UI187, pictogram navigation52 and actual-origin375 pass. All 48 painting hashes
+and 32 derivatives reproduce; Cloudflare dry-run passes. Muse's bounded encoder
+worker completed successfully; both new regressions fail with the previous
+encoder and pass with the tuned encoder. Independent Sol review found no
+HIGH/CRITICAL blocker; future relative-contour compaction is tracked in #655.
+
+The integration PR carries final head, browser/visual and hosted qualification.
+Startup margin remains narrow. This is source qualification, with no production
+release or deployment. Physical Android/TalkBack, publisher and other owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: bounded PR queue reconciliation
 
 Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
