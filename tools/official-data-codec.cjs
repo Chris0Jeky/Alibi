@@ -6,12 +6,12 @@ const record = (value) => value !== null && typeof value === 'object' && !Array.
 function encode(value) {
   const counts = new Map();
   function visit(entry) {
-    if (typeof entry === 'string' && entry.length >= 32)
+    if (typeof entry === 'string' && entry.length >= 20)
       counts.set(entry, (counts.get(entry) || 0) + 1);
     else if (entry && typeof entry === 'object') Object.values(entry).forEach(visit);
   }
   visit(value);
-  const dictionary = [...counts].filter(([, count]) => count > 1).map(([text]) => text);
+  const dictionary = [...counts].filter(([, count]) => count > 3).map(([text]) => text);
   const indices = new Map(dictionary.map((text, index) => [text, index]));
   function encodeValue(value) {
     if (typeof value === 'string' && indices.has(value)) return [5, indices.get(value)];
@@ -19,7 +19,7 @@ function encode(value) {
     if (!Array.isArray(value))
       return [1, ...Object.entries(value).flatMap(([key, entry]) => [key, encodeValue(entry)])];
     if (
-      value.length >= 5 &&
+      value.length >= 3 &&
       value.every((entry) => Number.isInteger(entry) && entry >= -2 && entry <= 89)
     )
       return [3, value.map((entry) => String.fromCharCode(entry + 35)).join('')];
