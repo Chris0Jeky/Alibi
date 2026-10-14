@@ -36,7 +36,7 @@ function inspectDerivative(item, checkOnly) {
     }
     throw error;
   }
-  if (!stat.isFile()) throw Error('Unsafe derivative output: ' + item.file);
+  if (!stat.isFile() || stat.nlink !== 1) throw Error('Unsafe output: ' + item.file);
   const bytes = fs.readFileSync(outputPath);
   const valid = bytes.length === item.bytes && hash(bytes) === item.sha256;
   if (checkOnly && !valid) throw Error('Changed input: ' + item.file);
@@ -53,12 +53,12 @@ function replaceDerivative(item, bytes) {
     fs.writeFileSync(tempPath, bytes, { flag: 'wx' });
     try {
       const current = fs.lstatSync(outputPath);
-      if (!current.isFile()) throw Error('Unsafe derivative output: ' + item.file);
+      if (!current.isFile() || current.nlink !== 1) throw Error('Unsafe output: ' + item.file);
     } catch (error) {
       if (error.code !== 'ENOENT') throw error;
     }
-    // Replacing the directory entry avoids following symlinks or modifying another
-    // file that happens to share this output's hard link.
+    // Replace only a rechecked regular, single-link output. Atomic rename avoids
+    // exposing a partial derivative; links are refused under the upstream policy.
     fs.renameSync(tempPath, outputPath);
   } finally {
     try {

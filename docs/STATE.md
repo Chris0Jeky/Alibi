@@ -1,8 +1,31 @@
 # Live development state
 
-## 2026-10-14: verified painting derivative restoration (#658)
+## 2026-10-14: derivative hardening reconciled with current main (#662)
 
-The source-shelf generator can now restore a missing or damaged runtime
+Main 030d5812 already includes the basic #658 repair through #659; the issue is
+closed. This draft preserves that release history and its five existing source
+regressions. Its remaining scope is verified size/hash for every reproduction,
+staging all necessary repairs before replacement, untouched valid bytes/mtime
+and atomic output replacement. Main's refusal of symbolic, nonregular and
+hard-linked outputs is retained and rechecked immediately before replacement.
+The earlier draft's hard-link repair behavior is superseded by that stricter
+upstream policy; its preserved historical record is distinguished below.
+
+Current-main conflict is limited to the source generator and this additive
+state ledger. Both histories are retained. Nine additional real-Sharp causal
+regressions expose five current-main failures (valid-output timestamps, recorded
+byte-size mismatch and later reproduction mismatch after an earlier repair).
+Four existing refusal/master controls pass on main. Focused combined checks,
+full clean-source verify, independent review and hosted exact-head qualification
+are recorded separately after reconciliation. Accepted paintings, manifests,
+runtime/content, dependencies and numerical ceilings have no diff from main.
+No merge, deployment, media regeneration or new tutorial scope is authorized
+here; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+
+## 2026-10-14: historical derivative draft at 2ab45d38 (#662)
+
+The original source-only draft, before current-main reconciliation, could restore a missing or damaged runtime
 derivative after every master passes its existing byte-size/SHA256 fingerprint.
 Replacement bytes must reproduce the recorded manifest exactly. Valid outputs
 keep their bytes and timestamps; symlink outputs are refused and atomic
@@ -18,6 +41,27 @@ All accepted art, manifests, runtime integration and byte ceilings are unchanged
 Complete clean-source verification and hosted qualification are separate PR
 gates. This maintenance source is not a release, deployment or new art/physical
 acceptance; existing [HUMAN_TODO.md](../HUMAN_TODO.md) decisions remain open.
+
+## 2026-10-14: 0.15.2 release qualification
+
+The release candidate fixes relative pictogram contours (#655) and regenerates
+missing or corrupt painting derivatives from verified masters (#658). All 48
+painting hashes and 32 derivatives reproduce without changing image bytes.
+Six revision-1 Crime Scene variations use the existing precached deferred file:
+424 definitions load initially and 86 remain available on demand and offline.
+The unchanged codec saves 2,216 startup gzip bytes through that deferral.
+
+The 0.15.2 candidate measures startup 203,125 against 205,248 (2,123 bytes
+headroom), shell 1,406,272 against 1,412,792.32 and deferred content 11,490
+against 12,288. Deferred delivery passes 16 real-control browser cases and the
+focused offline origin checks; full final-head qualification remains pending.
+Pulseboard registration is PR #231, with the pinned SDK still version 3.3.1.
+
+Publication is pending final checks, review and collector readiness. The primary
+still serves 0.15.1; the existing Worker is retained for rollback. Deployment,
+same-origin save/update and public release receipts belong in
+[RELEASE-0.15.2.md](RELEASE-0.15.2.md) after execution. Physical device and owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-14: artwork budget recovery
 

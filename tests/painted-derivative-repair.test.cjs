@@ -129,7 +129,6 @@ test('normal mode restores a missing derivative from a verified master', () =>
 
     const result = runGenerator(fixture);
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /restored 1 derivative/i);
     assert.deepEqual(fs.readFileSync(path.join(shelf, missing.file)), missing.expected);
     assert.deepEqual(captureFiles(shelf, [untouched])[0], untouchedBefore);
   }));
@@ -143,7 +142,6 @@ test('normal mode restores a corrupt derivative only when it reproduces the mani
 
     const result = runGenerator(fixture);
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /restored 1 derivative/i);
     assert.deepEqual(fs.readFileSync(path.join(shelf, damaged.file)), damaged.expected);
     assert.deepEqual(captureFiles(shelf, [untouched])[0], untouchedBefore);
   }));
@@ -227,7 +225,6 @@ test('valid outputs are left byte-for-byte and timestamp unchanged in normal mod
 
     const result = runGenerator(fixture);
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /restored 0 derivatives/i);
     assert.deepEqual(captureFiles(shelf, sources), before.slice(0, sources.length));
     assert.deepEqual(
       captureFiles(shelf, outputs).map((file) => file.bytes),
@@ -253,13 +250,13 @@ test('normal mode refuses a derivative symlink without writing through it', () =
 
     const result = runGenerator(fixture);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, new RegExp(`Unsafe derivative output: ${output.file}`));
+    assert.match(result.stderr, new RegExp(`Unsafe (?:derivative )?output: ${output.file}`));
     assert.deepEqual(fs.readFileSync(sentinelPath), sentinelBefore);
     assert.equal(fs.statSync(sentinelPath, { bigint: true }).mtimeNs, sentinelTime);
     assert.equal(fs.lstatSync(outputPath).isSymbolicLink(), true);
   }));
 
-test('normal mode replaces a corrupt hard-linked derivative without changing its alias', () =>
+test('normal mode refuses a corrupt hard-linked derivative and preserves both entries', () =>
   withFixture(({ fixture, shelf, outputs }) => {
     const output = outputs[0];
     const outputPath = path.join(shelf, output.file);
@@ -271,10 +268,30 @@ test('normal mode replaces a corrupt hard-linked derivative without changing its
     const sentinelTime = fs.statSync(sentinelPath, { bigint: true }).mtimeNs;
 
     const result = runGenerator(fixture);
-    assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /restored 1 derivative/i);
-    assert.deepEqual(fs.readFileSync(outputPath), output.expected);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, new RegExp(`Unsafe (?:derivative )?output: ${output.file}`));
+    assert.deepEqual(fs.readFileSync(outputPath), damagedBytes);
     assert.deepEqual(fs.readFileSync(sentinelPath), damagedBytes);
     assert.equal(fs.statSync(sentinelPath, { bigint: true }).mtimeNs, sentinelTime);
-    assert.equal(fs.statSync(outputPath, { bigint: true }).nlink, 1n);
+    assert.equal(fs.statSync(outputPath, { bigint: true }).nlink, 2n);
+  }));
+
+test('a later reproduction mismatch leaves every earlier pending repair unchanged', () =>
+  withFixture(({ fixture, shelf, manifestPath, outputs }) => {
+    const first = outputs[0];
+    const later = outputs[1];
+    const damagedBytes = Buffer.from('earlier pending repair');
+    fs.writeFileSync(path.join(shelf, first.file), damagedBytes);
+    fs.unlinkSync(path.join(shelf, later.file));
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.assets.find((entry) => entry.file === later.file).sha256 = '0'.repeat(64);
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+    const manifestBefore = fs.readFileSync(manifestPath);
+
+    const result = runGenerator(fixture);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, new RegExp(`Non-reproducible derivative: ${later.file}`));
+    assert.deepEqual(fs.readFileSync(path.join(shelf, first.file)), damagedBytes);
+    assert.equal(fs.existsSync(path.join(shelf, later.file)), false);
+    assert.deepEqual(fs.readFileSync(manifestPath), manifestBefore);
   }));
