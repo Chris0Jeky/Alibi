@@ -3481,6 +3481,15 @@
       return;
     onCell(Number(el.dataset.cell), true);
   });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      // A held Enter on Cell notes turns them on, then each repeat would turn them off.
+      if (e.repeat && e.key === 'Enter' && e.target?.closest?.('[data-action="pencil"]'))
+        e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener('keydown', (e) => {
     if (updateRequested) return;
     if (e.defaultPrevented) return;

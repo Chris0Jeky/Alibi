@@ -54,6 +54,16 @@ with sync_playwright() as p:
     pencil.focus()
     before = focused(page)
     check(before["action"] == "pencil" and before["id"] == "", "cell notes is focused and has no id")
+    check(page.locator('[data-action="pencil"].active').count() == 0, "cell notes start off")
+    page.keyboard.down("Enter")
+    check(page.locator('[data-action="pencil"].active').count() == 1, "the first Enter turns notes on")
+    page.keyboard.down("Enter")
+    held = page.locator('[data-action="pencil"].active').count()
+    print("RESULT", "enter-hold", held, flush=True)
+    check(held == 1, "a repeated Enter leaves notes on")
+    page.keyboard.up("Enter")
+    page.keyboard.press("Enter")
+    check(page.locator('[data-action="pencil"].active').count() == 0, "a later Enter turns notes off")
     page.keyboard.press("n")
     page.wait_for_function(
         """() => {

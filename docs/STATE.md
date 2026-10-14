@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: a held Enter leaves Cell notes on
+
+Holding Enter on the focused Cell notes button turns notes on once. A later press still turns them off. Pressing N still toggles notes.
+
+An isolated desktop page showed the old behavior first: the first Enter turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. Cell notes and number key 2 stay focused, including a 390px page. Removing a favorite returns focus to the page. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,086 bytes, sha256 `da4da22649c39839374d02a23410c697ea0e8de25e1a3f9a38746e0617a8d1da`. `tests/budget.test.cjs` passed on the combined local web build `e654623a050e` at 203,443 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: tool buttons keep focus when the board redraws
 
 A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square. This merge keeps the Escape, restore, and voices focus guards.
