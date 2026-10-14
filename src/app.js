@@ -3291,6 +3291,11 @@
       library.limit = 24;
       render();
     } else if ((el.id === 'play-notes' || el.id === 'quick-notes') && current) {
+      if (saveError || storageFatal) {
+        el.value = current.note;
+        toast('Export this session or reload before making more changes.', true);
+        return;
+      }
       current.note = el.value.slice(0, 5000);
       clearTimeout(noteTimer);
       noteTimer = setTimeout(enqueueSave, 180);
@@ -3350,6 +3355,7 @@
   });
   // A drag stroke is one undo step. The same brush is used throughout the stroke.
   function paintTo(i) {
+    if (saveError || storageFatal) return;
     if (!drag || !current || drag.key !== current.key || drag.visited.has(i)) return;
     drag.visited.add(i);
     if (AlibiClub.assistance() !== 'off' && drag.value === 1) {
@@ -3377,7 +3383,15 @@
     const d = drag;
     drag = null;
     lastPointerAt = Date.now();
-    if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
+    if (!current || d.key !== current.key) return;
+    if (saveError || storageFatal) {
+      if (!C.equal(current.state, d.before)) {
+        current.state = d.before;
+        render();
+      }
+      return;
+    }
+    if (C.equal(current.state, d.before)) return;
     try {
       globalThis.AlibiJourney?.(current);
     } catch {}
