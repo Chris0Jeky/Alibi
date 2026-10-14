@@ -564,228 +564,8 @@ small,
 .footer-links {
   display: flex;
   gap: 15px;
-}
-/* Desk and catalogue */
-.welcome {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 21px;
-}
-.welcome h1 {
-  font-size: 29px;
-}
-.welcome .date {
-  font-size: 11px;
-  color: var(--muted);
-}
-.hero-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 264px;
-  gap: 18px;
-}
-.hero {
-  position: relative;
-  overflow: hidden;
-  background: #294937;
-  color: #f6f2e5;
-  border-radius: var(--radius);
-  min-height: 300px;
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  align-items: center;
-  padding: 33px 0 32px 32px;
-}
-.hero .eyebrow {
-  color: #becab6;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-}
-.hero h2 {
-  font-size: 43px;
-  line-height: 1.1;
-  letter-spacing: -0.055em;
-  position: relative;
-  z-index: 1;
-}
-.hero h2 em {
-  font-weight: 400;
-  color: #d5bc86;
-}
-.hero p {
-  color: #c6d1be;
-  font-size: 12px;
-  max-width: 280px;
-  line-height: 1.7;
-  margin: 16px 0 24px;
-  position: relative;
-  z-index: 1;
-}
-.hero .btn {
-  font-size: 11px;
-  position: relative;
-  z-index: 1;
-}
-.hero-illustration {
-  position: relative;
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-}
-.hero-illustration:before {
-  content: '';
-  position: absolute;
-  inset: 4% -14% 4% -10%;
-  border: 1px solid #b9c8a625;
-  border-radius: 50%;
-  transform: rotate(-25deg);
-}
-.hero-illustration .puzzle-art {
-  width: 370px;
-  max-width: none;
-  height: 260px;
-  mix-blend-mode: normal;
-  transform: rotate(5deg);
-  filter: drop-shadow(1px 14px 10px #14281933);
-}
-.hero-illustration .puzzle-art > rect:first-child,
-.hero-illustration .puzzle-art > circle {
-  opacity: 0;
-}
-.hero-label {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 9px;
-  color: #b6c7ad;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.resume-card {
-  background: #ece5d1;
-  border: 1px solid #e2dac5;
-  border-radius: var(--radius);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  color: #3e4332;
-}
-.resume-card .eyebrow {
-  color: #766e50;
-  font-size: 9px;
-}
-.resume-card .resume-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #e2d7b9;
-  margin: 14px 0 18px;
-}
-.resume-card .resume-icon .icon {
-  width: 23px;
-  height: 23px;
-}
-.resume-card h3 {
-  font-family: Georgia, serif;
-  font-weight: 400;
-  font-size: 25px;
-  line-height: 1.2;
-  margin-bottom: 9px;
-  letter-spacing: -0.04em;
-}
-.resume-card p {
-  color: #736e58;
-  font-size: 11px;
-  line-height: 1.7;
-}
-.resume-card .btn {
-  margin-top: auto;
-  background: transparent;
-  border-color: #a9a18a;
-  color: #414c39;
-  justify-content: space-between;
-  font-size: 11px;
-}
-.resume-meta {
-  font-size: 10px;
-  color: #736e58;
-  margin: 14px 0;
-}
-.home-facts {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  padding: 15px 1px 0;
-  font-size: 10px;
-  color: var(--muted);
-}
-.home-facts strong {
-  font-weight: 600;
-  color: var(--ink);
-}
-.home-facts .icon {
-  width: 13px;
-  height: 13px;
-  margin-right: 5px;
-}
-.daily-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-.daily-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  text-align: left;
-  min-height: 102px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  transition:
-    transform 0.15s,
-    border-color 0.15s;
-}
-.daily-card:hover {
-  border-color: #a8b59f;
-  transform: translateY(-2px);
-}
-.daily-art {
-  width: 71px;
-  height: 68px;
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  flex-shrink: 0;
-}
-.daily-art .puzzle-art {
-  width: 121px;
-  height: 68px;
-  max-width: none;
-  margin-left: -25px;
-}
-.daily-card .tag {
-  font-size: 9px;
-}
-.daily-card h3 {
-  font-size: 12px;
-  margin: 4px 0;
-}
-.daily-card small {
-  font-size: 10px;
-}
-.daily-card > .icon {
-  width: 14px;
-  margin-left: auto;
-  color: var(--muted);
-}
+} /* Desk and catalogue */
+
 .book-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3294,22 +3074,6 @@ html[data-theme='night'] .scene-cell .furniture {
 html[data-theme='night'] .room-label i {
   color: #e4ead7;
 }
-html[data-theme='night'] .resume-card {
-  background: #514e38;
-  border-color: #66634d;
-  color: #f1ecd9;
-}
-html[data-theme='night'] .resume-card p,
-html[data-theme='night'] .resume-card .eyebrow,
-html[data-theme='night'] .resume-meta {
-  color: #d7cdaa;
-}
-html[data-theme='night'] .resume-card .btn {
-  color: #ede6cc;
-}
-html[data-theme='night'] .resume-card .resume-icon {
-  background: #6e6647;
-}
 html[data-theme='night'] .light-floor.lit {
   background: #736131;
 }
@@ -3376,22 +3140,6 @@ html[data-reduced='true'] *:after {
   .main {
     padding-top: 40px;
   }
-  .hero {
-    min-height: 330px;
-  }
-  .hero h2 {
-    font-size: 51px;
-  }
-  .hero p {
-    font-size: 13px;
-  }
-  .hero-illustration .puzzle-art {
-    width: 435px;
-    height: 290px;
-  }
-  .hero-row {
-    grid-template-columns: 1fr 292px;
-  }
   .family-card {
     padding: 21px;
   }
@@ -3410,60 +3158,11 @@ html[data-reduced='true'] *:after {
   .main {
     padding: 28px 27px 45px;
   }
-  .hero-row {
-    grid-template-columns: minmax(0, 1fr) 227px;
-  }
-  .hero {
-    padding: 25px 0 25px 25px;
-    grid-template-columns: 1.2fr 0.85fr;
-    min-height: 288px;
-  }
-  .hero h2 {
-    font-size: 37px;
-  }
-  .hero p {
-    font-size: 11px;
-    max-width: 215px;
-  }
-  .hero-illustration .puzzle-art {
-    width: 290px;
-    height: 220px;
-    transform: translateX(13px) rotate(5deg);
-  }
-  .hero-label {
-    font-size: 8px;
-    right: 15px;
-  }
-  .resume-card {
-    padding: 21px;
-  }
-  .resume-card h3 {
-    font-size: 23px;
-  }
   .puzzle-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .family-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .daily-card {
-    gap: 10px;
-    padding: 12px;
-  }
-  .daily-art {
-    width: 50px;
-    height: 60px;
-  }
-  .daily-art .puzzle-art {
-    width: 108px;
-    height: 61px;
-    margin-left: -29px;
-  }
-  .daily-card h3 {
-    font-size: 11px;
-  }
-  .daily-card > .icon {
-    display: none;
   }
   .player-grid {
     grid-template-columns: minmax(0, 1fr) 286px;
@@ -3511,57 +3210,6 @@ html[data-reduced='true'] *:after {
   }
 }
 @media (max-width: 1050px) {
-  .hero-row {
-    grid-template-columns: 1fr;
-  }
-  .resume-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 5px 17px;
-    align-items: center;
-    padding: 19px 23px;
-  }
-  .resume-card .eyebrow {
-    grid-column: 1;
-    margin-bottom: 0;
-  }
-  .resume-card .resume-icon {
-    display: none;
-  }
-  .resume-card h3 {
-    grid-column: 1;
-    font-size: 22px;
-    margin-bottom: 0;
-  }
-  .resume-card p {
-    grid-column: 2;
-    grid-row: 1/3;
-    max-width: 260px;
-  }
-  .resume-card .resume-meta {
-    display: none;
-  }
-  .resume-card .btn {
-    grid-column: 3;
-    grid-row: 1/3;
-    margin: 0;
-    min-width: 150px;
-  }
-  .hero {
-    grid-template-columns: 1.2fr 1fr;
-    min-height: 285px;
-    padding-left: 30px;
-  }
-  .hero h2 {
-    font-size: 45px;
-  }
-  .hero p {
-    max-width: 270px;
-  }
-  .hero-illustration .puzzle-art {
-    width: 380px;
-    height: 260px;
-  }
   .book-info h3 {
     font-size: 20px;
   }
@@ -3706,34 +3354,6 @@ html[data-reduced='true'] *:after {
   .mobile-nav .icon {
     width: 18px;
     height: 18px;
-  }
-  .hero-row {
-    gap: 15px;
-  }
-  .hero {
-    border-radius: var(--radius-md);
-  }
-  .hero h2 {
-    font-size: 45px;
-  }
-  .hero p {
-    font-size: 12px;
-  }
-  .hero .btn {
-    font-size: 12px;
-  }
-  .hero-illustration .puzzle-art {
-    width: 380px;
-  }
-  .home-facts {
-    gap: 20px;
-    font-size: 10px;
-  }
-  .daily-grid {
-    gap: 12px;
-  }
-  .daily-card {
-    padding: 14px;
   }
   .book-grid {
     gap: 13px;
@@ -4096,48 +3716,6 @@ html[data-reduced='true'] *:after {
   .family-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .hero {
-    min-height: 280px;
-    grid-template-columns: 1.1fr 0.9fr;
-    padding-left: 24px;
-  }
-  .hero h2 {
-    font-size: 38px;
-  }
-  .hero p {
-    font-size: 11px;
-    max-width: 220px;
-  }
-  .hero-illustration .puzzle-art {
-    width: 300px;
-    height: 220px;
-    transform: translateX(25px) rotate(6deg);
-  }
-  .hero-label {
-    font-size: 7px;
-    bottom: 15px;
-    right: 14px;
-  }
-  .hero .eyebrow {
-    font-size: 8px;
-  }
-  .hero .btn {
-    font-size: 11px;
-  }
-  .resume-card {
-    grid-template-columns: 1fr auto;
-    padding: 17px 21px;
-    gap: 6px 13px;
-  }
-  .resume-card p {
-    display: none;
-  }
-  .resume-card .btn {
-    grid-column: 2;
-  }
-  .resume-card h3 {
-    font-size: 23px;
-  }
   .book-info h3 {
     font-size: 19px;
   }
@@ -4161,34 +3739,6 @@ html[data-reduced='true'] *:after {
   }
   .book-grid {
     gap: 11px;
-  }
-  .daily-grid {
-    gap: 9px;
-  }
-  .daily-card {
-    padding: 12px;
-    display: block;
-  }
-  .daily-art {
-    width: 100%;
-    height: 64px;
-    margin-bottom: 11px;
-  }
-  .daily-art .puzzle-art {
-    width: 100%;
-    height: 90px;
-    margin-left: 0;
-    margin-top: -11px;
-  }
-  .daily-card h3 {
-    font-size: 11px;
-    min-height: 30px;
-  }
-  .daily-card small {
-    font-size: 9px;
-  }
-  .daily-card .tag {
-    font-size: 8px;
   }
   .club-note {
     padding: 19px;
@@ -4295,15 +3845,6 @@ html[data-reduced='true'] *:after {
   .footer-links {
     gap: 12px;
   }
-  .home-facts {
-    gap: 14px;
-    font-size: 9px;
-    flex-wrap: wrap;
-  }
-  .home-facts .icon {
-    width: 11px;
-    height: 11px;
-  }
   .section-head p {
     font-size: 10px;
   }
@@ -4348,114 +3889,6 @@ html[data-reduced='true'] *:after {
   }
   .topbar {
     padding: 0 18px;
-  }
-  .welcome h1 {
-    font-size: 27px;
-  }
-  .welcome .date {
-    font-size: 9px;
-  }
-  .hero {
-    display: block;
-    padding: 25px 22px;
-    min-height: 365px;
-  }
-  .hero h2 {
-    font-size: 39px;
-    max-width: 270px;
-  }
-  .hero p {
-    max-width: 215px;
-    font-size: 11px;
-    margin-top: 13px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-  }
-  .hero .eyebrow {
-    font-size: 8px;
-  }
-  .hero .btn {
-    font-size: 11px;
-    position: relative;
-    z-index: 3;
-  }
-  .hero-illustration {
-    position: absolute;
-    width: 194px;
-    height: 175px;
-    right: -44px;
-    bottom: 3px;
-    pointer-events: none;
-  }
-  .hero-illustration .puzzle-art {
-    width: 268px;
-    height: 175px;
-    transform: rotate(3deg);
-    opacity: 0.98;
-  }
-  .hero-illustration:before {
-    inset: 0 0 0 -40px;
-  }
-  .hero-label {
-    display: none;
-  }
-  .hero-row {
-    gap: 12px;
-  }
-  .resume-card {
-    padding: 17px;
-  }
-  .resume-card .eyebrow {
-    font-size: 8px;
-  }
-  .resume-card h3 {
-    font-size: 20px;
-  }
-  .resume-card .btn {
-    min-width: 102px;
-    font-size: 10px;
-    padding: 9px 10px;
-  }
-  .resume-card .btn .icon {
-    width: 14px;
-    height: 14px;
-  }
-  .home-facts {
-    gap: 8px 15px;
-    font-size: 9px;
-    justify-content: space-between;
-    line-height: 1.7;
-  }
-  .home-facts span:last-child {
-    display: none;
-  }
-  .daily-grid {
-    gap: 8px;
-  }
-  .daily-card {
-    padding: 10px;
-    border-radius: var(--radius-md);
-  }
-  .daily-art {
-    height: 54px;
-    margin-bottom: 9px;
-  }
-  .daily-art .puzzle-art {
-    height: 76px;
-    margin-top: -11px;
-  }
-  .daily-card .tag {
-    font-size: 8px;
-    letter-spacing: -0.01em;
-  }
-  .daily-card h3 {
-    font-size: 10px;
-    line-height: 1.4;
-    min-height: 28px;
-  }
-  .daily-card small {
-    font-size: 8px;
   }
   .section-head {
     margin-top: 27px;
@@ -4996,32 +4429,8 @@ html[data-reduced='true'] *:after {
   }
 }
 @media (max-width: 360px) {
-  .hero h2 {
-    font-size: 36px;
-  }
-  .hero {
-    min-height: 352px;
-  }
-  .hero-illustration {
-    right: -64px;
-    bottom: 3px;
-    opacity: 0.95;
-  }
-  .hero p {
-    max-width: 200px;
-  }
   .device-status {
     display: none;
-  }
-  .welcome .date {
-    font-size: 8px;
-  }
-  .resume-card .btn {
-    min-width: 85px;
-    font-size: 9px;
-  }
-  .resume-card h3 {
-    font-size: 19px;
   }
   .board-card {
     padding: 16px 12px;
