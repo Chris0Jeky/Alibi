@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: Not now leaves focus on the page
+
+Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
+
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. `tests/budget.test.cjs` passed on that local web build at 203,233 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: save conflicts freeze notes and an open paint stroke
 
 Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
