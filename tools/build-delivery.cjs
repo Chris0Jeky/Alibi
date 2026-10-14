@@ -98,6 +98,36 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       origins.add(remote.origin);
     }
   }
+  const paintedPath = path.join(root, 'assets-source/library/painted-club/manifest.json');
+  if (fs.existsSync(paintedPath)) {
+    const shelf = JSON.parse(fs.readFileSync(paintedPath)).assets;
+    for (const id of ['club-welcome', 'lantern-duel', 'pocket-borough']) {
+      const file = id + '-320.webp';
+      const record = shelf.find((a) => a.file === file);
+      const data = fs.readFileSync(path.join(path.dirname(paintedPath), file));
+      const sha256 = crypto.createHash('sha256').update(data).digest('hex');
+      if (
+        !record ||
+        record.sha256 !== sha256 ||
+        record.bytes !== data.length ||
+        data.length > 1024 * 1024
+      )
+        throw Error('Painted fingerprint mismatch: ' + id);
+      const svg = fs.readFileSync(path.join(path.dirname(paintedPath), 'fallbacks', id + '.svg'));
+      const url = `./assets/enhanced-painted-${id}.${sha256.slice(0, 12)}.webp`;
+      fs.writeFileSync(path.join(dist, url), data);
+      entries[
+        'art-' + { 'club-welcome': 'desk', 'lantern-duel': 'duel', 'pocket-borough': 'borough' }[id]
+      ] = {
+        fallback: 'data:image/svg+xml,' + encodeURIComponent(svg.toString('utf8')),
+        urls: [url],
+        sha256,
+        bytes: data.length,
+        mime: 'image/webp',
+      };
+      bytes += data.length;
+    }
+  }
   return { entries, origins: [...origins].sort(), bytes };
 }
 module.exports = buildDelivery;
