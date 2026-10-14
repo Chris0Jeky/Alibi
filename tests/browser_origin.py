@@ -1170,6 +1170,8 @@ def scenario_offline(pw: Any, root: Path) -> None:
         route(page, "play/lightup-01@1")
         first, _, first_after = move_first_cell(page, "online move seeds offline restart")
         wait_run(page, "lightup-01@1", 1)
+        # Hold background definition loading so offline opening must use the cached chunk.
+        context.add_init_script("window.requestIdleCallback = () => 0")
         context.set_offline(True)
         page.reload(wait_until="domcontentloaded", timeout=15000)
         wait_diag(page)
@@ -1195,6 +1197,28 @@ def scenario_offline(pw: Any, root: Path) -> None:
         wait_run(page, "lightup-01@1", 2)
         stored = read_idb(page, "runs", "lightup-01@1")
         check(stored["state"]["cells"][second] == 1, "offline move is persisted in IndexedDB")
+        scene = json.loads((ROOT / "content/extra/crime-scene-variations.json").read_text())["puzzles"][0]
+        check(page.evaluate("ALIBI_DEFERRED.ready") is False, "fresh offline document has not loaded definitions")
+        check(
+            page.evaluate("(id) => ALIBI_DEFERRED.has(ALIBI_CATALOG.puzzles.find(p => p.id === id))", scene["id"]),
+            "Scene variation starts from a deferred listing",
+        )
+        route(page, "library/scene")
+        page.locator('input[type="search"]').first.fill(scene["title"])
+        page.locator(f'[id="library-card-{scene["id"]}@1"]').click()
+        wait_page(page, "(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=scene["id"],
+                  what="cold Scene run from the precached deferred chunk")
+        dismiss_dialog(page)
+        check(current(page)["puzzle"] == scene, "offline Scene opens the exact published definition")
+        person = scene["people"][0]["id"]
+        placement = scene["solution"][person]
+        page.locator(f'[data-action="person"][data-id="{person}"]').click()
+        page.locator(f'[data-action="cell"][data-cell="{placement}"]').click()
+        wait_page(page, "() => AlibiDiagnostics.getCurrent().moves > 0", what="offline Scene placement")
+        saved_scene = wait_run(page, scene["id"] + "@1", 1)
+        check(saved_scene["state"]["placements"][person] == placement, "offline Scene control persists its placement")
+        check(saved_scene["puzzle"] == scene, "offline Scene save pins the complete definition")
+        page.screenshot(path=str(RESULTS / "offline-scene-variation.png"), full_page=True)
         # Deferred official definitions are precached in the shell, so a new Vault run opens offline.
         route(page, "play/vault-lightup-01@1")
         dismiss_dialog(page)

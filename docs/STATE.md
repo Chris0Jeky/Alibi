@@ -1,5 +1,26 @@
 # Live development state
 
+## 2026-10-14: 0.15.2 release qualification
+
+The release candidate fixes relative pictogram contours (#655) and regenerates
+missing or corrupt painting derivatives from verified masters (#658). All 48
+painting hashes and 32 derivatives reproduce without changing image bytes.
+Six revision-1 Crime Scene variations use the existing precached deferred file:
+424 definitions load initially and 86 remain available on demand and offline.
+The unchanged codec saves 2,216 startup gzip bytes through that deferral.
+
+The 0.15.2 candidate measures startup 203,125 against 205,248 (2,123 bytes
+headroom), shell 1,406,272 against 1,412,792.32 and deferred content 11,490
+against 12,288. Deferred delivery passes 16 real-control browser cases and the
+focused offline origin checks; full final-head qualification remains pending.
+Pulseboard registration is PR #231, with the pinned SDK still version 3.3.1.
+
+Publication is pending final checks, review and collector readiness. The primary
+still serves 0.15.1; the existing Worker is retained for rollback. Deployment,
+same-origin save/update and public release receipts belong in
+[RELEASE-0.15.2.md](RELEASE-0.15.2.md) after execution. Physical device and owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-14: artwork budget recovery
 
 PR #650 merged as c800be5a; its complete README and motion-preview histories
