@@ -1,5 +1,24 @@
 # Live development state
 
+## 2026-10-14: verified painting derivative restoration (#658)
+
+The source-shelf generator can now restore a missing or damaged runtime
+derivative after every master passes its existing byte-size/SHA256 fingerprint.
+Replacement bytes must reproduce the recorded manifest exactly. Valid outputs
+keep their bytes and timestamps; symlink outputs are refused and atomic
+replacement preserves an unrelated hard-link alias. Check mode still validates
+all 48 shelf files and reproduces all 32 derivatives without writing.
+
+Eight real-Sharp disposable-fixture regressions pass, including missing/corrupt
+outputs, missing/damaged later masters, reproduction mismatch, check-only refusal
+and both alias controls. The original generator fails six of these eight cases;
+the retained cleanup-only error is not counted as causal evidence. The adjacent
+painting/catalogue tests pass three cases, and the real shelf check passes 48/32.
+All accepted art, manifests, runtime integration and byte ceilings are unchanged.
+Complete clean-source verification and hosted qualification are separate PR
+gates. This maintenance source is not a release, deployment or new art/physical
+acceptance; existing [HUMAN_TODO.md](../HUMAN_TODO.md) decisions remain open.
+
 ## 2026-10-14: artwork budget recovery
 
 PR #650 merged as c800be5a; its complete README and motion-preview histories
