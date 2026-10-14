@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-14: a restore button runs one restore
+
+Add missing only and Replace with backup ignore a second activation while the first restore is still running. A failed restore can be tried again. The backup dialog and the saved records are otherwise unchanged.
+
+A race test called the restore twice while the first was still waiting. Before the guard, that started two restores. After the guard, it starts one and reloads once. The asset catalogue records `src/app.js` at 206,162 bytes. `tests/budget.test.cjs` passed on that local web build at 203,179 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
 
 Play-board keyboard handling returns after the existing Ctrl+Z and Ctrl+Y cases when Ctrl, Cmd, or Alt is held. Those combinations no longer place a digit, move the selection, or toggle notes. Shift+Enter on a network tile is unchanged.
