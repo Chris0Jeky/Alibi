@@ -1,5 +1,10 @@
 # Goal orchestration — 2 October 2026
 
+Historical record retained on 11 October 2026. All routing, pending gates and
+measurements below describe the dated 2-3 October session. Recheck live GitHub
+and the current [STATE.md](../../STATE.md) before acting; this archive grants no
+current merge, deployment, device or owner acceptance.
+
 Coordinator owns integration, publication and merge. T2 authority allows reviewed scoped merges; preserve device-local saves and published puzzle identities.
 
 Primary checkout started at c035982, with seven commits already published in PR #523. After reviewed #523 merged at 45102bc, primary fast-forwarded cleanly with those commits preserved. Independent work uses detached-origin/main worktrees with scoped branches.
@@ -133,6 +138,8 @@ traces the challenge open/refusal contract but does not propose the requested
 helper; #537 remains open and its original trigger unknown. #476 is partial:
 serialization, abort-request events and stale-pin behavioural proof remain.
 
+3 October #476 serialization slice: completed Muse wave14 identifies queue/abort gaps and a historical fallback save race. Root reproduces the latter with actual source and an independent caller lens; normal same-tab saves are queued, cross-tab local fallback remains unqualified and tracked #554. The bounded fixture respects earlier overlapping unfinished scopes (including queued multi-store writers), gating reads/completion until start and releasing on commit/abort. Five new tests fail on the old fixture, then 16 pass; focused 24 and native Chromium 5 ordering traces pass. Full clean 294852c verify 1,049/three skips and completed Muse wave15 file-only review pass. An added exported-save case directly kills the persist restoring-guard deletion: disk reverts at N+2 while memory stays restored, closing the behavioural proof gap (17 fixture/25 focused passes). Its independent Luna review finds no defects and runs all 17 cases. Final head CI pending. Disk keys remain Club-scoped; pending-request AbortError remains open. No production save or physical-device claim.
+
 #543 merged e4343c5 after completed exact-head CI and aging. The remaining
 reviewed Lattice/activity/fixture commits are consolidated in #432 to avoid
 mutually invalidating base refreshes; every history and review is preserved.
@@ -154,3 +161,130 @@ remain applicable; hosted exact-head proof and aging are still required.
 - Clean 3178b35 build: 570 puzzles, 32 packs, 454 initial/116 deferred. Shell 1,410,153 and JavaScript 134,832 gzip bytes fit unchanged ceilings. Initial code/content 206,217 exceeds strict 205,248 by 969; this remains a merge blocker. Source/codec/emitted-content seam: 38 pass, one budget failure. Registry selection: nine pass.
 - Bounded threshold/order probes did not recover enough startup bytes and were not adopted. Preserve/publish the blocked candidate and track further delivery work under #422. No full verify, final Android, final-head 120-case browser, release, deployment or human acceptance is claimed.
 - Begin a separate bounded #519 test-diagnostics slice in its own detached-from-main, guarded and branched checkout. Luna owns only bridges/night-routes/night-symbols test conversion; root retains integration, full proving gate, review and shipping.
+## Bridges diagnostics and CI checkpoint — 2 October 2026, 21:49 UTC
+
+- Luna's bounded #519 slice changes only tests/bridges.test.cjs: 49 named serial cases retain all 40 existing assertion call sites and solver invocations. Night Routes/Symbols were already named through their shared helper and remain unchanged; root's three-suite run passes 57 cases.
+- 3 October Club diagnostics follow-up: completed Muse wave14 maps shared-state groups; Sol medium implements only tests/club-storage.test.cjs. Coordinator AST comparison proves52 identical checks/four helpers/37 awaits. Default13 pass; injected first assertion1fail/12laterpass; filtered3groups/18checks writes passed:false/complete:false and actual names. Full clean3f4aaad verify1056/three intentional skips and completed wave15 Muse xhigh file-only review clear. Preserve dependent fixture ordering and VM/source-only boundaries. No app or puzzle changes. Final clean-head seam/hosted proof pending; HUMAN_TODO.md remains open.
+- Root injected one failure into an ignored copy of the first fixture: one named failure, 48 later passes. Production/test source was not mutated for that probe. Muse wave11 contributor xhigh is a bounded file-only independent review of the one-file conversion; actual completion, not wrapper launch, will decide acceptance.
+- #432 full hosted job cancelled at its 25-minute limit: dependency installation 6m21s, npm verify 1m38s green, UI/curation/media/Club/Archive green, origin checks 12m08s then cancelled. Later Bellweather/update/local-room steps were skipped. Exact head 47cd remains unmerged, with one failed-job fresh-runner retry and no gate waiver. Timings are recorded on #531 and the PR.
+- #427 ready head 271bff9 remains blocked by 969 startup gzip bytes. Five examined hosted failures reproduce the same budget assertion; automatic Codex's HIGH comment is confirmed, replied to and tracked under #422. It remains open until fixed. No numeric ceiling change or speculative encoding was adopted.
+- Interlock and restore-fixture worktrees removed without force after preserving test-results, web snapshot, build receipt and ignored-state cleanup receipt in primary interlock-427/ and restore-545/. All commits remain published/included; all branches are retained. Primary remains clean.
+- Fix Alibi editing races has completed its two unique draft follow-ups with independent Sol review and exact-head hosted checks. #540/#542 remain unmerged; integration still needs current-base conflict resolution and fresh proof. No additional chat message is sent under the one-message authorization.
+
+## Bridges qualification — 2 October 2026, 21:54 UTC
+
+Clean 0289e8d full verify passes: 1,014 passed, three intentional skips, no failures. Muse wave11 completed in 78 seconds with intact result receipt, no HIGH/CRITICAL, one MEDIUM ordering fragility in the split lower-bound aggregate counter. That concern is tracked under #519 and does not block the verified default serial run; no fix cascade is opened. Muse ran no commands. Runtime/Node API ordering and after-hook behavior are demonstrated locally by the normal 49-case run and injected one-failure/48-pass probe; hosted Node 22 proof remains pending. Final clean-head Android/Bridges source checks precede publication. No runtime/puzzle/save/budget change or physical acceptance is claimed.
+#432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+gate cancels twice at 25 minutes during passing browser output. A bounded
+Sol medium lens finds no assertion defect and confirms variable apt setup
+consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+Retain every command and scope condition; increase only the full job deadline
+to 45 minutes, then require actual completed hosted proof. No cancellation is
+waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+#546 hosted full Node22 gate succeeds at ffffb338. Parent f79fe2e timeout-only headroom is merged with receipt-only conflict resolution; Bridges and runtime blobs remain unchanged. Preserve Muse review and first-failure proof; re-prove Android/Bridges/CI-scope at the clean merge head before push.
+
+## Editing follow-up integration — 2 October 2026, 22:02 UTC
+
+- Preserved both qualified sibling histories on #432 via merge commits. Automatic app merge retains canonical #539/#543 guards and adds only #540's generator-input/save-feedback and #542's stale-error/picker ownership. Sol's read-only map identifies the exact unique seams; this map is not a fresh review.
+- Resolved only catalogue, state, budgets and CI wiring. Both new actual-worker scripts and artifact paths remain. Generated catalogue hashes match the composed app. Current main's +32 allowance already covers #540's standalone accounting; #542's existing shared proposal is +64 gzip/+208 shell beyond main, not an added per-branch sum.
+- All 44 focused ownership/budget cases pass. Preliminary web: 510 official puzzles, 80 deferred; JS 134,907 gzip, shell 1,411,547. Existing shared ceilings 134,912/1,411,560.32 pass. Original source/content/startup/CSS/total ceilings stay unchanged. Full/actual-browser qualification is next; no merge or physical/native-host acceptance is claimed.
+- #546 publishes the separate Bridges conversion at ffffb338; source scope stays one test file plus receipts. Full 1,014/three skips, final Android/Bridges 63 and completed Muse no HIGH/CRITICAL are posted, with the MEDIUM counter concern tracked under #519. Node 22 CI remains required.
+  #432 at clean 47cd4d0 passes final Android/source/import 19 checks and native
+  24 imports/four aligned views; hosted Lattice all 48 cases succeeds. The full
+  gate cancels twice at 25 minutes during passing browser output. A bounded
+  Sol medium lens finds no assertion defect and confirms variable apt setup
+  consuming 6m21s/7m07s. The previous green #543 full gate takes 23m26s.
+  Retain every command and scope condition; increase only the full job deadline
+  to 45 minutes, then require actual completed hosted proof. No cancellation is
+  waived. Human and physical acceptance remains open in HUMAN_TODO.md.
+
+Wave 12 completed: independent Muse contributor xhigh review of the composed
+editing diff at 0992949 has no HIGH/CRITICAL defect. Its LOW picker-to-validation
+serial coverage gap is tracked once on #541; no fix cascade. Root execution:
+full verify 981/three skips, focused 44, native Worker Workshop nine/backup
+thirteen, UI 184, mobile 16 and real-origin 270 all pass. Phone/desktop captures
+for both flows were inspected. The reviewed timeout-only change is integrated
+with both browser scripts/artifacts retained; production and test blobs match
+the reviewed 0992949 head. Final clean-head source/budget proof remains due.
+
+#427 is parked ready at 271bff9: corrected shell accounting and compact worker
+ID projection fit shell/JS, but startup remains 969 bytes over its unchanged
+205,248 gzip ceiling. The final hosted failures also expose strict Markdown
+table whitespace parsing in docs-counts; track it separately. All 60 original
+boards remain unchanged. Needed ignored proof from removed Interlock/restore
+roots lives under primary test-results/goal-20261002/interlock-427/ and
+restore-545/. Both roots were removed without force after publication checks.
+
+## Residual release integration — 2 October 2026, 23:29 UTC
+
+#432 and #546 are landed; the latter exact-head merge is cc86981. The peer #540 ready head 730add9 is preserved, with receipt conflicts against current main. The separate codex/alibi-0151-residuals candidate retains all original histories and adds #538/#541, delegated validation coverage, reviewed release notes and the authoritative 0.15.1 SDK pin. Earlier full/browser counts are historical. Final combined qualification, hosted CI, aging and deployment remain pending; superseded editing PRs close only after the replacement lands. HUMAN_TODO.md remains open.
+
+## Final completion/count integration - 3 October 2026
+
+#553 landed43f573b with exact-head local/hosted qualification and no deployment.
+The later #552 b0f71b0 handoff retains completion hooks and #550 count-parser
+work. Preserve both histories, the 0.15.1 SDK and #553 delegated-picker fixtures.
+Confirmed pre-completion Journey failures in commit/endPaint need focused guards
+and broad-throw regressions. Remove the idle fixture browser. Final combined
+source/budget/review/full/browser/hosted/publication gates remain pending.
+
+## Owner-requested closeout — 3 October 2026, 00:56 UTC
+
+The owner ended expansion and asked to finish current submission, save the work,
+update docs and tidy owned resources. This receipt supersedes older pending
+statements as a current routing checkpoint; it does not erase historical proof.
+
+- Main is clean at `43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a` (#553). #432 and #546 have landed. The reviewed Workshop/backup fixes and original #540/#542 histories are preserved in main. No deployment is performed by this closeout.
+- #557 is ready at `532b6e9d5567f37d223d8b01e4eafcb2cce992c8`. Its Club-only test conversion preserves all 52 checks and shared ordering in 13 named serial groups. Root verifies exact AST check/helper/await preservation, all groups passing, injected failure with twelve later passes, and a three-group filtered run that reports incomplete qualification. Full local verify at source/test-identical `3f4aaad` passes 1,056 with three intentional skips; final clean Android/focused proof passes 15. Muse wave15 completes its independent file-only review with intact integrity and no findings; commands are run by root, not Muse.
+- #558 is ready at `66bd7f34af8816ab758aa0a1c1e6b8ebe4df2db0`. The fixture blocks overlapping transactions behind all earlier unfinished conflicts, including a waiting multi-scope predecessor, and releases buffered state on commit/abort. Five cases fail the old fixture; a waiting-predecessor mutant fails the new case. The exported save-during-restore case kills deletion of only the existing persist guard: disk becomes stale at revision N+2 while memory is restored. All 17 cases and final clean Android/focused 27 pass. Five disposable native Chromium ordering traces agree. Full local verify 1,049/three skips is scoped to `294852c`, before the final case. Muse scheduling review and the separate fresh Luna save-case review have no blockers. This is test-fixture/API proof, not a physical-phone reproduction.
+- One combined API pulse at 00:56 records #557/#558 with one pending full CI job each, zero failed checks and zero unresolved threads. Both are conflict-free per separate API mergeability checks; protected-branch merge eligibility is still blocked, and no merge or final full-CI pass is inferred. The other two applicable workflows for each already succeeded. Existing exact-head artifacts and review comments are on the PRs.
+- #552 `b0f71b0` and #550 `20ea441` remain published with successful CI but conflicts against landed main. The coordinating writer owns draft #559. Other draft writers retain #556/#560. One earlier human-authorized coordination message has already been used; none is added here.
+- #427 remains parked at `271bff9`, 969 startup gzip bytes over the unchanged 205,248 ceiling. Preserve all 60 boards and the failed-gate evidence. #422, #476, #519, #537, #554 and #555 retain their stated residual scope; no new implementation is opened during closeout.
+- Needed ignored proof was copied into primary `test-results/goal-20261002/archived/club-diagnostics-20261003/` and `archived/restore-serialization-20261003/` before plain worktree removal. Earlier six integration roots have corresponding archives. The empty `restore-abort-events-20261003` checkout had no edits or new commits and was removed after confirming its HEAD is published in #558. No owned server, browser, Muse job or implementation agent remains active. Unrelated worktrees and branches remain untouched.
+
+The documentation-only checkpoint uses its own scoped branch and preserves
+history. Validate the changed Markdown against current Git/API and local receipts,
+review it once, push a ready PR, archive its cleanup receipt and remove the owned
+checkout. Any later CI results are recorded as a timestamped follow-up rather
+than rewriting earlier evidence or resetting qualified source heads merely for
+receipts. [HUMAN_TODO.md](../../../HUMAN_TODO.md) remains the physical/human
+acceptance boundary. The revised goal may close after this submission and cleanup,
+with pending project work explicitly saved for its next owner.
+
+
+## Saved closeout follow-up — 3 October 2026, 01:11 UTC
+
+#557 completed all three exact-head hosted workflows, full verify at 01:01:23.
+Root merged it normally with an exact-head guard at 01:04:23, preserving commits
+as `297fbf81a6925e09b9c4d79d945a129f6a30a7b5`; primary fast-forwarded cleanly.
+No unresolved review thread or failing check was waived.
+
+#558's original `66bd7f3` also completed all three workflows, full verify at
+01:06:55. Root confirmed unchanged product/build inputs and ran main's Club
+suite with the byte-identical reviewed restore suite: 30 named passes. A normal
+merge was refused because strict branch policy requires an up-to-date head.
+The server update preserves both original parents as
+`4f32ed629a8bf8dd19edb29b0565aee0234c9a50` (66bd7f3, 297fbf8). Fixture/product
+bytes are unchanged; no fresh review is manufactured for the base refresh.
+Fresh-head hosted CI and aging remain gates. The exact actual stacked-tree
+files pass all 30 cases again; raw logs and the initial proof comment are archived.
+
+#561's original `5789f17` documentation-only diff received one fresh-context
+Luna review: no HIGH/CRITICAL or other confirmed defect. Its LOW traceability
+ambiguity about API mergeability versus protected-branch eligibility is clarified
+in the historical receipt. Root preserves both landed Club and refreshed restore
+histories in merge commits, resolving only planner receipt conflicts. The child
+is retargeted to #558's branch; the full diff against that parent is exactly the
+three docs. Existing review applies. Merge the oldest parent first, retain its
+branch, retarget #561 to main after landing and confirm the API base/CI/conflicts.
+No merge or final hosted pass is claimed for these renewed heads.
+
+The owner-requested submission/save/docs/cleanup closeout is complete once this
+ready child is pushed and its temporary checkout removed. Final proof and docs
+are saved OUT under `test-results/goal-20261002/archived/goal-closeout-20261003/`;
+the PR receives the actual cleanup receipt. No owned runtime or worker remains
+active. Other writers, branches and uncertain old worktrees are preserved.
+[HUMAN_TODO.md](../../../HUMAN_TODO.md) remains open; no deployment or physical
+phone/TalkBack acceptance is inferred.

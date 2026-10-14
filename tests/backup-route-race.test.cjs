@@ -10,7 +10,7 @@ const source = fs.readFileSync(
   'utf8',
 );
 function appFunction(name) {
-  const start = source.indexOf(`  async function ${name}(file) {`);
+  const start = source.indexOf(`  async function ${name}(`);
   assert.notEqual(start, -1, `${name} exists in the app`);
   const end = source.indexOf('\n  async function ', start + 1);
   assert.notEqual(end, -1, `${name} has a following function boundary`);
@@ -146,7 +146,7 @@ for (const subject of cases) {
   });
 
   for (const failingAt of ['reading', 'validation']) {
-    test(`${subject.name}: stale ${failingAt} rejection retains state and propagates the error`, async () => {
+    test(`${subject.name}: stale ${failingAt} rejection retains state without feedback`, async () => {
       const failure = deferred(),
         started = deferred();
       const f = fixture(subject, () => {
@@ -158,14 +158,26 @@ for (const subject of cases) {
         text: () => (failingAt === 'reading' ? failure.promise : Promise.resolve('backup text')),
       });
       const error = new Error('Unreadable backup');
-      const rejected = assert.rejects(importing, (actual) => actual === error);
+      const settled = assert.doesNotReject(importing);
       if (failingAt === 'validation') await started.promise;
       f.api.navigate();
       failure.reject(error);
-      await rejected;
+      await settled;
       f.assertPrevious();
     });
   }
+
+  test(`${subject.name}: a current validation error still reaches the caller`, async () => {
+    const error = new Error('Current backup validation failed');
+    const f = fixture(subject, async () => {
+      throw error;
+    });
+    await assert.rejects(
+      f.api.run({ size: 20, text: async () => 'backup text' }),
+      (actual) => actual === error,
+    );
+    f.assertPrevious();
+  });
 
   test(`${subject.name}: the byte limit still rejects before reading or validation`, async () => {
     const f = fixture(subject, async () => subject.data);
@@ -185,3 +197,71 @@ for (const subject of cases) {
     f.assertPrevious();
   });
 }
+
+function restoreHarness(store) {
+  let reloads = 0;
+  const context = {
+    queue: Promise.resolve(),
+    store,
+    channel: null,
+    closeDialog() {},
+    location: {
+      reload() {
+        reloads += 1;
+      },
+    },
+  };
+  vm.runInNewContext(
+    `
+    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false;
+    ${appFunction('restoreBackup')}
+    globalThis.api = { run: restoreBackup };
+  `,
+    context,
+    { filename: 'src/app.js' },
+  );
+  return {
+    run: context.api.run,
+    reloads: () => reloads,
+  };
+}
+
+test('restoreBackup starts one restore when a second call arrives during the first', async () => {
+  const started = deferred();
+  const restoring = deferred();
+  let restores = 0;
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    restore() {
+      restores += 1;
+      if (restores === 1) started.resolve();
+      return restoring.promise;
+    },
+  });
+  const first = harness.run(true);
+  await started.promise;
+  const second = harness.run(true);
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(restores, 1);
+  restoring.resolve();
+  await first;
+  await second;
+  assert.equal(harness.reloads(), 1);
+});
+
+test('restoreBackup can run again after the first restore fails', async () => {
+  let restores = 0;
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    restore() {
+      restores += 1;
+      if (restores === 1) return Promise.reject(new Error('disk busy'));
+      return Promise.resolve();
+    },
+  });
+  await assert.rejects(harness.run(true), /disk busy/);
+  await harness.run(true);
+  assert.equal(restores, 2);
+  assert.equal(harness.reloads(), 1);
+});

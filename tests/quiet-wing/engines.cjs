@@ -218,6 +218,31 @@ for (const [id, actions] of Object.entries(sol)) {
   ok(E.classicWon(restored.classics[id].state), 'Replay reconstructs actual solved state ' + id);
 }
 let corrupt = E.newState(now);
+const lastSafeRevision = E.newState(now);
+lastSafeRevision.revision = Number.MAX_SAFE_INTEGER;
+eq(
+  E.validateState(lastSafeRevision).revision,
+  Number.MAX_SAFE_INTEGER,
+  'Last safe revision remains readable',
+);
+const unsafeRevision = { ...lastSafeRevision, revision: Number.MAX_SAFE_INTEGER + 1 };
+reject(
+  () => E.validateState(unsafeRevision),
+  'Unsafe integer revision cannot become a writable state',
+);
+eq(
+  unsafeRevision.revision,
+  Number.MAX_SAFE_INTEGER + 1,
+  'Validation preserves the original revision',
+);
+delete lastSafeRevision.revision;
+eq(E.validateState(lastSafeRevision).revision, 0, 'Legacy missing revision still starts at zero');
+for (const revision of [-1, 1.5, '1', Infinity])
+  eq(E.validateState({ ...lastSafeRevision, revision }).revision, 0, 'Legacy revision default');
+reject(
+  () => E.validateState({ ...lastSafeRevision, revision: -Number.MAX_SAFE_INTEGER - 1 }),
+  'Unsafe negative integer revision stays protected',
+);
 corrupt.classics.hanoi3 = {
   actions: [
     { from: 0, to: 2 },

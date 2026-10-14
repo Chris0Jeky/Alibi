@@ -45,6 +45,53 @@ test('dictionary references fail closed when the index or referenced value is in
   }
 });
 
+test('dictionary interns a 20-character string repeated four times but not three', () => {
+  const { encode, decode } = codec();
+  const text = 'abcdefghij1234567890';
+  assert.equal(text.length, 20);
+  const four = [text, text, text, text];
+  const encodedFour = encode(four);
+  assert.deepEqual(encodedFour[0], [text]);
+  assert.deepEqual(decode(encodedFour), four);
+  const three = [text, text, text];
+  const encodedThree = encode(three);
+  assert.deepEqual(encodedThree[0], []);
+  assert.deepEqual(decode(encodedThree), three);
+  assert.ok(JSON.stringify(encodedThree).includes(text));
+});
+
+test('integer arrays use tag3 for lengths three and four while pairs stay literal', () => {
+  const { encode, decode } = codec();
+  for (const input of [
+    [1, 2, 3],
+    [1, 2, 3, 4],
+    [-2, 0, 89],
+  ]) {
+    const encoded = encode(input);
+    assert.equal(encoded[1][0], 3);
+    assert.deepEqual(decode(encoded), input);
+  }
+  for (const input of [
+    [1, 2],
+    [-2, 89],
+    [5, 0],
+    [3, 'x'],
+  ]) {
+    const encoded = encode(input);
+    assert.equal(encoded[1][0], 0);
+    assert.deepEqual(decode(encoded), input);
+  }
+  for (const input of [
+    [-3, 0, 1],
+    [0, 1, 90],
+    [1, 2, 1.5],
+  ]) {
+    const encoded = encode(input);
+    assert.equal(encoded[1][0], 0);
+    assert.deepEqual(decode(encoded), input);
+  }
+});
+
 test('codec preserves empty dictionaries and deeply nested repeated record runs', () => {
   const { encode, decode } = codec();
   for (const input of [null, false, 0, '', [], {}, [1, 2]]) {

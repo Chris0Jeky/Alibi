@@ -42,6 +42,28 @@ function registryTotals() {
   return { packs: registry.packs.length, total, deferredPuzzles, byType };
 }
 
+function documentedFamilyCounts(markdown) {
+  const rows = [
+    ...markdown.matchAll(
+      /^[ \t]*\|[ \t]*([^|\r\n]+?)[ \t]*\|[ \t]*(\d+)[ \t]*\|[^\r\n|]*\|[ \t]*$/gm,
+    ),
+  ];
+  return Object.fromEntries(rows.map((row) => [row[1].trim(), Number(row[2])]));
+}
+
+function assertFamilyTable(markdown, expected, total) {
+  const documented = documentedFamilyCounts(markdown);
+  assert.deepEqual(Object.keys(documented).sort(), Object.keys(expected).sort());
+  for (const [family, count] of Object.entries(expected)) {
+    assert.equal(documented[family], count, `${family} count`);
+  }
+  assert.equal(
+    Object.values(documented).reduce((sum, count) => sum + count, 0),
+    total,
+    'family table must sum to the registry total',
+  );
+}
+
 test('AGENTS.md headline states the trusted-registry puzzle total', () => {
   const { total } = registryTotals();
   const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
@@ -54,16 +76,53 @@ test('PROJECT-MAP.md registry row and family table match measured state', () => 
   const map = fs.readFileSync(path.join(root, 'docs/PROJECT-MAP.md'), 'utf8');
   assert.ok(map.includes(`${total} puzzles across ${packs}`), 'registry row must state totals');
   assert.ok(map.includes('build-info.json'), 'map must point at build-info.json');
-  const rows = [...map.matchAll(/^\| ([^|]+) \| (\d+) \| [^|]+ \|$/gm)];
-  const documented = Object.fromEntries(rows.map((row) => [row[1], Number(row[2])]));
-  assert.deepEqual(Object.keys(documented).sort(), Object.keys(FAMILY_TYPES).sort());
-  for (const [family, type] of Object.entries(FAMILY_TYPES)) {
-    assert.equal(documented[family], byType[type], `${family} count`);
-  }
-  assert.equal(
-    Object.values(documented).reduce((sum, count) => sum + count, 0),
-    total,
-    'family table must sum to the registry total',
+  const expected = Object.fromEntries(
+    Object.entries(FAMILY_TYPES).map(([family, type]) => [family, byType[type]]),
+  );
+  assertFamilyTable(map, expected, total);
+});
+
+test('family table assertions accept aligned cells and reject drift', () => {
+  const expected = {
+    'Tidal bridges': 32,
+    'Crime scenes': 43,
+    'Alibi files': 29,
+    'Witness statements': 31,
+    'Picture logic': 40,
+    Lanterns: 52,
+    'Tents & trees': 32,
+    Aquariums: 32,
+    'Signal paths': 32,
+    'Number trails': 32,
+    Sudoku: 49,
+    'Sun & moon': 55,
+    Futoshiki: 51,
+  };
+  const fixture = [
+    '| Family | Count | Main interaction |',
+    '| --- | ---: | --- |',
+    ...Object.entries(expected).map(
+      ([family, count]) => `|   ${family}   |   ${count}   | fixture |`,
+    ),
+  ].join('\n');
+
+  assertFamilyTable(fixture, expected, 510);
+  assert.throws(() =>
+    assertFamilyTable(
+      fixture.replace('|   Tidal bridges   |   32   |', '|   Tidal bridges   |   33   |'),
+      expected,
+      510,
+    ),
+  );
+  assert.throws(() =>
+    assertFamilyTable(
+      fixture.replace(/\|   Futoshiki   \|   51   \| fixture \|\n?/, ''),
+      expected,
+      510,
+    ),
+  );
+  assert.throws(() =>
+    assertFamilyTable(fixture.replace('Futoshiki', 'Light loops'), expected, 510),
   );
 });
 

@@ -39,6 +39,7 @@
     "extra/vault-sudoku.json",
     "extra/vault-lightup.json",
     "extra/vault-futoshiki.json",
+    "extra/crime-scene-variations.json",
     "extra/interlock-routes.json"
   ]
 }
