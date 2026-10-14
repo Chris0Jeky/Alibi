@@ -66,7 +66,31 @@ with sync_playwright() as p:
                 check(page.evaluate('(cell) => AlibiDiagnostics.getCurrent().state.rotations[cell]', selected) == (before + 1) % 4, name + ' Enter turns clockwise')
                 page.keyboard.press('Shift+Enter')
                 check(page.evaluate('(cell) => AlibiDiagnostics.getCurrent().state.rotations[cell]', selected) == before, name + ' Shift+Enter turns anticlockwise')
+        if not touch:
+            puzzle = next(puzzle for puzzle in PUZZLES if puzzle['type'] == 'sudoku')
+            page.evaluate('(route) => location.hash = "#/" + route', f'play/{puzzle["id"]}@{puzzle["revision"]}')
+            page.wait_for_function('(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id', arg=puzzle['id'])
+            if page.locator('dialog[open]').count():
+                page.keyboard.press('Escape')
+                page.wait_for_function('!document.querySelector("dialog[open]")')
+            before = page.evaluate('JSON.stringify(AlibiDiagnostics.getCurrent().state)')
+            placed = page.evaluate('''() => {
+              document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '1', bubbles: true, cancelable: true }));
+              return JSON.stringify(AlibiDiagnostics.getCurrent().state);
+            }''')
+            check(placed != before, name + ' digit 1 places on the selected sudoku cell')
+            undone = page.evaluate('''() => {
+              document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true, cancelable: true }));
+              return JSON.stringify(AlibiDiagnostics.getCurrent().state);
+            }''')
+            check(undone == before, name + ' Ctrl+Z undoes that digit')
+            modified = page.evaluate('''() => {
+              const event = new KeyboardEvent('keydown', { key: '1', ctrlKey: true, bubbles: true, cancelable: true });
+              const cancelled = !document.body.dispatchEvent(event);
+              return { cancelled, state: JSON.stringify(AlibiDiagnostics.getCurrent().state) };
+            }''')
+            check(modified['state'] == before and modified['cancelled'] is False, name + ' Ctrl+1 does not place a digit or take the key')
         context.close()
     browser.close()
-check(not errors, 'no page errors')
+check(not errors, 'no page errors' if not errors else 'page errors: ' + ' | '.join(errors))
 (OUT / 'results.json').write_text(json.dumps({'checks': checks, 'errors': errors}, indent=2), encoding='utf-8')

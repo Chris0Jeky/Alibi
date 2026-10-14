@@ -4,7 +4,13 @@
 
 Puzzle notes and a drag that is already on the board no longer keep changing the open run after the save conflict banner is up. The note field returns to the last saved text. An unfinished stroke returns to the board from before the drag. A stroke still cannot start while that banner is showing. Opening notes, and typing them while the save is healthy, stay as they were.
 
-An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. `tests/budget.test.cjs` passes on the local web build: initial code and content gzip is 203,222 bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. The asset catalogue records `src/app.js` at 206,233 bytes. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page and a 390px phone page showed the old behavior first: the note became the typed text, and the interrupted nonogram stroke left the board changed. After the guard, both notes stay put and the board matches the pre-stroke state. A later press does not start a new stroke. The asset catalogue records the combined `src/app.js` at 206,364 bytes. The combined local web build is 203,234 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: board shortcuts leave Ctrl, Cmd and Alt alone
+
+Play-board keyboard handling returns after the existing Ctrl+Z and Ctrl+Y cases when Ctrl, Cmd, or Alt is held. Those combinations no longer place a digit, move the selection, or toggle notes. Shift+Enter on a network tile is unchanged.
+
+An isolated desktop Chromium page places digit 1, Ctrl+Z undoes it, and Ctrl+1 leaves the sudoku state unchanged without cancelling the key. The same page's existing bridge and network keyboard checks pass. `tests/budget.test.cjs` passed on that local web build at 203,163 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Hosted checks at `f3e3a918` failed only the asset-catalogue size pin. That change alone recorded `src/app.js` at 205,965 bytes. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: storage contract cases
 
