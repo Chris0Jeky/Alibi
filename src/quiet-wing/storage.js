@@ -242,6 +242,10 @@
           onstatus('Session only · export to keep your work', 'warning');
           return;
         }
+        if (!Number.isSafeInteger(revision) || revision >= Number.MAX_SAFE_INTEGER)
+          throw Error(
+            'Save revision reached its safe limit. Export raw recovery before reloading.',
+          );
         onstatus('Saving…', 'saving');
         data.revision = revision + 1;
         data.savedAt = Date.now();

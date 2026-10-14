@@ -79,6 +79,7 @@
     draftBusy = false,
     draftEpoch = 0,
     pendingBackup = null,
+    restoreBusy = false,
     backupPickerBusy = false,
     backupPickerSerial = 0,
     installEvent = null,
@@ -385,9 +386,18 @@
         return;
       }
       const r = await store.get('runs', e.data.key);
+      if (saveError) return;
       if (r) {
         try {
           validateRun(r);
+          if (r.key === current?.key) {
+            if (r.rev > (revs.get(current.key) || 0)) {
+              saveError =
+                'This puzzle changed in another tab. Export this session or reload its latest save.';
+              render();
+            }
+            return;
+          }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
           if (!current) render();
@@ -479,7 +489,7 @@
     return `<button aria-label="${esc(name)}" class="nav-item ${active ? 'active' : ''}" data-action="navigate" data-page="${page}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${esc(label)}</span>${count !== '' ? `<span class="count">${count}</span>` : active ? '<span class="dot"></span>' : ''}</button>`;
   }
   function sidebar() {
-    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
+    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'table', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'quiet', 'quiet')}${navItem('Wrenmere Castle', 'castle', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
   }
   function mobileNav() {
     if (route.page === 'play' && current)
@@ -488,10 +498,10 @@
       ['home', 'home', 'Your desk'],
       ['library', 'library', 'Puzzles'],
       ['casebooks', 'book', 'Casebooks'],
-      ['salon', 'sun', 'Games room'],
+      ['salon', 'table', 'Games room'],
       // The wing replaces a Settings tab that duplicated the top bar's always-visible Settings.
-      ['quiet', 'garden', 'The quiet wing'],
-      ['quiet', 'home', 'Castle', 'castle'],
+      ['quiet', 'quiet', 'The quiet wing'],
+      ['quiet', 'castle', 'Castle', 'castle'],
     ]
       .map(([p, ic, label, id = '']) => {
         const active = route.page === p && (!id || route.id === id);
@@ -1214,7 +1224,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card">${paused ? '<div inert>' : ''}<div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `</div><div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1337,8 +1347,21 @@
     if (rendering) return;
     rendering = true;
     const active = document.activeElement,
-      focusID = active?.id,
+      focusID = active?.closest('.paused-cover') ? 'play-pause' : active?.id,
       focusFallbackID = active?.dataset.focusFallback,
+      focusAction = !focusID && active?.dataset?.action ? active.dataset.action : '',
+      focusHasValue =
+        !!focusAction && Object.prototype.hasOwnProperty.call(active.dataset, 'value'),
+      focusValue = focusHasValue ? active.dataset.value : '',
+      focusDataId = focusAction && active.dataset.id ? active.dataset.id : '',
+      focusSelector = focusAction
+        ? `[data-action="${CSS.escape(focusAction)}"]${
+            focusHasValue ? `[data-value="${CSS.escape(focusValue)}"]` : ''
+          }${focusDataId ? `[data-id="${CSS.escape(focusDataId)}"]` : ''}`
+        : '',
+      focusMatchIndex = focusSelector
+        ? [...document.querySelectorAll(focusSelector)].indexOf(active)
+        : -1,
       selection = ['INPUT', 'TEXTAREA'].includes(active?.tagName)
         ? [active.selectionStart, active.selectionEnd]
         : null,
@@ -1422,7 +1445,18 @@
             usedFocusFallback = true;
           }
         }
+      } else if (focusMatchIndex >= 0) {
+        const el = document.querySelectorAll(focusSelector)[focusMatchIndex];
+        if (isFocusTarget(el)) el.focus({ preventScroll: true });
+        else {
+          const fallback = document.getElementById(focusFallbackID) || $('#main');
+          if (isFocusTarget(fallback)) {
+            fallback.focus();
+            usedFocusFallback = true;
+          }
+        }
       }
+      if (paused) document.querySelector('.paused-cover button')?.focus({ preventScroll: true });
       if (!usedFocusFallback && window.scrollY !== sy)
         window.scrollTo({ top: sy, behavior: 'instant' });
     } finally {
@@ -1781,7 +1815,7 @@
     render();
   }
   function showHint() {
-    if (!current) return;
+    if (!current || paused) return;
     globalThis.AlibiJourney?.(current, 'hint.requested');
     // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
     if (current.completedAt && blocked()) return;
@@ -2328,44 +2362,49 @@
     }
   }
   async function restoreBackup(replace = false) {
-    if (!pendingBackup) return;
-    if (store.mode !== 'indexeddb')
-      throw Error(
-        'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
-      );
-    await queue;
-    let b = pendingBackup,
-      expected;
-    if (!replace) {
-      const raw = await store.export(),
-        runs = new Map(raw.runs.map((r) => [r.key, r])),
-        combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
-      expected = raw;
-      for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
-      for (const p of b.packs) {
-        if (combinedPacks.has(p.id)) {
-          if (!C.equal(combinedPacks.get(p.id), p))
-            throw Error(
-              'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
-            );
-        } else combinedPacks.set(p.id, p);
+    if (restoreBusy || !pendingBackup) return;
+    restoreBusy = true;
+    try {
+      if (store.mode !== 'indexeddb')
+        throw Error(
+          'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
+        );
+      await queue;
+      let b = pendingBackup,
+        expected;
+      if (!replace) {
+        const raw = await store.export(),
+          runs = new Map(raw.runs.map((r) => [r.key, r])),
+          combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
+        expected = raw;
+        for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
+        for (const p of b.packs) {
+          if (combinedPacks.has(p.id)) {
+            if (!C.equal(combinedPacks.get(p.id), p))
+              throw Error(
+                'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
+              );
+          } else combinedPacks.set(p.id, p);
+        }
+        b = await inWorker({
+          type: 'cabinet-backup',
+          value: {
+            ...b,
+            runs: [...runs.values()],
+            packs: [...combinedPacks.values()],
+            settings: raw.settings,
+            preferences: raw.preferences,
+          },
+        });
       }
-      b = await inWorker({
-        type: 'cabinet-backup',
-        value: {
-          ...b,
-          runs: [...runs.values()],
-          packs: [...combinedPacks.values()],
-          settings: raw.settings,
-          preferences: raw.preferences,
-        },
-      });
+      await store.restore(b, expected);
+      pendingBackup = null;
+      channel?.postMessage({ type: 'restored' });
+      closeDialog();
+      location.reload();
+    } finally {
+      restoreBusy = false;
     }
-    await store.restore(b, expected);
-    pendingBackup = null;
-    channel?.postMessage({ type: 'restored' });
-    closeDialog();
-    location.reload();
   }
   async function inWorker(message) {
     const workerText = globalThis.ALIBI_WORKER_SOURCE
@@ -2719,6 +2758,7 @@
         if (current) act({ type: 'set', cell: selectedCell, value: Number(v), pencil });
         break;
       case 'pencil':
+        if (paused) break;
         pencil = !pencil;
         if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
         render();
@@ -3291,6 +3331,11 @@
       library.limit = 24;
       render();
     } else if ((el.id === 'play-notes' || el.id === 'quick-notes') && current) {
+      if (saveError || storageFatal) {
+        el.value = current.note;
+        toast('Export this session or reload before making more changes.', true);
+        return;
+      }
       current.note = el.value.slice(0, 5000);
       clearTimeout(noteTimer);
       noteTimer = setTimeout(enqueueSave, 180);
@@ -3350,6 +3395,7 @@
   });
   // A drag stroke is one undo step. The same brush is used throughout the stroke.
   function paintTo(i) {
+    if (saveError || storageFatal) return;
     if (!drag || !current || drag.key !== current.key || drag.visited.has(i)) return;
     drag.visited.add(i);
     if (AlibiClub.assistance() !== 'off' && drag.value === 1) {
@@ -3377,7 +3423,15 @@
     const d = drag;
     drag = null;
     lastPointerAt = Date.now();
-    if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
+    if (!current || d.key !== current.key) return;
+    if (saveError || storageFatal) {
+      if (!C.equal(current.state, d.before)) {
+        current.state = d.before;
+        render();
+      }
+      return;
+    }
+    if (C.equal(current.state, d.before)) return;
     try {
       globalThis.AlibiJourney?.(current);
     } catch {}
@@ -3444,6 +3498,21 @@
       return;
     onCell(Number(el.dataset.cell), true);
   });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      // A held Enter turns Cell notes, a number key, board size, pause, a clue, or a favorite on, then each repeat would turn it off.
+      if (
+        e.repeat &&
+        e.key === 'Enter' &&
+        e.target?.closest?.(
+          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"], [data-action="clue"], [data-action="quick-clue"], [data-action="favorite"]',
+        )
+      )
+        e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener('keydown', (e) => {
     if (updateRequested) return;
     if (e.defaultPrevented) return;
@@ -3464,7 +3533,12 @@
       undo(true);
       return;
     }
+    // Number, arrow, and pencil shortcuts must not swallow Ctrl, Cmd, or Alt.
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
+      if (paused) return;
+      // A held N turns notes on, then each repeat would turn them off.
+      if (e.repeat) return;
       e.preventDefault();
       pencil = !pencil;
       if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
@@ -3472,6 +3546,8 @@
       return;
     }
     if (e.key === 'Escape') {
+      // A held Escape closes a dialog, then its repeat would land on the board.
+      if (e.repeat) return;
       paused = !paused;
       enqueueSave();
       render();
@@ -3547,6 +3623,8 @@
       Number(e.key) <= p.size
     ) {
       e.preventDefault();
+      // A held digit adds a cell note, then each repeat would remove it.
+      if (e.repeat) return;
       act({ type: 'set', cell: selectedCell, value: Number(e.key), pencil });
     }
     if (p.type === 'binary' && /^[01]$/.test(e.key)) {

@@ -1675,13 +1675,53 @@
           toast('Finish opening this challenge before exporting it.');
           return;
         }
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(
-          new Blob([JSON.stringify(run, null, 2)], { type: 'application/json' }),
+        const raw = run.format === 'alibi-challenge-recovery',
+          limit = 3 * 1024 * 1024,
+          unsupported =
+            'Raw recovery contains values JSON cannot preserve. It is still kept on this device.',
+          tooLarge = 'Raw recovery is too large to export safely. It is still kept on this device.';
+        let remaining = limit;
+        const text = JSON.stringify(
+          run,
+          raw
+            ? function (key, value) {
+                const original = this[key];
+                if (
+                  original !== null &&
+                  typeof original !== 'string' &&
+                  typeof original !== 'boolean' &&
+                  !(
+                    typeof original === 'number' &&
+                    Number.isFinite(original) &&
+                    !Object.is(original, -0)
+                  ) &&
+                  !['[object Object]', '[object Array]'].includes(
+                    Object.prototype.toString.call(original),
+                  )
+                )
+                  throw Error(unsupported);
+                if (Array.isArray(original)) {
+                  if (original.length > remaining / 32) throw Error(tooLarge);
+                  if (Object.keys(original).length !== original.length) throw Error(unsupported);
+                }
+                // shortcut: conservative escaping budget may refuse smaller archives; use a bounded encoder if real recovery needs them.
+                remaining -=
+                  32 + 6 * (key.length + (typeof original === 'string' ? original.length : 0));
+                if (remaining < 0) throw Error(tooLarge);
+                return value;
+              }
+            : null,
+          raw ? undefined : 2,
         );
-        link.download = 'alibi-' + suffix + '-' + run.challengeId + '.json';
+        const blob = new Blob([text], { type: 'application/json' });
+        if (raw && blob.size > limit) throw Error(tooLarge);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download =
+          'alibi-' + (raw ? 'raw-previous' : suffix) + '-' + run.challengeId + '.json';
         link.click();
         setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        if (raw) toast('Raw recovery archive exported. It is not a playable challenge save.');
       }
       // A classic claims a journal stamp only when solving it earns one a fresh save lacks.
       const stamped = (id) => {

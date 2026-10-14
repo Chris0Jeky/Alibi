@@ -215,6 +215,24 @@ try:
           }
           db.close(); return true;
         }''')
+        assert run_storage_check(page, '''async () => {
+          const id='curated-classic-hanoi-01', other='curated-classic-hanoi-02';
+          const original={schema:0,revision:1,run:null};
+          const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('alibi-challenges-v1',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+          await new Promise((resolve,reject)=>{const tx=db.transaction('runs','readwrite');for(const key of [id,other])tx.objectStore('runs').put(original,key);tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error)});
+          const store=AlibiChallengeStore.create(registry);await store.open();
+          for(const key of [id,other]){let refused=false;try{await store.read(key)}catch{refused=true}if(!refused)throw Error('Corrupt read accepted')}
+          const run=registry.begin(id);await store.restore(run);
+          run.log.push({from:1,to:2});await store.write(run);
+          const reopened=AlibiChallengeStore.create(registry);await reopened.open();
+          if(JSON.stringify(await reopened.read(id))!==JSON.stringify(run))throw Error('Restored edit did not persist');
+          let refused=false;try{await store.write(registry.begin(other))}catch{refused=true}if(!refused)throw Error('Other challenge unprotected');
+          for(const key of [other,'recovery:'+id]){
+            const raw=await new Promise((resolve,reject)=>{const r=db.transaction('runs').objectStore('runs').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+            if(JSON.stringify(key===other?raw:raw.record)!==JSON.stringify(original))throw Error('Original bytes changed');
+          }
+          db.close();return true;
+        }''')
         page.close()
     browser.close()
 

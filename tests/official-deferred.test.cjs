@@ -17,6 +17,9 @@ const one = (pattern) => {
 const initial = one(/^official-content\.[a-f0-9]{12}\.js$/);
 const deferred = one(/^official-deferred\.[a-f0-9]{12}\.js$/);
 const registry = JSON.parse(fs.readFileSync(path.join(root, 'content/official-packs.json')));
+const crimeVariations = JSON.parse(
+  fs.readFileSync(path.join(root, 'content/extra/crime-scene-variations.json'), 'utf8'),
+);
 const { load, partition } = require('../tools/official-catalogue.cjs');
 const content = require('../tools/build-official-content.cjs');
 
@@ -26,16 +29,17 @@ function startup(extra = {}) {
   return context;
 }
 
-test('registry defers exactly the four Vault packs, all of which stay registered', () => {
+test('registry defers four Vault packs and the crime-scene variations pack', () => {
   assert.deepEqual(registry.deferred, [
     'extra/vault-binary.json',
     'extra/vault-sudoku.json',
     'extra/vault-lightup.json',
     'extra/vault-futoshiki.json',
+    'extra/crime-scene-variations.json',
   ]);
   for (const file of registry.deferred) assert.ok(registry.packs.includes(file));
   const { catalog, deferred: keys } = partition(root, false);
-  assert.equal(keys.size, 80);
+  assert.equal(keys.size, 86);
   assert.equal(JSON.stringify(catalog), JSON.stringify(load(root, false)));
 });
 
@@ -61,9 +65,9 @@ test('startup carries listing entries only and reads no definition fields', () =
   const marker = context.ALIBI_DEFERRED;
   assert.equal(marker.ready, false);
   assert.match(marker.url, /^\.\/assets\/official-deferred\.[a-f0-9]{12}\.js$/);
-  assert.equal(marker.keys.length, 80);
+  assert.equal(marker.keys.length, 86);
   const listed = context.ALIBI_CATALOG.puzzles.filter((p) => marker.has(p));
-  assert.equal(listed.length, 80);
+  assert.equal(listed.length, 86);
   for (const entry of listed) {
     assert.deepEqual(
       Object.keys(entry).filter((key) => !content.LISTING_FIELDS.includes(key)),
@@ -75,6 +79,29 @@ test('startup carries listing entries only and reads no definition fields', () =
   }
 });
 
+test('crime-scene variations are startup listings and load their exact full definitions', () => {
+  assert.equal(crimeVariations.puzzles.length, 6);
+  const context = startup();
+  const marker = context.ALIBI_DEFERRED;
+  for (const source of crimeVariations.puzzles) {
+    const listed = context.ALIBI_CATALOG.puzzles.find((p) => p.id === source.id);
+    assert.ok(listed, `${source.id} is listed at startup`);
+    assert.ok(marker.has(listed), `${source.id} is registered for deferred loading`);
+    assert.deepEqual(
+      Object.keys(listed).filter((key) => !content.LISTING_FIELDS.includes(key)),
+      [],
+      `${source.id} starts without definition fields`,
+    );
+  }
+
+  vm.runInNewContext(deferred, context, { timeout: 2000 });
+  for (const source of crimeVariations.puzzles) {
+    const loaded = context.ALIBI_CATALOG.puzzles.find((p) => p.id === source.id);
+    assert.equal(JSON.stringify(loaded), JSON.stringify(source), `${source.id} loads exactly`);
+    assert.equal(marker.has(loaded), false, `${source.id} is no longer deferred`);
+  }
+});
+
 test('initial plus deferred scripts reproduce the full official catalogue exactly', () => {
   const context = startup();
   const listed = context.ALIBI_CATALOG.puzzles.filter((p) => context.ALIBI_DEFERRED.has(p));
@@ -83,7 +110,10 @@ test('initial plus deferred scripts reproduce the full official catalogue exactl
   assert.equal(JSON.stringify(context.ALIBI_CATALOG), JSON.stringify(load(root, false)));
   // In-place swap: references held before the chunk arrived now see full definitions.
   for (const entry of listed) {
-    assert.ok(Array.isArray(entry.solution), `${entry.id} gained its definition`);
+    assert.ok(
+      entry.solution && typeof entry.solution === 'object',
+      `${entry.id} gained its definition`,
+    );
     assert.equal(context.ALIBI_DEFERRED.has(entry), false);
   }
   const snapshot = JSON.stringify(context.ALIBI_CATALOG);
