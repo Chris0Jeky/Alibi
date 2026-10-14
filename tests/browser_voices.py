@@ -446,6 +446,20 @@ with sync_playwright() as pw:
     copy = page.locator('.privacy-copy').inner_text()
     for phrase in ('Nothing is sent unless you press Send', 'survey key', 'one-way hash', '365 days', '400 days', 'Global Privacy Control', 'up to 20 items', '30 days'):
         check(phrase in copy, f'Privacy explains: {phrase}')
+    old_key = local(page, KEY)
+    page.evaluate("""key => {
+        window.__voiceRemove = Storage.prototype.removeItem;
+        Storage.prototype.removeItem = function(name) {
+            if (name === key) throw new DOMException('Refused', 'SecurityError');
+            return window.__voiceRemove.call(this, name);
+        };
+    }""", KEY)
+    try:
+        page.locator('#vo-reset').click()
+        check(page.locator('#vo-reset-status').inner_text() == 'Reset failed on this device. Try again.', 'failed key removal reports failure')
+        check(local(page, KEY) == old_key, 'failed reset retains the stored survey key')
+    finally:
+        page.evaluate('Storage.prototype.removeItem = window.__voiceRemove; delete window.__voiceRemove')
     page.locator('#vo-reset').click()
     check(local(page, KEY) is None, 'Reset removes the survey key')
     check(page.evaluate("() => document.activeElement?.id") == 'vo-reset-status', 'focus moves to the reset confirmation')
@@ -474,8 +488,13 @@ with sync_playwright() as pw:
     check(page.evaluate("() => !document.querySelector('.vo-sheet')?.open"), 'the invitation is inline, never a dialog over the board')
     page.locator('.play-end').screenshot(path=str(SHOTS / 'voices-invitation-390.png'))
     check(not collector.voices(), 'the invitation sends nothing')
-    page.locator('#vo-offer button', has_text='Not now').click()
+    page.locator('#vo-offer button', has_text='Not now').focus()
+    page.keyboard.press('Enter')
     check(page.locator('#vo-offer').count() == 0, 'Not now removes the invitation')
+    check(
+        page.evaluate("() => document.activeElement?.id === 'main'"),
+        'Not now leaves focus on main',
+    )
     state = local(page, 'alibi:voices:state:v1')
     check(state['snoozes'] == 1 and state['until'] - page.evaluate('Date.now()') == 7 * 864e5, 'Not now snoozes for 7 days')
     goto_puzzle(page, 'sudoku-01@1')

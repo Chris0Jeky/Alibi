@@ -52,9 +52,11 @@ ORIGIN_SCENARIOS = (
     "malformed_draft",
     "malformed_persisted",
     "room_host",
+    "room_version",
     "quarantined_run",
     "broadcast_readback",
     "cabinet_export_race",
+    "inactive_broadcast",
     "newer_database",
     "club_read_abort",
 )
@@ -1169,6 +1171,8 @@ def scenario_offline(pw: Any, root: Path) -> None:
         route(page, "play/lightup-01@1")
         first, _, first_after = move_first_cell(page, "online move seeds offline restart")
         wait_run(page, "lightup-01@1", 1)
+        # Hold background definition loading so offline opening must use the cached chunk.
+        context.add_init_script("window.requestIdleCallback = () => 0")
         context.set_offline(True)
         page.reload(wait_until="domcontentloaded", timeout=15000)
         wait_diag(page)
@@ -1194,6 +1198,28 @@ def scenario_offline(pw: Any, root: Path) -> None:
         wait_run(page, "lightup-01@1", 2)
         stored = read_idb(page, "runs", "lightup-01@1")
         check(stored["state"]["cells"][second] == 1, "offline move is persisted in IndexedDB")
+        scene = json.loads((ROOT / "content/extra/crime-scene-variations.json").read_text())["puzzles"][0]
+        check(page.evaluate("ALIBI_DEFERRED.ready") is False, "fresh offline document has not loaded definitions")
+        check(
+            page.evaluate("(id) => ALIBI_DEFERRED.has(ALIBI_CATALOG.puzzles.find(p => p.id === id))", scene["id"]),
+            "Scene variation starts from a deferred listing",
+        )
+        route(page, "library/scene")
+        page.locator('input[type="search"]').first.fill(scene["title"])
+        page.locator(f'[id="library-card-{scene["id"]}@1"]').click()
+        wait_page(page, "(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=scene["id"],
+                  what="cold Scene run from the precached deferred chunk")
+        dismiss_dialog(page)
+        check(current(page)["puzzle"] == scene, "offline Scene opens the exact published definition")
+        person = scene["people"][0]["id"]
+        placement = scene["solution"][person]
+        page.locator(f'[data-action="person"][data-id="{person}"]').click()
+        page.locator(f'[data-action="cell"][data-cell="{placement}"]').click()
+        wait_page(page, "() => AlibiDiagnostics.getCurrent().moves > 0", what="offline Scene placement")
+        saved_scene = wait_run(page, scene["id"] + "@1", 1)
+        check(saved_scene["state"]["placements"][person] == placement, "offline Scene control persists its placement")
+        check(saved_scene["puzzle"] == scene, "offline Scene save pins the complete definition")
+        page.screenshot(path=str(RESULTS / "offline-scene-variation.png"), full_page=True)
         # Deferred official definitions are precached in the shell, so a new Vault run opens offline.
         route(page, "play/vault-lightup-01@1")
         dismiss_dialog(page)
@@ -1630,6 +1656,72 @@ def scenario_quarantined_run(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_room_version(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "room-version")
+    held = []
+    try:
+        page = new_page(context, "room-version")
+        boot(page)
+        route(page, "salon/duel")
+        wait_page(page, "Boolean(globalThis.AlibiClubEngines)", what="duel engine")
+        states = page.evaluate("""() => {
+          const E = AlibiClubEngines.reversi, values = [E.initial()];
+          for (let i = 0; i < 4; i++) values.push(E.move(values.at(-1), E.legal(values.at(-1))[0]));
+          return values;
+        }""")
+        api = urljoin(BASE, "api")
+        version = 5
+        hold_method = "GET"
+
+        def reply(request, revision):
+            request.fulfill(status=200, content_type="application/json", body=json.dumps({
+                "code": "ABCDEFGH", "seat": 1, "joined": True,
+                "version": revision, "state": states[revision - 5]}))
+
+        def room_reply(request):
+            if request.request.url.endswith("/state") or request.request.url.endswith("/move"):
+                if request.request.method == hold_method:
+                    held.append(request)
+                    return
+            reply(request, version)
+
+        context.route(api + "/**", room_reply)
+        route(page, "salon")
+        page.locator('[data-action="club-online-settings"]').click()
+        page.locator("#club-api").fill(api)
+        page.locator('[data-action="club-room-create"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 5", what="synthetic room v5")
+        page.locator('[data-action="club-room-refresh"]').click()
+        page.wait_for_timeout(100)
+        check(len(held) == 1, "native poll v5 is held before the move")
+        version = 6
+        page.locator('.duel-cell.legal:not([disabled])').first.click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 6", what="accepted move v6")
+        reply(held.pop(), 5)
+        page.wait_for_timeout(100)
+        check(page.evaluate("AlibiClub.diagnostics().room.version") == 6,
+              "delayed native poll cannot rewind successful move")
+        hold_method = "POST"
+        version = 7
+        page.locator('[data-action="club-room-refresh"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 7", what="opponent move v7")
+        page.locator('.duel-cell.legal:not([disabled])').first.click()
+        page.wait_for_timeout(100)
+        check(len(held) == 1, "native move v8 is held before newer poll")
+        version = 9
+        page.locator('[data-action="club-room-refresh"]').click()
+        wait_page(page, "AlibiClub.diagnostics().room?.version === 9", what="accepted poll v9")
+        reply(held.pop(), 8)
+        page.wait_for_timeout(100)
+        check(page.evaluate("AlibiClub.diagnostics().room.version") == 9,
+              "delayed native move cannot rewind newer poll")
+        board = page.evaluate("""Array.from(document.querySelectorAll('.duel-cell'), el =>
+          el.querySelector('.gold') ? 1 : el.querySelector('.ink') ? -1 : 0)""")
+        check(board == states[4]["board"], "native controls retain the newest visible board")
+    finally:
+        context.close()
+
+
 def scenario_broadcast_readback(pw: Any, root: Path) -> None:
     for width in (390, 1280):
         context = launch_profile(pw, root / f"broadcast-readback-{width}")
@@ -1753,6 +1845,66 @@ def scenario_cabinet_export_race(pw: Any, root: Path) -> None:
                         restored_context.close()
             finally:
                 context.close()
+def scenario_inactive_broadcast(pw: Any, root: Path) -> None:
+    for width in (390, 1280):
+        context = launch_profile(pw, root / f"inactive-broadcast-{width}")
+        try:
+            page = new_page(context, "inactive-broadcast")
+            page.set_viewport_size({"width": width, "height": 900})
+            boot(page)
+            key = "lightup-01@1"
+            route(page, f"play/{key}")
+            move_first_cell(page, "inactive conflict baseline uses the actual board control")
+            baseline = wait_run(page, key, 1)
+            wait_page(page, "!AlibiDiagnostics.getStatus().pendingSaves", what="baseline save settles")
+            writer = new_page(context, "inactive-broadcast-writer")
+            writer.goto(SEED_PAGE, wait_until="domcontentloaded")
+            newer = {**baseline, "rev": baseline["rev"] + 1, "note": "Synthetic committed other-tab note"}
+            writer.evaluate("""value => new Promise((resolve, reject) => {
+              const open = indexedDB.open('alibi-device', 1);
+              open.onerror = () => reject(open.error);
+              open.onsuccess = () => {
+                const db = open.result, tx = db.transaction('runs', 'readwrite');
+                tx.objectStore('runs').put({key: value.key, value});
+                tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onabort = () => { db.close(); reject(tx.error); };
+              };
+            })""", newer)
+            move_first_cell(page, "local board edit reaches the actual stale-revision CAS save")
+            wait_status(page, lambda s: "another tab" in s["saveError"] and not s["pendingSaves"],
+                        "actual saveRun refuses the stale revision")
+            local = current(page)
+            check(local["state"] != newer["state"], "recoverable local board differs from committed board")
+            check(local["rev"] == baseline["rev"], "failed save retains its original local revision")
+            page.screenshot(path=str(RESULTS / f"inactive-broadcast-{width}-before.png"), full_page=True)
+            route(page, "home")
+            wait_page(page, "!AlibiDiagnostics.getCurrent()", what="navigation makes the conflicted row inactive")
+            page.evaluate("""key => {
+              const get = AlibiStorage.Store.prototype.get;
+              AlibiStorage.Store.prototype.get = async function(table, target) {
+                const row = await get.call(this, table, target);
+                if (table === 'runs' && target === key)
+                  setTimeout(() => { globalThis.inactiveBroadcastReadDone = true; }, 0);
+                return row;
+              };
+            }""", key)
+            writer.evaluate("""({key, rev}) => {
+              globalThis.syntheticChannel = new BroadcastChannel('alibi-saves');
+              syntheticChannel.postMessage({type: 'saved', key, rev});
+            }""", {"key": key, "rev": newer["rev"]})
+            wait_page(page, "globalThis.inactiveBroadcastReadDone === true",
+                      what="inactive broadcast read and handler continuation complete")
+            route(page, f"play/{key}")
+            recovered = current(page)
+            for field in ("state", "note", "rev"):
+                check(recovered[field] == local[field], f"inactive broadcast preserves recoverable {field}")
+            check(read_idb(page, "runs", key) == newer, "inactive broadcast leaves newer committed bytes intact")
+            check("another tab" in page.evaluate("AlibiDiagnostics.getStatus().saveError"),
+                  "conflict recovery warning remains present after returning to play")
+            check("Not saved" in page.locator("#save-state").inner_text(), "returned local snapshot remains Not saved")
+            page.screenshot(path=str(RESULTS / f"inactive-broadcast-{width}-after.png"), full_page=True)
+        finally:
+            context.close()
 
 
 def scenario_newer_database(pw: Any, root: Path) -> None:
@@ -1955,9 +2107,11 @@ def run() -> int:
                 scenario_malformed_draft,
                 scenario_malformed_persisted,
                 scenario_room_host,
+                scenario_room_version,
                 scenario_quarantined_run,
                 scenario_broadcast_readback,
                 scenario_cabinet_export_race,
+                scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,
             ]

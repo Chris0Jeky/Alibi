@@ -195,7 +195,8 @@ the survey or taps a rating. */
           return key;
         },
         // Queued answers still carry the old key; sending them later would link it to the new one.
-        // Returns how many answers were removed. Messages carry no key and stay queued.
+        // Returns how many answers were removed, or false when the key could not be removed.
+        // Messages carry no key and stay queued.
         resetRespondent() {
           const list = load(),
             kept = list.filter((x) => !x.payload.respondent);
@@ -206,7 +207,7 @@ the survey or taps a rating. */
             if (broken) write(QUEUE, null);
           }
           remembered = null;
-          write(KEY, null);
+          if (!write(KEY, null)) return false;
           return list.length - kept.length;
         },
         // Built when Send is pressed: null when the text is empty or a field is invalid.

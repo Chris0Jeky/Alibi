@@ -45,12 +45,13 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       [...(A.records?.values?.() || [])]
         .map((r) => A.official(r) && Date.parse(r.firstCompletedAt || r.completedAt))
         .filter((t) => t > 0),
-    // Re-decorates the page; focus stays on the same control or moves to the next safe one.
+    // A removed control with an id can return to Send. One with no id returns to the page.
     refresh = () => {
       const id = doc.activeElement?.id;
       A(A.run, A.records);
-      if (doc.activeElement === doc.body)
-        (doc.getElementById(id) || $('.play-end .btn') || $('#vo-send') || $('#main'))?.focus();
+      if (doc.activeElement !== doc.body) return;
+      const restored = id && doc.getElementById(id);
+      (restored || (id && $('#vo-send')) || $('#main'))?.focus();
     },
     ASK = {
       often: 'How often do you play?',
@@ -290,7 +291,9 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     refresh();
     if (a === 'reset') {
       const status = $('#vo-reset-status');
-      status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} A new key is made the next time you answer.`;
+      if (removed === false) status.textContent = 'Reset failed on this device. Try again.';
+      else
+        status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} A new key is made the next time you answer.`;
       status.focus();
     }
   });

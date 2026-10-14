@@ -58,7 +58,22 @@ test('delivery build emits exact derivatives outside the offline shell and valid
   const photos = JSON.parse(
     fs.readFileSync(path.join(root, 'assets-source/online/acquired/receipt.json')),
   ).assets;
-  assert.equal(info.enhancementBytes, built.bytes + photos.reduce((n, a) => n + a.bytes, 0));
+  const painted = JSON.parse(
+    fs.readFileSync(path.join(root, 'assets-source/library/painted-club/manifest.json')),
+  ).assets;
+  const paintedBytes = painted
+    .filter((a) =>
+      ['club-welcome-320.webp', 'lantern-duel-320.webp', 'pocket-borough-320.webp'].includes(
+        a.file,
+      ),
+    )
+    .reduce((n, a) => n + a.bytes, 0);
+  assert.equal(
+    info.enhancementBytes,
+    built.bytes + photos.reduce((n, a) => n + a.bytes, 0) + paintedBytes,
+  );
+  for (const a of painted.filter((a) => a.kind === 'source-webp'))
+    assert.ok(!sw.includes(a.file), 'Painted masters stay outside precache');
   assert.ok(info.enhancementBytes < 4 * 1024 * 1024);
   const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
   assert.ok(html.includes('http-equiv="Content-Security-Policy"'));

@@ -54,3 +54,11 @@ test('valid saved run still mounts without recovery', () => {
   assert.equal(view.handle.save().challengeId, id);
   assert.equal(view.handle.rejected, null);
 });
+
+test('valid save from another challenge is rejected without mutation', () => {
+  const saved = registry.begin('curated-borough-01');
+  const before = structuredClone(saved);
+  assert.doesNotThrow(() => registry.validateRun(saved));
+  assert.throws(() => open('curated-borough-02', saved), /another challenge/);
+  assert.deepEqual(saved, before);
+});
