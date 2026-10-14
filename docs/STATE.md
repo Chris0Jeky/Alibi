@@ -785,9 +785,10 @@ checks at 390/1280 and all 184 UI checks with zero uncaught errors; both recover
 layouts were inspected. Fresh independent reviews found no HIGH/CRITICAL defects.
 Fallback warning clarity is tracked in #620.
 
-**Parked gate:** code/shell 1,413,294 bytes exceeds the unchanged 1,412,792.32-byte
-ceiling by 502 bytes after a bounded trim. Started hosted jobs fail this gate;
-current-main integration and a passing budget remain required before merge.
+**Budget gate (re-measured 2026-10-15):** merged with main `abb0be0a`, the web build measures
+code/shell 1,409,106 bytes against the unchanged 1,412,792.32 ceiling and 203,927 initial gzip bytes
+against 205,248; main's worker compaction removed the 502-byte excess. `npm run verify` passes
+(1,536 passed, three intentional skips). Hosted results are on the PR.
 This is candidate proof, not a release or physical-device acceptance.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
 
