@@ -3491,6 +3491,8 @@
       return;
     }
     if (e.key === 'Escape') {
+      // A held Escape closes a dialog, then its repeat would land on the board.
+      if (e.repeat) return;
       paused = !paused;
       enqueueSave();
       render();
