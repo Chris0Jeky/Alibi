@@ -3568,6 +3568,8 @@
       Number(e.key) <= p.size
     ) {
       e.preventDefault();
+      // A held digit adds a cell note, then each repeat would remove it.
+      if (e.repeat) return;
       act({ type: 'set', cell: selectedCell, value: Number(e.key), pencil });
     }
     if (p.type === 'binary' && /^[01]$/.test(e.key)) {
