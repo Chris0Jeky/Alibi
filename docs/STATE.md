@@ -267,6 +267,43 @@ Verification is recorded in the draft PR after the clean-source Android/full ver
 isolated phone/desktop browser checks. Not deployed; physical-device/TalkBack acceptance and
 the owner decisions in `HUMAN_TODO.md` remain open.
 
+## 2026-10-14: PR #639 merged with the budget recovery
+
+Main `59f47e90` (artwork budget recovery, shell 1,406,273 against the 1,412,792.32 ceiling) is merged into
+the PR branch, which clears the shell-budget failure recorded below; the Borough seed repair itself is
+unchanged. The checkpoint below predates this merge.
+
+## 2026-10-14: PR #639 third landing checkpoint
+
+Current main `3d041caf` merged cleanly into the retained PR branch. The 21
+focused backup/Borough tests pass. Fresh web/Android builds still measure
+1,412,794 shell bytes against the unchanged 1,412,792.32 ceiling; the budget
+test fails. No new source repair or ceiling change was made. This third land
+turn parks the PR pending a separately scoped byte-compliant repair and fresh
+full/hosted verification. Existing review dispositions stand; physical checks
+remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-12: PR #639 Borough seed repair
+
+The landing repair preserves finite numeric Borough seeds without rewriting saved
+values, and refuses missing, null, empty and non-seed values. Replay retains the
+engine's existing character and length validation. All 21 focused backup/seed
+tests pass; the existing numeric-history test failed before the repair.
+
+All four failing hosted workflows at the original head report the numeric-seed
+regression and the release-shell budget assertion. The exact main base
+`1ee2de7c` measures 1,412,593 shell bytes and 132,870 JavaScript gzip bytes.
+The compact repair measures 1,412,793 shell bytes (+200) and 132,891 JavaScript
+gzip bytes (+21) before commit; clean source `045c44ca` measures 1,412,794 and
+132,892 respectively. Both exceed the strict 1,412,792.32-byte shell limit.
+Three trim attempts exhausted this turn's budget; the ceiling is unchanged.
+Full verification at `045c44ca` passes formatting and both-target build, then
+reports 1,490 passes, three skips and two failures: the budget and the unrelated
+Windows file-symlink EPERM in `workshop-catalogue.test.cjs`. One independent
+Luna xhigh review found no blocker in the seed repair. The PR is not ready to
+land; release-budget repair and green hosted checks remain required. Physical
+acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-12: automatic Voices flush test qualification
 
 PR #638 adds four source-harness cases for automatic eligibility-gated flush
