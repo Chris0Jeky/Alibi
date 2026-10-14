@@ -2,9 +2,15 @@
 
 ## 2026-10-14: tool buttons keep focus when the board redraws
 
-A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square. This merge keeps the Escape and restore guards.
+A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square. This merge keeps the Escape, restore, and voices focus guards.
 
-An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. The asset catalogue records the combined `src/app.js` at 207,800 bytes, sha256 `4665d4c6383145b536f42101c2e70e0a5b044947a5d3eeeb7aa261dd82ea9cee`. `tests/budget.test.cjs` passed on the combined local web build `ecce4a5231f4` at 203,412 initial gzip bytes, under the existing 205,248 ceiling. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 207,800 bytes, sha256 `4665d4c6383145b536f42101c2e70e0a5b044947a5d3eeeb7aa261dd82ea9cee`. `tests/budget.test.cjs` passed on the combined local web build `482d954a3476` at 203,413 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: Not now leaves focus on the page
+
+Dismissing the survey invitation from the keyboard no longer moves focus to another puzzle action. Delete in Settings still returns to Send feedback.
+
+The voices page showed the old behavior first: after Not now, focus was not on the page main. After the change, focus is on main. Delete still focuses Send feedback. The page passed 130 assertions. That change kept the Escape and restore guards. The asset catalogue records `src/app.js` at 206,670 bytes. `tests/budget.test.cjs` passed on the combined local web build `31ab4f964280` at 203,260 initial gzip bytes, under the existing 205,248 ceiling, and the voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
 
 ## 2026-10-14: a held Escape does not flicker pause
 
