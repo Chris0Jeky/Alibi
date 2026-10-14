@@ -1,5 +1,225 @@
 # Live development state
 
+## 2026-10-14: artwork budget recovery
+
+PR #650 merged as c800be5a; its complete README and motion-preview histories
+are on main, and qualification tracker #653 is closed. The artwork integration
+preserves the original #525/#643 and #521/#642 histories, all 60 painting-shelf
+files and 29 pictogram SVG masters byte-for-byte. Three 320px paintings use
+optional delivery on the Desk and Games Room; navigation and family pictograms
+use the reviewed masters. Source vector studies remain proposed.
+
+Removing unused old-home selectors saves 7,585 emitted CSS bytes without
+changing any retained rule. Three numeric selection thresholds in the existing
+official-content encoder recover startup gzip; the runtime decoder is identical.
+No byte ceiling is changed. Combined runtime source 96db0a7e builds f61029df2828:
+shell 1,406,273 against 1,412,792.32, startup 205,181 against 205,248. All 510
+puzzle definitions, IDs/revisions and initial/deferred JSON order remain exact;
+the only content-global additions are the three intended artwork delivery entries.
+
+That clean source passes full Windows verify: 1,504 Node passes, zero failures,
+three intentional filename skips, Quiet Wing 581,847 assertions and 29 contracts.
+UI187, pictogram navigation52 and actual-origin375 pass. All 48 painting hashes
+and 32 derivatives reproduce; Cloudflare dry-run passes. Muse's bounded encoder
+worker completed successfully; both new regressions fail with the previous
+encoder and pass with the tuned encoder. Independent Sol review found no
+HIGH/CRITICAL blocker; future relative-contour compaction is tracked in #655.
+
+The integration PR carries final head, browser/visual and hosted qualification.
+Startup margin remains narrow. This is source qualification, with no production
+release or deployment. Physical Android/TalkBack, publisher and other owner
+conditions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-14: bounded PR queue reconciliation
+
+Budget-test PR #649 is merged as 3d041caf; stale completion-hook draft #426 is
+closed as superseded by current main, with its branch/history preserved. The
+candidate integrates the complete #648 pause-repair, #641 README and #647
+source-preview histories using merge commits. State conflicts retain both
+added records and the existing ledger. No release or deployment is implied.
+
+Exact pause source 25bb3aae passes clean-source full Windows verify: 1,490 Node
+passes, zero failures, three intentional filename skips, plus Quiet Wing
+581,847 assertions and 29 contracts. Muse's renewed file-only review completes
+with report_status=ok and integrity=ok, without findings. The final integration
+retains that runtime byte-for-byte; clean both-target build, unchanged budgets,
+focused checks and hosted qualification still bind at its final head.
+
+The runtime painting candidate remains parked: composition 86bb60a9 measures
+shell 1,412,963 against 1,412,792.32 (170.68 bytes over), startup 205,211 against
+205,248. All painting masters/derivatives and source-preview records survive.
+The Quiet Wing revision-limit repair also remains parked in composition:
+17ef2af7 measures shell 1,412,948 (155.68 over), startup 204,268 (980 under).
+Its standalone qualified source ac6a6783 passed 98 actual-origin browser checks,
+import/engine/contracts and the same budget (1,412,778), but is not a safe
+combined landing. No ceilings were increased or custom decoder introduced.
+
+Other draft stacks retain their own budget, transfer-integrity, native,
+editorial and dependency gates; #500's explicit human skim hold remains.
+Physical Android/TalkBack, publisher and Sites-retirement conditions stay in
+[HUMAN_TODO.md](../HUMAN_TODO.md). Source previews are not production artwork.
+
+## 2026-10-14: pause accessibility and landscape repair (#648)
+
+The pause-only inert wrapper now exists only while paused, preserving the
+unpaused Bridges direct-child landscape grid. Resuming via Return or Escape
+restores focus to the stable pause control. The new layout-parent assertion
+fails on the previous head; hosted mobile failures also reproduce the missing
+lower islands. Existing puzzle identities, saves and byte ceilings are unchanged.
+
+Repair source passes 24 pause checks at phone/desktop sizes, all 18 real-origin
+mobile cases and 187 UI cases; screenshots of the landscape board and focused
+phone cover were inspected. The 26 focused Node cases and emitted budget pass;
+web shell excluding official content is 1,412,764 bytes (28.32 under its ceiling).
+The first full verify correctly refused the dirty Android source; clean-source
+verification and renewed independent review are required at the final head.
+Physical Android/TalkBack remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+## 2026-10-12: README reconciled to the source
+
+The root README was rewritten against the current tree. Counts come from
+`content/official-packs.json` (30 packs, 510 puzzles, 430 initial, 80 deferred),
+`content/casebooks.json` (five books), and `content/challenges/` (95). Family
+names match `src/presentation.js`. Games Room cards match `src/club.js`. Package
+version 0.15.1 matches `package.json` and the recorded Cloudflare receipt in
+`docs/RELEASE-0.15.1.md`. On 12 October 2026 the primary origin's platform
+identity script reported appVersion 0.15.1 and source
+`98be800d0715a25695fe99480bb801fd30397220`. The Sites origin reported
+appVersion 0.12.0. No runtime, content, save schema, or deployment change.
+Local README link check: 52 relative links resolve; `src/artwork/bellweather.webp`
+exists. Badge URLs returned HTTP 200. `npm ci` installed the lockfile.
+`node tools/validate-pack.cjs examples/twelve-families.json` returned valid,
+12 puzzles. `npm run build` emitted version 0.15.1, 510 puzzles, 13 types,
+5 casebooks and 80 deferred puzzles. `npm start` served that build at
+http://127.0.0.1:8787 and the homepage returned HTTP 200. Full `npm run verify`
+was not rerun for this documentation edit.
+
+## 14 October 2026: current-main source-only motion qualification
+
+PR #647 source head d5da1b6378355a6adacdd30f22201fb2d1c1a90b is integrated
+with current main 3d041caf61b46b54a1ba046a50132f760192d758, preserving both
+commit histories and every earlier STATE block. Both preview folders are
+byte-identical to that PR source. No runtime, catalogue, precache, dependency,
+save, budget ceiling or deployment changes are introduced.
+
+Fresh local checks: both preview controllers pass `node --check`, and
+`node --test tests/asset-catalogue.test.cjs` passes 2/2 hash/count/spoiler cases.
+Each existing `verify_preview.py` passes all 24 browser checks with zero page
+errors or network requests. Initial pixels match the unchanged static SVG;
+both loops have zero changed seam pixels. R2 phone/desktop images at 390/1440
+were inspected. Reports and screenshots are retained in ignored
+`test-results/motion-r1-current-main/` and `test-results/motion-r2-current-main/`.
+The shared Python environment lacked Pillow, so its dependency was installed
+only in ignored `test-results/motion-python-deps/`, without changing that environment.
+
+Full gameplay/build, fresh encoded-export decoding, hosted qualification at
+the integration head, deployment and physical-device acceptance were not rerun.
+The prior independent source review and dated export/owner acceptance receipts
+remain historical; HUMAN_TODO.md decisions and physical gates remain open.
+
+## 13 October 2026: readable motion repair R2
+
+Chris reported Alibi barely moved. R1 timing tests passed but perceptual delivery
+failed: light variation was tiny and steam's18-unit movement was further scaled
+by its authored0.7 parent. Retained live and decoded-frame evidence confirms the
+timeline was running, rather than an accidentally paused/reduced-motion export.
+
+The `motion-v2-readable-r2-20261013` sibling retains every R1 file and the exact
+v2 static master. It adds anchored rigid flame movement, gradual local light
+variation and taller rising/dissipating steam. Complete normal-speed live/video
+playback at320px verifies stationary object geometry and readable displacement;
+decoded-region regression rejects both old delivery and genuine all-still MP4s.
+The illustrative export is24fps/192frames/8seconds; controls, complete initial
+still, reduced motion and hidden/offscreen pause remain tested. Human motion
+acceptance is separate. No runtime, catalogue, precache, budget or dependency
+change; no merge/deployment and no unrelated owner choice is closed.
+
+## 13 October 2026: provisional v2 source acceptance and optional motion draft
+
+Chris provisionally accepted the immediately displayed v2 LAS workshop and Alibi
+lantern renders, plus the responsive LAS card: “Yeah, I guess these are good enough
+for being SVGs.” This does not accept the later failed coarse studies, pixel variant,
+runtime deployment, licensing or merge. The proposed conversion pivot is stopped.
+Earlier sources, painted assets and archives remain unchanged.
+
+`assets-source/library/vector-pilot/motion-v2-20261013/index.html` compares an exact,
+script-free copy of the lantern v2 master with a separate optional flame-light and
+steam preview. Counters and the scene geometry remain stationary. Initial pixels
+match the untouched inline SVG; Play/Pause, reduced motion, real offscreen handling
+and rendered loop endpoints pass 24 browser checks at 390/1440 px. Hidden-document
+handling is an explicit DOM-contract probe, not physical phone certification.
+This addition changes no runtime/catalogue/precache/budget/dependency file. Build
+emission and exact-head hosted gates are recorded in the draft PR. Existing owner
+choices in HUMAN_TODO.md remain open.
+## 13 October 2026: source material study 02
+
+The original vector pilot is retained as a v1 study below the owner's quality bar.
+The separate quality-02 native SVG adds modelled glass, brass, counters and leaves,
+with an individual PNG and v1/v2/painted comparison page. It stays proposed and
+outside runtime/precache. Phone/desktop rendering and lifecycle checks pass; this
+is a visual checkpoint, not production acceptance. Painting integration is unchanged.
+
+## 12 October 2026: optional painted-art pilot (unpublished)
+
+This branch imports #525's source shelf and registers all sixteen paintings.
+Only welcome desk, Lantern Duel and Pocket Borough use existing verified optional
+320px delivery, with meaningful SVG fallbacks. The eight-slot cache and budgets
+are unchanged; masters stay outside runtime/precache. The separate native-vector
+lantern study remains proposed. See assets-source/library/vector-pilot/README.md.
+Browser and exact-head evidence is in the draft PR. Combined #521 qualification,
+physical-device checks and HUMAN_TODO.md owner decisions remain open. No deploy.
+## 13 October 2026: pictogram default-branch reconciliation (draft, budget-blocked)
+
+Current main is incorporated with original icon masters, generator safety tests and
+unknown-key fallback preserved. The source catalogue records the actual merged
+app bytes; both evidence histories are retained. Budget assertions and ceilings
+are byte-exact current main, with no new increase. Existing pictogram, alias and
+fallback contracts and formatting pass. A clean same-toolchain current-main build
+passes the shell budget; this individual icon integration adds 895 shell bytes
+and exceeds its ceiling by about 697 bytes. Startup still fits. Final clean-head
+measurements and hosted results belong in the draft PR and reconciliation handoff.
+This is separate from the prior combined painting-plus-icon startup limitation.
+No art regeneration, budget relaxation, deployment or physical-device acceptance.
+
+The deterministic 52-assertion isolated-document pictogram browser driver now runs
+beside the existing UI suite in the full verification lane, with screenshots
+retained in that lane's artifact. Its network-aborted scope does not require a
+manual-only exemption and does not prove real-origin or physical-device behavior.
+The earlier unchanged budget gate still stops that hosted lane before browser
+execution; local browser evidence is reported separately, never as a hosted pass.
+
+## 12 October 2026: isolated pictogram alias-safety repair (draft)
+
+A child of draft #521 rejects pre-existing symlinks, Windows junctions and hard
+links in generator inputs/outputs and --check. All six causal regressions fail
+before and pass after repair; five original icon contracts and byte-exact normal
+write/check runs pass. See PICTOGRAM-ALIAS-SAFETY.md. The source draft's conflicts
+with main, physical-device acceptance and HUMAN_TODO.md decisions remain open.
+No merge or deployment; repository gate results are in the child draft PR.
+
+## Club pictogram draft (unreleased): 1 October 2026
+
+Branch `art/club-pictograms-20261001` integrates original club stationery pictograms into the
+existing inline icon table. Thirteen families now have distinct masters, including Bridges;
+Games, Quiet Wing and Castle have table, leaf and battlement destination icons on phone and
+desktop. Labels, routes, controls, gameplay symbols, save contracts and Sudoku unknown-key
+fallback remain unchanged. The 29 standalone masters and reproducible hash receipts stay
+outside runtime/precache; provenance and commands are in
+`assets-source/library/club-pictograms/README.md`. No raster or branding change.
+
+Same-machine baseline at `3ce84ca`: JS 134,285 -> 134,677 gzip; core shell excluding official
+content 1,409,653 -> 1,410,547 bytes. Two trims removed a redundant garden alias and joined
+identically styled adjacent contours; only these two ceilings rise by measured, 64-byte-rounded
++448 / +896. Total offline, CSS and initial-payload ceilings remain fixed.
+Verification is recorded in the draft PR after the clean-source Android/full verify gate and
+isolated phone/desktop browser checks. Not deployed; physical-device/TalkBack acceptance and
+the owner decisions in `HUMAN_TODO.md` remain open.
+
+## 2026-10-14: PR #639 merged with the budget recovery
+
+Main `59f47e90` (artwork budget recovery, shell 1,406,273 against the 1,412,792.32 ceiling) is merged into
+the PR branch, which clears the shell-budget failure recorded below; the Borough seed repair itself is
+unchanged. The checkpoint below predates this merge.
+
 ## 2026-10-14: PR #639 third landing checkpoint
 
 Current main `3d041caf` merged cleanly into the retained PR branch. The 21

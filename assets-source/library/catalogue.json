@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "baselineCommit": "897651e53a27b29e2b9a0a55d75b474ee0de88dc",
   "counts": {
-    "original": 104,
+    "original": 121,
     "reused": 80,
-    "derivatives": 331,
-    "uniqueFiles": 457
+    "derivatives": 369,
+    "uniqueFiles": 512
   },
   "creditUse": {
     "remoteSubmissions": 0,
@@ -2916,6 +2916,693 @@
       },
       "design": "original",
       "status": "current"
+    },
+    {
+      "id": "painted-archive-heist",
+      "title": "archive heist",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/archive-heist.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/archive-heist-320.webp",
+        "assets-source/library/painted-club/archive-heist-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/archive-heist.webp",
+          "bytes": 1580800,
+          "sha256": "f3bc3a5f8ff9dff73da0d06720f432f5b9c4f000dbf5394f7d7638b60c91187a"
+        },
+        {
+          "path": "assets-source/library/painted-club/archive-heist-320.webp",
+          "bytes": 23946,
+          "sha256": "bcf8b482b78b507213c0db1ba46b0db94f502d02a6016bfdce1fc17b6c0d414f"
+        },
+        {
+          "path": "assets-source/library/painted-club/archive-heist-640.webp",
+          "bytes": 81870,
+          "sha256": "590583a4b796d39757456faeadc74ae3abab408fa098351daa4ac45339dd34c1"
+        }
+      ]
+    },
+    {
+      "id": "painted-block-cabinet",
+      "title": "block cabinet",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/block-cabinet.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/block-cabinet-320.webp",
+        "assets-source/library/painted-club/block-cabinet-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/block-cabinet.webp",
+          "bytes": 1417694,
+          "sha256": "a741318758726f8541e1d23118d176675a59cb85dca5d588ecc392bfb5666b87"
+        },
+        {
+          "path": "assets-source/library/painted-club/block-cabinet-320.webp",
+          "bytes": 19124,
+          "sha256": "4394d91ba9f029d1c8cf6de7180d81c1d28bba21469bb97566c55cf719c67eed"
+        },
+        {
+          "path": "assets-source/library/painted-club/block-cabinet-640.webp",
+          "bytes": 67996,
+          "sha256": "3ef93964ec53128a672da5ff692aa1bb983bd2a5d21e87d5b2ab837b16f784e0"
+        }
+      ]
+    },
+    {
+      "id": "painted-club-welcome",
+      "title": "club welcome",
+      "category": "painted-club",
+      "status": "current",
+      "design": "original",
+      "source": "assets-source/library/painted-club/club-welcome.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/club-welcome-320.webp",
+        "assets-source/library/painted-club/club-welcome-640.webp",
+        "assets-source/library/painted-club/fallbacks/club-welcome.svg"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Club Desk/card optional enhancement; 320px only; masters outside release and precache",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/club-welcome.webp",
+          "bytes": 1296392,
+          "sha256": "3cc9c3a4250636b847dd93b5b7f994a9179d06a48542861aa56197ca84cf2680"
+        },
+        {
+          "path": "assets-source/library/painted-club/club-welcome-320.webp",
+          "bytes": 21928,
+          "sha256": "14bca332321e583705240ed7d1773aef84e6dd2a8a13c4a57f6e0b53855c3b39"
+        },
+        {
+          "path": "assets-source/library/painted-club/club-welcome-640.webp",
+          "bytes": 65352,
+          "sha256": "25bfd311ff3d782dcb0ed859052cea092a30d14cfb3c3eedb6fff874fc0f57e3"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/club-welcome.svg",
+          "bytes": 333,
+          "sha256": "d6f7b3c8b598e5676d0443b3c697b9e1b0964aee564f01380980f602690f08a5"
+        }
+      ]
+    },
+    {
+      "id": "painted-lantern-duel",
+      "title": "lantern duel",
+      "category": "painted-club",
+      "status": "current",
+      "design": "original",
+      "source": "assets-source/library/painted-club/lantern-duel.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/lantern-duel-320.webp",
+        "assets-source/library/painted-club/lantern-duel-640.webp",
+        "assets-source/library/painted-club/fallbacks/lantern-duel.svg"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Club Desk/card optional enhancement; 320px only; masters outside release and precache",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/lantern-duel.webp",
+          "bytes": 1408878,
+          "sha256": "b5625b1dbf278c0c3ba516f2ca7e2016ec4660ca1090b3b0719b4f7b88259d74"
+        },
+        {
+          "path": "assets-source/library/painted-club/lantern-duel-320.webp",
+          "bytes": 27208,
+          "sha256": "44fced51a9537b498bcf56d79141ca0c9eaeb81899df329d638676c6e2550fc2"
+        },
+        {
+          "path": "assets-source/library/painted-club/lantern-duel-640.webp",
+          "bytes": 92410,
+          "sha256": "78355ad5d3f2257532d865f022050f54c7d8bdf24c20a5e918ad9a60e3dc8944"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/lantern-duel.svg",
+          "bytes": 474,
+          "sha256": "bcd1908b9bf822d37419a751758afb0f22d37ad7042c726b0d782f2f84e99166"
+        }
+      ]
+    },
+    {
+      "id": "painted-lantern-gardens",
+      "title": "lantern gardens",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/lantern-gardens.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/lantern-gardens-320.webp",
+        "assets-source/library/painted-club/lantern-gardens-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/lantern-gardens.webp",
+          "bytes": 1273988,
+          "sha256": "57795c5de3a1b54300191be76fb8fadd492a111801e791d037d211c8b689bdc2"
+        },
+        {
+          "path": "assets-source/library/painted-club/lantern-gardens-320.webp",
+          "bytes": 27824,
+          "sha256": "f14b8598574307873b3b0a22ac303f1580d531dd9712013a291b53fcb35eb741"
+        },
+        {
+          "path": "assets-source/library/painted-club/lantern-gardens-640.webp",
+          "bytes": 91434,
+          "sha256": "6e524137153225f15f56f0b48ebf795fd4623e379af8fabad055ec22c0e3062e"
+        }
+      ]
+    },
+    {
+      "id": "painted-living-atlas",
+      "title": "living atlas",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/living-atlas.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/living-atlas-320.webp",
+        "assets-source/library/painted-club/living-atlas-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/living-atlas.webp",
+          "bytes": 1330196,
+          "sha256": "9ab4e3e18415546f980cff60b2e4809c8418b07bb5b3ecb123e6efb11373bb80"
+        },
+        {
+          "path": "assets-source/library/painted-club/living-atlas-320.webp",
+          "bytes": 27270,
+          "sha256": "b8b296031508a9c5d48c06045a5d57c657d3e1ecd90160a7e1b081bfa58c336c"
+        },
+        {
+          "path": "assets-source/library/painted-club/living-atlas-640.webp",
+          "bytes": 88456,
+          "sha256": "a81ae542689ef8df650cfa3a9e8ea96240fb5f0922ef83bcc7e71a290af1ad88"
+        }
+      ]
+    },
+    {
+      "id": "painted-pocket-borough",
+      "title": "pocket borough",
+      "category": "painted-club",
+      "status": "current",
+      "design": "original",
+      "source": "assets-source/library/painted-club/pocket-borough.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/pocket-borough-320.webp",
+        "assets-source/library/painted-club/pocket-borough-640.webp",
+        "assets-source/library/painted-club/fallbacks/pocket-borough.svg"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Club Desk/card optional enhancement; 320px only; masters outside release and precache",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/pocket-borough.webp",
+          "bytes": 1568910,
+          "sha256": "e02e9aa219d52ae8016ea6c58f8c15ab82956f0e5d25dcf967a3da4c247e132d"
+        },
+        {
+          "path": "assets-source/library/painted-club/pocket-borough-320.webp",
+          "bytes": 31824,
+          "sha256": "f2570de8d7f598a2d85665700efa9b7d629c9baaa74345c5a027b4b734565073"
+        },
+        {
+          "path": "assets-source/library/painted-club/pocket-borough-640.webp",
+          "bytes": 109052,
+          "sha256": "98904ff4c32f6b0ac72624a6b070b61ff4cb51cfcaacc471454652e92a11fe79"
+        },
+        {
+          "path": "assets-source/library/painted-club/fallbacks/pocket-borough.svg",
+          "bytes": 362,
+          "sha256": "9e0a7f56271d09070c60d57bd0200ddd34bf0299afd3e5b04a270b8c336a246d"
+        }
+      ]
+    },
+    {
+      "id": "painted-tic-tac-toe",
+      "title": "tic tac toe",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/tic-tac-toe.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/tic-tac-toe-320.webp",
+        "assets-source/library/painted-club/tic-tac-toe-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/tic-tac-toe.webp",
+          "bytes": 1547742,
+          "sha256": "48d92248f8d104d67c0be875e6ee695f1f660b5275404eedc9ab21e9642f8d7c"
+        },
+        {
+          "path": "assets-source/library/painted-club/tic-tac-toe-320.webp",
+          "bytes": 24358,
+          "sha256": "9a5cb92af91a3e3c6c6024ca9041090127c84bd8a1a3e3afd92a66e03ce9a198"
+        },
+        {
+          "path": "assets-source/library/painted-club/tic-tac-toe-640.webp",
+          "bytes": 84772,
+          "sha256": "bcd6c12ac03dd32f275f07ce24666620e94094370beda33fcb8c60cc834c2cf1"
+        }
+      ]
+    },
+    {
+      "id": "painted-fresh-journal",
+      "title": "fresh journal",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/fresh-journal.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/fresh-journal-280.webp",
+        "assets-source/library/painted-club/fresh-journal-560.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/fresh-journal.webp",
+          "bytes": 906556,
+          "sha256": "3baa4c6781a9fcf9b0d5ea4b09aee4127146604b0d1128e0b3f6eb99193a2acd"
+        },
+        {
+          "path": "assets-source/library/painted-club/fresh-journal-280.webp",
+          "bytes": 11198,
+          "sha256": "b59a3da7e88e079fa85c265069d1db8b3013e51937e691425939bd710ae63ab6"
+        },
+        {
+          "path": "assets-source/library/painted-club/fresh-journal-560.webp",
+          "bytes": 31608,
+          "sha256": "4d9465d914150fe8b883584e05e43dcc9c60530a83988e8fed0a23bf8724c0cf"
+        }
+      ]
+    },
+    {
+      "id": "painted-saved-bookmarks",
+      "title": "saved bookmarks",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/saved-bookmarks.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/saved-bookmarks-280.webp",
+        "assets-source/library/painted-club/saved-bookmarks-560.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/saved-bookmarks.webp",
+          "bytes": 865922,
+          "sha256": "9157ae649ac9be9e466234622c54c237201448c36256191e4e0d899ce43395e3"
+        },
+        {
+          "path": "assets-source/library/painted-club/saved-bookmarks-280.webp",
+          "bytes": 10506,
+          "sha256": "a8c855bbc203860213cffd825e79b7fe99d04cd0427c9a21342cdf987dca0169"
+        },
+        {
+          "path": "assets-source/library/painted-club/saved-bookmarks-560.webp",
+          "bytes": 33220,
+          "sha256": "44f6d8206a7021dedd17d6186aa3678b265c0e56ac7d3f9d7710da36da902e63"
+        }
+      ]
+    },
+    {
+      "id": "painted-search-notes",
+      "title": "search notes",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/search-notes.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/search-notes-280.webp",
+        "assets-source/library/painted-club/search-notes-560.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/search-notes.webp",
+          "bytes": 984858,
+          "sha256": "623556787197c89ca579b31efb449ef8802ddf16d69f94c4e1eba7aee6dcee71"
+        },
+        {
+          "path": "assets-source/library/painted-club/search-notes-280.webp",
+          "bytes": 16046,
+          "sha256": "305a6b37f8a7cece094e979a9509fe40b6846484b1d76bdf5f6357e21b6e1212"
+        },
+        {
+          "path": "assets-source/library/painted-club/search-notes-560.webp",
+          "bytes": 45868,
+          "sha256": "e14aa5eb15363dc36d59d21fdfd7254e3fe232e929385b68b28199b0d41d43d1"
+        }
+      ]
+    },
+    {
+      "id": "painted-workshop-tools",
+      "title": "workshop tools",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/workshop-tools.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/workshop-tools-280.webp",
+        "assets-source/library/painted-club/workshop-tools-560.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/workshop-tools.webp",
+          "bytes": 1008160,
+          "sha256": "1070d804b28d35b81c7f53093f4e84939a940d57c246f8b7b1f87e06f24ad95e"
+        },
+        {
+          "path": "assets-source/library/painted-club/workshop-tools-280.webp",
+          "bytes": 12508,
+          "sha256": "714c8a9224c8b7542e33583fafa82b2785127d7c91ea5cc03bd9d32c7eb539ec"
+        },
+        {
+          "path": "assets-source/library/painted-club/workshop-tools-560.webp",
+          "bytes": 36116,
+          "sha256": "d498c5ee97e63fd31450e83a97a4ccc891f9671049ce24a221990600a97f5cf0"
+        }
+      ]
+    },
+    {
+      "id": "painted-copper-conservatory",
+      "title": "copper conservatory",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/copper-conservatory.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/copper-conservatory-320.webp",
+        "assets-source/library/painted-club/copper-conservatory-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/copper-conservatory.webp",
+          "bytes": 1434606,
+          "sha256": "407b2fd09da47db52cfc60b284913ca8997e832e1f8cca27cdd7903c2ec08a2b"
+        },
+        {
+          "path": "assets-source/library/painted-club/copper-conservatory-320.webp",
+          "bytes": 32352,
+          "sha256": "aecc0f46f26de714061883ded91fa07a0b741d2a796f9b03a82d51f168cc8666"
+        },
+        {
+          "path": "assets-source/library/painted-club/copper-conservatory-640.webp",
+          "bytes": 105652,
+          "sha256": "08b10493f099761e03545912f76a3e6144231fc8854ebdc6c57be5ddb90050c7"
+        }
+      ]
+    },
+    {
+      "id": "painted-nocturne-gallery",
+      "title": "nocturne gallery",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/nocturne-gallery.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/nocturne-gallery-320.webp",
+        "assets-source/library/painted-club/nocturne-gallery-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/nocturne-gallery.webp",
+          "bytes": 1830096,
+          "sha256": "63be7caedf0b1fdc5b1ba145c4a0c2e99062eba96359f9c4168cbf9cba4372eb"
+        },
+        {
+          "path": "assets-source/library/painted-club/nocturne-gallery-320.webp",
+          "bytes": 33540,
+          "sha256": "20f659f2188a174d29e0f85b3f236b4ef5e592765c9d3e5e0e029fc9e4da05fb"
+        },
+        {
+          "path": "assets-source/library/painted-club/nocturne-gallery-640.webp",
+          "bytes": 112478,
+          "sha256": "66a8318e60248f9b1c380097e01a7ca006e1a161c598a9094c655d675df3399c"
+        }
+      ]
+    },
+    {
+      "id": "painted-salt-observatory",
+      "title": "salt observatory",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/salt-observatory.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/salt-observatory-320.webp",
+        "assets-source/library/painted-club/salt-observatory-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/salt-observatory.webp",
+          "bytes": 1217518,
+          "sha256": "a77c964d3d3267d3487b3cf35d2cf37d113f72b8ad59bd07264a57201c592758"
+        },
+        {
+          "path": "assets-source/library/painted-club/salt-observatory-320.webp",
+          "bytes": 30932,
+          "sha256": "b9dbe8b255d9dd8fb46abe9b340b8a5a1da38428ef9f54a3fc9ee188eee06fa6"
+        },
+        {
+          "path": "assets-source/library/painted-club/salt-observatory-640.webp",
+          "bytes": 92110,
+          "sha256": "6a42862d60d2f6b3f830eab0feaee3f606659bd60786a729533f2f4b12dc714a"
+        }
+      ]
+    },
+    {
+      "id": "painted-winter-post-office",
+      "title": "winter post office",
+      "category": "painted-club",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/painted-club/winter-post-office.webp",
+      "derivatives": [
+        "assets-source/library/painted-club/winter-post-office-320.webp",
+        "assets-source/library/painted-club/winter-post-office-640.webp"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Existing generated painted source, draft #525; original wave prompts retained",
+        "license": "Existing project rights unchanged; no new grant"
+      },
+      "accessibility": "Decorative empty alt; labels and actions are independent; SVG fallback retained",
+      "integration": "Source shelf only; no runtime activation",
+      "qa": {
+        "scope": "Hash-verified import; runtime and visual gates documented separately"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/painted-club/winter-post-office.webp",
+          "bytes": 1624210,
+          "sha256": "fed9401823f2f514de32f01cc6b79c0b483ab9eff91385513625a5e3a6ef6e30"
+        },
+        {
+          "path": "assets-source/library/painted-club/winter-post-office-320.webp",
+          "bytes": 24934,
+          "sha256": "2fa4947c804c14801f78108e56644da2c66301105c70e99de89c099c91519d3f"
+        },
+        {
+          "path": "assets-source/library/painted-club/winter-post-office-640.webp",
+          "bytes": 83128,
+          "sha256": "6854c7dfd7a49790dcfbebf376f3923b5d9b4188b248fb0bce687ec5110063e5"
+        }
+      ]
+    },
+    {
+      "id": "vector-lantern-pilot",
+      "title": "Tea beside the lantern table",
+      "category": "vector-pilot",
+      "status": "proposed",
+      "design": "original",
+      "source": "assets-source/library/vector-pilot/lantern-counter-vignette.svg",
+      "derivatives": [
+        "assets-source/library/vector-pilot/lantern-counter-vignette-preview.png",
+        "assets-source/library/vector-pilot/quality-02/lantern-counter-vignette-v2.svg",
+        "assets-source/library/vector-pilot/quality-02/lantern-counter-vignette-v2-preview.png"
+      ],
+      "provenance": {
+        "author": "Alibi project",
+        "method": "Original native SVG geometry; no raster embedding or tracing",
+        "license": "Project original; no separate public reuse grant"
+      },
+      "accessibility": "Complete static SVG; optional lifecycle-controlled motion in source review page",
+      "integration": "Source alternative only; excluded from runtime and precache",
+      "qa": {
+        "scope": "V1 retained below requested quality; V2 material study inspected in Chromium at 390 and 1440; art acceptance remains separate"
+      },
+      "files": [
+        {
+          "path": "assets-source/library/vector-pilot/lantern-counter-vignette.svg",
+          "bytes": 14935,
+          "sha256": "6dd8c4e370b3563c9effc0e0bfa36514f0c4aaa4ac3cb5661e064d9c56f6ebdc"
+        },
+        {
+          "path": "assets-source/library/vector-pilot/lantern-counter-vignette-preview.png",
+          "bytes": 170412,
+          "sha256": "2b570591d8714e5da54bed0e9ca9e2cf76baf168d56351e60819a3d486a2db01"
+        },
+        {
+          "path": "assets-source/library/vector-pilot/quality-02/lantern-counter-vignette-v2.svg",
+          "bytes": 34750,
+          "sha256": "1af0dd98e94878a19437b640ae4f20104f92444bd01f29fa47260f73461344e3"
+        },
+        {
+          "path": "assets-source/library/vector-pilot/quality-02/lantern-counter-vignette-v2-preview.png",
+          "bytes": 525499,
+          "sha256": "92fe70f3a3cdaf3fcc3483514e04a0236abcf97f6b6248f7545fafe00d7cc3cf"
+        }
+      ]
     },
     {
       "id": "boat",
@@ -10055,8 +10742,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/scene.png",
@@ -10088,8 +10775,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/sudoku.png",
@@ -10121,8 +10808,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/nonogram.png",
@@ -10154,8 +10841,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/binary.png",
@@ -10187,8 +10874,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/futoshiki.png",
@@ -10220,8 +10907,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/dossier.png",
@@ -10253,8 +10940,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/witness.png",
@@ -10286,8 +10973,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/lightup.png",
@@ -10319,8 +11006,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/tents.png",
@@ -10352,8 +11039,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/aquarium.png",
@@ -10385,8 +11072,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/network.png",
@@ -10418,8 +11105,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/trail.png",
@@ -10451,8 +11138,8 @@
       "files": [
         {
           "path": "src/app.js",
-          "bytes": 205581,
-          "sha256": "c43067356bbe9e744863e0277eb79c071269540fd6e3ed658ae2d4b7a0fa7849"
+          "bytes": 205834,
+          "sha256": "5ad4a799f119cff475388a915a592158a0b35056605a701297bc27697c21e407"
         },
         {
           "path": "assets-source/library/teaching/bridges.png",
