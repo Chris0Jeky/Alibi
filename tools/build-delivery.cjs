@@ -141,6 +141,12 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       !(Object.hasOwn(baseMedia, asset.fallback) || Object.hasOwn(fallback, asset.fallback))
     )
       throw Error('Invalid deferred image declaration');
+    const record = registry.assets.find(
+      (a) => a.source?.file === asset.file || a.derivative?.file === asset.file,
+    );
+    const rights = record?.rights?.licence || record?.source?.rights;
+    if (typeof rights !== 'string' || !rights.trim())
+      throw Error('Deferred image missing provenance/licence record: ' + asset.file);
     const file = fs.realpathSync(path.join(root, asset.file));
     if (!file.startsWith(fs.realpathSync(path.join(root, 'assets-source')) + path.sep))
       throw Error('Deferred image escaped source directory');
