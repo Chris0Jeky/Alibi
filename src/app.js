@@ -2271,7 +2271,17 @@
       ].filter(Boolean),
     };
     offerCabinetCopies(combined, cabinetSession, 'alibi-all-saves.json');
-    if (!cabinetSession) toast(warnings.join(' ') || 'Device saves exported.', warnings.length > 0);
+    const exported = manifest
+      .map(
+        (section) =>
+          ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing', castle: 'Castle' })[section],
+      )
+      .join(', ');
+    if (!cabinetSession)
+      toast(
+        `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
+        warnings.length > 0,
+      );
   }
   async function stageAll(file) {
     const serial = routeSerial;
