@@ -15,11 +15,7 @@ function binaryLines(size) {
     for (const value of [0, 1]) {
       const nextOnes = ones + value;
       if (nextOnes > half || nextOnes + remaining < half) continue;
-      if (
-        line.length >= 2 &&
-        line[line.length - 1] === value &&
-        line[line.length - 2] === value
-      )
+      if (line.length >= 2 && line[line.length - 1] === value && line[line.length - 2] === value)
         continue;
       line.push(value);
       visit(line, nextOnes);
@@ -64,11 +60,7 @@ function countBinary(puzzle, limit = 2) {
         let ones = line[col];
         for (let prior = 0; prior < row; prior++) ones += chosen[prior][col];
         if (ones > size / 2 || ones + (size - row - 1) < size / 2) valid = false;
-        if (
-          row >= 2 &&
-          chosen[row - 1][col] === line[col] &&
-          chosen[row - 2][col] === line[col]
-        )
+        if (row >= 2 && chosen[row - 1][col] === line[col] && chosen[row - 2][col] === line[col])
           valid = false;
       }
       if (!valid) continue;
@@ -125,9 +117,7 @@ function countFutoshiki(puzzle, limit = 2) {
     const col = cell % size;
     return range(size)
       .map((index) => index + 1)
-      .filter(
-        (value) => !rows[row].has(value) && !cols[col].has(value) && satisfies(cell, value),
-      );
+      .filter((value) => !rows[row].has(value) && !cols[col].has(value) && satisfies(cell, value));
   }
 
   function search() {

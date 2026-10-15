@@ -145,6 +145,10 @@
     refreshControls();
   }
   function refreshControls() {
+    if (reduced() || document.hidden) {
+      sound = false;
+      stopSound();
+    }
     document.querySelectorAll('[data-theatre-sound-status]').forEach((s) => {
       s.textContent = soundStatus;
     });
@@ -162,14 +166,6 @@
       b.textContent = local ? 'Painted edition' : 'Rich edition';
     });
     document.body.dataset.theatreStill = String(reduced() || document.hidden);
-    if (reduced() || document.hidden) {
-      sound = false;
-      stopSound();
-      document.querySelectorAll('[data-theatre-sound]').forEach((b) => {
-        b.textContent = 'Room sound off';
-        b.setAttribute('aria-pressed', 'false');
-      });
-    }
   }
   function attach(r = route, puzzle) {
     route = r;

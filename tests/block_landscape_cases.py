@@ -1,6 +1,39 @@
 """Phone landscape geometry and real control checks for the enhanced Block Cabinet."""
 from playwright.sync_api import expect
 
+_TOGGLE_DIAGNOSTICS = '''() => {
+    const studio = document.querySelector('.bc-studio');
+    const menu = document.querySelector('.bc-menu-toggle');
+    let motion = null;
+    try {
+        const api = globalThis.AlibiBlockMotion;
+        motion = api && typeof api.diagnostics === 'function' ? api.diagnostics() : null;
+    } catch (error) {
+        motion = { error: String(error && error.message || error) };
+    }
+    return {
+        bodyClass: document.body ? document.body.className : null,
+        studioClass: studio ? studio.className : null,
+        menuAriaExpanded: menu ? menu.getAttribute('aria-expanded') : null,
+        motion
+    };
+}'''
+
+
+def _record_toggle_diagnostics(failure, page, phase):
+    """Attach optional toggle context. Never replaces or masks failure."""
+    try:
+        try:
+            snapshot = page.evaluate(_TOGGLE_DIAGNOSTICS)
+        except Exception as diagnostic_error:
+            snapshot = {'diagnosticError': f'{type(diagnostic_error).__name__}: {diagnostic_error}'}
+        text = f'{failure}\nlandscape toggle diagnostics ({phase}): {snapshot}'
+        failure.args = (text,)
+        if isinstance(getattr(failure, 'message', None), str):
+            failure.message = text
+    except Exception:
+        return
+
 
 def check_landscape(page, isolated=False, screenshot=None):
     host = page.locator('.bc-host')
@@ -46,10 +79,18 @@ def check_landscape(page, isolated=False, screenshot=None):
     page.wait_for_function('(turn) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length > turn', arg=before)
     host.locator('[data-command="undo"]').click()
     page.wait_for_function('(turn) => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === turn', arg=before)
-    host.locator('.bc-menu-toggle').click()
-    expect(host.locator('.bc-aside')).to_be_visible()
-    host.locator('.bc-menu-toggle').click()
-    expect(host.locator('.bc-aside')).not_to_be_visible()
+    try:
+        host.locator('.bc-menu-toggle').click()
+        expect(host.locator('.bc-aside')).to_be_visible()
+    except Exception as failure:
+        _record_toggle_diagnostics(failure, page, 'menu open')
+        raise
+    try:
+        host.locator('.bc-menu-toggle').click()
+        expect(host.locator('.bc-aside')).not_to_be_visible()
+    except Exception as failure:
+        _record_toggle_diagnostics(failure, page, 'menu close')
+        raise
     host.locator('.bc-return').focus()
     page.keyboard.press('Tab')
     page.keyboard.press('Shift+Tab')

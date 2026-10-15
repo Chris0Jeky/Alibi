@@ -81,6 +81,7 @@ async function session(data = fresh(), raw = null, options = {}) {
       querySelector: () => null,
       querySelectorAll: () => [],
     },
+    ...options.context,
   };
   context.globalThis = context;
   vm.createContext(context);
@@ -89,6 +90,7 @@ async function session(data = fresh(), raw = null, options = {}) {
   const club = context.AlibiClub;
   await club.init({
     render() {},
+    navigate() {},
     all: () => [],
     records: () => [],
     settings: () => ({}),

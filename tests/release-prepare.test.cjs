@@ -78,3 +78,30 @@ test('only Windows symlink EPERM failures are tolerated', () => {
   );
   assert.equal(onlyHostSymlinkFailures('not ok 1 - sync rolls back\n', 'win32'), false);
 });
+
+test('a source archive uses a configured Pulseboard checkout without probing Alibi Git', (t) => {
+  const fs = require('node:fs'),
+    os = require('node:os'),
+    path = require('node:path'),
+    fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-release-lookup-')),
+    archive = path.join(fixture, 'archive'),
+    checkout = path.join(fixture, 'Pulseboard'),
+    previous = process.env.PULSEBOARD_REPO;
+  t.after(() => {
+    if (previous === undefined) delete process.env.PULSEBOARD_REPO;
+    else process.env.PULSEBOARD_REPO = previous;
+    fs.rmSync(fixture, { recursive: true, force: true });
+  });
+  fs.mkdirSync(path.join(archive, 'tools'), { recursive: true });
+  fs.mkdirSync(path.join(checkout, '.git'), { recursive: true });
+  fs.copyFileSync(
+    path.join(__dirname, '../tools/release-prepare.cjs'),
+    path.join(archive, 'tools/release-prepare.cjs'),
+  );
+  process.env.PULSEBOARD_REPO = checkout;
+  const { findPulseboard } = require(path.join(archive, 'tools/release-prepare.cjs'));
+  assert.equal(findPulseboard(), path.resolve(checkout));
+  delete process.env.PULSEBOARD_REPO;
+  assert.equal(findPulseboard(), path.resolve(checkout));
+  assert.throws(() => findPulseboard(archive), /Pulseboard checkout not found/);
+});
