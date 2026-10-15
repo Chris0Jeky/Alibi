@@ -927,3 +927,13 @@ body.block-motion-active .club-gameheading {
     margin-top: 22px;
   }
 }
+
+/* Five labelled Cascade actions need two rows on narrow phones. Keep this group
+   in normal dialog flow so the extra row cannot cover the selectable tray. */
+@media (max-width: 370px) {
+  body.block-motion-active .bc-modal .bc-controls {
+    position: static;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

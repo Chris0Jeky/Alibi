@@ -11,6 +11,16 @@ function load(root, catalogue) {
   const known = new Map(catalogue.puzzles.map((p) => [p.id, p]));
   const seen = new Set();
   const entries = notes.puzzles.map((n) => {
+    if (
+      typeof n !== 'object' ||
+      n === null ||
+      typeof n.provenance !== 'object' ||
+      n.provenance === null ||
+      Array.isArray(n.provenance) ||
+      (typeof n.difficultyStatus !== 'string' && !Array.isArray(n.difficultyStatus)) ||
+      !Array.isArray(n.hints)
+    )
+      throw Error('Invalid editorial: ' + (n?.id ?? n));
     if (seen.has(n.id) || known.get(n.id)?.type !== n.family)
       throw Error('Invalid editorial ID: ' + n.id);
     seen.add(n.id);

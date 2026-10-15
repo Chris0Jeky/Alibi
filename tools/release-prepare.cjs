@@ -97,20 +97,21 @@ function findPulseboard(explicit) {
     if (fs.existsSync(path.join(explicit, '.git'))) return path.resolve(explicit);
     throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
   }
-  const candidates = [
-    process.env.PULSEBOARD_REPO,
-    path.join(path.dirname(ROOT), 'Pulseboard'),
-    // A linked worktree lives below the main checkout; look beside that checkout too.
-    path.join(
+  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
+  let found = [process.env.PULSEBOARD_REPO, path.join(path.dirname(ROOT), 'Pulseboard')]
+    .filter(Boolean)
+    .find((c) => fs.existsSync(path.join(c, '.git')));
+  // Probe Alibi Git only when a configured or direct sibling checkout was not found.
+  if (!found) {
+    const candidate = path.join(
       path.dirname(
         run('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT }),
       ),
       '..',
       'Pulseboard',
-    ),
-  ].filter(Boolean);
-  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
-  const found = candidates.find((c) => fs.existsSync(path.join(c, '.git')));
+    );
+    if (fs.existsSync(path.join(candidate, '.git'))) found = candidate;
+  }
   if (!found)
     throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
   return path.resolve(found);

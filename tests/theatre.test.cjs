@@ -298,3 +298,55 @@ test('choose() follows the pinned, hero, casebook, wing and family precedence', 
     'unknown routes rest in the reading room',
   );
 });
+
+test('desk attribution links keep a 24px target, their href and a visible focus ring', () => {
+  const css = fs.readFileSync(path.join(root, 'src/theatre.css'), 'utf8');
+  const rule = css.match(
+    /\.theatre-stage \[data-adaptive-credit\],\s*\.club-hero \[data-adaptive-credit\] \{([^}]*)\}/,
+  );
+  assert.ok(rule, 'the shared credit rule still covers the desk hero and the stage');
+  const minHeight = rule[1].match(/min-height:\s*(\d+)px/);
+  assert.ok(minHeight && Number(minHeight[1]) >= 24, 'credit target is at least 24px tall');
+  assert.ok(/display:\s*flex/.test(rule[1]), 'min-height applies to the credit box');
+  assert.match(
+    css,
+    /\[data-adaptive-credit\]\[hidden\] \{[^}]*display:\s*none/,
+    'pre-enhancement credits stay hidden once display is set',
+  );
+  assert.match(
+    fs.readFileSync(path.join(root, 'src/app.css'), 'utf8'),
+    /a:focus-visible \{[^}]*outline:\s*3px solid #[0-9a-f]{6}/,
+    'keyboard focus keeps the shared visible ring over the artwork',
+  );
+  assert.ok(
+    !/\[data-adaptive-credit\][^{]*\{[^}]*outline:\s*(none|0)/.test(css),
+    'no credit rule suppresses the focus ring',
+  );
+  const theatre = theatreRealm({
+    scenes: [
+      {
+        id: 'reading-room',
+        title: 'Reading room',
+        subtitle: 'A quiet corner',
+        motif: 'book',
+        motion: 'rain',
+        families: [],
+        quiet: [],
+        art: 'room-art',
+        detail: 'room-detail',
+      },
+    ],
+    delivery: { 'room-detail': { credit: 'Photo source', source: 'https://example.invalid/p' } },
+    media: { 'room-art': 'art.png' },
+  });
+  assert.match(
+    theatre.room(),
+    /<a data-adaptive-credit hidden href="https:\/\/example\.invalid\/p" target="_blank" rel="noopener noreferrer">Photo source<\/a>/,
+    'the stage credit stays a real link to its source',
+  );
+  assert.match(
+    fs.readFileSync(path.join(root, 'src/club.js'), 'utf8'),
+    /<a data-adaptive-credit hidden href="\$\{esc\(root\.ALIBI_DELIVERY\?.*\?\.source\)\}" target="_blank" rel="noopener noreferrer">/,
+    'the desk hero credit stays a real link to its source',
+  );
+});

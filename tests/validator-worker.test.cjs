@@ -84,6 +84,47 @@ test('combined backup returns sanitized sections with unknown keys stripped', ()
   assert.deepEqual(norm(result.value.sections.cabinet.preferences.seen), ['scene']);
 });
 
+test('combined backup accepts the same sections in any manifest order', () => {
+  const { context, results } = loadWorker();
+  const combined = combinedBackup();
+  combined.manifest = ['club', 'cabinet'];
+  combined.sections = { club: combined.sections.club, cabinet: combined.sections.cabinet };
+  const result = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(combined),
+  });
+  assert.equal(result.ok, true, result.error);
+  assert.deepEqual(norm(result.value.manifest), ['club', 'cabinet']);
+});
+
+test('combined backup rejects unknown manifest keys', () => {
+  const { context, results } = loadWorker();
+  const unknownManifest = combinedBackup();
+  unknownManifest.manifest = ['cabinet', 'club', 'bogus'];
+  unknownManifest.sections.bogus = {};
+  const manifestResult = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(unknownManifest),
+  });
+  assert.equal(manifestResult.ok, false);
+  assert.equal(
+    manifestResult.error,
+    'Unknown combined backup. The file and all device saves are unchanged.',
+  );
+
+  const extraSection = combinedBackup();
+  extraSection.sections.bogus = {};
+  const sectionResult = send(context, results, {
+    type: 'combined-backup',
+    text: JSON.stringify(extraSection),
+  });
+  assert.equal(sectionResult.ok, false);
+  assert.equal(
+    sectionResult.error,
+    'Unknown combined backup. The file and all device saves are unchanged.',
+  );
+});
+
 test('cabinet text over 16 MB is rejected with the safety-limit message', () => {
   const { context, results } = loadWorker();
   const text = JSON.stringify(cabinetBackup()) + ' '.repeat(16 * 1024 * 1024 + 1);
@@ -127,3 +168,60 @@ test('valid combined, cabinet and club inputs return unchanged values', () => {
   assert.equal(clubResult.ok, true, clubResult.error);
   assert.deepEqual(norm(clubResult.value), club);
 });
+
+function officialWorkerFixture() {
+  const source = require('../tools/official-catalogue.cjs').load(process.cwd(), false);
+  const baseline = require('../content/curation/editorial/interlock-baseline.json');
+  const previous = baseline.packs.flatMap(
+    (file) => JSON.parse(fs.readFileSync('content/' + file)).puzzles,
+  );
+  return { source, previous };
+}
+
+test('compiled worker preserves every official ID in source order', () => {
+  const { context } = loadWorker();
+  const { source, previous } = officialWorkerFixture();
+  assert.deepEqual(norm(context.ALIBI_CATALOG), {
+    puzzles: source.puzzles.map((puzzle) => ({ id: puzzle.id })),
+  });
+  assert.equal(previous.length, 510);
+  assert.deepEqual(
+    norm(context.ALIBI_CATALOG.puzzles.slice(0, previous.length)),
+    previous.map((puzzle) => ({ id: puzzle.id })),
+  );
+});
+
+for (const type of ['cabinet-backup', 'combined-backup']) {
+  test(`${type} rejects old, initial and deferred official-ID collisions`, () => {
+    const { context, results } = loadWorker();
+    const { source } = officialWorkerFixture();
+    const ids = [
+      source.puzzles[0].id,
+      require('../content/extra/interlock-gardens.json').puzzles[0].id,
+      require('../content/extra/interlock-routes.json').puzzles[0].id,
+    ];
+    const sendPack = (id) => {
+      const puzzle = { ...source.puzzles[0], id };
+      const cabinet = cabinetBackup({
+        packs: [
+          {
+            schemaVersion: 1,
+            version: 1,
+            id: 'worker-contract-pack',
+            title: 'Worker contract',
+            puzzles: [puzzle],
+          },
+        ],
+      });
+      const value = type === 'cabinet-backup' ? cabinet : combinedBackup({ cabinet });
+      return send(context, results, { type, text: JSON.stringify(value) });
+    };
+    const valid = sendPack('worker-contract-custom');
+    assert.equal(valid.ok, true, valid.error);
+    for (const id of ids) {
+      const result = sendPack(id);
+      assert.equal(result.ok, false, id);
+      assert.equal(result.error, 'A custom pack collides with the starter catalogue.', id);
+    }
+  });
+}

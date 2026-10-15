@@ -143,7 +143,16 @@
   }
 
   function sameDefinition(left, right) {
-    return !!left && !!right && stable(left) === stable(right);
+    // A pending or failed Vault chunk leaves a listing: no solution, and its public fields are
+    // scalars. A loaded definition still has to match exactly, including its body.
+    return (
+      !!left &&
+      !!right &&
+      (stable(left) === stable(right) ||
+        (!right.solution &&
+          right.id &&
+          Object.keys(right).every((key) => left[key] === right[key])))
+    );
   }
 
   function dateMarker(value) {
