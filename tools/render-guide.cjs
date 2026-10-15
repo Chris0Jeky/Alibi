@@ -9,6 +9,12 @@ const R = path.resolve(__dirname, '..'),
       /[&<>"']/g,
       (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
     );
+function link(_, text, url) {
+  const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(url);
+  if (scheme && scheme[1].toLowerCase() !== 'http' && scheme[1].toLowerCase() !== 'https')
+    return text;
+  return '<a href="' + url + '">' + text + '</a>';
+}
 function inline(s) {
   let stash = [];
   s = s.replace(
@@ -17,7 +23,7 @@ function inline(s) {
   );
   s = esc(s)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\[([^\]]+)\]\(([^\s)]+)\)/g, '<a href="$2">$1</a>');
+    .replace(/\[([^\]]+)\]\(([^\s)]+)\)/g, link);
   if (/^https:\/\/\S+$/.test(s)) s = '<a href="' + s + '">' + s + '</a>';
   return s.replace(/@@CODE(\d+)@@/g, (_, i) => stash[Number(i)]);
 }
@@ -123,4 +129,4 @@ function renderGuide() {
   return html;
 }
 if (require.main === module) renderGuide();
-module.exports = { renderGuide };
+module.exports = { renderGuide, inline };
