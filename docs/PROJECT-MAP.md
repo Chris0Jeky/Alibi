@@ -43,7 +43,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 570 puzzles across 32 bounded packs (26 initial, 6 deferred); the bundled total is `build-info.json` `puzzles` |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 570 puzzles across 32 bounded packs (23 initial, 9 deferred via its `deferred` list); the bundled total is `build-info.json` `puzzles` and the deferred count `deferredPuzzles` |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |

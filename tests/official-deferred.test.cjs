@@ -32,6 +32,17 @@ function startup(extra = {}) {
   return context;
 }
 
+test('the owner-directed 2026-10-15 study packs stay deferred', () => {
+  // #427 owner decision: advanced study packs load after startup to keep startup headroom.
+  for (const file of [
+    'extra/interlock-routes.json',
+    'extra/interlock-gardens.json',
+    'extra/expert-families.json',
+    'extra/master-grandmaster-studies.json',
+  ])
+    assert.ok(registry.deferred.includes(file), `${file} is deferred`);
+});
+
 test('one registry list controls partitioning without changing the full catalogue', () => {
   for (const file of registry.deferred) assert.ok(registry.packs.includes(file));
   const { catalog, deferred: keys } = partition(root, false);

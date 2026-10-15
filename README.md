@@ -33,7 +33,7 @@ The point is a calm place to deduce something, leave, and come back to the same 
 
 ## Features
 
-Counts below are the trusted registry in `content/official-packs.json`: 32 packs, 570 puzzles. Four Vault packs, six advanced Crime Scene variations and 36 Interlock routes (122 puzzles) are deferred and loaded after startup from a precached file. The other 448 are in the initial bundle. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
+Counts below are the trusted registry in `content/official-packs.json`: 32 packs, 570 puzzles. Nine packs listed in its `deferred` list (167 puzzles: the Vault packs, advanced Crime Scene variations, Interlock routes and gardens, Expert Families and Master/Grandmaster studies) load after startup from a precached file; the other 403 are in the initial bundle. `build-info.json` `deferredPuzzles` reports the current split, and [docs/content/DELIVERY.md](docs/content/DELIVERY.md) shows how to defer a pack. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
 
 ### Thirteen families
 
