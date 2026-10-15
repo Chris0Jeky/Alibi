@@ -1,5 +1,65 @@
 # Live development state
 
+## 2026-10-15: #427 source-preview legacy-storage regression
+
+Compared generated house previews at base `5966611b` and head `8af04097`: the
+merged legacy-recovery change adds `Store.legacySnapshot()` and `legacyBanner()`.
+Both versions already await storage initialization before rendering. The source
+preview reads all definitions directly and does not consume `dist/` or the deferred
+delivery graph, so this is not a deferred-chunk startup-order change. The reported
+failure at `72d5dfd9` is not explained by its diff: its preview generator and runtime
+source inputs are unchanged from `5966611b`.
+
+`tools/preview-house.cjs` now gives only an opaque `about:` document an empty legacy
+inventory: that explicit source fixture has no saved origin to inspect. It retains
+session-only storage warnings, initialization order and real-origin recovery probes;
+HTTPS, file URLs and about:blank documents inheriting a real origin retain failures.
+Production storage and app source are unchanged. At 320x844, the repaired preview
+matches the base: resume y=327.39, Play y=449.23 (previous head Play y=571.23).
+
+Local proof: web build passes; source-preview mobile/navigation suites pass 250/79
+checks. House, budget, official-deferred, delivery-build, platform-build and
+legacy-recovery suites pass 65 tests. The preview regression failed before the fix
+and now covers denied storage with opaque, HTTPS, file and inherited origins. A
+browser on a simulated HTTPS origin still shows the denied-storage banner and export
+control (commit c463e220). Hosted CI and physical-device
+acceptance are not claimed; owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-15: Interlock deferral and owner-authorized budget headroom (#427)
+
+The owner authorized both deferral and higher reasonable caps. Both Interlock packs, Expert
+Families and Master/Grandmaster now use the existing declarative `official-packs.json` list:
+570 unchanged definitions in source order, 403 initial and 167 deferred across nine packs.
+Initial gzip measures 200,827 bytes, 4,421 below the old 205,248 cap; the new cap is 225,280.
+Deferred gzip measures 21,266 against the new 32,768 cap (old 12,288). JS/shell caps are unchanged.
+Optional WebP declarations join the existing verified asset-delivery path and byte receipt.
+Author instructions and cap rationale: [DELIVERY.md](content/DELIVERY.md) and
+[INTERLOCK-STUDIES.md](content/INTERLOCK-STUDIES.md). Committed in 72d5dfd9; `npm run verify` passed
+1,568 tests at 05fd9f45. Hosted and physical-device acceptance are tracked separately.
+Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Local evidence: 53 focused content/accounting/worker tests and 17 optional-image/budget tests
+pass; nine Interlock registry-selection tests pass. All 60 studies pass 720 real-origin checks
+at 390/1440px, including save/reopen/offline reload; representative screenshots inspected.
+The complete Node unit script reports 1,530 passes, 12 Android clean-source/artifact prerequisite
+failures and three skips. Quiet Wing suites pass 581,856/43 assertions separately. Formatting and
+diff checks pass. `npm test`/`npm run verify` cannot pass while this tree is intentionally
+uncommitted: Android refuses dirty source, and the normal pretest requires matching clean web
+and Android artifacts. Guards remain intact; driver review/commit then `npm.cmd run verify` is
+the exact resume point. GitHub authentication is unavailable (HTTP 401); no hosted CI claim.
+
+## 2026-10-15: Interlock studies merged with current main (#427), budget still blocked
+
+Interlock candidate #427 is merged with main `abb0be0a`: the 60 definitions/editorial receipts are
+unchanged, the registry now defers the four Vault packs, the crime-scene variations and Interlock Routes
+(570 puzzles, 32 packs, 448 initial and 122 deferred), and the exact official-byte accounting replaces the
+double subtraction. On the merged tree the shell (1,406,586) and JavaScript (133,778 gzip) fit their
+unchanged ceilings, but two existing ceilings are exceeded: initial code/content measures 205,708 gzip
+bytes against 205,248 (460 over), and the deferred official chunk measures 14,633 gzip bytes against
+12 KiB (main alone measures 11,490, so Interlock Routes' 36 puzzles do not fit). No ceiling is raised and
+no pack is deferred beyond Routes without an owner budget decision, still tracked under #422.
+Full verify, Android, real-control and hosted browser acceptance are not claimed.
+
 ## 2026-10-14: a held Enter leaves a clue check and a favorite in place
 
 Holding Enter on a clue or a favorite checked it, and the key repeat removed it. A separate later press still removes the check or the favorite. Cell notes, number keys, board size, pause, and the held digit guard are unchanged.
