@@ -797,6 +797,24 @@ broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
 CI remains pending; physical-device acceptance is separate.
 Inactive catalogue refreshes remain paused until reload while the error persists.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: authoritative Cabinet backup candidate (#602)
+
+Candidate, not a release: acknowledged full-row snapshots keep clean cached runs
+from replacing the committed export. Dirty active, inactive and local-only edits
+remain recoverable; different committed and session copies get explicit download
+choices in normal and combined exports. Restores retain revisions, so matching
+only revision numbers would be unsafe.
+On source `602fc9e33fe37b45f425ec3844d41592aa28598d`, clean web build
+`e2ad9f4d552a` passed the unchanged shell budget (1,412,777 bytes against
+1,412,792.32), 16 export/broadcast source cases, 187 focused real-origin
+checks and 184 UI checks. Phone/desktop scenarios download the actual device
+and session files and restore each into isolated profiles. Fresh reviews found
+no HIGH/CRITICAL defect; pre-existing dirty inactive broadcast replacement is
+tracked in #619. Merged with main `abb0be0a` on 2026-10-15: the code/shell
+measure is now 1,408,464 bytes against the unchanged 1,412,792.32 ceiling (main's
+worker compaction restored the room; no ceiling change). The completion-hook
+source fixture gained the `acked` map `enqueueSave` now writes, and asserts it.
+Hosted results are recorded on the PR. No physical Android/TalkBack or deployment acceptance is inferred.
 
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
@@ -809,6 +827,23 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: older browser data discovery candidate (#603 / PR #618)
+
+The read-only raw `alibi.v1.*` inventory and separate recovery export preserve
+malformed, empty, unknown and colliding strings without migration or deletion.
+Healthy IndexedDB remains authoritative. The export action re-reads storage and
+refuses incomplete snapshots, including changing key sets. All 33 focused source
+cases pass. Clean candidate `068c263d`, web `bd95b000813f`, passed 33 actual-origin
+checks at 390/1280 and all 184 UI checks with zero uncaught errors; both recovery
+layouts were inspected. Fresh independent reviews found no HIGH/CRITICAL defects.
+Fallback warning clarity is tracked in #620.
+
+**Budget gate (re-measured 2026-10-15):** merged with main `abb0be0a`, the web build measures
+code/shell 1,409,106 bytes against the unchanged 1,412,792.32 ceiling and 203,927 initial gzip bytes
+against 205,248; main's worker compaction removed the 502-byte excess. `npm run verify` passes
+(1,536 passed, three intentional skips). Hosted results are on the PR.
+This is candidate proof, not a release or physical-device acceptance.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
 
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
