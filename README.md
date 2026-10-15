@@ -33,7 +33,7 @@ The point is a calm place to deduce something, leave, and come back to the same 
 
 ## Features
 
-Counts below are the trusted registry in `content/official-packs.json`: 30 packs, 510 puzzles. Four Vault packs and six advanced Crime Scene variations (86 puzzles) are deferred and loaded after startup from a precached file. The other 424 are in the initial bundle. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
+Counts below are the trusted registry in `content/official-packs.json`: 32 packs, 570 puzzles. Nine packs listed in its `deferred` list (167 puzzles: the Vault packs, advanced Crime Scene variations, Interlock routes and gardens, Expert Families and Master/Grandmaster studies) load after startup from a precached file; the other 403 are in the initial bundle. `build-info.json` `deferredPuzzles` reports the current split, and [docs/content/DELIVERY.md](docs/content/DELIVERY.md) shows how to defer a pack. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
 
 ### Thirteen families
 
@@ -41,22 +41,22 @@ Player names come from `src/presentation.js`. Engines live in `src/core.js` (cri
 
 | Family | Id | Puzzles |
 | --- | --- | ---: |
-| Tidal bridges | `bridges` | 32 |
+| Tidal bridges | `bridges` | 44 |
 | Crime scenes | `scene` | 43 |
 | Alibi files | `dossier` | 29 |
 | Witness statements | `witness` | 31 |
 | Picture logic | `nonogram` | 40 |
 | Lanterns | `lightup` | 52 |
-| Tents & trees | `tents` | 32 |
-| Aquariums | `aquarium` | 32 |
-| Signal paths | `network` | 32 |
-| Number trails | `trail` | 32 |
+| Tents & trees | `tents` | 44 |
+| Aquariums | `aquarium` | 44 |
+| Signal paths | `network` | 44 |
+| Number trails | `trail` | 44 |
 | Sudoku | `sudoku` | 49 |
 | Sun & moon | `binary` | 55 |
 | Futoshiki | `futoshiki` | 51 |
-| **Total** | | **510** |
+| **Total** | | **570** |
 
-Inside that 510: thirteen 16-puzzle curation packs (208), the night studies, six 15×15 picture-logic studies, and the 80 Vault studies. Difficulty labels are provisional until player ratings and solve data say otherwise ([calibration](docs/CALIBRATION.md)). Hints in `src/insights.js` reason from the clues and the current board. They do not read `solution`. An explicit reveal is a separate, labeled action.
+Inside that 570: thirteen 16-puzzle curation packs (208), the night studies, six 15×15 picture-logic studies, the 80 Vault studies, and the 60 Interlock studies (24 Gardens, 36 Routes). Difficulty labels are provisional until player ratings and solve data say otherwise ([calibration](docs/CALIBRATION.md)). Hints in `src/insights.js` reason from the clues and the current board. They do not read `solution`. An explicit reveal is a separate, labeled action.
 
 ### Casebooks
 
@@ -72,7 +72,7 @@ Inside that 510: thirteen 16-puzzle curation packs (208), the night studies, six
 
 ### Quiet Wing, rooms, and workshop
 
-Quiet Wing (`src/activities.js`, `src/quiet-wing/`) is optional and loaded when you enter it: a realm builder, four companions (cat, fox, owl, dragon), gardens, and 95 release-owned challenges in `content/challenges/`. Those challenges are not part of the 510. The Curation Cabinet’s editorial layer is the 208-puzzle subset above, not a second app.
+Quiet Wing (`src/activities.js`, `src/quiet-wing/`) is optional and loaded when you enter it: a realm builder, four companions (cat, fox, owl, dragon), gardens, and 95 release-owned challenges in `content/challenges/`. Those challenges are not part of the 570. The Curation Cabinet’s editorial layer is the 208-puzzle subset above, not a second app.
 
 `content/theatre.json` defines eight atmospheric rooms and four short films. Room sound and films are extras; the puzzles still run without them. See [theatrical edition](docs/THEATRICAL-EDITION.md) and [asset delivery](docs/ASSET-DELIVERY.md).
 
@@ -192,7 +192,7 @@ The main CI workflow is [Verify puzzle cabinet](.github/workflows/check.yml) (No
 
 ## Status and roadmap
 
-**Shipped in source at 0.15.2.** Thirteen families, 510 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms. Source/build, Cloudflare publication, public-file, and same-origin save/update receipts are tracked in the [0.15.2 release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md).
+**Shipped in source at 0.15.2.** Thirteen families, 570 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms. Source/build, Cloudflare publication, public-file, and same-origin save/update receipts are tracked in the [0.15.2 release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md).
 
 **Sites.** Owner decision 2026-09-27: retire `https://alibi-puzzle-club.jeky-tck.chatgpt.site/` with one deployment that shows a moved notice and an export path. That deployment is still open ([HUMAN_TODO.md](HUMAN_TODO.md) q-9). On 12 October 2026 that origin returned HTTP 200 and its platform identity reported `appVersion` 0.12.0. Current `src/boot.js` shows “Alibi has moved” only when the page is opened on that Sites host, so the notice is not in the 0.12.0 shell. Nothing redirects, and nothing deletes the saves that live there.
 

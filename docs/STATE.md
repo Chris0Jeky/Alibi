@@ -1,5 +1,173 @@
 # Live development state
 
+## 2026-10-15: #678 deferred WebP provenance guard
+
+`tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
+matches a source or derivative in the existing `assets-source/curation/registry.json`
+with nonempty `rights.licence` or `source.rights`. The error names the missing file;
+the delivery authoring guide documents the enforced requirement.
+
+Test-first proof: the new regression failed with `Missing expected exception`
+before the guard. It now rejects missing records, unrelated files and missing rights,
+and accepts both source-rights and derivative-licence records. The delivery-build
+suite grows from 2 to 3 tests; delivery-build, budget and official-deferred together
+grow from 14 to 15 passing tests. `npm.cmd run build` and `npm.cmd run format:check`
+pass. Output retains 570 puzzles, 302 files and 3,384,920 enhancement bytes.
+No commit, push, hosted verification or physical-device acceptance is claimed;
+owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-15: survey v2 edit revisions (#680; PR #681 review fixes)
+
+`feat/voices-survey-v2-680` sends `pulseboard.survey/2` for surveys and ratings.
+Per-respondent, survey and subject counters persist before queueing under a cross-tab
+Web Lock. Deliberate edits increment;
+retries retain their exact revision. Older enqueues cannot displace newer edits, including
+after queue removal. Legacy queued v1 answers migrate to revision 1 before sending.
+202 updated/duplicate/stale finish delivery; 409 conflicts drop with the existing refusal
+note. Missing durable counter storage/Web Locks and counter exhaustion refuse new answers.
+Feedback retains its existing memory fallback and retry rules.
+
+PR #681's one review fix round catches rejected Web Locks. Surveys and ratings visibly
+refuse writes without an acquired lock, preserving cross-tab revision ordering; feedback
+retains its memory-only delivery and retry fallback. Queued surveys wait until locking
+recovers. The rating tap chain catches failures so later rating and heart taps can retry.
+A queued v2 item without a revision counts as revision 0 when allocating the next edit.
+
+Six new Node regressions failed before the fixes. Queue tests increase from 40 to 44;
+the selected Voices and budget tests increase from 67 to 73, all passing. The intercepted
+browser suite increases from 140 to 151 assertions, all passing, including rejected-lock
+survey submission, a refused rating followed by a successful tap, subsequent heart taps,
+and feedback with both locks and Voices storage blocked. No unhandled page errors.
+The local web build reports sourceDirty true; build, budget and format checks pass.
+Review-round Voices raw bytes: 20,424 -> 20,476 (+52), below 20,480 with 4 bytes left.
+Gzip: 8,885 -> 8,930 (+45), below 9,216. Startup gzip: 204,197 -> 204,195 (-2),
+below 205,248. No budget changed.
+
+Initial implementation evidence: seven new regression cases failed against v1, while the existing
+202 handling already passed. Queue tests increased from 29 to 40; the complete relevant
+Voices and budget selection passes 67 tests. Rapid rating/heart edits and re-enqueue after
+a newer answer drains each failed before their fixes. The intercepted Voices browser suite
+passes 140 assertions, including real Web Locks across two tabs, real localStorage and reload.
+Phone (390px) survey and desktop feedback screenshots were inspected. The real-origin
+storage/offline suite passes 599 checks in disposable profiles. These are browser proofs,
+not hosted collector or physical-device acceptance.
+
+The initial implementation's local web build reported sourceDirty true. Voices raw bytes:
+20,048 -> 20,424 (+376), below 20,480; gzip: 8,659 -> 8,885 (+226), below 9,216.
+Startup gzip: 204,191 -> 204,194 (+3), below 205,248. No budget changed. Repeated UI
+explanations were shortened to fit the existing deferred-chunk ceiling.
+
+Initial wider checks (not repeated for this review round): `npm test` stops at its clean-source artifact preflight;
+`npm run build:android` likewise refuses an uncommitted tree. The test body run separately
+with `npm run test --ignore-scripts` reports 1,563 tests: 1,553 pass, 3 skip and 7 fail.
+All seven failures are the unchanged Android clean-source requirement in
+`tests/android-build.test.cjs`: generated artifact contract; shared content revision;
+native flavor substitution; runtime/metadata tampering; deterministic derivation;
+bundled-file tampering; source/content provenance tampering. Quiet Wing engines pass
+581,856 assertions and contracts pass 43 assertions when run separately.
+
+This review round leaves source, tests and these notes uncommitted and unpushed, as requested;
+the driver owns commits. No deployment or physical-device claim is made. After coordinator
+integration, the remaining artifact gate is a clean-source Android build and ordinary
+`npm test`. Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md), including physical
+Android/TalkBack acceptance; this change closes none of those items.
+
+## 2026-10-15: #427 source-preview legacy-storage regression
+
+Compared generated house previews at base `5966611b` and head `8af04097`: the
+merged legacy-recovery change adds `Store.legacySnapshot()` and `legacyBanner()`.
+Both versions already await storage initialization before rendering. The source
+preview reads all definitions directly and does not consume `dist/` or the deferred
+delivery graph, so this is not a deferred-chunk startup-order change. The reported
+failure at `72d5dfd9` is not explained by its diff: its preview generator and runtime
+source inputs are unchanged from `5966611b`.
+
+`tools/preview-house.cjs` now gives only an opaque `about:` document an empty legacy
+inventory: that explicit source fixture has no saved origin to inspect. It retains
+session-only storage warnings, initialization order and real-origin recovery probes;
+HTTPS, file URLs and about:blank documents inheriting a real origin retain failures.
+Production storage and app source are unchanged. At 320x844, the repaired preview
+matches the base: resume y=327.39, Play y=449.23 (previous head Play y=571.23).
+
+Local proof: web build passes; source-preview mobile/navigation suites pass 250/79
+checks. House, budget, official-deferred, delivery-build, platform-build and
+legacy-recovery suites pass 65 tests. The preview regression failed before the fix
+and now covers denied storage with opaque, HTTPS, file and inherited origins. A
+browser on a simulated HTTPS origin still shows the denied-storage banner and export
+control (commit c463e220). Hosted CI and physical-device
+acceptance are not claimed; owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+## 2026-10-15: Interlock deferral and owner-authorized budget headroom (#427)
+
+The owner authorized both deferral and higher reasonable caps. Both Interlock packs, Expert
+Families and Master/Grandmaster now use the existing declarative `official-packs.json` list:
+570 unchanged definitions in source order, 403 initial and 167 deferred across nine packs.
+Initial gzip measures 200,827 bytes, 4,421 below the old 205,248 cap; the new cap is 225,280.
+Deferred gzip measures 21,266 against the new 32,768 cap (old 12,288). JS/shell caps are unchanged.
+Optional WebP declarations join the existing verified asset-delivery path and byte receipt.
+Author instructions and cap rationale: [DELIVERY.md](content/DELIVERY.md) and
+[INTERLOCK-STUDIES.md](content/INTERLOCK-STUDIES.md). Committed in 72d5dfd9; `npm run verify` passed
+1,568 tests at 05fd9f45. Hosted and physical-device acceptance are tracked separately.
+Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Local evidence: 53 focused content/accounting/worker tests and 17 optional-image/budget tests
+pass; nine Interlock registry-selection tests pass. All 60 studies pass 720 real-origin checks
+at 390/1440px, including save/reopen/offline reload; representative screenshots inspected.
+The complete Node unit script reports 1,530 passes, 12 Android clean-source/artifact prerequisite
+failures and three skips. Quiet Wing suites pass 581,856/43 assertions separately. Formatting and
+diff checks pass. `npm test`/`npm run verify` cannot pass while this tree is intentionally
+uncommitted: Android refuses dirty source, and the normal pretest requires matching clean web
+and Android artifacts. Guards remain intact; driver review/commit then `npm.cmd run verify` is
+the exact resume point. GitHub authentication is unavailable (HTTP 401); no hosted CI claim.
+
+## 2026-10-15: Interlock studies merged with current main (#427), budget still blocked
+
+Interlock candidate #427 is merged with main `abb0be0a`: the 60 definitions/editorial receipts are
+unchanged, the registry now defers the four Vault packs, the crime-scene variations and Interlock Routes
+(570 puzzles, 32 packs, 448 initial and 122 deferred), and the exact official-byte accounting replaces the
+double subtraction. On the merged tree the shell (1,406,586) and JavaScript (133,778 gzip) fit their
+unchanged ceilings, but two existing ceilings are exceeded: initial code/content measures 205,708 gzip
+bytes against 205,248 (460 over), and the deferred official chunk measures 14,633 gzip bytes against
+12 KiB (main alone measures 11,490, so Interlock Routes' 36 puzzles do not fit). No ceiling is raised and
+no pack is deferred beyond Routes without an owner budget decision, still tracked under #422.
+Full verify, Android, real-control and hosted browser acceptance are not claimed.
+
+## 2026-10-14: a held Enter leaves a clue check and a favorite in place
+
+Holding Enter on a clue or a favorite checked it, and the key repeat removed it. A separate later press still removes the check or the favorite. Cell notes, number keys, board size, pause, and the held digit guard are unchanged.
+
+An isolated page checked the first scene clue, favorited the first listed puzzle, and checked the first mobile clue. Each repeat left that choice in place, and the next press removed it. The same build still leaves a repeated Enter on Cell notes, a number key, board size, and pause in place. No page errors. The asset catalogue records `src/app.js` at 208,521 bytes, sha256 `8ecfaff2c216fd5eb196ddca0cc84a4e6f4f8d1a9085734794d86fae45205b4a`. `tests/budget.test.cjs` passed on local web build `4535d53c9536` at 203,491 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,781. The measured sourceSha was still `73589add` because this edit was uncommitted. sourceDirty true. Payload `9f89dfc81e1adb1158e7237dcc8c1a05d360f052113cabaa61e6b48b61018dc4`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: held Enter and a held digit both leave a cell note
+
+This merge keeps the Enter guards and the held-digit guard. A repeated Enter on number key 1 leaves note 1. A repeated digit key 1 also leaves note 1. A later press removes it. Zoom, pause, and Cell notes stay on when Enter repeats.
+
+The combined desktop page showed each repeat leaving the note, the enlarged board, and the pause in place. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,425 bytes, sha256 `e9f8f80b553d6b0d6bf06037c27277f95374ff58777393896adf1b1db1584444`. `tests/budget.test.cjs` passed on the combined local web build `9dcabedacc9e` at 203,471 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,764. The measured sourceSha was still `c6807ad8` because the merge was uncommitted. sourceDirty true. Payload `e4abca030f0fd8ed9fcca6b4cf2c3fff1f5009301437db44c8f1e9a3261db3b0`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves a cell note in place
+
+Holding Enter on number key 1 adds that note once. A later press still removes it. Enlarge board, Pause, and Cell notes still stay on when Enter repeats.
+
+An isolated desktop page showed the old behavior first: the first Enter added note 1 and the repeat removed it. After the change, the repeat leaves note 1 and the next press removes it. Zoom, pause, Cell notes, number key 2, and the phone page still pass. A repeated N leaves notes on. The September page was not re-run for this commit. The asset catalogue records the combined `src/app.js` at 208,323 bytes, sha256 `33a0553ba7e4adfc10517c6d42c25f6bc37216f59b474fbfbab422b60d1c2680`. `tests/budget.test.cjs` passed on the combined local web build `9e03d02ac628` at 203,465 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,756. The measured sourceSha was still `34a63681` because the edit was uncommitted. sourceDirty true. Payload `30318f2e86d18eb3a913d90d65569e324de5b97e78029ecc0dbf28ec67516730`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves zoom and pause in place
+
+Holding Enter on Enlarge board enlarges the board once. Holding Enter on Pause pauses once. A later press still returns the board to its previous size or resumes. Cell notes still stay on when Enter repeats, and a later press still turns them off. This merge keeps the held-N guard.
+
+An isolated desktop page showed the old zoom and pause behavior first: the first Enter changed the control and the repeat changed it back. After the change, a repeated Enter leaves the board enlarged and paused, and a later press restores the normal size and resumes. Cell notes, number key 2, and the phone page still keep focus. A repeated N leaves notes on. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,265 bytes, sha256 `cce0dee6da557d448b8de8908ade4c90a97d3ba57de2b5d3e2405f7be9d5feff`. `tests/budget.test.cjs` passed on the combined local web build `9dfedfd46063` at 203,454 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. JavaScript gzip is 133,748. The measured sourceSha was still `2307147e` because the merge was uncommitted. sourceDirty true. Payload `ebfb42addfa9e63d8dad83ae2dbe790cd463a3b1f0038810bb80d3bd3b24f350`. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: a held Enter leaves Cell notes on
+
+Holding Enter on the focused Cell notes button turns notes on once. A later press still turns them off. Pressing N still toggles notes.
+
+An isolated desktop page showed the old behavior first: the first Enter turned notes on and the repeat turned them off. After the change, the repeat leaves notes on and the next press turns them off. Cell notes and number key 2 stay focused, including a 390px page. Removing a favorite returns focus to the page. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 208,086 bytes, sha256 `da4da22649c39839374d02a23410c697ea0e8de25e1a3f9a38746e0617a8d1da`. `tests/budget.test.cjs` passed on the combined local web build `e654623a050e` at 203,443 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
+## 2026-10-14: tool buttons keep focus when the board redraws
+
+A play control without an id stays focused when the board redraws. Cell notes and a number key are two of those controls. Pressing N still toggles cell notes. Placing a digit still changes the selected square. This merge keeps the Escape, restore, and voices focus guards.
+
+An isolated desktop page showed the old behavior first: after N, focus moved to the page body. After the change, Cell notes stays focused on that desktop page and on a 390px phone page. Number key 2 stays focused after digit 1 is placed. A favorite button is matched by its puzzle id. Removing it from the favorites list returns focus to the page. The next favorite stays on the list. The September feedback page passed at 390px and 1440px. The asset catalogue records the combined `src/app.js` at 207,800 bytes, sha256 `4665d4c6383145b536f42101c2e70e0a5b044947a5d3eeeb7aa261dd82ea9cee`. `tests/budget.test.cjs` passed on the combined local web build `482d954a3476` at 203,413 initial gzip bytes, under the existing 205,248 ceiling. The voices chunk is 20,048 bytes. That build was dirty and is not a hosted measurement. Physical devices remain in HUMAN_TODO.md.
+
 ## 2026-10-14: a held digit leaves a cell note in place
 
 Holding a digit while Cell notes are on added that candidate, and the key repeat removed it. A separate later press still adds or removes the candidate. A placed digit, arrows, and Escape are unchanged. This merge keeps the held-N, Escape, restore, and voices focus guards.
@@ -726,6 +894,24 @@ broadcasts, with no page errors. Both recovery layouts were inspected. Hosted
 CI remains pending; physical-device acceptance is separate.
 Inactive catalogue refreshes remain paused until reload while the error persists.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: authoritative Cabinet backup candidate (#602)
+
+Candidate, not a release: acknowledged full-row snapshots keep clean cached runs
+from replacing the committed export. Dirty active, inactive and local-only edits
+remain recoverable; different committed and session copies get explicit download
+choices in normal and combined exports. Restores retain revisions, so matching
+only revision numbers would be unsafe.
+On source `602fc9e33fe37b45f425ec3844d41592aa28598d`, clean web build
+`e2ad9f4d552a` passed the unchanged shell budget (1,412,777 bytes against
+1,412,792.32), 16 export/broadcast source cases, 187 focused real-origin
+checks and 184 UI checks. Phone/desktop scenarios download the actual device
+and session files and restore each into isolated profiles. Fresh reviews found
+no HIGH/CRITICAL defect; pre-existing dirty inactive broadcast replacement is
+tracked in #619. Merged with main `abb0be0a` on 2026-10-15: the code/shell
+measure is now 1,408,464 bytes against the unchanged 1,412,792.32 ceiling (main's
+worker compaction restored the room; no ceiling change). The completion-hook
+source fixture gained the `acked` map `enqueueSave` now writes, and asserts it.
+Hosted results are recorded on the PR. No physical Android/TalkBack or deployment acceptance is inferred.
 
 ## 2026-10-11: Lantern Duel credential host binding (#605)
 
@@ -738,6 +924,23 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: older browser data discovery candidate (#603 / PR #618)
+
+The read-only raw `alibi.v1.*` inventory and separate recovery export preserve
+malformed, empty, unknown and colliding strings without migration or deletion.
+Healthy IndexedDB remains authoritative. The export action re-reads storage and
+refuses incomplete snapshots, including changing key sets. All 33 focused source
+cases pass. Clean candidate `068c263d`, web `bd95b000813f`, passed 33 actual-origin
+checks at 390/1280 and all 184 UI checks with zero uncaught errors; both recovery
+layouts were inspected. Fresh independent reviews found no HIGH/CRITICAL defects.
+Fallback warning clarity is tracked in #620.
+
+**Budget gate (re-measured 2026-10-15):** merged with main `abb0be0a`, the web build measures
+code/shell 1,409,106 bytes against the unchanged 1,412,792.32 ceiling and 203,927 initial gzip bytes
+against 205,248; main's worker compaction removed the 502-byte excess. `npm run verify` passes
+(1,536 passed, three intentional skips). Hosted results are on the PR.
+This is candidate proof, not a release or physical-device acceptance.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
 
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 

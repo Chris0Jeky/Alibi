@@ -5,6 +5,109 @@ const fs = require('node:fs'),
   crypto = require('node:crypto');
 const buildDelivery = require('../tools/build-delivery.cjs');
 const root = path.resolve(__dirname, '..');
+test('one policy declaration emits a deferred image through existing delivery and byte receipts', () => {
+  const fixture = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'alibi-image-policy-'));
+  try {
+    for (const dir of ['content', 'assets-source/curation', 'dist/assets'])
+      fs.mkdirSync(path.join(fixture, dir), { recursive: true });
+    const data = Buffer.from('declared image fixture');
+    const asset = {
+      id: 'future-study-art',
+      file: 'assets-source/study.webp',
+      sha256: crypto.createHash('sha256').update(data).digest('hex'),
+      fallback: 'existing-art',
+    };
+    fs.writeFileSync(
+      path.join(fixture, 'assets-source/curation/registry.json'),
+      JSON.stringify({
+        assets: [{ source: { file: asset.file, rights: 'Original Alibi test artwork' } }],
+      }),
+    );
+    fs.writeFileSync(path.join(fixture, asset.file), data);
+    const build = (deferred) => {
+      fs.writeFileSync(
+        path.join(fixture, 'content/asset-delivery.json'),
+        JSON.stringify({ schemaVersion: 1, mirrors: {}, deferred }),
+      );
+      return buildDelivery(
+        fixture,
+        path.join(fixture, 'dist'),
+        {},
+        { 'existing-art': './compact.svg' },
+      );
+    };
+    const result = build([asset]);
+    const entry = result.entries[asset.id];
+    assert.ok(entry, 'declared asset enters the existing runtime delivery catalogue');
+    assert.equal(entry.fallback, './compact.svg');
+    assert.equal(entry.mime, 'image/webp');
+    assert.equal(entry.sha256, asset.sha256);
+    assert.deepEqual(fs.readFileSync(path.join(fixture, 'dist', entry.urls[0])), data);
+    assert.equal(entry.bytes, data.length);
+    assert.equal(
+      result.bytes,
+      data.length,
+      'excluded from core by the existing enhancement receipt',
+    );
+    assert.deepEqual(result.origins, []);
+    for (const invalid of [
+      [{ ...asset, file: '../escape.webp' }],
+      [{ ...asset, sha256: '0'.repeat(64) }],
+      [{ ...asset, fallback: 'unknown' }],
+      [{ ...asset, id: '../escape' }],
+      [{ ...asset, id: undefined }],
+      [asset, asset],
+      {},
+    ])
+      assert.throws(() => build(invalid), /deferred|fingerprint/i);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+test('deferred images require a matching provenance and licence record', () => {
+  const fixture = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'alibi-image-rights-'));
+  try {
+    for (const dir of ['content', 'assets-source/curation', 'dist/assets'])
+      fs.mkdirSync(path.join(fixture, dir), { recursive: true });
+    const data = Buffer.from('deferred provenance fixture');
+    const asset = {
+      id: 'study-art',
+      file: 'assets-source/study.webp',
+      sha256: crypto.createHash('sha256').update(data).digest('hex'),
+      fallback: 'existing-art',
+    };
+    fs.writeFileSync(path.join(fixture, asset.file), data);
+    fs.writeFileSync(
+      path.join(fixture, 'content/asset-delivery.json'),
+      JSON.stringify({ schemaVersion: 1, mirrors: {}, deferred: [asset] }),
+    );
+    const build = () =>
+      buildDelivery(fixture, path.join(fixture, 'dist'), {}, { 'existing-art': './compact.svg' });
+    const registry = (assets) =>
+      fs.writeFileSync(
+        path.join(fixture, 'assets-source/curation/registry.json'),
+        JSON.stringify({ assets }),
+      );
+    for (const assets of [
+      [],
+      [{ source: { file: 'assets-source/other.webp', rights: 'Original Alibi test artwork' } }],
+      [{ source: { file: asset.file } }],
+    ]) {
+      registry(assets);
+      assert.throws(
+        build,
+        /Deferred image missing provenance\/licence record: assets-source\/study\.webp/,
+      );
+      assert.deepEqual(fs.readdirSync(path.join(fixture, 'dist/assets')), []);
+    }
+    registry([{ source: { file: asset.file, rights: 'Original Alibi test artwork' } }]);
+    assert.equal(build().entries[asset.id].sha256, asset.sha256);
+    registry([{ derivative: { file: asset.file }, rights: { licence: 'CC0-1.0' } }]);
+    assert.equal(build().entries[asset.id].sha256, asset.sha256);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
 test('delivery build emits exact derivatives outside the offline shell and validates mirror policy', () => {
   const fixture = path.join(root, 'test-results/delivery-build');
   const dist = path.join(fixture, 'dist');

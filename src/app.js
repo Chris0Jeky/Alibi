@@ -42,6 +42,7 @@
     packs = [starter],
     records = new Map(),
     revs = new Map(),
+    acked = new Map(),
     queue = Promise.resolve(),
     pendingSaves = 0,
     saveError = '',
@@ -202,6 +203,7 @@
         validateRun(r);
         records.set(r.key, r);
         revs.set(r.key, r.rev);
+        acked.set(r.key, C.clone(r));
       } catch {
         quarantined++;
       }
@@ -347,6 +349,7 @@
         if (saveError) return;
         const saved = await store.saveRun(snapshot, revs.get(snapshot.key) || 0);
         revs.set(snapshot.key, saved.rev);
+        acked.set(snapshot.key, C.clone(saved));
         const local = records.get(snapshot.key);
         if (local) {
           local.rev = saved.rev;
@@ -400,6 +403,7 @@
           }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
+          acked.set(r.key, C.clone(r));
           if (!current) render();
         } catch {}
       }
@@ -533,7 +537,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${legacyBanner()}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -1349,6 +1353,19 @@
     const active = document.activeElement,
       focusID = active?.closest('.paused-cover') ? 'play-pause' : active?.id,
       focusFallbackID = active?.dataset.focusFallback,
+      focusAction = !focusID && active?.dataset?.action ? active.dataset.action : '',
+      focusHasValue =
+        !!focusAction && Object.prototype.hasOwnProperty.call(active.dataset, 'value'),
+      focusValue = focusHasValue ? active.dataset.value : '',
+      focusDataId = focusAction && active.dataset.id ? active.dataset.id : '',
+      focusSelector = focusAction
+        ? `[data-action="${CSS.escape(focusAction)}"]${
+            focusHasValue ? `[data-value="${CSS.escape(focusValue)}"]` : ''
+          }${focusDataId ? `[data-id="${CSS.escape(focusDataId)}"]` : ''}`
+        : '',
+      focusMatchIndex = focusSelector
+        ? [...document.querySelectorAll(focusSelector)].indexOf(active)
+        : -1,
       selection = ['INPUT', 'TEXTAREA'].includes(active?.tagName)
         ? [active.selectionStart, active.selectionEnd]
         : null,
@@ -1426,6 +1443,16 @@
               el.setSelectionRange(...selection);
             } catch {}
         } else {
+          const fallback = document.getElementById(focusFallbackID) || $('#main');
+          if (isFocusTarget(fallback)) {
+            fallback.focus();
+            usedFocusFallback = true;
+          }
+        }
+      } else if (focusMatchIndex >= 0) {
+        const el = document.querySelectorAll(focusSelector)[focusMatchIndex];
+        if (isFocusTarget(el)) el.focus({ preventScroll: true });
+        else {
           const fallback = document.getElementById(focusFallbackID) || $('#main');
           if (isFocusTarget(fallback)) {
             fallback.focus();
@@ -2124,24 +2151,79 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
-    const data = await store.export(),
-      merged = new Map(data.runs.map((r) => [r.key, r]));
-    for (const r of records.values()) merged.set(r.key, C.clone(r));
-    if (current) merged.get(current.key).elapsed = sessionSeconds;
-    data.runs = [...merged.values()];
-    data.packs = [...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, p])).values()];
-    data.settings = settings;
-    data.preferences = prefs;
+    const data = await store.export();
+    const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
+    const divergentByKey = new Map();
+    for (const [key, record] of records) {
+      const local = C.clone(record);
+      if (key === current?.key) local.elapsed = sessionSeconds;
+      const persisted = deviceByKey.get(key);
+      const baseline = acked.get(key);
+      if (persisted && baseline && C.equal(local, baseline)) continue;
+      // Restores preserve revisions, so the full acknowledged row must still match.
+      if (!persisted || (baseline && C.equal(persisted, baseline))) deviceByKey.set(key, local);
+      else divergentByKey.set(key, local);
+    }
+    data.runs = [...deviceByKey.values()];
+    data.packs = [
+      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
+    ];
+    data.settings = C.clone(settings);
+    data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
-    return data;
+    return {
+      data,
+      session: divergentByKey.size
+        ? {
+            ...data,
+            runs: [...new Map([...deviceByKey, ...divergentByKey]).values()],
+          }
+        : null,
+    };
   }
   async function exportBackup() {
-    download(`alibi-backup-${new Date().toISOString().slice(0, 10)}.json`, await cabinetBackup());
-    toast('Backup exported. Keep a copy outside this browser.');
+    const { data, session } = await cabinetBackup();
+    offerCabinetCopies(data, session, `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    if (!session) toast('Backup exported. Keep a copy outside this browser.');
+  }
+  async function exportLegacy() {
+    download('alibi-legacy-browser-data.json', {
+      format: 'alibi-legacy-browser-data',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      entries: store.legacySnapshot(),
+    });
+    toast('Older browser data exported separately. Nothing has been migrated.');
+  }
+  function legacyBanner() {
+    const count = store.legacyInventory.length;
+    if (!count && !store.legacyProblem) return '';
+    return `<div class="banner warn"><span>${store.legacyProblem ? esc(store.legacyProblem) + ' Try exporting again.' : `${count} older browser record${count === 1 ? '' : 's'} found. They have not been migrated.`}</span>${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div>`;
   }
   let stagedAll = null;
+  let stagedCabinet = null;
+  function offerCabinetCopies(data, session, filename) {
+    if (!session) {
+      download(filename, data);
+      return;
+    }
+    stagedCabinet = C.clone([data, session, filename]);
+    dialog(
+      'Keep both copies',
+      '<p>Device progress and session edits differ. Download both backups.</p>',
+      [
+        { label: 'Device backup', action: 'download-device-copy' },
+        {
+          label: 'Cabinet session backup',
+          action: 'download-session-copy',
+          secondary: true,
+        },
+        { label: 'Close', action: 'close-dialog', secondary: true },
+      ],
+    );
+  }
   async function exportAll() {
-    const cabinet = await cabinetBackup();
+    const { data: cabinet, session: cabinetSession } = await cabinetBackup();
     const warnings = [];
     await AlibiClub.flush().catch((e) =>
       warnings.push('Club save could not be flushed: ' + e.message),
@@ -2183,7 +2265,8 @@
         'Castle was not included: ' + error.message + ' Export the castle notebook separately.',
       );
     }
-    download('alibi-all-saves.json', {
+    if (cabinetSession) warnings.push('Cabinet session edits are separate.');
+    const combined = {
       format: 'alibi-all-saves',
       schema: 1,
       applicationVersion: cfg.version,
@@ -2200,17 +2283,19 @@
           ? 'Quiet Wing has protected stored data. Keep the raw recovery section.'
           : '',
       ].filter(Boolean),
-    });
+    };
+    offerCabinetCopies(combined, cabinetSession, 'alibi-all-saves.json');
     const exported = manifest
       .map(
         (section) =>
           ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing', castle: 'Castle' })[section],
       )
       .join(', ');
-    toast(
-      `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
-      warnings.length > 0,
-    );
+    if (!cabinetSession)
+      toast(
+        `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
+        warnings.length > 0,
+      );
   }
   async function stageAll(file) {
     const serial = routeSerial;
@@ -2981,8 +3066,17 @@
       case 'export':
         await exportBackup();
         break;
+      case 'export-legacy':
+        await exportLegacy();
+        break;
       case 'export-all':
         await exportAll();
+        break;
+      case 'download-device-copy':
+        if (stagedCabinet) download(stagedCabinet[2], stagedCabinet[0]);
+        break;
+      case 'download-session-copy':
+        if (stagedCabinet) download('alibi-cabinet-session.json', stagedCabinet[1]);
         break;
       case 'import-all':
         $('#all-backup-input').value = '';
@@ -3458,6 +3552,21 @@
       return;
     onCell(Number(el.dataset.cell), true);
   });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      // A held Enter turns Cell notes, a number key, board size, pause, a clue, or a favorite on, then each repeat would turn it off.
+      if (
+        e.repeat &&
+        e.key === 'Enter' &&
+        e.target?.closest?.(
+          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"], [data-action="clue"], [data-action="quick-clue"], [data-action="favorite"]',
+        )
+      )
+        e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener('keydown', (e) => {
     if (updateRequested) return;
     if (e.defaultPrevented) return;
