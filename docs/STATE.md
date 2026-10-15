@@ -792,6 +792,23 @@ Four behavioral regressions reproduce the original credential exposure. Focused
 Club source checks pass; emitted builds, real-origin restore controls and fresh
 independent review are pending. Network tests use synthetic intercepted hosts.
 [HUMAN_TODO.md](../HUMAN_TODO.md) retains physical Android/TalkBack acceptance.
+## 2026-10-11: older browser data discovery candidate (#603 / PR #618)
+
+The read-only raw `alibi.v1.*` inventory and separate recovery export preserve
+malformed, empty, unknown and colliding strings without migration or deletion.
+Healthy IndexedDB remains authoritative. The export action re-reads storage and
+refuses incomplete snapshots, including changing key sets. All 33 focused source
+cases pass. Clean candidate `068c263d`, web `bd95b000813f`, passed 33 actual-origin
+checks at 390/1280 and all 184 UI checks with zero uncaught errors; both recovery
+layouts were inspected. Fresh independent reviews found no HIGH/CRITICAL defects.
+Fallback warning clarity is tracked in #620.
+
+**Budget gate (re-measured 2026-10-15):** merged with main `abb0be0a`, the web build measures
+code/shell 1,409,106 bytes against the unchanged 1,412,792.32 ceiling and 203,927 initial gzip bytes
+against 205,248; main's worker compaction removed the 502-byte excess. `npm run verify` passes
+(1,536 passed, three intentional skips). Hosted results are on the PR.
+This is candidate proof, not a release or physical-device acceptance.
+[HUMAN_TODO.md](../HUMAN_TODO.md) retains Android/TalkBack acceptance.
 
 ## 2026-10-11: quarantined Cabinet revision guard (#599)
 
