@@ -40,10 +40,16 @@ most hearts per completion get the next collections.
    Voices and Content views show them per puzzle, family and tier.
 2. Periodically (for example before each release), an agent session with Desk access reads those
    views, applies the rules above, and opens one PR that:
-   - changes `difficultyStatus` from "provisional" to "calibrated from player data (N raters, M
-     completions, <date>)" in `content/curation/editorial/puzzle-notes.json` (and `content/challenges/*.json` for
-     challenges) for puzzles that pass, without changing puzzle definitions, ids or revisions;
+   - records puzzles that pass as calibrated from player data (N raters, M completions, date),
+     without changing puzzle definitions, ids or revisions;
    - lists flagged puzzles in the PR and in `HUMAN_TODO.md` for the owner to play.
+   Not yet possible as data alone: `tools/curation-editorial.cjs` rejects any editorial
+   `difficultyStatus` without "provisional" or with `humanPlaytested` other than false ("Unverified
+   calibration claim"). The other puzzles carry their status in their definitions
+   (`content/extra/*.json`), where `src/core.js` caps it at 40 characters and an edit would change
+   the definition. Only two of the seven challenge files have the field. The first calibration
+   PR therefore needs a reviewed code change first: a separate calibration record that the build
+   guard accepts.
 3. Relabelling a puzzle to a different tier is a content decision: it goes in its own reviewed PR
    with the evidence, and it never rewrites a published definition silently.
 

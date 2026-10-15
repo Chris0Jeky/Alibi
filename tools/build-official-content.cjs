@@ -53,8 +53,62 @@ function split(catalog, deferredKeys) {
 
 // Initial marker plus a once-only loader. It never reads definitions itself.
 function deferredRuntime(url, keys) {
-  const source = `(()=>{const G=globalThis;let pending=null;const D=G.ALIBI_DEFERRED={url:${JSON.stringify(url)},keys:${JSON.stringify(keys)},ready:${keys.length ? 'false' : 'true'},has(p){return !!p&&!D.ready&&D.keys.includes(p.id+'@'+p.revision)},ensure(){return D.ready?Promise.resolve():pending||(pending=new Promise((resolve,reject)=>{const s=document.createElement('script'),fail=()=>{s.remove();pending=null;reject(Error('Puzzle definitions did not load.'))};s.src=D.url;s.onload=()=>D.ready?resolve():fail();s.onerror=fail;document.head.append(s)}))}};if(!D.ready&&typeof addEventListener==='function')addEventListener('load',()=>(G.requestIdleCallback||setTimeout)(()=>D.ensure().catch(()=>{})))})();`;
-  return transformSync(source, { minify: true, target: 'es2022', charset: 'utf8' }).code;
+  const boot = (url, keys) => {
+    const G = globalThis;
+    let pending = null;
+    const D = (G.ALIBI_DEFERRED = {
+      url,
+      keys,
+      ready: !keys.length,
+      has(p) {
+        return !!p && !D.ready && D.keys.includes(p.id + '@' + p.revision);
+      },
+      ensure() {
+        if (D.ready) return Promise.resolve();
+        return (
+          pending ||
+          (pending = Promise.resolve().then(
+            () =>
+              new Promise((resolve, reject) => {
+                let script,
+                  timer,
+                  settled = false;
+                const finish = () => {
+                  if (settled) return;
+                  settled = true;
+                  clearTimeout(timer);
+                  if (script) {
+                    script.onload = script.onerror = null;
+                    script.remove();
+                  }
+                  pending = null;
+                  if (D.ready) resolve();
+                  else reject(Error('Puzzle definitions did not load.'));
+                };
+                try {
+                  script = document.createElement('script');
+                  script.src = D.url;
+                  script.onload = script.onerror = finish;
+                  timer = setTimeout(finish, 10000);
+                  document.head.append(script);
+                } catch {
+                  finish();
+                }
+              }),
+          ))
+        );
+      },
+    });
+    if (!D.ready && typeof addEventListener === 'function')
+      addEventListener('load', () =>
+        (G.requestIdleCallback || setTimeout)(() => D.ensure().catch(() => {})),
+      );
+  };
+  return transformSync(`(${boot.toString()})(${JSON.stringify(url)},${JSON.stringify(keys)});`, {
+    minify: true,
+    target: 'es2022',
+    charset: 'utf8',
+  }).code;
 }
 
 // The deferred chunk validates every definition against its listing entry, then swaps all of

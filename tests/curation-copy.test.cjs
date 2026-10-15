@@ -44,7 +44,9 @@ test('touch-first instructions leave mouse and keyboard help to .kb notes (0.14.
     if (!note.includes('control-note kb'))
       assert.doesNotMatch(visible, pointerOnly, `touch-visible control note: ${note.slice(0, 60)}`);
   }
-  assert.match(css, /@media \(pointer: coarse\) \{\s*\.kb \{\s*display: none;/);
+  assert.match(css, /@media \(pointer: coarse\) and \(not \(any-pointer: fine\)\)/);
+  assert.match(css, /\.kb \{[^}]*clip-path: inset\(50%\)/);
+  assert.doesNotMatch(css, /\.kb \{[^}]*display: none/);
   assert.doesNotMatch(
     app,
     /control-note">Tap to turn clockwise/,

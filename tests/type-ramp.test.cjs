@@ -33,8 +33,46 @@ test('shared type ramp has the approved desktop and phone steps', () => {
   })) {
     assert.deepEqual(tokenSteps(name), expected, `--text-${name}`);
   }
-  for (let i = 0; i < 2; i++)
-    assert.ok(tokenSteps('h1')[i] >= tokenSteps('h2')[i], 'page h1 must be >= feature h2');
+  for (let i = 0; i < 2; i++) {
+    const h1 = tokenSteps('h1')[i];
+    const h2 = tokenSteps('h2')[i];
+    const h3 = tokenSteps('h3')[i];
+    assert.ok(h1 >= h2 && h2 >= h3, `approved h1 >= h2 >= h3 at breakpoint ${i}`);
+  }
+});
+
+function winningFontSize(body) {
+  let size = null;
+  for (const match of body.matchAll(/(?:^|[\n;])\s*(font-size|font)\s*:\s*([^;]+)/g)) {
+    const prop = match[1];
+    const value = match[2].trim();
+    if (prop === 'font-size') {
+      size = value.replace(/\s*!important\s*$/, '').trim();
+      continue;
+    }
+    const parts = value.split('/')[0].trim().split(/\s+/);
+    size = parts[parts.length - 1];
+  }
+  return size;
+}
+
+test('Desk theatre stage h3 rules use the shared token under the page title', () => {
+  const theatreCss = fs
+    .readFileSync(path.join(__dirname, '..', 'src', 'theatre.css'), 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = [...theatreCss.matchAll(/\.theatre-stage-copy h3\s*\{([^}]*)\}/g)];
+  assert.ok(rules.length >= 1, 'stage h3 rule exists');
+  for (const [, body] of rules) {
+    assert.equal(winningFontSize(body), 'var(--text-h3)');
+    assert.match(body, /Georgia,\s*serif/, 'stage titles keep the display face');
+    assert.match(body, /line-height:\s*1\.05/, 'stage titles keep the display line-height');
+    assert.doesNotMatch(body, /clamp\(|font-size:\s*\d+px/);
+  }
+  const [h1, h2, h3] = ['h1', 'h2', 'h3'].map((name) => tokenSteps(name));
+  assert.deepEqual([h1.length, h2.length, h3.length], [2, 2, 2], 'desktop and phone steps');
+  for (let i = 0; i < 2; i++) {
+    assert.ok(h1[i] >= h2[i] && h2[i] >= h3[i], `h1 >= h2 >= h3 at breakpoint ${i}`);
+  }
 });
 
 test('Desk and shared headings consume their role tokens', () => {
