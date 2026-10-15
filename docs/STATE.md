@@ -16,6 +16,62 @@ pass. Output retains 570 puzzles, 302 files and 3,384,920 enhancement bytes.
 No commit, push, hosted verification or physical-device acceptance is claimed;
 owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
+## 2026-10-15: survey v2 edit revisions (#680; PR #681 review fixes)
+
+`feat/voices-survey-v2-680` sends `pulseboard.survey/2` for surveys and ratings.
+Per-respondent, survey and subject counters persist before queueing under a cross-tab
+Web Lock. Deliberate edits increment;
+retries retain their exact revision. Older enqueues cannot displace newer edits, including
+after queue removal. Legacy queued v1 answers migrate to revision 1 before sending.
+202 updated/duplicate/stale finish delivery; 409 conflicts drop with the existing refusal
+note. Missing durable counter storage/Web Locks and counter exhaustion refuse new answers.
+Feedback retains its existing memory fallback and retry rules.
+
+PR #681's one review fix round catches rejected Web Locks. Surveys and ratings visibly
+refuse writes without an acquired lock, preserving cross-tab revision ordering; feedback
+retains its memory-only delivery and retry fallback. Queued surveys wait until locking
+recovers. The rating tap chain catches failures so later rating and heart taps can retry.
+A queued v2 item without a revision counts as revision 0 when allocating the next edit.
+
+Six new Node regressions failed before the fixes. Queue tests increase from 40 to 44;
+the selected Voices and budget tests increase from 67 to 73, all passing. The intercepted
+browser suite increases from 140 to 151 assertions, all passing, including rejected-lock
+survey submission, a refused rating followed by a successful tap, subsequent heart taps,
+and feedback with both locks and Voices storage blocked. No unhandled page errors.
+The local web build reports sourceDirty true; build, budget and format checks pass.
+Review-round Voices raw bytes: 20,424 -> 20,476 (+52), below 20,480 with 4 bytes left.
+Gzip: 8,885 -> 8,930 (+45), below 9,216. Startup gzip: 204,197 -> 204,195 (-2),
+below 205,248. No budget changed.
+
+Initial implementation evidence: seven new regression cases failed against v1, while the existing
+202 handling already passed. Queue tests increased from 29 to 40; the complete relevant
+Voices and budget selection passes 67 tests. Rapid rating/heart edits and re-enqueue after
+a newer answer drains each failed before their fixes. The intercepted Voices browser suite
+passes 140 assertions, including real Web Locks across two tabs, real localStorage and reload.
+Phone (390px) survey and desktop feedback screenshots were inspected. The real-origin
+storage/offline suite passes 599 checks in disposable profiles. These are browser proofs,
+not hosted collector or physical-device acceptance.
+
+The initial implementation's local web build reported sourceDirty true. Voices raw bytes:
+20,048 -> 20,424 (+376), below 20,480; gzip: 8,659 -> 8,885 (+226), below 9,216.
+Startup gzip: 204,191 -> 204,194 (+3), below 205,248. No budget changed. Repeated UI
+explanations were shortened to fit the existing deferred-chunk ceiling.
+
+Initial wider checks (not repeated for this review round): `npm test` stops at its clean-source artifact preflight;
+`npm run build:android` likewise refuses an uncommitted tree. The test body run separately
+with `npm run test --ignore-scripts` reports 1,563 tests: 1,553 pass, 3 skip and 7 fail.
+All seven failures are the unchanged Android clean-source requirement in
+`tests/android-build.test.cjs`: generated artifact contract; shared content revision;
+native flavor substitution; runtime/metadata tampering; deterministic derivation;
+bundled-file tampering; source/content provenance tampering. Quiet Wing engines pass
+581,856 assertions and contracts pass 43 assertions when run separately.
+
+This review round leaves source, tests and these notes uncommitted and unpushed, as requested;
+the driver owns commits. No deployment or physical-device claim is made. After coordinator
+integration, the remaining artifact gate is a clean-source Android build and ordinary
+`npm test`. Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md), including physical
+Android/TalkBack acceptance; this change closes none of those items.
+
 ## 2026-10-15: #427 source-preview legacy-storage regression
 
 Compared generated house previews at base `5966611b` and head `8af04097`: the
