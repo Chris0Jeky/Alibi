@@ -22,7 +22,7 @@ checks. House, budget, official-deferred, delivery-build, platform-build and
 legacy-recovery suites pass 65 tests. The preview regression failed before the fix
 and now covers denied storage with opaque, HTTPS, file and inherited origins. A
 browser on a simulated HTTPS origin still shows the denied-storage banner and export
-control. Changes remain uncommitted for the driver. Hosted CI and physical-device
+control (commit c463e220). Hosted CI and physical-device
 acceptance are not claimed; owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 ## 2026-10-15: Interlock deferral and owner-authorized budget headroom (#427)
@@ -34,8 +34,8 @@ Initial gzip measures 200,827 bytes, 4,421 below the old 205,248 cap; the new ca
 Deferred gzip measures 21,266 against the new 32,768 cap (old 12,288). JS/shell caps are unchanged.
 Optional WebP declarations join the existing verified asset-delivery path and byte receipt.
 Author instructions and cap rationale: [DELIVERY.md](content/DELIVERY.md) and
-[INTERLOCK-STUDIES.md](content/INTERLOCK-STUDIES.md). Changes remain uncommitted for the driver;
-clean-source, hosted and physical-device acceptance are separate from local working-tree tests.
+[INTERLOCK-STUDIES.md](content/INTERLOCK-STUDIES.md). Committed in 72d5dfd9; `npm run verify` passed
+1,568 tests at 05fd9f45. Hosted and physical-device acceptance are tracked separately.
 Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
 
 Local evidence: 53 focused content/accounting/worker tests and 17 optional-image/budget tests
