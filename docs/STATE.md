@@ -1,5 +1,30 @@
 # Live development state
 
+## 2026-10-15: #427 source-preview legacy-storage regression
+
+Compared generated house previews at base `5966611b` and head `8af04097`: the
+merged legacy-recovery change adds `Store.legacySnapshot()` and `legacyBanner()`.
+Both versions already await storage initialization before rendering. The source
+preview reads all definitions directly and does not consume `dist/` or the deferred
+delivery graph, so this is not a deferred-chunk startup-order change. The reported
+failure at `72d5dfd9` is not explained by its diff: its preview generator and runtime
+source inputs are unchanged from `5966611b`.
+
+`tools/preview-house.cjs` now gives only an opaque `about:` document an empty legacy
+inventory: that explicit source fixture has no saved origin to inspect. It retains
+session-only storage warnings, initialization order and real-origin recovery probes;
+HTTPS, file URLs and about:blank documents inheriting a real origin retain failures.
+Production storage and app source are unchanged. At 320x844, the repaired preview
+matches the base: resume y=327.39, Play y=449.23 (previous head Play y=571.23).
+
+Local proof: web build passes; source-preview mobile/navigation suites pass 250/79
+checks. House, budget, official-deferred, delivery-build, platform-build and
+legacy-recovery suites pass 65 tests. The preview regression failed before the fix
+and now covers denied storage with opaque, HTTPS, file and inherited origins. A
+browser on a simulated HTTPS origin still shows the denied-storage banner and export
+control. Changes remain uncommitted for the driver. Hosted CI and physical-device
+acceptance are not claimed; owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-15: Interlock deferral and owner-authorized budget headroom (#427)
 
 The owner authorized both deferral and higher reasonable caps. Both Interlock packs, Expert
