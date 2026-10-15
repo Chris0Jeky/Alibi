@@ -123,7 +123,17 @@ with sync_playwright() as pw:
     i=next(i for i,v in enumerate(p['givens']) if not v);cell(i);action('pencil');action('value','[data-value="1"]')
     check(1 in state()['state']['notes'].get(str(i),[]),'Pencil marks stored without filling value')
     action('pencil');action('erase');check(not state()['state']['notes'].get(str(i)),'Erase clears notes')
-    action('pause');check(page.locator('.paused-cover').count()>0,'Pause hides puzzle');page.locator('.paused-cover [data-action="pause"]').click()
+    action('pause');check(page.locator('.paused-cover').count()>0,'Pause hides puzzle')
+    check(page.evaluate("""() => {
+      const active = document.activeElement, cover = document.querySelector('.paused-cover');
+      const cell = document.querySelector('.board-card [id^="cell-"]');
+      return !!(cover && cover.contains(active) && cell && cell.closest('[inert]'));
+    }"""),'Pause puts focus on the cover and leaves the board inert')
+    page.keyboard.press('n')
+    check(page.locator('[data-action="pencil"].active').count()==0,'Pencil stays off while paused')
+    page.locator('.board-card [data-action="hint"]').evaluate('el => el.click()')
+    check(page.locator('dialog[open]').count()==0,'Hint does not open while paused')
+    page.locator('.paused-cover [data-action="pause"]').click()
     hint_before=state()['state'];action('hint');check(page.locator('dialog[open]').count()==1 and state()['state']==hint_before,'Hint opens without changing board');dismiss()
     cell(i);action('value',f'[data-value="{p["solution"][i]}"]');before=state()['state'];route('home');open_p(p);dismiss()
     check(state()['state']==before,'In-progress state survives route navigation')

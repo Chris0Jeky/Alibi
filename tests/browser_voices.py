@@ -3,7 +3,7 @@
 Serves the last local ``dist`` build under the primary origin through Playwright routing (plus one
 ineligible origin), with a fake Pulseboard collector that records every /v1/feedback and /v1/survey
 request. Proves the client half of the Voices contract (Pulseboard ``pulseboard.feedback/1`` and
-``pulseboard.survey/1``): exact payload shapes, nothing sent without a player action, the offline
+``pulseboard.survey/2``): exact payload shapes, nothing sent without a player action, the offline
 queue flushing on reconnect, survey resubmission with the same survey key, rating taps and changes,
 the Settings and Privacy panels, the ineligible-origin export fallback and the sheet at 320px, 390px
 and desktop. Disposable in-memory contexts only; the Pulseboard SDK script is blocked so its own
@@ -204,7 +204,7 @@ def local(page, key):
 
 
 FEEDBACK_KEYS = ['v', 'id', 'release', 'kind', 'route', 'subject', 'text', 'written', 'context']
-SURVEY_KEYS = ['v', 'survey', 'subject', 'respondent', 'release', 'answers', 'meta', 'comment', 'context']
+SURVEY_KEYS = ['v', 'revision', 'survey', 'subject', 'respondent', 'release', 'answers', 'meta', 'comment', 'context']
 
 with sync_playwright() as pw:
     browser = pw.chromium.launch(headless=True)
@@ -368,6 +368,7 @@ with sync_playwright() as pw:
     rating = collector.voices()[3]
     rb = rating['body']
     check(rating['method'] == 'PUT' and rating['path'] == '/v1/survey/alibi', 'a rating is a PUT to /v1/survey/alibi')
+    check(rb['v'] == 2 and rb['revision'] == 1, 'first rating uses survey v2 revision 1')
     check(list(rb) == SURVEY_KEYS, 'the rating payload has exactly the contract keys')
     check(
         rb['survey'] == 'puzzle-rating' and rb['subject'] == 'curated-sudoku-01' and rb['answers'] == {'difficulty': 'just-right'},
@@ -383,6 +384,7 @@ with sync_playwright() as pw:
     row.locator('button', has_text='Too hard').click()
     wait_for(page, lambda: len(collector.voices()) == 6, 'changed rating request')
     changed = collector.voices()[5]['body']
+    check(changed['revision'] == 3, 'each deliberate rating change increments the revision')
     check(changed['answers'] == {'difficulty': 'too-hard', 'more': 'yes'} and changed['respondent'] == rb['respondent'], 'changing the rating re-sends with the same key')
     row.locator('button', has_text='Too hard').click()
     page.wait_for_timeout(400)
@@ -416,6 +418,7 @@ with sync_playwright() as pw:
         first['answers'] == {'often': 'weekly', 'more': ['bridges', 'scene', 'sudoku', 'trail', 'duel'], 'difficulty': 'mostly-right'},
         'answers are in registry order with unanswered questions omitted',
     )
+    check(first['v'] == 2 and first['revision'] == 1, 'taste survey has its own revision counter')
     check(first['comment'] == 'Lovely rainy-day puzzles.', 'the optional comment is sent')
     check(first['respondent'] == rb['respondent'], 'surveys and ratings share the survey key')
     page.locator('#vo-title', has_text='Thank you.').wait_for()
@@ -428,6 +431,7 @@ with sync_playwright() as pw:
     page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
     wait_for(page, lambda: len(collector.voices()) == 8, 'resubmitted survey')
     second = collector.voices()[7]['body']
+    check(second['revision'] == 2, 'deliberate survey resubmission increments its revision')
     check(second['respondent'] == first['respondent'], 'resubmitting sends the same respondent key')
     check(second['answers']['difficulty'] == 'too-hard', 'the resubmission carries the updated answer')
     page.keyboard.press('Escape')
@@ -484,12 +488,17 @@ with sync_playwright() as pw:
     solve_sudoku(page, 'sudoku-01@1')
     page.locator('#vo-offer').wait_for()
     offer = page.locator('#vo-offer').inner_text()
-    check('Got a minute?' in offer and 'Nothing is sent until you submit' in offer, 'the fifth completion on a second day invites the survey')
+    check('Got a minute?' in offer and 'Sent only when you submit' in offer, 'the fifth completion on a second day invites the survey')
     check(page.evaluate("() => !document.querySelector('.vo-sheet')?.open"), 'the invitation is inline, never a dialog over the board')
     page.locator('.play-end').screenshot(path=str(SHOTS / 'voices-invitation-390.png'))
     check(not collector.voices(), 'the invitation sends nothing')
-    page.locator('#vo-offer button', has_text='Not now').click()
+    page.locator('#vo-offer button', has_text='Not now').focus()
+    page.keyboard.press('Enter')
     check(page.locator('#vo-offer').count() == 0, 'Not now removes the invitation')
+    check(
+        page.evaluate("() => document.activeElement?.id === 'main'"),
+        'Not now leaves focus on main',
+    )
     state = local(page, 'alibi:voices:state:v1')
     check(state['snoozes'] == 1 and state['until'] - page.evaluate('Date.now()') == 7 * 864e5, 'Not now snoozes for 7 days')
     goto_puzzle(page, 'sudoku-01@1')
@@ -503,6 +512,103 @@ with sync_playwright() as pw:
     check(page.locator('#vo-offer').count() == 0, 'Don’t ask again stops invitations')
     check(not collector.voices(), 'invitation choices send nothing')
     check(not errors, 'the invitation journey produces no page errors')
+    context.close()
+
+    # ---- Real Web Locks and localStorage: simultaneous edits in two tabs, then reload ----
+    collector = Collector()
+    context, page = open_context(
+        browser, collector, errors,
+        init="Object.defineProperty(Navigator.prototype, 'onLine', {get: () => false});",
+    )
+    other = context.new_page()
+    setup = """() => {
+        window.revisionQueue = AlibiVoicesQueue({
+            storage: localStorage, uuid: () => crypto.randomUUID(), online: () => false,
+        });
+        window.editRevision = () => revisionQueue.survey({
+            survey: 'puzzle-rating', subject: 'scene-01',
+            answers: {difficulty: 'just-right'}, meta: {family: 'scene', tier: 'gentle'},
+            release: '0.15.2', device: 'desktop',
+        });
+    }"""
+    for tab in (page, other):
+        tab.goto(ORIGIN + '/#/settings')
+        tab.wait_for_function('() => !!window.AlibiVoicesQueue')
+        tab.evaluate(setup)
+    check(page.evaluate('() => !!navigator.locks'), 'the browser supplies real cross-tab Web Locks')
+    page.evaluate("""() => {
+        navigator.locks.request('alibi:voices:queue:v1', () => new Promise(r => window.releaseRevision = r));
+    }""")
+    page.wait_for_function('() => !!window.releaseRevision')
+    page.evaluate('() => { window.pendingRevision = editRevision(); }')
+    other.evaluate('() => { window.pendingRevision = editRevision(); }')
+    page.evaluate('() => releaseRevision()')
+    older = page.evaluate('() => pendingRevision')
+    newer = other.evaluate('() => pendingRevision')
+    check([older['revision'], newer['revision']] == [1, 2], 'two tabs atomically allocate revisions 1 and 2')
+    check(older['respondent'] == newer['respondent'], 'two first edits share one installation identity')
+    other.evaluate('async () => revisionQueue.enqueue(await pendingRevision)')
+    page.evaluate('async () => revisionQueue.enqueue(await pendingRevision)')
+    check(local(page, QUEUE)[0]['payload'] == newer, 'a delayed enqueue cannot replace revision 2')
+    page.reload()
+    page.wait_for_function('() => !!window.AlibiVoicesQueue')
+    page.evaluate(setup)
+    check(page.evaluate('async () => (await editRevision()).revision') == 3, 'a real reload preserves the revision counter')
+    check(not collector.voices(), 'the offline revision check makes no network writes')
+    context.close()
+
+    # ---- Rejected Web Locks: survey refusal, recoverable taps, memory-only feedback ----
+    collector = Collector()
+    context, page = open_context(browser, collector, errors, init="""{
+        window.blockVoicesLocks = true;
+        const request = navigator.locks.request.bind(navigator.locks);
+        navigator.locks.request = (...args) => window.blockVoicesLocks
+            ? Promise.reject(new DOMException('Site data blocked', 'SecurityError'))
+            : request(...args);
+    }""")
+    page.evaluate("location.hash='/settings'")
+    page.locator('#vo-survey').click()
+    page.locator('label:has(input[name="often"][value="weekly"])').click()
+    page.locator('label:has(input[name="difficulty"][value="mostly-right"])').click()
+    send = page.locator('dialog.vo-sheet button.btn:not(.secondary)')
+    send.click()
+    page.locator('.vo-error', has_text='This browser cannot send the survey.').wait_for()
+    check(send.is_enabled(), 'a rejected survey lock shows a refusal and re-enables Send')
+    check(not collector.voices(), 'a rejected survey lock sends nothing')
+    check(local(page, 'alibi:voices:revisions:v2') is None, 'a rejected lock allocates no survey revision')
+    close_sheet(page)
+    solve_sudoku(page, 'curated-sudoku-01@1')
+    row = page.locator('#vo-rate')
+    row.locator('button', has_text='Just right').click()
+    row.locator('[role=status]', has_text='Not sent. Try again later.').wait_for()
+    check(not collector.voices(), 'a rejected rating lock is visibly refused without sending')
+    page.evaluate('window.blockVoicesLocks = false')
+    row.locator('button', has_text='Just right').click()
+    row.locator('[role=status]', has_text='Thanks, sent.').wait_for()
+    check(len(collector.voices()) == 1, 'the next rating tap works after a lock rejection')
+    check(collector.voices()[0]['body']['revision'] == 1, 'the refused tap did not consume a revision')
+    row.locator('button', has_text='More like this').click()
+    wait_for(page, lambda: len(collector.voices()) == 2, 'heart after rejected lock')
+    check(collector.voices()[1]['body']['answers']['more'] == 'yes', 'heart taps still work after a lock rejection')
+    row.locator('[role=status]', has_text='Thanks, sent.').wait_for()
+    page.evaluate("""() => {
+        window.blockVoicesLocks = true;
+        for (const method of ['getItem', 'setItem', 'removeItem']) {
+            const original = Storage.prototype[method];
+            Storage.prototype[method] = function(key, ...args) {
+                if (key.startsWith('alibi:voices:')) throw new DOMException('Blocked', 'SecurityError');
+                return original.call(this, key, ...args);
+            };
+        }
+    }""")
+    page.locator('#vo-open').click()
+    type_message(page, 'Feedback with blocked site data.')
+    page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
+    page.locator('#vo-title', has_text='Thank you.').wait_for()
+    check(len(collector.voices()) == 3, 'feedback still sends with locks and Voices storage blocked')
+    check(collector.voices()[2]['body']['text'] == 'Feedback with blocked site data.', 'memory-only feedback retains the message')
+    check('It was sent.' in page.locator('dialog.vo-sheet').inner_text(), 'memory-only feedback reports the collector acceptance')
+    check(not errors, 'lock refusals and later taps produce no unhandled page errors')
     context.close()
 
     # ---- Global Privacy Control does not block an explicit Send ----

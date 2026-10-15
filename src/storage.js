@@ -23,8 +23,36 @@
       this.problem = null;
       this.fatal = false;
       this.damaged = {};
+      this.legacyInventory = [];
+      this.legacyProblem = null;
+    }
+    legacySnapshot() {
+      try {
+        const ls = root.localStorage,
+          keys = Array.from({ length: ls.length }, (_, i) => ls.key(i)),
+          entries = [];
+        for (const key of keys) {
+          if (key == null) throw Error('A storage key is missing.');
+          if (!key.startsWith(PREFIX) || key === PREFIX + 'probe') continue;
+          const value = ls.getItem(key);
+          if (value == null) throw Error('Browser data changed while reading.');
+          entries.push({ key, value });
+        }
+        if (keys.length !== ls.length || keys.some((key, i) => key !== ls.key(i)))
+          throw Error('Browser data changed while reading.');
+        return entries;
+      } catch (e) {
+        throw Error('Older browser data could not be checked: ' + e.message);
+      }
     }
     async init() {
+      try {
+        this.legacyInventory = this.legacySnapshot();
+        this.legacyProblem = null;
+      } catch (e) {
+        this.legacyInventory = [];
+        this.legacyProblem = e?.message || String(e);
+      }
       try {
         if (!root.indexedDB) throw Error('IndexedDB is unavailable.');
         this.db = await new Promise((resolve, reject) => {

@@ -52,7 +52,7 @@ test('optional bytes are counted once in delivery and never hidden from totals',
     info.coreOfflineBytes,
     actualTotal - separate.reduce((sum, key) => sum + info[key], 0),
   );
-  assert.equal(info.puzzles, 510, 'the official registry is not enlarged');
+  assert.equal(info.puzzles, 570, 'the shelf adds no puzzle to the 570-puzzle official registry');
 });
 test('optional data and stylesheet bytes belong to the complete runtime payload identity', () => {
   assert.equal(readIdentity(dist).identity.payloadSha256, payloadDigest(dist));

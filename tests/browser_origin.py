@@ -54,7 +54,9 @@ ORIGIN_SCENARIOS = (
     "room_host",
     "room_version",
     "quarantined_run",
+    "legacy_browser_recovery",
     "broadcast_readback",
+    "cabinet_export_race",
     "inactive_broadcast",
     "newer_database",
     "club_read_abort",
@@ -1170,6 +1172,8 @@ def scenario_offline(pw: Any, root: Path) -> None:
         route(page, "play/lightup-01@1")
         first, _, first_after = move_first_cell(page, "online move seeds offline restart")
         wait_run(page, "lightup-01@1", 1)
+        # Hold background definition loading so offline opening must use the cached chunk.
+        context.add_init_script("window.requestIdleCallback = () => 0")
         context.set_offline(True)
         page.reload(wait_until="domcontentloaded", timeout=15000)
         wait_diag(page)
@@ -1195,6 +1199,28 @@ def scenario_offline(pw: Any, root: Path) -> None:
         wait_run(page, "lightup-01@1", 2)
         stored = read_idb(page, "runs", "lightup-01@1")
         check(stored["state"]["cells"][second] == 1, "offline move is persisted in IndexedDB")
+        scene = json.loads((ROOT / "content/extra/crime-scene-variations.json").read_text())["puzzles"][0]
+        check(page.evaluate("ALIBI_DEFERRED.ready") is False, "fresh offline document has not loaded definitions")
+        check(
+            page.evaluate("(id) => ALIBI_DEFERRED.has(ALIBI_CATALOG.puzzles.find(p => p.id === id))", scene["id"]),
+            "Scene variation starts from a deferred listing",
+        )
+        route(page, "library/scene")
+        page.locator('input[type="search"]').first.fill(scene["title"])
+        page.locator(f'[id="library-card-{scene["id"]}@1"]').click()
+        wait_page(page, "(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id", arg=scene["id"],
+                  what="cold Scene run from the precached deferred chunk")
+        dismiss_dialog(page)
+        check(current(page)["puzzle"] == scene, "offline Scene opens the exact published definition")
+        person = scene["people"][0]["id"]
+        placement = scene["solution"][person]
+        page.locator(f'[data-action="person"][data-id="{person}"]').click()
+        page.locator(f'[data-action="cell"][data-cell="{placement}"]').click()
+        wait_page(page, "() => AlibiDiagnostics.getCurrent().moves > 0", what="offline Scene placement")
+        saved_scene = wait_run(page, scene["id"] + "@1", 1)
+        check(saved_scene["state"]["placements"][person] == placement, "offline Scene control persists its placement")
+        check(saved_scene["puzzle"] == scene, "offline Scene save pins the complete definition")
+        page.screenshot(path=str(RESULTS / "offline-scene-variation.png"), full_page=True)
         # Deferred official definitions are precached in the shell, so a new Vault run opens offline.
         route(page, "play/vault-lightup-01@1")
         dismiss_dialog(page)
@@ -1631,6 +1657,53 @@ def scenario_quarantined_run(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_legacy_browser_recovery(pw: Any, root: Path) -> None:
+    for width in (390, 1280):
+        context = launch_profile(pw, root / f"legacy-recovery-{width}")
+        try:
+            page = new_page(context, "legacy-browser-recovery")
+            page.set_viewport_size({"width": width, "height": 900})
+            boot(page)
+            route(page, "play/lightup-01@1")
+            move_first_cell(page, "legacy fixture first commits a current IDB run")
+            row = wait_run(page, "lightup-01@1", 1)
+            route(page, "settings")
+            wait_status(page, lambda s: not s["pendingSaves"], "current IDB save settles before legacy seeding")
+            row = read_idb(page, "runs", row["key"])
+            entries = [
+                {"key": "alibi.v1.runs." + row["key"], "value": json.dumps({**row, "rev": 0, "note": "Older separate browser progress"})},
+                {"key": "alibi.v1.runs.broken", "value": "{bad"},
+                {"key": "alibi.v1.runs.empty", "value": ""},
+                {"key": "alibi.v1.future.unknown", "value": '{"schemaVersion":9,"bytes":"preserve"}'},
+            ]
+            page.evaluate("""entries => {
+              for (const {key, value} of entries) localStorage.setItem(key, value);
+              localStorage.setItem('unrelated.synthetic', 'outside archive');
+              localStorage.setItem('alibi.v1.probe', 'excluded');
+            }""", entries)
+            page.reload(wait_until="domcontentloaded")
+            wait_diag(page)
+            check(page.evaluate("AlibiDiagnostics.storage") == "indexeddb", "healthy IndexedDB remains authoritative with older browser bytes present")
+            button = page.locator('[data-action="export-legacy"]').first
+            check(button.is_visible(), "older browser data gets an explicit recovery action")
+            check("4 older browser records" in page_text(page), "the warning reports separately retained legacy records")
+            page.screenshot(path=str(RESULTS / f"legacy-recovery-{width}.png"), full_page=True)
+            with page.expect_download() as info:
+                button.click()
+            raw = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+            check(raw["format"] == "alibi-legacy-browser-data", "raw recovery is clearly separate from normal restore")
+            check(sorted(raw["entries"], key=lambda r: r["key"]) == sorted(entries, key=lambda r: r["key"]), "raw download preserves valid malformed empty and future strings exactly")
+            with page.expect_download() as info:
+                page.locator('[data-action="export"]').first.click()
+            backup = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+            check(next(r for r in backup["runs"] if r["key"] == row["key"]) == row, "normal export keeps current IndexedDB progress rather than older colliding bytes")
+            check(read_idb(page, "runs", row["key"]) == row, "legacy discovery and export leave IndexedDB untouched")
+            retained = page.evaluate("keys => keys.map(key => ({key, value: localStorage.getItem(key)}))", [r["key"] for r in entries])
+            check(retained == entries, "legacy recovery leaves original browser strings untouched")
+        finally:
+            context.close()
+
+
 def scenario_room_version(pw: Any, root: Path) -> None:
     context = launch_profile(pw, root / "room-version")
     held = []
@@ -1751,6 +1824,75 @@ def scenario_broadcast_readback(pw: Any, root: Path) -> None:
             context.close()
 
 
+def scenario_cabinet_export_race(pw: Any, root: Path) -> None:
+    key = "lightup-01@1"
+    for width in (390, 1280):
+        for kind in ("clean-inactive", "dirty-active", "dirty-inactive"):
+            context = launch_profile(pw, root / f"cabinet-export-{width}-{kind}")
+            try:
+                page = new_page(context, "cabinet-export-race")
+                page.add_init_script("globalThis.BroadcastChannel = undefined;")
+                page.set_viewport_size({"width": width, "height": 900})
+                boot(page)
+                route(page, "play/" + key)
+                move_first_cell(page, "export fixture starts with a real saved move")
+                baseline = wait_run(page, key, 1)
+                wait_status(page, lambda s: not s["pendingSaves"], "initial save finishes")
+                if kind == "clean-inactive":
+                    route(page, "home")
+                    wait_status(page, lambda s: not s["pendingSaves"], "inactive baseline is acknowledged")
+                writer = new_page(context, "cabinet-export-writer")
+                boot(writer)
+                newer = writer.evaluate("""async key => {
+                  const store = await new AlibiStorage.Store().init();
+                  const old = await store.get('runs', key);
+                  const saved = await store.saveRun({...old, note: 'Other tab committed progress'}, old.rev);
+                  store.db.close();
+                  return saved;
+                }""", key)
+                check(newer["rev"] > baseline["rev"], "a second tab commits a newer generation without a notification")
+                if kind != "clean-inactive":
+                    write_note(page, "Unsaved Cabinet session edits")
+                    wait_status(page, lambda s: bool(s["saveError"]), "local stale save is refused")
+                    if kind == "dirty-inactive":
+                        route(page, "home")
+                if kind != "dirty-active":
+                    route(page, "settings")
+                export = page.locator('[data-action="export"]').first
+                if kind == "clean-inactive":
+                    with page.expect_download() as info:
+                        export.click()
+                    device = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    session = None
+                else:
+                    export.click()
+                    wait_page(page, "Boolean(document.querySelector('[data-action=\"download-device-copy\"]'))", what="explicit device/session choice")
+                    page.screenshot(path=str(RESULTS / f"cabinet-export-{width}-{kind}.png"), full_page=True)
+                    with page.expect_download() as info:
+                        page.locator('[data-action="download-device-copy"]').click()
+                    device = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    with page.expect_download() as info:
+                        page.locator('[data-action="download-session-copy"]').click()
+                    session = json.loads(Path(info.value.path()).read_text(encoding="utf-8"))
+                    check(next(r for r in session["runs"] if r["key"] == key)["note"] == "Unsaved Cabinet session edits", "session download retains the actual unsaved note")
+                check(next(r for r in device["runs"] if r["key"] == key) == newer, "device download retains exact newer committed bytes")
+                check(read_idb(writer, "runs", key) == newer, "export leaves committed IndexedDB bytes unchanged")
+                for label, backup in (("device", device), ("session", session)):
+                    if backup is None:
+                        continue
+                    check(backup["format"] == "alibi-backup" and backup["schemaVersion"] == 1, "download retains the existing Cabinet import envelope")
+                    restored_context = launch_profile(pw, root / f"cabinet-restore-{width}-{kind}-{label}")
+                    try:
+                        restored_page = new_page(restored_context, "cabinet-copy-restore")
+                        boot(restored_page)
+                        route(restored_page, "settings")
+                        input_backup(restored_page, backup)
+                        click_reload_action(restored_page, '[data-action="restore-merge"]')
+                        check(read_idb(restored_page, "runs", key) == next(r for r in backup["runs"] if r["key"] == key), "download restores its exact selected progress into an isolated profile")
+                    finally:
+                        restored_context.close()
+            finally:
+                context.close()
 def scenario_inactive_broadcast(pw: Any, root: Path) -> None:
     for width in (390, 1280):
         context = launch_profile(pw, root / f"inactive-broadcast-{width}")
@@ -2015,7 +2157,9 @@ def run() -> int:
                 scenario_room_host,
                 scenario_room_version,
                 scenario_quarantined_run,
+                scenario_legacy_browser_recovery,
                 scenario_broadcast_readback,
+                scenario_cabinet_export_race,
                 scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,

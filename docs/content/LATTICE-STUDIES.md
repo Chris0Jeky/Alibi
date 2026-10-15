@@ -34,6 +34,10 @@ so official rating receipts cannot silently calibrate them. Gather explicit feed
 
 ## Why optional rather than another startup pack
 
+Historical rationale: the 2026-10-15 owner decision now permits larger caps and declarative
+deferral; see [DELIVERY.md](DELIVERY.md) and [current Interlock measurements](INTERLOCK-STUDIES.md).
+Lattice remains an optional Workshop pack; this decision does not promote it automatically.
+
 The 60-study Interlock CI artifact at `1ede1313` measured 205,054 initial gzip bytes under a
 205,248-byte ceiling and 11,825 deferred gzip bytes under 12,288. Simply adding another initial
 or deferred official pack would exhaust that headroom. This collection uses the existing
