@@ -8,7 +8,7 @@
       group: 'visual',
       tag: 'Hashi / Bridges',
       color: 'blue',
-      icon: 'network',
+      icon: 'bridges',
       goal: 'Connect the islands with bridges so every number is satisfied and the whole archipelago is connected.',
       gesture:
         'Tap an island, then its nearest neighbour in the same row or column. Repeat the pair for two bridges, then none.',
@@ -271,32 +271,37 @@
     },
   };
   const paths = {
-    home: '<path d="m3 10 9-7 9 7v10H14v-7h-4v7H3z"/>',
+    home: '<path d="M3 14h18M5 14v7m14-7v7M4 11h7v3H4ZM16 5v9m-2-9h4l-1-3h-2Z"/>',
     library:
-      '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M7 6v3m4-3v3m4-3 2 3M7 15v3m4-3v3m4-3h3v3h-3Z"/>',
     scene:
-      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 11h10V3m0 8v10m0-7h8"/><circle cx="7.5" cy="7" r="1.5"/><circle cx="17" cy="17" r="1.5"/>',
+      '<path d="M12 21H3V3h18v8M3 10h7V3M8 15H3"/><circle cx="15.5" cy="15.5" r="4.5"/><path d="m19 19 3 3"/>',
     dossier:
-      '<path d="M3 5h7l2 3h9v13H3Z"/><path d="M7 12h4m-4 4h4"/><circle cx="16" cy="14" r="2"/>',
-    witness: '<path d="M21 11a8 8 0 0 1-8 8H6l-4 3 1-7a8 8 0 1 1 18-4Z"/><path d="M8 9h8m-8 4h5"/>',
+      '<path d="M3 7V4h7l2 3h9v14H3ZM3 10h18M7 14h4m-4 3h3"/><circle cx="16.5" cy="15.5" r="2"/>',
+    witness:
+      '<path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 3v-3H3V6a2 2 0 0 1 2-2Z M7 8h3v4H7V8Zm7 0h3v4h-3V8ZM7 12l-1 2m8-2-1 2"/>',
     sudoku:
-      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18m6-18v18M3 9h18M3 15h18"/>',
+      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18m6-18v18M3 9h18M3 15h18 M5.5 5.5h1m11 6h1m-7 6h1"/>',
     nonogram:
-      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h5v5H7zm5 5h5v5h-5z" fill="currentColor" stroke="none"/>',
-    binary: '<circle cx="8" cy="8" r="4"/><path d="M16 10a5 5 0 1 0 5 5 5 5 0 0 1-5-5Z"/>',
-    futoshiki: '<path d="m9 5-6 7 6 7m6-14 6 7-6 7M11 3h2M11 21h2"/>',
-    lightup: '<path d="M9 18h6m-5 3h4M8 15a7 7 0 1 1 8 0l-1 3H9z"/>',
-    tents: '<path d="m12 3 10 17H2L12 3Zm0 5v12m0-12-6 12m6-12 6 12"/>',
-    aquarium: '<path d="M3 3v18h18V3M3 12c3-3 6 3 9 0s6 3 9 0M7 3h10"/><path d="M8 16h2m5 1h2"/>',
+      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M6 6h4v4H6Zm4 4h4v4h-4Zm4-4h4v4h-4Zm0 8h4v4h-4Z" fill="currentColor" stroke="none"/>',
+    binary:
+      '<circle cx="7" cy="7" r="3"/><path d="M7 1v1m0 10v1M1 7h1m10 0h1M2.8 2.8l.7.7m7 7 .7.7M2.8 11.2l.7-.7m7-7 .7-.7M20 14.5A6 6 0 0 1 12.5 7 7 7 0 1 0 20 14.5Z"/>',
+    futoshiki:
+      '<rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="m11 3 3 2.5L11 8m2 8-3 2.5 3 2.5M3 11l2.5 3L8 11"/>',
+    lightup:
+      '<path d="M7 7h10l2 3v10H5V10l2-3ZM7 7V5h10v2M9 5V3h6v2M5 10h14M8 10v10m8-10v10M4 22h16 M12 12c-3 3-2 5 0 5s3-2 0-5Z"/>',
+    tents: '<path d="m2 21 7-13 7 13H2Zm7-9v9M13 10l5-8 4 8h-3l4 6h-6m1 0v5"/>',
+    aquarium:
+      '<path d="M3 4h18M4 4v17h16V4M4 10c3-3 5 3 8 0s5 3 8 0 M8 15c2-2 4-2 6 0-2 2-4 2-6 0Zm6 0 3-2v4l-3-2Z"/>',
     network:
-      '<circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M7 5h4v14h6M5 7v10m8-12h4"/>',
+      '<rect x="3" y="3" width="4" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/><path d="M7 5h12v6H5v8h12"/><circle cx="5" cy="19" r="1" fill="currentColor"/>',
     trail:
-      '<circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h12v7H5v7h12"/>',
+      '<circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h9a3 3 0 0 1 0 6H8a4 4 0 0 0 0 8h9M12 3v4m0 10v4"/>',
     arrow: '<path d="M4 12h15m-6-6 6 6-6 6"/>',
     back: '<path d="M20 12H5m6-6-6 6 6 6"/>',
     check: '<path d="m5 12 4 4L19 6"/>',
     close: '<path d="m6 6 12 12M6 18 18 6"/>',
-    book: '<path d="M12 5v16M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2Z"/>',
+    book: '<path d="M12 6c-3-2-6-3-9-2v15c3-1 6 0 9 2 3-2 6-3 9-2V4c-3-1-6 0-9 2Zm0 0v15M6 8l3 1m-3 3 3 1m6-4 3-1m-3 5 3-1"/>',
     help: '<circle cx="12" cy="12" r="9"/><path d="M9 8a3 3 0 1 1 5 3l-2 2m0 3v1"/>',
     undo: '<path d="M8 4 3 9l5 5M3 9h11a6 6 0 0 1 0 12"/>',
     redo: '<path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12"/>',
@@ -306,18 +311,19 @@
     play: '<path d="m8 4 12 8-12 8z"/>',
     settings:
       '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/>',
-    workshop: '<path d="m4 20 8-8m4-10a7 7 0 0 0-9 9l-5 5 6 6 5-5a7 7 0 0 0 9-9l-5 5-6-6Z"/>',
-    journal: '<path d="M6 3h15v18H6a3 3 0 0 1 0-6h15M6 3a3 3 0 0 0-3 3v12m6-11h8m-8 4h5"/>',
+    workshop: '<path d="M3 21h18M5 18 16 3l4 3L9 21M14 6l4 3M3 4l7 7m-7-7v5m0-5h5"/>',
+    journal:
+      '<rect x="5" y="3" width="15" height="18" rx="2"/><path d="M8 3v18M3 7h3m-3 5h3m-3 5h3M12 7h5m-5 4h5m-5 4h3"/>',
     download: '<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',
     upload: '<path d="M12 16V4m-5 5 5-5 5 5M4 16v5h16v-5"/>',
     lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>',
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 1v2m0 18v2M1 12h2m18 0h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/>',
     moon: '<path d="M19 15.5A8 8 0 0 1 8.5 5 8 8 0 1 0 19 15.5Z"/>',
     plant:
-      '<path d="M9 15h6l-1 6h-4zm3 0V7M12 10C4 11 2 5 4 3c7-1 9 4 8 7Zm0-2c1-6 6-7 9-5 1 5-4 8-9 7"/>',
+      '<path d="M7 15h10l-2 7H9l-2-7Zm5 0V9M12 11C6 12 3 8 4 4c5-1 9 2 8 7Zm0-3c1-5 4-7 8-6 1 4-2 7-8 7Z"/>',
     tree: '<path d="m12 2-6 8h3l-5 7h16l-5-7h3L12 2Zm0 15v5"/>',
     table:
-      '<rect x="3" y="5" width="18" height="12" rx="3"/><path d="M6 17v4m12-4v4M6 3v2m12-2v2"/>',
+      '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M5 17v4m14-4v4M6 3h4v4M14 3h4v4M7 12h3m4 0h3"/>',
     piano: '<path d="M4 3h11a6 6 0 0 1 6 6v10H4Z"/><path d="M4 13h17M8 13v6m4-6v6m4-6v6"/>',
     shelf:
       '<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 12h18M7 5v5m4-5v5m4-4 3 4M7 14v5m4-5v5m4-5v5"/>',
@@ -335,6 +341,10 @@
     volume: '<path d="M3 9h4l5-5v16l-5-5H3Zm13-1c3 3 3 5 0 8m3-11c5 5 5 9 0 14"/>',
     flag: '<path d="M5 22V3c5-5 9 4 15 0v10c-6 4-10-5-15 0"/>',
     compass: '<circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5z"/>',
+    bridges:
+      '<circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><circle cx="5" cy="19" r="2.5"/><path d="M7.5 4h9m-9 2h9M18 7.5v9m2-9v9M7.5 19h9M5 7.5v9"/>',
+    quiet: '<path d="M12 21v-9M12 15C5 16 2 12 3 7c6-1 10 2 9 8Zm0-5c0-6 4-9 9-8 1 5-2 9-9 8Z"/>',
+    castle: '<path d="M3 21V7h3V3h3v4h6V3h3v4h3v14H3Zm6 0v-5a3 3 0 0 1 6 0v5M6 10v2m12-2v2"/>',
   };
   function icon(name, cls = '') {
     return `<svg class="icon ${cls}" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.sudoku}</svg>`;

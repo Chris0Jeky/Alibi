@@ -1,12 +1,14 @@
 /* Device-local persistence. IndexedDB transactions keep a save and its revision atomic.
-   The fallback is deliberately labelled: localStorage is not a cross-tab transaction. */
+   Local run records are read-only without IndexedDB; session writes stay ephemeral. */
 (function (root) {
   'use strict';
   const PREFIX = 'alibi.v1.',
     DB = 'alibi-device',
     VERSION = 1,
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
-    aborted = () => Error('Storage transaction aborted.');
+    aborted = () => Error('Storage transaction aborted.'),
+    readOnly = () =>
+      Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
   class ConflictError extends Error {
     constructor() {
       super('This puzzle changed in another tab. Reload its latest save or export this session.');
@@ -20,8 +22,37 @@
       this.memory = { runs: {}, packs: {}, meta: {} };
       this.problem = null;
       this.fatal = false;
+      this.damaged = {};
+      this.legacyInventory = [];
+      this.legacyProblem = null;
+    }
+    legacySnapshot() {
+      try {
+        const ls = root.localStorage,
+          keys = Array.from({ length: ls.length }, (_, i) => ls.key(i)),
+          entries = [];
+        for (const key of keys) {
+          if (key == null) throw Error('A storage key is missing.');
+          if (!key.startsWith(PREFIX) || key === PREFIX + 'probe') continue;
+          const value = ls.getItem(key);
+          if (value == null) throw Error('Browser data changed while reading.');
+          entries.push({ key, value });
+        }
+        if (keys.length !== ls.length || keys.some((key, i) => key !== ls.key(i)))
+          throw Error('Browser data changed while reading.');
+        return entries;
+      } catch (e) {
+        throw Error('Older browser data could not be checked: ' + e.message);
+      }
     }
     async init() {
+      try {
+        this.legacyInventory = this.legacySnapshot();
+        this.legacyProblem = null;
+      } catch (e) {
+        this.legacyInventory = [];
+        this.legacyProblem = e?.message || String(e);
+      }
       try {
         if (!root.indexedDB) throw Error('IndexedDB is unavailable.');
         this.db = await new Promise((resolve, reject) => {
@@ -80,6 +111,7 @@
         localStorage.setItem(PREFIX + 'probe', '1');
         localStorage.removeItem(PREFIX + 'probe');
         this.mode = 'local';
+        this.problem = readOnly().message;
       } catch (e) {
         this.mode = 'session';
       }
@@ -119,19 +151,20 @@
           r.onerror = () => reject(r.error);
         });
       if (this.mode === 'local') {
-        const out = [];
+        const out = [],
+          damaged = [],
+          prefix = PREFIX + store + '.';
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith(PREFIX + store + '.')) {
+          if (key && key.startsWith(prefix)) {
             try {
               out.push(JSON.parse(localStorage.getItem(key)));
-            } catch (e) {
-              throw Error(
-                'A saved record is damaged. Export browser data before resetting anything.',
-              );
+            } catch {
+              damaged.push(key.slice(prefix.length));
             }
           }
         }
+        this.damaged[store] = out.damaged = damaged;
         return out;
       }
       return Object.values(this.memory[store]);
@@ -147,7 +180,7 @@
         });
       if (this.mode === 'local') {
         const v = localStorage.getItem(PREFIX + store + '.' + key);
-        if (!v) return undefined;
+        if (v === null) return undefined;
         try {
           return JSON.parse(v);
         } catch (e) {
@@ -166,9 +199,10 @@
           tx.onerror = () => reject(tx.error);
           tx.onabort = () => reject(tx.error || aborted());
         });
-      if (this.mode === 'local')
+      if (this.mode === 'local') {
+        if (store === 'runs') throw readOnly();
         localStorage.setItem(PREFIX + store + '.' + key, JSON.stringify(value));
-      else this.memory[store][key] = value;
+      } else this.memory[store][key] = value;
       return value;
     }
     async saveRun(record, expectedRevision) {
@@ -179,6 +213,7 @@
         expectedRevision < 0
       )
         throw Error('Revision limit.');
+      if (!this.db && this.mode === 'local') throw readOnly();
       const key = record.key;
       const next = AlibiCore.clone(record);
       next.rev = expectedRevision + 1;
@@ -191,7 +226,24 @@
             r = os.get(key);
           this.watch(tx, reject);
           r.onsuccess = () => {
-            if ((r.result?.value.rev || 0) !== expectedRevision) {
+            const old = r.result?.value;
+            let invalid = false;
+            try {
+              if (old !== undefined) this.validateRun?.(old);
+            } catch {
+              invalid = true;
+            }
+            if (
+              invalid ||
+              (r.result !== undefined &&
+                (!old ||
+                  r.result.key !== key ||
+                  old.key !== key ||
+                  old.schemaVersion !== 1 ||
+                  !Number.isSafeInteger(old.rev) ||
+                  old.rev < 0)) ||
+              (old?.rev ?? 0) !== expectedRevision
+            ) {
               conflict = true;
               tx.abort();
             } else os.put({ key, value: next });
@@ -201,19 +253,52 @@
           tx.onabort = () =>
             reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
         });
-      const old = await this.get('runs', key);
+      // Session memory belongs to this Store. Compare and write without yielding.
+      const old = this.memory.runs[key];
+      if (
+        old !== undefined &&
+        (!old ||
+          old.schemaVersion !== 1 ||
+          old.key !== key ||
+          !Number.isSafeInteger(old.rev) ||
+          old.rev < 0)
+      )
+        throw Error(
+          'A saved record is damaged or from an unsupported version. Nothing was changed.',
+        );
+      if (old !== undefined) this.validateRun?.(old);
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }
     async export() {
+      const runs = await this.getAll('runs'),
+        packs = await this.getAll('packs'),
+        metaDamaged = [];
+      let settings = {},
+        preferences = {};
+      for (const key of ['settings', 'preferences'])
+        try {
+          const value = await this.get('meta', key);
+          if (key === 'settings') settings = value || {};
+          else preferences = value || {};
+        } catch (e) {
+          if (!/damaged/.test(e?.message || '')) throw e;
+          metaDamaged.push(key);
+        }
+      this.damaged.meta = metaDamaged;
       return {
         format: 'alibi-backup',
         schemaVersion: 1,
         exportedAt: new Date().toISOString(),
-        runs: await this.getAll('runs'),
-        packs: await this.getAll('packs'),
-        settings: (await this.get('meta', 'settings')) || {},
-        preferences: (await this.get('meta', 'preferences')) || {},
+        runs: [...runs],
+        packs: [...packs],
+        settings,
+        preferences,
+        damaged: {
+          runs: [...(this.damaged.runs || [])],
+          packs: [...(this.damaged.packs || [])],
+          meta: [...metaDamaged],
+        },
       };
     }
     async restore(backup, expected) {

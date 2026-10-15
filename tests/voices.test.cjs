@@ -236,7 +236,7 @@ function sheetPage({ hash = '#/home', online = true, queued = null, replies = []
   const context = {
     innerWidth: 500,
     location: { origin: PRIMARY, hash },
-    navigator: { onLine: online },
+    navigator: { locks: { request: (_name, fn) => Promise.resolve().then(fn) }, onLine: online },
     ALIBI_CONFIG: { standalone: false, version: '0.15.0' },
     ALIBI_VOICES: { origin: PRIMARY, collector: COLLECTOR, chunk: './assets/voices.x.js' },
     ALIBI_CATALOG: { puzzles: [{ id: 'scene-01', type: 'scene', difficulty: 'Gentle' }] },
@@ -328,7 +328,7 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
   );
   assert.match(
     source,
-    /return status === 202 \? 1 : status === 400 \? 3 : 2;/,
+    /return status === 202 \? 1 : status === 400 \|\| status === 409 \? 3 : 2;/,
     '202 is sent, 400 is refused, anything else is waiting',
   );
   // Behaviour under that mapping: the queue outcome deliver() reads only records a real
@@ -360,22 +360,22 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
     });
   const first = note('first');
   assert.ok(first);
-  assert.equal(queue.enqueue(first), true);
+  assert.equal(await queue.enqueue(first), true);
   await queue.flush();
   assert.equal(queue.outcome(first), 202, 'a 202 is the only sent answer');
   const second = note('second');
-  queue.enqueue(second);
+  await queue.enqueue(second);
   status = 400;
   await queue.flush();
   assert.equal(queue.outcome(second), 400, 'a 400 is refused');
   const third = note('third');
-  queue.enqueue(third);
+  await queue.enqueue(third);
   status = 500;
   await queue.flush();
   assert.equal(queue.outcome(third), undefined, 'anything else is still waiting, never sent');
 });
 
-function decorateHarness(runId = 'scene-01') {
+function decorateHarness(runId = 'scene-01', standalone = false) {
   const listeners = { window: {}, document: {} };
   const store = new Map();
   const inserted = [];
@@ -437,7 +437,7 @@ function decorateHarness(runId = 'scene-01') {
   const context = {
     document,
     location: { origin: PRIMARY, hash: '#/play/scene-01' },
-    ALIBI_CONFIG: { standalone: false, version: '0.15.0' },
+    ALIBI_CONFIG: { standalone, version: '0.15.0' },
     ALIBI_VOICES: { origin: PRIMARY, collector: COLLECTOR, chunk: './assets/voices.x.js' },
     ALIBI_CATALOG: { puzzles: [{ id: 'scene-01', type: 'scene', difficulty: 'Gentle' }] },
     localStorage: {
@@ -482,6 +482,13 @@ test('decorate() injects the Feedback and report buttons with every slot after e
   );
   assert.equal(h.filled.length, 8, 'a new render fills every slot again');
   assert.equal(h.idle.length, 1, 'one idle kick after the first render only');
+});
+
+test('decorate() adds no rating or survey places to a standalone official completion', () => {
+  const h = decorateHarness('scene-01', true);
+  h.render();
+  assert.deepEqual(h.filled.map(([slot]) => slot).sort(), ['vo-panel', 'vo-privacy']);
+  assert.ok(h.inserted.every((i) => !i.html.includes('vo-rate') && !i.html.includes('vo-offer')));
 });
 
 test('decorate() only offers rating and survey places on official completion screens', () => {
@@ -543,6 +550,7 @@ test('tap() keeps rating state locally and sends it once it has a difficulty', a
   const rated = () => JSON.parse(h.store.get('alibi:voices:state:v1') || '{}').rated || {};
   const [tooEasy, justRight, tooHard] = row.difficulty;
   row.click(h, 'more', 'yes');
+  await settleSheet(h);
   assert.equal(row.statusEl.textContent, 'Choose how it felt to send this.');
   assert.deepEqual(rated()['scene-01'], { more: 'yes' }, 'a difficulty-free tap is kept, not sent');
   assert.equal(h.calls.fetch.length, 0);
@@ -571,6 +579,74 @@ test('tap() keeps rating state locally and sends it once it has a difficulty', a
   assert.equal(h.calls.fetch.length, 2);
 });
 
+test('rapid rating and heart edits keep both choices while revision allocation waits', async () => {
+  const h = sheetPage({ online: false });
+  const row = ratingRow();
+  row.click(h, 'rate', 'just-right');
+  row.click(h, 'more', 'yes');
+  await settleSheet(h);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+    more: 'yes',
+  });
+  const [item] = JSON.parse(h.store.get('alibi:voices:queue:v1'));
+  assert.deepEqual(item.payload.answers, { difficulty: 'just-right', more: 'yes' });
+  assert.equal(item.payload.revision, 2);
+});
+
+test('a rejected rating lock is visible and the next tap still sends', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const lock = h.context.navigator.locks,
+    request = lock.request;
+  lock.request = () => Promise.reject(new DOMException('Blocked', 'SecurityError'));
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Not sent. Try again later.');
+  assert.equal(h.calls.fetch.length, 0);
+  lock.request = request;
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Thanks, sent.');
+  assert.equal(h.calls.fetch.length, 1);
+});
+
+test('an unexpected tap rejection does not poison subsequent rating and heart taps', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const click = () =>
+    h.fire('click', {
+      target: {
+        closest: () => ({
+          dataset: { voAct: 'rate', value: 'just-right' },
+          closest() {
+            throw Error('Detached row');
+          },
+        }),
+      },
+    });
+  click();
+  await settleSheet(h);
+  row.click(h, 'rate', 'just-right');
+  row.click(h, 'more', 'yes');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Thanks, sent.');
+  assert.equal(h.calls.fetch.length, 2);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+    more: 'yes',
+  });
+});
+
+test('409 is shown as refused rather than saved for retry', async () => {
+  const h = sheetPage({ replies: [409] });
+  const row = ratingRow();
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Not sent.');
+  assert.equal(h.store.has('alibi:voices:queue:v1'), false);
+});
+
 test('tap() reports a refused or waiting delivery without ever claiming it was sent', async () => {
   const row = ratingRow();
   const refused = sheetPage({ replies: [400] });
@@ -594,6 +670,30 @@ test('tap() reports a refused or waiting delivery without ever claiming it was s
   );
 });
 
+test('a hanging rating send stays queued and reports waiting at the four-second deadline', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const timers = [];
+  h.context.setTimeout = (fn, ms) => timers.push({ fn, ms });
+  h.context.fetch = (...args) => {
+    h.calls.fetch.push(args);
+    return new Promise(() => {});
+  };
+  row.click(h, 'rate', 'just-right');
+  await new Promise((r) => setImmediate(r));
+  assert.equal(h.calls.fetch.length, 1);
+  assert.equal(timers.length, 1);
+  assert.equal(timers[0].ms, 4000);
+  assert.equal(row.statusEl.textContent, '');
+  timers[0].fn();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(row.statusEl.textContent, 'Saved. It sends when online.');
+  assert.equal(JSON.parse(h.store.get('alibi:voices:queue:v1')).length, 1);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+  });
+});
+
 test('tap() forgets an unqueued choice so the same tap can retry', async () => {
   const queued = Array.from({ length: 20 }, (_, i) => ({
     payload: { id: `queued-${i}`, text: 'waiting' },
@@ -604,6 +704,7 @@ test('tap() forgets an unqueued choice so the same tap can retry', async () => {
   const h = sheetPage({ queued });
   const row = ratingRow();
   row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
   assert.equal(row.statusEl.textContent, 'Not sent. Try again later.');
   assert.equal(h.store.has('alibi:voices:state:v1'), false, 'an unqueued choice is not remembered');
   h.store.delete('alibi:voices:queue:v1');
