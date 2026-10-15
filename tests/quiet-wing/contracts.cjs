@@ -251,6 +251,91 @@ function fakeIDB() {
     fake.data.get('state').scene.name === 'Replacement',
     'Rejected garden restores preserve the current save',
   );
+  const overflowDB = fakeIDB(),
+    overflowOriginal = E.newState(Date.now()),
+    overflowRecovery = { at: 42, state: { future: 'preserve' } };
+  overflowOriginal.revision = Number.MAX_SAFE_INTEGER + 1;
+  overflowOriginal.scene.name = 'Protected overflow original';
+  overflowDB.data.set('state', structuredClone(overflowOriginal));
+  overflowDB.data.set('recovery', structuredClone(overflowRecovery));
+  const overflowA = env(local(), overflowDB.api),
+    overflowB = env(local(), overflowDB.api);
+  await overflowA.s.open();
+  await overflowB.s.open();
+  const firstOverflow = E.newState(Date.now()),
+    staleOverflow = E.newState(Date.now());
+  firstOverflow.scene.name = 'First writer';
+  staleOverflow.scene.name = 'Stale writer';
+  const overflowWrites = await Promise.allSettled([
+    overflowA.s.write(firstOverflow),
+    overflowB.s.write(staleOverflow),
+  ]);
+  console.log({
+    precisionBoundary: overflowWrites.map((r) => r.status),
+    revision: overflowDB.data.get('state').revision,
+    name: overflowDB.data.get('state').scene.name,
+  });
+  ok(
+    overflowWrites.every((r) => r.status === 'rejected'),
+    'Both overflow writers are refused instead of reporting unchanged-revision success',
+  );
+  assert.deepEqual(overflowDB.data.get('state'), overflowOriginal);
+  assert.deepEqual(overflowDB.data.get('recovery'), overflowRecovery);
+  checks += 2;
+  for (const mode of ['local', 'indexeddb']) {
+    const boundaryLocal = local(),
+      boundaryDB = fakeIDB(),
+      boundaryState = E.newState(Date.now()),
+      boundaryRecovery = { at: 43, state: { sentinel: 'preserve' } };
+    boundaryState.revision = Number.MAX_SAFE_INTEGER - 1;
+    if (mode === 'indexeddb') {
+      boundaryDB.data.set('state', structuredClone(boundaryState));
+      boundaryDB.data.set('recovery', structuredClone(boundaryRecovery));
+    } else {
+      boundaryLocal.setItem('alibi-quiet-wing-v1:fallback', JSON.stringify(boundaryState));
+      boundaryLocal.setItem(
+        'alibi-quiet-wing-v1:fallback:recovery',
+        JSON.stringify(boundaryRecovery),
+      );
+    }
+    const boundary = env(boundaryLocal, mode === 'indexeddb' ? boundaryDB.api : undefined),
+      opened = await boundary.s.open();
+    opened.saved.scene.name = 'Final safe edit';
+    const eqRevision = await boundary.s.write(opened.saved);
+    ok(eqRevision === Number.MAX_SAFE_INTEGER, mode + ' advances to the final safe revision');
+    const lastBytes =
+      mode === 'indexeddb'
+        ? structuredClone(boundaryDB.data.get('state'))
+        : boundaryLocal.getItem('alibi-quiet-wing-v1:fallback');
+    opened.saved.scene.name = 'Refused edit';
+    await assert.rejects(boundary.s.write(opened.saved), /revision/i);
+    checks++;
+    if (mode === 'indexeddb') {
+      await assert.rejects(boundary.s.replace(E.newState(Date.now())), /revision/i);
+      assert.deepEqual(boundaryDB.data.get('state'), lastBytes);
+      assert.deepEqual(boundaryDB.data.get('recovery'), boundaryRecovery);
+      checks += 3;
+    } else {
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback') === lastBytes,
+        'Refused fallback edit preserves exact bytes',
+      );
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback:recovery') ===
+          JSON.stringify(boundaryRecovery),
+        'Fallback recovery bytes stay intact',
+      );
+      const unsafeBytes = '  ' + JSON.stringify(overflowOriginal) + '\n';
+      boundaryLocal.setItem('alibi-quiet-wing-v1:fallback', unsafeBytes);
+      const unsafeFallback = env(boundaryLocal);
+      ok((await unsafeFallback.s.open()).blocked, 'Unsafe fallback revision loads protected');
+      await assert.rejects(unsafeFallback.s.write(E.newState(Date.now())), /read-only/);
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback') === unsafeBytes,
+        'Unsafe fallback bytes remain exact',
+      );
+    }
+  }
   fake.setHang(true);
   try {
     await w.s.write(x);

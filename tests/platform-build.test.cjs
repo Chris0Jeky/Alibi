@@ -71,7 +71,7 @@ test('startup delivery accounting includes every required emitted script', () =>
   assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform startup stays below 6 KiB gzip');
 });
 
-test('house source preview installs the facade and fingerprints its emitted inline payload', () => {
+test('house source preview installs the facade and fingerprints its emitted inline payload', async () => {
   const parent = path.join(ROOT, 'test-results', 'platform-build');
   fs.mkdirSync(parent, { recursive: true });
   const filename = path.join(parent, 'house-source.html');
@@ -105,6 +105,34 @@ test('house source preview installs the facade and fingerprints its emitted inli
   assert.equal(context.AlibiPlatform.capabilities().nativeHost, false);
   assert.equal(Object.getOwnPropertyDescriptor(context, 'AlibiPlatform').writable, false);
   assert.match(html, /SOURCE PREVIEW/);
+
+  const storageStart = script.indexOf(fs.readFileSync(path.join(ROOT, 'src/storage.js'), 'utf8'));
+  const storageEnd = script.indexOf(
+    fs.readFileSync(path.join(ROOT, 'src/presentation.js'), 'utf8'),
+  );
+  assert.ok(storageStart > 0 && storageEnd > storageStart);
+  for (const [protocol, origin] of [
+    ['about:', 'null'],
+    ['https:', 'https://alibi.example'],
+    ['file:', 'null'],
+    ['about:', 'https://alibi.example'],
+  ]) {
+    const denied = vm.createContext({ location: { protocol }, origin });
+    vm.runInContext(
+      'Object.defineProperty(globalThis, "localStorage", { get() { throw Error("Storage denied"); } });',
+      denied,
+    );
+    vm.runInContext(script.slice(storageStart, storageEnd), denied);
+    const store = await new denied.AlibiStorage.Store().init();
+    assert.equal(store.mode, 'session');
+    if (protocol === 'about:' && origin === 'null') {
+      assert.equal(store.legacyProblem, null, 'originless preview has no legacy inventory');
+      assert.equal(store.legacySnapshot().length, 0);
+    } else {
+      assert.match(store.legacyProblem, /Older browser data could not be checked: Storage denied/);
+      assert.throws(() => store.legacySnapshot(), /Storage denied/);
+    }
+  }
 });
 
 test('runtime graph excludes self-reference but includes optional code and installed icons', () => {

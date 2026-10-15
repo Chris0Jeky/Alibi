@@ -323,17 +323,30 @@ test('filesystem loader agrees with the pure compiler and the complete official 
 });
 test('filesystem loader refuses symlink sources without following them', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-shelf-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-shelf-target-'));
+  const link = path.join(temp, 'content/workshop', policy.collections[0].source);
   try {
     const dir = path.join(temp, 'content/workshop');
     fs.mkdirSync(dir, { recursive: true });
     fs.copyFileSync(path.join(source, 'catalogue.json'), path.join(dir, 'catalogue.json'));
-    fs.symlinkSync(
-      path.join(source, policy.collections[0].source),
-      path.join(dir, policy.collections[0].source),
-    );
+    if (process.platform === 'win32') {
+      // A file symlink needs a privilege this host does not grant. A directory junction is a
+      // symbolic link to lstat, so the loader must refuse that source path before reading it.
+      // The file-symlink assertion below stays POSIX-only and is what Linux CI runs.
+      fs.symlinkSync(outside, link, 'junction');
+      const linked = fs.lstatSync(link);
+      assert.equal(linked.isSymbolicLink(), true);
+      assert.equal(linked.isFile(), false);
+      assert.throws(() => loadCatalogue(temp), /regular|symlink/);
+      return;
+    }
+    fs.symlinkSync(path.join(source, policy.collections[0].source), link);
+    assert.equal(fs.lstatSync(link).isSymbolicLink(), true);
     assert.throws(() => loadCatalogue(temp), /regular|symlink/);
   } finally {
+    if (process.platform === 'win32' && fs.existsSync(link)) fs.rmdirSync(link);
     fs.rmSync(temp, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
   }
 });
 

@@ -1,10 +1,10 @@
 # Alibi development
 
-Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 510 puzzles, five
+Alibi is a mobile-first, device-local puzzle PWA: thirteen pure engines, 570 puzzles, five
 casebooks, eight After Hours games, a workshop and offline saves. It builds to static files with no runtime dependency.
-The trusted registry (`content/official-packs.json`) holds 510 puzzles across 30 packs (25 initial
-plus 5 deferred packs); the bundled total is `build-info.json` `puzzles` (424 initial plus
-86 deferred, comprising the four Vault packs and six advanced Crime Scene variations).
+The trusted registry (`content/official-packs.json`) holds 570 puzzles across 32 packs; its
+`deferred` list declares which definitions load after startup. `build-info.json` reports the total
+(`puzzles`) and the deferred count (`deferredPuzzles`). Content authors use [docs/content/DELIVERY.md](docs/content/DELIVERY.md) to defer packs or images.
 The root is the working source. The deluxe, After Hours and Quiet Wing bundle directories are ignored input.
 Quiet Wing is an optional lazy activity; its source and recovery map is `docs/QUIET-WING.md`.
 
