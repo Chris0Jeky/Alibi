@@ -70,7 +70,7 @@ function makeWorld({ localRows, activeKey = null, storedRows = {}, holdGet = fal
       }
       const next = { ...snap, rev: currentRev + 1, updatedAt: '2026-10-11T00:00:00.000Z' };
       stored.set(snap.key, next);
-      return { rev: next.rev, updatedAt: next.updatedAt };
+      return clone(next);
     },
   };
   class FakeBroadcastChannel {
@@ -119,6 +119,7 @@ function makeWorld({ localRows, activeKey = null, storedRows = {}, holdGet = fal
     'let sessionSeconds = 0;\n' +
     'let records = new Map();\n' +
     'let revs = new Map();\n' +
+    'let acked = new Map();\n' +
     'for (const [k, v] of __seed.records) records.set(k, JSON.parse(JSON.stringify(v)));\n' +
     'for (const [k, v] of __seed.revs) revs.set(k, v);\n' +
     'if (__seed.activeKey) current = records.get(__seed.activeKey) || null;\n' +

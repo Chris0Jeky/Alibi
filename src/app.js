@@ -42,6 +42,7 @@
     packs = [starter],
     records = new Map(),
     revs = new Map(),
+    acked = new Map(),
     queue = Promise.resolve(),
     pendingSaves = 0,
     saveError = '',
@@ -202,6 +203,7 @@
         validateRun(r);
         records.set(r.key, r);
         revs.set(r.key, r.rev);
+        acked.set(r.key, C.clone(r));
       } catch {
         quarantined++;
       }
@@ -347,6 +349,7 @@
         if (saveError) return;
         const saved = await store.saveRun(snapshot, revs.get(snapshot.key) || 0);
         revs.set(snapshot.key, saved.rev);
+        acked.set(snapshot.key, C.clone(saved));
         const local = records.get(snapshot.key);
         if (local) {
           local.rev = saved.rev;
@@ -400,6 +403,7 @@
           }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
+          acked.set(r.key, C.clone(r));
           if (!current) render();
         } catch {}
       }
@@ -2147,20 +2151,40 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
-    const data = await store.export(),
-      merged = new Map(data.runs.map((r) => [r.key, r]));
-    for (const r of records.values()) merged.set(r.key, C.clone(r));
-    if (current) merged.get(current.key).elapsed = sessionSeconds;
-    data.runs = [...merged.values()];
-    data.packs = [...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, p])).values()];
-    data.settings = settings;
-    data.preferences = prefs;
+    const data = await store.export();
+    const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
+    const divergentByKey = new Map();
+    for (const [key, record] of records) {
+      const local = C.clone(record);
+      if (key === current?.key) local.elapsed = sessionSeconds;
+      const persisted = deviceByKey.get(key);
+      const baseline = acked.get(key);
+      if (persisted && baseline && C.equal(local, baseline)) continue;
+      // Restores preserve revisions, so the full acknowledged row must still match.
+      if (!persisted || (baseline && C.equal(persisted, baseline))) deviceByKey.set(key, local);
+      else divergentByKey.set(key, local);
+    }
+    data.runs = [...deviceByKey.values()];
+    data.packs = [
+      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
+    ];
+    data.settings = C.clone(settings);
+    data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
-    return data;
+    return {
+      data,
+      session: divergentByKey.size
+        ? {
+            ...data,
+            runs: [...new Map([...deviceByKey, ...divergentByKey]).values()],
+          }
+        : null,
+    };
   }
   async function exportBackup() {
-    download(`alibi-backup-${new Date().toISOString().slice(0, 10)}.json`, await cabinetBackup());
-    toast('Backup exported. Keep a copy outside this browser.');
+    const { data, session } = await cabinetBackup();
+    offerCabinetCopies(data, session, `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    if (!session) toast('Backup exported. Keep a copy outside this browser.');
   }
   async function exportLegacy() {
     download('alibi-legacy-browser-data.json', {
@@ -2177,8 +2201,29 @@
     return `<div class="banner warn"><span>${store.legacyProblem ? esc(store.legacyProblem) + ' Try exporting again.' : `${count} older browser record${count === 1 ? '' : 's'} found. They have not been migrated.`}</span>${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div>`;
   }
   let stagedAll = null;
+  let stagedCabinet = null;
+  function offerCabinetCopies(data, session, filename) {
+    if (!session) {
+      download(filename, data);
+      return;
+    }
+    stagedCabinet = C.clone([data, session, filename]);
+    dialog(
+      'Keep both copies',
+      '<p>Device progress and session edits differ. Download both backups.</p>',
+      [
+        { label: 'Device backup', action: 'download-device-copy' },
+        {
+          label: 'Cabinet session backup',
+          action: 'download-session-copy',
+          secondary: true,
+        },
+        { label: 'Close', action: 'close-dialog', secondary: true },
+      ],
+    );
+  }
   async function exportAll() {
-    const cabinet = await cabinetBackup();
+    const { data: cabinet, session: cabinetSession } = await cabinetBackup();
     const warnings = [];
     await AlibiClub.flush().catch((e) =>
       warnings.push('Club save could not be flushed: ' + e.message),
@@ -2220,7 +2265,8 @@
         'Castle was not included: ' + error.message + ' Export the castle notebook separately.',
       );
     }
-    download('alibi-all-saves.json', {
+    if (cabinetSession) warnings.push('Cabinet session edits are separate.');
+    const combined = {
       format: 'alibi-all-saves',
       schema: 1,
       applicationVersion: cfg.version,
@@ -2237,17 +2283,19 @@
           ? 'Quiet Wing has protected stored data. Keep the raw recovery section.'
           : '',
       ].filter(Boolean),
-    });
+    };
+    offerCabinetCopies(combined, cabinetSession, 'alibi-all-saves.json');
     const exported = manifest
       .map(
         (section) =>
           ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing', castle: 'Castle' })[section],
       )
       .join(', ');
-    toast(
-      `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
-      warnings.length > 0,
-    );
+    if (!cabinetSession)
+      toast(
+        `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
+        warnings.length > 0,
+      );
   }
   async function stageAll(file) {
     const serial = routeSerial;
@@ -3023,6 +3071,12 @@
         break;
       case 'export-all':
         await exportAll();
+        break;
+      case 'download-device-copy':
+        if (stagedCabinet) download(stagedCabinet[2], stagedCabinet[0]);
+        break;
+      case 'download-session-copy':
+        if (stagedCabinet) download('alibi-cabinet-session.json', stagedCabinet[1]);
         break;
       case 'import-all':
         $('#all-backup-input').value = '';
