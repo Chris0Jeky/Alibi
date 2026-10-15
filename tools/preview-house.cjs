@@ -75,7 +75,16 @@ function preview(out = path.join(ROOT, 'house-preview.html')) {
     '\n' +
     browserBundle(ROOT) +
     '\nif (!location.hash) location.hash = "#/home?ux=house";\n' +
-    files.map((f) => read('src/' + f + '.js')).join('\n');
+    files
+      .map(
+        (f) =>
+          read('src/' + f + '.js') +
+          // set_content's opaque about:blank has no saved origin to recover; keep real-origin probes.
+          (f === 'storage'
+            ? '\nif (location.protocol === "about:" && globalThis.origin === "null") AlibiStorage.Store.prototype.legacySnapshot = () => [];\n'
+            : ''),
+      )
+      .join('\n');
   const css = [
     'app',
     'cabinet',

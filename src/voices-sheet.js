@@ -45,12 +45,13 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       [...(A.records?.values?.() || [])]
         .map((r) => A.official(r) && Date.parse(r.firstCompletedAt || r.completedAt))
         .filter((t) => t > 0),
-    // Re-decorates the page; focus stays on the same control or moves to the next safe one.
+    // A removed control with an id can return to Send. One with no id returns to the page.
     refresh = () => {
       const id = doc.activeElement?.id;
       A(A.run, A.records);
-      if (doc.activeElement === doc.body)
-        (doc.getElementById(id) || $('.play-end .btn') || $('#vo-send') || $('#main'))?.focus();
+      if (doc.activeElement !== doc.body) return;
+      const restored = id && doc.getElementById(id);
+      (restored || (id && $('#vo-send')) || $('#main'))?.focus();
     },
     ASK = {
       often: 'How often do you play?',
@@ -102,7 +103,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       `<div class="chips">${options.map((v) => `<label><input class="sr-only" type="${type}" name="${id}" value="${v}" ${[picked].flat().includes(v) ? 'checked' : ''} ${required ? 'required' : ''}>${esc(name(v))}</label>`).join('')}</div>`,
     actions = (send) =>
       `<p class="vo-error" role="alert"></p><div class="dialog-actions"><button class="btn">${send}</button><button type="button" class="btn secondary" data-vo-close>Cancel</button></div>`,
-    full = 'Twenty messages are already waiting. Delete them in Settings or try later.',
+    full = 'Twenty messages are waiting. Delete them in Settings or try later.',
     small = (n, what, act, label) =>
       n
         ? `<p class="fine">${n} message${n > 1 ? 's' : ''} ${what}. <button type="button" class="btn ghost" id="vo-${act}" data-vo-act="${act}">${label}</button></p>`
@@ -163,7 +164,12 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       });
       sheet.addEventListener('submit', (e) => {
         e.preventDefault();
-        (e.target.id === 'vo-form' ? sendFeedback : sendSurvey)(e.target);
+        const button = e.target.querySelector('.btn');
+        if (button.disabled) return;
+        button.disabled = true;
+        (e.target.id === 'vo-form' ? sendFeedback : sendSurvey)(e.target).finally(
+          () => (button.disabled = false),
+        );
       });
     }
     if (!sheet.open) opener = doc.activeElement;
@@ -184,17 +190,15 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     focus?.focus();
   };
   // The confirmation replaces the form; if the player already closed the sheet it is a toast.
-  function thanks(result, answers) {
+  function thanks(result) {
     const text =
       result === 1
-        ? answers
-          ? 'Your answers were sent.'
-          : 'Your message was sent.'
+        ? 'It was sent.'
         : result === 3
-          ? 'It could not be sent: the collector refused it, and nothing was kept. Settings shows a note.'
+          ? 'It could not be sent. Settings shows a note.'
           : G.navigator?.onLine === false
             ? 'You’re offline. It is saved on this device and will send when you’re back online.'
-            : 'Saved on this device. It will send when the connection allows.';
+            : 'Saved on this device. It sends when connected.';
     if (sheet.open)
       show(
         result === 3 ? 'Not sent.' : 'Thank you.',
@@ -202,18 +206,18 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       );
     else toast(text);
   }
-  // 1 accepted, 3 refused (400, dropped with a local note), 2 still waiting after four seconds
+  // 1 accepted, 3 refused (400/409, dropped with a local note), 2 still waiting after four seconds
   // (offline, failing, or removed meanwhile): never claims "sent" without the collector's 202.
   async function deliver(payload) {
     await Promise.race([Q.flush(), new Promise((r) => setTimeout(r, 4e3))]);
     const status = Q.outcome(payload);
-    return status === 202 ? 1 : status === 400 ? 3 : 2;
+    return status === 202 ? 1 : status === 400 || status === 409 ? 3 : 2;
   }
   function open(kind, subject) {
     if (!A.eligible)
       return show(
         'Feedback.',
-        `<p>Sending feedback works on the main Alibi site, <a href="${V.origin}/" target="_blank" rel="noopener noreferrer">${esc(V.origin?.slice(8))}</a>. This copy sends nothing.</p><p>You can still export an issue report and share it yourself.</p><div class="dialog-actions"><button type="button" class="btn" data-action="feedback-report" data-vo-close>Create issue report</button><button type="button" class="btn secondary" data-vo-close>Close</button></div>`,
+        `<p>Sending feedback works on the main Alibi site, <a href="${V.origin}/" target="_blank" rel="noopener noreferrer">${esc(V.origin?.slice(8))}</a>. This copy sends nothing.</p><p>Export an issue report to share.</p><div class="dialog-actions"><button type="button" class="btn" data-action="feedback-report" data-vo-close>Create issue report</button><button type="button" class="btn secondary" data-vo-close>Close</button></div>`,
       );
     context = { kind, subject: subject || '', route: route() };
     show(
@@ -232,8 +236,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       });
     if (!Q.clean(text.value)) return say('Write a message first.', text);
     if (!payload) return say('This browser cannot send feedback.');
-    if (!Q.enqueue(payload)) return say(full);
-    form.querySelector('.btn').disabled = true;
+    if (!(await Q.enqueue(payload))) return say(full);
     thanks(await deliver(payload));
     refresh();
   }
@@ -243,14 +246,14 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       prior = s.answers || {};
     show(
       s.taken ? 'Update your answers.' : 'What do you enjoy?',
-      `<p class="fine">Seven short questions, two required. Send again any time to update your answers; you still count once. Nothing is sent until you press Send answers.</p><form id="vo-answers" novalidate>${taste.questions
+      `<p class="fine">Seven questions, two required. Send again to update answers; you still count once. Nothing is sent until you press Send answers.</p><form id="vo-answers" novalidate>${taste.questions
         .map(
           ([id, max, options, required]) =>
             `<fieldset><legend>${ASK[id]} <small>${required ? '(required)' : max > 1 ? `(optional, up to ${max})` : '(optional)'}</small></legend>${chips(max > 1 ? 'checkbox' : 'radio', id, options, prior[id], required)}</fieldset>`,
         )
         .join(
           '',
-        )}<div class="field"><label for="vo-comment">Anything else? <small>(optional)</small></label><textarea id="vo-comment" maxlength="500" rows="3">${esc(prior.comment)}</textarea></div><p class="fine">Your answers carry a random survey key made on this device, so a new answer replaces the old one. You can reset it in Privacy.</p>${actions('Send answers')}</form>`,
+        )}<div class="field"><label for="vo-comment">Anything else? <small>(optional)</small></label><textarea id="vo-comment" maxlength="500" rows="3">${esc(prior.comment)}</textarea></div><p class="fine">A random device survey key lets new answers replace old ones. Reset it in Privacy.</p>${actions('Send answers')}</form>`,
     );
   }
   async function sendSurvey(form) {
@@ -262,9 +265,14 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
         return say(`Please answer: ${ASK[id]}`, form.querySelector(`[name="${id}"]`));
     }
     const comment = $('#vo-comment').value,
-      payload = Q.survey({ survey: 'alibi-taste-1', answers, comment, release, device: device() });
-    if (!payload) return say('This browser cannot send the survey.');
-    if (!Q.enqueue(payload)) return say(full);
+      payload = await Q.survey({
+        survey: 'alibi-taste-1',
+        answers,
+        comment,
+        release,
+        device: device(),
+      });
+    if (!payload || !(await Q.enqueue(payload))) return say('This browser cannot send the survey.');
     save({
       ...state(),
       answers: { ...answers, comment: Q.clean(comment) },
@@ -272,15 +280,19 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       snoozes: 0,
       until: 0,
     });
-    form.querySelector('.btn').disabled = true;
-    thanks(await deliver(payload), 1);
+    thanks(await deliver(payload));
     refresh();
   }
+  let taps = Promise.resolve();
   doc.addEventListener('click', (e) => {
     const el = e.target.closest?.('[data-vo-act]'),
       a = el?.dataset.voAct,
       s = state();
-    if (a === 'rate' || a === 'more') return A.official(A.run) && tap(el, A.official(A.run));
+    if (a === 'rate' || a === 'more') {
+      const o = A.official(A.run);
+      if (o) return (taps = taps.then(() => tap(el, o)).catch(() => toast('Not sent.')));
+      return;
+    }
     if (!a || a === 'hide') return;
     if (a === 'snooze') save({ ...s, snoozes: (s.snoozes || 0) + 1, until: Date.now() + 6048e5 });
     if (a === 'never') save({ ...s, never: 1 });
@@ -292,7 +304,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       const status = $('#vo-reset-status');
       if (removed === false) status.textContent = 'Reset failed on this device. Try again.';
       else
-        status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} A new key is made the next time you answer.`;
+        status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} Your next answer makes a new key.`;
       status.focus();
     }
   });
@@ -300,7 +312,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (e.target.dataset?.voAct === 'hide') save({ ...state(), hide: !e.target.checked });
   });
   // A rating tap: shown at once, kept locally, and sent (queued offline) when it has a difficulty.
-  function tap(el, o) {
+  async function tap(el, o) {
     const s = state(),
       r = { ...s.rated[o.subject] },
       before = JSON.stringify(r),
@@ -317,7 +329,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (JSON.stringify(r) === before) return;
     const keep = () => save({ ...s, rated: { ...s.rated, [o.subject]: r } });
     if (!r.difficulty) return (keep(), tell('Choose how it felt to send this.'));
-    const payload = Q.survey({
+    const payload = await Q.survey({
       survey: 'puzzle-rating',
       subject: o.subject,
       answers: r,
@@ -326,7 +338,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       device: device(),
     });
     // A choice that could not be queued is not remembered, so the same tap can retry.
-    if (!payload || !Q.enqueue(payload)) return tell('Not sent. Try again later.');
+    if (!payload || !(await Q.enqueue(payload))) return tell('Not sent. Try again later.');
     keep();
     deliver(payload).then((n) =>
       tell(n === 1 ? 'Thanks, sent.' : n === 3 ? 'Not sent.' : 'Saved. It sends when online.'),
@@ -360,16 +372,16 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       const kind = Q.due(state(), done(), release);
       if (!kind) return el.remove();
       el.className = 'vo-offer';
-      el.innerHTML = `<p><strong>${kind > 1 ? 'Update your answers?' : 'Got a minute?'}</strong> ${kind > 1 ? 'Tell us if your taste has changed.' : 'Seven quick questions about what you enjoy and want more of.'} Nothing is sent until you submit.</p><div class="row actions"><button type="button" class="btn" id="vo-take" data-voice="survey">${kind > 1 ? 'Update answers' : 'Take the survey'}</button><button type="button" class="btn ghost" data-vo-act="snooze">Not now</button><button type="button" class="btn ghost" data-vo-act="never">Don’t ask again</button></div>`;
+      el.innerHTML = `<p><strong>${kind > 1 ? 'Update your answers?' : 'Got a minute?'}</strong> ${kind > 1 ? 'Has your taste changed?' : 'Seven questions about what you enjoy.'} Sent only when you submit.</p><div class="row actions"><button type="button" class="btn" id="vo-take" data-voice="survey">${kind > 1 ? 'Update answers' : 'Take the survey'}</button><button type="button" class="btn ghost" data-vo-act="snooze">Not now</button><button type="button" class="btn ghost" data-vo-act="never">Don’t ask again</button></div>`;
     },
     'vo-panel'(el) {
       const s = state(),
         on = A.eligible;
       el.className = 'panel';
-      el.innerHTML = `<h2>Feedback and surveys.</h2><p>${on ? 'Tell the maintainer what works and what doesn’t, answer a short survey, or rate puzzles as you finish them. Nothing is sent until you press Send, submit or tap.' : 'Sending feedback works on the main Alibi site. Here you can create an issue report instead.'}</p><div class="row actions"><button type="button" class="btn" id="vo-send" data-voice="open">Send feedback</button>${on ? `<button type="button" class="btn secondary" id="vo-survey" data-voice="survey">${s.taken ? 'Update survey answers' : 'Take the short survey'}</button>` : ''}</div>${on ? `<div class="setting-row"><label for="vo-hide">Ask how a puzzle felt<small>“Too easy · Just right · Too hard” after official puzzles.</small></label><input type="checkbox" id="vo-hide" data-vo-act="hide" ${s.hide ? '' : 'checked'}></div>` : ''}${small(Q.pending().length, 'waiting to send', 'delete', 'Delete')}${small(Q.notes().length, 'could not be sent', 'dismiss', 'Dismiss')}`;
+      el.innerHTML = `<h2>Feedback and surveys.</h2><p>${on ? 'Tell the maintainer what works and what doesn’t, answer a short survey, or rate puzzles as you finish them. Sent only when you press Send, submit or tap.' : 'Sending feedback works on the main Alibi site. Here, export an issue report.'}</p><div class="row actions"><button type="button" class="btn" id="vo-send" data-voice="open">Send feedback</button>${on ? `<button type="button" class="btn secondary" id="vo-survey" data-voice="survey">${s.taken ? 'Update survey answers' : 'Take the short survey'}</button>` : ''}</div>${on ? `<div class="setting-row"><label for="vo-hide">Ask how a puzzle felt<small>“Too easy · Just right · Too hard” after official puzzles.</small></label><input type="checkbox" id="vo-hide" data-vo-act="hide" ${s.hide ? '' : 'checked'}></div>` : ''}${small(Q.pending().length, 'waiting to send', 'delete', 'Delete')}${small(Q.notes().length, 'could not be sent', 'dismiss', 'Dismiss')}`;
     },
     'vo-privacy'(el) {
-      el.innerHTML = `<h2>Feedback, surveys and ratings.</h2><p>On the primary Cloudflare site you can send the maintainer a message, answer a short survey or rate a puzzle. Nothing is sent unless you press Send, submit the survey or tap a rating; the occasional survey invitation only asks. These go to Pulseboard whatever your Beta choices, because you chose to send them; Global Privacy Control and Do Not Track do not block them.</p><p><strong>Messages</strong> carry no identifier: your text, its kind, the screen, an official puzzle ID if you were on one, app version, the day you wrote it and device type (mobile, tablet or desktop). Pulseboard removes e-mail addresses, IP addresses, links and phone numbers it finds (best effort) and keeps messages 365 days. We can’t reply, so leave out personal details.</p><p><strong>Surveys and ratings</strong> carry a random survey key created on this device when you first submit one, so a new answer replaces your old one instead of counting as another player. It is never sent with usage counts, diagnostics or journeys, and Pulseboard stores only a one-way hash of it. Ratings add the puzzle ID, family and difficulty tier. Answers are kept 400 days.</p><p>No IP address, browser string, page address, name or e-mail is stored; country, browser and system are derived on the server as for usage data. Offline, up to 20 items wait on this device for up to 30 days; Settings shows them and can delete them. The fallback site, standalone file and Android app send nothing.</p>${Q.respondent() ? '<button type="button" class="btn secondary" id="vo-reset" data-vo-act="reset">Reset survey key</button>' : ''}<p class="fine" id="vo-reset-status" tabindex="-1" role="status"></p>`;
+      el.innerHTML = `<h2>Feedback, surveys and ratings.</h2><p>Send feedback, surveys and ratings to Pulseboard on the primary site. Nothing is sent unless you press Send, submit the survey or tap a rating. Global Privacy Control, Do Not Track and Beta choices do not block these submissions.</p><p><strong>Messages</strong> have no identifier: text, kind, screen, official puzzle ID, app version, day and device type (mobile, tablet or desktop). Pulseboard removes e-mail, IP addresses, links and phone numbers (best effort), keeping messages 365 days. We cannot reply; leave out personal details.</p><p><strong>Surveys and ratings</strong> use a random device survey key and edit counter; newer answers replace older ones. The key stays separate from usage counts, diagnostics and journeys; Pulseboard stores its one-way hash. Ratings add puzzle ID, family and difficulty tier. Answers are kept 400 days.</p><p>No IP address, browser string, page address, name or e-mail is stored. Country, browser and system are server-derived. Offline, up to 20 items wait on-device for up to 30 days; delete in Settings. The fallback site, standalone file and Android app send nothing.</p>${Q.respondent() ? '<button type="button" class="btn secondary" id="vo-reset" data-vo-act="reset">Reset survey key</button>' : ''}<p class="fine" id="vo-reset-status" tabindex="-1" role="status"></p>`;
     },
     clear: () => Q.clear(),
   };

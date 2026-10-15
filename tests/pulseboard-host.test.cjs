@@ -400,7 +400,7 @@ test('application lifecycle calls the journey helper with fixed names and elapse
   );
   assert.match(
     appSource,
-    /function showHint\(\) \{\s*if \(!current\) return;\s*globalThis\.AlibiJourney\?\.\(current, 'hint\.requested'\);/,
+    /function showHint\(\) \{\s*if \(!current \|\| paused\) return;\s*globalThis\.AlibiJourney\?\.\(current, 'hint\.requested'\);/,
   );
   assert.match(
     appSource,

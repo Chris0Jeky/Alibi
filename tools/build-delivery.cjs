@@ -128,6 +128,45 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       bytes += data.length;
     }
   }
+  // Declared images use the same verified, on-demand loader and enhancement byte receipt.
+  if (!Array.isArray(policy.deferred ?? [])) throw Error('Invalid deferred image list');
+  for (const asset of policy.deferred ?? []) {
+    if (
+      !asset ||
+      typeof asset.id !== 'string' ||
+      !/^[a-z0-9-]+$/.test(asset.id) ||
+      Object.hasOwn(entries, asset.id) ||
+      !/^assets-source\/[a-z0-9/_-]+\.webp$/.test(asset.file) ||
+      !/^[a-f0-9]{64}$/.test(asset.sha256) ||
+      !(Object.hasOwn(baseMedia, asset.fallback) || Object.hasOwn(fallback, asset.fallback))
+    )
+      throw Error('Invalid deferred image declaration');
+    const record = registry.assets.find(
+      (a) => a.source?.file === asset.file || a.derivative?.file === asset.file,
+    );
+    const rights = record?.rights?.licence || record?.source?.rights;
+    if (typeof rights !== 'string' || !rights.trim())
+      throw Error('Deferred image missing provenance/licence record: ' + asset.file);
+    const file = fs.realpathSync(path.join(root, asset.file));
+    if (!file.startsWith(fs.realpathSync(path.join(root, 'assets-source')) + path.sep))
+      throw Error('Deferred image escaped source directory');
+    const data = fs.readFileSync(file);
+    const sha256 = crypto.createHash('sha256').update(data).digest('hex');
+    if (sha256 !== asset.sha256 || data.length > 1024 * 1024)
+      throw Error('Deferred image fingerprint or size mismatch');
+    const url = `./assets/enhanced-${asset.id}.${sha256.slice(0, 12)}.webp`;
+    if (Object.values(entries).some((entry) => entry.urls.includes(url)))
+      throw Error('Deferred image path collides with an existing asset');
+    fs.writeFileSync(path.join(dist, url), data);
+    entries[asset.id] = {
+      fallback: baseMedia[asset.fallback] || fallback[asset.fallback],
+      urls: [url],
+      sha256,
+      bytes: data.length,
+      mime: 'image/webp',
+    };
+    bytes += data.length;
+  }
   return { entries, origins: [...origins].sort(), bytes };
 }
 module.exports = buildDelivery;
