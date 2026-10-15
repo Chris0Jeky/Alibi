@@ -42,6 +42,7 @@
     packs = [starter],
     records = new Map(),
     revs = new Map(),
+    acked = new Map(),
     queue = Promise.resolve(),
     pendingSaves = 0,
     saveError = '',
@@ -77,7 +78,9 @@
     draftPaint = 0,
     draftObject = 'plant',
     draftBusy = false,
+    draftEpoch = 0,
     pendingBackup = null,
+    restoreBusy = false,
     backupPickerBusy = false,
     backupPickerSerial = 0,
     installEvent = null,
@@ -126,6 +129,7 @@
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   const { validSettings, validateRun, validateBackup } = AlibiBackupValidation(C, starter);
+  store.validateRun = validateRun;
   function isCurrentCompletion(run, puzzle) {
     try {
       const projected = globalThis.AlibiClub?.projected?.(puzzle, run.state)?.state || run.state;
@@ -199,9 +203,12 @@
         validateRun(r);
         records.set(r.key, r);
         revs.set(r.key, r.rev);
+        acked.set(r.key, C.clone(r));
       } catch {
         quarantined++;
       }
+    if ((store.damaged.runs || []).length + (store.damaged.packs || []).length)
+      throw Error('A saved record is damaged. Export browser data before resetting anything.');
     const d = await store.get('meta', 'workshop-draft');
     if (d) {
       try {
@@ -342,6 +349,7 @@
         if (saveError) return;
         const saved = await store.saveRun(snapshot, revs.get(snapshot.key) || 0);
         revs.set(snapshot.key, saved.rev);
+        acked.set(snapshot.key, C.clone(saved));
         const local = records.get(snapshot.key);
         if (local) {
           local.rev = saved.rev;
@@ -381,11 +389,21 @@
         return;
       }
       const r = await store.get('runs', e.data.key);
+      if (saveError) return;
       if (r) {
         try {
           validateRun(r);
+          if (r.key === current?.key) {
+            if (r.rev > (revs.get(current.key) || 0)) {
+              saveError =
+                'This puzzle changed in another tab. Export this session or reload its latest save.';
+              render();
+            }
+            return;
+          }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
+          acked.set(r.key, C.clone(r));
           if (!current) render();
         } catch {}
       }
@@ -475,7 +493,7 @@
     return `<button aria-label="${esc(name)}" class="nav-item ${active ? 'active' : ''}" data-action="navigate" data-page="${page}" data-id="${id}" ${active ? 'aria-current="page"' : ''}>${icon(ic)}<span>${esc(label)}</span>${count !== '' ? `<span class="count">${count}</span>` : active ? '<span class="dot"></span>' : ''}</button>`;
   }
   function sidebar() {
-    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'sun', 'salon', '', 'NEW')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'garden', 'quiet')}${navItem('Wrenmere Castle', 'home', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
+    return `<aside class="sidebar"><button class="brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span><small>A little room to think</small></button><nav aria-label="Main navigation">${navItem('Your desk', 'home', 'home')}${navItem('The puzzle collection', 'library', 'library', '', all().length)}${navItem('Mystery casebooks', 'book', 'casebooks', '', books.length)}${navItem('The games room', 'table', 'salon')}${navItem('Club journal', 'heart', 'club')}${navItem('The quiet wing', 'quiet', 'quiet')}${navItem('Wrenmere Castle', 'castle', 'quiet', 'castle')}<div class="nav-section">Find your kind of puzzle</div><div class="nav-types">${['bridges', 'scene', 'dossier', 'witness', 'nonogram', 'lightup', 'tents', 'aquarium', 'network', 'trail', 'sudoku', 'binary', 'futoshiki'].map((t) => navItem(M[t].title, M[t].icon, 'library', t, all().filter((p) => p.type === t).length)).join('')}</div></nav><div class="sidebar-bottom">${navItem('Your journal', 'journal', 'journal')}${navItem('The workshop', 'workshop', 'workshop')}${navItem('Settings & saves', 'settings', 'settings')}<div class="sidebar-foot"><div class="row"><span class="dot"></span>${offlineReady ? 'Ready to play offline' : 'No account. No hurry.'}</div>Original puzzles. Yours to explore.</div></div></aside>`;
   }
   function mobileNav() {
     if (route.page === 'play' && current)
@@ -484,10 +502,10 @@
       ['home', 'home', 'Your desk'],
       ['library', 'library', 'Puzzles'],
       ['casebooks', 'book', 'Casebooks'],
-      ['salon', 'sun', 'Games room'],
+      ['salon', 'table', 'Games room'],
       // The wing replaces a Settings tab that duplicated the top bar's always-visible Settings.
-      ['quiet', 'garden', 'The quiet wing'],
-      ['quiet', 'home', 'Castle', 'castle'],
+      ['quiet', 'quiet', 'The quiet wing'],
+      ['quiet', 'castle', 'Castle', 'castle'],
     ]
       .map(([p, ic, label, id = '']) => {
         const active = route.page === p && (!id || route.id === id);
@@ -519,7 +537,7 @@
             lab: 'The living atlas',
             club: 'Club journal',
           }[route.page] || 'Your desk';
-    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
+    return `<div class="shell ${route.page === 'play' ? 'playing' : ''}">${sidebar()}<div class="main-wrap"><header class="topbar"><button class="mobile-brand" data-action="navigate" data-page="home" aria-label="Alibi home"><span class="wordmark">alibi<i>:</i></span></button><div class="breadcrumb">The puzzle club <span>/</span><strong>${esc(label)}</strong></div><div class="top-actions"><span class="device-status">${icon(offlineReady ? 'check' : 'device')}${offlineReady ? 'Offline ready' : store.mode === 'session' ? 'This session only' : 'On this device'}</span>${round('club-zen', 'moon', 'Toggle Zen mode')}${round('install', 'download', 'Install Alibi')}${round('navigate', 'settings', 'Settings', 'data-page="settings"')}</div></header>${updateRequested ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>` : waitingUpdate ? `<div class="banner"><span>A new version is ready. Save your place before switching.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>` : ''}${saveError || storageFatal ? `<div class="banner warn"><span>${esc(storageFatal || saveError)}</span><div class="row">${B('Export backup', 'export', 'download', 'small secondary')}${B('Reload', 'reload', 'refresh', 'small secondary')}</div></div>` : ''}${quarantined ? `<div class="banner warn"><span>${quarantined} stored record${quarantined === 1 ? ' needs' : 's need'} attention. They have not been deleted. Export your data before making changes.</span>${B('Export raw backup', 'export', 'download', 'small secondary')}</div>` : ''}${legacyBanner()}${route.page === 'play' ? '' : globalThis.AlibiTheatre.bar()}<main id="main" class="main" tabindex="-1">${content}${footer()}</main></div>${mobileNav()}</div>`;
   }
   function openAttrs(p, book = '') {
     return `data-id="${esc(keyFor(p))}" ${book ? `data-book="${esc(book)}"` : ''}`;
@@ -1186,11 +1204,9 @@
         : p.people.map((name, id) => ({ name, id }));
     return `<section class="accusation"><div class="eyebrow">${p.type === 'witness' ? 'Test your conclusion' : 'The final deduction'}</div><h3>${esc(p.question || (p.type === 'scene' ? 'Who was alone with the victim?' : p.type === 'witness' ? `Who ${X.witnessAction(p)}?` : 'Who took the missing object?'))}</h3><p>${p.questionContext ? esc(p.questionContext) : p.type === 'scene' ? 'Only one suspect shares the victim’s room. Select them, then make your accusation.' : p.type === 'dossier' ? `The evidence links the theft to whoever carried the ${esc(p.categories[1].values[p.targetItem])}.` : typeof p.action === 'string' && p.action.trim() ? `Choose the only candidate who ${esc(X.witnessAction(p))}; your T/F notes do not affect your answer.` : 'Choose the only suspect who makes the truth count work. Your T/F notes do not affect your answer.'}</p><div class="accuse-options">${people.map((person) => B(esc(person.name), 'choose-accuse', '', 'secondary ' + (String(accuseChoice) === String(person.id) ? 'active' : ''), `data-id="${esc(person.id)}" aria-pressed="${String(accuseChoice) === String(person.id)}"`)).join('')}</div><div style="margin-top:13px">${B(p.type === 'witness' || p.questionContext ? 'Submit conclusion' : 'Make accusation', 'submit-accuse', 'check', '', accuseChoice === null ? 'disabled' : '')}</div></section>`;
   }
-  function playPage() {
-    return playPageInner();
-  }
   function playPageInner() {
-    if (!current) return '';
+    if (!current)
+      return '<h1 role="status">Opening puzzle…</h1><a class="btn secondary" href="#/library">Back to puzzles</a>';
     const p = current.puzzle,
       s = AlibiClub.projected(p, current.state).state,
       m = M[p.type],
@@ -1212,7 +1228,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card"><div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `<div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card">${paused ? '<div inert>' : ''}<div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `</div><div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${store.mode === 'session' ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : store.mode === 'session' ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1320,17 +1336,36 @@
       }
       document.getElementById('quiet-update').innerHTML =
         globalThis.AlibiTheatre.bar(true) +
-        (waitingUpdate
-          ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
-          : '');
+        (updateRequested
+          ? `<div class="banner" role="status"><span>Saving your place for the update. Controls are paused until it loads.</span></div>`
+          : waitingUpdate
+            ? `<div class="banner"><span>A new version is ready.</span>${B('Save & update', 'apply-update', 'refresh', 'small')}</div>`
+            : '');
       globalThis.AlibiTheatre.attach(route);
+      {
+        const quietHost = document.getElementById('quiet-host');
+        if (quietHost) quietHost.inert = updateRequested;
+      }
       return;
     }
     if (rendering) return;
     rendering = true;
     const active = document.activeElement,
-      focusID = active?.id,
+      focusID = active?.closest('.paused-cover') ? 'play-pause' : active?.id,
       focusFallbackID = active?.dataset.focusFallback,
+      focusAction = !focusID && active?.dataset?.action ? active.dataset.action : '',
+      focusHasValue =
+        !!focusAction && Object.prototype.hasOwnProperty.call(active.dataset, 'value'),
+      focusValue = focusHasValue ? active.dataset.value : '',
+      focusDataId = focusAction && active.dataset.id ? active.dataset.id : '',
+      focusSelector = focusAction
+        ? `[data-action="${CSS.escape(focusAction)}"]${
+            focusHasValue ? `[data-value="${CSS.escape(focusValue)}"]` : ''
+          }${focusDataId ? `[data-id="${CSS.escape(focusDataId)}"]` : ''}`
+        : '',
+      focusMatchIndex = focusSelector
+        ? [...document.querySelectorAll(focusSelector)].indexOf(active)
+        : -1,
       selection = ['INPUT', 'TEXTAREA'].includes(active?.tagName)
         ? [active.selectionStart, active.selectionEnd]
         : null,
@@ -1364,7 +1399,7 @@
         about: aboutPage,
         login: loginPage,
         changelog: () => globalThis.AlibiUpdates.page(),
-        play: playPage,
+        play: playPageInner,
         salon: () => AlibiClub.roomPage(route.id),
         club: () => AlibiClub.profile(),
         lab: () => AlibiClub.labPage(),
@@ -1372,6 +1407,10 @@
       $('#app').innerHTML = shell((views[route.page] || home)());
       globalThis.AlibiUsageSlot?.();
       globalThis.AlibiVoices?.(current, records);
+      {
+        const mainEl = document.getElementById('main');
+        if (mainEl) mainEl.inert = updateRequested;
+      }
       for (const [key, open] of disclosures) {
         const el = document.querySelector(`details[data-disclosure-key="${key}"]`);
         if (el) el.open = open;
@@ -1410,7 +1449,18 @@
             usedFocusFallback = true;
           }
         }
+      } else if (focusMatchIndex >= 0) {
+        const el = document.querySelectorAll(focusSelector)[focusMatchIndex];
+        if (isFocusTarget(el)) el.focus({ preventScroll: true });
+        else {
+          const fallback = document.getElementById(focusFallbackID) || $('#main');
+          if (isFocusTarget(fallback)) {
+            fallback.focus();
+            usedFocusFallback = true;
+          }
+        }
       }
+      if (paused) document.querySelector('.paused-cover button')?.focus({ preventScroll: true });
       if (!usedFocusFallback && window.scrollY !== sy)
         window.scrollTo({ top: sy, behavior: 'instant' });
     } finally {
@@ -1443,7 +1493,7 @@
     } catch {}
   }
   function blocked() {
-    if (!current || paused) return true;
+    if (!current || paused || updateRequested) return true;
     if (storageFatal || saveError) {
       toast('Export this session or reload before making more changes.', true);
       return true;
@@ -1463,8 +1513,12 @@
     ) {
       current.completedAt = new Date().toISOString();
       current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
-      globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
-      globalThis.AlibiTheatre.moment('complete');
+      try {
+        globalThis.AlibiJourney?.(current, 'puzzle.completed', sessionSeconds);
+      } catch {}
+      try {
+        globalThis.AlibiTheatre.moment('complete');
+      } catch {}
       paused = false;
       render();
       const mystery = ['scene', 'dossier', 'witness'].includes(p.type);
@@ -1513,8 +1567,10 @@
     }
   }
   function commit(next, { reveal = false, history = true } = {}) {
-    if (!current || C.equal(next, current.state)) return false;
-    globalThis.AlibiJourney?.(current);
+    if (updateRequested || !current || C.equal(next, current.state)) return false;
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     if (history) {
       current.undo.push(C.clone(current.state));
@@ -1763,7 +1819,7 @@
     render();
   }
   function showHint() {
-    if (!current) return;
+    if (!current || paused) return;
     globalThis.AlibiJourney?.(current, 'hint.requested');
     // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
     if (current.completedAt && blocked()) return;
@@ -1824,7 +1880,7 @@
     render();
   }
   function undo(redo = false) {
-    if (!current || paused || saveError || storageFatal) return;
+    if (!current || paused || saveError || storageFatal || updateRequested) return;
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
@@ -1857,8 +1913,14 @@
     if (current && route.book) {
       // Straight to the next chapter's page; a finished book opens its ending (M5).
       const b = books.find((x) => x.id === route.book),
-        n = b && nextChapter(b, current.puzzle.id);
-      navigate('story', keyFor((n && find(n.id)) || current.puzzle), route.book);
+        n = b && nextChapter(b, current.puzzle.id),
+        p = n && find(n.id);
+      if (n && !p) {
+        toast('The next chapter definition is missing.', true);
+        navigate('casebooks', route.book);
+        return;
+      }
+      navigate('story', keyFor(p || current.puzzle), route.book);
       return;
     }
     if (!current) {
@@ -2057,9 +2119,12 @@
   }
   async function lessonFinish() {
     if (!lesson) return;
-    const t = lesson.type;
+    const finished = lesson,
+      serial = routeSerial,
+      t = finished.type;
     prefs.seen = [...new Set([...prefs.seen, t])];
     await savePreferences();
+    if (lesson !== finished || routeSerial !== serial) return;
     closeDialog();
     if (current?.puzzle.type === t) {
       render();
@@ -2086,24 +2151,79 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
-    const data = await store.export(),
-      merged = new Map(data.runs.map((r) => [r.key, r]));
-    for (const r of records.values()) merged.set(r.key, C.clone(r));
-    if (current) merged.get(current.key).elapsed = sessionSeconds;
-    data.runs = [...merged.values()];
-    data.packs = [...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, p])).values()];
-    data.settings = settings;
-    data.preferences = prefs;
+    const data = await store.export();
+    const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
+    const divergentByKey = new Map();
+    for (const [key, record] of records) {
+      const local = C.clone(record);
+      if (key === current?.key) local.elapsed = sessionSeconds;
+      const persisted = deviceByKey.get(key);
+      const baseline = acked.get(key);
+      if (persisted && baseline && C.equal(local, baseline)) continue;
+      // Restores preserve revisions, so the full acknowledged row must still match.
+      if (!persisted || (baseline && C.equal(persisted, baseline))) deviceByKey.set(key, local);
+      else divergentByKey.set(key, local);
+    }
+    data.runs = [...deviceByKey.values()];
+    data.packs = [
+      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
+    ];
+    data.settings = C.clone(settings);
+    data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
-    return data;
+    return {
+      data,
+      session: divergentByKey.size
+        ? {
+            ...data,
+            runs: [...new Map([...deviceByKey, ...divergentByKey]).values()],
+          }
+        : null,
+    };
   }
   async function exportBackup() {
-    download(`alibi-backup-${new Date().toISOString().slice(0, 10)}.json`, await cabinetBackup());
-    toast('Backup exported. Keep a copy outside this browser.');
+    const { data, session } = await cabinetBackup();
+    offerCabinetCopies(data, session, `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`);
+    if (!session) toast('Backup exported. Keep a copy outside this browser.');
+  }
+  async function exportLegacy() {
+    download('alibi-legacy-browser-data.json', {
+      format: 'alibi-legacy-browser-data',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      entries: store.legacySnapshot(),
+    });
+    toast('Older browser data exported separately. Nothing has been migrated.');
+  }
+  function legacyBanner() {
+    const count = store.legacyInventory.length;
+    if (!count && !store.legacyProblem) return '';
+    return `<div class="banner warn"><span>${store.legacyProblem ? esc(store.legacyProblem) + ' Try exporting again.' : `${count} older browser record${count === 1 ? '' : 's'} found. They have not been migrated.`}</span>${B('Export older browser data', 'export-legacy', 'download', 'small secondary')}</div>`;
   }
   let stagedAll = null;
+  let stagedCabinet = null;
+  function offerCabinetCopies(data, session, filename) {
+    if (!session) {
+      download(filename, data);
+      return;
+    }
+    stagedCabinet = C.clone([data, session, filename]);
+    dialog(
+      'Keep both copies',
+      '<p>Device progress and session edits differ. Download both backups.</p>',
+      [
+        { label: 'Device backup', action: 'download-device-copy' },
+        {
+          label: 'Cabinet session backup',
+          action: 'download-session-copy',
+          secondary: true,
+        },
+        { label: 'Close', action: 'close-dialog', secondary: true },
+      ],
+    );
+  }
   async function exportAll() {
-    const cabinet = await cabinetBackup();
+    const { data: cabinet, session: cabinetSession } = await cabinetBackup();
     const warnings = [];
     await AlibiClub.flush().catch((e) =>
       warnings.push('Club save could not be flushed: ' + e.message),
@@ -2145,7 +2265,8 @@
         'Castle was not included: ' + error.message + ' Export the castle notebook separately.',
       );
     }
-    download('alibi-all-saves.json', {
+    if (cabinetSession) warnings.push('Cabinet session edits are separate.');
+    const combined = {
       format: 'alibi-all-saves',
       schema: 1,
       applicationVersion: cfg.version,
@@ -2162,140 +2283,176 @@
           ? 'Quiet Wing has protected stored data. Keep the raw recovery section.'
           : '',
       ].filter(Boolean),
-    });
+    };
+    offerCabinetCopies(combined, cabinetSession, 'alibi-all-saves.json');
     const exported = manifest
       .map(
         (section) =>
           ({ cabinet: 'Cabinet', club: 'Club', quiet: 'Quiet Wing', castle: 'Castle' })[section],
       )
       .join(', ');
-    toast(
-      `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
-      warnings.length > 0,
-    );
+    if (!cabinetSession)
+      toast(
+        `${exported} exported. ${warnings.length ? warnings.join(' ') : 'Challenge replays remain separate.'}`,
+        warnings.length > 0,
+      );
   }
   async function stageAll(file) {
-    if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
-    const data = await inWorker({ type: 'combined-backup', text: await file.text() });
-    stagedAll = data;
-    dialog(
-      'Choose a section to restore',
-      `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
-      [
-        { label: 'Review cabinet restore', action: 'all-cabinet' },
-        { label: 'Review Club restore', action: 'all-club' },
-        ...(data.sections.quiet
-          ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
-          : []),
-        ...(data.sections.castle ? [{ label: 'Review castle restore', action: 'all-castle' }] : []),
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+    const serial = routeSerial;
+    try {
+      if (file.size > 20 * 1024 * 1024) throw Error('Combined backup exceeds 20 MB.');
+      const data = await inWorker({ type: 'combined-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      stagedAll = data;
+      dialog(
+        'Choose a section to restore',
+        `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
+        [
+          { label: 'Review cabinet restore', action: 'all-cabinet' },
+          { label: 'Review Club restore', action: 'all-club' },
+          ...(data.sections.quiet
+            ? [{ label: 'Review Quiet Wing restore', action: 'all-quiet' }]
+            : []),
+          ...(data.sections.castle
+            ? [{ label: 'Review castle restore', action: 'all-castle' }]
+            : []),
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function importBackupFromPicker() {
     if (backupPickerBusy) return;
     backupPickerBusy = true;
+    const serial = routeSerial;
     let token = null;
     try {
-      const operation = (stage) => ({
-        operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
-        timeoutMs: 30000,
-      });
-      const fail = (code, reading = false) => {
-        toast(
-          code === 'cancelled'
-            ? 'No backup was selected. Nothing was changed.'
-            : code === 'protected'
-              ? 'That backup is larger than 16 MB. Choose a smaller backup.'
-              : reading
-                ? 'The selected backup could not be read. Choose a JSON backup file.'
-                : 'The backup picker could not finish. Try again from Restore backup.',
-          code !== 'cancelled',
-        );
-      };
-      const picked = await platform.documents.pickBackup(operation('pick'));
-      if (!picked?.ok) {
-        fail(picked?.code);
-        return;
-      }
-      token = picked.value;
-      if (typeof token !== 'string' || !token) {
-        fail('invalid');
-        return;
-      }
-      const read = await platform.documents.readLimited(token, 16 * 1024 * 1024, operation('read'));
-      if (!read?.ok) {
-        fail(read?.code, true);
-        return;
-      }
-      if (typeof read.value !== 'string') {
-        fail('invalid', true);
-        return;
-      }
-      await importBackup(new File([read.value], 'alibi-backup.json', { type: 'application/json' }));
-    } finally {
       try {
-        if (token) await platform.documents.release(token);
-      } catch {
-        /* Cleanup must not replace the picker or import failure. */
+        const operation = (stage) => ({
+          operationId: `cabinet-restore-${stage}-${(++backupPickerSerial).toString(36)}`,
+          timeoutMs: 30000,
+        });
+        const fail = (code, reading = false) => {
+          if (serial !== routeSerial) return;
+          toast(
+            code === 'cancelled'
+              ? 'No backup was selected. Nothing was changed.'
+              : code === 'protected'
+                ? 'That backup is larger than 16 MB. Choose a smaller backup.'
+                : reading
+                  ? 'The selected backup could not be read. Choose a JSON backup file.'
+                  : 'The backup picker could not finish. Try again from Restore backup.',
+            code !== 'cancelled',
+          );
+        };
+        const picked = await platform.documents.pickBackup(operation('pick'));
+        if (!picked?.ok) {
+          fail(picked?.code);
+          return;
+        }
+        token = picked.value;
+        if (serial !== routeSerial) return;
+        if (typeof token !== 'string' || !token) {
+          fail('invalid');
+          return;
+        }
+        const read = await platform.documents.readLimited(
+          token,
+          16 * 1024 * 1024,
+          operation('read'),
+        );
+        if (serial !== routeSerial) return;
+        if (!read?.ok) {
+          fail(read?.code, true);
+          return;
+        }
+        if (typeof read.value !== 'string') {
+          fail('invalid', true);
+          return;
+        }
+        await importBackup(
+          new File([read.value], 'alibi-backup.json', { type: 'application/json' }),
+          serial,
+        );
+      } finally {
+        try {
+          if (token) await platform.documents.release(token);
+        } catch {
+          /* Cleanup must not replace the picker or import failure. */
+        }
+        backupPickerBusy = false;
       }
-      backupPickerBusy = false;
+    } catch (e) {
+      if (serial === routeSerial) throw e;
     }
   }
-  async function importBackup(file) {
-    if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
-    pendingBackup = await inWorker({ type: 'cabinet-backup', text: await file.text() });
-    const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
-    dialog(
-      'Restore your progress.',
-      `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
-      [
-        { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
-        { label: 'Replace device data', action: 'restore-replace', danger: true },
-        { label: 'Export current progress', action: 'export', secondary: true },
-        { label: 'Cancel', action: 'close-dialog', secondary: true },
-      ],
-    );
+  async function importBackup(file, serial = routeSerial) {
+    try {
+      if (file.size > 16 * 1024 * 1024) throw Error('Backup exceeds the 16 MB safety limit.');
+      const data = await inWorker({ type: 'cabinet-backup', text: await file.text() });
+      if (serial !== routeSerial) return;
+      pendingBackup = data;
+      const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
+      dialog(
+        'Restore your progress.',
+        `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
+        [
+          { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
+          { label: 'Replace device data', action: 'restore-replace', danger: true },
+          { label: 'Export current progress', action: 'export', secondary: true },
+          { label: 'Cancel', action: 'close-dialog', secondary: true },
+        ],
+      );
+    } catch (e) {
+      if (serial === routeSerial) throw e;
+    }
   }
   async function restoreBackup(replace = false) {
-    if (!pendingBackup) return;
-    if (store.mode !== 'indexeddb')
-      throw Error(
-        'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
-      );
-    await queue;
-    let b = pendingBackup,
-      expected;
-    if (!replace) {
-      const raw = await store.export(),
-        runs = new Map(raw.runs.map((r) => [r.key, r])),
-        combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
-      expected = raw;
-      for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
-      for (const p of b.packs) {
-        if (combinedPacks.has(p.id)) {
-          if (!C.equal(combinedPacks.get(p.id), p))
-            throw Error(
-              'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
-            );
-        } else combinedPacks.set(p.id, p);
+    if (restoreBusy || !pendingBackup) return;
+    restoreBusy = true;
+    try {
+      if (store.mode !== 'indexeddb')
+        throw Error(
+          'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
+        );
+      await queue;
+      let b = pendingBackup,
+        expected;
+      if (!replace) {
+        const raw = await store.export(),
+          runs = new Map(raw.runs.map((r) => [r.key, r])),
+          combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
+        expected = raw;
+        for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
+        for (const p of b.packs) {
+          if (combinedPacks.has(p.id)) {
+            if (!C.equal(combinedPacks.get(p.id), p))
+              throw Error(
+                'A pack with this ID differs on this device. Export it and resolve the pack version before merging.',
+              );
+          } else combinedPacks.set(p.id, p);
+        }
+        b = await inWorker({
+          type: 'cabinet-backup',
+          value: {
+            ...b,
+            runs: [...runs.values()],
+            packs: [...combinedPacks.values()],
+            settings: raw.settings,
+            preferences: raw.preferences,
+          },
+        });
       }
-      b = await inWorker({
-        type: 'cabinet-backup',
-        value: {
-          ...b,
-          runs: [...runs.values()],
-          packs: [...combinedPacks.values()],
-          settings: raw.settings,
-          preferences: raw.preferences,
-        },
-      });
+      await store.restore(b, expected);
+      pendingBackup = null;
+      channel?.postMessage({ type: 'restored' });
+      closeDialog();
+      location.reload();
+    } finally {
+      restoreBusy = false;
     }
-    await store.restore(b, expected);
-    pendingBackup = null;
-    channel?.postMessage({ type: 'restored' });
-    closeDialog();
-    location.reload();
   }
   async function inWorker(message) {
     const workerText = globalThis.ALIBI_WORKER_SOURCE
@@ -2364,8 +2521,13 @@
       'Checking the collection.',
       `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
     );
+    const startedSerial = routeSerial;
     const p = await inWorker({ type: 'pack', pack: data });
     await installPack(p);
+    if (routeSerial !== startedSerial) {
+      toast(`'${p.title}' is ready in your collection.`);
+      return;
+    }
     closeDialog();
     dialog(
       'A new collection is ready.',
@@ -2393,11 +2555,16 @@
   }
   async function saveDraft() {
     if (!draft) return;
-    await store
-      .put('meta', 'workshop-draft', { puzzle: draft })
-      .catch((e) => toast(e.message, true));
+    const puzzle = draft,
+      epoch = draftEpoch,
+      serial = routeSerial;
+    await store.put('meta', 'workshop-draft', { puzzle }).catch((e) => {
+      if (puzzle === draft && epoch === draftEpoch && serial === routeSerial)
+        toast(e.message, true);
+    });
   }
   function dirtyDraft() {
+    draftEpoch++;
     draftVerified = false;
     saveDraft();
   }
@@ -2419,34 +2586,45 @@
       names,
       seed,
     };
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'generate', options });
+      const result = await inWorker({ type: 'generate', options });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draft.authorSeed = seed;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
-      render();
-      document.querySelector('.draft-editor')?.scrollIntoView({
-        behavior: settings.reducedMotion ? 'instant' : 'smooth',
-        block: 'start',
-      });
+      if (startedEpoch !== draftEpoch) return;
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      throw e;
     } finally {
       draftBusy = false;
       render();
     }
+    document.querySelector('.draft-editor')?.scrollIntoView({
+      behavior: settings.reducedMotion ? 'instant' : 'smooth',
+      block: 'start',
+    });
   }
   async function verifyDraft() {
     if (!draft || draftBusy) return;
+    const startedEpoch = draftEpoch;
     draftBusy = true;
     render();
     try {
-      draft = await inWorker({ type: 'draft', puzzle: draft });
+      const result = await inWorker({ type: 'draft', puzzle: draft });
+      if (startedEpoch !== draftEpoch) return;
+      draft = result;
       draftVerified = true;
       await saveDraft();
+      if (startedEpoch !== draftEpoch) return;
       toast('Verified. Exactly one arrangement satisfies these clues.');
     } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
       draftVerified = false;
       throw e;
     } finally {
@@ -2487,6 +2665,7 @@
       cl.other = value;
     } else if (!['edge', 'notEdge'].includes(kind)) cl.value = Number(value);
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
+    C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
     draft.clues.push(cl);
     dirtyDraft();
@@ -2535,7 +2714,13 @@
       ],
     );
   }
+  function pauseForUpdate(paused) {
+    updateRequested = paused;
+    AlibiClub.pauseForUpdate(paused);
+    render();
+  }
   async function handleAction(el, e) {
+    if (updateRequested) return;
     const a = el.dataset.action,
       v = el.dataset.value,
       id = el.dataset.id;
@@ -2621,6 +2806,7 @@
         if (current) act({ type: 'set', cell: selectedCell, value: Number(v), pencil });
         break;
       case 'pencil':
+        if (paused) break;
         pencil = !pencil;
         if (current?.puzzle.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
         render();
@@ -2880,8 +3066,17 @@
       case 'export':
         await exportBackup();
         break;
+      case 'export-legacy':
+        await exportLegacy();
+        break;
       case 'export-all':
         await exportAll();
+        break;
+      case 'download-device-copy':
+        if (stagedCabinet) download(stagedCabinet[2], stagedCabinet[0]);
+        break;
+      case 'download-session-copy':
+        if (stagedCabinet) download('alibi-cabinet-session.json', stagedCabinet[1]);
         break;
       case 'import-all':
         $('#all-backup-input').value = '';
@@ -2971,17 +3166,25 @@
           );
         break;
       case 'apply-update':
-        await AlibiActivities.flush();
-        await AlibiClub.flush();
-        if (AlibiClub.diagnostics().saveError)
-          throw Error('Export or resolve the Club save problem before updating.');
-        await enqueueSave();
-        await queue;
-        if (saveError)
-          throw Error('The latest progress has not been saved. Export it before updating.');
-        if (registration?.waiting) {
-          updateRequested = true;
-          registration.waiting.postMessage({ type: 'ACTIVATE' });
+        endPaint();
+        pauseForUpdate(true);
+        try {
+          await AlibiActivities.flush();
+          await AlibiClub.flush();
+          if (AlibiClub.diagnostics().saveError)
+            throw Error('Export or resolve the Club save problem before updating.');
+          await enqueueSave();
+          await queue;
+          if (saveError)
+            throw Error('The latest progress has not been saved. Export it before updating.');
+          if (updateRequested && registration?.waiting) {
+            registration.waiting.postMessage({ type: 'ACTIVATE' });
+          } else {
+            pauseForUpdate(false);
+          }
+        } catch (e) {
+          pauseForUpdate(false);
+          throw e;
         }
         break;
       case 'reload':
@@ -3172,14 +3375,21 @@
   });
   let noteTimer = null;
   document.addEventListener('input', (e) => {
+    if (updateRequested) return;
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
+      draftEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;
       render();
     } else if ((el.id === 'play-notes' || el.id === 'quick-notes') && current) {
+      if (saveError || storageFatal) {
+        el.value = current.note;
+        toast('Export this session or reload before making more changes.', true);
+        return;
+      }
       current.note = el.value.slice(0, 5000);
       clearTimeout(noteTimer);
       noteTimer = setTimeout(enqueueSave, 180);
@@ -3193,6 +3403,7 @@
     }
   });
   document.addEventListener('change', async (e) => {
+    if (updateRequested) return;
     const el = e.target;
     try {
       if (el.dataset.setting) {
@@ -3238,6 +3449,7 @@
   });
   // A drag stroke is one undo step. The same brush is used throughout the stroke.
   function paintTo(i) {
+    if (saveError || storageFatal) return;
     if (!drag || !current || drag.key !== current.key || drag.visited.has(i)) return;
     drag.visited.add(i);
     if (AlibiClub.assistance() !== 'off' && drag.value === 1) {
@@ -3265,8 +3477,18 @@
     const d = drag;
     drag = null;
     lastPointerAt = Date.now();
-    if (!current || d.key !== current.key || C.equal(current.state, d.before)) return;
-    globalThis.AlibiJourney?.(current);
+    if (!current || d.key !== current.key) return;
+    if (saveError || storageFatal) {
+      if (!C.equal(current.state, d.before)) {
+        current.state = d.before;
+        render();
+      }
+      return;
+    }
+    if (C.equal(current.state, d.before)) return;
+    try {
+      globalThis.AlibiJourney?.(current);
+    } catch {}
     reviewing = false;
     current.undo.push(d.before);
     current.undo = current.undo.slice(-80);
@@ -3330,7 +3552,23 @@
       return;
     onCell(Number(el.dataset.cell), true);
   });
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      // A held Enter turns Cell notes, a number key, board size, pause, a clue, or a favorite on, then each repeat would turn it off.
+      if (
+        e.repeat &&
+        e.key === 'Enter' &&
+        e.target?.closest?.(
+          '[data-action="pencil"], [data-action="value"], #play-zoom, [data-action="pause"], [data-action="clue"], [data-action="quick-clue"], [data-action="favorite"]',
+        )
+      )
+        e.preventDefault();
+    },
+    true,
+  );
   document.addEventListener('keydown', (e) => {
+    if (updateRequested) return;
     if (e.defaultPrevented) return;
     if (
       !current ||
@@ -3349,7 +3587,12 @@
       undo(true);
       return;
     }
+    // Number, arrow, and pencil shortcuts must not swallow Ctrl, Cmd, or Alt.
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.key.toLowerCase() === 'n' && ['scene', 'sudoku', 'futoshiki'].includes(p.type)) {
+      if (paused) return;
+      // A held N turns notes on, then each repeat would turn them off.
+      if (e.repeat) return;
       e.preventDefault();
       pencil = !pencil;
       if (p.type === 'scene') sceneMarkMode = pencil ? 'exclude' : 'place';
@@ -3357,6 +3600,8 @@
       return;
     }
     if (e.key === 'Escape') {
+      // A held Escape closes a dialog, then its repeat would land on the board.
+      if (e.repeat) return;
       paused = !paused;
       enqueueSave();
       render();
@@ -3432,6 +3677,8 @@
       Number(e.key) <= p.size
     ) {
       e.preventDefault();
+      // A held digit adds a cell note, then each repeat would remove it.
+      if (e.repeat) return;
       act({ type: 'set', cell: selectedCell, value: Number(e.key), pencil });
     }
     if (p.type === 'binary' && /^[01]$/.test(e.key)) {
@@ -3482,6 +3729,7 @@
     }
   });
   async function loadRoute(focusSerial = 0) {
+    draftEpoch++;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.
@@ -3511,36 +3759,24 @@
       book: new URLSearchParams(query || '').get('book') || '',
     };
     if (
-      ![
-        'home',
-        'library',
-        'play',
-        'casebooks',
-        'story',
-        'journal',
-        'settings',
-        'workshop',
-        'privacy',
-        'about',
-        'login',
-        'changelog',
-        'salon',
-        'lab',
-        'club',
-        'quiet',
-      ].includes(route.page)
+      !'home library play casebooks story journal settings workshop privacy about login changelog salon lab club quiet'
+        .split(' ')
+        .includes(route.page)
     )
       route.page = 'home';
     if (route.page !== 'play') caseReturn = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
+    current = null;
+    if (route.page !== 'quiet') await AlibiActivities.leave();
+    if (serial !== routeSerial) return;
     let late;
     if (route.page === 'play') {
       const [pid, revision] = id.split('@'),
         catalog = find(pid),
-        key = revision ? pid + '@' + Number(revision) : null,
-        pinned = key ? records.get(key)?.puzzle : null;
+        pinned = records.get(pid + '@' + (revision ? Number(revision) : catalog?.revision))?.puzzle;
       // A saved run carries its own definition; a new run waits for the deferred chunk.
       if (!pinned && deferred?.has(catalog)) {
+        render();
         await deferred.ensure().catch(() => 0);
         if (serial !== routeSerial) return;
         late = deferred.has(catalog);
@@ -3571,15 +3807,12 @@
         trailValue = p.type === 'trail' ? nextTrail(current.state, p) : 1;
         if (!books.some((b) => b.id === route.book)) route.book = '';
       } else {
-        current = null;
         caseReturn = null;
         route.page = 'library';
         route.id = '';
         if (!late) toast('That puzzle revision is not in this collection.', true);
       }
-    } else current = null;
-    if (route.page !== 'quiet') await AlibiActivities.leave();
-    if (serial !== routeSerial) return;
+    }
     await AlibiClub.onRoute(route);
     if (serial !== routeSerial) return;
     render();
@@ -3724,12 +3957,20 @@
         navigator.serviceWorker.addEventListener('controllerchange', async () => {
           offlineReady = true;
           if (updateRequested) {
-            await enqueueSave();
-            await queue;
-            if (!saveError) location.reload();
-            else {
-              updateRequested = false;
-              render();
+            try {
+              await AlibiActivities.flush();
+              await AlibiClub.flush();
+              if (AlibiClub.diagnostics().saveError)
+                throw Error('Export or resolve the Club save problem before updating.');
+              await enqueueSave();
+              await queue;
+              if (saveError)
+                throw Error('The latest progress has not been saved. Export it before updating.');
+              if (!updateRequested) return;
+              location.reload();
+            } catch (e) {
+              pauseForUpdate(false);
+              toast(e.message || 'The update could not finish. Your progress is preserved.', true);
             }
           } else {
             waitingUpdate = false;

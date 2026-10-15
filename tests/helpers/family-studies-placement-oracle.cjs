@@ -248,9 +248,7 @@ function countAquarium(puzzle, limit = 2) {
         contribution.row.some(
           (value, index) => value + rowCounts[index] > puzzle.rowTargets[index],
         ) ||
-        contribution.col.some(
-          (value, index) => value + colCounts[index] > puzzle.colTargets[index],
-        )
+        contribution.col.some((value, index) => value + colCounts[index] > puzzle.colTargets[index])
       )
         continue;
       levels[tank] = level;

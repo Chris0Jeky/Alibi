@@ -102,9 +102,11 @@ test('CDN errors fall through to same-origin bytes', async () => {
   assert.equal(x.calls.length, 2);
 });
 for (const [label, value] of [
+  ['non-OK', () => response(bytes, 500)],
   ['HTML', () => response(bytes, 200, 'text/html')],
   ['partial', () => response(bytes, 206)],
   ['oversize', () => response(Buffer.alloc(100))],
+  ['truncated', () => response(bytes.subarray(0, bytes.length - 1))],
   ['wrong hash', () => response(Buffer.alloc(bytes.length))],
   ['opaque', () => ({ ok: false, type: 'opaque' })],
 ]) {

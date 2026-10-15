@@ -142,6 +142,12 @@
           r.redo.length > 3000
         )
           throw Error('Invalid game history.');
+        const d = r.updatedAt;
+        if (
+          d != null &&
+          (typeof d !== 'string' || d.length > 40 || !Number.isFinite(Date.parse(d)))
+        )
+          throw Error('Invalid save date.');
         const history = [...r.log, ...r.redo.slice().reverse()];
         if (key === 'duel') {
           E().reversi.strength(r.difficulty);
@@ -153,7 +159,11 @@
           if (!['bot', 'local'].includes(r.mode)) throw Error('Invalid match type.');
           E().tictactoe.replay(history);
         }
-        if (key === 'borough') E().borough.replay(r.seed, history);
+        if (key === 'borough') {
+          if (typeof r.seed === 'string' ? !r.seed : !Number.isFinite(r.seed))
+            throw Error('Invalid Borough seed.');
+          E().borough.replay(r.seed, history);
+        }
         if (key === 'archive') {
           let s = E().warehouse.initial(r.level);
           for (const d of history) {

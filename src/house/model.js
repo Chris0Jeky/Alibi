@@ -122,7 +122,7 @@
       try {
         return games[id][1](r).done
           ? []
-          : [{ id, title: games[id][0], updatedAt: r.updatedAt || '' }];
+          : [{ id, title: games[id][0], updatedAt: String(r.updatedAt ?? '') }];
       } catch {
         // Invalid/future game records are not repaired or erased by a navigation surface.
         return [];
