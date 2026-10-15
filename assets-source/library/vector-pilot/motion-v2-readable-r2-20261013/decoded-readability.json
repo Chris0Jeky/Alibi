@@ -1,0 +1,27 @@
+{
+  "asset": "alibi",
+  "decoded_frames": 32,
+  "display_width": 320,
+  "video_sha256": "2a4d58ab0ed34199fe11d052815cf170b4adf1af6927a710ab6b1ba6b551d9d2",
+  "regions": {
+    "steam": {
+      "max_changed_fraction_threshold6": 0.08513708513708514,
+      "required_minimum": 0.04,
+      "max_mean_rgb": 2.2955747955747956,
+      "passes": true
+    },
+    "flame": {
+      "max_changed_fraction_threshold6": 0.6153846153846154,
+      "required_minimum": 0.025,
+      "max_mean_rgb": 5.391025641025641,
+      "passes": true
+    },
+    "glass": {
+      "max_changed_fraction_threshold6": 0.18237980123556272,
+      "required_minimum": 0.015,
+      "max_mean_rgb": 1.8553138150237263,
+      "passes": true
+    }
+  },
+  "human_visual_acceptance": "separate gate; these thresholds reject still/near-still delivery only"
+}
