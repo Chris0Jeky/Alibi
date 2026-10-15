@@ -1,5 +1,28 @@
 # Live development state
 
+## 2026-10-15: Interlock deferral and owner-authorized budget headroom (#427)
+
+The owner authorized both deferral and higher reasonable caps. Both Interlock packs, Expert
+Families and Master/Grandmaster now use the existing declarative `official-packs.json` list:
+570 unchanged definitions in source order, 403 initial and 167 deferred across nine packs.
+Initial gzip measures 200,827 bytes, 4,421 below the old 205,248 cap; the new cap is 225,280.
+Deferred gzip measures 21,266 against the new 32,768 cap (old 12,288). JS/shell caps are unchanged.
+Optional WebP declarations join the existing verified asset-delivery path and byte receipt.
+Author instructions and cap rationale: [DELIVERY.md](content/DELIVERY.md) and
+[INTERLOCK-STUDIES.md](content/INTERLOCK-STUDIES.md). Changes remain uncommitted for the driver;
+clean-source, hosted and physical-device acceptance are separate from local working-tree tests.
+Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+Local evidence: 53 focused content/accounting/worker tests and 17 optional-image/budget tests
+pass; nine Interlock registry-selection tests pass. All 60 studies pass 720 real-origin checks
+at 390/1440px, including save/reopen/offline reload; representative screenshots inspected.
+The complete Node unit script reports 1,530 passes, 12 Android clean-source/artifact prerequisite
+failures and three skips. Quiet Wing suites pass 581,856/43 assertions separately. Formatting and
+diff checks pass. `npm test`/`npm run verify` cannot pass while this tree is intentionally
+uncommitted: Android refuses dirty source, and the normal pretest requires matching clean web
+and Android artifacts. Guards remain intact; driver review/commit then `npm.cmd run verify` is
+the exact resume point. GitHub authentication is unavailable (HTTP 401); no hosted CI claim.
+
 ## 2026-10-15: Interlock studies merged with current main (#427), budget still blocked
 
 Interlock candidate #427 is merged with main `abb0be0a`: the 60 definitions/editorial receipts are

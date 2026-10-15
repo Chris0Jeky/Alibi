@@ -40,6 +40,9 @@
     "extra/vault-lightup.json",
     "extra/vault-futoshiki.json",
     "extra/crime-scene-variations.json",
-    "extra/interlock-routes.json"
+    "extra/interlock-routes.json",
+    "extra/interlock-gardens.json",
+    "extra/expert-families.json",
+    "extra/master-grandmaster-studies.json"
   ]
 }

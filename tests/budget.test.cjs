@@ -50,7 +50,11 @@ test('shell and content stay inside the existing ceilings', () => {
     );
   }
   {
-    // Registry-deferred official definitions leave the startup payload but stay offline-ready.
+    // Authors add a pack path once to content/official-packs.json's deferred list; build,
+    // worker IDs, backup collision checks and receipts follow it without changing puzzle sources.
+    // Optional WebP assets use content/asset-delivery.json's deferred declarations and the
+    // existing verified image loader/enhancement receipt (outside startup and core precache).
+    // See docs/content/DELIVERY.md. Official definitions remain precached for offline play.
     const matches = assetNames.filter((name) => /^official-deferred\.[a-f0-9]{12}\.js$/.test(name));
     assert.equal(matches.length, 1, 'One hashed deferred official-definitions asset is emitted');
     const bytes = fs.readFileSync(path.join(root, 'dist/assets', matches[0]));
@@ -64,9 +68,12 @@ test('shell and content stay inside the existing ceilings', () => {
       !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
       'Deferred definitions are not a startup script',
     );
+    // Owner decision 2026-10-15: 12,288 -> 32,768 bytes. Baseline 14,633 already fails;
+    // deferring both Interlock packs plus Expert Families and Master/Grandmaster measures
+    // 21,266, leaving 11,502 bytes for roughly two more similarly sized study waves.
     assert.ok(
-      info.deferredContentGzipBytes < 12 * 1024,
-      'Deferred official definitions stay under 12 KiB gzip',
+      info.deferredContentGzipBytes < 32 * 1024,
+      'Deferred official definitions stay under 32 KiB gzip',
     );
   }
   // tools/build.cjs already leaves the deferred Pulseboard SDK and discovery storage assets out of
@@ -175,7 +182,7 @@ test('shell and content stay inside the existing ceilings', () => {
   }
   assert.ok(info.platformGzipBytes < 6 * 1024, 'Platform and identity stay under 6 KiB gzip');
   assert.ok(
-    // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 200 KiB
+    // CAP-03 adds the complete local platform facade (~14 KiB uncompressed). The 220 KiB
     // compressed startup ceiling (below) and the 2.3 MiB total offline ceiling apply separately.
     // Measured without the #393 double subtraction on 0.14.1: 1,372,753 bytes (1.309 MiB).
     // Voices (the precached chunk above plus its startup entry points): measured
@@ -228,12 +235,13 @@ test('shell and content stay inside the existing ceilings', () => {
     'Official definitions and editorial data stay under 1 MiB',
   );
   assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stays under 2.3 MiB');
-  // 0.15.0 measured 205,233 and raised this ceiling by 448 until the startup bundle is trimmed.
-  // After #425 and #428 it measured 202,721 (a3c6ad9), and 202,748 after #435 (e0edda4). The raise
-  // stays for now: the draft Interlock studies (#427) measure about 205,075 on top of main.
+  // Owner decision 2026-10-15: 205,248 -> 225,280 (220 KiB). Clean baseline 205,710;
+  // declarative advanced-pack deferral measures 200,827, already 4,421 under the OLD cap.
+  // New headroom 24,453 supports the next few content waves without byte-sized cap patches.
+  // JS (133,780 / 134,944) and shell (~1,406,586 / 1,412,792.32) still fit; do not raise them.
   assert.ok(
-    info.initialCodeAndContentGzipBytes < 200 * 1024 + 448,
-    'Initial code plus official data stays under 200 KiB + 448 bytes gzip',
+    info.initialCodeAndContentGzipBytes < 220 * 1024,
+    'Initial code plus official data stays under 220 KiB gzip',
   );
   for (const [prefix, limit] of [
     // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.

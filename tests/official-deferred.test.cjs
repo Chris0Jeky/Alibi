@@ -17,6 +17,9 @@ const one = (pattern) => {
 const initial = one(/^official-content\.[a-f0-9]{12}\.js$/);
 const deferred = one(/^official-deferred\.[a-f0-9]{12}\.js$/);
 const registry = JSON.parse(fs.readFileSync(path.join(root, 'content/official-packs.json')));
+const deferredDefinitions = registry.deferred.flatMap(
+  (file) => JSON.parse(fs.readFileSync(path.join(root, 'content', file))).puzzles,
+);
 const crimeVariations = JSON.parse(
   fs.readFileSync(path.join(root, 'content/extra/crime-scene-variations.json'), 'utf8'),
 );
@@ -29,18 +32,10 @@ function startup(extra = {}) {
   return context;
 }
 
-test('registry defers Vault, crime-scene variations and Interlock Routes, all of which stay registered', () => {
-  assert.deepEqual(registry.deferred, [
-    'extra/vault-binary.json',
-    'extra/vault-sudoku.json',
-    'extra/vault-lightup.json',
-    'extra/vault-futoshiki.json',
-    'extra/crime-scene-variations.json',
-    'extra/interlock-routes.json',
-  ]);
+test('one registry list controls partitioning without changing the full catalogue', () => {
   for (const file of registry.deferred) assert.ok(registry.packs.includes(file));
   const { catalog, deferred: keys } = partition(root, false);
-  assert.equal(keys.size, 122);
+  assert.deepEqual(keys, new Set(deferredDefinitions.map((p) => p.id + '@' + p.revision)));
   assert.equal(JSON.stringify(catalog), JSON.stringify(load(root, false)));
 });
 
@@ -66,9 +61,9 @@ test('startup carries listing entries only and reads no definition fields', () =
   const marker = context.ALIBI_DEFERRED;
   assert.equal(marker.ready, false);
   assert.match(marker.url, /^\.\/assets\/official-deferred\.[a-f0-9]{12}\.js$/);
-  assert.equal(marker.keys.length, 122);
+  assert.equal(marker.keys.length, deferredDefinitions.length);
   const listed = context.ALIBI_CATALOG.puzzles.filter((p) => marker.has(p));
-  assert.equal(listed.length, 122);
+  assert.equal(listed.length, deferredDefinitions.length);
   for (const entry of listed) {
     assert.deepEqual(
       Object.keys(entry).filter((key) => !content.LISTING_FIELDS.includes(key)),
@@ -111,15 +106,30 @@ test('initial plus deferred scripts reproduce the full official catalogue exactl
   assert.equal(JSON.stringify(context.ALIBI_CATALOG), JSON.stringify(load(root, false)));
   // In-place swap: references held before the chunk arrived now see full definitions.
   for (const entry of listed) {
-    assert.ok(
-      entry.solution && typeof entry.solution === 'object',
-      `${entry.id} gained its definition`,
-    );
+    assert.ok(Object.hasOwn(entry, 'solution'), `${entry.id} gained its definition`);
     assert.equal(context.ALIBI_DEFERRED.has(entry), false);
   }
   const snapshot = JSON.stringify(context.ALIBI_CATALOG);
   vm.runInNewContext(deferred, context, { timeout: 2000 });
   assert.equal(JSON.stringify(context.ALIBI_CATALOG), snapshot, 'a second load is a no-op');
+});
+
+test('every declared deferred pack is absent as a startup definition and loads in source order', () => {
+  const context = startup();
+  const studies = ['interlock-gardens', 'interlock-routes'].flatMap(
+    (name) => require('../content/extra/' + name + '.json').puzzles,
+  );
+  for (const source of [...deferredDefinitions, ...studies]) {
+    const entry = context.ALIBI_CATALOG.puzzles.find((p) => p.id === source.id);
+    assert.ok(context.ALIBI_DEFERRED.has(entry), source.id + ' is deferred');
+    assert.equal(entry.solution, undefined, source.id + ' has no startup solution');
+  }
+  assert.equal(
+    deferredDefinitions.length,
+    JSON.parse(fs.readFileSync(path.join(root, 'build-info.json'))).deferredPuzzles,
+  );
+  vm.runInNewContext(deferred, context, { timeout: 2000 });
+  assert.equal(JSON.stringify(context.ALIBI_CATALOG), JSON.stringify(load(root, false)));
 });
 
 test('a tampered listing entry fails closed and swaps nothing', () => {
