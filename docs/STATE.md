@@ -1,5 +1,45 @@
 # Live development state
 
+## 2026-10-15: survey v2 edit revisions (#680, uncommitted worker slice)
+
+`feat/voices-survey-v2-680` at `0305c2e05ba18b7113063e2c8e7af10f8dde1940`
+now sends `pulseboard.survey/2` for surveys and ratings. Per-respondent, survey and subject
+counters persist before queueing under a cross-tab Web Lock. Deliberate edits increment;
+retries retain their exact revision. Older enqueues cannot displace newer edits, including
+after queue removal. Legacy queued v1 answers migrate to revision 1 before sending.
+202 updated/duplicate/stale finish delivery; 409 conflicts drop with the existing refusal
+note. Missing durable counter storage/Web Locks and counter exhaustion refuse new answers.
+Feedback retains its existing memory fallback and retry rules.
+
+Tests were written first: seven new regression cases failed against v1, while the existing
+202 handling already passed. Queue tests increased from 29 to 40; the complete relevant
+Voices and budget selection passes 67 tests. Rapid rating/heart edits and re-enqueue after
+a newer answer drains each failed before their fixes. The intercepted Voices browser suite
+passes 140 assertions, including real Web Locks across two tabs, real localStorage and reload.
+Phone (390px) survey and desktop feedback screenshots were inspected. The real-origin
+storage/offline suite passes 599 checks in disposable profiles. These are browser proofs,
+not hosted collector or physical-device acceptance.
+
+Final local web build `3df6cb0999d7` reports sourceDirty true. Voices raw bytes:
+20,048 -> 20,424 (+376), below 20,480; gzip: 8,659 -> 8,885 (+226), below 9,216.
+Startup gzip: 204,191 -> 204,194 (+3), below 205,248. No budget changed. Repeated UI
+explanations were shortened to fit the existing deferred-chunk ceiling.
+
+Formatting and web build pass. `npm test` stops at its clean-source artifact preflight;
+`npm run build:android` likewise refuses an uncommitted tree. The test body run separately
+with `npm run test --ignore-scripts` reports 1,563 tests: 1,553 pass, 3 skip and 7 fail.
+All seven failures are the unchanged Android clean-source requirement in
+`tests/android-build.test.cjs`: generated artifact contract; shared content revision;
+native flavor substitution; runtime/metadata tampering; deterministic derivation;
+bundled-file tampering; source/content provenance tampering. Quiet Wing engines pass
+581,856 assertions and contracts pass 43 assertions when run separately.
+
+No commit, push, deployment or physical-device claim is part of this slice. The worker
+leaves source, tests and these notes in the working tree as requested. After coordinator
+integration, the remaining artifact gate is a clean-source Android build and ordinary
+`npm test`. Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md), including physical
+Android/TalkBack acceptance; this change closes none of those items.
+
 ## 2026-10-14: a held Enter leaves a clue check and a favorite in place
 
 Holding Enter on a clue or a favorite checked it, and the key repeat removed it. A separate later press still removes the check or the favorite. Cell notes, number keys, board size, pause, and the held digit guard are unchanged.

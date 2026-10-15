@@ -4,8 +4,8 @@ Players can send the maintainer a message, answer a short survey about what they
 official puzzles as they finish them. All three go to Pulseboard, the maintainer's own collector,
 and only when the player acts. This file describes what Alibi does on the device. The wire format,
 the collector's validation, storage, retention and the Desk views are the Pulseboard contract
-"Voices: player feedback, surveys and puzzle ratings (contract v1)": `pulseboard.feedback/1`
-(`POST /v1/feedback/alibi`) and `pulseboard.survey/1` (`PUT /v1/survey/alibi`), with the survey
+"Voices: player feedback, surveys and puzzle ratings": `pulseboard.feedback/1`
+(`POST /v1/feedback/alibi`) and `pulseboard.survey/2` (`PUT /v1/survey/alibi`), with the survey
 registry in Pulseboard's `observatory/src/surveys.mjs`. Pulseboard owns that contract; see the
 [Pulseboard repository](https://github.com/Chris0Jeky/Pulseboard). Do not change a field name,
 enum, status rule or survey option here without changing it there first.
@@ -72,25 +72,41 @@ ratings still carrying it (messages carry no key and stay queued), so no queued 
 old key after the reset (a request already in flight still completes); the next submission creates
 a new one. Clearing site data does the same.
 
+Surveys and ratings send `v: 2` and a required integer `revision` in `1..2147483647`.
+`localStorage["alibi:voices:revisions:v2"]` keeps counters by respondent, survey and subject,
+including after the queue drains or is deleted. A deliberate valid submit (even identical answers)
+or rating change reserves the next revision before queueing. Retries send the original payload;
+loading, rendering and reconnecting never increment a counter. Reset removes the counters too;
+a new respondent starts at 1. Overflow refuses the edit without wrapping or deleting queued work.
+
+The browser Web Lock named `alibi:voices:queue:v1` serializes counter allocation and queue
+updates across tabs. Both `survey()` and `enqueue()` return promises that callers await. Without
+Web Locks or a durable counter write, surveys and ratings are refused rather than sent with a
+reusable revision; feedback retains its memory-only fallback. An old queued v1 answer is upgraded
+deterministically to revision 1, and a deliberate v2 edit takes a higher revision. This migration
+preserves offline answers and sends only v2 survey/rating writes.
+
 ## Offline queue and delivery
 
 - `localStorage["alibi:voices:queue:v1"]`: at most 20 items, each the exact payload plus
   `attempts`, `next` (next try, ms) and `queued` (ms). A 21st item is refused with a message, never
   by dropping a waiting one. A queued survey or rating for the same survey and subject replaces the
-  older queued one; a message with the same id is queued once. Items older than 30 days are
+  older queued one; an older revision cannot replace a newer one or return after it is drained.
+  A message with the same id is queued once. Items older than 30 days are
   dropped unsent. Corrupt data is treated as empty; if storage is unavailable the queue lives in
-  memory for the page (flushed by the same triggers), and so does the survey key.
+  memory for the page (flushed by the same triggers). Survey/rating writes require durable counters.
 - Flush triggers: after the first render when the browser is idle, on `online`, after a new item
   is queued, and on `visibilitychange` to visible. A browser that reports itself offline makes no
   attempt. Items are sent one at a time.
-- Status handling: `202` removes the item (including `duplicate: true` and `updated: true`);
-  `400` removes it and leaves a local "could not be sent" note shown in Settings (Dismiss clears
+- Status handling: `202` removes the item (including `duplicate: true`, `updated: true` and
+  `stale: true`); `400` and `409 revision_conflict` remove it and leave a local
+  "could not be sent" note shown in Settings (Dismiss clears
   it); a network error, a timeout (15 s), `429`, `5xx` or `503` keeps it and backs it off 1 minute,
   5 minutes, 30 minutes, 2 hours, then every 6 hours, honouring a longer `Retry-After`, and ends
   that pass. Other statuses (for example `403`, `404`, `415` while the collector is not yet
   deployed or admitting Alibi) are kept and retried the same way, bounded by the 30-day drop.
 - The sheet waits up to four seconds for the collector's answer. It says "sent" only after a
-  `202`, "not sent" after a `400`, and otherwise "saved on this device" (offline wording when
+  `202`, "not sent" after a `400` or `409`, and otherwise "saved on this device" (offline wording when
   the browser is offline).
 - Settings shows "N messages waiting to send" with Delete.
 

@@ -236,7 +236,7 @@ function sheetPage({ hash = '#/home', online = true, queued = null, replies = []
   const context = {
     innerWidth: 500,
     location: { origin: PRIMARY, hash },
-    navigator: { onLine: online },
+    navigator: { locks: { request: (_name, fn) => Promise.resolve().then(fn) }, onLine: online },
     ALIBI_CONFIG: { standalone: false, version: '0.15.0' },
     ALIBI_VOICES: { origin: PRIMARY, collector: COLLECTOR, chunk: './assets/voices.x.js' },
     ALIBI_CATALOG: { puzzles: [{ id: 'scene-01', type: 'scene', difficulty: 'Gentle' }] },
@@ -328,7 +328,7 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
   );
   assert.match(
     source,
-    /return status === 202 \? 1 : status === 400 \? 3 : 2;/,
+    /return status === 202 \? 1 : status === 400 \|\| status === 409 \? 3 : 2;/,
     '202 is sent, 400 is refused, anything else is waiting',
   );
   // Behaviour under that mapping: the queue outcome deliver() reads only records a real
@@ -360,16 +360,16 @@ test('deliver() reports sent only for a 202, refused for a 400, waiting otherwis
     });
   const first = note('first');
   assert.ok(first);
-  assert.equal(queue.enqueue(first), true);
+  assert.equal(await queue.enqueue(first), true);
   await queue.flush();
   assert.equal(queue.outcome(first), 202, 'a 202 is the only sent answer');
   const second = note('second');
-  queue.enqueue(second);
+  await queue.enqueue(second);
   status = 400;
   await queue.flush();
   assert.equal(queue.outcome(second), 400, 'a 400 is refused');
   const third = note('third');
-  queue.enqueue(third);
+  await queue.enqueue(third);
   status = 500;
   await queue.flush();
   assert.equal(queue.outcome(third), undefined, 'anything else is still waiting, never sent');
@@ -550,6 +550,7 @@ test('tap() keeps rating state locally and sends it once it has a difficulty', a
   const rated = () => JSON.parse(h.store.get('alibi:voices:state:v1') || '{}').rated || {};
   const [tooEasy, justRight, tooHard] = row.difficulty;
   row.click(h, 'more', 'yes');
+  await settleSheet(h);
   assert.equal(row.statusEl.textContent, 'Choose how it felt to send this.');
   assert.deepEqual(rated()['scene-01'], { more: 'yes' }, 'a difficulty-free tap is kept, not sent');
   assert.equal(h.calls.fetch.length, 0);
@@ -576,6 +577,30 @@ test('tap() keeps rating state locally and sends it once it has a difficulty', a
   assert.equal(row.more.active, false);
   assert.equal(row.statusEl.textContent, 'Thanks, sent.');
   assert.equal(h.calls.fetch.length, 2);
+});
+
+test('rapid rating and heart edits keep both choices while revision allocation waits', async () => {
+  const h = sheetPage({ online: false });
+  const row = ratingRow();
+  row.click(h, 'rate', 'just-right');
+  row.click(h, 'more', 'yes');
+  await settleSheet(h);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+    more: 'yes',
+  });
+  const [item] = JSON.parse(h.store.get('alibi:voices:queue:v1'));
+  assert.deepEqual(item.payload.answers, { difficulty: 'just-right', more: 'yes' });
+  assert.equal(item.payload.revision, 2);
+});
+
+test('409 is shown as refused rather than saved for retry', async () => {
+  const h = sheetPage({ replies: [409] });
+  const row = ratingRow();
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Not sent.');
+  assert.equal(h.store.has('alibi:voices:queue:v1'), false);
 });
 
 test('tap() reports a refused or waiting delivery without ever claiming it was sent', async () => {
@@ -611,6 +636,7 @@ test('a hanging rating send stays queued and reports waiting at the four-second 
     return new Promise(() => {});
   };
   row.click(h, 'rate', 'just-right');
+  await new Promise((r) => setImmediate(r));
   assert.equal(h.calls.fetch.length, 1);
   assert.equal(timers.length, 1);
   assert.equal(timers[0].ms, 4000);
@@ -634,6 +660,7 @@ test('tap() forgets an unqueued choice so the same tap can retry', async () => {
   const h = sheetPage({ queued });
   const row = ratingRow();
   row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
   assert.equal(row.statusEl.textContent, 'Not sent. Try again later.');
   assert.equal(h.store.has('alibi:voices:state:v1'), false, 'an unqueued choice is not remembered');
   h.store.delete('alibi:voices:queue:v1');
