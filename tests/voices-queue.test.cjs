@@ -240,6 +240,62 @@ test('surveys refuse to allocate a revision without durable storage or cross-tab
   }
 });
 
+test('a rejected Web Lock refuses surveys without writing a revision and can recover', async () => {
+  const lock = locks(),
+    request = lock.request;
+  lock.request = () => Promise.reject(new DOMException('Blocked', 'SecurityError'));
+  const { q, store, calls } = harness({ lock });
+  assert.equal(await taste(q), null);
+  assert.equal(await rating(q), null);
+  assert.equal(store.map.has(REVISIONS), false);
+  assert.equal(q.pending().length, 0);
+  assert.equal(calls.length, 0);
+  lock.request = request;
+  assert.equal((await rating(q)).revision, 1);
+});
+
+test('a lock rejected after allocation refuses enqueue and leaves queued surveys untouched', async () => {
+  const lock = locks();
+  const { q, calls } = harness({ lock });
+  const first = await rating(q);
+  await q.enqueue(first);
+  const next = await rating(q);
+  lock.request = () => Promise.reject(new DOMException('Blocked', 'SecurityError'));
+  assert.equal(await q.enqueue(next), false);
+  await q.flush();
+  assert.deepEqual(plain(q.pending().map((x) => x.payload)), [plain(first)]);
+  assert.equal(calls.length, 0, 'no survey is sent without a lock');
+});
+
+test('rejected Web Locks preserve feedback memory-only delivery and retry', async () => {
+  const { q, calls, clock } = harness({
+    lock: { request: () => Promise.reject(new DOMException('Blocked', 'SecurityError')) },
+    store: storage({}, { throws: true }),
+    replies: ['network', 202],
+  });
+  const payload = feedback(q);
+  assert.equal(await q.enqueue(payload), true);
+  await q.flush();
+  assert.equal(q.pending()[0].attempts, 1);
+  clock.t = q.pending()[0].next;
+  await q.flush();
+  assert.equal(calls.length, 2);
+  assert.equal(q.outcome(payload), 202);
+  assert.equal(q.pending().length, 0);
+});
+
+test('a queued v2 item missing its revision does not prevent later edits', async () => {
+  const { q, store } = harness({ online: false });
+  const old = plain(await rating(q));
+  delete old.revision;
+  store.removeItem(REVISIONS);
+  store.setItem(q.QUEUE, JSON.stringify([{ payload: old, attempts: 0, next: 0, queued: T0 }]));
+  const next = await rating(q);
+  assert.equal(next.revision, 1);
+  assert.equal(await q.enqueue(next), true);
+  assert.deepEqual(plain(q.pending().map((x) => x.payload)), [plain(next)]);
+});
+
 test('a delayed older delivery is stale after the newer edit arrives, without removing a newer queue item', async () => {
   let release, stored;
   const collect = (body) => {

@@ -594,6 +594,50 @@ test('rapid rating and heart edits keep both choices while revision allocation w
   assert.equal(item.payload.revision, 2);
 });
 
+test('a rejected rating lock is visible and the next tap still sends', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const lock = h.context.navigator.locks,
+    request = lock.request;
+  lock.request = () => Promise.reject(new DOMException('Blocked', 'SecurityError'));
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Not sent. Try again later.');
+  assert.equal(h.calls.fetch.length, 0);
+  lock.request = request;
+  row.click(h, 'rate', 'just-right');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Thanks, sent.');
+  assert.equal(h.calls.fetch.length, 1);
+});
+
+test('an unexpected tap rejection does not poison subsequent rating and heart taps', async () => {
+  const h = sheetPage();
+  const row = ratingRow();
+  const click = () =>
+    h.fire('click', {
+      target: {
+        closest: () => ({
+          dataset: { voAct: 'rate', value: 'just-right' },
+          closest() {
+            throw Error('Detached row');
+          },
+        }),
+      },
+    });
+  click();
+  await settleSheet(h);
+  row.click(h, 'rate', 'just-right');
+  row.click(h, 'more', 'yes');
+  await settleSheet(h);
+  assert.equal(row.statusEl.textContent, 'Thanks, sent.');
+  assert.equal(h.calls.fetch.length, 2);
+  assert.deepEqual(JSON.parse(h.store.get('alibi:voices:state:v1')).rated['scene-01'], {
+    difficulty: 'just-right',
+    more: 'yes',
+  });
+});
+
 test('409 is shown as refused rather than saved for retry', async () => {
   const h = sheetPage({ replies: [409] });
   const row = ratingRow();

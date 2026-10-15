@@ -126,15 +126,21 @@ the survey or taps a rating. */
           return null;
         }
       },
-      locked = (fn) => (locks ? locks.request(QUEUE, fn) : Promise.resolve().then(fn)),
+      // Feedback can proceed without a lock; revisions require a lock actually acquired.
+      locked = async (fn) => {
+        try {
+          if (locks) return await locks.request(QUEUE, () => fn(true));
+        } catch {}
+        return fn(false);
+      },
       subjectKey = (p) => `${p.respondent}/${p.survey}/${p.subject}`;
     // Counters outlive queue removal. A failed durable write must never reuse a revision.
-    function revision(p, edit) {
+    function revision(p, held, edit) {
       const counters = read(REVISIONS) ?? {},
         key = subjectKey(p),
         prior = counters[key] ?? 0;
       if (
-        !locks ||
+        !held ||
         typeof counters !== 'object' ||
         Array.isArray(counters) ||
         read(KEY) !== p.respondent ||
@@ -147,7 +153,7 @@ the survey or taps a rating. */
             prior,
             ...load()
               .filter((x) => subjectKey(x.payload) === key)
-              .map((x) => x.payload.revision),
+              .map((x) => x.payload.revision ?? 0),
           ) + 1
         : p.revision;
       if (!Number.isSafeInteger(n) || n < 1 || n > 2147483647 || (edit === false && n < prior))
@@ -276,7 +282,7 @@ the survey or taps a rating. */
         },
         // A survey or rating: the survey key is created on the first valid submit.
         survey({ survey, subject = '', answers, meta = {}, comment = '', release, device }) {
-          return locked(() => {
+          return locked((held) => {
             const spec = SURVEYS[survey],
               picked = spec && answersFor(spec.questions, answers);
             comment = clean(comment);
@@ -293,7 +299,7 @@ the survey or taps a rating. */
                     Object.keys(meta).length === 2
                   : subject === '' && !Object.keys(meta).length),
               respondent = valid && api.respondent(true);
-            const next = respondent && revision({ respondent, survey, subject }, true);
+            const next = respondent && revision({ respondent, survey, subject }, held, true);
             return next
               ? {
                   v: 2,
@@ -313,10 +319,10 @@ the survey or taps a rating. */
         // A survey or rating replaces the older queued answer for the same survey and subject.
         // Returns false when twenty items are already waiting.
         enqueue(payload) {
-          return locked(() => {
+          return locked((held) => {
             if (
               payload.survey &&
-              (!revision(payload, false) ||
+              (!revision(payload, held, false) ||
                 load().some(
                   (x) =>
                     subjectKey(x.payload) === subjectKey(payload) &&
@@ -348,12 +354,12 @@ the survey or taps a rating. */
               for (
                 let item;
                 online() &&
-                (item = await locked(() =>
+                (item = await locked((held) =>
                   load().find(
                     (x) =>
                       x.next <= now() &&
                       !tried.has(tag(x)) &&
-                      (!x.payload.survey || revision(x.payload)),
+                      (!x.payload.survey || revision(x.payload, held)),
                   ),
                 ));
               ) {

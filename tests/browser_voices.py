@@ -557,6 +557,60 @@ with sync_playwright() as pw:
     check(not collector.voices(), 'the offline revision check makes no network writes')
     context.close()
 
+    # ---- Rejected Web Locks: survey refusal, recoverable taps, memory-only feedback ----
+    collector = Collector()
+    context, page = open_context(browser, collector, errors, init="""{
+        window.blockVoicesLocks = true;
+        const request = navigator.locks.request.bind(navigator.locks);
+        navigator.locks.request = (...args) => window.blockVoicesLocks
+            ? Promise.reject(new DOMException('Site data blocked', 'SecurityError'))
+            : request(...args);
+    }""")
+    page.evaluate("location.hash='/settings'")
+    page.locator('#vo-survey').click()
+    page.locator('label:has(input[name="often"][value="weekly"])').click()
+    page.locator('label:has(input[name="difficulty"][value="mostly-right"])').click()
+    send = page.locator('dialog.vo-sheet button.btn:not(.secondary)')
+    send.click()
+    page.locator('.vo-error', has_text='This browser cannot send the survey.').wait_for()
+    check(send.is_enabled(), 'a rejected survey lock shows a refusal and re-enables Send')
+    check(not collector.voices(), 'a rejected survey lock sends nothing')
+    check(local(page, 'alibi:voices:revisions:v2') is None, 'a rejected lock allocates no survey revision')
+    close_sheet(page)
+    solve_sudoku(page, 'curated-sudoku-01@1')
+    row = page.locator('#vo-rate')
+    row.locator('button', has_text='Just right').click()
+    row.locator('[role=status]', has_text='Not sent. Try again later.').wait_for()
+    check(not collector.voices(), 'a rejected rating lock is visibly refused without sending')
+    page.evaluate('window.blockVoicesLocks = false')
+    row.locator('button', has_text='Just right').click()
+    row.locator('[role=status]', has_text='Thanks, sent.').wait_for()
+    check(len(collector.voices()) == 1, 'the next rating tap works after a lock rejection')
+    check(collector.voices()[0]['body']['revision'] == 1, 'the refused tap did not consume a revision')
+    row.locator('button', has_text='More like this').click()
+    wait_for(page, lambda: len(collector.voices()) == 2, 'heart after rejected lock')
+    check(collector.voices()[1]['body']['answers']['more'] == 'yes', 'heart taps still work after a lock rejection')
+    row.locator('[role=status]', has_text='Thanks, sent.').wait_for()
+    page.evaluate("""() => {
+        window.blockVoicesLocks = true;
+        for (const method of ['getItem', 'setItem', 'removeItem']) {
+            const original = Storage.prototype[method];
+            Storage.prototype[method] = function(key, ...args) {
+                if (key.startsWith('alibi:voices:')) throw new DOMException('Blocked', 'SecurityError');
+                return original.call(this, key, ...args);
+            };
+        }
+    }""")
+    page.locator('#vo-open').click()
+    type_message(page, 'Feedback with blocked site data.')
+    page.locator('dialog.vo-sheet button.btn:not(.secondary)').click()
+    page.locator('#vo-title', has_text='Thank you.').wait_for()
+    check(len(collector.voices()) == 3, 'feedback still sends with locks and Voices storage blocked')
+    check(collector.voices()[2]['body']['text'] == 'Feedback with blocked site data.', 'memory-only feedback retains the message')
+    check('It was sent.' in page.locator('dialog.vo-sheet').inner_text(), 'memory-only feedback reports the collector acceptance')
+    check(not errors, 'lock refusals and later taps produce no unhandled page errors')
+    context.close()
+
     # ---- Global Privacy Control does not block an explicit Send ----
     collector = Collector()
     context, page = open_context(

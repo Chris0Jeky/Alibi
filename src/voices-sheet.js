@@ -272,8 +272,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
         release,
         device: device(),
       });
-    if (!payload) return say('This browser cannot send the survey.');
-    if (!(await Q.enqueue(payload))) return say(full);
+    if (!payload || !(await Q.enqueue(payload))) return say('This browser cannot send the survey.');
     save({
       ...state(),
       answers: { ...answers, comment: Q.clean(comment) },
@@ -291,7 +290,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       s = state();
     if (a === 'rate' || a === 'more') {
       const o = A.official(A.run);
-      if (o) return (taps = taps.then(() => tap(el, o)));
+      if (o) return (taps = taps.then(() => tap(el, o)).catch(() => toast('Not sent.')));
       return;
     }
     if (!a || a === 'hide') return;
