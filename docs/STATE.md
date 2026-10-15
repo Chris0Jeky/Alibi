@@ -1,5 +1,21 @@
 # Live development state
 
+## 2026-10-15: #678 deferred WebP provenance guard
+
+`tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
+matches a source or derivative in the existing `assets-source/curation/registry.json`
+with nonempty `rights.licence` or `source.rights`. The error names the missing file;
+the delivery authoring guide documents the enforced requirement.
+
+Test-first proof: the new regression failed with `Missing expected exception`
+before the guard. It now rejects missing records, unrelated files and missing rights,
+and accepts both source-rights and derivative-licence records. The delivery-build
+suite grows from 2 to 3 tests; delivery-build, budget and official-deferred together
+grow from 14 to 15 passing tests. `npm.cmd run build` and `npm.cmd run format:check`
+pass. Output retains 570 puzzles, 302 files and 3,384,920 enhancement bytes.
+No commit, push, hosted verification or physical-device acceptance is claimed;
+owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
 ## 2026-10-15: survey v2 edit revisions (#680; PR #681 review fixes)
 
 `feat/voices-survey-v2-680` sends `pulseboard.survey/2` for surveys and ratings.
