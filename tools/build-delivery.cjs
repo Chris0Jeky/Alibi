@@ -136,19 +136,28 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       typeof asset.id !== 'string' ||
       !/^[a-z0-9-]+$/.test(asset.id) ||
       Object.hasOwn(entries, asset.id) ||
-      !/^assets-source\/[a-z0-9/_-]+\.webp$/.test(asset.file) ||
+      typeof asset.file !== 'string' ||
+      !/^[a-z0-9][a-z0-9/_-]*\.webp$/.test(asset.file) ||
       !/^[a-f0-9]{64}$/.test(asset.sha256) ||
       !(Object.hasOwn(baseMedia, asset.fallback) || Object.hasOwn(fallback, asset.fallback))
     )
       throw Error('Invalid deferred image declaration');
-    const record = registry.assets.find(
-      (a) => a.source?.file === asset.file || a.derivative?.file === asset.file,
+    const sourceRoot = ['assets-source', registry.policy?.derivativeRoot].find(
+      (dir) => typeof dir === 'string' && asset.file.startsWith(dir + '/'),
     );
-    const rights = record?.rights?.licence || record?.source?.rights;
-    if (typeof rights !== 'string' || !rights.trim())
-      throw Error('Deferred image missing provenance/licence record: ' + asset.file);
+    if (!sourceRoot) throw Error('Invalid deferred image declaration');
+    const approved = registry.assets.some(
+      (a) =>
+        [a.source, a.derivative].some(
+          (record) => record?.file === asset.file && record.sha256 === asset.sha256,
+        ) &&
+        [a.rights?.licence, a.source?.rights].some(
+          (rights) => typeof rights === 'string' && rights.trim(),
+        ),
+    );
+    if (!approved) throw Error('Deferred image missing provenance/licence record: ' + asset.file);
     const file = fs.realpathSync(path.join(root, asset.file));
-    if (!file.startsWith(fs.realpathSync(path.join(root, 'assets-source')) + path.sep))
+    if (!file.startsWith(fs.realpathSync(path.join(root, sourceRoot)) + path.sep))
       throw Error('Deferred image escaped source directory');
     const data = fs.readFileSync(file);
     const sha256 = crypto.createHash('sha256').update(data).digest('hex');

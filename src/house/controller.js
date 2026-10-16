@@ -275,7 +275,12 @@
           a.textContent = '← Back to your desk activity';
           nav.append(a);
           document.getElementById('main')?.prepend(nav);
-        } else if (!active()) returnTo = '';
+        } else if (
+          !active() &&
+          // A previous desk render can finish after the hash changes but before play commits.
+          (route.page !== 'home' || !/^#\/?(play|salon)\//.test(location.hash))
+        )
+          returnTo = '';
       },
       diagnostics: () => ({ study: { ...study, visited: [...study.visited] }, limit }),
       dispose() {
