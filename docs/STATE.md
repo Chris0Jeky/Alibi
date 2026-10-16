@@ -11,6 +11,71 @@ confirms a host refusal is accepted only for Windows. `npm run verify` passed at
 581,856 + 43 Quiet Wing assertions. PR review remains pending. No release or
 deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
 
+## 2026-10-16: derivative hardening refreshed onto current main
+
+Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.
+
+## 2026-10-14: derivative hardening reconciled with current main (#662)
+
+Main 030d5812 already includes the basic #658 repair through #659; the issue is
+closed. This draft preserves that release history and its five existing source
+regressions. Its remaining scope is verified size/hash for every reproduction,
+staging all necessary repairs before replacement, untouched valid bytes/mtime
+and atomic output replacement. Main's refusal of symbolic, nonregular and
+hard-linked outputs is retained and rechecked immediately before replacement.
+The earlier draft's hard-link repair behavior is superseded by that stricter
+upstream policy; its preserved historical record is distinguished below.
+
+Current main 4c6c5a1f also carries publication receipts, retained verbatim.
+Current-main conflict is limited to the source generator and this additive
+state ledger. Both histories are retained. Nine additional real-Sharp causal
+regressions expose five current-main failures (valid-output timestamps, recorded
+byte-size mismatch and later reproduction mismatch after an earlier repair).
+Four existing refusal/master controls pass on main. All 17 combined checks
+pass: nine hardening cases, five unchanged upstream repair cases and three
+adjacent painting/catalogue cases. Full clean-source verify, independent review
+and hosted exact-head qualification remain separately recorded PR gates. Accepted paintings, manifests,
+runtime/content, dependencies and numerical ceilings have no diff from main.
+No pull request merge, deployment, media regeneration or new tutorial scope is authorized
+here; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+
+## 2026-10-14: historical derivative draft at 2ab45d38 (#662)
+
+The original source-only draft, before current-main reconciliation, could restore a missing or damaged runtime
+derivative after every master passes its existing byte-size/SHA256 fingerprint.
+Replacement bytes must reproduce the recorded manifest exactly. Valid outputs
+keep their bytes and timestamps; symlink outputs are refused and atomic
+replacement preserves an unrelated hard-link alias. Check mode still validates
+all 48 shelf files and reproduces all 32 derivatives without writing.
+
+Eight real-Sharp disposable-fixture regressions pass, including missing/corrupt
+outputs, missing/damaged later masters, reproduction mismatch, check-only refusal
+and both alias controls. The original generator fails six of these eight cases;
+the retained cleanup-only error is not counted as causal evidence. The adjacent
+painting/catalogue tests pass three cases, and the real shelf check passes 48/32.
+All accepted art, manifests, runtime integration and byte ceilings are unchanged.
+Complete clean-source verification and hosted qualification are separate PR
+gates. This maintenance source is not a release, deployment or new art/physical
+acceptance; existing [HUMAN_TODO.md](../HUMAN_TODO.md) decisions remain open.
+## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
+
+`tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
+`Content-Range: bytes */<size>`, matching its other 416 path and `tools/serve.cjs`
+(RFC 9110). Dev tooling only; no app or save behaviour changes. Proof:
+`node --test tests/serve-assets.test.cjs` (fails on the old code) and
+`tests/serve-gallery.test.cjs`.
+
+## 2026-10-16: cloud QA note refreshed onto current main
+
+The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
+
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
