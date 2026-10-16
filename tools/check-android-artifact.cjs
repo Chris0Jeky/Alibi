@@ -4,12 +4,8 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
-const {
-  contentManifestRevision,
-  payloadDigest,
-  readIdentity,
-  identitySource,
-} = require('./platform-identity.cjs');
+const { payloadDigest, readIdentity, identitySource } = require('./platform-identity.cjs');
+const { contentManifestRevision } = require('./build.cjs');
 const {
   ANDROID_DIST,
   HOST_ONLY,
@@ -110,11 +106,10 @@ function contentRevisions(directory, errors, label) {
     paths.push(relative(directory, candidates[0]));
     return fs.readFileSync(candidates[0]);
   });
-  if (sources.some((source) => source === null)) return { receipt: '', runtime: '', paths };
+  if (sources.some((source) => source === null)) return { revision: '', paths };
   const [initial, deferred] = sources;
   return {
-    receipt: sha256(initial),
-    runtime: contentManifestRevision(initial.toString('utf8'), deferred.toString('utf8')),
+    revision: contentManifestRevision(initial.toString('utf8'), deferred.toString('utf8')),
     paths,
   };
 }
@@ -158,14 +153,14 @@ function inspectAndroidArtifact({
   const expectedContent = contentRevisions(path.join(root, 'dist'), errors, 'Current web build');
   const actualContent = contentRevisions(directory, errors, 'Android payload');
   need(
-    actualContent.runtime === expectedContent.runtime &&
+    actualContent.revision === expectedContent.revision &&
       JSON.stringify(actualContent.paths) === JSON.stringify(expectedContent.paths),
     'Android official content differs from the current web build.',
   );
   need(identity.appVersion === packageJson.version, 'Android and package versions differ.');
   need(identity.sourceSha === expectedSourceSha, 'Android source SHA is stale.');
   need(
-    identity.contentManifestRevision === expectedContent.receipt,
+    identity.contentManifestRevision === expectedContent.revision,
     'Android content manifest revision is stale.',
   );
   need(
@@ -258,7 +253,7 @@ function inspectAndroidArtifact({
       sourceDirty: false,
       payloadSha256: identity.payloadSha256,
       appVersion: packageJson.version,
-      contentManifestRevision: expectedContent.runtime,
+      contentManifestRevision: expectedContent.revision,
       rulesCompatibility: {},
       flavor: identity.flavor,
     };

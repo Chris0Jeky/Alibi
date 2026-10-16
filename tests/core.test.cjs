@@ -1,4 +1,17 @@
 'use strict';
+const { after, test } = require('node:test');
+
+// The results file is evidence of a green run: skip it when any case failed.
+let failed = false;
+const named = (name, run) =>
+  test(name, async (...args) => {
+    try {
+      await run(...args);
+    } catch (error) {
+      failed = true;
+      throw error;
+    }
+  });
 const assert = require('node:assert/strict'),
   fs = require('node:fs'),
   path = require('node:path');
@@ -50,193 +63,219 @@ function solvedState(p) {
   else p.solution.forEach((value, cell) => apply({ type: 'set', cell, value }));
   return s;
 }
-ok(pack.puzzles.length === 116, '116 puzzles');
-ok(C.TYPES.length === 13, '13 types');
-for (const p of pack.puzzles) {
-  const start = performance.now();
-  C.validateDefinition(p);
-  assertions++;
-  const result = C.solve(p);
-  ok(result.solutions.length === 1, p.id + ' has exactly one solution');
-  if (p.type === 'scene')
-    for (const k of Object.keys(p.solution))
-      eq(result.solutions[0][k], p.solution[k], p.id + ' solution ' + k);
-  else if (p.type === 'network')
+named('catalog declares 116 puzzles and 13 types', () => {
+  ok(pack.puzzles.length === 116, '116 puzzles');
+  ok(C.TYPES.length === 13, '13 types');
+});
+named('published puzzles have one solution and honor reducer contracts', () => {
+  for (const p of pack.puzzles) {
+    const start = performance.now();
+    C.validateDefinition(p);
+    assertions++;
+    const result = C.solve(p);
+    ok(result.solutions.length === 1, p.id + ' has exactly one solution');
+    if (p.type === 'scene')
+      for (const k of Object.keys(p.solution))
+        eq(result.solutions[0][k], p.solution[k], p.id + ' solution ' + k);
+    else if (p.type === 'network')
+      eq(
+        result.solutions[0].map((v, i) => C.extras.rot(p.tiles[i], v)),
+        p.solution.map((v, i) => C.extras.rot(p.tiles[i], v)),
+        p.id + ' semantic rotation solution',
+      );
+    else eq(result.solutions[0], p.solution, p.id + ' published solution');
+    const E = C.registry[p.type],
+      initial = E.initial(p),
+      snapshot = C.clone(initial);
+    C.validateState(p, initial);
+    assertions++;
+    ok(!E.complete(p, initial), p.id + ' not initially solved');
+    const solved = solvedState(p);
+    ok(E.complete(p, solved), p.id + ' completed through reducers');
+    C.validateState(p, solved);
+    assertions++;
+    ok(E.validate(p, solved).length === 0, p.id + ' final rules valid');
+    eq(initial, snapshot, p.id + ' original state immutable');
+    if (p.givens) {
+      const blank = p.type === 'binary' ? -1 : 0,
+        i = p.givens.findIndex((v) => v !== blank);
+      eq(
+        E.reduce(p, solved, { type: 'set', cell: i, value: blank }),
+        solved,
+        p.id + ' fixed clue cannot be edited',
+      );
+    }
+    results.push({
+      id: p.id,
+      type: p.type,
+      unique: true,
+      milliseconds: Math.round(performance.now() - start),
+    });
+  }
+});
+named('legacy puzzles stay retained with the same fields', () => {
+  for (const legacy of old.puzzles) {
+    const p = pack.puzzles.find((p) => p.id === legacy.id);
+    ok(!!p, p.id + ' retained');
+    eq(p.revision, legacy.revision, p.id + ' revision preserved');
+    for (const k of Object.keys(legacy)) eq(p[k], legacy[k], p.id + ' legacy field ' + k);
+    const state = solvedState(legacy);
+    C.validateState(p, state);
+    assertions++;
+  }
+});
+named('generated scenes each have one solution', () => {
+  for (let seed = 1; seed <= 25; seed++) {
+    const p = C.createSceneDraft({ seed });
+    ok(C.solve(p).solutions.length === 1, 'generated scene unique ' + seed);
+    C.validateDefinition(p);
+    assertions++;
+  }
+});
+named('definitions and packs reject unsafe ids, duplicates, and future schemas', () => {
+  for (const type of C.TYPES) {
+    const p = C.clone(pack.puzzles.find((p) => p.type === type));
+    p.id = '__proto__';
+    throws(() => C.validateDefinition(p), type + ' rejects unsafe ID');
+    delete p.id;
+    throws(() => C.validateDefinition(p), type + ' rejects missing ID');
+  }
+  const duplicate = C.clone(pack);
+  duplicate.puzzles.push(duplicate.puzzles[0]);
+  throws(() => C.validatePack(duplicate, false), 'duplicate IDs rejected');
+  const future = C.clone(pack);
+  future.schemaVersion = 99;
+  throws(() => C.validatePack(future, false), 'future format rejected');
+});
+named('solution count stops at two', () => {
+  const small = C.clone(pack.puzzles.find((p) => p.type === 'sudoku' && p.size === 4));
+  small.givens.fill(0);
+  ok(C.solve(small).solutions.length === 2, 'solution count stops at two');
+});
+named('an extra dossier YES cannot complete the grid', () => {
+  const dossier = pack.puzzles.find((p) => p.type === 'dossier'),
+    ds = solvedState(dossier);
+  const spare = ds.marks.findIndex((v) => v !== 1);
+  ds.marks[spare] = 1;
+  ok(!C.registry.dossier.complete(dossier, ds), 'extra YES cannot bypass dossier completion');
+  ok(C.registry.dossier.validate(dossier, ds).length > 0, 'duplicate dossier YES reported');
+});
+named('wrong accusations are rejected', () => {
+  for (const type of ['scene', 'dossier', 'witness']) {
+    const p = pack.puzzles.find((p) => p.type === type),
+      s = solvedState(p);
+    if (type === 'scene')
+      s.accused = p.people.find((w) => w.id !== s.accused && w.id !== p.victim).id;
+    else s.accused = (s.accused + 1) % p.size;
+    ok(!C.registry[type].complete(p, s), type + ' wrong accusation rejected');
+  }
+});
+named('invalid levels, rotations, and obstacle edits are ignored', () => {
+  const aqu = pack.puzzles.find((p) => p.type === 'aquarium'),
+    as = C.registry.aquarium.initial(aqu);
+  eq(
+    C.registry.aquarium.reduce(aqu, as, { type: 'level', tank: 0, value: 999 }),
+    as,
+    'invalid water level ignored',
+  );
+  const net = pack.puzzles.find((p) => p.type === 'network'),
+    ns = C.registry.network.initial(net);
+  eq(
+    C.registry.network.reduce(net, ns, { type: 'rotate', cell: -1 }),
+    ns,
+    'out-of-range tile ignored',
+  );
+  for (const type of ['lightup', 'tents']) {
+    const p = pack.puzzles.find((p) => p.type === type),
+      s = C.registry[type].initial(p),
+      i = type === 'lightup' ? p.walls.findIndex((w) => w !== -2) : p.trees[0];
     eq(
-      result.solutions[0].map((v, i) => C.extras.rot(p.tiles[i], v)),
-      p.solution.map((v, i) => C.extras.rot(p.tiles[i], v)),
-      p.id + ' semantic rotation solution',
-    );
-  else eq(result.solutions[0], p.solution, p.id + ' published solution');
-  const E = C.registry[p.type],
-    initial = E.initial(p),
-    snapshot = C.clone(initial);
-  C.validateState(p, initial);
-  assertions++;
-  ok(!E.complete(p, initial), p.id + ' not initially solved');
-  const solved = solvedState(p);
-  ok(E.complete(p, solved), p.id + ' completed through reducers');
-  C.validateState(p, solved);
-  assertions++;
-  ok(E.validate(p, solved).length === 0, p.id + ' final rules valid');
-  eq(initial, snapshot, p.id + ' original state immutable');
-  if (p.givens) {
-    const blank = p.type === 'binary' ? -1 : 0,
-      i = p.givens.findIndex((v) => v !== blank);
-    eq(
-      E.reduce(p, solved, { type: 'set', cell: i, value: blank }),
-      solved,
-      p.id + ' fixed clue cannot be edited',
+      C.registry[type].reduce(p, s, { type: 'set', cell: i, value: 1 }),
+      s,
+      type + ' obstacle is immutable',
     );
   }
-  results.push({
-    id: p.id,
-    type: p.type,
-    unique: true,
-    milliseconds: Math.round(performance.now() - start),
-  });
-}
-for (const legacy of old.puzzles) {
-  const p = pack.puzzles.find((p) => p.id === legacy.id);
-  ok(!!p, p.id + ' retained');
-  eq(p.revision, legacy.revision, p.id + ' revision preserved');
-  for (const k of Object.keys(legacy)) eq(p[k], legacy[k], p.id + ' legacy field ' + k);
-  const state = solvedState(legacy);
-  C.validateState(p, state);
-  assertions++;
-}
-for (let seed = 1; seed <= 25; seed++) {
-  const p = C.createSceneDraft({ seed });
-  ok(C.solve(p).solutions.length === 1, 'generated scene unique ' + seed);
-  C.validateDefinition(p);
-  assertions++;
-}
-for (const type of C.TYPES) {
-  const p = C.clone(pack.puzzles.find((p) => p.type === type));
-  p.id = '__proto__';
-  throws(() => C.validateDefinition(p), type + ' rejects unsafe ID');
-  delete p.id;
-  throws(() => C.validateDefinition(p), type + ' rejects missing ID');
-}
-const duplicate = C.clone(pack);
-duplicate.puzzles.push(duplicate.puzzles[0]);
-throws(() => C.validatePack(duplicate, false), 'duplicate IDs rejected');
-const future = C.clone(pack);
-future.schemaVersion = 99;
-throws(() => C.validatePack(future, false), 'future format rejected');
-const small = C.clone(pack.puzzles.find((p) => p.type === 'sudoku' && p.size === 4));
-small.givens.fill(0);
-ok(C.solve(small).solutions.length === 2, 'solution count stops at two');
-const dossier = pack.puzzles.find((p) => p.type === 'dossier'),
-  ds = solvedState(dossier);
-const spare = ds.marks.findIndex((v) => v !== 1);
-ds.marks[spare] = 1;
-ok(!C.registry.dossier.complete(dossier, ds), 'extra YES cannot bypass dossier completion');
-ok(C.registry.dossier.validate(dossier, ds).length > 0, 'duplicate dossier YES reported');
-for (const type of ['scene', 'dossier', 'witness']) {
-  const p = pack.puzzles.find((p) => p.type === type),
-    s = solvedState(p);
-  if (type === 'scene')
-    s.accused = p.people.find((w) => w.id !== s.accused && w.id !== p.victim).id;
-  else s.accused = (s.accused + 1) % p.size;
-  ok(!C.registry[type].complete(p, s), type + ' wrong accusation rejected');
-}
-const aqu = pack.puzzles.find((p) => p.type === 'aquarium'),
-  as = C.registry.aquarium.initial(aqu);
-eq(
-  C.registry.aquarium.reduce(aqu, as, { type: 'level', tank: 0, value: 999 }),
-  as,
-  'invalid water level ignored',
-);
-const net = pack.puzzles.find((p) => p.type === 'network'),
-  ns = C.registry.network.initial(net);
-eq(
-  C.registry.network.reduce(net, ns, { type: 'rotate', cell: -1 }),
-  ns,
-  'out-of-range tile ignored',
-);
-for (const type of ['lightup', 'tents']) {
-  const p = pack.puzzles.find((p) => p.type === type),
-    s = C.registry[type].initial(p),
-    i = type === 'lightup' ? p.walls.findIndex((w) => w !== -2) : p.trees[0];
-  eq(
-    C.registry[type].reduce(p, s, { type: 'set', cell: i, value: 1 }),
-    s,
-    type + ' obstacle is immutable',
+});
+named('casebook chapters resolve in the official catalogue', () => {
+  const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
+  ok(books.length === 5, 'five casebooks');
+  ok(books[0].format === 'continuous', 'Bellweather keeps continuous casebook framing');
+  ok(
+    books.slice(1, 4).every((book) => book.format === 'anthology'),
+    'earlier casebooks keep standalone-record framing',
   );
-}
-const books = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/casebooks.json')));
-ok(books.length === 5, 'five casebooks');
-ok(books[0].format === 'continuous', 'Bellweather keeps continuous casebook framing');
-ok(
-  books.slice(1, 4).every((book) => book.format === 'anthology'),
-  'earlier casebooks keep standalone-record framing',
-);
-for (const b of books)
-  for (const ch of b.chapters)
-    ok(
-      require('../tools/official-catalogue.cjs')
-        .load(undefined, false)
-        .puzzles.some((p) => p.id === ch.id),
-      'casebook chapter resolves ' + ch.id,
-    );
-const nonoPicture = { size: 2, rowClues: [[1], [0]], colClues: [[1], [0]] };
-// Completion is deliberately forgiving of uncrossed empties: there is no
-// auto-cross, and the UI suite completes nonograms by filling only (a strict
-// gate strands real players). No all-empty puzzle ships, so the untouched
-// degenerate below cannot occur in content.
-ok(
-  C.registry.nonogram.complete(nonoPicture, { cells: [1, -1, 0, 0] }),
-  'nonogram runs match with unknown cell still completes',
-);
-ok(
-  C.registry.nonogram.complete(nonoPicture, { cells: [1, 0, 0, 0] }),
-  'nonogram crossed empty completes',
-);
-const nonoEmpty = { size: 2, rowClues: [[0], [0]], colClues: [[0], [0]] };
-ok(
-  C.registry.nonogram.complete(nonoEmpty, { cells: [-1, -1, -1, -1] }),
-  'nonogram untouched empty-clue board completes (no such puzzle ships)',
-);
-const dossierLink = {
-  size: 2,
-  people: ['Ann', 'Bob'],
-  categories: [{ values: ['A1', 'A2'] }, { values: ['B1', 'B2'] }],
-  targetItem: 0,
-  solution: [0, 1, 1, 0],
-  clues: [{ kind: 'link', a: 0, b: 1 }],
-};
-const linkText = C.extras.dossierClue(dossierLink, dossierLink.clues[0]);
-const linkBad = { marks: [1, 0, 0, 1, 1, 0, 0, 1], accused: null };
-ok(
-  C.registry.dossier.validate(dossierLink, linkBad).some((i) => i.message === linkText),
-  'dossier committed link contradiction reported',
-);
-const linkOpen = { marks: [1, 0, 0, 1, -1, -1, 0, 1], accused: null };
-ok(
-  !C.registry.dossier.validate(dossierLink, linkOpen).some((i) => i.message === linkText),
-  'dossier uncommitted link endpoint skipped',
-);
-const dclue = pack.puzzles.find((p) => p.type === 'dossier'),
-  dcs = C.registry.dossier.initial(dclue);
-for (const index of [NaN, -1, dclue.clues.length, 999, 'x']) {
-  const next = C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index });
-  eq(next.clueMarks, [], 'dossier out-of-range clue toggle ignored');
-}
-eq(
-  C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index: 0 }).clueMarks,
-  [0],
-  'dossier valid clue toggle kept',
-);
-const output = {
-  passed: true,
-  assertions,
-  puzzles: 116,
-  types: 13,
-  legacyPuzzles: 40,
-  generatedScenes: 25,
-  scope: 'Pure engine, bounded solver, reducer and data-contract checks',
-  results,
-};
-fs.writeFileSync(path.join(__dirname, 'core-results.json'), JSON.stringify(output, null, 2));
-console.log('PASS', assertions, 'engine/content assertions.');
+  for (const b of books)
+    for (const ch of b.chapters)
+      ok(
+        require('../tools/official-catalogue.cjs')
+          .load(undefined, false)
+          .puzzles.some((p) => p.id === ch.id),
+        'casebook chapter resolves ' + ch.id,
+      );
+});
+named('nonogram completion allows unknown and crossed empties', () => {
+  const nonoPicture = { size: 2, rowClues: [[1], [0]], colClues: [[1], [0]] };
+  // Completion is deliberately forgiving of uncrossed empties: there is no
+  // auto-cross, and the UI suite completes nonograms by filling only (a strict
+  // gate strands real players). No all-empty puzzle ships, so the untouched
+  // degenerate below cannot occur in content.
+  ok(
+    C.registry.nonogram.complete(nonoPicture, { cells: [1, -1, 0, 0] }),
+    'nonogram runs match with unknown cell still completes',
+  );
+  ok(
+    C.registry.nonogram.complete(nonoPicture, { cells: [1, 0, 0, 0] }),
+    'nonogram crossed empty completes',
+  );
+  const nonoEmpty = { size: 2, rowClues: [[0], [0]], colClues: [[0], [0]] };
+  ok(
+    C.registry.nonogram.complete(nonoEmpty, { cells: [-1, -1, -1, -1] }),
+    'nonogram untouched empty-clue board completes (no such puzzle ships)',
+  );
+});
+named('dossier link contradictions and clue toggles', () => {
+  const dossierLink = {
+    size: 2,
+    people: ['Ann', 'Bob'],
+    categories: [{ values: ['A1', 'A2'] }, { values: ['B1', 'B2'] }],
+    targetItem: 0,
+    solution: [0, 1, 1, 0],
+    clues: [{ kind: 'link', a: 0, b: 1 }],
+  };
+  const linkText = C.extras.dossierClue(dossierLink, dossierLink.clues[0]);
+  const linkBad = { marks: [1, 0, 0, 1, 1, 0, 0, 1], accused: null };
+  ok(
+    C.registry.dossier.validate(dossierLink, linkBad).some((i) => i.message === linkText),
+    'dossier committed link contradiction reported',
+  );
+  const linkOpen = { marks: [1, 0, 0, 1, -1, -1, 0, 1], accused: null };
+  ok(
+    !C.registry.dossier.validate(dossierLink, linkOpen).some((i) => i.message === linkText),
+    'dossier uncommitted link endpoint skipped',
+  );
+  const dclue = pack.puzzles.find((p) => p.type === 'dossier'),
+    dcs = C.registry.dossier.initial(dclue);
+  for (const index of [NaN, -1, dclue.clues.length, 999, 'x']) {
+    const next = C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index });
+    eq(next.clueMarks, [], 'dossier out-of-range clue toggle ignored');
+  }
+  eq(
+    C.registry.dossier.reduce(dclue, dcs, { type: 'clue', index: 0 }).clueMarks,
+    [0],
+    'dossier valid clue toggle kept',
+  );
+});
+after(() => {
+  if (failed) return;
+  const output = {
+    passed: true,
+    assertions,
+    puzzles: 116,
+    types: 13,
+    legacyPuzzles: 40,
+    generatedScenes: 25,
+    scope: 'Pure engine, bounded solver, reducer and data-contract checks',
+    results,
+  };
+  fs.writeFileSync(path.join(__dirname, 'core-results.json'), JSON.stringify(output, null, 2));
+});
