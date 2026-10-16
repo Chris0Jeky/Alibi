@@ -11,6 +11,31 @@ Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`
 Merged current main `77a6188f`. The House return guard remains: a desk render that finishes after the hash has already moved to play or salon no longer clears the captured return destination. See [return-link and evidence recovery](qa/2026-10-04-house-return-recovery.md). The 4 October source and browser counts in that note were not re-run for this refresh.
 
 The stored content revision stays the one current main writes: one hash of the initial source, a NUL, and the deferred source, shared by the web identity, the Android runtime identity, and the Android receipt. The artifact check still compares those Android content files with the current web build. An initial-only hash is not written back into the receipt.
+## 2026-10-16: Quiet Wing fallback quarantine candidate
+
+Malformed fallback JSON is copied byte-for-byte to recovery before the active
+key is removed, allowing a fresh save. An occupied recovery slot or failed
+recovery write preserves both records and keeps storage read-only. The occupied
+slot regression fails before the review correction. This candidate is not deployed. Physical
+acceptance remains open in `HUMAN_TODO.md`.
+
+## 2026-10-16: byte-accurate backup import limits
+
+The validation worker now measures UTF-8 bytes for Castle, combined, Cabinet and
+Club backup text, matching the existing Challenge and Quiet Wing checks. Limit
+values and validation rules are unchanged. Eight focused regressions pass; four
+oversize multibyte cases fail against the original worker. The full verify gate
+is run after committing because the Android payload requires a clean source tree.
+Hosted CI, browser integration and physical devices are not verified by this
+entry; owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Residual risk: multibyte files previously admitted by character count can now be
+refused at the documented byte limit, before parsing or changing saves.
+## 2026-10-16: scene victim-room regression candidate
+
+Three source-engine tests pin the victim sharing a room with exactly one
+suspect, rejecting zero or two. No gameplay behavior changes. Physical
+acceptance and owner decisions remain open in `HUMAN_TODO.md`.
+
 ## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
 
 When IndexedDB is unavailable and Cabinet reads localStorage, the player save status and
