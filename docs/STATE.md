@@ -1,5 +1,13 @@
 # Live development state
 
+## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
+
+`tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
+`Content-Range: bytes */<size>`, matching its other 416 path and `tools/serve.cjs`
+(RFC 9110). Dev tooling only; no app or save behaviour changes. Proof:
+`node --test tests/serve-assets.test.cjs` (fails on the old code) and
+`tests/serve-gallery.test.cjs`.
+
 ## 2026-10-16: cloud QA note refreshed onto current main
 
 The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
