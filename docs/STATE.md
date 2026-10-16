@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: Quiet Wing model JSON is parsed at build time
+
+`tools/build-quiet-pack.cjs` parses `src/quiet-wing/assets/city-models.json` and `library-models.json` and embeds them through `JSON.stringify`, so a malformed or script-bearing file fails the build with the file named instead of shipping raw text into the bundle. The current files produce a byte-identical `dist/` (302 files hashed before and after).
+
+`tests/build-quiet-pack-json.test.cjs`: both tests fail against the original builder and pass with the fix. The Quiet Wing, city and realm suites pass 25 tests, the engine and contract scripts pass, and formatting passes. Browser lanes and the full verify gate were not run.
+
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
