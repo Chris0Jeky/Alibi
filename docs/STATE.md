@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: scene victim-room regression candidate
+
+Three source-engine tests pin the victim sharing a room with exactly one
+suspect, rejecting zero or two. No gameplay behavior changes. Physical
+acceptance and owner decisions remain open in `HUMAN_TODO.md`.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
