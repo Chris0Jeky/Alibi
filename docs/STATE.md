@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: practice counts refreshed onto the content-identity branch
+
+Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
+
+`tests/castle-practice-deferred.test.cjs`: 7 pass. The browser lane in that note was not re-run. #459 should merge before this PR.
+
 ## 2026-10-16: content identity refreshed onto current main
 
 Merged current main `77a6188f`. The House return guard remains: a desk render that finishes after the hash has already moved to play or salon no longer clears the captured return destination. See [return-link and evidence recovery](qa/2026-10-04-house-return-recovery.md). The 4 October source and browser counts in that note were not re-run for this refresh.
