@@ -15,6 +15,7 @@ function between(start, end) {
   return app.slice(app.indexOf(start), app.indexOf(end));
 }
 const source =
+  between('  function temporaryProgress()', '  function progressStorageLabel()') +
   between('  function enqueueSave()', '  function savePreferences()') +
   between('  function completion()', '  function act(action,') +
   between('  function endPaint()', "  document.addEventListener(\n    'pointerdown',");
@@ -147,7 +148,7 @@ async function complete({
   assert.equal(snapshot.elapsed, 42);
   assert.equal(snapshot.moves, 1);
   assert.equal(context.revs.get(current.key), 1);
-  assert.deepEqual(context.acked.get(current.key), { rev: 1, updatedAt: 'fixture' });
+  assert.equal(context.acked.get(current.key), JSON.stringify({ rev: 1, updatedAt: 'fixture' }));
 }
 
 test('actual completion commits and saves when Journey throws', () =>
