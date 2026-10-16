@@ -1,5 +1,17 @@
 # Live development state
 
+## 2026-10-16: byte-accurate backup import limits
+
+The validation worker now measures UTF-8 bytes for Castle, combined, Cabinet and
+Club backup text, matching the existing Challenge and Quiet Wing checks. Limit
+values and validation rules are unchanged. Eight focused regressions pass; four
+oversize multibyte cases fail against the original worker. The full verify gate
+is run after committing because the Android payload requires a clean source tree.
+Hosted CI, browser integration and physical devices are not verified by this
+entry; owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Residual risk: multibyte files previously admitted by character count can now be
+refused at the documented byte limit, before parsing or changing saves.
+
 ## 2026-10-16: #684 respondent reset under the revision lock (PR #685)
 
 `resetRespondent()` now runs entirely under the Web Lock shared with `survey()`, `enqueue()`
