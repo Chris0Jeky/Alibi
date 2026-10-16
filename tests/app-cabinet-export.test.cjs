@@ -20,6 +20,23 @@ const cabinetSrc = sliceFn('  async function cabinetBackup() {');
 const enqueueSrc = sliceFn('  function enqueueSave() {');
 const offerSrc = sliceFn('  function offerCabinetCopies(');
 
+test('save status describes read-only Cabinet saves before an edit and preserves other states', () => {
+  const label = (mode, saveError = '', pendingSaves = 0) =>
+    vm.runInNewContext(`${sliceFn('  function saveLabel() {')}\nsaveLabel()`, {
+      store: { mode },
+      saveError,
+      pendingSaves,
+      icon: () => '',
+      esc: (value) => value,
+    });
+  assert.match(label('indexeddb'), /Saved on this device/);
+  assert.match(label('session'), /Session only/);
+  assert.match(label('indexeddb', '', 1), /Saving/);
+  assert.match(label('local', 'Save refused'), /Not saved/);
+  assert.match(label('local'), /Read-only.*edits won.t save/);
+  assert.doesNotMatch(label('local'), /Saved on this device/);
+});
+
 const clone = (v) => JSON.parse(JSON.stringify(v));
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function runKey() {
