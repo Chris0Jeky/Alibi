@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
 ## 2026-10-16: source motion oracle refreshed onto the Games Room branch
 
 Merged the refreshed #654 branch, which already contains current main `77a6188f`. The only conflict was this log. The 14 October evidence below was not re-run in this refresh. #654 should merge before this PR.
