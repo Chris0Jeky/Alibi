@@ -330,11 +330,79 @@ test('reset removes revision identity; a new respondent starts at revision 1', a
   const { q, store } = harness();
   const before = await rating(q);
   assert.equal((await rating(q)).revision, 2);
-  q.resetRespondent();
+  await q.resetRespondent();
   assert.equal(store.getItem(REVISIONS), null);
   const after = await rating(q);
   assert.notEqual(after.respondent, before.respondent);
   assert.equal(after.revision, 1);
+});
+
+test('a reset racing another tab cannot erase the fresh respondent revision', async () => {
+  // Grant synchronously so the second tab can run between two reset storage writes.
+  let held = false;
+  const waiting = [],
+    lock = {
+      request(name, fn) {
+        assert.equal(name, 'alibi:voices:queue:v1');
+        return new Promise((resolve) => {
+          const run = () => {
+            held = true;
+            resolve(fn());
+            held = false;
+            waiting.shift()?.();
+          };
+          if (held) waiting.push(run);
+          else run();
+        });
+      },
+    },
+    store = storage(),
+    a = harness({ store, lock }).q,
+    b = harness({ store, lock }).q;
+  const old = await rating(a);
+  feedback(b); // Consume the other tab's first deterministic UUID.
+  let submitting;
+  const remove = store.removeItem.bind(store);
+  store.removeItem = (key) => {
+    remove(key);
+    if (key === a.KEY) submitting = rating(b);
+  };
+  await a.resetRespondent();
+  const fresh = await submitting;
+  assert.notEqual(fresh.respondent, old.respondent);
+  assert.equal(fresh.revision, 1);
+  assert.equal((await rating(b)).revision, 2, 'the next edit must not reuse revision 1');
+});
+
+test('a rejected reset lock preserves all stored state and can be retried', async () => {
+  for (const fail of [
+    () => Promise.reject(new DOMException('Blocked', 'SecurityError')),
+    () => {
+      throw new DOMException('Blocked', 'SecurityError');
+    },
+  ]) {
+    const lock = locks(),
+      request = lock.request,
+      { q, store } = harness({ lock });
+    await q.enqueue(await rating(q));
+    const before = [...store.map];
+    lock.request = fail;
+    assert.equal(await q.resetRespondent(), false);
+    assert.deepEqual([...store.map], before, 'a refused reset must not mutate storage');
+    lock.request = request;
+    assert.equal(await q.resetRespondent(), 1);
+    assert.equal(q.respondent(), null);
+    assert.equal(store.getItem(REVISIONS), null);
+  }
+});
+
+test('a reset without Web Locks refuses to remove the respondent', async () => {
+  const { q, store } = harness({ lock: null });
+  const key = q.respondent(true),
+    before = [...store.map];
+  assert.equal(await q.resetRespondent(), false);
+  assert.equal(q.respondent(), key);
+  assert.deepEqual([...store.map], before);
 });
 
 test('corrupt revision counters cannot emit repeated revision 1 payloads', async () => {
@@ -555,7 +623,7 @@ test('the survey key is created on the first submit, reused, and replaced after 
   assert.equal(JSON.parse(store.map.get('alibi:voices:respondent:v1')), first);
   assert.equal((await taste(q)).respondent, first, 'surveys and ratings share one key');
   assert.equal((await rating(q, 'scene-02')).respondent, first);
-  q.resetRespondent();
+  await q.resetRespondent();
   assert.equal(store.map.has('alibi:voices:respondent:v1'), false);
   const next = (await taste(q)).respondent;
   assert.notEqual(next, first);
@@ -572,7 +640,7 @@ test('a reset drops queued answers that still carry the old key, keeping message
   await q.enqueue(message);
   const old = q.respondent();
   assert.equal(q.pending().length, 3);
-  assert.equal(q.resetRespondent(), 2, 'the reset reports how many answers it removed');
+  assert.equal(await q.resetRespondent(), 2, 'the reset reports how many answers it removed');
   assert.deepEqual(
     plain(q.pending().map((x) => x.payload)),
     [plain(message)],
@@ -584,7 +652,7 @@ test('a reset drops queued answers that still carry the old key, keeping message
   const sent = calls.map((c) => c.body.respondent).filter(Boolean);
   assert.equal(sent.length, 1);
   assert.notEqual(sent[0], old, 'the old key never leaves the device after a reset');
-  assert.equal(q.resetRespondent(), 0);
+  assert.equal(await q.resetRespondent(), 0);
 });
 
 test('a reset whose queue rewrite fails still leaves no old-key answer to reload', async () => {
@@ -595,7 +663,7 @@ test('a reset whose queue rewrite fails still leaves no old-key answer to reload
   store.setItem = () => {
     throw Error('QuotaExceededError');
   };
-  assert.equal(q.resetRespondent(), 1);
+  assert.equal(await q.resetRespondent(), 1);
   assert.deepEqual(plain(q.pending().map((x) => x.payload)), [plain(message)], 'kept this page');
   const stored = store.map.get('alibi:voices:queue:v1');
   assert.ok(
@@ -613,7 +681,7 @@ test('a reset reports failed key removal and preserves the stored respondent', a
     if (key === q.KEY) throw Error('SecurityError');
     remove(key);
   };
-  assert.equal(q.resetRespondent(), false);
+  assert.equal(await q.resetRespondent(), false);
   assert.equal(store.getItem(q.KEY), JSON.stringify(old));
   assert.equal(q.respondent(), old);
 });
@@ -983,7 +1051,7 @@ test('with storage unavailable the survey key stays the same for the page', asyn
     const first = q.respondent(true);
     assert.equal(await rating(q), null, 'answers require a durable revision');
     assert.equal(q.respondent(), first, 'the page still remembers its key');
-    q.resetRespondent();
+    await q.resetRespondent();
     assert.notEqual(q.respondent(true), first, 'Reset still makes a new key');
   }
 });
