@@ -286,7 +286,44 @@ test('legacySnapshot performs no conversion, writes, or fallback selection', asy
   assert.ok(body.includes('probe'), 'must exclude the probe key');
 });
 
-test('app shell warns separately with count plus explicit export-legacy button', () => {
+for (const mode of ['indexeddb', 'local', 'session']) {
+  test(`legacy warning explains ${mode} data and retains raw recovery for valid and malformed strings`, async () => {
+    const items = legacyItems();
+    const f = context({
+      items,
+      openError: mode === 'indexeddb' ? null : Error('IndexedDB denied'),
+      hooks: { denyWrite: mode === 'session' },
+    });
+    const store = await new f.Store().init();
+    assert.equal(store.mode, mode);
+    const at = appSource.indexOf('  function legacyBanner()');
+    const body = appSource.slice(at, appSource.indexOf('\n  let stagedAll', at));
+    const banner = () =>
+      vm.runInNewContext(body + '\nlegacyBanner()', {
+        store,
+        esc: (value) => value,
+        B: (label) => label,
+      });
+    const text = banner();
+    assert.match(text, /Export older browser data/);
+    if (mode === 'indexeddb') assert.match(text, /7 older browser records.*not been migrated/);
+    else {
+      assert.match(text, /7 browser records/);
+      assert.doesNotMatch(text, /not been migrated|separate|older browser records/);
+      assert.match(
+        text,
+        mode === 'local' ? /Cabinet reads these saves.*read-only/ : /not used for this session/,
+      );
+      assert.match(text, /Raw export includes unreadable records/);
+    }
+    assert.deepEqual(plain(store.legacySnapshot()), plain(store.legacyInventory));
+    assert.equal(items.get(PREFIX + 'runs.damaged'), '{bad');
+    store.legacyProblem = 'Recovery read failed';
+    assert.match(banner(), /Recovery read failed.*Try exporting again/);
+  });
+}
+
+test('app shell warns with count plus explicit export-legacy button', () => {
   assert.ok(appSource.includes('Export older browser data'), 'button label');
   assert.ok(appSource.includes('export-legacy'), 'distinct action');
   assert.ok(appSource.includes('legacyBanner()'), 'shell warning hook');
