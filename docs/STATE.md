@@ -6,9 +6,10 @@ Release preparation now requires each failed test's own detail to show the
 Windows symlink EPERM refusal. An unrelated EPERM line can no longer excuse an
 assertion failure. The six release-prepare tests pass; the new false-positive
 case fails against the previous helper. Actual Node spec-reporter output also
-confirms a host refusal is accepted only for Windows. Full verification and PR
-review remain publication evidence to reconcile. No release or deployment was
-performed; physical acceptance remains open in HUMAN_TODO.md.
+confirms a host refusal is accepted only for Windows. `npm run verify` passed at
+`11bc2fbe`: formatting, Android build, 1,647 Node tests with three skips, and
+581,856 + 43 Quiet Wing assertions. PR review remains pending. No release or
+deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
 
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
