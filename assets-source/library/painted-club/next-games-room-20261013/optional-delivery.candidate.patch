@@ -1,0 +1,96 @@
+diff --git a/tests/painted-delivery.test.cjs b/tests/painted-delivery.test.cjs
+index 57269491..3137506e 100644
+--- a/tests/painted-delivery.test.cjs
++++ b/tests/painted-delivery.test.cjs
+@@ -5,8 +5,17 @@ const fs = require('node:fs'),
+   os = require('node:os');
+ const buildDelivery = require('../tools/build-delivery.cjs');
+ const root = path.resolve(__dirname, '..');
+-const ids = ['club-welcome', 'lantern-duel', 'pocket-borough'];
+-test('three paintings use verified optional delivery with meaningful SVG fallbacks', () => {
++const ids = [
++  'club-welcome',
++  'lantern-duel',
++  'pocket-borough',
++  'tic-tac-toe',
++  'lantern-gardens',
++  'block-cabinet',
++  'archive-heist',
++  'living-atlas',
++];
++test('eight selected paintings use verified optional delivery with meaningful SVG fallbacks', () => {
+   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-painted-'));
+   try {
+     for (const p of [
+@@ -32,13 +41,23 @@ test('three paintings use verified optional delivery with meaningful SVG fallbac
+         path.join(root, shelf, id + '-320.webp'),
+         path.join(fixture, shelf, id + '-320.webp'),
+       );
+-      fs.copyFileSync(
+-        path.join(root, shelf, 'fallbacks', id + '.svg'),
+-        path.join(fixture, shelf, 'fallbacks', id + '.svg'),
+-      );
++      if (fs.existsSync(path.join(root, shelf, 'fallbacks', id + '.svg')))
++        fs.copyFileSync(
++          path.join(root, shelf, 'fallbacks', id + '.svg'),
++          path.join(fixture, shelf, 'fallbacks', id + '.svg'),
++        );
+     }
+     const built = buildDelivery(fixture, path.join(fixture, 'dist'), {});
+-    assert.deepEqual(Object.keys(built.entries), ['art-desk', 'art-duel', 'art-borough']);
++    assert.deepEqual(Object.keys(built.entries), [
++      'art-desk',
++      'art-duel',
++      'art-borough',
++      'art-tictactoe',
++      'art-regiongardens',
++      'art-blockcabinet',
++      'art-archive',
++      'art-lab',
++    ]);
+     assert.deepEqual(built.origins, []);
+     for (const entry of Object.values(built.entries)) {
+       assert.equal(entry.urls.length, 1);
+@@ -49,7 +68,7 @@ test('three paintings use verified optional delivery with meaningful SVG fallbac
+       assert.doesNotMatch(svg, /<image|<script|https:/);
+       assert.ok(entry.bytes < 1024 * 1024);
+     }
+-    assert.ok(built.bytes < 90000);
++    assert.equal(built.bytes, 203482);
+     fs.appendFileSync(path.join(fixture, shelf, 'lantern-duel-320.webp'), 'corruption');
+     assert.throws(
+       () => buildDelivery(fixture, path.join(fixture, 'dist'), {}),
+diff --git a/tools/build-delivery.cjs b/tools/build-delivery.cjs
+index 70308d53..e6096a24 100644
+--- a/tools/build-delivery.cjs
++++ b/tools/build-delivery.cjs
+@@ -101,7 +101,17 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
+   const paintedPath = path.join(root, 'assets-source/library/painted-club/manifest.json');
+   if (fs.existsSync(paintedPath)) {
+     const shelf = JSON.parse(fs.readFileSync(paintedPath)).assets;
+-    for (const id of ['club-welcome', 'lantern-duel', 'pocket-borough']) {
++    const slots = {
++      'club-welcome': 'desk',
++      'lantern-duel': 'duel',
++      'pocket-borough': 'borough',
++      'tic-tac-toe': 'tictactoe',
++      'lantern-gardens': 'regiongardens',
++      'block-cabinet': 'blockcabinet',
++      'archive-heist': 'archive',
++      'living-atlas': 'lab',
++    };
++    for (const [id, slot] of Object.entries(slots)) {
+       const file = id + '-320.webp';
+       const record = shelf.find((a) => a.file === file);
+       const data = fs.readFileSync(path.join(path.dirname(paintedPath), file));
+@@ -116,9 +126,7 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
+       const svg = fs.readFileSync(path.join(path.dirname(paintedPath), 'fallbacks', id + '.svg'));
+       const url = `./assets/enhanced-painted-${id}.${sha256.slice(0, 12)}.webp`;
+       fs.writeFileSync(path.join(dist, url), data);
+-      entries[
+-        'art-' + { 'club-welcome': 'desk', 'lantern-duel': 'duel', 'pocket-borough': 'borough' }[id]
+-      ] = {
++      entries['art-' + slot] = {
+         fallback: 'data:image/svg+xml,' + encodeURIComponent(svg.toString('utf8')),
+         urls: [url],
+         sha256,

@@ -1,0 +1,106 @@
+{
+  "candidate": "Unqualified: startup budget fails; not production acceptance",
+  "checks": [
+    {
+      "width": 390,
+      "id": "tictactoe",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 390,
+      "id": "regiongardens",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 390,
+      "id": "blockcabinet",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 390,
+      "id": "archive",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 390,
+      "id": "lab",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 390,
+      "initial_offscreen_paintings_not_fetched": true,
+      "actual_optional_cache_entries": 4,
+      "eight_slot_cap_preserved": true
+    },
+    {
+      "width": 390,
+      "route_label_tabindex_invariance": true,
+      "local_and_offline_svg_fallback": true,
+      "no_overflow": true,
+      "page_errors": []
+    },
+    {
+      "width": 1440,
+      "id": "tictactoe",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 1440,
+      "id": "regiongardens",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 1440,
+      "id": "blockcabinet",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 1440,
+      "id": "archive",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 1440,
+      "id": "lab",
+      "derivative_width": 320,
+      "decorative_alt": true,
+      "focus_retained": true
+    },
+    {
+      "width": 1440,
+      "initial_offscreen_paintings_not_fetched": true,
+      "actual_optional_cache_entries": 4,
+      "eight_slot_cap_preserved": true
+    },
+    {
+      "width": 1440,
+      "route_label_tabindex_invariance": true,
+      "local_and_offline_svg_fallback": true,
+      "no_overflow": true,
+      "page_errors": []
+    },
+    {
+      "cold_corrupt_image_fallback": true,
+      "service_worker_blocked_to_exercise_actual_fetch_validation": true,
+      "corrupt_requests": 7
+    }
+  ]
+}

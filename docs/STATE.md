@@ -8,8 +8,17 @@ assertion failure. The six release-prepare tests pass; the new false-positive
 case fails against the previous helper. Actual Node spec-reporter output also
 confirms a host refusal is accepted only for Windows. `npm run verify` passed at
 `11bc2fbe`: formatting, Android build, 1,647 Node tests with three skips, and
-581,856 + 43 Quiet Wing assertions. PR review remains pending. No release or
+581,856 + 43 Quiet Wing assertions. Codex and fresh-context independent review
+reported no blockers. Current main was merged again for gate qualification. No release or
 deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
+
+## 2026-10-16: Games Room fallback notes refreshed onto current main
+
+Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
+
+## Asset continuation batch — 13 October 2026
+
+Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
 
 ## 2026-10-16: derivative hardening refreshed onto current main
 
