@@ -66,16 +66,28 @@ function run(command, args, options = {}) {
   return result.stdout.trim();
 }
 
-// A failed run is tolerated only on Windows when every failing test is a symlink test and the
-// output shows the host refusing symlink creation (EPERM). Elsewhere symlink tests must pass.
+// A failed run is tolerated only on Windows when every failing test entry carries its own
+// host symlink refusal (EPERM) in its detail or stack. A symlink word in the title plus an
+// unrelated EPERM line elsewhere is not enough. Elsewhere symlink tests must pass.
 function onlyHostSymlinkFailures(output, platform = process.platform) {
   const summary = output.split(/^✖ failing tests:$/m)[1];
   if (platform !== 'win32' || !summary) return false;
-  const failed = [...new Set(summary.match(/^✖ .*$/gm) || [])];
+  const lines = summary.split('\n');
+  const entries = [];
+  let current = null;
+  for (const line of lines) {
+    if (/^✖ /.test(line)) {
+      current = { title: line, detail: [] };
+      entries.push(current);
+    } else if (current && (line.trim() === '' || /^\s/.test(line))) {
+      current.detail.push(line);
+    } else if (line.trim() !== '') {
+      current = null;
+    }
+  }
+  const hostSymlinkRefusal = /EPERM: operation not permitted, symlink/;
   return (
-    failed.length > 0 &&
-    failed.every((line) => /symlink/i.test(line)) &&
-    /EPERM: operation not permitted, symlink/.test(output)
+    entries.length > 0 && entries.every((entry) => hostSymlinkRefusal.test(entry.detail.join('\n')))
   );
 }
 

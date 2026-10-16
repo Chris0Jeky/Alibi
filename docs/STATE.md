@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-16: release symlink exception candidate
+
+Release preparation now requires each failed test's own detail to show the
+Windows symlink EPERM refusal. An unrelated EPERM line can no longer excuse an
+assertion failure. The six release-prepare tests pass; the new false-positive
+case fails against the previous helper. Actual Node spec-reporter output also
+confirms a host refusal is accepted only for Windows. Full verification and PR
+review remain publication evidence to reconcile. No release or deployment was
+performed; physical acceptance remains open in HUMAN_TODO.md.
+
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
