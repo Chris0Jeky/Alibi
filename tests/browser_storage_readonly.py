@@ -161,10 +161,10 @@ def app_recovery(browser, base, width, report, malformed=False):
         assert page.evaluate('AlibiDiagnostics.storage') == 'local'
         assert page.evaluate('AlibiDiagnostics.getStatus().saveError') == ''
         storage = page.locator('.data-list div').filter(has=page.locator('span', has_text='Save storage'))
-        assert 'Read-only' in storage.inner_text(), storage.inner_text()
-        assert 'edits won’t save' in storage.inner_text(), storage.inner_text()
+        assert 'Puzzle progress is read-only here; settings still save' in storage.inner_text(), storage.inner_text()
         assert 'Export any edit before reloading.' in page.locator('#main').inner_text()
         legacy = page.locator('.banner.warn').filter(has=page.locator('[data-action="export-legacy"]'))
+        assert 'Existing Cabinet saves can be read and exported.' in page.locator('#main').inner_text()
         assert 'Cabinet reads these saves' in legacy.inner_text()
         assert 'Raw export includes unreadable records.' in legacy.inner_text()
         assert 'not been migrated' not in legacy.inner_text()
@@ -193,12 +193,21 @@ def app_recovery(browser, base, width, report, malformed=False):
         assert page.evaluate('AlibiDiagnostics.storage') == 'local'
         assert page.evaluate('AlibiDiagnostics.getCurrent().note') == 'synthetic prior note'
         assert page.evaluate('AlibiDiagnostics.getStatus().saveError') == ''
-        assert 'Read-only' in page.locator('#save-state').inner_text()
-        assert 'edits won’t save' in page.locator('#save-state').inner_text()
+        assert 'Puzzle progress is read-only here; settings still save' in page.locator('#save-state').inner_text()
         assert 'Saved on this device' not in page.locator('#save-state').inner_text()
         assert page.evaluate('(key)=>localStorage.getItem(key)', PREFIX + key) == original
         page.screenshot(path=str(OUT / f'readonly-startup-{width}.png'), full_page=True)
         report['cases'].append({'width': width, 'case': 'startup player discloses read-only saves before the first edit'})
+        page.locator('[data-action="evidence-tab"][data-value="notes"]').click()
+        assert 'Kept in this tab with the board.' in page.locator('.evidence-foot').inner_text()
+        assert 'Saved on this device' not in page.locator('.evidence-foot').inner_text()
+        page.locator('#play-pause').click()
+        assert 'Your place is kept in this tab.' in page.locator('.paused-cover').inner_text()
+        assert 'saved on this device' not in page.locator('.paused-cover').inner_text()
+        page.locator('.paused-cover [data-action="pause"]').click()
+        report['cases'].append({'width': width, 'case': 'local notes and paused cover describe temporary progress'})
+        page.reload()
+        page.wait_for_function('()=>window.AlibiDiagnostics?.getCurrent()?.rev===7')
         blank = puzzle['givens'].index(0)
         page.locator(f'[data-action="cell"][data-cell="{blank}"]').click()
         page.locator(f'[data-action="value"][data-value="{puzzle["solution"][blank]}"]').click()
@@ -227,9 +236,56 @@ def app_recovery(browser, base, width, report, malformed=False):
         assert page.evaluate('(key)=>localStorage.getItem(key)', PREFIX + key) == original
         assert not errors, errors
         report['cases'].append({'width': width, 'case': 'emitted app retains failed edit in export; reload keeps durable original'})
+        page.evaluate('''({key,blank})=>{
+          const run=JSON.parse(localStorage.getItem(key));
+          run.state.cells=run.puzzle.solution.slice();
+          run.state.cells[blank]=0;
+          localStorage.setItem(key,JSON.stringify(run));
+        }''', {'key': PREFIX + key, 'blank': blank})
+        page.reload()
+        page.wait_for_function('()=>window.AlibiDiagnostics?.getCurrent()?.rev===7')
+        page.locator(f'[data-action="cell"][data-cell="{blank}"]').click()
+        page.locator(f'[data-action="value"][data-value="{puzzle["solution"][blank]}"]').click()
+        assert 'In this session’s journal' in page.locator('.success-facts').inner_text()
+        assert 'Saved in your journal' not in page.locator('.success-facts').inner_text()
+        page.locator('dialog[open] [data-action="review-record"]').click()
+        assert 'Export a backup to keep this session.' in page.locator('.play-end').inner_text()
+        assert 'Your progress is saved on this device.' not in page.locator('.play-end').inner_text()
+        assert not errors, errors
+        report['cases'].append({'width': width, 'case': 'local completion and journal avoid durable-save claims'})
     finally:
         context.close()
 
+
+def app_empty_local(browser, base, width, report):
+    context = browser.new_context(viewport={'width': width, 'height': 900},
+                                  reduced_motion='reduce', service_workers='block')
+    context.add_init_script("Object.defineProperty(globalThis,'indexedDB',{value:undefined})")
+    try:
+        page = context.new_page()
+        page.goto(base + '/#/settings')
+        page.wait_for_function('()=>window.AlibiDiagnostics')
+        assert page.evaluate('AlibiDiagnostics.storage') == 'local'
+        assert page.evaluate('AlibiDiagnostics.getCounts().records') == 0
+        assert page.evaluate('Object.keys(localStorage).filter(k=>k.startsWith("alibi.v1.")).length') == 0
+        assert 'Existing Cabinet saves can be read and exported.' not in page.locator('#main').inner_text()
+        assert page.locator('[data-action="export-legacy"]').count() == 0
+        storage = page.locator('.data-list div').filter(has=page.locator('span', has_text='Save storage'))
+        assert 'Puzzle progress is read-only here; settings still save' in storage.inner_text()
+        assert 'Export any edit before reloading.' in page.locator('#main').inner_text()
+        report['cases'].append({'width': width, 'case': 'empty local fallback discloses read-only progress without claiming existing saves'})
+        setting = page.locator('#setting-contrast')
+        assert not setting.is_checked()
+        setting.check()
+        page.wait_for_function('()=>JSON.parse(localStorage.getItem("alibi.v1.meta.settings"))?.contrast===true')
+        page.reload()
+        page.wait_for_function('()=>window.AlibiDiagnostics')
+        assert page.locator('#setting-contrast').is_checked()
+        assert 'Puzzle progress is read-only here; settings still save' in storage.inner_text()
+        assert page.evaluate('AlibiDiagnostics.getCounts().records') == 0
+        report['cases'].append({'width': width, 'case': 'setting persists across reload while puzzle progress remains read-only'})
+    finally:
+        context.close()
 
 def run(source_only=False):
     OUT.mkdir(parents=True, exist_ok=True)
@@ -256,11 +312,12 @@ def run(source_only=False):
                 for width in (390, 1280):
                     native_policy(browser, base, width, report)
                     if not source_only:
+                        app_empty_local(browser, base, width, report)
                         app_recovery(browser, base, width, report)
                         app_recovery(browser, base, width, report, malformed=True)
             finally:
                 browser.close()
-        assert len(report['cases']) == (50 if source_only else 58), report['cases']
+        assert len(report['cases']) == (50 if source_only else 66), report['cases']
         report['passed'] = True
     except Exception as error:
         report['failure'] = f'{type(error).__name__}: {error}'

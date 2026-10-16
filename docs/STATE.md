@@ -1,47 +1,53 @@
 # Live development state
 
-## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording
+## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
 
 When IndexedDB is unavailable and Cabinet reads localStorage, the player save status and
-Settings now say **Read-only · edits won’t save** before any edit. Settings and the player
-explain that existing saves can be read/exported and any edit must be exported before
-reloading. The first refused save still retains the edit for export and blocks further edits.
+Settings say **Puzzle progress is read-only here; settings still save** before any edit.
+The shared label limits the warning to puzzle progress: local settings, preferences, drafts
+and packs remain writable. Settings mentions existing Cabinet saves only when legacy
+records exist and retains the instruction to export puzzle edits before reloading.
+The first refused run save still retains the edit for export and blocks further edits.
+A shared temporary-progress check makes notes, pause, completion and journal wording accurate
+in both local read-only and session modes, without duplicating their session strings.
 
 The older-browser-data warning retains the not-migrated wording for IndexedDB. In local mode
 it explains that Cabinet reads these saves as read-only; in session mode it explains that
 these records are not used by the session. Both describe the raw export's unreadable records.
 The explicit recovery action and failure/retry reporting remain. The export success notice
-now confirms unchanged data without claiming that fallback records are separate saves.
+confirms unchanged data without claiming that fallback records are separate saves.
 The catalogue's 13 `src/app.js` byte/hash receipts follow the changed source.
 
-Test-first proof: the new save-status case and local/session warning cases failed (27 pass,
-3 fail); the emitted-app startup assertion failed on Settings' old `localStorage fallback`
-label. After the fix, `node --test tests/budget.test.cjs tests/storage*.test.cjs
-tests/app-cabinet-export.test.cjs` passes all 78 tests. Native Chromium
-`tests/browser_storage_readonly.py` passes 58 cases at 390/1280px: startup disclosures,
-valid/malformed string preservation, ordinary and raw exports, refused-edit export and reload.
-Malformed saves use a separate context because their existing damage guard blocks all edits.
-`tests/browser_ui.py` passes 187 checks; the real-origin `legacy_browser_recovery` selection
-passes 33. Player and Settings screenshots were visually inspected at both widths.
-The asset, boot, delivery, budget and completion-hook recheck passes 29 tests; formatting passes.
-Quiet Wing's separate engine/contract checks pass 581,856/43 assertions.
-The final direct full Node run (`node --test --test-concurrency=2 tests/*.test.cjs
-tests/*.test.mjs`) reports **1,593 pass, 12 fail, 3 skipped** (1,608 total). All 12 failures
-are Android artifact/derivation checks in `android-build.test.cjs` and
-`workshop-delivery.test.cjs`: the uncommitted source cannot produce the required clean
-Android payload. This is not a green full gate; the focused web/storage/budget checks pass.
+One owner-requested fix round addresses F3/F4/F5 only. Before the fixes, the updated save-label
+unit assertion failed and the new empty-origin browser case reproduced the false existing-save
+claim. The focused storage/export/asset/completion/budget batch passes **135 tests**; formatting
+passes. Native Chromium `tests/browser_storage_readonly.py` passes **66 cases** at 390/1280px
+(previously 58), including no legacy records, a setting toggled through the UI and persisted
+across reload while progress remains read-only, temporary notes/pause/completion wording,
+valid/malformed string preservation, ordinary/raw exports, refused-edit export and reload.
+Pause and edit probes are separated by reload because pausing already attempts a run save.
+`tests/browser_ui.py` passes **187 checks**; real-origin `legacy_browser_recovery` passes **33**.
+Phone and desktop Player/Settings screenshots were inspected. Quiet Wing's separate
+engine/contract suites pass **581,856/43 assertions**.
 
-Emitted web build: JavaScript gzip **134,432 bytes (+171)**, initial code/content gzip
-**201,706 (+173)**, precached shell excluding official content **1,409,629 (+453)**,
-core offline **1,921,644 (+453)**. All unchanged byte ceilings pass; deferred definitions remain
-21,266 gzip bytes and the catalogue still has 570 puzzles. No database, puzzle identity or
-ceiling changes. Evidence is local and ignored under `test-results/storage-readonly/`.
+The direct full Node run (`node --test --test-concurrency=2 tests/*.test.cjs tests/*.test.mjs`)
+reports **1,598 pass, 7 fail, 3 skipped** (1,608 total). All seven failures are in
+`android-build.test.cjs` and report `Android builds require a clean source tree.`
+`npm.cmd test` stops at its clean-source artifact preflight. These are clean-source artifact
+gate limitations with the requested uncommitted edits, not a green full gate. No gate bypass.
 
-`npm.cmd run verify` passes formatting and emits the web build, then refuses Android derivation:
-`Android builds require a clean source tree.` This work is intentionally uncommitted at the
-owner's request; the gate was not bypassed. Hosted, Android payload and physical-device
-acceptance are not claimed. No commit, push or deployment. Owner actions remain in
-[HUMAN_TODO.md](../HUMAN_TODO.md).
+Same-toolchain web build before/after this review round: JavaScript gzip **134,431 -> 134,480
+bytes (+49)**, leaving **464 bytes** below the unchanged 134,944 ceiling; initial code/content
+gzip **201,704 -> 201,752 (+48)**; precached shell excluding official content **1,409,630 ->
+1,409,677 (+47)**; core offline **1,921,645 -> 1,921,692 (+47)**. All unchanged byte ceilings
+pass; deferred definitions remain **21,266 gzip bytes**, with **570 puzzles**. The emitted build
+is `4b5aedc1d01b` (sourceDirty true). No database, puzzle identity or ceiling changes.
+Evidence is local and ignored under `test-results/readonly-review-*` and
+`test-results/storage-readonly/`.
+
+No commit, push or deployment was performed. Hosted, clean-source Android payload and
+physical-device acceptance are not claimed. Owner actions remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md); this copy/test round closes none of them.
 
 ## 2026-10-16: #683 deferred WebP provenance must match the record's hash (PR #686)
 

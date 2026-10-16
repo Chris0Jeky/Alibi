@@ -15,6 +15,7 @@ function between(start, end) {
   return app.slice(app.indexOf(start), app.indexOf(end));
 }
 const source =
+  between('  function temporaryProgress()', '  function progressStorageLabel()') +
   between('  function enqueueSave()', '  function savePreferences()') +
   between('  function completion()', '  function act(action,') +
   between('  function endPaint()', "  document.addEventListener(\n    'pointerdown',");
