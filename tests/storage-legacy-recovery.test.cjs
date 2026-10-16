@@ -306,9 +306,9 @@ for (const mode of ['indexeddb', 'local', 'session']) {
       });
     const text = banner();
     assert.match(text, /Export older browser data/);
-    if (mode === 'indexeddb') assert.match(text, /4 older browser records.*not been migrated/);
+    if (mode === 'indexeddb') assert.match(text, /7 older browser records.*not been migrated/);
     else {
-      assert.match(text, /4 browser records/);
+      assert.match(text, mode === 'local' ? /4 browser records/ : /7 browser records/);
       assert.doesNotMatch(text, /not been migrated|separate|older browser records/);
       assert.match(
         text,
@@ -323,23 +323,32 @@ for (const mode of ['indexeddb', 'local', 'session']) {
   });
 }
 
-test('settings and packs alone are not counted as older saves', async () => {
-  const items = new Map([
-    [PREFIX + 'meta.settings', '{"contrast":true}'],
-    [PREFIX + 'packs.custom', JSON.stringify({ id: 'custom' })],
-  ]);
-  const f = context({ items });
-  const store = await new f.Store().init();
-  assert.equal(store.legacyInventory.length, 2, 'full inventory still lists them');
-  assert.deepEqual(plain(store.legacyRunEntries()), []);
+test('settings and packs alone are not counted as older saves in local mode only', async () => {
+  const items = () =>
+    new Map([
+      [PREFIX + 'meta.settings', '{"contrast":true}'],
+      [PREFIX + 'packs.custom', JSON.stringify({ id: 'custom' })],
+    ]);
   const at = appSource.indexOf('  function legacyBanner()');
   const body = appSource.slice(at, appSource.indexOf('\n  let stagedAll', at));
-  const text = vm.runInNewContext(body + '\nlegacyBanner()', {
-    store,
-    esc: (value) => value,
-    B: (label) => label,
-  });
-  assert.equal(text, '', 'no banner for settings or packs only');
+  const banner = (store) =>
+    vm.runInNewContext(body + '\nlegacyBanner()', {
+      store,
+      esc: (value) => value,
+      B: (label) => label,
+    });
+  const local = await new (context({
+    items: items(),
+    openError: Error('IndexedDB denied'),
+  }).Store)().init();
+  assert.equal(local.mode, 'local');
+  assert.equal(local.legacyInventory.length, 2, 'full inventory still lists them');
+  assert.deepEqual(plain(local.legacyRunEntries()), []);
+  assert.equal(banner(local), '', 'local mode reads settings and packs itself: no banner');
+  const idb = await new (context({ items: items() }).Store)().init();
+  assert.equal(idb.mode, 'indexeddb');
+  assert.equal(idb.legacyRunEntries().length, 2, 'unmigrated packs stay announced');
+  assert.match(banner(idb), /Export older browser data/);
 });
 
 test('app shell warns with count plus explicit export-legacy button', () => {

@@ -1686,7 +1686,7 @@ def scenario_legacy_browser_recovery(pw: Any, root: Path) -> None:
             check(page.evaluate("AlibiDiagnostics.storage") == "indexeddb", "healthy IndexedDB remains authoritative with older browser bytes present")
             button = page.locator('[data-action="export-legacy"]').first
             check(button.is_visible(), "older browser data gets an explicit recovery action")
-            check("3 older browser records" in page_text(page), "the warning counts run-keyed legacy saves; the raw export still keeps every entry")
+            check("4 older browser records" in page_text(page), "the warning reports separately retained legacy records")
             page.screenshot(path=str(RESULTS / f"legacy-recovery-{width}.png"), full_page=True)
             with page.expect_download() as info:
                 button.click()

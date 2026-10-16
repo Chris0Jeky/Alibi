@@ -27,6 +27,8 @@
       this.legacyProblem = null;
     }
     legacyRunEntries() {
+      // Only local mode reads settings and packs from these keys itself; elsewhere every entry is unmigrated data.
+      if (this.mode !== 'local') return this.legacyInventory;
       return this.legacyInventory.filter((entry) => entry.key.startsWith(PREFIX + 'runs.'));
     }
     legacySnapshot() {
