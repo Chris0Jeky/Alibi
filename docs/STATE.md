@@ -2,7 +2,7 @@
 
 ## 2026-10-16: sharp 0.35.5 for CVE-2026-96889 (Dependabot #26)
 
-The vulnerable copy was miniflare's exact `sharp` 0.35.4 pin, not the root declaration (already 0.35.5). `package.json` now overrides miniflare's `sharp` to 0.35.5, so the nested 0.35.4 tree is gone and one 0.35.5 resolves. `npm audit` reports 0 (baseline 3 high, sharp `<0.35.5`); `node --test` on the four sharp test files passes 12/12 after `npm run build`. NOT run: full `npm run verify`, or an image-build output diff.
+The vulnerable copy was miniflare's exact `sharp` 0.35.4 pin, not the root declaration (already 0.35.5). `package.json` now has a root `"sharp": "$sharp"` override (replacing the nested miniflare override, which npm 10.9.9 ignored, so CI's `npm ci` rejected the lock), so the nested 0.35.4 tree is gone and one 0.35.5 resolves. `npm@10.9.9 ci` and npm 11 `ci --dry-run` both accept the lock. `npm audit` reports 0 (baseline 3 high, sharp `<0.35.5`); `node --test` on the four sharp test files passes 12/12 after `npm run build`. NOT run: full `npm run verify`, or an image-build output diff.
 
 ## 2026-10-16: reject duplicate case JSON members (#698)
 
