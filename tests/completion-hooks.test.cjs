@@ -147,7 +147,7 @@ async function complete({
   assert.equal(snapshot.elapsed, 42);
   assert.equal(snapshot.moves, 1);
   assert.equal(context.revs.get(current.key), 1);
-  assert.deepEqual(context.acked.get(current.key), { rev: 1, updatedAt: 'fixture' });
+  assert.equal(context.acked.get(current.key), JSON.stringify({ rev: 1, updatedAt: 'fixture' }));
 }
 
 test('actual completion commits and saves when Journey throws', () =>

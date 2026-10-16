@@ -1,5 +1,41 @@
 # Live development state
 
+## 2026-10-16: #677 acknowledged-save allocation benchmark
+
+Added the reproducible, self-checking `node --expose-gc tools/bench-save.cjs` and
+[measurement report](qa/SAVE-CLONE-BENCHMARK.md). On Node v24.13.1 / i5-13600K,
+500 measured saves per strategy/profile compare the actual save path without ack,
+#617's JSON clone, structuredClone and an immutable JSON string. Synthetic profiles
+cover 10 edits, 100 undo with dense notes across 100 loaded saves, and the import
+stress bound of 3,000 loaded saves with one 100-undo/100-redo active row.
+
+The cost is material: heavy-row ack p95 falls **2.066 -> 0.886 ms** and retained ack
+heap **81.400 -> 15.858 MiB** with the string; ceiling ack p95 falls
+**3.507 -> 1.694 ms**. Total save median/p95: fresh **0.059/0.120 -> 0.076/0.138 ms**,
+heavy **5.669/8.767 -> 4.806/6.722 ms**, ceiling **10.258/13.547 -> 9.116/10.623 ms**.
+Small fresh timings are near the noise floor. No measured save exceeds 50 ms;
+ceiling saves over 16.67 ms fall from 4/500 to 0/500. These are Node duration
+proxies, not browser long-task entries. structuredClone is slower on the large rows.
+
+`acked` now stores immutable full-row JSON strings at all three setters; backup
+comparison retains full-row equality, including same-revision restores (#602).
+Both earlier ownership clones, persisted bytes, CAS and backup formats are unchanged.
+At an explicit, uncalibrated 6x low-end slowdown estimate, heavy/ceiling ack p95 is
+**5.316/10.164 ms (31.9%/61.0% of a 60 Hz frame)**. Both still exceed the proposed
+10% frame budget; physical Android performance and IndexedDB timing are unmeasured.
+
+Verification: new byte-equivalence/immutable-baseline tests fail before the change
+and pass after; persistence/storage selection **102 pass**; real-origin Chromium
+suite **599 checks pass**; web build and format check pass. Quiet Wing engines pass
+**581,856 assertions**, contracts **43**. Ordinary `npm test` refuses the required
+uncommitted state/missing Android artifacts. Its body run separately reports
+**1,599 tests: 1,583 pass, 3 skip, 13 fail**: twelve need Android artifacts or a clean
+Android source tree; the changed app hash caused one asset-catalogue failure, fixed
+by refreshing only its 13 app receipts (catalogue tests now **2 pass**).
+No whole-suite rerun is claimed after that metadata correction. Details and raw
+receipt location are in the report. No commit, push or deployment was performed.
+Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md); none are closed here.
+
 ## 2026-10-16: #684 respondent reset under the revision lock (PR #685)
 
 `resetRespondent()` now runs entirely under the Web Lock shared with `survey()`, `enqueue()`
