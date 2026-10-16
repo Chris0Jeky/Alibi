@@ -1,5 +1,20 @@
 # Live development state
 
+## 2026-10-16: six playable escape rooms and the offline anthology player (PR #481)
+
+Stacked on #480 (landed). Six original rooms (Tidekeeper's Workshop, Printmaker's Cabinet, Moonseed
+Conservatory, Herbarium Lift, Counterweight Loft, Clockmaker's Rehearsal) play in one self-contained
+offline HTML built by a dependency-free Node builder; see `docs/escape-rooms/ANTHOLOGY.md` and
+`ANTHOLOGY-PLAN.md`. Progress, drafts and notes are memory-only: refreshing or closing clears them,
+and the page says so. No production route, save store or Cabinet behaviour changes.
+
+Verified on the PR head before this refresh (run 36339248604): 93 focused source tests, 18 offline-file
+room/viewport scenarios, formatting and full `npm run verify` (844 Node tests); all 648 reachable model
+states keep a completion path. Not done: independent editorial approval, human playtesting,
+physical-device and screen-reader acceptance, difficulty calibration and semantic spoiler review of
+hints. The other six research treatments stay open (#466, #472-#474); #467/#47, #442 and #433 own
+spatial inspection, durable saves and optional delivery.
+
 ## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
 
 The escape-room foundation adds the bounded room-state contract and exhaustive
