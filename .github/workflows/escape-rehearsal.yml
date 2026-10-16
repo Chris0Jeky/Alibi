@@ -6,7 +6,6 @@ on:
       - 'tools/escape-ui/**'
       - 'tests/escape-*.test.cjs'
       - 'tests/fixtures/escape-room.cjs'
-      - 'tests/browser_escape_rooms.py'
       - 'content/escape-rooms/**'
       - '.github/workflows/escape-rehearsal.yml'
   workflow_dispatch:
