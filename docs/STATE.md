@@ -1,5 +1,12 @@
 # Live development state
 
+## 2026-10-16: Reading Room Blackout evidence-case workbench (PR #458)
+
+An experimental, unregistered evidence-case specimen built on #444's authoring contract: case content,
+a memory-only session layer, an offline HTML preview and a 20-world model test. Build, play, proof and
+boundaries are in `docs/cases/READING-ROOM-BLACKOUT.md`. No official registration, startup budget,
+save or existing puzzle behaviour changes; promotion still needs editorial review and human playtesting.
+
 ## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
 
 The escape-room foundation adds the bounded room-state contract and exhaustive
