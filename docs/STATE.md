@@ -1,5 +1,12 @@
 # Live development state
 
+## 2026-10-16: Games Room fallback notes refreshed onto current main
+
+Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
+
+## Asset continuation batch — 13 October 2026
+
+Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
 ## 2026-10-16: derivative hardening refreshed onto current main
 
 Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.
