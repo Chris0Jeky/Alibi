@@ -11,6 +11,11 @@ Hosted CI, browser integration and physical devices are not verified by this
 entry; owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
 Residual risk: multibyte files previously admitted by character count can now be
 refused at the documented byte limit, before parsing or changing saves.
+## 2026-10-16: scene victim-room regression candidate
+
+Three source-engine tests pin the victim sharing a room with exactly one
+suspect, rejecting zero or two. No gameplay behavior changes. Physical
+acceptance and owner decisions remain open in `HUMAN_TODO.md`.
 
 ## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
 
