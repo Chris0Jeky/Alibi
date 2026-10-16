@@ -7,6 +7,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { deriveAndroidPayload } = require('../tools/build-android.cjs');
 const { inspectAndroidArtifact } = require('../tools/check-android-artifact.cjs');
+const { contentManifestRevision } = require('../tools/build.cjs');
 const { readIdentity, writeIdentity, payloadDigest } = require('../tools/platform-identity.cjs');
 const ROOT = path.resolve(__dirname, '..');
 const WEB = path.join(ROOT, 'dist');
@@ -24,13 +25,10 @@ function sources(directory) {
 function revisions(directory) {
   const [initial, deferred] = sources(directory);
   return {
-    receipt: sha256(initial.bytes),
-    runtime: sha256(
-      JSON.stringify([
-        'alibi-official-content-1',
-        ['initial', initial.bytes.toString('utf8')],
-        ['deferred', deferred.bytes.toString('utf8')],
-      ]),
+    initialOnly: sha256(initial.bytes),
+    revision: contentManifestRevision(
+      initial.bytes.toString('utf8'),
+      deferred.bytes.toString('utf8'),
     ),
   };
 }
@@ -51,35 +49,38 @@ function copyWeb(temp) {
   return source;
 }
 
-test('both Android flavors validate full runtime content separately from the legacy receipt', () => {
+test('both Android flavors keep one complete content revision on the receipt and the runtime', () => {
   const expected = revisions(WEB);
-  assert.notEqual(expected.runtime, expected.receipt);
+  assert.notEqual(expected.revision, expected.initialOnly);
   for (const flavor of ['browser-preview', 'capacitor-preview'])
     fixture((temp) => {
       const target = path.join(temp, 'android');
       const receipt = deriveAndroidPayload({ target, flavor });
-      assert.equal(receipt.contentManifestRevision, expected.receipt);
-      assert.equal(readIdentity(target).identity.contentManifestRevision, expected.runtime);
+      assert.equal(receipt.contentManifestRevision, expected.revision);
+      assert.equal(readIdentity(target).identity.contentManifestRevision, expected.revision);
       assert.deepEqual(inspect(target), [], flavor);
     });
 });
 
-test('a coherently inventoried initial-only runtime identity is rejected', () => {
+test('an initial-only content revision is rejected for the receipt and the runtime', () => {
   fixture((temp) => {
     const source = copyWeb(temp),
       target = path.join(temp, 'android');
     const web = readIdentity(source).identity;
     writeIdentity(
       source,
-      { ...web, contentManifestRevision: revisions(source).receipt },
+      { ...web, contentManifestRevision: revisions(source).initialOnly },
       { replace: true },
     );
     deriveAndroidPayload({ source, target });
-    assert.deepEqual(inspect(target), ['Android runtime identity does not match its receipt.']);
+    assert.deepEqual(inspect(target), [
+      'Android content manifest revision is stale.',
+      'Android runtime identity does not match its receipt.',
+    ]);
   });
 });
 
-test('putting the aggregate in the legacy receipt is independently rejected', () => {
+test('an initial-only receipt cannot replace the complete content revision', () => {
   fixture((temp) => {
     const target = path.join(temp, 'android');
     const receipt = deriveAndroidPayload({ target });
@@ -87,7 +88,7 @@ test('putting the aggregate in the legacy receipt is independently rejected', ()
       path.join(target, 'android-build-identity.json'),
       JSON.stringify({
         ...receipt,
-        contentManifestRevision: revisions(WEB).runtime,
+        contentManifestRevision: revisions(WEB).initialOnly,
       }),
     );
     assert.deepEqual(inspect(target), ['Android content manifest revision is stale.']);
@@ -101,14 +102,14 @@ test('recomputed payload and receipt hashes cannot substitute foreign deferred b
     fs.appendFileSync(sources(source)[1].filename, '\n// Different deferred source\n');
     const changed = revisions(source),
       expected = revisions(WEB);
-    assert.equal(changed.receipt, expected.receipt, 'initial source and locator are fixed');
-    assert.notEqual(changed.runtime, expected.runtime);
+    assert.equal(changed.initialOnly, expected.initialOnly, 'initial source and locator are fixed');
+    assert.notEqual(changed.revision, expected.revision);
     writeIdentity(
       source,
       {
         ...readIdentity(source).identity,
         payloadSha256: payloadDigest(source),
-        contentManifestRevision: changed.runtime,
+        contentManifestRevision: changed.revision,
       },
       { replace: true },
     );

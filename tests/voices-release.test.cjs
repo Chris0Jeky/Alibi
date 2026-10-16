@@ -26,6 +26,7 @@ function queue() {
   vm.runInContext(source, context, { filename: 'voices-queue.js' });
   let n = 0;
   return context.AlibiVoicesQueue({
+    locks: { request: (_name, fn) => Promise.resolve().then(fn) },
     storage: storage(),
     uuid: () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`,
   });
@@ -46,15 +47,15 @@ test('feedback requires a string release', () => {
   assert.equal(ok.release, '1.2.3');
 });
 
-test('survey requires a string release', () => {
+test('survey requires a string release', async () => {
   const q = queue();
   const base = { survey: 'alibi-taste-1', answers, device: 'mobile' };
-  assert.equal(q.survey({ ...base, release: undefined }), null);
-  assert.equal(q.survey({ ...base }), null);
+  assert.equal(await q.survey({ ...base, release: undefined }), null);
+  assert.equal(await q.survey({ ...base }), null);
   for (const release of [123, null, {}, ['1.2.3']]) {
-    assert.equal(q.survey({ ...base, release }), null);
+    assert.equal(await q.survey({ ...base, release }), null);
   }
-  const ok = q.survey({ ...base, release: '1.2.3' });
+  const ok = await q.survey({ ...base, release: '1.2.3' });
   assert.ok(ok);
   assert.equal(ok.release, '1.2.3');
 });

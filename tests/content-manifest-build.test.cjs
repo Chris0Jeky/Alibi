@@ -1,9 +1,9 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { contentManifestRevision } = require('../tools/build.cjs');
 const { readIdentity } = require('../tools/platform-identity.cjs');
 
 for (const directory of ['dist', 'dist-android']) {
@@ -17,12 +17,7 @@ for (const directory of ['dist', 'dist-android']) {
       assert.equal(matches.length, 1, `Expected one ${prefix} source`);
       return fs.readFileSync(path.join(assets, matches[0]), 'utf8');
     }
-    const frame = [
-      'alibi-official-content-1',
-      ['initial', read('official-content')],
-      ['deferred', read('official-deferred')],
-    ];
-    const expected = crypto.createHash('sha256').update(JSON.stringify(frame)).digest('hex');
+    const expected = contentManifestRevision(read('official-content'), read('official-deferred'));
     assert.equal(readIdentity(root).identity.contentManifestRevision, expected);
   });
 }

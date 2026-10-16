@@ -32,6 +32,93 @@ def stored(page, key='state'):
       tx.oncomplete=()=>{db.close();resolve(q.result)};tx.onerror=()=>reject(tx.error)};
     })''', key)
 
+def boundary_edit(page, name):
+    control = page.locator('#realmname')
+    if not control.is_visible():
+        page.locator('[data-ract="palette"]').click()
+        control = page.locator('#mobile-name')
+    control.fill(name)
+    control.press('Tab')
+    close_dialogs(page)
+    return page.evaluate('()=>QWApp.flush().then(()=>true,()=>false)')
+
+def close_dialogs(page):
+    for _ in range(3):
+        dialogs = page.locator('dialog[open]')
+        if not dialogs.count():
+            return
+        dialogs.last.locator('[data-close]').click()
+    assert not page.locator('dialog[open]').count()
+
+def revision_boundaries(browser, base):
+    maximum = 2**53 - 1
+    for width in (390, 1280):
+      for revision in (0, maximum-1, maximum, maximum+1):
+        boundary_ctx = browser.new_context(viewport={'width': width, 'height': 1000}, accept_downloads=True, reduced_motion='reduce')
+        try:
+          bootstrap = boundary_ctx.new_page(); bootstrap.on('pageerror',lambda e:errors.append(str(e)))
+          quiet(bootstrap, base)
+          seed = bootstrap.evaluate('async()=>{await QWApp.flush();return structuredClone(QWApp.state)}')
+          bootstrap.close()
+          seed.update(revision=revision, savedAt=1234)
+          seed['scene']['name'] = 'Precision boundary original'
+          recovery = {'at': 42, 'state': {'future': 'keep original recovery'}}
+          page = boundary_ctx.new_page(); page.on('pageerror',lambda e:errors.append(str(e)))
+          page.goto(base+'/manifest.webmanifest')
+          page.evaluate('''({state,recovery})=>new Promise((resolve,reject)=>{
+            const r=indexedDB.open('alibi-quiet-wing-v1');r.onerror=()=>reject(r.error);
+            r.onsuccess=()=>{const db=r.result,tx=db.transaction('saves','readwrite'),store=tx.objectStore('saves');
+              store.put(state,'state');store.put(recovery,'recovery');
+              tx.oncomplete=()=>{db.close();resolve()};tx.onerror=tx.onabort=()=>reject(tx.error)};
+          })''', {'state': seed, 'recovery': recovery})
+          quiet(page, base)
+          check(stored(page)==seed, f'{width}/{revision}: mount preserves exact original')
+          sibling = None
+          if revision == maximum-1:
+            sibling = boundary_ctx.new_page(); sibling.on('pageerror',lambda e:errors.append(str(e))); quiet(sibling, base)
+            check(boundary_edit(page,'Final safe edit'), f'{width}: final safe edit succeeds')
+            kept = stored(page)
+            check(kept['revision']==maximum, f'{width}: revision advances exactly once to maximum')
+            check(not boundary_edit(sibling,'Stale writer'), f'{width}: atomic IDB CAS refuses stale writer at boundary')
+            check(stored(page)==kept, f'{width}: stale writer leaves the first commit intact')
+            check(not boundary_edit(page,'Refused next edit'), f'{width}: next edit cannot advance past maximum')
+          elif revision == 0:
+            page.locator('[data-act="settings"]').click()
+            unsafe = {**seed, 'revision': maximum+1}
+            with page.expect_file_chooser() as chooser: page.locator('#backup-import').click()
+            chooser.value.set_files({'name':'unsafe-revision.json','mimeType':'application/json','buffer':json.dumps({'kind':'alibi-quiet-wing-backup','schema':1,'state':unsafe}).encode()})
+            page.get_by_text(re.compile('Unsafe revision')).last.wait_for()
+            check(stored(page)==seed, f'{width}: actual import worker refuses unsafe revision without mutation')
+            close_dialogs(page)
+            check(boundary_edit(page,'Normal saved edit'), f'{width}: ordinary edit still saves')
+            kept = stored(page)
+            check(kept['revision']==1, f'{width}: ordinary revision advances normally')
+          else:
+            page.locator('[data-act="settings"]').click()
+            normal = {**seed, 'revision': 0, 'scene': {**seed['scene'], 'name': 'Refused restore'}}
+            with page.expect_file_chooser() as chooser: page.locator('#backup-import').click()
+            chooser.value.set_files({'name':'normal-backup.json','mimeType':'application/json','buffer':json.dumps({'kind':'alibi-quiet-wing-backup','schema':1,'state':normal}).encode()})
+            page.locator('#confirm-import').click()
+            page.get_by_text(re.compile('Save revision reached|This tab is read-only')).last.wait_for()
+            check(stored(page)==seed and stored(page,'recovery')==recovery, f'{width}/{revision}: actual restore refuses without replacing save or recovery')
+            close_dialogs(page)
+            check(not boundary_edit(page,'Refused edit'), f'{width}/{revision}: actual edit refuses')
+            kept = seed
+            if revision > maximum:
+              check(page.evaluate('QWStore.info().blocked'), f'{width}: unsafe stored revision loads protected')
+          check(stored(page)==kept and stored(page,'recovery')==recovery, f'{width}/{revision}: refusal preserves exact stored bytes and previous recovery')
+          page.locator('[data-act="settings"]').click()
+          with page.expect_download() as download: page.locator('#raw-export').click()
+          raw_path = OUT/f'revision-{revision}-{width}.json'; download.value.save_as(raw_path)
+          raw_rows = {row['key']:row['value'] for row in json.loads(raw_path.read_text())['rows']}
+          check(raw_rows['state']==kept and raw_rows['recovery']==recovery, f'{width}/{revision}: actual raw recovery button exports intact originals')
+          close_dialogs(page)
+          page.screenshot(path=str(OUT/f'revision-{revision}-{width}.png'), full_page=True)
+          page.reload(); page.wait_for_function('()=>window.AlibiActivities?.diagnostics().active')
+          check(stored(page)==kept and stored(page,'recovery')==recovery, f'{width}/{revision}: original bytes survive reload')
+        finally:
+          boundary_ctx.close()
+
 fixture, release_a, release_b = make_releases()
 # B changes the optional entry script too, so an older Wing tab must still load its A assets.
 bmain = next((release_b/'assets').glob('alibi.*.js'))
@@ -146,6 +233,7 @@ try:
     check(page.get_by_role('link',name='Return to Alibi',exact=True).is_visible(),'Failed shadow mount exposes a visible return link')
     page.get_by_role('link',name='Return to Alibi',exact=True).click();page.wait_for_function('()=>!AlibiActivities.diagnostics().active')
     check(page.evaluate('QWApp.renderer===null && QWApp.resizeObs===null'),'Failed mount disposes its activity resources')
+    revision_boundaries(future, base)
     # A stalled open must not create a competing, writable fallback save.
     timeout_ctx=future.new_context();timeout_page=timeout_ctx.new_page();quiet(timeout_page,base)
     rename(timeout_page,'Original after retry');timeout_before=stored(timeout_page)

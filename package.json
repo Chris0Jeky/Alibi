@@ -1,6 +1,6 @@
 {
   "name": "alibi-puzzle-club",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "private": true,
   "license": "PolyForm-Strict-1.0.0",
   "description": "A mobile-first puzzle PWA with thirteen engines, illustrated mystery casebooks and an original puzzle workshop.",
@@ -39,7 +39,7 @@
     "@capacitor/core": "8.5.2",
     "esbuild": "0.28.2",
     "prettier": "3.9.6",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "three": "0.185.1",
     "wrangler": "4.146.0"
   },

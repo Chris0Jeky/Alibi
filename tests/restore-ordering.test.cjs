@@ -6,9 +6,14 @@
 // Transaction completion waits for pending requests, matching IndexedDB
 // auto-commit (a transaction never completes while a request is pending). Puts stay buffered
 // in their transaction (visible to its own later reads) and reach the disk only on complete;
-// abort discards them. Creation and request callbacks allow immediate microtasks;
+// abort discards them. An explicit abort fails each still-pending request with
+// AbortError, running those callbacks before the transaction abort event, and
+// does not also complete. Creation and request callbacks allow immediate microtasks;
 // activity expires before subsequently queued timer callbacks. The 30 ms
 // completion delay controls interleaving, not permission to enqueue requests.
+// Overlapping scopes wait in creation order whenever either transaction writes,
+// including a predecessor still waiting to start. Scope scheduling is bounded;
+// the disk map models Club keys, not full object-store isolation or IDB events.
 // Boundary: this is NOT real browser IndexedDB durability, service workers,
 // cross-tab storage events, or physical-device timing.
 const { test } = require('node:test');
@@ -21,17 +26,90 @@ const root = path.resolve(__dirname, '..');
 
 function makeDisk() {
   const disk = new Map();
+  const transactions = [];
+  function startReadyTransactions() {
+    for (const entry of transactions) {
+      if (entry.started || entry.finished) continue;
+      const blocked = transactions
+        .slice(0, transactions.indexOf(entry))
+        .some(
+          (earlier) =>
+            !earlier.finished &&
+            (entry.mode === 'readwrite' || earlier.mode === 'readwrite') &&
+            [...entry.scope].some((name) => earlier.scope.has(name)),
+        );
+      if (!blocked) entry.start();
+    }
+  }
   const db = {
     onversionchange: null,
     close() {},
-    transaction() {
+    transaction(names, mode = 'readonly') {
+      const entry = {
+        scope: new Set(Array.isArray(names) ? names : [names]),
+        mode,
+        started: false,
+        finished: false,
+        requests: [],
+        start() {
+          entry.started = true;
+          for (const request of entry.requests) request();
+          entry.requests.length = 0;
+          maybeComplete();
+        },
+      };
       const listeners = { complete: [], error: [], abort: [] };
+      const pendingRequests = [];
       let aborted = false;
       let pending = 0;
       let generation = 0;
       let completed = false;
       let active = false;
       let activityEpoch = 0;
+      function forgetRequest(req) {
+        const index = pendingRequests.indexOf(req);
+        if (index !== -1) pendingRequests.splice(index, 1);
+      }
+      // One delivery: the abort task reports still-open requests, and a later
+      // request timer must not succeed or report the same request again.
+      function failAborted(req) {
+        if (req.done) return;
+        req.done = true;
+        req.result = undefined;
+        req.error = Object.assign(Error('The transaction was aborted.'), {
+          name: 'AbortError',
+        });
+        forgetRequest(req);
+        pending -= 1;
+        const event = {
+          target: req,
+          currentTarget: req,
+          bubbles: true,
+          cancelable: true,
+          defaultPrevented: false,
+          cancelBubble: false,
+          preventDefault() {
+            this.defaultPrevented = true;
+          },
+          stopPropagation() {
+            this.cancelBubble = true;
+          },
+        };
+        try {
+          if (req.onerror) req.onerror(event);
+        } catch {}
+        if (!event.cancelBubble) {
+          event.currentTarget = tx;
+          try {
+            if (tx.onerror) tx.onerror(event);
+          } catch {}
+          for (const listener of listeners.error) {
+            try {
+              listener(event);
+            } catch {}
+          }
+        }
+      }
       function activate() {
         active = true;
         const epoch = ++activityEpoch;
@@ -52,6 +130,7 @@ function makeDisk() {
         if (aborted || completed) return;
         if (pending !== 0) return;
         completed = true;
+        entry.finished = true;
         active = false;
         for (const [key, value] of writes) disk.set(key, value);
         try {
@@ -62,9 +141,10 @@ function makeDisk() {
             f();
           } catch {}
         }
+        startReadyTransactions();
       }
       function maybeComplete() {
-        if (aborted || completed) return;
+        if (aborted || completed || !entry.started) return;
         if (pending !== 0) return;
         const seen = generation;
         setTimeout(() => {
@@ -81,22 +161,35 @@ function makeDisk() {
               requireActive();
               pending += 1;
               generation += 1;
-              const req = { result: undefined, onsuccess: null, onerror: null };
+              const req = {
+                result: undefined,
+                error: null,
+                onsuccess: null,
+                onerror: null,
+                done: false,
+              };
+              pendingRequests.push(req);
               // Requests run in queue order: only puts queued before this get are visible to it.
               const queuedOwn = writes.has(key),
                 own = writes.get(key);
-              setTimeout(() => {
-                if (aborted) {
+              const runRequest = () =>
+                setTimeout(() => {
+                  if (req.done) return;
+                  if (aborted) {
+                    failAborted(req);
+                    return;
+                  }
+                  const raw = queuedOwn ? own : disk.get(key);
+                  req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
+                  req.done = true;
+                  forgetRequest(req);
                   pending -= 1;
-                  return;
-                }
-                const raw = queuedOwn ? own : disk.get(key);
-                req.result = raw === undefined ? undefined : JSON.parse(JSON.stringify(raw));
-                pending -= 1;
-                activate();
-                if (req.onsuccess) req.onsuccess();
-                maybeComplete();
-              }, 10);
+                  activate();
+                  if (req.onsuccess) req.onsuccess();
+                  maybeComplete();
+                }, 10);
+              if (entry.started) runRequest();
+              else entry.requests.push(runRequest);
               return req;
             },
             put(value, key) {
@@ -118,7 +211,11 @@ function makeDisk() {
           aborted = true;
           active = false;
           writes.clear();
+          const doomed = pendingRequests.slice();
           setTimeout(() => {
+            // Request errors share this task and run before abort. Success
+            // callbacks still precede complete on the commit path.
+            for (const req of doomed) failAborted(req);
             try {
               if (tx.onabort) tx.onabort();
             } catch {}
@@ -127,6 +224,9 @@ function makeDisk() {
                 f();
               } catch {}
             }
+            entry.finished = true;
+            entry.requests.length = 0;
+            startReadyTransactions();
           }, 0);
         },
         oncomplete: null,
@@ -134,7 +234,8 @@ function makeDisk() {
         onabort: null,
       };
       activate();
-      maybeComplete();
+      transactions.push(entry);
+      startReadyTransactions();
       return tx;
     },
   };
@@ -233,7 +334,7 @@ test('transaction completes only after chained requests settle', async () => {
   });
   // Each get is issued synchronously or from the previous success callback, which keeps a real
   // IndexedDB transaction active. Four 10 ms gets outlast the old fixed 30 ms completion timer.
-  const tx = db.transaction();
+  const tx = db.transaction('club', 'readwrite');
   const order = [];
   const completed = new Promise((resolve) => {
     tx.oncomplete = () => {
@@ -263,7 +364,7 @@ test('puts reach the disk only when their transaction completes; abort discards 
     req.onerror = () => reject(req.error);
   });
   disk.set('state', { rev: 1 });
-  const aborted = db.transaction();
+  const aborted = db.transaction('club', 'readwrite');
   const aborting = new Promise((resolve) => {
     aborted.onabort = resolve;
   });
@@ -278,7 +379,7 @@ test('puts reach the disk only when their transaction completes; abort discards 
   await new Promise((resolve) => setTimeout(resolve, 50));
   assert.deepEqual(disk.get('state'), { rev: 1 }, 'an aborted put never reaches the disk');
   assert.equal(disk.has('recovery'), false);
-  const committed = db.transaction();
+  const committed = db.transaction('club', 'readwrite');
   const completing = new Promise((resolve) => {
     committed.oncomplete = resolve;
   });
@@ -307,9 +408,161 @@ async function fixtureTransaction() {
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
-  const tx = db.transaction();
+  const tx = db.transaction('club', 'readwrite');
   return { disk, tx, store: tx.objectStore() };
 }
+
+async function scopedFixture() {
+  const fixture = makeDisk();
+  const db = await new Promise((resolve, reject) => {
+    const req = fixture.indexedDB.open();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return { ...fixture, db };
+}
+
+function completedTransaction(tx, order, label) {
+  return new Promise((resolve) => {
+    tx.oncomplete = () => {
+      order.push(label);
+      resolve();
+    };
+  });
+}
+
+test(
+  'overlapping readwrite transactions read the previous committed revision',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const first = db.transaction('club', 'readwrite');
+    const firstDone = completedTransaction(first, order, 'first complete');
+    first.objectStore('club').put({ rev: 2 }, 'state');
+    const second = db.transaction('club', 'readwrite');
+    const secondDone = completedTransaction(second, order, 'second complete');
+    const read = second.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('second read');
+    };
+    await Promise.all([firstDone, secondDone]);
+    assert.deepEqual(seen, { rev: 2 });
+    assert.deepEqual(order, ['first complete', 'second read', 'second complete']);
+  },
+);
+
+test('readonly transactions wait for earlier overlapping writers', { timeout: 1000 }, async () => {
+  const { disk, db } = await scopedFixture();
+  disk.set('state', { rev: 1 });
+  const order = [];
+  const writer = db.transaction('club', 'readwrite');
+  const writerDone = completedTransaction(writer, order, 'writer complete');
+  writer.objectStore('club').put({ rev: 2 }, 'state');
+  const reader = db.transaction('club', 'readonly');
+  const readerDone = completedTransaction(reader, order, 'reader complete');
+  const read = reader.objectStore('club').get('state');
+  let seen;
+  read.onsuccess = () => {
+    seen = read.result;
+    order.push('reader read');
+  };
+  await Promise.all([writerDone, readerDone]);
+  assert.deepEqual(seen, { rev: 2 });
+  assert.deepEqual(order, ['writer complete', 'reader read', 'reader complete']);
+});
+
+test(
+  'readwrite transactions wait for earlier overlapping readers to finish',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const reader = db.transaction('club', 'readonly');
+    const readerDone = completedTransaction(reader, order, 'reader complete');
+    const read = reader.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('reader read');
+    };
+    const writer = db.transaction('club', 'readwrite');
+    const writerDone = completedTransaction(writer, order, 'writer complete');
+    writer.objectStore('club').put({ rev: 2 }, 'state');
+    await Promise.all([readerDone, writerDone]);
+    assert.deepEqual(seen, { rev: 1 });
+    assert.deepEqual(order, ['reader read', 'reader complete', 'writer complete']);
+    assert.deepEqual(disk.get('state'), { rev: 2 });
+  },
+);
+
+test(
+  'a waiting multi-store writer cannot be bypassed by a later overlapping writer',
+  { timeout: 1000 },
+  async () => {
+    const { db } = await scopedFixture();
+    const order = [];
+    const first = db.transaction('club', 'readwrite');
+    const firstDone = completedTransaction(first, order, 'first complete');
+    first.objectStore('club').put('first', 'state');
+    const middle = db.transaction(['club', 'meta'], 'readwrite');
+    const middleDone = completedTransaction(middle, order, 'middle complete');
+    middle.objectStore('meta').put('middle', 'marker');
+    const last = db.transaction('meta', 'readwrite');
+    const lastDone = completedTransaction(last, order, 'last complete');
+    const read = last.objectStore('meta').get('marker');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('last read');
+    };
+    await Promise.all([firstDone, middleDone, lastDone]);
+    assert.equal(seen, 'middle');
+    assert.deepEqual(order, ['first complete', 'middle complete', 'last read', 'last complete']);
+  },
+);
+
+test(
+  'aborting the earlier writer releases the queued reader without its buffered writes',
+  { timeout: 1000 },
+  async () => {
+    const { disk, db } = await scopedFixture();
+    disk.set('state', { rev: 1 });
+    const order = [];
+    const writer = db.transaction('club', 'readwrite');
+    writer.objectStore('club').put({ rev: 2 }, 'state');
+    const aborted = new Promise((resolve) => {
+      writer.onabort = () => {
+        order.push('writer abort');
+        resolve();
+      };
+    });
+    const reader = db.transaction('club', 'readwrite');
+    const readerDone = completedTransaction(reader, order, 'reader complete');
+    const read = reader.objectStore('club').get('state');
+    let seen;
+    read.onsuccess = () => {
+      seen = read.result;
+      order.push('reader read');
+    };
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const beforeAbort = [...order];
+    writer.abort();
+    await Promise.all([aborted, readerDone]);
+    assert.deepEqual(
+      beforeAbort,
+      [],
+      'a queued request cannot observe the disk before its predecessor finishes',
+    );
+    assert.deepEqual(seen, { rev: 1 });
+    assert.deepEqual(order, ['writer abort', 'reader read', 'reader complete']);
+    assert.deepEqual(disk.get('state'), { rev: 1 });
+  },
+);
 
 test('creation and request callback microtasks can enqueue writes', async () => {
   const { disk, tx, store } = await fixtureTransaction();
@@ -411,6 +664,65 @@ test('a second abort throws InvalidStateError', async () => {
   await aborted;
 });
 
+test('explicit abort delivers pending AbortError callbacks before the transaction abort event', async () => {
+  const { disk, db } = await scopedFixture();
+  const order = [];
+  const writer = db.transaction('club', 'readwrite');
+  writer.objectStore('club').put('held', 'state');
+  const blocked = db.transaction('club', 'readonly');
+  const waiting = blocked.objectStore('club').get('state');
+  waiting.onsuccess = () => order.push('blocked-success');
+  waiting.onerror = () => {
+    order.push('blocked-error:' + waiting.error?.name + ':' + String(waiting.result));
+  };
+  blocked.onerror = () => order.push('blocked-tx-error');
+  blocked.oncomplete = () => order.push('blocked-complete');
+  blocked.onabort = () => order.push('blocked-abort');
+  const active = db.transaction('meta', 'readwrite');
+  const inflight = active.objectStore('meta').get('marker');
+  inflight.onsuccess = () => order.push('inflight-success');
+  inflight.onerror = () => {
+    order.push('inflight-error:' + inflight.error?.name + ':' + String(inflight.result));
+  };
+  active.onerror = () => order.push('active-tx-error');
+  active.oncomplete = () => order.push('active-complete');
+  active.onabort = () => order.push('active-abort');
+  active.abort();
+  blocked.abort();
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  assert.deepEqual(order, [
+    'inflight-error:AbortError:undefined',
+    'active-tx-error',
+    'active-abort',
+    'blocked-error:AbortError:undefined',
+    'blocked-tx-error',
+    'blocked-abort',
+  ]);
+  assert.equal(disk.get('state'), 'held');
+  assert.equal(disk.has('marker'), false);
+});
+
+test('preventDefault preserves error bubbling while stopPropagation suppresses it', async () => {
+  const { db } = await scopedFixture();
+  const tx = db.transaction('club', 'readwrite');
+  const cancelled = tx.objectStore('club').get('state');
+  const stopped = tx.objectStore('club').get('marker');
+  const seen = [];
+  cancelled.onerror = (event) => event.preventDefault();
+  stopped.onerror = (event) => event.stopPropagation();
+  tx.onerror = (event) => {
+    assert.equal(event.target, cancelled);
+    assert.equal(event.currentTarget, tx);
+    assert.equal(event.defaultPrevented, true);
+    seen.push('property');
+  };
+  tx.addEventListener('error', () => seen.push('listener'));
+  const aborted = new Promise((resolve) => (tx.onabort = resolve));
+  tx.abort();
+  await aborted;
+  assert.deepEqual(seen, ['property', 'listener']);
+});
+
 test('stale old-state snapshot cannot overwrite a confirmed restore', async () => {
   const { disk, indexedDB } = makeDisk();
   const { c } = await tabWithDisk(disk, indexedDB);
@@ -448,6 +760,29 @@ test('stale old-state snapshot cannot overwrite a confirmed restore', async () =
     999,
     'in-memory state is the committed replacement, not uncommitted stale data',
   );
+});
+
+test('an exported save cannot persist stale state while a confirmed restore is in flight', async () => {
+  const { disk, indexedDB } = makeDisk();
+  const { c } = await tabWithDisk(disk, indexedDB);
+  const pre = JSON.parse(JSON.stringify(disk.get('state')));
+  const next = JSON.parse(JSON.stringify(c.AlibiClub.diagnostics().state));
+  next.settings.pinned = 999;
+  next.visit = 777;
+  c.__alibiPendingClub = next;
+  const restoreP = c.AlibiClub.action({ dataset: { action: 'club-restore-confirm' } });
+  // save() bypasses action()'s restoring check, exercising persist's own guard.
+  const staleP = c.AlibiClub.save();
+  await restoreP;
+  await staleP;
+  await c.AlibiClub.flush();
+  const state = disk.get('state');
+  assert.equal(state.data.settings.pinned, 999, 'the replacement remains on disk');
+  assert.equal(state.data.visit, 777, 'the restored visit marker remains on disk');
+  assert.equal(state.rev, pre.rev + 1, 'an old-state save cannot add a stale N+2 write');
+  assert.deepEqual(disk.get('recovery'), pre, 'the true pre-restore recovery copy survives');
+  assert.equal(c.AlibiClub.diagnostics().state.settings.pinned, 999);
+  assert.equal(c.AlibiClub.diagnostics().saveError, '');
 });
 
 test('restore failure preserves existing state and error semantics', async () => {

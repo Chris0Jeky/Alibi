@@ -78,6 +78,7 @@ async function complete({
     pendingSaves: 0,
     queue: Promise.resolve(),
     revs: new Map(),
+    acked: new Map(),
     records: new Map([[current.key, current]]),
     channel: null,
     $: () => saveLabel,
@@ -146,6 +147,7 @@ async function complete({
   assert.equal(snapshot.elapsed, 42);
   assert.equal(snapshot.moves, 1);
   assert.equal(context.revs.get(current.key), 1);
+  assert.deepEqual(context.acked.get(current.key), { rev: 1, updatedAt: 'fixture' });
 }
 
 test('actual completion commits and saves when Journey throws', () =>
