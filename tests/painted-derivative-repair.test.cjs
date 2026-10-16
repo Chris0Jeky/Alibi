@@ -237,7 +237,7 @@ test('valid outputs are left byte-for-byte and timestamp unchanged in normal mod
     assert.deepEqual(fs.readFileSync(manifestPath), manifestBefore);
   }));
 
-test('normal mode refuses a derivative symlink without writing through it', () =>
+test('normal mode refuses a derivative symlink without writing through it', (t) =>
   withFixture(({ fixture, shelf, outputs }) => {
     const output = outputs[0];
     const outputPath = path.join(shelf, output.file);
@@ -246,7 +246,14 @@ test('normal mode refuses a derivative symlink without writing through it', () =
     fs.writeFileSync(sentinelPath, output.expected);
     const sentinelBefore = fs.readFileSync(sentinelPath);
     const sentinelTime = fs.statSync(sentinelPath, { bigint: true }).mtimeNs;
-    fs.symlinkSync(sentinelPath, outputPath, 'file');
+    try {
+      fs.symlinkSync(sentinelPath, outputPath, 'file');
+    } catch (error) {
+      // Non-elevated Windows without Developer Mode cannot create symlinks; hosted CI keeps the coverage.
+      if (error.code !== 'EPERM') throw error;
+      t.skip('symlink creation is not permitted on this host');
+      return;
+    }
 
     const result = runGenerator(fixture);
     assert.notEqual(result.status, 0);
