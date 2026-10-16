@@ -26,6 +26,9 @@
       this.legacyInventory = [];
       this.legacyProblem = null;
     }
+    legacyRunEntries() {
+      return this.legacyInventory.filter((entry) => entry.key.startsWith(PREFIX + 'runs.'));
+    }
     legacySnapshot() {
       try {
         const ls = root.localStorage,

@@ -306,9 +306,9 @@ for (const mode of ['indexeddb', 'local', 'session']) {
       });
     const text = banner();
     assert.match(text, /Export older browser data/);
-    if (mode === 'indexeddb') assert.match(text, /7 older browser records.*not been migrated/);
+    if (mode === 'indexeddb') assert.match(text, /4 older browser records.*not been migrated/);
     else {
-      assert.match(text, /7 browser records/);
+      assert.match(text, /4 browser records/);
       assert.doesNotMatch(text, /not been migrated|separate|older browser records/);
       assert.match(
         text,
@@ -322,6 +322,25 @@ for (const mode of ['indexeddb', 'local', 'session']) {
     assert.match(banner(), /Recovery read failed.*Try exporting again/);
   });
 }
+
+test('settings and packs alone are not counted as older saves', async () => {
+  const items = new Map([
+    [PREFIX + 'meta.settings', '{"contrast":true}'],
+    [PREFIX + 'packs.custom', JSON.stringify({ id: 'custom' })],
+  ]);
+  const f = context({ items });
+  const store = await new f.Store().init();
+  assert.equal(store.legacyInventory.length, 2, 'full inventory still lists them');
+  assert.deepEqual(plain(store.legacyRunEntries()), []);
+  const at = appSource.indexOf('  function legacyBanner()');
+  const body = appSource.slice(at, appSource.indexOf('\n  let stagedAll', at));
+  const text = vm.runInNewContext(body + '\nlegacyBanner()', {
+    store,
+    esc: (value) => value,
+    B: (label) => label,
+  });
+  assert.equal(text, '', 'no banner for settings or packs only');
+});
 
 test('app shell warns with count plus explicit export-legacy button', () => {
   assert.ok(appSource.includes('Export older browser data'), 'button label');
