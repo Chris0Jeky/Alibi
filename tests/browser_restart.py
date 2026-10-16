@@ -15,7 +15,11 @@ with tempfile.TemporaryDirectory(prefix="alibi-restart-") as profile, sync_playw
     ctx=launch(); page=ctx.pages[0]; errors=[]
     page.on("pageerror",lambda e: errors.append(str(e)))
     page.goto(BASE); page.wait_for_function("() => !!globalThis.AlibiDiagnostics")
+    # Deferred scene listings carry no people/solution until the deferred chunk swaps them in.
+    # Wait for that readiness flag so the walk reads complete definitions for every scene.
+    page.wait_for_function("() => globalThis.ALIBI_DEFERRED?.ready === true")
     puzzles=page.evaluate("ALIBI_CATALOG.puzzles.filter(p=>p.type==='scene')")
+    check(all('people' in p for p in puzzles),'every scene definition is loaded before the restart walk')
     for puzzle in puzzles + [puzzles[0]] * 3:
         key=puzzle['id']+'@'+str(puzzle['revision'])
         page.evaluate("s=>location.hash=s",'#/play/'+key)
