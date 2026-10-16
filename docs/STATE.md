@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: experience build refuses asset paths outside the library
+
+`tools/build-experience.cjs` now refuses, before reading, any catalogue derivative that resolves outside `assets-source/library/`, so a path such as `assets-source/library/../../file.glb` or a root-relative `package.glb` can no longer publish outside bytes into `dist/assets`. The check is lexical; a symlink inside the library would not be caught.
+
+`tests/build-experience-traversal.test.cjs`: the traversal test fails against the original builder and both tests pass with the fix. The web build succeeds with the real catalogues, the experience and service-worker suites pass 15 tests, and formatting passes. Browser lanes and the full verify gate were not run.
+
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
