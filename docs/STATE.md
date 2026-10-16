@@ -1,5 +1,13 @@
 # Live development state
 
+## 2026-10-16: Quiet Wing fallback quarantine candidate
+
+Malformed fallback JSON is copied byte-for-byte to recovery before the active
+key is removed, allowing a fresh save. An occupied recovery slot or failed
+recovery write preserves both records and keeps storage read-only. The occupied
+slot regression fails before the review correction. This candidate is not deployed. Physical
+acceptance remains open in `HUMAN_TODO.md`.
+
 ## 2026-10-16: byte-accurate backup import limits
 
 The validation worker now measures UTF-8 bytes for Castle, combined, Cabinet and
