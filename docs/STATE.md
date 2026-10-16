@@ -3,8 +3,9 @@
 ## 2026-10-16: Quiet Wing fallback quarantine candidate
 
 Malformed fallback JSON is copied byte-for-byte to recovery before the active
-key is removed, allowing a fresh save. Failed recovery writes preserve the
-original and keep storage read-only. This candidate is not deployed. Physical
+key is removed, allowing a fresh save. An occupied recovery slot or failed
+recovery write preserves both records and keeps storage read-only. The occupied
+slot regression fails before the review correction. This candidate is not deployed. Physical
 acceptance remains open in `HUMAN_TODO.md`.
 
 ## 2026-10-15: #678 deferred WebP provenance guard

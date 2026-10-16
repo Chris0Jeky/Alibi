@@ -140,6 +140,7 @@
             raw = JSON.parse(existing);
           } catch (parseError) {
             try {
+              if (localStorage.getItem(FALLBACK + ':recovery') !== null) throw parseError;
               localStorage.setItem(FALLBACK + ':recovery', existing);
             } catch {
               throw parseError;

@@ -77,3 +77,19 @@ test('failed quarantine preserves the corrupt fallback and blocks writes', async
   assert.equal(storage.getItem('alibi-quiet-wing-v1:fallback:recovery'), null);
   await assert.rejects(store.write(E.newState(1700000000000)), /read-only/);
 });
+
+test('occupied recovery preserves both records and blocks writes', async () => {
+  const recovery = JSON.stringify(E.newState(1700000000000));
+  const storage = installLocalStorageStub({
+    'alibi-quiet-wing-v1:fallback': '{',
+    'alibi-quiet-wing-v1:fallback:recovery': recovery,
+  });
+  const store = loadStore(storage);
+  assert.equal((await store.open()).blocked, true);
+  assert.equal(storage.getItem('alibi-quiet-wing-v1:fallback'), '{');
+  assert.equal(storage.getItem('alibi-quiet-wing-v1:fallback:recovery'), recovery);
+  await assert.rejects(store.write(E.newState(1700000000000)), /read-only/);
+  const exported = await store.raw();
+  assert.equal(exported.fallback, '{');
+  assert.equal(exported.recovery, recovery);
+});
