@@ -1,5 +1,9 @@
 # Live development state
 
+## 2026-10-16: sharp 0.35.5 for CVE-2026-96889 (Dependabot #26)
+
+The vulnerable copy was miniflare's exact `sharp` 0.35.4 pin, not the root declaration (already 0.35.5). `package.json` now overrides miniflare's `sharp` to 0.35.5, so the nested 0.35.4 tree is gone and one 0.35.5 resolves. `npm audit` reports 0 (baseline 3 high, sharp `<0.35.5`); `node --test` on the four sharp test files passes 12/12 after `npm run build`. NOT run: full `npm run verify`, or an image-build output diff.
+
 ## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
 
 `tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
