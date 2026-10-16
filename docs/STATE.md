@@ -1,5 +1,13 @@
 # Live development state
 
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. Stacked on #444
+(`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
+checked; full verify, browser and physical acceptance are not run. Owner actions remain
+in `HUMAN_TODO.md`.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
