@@ -1,5 +1,18 @@
 # Live development state
 
+## 2026-10-16: #683 deferred WebP provenance must match the record's hash (PR #686)
+
+The #678 guard is strengthened: a deferred WebP in `content/asset-delivery.json` now needs one
+curation registry record whose file AND sha256 match the declaration and that carries rights
+(`rights.licence` or `source.rights`); a rights-less duplicate cannot satisfy it, and a matching
+record among duplicates is accepted. Derivative records under the policy's `src/curation-assets`
+root are reachable, matching where real derivatives live. Swapped bytes with an updated policy
+hash are refused because the record hash must match.
+
+Proof: six regressions failed first; the delivery, budget and official-deferred selection (21)
+passes; `npm run verify` passed (1,601 pass, 0 fail). `content/asset-delivery.json` `deferred` is
+empty, so current content is unaffected. Not verified: hosted and device acceptance.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
