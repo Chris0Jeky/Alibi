@@ -1,5 +1,7 @@
 # Android content identity audit correction
 
+16 October 2026 refresh: current main already stores one hash of the initial source, a NUL, and the deferred source. This branch keeps that hash on the web identity, the Android runtime identity, and the Android receipt. The notes below describe the 4 October split and are not the current contract. See the 16 October entry in [STATE](../STATE.md).
+
 Refs #459, #389 item 3, review discussions 4175460083 and 4175460086.
 This supersedes the earlier recovery claim that adding the runtime aggregate
 alone completed the identity integration. The old verifier still expected the
