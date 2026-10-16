@@ -8,6 +8,27 @@
 `node --test tests/serve-assets.test.cjs` (fails on the old code) and
 `tests/serve-gallery.test.cjs`.
 
+## 2026-10-16: cloud QA note refreshed onto current main
+
+The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
+
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
+## 2026-10-16: practice counts refreshed onto the content-identity branch
+
+Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
+
+`tests/castle-practice-deferred.test.cjs`: 7 pass. The browser lane in that note was not re-run. #459 should merge before this PR.
+
+## 2026-10-16: content identity refreshed onto current main
+
+Merged current main `77a6188f`. The House return guard remains: a desk render that finishes after the hash has already moved to play or salon no longer clears the captured return destination. See [return-link and evidence recovery](qa/2026-10-04-house-return-recovery.md). The 4 October source and browser counts in that note were not re-run for this refresh.
+
+The stored content revision stays the one current main writes: one hash of the initial source, a NUL, and the deferred source, shared by the web identity, the Android runtime identity, and the Android receipt. The artifact check still compares those Android content files with the current web build. An initial-only hash is not written back into the receipt.
 ## 2026-10-16: Quiet Wing fallback quarantine candidate
 
 Malformed fallback JSON is copied byte-for-byte to recovery before the active
