@@ -116,6 +116,7 @@ test('recomputed payload and receipt hashes cannot substitute foreign deferred b
     deriveAndroidPayload({ source, target });
     assert.deepEqual(inspect(target), [
       'Android official content differs from the current web build.',
+      'Android content manifest revision is stale.',
       'Android runtime identity does not match its receipt.',
     ]);
   });
