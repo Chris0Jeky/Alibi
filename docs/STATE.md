@@ -1,5 +1,12 @@
 # Live development state
 
+## 2026-10-16: Quiet Wing fallback quarantine candidate
+
+Malformed fallback JSON is copied byte-for-byte to recovery before the active
+key is removed, allowing a fresh save. Failed recovery writes preserve the
+original and keep storage read-only. This candidate is not deployed. Physical
+acceptance remains open in `HUMAN_TODO.md`.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
