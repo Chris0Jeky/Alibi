@@ -8,6 +8,12 @@ recovery write preserves both records and keeps storage read-only. The occupied
 slot regression fails before the review correction. This candidate is not deployed. Physical
 acceptance remains open in `HUMAN_TODO.md`.
 
+## 2026-10-16: scene victim-room regression candidate
+
+Three source-engine tests pin the victim sharing a room with exactly one
+suspect, rejecting zero or two. No gameplay behavior changes. Physical
+acceptance and owner decisions remain open in `HUMAN_TODO.md`.
+
 ## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
 
 When IndexedDB is unavailable and Cabinet reads localStorage, the player save status and
