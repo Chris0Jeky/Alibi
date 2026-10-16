@@ -1,5 +1,15 @@
 # Live development state
 
+## 2026-10-16: cloud QA note refreshed onto current main
+
+The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
+
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
