@@ -131,10 +131,10 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
         const stops = [
             ...sheet.querySelectorAll('button,a[href],input,textarea,[tabindex]'),
           ].filter((el) => el.tabIndex >= 0 && !el.disabled && el.getClientRects().length),
-          edge = e.shiftKey ? stops[0] : stops[stops.length - 1];
+          edge = e.shiftKey ? stops[0] : stops.at(-1);
         if (!stops.includes(doc.activeElement) || doc.activeElement === edge) {
           e.preventDefault();
-          (e.shiftKey ? stops[stops.length - 1] : stops[0])?.focus();
+          (e.shiftKey ? stops.at(-1) : stops[0])?.focus();
         }
       });
       sheet.addEventListener('click', (e) => {
@@ -284,7 +284,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     refresh();
   }
   let taps = Promise.resolve();
-  doc.addEventListener('click', (e) => {
+  doc.addEventListener('click', async (e) => {
     const el = e.target.closest?.('[data-vo-act]'),
       a = el?.dataset.voAct,
       s = state();
@@ -298,10 +298,12 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (a === 'never') save({ ...s, never: 1 });
     if (a === 'delete') Q.clear();
     if (a === 'dismiss') Q.dismissNotes();
-    const removed = a === 'reset' && (save({ ...s, rated: {} }), Q.resetRespondent());
+    const removed = a === 'reset' && (await Q.resetRespondent());
+    if (a === 'reset' && removed !== false) save({ ...state(), rated: {} });
     refresh();
     if (a === 'reset') {
       const status = $('#vo-reset-status');
+      if (!status) return;
       if (removed === false) status.textContent = 'Reset failed on this device. Try again.';
       else
         status.textContent = `Reset.${removed ? ` ${removed} unsent ${removed > 1 ? 'answers' : 'answer'} with the old key removed.` : ''} Your next answer makes a new key.`;

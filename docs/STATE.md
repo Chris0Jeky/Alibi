@@ -36,6 +36,34 @@ No whole-suite rerun is claimed after that metadata correction. Details and raw
 receipt location are in the report. No commit, push or deployment was performed.
 Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md); none are closed here.
 
+## 2026-10-16: #684 respondent reset under the revision lock (PR #685)
+
+`resetRespondent()` now runs entirely under the Web Lock shared with `survey()`, `enqueue()`
+and `flush()`, so a reset racing a submit in another tab can no longer erase the fresh
+respondent's revision counter (which made the next edit reuse revision 1 and get a 409).
+A rejected lock refuses the reset visibly and leaves storage untouched. After the awaited
+reset the sheet re-reads Voices state before clearing `rated`, so a preference changed in
+another tab during the wait is not overwritten. Behaviour-preserving trims keep the Voices
+chunk under its unchanged caps (20,480 raw, 9,216 gzip).
+
+Proof: three new Node regressions failed first (one produced revision 1 instead of 2);
+queue tests 44 -> 47, selected Node tests 73 -> 76, browser assertions 151 -> 159; `npm run
+verify` passed (1,597 pass, 0 fail) before the state re-read fix. Not verified: hosted
+collector and physical devices. Residual risk: raw Voices headroom is a few bytes.
+
+## 2026-10-16: #683 deferred WebP provenance must match the record's hash (PR #686)
+
+The #678 guard is strengthened: a deferred WebP in `content/asset-delivery.json` now needs one
+curation registry record whose file AND sha256 match the declaration and that carries rights
+(`rights.licence` or `source.rights`); a rights-less duplicate cannot satisfy it, and a matching
+record among duplicates is accepted. Derivative records under the policy's `src/curation-assets`
+root are reachable, matching where real derivatives live. Swapped bytes with an updated policy
+hash are refused because the record hash must match.
+
+Proof: six regressions failed first; the delivery, budget and official-deferred selection (21)
+passes; `npm run verify` passed (1,601 pass, 0 fail). `content/asset-delivery.json` `deferred` is
+empty, so current content is unaffected. Not verified: hosted and device acceptance.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
