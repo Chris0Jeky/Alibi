@@ -1,5 +1,20 @@
 # Live development state
 
+## 2026-10-16: #684 respondent reset under the revision lock (PR #685)
+
+`resetRespondent()` now runs entirely under the Web Lock shared with `survey()`, `enqueue()`
+and `flush()`, so a reset racing a submit in another tab can no longer erase the fresh
+respondent's revision counter (which made the next edit reuse revision 1 and get a 409).
+A rejected lock refuses the reset visibly and leaves storage untouched. After the awaited
+reset the sheet re-reads Voices state before clearing `rated`, so a preference changed in
+another tab during the wait is not overwritten. Behaviour-preserving trims keep the Voices
+chunk under its unchanged caps (20,480 raw, 9,216 gzip).
+
+Proof: three new Node regressions failed first (one produced revision 1 instead of 2);
+queue tests 44 -> 47, selected Node tests 73 -> 76, browser assertions 151 -> 159; `npm run
+verify` passed (1,597 pass, 0 fail) before the state re-read fix. Not verified: hosted
+collector and physical devices. Residual risk: raw Voices headroom is a few bytes.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file

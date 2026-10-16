@@ -299,7 +299,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (a === 'delete') Q.clear();
     if (a === 'dismiss') Q.dismissNotes();
     const removed = a === 'reset' && (await Q.resetRespondent());
-    if (a === 'reset' && removed !== false) save({ ...s, rated: {} });
+    if (a === 'reset' && removed !== false) save({ ...state(), rated: {} });
     refresh();
     if (a === 'reset') {
       const status = $('#vo-reset-status');
