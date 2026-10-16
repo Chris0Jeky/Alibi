@@ -105,7 +105,7 @@ async function cabinetFixture({
   const script = `(async () => {
     let records = new Map(localsInit.map((r) => [r.key, r]));
     let revs = new Map(localsInit.map((r) => [r.key, r.rev]));
-    let acked = new Map(ackedInit.map((r) => [r.key, r]));
+    let acked = new Map(ackedInit.map((r) => [r.key, JSON.stringify(r)]));
     let current = currentKey ? records.get(currentKey) : null;
     ${cabinetSrc}
     const out = await cabinetBackup();
@@ -248,7 +248,8 @@ test('successful enqueueSave acknowledges the saved snapshot when the local muta
     records.get(current.key).note = 'mutated-during-save';
     globalThis.__resolve();
     await p; await queue;
-    return { ackedNote: acked.get(current.key).note, ackedRev: acked.get(current.key).rev, localNote: records.get(current.key).note, localRev: records.get(current.key).rev };
+    const acknowledged = JSON.parse(acked.get(current.key));
+    return { ackedNote: acknowledged.note, ackedRev: acknowledged.rev, localNote: records.get(current.key).note, localRev: records.get(current.key).rev };
   })()`;
   context.__resolve = () => resolveSave();
   const res = await vm.runInNewContext(script, context, { filename: 'enqueueSave' });
@@ -256,6 +257,65 @@ test('successful enqueueSave acknowledges the saved snapshot when the local muta
   assert.equal(res.ackedRev, 1);
   assert.equal(res.localNote, 'mutated-during-save');
   assert.equal(res.localRev, 1);
+});
+
+test('serialized acknowledgements preserve exact saved bytes and all history contents', async () => {
+  const storageSrc = fs.readFileSync(path.join(__dirname, '../src/storage.js'), 'utf8');
+  const date = '2026-10-16T00:00:00.000Z';
+  for (const count of [0, 10, 100]) {
+    const run = baseRun({
+      rev: 0,
+      note: 'Clue: "north"\n\u00e9\ud83d\udd0e'.repeat(count === 100 ? 100 : 1),
+      state: { cells: [0, 1, -1], notes: { 0: [1, 2] } },
+      undo: Array.from({ length: count }, (_, i) => ({ cells: [i], notes: { 0: [1] } })),
+      redo: Array.from({ length: count }, (_, i) => ({ cells: [i + 1], notes: {} })),
+    });
+    const save = async (previous) => {
+      const ctx = {
+        C: { clone },
+        AlibiCore: { clone },
+        Date: class extends Date {
+          constructor() {
+            super(date);
+          }
+        },
+        current: clone(run),
+        storageFatal: false,
+        saveError: null,
+        sessionSeconds: 10,
+        pendingSaves: 0,
+        queue: Promise.resolve(),
+        revs: new Map(),
+        records: new Map(),
+        acked: new Map(),
+        channel: null,
+        $: () => null,
+        setSaveLabel() {},
+        render() {},
+        toast: (message) => assert.fail(message),
+      };
+      vm.createContext(ctx);
+      vm.runInContext(storageSrc, ctx);
+      ctx.store = new ctx.AlibiStorage.Store();
+      ctx.records.set(run.key, ctx.current);
+      vm.runInContext(
+        previous ? enqueueSrc.replace('JSON.stringify(saved)', 'C.clone(saved)') : enqueueSrc,
+        ctx,
+      );
+      await ctx.enqueueSave();
+      assert.equal(ctx.saveError, null);
+      return ctx;
+    };
+    const before = await save(true);
+    const after = await save(false);
+    const bytes = JSON.stringify(before.store.memory.runs[run.key]);
+    assert.equal(JSON.stringify(after.store.memory.runs[run.key]), bytes);
+    assert.equal(after.acked.get(run.key), bytes);
+    after.current.state.notes[0].push(3);
+    after.store.memory.runs[run.key].note = 'later mutation of a session-memory row';
+    if (count) after.current.undo[0].cells[0] = 999;
+    assert.equal(after.acked.get(run.key), bytes, 'the full baseline stays immutable');
+  }
 });
 
 test('copy actions download the staged immutable snapshots, and do nothing without a choice', () => {

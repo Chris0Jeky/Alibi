@@ -42,6 +42,7 @@
     packs = [starter],
     records = new Map(),
     revs = new Map(),
+    // Immutable JSON keeps full-row restore checks without another object tree.
     acked = new Map(),
     queue = Promise.resolve(),
     pendingSaves = 0,
@@ -203,7 +204,7 @@
         validateRun(r);
         records.set(r.key, r);
         revs.set(r.key, r.rev);
-        acked.set(r.key, C.clone(r));
+        acked.set(r.key, JSON.stringify(r));
       } catch {
         quarantined++;
       }
@@ -359,7 +360,7 @@
         if (saveError) return;
         const saved = await store.saveRun(snapshot, revs.get(snapshot.key) || 0);
         revs.set(snapshot.key, saved.rev);
-        acked.set(snapshot.key, C.clone(saved));
+        acked.set(snapshot.key, JSON.stringify(saved));
         const local = records.get(snapshot.key);
         if (local) {
           local.rev = saved.rev;
@@ -413,7 +414,7 @@
           }
           records.set(r.key, r);
           revs.set(r.key, r.rev);
-          acked.set(r.key, C.clone(r));
+          acked.set(r.key, JSON.stringify(r));
           if (!current) render();
         } catch {}
       }
@@ -2169,9 +2170,10 @@
       if (key === current?.key) local.elapsed = sessionSeconds;
       const persisted = deviceByKey.get(key);
       const baseline = acked.get(key);
-      if (persisted && baseline && C.equal(local, baseline)) continue;
+      if (persisted && baseline && JSON.stringify(local) === baseline) continue;
       // Restores preserve revisions, so the full acknowledged row must still match.
-      if (!persisted || (baseline && C.equal(persisted, baseline))) deviceByKey.set(key, local);
+      if (!persisted || (baseline && JSON.stringify(persisted) === baseline))
+        deviceByKey.set(key, local);
       else divergentByKey.set(key, local);
     }
     data.runs = [...deviceByKey.values()];
