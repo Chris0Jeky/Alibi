@@ -1,5 +1,13 @@
 # Live development state
 
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. The loader and
+existing tests were copied from `origin/feat/case-workbench`, absent at this HEAD.
+Focused Node tests and formatting are checked; full verify, browser and physical
+acceptance are not run. Owner actions remain in `HUMAN_TODO.md`.
+
 ## 2026-10-16: cloud QA note refreshed onto current main
 
 The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
