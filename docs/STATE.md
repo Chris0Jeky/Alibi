@@ -1,5 +1,13 @@
 # Live development state
 
+## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
+
+`tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
+`Content-Range: bytes */<size>`, matching its other 416 path and `tools/serve.cjs`
+(RFC 9110). Dev tooling only; no app or save behaviour changes. Proof:
+`node --test tests/serve-assets.test.cjs` (fails on the old code) and
+`tests/serve-gallery.test.cjs`.
+
 ## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
 
 When IndexedDB is unavailable and Cabinet reads localStorage, the player save status and
