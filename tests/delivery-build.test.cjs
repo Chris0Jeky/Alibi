@@ -20,7 +20,15 @@ test('one policy declaration emits a deferred image through existing delivery an
     fs.writeFileSync(
       path.join(fixture, 'assets-source/curation/registry.json'),
       JSON.stringify({
-        assets: [{ source: { file: asset.file, rights: 'Original Alibi test artwork' } }],
+        assets: [
+          {
+            source: {
+              file: asset.file,
+              sha256: asset.sha256,
+              rights: 'Original Alibi test artwork',
+            },
+          },
+        ],
       }),
     );
     fs.writeFileSync(path.join(fixture, asset.file), data);
@@ -64,7 +72,7 @@ test('one policy declaration emits a deferred image through existing delivery an
     fs.rmSync(fixture, { recursive: true, force: true });
   }
 });
-test('deferred images require a matching provenance and licence record', () => {
+test('deferred images require a matching provenance and licence record', async (t) => {
   const fixture = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'alibi-image-rights-'));
   try {
     for (const dir of ['content', 'assets-source/curation', 'dist/assets'])
@@ -86,7 +94,7 @@ test('deferred images require a matching provenance and licence record', () => {
     const registry = (assets) =>
       fs.writeFileSync(
         path.join(fixture, 'assets-source/curation/registry.json'),
-        JSON.stringify({ assets }),
+        JSON.stringify({ policy: { derivativeRoot: 'src/curation-assets' }, assets }),
       );
     for (const assets of [
       [],
@@ -100,10 +108,87 @@ test('deferred images require a matching provenance and licence record', () => {
       );
       assert.deepEqual(fs.readdirSync(path.join(fixture, 'dist/assets')), []);
     }
-    registry([{ source: { file: asset.file, rights: 'Original Alibi test artwork' } }]);
+    registry([
+      { source: { file: asset.file, sha256: asset.sha256, rights: 'Original Alibi test artwork' } },
+    ]);
     assert.equal(build().entries[asset.id].sha256, asset.sha256);
-    registry([{ derivative: { file: asset.file }, rights: { licence: 'CC0-1.0' } }]);
+    registry([
+      { derivative: { file: asset.file, sha256: asset.sha256 }, rights: { licence: 'CC0-1.0' } },
+    ]);
     assert.equal(build().entries[asset.id].sha256, asset.sha256);
+    for (const field of ['source', 'derivative']) {
+      for (const sha256 of [undefined, '0'.repeat(64)]) {
+        await t.test(`${field} rejects a ${sha256 ? 'stale' : 'missing'} registry hash`, () => {
+          registry([
+            {
+              [field]: { file: asset.file, sha256 },
+              [field === 'source' ? 'derivative' : 'source']: {
+                file: 'assets-source/other.webp',
+                sha256: asset.sha256,
+              },
+              rights: { licence: 'CC0-1.0' },
+            },
+          ]);
+          assert.throws(build, /Deferred image missing provenance\/licence record/);
+        });
+      }
+    }
+    await t.test('duplicate paths prefer a record with both matching bytes and rights', () => {
+      const approved = {
+        source: { file: asset.file, sha256: asset.sha256, rights: 'Original Alibi test artwork' },
+      };
+      for (const records of [
+        [{ source: { file: asset.file, sha256: asset.sha256 } }, approved],
+        [approved, { source: { file: asset.file, sha256: asset.sha256 } }],
+        [
+          { source: { file: asset.file, sha256: '0'.repeat(64) }, rights: { licence: 'CC0-1.0' } },
+          approved,
+        ],
+      ]) {
+        registry(records);
+        assert.equal(build().entries[asset.id].sha256, asset.sha256);
+      }
+      registry([
+        { source: { file: asset.file, sha256: asset.sha256 } },
+        { source: { file: asset.file, sha256: '0'.repeat(64) }, rights: { licence: 'CC0-1.0' } },
+      ]);
+      assert.throws(build, /Deferred image missing provenance\/licence record/);
+    });
+    await t.test('derivatives under the registry policy root emit verified bytes', () => {
+      const derivative = { ...asset, file: 'src/curation-assets/supplied/study.webp' };
+      fs.mkdirSync(path.dirname(path.join(fixture, derivative.file)), { recursive: true });
+      fs.writeFileSync(path.join(fixture, derivative.file), data);
+      fs.writeFileSync(
+        path.join(fixture, 'content/asset-delivery.json'),
+        JSON.stringify({ schemaVersion: 1, mirrors: {}, deferred: [derivative] }),
+      );
+      registry([
+        {
+          derivative: { file: derivative.file, sha256: derivative.sha256 },
+          rights: { licence: 'CC0-1.0' },
+        },
+      ]);
+      const result = build();
+      assert.deepEqual(
+        fs.readFileSync(path.join(fixture, 'dist', result.entries[asset.id].urls[0])),
+        data,
+      );
+      assert.equal(result.bytes, data.length);
+      for (const file of [
+        'src/curation-assets-other/study.webp',
+        'src/other/study.webp',
+        'src/curation-assets/../study.webp',
+      ]) {
+        fs.writeFileSync(
+          path.join(fixture, 'content/asset-delivery.json'),
+          JSON.stringify({ schemaVersion: 1, mirrors: {}, deferred: [{ ...derivative, file }] }),
+        );
+        registry([
+          { derivative: { file, sha256: derivative.sha256 }, rights: { licence: 'CC0-1.0' } },
+        ]);
+        assert.throws(build, /Invalid deferred image declaration/);
+      }
+    });
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }

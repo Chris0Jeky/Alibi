@@ -1,0 +1,45 @@
+{
+  "current_main": "3d041caf61b46b54a1ba046a50132f760192d758",
+  "three_parent": "a18c339702f966a16b69c5c88f7140605b6615dc",
+  "candidate_source_sha256": {
+    "tools/build-delivery.cjs": "2dae03b68a80b70a575260640d3388a87dc221d86d37ad8f64175a2ce0005bf9",
+    "tests/painted-delivery.test.cjs": "386829b74eae930dff8ace9f79b613e985ddf77069d648623bef9e8f62b33b10"
+  },
+  "main": {
+    "enhancementBytes": 3303960,
+    "coreOfflineBytes": 1893672,
+    "initialCodeAndContentGzipBytes": 204209,
+    "javascriptGzipBytes": 132872
+  },
+  "three": {
+    "enhancementBytes": 3384920,
+    "coreOfflineBytes": 1896426,
+    "initialCodeAndContentGzipBytes": 205152,
+    "javascriptGzipBytes": 132966
+  },
+  "eight": {
+    "enhancementBytes": 3507442,
+    "coreOfflineBytes": 1902029,
+    "initialCodeAndContentGzipBytes": 206354,
+    "javascriptGzipBytes": 132966
+  },
+  "five_delta_vs_three": {
+    "enhancementBytes": 122522,
+    "coreOfflineBytes": 5603,
+    "initialCodeAndContentGzipBytes": 1202,
+    "javascriptGzipBytes": 0
+  },
+  "eight_delta_vs_current_main": {
+    "enhancementBytes": 203482,
+    "coreOfflineBytes": 8357,
+    "initialCodeAndContentGzipBytes": 2145,
+    "javascriptGzipBytes": 94
+  },
+  "initial_ceiling_bytes": 205248,
+  "candidate_over_ceiling_bytes": 1106,
+  "runtime_extension_qualified": false,
+  "source_derivative_bytes": 122522,
+  "selected_eight_derivative_bytes": 203482,
+  "cache_slots_unchanged": 8,
+  "per_image_limit_unchanged": 1048576
+}

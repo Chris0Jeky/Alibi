@@ -128,14 +128,31 @@
     }
     let saved = null;
     try {
-      const raw =
-        mode === 'indexeddb'
-          ? await transact('readonly', (s, set) => {
-              s.get(KEY).onsuccess = (e) => set(e.target.result);
-            })
-          : mode === 'local'
-            ? JSON.parse(localStorage.getItem(FALLBACK) || 'null')
-            : null;
+      let raw = null;
+      if (mode === 'indexeddb') {
+        raw = await transact('readonly', (s, set) => {
+          s.get(KEY).onsuccess = (e) => set(e.target.result);
+        });
+      } else if (mode === 'local') {
+        const existing = localStorage.getItem(FALLBACK);
+        if (existing !== null) {
+          try {
+            raw = JSON.parse(existing);
+          } catch (parseError) {
+            try {
+              if (localStorage.getItem(FALLBACK + ':recovery') !== null) throw parseError;
+              localStorage.setItem(FALLBACK + ':recovery', existing);
+            } catch {
+              throw parseError;
+            }
+            localStorage.removeItem(FALLBACK);
+            revision = 0;
+            return { saved: null, mode, blocked: false };
+          }
+        } else {
+          raw = null;
+        }
+      }
       if (raw) {
         saved = validate(raw);
         revision = saved.revision;

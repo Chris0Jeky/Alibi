@@ -460,11 +460,22 @@ with sync_playwright() as pw:
     }""", KEY)
     try:
         page.locator('#vo-reset').click()
+        page.locator('#vo-reset-status', has_text='Reset failed on this device. Try again.').wait_for()
         check(page.locator('#vo-reset-status').inner_text() == 'Reset failed on this device. Try again.', 'failed key removal reports failure')
         check(local(page, KEY) == old_key, 'failed reset retains the stored survey key')
     finally:
         page.evaluate('Storage.prototype.removeItem = window.__voiceRemove; delete window.__voiceRemove')
+    page.evaluate("""() => {
+        navigator.locks.request('alibi:voices:queue:v1', () => new Promise(r => window.releaseReset = r));
+    }""")
+    page.wait_for_function('() => !!window.releaseReset')
+    old_revisions = local(page, 'alibi:voices:revisions:v2')
     page.locator('#vo-reset').click()
+    check(local(page, KEY) == old_key, 'a reset waiting for the shared lock retains the key')
+    check(local(page, 'alibi:voices:revisions:v2') == old_revisions, 'a waiting reset retains revision counters')
+    check('Your next answer makes a new key.' not in page.locator('#vo-reset-status').inner_text(), 'a waiting reset does not claim success')
+    page.evaluate('window.releaseReset()')
+    page.locator('#vo-reset-status', has_text='Your next answer makes a new key.').wait_for()
     check(local(page, KEY) is None, 'Reset removes the survey key')
     check(page.evaluate("() => document.activeElement?.id") == 'vo-reset-status', 'focus moves to the reset confirmation')
     page.evaluate("location.hash='/settings'")
@@ -591,6 +602,22 @@ with sync_playwright() as pw:
     wait_for(page, lambda: len(collector.voices()) == 2, 'heart after rejected lock')
     check(collector.voices()[1]['body']['answers']['more'] == 'yes', 'heart taps still work after a lock rejection')
     row.locator('[role=status]', has_text='Thanks, sent.').wait_for()
+    page.evaluate("location.hash='/privacy'")
+    page.locator('#vo-reset').wait_for()
+    old_key = local(page, KEY)
+    old_revisions = local(page, 'alibi:voices:revisions:v2')
+    old_state = local(page, 'alibi:voices:state:v1')
+    page.evaluate('window.blockVoicesLocks = true')
+    page.locator('#vo-reset').click()
+    page.locator('#vo-reset-status', has_text='Reset failed on this device. Try again.').wait_for()
+    check(local(page, KEY) == old_key, 'a rejected reset lock visibly refuses and keeps the key')
+    check(local(page, 'alibi:voices:revisions:v2') == old_revisions, 'a rejected reset keeps revision counters')
+    check(local(page, 'alibi:voices:state:v1') == old_state, 'a rejected reset keeps local ratings')
+    page.evaluate('window.blockVoicesLocks = false')
+    page.locator('#vo-reset').click()
+    page.locator('#vo-reset-status', has_text='Your next answer makes a new key.').wait_for()
+    check(local(page, KEY) is None, 'a refused reset can be retried after locking recovers')
+    check(local(page, 'alibi:voices:revisions:v2') is None, 'a successful reset removes revision counters')
     page.evaluate("""() => {
         window.blockVoicesLocks = true;
         for (const method of ['getItem', 'setItem', 'removeItem']) {
