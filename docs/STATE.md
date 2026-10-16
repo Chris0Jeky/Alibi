@@ -1,5 +1,12 @@
 # Live development state
 
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
+
 ## 2026-10-15: #678 deferred WebP provenance guard
 
 `tools/build-delivery.cjs` now refuses deferred WebP declarations unless their file
