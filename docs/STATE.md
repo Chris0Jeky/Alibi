@@ -14,11 +14,11 @@ stay in browser storage and in the raw export.
 
 Changed: `src/storage.js` (new `legacyRunEntries()`), `src/app.js` (two call sites),
 `tests/storage-legacy-recovery.test.cjs` (local-mode banner count 7 to 4 for the same fixture;
-IndexedDB and session stay at 7; a settings-and-packs-only case per mode), `tests/browser_storage_readonly.py` (`app_empty_local` asserts the
+IndexedDB and session stay at 7; a settings-and-packs-only case in local and IndexedDB modes), `tests/browser_storage_readonly.py` (`app_empty_local` asserts the
 sentence and export-legacy button are absent after a setting reload). `tests/browser_origin.py`
 is unchanged (its IndexedDB scenario still counts 4).
 
-Run: the post-reload assertion failed before the fix at `browser_storage_readonly.py` line 286 and
+Run (rerun at the fix head after the #707 review): the post-reload assertion failed before the fix at `browser_storage_readonly.py` line 286 and
 passes after (66 emitted-app cases). `node --test tests/storage-legacy-recovery.test.cjs` passed
 19/19; `tests/storage*.test.cjs` and `tests/app-*.test.{cjs,mjs}` passed 112/112. Focused real-origin
 `ALIBI_ONLY=legacy_browser_recovery tests/browser_origin.py` passed 33/33 on a local server, prettier
