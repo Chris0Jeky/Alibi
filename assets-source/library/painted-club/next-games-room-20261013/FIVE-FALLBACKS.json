@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tic-tac-toe",
+    "source": "Existing deterministic club emblem; standalone named SVG group",
+    "sha256": "bf6718dcdc0b0cba1419f0caf687fd8d8fc275dc6b1c1c998d1aa36d9d64b8bf",
+    "bytes": 585
+  },
+  {
+    "id": "lantern-gardens",
+    "source": "Existing deterministic club emblem; standalone named SVG group",
+    "sha256": "957672db19ade3d3d012d7e46cd19edd724a1abeb89f4050a42a3f87c7301cb0",
+    "bytes": 455
+  },
+  {
+    "id": "block-cabinet",
+    "source": "Existing deterministic club emblem; standalone named SVG group",
+    "sha256": "25c94ae2d8dfd1cf74acdd69aa3a1bf06f2220d2e7e4b5ac1f1df1662375499f",
+    "bytes": 657
+  },
+  {
+    "id": "archive-heist",
+    "source": "Existing deterministic club emblem; standalone named SVG group",
+    "sha256": "7e6630b3f87148ce64fc45b507f943c1d6323b9744453285674630aba43f197e",
+    "bytes": 492
+  },
+  {
+    "id": "living-atlas",
+    "source": "Existing deterministic club emblem; standalone named SVG group",
+    "sha256": "7f6e27c20aeea7d7d0177cc702bd3db9e6939609761fea8ada9a45a04ae918d0",
+    "bytes": 497
+  }
+]
