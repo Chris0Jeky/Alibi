@@ -17,6 +17,7 @@ the survey or taps a rating. */
     SUBJECT = /^[a-z0-9][a-z0-9-]{0,63}$/,
     // The release pattern of Pulseboard product batches.
     RELEASE = /^[0-9A-Za-z.+-]{1,32}$/,
+    json = JSON.stringify,
     split = (s) => s.split(' '),
     KINDS = split('bug idea puzzle praise other'),
     ROUTES = split('home puzzle castle quiet-wing games settings other'),
@@ -67,8 +68,7 @@ the survey or taps a rating. */
       String(text ?? '')
         .replace(/[\0-\x08\x0b-\x1f\x7f-\x9f]/g, ' ')
         .trim(),
-    same = (a, b) =>
-      a.queued === b.queued && JSON.stringify(a.payload) === JSON.stringify(b.payload),
+    same = (a, b) => a.queued === b.queued && json(a.payload) === json(b.payload),
     // One key per queued item: a message's id, or a survey's survey and subject.
     tag = (x) => `${x.queued}:${x.payload.id || x.payload.survey + '/' + x.payload.subject}`;
   // Only a survey's own options, in registry order; unanswered questions are omitted.
@@ -113,7 +113,7 @@ the survey or taps a rating. */
       write = (key, value) => {
         try {
           if (value == null) storage.removeItem(key);
-          else storage.setItem(key, JSON.stringify(value));
+          else storage.setItem(key, json(value));
           return true;
         } catch {}
       },
@@ -208,7 +208,7 @@ the survey or taps a rating. */
         clean,
         pending: load,
         // The collector's terminal status for a payload sent this page, else undefined.
-        outcome: (payload) => outcomes.get(JSON.stringify(payload)),
+        outcome: (payload) => outcomes.get(json(payload)),
         notes: () => [read(NOTES) || []].flat().filter((x) => x?.what),
         dismissNotes: () => write(NOTES, null),
         clear: () => save([]),
@@ -240,21 +240,24 @@ the survey or taps a rating. */
           return key;
         },
         // Queued answers still carry the old key; sending them later would link it to the new one.
-        // Returns how many answers were removed, or false when the key could not be removed.
+        // Resolves to the removed count, or false if locking/key removal fails; no unlocked reset.
         // Messages carry no key and stay queued.
         resetRespondent() {
-          const list = load(),
-            kept = list.filter((x) => !x.payload.respondent);
-          if (kept.length < list.length) {
-            save(kept);
-            // A queue that cannot be rewritten is removed instead, so the old answers cannot
-            // reload; the kept messages stay for this page.
-            if (broken) write(QUEUE, null);
-          }
-          remembered = null;
-          if (!write(KEY, null)) return false;
-          write(REVISIONS, null);
-          return list.length - kept.length;
+          return locked((held) => {
+            if (!held) return false;
+            const list = load(),
+              kept = list.filter((x) => !x.payload.respondent);
+            if (kept.length < list.length) {
+              save(kept);
+              // A queue that cannot be rewritten is removed instead, so the old answers cannot
+              // reload; the kept messages stay for this page.
+              if (broken) write(QUEUE, null);
+            }
+            remembered = null;
+            if (!write(KEY, null)) return false;
+            write(REVISIONS, null);
+            return list.length - kept.length;
+          });
         },
         // Built when Send is pressed: null when the text is empty or a field is invalid.
         feedback({ kind, route, subject = '', text, release, device }) {
@@ -336,7 +339,7 @@ the survey or taps a rating. */
                 : x.payload.id !== payload.id,
             );
             if (list.length >= MAX) return false;
-            outcomes.delete(JSON.stringify(payload));
+            outcomes.delete(json(payload));
             list.push({ payload, attempts: 0, next: 0, queued: now() });
             save(list);
             return true;
@@ -376,7 +379,7 @@ the survey or taps a rating. */
                       {
                         method: survey ? 'PUT' : 'POST',
                         headers: { 'content-type': 'application/json' },
-                        body: JSON.stringify(item.payload),
+                        body: json(item.payload),
                         credentials: 'omit',
                         cache: 'no-store',
                         referrerPolicy: 'no-referrer',
@@ -392,7 +395,7 @@ the survey or taps a rating. */
                   const list = load(),
                     at = list.findIndex((x) => same(x, item));
                   if (terminal) {
-                    outcomes.set(JSON.stringify(item.payload), status);
+                    outcomes.set(json(item.payload), status);
                     if (outcomes.size > MAX) outcomes.delete(outcomes.keys().next().value);
                     if (at >= 0) list.splice(at, 1);
                     save(list);

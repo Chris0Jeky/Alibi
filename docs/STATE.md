@@ -7,6 +7,240 @@ allowing member-like prose and repeated names in separate objects. Stacked on #4
 (`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
 checked; full verify, browser and physical acceptance are not run. Owner actions remain
 in `HUMAN_TODO.md`.
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
+## 2026-10-16: source motion oracle refreshed onto the Games Room branch
+
+Merged the refreshed #654 branch, which already contains current main `77a6188f`. The only conflict was this log. The 14 October evidence below was not re-run in this refresh. #654 should merge before this PR.
+
+## 14 October 2026: source motion oracle and package scope
+
+Unassigned follow-ups #651/#652 are addressed on this source-only child branch. The decoded checker now retains every frame and requires repeated readable change in disjoint quarters. A real encoded black-first/frozen-rest regression reproduces the old maximum-difference false positive; both 4/24fps corrupt-first controls, genuine all-still, early-motion/frozen-rest and retained R1 are rejected by the temporal gate. Unchanged accepted Alibi and separately delivered LAS R2 clips pass. Six focused temporal tests and the committed eight-case encoded-control driver pass. Fresh review reproduced overlapping comparisons counting one flash per quarter repeatedly; the final checker requires two comparisons with distinct frame endpoints in each quarter. Single-frame and seven-frame per-quarter flashes are rejected. The seven-frame regression was also observed red; continuously moving steam/flame now need three readable adjacent-phase pairs in every quarter, at unchanged pixel thresholds. The final phase-coverage follow-up is causally tested after two fresh-review rounds, not independently re-reviewed. Numeric motion still does not establish artistic quality. The source README now describes only its actual Alibi entry and keeps LAS provenance separate. Static SVG, motion CSS/controller, historical receipts and accepted clips remain unchanged. Pre-commit full verify reached the expected clean-tree Android guard; complete verification then passed on committed first-fix62c2b975. Final phase-coverage follow-up verification and hosted gates remain to be recorded. No generation, runtime/budget/dependency change, merge/deploy or owner-choice closure.
+
+## 2026-10-16: Games Room fallback notes refreshed onto current main
+
+Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
+
+## Asset continuation batch — 13 October 2026
+
+Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
+## 2026-10-16: derivative hardening refreshed onto current main
+
+Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.
+
+## 2026-10-14: derivative hardening reconciled with current main (#662)
+
+Main 030d5812 already includes the basic #658 repair through #659; the issue is
+closed. This draft preserves that release history and its five existing source
+regressions. Its remaining scope is verified size/hash for every reproduction,
+staging all necessary repairs before replacement, untouched valid bytes/mtime
+and atomic output replacement. Main's refusal of symbolic, nonregular and
+hard-linked outputs is retained and rechecked immediately before replacement.
+The earlier draft's hard-link repair behavior is superseded by that stricter
+upstream policy; its preserved historical record is distinguished below.
+
+Current main 4c6c5a1f also carries publication receipts, retained verbatim.
+Current-main conflict is limited to the source generator and this additive
+state ledger. Both histories are retained. Nine additional real-Sharp causal
+regressions expose five current-main failures (valid-output timestamps, recorded
+byte-size mismatch and later reproduction mismatch after an earlier repair).
+Four existing refusal/master controls pass on main. All 17 combined checks
+pass: nine hardening cases, five unchanged upstream repair cases and three
+adjacent painting/catalogue cases. Full clean-source verify, independent review
+and hosted exact-head qualification remain separately recorded PR gates. Accepted paintings, manifests,
+runtime/content, dependencies and numerical ceilings have no diff from main.
+No pull request merge, deployment, media regeneration or new tutorial scope is authorized
+here; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+
+## 2026-10-14: historical derivative draft at 2ab45d38 (#662)
+
+The original source-only draft, before current-main reconciliation, could restore a missing or damaged runtime
+derivative after every master passes its existing byte-size/SHA256 fingerprint.
+Replacement bytes must reproduce the recorded manifest exactly. Valid outputs
+keep their bytes and timestamps; symlink outputs are refused and atomic
+replacement preserves an unrelated hard-link alias. Check mode still validates
+all 48 shelf files and reproduces all 32 derivatives without writing.
+
+Eight real-Sharp disposable-fixture regressions pass, including missing/corrupt
+outputs, missing/damaged later masters, reproduction mismatch, check-only refusal
+and both alias controls. The original generator fails six of these eight cases;
+the retained cleanup-only error is not counted as causal evidence. The adjacent
+painting/catalogue tests pass three cases, and the real shelf check passes 48/32.
+All accepted art, manifests, runtime integration and byte ceilings are unchanged.
+Complete clean-source verification and hosted qualification are separate PR
+gates. This maintenance source is not a release, deployment or new art/physical
+acceptance; existing [HUMAN_TODO.md](../HUMAN_TODO.md) decisions remain open.
+## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
+
+`tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
+`Content-Range: bytes */<size>`, matching its other 416 path and `tools/serve.cjs`
+(RFC 9110). Dev tooling only; no app or save behaviour changes. Proof:
+`node --test tests/serve-assets.test.cjs` (fails on the old code) and
+`tests/serve-gallery.test.cjs`.
+
+## 2026-10-16: cloud QA note refreshed onto current main
+
+The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
+
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
+## 2026-10-16: practice counts refreshed onto the content-identity branch
+
+Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
+
+`tests/castle-practice-deferred.test.cjs`: 7 pass. The browser lane in that note was not re-run. #459 should merge before this PR.
+
+## 2026-10-16: content identity refreshed onto current main
+
+Merged current main `77a6188f`. The House return guard remains: a desk render that finishes after the hash has already moved to play or salon no longer clears the captured return destination. See [return-link and evidence recovery](qa/2026-10-04-house-return-recovery.md). The 4 October source and browser counts in that note were not re-run for this refresh.
+
+The stored content revision stays the one current main writes: one hash of the initial source, a NUL, and the deferred source, shared by the web identity, the Android runtime identity, and the Android receipt. The artifact check still compares those Android content files with the current web build. An initial-only hash is not written back into the receipt.
+## 2026-10-16: Quiet Wing fallback quarantine candidate
+
+Malformed fallback JSON is copied byte-for-byte to recovery before the active
+key is removed, allowing a fresh save. An occupied recovery slot or failed
+recovery write preserves both records and keeps storage read-only. The occupied
+slot regression fails before the review correction. This candidate is not deployed. Physical
+acceptance remains open in `HUMAN_TODO.md`.
+
+## 2026-10-16: byte-accurate backup import limits
+
+The validation worker now measures UTF-8 bytes for Castle, combined, Cabinet and
+Club backup text, matching the existing Challenge and Quiet Wing checks. Limit
+values and validation rules are unchanged. Eight focused regressions pass; four
+oversize multibyte cases fail against the original worker. The full verify gate
+is run after committing because the Android payload requires a clean source tree.
+Hosted CI, browser integration and physical devices are not verified by this
+entry; owner acceptance remains in [HUMAN_TODO.md](../HUMAN_TODO.md).
+Residual risk: multibyte files previously admitted by character count can now be
+refused at the documented byte limit, before parsing or changing saves.
+## 2026-10-16: scene victim-room regression candidate
+
+Three source-engine tests pin the victim sharing a room with exactly one
+suspect, rejecting zero or two. No gameplay behavior changes. Physical
+acceptance and owner decisions remain open in `HUMAN_TODO.md`.
+
+## 2026-10-16: #606 read-only Cabinet capability and #620 recovery wording (PR #690)
+
+When IndexedDB is unavailable and Cabinet reads localStorage, the player save status and
+Settings say **Puzzle progress is read-only here; settings still save** before any edit.
+The shared label limits the warning to puzzle progress: local settings, preferences, drafts
+and packs remain writable. Settings mentions existing Cabinet saves only when legacy
+records exist and retains the instruction to export puzzle edits before reloading.
+The first refused run save still retains the edit for export and blocks further edits.
+A shared temporary-progress check makes notes, pause, completion and journal wording accurate
+in both local read-only and session modes, without duplicating their session strings.
+
+The older-browser-data warning retains the not-migrated wording for IndexedDB. In local mode
+it explains that Cabinet reads these saves as read-only; in session mode it explains that
+these records are not used by the session. Both describe the raw export's unreadable records.
+The explicit recovery action and failure/retry reporting remain. The export success notice
+confirms unchanged data without claiming that fallback records are separate saves.
+The catalogue's 13 `src/app.js` byte/hash receipts follow the changed source.
+
+One owner-requested fix round addresses F3/F4/F5 only. Before the fixes, the updated save-label
+unit assertion failed and the new empty-origin browser case reproduced the false existing-save
+claim. The focused storage/export/asset/completion/budget batch passes **135 tests**; formatting
+passes. Native Chromium `tests/browser_storage_readonly.py` passes **66 cases** at 390/1280px
+(previously 58), including no legacy records, a setting toggled through the UI and persisted
+across reload while progress remains read-only, temporary notes/pause/completion wording,
+valid/malformed string preservation, ordinary/raw exports, refused-edit export and reload.
+Pause and edit probes are separated by reload because pausing already attempts a run save.
+`tests/browser_ui.py` passes **187 checks**; real-origin `legacy_browser_recovery` passes **33**.
+Phone and desktop Player/Settings screenshots were inspected. Quiet Wing's separate
+engine/contract suites pass **581,856/43 assertions**.
+
+The direct full Node run (`node --test --test-concurrency=2 tests/*.test.cjs tests/*.test.mjs`)
+reports **1,598 pass, 7 fail, 3 skipped** (1,608 total). All seven failures are in
+`android-build.test.cjs` and report `Android builds require a clean source tree.`
+`npm.cmd test` stops at its clean-source artifact preflight. These are clean-source artifact
+gate limitations with the requested uncommitted edits, not a green full gate. No gate bypass.
+
+Same-toolchain web build before/after this review round: JavaScript gzip **134,431 -> 134,480
+bytes (+49)**, leaving **464 bytes** below the unchanged 134,944 ceiling; initial code/content
+gzip **201,704 -> 201,752 (+48)**; precached shell excluding official content **1,409,630 ->
+1,409,677 (+47)**; core offline **1,921,645 -> 1,921,692 (+47)**. All unchanged byte ceilings
+pass; deferred definitions remain **21,266 gzip bytes**, with **570 puzzles**. The emitted build
+is `4b5aedc1d01b` (sourceDirty true). No database, puzzle identity or ceiling changes.
+Evidence is local and ignored under `test-results/readonly-review-*` and
+`test-results/storage-readonly/`.
+
+No commit, push or deployment was performed. Hosted, clean-source Android payload and
+physical-device acceptance are not claimed. Owner actions remain in
+[HUMAN_TODO.md](../HUMAN_TODO.md); this copy/test round closes none of them.
+
+## 2026-10-16: #677 acknowledged-save allocation benchmark
+
+Added the reproducible, self-checking `node --expose-gc tools/bench-save.cjs` and
+[measurement report](qa/SAVE-CLONE-BENCHMARK.md). On Node v24.13.1 / i5-13600K,
+500 measured saves per strategy/profile compare the actual save path without ack,
+#617's JSON clone, structuredClone and an immutable JSON string. Synthetic profiles
+cover 10 edits, 100 undo with dense notes across 100 loaded saves, and the import
+stress bound of 3,000 loaded saves with one 100-undo/100-redo active row.
+
+The cost is material: heavy-row ack p95 falls **2.066 -> 0.886 ms** and retained ack
+heap **81.400 -> 15.858 MiB** with the string; ceiling ack p95 falls
+**3.507 -> 1.694 ms**. Total save median/p95: fresh **0.059/0.120 -> 0.076/0.138 ms**,
+heavy **5.669/8.767 -> 4.806/6.722 ms**, ceiling **10.258/13.547 -> 9.116/10.623 ms**.
+Small fresh timings are near the noise floor. No measured save exceeds 50 ms;
+ceiling saves over 16.67 ms fall from 4/500 to 0/500. These are Node duration
+proxies, not browser long-task entries. structuredClone is slower on the large rows.
+
+`acked` now stores immutable full-row JSON strings at all three setters; backup
+comparison retains full-row equality, including same-revision restores (#602).
+Both earlier ownership clones, persisted bytes, CAS and backup formats are unchanged.
+At an explicit, uncalibrated 6x low-end slowdown estimate, heavy/ceiling ack p95 is
+**5.316/10.164 ms (31.9%/61.0% of a 60 Hz frame)**. Both still exceed the proposed
+10% frame budget; physical Android performance and IndexedDB timing are unmeasured.
+
+Verification: new byte-equivalence/immutable-baseline tests fail before the change
+and pass after; persistence/storage selection **102 pass**; real-origin Chromium
+suite **599 checks pass**; web build and format check pass. Quiet Wing engines pass
+**581,856 assertions**, contracts **43**. Ordinary `npm test` refuses the required
+uncommitted state/missing Android artifacts. Its body run separately reports
+**1,599 tests: 1,583 pass, 3 skip, 13 fail**: twelve need Android artifacts or a clean
+Android source tree; the changed app hash caused one asset-catalogue failure, fixed
+by refreshing only its 13 app receipts (catalogue tests now **2 pass**).
+No whole-suite rerun is claimed after that metadata correction. Details and raw
+receipt location are in the report. No commit, push or deployment was performed.
+Owner actions remain in [HUMAN_TODO.md](../HUMAN_TODO.md); none are closed here.
+
+## 2026-10-16: #684 respondent reset under the revision lock (PR #685)
+
+`resetRespondent()` now runs entirely under the Web Lock shared with `survey()`, `enqueue()`
+and `flush()`, so a reset racing a submit in another tab can no longer erase the fresh
+respondent's revision counter (which made the next edit reuse revision 1 and get a 409).
+A rejected lock refuses the reset visibly and leaves storage untouched. After the awaited
+reset the sheet re-reads Voices state before clearing `rated`, so a preference changed in
+another tab during the wait is not overwritten. Behaviour-preserving trims keep the Voices
+chunk under its unchanged caps (20,480 raw, 9,216 gzip).
+
+Proof: three new Node regressions failed first (one produced revision 1 instead of 2);
+queue tests 44 -> 47, selected Node tests 73 -> 76, browser assertions 151 -> 159; `npm run
+verify` passed (1,597 pass, 0 fail) before the state re-read fix. Not verified: hosted
+collector and physical devices. Residual risk: raw Voices headroom is a few bytes.
+
+## 2026-10-16: #683 deferred WebP provenance must match the record's hash (PR #686)
+
+The #678 guard is strengthened: a deferred WebP in `content/asset-delivery.json` now needs one
+curation registry record whose file AND sha256 match the declaration and that carries rights
+(`rights.licence` or `source.rights`); a rights-less duplicate cannot satisfy it, and a matching
+record among duplicates is accepted. Derivative records under the policy's `src/curation-assets`
+root are reachable, matching where real derivatives live. Swapped bytes with an updated policy
+hash are refused because the record hash must match.
+
+Proof: six regressions failed first; the delivery, budget and official-deferred selection (21)
+passes; `npm run verify` passed (1,601 pass, 0 fail). `content/asset-delivery.json` `deferred` is
+empty, so current content is unaffected. Not verified: hosted and device acceptance.
 
 ## 2026-10-15: #678 deferred WebP provenance guard
 
