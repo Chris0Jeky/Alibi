@@ -1,5 +1,31 @@
 # Live development state
 
+## 2026-10-16: settings no longer counted as older browser saves (#691)
+
+Closes #691. The Settings sentence "Existing Cabinet saves can be read and exported" and the
+"N older browser record(s) found" banner now count only run-keyed localStorage entries
+(`alibi.v1.runs.*`). A local-mode user who has only toggled a setting (`meta.settings`) or has
+only packs no longer sees either. `legacySnapshot()` and `store.legacyInventory` are unchanged,
+so the raw "Export older browser data" file still lists every `alibi.v1.*` entry. Trade-off:
+non-run unknown keys (for example `alibi.v1.future.*`) are no longer counted or announced by the
+banner; they stay in browser storage and in the raw export.
+
+Changed: `src/storage.js` (new `legacyRunEntries()`), `src/app.js` (two call sites),
+`tests/storage-legacy-recovery.test.cjs` (banner counts 7 to 4 for the same fixture, plus a
+settings-and-packs-only case), `tests/browser_storage_readonly.py` (`app_empty_local` asserts the
+sentence and export-legacy button are absent after a setting reload), and
+`tests/browser_origin.py` (expected count 4 to 3; raw-export check unchanged).
+
+Run: the post-reload assertion failed before the fix at `browser_storage_readonly.py` line 286 and
+passes after (66 emitted-app cases). `node --test tests/storage-legacy-recovery.test.cjs` passed
+19/19; `tests/storage*.test.cjs` and `tests/app-*.test.{cjs,mjs}` passed 112/112. Focused real-origin
+`ALIBI_ONLY=legacy_browser_recovery tests/browser_origin.py` passed 33/33 on a local server, prettier
+`--check` passed on the changed JS files.
+
+Not run: `npm run verify`, the full `browser_origin.py` scenario set, the other browser scenarios,
+and any physical-phone check. The session-mode "boards and notes stay in this browser" wording
+(LOW, from the same #690 review) is not changed here.
+
 ## 2026-10-16: Games Room fallback notes refreshed onto current main
 
 Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
