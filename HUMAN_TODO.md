@@ -1,5 +1,7 @@
 # Owner decisions
 
+Recorded owner answer, 13 October 2026 at 16:27 UTC: "Looks good enough" accepts R2 motion for both projects. Accepted art/motion bytes stay unchanged. This answer does not close licensing, runtime deployment, physical-device or other existing choices.
+
 Limited provisional visual answer, 13 October 2026: after seeing the v2 LAS
 workshop and Alibi lantern PNG renders and responsive LAS card, Chris said “Yeah,
 I guess these are good enough for being SVGs.” This covers those displayed v2
