@@ -1,0 +1,62 @@
+name: Complete content identity
+on:
+  pull_request:
+    paths:
+      - 'tools/platform-identity.cjs'
+      - 'tools/build.cjs'
+      - 'tools/build-android.cjs'
+      - 'tools/check-android-artifact.cjs'
+      - 'tools/build-official-content.cjs'
+      - 'tests/content-manifest-*.test.cjs'
+      - 'tests/android-content-manifest.test.cjs'
+      - 'tests/android-build.test.cjs'
+      - 'tests/platform-build.test.cjs'
+      - '.github/workflows/content-identity.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: complete-content-identity-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Record exact source before validation
+        run: |
+          mkdir -p test-results/content-identity
+          git rev-parse HEAD > test-results/content-identity/source-head.txt
+      - run: npm run format:check
+      - run: npm run build:android
+      - name: Preserve actual emitted identity evidence
+        run: |
+          cp build-info.json test-results/content-identity/build-info.json
+          node - <<'JS'
+          const fs = require('node:fs');
+          const {readIdentity} = require('./tools/platform-identity.cjs');
+          const identities = Object.fromEntries(['dist','dist-android'].map(root => [root,readIdentity(root)]));
+          fs.writeFileSync('test-results/content-identity/identities.json',JSON.stringify(identities,null,2)+'\n');
+          JS
+      - name: Verify the existing Android audit and both platform contracts
+        run: |
+          set -o pipefail
+          npm run check:android 2>&1 | tee test-results/content-identity/android-audit.log
+          node --test tests/content-manifest-*.test.cjs tests/android-content-manifest.test.cjs tests/android-build.test.cjs tests/platform-build.test.cjs tests/dirty-paths.test.cjs tests/platform-identity.test.cjs tests/budget.test.cjs 2>&1 | tee test-results/content-identity/tests.log
+          git diff --exit-code
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: complete-content-identity
+          path: test-results/content-identity/
+          retention-days: 14
+          if-no-files-found: error
