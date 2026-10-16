@@ -1,5 +1,11 @@
 # Live development state
 
+## 2026-10-16: Voices sheet ignores corrupt local state
+
+`src/voices-sheet.js` now treats a stored Voices state that is not a plain object (`123`, `"x"`, `[]`, `null`) as the default `{ rated: {} }`, and a non-object `rated` as empty. Before, spreading a string wrote numeric keys such as `"0": "x"` back on the next save. A valid stored object is kept unchanged.
+
+`tests/voices-sheet-state.test.cjs`: 3 of 4 fail against the original file, 4 pass with the fix. After a web build, the five Voices suites pass 79 tests and formatting passes. The browser lane (`tests/browser_voices.py`) and the full verify gate were not run.
+
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
