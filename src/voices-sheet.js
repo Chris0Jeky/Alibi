@@ -27,16 +27,14 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
       online: () => G.navigator?.onLine !== false,
     }),
     taste = Q.SURVEYS['alibi-taste-1'],
+    object = (s) => (s && typeof s === 'object' && !Array.isArray(s) ? s : {}),
     // Local only: rating row switch, last ratings and answers, invitation snoozes.
     state = () => {
       let s;
       try {
         s = JSON.parse(G.localStorage.getItem(STATE));
       } catch {}
-      if (typeof s !== 'object' || s === null || Array.isArray(s)) return { rated: {} };
-      const rated =
-        typeof s.rated === 'object' && s.rated !== null && !Array.isArray(s.rated) ? s.rated : {};
-      return { ...s, rated: { ...rated } };
+      return { ...object(s), rated: object(s?.rated) };
     },
     save = (s) => {
       try {
@@ -104,8 +102,10 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     },
     chips = (type, id, options, picked, required) =>
       `<div class="chips">${options.map((v) => `<label><input class="sr-only" type="${type}" name="${id}" value="${v}" ${[picked].flat().includes(v) ? 'checked' : ''} ${required ? 'required' : ''}>${esc(name(v))}</label>`).join('')}</div>`,
+    close = (label = 'Close', style = 'secondary') =>
+      `<button type="button" class="btn ${style}" data-vo-close>${label}</button>`,
     actions = (send) =>
-      `<p class="vo-error" role="alert"></p><div class="dialog-actions"><button class="btn">${send}</button><button type="button" class="btn secondary" data-vo-close>Cancel</button></div>`,
+      `<p class="vo-error" role="alert"></p><div class="dialog-actions"><button class="btn">${send}</button>${close('Cancel')}</div>`,
     full = 'Twenty messages are waiting. Delete them in Settings or try later.',
     small = (n, what, act, label) =>
       n
@@ -205,7 +205,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (sheet.open)
       show(
         result === 3 ? 'Not sent.' : 'Thank you.',
-        `<p>${text}</p><div class="dialog-actions"><button type="button" class="btn solo" data-vo-close>Close</button></div>`,
+        `<p>${text}</p><div class="dialog-actions">${close('Close', 'solo')}</div>`,
       );
     else toast(text);
   }
@@ -220,7 +220,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     if (!A.eligible)
       return show(
         'Feedback.',
-        `<p>Sending feedback works on the main Alibi site, <a href="${V.origin}/" target="_blank" rel="noopener noreferrer">${esc(V.origin?.slice(8))}</a>. This copy sends nothing.</p><p>Export an issue report to share.</p><div class="dialog-actions"><button type="button" class="btn" data-action="feedback-report" data-vo-close>Create issue report</button><button type="button" class="btn secondary" data-vo-close>Close</button></div>`,
+        `<p>Sending feedback works on the main Alibi site, <a href="${V.origin}/" target="_blank" rel="noopener noreferrer">${esc(V.origin?.slice(8))}</a>. This copy sends nothing.</p><p>Export an issue report to share.</p><div class="dialog-actions"><button type="button" class="btn" data-action="feedback-report" data-vo-close>Create issue report</button>${close()}</div>`,
       );
     context = { kind, subject: subject || '', route: route() };
     show(
