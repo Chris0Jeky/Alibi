@@ -6,7 +6,14 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
   const dir = path.join(root, 'src/quiet-wing');
   const hash = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
   const read = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
-  const modelData = read('assets/city-models.json');
+  const readJson = (f) => {
+    try {
+      return JSON.stringify(JSON.parse(read(f)));
+    } catch (err) {
+      throw new Error(`Invalid JSON in quiet-wing ${f}: ${err.message}`);
+    }
+  };
+  const modelData = readJson('assets/city-models.json');
   const challengeData = require('./challenge-catalogue.cjs').load(root);
   const quietEngine = require(path.join(dir, 'engine.js'));
   const clubEngine = require(path.join(root, 'src/club-engines.js'));
@@ -19,7 +26,7 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
     ['club-engines.js', 'challenges.js', 'challenge-storage.js', 'challenge-launcher.js']
       .map((name) => fs.readFileSync(path.join(root, 'src', name), 'utf8'))
       .join('\n');
-  const libraryData = read('assets/library-models.json');
+  const libraryData = readJson('assets/library-models.json');
   const companionArt = Object.fromEntries(
     ['cat', 'fox', 'owl', 'dragon'].map((id) => [
       id,

@@ -283,6 +283,8 @@ def app_empty_local(browser, base, width, report):
         assert page.locator('#setting-contrast').is_checked()
         assert 'Puzzle progress is read-only here; settings still save' in storage.inner_text()
         assert page.evaluate('AlibiDiagnostics.getCounts().records') == 0
+        assert 'Existing Cabinet saves can be read and exported.' not in page.locator('#main').inner_text()
+        assert page.locator('[data-action="export-legacy"]').count() == 0
         report['cases'].append({'width': width, 'case': 'setting persists across reload while puzzle progress remains read-only'})
     finally:
         context.close()
