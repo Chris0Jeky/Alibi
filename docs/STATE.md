@@ -1,5 +1,10 @@
 # Live development state
 
+## 2026-10-16: Quiet Wing model JSON is parsed at build time
+
+`tools/build-quiet-pack.cjs` parses `src/quiet-wing/assets/city-models.json` and `library-models.json` and embeds them through `JSON.stringify`, so a malformed file fails the build with the file named, and well-formed JSON carrying script text is embedded as inert data instead of raw text in the bundle. The current files produce a byte-identical `dist/` (302 files hashed before and after).
+
+`tests/build-quiet-pack-json.test.cjs`: both tests fail against the original builder and pass with the fix. The Quiet Wing, city and realm suites pass 25 tests, the engine and contract scripts pass, and formatting passes. Browser lanes and the full verify gate were not run.
 ## 2026-10-17: research handoff pointers (#697)
 
 The 27 September research-to-delivery handoff is `docs/STATE-RESEARCH-HANDOFF-2026-09-27.md`, and the
