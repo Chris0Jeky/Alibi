@@ -1,0 +1,376 @@
+{
+  "format": "postern-case-1",
+  "id": "reading-room-blackout",
+  "revision": 1,
+  "title": "The Reading Room Blackout",
+  "intro": {
+    "storyOn": "The reading room has gone quiet. A folio is missing, a door bell failed, and the committee wants a name before supper. Review the records before writing the account. This is an original experimental case, separate from Wrenmere canon.",
+    "storyOff": "Use the records to classify claims as supported, contradicted or not established. Supported follows from the records; contradicted conflicts with them; not established has both possible and impossible examples. Choose the smallest sufficient source set. This is an experimental case."
+  },
+  "ending": {
+    "storyOn": "Your account fixes the removal window and explains why the silent bell proves so little. It does not name a culprit. Ari and Bea both had access; these records do not decide between them. The missing folio remains the next question, not a licence to accuse.",
+    "storyOff": "Established: the removal window, the disabled bell and who had access. Not established: which permitted person removed the folio or whether the side door opened. A complete exercise can end with an unresolved attribution."
+  },
+  "provenance": "Original fictional case authored for the owner-requested Postern research program, 27 September 2026. Not adapted from a historical incident or an existing game. Provisional teaching specimen, not human-calibrated or canonical Wrenmere content.",
+  "records": [
+    {
+      "id": "checks",
+      "title": "Two checks",
+      "kind": "observation",
+      "source": "Reading-room check sheet, fictional primary record.",
+      "at": "window",
+      "text": {
+        "storyOn": "At the instantaneous 18:02 check, the folio was on its stand. At the instantaneous 18:08 check, it was absent. The clocks used for both checks were synchronized.",
+        "storyOff": "At the instantaneous 18:02 check, the folio was on its stand. At the instantaneous 18:08 check, it was absent. The clocks used for both checks were synchronized."
+      }
+    },
+    {
+      "id": "model",
+      "title": "Scope of this exercise",
+      "kind": "model",
+      "source": "Explicit author model, not a witness statement.",
+      "at": "window",
+      "text": {
+        "storyOn": "For this small exercise, the folio was removed exactly once, without being returned, at a whole-minute mark strictly between the checks. Treat the supplied observations as accurate. This discrete model is not a claim that real investigations have minute-perfect knowledge.",
+        "storyOff": "For this small exercise, the folio was removed exactly once, without being returned, at a whole-minute mark strictly between the checks. Treat the supplied observations as accurate. This discrete model is not a claim that real investigations have minute-perfect knowledge."
+      }
+    },
+    {
+      "id": "bell-log",
+      "title": "A silent corridor",
+      "kind": "observation",
+      "source": "Caretaker hearing log, fictional primary record.",
+      "at": "alarm",
+      "text": {
+        "storyOn": "The caretaker heard no bell between the two checks. This record reports only what was heard, not whether the side door opened.",
+        "storyOff": "The caretaker heard no bell between the two checks. This record reports only what was heard, not whether the side door opened."
+      }
+    },
+    {
+      "id": "maintenance",
+      "title": "The disconnected bell",
+      "kind": "record",
+      "source": "Electrician work slip, fictional primary record.",
+      "at": "alarm",
+      "text": {
+        "storyOn": "The side-door bell was disconnected continuously from 18:03 through 18:07 inclusive. The door could still open. While disconnected, opening or closing it could not sound the bell.",
+        "storyOff": "The side-door bell was disconnected continuously from 18:03 through 18:07 inclusive. The door could still open. While disconnected, opening or closing it could not sound the bell."
+      }
+    },
+    {
+      "id": "admission",
+      "title": "Who could reach the stand",
+      "kind": "record",
+      "source": "Complete access roster for this fictional exercise.",
+      "at": "attribution",
+      "text": {
+        "storyOn": "Only Ari and Bea had access to the folio between the checks. Both could reach the stand during the entire interval. Cleo was elsewhere and had no access. Access does not establish that a person took anything.",
+        "storyOff": "Only Ari and Bea had access to the folio between the checks. Both could reach the stand during the entire interval. Cleo was elsewhere and had no access. Access does not establish that a person took anything."
+      }
+    },
+    {
+      "id": "custody",
+      "title": "One removal, two candidates",
+      "kind": "model",
+      "source": "Explicit author model, not an accusation.",
+      "at": "attribution",
+      "text": {
+        "storyOn": "The removal was performed by one person with access. There was no automated mechanism, accomplice or additional visitor. The available records contain no observation identifying which candidate performed it.",
+        "storyOff": "The removal was performed by one person with access. There was no automated mechanism, accomplice or additional visitor. The available records contain no observation identifying which candidate performed it."
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "window",
+      "title": "When was it taken?",
+      "prompt": {
+        "storyOn": "Classify each claim, then choose its smallest sufficient set of records. Do not select every source simply because it is visible.",
+        "storyOff": "Classify each claim, then choose its smallest sufficient set of records. Do not select every source simply because it is visible."
+      },
+      "requires": [],
+      "claims": [
+        {
+          "id": "bounded-window",
+          "text": {
+            "storyOn": "The removal happened after 18:02 and before 18:08.",
+            "storyOff": "The removal happened after 18:02 and before 18:08."
+          },
+          "answer": "supported",
+          "evidence": [
+            [
+              "checks",
+              "model"
+            ]
+          ]
+        },
+        {
+          "id": "exact-five",
+          "text": {
+            "storyOn": "The folio was removed at 18:05.",
+            "storyOff": "The folio was removed at 18:05."
+          },
+          "answer": "not-established",
+          "evidence": [
+            [
+              "checks",
+              "model"
+            ]
+          ]
+        },
+        {
+          "id": "before-two",
+          "text": {
+            "storyOn": "The folio was removed before 18:02.",
+            "storyOff": "The folio was removed before 18:02."
+          },
+          "answer": "contradicted",
+          "evidence": [
+            [
+              "checks",
+              "model"
+            ]
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "Start with the two observations, then read the stated model.",
+            "storyOff": "Start with the two observations, then read the stated model."
+          },
+          "records": [
+            "checks",
+            "model"
+          ]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "One check gives the earlier boundary; the other gives the later boundary. Neither reports the taking itself.",
+            "storyOff": "One check gives the earlier boundary; the other gives the later boundary. Neither reports the taking itself."
+          },
+          "records": [
+            "checks"
+          ]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "Compare more than one allowed minute. A claim is not established when it fits one allowed example but fails another.",
+            "storyOff": "Compare more than one allowed minute. A claim is not established when it fits one allowed example but fails another."
+          },
+          "records": [
+            "model"
+          ]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "The bounded-window claim is supported by Checks + Scope. Exact-five is not established: 18:04 and 18:05 are both allowed. Before-two is contradicted by the present folio at 18:02 and the one-removal model. Each claim uses Checks + Scope.",
+          "storyOff": "The bounded-window claim is supported by Checks + Scope. Exact-five is not established: 18:04 and 18:05 are both allowed. Before-two is contradicted by the present folio at 18:02 and the one-removal model. Each claim uses Checks + Scope."
+        },
+        "records": [
+          "checks",
+          "model"
+        ]
+      }
+    },
+    {
+      "id": "alarm",
+      "title": "What does silence tell you?",
+      "prompt": {
+        "storyOn": "A witness heard nothing. Decide what that does and does not establish.",
+        "storyOff": "A witness heard nothing. Decide what that does and does not establish."
+      },
+      "requires": [
+        "window"
+      ],
+      "claims": [
+        {
+          "id": "bell-silent",
+          "text": {
+            "storyOn": "No bell was heard between the checks.",
+            "storyOff": "No bell was heard between the checks."
+          },
+          "answer": "supported",
+          "evidence": [
+            [
+              "bell-log"
+            ]
+          ]
+        },
+        {
+          "id": "door-unused",
+          "text": {
+            "storyOn": "The side door did not open between the checks.",
+            "storyOff": "The side door did not open between the checks."
+          },
+          "answer": "not-established",
+          "evidence": [
+            [
+              "bell-log",
+              "maintenance"
+            ]
+          ]
+        },
+        {
+          "id": "bell-live",
+          "text": {
+            "storyOn": "The bell was connected at 18:05.",
+            "storyOff": "The bell was connected at 18:05."
+          },
+          "answer": "contradicted",
+          "evidence": [
+            [
+              "maintenance"
+            ]
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "Compare the hearing log with the work slip.",
+            "storyOff": "Compare the hearing log with the work slip."
+          },
+          "records": [
+            "bell-log",
+            "maintenance"
+          ]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "The log measures a sound. The work slip describes whether opening the door could produce that sound.",
+            "storyOff": "The log measures a sound. The work slip describes whether opening the door could produce that sound."
+          },
+          "records": [
+            "maintenance"
+          ]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "Try two examples: the door stayed shut, or it opened while the bell was disconnected. Can the hearing log distinguish them?",
+            "storyOff": "Try two examples: the door stayed shut, or it opened while the bell was disconnected. Can the hearing log distinguish them?"
+          },
+          "records": [
+            "bell-log",
+            "maintenance"
+          ]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "Bell-silent is supported by the hearing log. Door-unused is not established using the log + work slip: an opening while disconnected would also be silent. Bell-live is contradicted by the work slip, which includes 18:05.",
+          "storyOff": "Bell-silent is supported by the hearing log. Door-unused is not established using the log + work slip: an opening while disconnected would also be silent. Bell-live is contradicted by the work slip, which includes 18:05."
+        },
+        "records": [
+          "bell-log",
+          "maintenance"
+        ]
+      }
+    },
+    {
+      "id": "attribution",
+      "title": "Is there enough to name someone?",
+      "prompt": {
+        "storyOn": "Separate permission to enter from evidence that a person acted. The exercise may finish without identifying a culprit.",
+        "storyOff": "Separate permission to enter from evidence that a person acted. The exercise may finish without identifying a culprit."
+      },
+      "requires": [
+        "alarm"
+      ],
+      "claims": [
+        {
+          "id": "ari-took",
+          "text": {
+            "storyOn": "Ari removed the folio.",
+            "storyOff": "Ari removed the folio."
+          },
+          "answer": "not-established",
+          "evidence": [
+            [
+              "admission",
+              "custody"
+            ]
+          ]
+        },
+        {
+          "id": "cleo-took",
+          "text": {
+            "storyOn": "Cleo removed the folio.",
+            "storyOff": "Cleo removed the folio."
+          },
+          "answer": "contradicted",
+          "evidence": [
+            [
+              "admission",
+              "custody"
+            ]
+          ]
+        },
+        {
+          "id": "bea-access",
+          "text": {
+            "storyOn": "Bea had access to the folio during the interval.",
+            "storyOff": "Bea had access to the folio during the interval."
+          },
+          "answer": "supported",
+          "evidence": [
+            [
+              "admission"
+            ]
+          ]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "Read the roster and the model separately. Which one describes access, and which describes the action?",
+            "storyOff": "Read the roster and the model separately. Which one describes access, and which describes the action?"
+          },
+          "records": [
+            "admission",
+            "custody"
+          ]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "The roster is complete for this exercise, but it names two people with access.",
+            "storyOff": "The roster is complete for this exercise, but it names two people with access."
+          },
+          "records": [
+            "admission"
+          ]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "Construct an Ari example and a Bea example. Then test whether a Cleo example obeys the same access rule.",
+            "storyOff": "Construct an Ari example and a Bea example. Then test whether a Cleo example obeys the same access rule."
+          },
+          "records": [
+            "admission",
+            "custody"
+          ]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "Ari-took is not established: either Ari or Bea can be the actor under Roster + One removal. Cleo-took is contradicted by those two sources. Bea-access is directly supported by the roster alone. Do not turn a possible actor into an identified actor.",
+          "storyOff": "Ari-took is not established: either Ari or Bea can be the actor under Roster + One removal. Cleo-took is contradicted by those two sources. Bea-access is directly supported by the roster alone. Do not turn a possible actor into an identified actor."
+        },
+        "records": [
+          "admission",
+          "custody"
+        ]
+      }
+    }
+  ]
+}

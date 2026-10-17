@@ -41,7 +41,6 @@ class Handler(SimpleHTTPRequestHandler):
 def snapshot(page):
     value = page.evaluate('()=>AlibiDiagnostics.getPracticeSnapshot()')
     assert value['available'], value
-    assert value['rooms']['observatory']['completed'] == 1, value['rooms']['observatory']
     assert len(value['rooms']) == 13
     return value['rooms']['observatory']
 
@@ -101,6 +100,8 @@ def scenario(browser, base, width, puzzle, report):
         assert held, 'the real deferred script request must be pending'
         assert page.evaluate('ALIBI_DEFERRED.ready') is False
         pending = snapshot(page)
+        # Saved completions for deferred definitions are a lower bound until they validate.
+        assert pending['completed'] == 0 and pending['pending'] is True, pending
         assert stored(page, original['key']) == original
         report['cases'].append({'width': width, 'phase': 'pending', 'room': pending})
         for route in held:
@@ -117,16 +118,18 @@ def scenario(browser, base, width, puzzle, report):
         page.evaluate('async()=>await ALIBI_DEFERRED.ensure()')
         assert page.evaluate('ALIBI_DEFERRED.ready') is True
         loaded = snapshot(page)
-        assert loaded == pending
+        # Exact counts return after validated loading; the starters and save are unchanged.
+        assert loaded['completed'] == 1 and loaded['pending'] is False, loaded
+        assert loaded['starters'] == pending['starters'] and loaded['detail'] == pending['detail'], loaded
         assert stored(page, original['key']) == original
         report['cases'].append({'width': width, 'phase': 'loaded', 'room': loaded})
         # The same app-owned snapshot survives a new page after definitions load.
         page.reload(wait_until='domcontentloaded')
         page.wait_for_function('()=>!!globalThis.AlibiDiagnostics?.getPracticeSnapshot')
         page.evaluate('async()=>await ALIBI_DEFERRED.ensure()')
-        assert snapshot(page) == pending
+        assert snapshot(page) == loaded
         assert stored(page, original['key']) == original
-        report['cases'].append({'width': width, 'phase': 'reload', 'room': pending})
+        report['cases'].append({'width': width, 'phase': 'reload', 'room': loaded})
     finally:
         context.close()
 

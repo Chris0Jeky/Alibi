@@ -10,7 +10,7 @@ self.onmessage = (e) => {
       }
     };
     if (m.type === 'castle-backup') {
-      if (typeof m.text !== 'string' || m.text.length > 512 * 1024)
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 512 * 1024)
         throw Error('Castle backup exceeds the 512 KiB import limit.');
       value = AlibiCastleValidation.validateBackup(parse(m.text));
     } else if (m.type === 'challenge-run') {
@@ -21,7 +21,7 @@ self.onmessage = (e) => {
         club: AlibiClubEngines,
       }).validateRun(parse(m.text));
     } else if (m.type === 'combined-backup') {
-      if (typeof m.text !== 'string' || m.text.length > 20 * 1024 * 1024)
+      if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 20 * 1024 * 1024)
         throw Error('Combined backup exceeds the 20 MB import limit.');
       const data = parse(m.text);
       const manifest = data?.manifest,
@@ -75,13 +75,13 @@ self.onmessage = (e) => {
         },
       };
     } else if (m.type === 'cabinet-backup') {
-      if (typeof m.text === 'string' && m.text.length > 16 * 1024 * 1024)
+      if (typeof m.text === 'string' && new TextEncoder().encode(m.text).length > 16 * 1024 * 1024)
         throw Error('Backup exceeds the 16 MB safety limit.');
       value = AlibiBackupValidation(AlibiCore, ALIBI_CATALOG).validateBackup(
         m.text ? parse(m.text) : m.value,
       );
     } else if (m.type === 'club-backup') {
-      if (typeof m.text === 'string' && m.text.length > 1 * 1024 * 1024)
+      if (typeof m.text === 'string' && new TextEncoder().encode(m.text).length > 1 * 1024 * 1024)
         throw Error('Club backup exceeds the import limit.');
       value = AlibiBackupValidation(AlibiCore, null, () => AlibiClubEngines, 4).validateSave(
         m.text ? parse(m.text) : m.value,
