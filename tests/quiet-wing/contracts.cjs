@@ -154,10 +154,7 @@ function fakeIDB() {
     'Single-tab no-lock saves persist and advance the revision',
   );
   await assert.rejects(unguardedB.s.write(noLockStates[1]), /another tab|changed|export/i);
-  ok(
-    unguarded.getItem(key) === noLockCommitted,
-    'Stale no-lock writer preserves exact save bytes',
-  );
+  ok(unguarded.getItem(key) === noLockCommitted, 'Stale no-lock writer preserves exact save bytes');
   const noLockDrift = JSON.parse(noLockCommitted);
   noLockDrift.schema = 999;
   const noLockFuture = JSON.stringify(noLockDrift);
