@@ -1,0 +1,64 @@
+/* Native-only overrides at the existing inset owners. The shared PWA CSS stays unchanged.
+   Keep zero-inset geometry equivalent to it; browser_native_insets.py guards that contract. */
+html[data-alibi-target='android'] [data-action='install'],
+html[data-alibi-target='android'] [data-action='check-update'],
+html[data-alibi-target='android'] .settings-grid > .panel:has([data-action='install']) {
+  display: none !important;
+}
+
+@media (max-width: 800px) {
+  /* Add only the dock's native growth outside the existing padding cascade.
+     House has its own dock; ID-specific Block and important Zen rules keep zero
+     outer margin while the ordinary mobile dock is hidden. */
+  html[data-alibi-target='android'] body:not([data-house='true']) .main {
+    margin-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  }
+  html[data-alibi-target='android'] body:not([data-house='true']) .toast-container {
+    bottom: calc(83px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+  html[data-alibi-target='android'] .mobile-nav {
+    padding-bottom: calc(9px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    height: calc(65px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+}
+@media (max-width: 768px) {
+  html[data-alibi-target='android'] dialog.quick-sheet {
+    padding-bottom: calc(23px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+}
+@media (max-width: 760px) {
+  html[data-alibi-target='android'] body.block-motion-active .bc-studio {
+    padding-top: max(10px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    padding-bottom: max(10px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+  html[data-alibi-target='android'] body.block-motion-active .bc-controls {
+    bottom: max(8px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  }
+}
+@media (min-width: 600px) and (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  html[data-alibi-target='android'] body.block-motion-active .bc-studio {
+    padding-top: max(10px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    padding-right: max(12px, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+    padding-bottom: max(10px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    padding-left: max(12px, var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
+  }
+}
+html[data-alibi-target='android'] .hx-experience {
+  padding-bottom: calc(84px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
+@media (min-width: 761px), (max-height: 480px) and (max-width: 760px) {
+  html[data-alibi-target='android'] .hx-experience {
+    padding-bottom: 0;
+  }
+}
+html[data-alibi-target='android'] .hx-mobile {
+  padding-right: max(6px, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  padding-bottom: calc(8px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  padding-left: max(6px, var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
+}
+html[data-alibi-target='android'] #dialog.hx-sheet {
+  padding-bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
+html[data-alibi-target='android'] body[data-house='true'] .toast-container {
+  bottom: calc(92px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
