@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "evidence": "manually-reviewed-metadata-repair",
+  "reviewSourceSha": "539a0a8e509d758f421b126b5f6dcc464a4907a7",
+  "existingGitBlob": "aa58f817f15e5b7dbd20d4e5219f1c9272064829",
+  "appliedGitBlob": "e183f62061b9bffc512ce69eaecdaaabd007214d",
+  "beforeSha256": "f104aa9b18ef575cf97b76541943093c53f6b5dd12df16297d4b34b33886adad",
+  "afterSha256": "aa12c80d3baf0c65e251b7391e75b1e76c4e9bf1b292dd666d3bfff1e9a89b95",
+  "beforeBytes": 176838,
+  "afterBytes": 177437,
+  "patchSha256": "8f3c9607d3ca3ea5ca6033bfb16a6ecbce95b8928c86f290aa057a8e6895ca87",
+  "oldComponents": 391,
+  "newComponents": 392,
+  "canonicalMetadataUpdated": true,
+  "nativeBuildPassed": false
+}
