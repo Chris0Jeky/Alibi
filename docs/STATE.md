@@ -1,5 +1,9 @@
 # Live development state
 
+## 2026-10-17: Club and Quiet Wing fallback saves resist cross-tab lost updates (#596, #714)
+
+Fallback (non-IndexedDB) saves now write under an exclusive Web Lock when the API exists, and always only if the stored bytes are unchanged since this tab last read or wrote; without Web Locks they still save under that compare, so single-tab players keep saving. A detected concurrent change preserves the stored data and surfaces export. Verified: 37 storage/club/quiet-wing node tests and hosted CI. Not verified: real multi-tab browsers and devices. Residual risk: without Web Locks the compare-and-write is not atomic across tabs; follow-ups in #715. Existing owner actions remain in `HUMAN_TODO.md`.
+
 ## 2026-10-17: budget suite runs as node:test subtests (#519 complete)
 
 `tests/budget.test.cjs` was the last bare-assert suite named in #519; it now runs as 14 awaited serial `node:test` subtests with all 27 assertion call sites unchanged in arguments and order, so #519 is complete. Verified: node --check, assertion parity check, disposable-fixture run (15 pass) and hosted CI. Not verified locally: the suite against a real build (needs `dist/`). Residual risk: none expected; behaviour-preserving. Existing owner actions remain in `HUMAN_TODO.md`.
