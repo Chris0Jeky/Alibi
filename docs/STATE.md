@@ -6,6 +6,126 @@
 
 `tests/build-experience-traversal.test.cjs`: the traversal test fails against the original builder and both tests pass with the fix. The web build succeeds with the real catalogues, the experience and service-worker suites pass 15 tests, and formatting passes. Browser lanes and the full verify gate were not run.
 
+## 2026-10-16: six playable escape rooms and the offline anthology player (PR #481)
+
+Stacked on #480 (landed). Six original rooms (Tidekeeper's Workshop, Printmaker's Cabinet, Moonseed
+Conservatory, Herbarium Lift, Counterweight Loft, Clockmaker's Rehearsal) play in one self-contained
+offline HTML built by a dependency-free Node builder; see `docs/escape-rooms/ANTHOLOGY.md` and
+`ANTHOLOGY-PLAN.md`. Progress, drafts and notes are memory-only: refreshing or closing clears them,
+and the page says so. No production route, save store or Cabinet behaviour changes.
+
+Verified on the PR head before this refresh (run 36339248604): 93 focused source tests, 18 offline-file
+room/viewport scenarios, formatting and full `npm run verify` (844 Node tests); all 648 reachable model
+states keep a completion path. Not done: independent editorial approval, human playtesting,
+physical-device and screen-reader acceptance, difficulty calibration and semantic spoiler review of
+hints. The other six research treatments stay open (#466, #472-#474); #467/#47, #442 and #433 own
+spatial inspection, durable saves and optional delivery.
+
+## 2026-10-16: release symlink exception candidate
+
+Release preparation now requires each failed test's own detail to show the
+Windows symlink EPERM refusal. An unrelated EPERM line can no longer excuse an
+assertion failure. The six release-prepare tests pass; the new false-positive
+case fails against the previous helper. Actual Node spec-reporter output also
+confirms a host refusal is accepted only for Windows. `npm run verify` passed at
+`11bc2fbe`: formatting, Android build, 1,647 Node tests with three skips, and
+581,856 + 43 Quiet Wing assertions. Codex and fresh-context independent review
+reported no blockers. Current main was merged again for gate qualification. No release or
+deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. Stacked on #444
+(`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
+checked; full verify, browser and physical acceptance are not run. Owner actions remain
+in `HUMAN_TODO.md`.
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
+## 2026-10-16: source motion oracle refreshed onto the Games Room branch
+
+Merged the refreshed #654 branch, which already contains current main `77a6188f`. The only conflict was this log. The 14 October evidence below was not re-run in this refresh. #654 should merge before this PR.
+
+## 14 October 2026: source motion oracle and package scope
+
+Unassigned follow-ups #651/#652 are addressed on this source-only child branch. The decoded checker now retains every frame and requires repeated readable change in disjoint quarters. A real encoded black-first/frozen-rest regression reproduces the old maximum-difference false positive; both 4/24fps corrupt-first controls, genuine all-still, early-motion/frozen-rest and retained R1 are rejected by the temporal gate. Unchanged accepted Alibi and separately delivered LAS R2 clips pass. Six focused temporal tests and the committed eight-case encoded-control driver pass. Fresh review reproduced overlapping comparisons counting one flash per quarter repeatedly; the final checker requires two comparisons with distinct frame endpoints in each quarter. Single-frame and seven-frame per-quarter flashes are rejected. The seven-frame regression was also observed red; continuously moving steam/flame now need three readable adjacent-phase pairs in every quarter, at unchanged pixel thresholds. The final phase-coverage follow-up is causally tested after two fresh-review rounds, not independently re-reviewed. Numeric motion still does not establish artistic quality. The source README now describes only its actual Alibi entry and keeps LAS provenance separate. Static SVG, motion CSS/controller, historical receipts and accepted clips remain unchanged. Pre-commit full verify reached the expected clean-tree Android guard; complete verification then passed on committed first-fix62c2b975. Final phase-coverage follow-up verification and hosted gates remain to be recorded. No generation, runtime/budget/dependency change, merge/deploy or owner-choice closure.
+
+## 2026-10-16: Games Room fallback notes refreshed onto current main
+
+Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
+
+## Asset continuation batch — 13 October 2026
+
+Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
+
+## 2026-10-16: derivative hardening refreshed onto current main
+
+Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.
+
+## 2026-10-14: derivative hardening reconciled with current main (#662)
+
+Main 030d5812 already includes the basic #658 repair through #659; the issue is
+closed. This draft preserves that release history and its five existing source
+regressions. Its remaining scope is verified size/hash for every reproduction,
+staging all necessary repairs before replacement, untouched valid bytes/mtime
+and atomic output replacement. Main's refusal of symbolic, nonregular and
+hard-linked outputs is retained and rechecked immediately before replacement.
+The earlier draft's hard-link repair behavior is superseded by that stricter
+upstream policy; its preserved historical record is distinguished below.
+
+Current main 4c6c5a1f also carries publication receipts, retained verbatim.
+Current-main conflict is limited to the source generator and this additive
+state ledger. Both histories are retained. Nine additional real-Sharp causal
+regressions expose five current-main failures (valid-output timestamps, recorded
+byte-size mismatch and later reproduction mismatch after an earlier repair).
+Four existing refusal/master controls pass on main. All 17 combined checks
+pass: nine hardening cases, five unchanged upstream repair cases and three
+adjacent painting/catalogue cases. Full clean-source verify, independent review
+and hosted exact-head qualification remain separately recorded PR gates. Accepted paintings, manifests,
+runtime/content, dependencies and numerical ceilings have no diff from main.
+No pull request merge, deployment, media regeneration or new tutorial scope is authorized
+here; [HUMAN_TODO.md](../HUMAN_TODO.md) remains open.
+
+
+## 2026-10-14: historical derivative draft at 2ab45d38 (#662)
+
+The original source-only draft, before current-main reconciliation, could restore a missing or damaged runtime
+derivative after every master passes its existing byte-size/SHA256 fingerprint.
+Replacement bytes must reproduce the recorded manifest exactly. Valid outputs
+keep their bytes and timestamps; symlink outputs are refused and atomic
+replacement preserves an unrelated hard-link alias. Check mode still validates
+all 48 shelf files and reproduces all 32 derivatives without writing.
+
+Eight real-Sharp disposable-fixture regressions pass, including missing/corrupt
+outputs, missing/damaged later masters, reproduction mismatch, check-only refusal
+and both alias controls. The original generator fails six of these eight cases;
+the retained cleanup-only error is not counted as causal evidence. The adjacent
+painting/catalogue tests pass three cases, and the real shelf check passes 48/32.
+All accepted art, manifests, runtime integration and byte ceilings are unchanged.
+Complete clean-source verification and hosted qualification are separate PR
+gates. This maintenance source is not a release, deployment or new art/physical
+acceptance; existing [HUMAN_TODO.md](../HUMAN_TODO.md) decisions remain open.
+## 2026-10-16: asset gallery server sends Content-Range on malformed-Range 416 (PR #694)
+
+`tools/serve-assets.cjs` now answers a malformed `Range` header with 416 plus
+`Content-Range: bytes */<size>`, matching its other 416 path and `tools/serve.cjs`
+(RFC 9110). Dev tooling only; no app or save behaviour changes. Proof:
+`node --test tests/serve-assets.test.cjs` (fails on the old code) and
+`tests/serve-gallery.test.cjs`.
+
+## 2026-10-16: cloud QA note refreshed onto current main
+
+The 1 October evidence file is unchanged. Merging current main conflicted only in this log, and the September swarm ledger that used to follow this note is already carried by later history rather than pasted over the October entries.
+
+## Cloud QA evidence: 1 October 2026
+
+See [the bounded cloud session](qa/2026-10-01/CLOUD-SESSION.md): exact-main local
+verify passed; standalone browser execution was environment-blocked. Separate hosted
+search, bridge undo/redo, reload, notes and cancel flows were observed. No deployment
+or physical-device acceptance is implied.
 ## 2026-10-16: practice counts refreshed onto the content-identity branch
 
 Merged refreshed #459 `f0ed6512`, which already contains current main `77a6188f`. The practice disclosure is unchanged: a saved completion whose official definition is still deferred marks only that family's count incomplete, and the panel says "At least". See [Practice progress while definitions are deferred](gameplay/PRACTICE-DEFERRED-COUNTS.md).
