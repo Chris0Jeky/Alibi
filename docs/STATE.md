@@ -28,6 +28,53 @@ Not run: `npm run verify`, the full `browser_origin.py` scenario set, the other 
 and any physical-phone check. The session-mode "boards and notes stay in this browser" wording
 (LOW, from the same #690 review) is not changed here.
 
+## 2026-10-16: six playable escape rooms and the offline anthology player (PR #481)
+
+Stacked on #480 (landed). Six original rooms (Tidekeeper's Workshop, Printmaker's Cabinet, Moonseed
+Conservatory, Herbarium Lift, Counterweight Loft, Clockmaker's Rehearsal) play in one self-contained
+offline HTML built by a dependency-free Node builder; see `docs/escape-rooms/ANTHOLOGY.md` and
+`ANTHOLOGY-PLAN.md`. Progress, drafts and notes are memory-only: refreshing or closing clears them,
+and the page says so. No production route, save store or Cabinet behaviour changes.
+
+Verified on the PR head before this refresh (run 36339248604): 93 focused source tests, 18 offline-file
+room/viewport scenarios, formatting and full `npm run verify` (844 Node tests); all 648 reachable model
+states keep a completion path. Not done: independent editorial approval, human playtesting,
+physical-device and screen-reader acceptance, difficulty calibration and semantic spoiler review of
+hints. The other six research treatments stay open (#466, #472-#474); #467/#47, #442 and #433 own
+spatial inspection, durable saves and optional delivery.
+
+## 2026-10-16: release symlink exception candidate
+
+Release preparation now requires each failed test's own detail to show the
+Windows symlink EPERM refusal. An unrelated EPERM line can no longer excuse an
+assertion failure. The six release-prepare tests pass; the new false-positive
+case fails against the previous helper. Actual Node spec-reporter output also
+confirms a host refusal is accepted only for Windows. `npm run verify` passed at
+`11bc2fbe`: formatting, Android build, 1,647 Node tests with three skips, and
+581,856 + 43 Quiet Wing assertions. Codex and fresh-context independent review
+reported no blockers. Current main was merged again for gate qualification. No release or
+deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. Stacked on #444
+(`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
+checked; full verify, browser and physical acceptance are not run. Owner actions remain
+in `HUMAN_TODO.md`.
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
+## 2026-10-16: source motion oracle refreshed onto the Games Room branch
+
+Merged the refreshed #654 branch, which already contains current main `77a6188f`. The only conflict was this log. The 14 October evidence below was not re-run in this refresh. #654 should merge before this PR.
+
+## 14 October 2026: source motion oracle and package scope
+
+Unassigned follow-ups #651/#652 are addressed on this source-only child branch. The decoded checker now retains every frame and requires repeated readable change in disjoint quarters. A real encoded black-first/frozen-rest regression reproduces the old maximum-difference false positive; both 4/24fps corrupt-first controls, genuine all-still, early-motion/frozen-rest and retained R1 are rejected by the temporal gate. Unchanged accepted Alibi and separately delivered LAS R2 clips pass. Six focused temporal tests and the committed eight-case encoded-control driver pass. Fresh review reproduced overlapping comparisons counting one flash per quarter repeatedly; the final checker requires two comparisons with distinct frame endpoints in each quarter. Single-frame and seven-frame per-quarter flashes are rejected. The seven-frame regression was also observed red; continuously moving steam/flame now need three readable adjacent-phase pairs in every quarter, at unchanged pixel thresholds. The final phase-coverage follow-up is causally tested after two fresh-review rounds, not independently re-reviewed. Numeric motion still does not establish artistic quality. The source README now describes only its actual Alibi entry and keeps LAS provenance separate. Static SVG, motion CSS/controller, historical receipts and accepted clips remain unchanged. Pre-commit full verify reached the expected clean-tree Android guard; complete verification then passed on committed first-fix62c2b975. Final phase-coverage follow-up verification and hosted gates remain to be recorded. No generation, runtime/budget/dependency change, merge/deploy or owner-choice closure.
+
 ## 2026-10-16: Games Room fallback notes refreshed onto current main
 
 Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 October headings had been split across later entries. Those later entries are restored from main. What this branch still adds, compared with main, is five Games Room SVG fallbacks, the archived over-budget eight-painting measurement under `assets-source/library/painted-club/next-games-room-20261013/`, and the recorded 13 October R2 motion sentence in `HUMAN_TODO.md`.
@@ -35,6 +82,7 @@ Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 Oct
 ## Asset continuation batch — 13 October 2026
 
 Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
+
 ## 2026-10-16: derivative hardening refreshed onto current main
 
 Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.

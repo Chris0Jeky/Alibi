@@ -1,0 +1,43 @@
+{
+  "scope": "author-self-review; not human calibration",
+  "date": "2026-09-27",
+  "modelScope": "declared finite transitions only; source hash is not a semantic proof",
+  "rooms": [
+    {
+      "id": "tidekeeper-workshop",
+      "revision": 1,
+      "sourceSha256": "41fd251127336c3fcef3ed0ab8e8a8297157e9e93a8219eae6ccf77aaa77f7b7",
+      "derivation": "Enumerated all 24 launch orders independently; shared gauge offset follows both calibration pairs. Handle recovery and both lead orders tested."
+    },
+    {
+      "id": "printmaker-cabinet",
+      "revision": 1,
+      "sourceSha256": "26431be541039faf2ffc99f645b62d9dcae516e0f6f4632f1ecb99488951a8aa",
+      "derivation": "Enumerated job orders, reversed the fictional plate text, then sorted independently supplied route distances. Printed record survives later press changes."
+    },
+    {
+      "id": "moonseed-conservatory",
+      "revision": 1,
+      "sourceSha256": "97e81b3f01dc4abab1129217d021ce913c0f092bc3852ac447ca104fbdfb8f3f",
+      "derivation": "Enumerated all eight shutter-mask combinations using symmetric difference. Prism removal hides light observations without losing shutter state. Editorial follow-up changes only the three action labels from Closed to Close; rules and clue text are unchanged."
+    },
+    {
+      "id": "herbarium-lift",
+      "revision": 1,
+      "sourceSha256": "0c72f75fd3195d043d5e86414a382d2c9bf741347fd081a13e4a8d716d924197",
+      "derivation": "Solved all three mass equations over positive bounded integers and sorted accession years. Equal total with only one occupied bracket is deliberately insufficient."
+    },
+    {
+      "id": "counterweight-loft",
+      "revision": 1,
+      "sourceSha256": "3628feee1753a502a2f2a201fc13f50973a94fad6cd920c954373cb27627c48c",
+      "derivation": "Enumerated all sixteen weight partitions with the fixed left unit. Latched support remains after removal of weights; one movable tool has one location."
+    },
+    {
+      "id": "clockmaker-rehearsal",
+      "revision": 1,
+      "sourceSha256": "50a20129263fcaa47e5fd2fc05d6b5a9e3192a5cca89ffbd12b1d964b531d8bd",
+      "derivation": "Enumerated all turns in the disclosed 0..59 interval, with a 0..119 counterexample to interval-free uniqueness. Spring removal safely releases tension."
+    }
+  ]
+}
