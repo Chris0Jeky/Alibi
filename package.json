@@ -44,9 +44,7 @@
     "wrangler": "4.146.0"
   },
   "overrides": {
-    "miniflare@5.20260907.0-alpha": {
-      "sharp": "0.35.4"
-    },
+    "sharp": "$sharp",
     "xcode": {
       "uuid": "11.1.1"
     }
