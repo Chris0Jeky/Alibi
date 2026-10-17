@@ -115,6 +115,7 @@ test('continue uses a pinned definition and deterministic timestamp order', () =
 });
 test('first play avoids already completed introductory content', () => {
   assert.equal(M.firstPuzzle(fixtures, []).id, 'binary-01');
+  assert.equal(M.firstPuzzle([fixtures[2], fixtures[0]], []).id, 'binary-01');
   assert.equal(
     M.firstPuzzle(fixtures, [record(fixtures[0], { completedAt: 'once' })]).id,
     'bridge',
