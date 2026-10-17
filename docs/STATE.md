@@ -11,6 +11,26 @@ confirms a host refusal is accepted only for Windows. `npm run verify` passed at
 581,856 + 43 Quiet Wing assertions. Codex and fresh-context independent review
 reported no blockers. Current main was merged again for gate qualification. No release or
 deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. Stacked on #444
+(`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
+checked; full verify, browser and physical acceptance are not run. Owner actions remain
+in `HUMAN_TODO.md`.
+## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
+
+The escape-room foundation adds the bounded room-state contract and exhaustive
+softlock diagnostics; details, test evidence and remaining CI gates are in
+`docs/escape-rooms/README.md`. The playable rooms and anthology player stack on
+it in PR #481. No existing puzzle, save or Cabinet behaviour changes.
+## 2026-10-16: source motion oracle refreshed onto the Games Room branch
+
+Merged the refreshed #654 branch, which already contains current main `77a6188f`. The only conflict was this log. The 14 October evidence below was not re-run in this refresh. #654 should merge before this PR.
+
+## 14 October 2026: source motion oracle and package scope
+
+Unassigned follow-ups #651/#652 are addressed on this source-only child branch. The decoded checker now retains every frame and requires repeated readable change in disjoint quarters. A real encoded black-first/frozen-rest regression reproduces the old maximum-difference false positive; both 4/24fps corrupt-first controls, genuine all-still, early-motion/frozen-rest and retained R1 are rejected by the temporal gate. Unchanged accepted Alibi and separately delivered LAS R2 clips pass. Six focused temporal tests and the committed eight-case encoded-control driver pass. Fresh review reproduced overlapping comparisons counting one flash per quarter repeatedly; the final checker requires two comparisons with distinct frame endpoints in each quarter. Single-frame and seven-frame per-quarter flashes are rejected. The seven-frame regression was also observed red; continuously moving steam/flame now need three readable adjacent-phase pairs in every quarter, at unchanged pixel thresholds. The final phase-coverage follow-up is causally tested after two fresh-review rounds, not independently re-reviewed. Numeric motion still does not establish artistic quality. The source README now describes only its actual Alibi entry and keeps LAS provenance separate. Static SVG, motion CSS/controller, historical receipts and accepted clips remain unchanged. Pre-commit full verify reached the expected clean-tree Android guard; complete verification then passed on committed first-fix62c2b975. Final phase-coverage follow-up verification and hosted gates remain to be recorded. No generation, runtime/budget/dependency change, merge/deploy or owner-choice closure.
 
 ## 2026-10-16: Games Room fallback notes refreshed onto current main
 
