@@ -367,6 +367,31 @@ test('rejects invalid JSON and non-string input', () => {
   assert.throws(() => parseCase('{'), /JSON/);
   assert.throws(() => parseCase(null), /text/);
 });
+test('rejects duplicate top-level JSON members before validation', () => {
+  const source = JSON.stringify(fixture()).replace('"revision":1', '"revision":0,"revision":1');
+  assert.throws(() => parseCase(source), {
+    name: 'TypeError',
+    message: 'source: duplicate JSON member "revision"',
+  });
+});
+test('rejects nested and escape-equivalent JSON member names', () => {
+  const source = JSON.stringify(fixture());
+  for (const key of ['answer', String.raw`answ\u0065r`]) {
+    const duplicate = source.replace(
+      '"answer":"supported"',
+      `"${key}":"contradicted","answer":"supported"`,
+    );
+    assert.throws(() => parseCase(duplicate), {
+      name: 'TypeError',
+      message: 'source: duplicate JSON member "answer"',
+    });
+  }
+});
+test('ignores member-like prose and allows the same member in separate objects', () => {
+  const definition = fixture();
+  definition.intro.storyOn = String.raw`{"answer":"a","answer":"b"} \\ " [{}]`;
+  assert.deepEqual(parseCase(JSON.stringify(definition)).definition, definition);
+});
 test('bounded regular-file reader rejects oversized and invalid UTF-8 files', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-case-'));
   try {

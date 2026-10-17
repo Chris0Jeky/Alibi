@@ -189,6 +189,21 @@ function parseCase(source) {
   } catch {
     fail('source', 'invalid JSON');
   }
+  // Syntax is already checked; consume whole strings so prose cannot become structural tokens.
+  const objects = [];
+  for (const token of source.matchAll(/"(?:[^"\\]|\\.)*"|[{}\[\]]/g)) {
+    const value = token[0];
+    if (value === '{' || value === '[') {
+      objects.push(value === '{' ? new Set() : null);
+    } else if (value === '}' || value === ']') {
+      objects.pop();
+    } else if (/^\s*:/.test(source.slice(token.index + value.length))) {
+      const key = JSON.parse(value);
+      const keys = objects.at(-1);
+      if (keys.has(key)) fail('source', `duplicate JSON member ${JSON.stringify(key)}`);
+      keys.add(key);
+    }
+  }
   const report = validateCase(definition);
   return {
     definition,
