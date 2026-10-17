@@ -1,5 +1,9 @@
 # Live development state
 
+## 2026-10-17: budget suite runs as node:test subtests (#519 complete)
+
+`tests/budget.test.cjs` was the last bare-assert suite named in #519; it now runs as 14 awaited serial `node:test` subtests with all 27 assertion call sites unchanged in arguments and order, so #519 is complete. Verified: node --check, assertion parity check, disposable-fixture run (15 pass) and hosted CI. Not verified locally: the suite against a real build (needs `dist/`). Residual risk: none expected; behaviour-preserving. Existing owner actions remain in `HUMAN_TODO.md`.
+
 ## 2026-10-16: experience build refuses asset paths outside the library
 
 `tools/build-experience.cjs` now refuses, before reading, any catalogue derivative that resolves outside `assets-source/library/`, so a path such as `assets-source/library/../../file.glb` or a root-relative `package.glb` can no longer publish outside bytes into `dist/assets`. The check compares real paths, so a symlink or junction inside the library that resolves outside it is refused too (review of #710).
