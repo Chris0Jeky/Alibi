@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 
 require('../src/core.js');
 const C = require('../src/engines.js');
@@ -41,6 +42,7 @@ async function clubTab(localStorage) {
     },
     JSON,
     localStorage,
+    navigator: { locks: fakeLocks() },
     location: { hash: '' },
     Math,
     Number,

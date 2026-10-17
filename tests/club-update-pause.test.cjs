@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 
 const root = path.resolve(__dirname, '..');
 
@@ -11,6 +12,7 @@ function memStore() {
   const data = new Map();
   return {
     data,
+    locks: fakeLocks(),
     getItem: (k) => (data.has(k) ? data.get(k) : null),
     setItem: (k, v) => data.set(k, String(v)),
     removeItem: (k) => data.delete(k),
@@ -31,6 +33,7 @@ async function makeTab(storage) {
     setTimeout,
     clearTimeout,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     location: { hash: '', href: 'http://localhost/' },
     ALIBI_CLUB_CONFIG: { engineSource: '/* stub engine */' },
     Blob: class {

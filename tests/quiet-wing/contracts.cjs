@@ -4,6 +4,7 @@ const fs = require('node:fs'),
   assert = require('node:assert/strict');
 const E = require('../../src/quiet-wing/engine.js'),
   code = fs.readFileSync(require.resolve('../../src/quiet-wing/storage.js'), 'utf8');
+const { fakeLocks } = require('../helpers/fallback-locks.cjs');
 let checks = 0;
 const ok = (b, msg) => {
   assert.ok(b, msg);
@@ -13,6 +14,7 @@ function local() {
   const m = new Map();
   return {
     m,
+    locks: fakeLocks(),
     getItem: (k) => m.get(k) || null,
     setItem: (k, v) => m.set(k, String(v)),
     removeItem: (k) => m.delete(k),
@@ -32,6 +34,7 @@ function env(storage, indexedDB) {
     clearTimeout,
     QWEngine: E,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     indexedDB,
   };
   c.window = c;
@@ -123,6 +126,106 @@ function fakeIDB() {
   };
 }
 (async () => {
+  const key = 'alibi-quiet-wing-v1:fallback',
+    unguarded = local(),
+    original = JSON.stringify(E.newState(Date.now()));
+  unguarded.setItem(key, original);
+  unguarded.setItem(key + ':recovery', 'legacy recovery bytes');
+  unguarded.locks = undefined;
+  const unguardedA = env(unguarded),
+    unguardedB = env(unguarded);
+  const noLockStates = [];
+  for (const tab of [unguardedA, unguardedB]) {
+    const opened = await tab.s.open();
+    ok(
+      opened.saved.scene.name === JSON.parse(original).scene.name,
+      'No-lock fallback remains readable',
+    );
+    ok(!opened.blocked, 'Fallback without Web Locks remains writable');
+    noLockStates.push(opened.saved);
+  }
+  noLockStates[0].scene.name = 'No-lock writer';
+  await unguardedA.s.write(noLockStates[0]);
+  await unguardedA.s.write(noLockStates[0]);
+  const noLockCommitted = unguarded.getItem(key);
+  ok(
+    JSON.parse(noLockCommitted).scene.name === 'No-lock writer' &&
+      JSON.parse(noLockCommitted).revision === 2,
+    'Single-tab no-lock saves persist and advance the revision',
+  );
+  await assert.rejects(unguardedB.s.write(noLockStates[1]), /another tab|changed|export/i);
+  ok(unguarded.getItem(key) === noLockCommitted, 'Stale no-lock writer preserves exact save bytes');
+  const noLockDrift = JSON.parse(noLockCommitted);
+  noLockDrift.schema = 999;
+  const noLockFuture = JSON.stringify(noLockDrift);
+  unguarded.setItem(key, noLockFuture);
+  await assert.rejects(unguardedA.s.write(noLockStates[0]), /another tab|changed|export/i);
+  ok(unguarded.getItem(key) === noLockFuture, 'No-lock same-revision drift preserves exact bytes');
+  ok(
+    (await unguardedA.s.raw()).recovery === 'legacy recovery bytes',
+    'No-lock raw recovery stays exportable',
+  );
+  ok(
+    unguardedA.statuses.some((s) => /export/i.test(s.text)),
+    'No-lock status directs the player to export',
+  );
+
+  const guarded = local(),
+    guardedTab = env(guarded);
+  await guardedTab.s.open();
+  await guardedTab.s.write(E.newState(Date.now()));
+  const committed = guarded.getItem(key);
+  let release;
+  const held = guarded.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+  await assert.rejects(guardedTab.s.write(E.newState(Date.now())), /another tab|export/i);
+  ok(guarded.getItem(key) === committed, 'Held lock refuses a concurrent fallback write');
+  release();
+  await held;
+  const restarted = env(guarded),
+    loaded = await restarted.s.open();
+  await restarted.s.write(loaded.saved);
+  const drift = JSON.parse(guarded.getItem(key));
+  drift.schema = 999;
+  const futureBytes = JSON.stringify(drift);
+  guarded.setItem(key, futureBytes);
+  await assert.rejects(restarted.s.write(loaded.saved), /another tab|changed|export/i);
+  ok(guarded.getItem(key) === futureBytes, 'Same-revision format drift preserves exact bytes');
+
+  const concurrent = local(),
+    baseline = E.newState(Date.now());
+  concurrent.setItem(key, JSON.stringify(baseline));
+  const firstTab = env(concurrent),
+    secondTab = env(concurrent);
+  const firstState = (await firstTab.s.open()).saved;
+  const secondState = (await secondTab.s.open()).saved;
+  firstState.scene.name = 'First context';
+  secondState.scene.name = 'Second context';
+  const writes = await Promise.allSettled([
+    firstTab.s.write(firstState),
+    secondTab.s.write(secondState),
+  ]);
+  ok(
+    writes.filter((r) => r.status === 'fulfilled').length === 1,
+    'Shared-lock same-revision writes admit at most one context',
+  );
+  const winner = writes[0].status === 'fulfilled' ? firstState : secondState;
+  ok(
+    JSON.parse(concurrent.getItem(key)).scene.name === winner.scene.name,
+    'Reopening retains the successful context, never the refused context',
+  );
+  ok(
+    (await env(concurrent).s.open()).saved.scene.name === winner.scene.name,
+    'A restarted context reads the winner',
+  );
+
   const stalledFallback = local();
   const stalled = env(stalledFallback, {
     open() {

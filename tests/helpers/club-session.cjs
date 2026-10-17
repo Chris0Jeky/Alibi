@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { fakeLocks } = require('./fallback-locks.cjs');
 const root = path.resolve(__dirname, '../..');
 const copy = (x) => JSON.parse(JSON.stringify(x));
 const fresh = () => ({
@@ -64,6 +65,7 @@ async function session(data = fresh(), raw = null, options = {}) {
     URL: TestURL,
     URLSearchParams,
     location: { hash: '', href: 'https://example.test/' },
+    navigator: { locks: fakeLocks() },
     localStorage: {
       getItem: (key) => {
         if (options.unavailable) throw Error('Storage unavailable');
