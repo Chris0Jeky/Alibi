@@ -1,5 +1,12 @@
 # Live development state
 
+## 2026-10-17: research handoff pointers (#697)
+
+The 27 September research-to-delivery handoff is `docs/STATE-RESEARCH-HANDOFF-2026-09-27.md`, and the
+30 September local-first delta is `docs/research/PLATFORM-LOCALFIRST-SCAVENGE-2026-09-30.md` (landed in
+#457 and #500). Neither schedules work. The scavenge's ADR-PLF-06..08 are untracked proposals, now marked
+so in that file. No code or behaviour changes.
+
 ## 2026-10-16: Reading Room Blackout evidence-case workbench (PR #458)
 
 An experimental, unregistered evidence-case specimen built on #444's authoring contract: case content,

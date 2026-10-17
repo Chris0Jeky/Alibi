@@ -5,6 +5,8 @@
 **Baseline:** `/workspace/handoffs/platform-localfirst-scavenge-2026-09-23/` (merged PRs Taskdeck #3396 · Alibi #281 · action-stack #18)  
 **Fences:** No second Action Stack · no product rewrites · no UX QA · no design-system · never auto-merge
 
+> **Provenance (2026-10-17, #697):** the box pack and baseline paths above are machine-local and not tracked in this repository, and ADR-PLF-06, -07 and -08 have no tracked ADR files. Read them as research proposals, not accepted decisions, until the ADRs and acceptance material are committed.
+
 ## Spoken TLDR
 
 Seven days after the inaugural pack: the sync category converged on **server-authoritative writes + read-path sync** (Electric / Zero / TanStack). Steal that ethics language — not the runtimes. Add a **field-strategy registry** (LWW / Field-Union / manual_review; never LWW-overwrite CRDT-shaped fields) and **offline spectrum honesty** (warm reads ≠ durable offline writes). Prior steals still stand: LWW/revision-guarded single-writer, outbox ethics, capture→review→mutation, sync-ethics checklist, weekly offline dogfood. Action Stack #10 remains the live Notion gate.
