@@ -1,10 +1,11 @@
 /* Isolated version-1 save store. Every wait is bounded; timed-out transactions are aborted.
- * IndexedDB CAS is transactional. localStorage fallback is explicitly single-tab only. */
+ * IndexedDB CAS is transactional. localStorage compares bytes, with Web Locks when available. */
 (function (G) {
   'use strict';
   let db = null,
     mode = 'session',
     revision = 0,
+    fallbackBytes = null,
     queue = Promise.resolve(),
     blocked = false,
     onstatus = () => {};
@@ -12,6 +13,13 @@
     KEY = 'state',
     FALLBACK = NAME + ':fallback',
     DEADLINE = 2200;
+  function fallbackLock(work) {
+    if (!G.navigator?.locks?.request) return work();
+    return G.navigator.locks.request(FALLBACK, { ifAvailable: true }, (lock) => {
+      if (!lock) throw Error('Another tab is using this save. Export, then reload.');
+      return work();
+    });
+  }
   function connect(version = 1) {
     return new Promise((resolve, reject) => {
       let settled = false,
@@ -100,6 +108,7 @@
     if (db) db.close();
     blocked = false;
     revision = 0;
+    fallbackBytes = null;
     try {
       db = await connect();
       db.onversionchange = () => {
@@ -134,24 +143,34 @@
           s.get(KEY).onsuccess = (e) => set(e.target.result);
         });
       } else if (mode === 'local') {
-        const existing = localStorage.getItem(FALLBACK);
-        if (existing !== null) {
-          try {
-            raw = JSON.parse(existing);
-          } catch (parseError) {
+        const read = () => {
+          const existing = localStorage.getItem(FALLBACK);
+          fallbackBytes = existing;
+          if (existing !== null) {
             try {
-              if (localStorage.getItem(FALLBACK + ':recovery') !== null) throw parseError;
-              localStorage.setItem(FALLBACK + ':recovery', existing);
-            } catch {
-              throw parseError;
+              raw = JSON.parse(existing);
+            } catch (parseError) {
+              try {
+                if (
+                  localStorage.getItem(FALLBACK + ':recovery') !== null ||
+                  localStorage.getItem(FALLBACK) !== existing
+                )
+                  throw parseError;
+                localStorage.setItem(FALLBACK + ':recovery', existing);
+              } catch {
+                throw parseError;
+              }
+              if (localStorage.getItem(FALLBACK) !== existing) throw parseError;
+              localStorage.removeItem(FALLBACK);
+              fallbackBytes = null;
+              revision = 0;
+              return;
             }
-            localStorage.removeItem(FALLBACK);
-            revision = 0;
-            return { saved: null, mode, blocked: false };
+          } else {
+            raw = null;
           }
-        } else {
-          raw = null;
-        }
+        };
+        await fallbackLock(read);
       }
       if (raw) {
         saved = validate(raw);
@@ -280,18 +299,23 @@
             };
           });
         } else {
-          let current = null;
-          try {
-            current = JSON.parse(localStorage.getItem(FALLBACK) || 'null');
-          } catch {
-            throw Error('The saved record could not be read and was preserved.');
-          }
-          if ((current?.revision || 0) !== revision) {
-            blocked = true;
-            throw Error('Another tab changed this save.');
-          }
-          if (recovery) localStorage.setItem(FALLBACK + ':recovery', JSON.stringify(current));
-          localStorage.setItem(FALLBACK, JSON.stringify(data));
+          await fallbackLock(() => {
+            const existing = localStorage.getItem(FALLBACK);
+            let current = null;
+            try {
+              current = JSON.parse(existing || 'null');
+            } catch {
+              throw Error('The saved record could not be read and was preserved.');
+            }
+            if (existing !== fallbackBytes || (current?.revision || 0) !== revision) {
+              blocked = true;
+              throw Error('Another tab changed this save.');
+            }
+            if (recovery) localStorage.setItem(FALLBACK + ':recovery', JSON.stringify(current));
+            const next = JSON.stringify(data);
+            localStorage.setItem(FALLBACK, next);
+            fallbackBytes = next;
+          });
         }
         revision = data.revision;
         state.revision = revision;

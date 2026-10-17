@@ -5,10 +5,12 @@ const { test } = require('node:test'),
   vm = require('node:vm'),
   path = require('node:path');
 const E = require('../src/quiet-wing/engine.js');
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 
 function installLocalStorageStub(initial = {}) {
   const m = new Map(Object.entries(initial));
   const storage = {
+    locks: fakeLocks(),
     getItem: (k) => (m.has(k) ? m.get(k) : null),
     setItem: (k, v) => {
       m.set(k, String(v));
@@ -34,6 +36,7 @@ function loadStore(storage) {
     clearTimeout,
     QWEngine: E,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     indexedDB: undefined,
   };
   ctx.window = ctx;
@@ -42,6 +45,69 @@ function loadStore(storage) {
   vm.runInContext(code, ctx);
   return ctx.QWStore;
 }
+
+test('fallback quarantine without Web Locks preserves recovery and resumes writes', async () => {
+  const key = 'alibi-quiet-wing-v1:fallback';
+  const storage = installLocalStorageStub({ [key]: '{legacy' });
+  storage.locks = undefined;
+  const store = loadStore(storage);
+  assert.equal((await store.open()).blocked, false);
+  assert.equal(storage.getItem(key), null);
+  assert.equal(storage.getItem(key + ':recovery'), '{legacy');
+  const next = E.newState(1700000000000);
+  next.scene.name = 'No-lock recovery';
+  await store.write(next);
+  assert.equal(JSON.parse(storage.getItem(key)).scene.name, 'No-lock recovery');
+  assert.equal(storage.getItem(key + ':recovery'), '{legacy');
+});
+
+test('fallback quarantine without Web Locks preserves a concurrent change', async () => {
+  const key = 'alibi-quiet-wing-v1:fallback';
+  const newer = JSON.stringify(E.newState(1700000000000));
+  for (const phase of ['before recovery', 'after recovery']) {
+    const storage = installLocalStorageStub({ [key]: '{legacy' });
+    storage.locks = undefined;
+    const getItem = storage.getItem,
+      setItem = storage.setItem;
+    storage.getItem = (name) => {
+      if (phase === 'before recovery' && name === key + ':recovery') setItem(key, newer);
+      return getItem(name);
+    };
+    storage.setItem = (name, value) => {
+      setItem(name, value);
+      if (phase === 'after recovery' && name === key + ':recovery') setItem(key, newer);
+    };
+    const store = loadStore(storage);
+    assert.equal((await store.open()).blocked, true, phase);
+    assert.ok(getItem(key) === newer, phase);
+    assert.equal(getItem(key + ':recovery'), phase === 'after recovery' ? '{legacy' : null);
+    await assert.rejects(store.write(E.newState(1700000000000)), /read-only/);
+  }
+});
+
+test('fallback quarantine preserves recovery across second-tab lock contention', async () => {
+  const key = 'alibi-quiet-wing-v1:fallback';
+  const storage = installLocalStorageStub({ [key]: '{legacy' });
+  let release;
+  const held = storage.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+  const secondTab = loadStore(storage);
+  assert.equal((await secondTab.open()).blocked, true);
+  assert.equal(storage.getItem(key), '{legacy');
+  assert.equal(storage.getItem(key + ':recovery'), null);
+  release();
+  await held;
+  assert.equal((await loadStore(storage).open()).blocked, false);
+  assert.equal(storage.getItem(key), null);
+  assert.equal(storage.getItem(key + ':recovery'), '{legacy');
+});
 
 test('corrupt fallback is quarantined and writes resume', async () => {
   const storage = installLocalStorageStub({

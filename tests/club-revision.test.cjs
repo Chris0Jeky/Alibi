@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 
 const root = path.resolve(__dirname, '..');
 
@@ -11,6 +12,7 @@ function storage() {
   const data = new Map();
   return {
     data,
+    locks: fakeLocks(),
     getItem: (key) => data.get(key) || null,
     setItem: (key, value) => data.set(key, String(value)),
     removeItem: (key) => data.delete(key),
@@ -31,6 +33,7 @@ async function tab(localStorage) {
     },
     JSON,
     localStorage,
+    navigator: { locks: localStorage.locks },
     location: { hash: '' },
     Math,
     Number,
