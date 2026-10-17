@@ -15,6 +15,24 @@ physical-device and screen-reader acceptance, difficulty calibration and semanti
 hints. The other six research treatments stay open (#466, #472-#474); #467/#47, #442 and #433 own
 spatial inspection, durable saves and optional delivery.
 
+## 2026-10-16: release symlink exception candidate
+
+Release preparation now requires each failed test's own detail to show the
+Windows symlink EPERM refusal. An unrelated EPERM line can no longer excuse an
+assertion failure. The six release-prepare tests pass; the new false-positive
+case fails against the previous helper. Actual Node spec-reporter output also
+confirms a host refusal is accepted only for Windows. `npm run verify` passed at
+`11bc2fbe`: formatting, Android build, 1,647 Node tests with three skips, and
+581,856 + 43 Quiet Wing assertions. Codex and fresh-context independent review
+reported no blockers. Current main was merged again for gate qualification. No release or
+deployment was performed; physical acceptance remains open in HUMAN_TODO.md.
+## 2026-10-16: reject duplicate case JSON members (#698)
+
+Case-authoring rejects duplicate decoded member names at every object depth, while
+allowing member-like prose and repeated names in separate objects. Stacked on #444
+(`feat/case-workbench`), which adds the loader. Focused Node tests and formatting are
+checked; full verify, browser and physical acceptance are not run. Owner actions remain
+in `HUMAN_TODO.md`.
 ## 2026-10-16: escape-room state contract and softlock diagnostics (PR #480)
 
 The escape-room foundation adds the bounded room-state contract and exhaustive
@@ -36,6 +54,7 @@ Merged origin/main `77a6188f`. Conflicts were only in this log, where the 13 Oct
 ## Asset continuation batch — 13 October 2026
 
 Five existing Games Room paintings now have standalone deterministic SVG fallbacks and a source-only comparison. The prospective eight-painting candidate passed 16 focused delivery cases and 15 actual-browser checks, but its 206,354-byte startup payload fails the unchanged strict 205,248-byte cap. Its exact patch/measurements are archived and the five-entry runtime extension was retired. Current-main baseline: 204,209; existing three paintings: 205,152. See assets-source/library/painted-club/next-games-room-20261013/README.md. Accepted R2 art/motion remains byte-identical; no merge/deploy or owner-choice closure.
+
 ## 2026-10-16: derivative hardening refreshed onto current main
 
 Merged origin/main `77a6188f`. The only conflict was this log. On this head, `node --test tests/painted-derivative-repair.test.cjs` passed 8 cases. The symlink refusal case did not run: Windows returned `EPERM` while the test was creating its fixture link, before the generator ran. That case remains for hosted CI. The 14 October counts below were measured against older main revisions.
