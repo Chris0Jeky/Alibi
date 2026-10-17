@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tic-tac-toe",
+    "painting_sha256": "9a5cb92af91a3e3c6c6024ca9041090127c84bd8a1a3e3afd92a66e03ce9a198",
+    "painting_bytes": 24358,
+    "svg_sha256": "bf6718dcdc0b0cba1419f0caf687fd8d8fc275dc6b1c1c998d1aa36d9d64b8bf"
+  },
+  {
+    "id": "lantern-gardens",
+    "painting_sha256": "f14b8598574307873b3b0a22ac303f1580d531dd9712013a291b53fcb35eb741",
+    "painting_bytes": 27824,
+    "svg_sha256": "957672db19ade3d3d012d7e46cd19edd724a1abeb89f4050a42a3f87c7301cb0"
+  },
+  {
+    "id": "block-cabinet",
+    "painting_sha256": "4394d91ba9f029d1c8cf6de7180d81c1d28bba21469bb97566c55cf719c67eed",
+    "painting_bytes": 19124,
+    "svg_sha256": "25c94ae2d8dfd1cf74acdd69aa3a1bf06f2220d2e7e4b5ac1f1df1662375499f"
+  },
+  {
+    "id": "archive-heist",
+    "painting_sha256": "bcf8b482b78b507213c0db1ba46b0db94f502d02a6016bfdce1fc17b6c0d414f",
+    "painting_bytes": 23946,
+    "svg_sha256": "7e6630b3f87148ce64fc45b507f943c1d6323b9744453285674630aba43f197e"
+  },
+  {
+    "id": "living-atlas",
+    "painting_sha256": "b8b296031508a9c5d48c06045a5d57c657d3e1ecd90160a7e1b081bfa58c336c",
+    "painting_bytes": 27270,
+    "svg_sha256": "7f6e27c20aeea7d7d0177cc702bd3db9e6939609761fea8ada9a45a04ae918d0"
+  }
+]
