@@ -1,5 +1,31 @@
 # Live development state
 
+## 2026-10-16: escape-room research refreshed onto current main
+
+This branch remains the documentation portfolio for program #460. Merging the
+refreshed Postern base conflicted only in this log: the September handoff had
+been inserted into the middle of the 15 October source-preview entry. That
+entry is restored from current main. The September handoff is retained below,
+unchanged, and the research documents under `docs/research/ESCAPE-ROOMS-2026-09/`
+are the portfolio. Implementation stays on #480 and #481.
+
+## Escape-room extension: 27 September 2026
+
+[Program #460](https://github.com/Chris0Jeky/Alibi/issues/460) adds a dedicated escape-room research and delivery direction. Read the [escape-room portfolio](research/ESCAPE-ROOMS-2026-09/README.md), its [twelve original treatments](research/ESCAPE-ROOMS-2026-09/ROOMS.md), [quality gates](research/ESCAPE-ROOMS-2026-09/QUALITY.md) and [fifteen-issue map](research/ESCAPE-ROOMS-2026-09/BACKLOG.md). The earlier research handoff above is preserved unchanged. These treatments are not new shipped rooms or canonical Wrenmere chapters.
+
+A separate local foundation for #464/#465 has 52 passing new tests and a six-test existing Castle-object baseline. It validates finite room states, separates action availability from mechanism success, and detects reachable states that cannot finish, even when another route wins. Code publication was blocked before GitHub execution; the retained implementation is not represented as a published code PR. No full build/formatter/browser or independent-review pass is claimed. Ten example deductions in the treatment document were independently checked, not complete room implementations.
+
+Next: review/publish the retained foundation through an authorized functioning workflow; finish #466's actual room sources and player UI; then integrate through #467/#47 and #442, with optional delivery under #433. Preserve existing saves, revisions, origins and byte ceilings. Do not substitute this finite-model evidence for clue fairness, current-head CI, physical-device accessibility or human difficulty calibration.
+
+## Published escape implementation: 27 September 2026, continuation
+
+This entry supersedes the earlier publication blocker, without deleting that historical handoff. [PR #480](https://github.com/Chris0Jeky/Alibi/pull/480) now publishes the recovered finite-state foundation on inspected live main `ba8c888`; [PR #481](https://github.com/Chris0Jeky/Alibi/pull/481), stacked on #480, implements six original rooms and a shared standalone player. Foundation head `f579317`; anthology formatting follow-up `2846aaff`. Both remain drafts, not merged or deployed. The earlier research PR #478 remains documentation-only and is still stacked on #457.
+
+Implemented room sources: Tidekeeper's Workshop, Printmaker's Cabinet, Moonseed Conservatory, Herbarium Lift, Counterweight Loft and Clockmaker's Rehearsal. The first pair advances #466; the next four are partial delivery of #472/#473/#474, not completion of those batches. The other six treatments remain unimplemented. The player supports native object/action controls, room switching, scratch notes, retained drafts, 64-step undo, deliberate current-room restart, staged hints, explicit whole-room solutions and story/light presentation modes. All player state is memory-only; refresh or close resets it, as disclosed in the UI.
+
+Evidence: 93 source tests passed; every one of 648 reachable states across the declared models retains a winning path, with 5745 successful-or-no-op edges. Independent graph enumeration and clue derivations are source-bound. On anthology head `03e9e85`, workflow 36338803310 passed all 18 actual offline-file room/viewport scenarios and hostile-text checks before failing source formatting. Its artifact and source head were verified. Formatter output was applied as `2846aaff`; 93 tests and 18 DOM-only controls passed again locally. Fresh file/full application CI for that newer head is still required; earlier-head results are not final-head acceptance.
+
+The foundation's dedicated workflow and numbered-import checks passed on `f579317`; consult the current PR for the broader cabinet result. No independent code/editorial review, human calibration or physical-device acceptance has occurred. No new save owner, production route, content registration, dependency or byte-ceiling change. Existing #467/#47, #442 and #433 still own spatial, durable-save and optional-delivery integration. Read the implementation's ANTHOLOGY.md in PR #481 for exact commands and remaining gates; this research branch does not contain its executable files.
 ## 2026-10-16: sharp 0.35.5 for CVE-2026-96889 (Dependabot #26)
 
 The vulnerable copy was miniflare's exact `sharp` 0.35.4 pin, not the root declaration (already 0.35.5). `package.json` now has a root `"sharp": "$sharp"` override (replacing the nested miniflare override, which npm 10.9.9 ignored, so CI's `npm ci` rejected the lock), so the nested 0.35.4 tree is gone and one 0.35.5 resolves. `npm@10.9.9 ci` and npm 11 `ci --dry-run` both accept the lock. `npm audit` reports 0 (baseline 3 high, sharp `<0.35.5`); `node --test` on the four sharp test files passes 12/12 after `npm run build`. NOT run: full `npm run verify`, or an image-build output diff.
