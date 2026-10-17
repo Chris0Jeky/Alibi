@@ -1,5 +1,10 @@
 # Live development state
 
+## 2026-10-16: experience build refuses asset paths outside the library
+
+`tools/build-experience.cjs` now refuses, before reading, any catalogue derivative that resolves outside `assets-source/library/`, so a path such as `assets-source/library/../../file.glb` or a root-relative `package.glb` can no longer publish outside bytes into `dist/assets`. The check compares real paths, so a symlink or junction inside the library that resolves outside it is refused too (review of #710).
+
+`tests/build-experience-traversal.test.cjs`: the traversal test fails against the original builder and both tests pass with the fix. The web build succeeds with the real catalogues, the experience and service-worker suites pass 15 tests, and formatting passes. Browser lanes and the full verify gate were not run.
 ## 2026-10-17: Voices corrupt-state fix fits the existing budget (#708)
 
 Shared object validation and identical close-button markup reduce the emitted Voices chunk from
