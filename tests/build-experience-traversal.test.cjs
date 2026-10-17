@@ -112,3 +112,25 @@ test('traversal derivative outside the library is rejected', () => {
     }
   }
 });
+
+test('a link inside the library that points outside it is rejected', () => {
+  const { root, dist } = initFixture();
+  try {
+    // A directory junction needs no privilege on Windows; elsewhere this is a directory symlink.
+    fs.mkdirSync(path.join(root, 'outside'));
+    fs.writeFileSync(path.join(root, 'outside/secret.glb'), 'private-bytes');
+    fs.symlinkSync(
+      path.join(root, 'outside'),
+      path.join(root, 'assets-source/library/realm/outside'),
+      'junction',
+    );
+    setRealmScene(root, [
+      'assets-source/library/realm/outside/secret.glb',
+      'assets-source/library/realm/outside/secret.png',
+    ]);
+    assert.throws(() => buildExperience(root, dist), /outside the library/);
+    assert.ok(!emittedBytes(dist).some((b) => b.toString() === 'private-bytes'));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
