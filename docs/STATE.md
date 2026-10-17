@@ -1,5 +1,18 @@
 # Live development state
 
+## 2026-10-17: Voices corrupt-state fix fits the existing budget (#708)
+
+Shared object validation and identical close-button markup reduce the emitted Voices chunk from
+20,618 to 20,451 bytes (8,997 to 8,972 gzip), below the unchanged strict 20,480-byte ceiling.
+Local `origin/main` (`53ddeb8f`) measures 20,473 bytes with the same build transform. Build,
+budget/state tests and formatting pass; browser, physical-device and full verify gates were not run.
+Existing owner actions remain in `HUMAN_TODO.md`.
+
+## 2026-10-16: Voices sheet ignores corrupt local state
+
+`src/voices-sheet.js` now treats a stored Voices state that is not a plain object (`123`, `"x"`, `[]`, `null`) as the default `{ rated: {} }`, and a non-object `rated` as empty. Before, spreading a string wrote numeric keys such as `"0": "x"` back on the next save. A valid stored object is kept unchanged.
+
+`tests/voices-sheet-state.test.cjs`: 3 of 4 fail against the original file, 4 pass with the fix. After a web build, the five Voices suites pass 79 tests and formatting passes. The browser lane (`tests/browser_voices.py`) and the full verify gate were not run.
 ## 2026-10-16: settings no longer counted as older browser saves (#691)
 
 Closes #691. The Settings sentence "Existing Cabinet saves can be read and exported" and the
