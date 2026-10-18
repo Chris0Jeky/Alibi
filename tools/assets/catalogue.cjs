@@ -53,7 +53,16 @@ function main() {
     const shelf = read(painted + 'manifest.json').assets;
     for (const master of shelf.filter((a) => a.kind === 'source-webp')) {
       const id = master.file.replace(/\.webp$/, '');
-      const integrated = ['club-welcome', 'lantern-duel', 'pocket-borough'].includes(id);
+      const integrated = [
+        'club-welcome',
+        'lantern-duel',
+        'pocket-borough',
+        'tic-tac-toe',
+        'lantern-gardens',
+        'block-cabinet',
+        'archive-heist',
+        'living-atlas',
+      ].includes(id);
       assets.push({
         id: 'painted-' + id,
         title: id.replaceAll('-', ' '),
