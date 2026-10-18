@@ -41,11 +41,7 @@ const NATIVE_CSP = [
   "base-uri 'self'",
   "form-action 'self'",
 ].join('; ');
-const NATIVE_UI_CSS = `${[
-  'html[data-alibi-target="android"] [data-action="install"]',
-  'html[data-alibi-target="android"] [data-action="check-update"]',
-  'html[data-alibi-target="android"] .settings-grid > .panel:has([data-action="install"])',
-].join(',')}{display:none!important}`;
+const NATIVE_UI_CSS = fs.readFileSync(path.join(ROOT, 'src/platform/native-insets.css'), 'utf8');
 const TEXT_EXTENSIONS = new Set([
   '.css',
   '.html',
