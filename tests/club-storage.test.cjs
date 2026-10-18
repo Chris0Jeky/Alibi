@@ -7,11 +7,15 @@ const fs = require('node:fs'),
   assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..'),
   checks = [];
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 const check = (ok, label) => {
   assert.ok(ok, label);
   checks.push(label);
 };
 const groupNames = [
+  'Fallback without Web Locks saves in a single tab',
+  'Fallback without Web Locks preserves concurrent changes and exports',
+  'Fallback lock contention and same-revision drift',
   'Block Cabinet source guards',
   'Local fallback save and initial visit',
   'Visit rotation, pinning and unpinning',
@@ -44,7 +48,8 @@ function store() {
   const data = new Map();
   return {
     data,
-    getItem: (k) => data.get(k) || null,
+    locks: fakeLocks(),
+    getItem: (k) => data.get(k) ?? null,
     setItem: (k, v) => data.set(k, String(v)),
     removeItem: (k) => data.delete(k),
   };
@@ -62,6 +67,7 @@ async function tab(storage) {
     setTimeout,
     clearTimeout,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     location: { hash: '' },
     document: {
       addEventListener() {},
@@ -95,6 +101,7 @@ async function tabWith(storage, extra = {}, bridgeExtra = {}) {
     setTimeout,
     clearTimeout,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     location: { hash: '' },
     document: {
       addEventListener() {},
@@ -180,6 +187,108 @@ function abortingIndexedDB() {
 let s, a, b, c, d;
 const clubSource = fs.readFileSync(path.join(root, 'src/club.js'), 'utf8');
 
+group('Fallback without Web Locks saves in a single tab', async () => {
+  const shared = store();
+  shared.locks = undefined;
+  const first = await tab(shared);
+  check(!first.AlibiClub.diagnostics().saveError, 'No-lock fallback remains writable');
+  const original = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  await first.AlibiClub.save();
+  check(
+    JSON.parse(shared.getItem('alibi-afterhours-v1')).rev === original.rev + 1,
+    'Single-tab no-lock save advances the stored revision',
+  );
+});
+
+group('Fallback without Web Locks preserves concurrent changes and exports', async () => {
+  const shared = store();
+  shared.locks = undefined;
+  const first = await tab(shared);
+  const second = await tab(shared);
+  const committed = shared.getItem('alibi-afterhours-v1');
+  check(committed !== null, 'No-lock tabs save their initial visits');
+  await first.AlibiClub.save();
+  check(
+    shared.getItem('alibi-afterhours-v1') === committed,
+    'Stale no-lock tab preserves the newer save',
+  );
+  const drift = JSON.parse(committed);
+  drift.data.schema = 999;
+  const future = JSON.stringify(drift);
+  shared.setItem('alibi-afterhours-v1', future);
+  await second.AlibiClub.save();
+  check(
+    shared.getItem('alibi-afterhours-v1') === future,
+    'No-lock same-revision drift is preserved',
+  );
+  for (const context of [first, second]) {
+    check(/export/i.test(context.AlibiClub.diagnostics().saveError), 'Both tabs warn to export');
+    const html = context.AlibiClub.roomPage();
+    check(
+      html.includes('Export Club save') && html.includes('role="alert"'),
+      'Export stays prominent',
+    );
+  }
+});
+
+group('Fallback lock contention and same-revision drift', async () => {
+  const simultaneous = store();
+  await tab(simultaneous);
+  const initial = JSON.parse(simultaneous.getItem('alibi-afterhours-v1'));
+  const tabs = await Promise.all([tab(simultaneous), tab(simultaneous)]);
+  check(
+    tabs.filter((c) => !c.AlibiClub.diagnostics().saveError).length === 1,
+    'Only one simultaneous second-tab open commits its visit',
+  );
+  check(
+    JSON.parse(simultaneous.getItem('alibi-afterhours-v1')).rev === initial.rev + 1,
+    'Concurrent opens advance the shared revision only once',
+  );
+  const shared = store();
+  const writer = await tab(shared);
+  const original = shared.getItem('alibi-afterhours-v1');
+  let release;
+  const held = shared.locks.request(
+    'alibi-afterhours-v1',
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+  await writer.AlibiClub.save();
+  check(shared.getItem('alibi-afterhours-v1') === original, 'Busy lock refuses the write');
+  check(/export/i.test(writer.AlibiClub.diagnostics().saveError), 'Busy lock warns to export');
+  release();
+  await held;
+  const reloaded = await tab(shared);
+  check(!reloaded.AlibiClub.diagnostics().saveError, 'Reload can save after lock release');
+  const drift = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  drift.data.schema = 999;
+  const future = JSON.stringify(drift);
+  shared.setItem('alibi-afterhours-v1', future);
+  await reloaded.AlibiClub.save();
+  check(
+    shared.getItem('alibi-afterhours-v1') === future,
+    'Same-revision schema drift is preserved',
+  );
+  check(/export/i.test(reloaded.AlibiClub.diagnostics().saveError), 'Drift warns to export');
+  drift.data.schema = 1;
+  drift.futureEnvelopeField = true;
+  const unknown = JSON.stringify(drift);
+  shared.setItem('alibi-afterhours-v1', unknown);
+  const unsupported = await tab(shared);
+  check(
+    shared.getItem('alibi-afterhours-v1') === unknown,
+    'Unknown envelope bytes survive restart',
+  );
+  check(
+    /untouched/i.test(unsupported.AlibiClub.diagnostics().saveError),
+    'Unknown envelope is protected',
+  );
+});
+
 group('Block Cabinet source guards', async () => {
   const blockIntegration = fs.readFileSync(
     path.join(root, 'src/block-cabinet/integration.mjs'),
@@ -263,13 +372,15 @@ group('Future schema preservation', async () => {
 });
 
 group('Malformed JSON preservation', async () => {
-  s.setItem('alibi-afterhours-v1', '{broken');
-  const corrupt = await tab(s);
-  check(s.getItem('alibi-afterhours-v1') === '{broken', 'Malformed JSON remains untouched');
-  check(
-    corrupt.AlibiClub.diagnostics().storageMode === 'session',
-    'Unreadable save switches new work to temporary session',
-  );
+  for (const bytes of ['{broken', '']) {
+    s.setItem('alibi-afterhours-v1', bytes);
+    const corrupt = await tab(s);
+    check(s.getItem('alibi-afterhours-v1') === bytes, 'Malformed JSON remains untouched');
+    check(
+      corrupt.AlibiClub.diagnostics().storageMode === 'session',
+      'Unreadable save switches new work to temporary session',
+    );
+  }
 });
 
 group('Unreadable fallback record during persist', async () => {

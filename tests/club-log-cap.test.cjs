@@ -7,6 +7,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
+const { fakeLocks } = require('./helpers/fallback-locks.cjs');
 
 const root = path.resolve(__dirname, '..');
 const E = require('../src/club-engines.js');
@@ -15,6 +16,7 @@ function store() {
   const data = new Map();
   return {
     data,
+    locks: fakeLocks(),
     getItem: (k) => data.get(k) || null,
     setItem: (k, v) => data.set(k, String(v)),
     removeItem: (k) => data.delete(k),
@@ -34,6 +36,7 @@ async function tab(storage, toasts) {
     setTimeout,
     clearTimeout,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     location: { hash: '' },
     document: {
       addEventListener() {},

@@ -23,6 +23,7 @@
   let bridge = null,
     db = null,
     rev = 0,
+    fallbackBytes = null,
     storageMode = 'session',
     saveError = '',
     protectedSave = false,
@@ -232,11 +233,14 @@
       } else
         try {
           const raw = localStorage.getItem('alibi-afterhours-v1');
-          if (raw) {
+          fallbackBytes = raw;
+          if (raw !== null) {
             foundSave = true;
             const v = JSON.parse(raw);
             if (!Number.isSafeInteger(v.rev) || v.rev < 1)
               throw Error('Unsupported Club save revision.');
+            if (Object.keys(v).some((key) => !['rev', 'data'].includes(key)))
+              throw Error('Unsupported Club save fields.');
             await engine();
             state = validateSave(v.data);
             rev = v.rev;
@@ -358,19 +362,31 @@
               );
           });
         else if (storageMode === 'local') {
-          let latest = null;
-          try {
-            latest = JSON.parse(localStorage.getItem('alibi-afterhours-v1') || 'null');
-          } catch {
-            throw Error('The saved Club record could not be read. It was left untouched.');
-          }
-          if ((latest?.rev || 0) !== rev)
-            throw Error('Club progress changed in another tab. Export and reload.');
-          localStorage.setItem(
-            'alibi-afterhours-v1',
-            JSON.stringify({ rev: rev + 1, data: snapshot }),
-          );
-          rev++;
+          const write = () => {
+            const raw = localStorage.getItem('alibi-afterhours-v1');
+            let latest = null;
+            try {
+              latest = JSON.parse(raw || 'null');
+            } catch {
+              throw Error('The saved Club record could not be read. It was left untouched.');
+            }
+            if (raw !== fallbackBytes || (latest?.rev || 0) !== rev)
+              throw Error('Club progress changed in another tab. Export and reload.');
+            const next = JSON.stringify({ rev: rev + 1, data: snapshot });
+            localStorage.setItem('alibi-afterhours-v1', next);
+            fallbackBytes = next;
+            rev++;
+          };
+          if (root.navigator?.locks?.request)
+            await root.navigator.locks.request(
+              'alibi-afterhours-v1',
+              { ifAvailable: true },
+              (lock) => {
+                if (!lock) throw Error('Another tab is saving Club progress. Export and reload.');
+                write();
+              },
+            );
+          else write();
         }
       })
       .catch((e) => {
