@@ -5,6 +5,7 @@
   'use strict';
   const FORMAT = 'alibi-origin-transfer',
     VERSION = 1,
+    RECOVERY_PREFIX = 'recovery:',
     SECTIONS = ['cabinet', 'club', 'quiet', 'castle', 'challenges'],
     UNCHANGED = 'Existing saves were not changed.';
   const fail = (reason) => {
@@ -58,6 +59,7 @@
         !isObject(row) ||
         typeof row.id !== 'string' ||
         !row.id ||
+        row.id.startsWith(RECOVERY_PREFIX) ||
         row.schema !== 1 ||
         !Number.isSafeInteger(row.revision) ||
         row.revision < 1 ||
@@ -367,7 +369,7 @@
           const rows = [];
           keys.result.forEach((key, index) => {
             const value = values.result[index];
-            if (typeof key === 'string' && !key.startsWith('recovery:') && value)
+            if (typeof key === 'string' && !key.startsWith(RECOVERY_PREFIX) && value)
               rows.push({
                 id: key,
                 schema: value.schema,
@@ -390,7 +392,7 @@
         const keys = store.getAllKeys();
         keys.onsuccess = () => {
           for (const key of keys.result)
-            if (typeof key === 'string' && !key.startsWith('recovery:')) store.delete(key);
+            if (typeof key === 'string' && !key.startsWith(RECOVERY_PREFIX)) store.delete(key);
           for (const row of section.runs)
             store.put({ schema: row.schema, revision: row.revision, run: row.run }, row.id);
         };
