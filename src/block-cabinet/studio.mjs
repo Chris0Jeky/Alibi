@@ -143,16 +143,17 @@ export async function cascadeAdapter(workerOptions = {}) {
       });
     },
     async new() {
-      await enqueue(async () => {
+      return enqueue(async () => {
         const seed = prompt('New Cascade seed (letters and numbers):', 'ATELIER-01');
-        if (seed === null) return;
+        if (seed === null) return false;
         Cascade.seedText(seed);
         if (
           run().log.length &&
           !confirm('Start a new expedition? Export the current replay first to keep it.')
         )
-          return;
+          return false;
         await store.commit(Cascade.record(seed));
+        return true;
       });
     },
     export() {
@@ -224,7 +225,9 @@ export function practiceAdapter() {
       if (confirm('Start a fresh classic demo?')) {
         history.splice(0, history.length, initial());
         future.length = 0;
+        return true;
       }
+      return false;
     },
   };
 }

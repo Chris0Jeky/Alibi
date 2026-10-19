@@ -1416,7 +1416,8 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
 def scenario_unknown_paths(pw: Any, root: Path) -> None:
     """0.14.1 audit M4: a controlling service worker no longer answers deep or file-like
     URLs with the root shell (whose relative assets break there, leaving an unstyled
-    "Opening the puzzle cabinetâ€¦"). They reach the host's styled 404, which links home.
+    loading message). Online and offline failures show the styled 404 and link home;
+    cached .html and /index.html aliases still reach their intended routes offline.
     """
     context = launch_profile(pw, root / "unknown-paths")
     try:
@@ -1453,6 +1454,28 @@ def scenario_unknown_paths(pw: Any, root: Path) -> None:
         wait_diag(page)
         check(page.title().startswith("Alibi"), "the 404 home link returns to the working app")
         context.set_offline(True)
+        for path in ("a/b/x.html", "a/b/", "missing.html", "404.html"):
+            response = page.goto(urljoin(BASE, path), wait_until="load", timeout=TIMEOUT_MS)
+            if path != "404.html":
+                check(response is not None and response.status == 404,
+                      f"offline /{path} returns a real 404 response")
+            check(page.locator("h1").first.inner_text() == "This clue leads nowhere.",
+                  f"offline /{path} opens the cached 404 page")
+            check(page.evaluate("getComputedStyle(document.body).backgroundColor") == "rgb(241, 238, 231)",
+                  f"offline /{path} 404 page remains styled")
+            check(page.evaluate("[...document.links].map((a) => a.getAttribute('href'))") == ["/"],
+                  f"offline /{path} keeps the home link")
+        screenshot(page, "unknown-path-offline-404")
+        page.get_by_role("link", name="Return to Alibi").click()
+        wait_diag(page)
+        check(page.title().startswith("Alibi"), "the offline 404 home link opens the cached app")
+        for path, target in (("privacy.html", "privacy"), ("privacy/index.html", "privacy"),
+                             ("about.html", "about"), ("about/index.html", "about")):
+            page.goto(urljoin(BASE, path), wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+            page.wait_for_url(urljoin(BASE, "#/" + target), wait_until="domcontentloaded", timeout=TIMEOUT_MS)
+            wait_diag(page)
+            check(page.evaluate("Boolean(document.querySelector('.sidebar, .mobile-nav'))"),
+                  f"offline /{path} redirects to the working {target} app route")
         for path in ("", "index.html", "?from=share#/library"):
             page.goto(urljoin(BASE, path), wait_until="domcontentloaded", timeout=15000)
             wait_diag(page)

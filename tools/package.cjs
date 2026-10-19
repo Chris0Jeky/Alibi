@@ -6,17 +6,34 @@ const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const { build } = require('./build.cjs');
 const ROOT = path.resolve(__dirname, '..');
-const ORIGIN_SCENARIOS = [
-  'durability',
-  'backup_restore',
-  'cross_tab',
-  'keyboard',
-  'offline',
-  'shared_paths',
-  'malformed_draft',
-  'malformed_persisted',
-  'newer_database',
-];
+
+function originScenarios() {
+  const source = fs.readFileSync(path.join(ROOT, 'tests/browser_origin.py'), 'utf8');
+  const declaration = /^[ \t]*scenarios[ \t]*=[ \t]*\[\r?\n/m.exec(source);
+  if (!declaration) throw Error('Could not read the browser-origin scenario declaration.');
+  const bodyStart = declaration.index + declaration[0].length;
+  const end = /^[ \t]*\][ \t]*$/m.exec(source.slice(bodyStart));
+  if (!end) throw Error('Could not read the end of the browser-origin scenario declaration.');
+  const lines = source
+    .slice(bodyStart, bodyStart + end.index)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!lines.length) throw Error('The browser-origin scenario declaration is empty.');
+  const scenarios = [];
+  const seen = new Set();
+  for (const line of lines) {
+    const match = /^scenario_([a-z][a-z0-9_]*),?$/.exec(line);
+    if (!match) throw Error(`Unsupported browser-origin scenario declaration: ${line}`);
+    if (seen.has(match[1])) throw Error(`Duplicate browser-origin scenario: ${match[1]}`);
+    seen.add(match[1]);
+    scenarios.push(match[1]);
+  }
+  return scenarios;
+}
+
+// Keep report acceptance tied to the runner that produces scenarioSet.
+const ORIGIN_SCENARIOS = Object.freeze(originScenarios());
 
 function nodeSuites(root = ROOT) {
   const testDir = path.join(root, 'tests');

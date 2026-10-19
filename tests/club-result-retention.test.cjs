@@ -16,6 +16,21 @@ function finishedDuel() {
   }
   return log;
 }
+function finishedBlock(seed) {
+  let state = E.blockCabinet.initial(seed);
+  const log = [];
+  while (!state.done && log.length < E.blockCabinet.maxMoves) {
+    const moves = [];
+    for (let slot = 0; slot < 3; slot++)
+      for (const cell of E.blockCabinet.placements(state, slot)) moves.push({ slot, cell });
+    assert.ok(moves.length, 'a running cabinet has at least one legal move');
+    const move = moves[(log.length * 17 + 31) % moves.length];
+    log.push(move);
+    state = E.blockCabinet.move(state, move.slot, move.cell);
+  }
+  assert.equal(state.done, true, 'the deterministic real-engine fixture reaches a closed cabinet');
+  return { log, state };
+}
 function fixture(id, records = []) {
   const data = fresh();
   data.records = records;
@@ -77,6 +92,38 @@ test('a previously trimmed result returns without exceeding the 100-record journ
   assert.equal(tab.state().records.length, 100);
   assert.match(tab.state().records[0].id, /^tictactoe:/);
   assert.deepEqual(tab.state().records.slice(1), records.slice(0, 99));
+});
+
+test('Block Cabinet: accepted fresh-seed restart preserves the completed journal row', async () => {
+  const seed = 'BLOCK-02';
+  const completed = finishedBlock(seed);
+  assert.equal(E.blockCabinet.replay(seed, completed.log).done, true);
+
+  const data = fresh();
+  data.runs.blockcabinet = { seed, log: completed.log, redo: [] };
+  const tab = await open(data, 'blockcabinet');
+  await tab.action('restart', { id: 'blockcabinet' });
+  assert.equal(tab.dialogs.length, 1, 'the fresh-seed confirmation remains in the normal flow');
+  await tab.dialogAction('club-reset-confirm');
+
+  const after = tab.state();
+  assert.notEqual(after.runs.blockcabinet.seed, seed);
+  assert.deepEqual(after.runs.blockcabinet.log, []);
+  assert.deepEqual(after.runs.blockcabinet.redo, []);
+  assert.equal(after.records.length, 1);
+  assert.equal(after.records[0].type, 'blockcabinet');
+  assert.match(after.records[0].id, new RegExp(`^blockcabinet:${seed}:`));
+  assert.equal(after.records[0].label, `Block Cabinet · ${seed}`);
+  assert.equal(after.records[0].score, completed.state.score);
+
+  const reloaded = await session(null, tab.storage.get('alibi-afterhours-v1'));
+  assert.deepEqual(
+    reloaded.state().records,
+    after.records,
+    'the completed row survives save and reload',
+  );
+  assert.deepEqual(reloaded.state().runs.blockcabinet.log, []);
+  assert.equal(reloaded.state().runs.blockcabinet.seed, after.runs.blockcabinet.seed);
 });
 
 test('Next garden retains the original level and score before replacing its board', async () => {

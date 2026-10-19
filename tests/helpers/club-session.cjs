@@ -22,14 +22,36 @@ async function session(data = fresh(), raw = null, options = {}) {
     blobs = [],
     dialogs = [],
     nodes = new Map();
-  nodes.set('dialog', { close() {} });
+  let randomCalls = 0;
+  const dialogListeners = new Map();
+  const dialogNode = {
+    open: false,
+    close() {
+      this.open = false;
+    },
+    addEventListener(type, listener) {
+      const listeners = dialogListeners.get(type) || [];
+      listeners.push(listener);
+      dialogListeners.set(type, listeners);
+    },
+    dispatchEvent(event) {
+      for (const listener of dialogListeners.get(event.type) || []) listener(event);
+      // Match a native <dialog>: Escape closes unless a cancel handler prevents it.
+      if (event.type === 'cancel' && !event.defaultPrevented) this.close();
+      return !event.defaultPrevented;
+    },
+  };
+  nodes.set('dialog', dialogNode);
   class FixedDate extends Date {
     static now() {
       return 1790352000000;
     }
   }
   const math = Object.create(Math);
-  math.random = () => 0;
+  math.random = () => {
+    randomCalls++;
+    return 0;
+  };
   class Worker {
     constructor() {
       this.terminated = false;
@@ -97,7 +119,10 @@ async function session(data = fresh(), raw = null, options = {}) {
     records: () => [],
     settings: () => ({}),
     toast: (text) => messages.push(text),
-    dialog: (...args) => dialogs.push(args),
+    dialog: (...args) => {
+      dialogs.push(args);
+      dialogNode.open = true;
+    },
   });
   return {
     club,
@@ -108,10 +133,33 @@ async function session(data = fresh(), raw = null, options = {}) {
     nodes,
     messages,
     dialogs,
+    randomCalls: () => randomCalls,
     state: () => copy(club.diagnostics().state),
     action: async (name, values = {}) => {
       await club.action({ dataset: { action: 'club-' + name, ...values } });
       await club.flush();
+    },
+    dialogAction: async (name) => {
+      const actions = dialogs.at(-1)?.[2] || [];
+      if (!actions.some((button) => button.action === name))
+        throw Error(`Dialog action ${name} is not available.`);
+      if (name === 'close-dialog') dialogNode.close();
+      else if (name.startsWith('club-')) {
+        await club.action({ dataset: { action: name } });
+        await club.flush();
+      } else throw Error(`Unsupported Club dialog action ${name}.`);
+    },
+    pressEscape: () => {
+      if (!dialogNode.open) throw Error('Escape requires an open dialog.');
+      const event = {
+        type: 'cancel',
+        defaultPrevented: false,
+        preventDefault() {
+          this.defaultPrevented = true;
+        },
+      };
+      dialogNode.dispatchEvent(event);
+      return event;
     },
   };
 }
