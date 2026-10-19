@@ -1,7 +1,9 @@
 """Exercise the trusted launcher controls directly at phone and desktop widths."""
 import json
 import os
+import sys
 import threading
+from contextlib import contextmanager
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -10,6 +12,83 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKS = json.loads((ROOT / 'content/challenges/registry.json').read_text())['packs']
 DATA = [item for name in PACKS for item in json.loads((ROOT / 'content/challenges' / name).read_text())['challenges']]
 BY_ID = {item['id']: item for item in DATA}
+OUT = ROOT / 'test-results' / 'challenge-diagnostics'
+
+IDB_OPEN_TRACE = """(() => {
+  try {
+    if (window.__alibiChallengeOpenTraceInstalled || !window.IDBFactory) return;
+    window.__alibiChallengeOpenTraceInstalled = true;
+    const originalOpen = IDBFactory.prototype.open;
+    const records = [];
+    const cap = 24;
+    window.__alibiChallengeOpenTrace = records;
+    window.__alibiChallengeOpenSnapshot = () => {
+      const now = performance.now();
+      return records.slice(-16).map(record => ({
+        name: record.name,
+        version: record.version,
+        outcome: record.outcome,
+        blocked: record.blocked,
+        blockedAfterMs: record.blockedAfterMs,
+        elapsedMs: record.elapsedMs ?? Math.round(now - record.startedAt),
+        errorName: record.errorName,
+        errorMessage: record.errorMessage,
+      }));
+    };
+    const safeText = value => {
+      try { return String(value).slice(0, 400); } catch { return '[unprintable]'; }
+    };
+    IDBFactory.prototype.open = function(name, version) {
+      const startedAt = performance.now();
+      const record = {
+        name: safeText(name),
+        version: arguments.length > 1 ? safeText(version) : null,
+        outcome: 'pending',
+        blocked: false,
+        blockedAfterMs: null,
+        elapsedMs: null,
+        errorName: null,
+        errorMessage: null,
+        startedAt,
+      };
+      try {
+        records.push(record);
+        if (records.length > cap) records.splice(0, records.length - cap);
+      } catch {}
+      const finish = (outcome, error) => {
+        try {
+          if (record.outcome !== 'pending') return;
+          record.outcome = outcome;
+          record.elapsedMs = Math.round(performance.now() - startedAt);
+          if (error) {
+            record.errorName = safeText(error.name || 'Error');
+            record.errorMessage = safeText(error.message || error);
+          }
+        } catch {}
+      };
+      let request;
+      try {
+        request = Reflect.apply(originalOpen, this, arguments);
+      } catch (error) {
+        finish('throw', error);
+        throw error;
+      }
+      try {
+        request.addEventListener('success', () => finish('success'));
+        request.addEventListener('error', () => finish('error', request.error));
+        request.addEventListener('blocked', () => {
+          try {
+            record.blocked = true;
+            record.blockedAfterMs = Math.round(performance.now() - startedAt);
+          } catch {}
+        });
+      } catch (error) {
+        try { record.instrumentationError = safeText(error); } catch {}
+      }
+      return request;
+    };
+  } catch {}
+})();"""
 
 def assert_grid(page):
     assert page.evaluate('''() => {
@@ -59,21 +138,57 @@ def store_diagnostics(page):
     }''')
 
 def run_storage_check(page, script):
-    try:
-        result = page.evaluate(script)
-    except Exception as error:
-        try:
-            diagnostics = store_diagnostics(page)
-        except Exception as diagnostic_error:
-            diagnostics = {'diagnosticError': str(diagnostic_error)}
-        raise AssertionError(f'Challenge storage check failed: {error} diagnostics {json.dumps(diagnostics, sort_keys=True)}')
-    if not result:
-        try:
-            diagnostics = store_diagnostics(page)
-        except Exception as diagnostic_error:
-            diagnostics = {'diagnosticError': str(diagnostic_error)}
-        raise AssertionError(f'Challenge storage check returned falsy result: {result!r} diagnostics {json.dumps(diagnostics, sort_keys=True)}')
+    result = page.evaluate(script)
+    assert result, f'Challenge storage check returned falsy result: {result!r}'
     return result
+
+def failure_diagnostics(page, error, width):
+    diagnostics = {
+        'failure': type(error).__name__,
+        'message': str(error)[:1000],
+        'width': width,
+    }
+    if page is not None:
+        try:
+            diagnostics['page'] = page.evaluate('''() => ({
+          url: location.href,
+          title: document.title.slice(0, 300),
+          readyState: document.readyState,
+          viewport: {width: innerWidth, height: innerHeight},
+          challengeId: document.querySelector('[data-challenge-id]')?.dataset.challengeId || null,
+          status: (document.querySelector('.challenge-status')?.innerText || '').slice(0, 800),
+          hostText: (document.querySelector('#host')?.innerText || '').slice(0, 1600),
+          indexedDbTraceInstalled: !!window.__alibiChallengeOpenTraceInstalled,
+          indexedDbOpenCount: window.__alibiChallengeOpenTrace?.length || 0,
+          indexedDbOpenPatched: !!window.indexedDB && window.indexedDB.open === IDBFactory.prototype.open,
+          indexedDbOpens: window.__alibiChallengeOpenSnapshot?.() || [],
+            })''')
+        except Exception as diagnostic_error:
+            diagnostics['pageDiagnosticError'] = str(diagnostic_error)[:500]
+        try:
+            diagnostics['store'] = store_diagnostics(page)
+        except Exception as diagnostic_error:
+            diagnostics['storeDiagnosticError'] = str(diagnostic_error)[:500]
+        try:
+            OUT.mkdir(parents=True, exist_ok=True)
+            screenshot = OUT / f'challenge-failure-{width or "unknown"}.png'
+            page.screenshot(path=str(screenshot), full_page=True)
+            diagnostics['screenshot'] = str(screenshot)
+        except Exception as screenshot_error:
+            diagnostics['screenshotError'] = str(screenshot_error)[:500]
+    try:
+        print(f'Challenge browser failure diagnostics: {json.dumps(diagnostics, sort_keys=True)}', file=sys.stderr)
+    except Exception:
+        pass
+    return diagnostics
+
+@contextmanager
+def capture_failures():
+    try:
+        yield
+    except Exception as error:
+        failure_diagnostics(active_page, error, active_width)
+        raise
 
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -84,13 +199,18 @@ class Handler(SimpleHTTPRequestHandler):
 server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
 thread = threading.Thread(target=server.serve_forever, daemon=True)
 thread.start()
+active_page = None
+active_width = None
 try:
-  with sync_playwright() as p:
+  with sync_playwright() as p, capture_failures():
     browser = p.chromium.launch()
     for width in (390, 1280):
         page = browser.new_page(viewport={'width': width, 'height': 900})
+        active_page, active_width = page, width
+        page.add_init_script(IDB_OPEN_TRACE)
         page.goto(f'http://127.0.0.1:{server.server_port}/')
         page.set_content('<div class="qw-body"><main id="host"></main></div>')
+        page.evaluate(IDB_OPEN_TRACE)
         page.add_style_tag(path=str(ROOT / 'src/quiet-wing/style.css'))
         for source in ('src/quiet-wing/engine.js', 'src/club-engines.js', 'src/challenges.js', 'src/challenge-storage.js', 'src/challenge-launcher.js'):
             page.add_script_tag(path=str(ROOT / source))
@@ -239,6 +359,8 @@ try:
     production_url = os.environ.get('ALIBI_URL8795')
     if production_url:
         page = p.chromium.launch().new_page(viewport={'width': 390, 'height': 900})
+        active_page, active_width = page, 390
+        page.add_init_script(IDB_OPEN_TRACE)
         page.goto(production_url.rstrip('/') + '#/quiet/challenges?family=hanoi')
         page.locator('[data-challenge-id]').first.wait_for()
         assert page.locator('[data-challenge-id]').count() == len(DATA)
@@ -297,6 +419,7 @@ try:
         page.get_by_text('Challenge save restored. The previous save remains available for export.', exact=True).wait_for()
         assert '1 move so far' in page.locator('.challenge-status').inner_text(), 'at-limit valid import reaches run validation'
         for width in (390, 1280):
+            active_width = width
             page.set_viewport_size({'width': width, 'height': 900})
             page.goto(production_url.rstrip('/') + '#/quiet/challenges?family=queens')
             page.locator('[data-challenge-id="curated-classic-queens-01"]').click()
@@ -307,8 +430,10 @@ try:
 
         browser = p.chromium.launch()
         context = browser.new_context(viewport={'width':390,'height':900})
+        context.add_init_script(IDB_OPEN_TRACE)
         context.add_init_script("Object.defineProperty(window, 'indexedDB', {value:undefined})")
         page = context.new_page()
+        active_page, active_width = page, 390
         page.goto(production_url.rstrip('/') + '#/quiet/challenges/curated-classic-hanoi-01')
         page.locator('[data-action="peg"][data-value="1"]').click()
         page.locator('[data-action="peg"][data-value="2"]').click()

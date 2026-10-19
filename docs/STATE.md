@@ -1,5 +1,23 @@
 # Live development state
 
+## 2026-10-19: bounded browser failure diagnostics (#537, #712)
+
+Challenge browser failures now retain the original exception while recording page/store state,
+a best-effort screenshot, and the timing, blocked status and errors of actual IndexedDB opens.
+Open tracing is bounded and passive; the inherited supplementary store/open probe still runs
+only after failure, with its existing 2200ms deadline. Capture occurs before Playwright teardown.
+Scene taps wait for the selected mode/person and a hittable cell center, perform exactly one
+tap, and still require exactly one committed move. Failure reports retain a bounded input trace,
+selection and hit-test state even when a readiness assertion or screenshot fails.
+
+Verified: independent source review, Python compilation, normal challenge fixtures at 390/1280,
+and the complete scene fixture at 390/1440 against the clean 12b01918 emitted app. Controlled
+open-error and assertion/screenshot-error probes preserved the original failure and recorded
+its context. The production viewport label follows the current width. No application behavior,
+retry, test timeout or acceptance gate changes. These diagnostics address #537; #712 remains
+open because its intermittent tap failure has not been causally reproduced or fixed. Exact-head
+hosted qualification is pending for this test-only follow-up.
+
 ## 2026-10-19: storage, restart, native inset and release follow-ups
 
 Club retries a transient fallback Web Lock miss on its next persist and uses the existing
