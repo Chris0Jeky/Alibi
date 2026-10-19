@@ -251,11 +251,19 @@ test('delivery build emits exact derivatives outside the offline shell and valid
   ).assets;
   const paintedBytes = painted
     .filter((a) =>
-      ['club-welcome-320.webp', 'lantern-duel-320.webp', 'pocket-borough-320.webp'].includes(
-        a.file,
-      ),
+      [
+        'club-welcome-320.webp',
+        'lantern-duel-320.webp',
+        'pocket-borough-320.webp',
+        'tic-tac-toe-320.webp',
+        'lantern-gardens-320.webp',
+        'block-cabinet-320.webp',
+        'archive-heist-320.webp',
+        'living-atlas-320.webp',
+      ].includes(a.file),
     )
     .reduce((n, a) => n + a.bytes, 0);
+  assert.equal(paintedBytes, 203482, 'all eight selected paintings enter the byte receipt');
   assert.equal(
     info.enhancementBytes,
     built.bytes + photos.reduce((n, a) => n + a.bytes, 0) + paintedBytes,
