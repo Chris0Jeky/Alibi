@@ -173,7 +173,7 @@
   }
   function openDb(name, version, upgrade) {
     return new Promise((resolve, reject) => {
-      let request = version == null ? indexedDB.open(name) : indexedDB.open(name, version),
+      let request = indexedDB.open(name, version),
         abandoned = false;
       request.onupgradeneeded = () => {
         if (abandoned) {
@@ -195,13 +195,8 @@
   }
   function txDone(db, storeName, mode, work) {
     return new Promise((resolve, reject) => {
-      let tx, result;
-      try {
-        tx = db.transaction(storeName, mode);
-      } catch (error) {
-        reject(error);
-        return;
-      }
+      let tx = db.transaction(storeName, mode),
+        result;
       tx.oncomplete = () => resolve(result);
       tx.onerror = () => reject(tx.error || Error('Storage failed.'));
       tx.onabort = () => reject(tx.error || Error('Storage was aborted.'));

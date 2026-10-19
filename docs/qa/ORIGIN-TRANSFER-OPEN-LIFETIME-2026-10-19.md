@@ -56,3 +56,31 @@ validation and protected recovery namespaces, durable pending-recovery admission
 and startup recovery, truthful post-commit cleanup, and the reported export and
 fallback consistency repairs. The checks here do not close those findings or
 the physical-device gates in `HUMAN_TODO.md`.
+
+## Net-shell budget continuation
+
+At published `f4208df82dcda6c6d5490d0e10b8893432fe0c9c`, safety run 39273622459
+passed the 24 transfer contracts and the standalone Chromium 151.0.7922.34
+fixture, but full verification failed the unchanged net-shell budget. Both that
+run and primary run 39273622643 measured 1,904,261 core-offline bytes minus
+481,078 official-content bytes: 1,423,183 bytes. The strict ceiling is
+1,423,144.32, so at least 39 emitted bytes must be removed. The primary run
+built GitHub's merge commit `0f829a4b1afe0472473c0f16014eb948144d648b`; its shell
+measurement is identical, while application gzip differs by one byte. Both
+application-gzip and initial-transfer gates already passed.
+
+The bounded continuation calls the private `openDb()` with its supplied version
+directly; all four callers already supply version 1. It also lets the `txDone()`
+Promise executor reject a synchronous transaction exception directly. Neither
+change alters the abandoned-request guards or attempted-prefix rollback. A new
+public-port characterization requires the original transaction error, one close
+and no writes; it passes before and after the simplification. All 25 transfer
+tests and the local Chromium 140 two-tab fixture pass after the change.
+
+With the pinned esbuild 0.28.2 options (`minify: true`, `target: 'es2022'`), the
+isolated transfer module decreases from 8,958 to 8,905 emitted bytes, saving 53.
+Its emitted gzip decreases from 3,120 to 3,104 bytes. Applying that isolated raw
+delta to the observed shell predicts 1,423,130 bytes, with 14.32 bytes below the
+strict ceiling. This is not a complete application rebuild or a new budget pass;
+fresh exact-head CI must confirm all dimensions. No threshold, other runtime
+module or parent safety gate changes.

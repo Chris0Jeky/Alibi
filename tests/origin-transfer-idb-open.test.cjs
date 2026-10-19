@@ -9,7 +9,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/origin-transfer.js')
 
 // Dispatch the browser callbacks at the public recovery port. These controls
 // model request timing, not IndexedDB durability or cross-tab transactions.
-function fixture(openError) {
+function fixture(openError, transactionError) {
   const calls = {
     closes: 0,
     upgrades: 0,
@@ -25,6 +25,7 @@ function fixture(openError) {
       close: () => calls.closes++,
       transaction() {
         calls.transactions++;
+        if (transactionError) throw transactionError;
         const tx = {
           objectStore: () => ({
             put: (value, key) => calls.writes.push({ value, key }),
@@ -101,4 +102,14 @@ test('ordinary and synchronous recovery open failures retain their original erro
   assert.equal(f.calls.closes, 0);
   assert.equal(f.calls.transactions, 0);
   await assert.rejects(fixture(error).pending, (actual) => actual === error);
+});
+
+test('a synchronous transaction failure retains its original error and closes the database', async () => {
+  const error = Error('transaction unavailable');
+  const f = fixture(undefined, error);
+  f.request.onsuccess();
+  await assert.rejects(f.pending, (actual) => actual === error);
+  assert.equal(f.calls.transactions, 1);
+  assert.equal(f.calls.closes, 1);
+  assert.deepEqual(f.calls.writes, []);
 });

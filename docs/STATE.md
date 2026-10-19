@@ -1,5 +1,19 @@
 # Live development state
 
+## 2026-10-19: origin-transfer repair retains the existing net-shell ceiling (#593)
+
+At f4208df the 24 transfer contracts and hosted Chromium 151 two-tab abandoned-open fixture
+passed, but net shell measured 1,423,183 bytes against the unchanged 1,423,144.32 ceiling.
+All private database callers already pass version 1, so the unused omitted-version branch is
+removed. The transaction Promise executor also preserves a synchronous exception without a
+redundant catch. The abandoned upgrade/late-close guards and attempted-domain rollback remain.
+
+Verified: all 25 transfer contracts, including original transaction-error identity, one close
+and no writes; independent review; local Chromium 140 two-tab fixture; formatting and diff
+checks. Pinned isolated minification saves 53 raw bytes, predicting a 14.32-byte shell margin;
+full exact-head CI must confirm the complete budget and application checks. No ceiling changes.
+The parent #579 remains draft with its separately recorded safety and product gaps.
+
 ## 2026-10-19: abandoned transfer database opens (#593)
 
 The transfer helper now closes a database handle that succeeds after its blocked open was
