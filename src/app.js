@@ -241,11 +241,13 @@
     toastTimer = setTimeout(() => ($('#toasts').innerHTML = ''), 5500);
   }
   function closeDialog() {
+    stagedCabinet = null;
     const d = $('#dialog');
     if (d.open) d.close();
     lesson = null;
   }
   function dialog(title, body, actions = [], cls = '') {
+    stagedCabinet = null;
     const d = $('#dialog'),
       previous = d.contains(document.activeElement) ? document.activeElement : null;
     if (!d.open) dialogOpener = document.activeElement;
@@ -2219,11 +2221,11 @@
   let stagedAll = null;
   let stagedCabinet = null;
   function offerCabinetCopies(data, session, filename) {
+    stagedCabinet = null;
     if (!session) {
       download(filename, data);
       return;
     }
-    stagedCabinet = C.clone([data, session, filename]);
     dialog(
       'Keep both copies',
       '<p>Device progress and session edits differ. Download both backups.</p>',
@@ -2237,6 +2239,7 @@
         { label: 'Close', action: 'close-dialog', secondary: true },
       ],
     );
+    stagedCabinet = C.clone([data, session, filename]);
   }
   async function exportAll() {
     const { data: cabinet, session: cabinetSession } = await cabinetBackup();
@@ -3728,6 +3731,7 @@
   });
   $('#dialog').addEventListener('close', () => {
     if ($('#dialog').open) return;
+    stagedCabinet = null;
     const target = dialogOpener?.isConnected
         ? dialogOpener
         : document.getElementById(dialogOpener?.id),

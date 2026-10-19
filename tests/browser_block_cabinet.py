@@ -14,6 +14,21 @@ def check(value, label):
     print("PASS", label, flush=True)
 
 
+def cabinet_snapshot(page):
+    return page.evaluate("""() => {
+      const run = AlibiClub.diagnostics().state.runs.blockcabinet;
+      const selected = document.querySelector('.bc-host [data-piece][aria-pressed="true"]');
+      const selection = document.querySelector('.bc-host [data-selection]');
+      return {
+        seed: run.seed,
+        log: run.log,
+        selectedSlot: selected?.dataset.piece ?? null,
+        selectionTitle: selection.querySelector('[data-selection-title]').textContent.trim(),
+        selectionDetail: selection.querySelector('[data-selection-detail]').textContent.trim(),
+      };
+    }""")
+
+
 with sync_playwright() as playwright:
     launch = {"headless": True, "args": ["--no-sandbox"]}
     if os.environ.get("CHROMIUM_PATH"):
@@ -117,7 +132,6 @@ with sync_playwright() as playwright:
             page.evaluate("scrollTo(0, 0)")
             if menu.get_attribute('aria-expanded') == 'true':
                 menu.click()
-        original_seed = page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed")
         piece = page.locator('.bc-host [data-piece="0"]')
         piece.click()
         detail = selection.locator('[data-selection-detail]').inner_text()
@@ -167,15 +181,55 @@ with sync_playwright() as playwright:
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 1"
         )
+        selected_piece = page.locator('.bc-host [data-piece]:not([disabled])').first
+        selected_piece.click()
+        before_restart = cabinet_snapshot(page)
+        check(
+            len(before_restart['log']) == 1 and before_restart['selectedSlot'] is not None,
+            f"Restart regression starts with a saved move and selected tray piece at {width}px",
+        )
         restart.click()
-        check(page.locator('dialog[open]').count() == 1, f"Enhanced restart asks before clearing at {width}px")
-        page.locator('[data-action="club-reset-confirm"]').click()
+        restart_dialog = page.locator('dialog[open]')
+        restart_dialog.wait_for()
+        check(
+            cabinet_snapshot(page) == before_restart,
+            f"Opening restart confirmation preserves the current run and selection at {width}px",
+        )
+        restart_dialog.get_by_role('button', name='Cancel', exact=True).click()
+        page.wait_for_function("() => !document.querySelector('dialog[open]')")
+        after_cancel = cabinet_snapshot(page)
+        check(
+            not page.locator('dialog[open]').count() and after_cancel == before_restart,
+            f"Cancel closes restart confirmation and preserves seed, log, and selection at {width}px",
+        )
+        restart.click()
+        page.locator('dialog[open]').wait_for()
+        page.keyboard.press('Escape')
+        page.wait_for_function("() => !document.querySelector('dialog[open]')")
+        after_escape = cabinet_snapshot(page)
+        check(
+            not page.locator('dialog[open]').count() and after_escape == before_restart,
+            f"Escape closes restart confirmation and preserves seed, log, and selection at {width}px",
+        )
+        restart.click()
+        page.locator('dialog[open]').get_by_role('button', name='Continue', exact=True).click()
         page.wait_for_function(
             "() => AlibiClub.diagnostics().state.runs.blockcabinet.log.length === 0"
         )
+        page.wait_for_function(
+            "() => !document.querySelector('dialog[open]')"
+        )
+        after_restart = cabinet_snapshot(page)
         check(
-            page.evaluate("AlibiClub.diagnostics().state.runs.blockcabinet.seed") != original_seed,
-            f"Enhanced restart chooses a new seed at {width}px",
+            after_restart['seed'] != before_restart['seed']
+            and after_restart['log'] == []
+            and not page.locator('dialog[open]').count(),
+            f"Accepted restart closes the dialog, chooses a new seed, and clears the log at {width}px",
+        )
+        check(
+            after_restart['selectedSlot'] is None
+            and after_restart['selectionTitle'] == 'Select a tray piece',
+            f"Accepted restart clears the selected piece at {width}px",
         )
         simple_controls()
         check(
@@ -405,6 +459,39 @@ with sync_playwright() as playwright:
           f"Line-clear visual probe exercises the real animation: {clear_visual}")
     check(clear_visual['minStationaryOpacity'] >= 0.95,
           f"Stationary piece remains visible during line clear: {clear_visual}")
+    menu = page.locator('.bc-host [data-command="menu"]')
+    if menu.get_attribute('aria-expanded') != 'true':
+        menu.click()
+    page.locator('.bc-host [data-command="switch"]').click()
+    page.locator('.bc-modal .bc-cell').first.wait_for()
+    page.locator('.bc-modal [data-piece="0"]').click()
+    page.locator('.bc-modal .bc-cell.legal').first.click()
+    page.wait_for_function(
+        "() => document.querySelector('.bc-modal [data-score]').textContent.trim() !== '0'"
+    )
+    cascade_piece = page.locator('.bc-modal [data-piece]:not([disabled])').first
+    cascade_piece.click()
+    rotate = page.locator('.bc-modal [data-command="rotate"]')
+    rotate.click()
+    check(
+        '90 degree orientation' in cascade_piece.get_attribute('aria-label'),
+        'Cascade selection is rotated before a new seed is accepted',
+    )
+    page.on(
+        'dialog',
+        lambda dialog: dialog.accept('FLASH-27') if dialog.type == 'prompt' else dialog.accept(),
+    )
+    page.locator('.bc-modal [data-command="new"]').click()
+    page.wait_for_function('''() =>
+        document.querySelector('.bc-modal [data-score]')?.textContent.trim() === '0' &&
+        document.querySelector('.bc-modal [data-piece="0"]')?.getAttribute('aria-pressed') === 'false' &&
+        document.querySelector('.bc-modal [data-selection-title]')?.textContent.trim() === 'Select a tray piece'
+    ''')
+    check(
+        page.locator('.bc-modal [data-piece="0"]').get_attribute('aria-pressed') == 'false'
+        and page.locator('.bc-modal [data-selection-title]').inner_text().strip() == 'Select a tray piece',
+        'Accepted Cascade new seed clears its prior selection and rotation',
+    )
     context.close()
     print("PASS", len(checks), "Block Cabinet browser assertions.")
     browser.close()

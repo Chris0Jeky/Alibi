@@ -108,7 +108,14 @@ export function mountSurface(root, adapter, options = {}) {
       pending = false;
       board.classList.remove('bc-resolving');
     }
-    state = adapter.read();
+    const nextState = adapter.read();
+    if (nextState.seed !== state.seed) {
+      selected = null;
+      rotation = 0;
+      pointer = null;
+      origin = -1;
+    }
+    state = nextState;
     if (selected !== null && state.tray[selected] === null) selected = null;
     const selectedShape = getShape(),
       selectedSize = selectedShape ? extent(selectedShape.cells) : null,
@@ -603,9 +610,14 @@ export function mountSurface(root, adapter, options = {}) {
       } else if (name === 'switch') {
         options.onSwitch?.();
       } else if (adapter[name]) {
-        await adapter[name](restoreSimpleFocus);
-        selected = null;
-        rotation = 0;
+        const accepted = await adapter[name](restoreSimpleFocus);
+        // Classic opens its Club confirmation dialog and must keep the current
+        // selection until the run actually changes. Adapter-owned new-game
+        // flows (Cascade and the prototype) report accepted resets directly.
+        if (name !== 'new' || accepted === true) {
+          selected = null;
+          rotation = 0;
+        }
         sync();
       }
     } catch (error) {

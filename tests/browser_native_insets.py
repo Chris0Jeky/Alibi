@@ -7,7 +7,7 @@ import subprocess
 from playwright.sync_api import sync_playwright
 from native_inset_payload import load_native_style
 from native_inset_stylesheets import load_shared_styles
-from native_inset_content import verify_content_reservation
+from native_inset_content import verify_content_reservation, verify_three_button_48px_inset
 from native_inset_toasts import verify_toast_clearance
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,6 +91,45 @@ def verify_components(page, native_css, shared_css):
     return checks
 
 
+def verify_borough_scroll_margins(page, native_css, shared_css):
+    """Borough reveal targets clear the native dock while web geometry stays shared."""
+    checks = []
+    page.set_viewport_size({"width": 390, "height": 844})
+    for selector, label in ((".borough-cell", "cell"), (".build-confirm", "confirm")):
+        page.set_content(f'''<!doctype html><html data-alibi-target="android"><head>
+            <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+            <style>{native_css}</style><style>{shared_css}</style></head>
+            <body><main class="main"><div style="height:1800px">Borough board</div>
+              <button id="borough-target" class="{selector[1:]}">Reveal target</button>
+            </main><nav class="mobile-nav"><button>Build</button><button>Plan</button><button>Town</button></nav>
+            </body></html>''')
+        page.evaluate("""() => {
+            document.documentElement.style.scrollBehavior = 'auto';
+            window.scrollTo({top: 0, behavior: 'instant'});
+        }""")
+        page.evaluate("document.documentElement.style.setProperty('--safe-area-inset-bottom', '32px')")
+        page.evaluate("document.querySelector('#borough-target').scrollIntoView({block:'nearest', behavior:'auto'})")
+        native = page.evaluate("""() => {
+          const target = document.querySelector('#borough-target');
+          const nav = document.querySelector('.mobile-nav');
+          return {margin: getComputedStyle(target).scrollMarginBottom,
+            targetBottom: target.getBoundingClientRect().bottom,
+            navTop: nav.getBoundingClientRect().top};
+        }""")
+        close(native["margin"], 113, f"Borough native 32px scroll margin ({label})")
+        # scrollIntoView may round the final visual position by 1 CSS px; the
+        # computed 113px margin stays exact and the target must still clear the dock by 15px.
+        assert native["targetBottom"] <= native["navTop"] - 15, (label, native)
+        checks.append(f"borough-scroll-clearance:android:32:{label}")
+
+        page.evaluate("delete document.documentElement.dataset.alibiTarget")
+        page.evaluate("document.querySelector('#borough-target').scrollIntoView({block:'nearest', behavior:'auto'})")
+        web = page.evaluate("getComputedStyle(document.querySelector('#borough-target')).scrollMarginBottom")
+        close(web, 81, f"Borough shared PWA scroll margin ({label})")
+        checks.append(f"borough-scroll-isolation:web:32:{label}")
+    return checks
+
+
 def main():
     # Missing/stale artifacts fail; there is no source-CSS fallback in this runner.
     native, payload = load_native_style(ROOT)
@@ -106,7 +145,9 @@ def main():
         checks = verify_components(page, native, shared)
         checks.extend(verify_content_reservation(page, native, shared,
                       ROOT / 'test-results/native-insets/content-screenshots'))
+        checks.extend(verify_three_button_48px_inset(page, native, shared))
         checks.extend(verify_toast_clearance(page, native, shared))
+        checks.extend(verify_borough_scroll_margins(page, native, shared))
         version = browser.version
         browser.close()
     out = ROOT / "test-results/native-insets"

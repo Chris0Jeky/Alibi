@@ -76,3 +76,42 @@ def verify_content_reservation(page, native, shared, screenshots: Path):
                 }""")
                 assert geometry(page) == baseline, (width, height, mode, playing, 'web drift')
     return checks
+
+
+def verify_three_button_48px_inset(page, native, shared):
+    """A 48px three-button Android dock keeps the last content action reachable."""
+    page.set_viewport_size({"width": 390, "height": 844})
+    page.set_content(f'''<!doctype html><html><head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <style>{native}</style><style>{shared}</style></head><body>
+        <div class="shell"><div class="main-wrap"><main id="main" class="main">
+          <div style="height:1800px">Scrollable content</div><button id="final-action">Last action</button>
+        </main></div></div>
+        <nav class="mobile-nav"><button>One</button><button>Two</button><button>Three</button></nav>
+        </body></html>''')
+    baseline = geometry(page)
+    page.evaluate("""() => {
+        document.documentElement.dataset.alibiTarget = 'android';
+        document.documentElement.style.setProperty('--safe-area-inset-bottom', '48px');
+    }""")
+    actual = geometry(page)
+    assert abs(actual['marginBottom'] - (baseline['marginBottom'] + 48)) < 0.1, (actual, baseline)
+    assert abs(actual['navHeight'] - (baseline['navHeight'] + 48)) < 0.1, (actual, baseline)
+    for side in ('bottom', 'top', 'left', 'right', 'navVisible'):
+        assert actual[side] == baseline[side], (side, actual, baseline)
+    assert abs((actual['bottom'] + actual['marginBottom'] - actual['navHeight'])
+               - (baseline['bottom'] + baseline['marginBottom'] - baseline['navHeight'])) < 0.1
+    page.evaluate("window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'instant'})")
+    assert page.evaluate("""() => {
+        const button = document.querySelector('#final-action');
+        const rect = button.getBoundingClientRect();
+        const nav = document.querySelector('.mobile-nav').getBoundingClientRect();
+        return rect.bottom <= nav.top && button.contains(document.elementFromPoint(
+          rect.left + rect.width / 2, rect.top + rect.height / 2));
+    }"""), ('48px inset', actual, baseline, 'final action hidden under fixed navigation')
+    page.evaluate("""() => {
+        delete document.documentElement.dataset.alibiTarget;
+    }""")
+    assert geometry(page) == baseline, ('48px inset', 'web geometry drift', geometry(page), baseline)
+    return ['content:390x844:three-button:android:48',
+            'content:390x844:three-button:web-isolation:48']
