@@ -1,5 +1,45 @@
 # Live development state
 
+## 2026-10-19: protect Challenge recovery IDs and keep the transfer budget (#579)
+
+Recovery admission follow-up #720 merged into this feature branch as
+c92bc4268369e5c6a60d2121ec59fb07e4c4aec2 after all eight current-head workflows passed.
+Full verification passed 1,304 Node tests and the complete browser/offline/update sequence;
+exact-head Safety passed 33 transfer contracts and both real Chromium two-tab fixtures,
+including the strengthened zero-pending-key assertion after an aborted retention. The runtime
+still uses atomic add for any existing pending recovery key; its recovery UI/startup gap remains.
+
+The shared transfer shape validator refuses Challenge IDs beginning with exact case-sensitive
+recovery: before preview/confirmation, recovery retention or any domain write. Export uses the
+same validation. One local isRecovery helper uses the exact startsWith operation at validation,
+device-read and replacement-delete sites; string/type/empty guards keep their existing order.
+Legitimate and near-prefix IDs keep their bytes and treatment. No error wording, schema,
+storage representation, default origin or byte ceiling changes.
+
+Root and independent review pass all 37 transfer contracts. Four new groups prove preflight
+refusal before every port call, exporter refusal, legitimate-ID preservation through confirmed
+apply, and unchanged device-port exclusions with retained object/null/empty recovery bytes.
+The preceding source fails the two refusal groups. The device-port test is a callback model,
+not actual browser durability or destructive player-import acceptance.
+
+The initial child head 4faaa3867de1dd50751546138b6cb2092ad3ee1a passed the 37 contracts and
+both existing hosted Chromium fixtures, but its complete application gzip was 138,466 bytes,
+over the unchanged strict 138,464 limit. Raw net shell was 1,423,083 and passed. Five workflows
+failed on that same application budget; Android payload and both study-control runs passed.
+The earlier isolated-module prediction did not establish the whole-application gzip result.
+
+The adjacent helper repair replaces the prefix constant and repeated method calls without
+changing their semantics. Pinned esbuild reconstruction reproduces the previous hosted app
+byte for byte (406,608 raw / 138,466 gzip); with its unchanged configuration prefix, the repaired
+app is 406,610 raw / 138,457 gzip. No new release identity or full release build was generated
+locally. Fresh current-head hosted build/budget and browser qualification remain required before
+merge. Detailed source and artifact provenance are in ORIGIN-TRANSFER-RESERVED-IDS-2026-10-19.md.
+
+The parent remains draft and unsafe for main pending broader semantic validation, shared
+ownership of concurrent writes in attempted domains, startup/crash recovery and recovery UI,
+truthful post-commit cleanup, export/fallback consistency, main reconciliation and budget fit.
+Direct API calls bypassing preflight are not redesigned by this bounded guard.
+
 ## 2026-10-19: protect existing origin-transfer recovery during admission (#579)
 
 After #593 merged into the transfer feature branch as ceb14c870b240900070ad7f8c33a16bf685a4a72,
