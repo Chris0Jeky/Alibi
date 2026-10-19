@@ -4,6 +4,7 @@ const fs = require('node:fs'),
   assert = require('node:assert/strict');
 const E = require('../../src/quiet-wing/engine.js'),
   code = fs.readFileSync(require.resolve('../../src/quiet-wing/storage.js'), 'utf8');
+const { fakeLocks } = require('../helpers/fallback-locks.cjs');
 let checks = 0;
 const ok = (b, msg) => {
   assert.ok(b, msg);
@@ -13,6 +14,7 @@ function local() {
   const m = new Map();
   return {
     m,
+    locks: fakeLocks(),
     getItem: (k) => m.get(k) || null,
     setItem: (k, v) => m.set(k, String(v)),
     removeItem: (k) => m.delete(k),
@@ -32,6 +34,7 @@ function env(storage, indexedDB) {
     clearTimeout,
     QWEngine: E,
     localStorage: storage,
+    navigator: { locks: storage.locks },
     indexedDB,
   };
   c.window = c;
@@ -123,10 +126,117 @@ function fakeIDB() {
   };
 }
 (async () => {
+  const key = 'alibi-quiet-wing-v1:fallback',
+    unguarded = local(),
+    original = JSON.stringify(E.newState(Date.now()));
+  unguarded.setItem(key, original);
+  unguarded.setItem(key + ':recovery', 'legacy recovery bytes');
+  unguarded.locks = undefined;
+  const unguardedA = env(unguarded),
+    unguardedB = env(unguarded);
+  const noLockStates = [];
+  for (const tab of [unguardedA, unguardedB]) {
+    const opened = await tab.s.open();
+    ok(
+      opened.saved.scene.name === JSON.parse(original).scene.name,
+      'No-lock fallback remains readable',
+    );
+    ok(!opened.blocked, 'Fallback without Web Locks remains writable');
+    noLockStates.push(opened.saved);
+  }
+  noLockStates[0].scene.name = 'No-lock writer';
+  await unguardedA.s.write(noLockStates[0]);
+  await unguardedA.s.write(noLockStates[0]);
+  const noLockCommitted = unguarded.getItem(key);
+  ok(
+    JSON.parse(noLockCommitted).scene.name === 'No-lock writer' &&
+      JSON.parse(noLockCommitted).revision === 2,
+    'Single-tab no-lock saves persist and advance the revision',
+  );
+  await assert.rejects(unguardedB.s.write(noLockStates[1]), /another tab|changed|export/i);
+  ok(unguarded.getItem(key) === noLockCommitted, 'Stale no-lock writer preserves exact save bytes');
+  const noLockDrift = JSON.parse(noLockCommitted);
+  noLockDrift.schema = 999;
+  const noLockFuture = JSON.stringify(noLockDrift);
+  unguarded.setItem(key, noLockFuture);
+  await assert.rejects(unguardedA.s.write(noLockStates[0]), /another tab|changed|export/i);
+  ok(unguarded.getItem(key) === noLockFuture, 'No-lock same-revision drift preserves exact bytes');
+  ok(
+    (await unguardedA.s.raw()).recovery === 'legacy recovery bytes',
+    'No-lock raw recovery stays exportable',
+  );
+  ok(
+    unguardedA.statuses.some((s) => /export/i.test(s.text)),
+    'No-lock status directs the player to export',
+  );
+
+  const guarded = local(),
+    guardedTab = env(guarded);
+  await guardedTab.s.open();
+  await guardedTab.s.write(E.newState(Date.now()));
+  const committed = guarded.getItem(key);
+  let release;
+  const held = guarded.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+  await assert.rejects(guardedTab.s.write(E.newState(Date.now())), /another tab|export/i);
+  ok(guarded.getItem(key) === committed, 'Held lock refuses a concurrent fallback write');
+  release();
+  await held;
+  const restarted = env(guarded),
+    loaded = await restarted.s.open();
+  await restarted.s.write(loaded.saved);
+  const drift = JSON.parse(guarded.getItem(key));
+  drift.schema = 999;
+  const futureBytes = JSON.stringify(drift);
+  guarded.setItem(key, futureBytes);
+  await assert.rejects(restarted.s.write(loaded.saved), /another tab|changed|export/i);
+  ok(guarded.getItem(key) === futureBytes, 'Same-revision format drift preserves exact bytes');
+
+  const concurrent = local(),
+    baseline = E.newState(Date.now());
+  concurrent.setItem(key, JSON.stringify(baseline));
+  const firstTab = env(concurrent),
+    secondTab = env(concurrent);
+  const firstState = (await firstTab.s.open()).saved;
+  const secondState = (await secondTab.s.open()).saved;
+  firstState.scene.name = 'First context';
+  secondState.scene.name = 'Second context';
+  const writes = await Promise.allSettled([
+    firstTab.s.write(firstState),
+    secondTab.s.write(secondState),
+  ]);
+  ok(
+    writes.filter((r) => r.status === 'fulfilled').length === 1,
+    'Shared-lock same-revision writes admit at most one context',
+  );
+  const winner = writes[0].status === 'fulfilled' ? firstState : secondState;
+  ok(
+    JSON.parse(concurrent.getItem(key)).scene.name === winner.scene.name,
+    'Reopening retains the successful context, never the refused context',
+  );
+  ok(
+    (await env(concurrent).s.open()).saved.scene.name === winner.scene.name,
+    'A restarted context reads the winner',
+  );
+
   const stalledFallback = local();
-  const stalled = env(stalledFallback, {open() { return {}; }});
+  const stalled = env(stalledFallback, {
+    open() {
+      return {};
+    },
+  });
   const stalledResult = await stalled.s.open();
-  ok(stalledResult.blocked && stalledResult.mode === 'protected', 'An ambiguous open timeout stays protected instead of forking a fallback save');
+  ok(
+    stalledResult.blocked && stalledResult.mode === 'protected',
+    'An ambiguous open timeout stays protected instead of forking a fallback save',
+  );
   await assert.rejects(stalled.s.write(E.newState(Date.now())), /./);
   ok(stalledFallback.m.size === 0, 'Timed-out open creates no fallback edits');
   const ls = local(),
@@ -244,6 +354,91 @@ function fakeIDB() {
     fake.data.get('state').scene.name === 'Replacement',
     'Rejected garden restores preserve the current save',
   );
+  const overflowDB = fakeIDB(),
+    overflowOriginal = E.newState(Date.now()),
+    overflowRecovery = { at: 42, state: { future: 'preserve' } };
+  overflowOriginal.revision = Number.MAX_SAFE_INTEGER + 1;
+  overflowOriginal.scene.name = 'Protected overflow original';
+  overflowDB.data.set('state', structuredClone(overflowOriginal));
+  overflowDB.data.set('recovery', structuredClone(overflowRecovery));
+  const overflowA = env(local(), overflowDB.api),
+    overflowB = env(local(), overflowDB.api);
+  await overflowA.s.open();
+  await overflowB.s.open();
+  const firstOverflow = E.newState(Date.now()),
+    staleOverflow = E.newState(Date.now());
+  firstOverflow.scene.name = 'First writer';
+  staleOverflow.scene.name = 'Stale writer';
+  const overflowWrites = await Promise.allSettled([
+    overflowA.s.write(firstOverflow),
+    overflowB.s.write(staleOverflow),
+  ]);
+  console.log({
+    precisionBoundary: overflowWrites.map((r) => r.status),
+    revision: overflowDB.data.get('state').revision,
+    name: overflowDB.data.get('state').scene.name,
+  });
+  ok(
+    overflowWrites.every((r) => r.status === 'rejected'),
+    'Both overflow writers are refused instead of reporting unchanged-revision success',
+  );
+  assert.deepEqual(overflowDB.data.get('state'), overflowOriginal);
+  assert.deepEqual(overflowDB.data.get('recovery'), overflowRecovery);
+  checks += 2;
+  for (const mode of ['local', 'indexeddb']) {
+    const boundaryLocal = local(),
+      boundaryDB = fakeIDB(),
+      boundaryState = E.newState(Date.now()),
+      boundaryRecovery = { at: 43, state: { sentinel: 'preserve' } };
+    boundaryState.revision = Number.MAX_SAFE_INTEGER - 1;
+    if (mode === 'indexeddb') {
+      boundaryDB.data.set('state', structuredClone(boundaryState));
+      boundaryDB.data.set('recovery', structuredClone(boundaryRecovery));
+    } else {
+      boundaryLocal.setItem('alibi-quiet-wing-v1:fallback', JSON.stringify(boundaryState));
+      boundaryLocal.setItem(
+        'alibi-quiet-wing-v1:fallback:recovery',
+        JSON.stringify(boundaryRecovery),
+      );
+    }
+    const boundary = env(boundaryLocal, mode === 'indexeddb' ? boundaryDB.api : undefined),
+      opened = await boundary.s.open();
+    opened.saved.scene.name = 'Final safe edit';
+    const eqRevision = await boundary.s.write(opened.saved);
+    ok(eqRevision === Number.MAX_SAFE_INTEGER, mode + ' advances to the final safe revision');
+    const lastBytes =
+      mode === 'indexeddb'
+        ? structuredClone(boundaryDB.data.get('state'))
+        : boundaryLocal.getItem('alibi-quiet-wing-v1:fallback');
+    opened.saved.scene.name = 'Refused edit';
+    await assert.rejects(boundary.s.write(opened.saved), /revision/i);
+    checks++;
+    if (mode === 'indexeddb') {
+      await assert.rejects(boundary.s.replace(E.newState(Date.now())), /revision/i);
+      assert.deepEqual(boundaryDB.data.get('state'), lastBytes);
+      assert.deepEqual(boundaryDB.data.get('recovery'), boundaryRecovery);
+      checks += 3;
+    } else {
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback') === lastBytes,
+        'Refused fallback edit preserves exact bytes',
+      );
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback:recovery') ===
+          JSON.stringify(boundaryRecovery),
+        'Fallback recovery bytes stay intact',
+      );
+      const unsafeBytes = '  ' + JSON.stringify(overflowOriginal) + '\n';
+      boundaryLocal.setItem('alibi-quiet-wing-v1:fallback', unsafeBytes);
+      const unsafeFallback = env(boundaryLocal);
+      ok((await unsafeFallback.s.open()).blocked, 'Unsafe fallback revision loads protected');
+      await assert.rejects(unsafeFallback.s.write(E.newState(Date.now())), /read-only/);
+      ok(
+        boundaryLocal.getItem('alibi-quiet-wing-v1:fallback') === unsafeBytes,
+        'Unsafe fallback bytes remain exact',
+      );
+    }
+  }
   fake.setHang(true);
   try {
     await w.s.write(x);

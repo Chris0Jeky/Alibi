@@ -1,0 +1,71 @@
+name: Workshop collection discovery
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+      - 'src/app.js'
+      - 'src/workshop-collections.css'
+      - 'src/storage.js'
+      - 'src/validator-worker.js'
+      - 'tools/build.cjs'
+      - 'tools/build-android.cjs'
+      - 'tools/workshop-*.cjs'
+      - 'tools/build-workshop-shelf.cjs'
+      - 'tests/workshop-*.test.cjs'
+      - 'tests/browser_workshop_discovery.py'
+      - '.github/workflows/workshop-discovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: workshop-discovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - name: Verify exact built web and indexed Android delivery
+        run: |
+          set -o pipefail
+          mkdir -p test-results/workshop-discovery
+          git rev-parse HEAD > test-results/workshop-discovery/source-head.txt
+          npm run format:check
+          npm run build:android
+          node --test tests/workshop-*.test.cjs tests/budget.test.cjs 2>&1 | tee test-results/workshop-discovery/source-tests.log
+          cp build-info.json test-results/workshop-discovery/build-info.json
+          cp dist-android/android-assets.json test-results/workshop-discovery/android-assets.json
+          git diff --exit-code
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Download and import exact packs through real controls, then replay offline
+        run: |
+          set -eu
+          node tools/serve.cjs > test-results/workshop-discovery/server.log 2>&1 &
+          server=$!
+          trap 'kill "$server"' EXIT
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:8787/ >/dev/null && break
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
+          EXPECTED_HEAD=$(git rev-parse HEAD) ALIBI_URL=http://127.0.0.1:8787 python tests/browser_workshop_discovery.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: workshop-discovery-controls
+          path: test-results/workshop-discovery/
+          retention-days: 14
+          if-no-files-found: error

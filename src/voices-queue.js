@@ -1,5 +1,5 @@
 /* Voices delivery: payloads, the offline queue and the survey key (Pulseboard contracts
-pulseboard.feedback/1 and pulseboard.survey/1; docs/FEEDBACK-AND-SURVEYS.md). Pure: storage, fetch,
+pulseboard.feedback/1 and pulseboard.survey/2; docs/FEEDBACK-AND-SURVEYS.md). Pure: storage, fetch,
 clock, connectivity and the UUID source are injected, so every status path is testable in Node.
 Nothing runs by itself: a payload is built and queued only after the player presses Send, submits
 the survey or taps a rating. */
@@ -8,6 +8,7 @@ the survey or taps a rating. */
   const QUEUE = 'alibi:voices:queue:v1',
     KEY = 'alibi:voices:respondent:v1',
     NOTES = 'alibi:voices:unsent:v1',
+    REVISIONS = 'alibi:voices:revisions:v2',
     MAX = 20,
     KEEP = 30 * 864e5,
     // After the 1st, 2nd, 3rd and 4th failed attempt, then every 6 hours.
@@ -16,6 +17,7 @@ the survey or taps a rating. */
     SUBJECT = /^[a-z0-9][a-z0-9-]{0,63}$/,
     // The release pattern of Pulseboard product batches.
     RELEASE = /^[0-9A-Za-z.+-]{1,32}$/,
+    json = JSON.stringify,
     split = (s) => s.split(' '),
     KINDS = split('bug idea puzzle praise other'),
     ROUTES = split('home puzzle castle quiet-wing games settings other'),
@@ -66,8 +68,7 @@ the survey or taps a rating. */
       String(text ?? '')
         .replace(/[\0-\x08\x0b-\x1f\x7f-\x9f]/g, ' ')
         .trim(),
-    same = (a, b) =>
-      a.queued === b.queued && JSON.stringify(a.payload) === JSON.stringify(b.payload),
+    same = (a, b) => a.queued === b.queued && json(a.payload) === json(b.payload),
     // One key per queued item: a message's id, or a survey's survey and subject.
     tag = (x) => `${x.queued}:${x.payload.id || x.payload.survey + '/' + x.payload.subject}`;
   // Only a survey's own options, in registry order; unanswered questions are omitted.
@@ -93,6 +94,7 @@ the survey or taps a rating. */
     project = 'alibi',
     online = () => true,
     timeout = 15e3,
+    locks = G.navigator?.locks,
   }) => {
     // Storage that cannot be read or written keeps the queue in memory for this page only.
     let memory = [],
@@ -111,7 +113,7 @@ the survey or taps a rating. */
       write = (key, value) => {
         try {
           if (value == null) storage.removeItem(key);
-          else storage.setItem(key, JSON.stringify(value));
+          else storage.setItem(key, json(value));
           return true;
         } catch {}
       },
@@ -123,7 +125,42 @@ the survey or taps a rating. */
         } catch {
           return null;
         }
-      };
+      },
+      // Feedback can proceed without a lock; revisions require a lock actually acquired.
+      locked = async (fn) => {
+        try {
+          if (locks) return await locks.request(QUEUE, () => fn(true));
+        } catch {}
+        return fn(false);
+      },
+      subjectKey = (p) => `${p.respondent}/${p.survey}/${p.subject}`;
+    // Counters outlive queue removal. A failed durable write must never reuse a revision.
+    function revision(p, held, edit) {
+      const counters = read(REVISIONS) ?? {},
+        key = subjectKey(p),
+        prior = counters[key] ?? 0;
+      if (
+        !held ||
+        typeof counters !== 'object' ||
+        Array.isArray(counters) ||
+        read(KEY) !== p.respondent ||
+        !Number.isSafeInteger(prior) ||
+        prior < 0
+      )
+        return 0;
+      const n = edit
+        ? Math.max(
+            prior,
+            ...load()
+              .filter((x) => subjectKey(x.payload) === key)
+              .map((x) => x.payload.revision ?? 0),
+          ) + 1
+        : p.revision;
+      if (!Number.isSafeInteger(n) || n < 1 || n > 2147483647 || (edit === false && n < prior))
+        return 0;
+      counters[key] = Math.max(prior, n);
+      return write(REVISIONS, counters) ? n : 0;
+    }
     // A corrupt queue is empty; malformed and expired items are dropped.
     function load() {
       if (!broken)
@@ -138,15 +175,23 @@ the survey or taps a rating. */
           broken = true;
         }
       const t = now();
-      return memory
-        .filter(
-          (x) =>
-            x?.payload &&
-            typeof x.payload === 'object' &&
-            [x.attempts, x.next, x.queued].every(Number.isFinite) &&
-            t - x.queued < KEEP,
-        )
-        .slice(-MAX);
+      return (
+        memory
+          .filter(
+            (x) =>
+              x?.payload &&
+              typeof x.payload === 'object' &&
+              [x.attempts, x.next, x.queued].every(Number.isFinite) &&
+              t - x.queued < KEEP,
+          )
+          .slice(-MAX)
+          // An old queued v1 answer predates every deliberate v2 edit, so it is always revision 1.
+          .map((x) =>
+            x.payload.survey && x.payload.v === 1
+              ? { ...x, payload: { ...x.payload, v: 2, revision: 1 } }
+              : x,
+          )
+      );
     }
     function save(list) {
       memory = list;
@@ -162,8 +207,8 @@ the survey or taps a rating. */
         TIERS,
         clean,
         pending: load,
-        // The collector's final answer for a payload sent this page (202 or 400), else undefined.
-        outcome: (payload) => outcomes.get(JSON.stringify(payload)),
+        // The collector's terminal status for a payload sent this page, else undefined.
+        outcome: (payload) => outcomes.get(json(payload)),
         notes: () => [read(NOTES) || []].flat().filter((x) => x?.what),
         dismissNotes: () => write(NOTES, null),
         clear: () => save([]),
@@ -195,19 +240,24 @@ the survey or taps a rating. */
           return key;
         },
         // Queued answers still carry the old key; sending them later would link it to the new one.
-        // Returns how many answers were removed. Messages carry no key and stay queued.
+        // Resolves to the removed count, or false if locking/key removal fails; no unlocked reset.
+        // Messages carry no key and stay queued.
         resetRespondent() {
-          const list = load(),
-            kept = list.filter((x) => !x.payload.respondent);
-          if (kept.length < list.length) {
-            save(kept);
-            // A queue that cannot be rewritten is removed instead, so the old answers cannot
-            // reload; the kept messages stay for this page.
-            if (broken) write(QUEUE, null);
-          }
-          remembered = null;
-          write(KEY, null);
-          return list.length - kept.length;
+          return locked((held) => {
+            if (!held) return false;
+            const list = load(),
+              kept = list.filter((x) => !x.payload.respondent);
+            if (kept.length < list.length) {
+              save(kept);
+              // A queue that cannot be rewritten is removed instead, so the old answers cannot
+              // reload; the kept messages stay for this page.
+              if (broken) write(QUEUE, null);
+            }
+            remembered = null;
+            if (!write(KEY, null)) return false;
+            write(REVISIONS, null);
+            return list.length - kept.length;
+          });
         },
         // Built when Send is pressed: null when the text is empty or a field is invalid.
         feedback({ kind, route, subject = '', text, release, device }) {
@@ -224,6 +274,7 @@ the survey or taps a rating. */
             context: { device },
           };
           return payload.id &&
+            typeof release === 'string' &&
             RELEASE.test(release) &&
             KINDS.includes(kind) &&
             DEVICES.includes(device) &&
@@ -234,50 +285,67 @@ the survey or taps a rating. */
         },
         // A survey or rating: the survey key is created on the first valid submit.
         survey({ survey, subject = '', answers, meta = {}, comment = '', release, device }) {
-          const spec = SURVEYS[survey],
-            picked = spec && answersFor(spec.questions, answers);
-          comment = clean(comment);
-          const valid =
-              picked &&
-              RELEASE.test(release) &&
-              DEVICES.includes(device) &&
-              comment.length <= spec.comment &&
-              (spec.subject
-                ? SUBJECT.test(subject) &&
-                  FAMILIES.includes(meta.family) &&
-                  TIERS.includes(meta.tier) &&
-                  Object.keys(meta).length === 2
-                : subject === '' && !Object.keys(meta).length),
-            respondent = valid && api.respondent(true);
-          return respondent
-            ? {
-                v: 1,
-                survey,
-                subject,
-                respondent,
-                release,
-                answers: picked,
-                meta: spec.subject ? { family: meta.family, tier: meta.tier } : {},
-                comment,
-                context: { device },
-              }
-            : null;
+          return locked((held) => {
+            const spec = SURVEYS[survey],
+              picked = spec && answersFor(spec.questions, answers);
+            comment = clean(comment);
+            const valid =
+                picked &&
+                typeof release === 'string' &&
+                RELEASE.test(release) &&
+                DEVICES.includes(device) &&
+                comment.length <= spec.comment &&
+                (spec.subject
+                  ? SUBJECT.test(subject) &&
+                    FAMILIES.includes(meta.family) &&
+                    TIERS.includes(meta.tier) &&
+                    Object.keys(meta).length === 2
+                  : subject === '' && !Object.keys(meta).length),
+              respondent = valid && api.respondent(true);
+            const next = respondent && revision({ respondent, survey, subject }, held, true);
+            return next
+              ? {
+                  v: 2,
+                  revision: next,
+                  survey,
+                  subject,
+                  respondent,
+                  release,
+                  answers: picked,
+                  meta: spec.subject ? { family: meta.family, tier: meta.tier } : {},
+                  comment,
+                  context: { device },
+                }
+              : null;
+          });
         },
         // A survey or rating replaces the older queued answer for the same survey and subject.
         // Returns false when twenty items are already waiting.
         enqueue(payload) {
-          const list = load().filter((x) =>
-            payload.survey
-              ? x.payload.survey !== payload.survey || x.payload.subject !== payload.subject
-              : x.payload.id !== payload.id,
-          );
-          if (list.length >= MAX) return false;
-          outcomes.delete(JSON.stringify(payload));
-          list.push({ payload, attempts: 0, next: 0, queued: now() });
-          save(list);
-          return true;
+          return locked((held) => {
+            if (
+              payload.survey &&
+              (!revision(payload, held, false) ||
+                load().some(
+                  (x) =>
+                    subjectKey(x.payload) === subjectKey(payload) &&
+                    x.payload.revision >= payload.revision,
+                ))
+            )
+              return false;
+            const list = load().filter((x) =>
+              payload.survey
+                ? x.payload.survey !== payload.survey || x.payload.subject !== payload.subject
+                : x.payload.id !== payload.id,
+            );
+            if (list.length >= MAX) return false;
+            outcomes.delete(json(payload));
+            list.push({ payload, attempts: 0, next: 0, queued: now() });
+            save(list);
+            return true;
+          });
         },
-        // Sends due items one at a time. 202 removes; 400 removes and leaves a local note; anything
+        // Sends due items one at a time. 202 removes; 400/409 remove and leave a local note; anything
         // else (network error, timeout, 429, 5xx, 503) keeps the item, backs it off and ends the pass.
         // A browser that knows it is offline makes no attempt; each item is tried once per pass.
         flush() {
@@ -288,7 +356,15 @@ the survey or taps a rating. */
               const tried = new Set();
               for (
                 let item;
-                online() && (item = load().find((x) => x.next <= now() && !tried.has(tag(x))));
+                online() &&
+                (item = await locked((held) =>
+                  load().find(
+                    (x) =>
+                      x.next <= now() &&
+                      !tried.has(tag(x)) &&
+                      (!x.payload.survey || revision(x.payload, held)),
+                  ),
+                ));
               ) {
                 tried.add(tag(item));
                 // A request that hangs is abandoned after the timeout, counted as a network error.
@@ -303,7 +379,7 @@ the survey or taps a rating. */
                       {
                         method: survey ? 'PUT' : 'POST',
                         headers: { 'content-type': 'application/json' },
-                        body: JSON.stringify(item.payload),
+                        body: json(item.payload),
                         credentials: 'omit',
                         cache: 'no-store',
                         referrerPolicy: 'no-referrer',
@@ -314,29 +390,33 @@ the survey or taps a rating. */
                   wait = Math.min(+response.headers?.get?.('retry-after') || 0, 86400) * 1e3;
                 } catch {}
                 G.clearTimeout?.(timer);
-                const list = load(),
-                  at = list.findIndex((x) => same(x, item));
-                if (status === 202 || status === 400) {
-                  outcomes.set(JSON.stringify(item.payload), status);
-                  if (outcomes.size > MAX) outcomes.delete(outcomes.keys().next().value);
-                  if (at >= 0) list.splice(at, 1);
-                  save(list);
-                  if (status > 202)
-                    write(NOTES, [
-                      ...api.notes().slice(1 - MAX),
-                      { what: item.payload.survey || 'feedback', day: day() },
-                    ]);
-                  continue;
-                }
-                if (at >= 0) {
-                  const attempts = list[at].attempts + 1;
-                  list[at] = {
-                    ...list[at],
-                    attempts,
-                    next: now() + Math.max(BACKOFF[Math.min(attempts, 5) - 1], wait),
-                  };
-                  save(list);
-                }
+                const terminal = status === 202 || status === 400 || status === 409;
+                await locked(() => {
+                  const list = load(),
+                    at = list.findIndex((x) => same(x, item));
+                  if (terminal) {
+                    outcomes.set(json(item.payload), status);
+                    if (outcomes.size > MAX) outcomes.delete(outcomes.keys().next().value);
+                    if (at >= 0) list.splice(at, 1);
+                    save(list);
+                    if (status > 202)
+                      write(NOTES, [
+                        ...api.notes().slice(1 - MAX),
+                        { what: item.payload.survey || 'feedback', day: day() },
+                      ]);
+                    return;
+                  }
+                  if (at >= 0) {
+                    const attempts = list[at].attempts + 1;
+                    list[at] = {
+                      ...list[at],
+                      attempts,
+                      next: now() + Math.max(BACKOFF[Math.min(attempts, 5) - 1], wait),
+                    };
+                    save(list);
+                  }
+                });
+                if (terminal) continue;
                 break;
               }
             } while (again);

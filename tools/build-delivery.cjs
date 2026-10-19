@@ -98,6 +98,92 @@ function buildDelivery(root, dist, fallback, baseMedia = {}) {
       origins.add(remote.origin);
     }
   }
+  const paintedPath = path.join(root, 'assets-source/library/painted-club/manifest.json');
+  if (fs.existsSync(paintedPath)) {
+    const shelf = JSON.parse(fs.readFileSync(paintedPath)).assets;
+    const slots = {
+      'club-welcome': 'desk',
+      'lantern-duel': 'duel',
+      'pocket-borough': 'borough',
+      'tic-tac-toe': 'tictactoe',
+      'lantern-gardens': 'regiongardens',
+      'block-cabinet': 'blockcabinet',
+      'archive-heist': 'archive',
+      'living-atlas': 'lab',
+    };
+    for (const [id, slot] of Object.entries(slots)) {
+      const file = id + '-320.webp';
+      const record = shelf.find((a) => a.file === file);
+      const data = fs.readFileSync(path.join(path.dirname(paintedPath), file));
+      const sha256 = crypto.createHash('sha256').update(data).digest('hex');
+      if (
+        !record ||
+        record.sha256 !== sha256 ||
+        record.bytes !== data.length ||
+        data.length > 1024 * 1024
+      )
+        throw Error('Painted fingerprint mismatch: ' + id);
+      const svg = fs.readFileSync(path.join(path.dirname(paintedPath), 'fallbacks', id + '.svg'));
+      const url = `./assets/enhanced-painted-${id}.${sha256.slice(0, 12)}.webp`;
+      fs.writeFileSync(path.join(dist, url), data);
+      entries['art-' + slot] = {
+        fallback: 'data:image/svg+xml,' + encodeURIComponent(svg.toString('utf8')),
+        urls: [url],
+        sha256,
+        bytes: data.length,
+        mime: 'image/webp',
+      };
+      bytes += data.length;
+    }
+  }
+  // Declared images use the same verified, on-demand loader and enhancement byte receipt.
+  if (!Array.isArray(policy.deferred ?? [])) throw Error('Invalid deferred image list');
+  for (const asset of policy.deferred ?? []) {
+    if (
+      !asset ||
+      typeof asset.id !== 'string' ||
+      !/^[a-z0-9-]+$/.test(asset.id) ||
+      Object.hasOwn(entries, asset.id) ||
+      typeof asset.file !== 'string' ||
+      !/^[a-z0-9][a-z0-9/_-]*\.webp$/.test(asset.file) ||
+      !/^[a-f0-9]{64}$/.test(asset.sha256) ||
+      !(Object.hasOwn(baseMedia, asset.fallback) || Object.hasOwn(fallback, asset.fallback))
+    )
+      throw Error('Invalid deferred image declaration');
+    const sourceRoot = ['assets-source', registry.policy?.derivativeRoot].find(
+      (dir) => typeof dir === 'string' && asset.file.startsWith(dir + '/'),
+    );
+    if (!sourceRoot) throw Error('Invalid deferred image declaration');
+    const approved = registry.assets.some(
+      (a) =>
+        [a.source, a.derivative].some(
+          (record) => record?.file === asset.file && record.sha256 === asset.sha256,
+        ) &&
+        [a.rights?.licence, a.source?.rights].some(
+          (rights) => typeof rights === 'string' && rights.trim(),
+        ),
+    );
+    if (!approved) throw Error('Deferred image missing provenance/licence record: ' + asset.file);
+    const file = fs.realpathSync(path.join(root, asset.file));
+    if (!file.startsWith(fs.realpathSync(path.join(root, sourceRoot)) + path.sep))
+      throw Error('Deferred image escaped source directory');
+    const data = fs.readFileSync(file);
+    const sha256 = crypto.createHash('sha256').update(data).digest('hex');
+    if (sha256 !== asset.sha256 || data.length > 1024 * 1024)
+      throw Error('Deferred image fingerprint or size mismatch');
+    const url = `./assets/enhanced-${asset.id}.${sha256.slice(0, 12)}.webp`;
+    if (Object.values(entries).some((entry) => entry.urls.includes(url)))
+      throw Error('Deferred image path collides with an existing asset');
+    fs.writeFileSync(path.join(dist, url), data);
+    entries[asset.id] = {
+      fallback: baseMedia[asset.fallback] || fallback[asset.fallback],
+      urls: [url],
+      sha256,
+      bytes: data.length,
+      mime: 'image/webp',
+    };
+    bytes += data.length;
+  }
   return { entries, origins: [...origins].sort(), bytes };
 }
 module.exports = buildDelivery;

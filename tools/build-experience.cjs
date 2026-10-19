@@ -10,6 +10,12 @@ module.exports = function buildExperience(root, dist) {
   const offline = new Set();
   function emit(source, cache = true) {
     if (files.has(source)) return files.get(source).url;
+    // Catalogue paths may only publish files inside the library, compared by real path so a
+    // symlink inside the library cannot publish a target outside it (review of #710).
+    const real = (p) => fs.realpathSync(path.resolve(root, p));
+    const rel = path.relative(real(base), real(source));
+    if (!rel || rel.split(path.sep)[0] === '..' || path.isAbsolute(rel))
+      throw new Error(`Rejected asset source outside the library: ${source}`);
     const bytes = fs.readFileSync(path.join(root, source));
     const id = crypto.createHash('sha256').update(bytes).digest('hex').slice(0, 12);
     const url = `./assets/folio-${path.parse(source).name}.${id}${path.extname(source)}`;

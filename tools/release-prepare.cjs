@@ -66,16 +66,28 @@ function run(command, args, options = {}) {
   return result.stdout.trim();
 }
 
-// A failed run is tolerated only on Windows when every failing test is a symlink test and the
-// output shows the host refusing symlink creation (EPERM). Elsewhere symlink tests must pass.
+// A failed run is tolerated only on Windows when every failing test entry carries its own
+// host symlink refusal (EPERM) in its detail or stack. A symlink word in the title plus an
+// unrelated EPERM line elsewhere is not enough. Elsewhere symlink tests must pass.
 function onlyHostSymlinkFailures(output, platform = process.platform) {
   const summary = output.split(/^✖ failing tests:$/m)[1];
   if (platform !== 'win32' || !summary) return false;
-  const failed = [...new Set(summary.match(/^✖ .*$/gm) || [])];
+  const lines = summary.split('\n');
+  const entries = [];
+  let current = null;
+  for (const line of lines) {
+    if (/^✖ /.test(line)) {
+      current = { title: line, detail: [] };
+      entries.push(current);
+    } else if (current && (line.trim() === '' || /^\s/.test(line))) {
+      current.detail.push(line);
+    } else if (line.trim() !== '') {
+      current = null;
+    }
+  }
+  const hostSymlinkRefusal = /EPERM: operation not permitted, symlink/;
   return (
-    failed.length > 0 &&
-    failed.every((line) => /symlink/i.test(line)) &&
-    /EPERM: operation not permitted, symlink/.test(output)
+    entries.length > 0 && entries.every((entry) => hostSymlinkRefusal.test(entry.detail.join('\n')))
   );
 }
 
@@ -97,20 +109,21 @@ function findPulseboard(explicit) {
     if (fs.existsSync(path.join(explicit, '.git'))) return path.resolve(explicit);
     throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
   }
-  const candidates = [
-    process.env.PULSEBOARD_REPO,
-    path.join(path.dirname(ROOT), 'Pulseboard'),
-    // A linked worktree lives below the main checkout; look beside that checkout too.
-    path.join(
+  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
+  let found = [process.env.PULSEBOARD_REPO, path.join(path.dirname(ROOT), 'Pulseboard')]
+    .filter(Boolean)
+    .find((c) => fs.existsSync(path.join(c, '.git')));
+  // Probe Alibi Git only when a configured or direct sibling checkout was not found.
+  if (!found) {
+    const candidate = path.join(
       path.dirname(
         run('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: ROOT }),
       ),
       '..',
       'Pulseboard',
-    ),
-  ].filter(Boolean);
-  // Only origin/main is used, so a stale working tree is fine; it just has to be a Git checkout.
-  const found = candidates.find((c) => fs.existsSync(path.join(c, '.git')));
+    );
+    if (fs.existsSync(path.join(candidate, '.git'))) found = candidate;
+  }
   if (!found)
     throw Error('Pulseboard checkout not found. Pass --pulseboard <path> or set PULSEBOARD_REPO.');
   return path.resolve(found);

@@ -58,23 +58,62 @@ test('versions compare numerically', () => {
   assert.equal(compareVersions('1.2.3', '1.2.3'), 0);
 });
 
-test('only Windows symlink EPERM failures are tolerated', () => {
-  const eperm = 'Error: EPERM: operation not permitted, symlink a -> b\n';
-  const summary = (...names) =>
-    `✖ failing tests:\n\n${names.map((n) => `✖ ${n} (1ms)`).join('\n')}\n`;
-  const symlinkOnly = eperm + summary('installer refuses symlink escape');
-  assert.equal(onlyHostSymlinkFailures(symlinkOnly, 'win32'), true);
-  assert.equal(onlyHostSymlinkFailures(symlinkOnly, 'linux'), false);
-  assert.equal(
-    onlyHostSymlinkFailures(
-      eperm + summary('installer refuses symlink escape', 'sync rolls back'),
-      'win32',
-    ),
-    false,
+test('only per-failure host symlink EPERM failures are tolerated', () => {
+  const epermDetail =
+    "  Error: EPERM: operation not permitted, symlink 'a' -> 'b'\n      at Object.symlink (node:fs)";
+  const summary = (...blocks) => `✖ failing tests:\n\n${blocks.join('\n')}\n`;
+  const genuineSingle = summary(`✖ installer refuses symlink escape (1ms)\n${epermDetail}`);
+  assert.equal(onlyHostSymlinkFailures(genuineSingle, 'win32'), true);
+  const genuinePair = summary(
+    `✖ installer refuses symlink escape (1ms)\n${epermDetail}`,
+    `✖ sync keeps symlink target (1ms)\n${epermDetail}`,
   );
+  assert.equal(onlyHostSymlinkFailures(genuinePair, 'win32'), true);
+  assert.equal(onlyHostSymlinkFailures(genuineSingle, 'linux'), false);
+  assert.equal(onlyHostSymlinkFailures(genuinePair, 'darwin'), false);
+  // A symlink word in the title is not enough when the failure itself is an
+  // assertion and the EPERM line lives elsewhere in the output.
+  const falsePositive =
+    `Error: EPERM: operation not permitted, symlink 'elsewhere' -> 'target'\n` +
+    summary(
+      '✖ installer keeps symlink layout (1ms)\n  AssertionError [ERR_ASSERTION]: expected true to be false\n      at TestContext.<anonymous> (tests/installer.test.mjs:1:1)',
+    );
+  assert.equal(onlyHostSymlinkFailures(falsePositive, 'win32'), false);
+  const mixed = summary(
+    `✖ installer refuses symlink escape (1ms)\n${epermDetail}`,
+    '✖ installer keeps symlink layout (1ms)\n  AssertionError [ERR_ASSERTION]: expected true to be false',
+  );
+  assert.equal(onlyHostSymlinkFailures(mixed, 'win32'), false);
   assert.equal(
-    onlyHostSymlinkFailures(summary('installer refuses symlink escape'), 'win32'),
+    onlyHostSymlinkFailures(summary('✖ installer refuses symlink escape (1ms)'), 'win32'),
     false,
   );
   assert.equal(onlyHostSymlinkFailures('not ok 1 - sync rolls back\n', 'win32'), false);
+});
+
+test('a source archive uses a configured Pulseboard checkout without probing Alibi Git', (t) => {
+  const fs = require('node:fs'),
+    os = require('node:os'),
+    path = require('node:path'),
+    fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'alibi-release-lookup-')),
+    archive = path.join(fixture, 'archive'),
+    checkout = path.join(fixture, 'Pulseboard'),
+    previous = process.env.PULSEBOARD_REPO;
+  t.after(() => {
+    if (previous === undefined) delete process.env.PULSEBOARD_REPO;
+    else process.env.PULSEBOARD_REPO = previous;
+    fs.rmSync(fixture, { recursive: true, force: true });
+  });
+  fs.mkdirSync(path.join(archive, 'tools'), { recursive: true });
+  fs.mkdirSync(path.join(checkout, '.git'), { recursive: true });
+  fs.copyFileSync(
+    path.join(__dirname, '../tools/release-prepare.cjs'),
+    path.join(archive, 'tools/release-prepare.cjs'),
+  );
+  process.env.PULSEBOARD_REPO = checkout;
+  const { findPulseboard } = require(path.join(archive, 'tools/release-prepare.cjs'));
+  assert.equal(findPulseboard(), path.resolve(checkout));
+  delete process.env.PULSEBOARD_REPO;
+  assert.equal(findPulseboard(), path.resolve(checkout));
+  assert.throws(() => findPulseboard(archive), /Pulseboard checkout not found/);
 });

@@ -1,5 +1,15 @@
 # Owner decisions
 
+Recorded owner answer, 13 October 2026 at 16:27 UTC: "Looks good enough" accepts R2 motion for both projects. Accepted art/motion bytes stay unchanged. This answer does not close licensing, runtime deployment, physical-device or other existing choices.
+
+Limited provisional visual answer, 13 October 2026: after seeing the v2 LAS
+workshop and Alibi lantern PNG renders and responsive LAS card, Chris said “Yeah,
+I guess these are good enough for being SVGs.” This covers those displayed v2
+examples only; failed coarse studies, pixel variant, runtime deployment, licensing
+and merge are not approved by it. The proposed vector-conversion pivot is stopped.
+The separate editable [optional lantern motion preview](assets-source/library/vector-pilot/motion-v2-20261013/README.md)
+does not close physical-device or other owner decisions below.
+
 No owner input is needed to continue the authorized browser-game launch.
 
 2026-09-09 playtest update: the owner reports that two real players have played Alibi and loved

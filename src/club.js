@@ -8,7 +8,7 @@
     );
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const B = (text, action, extra = '', cls = '') =>
-    `<button ${['plan', 'walk', 'undo', 'redo', 'duel-mode', 'duel-strength', 'tictactoe-mode', 'archive-level', 'assist', 'lab-quality', 'build', 'block-piece', 'block-cell', 'mahjong-tile', 'domino-tile', 'domino-end', 'domino-draw', 'domino-pass', 'domino-use-seed'].includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
+    `<button ${'plan walk undo redo restart duel-mode duel-strength tictactoe-mode archive-level assist lab-quality build block-piece block-cell mahjong-tile domino-tile domino-end domino-draw domino-pass domino-use-seed'.split(' ').includes(action) ? 'id="club-control-' + action + '-' + (extra.match(/data-(?:id|value)="([^"]*)"/)?.[1] || 'main') + '"' : ''} class="btn ${cls}" data-action="club-${action}" ${extra}>${text}</button>`;
   const go = (text, page, id = '', cls = '') =>
     `<button class="btn ${cls}" data-action="navigate" data-page="${page}" data-id="${id}">${text}</button>`;
   // Planning contracts live in the Quiet Wing challenge list. Once that list reads a family filter,
@@ -23,12 +23,14 @@
   let bridge = null,
     db = null,
     rev = 0,
+    fallbackBytes = null,
     storageMode = 'session',
     saveError = '',
     protectedSave = false,
     saveQueue = Promise.resolve(),
     restoring = false,
-    loading = null;
+    loading = null,
+    updatePaused = false;
   let state = {
     schema: 1,
     settings: { zen: false, assist: 'off', pinned: null },
@@ -231,11 +233,14 @@
       } else
         try {
           const raw = localStorage.getItem('alibi-afterhours-v1');
-          if (raw) {
+          fallbackBytes = raw;
+          if (raw !== null) {
             foundSave = true;
             const v = JSON.parse(raw);
             if (!Number.isSafeInteger(v.rev) || v.rev < 1)
               throw Error('Unsupported Club save revision.');
+            if (Object.keys(v).some((key) => !['rev', 'data'].includes(key)))
+              throw Error('Unsupported Club save fields.');
             await engine();
             state = validateSave(v.data);
             rev = v.rev;
@@ -357,19 +362,31 @@
               );
           });
         else if (storageMode === 'local') {
-          let latest = null;
-          try {
-            latest = JSON.parse(localStorage.getItem('alibi-afterhours-v1') || 'null');
-          } catch {
-            throw Error('The saved Club record could not be read. It was left untouched.');
-          }
-          if ((latest?.rev || 0) !== rev)
-            throw Error('Club progress changed in another tab. Export and reload.');
-          localStorage.setItem(
-            'alibi-afterhours-v1',
-            JSON.stringify({ rev: rev + 1, data: snapshot }),
-          );
-          rev++;
+          const write = () => {
+            const raw = localStorage.getItem('alibi-afterhours-v1');
+            let latest = null;
+            try {
+              latest = JSON.parse(raw || 'null');
+            } catch {
+              throw Error('The saved Club record could not be read. It was left untouched.');
+            }
+            if (raw !== fallbackBytes || (latest?.rev || 0) !== rev)
+              throw Error('Club progress changed in another tab. Export and reload.');
+            const next = JSON.stringify({ rev: rev + 1, data: snapshot });
+            localStorage.setItem('alibi-afterhours-v1', next);
+            fallbackBytes = next;
+            rev++;
+          };
+          if (root.navigator?.locks?.request)
+            await root.navigator.locks.request(
+              'alibi-afterhours-v1',
+              { ifAvailable: true },
+              (lock) => {
+                if (!lock) throw Error('Another tab is saving Club progress. Export and reload.');
+                write();
+              },
+            );
+          else write();
         }
       })
       .catch((e) => {
@@ -421,7 +438,11 @@
     const tile = E().dominoes.tile(id);
     return `<span class="domino-tile-art ${cls}" aria-hidden="true"><i>${tile.a}</i><b></b><i>${tile.b}</i></span>`;
   }
-  function emblem(type, variant = 0) {
+  function emblem(type, variant = 0, enhanced) {
+    const entry = enhanced && root.ALIBI_DELIVERY?.['art-' + type];
+    if (entry)
+      return `<img data-adaptive-image="art-${type}" src="${entry.fallback}" alt="" style="width:100%;height:100%;object-fit:contain">`;
+    if (type === 'desk') type = 'archive';
     if (['home', 'garden', 'cafe', 'library', 'water'].includes(type)) return building(type);
     if (type === 'regiongardens')
       return svg(
@@ -466,7 +487,7 @@
     return root.AlibiUI.art(type, { size: 5, id: String(variant) });
   }
   function portrait(type, variant = 0) {
-    return `<div class="club-portrait portrait-${type}" data-variant="${variant % 3}">${emblem(type, variant)}<span class="engraving-no">${String(variant + 1).padStart(2, '0')} / ALIBI</span></div>`;
+    return `<div class="club-portrait portrait-${type}" data-variant="${variant % 3}">${emblem(type, variant, true)}<span class="engraving-no">${String(variant + 1).padStart(2, '0')} / ALIBI</span></div>`;
   }
   function home() {
     const puzzles = bridge.all(),
@@ -508,7 +529,7 @@
     let target = t.target;
     if (t.id === 'glasshouse' || t.id === 'night-train')
       target = root.ALIBI_CASEBOOKS.find((b) => b.artwork === t.id)?.id || target;
-    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('archive')}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('regiongardens', 'Lantern Gardens', 'One lantern in each row, column and garden.', 'REGIONS · NINE ORIGINAL BOARDS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 9 ROOMS + 24 VAULTS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
+    return `${status()}<section class="club-welcome"><div><span class="eyebrow">THE ALIBI PUZZLE CLUB <span class="club-new">AFTER HOURS / PREVIEW</span></span><h1>Make yourself at home.</h1></div><div class="club-weather"><span class="weather-dot"></span>${esc(t.weather)}<small>A fictional forecast. A real place to think.</small></div></section><div class="club-opening"><article class="club-hero palette-${t.palette}" data-theatre-story="${t.id}"><img data-adaptive-image="hero-${t.id}-photo" src="${esc(media[t.id])}" alt="" width="1536" height="1024" fetchpriority="high" decoding="async"><a data-adaptive-credit hidden href="${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.source)}" target="_blank" rel="noopener noreferrer">${esc(root.ALIBI_DELIVERY?.['hero-' + t.id + '-photo']?.credit)}</a><div class="hero-vignette"></div><div class="hero-topline"><span>TONIGHT’S EDITION <b>${String(hero + 1).padStart(2, '0')}</b></span><span class="hero-seal">A<br>CLUB</span></div><div class="hero-copy"><div class="eyebrow">${t.tag}</div><h2>${t.title.replace('\n', '<br>')}</h2><p>${t.copy}</p>${go(t.cta + ' <span>↗</span>', t.page, target, 'hero-cta')}</div><div class="hero-foot"><span>${esc(t.note)}</span><div>${B(state.settings.pinned === hero ? 'Unpin' : 'Pin this desk', 'pin', '', 'small quiet')}${B('Next edition →', 'rotate', '', 'small quiet')}</div></div></article><aside class="club-letter ${active ? 'has-run' : ''}"><div class="paperclip"></div><span class="eyebrow">LEFT ON YOUR DESK</span><div class="club-letter-art">${active ? emblem(active.puzzle.type) : emblem('desk', 0, true)}</div><h2>${active ? 'Right where you left it.' : 'A note from the club.'}</h2><p>${active ? esc(active.puzzle.title) : 'You don’t have to solve everything. Just find something worth wondering about.'}</p><span class="letter-handwriting">${active ? 'The evidence can wait.' : 'The kettle is on.'}</span>${active ? (active.clubId ? go('Continue your game →', 'salon', active.clubId) : `<button class="btn" data-action="open" data-id="${esc(active.key)}">Continue your puzzle →</button>`) : go('Find my first puzzle →', 'library')}<div class="letter-bottom"><span>${solved} solved</span><span>${puzzles.length} to explore</span></div></aside></div>${root.AlibiCuration.news()}${root.AlibiTheatre.room(t.id)}${root.AlibiAtmosphere.invitation()}<div class="club-underhero"><span>◈ A new edition each visit. Your progress stays put.</span><span>NO ACCOUNT · NO LIVES · NO RUSH</span></div><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">01</span><div><span class="eyebrow">A DIFFERENT WAY TO THINK</span><h2>Step into the games room.</h2></div></div>${go('All experiments ↗', 'salon', '', 'ghost small')}</div><div class="club-gamecards">${gameCard('duel', 'Lantern Duel', 'Outthink the other side. Keep the corners.', 'STRATEGY · SOLO OR TWO')}${gameCard('tictactoe', 'Tic-Tac-Toe', 'Make three in a row. Block the next idea.', 'CLASSIC · BOT OR TWO')}${gameCard('regiongardens', 'Lantern Gardens', 'One lantern in each row, column and garden.', 'REGIONS · NINE ORIGINAL BOARDS')}${gameCard('blockcabinet', 'Block Cabinet', 'Fit the pieces. Clear the lines. Keep the tray moving.', 'PUZZLE · 8×8 · SOLO')}${gameCard('borough', 'Pocket Borough', 'Eighteen plans. A town that is yours.', 'CITY BUILDER · SEEDED')}${gameCard('archive', 'Archive Heist', 'A little pushing. A lot of planning.', 'SPATIAL · 9 ROOMS + 24 VAULTS')}${gameCard('lab', 'The living atlas', 'A pocket harbour, drawn by mathematics.', 'PLAYGROUND · CANVAS')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">02</span><div><span class="eyebrow">TODAY’S CALLING CARD · ${day()}</span><h2>The same town. Your own approach.</h2></div></div></div><div class="club-daily"><div class="daily-illustration">${emblem('borough')}</div><div><span class="chip">DAILY SEED · UTC</span><h3>A small place by the water.</h3><p>Everyone using this date gets the same plots and plans. Build at your own pace, then share the seed. No timer, no lost streak.</p></div>${B('Build today’s borough ↗', 'daily', '', '')}</div></section><section class="club-section"><div class="club-section-head"><div class="row"><span class="section-number">03</span><div><span class="eyebrow">THE ORIGINAL CABINET</span><h2>Still plenty of mystery.</h2></div></div>${go('All ' + puzzles.length + ' puzzles ↗', 'library', '', 'ghost small')}</div><div class="club-categorycards">${['scene', 'bridges', 'dossier', 'nonogram', 'lightup', 'sudoku'].map((type, i) => `<button class="club-category" data-action="navigate" data-page="library" data-id="${type}">${portrait(type, i)}<strong>${root.AlibiUI.data[type].title}</strong><small>${puzzles.filter((p) => p.type === type).length} puzzles · ${type === 'scene' ? 'Follow the evidence' : 'Take your time'}</small></button>`).join('')}</div></section><section class="club-zen-card"><div><span class="eyebrow">OR LEAVE THE WORLD OUTSIDE</span><h2>Just you and the next good thought.</h2><p>Zen removes navigation, records, badges and decorative motion. Your clues and undo stay.</p></div>${B('Enter Zen →', 'zen', '', 'secondary')}</section>`;
   }
   function gameCard(id, title, description, tag) {
     return `<button class="club-gamecard" data-action="navigate" data-page="${id === 'lab' ? 'lab' : 'salon'}" data-id="${id === 'lab' ? '' : id}">${portrait(id, ROOM.indexOf(id))}<div class="gamecard-copy"><small>${tag}</small><h3>${title} <span>↗</span></h3><p>${description}</p></div></button>`;
@@ -560,41 +581,32 @@
   }
   function ensureRun(id) {
     if (!E()) return;
-    if (id === 'duel' && !state.runs.duel) state.runs.duel = { mode: 'bot', log: [], redo: [] };
-    if (id === 'tictactoe' && !state.runs.tictactoe)
-      state.runs.tictactoe = { mode: 'bot', log: [], redo: [] };
-    if (id === 'blockcabinet' && !state.runs.blockcabinet)
-      state.runs.blockcabinet = { seed: 'BLOCK-01', log: [], redo: [] };
-    if (id === 'dominoes' && !state.runs.dominoes)
-      state.runs.dominoes = { seed: 'DOMINO-01', log: [], redo: [] };
-    if (id === 'mahjong' && !state.runs.mahjong)
-      state.runs.mahjong = { seed: 'MAHJONG-01', log: [], redo: [] };
-    if (id === 'borough' && !state.runs.borough)
-      state.runs.borough = { seed: 'EVENING-01', log: [], redo: [] };
-    if (id === 'regiongardens' && !state.runs.regiongardens)
-      state.runs.regiongardens = { level: 0, log: [], redo: [] };
-    if (id === 'archive' && !state.runs.archive)
-      state.runs.archive = { level: 0, log: [], redo: [] };
+    const defaults = {
+      __proto__: null,
+      duel: { mode: 'bot' },
+      tictactoe: { mode: 'bot' },
+      blockcabinet: { seed: 'BLOCK-01' },
+      dominoes: { seed: 'DOMINO-01' },
+      mahjong: { seed: 'MAHJONG-01' },
+      borough: { seed: 'EVENING-01' },
+      regiongardens: { level: 0 },
+      archive: { level: 0 },
+    };
+    if (defaults[id] && !state.runs[id]) state.runs[id] = { ...defaults[id], log: [], redo: [] };
   }
   function currentGame(id) {
     const r = state.runs[id];
     if (!r) return null;
-    if (id === 'duel') {
-      let s = E().reversi.initial();
-      for (const i of r.log) s = E().reversi.move(s, i);
+    if (id === 'duel' || id === 'archive') {
+      const engine = E()[id === 'duel' ? 'reversi' : 'warehouse'];
+      let s = engine.initial(r.level);
+      for (const move of r.log) s = engine.move(s, move);
       return s;
     }
     if (id === 'tictactoe') return E().tictactoe.replay(r.log);
     if (id === 'blockcabinet') return E().blockCabinet.replay(r.seed, r.log);
     if (id === 'regiongardens') return E().regionGardens.replay(r.level, r.log);
-    if (id === 'dominoes') return E().dominoes.replay(r.seed, r.log);
-    if (id === 'mahjong') return E().mahjong.replay(r.seed, r.log);
-    if (id === 'borough') return E().borough.replay(r.seed, r.log);
-    if (id === 'archive') {
-      let s = E().warehouse.initial(r.level);
-      for (const d of r.log) s = E().warehouse.move(s, d);
-      return s;
-    }
+    if (['dominoes', 'mahjong', 'borough'].includes(id)) return E()[id].replay(r.seed, r.log);
     return null;
   }
   function heading(title, kicker, description) {
@@ -853,7 +865,7 @@
       key =
         id +
         ':' +
-        (id === 'borough' || id === 'blockcabinet' || id === 'dominoes' || id === 'mahjong'
+        (['borough', 'blockcabinet', 'dominoes', 'mahjong'].includes(id)
           ? r.seed
           : ['archive', 'regiongardens'].includes(id)
             ? r.level
@@ -977,16 +989,21 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
   async function commitGame(id, value) {
+    if (updatePaused) return;
     if (saveError && storageMode !== 'session') {
       notify('Resolve the save conflict or export before continuing.', true);
       return;
     }
-    const r = state.runs[id],
-      before = currentGame(id);
+    const r = state.runs[id];
     if (id === 'blockcabinet' && r.log.length >= E().blockCabinet.maxMoves) {
       notify('This cabinet is full. Start a new cabinet.');
       return;
     }
+    if (r.log.length >= 3000) {
+      notify('This game is full. Start a new game.');
+      return;
+    }
+    const before = currentGame(id);
     r.rulesVersion = 1;
     if (id === 'duel') E().reversi.move(before, value);
     if (id === 'tictactoe') E().tictactoe.move(before, value);
@@ -1011,6 +1028,10 @@
     botPending = false;
     botFailed = failed;
   }
+  function pauseForUpdate(paused) {
+    updatePaused = !!paused;
+    if (updatePaused) stopBot();
+  }
   function botFailure() {
     stopBot(true);
     notify('The offline opponent paused. Retry or undo your move.', true);
@@ -1023,6 +1044,7 @@
       room ||
       botPending ||
       botFailed ||
+      updatePaused ||
       !E()
     )
       return;
@@ -1080,14 +1102,20 @@
       { label: 'Cancel', action: 'close-dialog', secondary: true },
     ]);
   }
-  // A finished game is already in the journal, so replacing it needs no confirmation.
+  // Finished games replay immediately; reset-confirm retains their result before replacement.
   function resetOrConfirm(next, title, text) {
     root.__clubReset = next;
     return again(next.id)
       ? action({ dataset: { action: 'club-reset-confirm' } })
       : confirmation(title, text, 'reset-confirm');
   }
+  function revealBoroughControl(id) {
+    const el = document.getElementById(id);
+    el?.focus({ preventScroll: true });
+    el?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+  }
   async function action(el) {
+    if (updatePaused) return;
     const a = el.dataset.action.slice(5),
       v = el.dataset.value,
       id = el.dataset.id;
@@ -1394,10 +1422,10 @@
         } else {
           if (['duel', 'tictactoe'].includes(id) && r.mode === 'bot') {
             do {
-              if (!r.redo.length) break;
+              if (!r.redo.length || r.log.length >= 3000) break;
               r.log.push(r.redo.pop());
             } while (r.redo.length && !currentGame(id).done && currentGame(id).turn !== 1);
-          } else if (r.redo.length) r.log.push(r.redo.pop());
+          } else if (r.redo.length && r.log.length < 3000) r.log.push(r.redo.pop());
         }
         selectedPlot = null;
         selectedDominoTile = null;
@@ -1420,6 +1448,7 @@
         const r = state.runs[reset.id];
         if (!r) throw Error('Unknown game.');
         if (reset.difficulty !== undefined) E().reversi.strength(reset.difficulty);
+        record(reset.id, currentGame(reset.id));
         document.getElementById('dialog').close();
         stopBot();
         if (reset.freshSeed && reset.id === 'blockcabinet') {
@@ -1443,13 +1472,18 @@
         selectedMahjongTile = null;
         save();
         render();
+        if (reset.id === 'regiongardens') revealBoroughControl('garden-status');
         delete root.__clubReset;
       } else if (a === 'plan') {
-        selectedPlan = Number(v);
+        const slot = Number(v);
+        if (!currentGame('borough')?.offers[slot]) return;
+        selectedPlan = slot;
         render();
+        if (selectedPlot !== null) revealBoroughControl('club-control-build-main');
       } else if (a === 'plot') {
         const i = Number(el.dataset.cell),
           s = currentGame('borough');
+        if (!s || s.done || !(i in s.board)) return;
         if (s.board[i])
           notify(
             `${E().borough.typeInfo[s.board[i]].name}: ${plural(E().borough.breakdown(s)[i], 'point')}. Only side neighbours count.`,
@@ -1457,6 +1491,7 @@
         else {
           selectedPlot = i;
           render();
+          revealBoroughControl('club-control-build-main');
         }
       } else if (a === 'build') {
         if (selectedPlot === null) return;
@@ -1465,7 +1500,7 @@
         const move = { slot: selectedPlan, cell: selectedPlot };
         selectedPlot = null;
         await commitGame('borough', move);
-        document.getElementById('borough-' + move.cell)?.focus({ preventScroll: true });
+        revealBoroughControl('borough-' + move.cell);
       } else if (a === 'daily') {
         const seed = 'DAY-' + day();
         if (state.runs.borough?.seed === seed) {
@@ -1627,9 +1662,9 @@
       ],
     );
   }
-  async function request(path, method = 'GET', body, token) {
-    const base = apiBase();
+  async function request(path, method = 'GET', body, token, base = apiBase()) {
     if (!base) throw Error('Deploy the optional room server, then enter its HTTPS API address.');
+    if (base !== apiBase()) throw Error('The room API has changed. Rejoin before using this room.');
     const response = await fetch(base + path, {
       method,
       headers: {
@@ -1662,24 +1697,36 @@
       .replaceAll('=', '');
   }
   function roomAttemptFor(kind, code = '') {
-    if (!roomAttempt || roomAttempt.kind !== kind || roomAttempt.code !== code)
-      roomAttempt = { kind, code, requestId: privateRoomToken(), seatToken: privateRoomToken() };
+    const api = apiBase();
+    if (
+      !roomAttempt ||
+      roomAttempt.kind !== kind ||
+      roomAttempt.code !== code ||
+      roomAttempt.api !== api
+    )
+      roomAttempt = {
+        kind,
+        code,
+        api,
+        requestId: privateRoomToken(),
+        seatToken: privateRoomToken(),
+      };
     return roomAttempt;
   }
   async function requestRoomSeat(path, intent) {
     const payload = { requestId: intent.requestId, seatToken: intent.seatToken };
     try {
-      return await request(path, 'POST', payload);
+      return await request(path, 'POST', payload, undefined, intent.api);
     } catch (error) {
       if (error.status && error.status < 500) throw error;
-      return request(path, 'POST', payload);
+      return request(path, 'POST', payload, undefined, intent.api);
     }
   }
   function rememberRoom() {
     try {
       sessionStorage.setItem(
         'alibi-club-room',
-        JSON.stringify({ code: room.code, token: room.token, seat: room.seat, api: apiBase() }),
+        JSON.stringify({ code: room.code, token: room.token, seat: room.seat, api: room.api }),
       );
     } catch {
       notify('This browser could not save your room credential. Keep this tab open.', true);
@@ -1708,7 +1755,7 @@
       await configureApi();
       const intent = roomAttemptFor('create');
       const result = await requestRoomSeat('/rooms', intent);
-      room = { ...result, token: intent.seatToken };
+      room = { ...result, token: intent.seatToken, api: intent.api };
       roomAttempt = null;
       roomError = '';
       rememberRoom();
@@ -1732,7 +1779,7 @@
       if (!/^[A-Z2-9]{8}$/.test(code || '')) throw Error('Enter the eight-character room code.');
       const intent = roomAttemptFor('join', code);
       const result = await requestRoomSeat('/rooms/' + code + '/join', intent);
-      room = { ...result, token: intent.seatToken };
+      room = { ...result, token: intent.seatToken, api: intent.api };
       roomAttempt = null;
       roomError = '';
       rememberRoom();
@@ -1750,10 +1797,19 @@
     if (!room || document.hidden || route.page !== 'salon' || route.id !== 'duel') return;
     const current = room;
     try {
-      const value = await request('/rooms/' + room.code + '/state', 'GET', undefined, room.token);
-      if (room !== current) return;
-      const changed = value.version !== room.version || value.joined !== room.joined;
-      Object.assign(room, value);
+      const value = await request(
+        '/rooms/' + room.code + '/state',
+        'GET',
+        undefined,
+        room.token,
+        room.api,
+      );
+      if (room !== current || !Number.isSafeInteger(value.version) || value.version < room.version)
+        return;
+      const changed = value.version !== room.version || !!roomError;
+      // A version names one snapshot; equal replies cannot replace an already accepted board.
+      if (value.version > room.version)
+        Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       if (changed) render();
     } catch (e) {
@@ -1775,9 +1831,12 @@
         'POST',
         { cell, expectedVersion: room.version, moveId: crypto.randomUUID() },
         room.token,
+        room.api,
       );
-      if (room !== current) return;
-      Object.assign(room, value);
+      if (room !== current || !Number.isSafeInteger(value.version) || value.version < room.version)
+        return;
+      if (value.version > room.version)
+        Object.assign(room, value, { api: current.api, token: current.token });
       roomError = '';
       render();
     } catch (e) {
@@ -1989,6 +2048,7 @@
     else stopLab();
   }
   document.addEventListener('keydown', (e) => {
+    if (updatePaused) return;
     if (e.target.closest('input,textarea,select') || document.getElementById('dialog')?.open)
       return;
     if (e.key === 'Escape' && state.settings.zen) {
@@ -2047,6 +2107,7 @@
     engine,
     save,
     refresh: render,
+    pauseForUpdate,
     flush: () => saveQueue,
     diagnostics: () => ({
       storageMode,

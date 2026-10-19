@@ -95,6 +95,16 @@ test('all filters combine without rewriting their inputs', () => {
   assert.deepEqual(M.catalogue(fixtures, [], { ...route, family: 'binary', q: 'bridge' }), []);
   assert.equal(JSON.stringify(fixtures), before);
 });
+
+test('unknown save keys do not become catalogue entries or mutate the saves', () => {
+  const saves = [record(fixtures[0]), { key: 'ghost@99', moves: 9 }];
+  const before = structuredClone(saves);
+  assert.deepEqual(M.catalogue(fixtures, saves, route).map(M.key), fixtures.map(M.key));
+  assert.deepEqual(M.catalogue(fixtures, saves, { ...route, progress: 'active' }).map(M.key), [
+    'binary-01@1',
+  ]);
+  assert.deepEqual(saves, before);
+});
 test('continue uses a pinned definition and deterministic timestamp order', () => {
   const older = record(puzzle('removed'), { updatedAt: '2025-01-01' });
   const current = record(fixtures[0]);
@@ -105,6 +115,7 @@ test('continue uses a pinned definition and deterministic timestamp order', () =
 });
 test('first play avoids already completed introductory content', () => {
   assert.equal(M.firstPuzzle(fixtures, []).id, 'binary-01');
+  assert.equal(M.firstPuzzle([fixtures[2], fixtures[0]], []).id, 'binary-01');
   assert.equal(
     M.firstPuzzle(fixtures, [record(fixtures[0], { completedAt: 'once' })]).id,
     'bridge',
@@ -185,6 +196,14 @@ test('conclusion requires the letter and observations, not just a guessed answer
   assert.deepEqual(wrong.visited, all.visited);
   assert.equal(M.reduce(wrong, { type: 'answer', id: 'maps' }).solved, true);
 });
+test('the letter alone with incomplete observations cannot unlock a conclusion', () => {
+  let state = M.reduce(M.study(), { type: 'letter' });
+  state = M.reduce(state, { type: 'inspect', id: 'study' });
+  const denied = M.reduce(state, { type: 'answer', id: 'maps' });
+  assert.equal(denied.solved, false);
+  assert.equal(denied.answer, '');
+});
+
 test('hint escalation is bounded and does not complete the study', () => {
   let s = M.study();
   for (let i = 0; i < 10; i++) s = M.reduce(s, { type: 'hint' });

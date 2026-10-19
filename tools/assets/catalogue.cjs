@@ -39,8 +39,82 @@ function main() {
   const assets = read(BASE + 'visuals/catalogue.json');
   const editorial = BASE + 'editorial/catalogue.json';
   if (fs.existsSync(path.join(ROOT, editorial)))
-    assets.push(...read(editorial).assets.map((a) => ({ ...a, design: 'original', status: 'current', integration: 'Live Quiet Wing room headers and Field notes portraits.' })));
+    assets.push(
+      ...read(editorial).assets.map((a) => ({
+        ...a,
+        design: 'original',
+        status: 'current',
+        integration: 'Live Quiet Wing room headers and Field notes portraits.',
+      })),
+    );
   const details = BASE + 'realm/details/catalogue.json';
+  const painted = BASE + 'painted-club/';
+  if (fs.existsSync(path.join(ROOT, painted, 'manifest.json'))) {
+    const shelf = read(painted + 'manifest.json').assets;
+    for (const master of shelf.filter((a) => a.kind === 'source-webp')) {
+      const id = master.file.replace(/\.webp$/, '');
+      const integrated = [
+        'club-welcome',
+        'lantern-duel',
+        'pocket-borough',
+        'tic-tac-toe',
+        'lantern-gardens',
+        'block-cabinet',
+        'archive-heist',
+        'living-atlas',
+      ].includes(id);
+      assets.push({
+        id: 'painted-' + id,
+        title: id.replaceAll('-', ' '),
+        category: 'painted-club',
+        status: integrated ? 'current' : 'proposed',
+        design: 'original',
+        source: painted + master.file,
+        derivatives: shelf
+          .filter((a) => a.file.startsWith(id + '-') && a.kind === 'runtime')
+          .map((a) => painted + a.file)
+          .concat(integrated ? [painted + 'fallbacks/' + id + '.svg'] : []),
+        provenance: {
+          author: 'Alibi project',
+          method: 'Existing generated painted source, draft #525; original wave prompts retained',
+          license: 'Existing project rights unchanged; no new grant',
+        },
+        accessibility:
+          'Decorative empty alt; labels and actions are independent; SVG fallback retained',
+        integration: integrated
+          ? 'Club Desk/card optional enhancement; 320px only; masters outside release and precache'
+          : 'Source shelf only; no runtime activation',
+        qa: { scope: 'Hash-verified import; runtime and visual gates documented separately' },
+      });
+    }
+  }
+  const vector = BASE + 'vector-pilot/lantern-counter-vignette.svg';
+  if (fs.existsSync(path.join(ROOT, vector)))
+    assets.push({
+      id: 'vector-lantern-pilot',
+      title: 'Tea beside the lantern table',
+      category: 'vector-pilot',
+      status: 'proposed',
+      design: 'original',
+      source: vector,
+      derivatives: [
+        BASE + 'vector-pilot/lantern-counter-vignette-preview.png',
+        BASE + 'vector-pilot/quality-02/lantern-counter-vignette-v2.svg',
+        BASE + 'vector-pilot/quality-02/lantern-counter-vignette-v2-preview.png',
+      ],
+      provenance: {
+        author: 'Alibi project',
+        method: 'Original native SVG geometry; no raster embedding or tracing',
+        license: 'Project original; no separate public reuse grant',
+      },
+      accessibility:
+        'Complete static SVG; optional lifecycle-controlled motion in source review page',
+      integration: 'Source alternative only; excluded from runtime and precache',
+      qa: {
+        scope:
+          'V1 retained below requested quality; V2 material study inspected in Chromium at 390 and 1440; art acceptance remains separate',
+      },
+    });
   if (fs.existsSync(path.join(ROOT, details))) {
     const detail = read(details);
     assets.push(...mergeDetails(detail.assets, detail, details));
@@ -177,7 +251,15 @@ function main() {
   for (const a of assets) {
     if (['realm', 'realm-detail', 'companions', 'audio', 'motion'].includes(a.category)) {
       a.status = 'current';
-      a.integration = ({ realm: 'Field notes 3D cabinet; selected types also use compact live Realm geometry.', 'realm-detail': 'Live Realm geometry and Field notes 3D cabinet.', companions: 'Live action illustrations and Field notes expression cabinet.', audio: 'Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.', motion: 'Field notes screening room, explicit streaming playback; excluded from offline packs.' })[a.category];
+      a.integration = {
+        realm: 'Field notes 3D cabinet; selected types also use compact live Realm geometry.',
+        'realm-detail': 'Live Realm geometry and Field notes 3D cabinet.',
+        companions: 'Live action illustrations and Field notes expression cabinet.',
+        audio:
+          'Field notes listening controls; selected Quiet Wing event cues and deliberate atmospheres.',
+        motion:
+          'Field notes screening room, explicit streaming playback; excluded from offline packs.',
+      }[a.category];
     }
     if (ids.has(a.id)) throw Error('Duplicate ID ' + a.id);
     ids.add(a.id);

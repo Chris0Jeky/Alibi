@@ -1,4 +1,4 @@
-"""Live provider validation from the actual browser origin; optional manual release check."""
+"""MANUAL-ONLY: live provider validation from the actual browser origin; optional manual release check, never in CI."""
 import json,os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
