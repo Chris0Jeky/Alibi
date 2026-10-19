@@ -75,6 +75,7 @@ jobs:
           python tests/test_android_permission_values.py
           python tests/test_android_smoke_evidence.py
           python tests/test_android_apk_identity.py
+          python tests/test_android_smoke_runner.py
           bash -n tools/run-android-smoke.sh
       - name: Prepare Android tools
         run: |

@@ -1,5 +1,47 @@
 # Live development state
 
+## 2026-10-19: bind native AVD creation and lookup, retain current main (#485, #719)
+
+Main aea3dda contains #719 after all five current-head workflows passed, including 1,899
+Node tests and the complete browser/offline sequence. The two diagnostic fixtures join this
+native branch unchanged; both STATE additions and the shared history are retained once.
+
+At native head 05bc1af, all eight other workflows passed. The native workflow passed strict
+sync, compilation, lint, both exact APK audits, signatures and alignment, then failed its
+device wait with status 124. Bounded logcat cleanup returned instead of consuming the job cap.
+The earlier retained 33dd3d2 artifact establishes that the emulator could not discover
+alibi_native.ini; it does not establish which directory the creator used.
+
+The smoke runner now exports one fresh task-owned ANDROID_AVD_HOME to both tools, passes
+the explicit data path, and requires both the locator and the emulator's exact AVD listing
+before launch. Images remain outside diagnostic artifacts. Four actual-script command-stub
+regressions fail on the previous runner and pass on this correction: mismatched inherited
+homes, missing locator, undiscoverable device, and normal/failing instrumentation handoff.
+The original deadlines, bounded cleanup, audited APK digest and offline controls are unchanged.
+
+Verified: shell syntax, focused source/behavioral tests and independent review. No local real
+SDK or emulator result is claimed. This reconciled head requires fresh full and installed-native
+CI before merge; physical Android, TalkBack, recovery, publisher and signing gates remain open
+in HUMAN_TODO.md. No application budget, save schema or published content identity changed.
+
+## 2026-10-19: bounded browser failure diagnostics (#537, #712)
+
+Challenge browser failures now retain the original exception while recording page/store state,
+a best-effort screenshot, and the timing, blocked status and errors of actual IndexedDB opens.
+Open tracing is bounded and passive; the inherited supplementary store/open probe still runs
+only after failure, with its existing 2200ms deadline. Capture occurs before Playwright teardown.
+Scene taps wait for the selected mode/person and a hittable cell center, perform exactly one
+tap, and still require exactly one committed move. Failure reports retain a bounded input trace,
+selection and hit-test state even when a readiness assertion or screenshot fails.
+
+Verified: independent source review, Python compilation, normal challenge fixtures at 390/1280,
+and the complete scene fixture at 390/1440 against the clean 12b01918 emitted app. Controlled
+open-error and assertion/screenshot-error probes preserved the original failure and recorded
+its context. The production viewport label follows the current width. No application behavior,
+retry, test timeout or acceptance gate changes. These diagnostics address #537; #712 remains
+open because its intermittent tap failure has not been causally reproduced or fixed. Exact-head
+hosted qualification is pending for this test-only follow-up.
+
 ## 2026-10-19: reconcile native readiness with merged issue fixes (#485, #718)
 
 Main ef0c6fa now contains #718's six issue fixes after all 20 hosted workflows passed,

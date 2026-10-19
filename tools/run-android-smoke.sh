@@ -15,8 +15,14 @@ SDK="${ANDROID_HOME:?Android SDK is required}"
 export PATH="$SDK/platform-tools:$SDK/emulator:$SDK/cmdline-tools/latest/bin:$PATH"
 test -e /dev/kvm
 sudo chmod a+rw /dev/kvm
+# Give both SDK tools one fresh AVD locator, independent of inherited user homes.
+ANDROID_AVD_HOME="$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/alibi-native-avd.XXXXXX")"
+export ANDROID_AVD_HOME
 printf 'no\n' | avdmanager create avd --force --name alibi_native \
-  --package 'system-images;android-36;google_apis;x86_64' --device pixel_6
+  --package 'system-images;android-36;google_apis;x86_64' --device pixel_6 \
+  --path "$ANDROID_AVD_HOME/alibi_native.avd"
+test -s "$ANDROID_AVD_HOME/alibi_native.ini"
+emulator -list-avds | tee "$OUT/avds.txt" | grep -Fx alibi_native
 emulator -avd alibi_native -port 5554 -no-window -no-audio -no-boot-anim \
   -no-snapshot -gpu swiftshader -memory 2048 > "$OUT/emulator.log" 2>&1 &
 EMU_PID=$!

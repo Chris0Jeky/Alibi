@@ -1,7 +1,11 @@
 """September feedback: actual scene taps, holds, undo and offline note restoration."""
-import json, os, re
+import json, os, re, sys
 from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import (
+    Error as PlaywrightError,
+    expect,
+    sync_playwright,
+)
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'september-feedback'
 OUT.mkdir(parents=True, exist_ok=True)
@@ -15,33 +19,186 @@ with sync_playwright() as pw:
         page = context.new_page()
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
+        page.add_init_script("""(() => {
+            const trace = [];
+            window.__sceneInputTrace = trace;
+            for (const type of ['pointerdown', 'pointerup', 'pointercancel', 'click']) {
+                document.addEventListener(type, (event) => {
+                    const target = event.target instanceof Element ? event.target : null;
+                    if (!target) return;
+                    const cell = target.closest('.scene-cell[data-cell]');
+                    const person = target.closest('.people-palette [data-action="person"][data-id]');
+                    const mode = target.closest('.toolrow [data-action="scene-mode"][data-value]');
+                    if (!cell && !person && !mode) return;
+                    const entry = {
+                        event: type,
+                        at: Math.round(performance.now()),
+                        pointerType: event.pointerType || null,
+                        trusted: event.isTrusted,
+                        detail: event.detail || 0,
+                        x: Math.round(event.clientX || 0),
+                        y: Math.round(event.clientY || 0),
+                        target: `${target.tagName.toLowerCase()}${target.id ? '#' + target.id : ''}`,
+                        cell: cell?.id || null,
+                        person: person?.dataset.id || null,
+                        mode: mode?.dataset.value || null,
+                        selectedPerson: document.querySelector('.people-palette [data-action="person"][aria-pressed="true"]')?.dataset.id || null,
+                        selectedMode: document.querySelector('.toolrow [data-action="scene-mode"][aria-pressed="true"]')?.dataset.value || null,
+                        movesBefore: window.AlibiDiagnostics?.getCurrent?.()?.moves ?? null,
+                    };
+                    trace.push(entry);
+                    if (trace.length > 32) trace.shift();
+                    queueMicrotask(() => {
+                        entry.movesAfter = window.AlibiDiagnostics?.getCurrent?.()?.moves ?? null;
+                        entry.selectedPersonAfter = document.querySelector('.people-palette [data-action="person"][aria-pressed="true"]')?.dataset.id || null;
+                        entry.selectedModeAfter = document.querySelector('.toolrow [data-action="scene-mode"][aria-pressed="true"]')?.dataset.value || null;
+                    });
+                }, true);
+            }
+        })();""")
         page.goto(URL + '/#/play/' + puzzle['id'])
         page.locator('dialog[open] [data-action="close-dialog"]').click()
         page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id', arg=puzzle['id'])
         who, other = puzzle['people'][:2]
         cell, elsewhere = free[:2]
         target = page.locator(f'#cell-{cell}')
-        def mode(value): page.locator(f'.toolrow [data-action="scene-mode"][data-value="{value}"]').click()
-        def person(w): page.locator(f'[data-action="person"][data-id="{w["id"]}"]').click()
+        def mode(value):
+            button = page.locator(f'.toolrow [data-action="scene-mode"][data-value="{value}"]')
+            button.click()
+
+        def person(w):
+            button = page.locator(f'[data-action="person"][data-id="{w["id"]}"]')
+            button.click()
+
         def state(): return page.evaluate('AlibiDiagnostics.getCurrent().state')
-        def tap_mark(loc):
-            # Tap dispatch and the click task race the next read; wait for the
-            # move counter to land so a slow tap waits instead of tearing the
-            # cycle-loop asserts (KeyError flake, verify run 35933404822).
-            before = page.evaluate('AlibiDiagnostics.getCurrent().moves')
-            loc.tap()
-            page.wait_for_function('exp => AlibiDiagnostics.getCurrent().moves === exp', arg=before + 1)
+
+        def tap_mark(loc, mode_value, person_value):
+            cell_id = None
+            phase = 'cell identity readiness'
+            before = None
+            try:
+                cell_id = loc.get_attribute('id')
+                phase = 'selected mode/person readiness'
+                expect(
+                    page.locator(
+                        f'.toolrow [data-action="scene-mode"][data-value="{mode_value}"]'
+                    )
+                ).to_have_attribute('aria-pressed', 'true')
+                expect(
+                    page.locator(
+                        f'.people-palette [data-action="person"][data-id="{person_value}"]'
+                    )
+                ).to_have_attribute('aria-pressed', 'true')
+                page.evaluate(
+                    """id => {
+                        const el = document.getElementById(id);
+                        if (!el) return false;
+                        el.scrollIntoView({
+                            block: 'center',
+                            inline: 'center',
+                            behavior: 'instant',
+                        });
+                        return true;
+                    }""",
+                    cell_id,
+                )
+                phase = 'cell center hit-test readiness'
+                page.wait_for_function(
+                    """id => {
+                        const el = document.getElementById(id);
+                        if (!el || el.disabled) return false;
+                        const rect = el.getBoundingClientRect();
+                        if (!rect.width || !rect.height) return false;
+                        const hit = document.elementFromPoint(
+                            rect.left + rect.width / 2,
+                            rect.top + rect.height / 2,
+                        );
+                        return hit === el || el.contains(hit);
+                    }""",
+                    arg=cell_id,
+                )
+                before = page.evaluate('AlibiDiagnostics.getCurrent().moves')
+                phase = 'single tap and move commit'
+                # Candidate taps toggle state; retrying could hide a missed-state race or undo a landed tap.
+                loc.tap()
+                page.wait_for_function(
+                    'exp => AlibiDiagnostics.getCurrent()?.moves === exp',
+                    arg=before + 1,
+                )
+            except (PlaywrightError, AssertionError) as error:
+                try:
+                    diagnostic = page.evaluate(
+                        """({cellId, expectedMode, expectedPerson, beforeMoves}) => {
+                            const current = window.AlibiDiagnostics?.getCurrent?.();
+                            const target = cellId ? document.getElementById(cellId) : null;
+                            let hit = null;
+                            if (target) {
+                                const rect = target.getBoundingClientRect();
+                                const element = document.elementFromPoint(
+                                    rect.left + rect.width / 2,
+                                    rect.top + rect.height / 2,
+                                );
+                                hit = {
+                                    tag: element?.tagName?.toLowerCase() || null,
+                                    id: element?.id || null,
+                                    cell: element?.closest?.('.scene-cell[data-cell]')?.id || null,
+                                };
+                            }
+                            return {
+                                url: location.href,
+                                puzzle: current?.puzzle?.id || null,
+                                moves: current?.moves ?? null,
+                                expectedMoves: Number.isFinite(beforeMoves) ? beforeMoves + 1 : null,
+                                state: current?.state || null,
+                                expectedPerson,
+                                expectedMode,
+                                selectedPerson: document.querySelector('.people-palette [data-action="person"][aria-pressed="true"]')?.dataset.id || null,
+                                selectedMode: document.querySelector('.toolrow [data-action="scene-mode"][aria-pressed="true"]')?.dataset.value || null,
+                                target: target ? {
+                                    id: target.id,
+                                    disabled: target.disabled,
+                                    visible: !!(target.getBoundingClientRect().width && target.getBoundingClientRect().height),
+                                    pointerEvents: getComputedStyle(target).pointerEvents,
+                                    centerHit: hit,
+                                } : null,
+                                recentInputEvents: window.__sceneInputTrace?.slice(-16) || [],
+                            };
+                        }""",
+                        {
+                            'cellId': cell_id,
+                            'expectedMode': mode_value,
+                            'expectedPerson': person_value,
+                            'beforeMoves': before,
+                        },
+                    )
+                    print(
+                        f'tap_mark failed during {phase}: {json.dumps(diagnostic, sort_keys=True)}',
+                        file=sys.stderr,
+                    )
+                    try:
+                        page.screenshot(
+                            path=str(OUT / f'scene-tap-failure-{width}-{cell_id or "unknown"}.png'),
+                            full_page=True,
+                        )
+                    except Exception as screenshot_error:
+                        print(f'tap_mark diagnostic screenshot failed: {screenshot_error}', file=sys.stderr)
+                except Exception as diagnostic_error:
+                    print(
+                        f'tap_mark failed during {phase}; diagnostic collection failed: {diagnostic_error}',
+                        file=sys.stderr,
+                    )
+                raise
         person(other)
         mode('candidate')
-        tap_mark(target)
+        tap_mark(target, 'candidate', other['id'])
         mode('exclude')
-        tap_mark(target)
+        tap_mark(target, 'exclude', other['id'])
         person(who)
         mode('candidate')
-        tap_mark(page.locator(f'#cell-{elsewhere}'))
+        tap_mark(page.locator(f'#cell-{elsewhere}'), 'candidate', who['id'])
         mode('cycle')
         for tap in range(1, 8):
-            tap_mark(target)
+            tap_mark(target, 'cycle', who['id'])
             s = state()
             stage = (tap - 1) % 4
             assert (s['placements'].get(who['id']) == cell) == (stage == 0), (tap, s)
