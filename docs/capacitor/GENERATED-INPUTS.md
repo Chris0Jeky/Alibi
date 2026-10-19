@@ -47,8 +47,11 @@ zero failures/skips, using the recovered exact scripts and policy implementation
 repository test glob includes the new dedicated suite; native CI also runs the expanded generic
 suite before actual sync.
 
-Fresh CLI generation, formatting, full repository verification, strict native compilation,
-APK inspection and emulator controls remain exact-head CI gates. The canonical Maven verification
-file is still unchanged; [METADATA-REPAIR.md](METADATA-REPAIR.md) contains the reviewed checksum
-patch. Do not disable verification to obtain a green build. Physical Android, TalkBack, publisher
-identity, signing and Play publication remain owner/device gates in HUMAN_TODO.md.
+The canonical Maven verification repair is **APPLIED**; [METADATA-REPAIR.md](METADATA-REPAIR.md)
+records the reviewed additions and warns against applying the historical patch again. At recorded
+head `e543308`, strict compilation, lint, assembly and the debug APK static audit passed. The
+preview APK still failed its asset-set audit on two unmatched baseline-profile files. Fresh CLI
+generation, formatting, full repository verification, both package/signature/alignment checks and
+installed offline instrumentation remain exact-head CI gates. Do not disable verification to
+obtain a green build. Physical Android, TalkBack, publisher identity, signing and Play publication
+remain owner/device gates in HUMAN_TODO.md.

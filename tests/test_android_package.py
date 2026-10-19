@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import warnings
+import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -84,6 +85,21 @@ class PackageTests(unittest.TestCase):
         self.assertTrue(self.inspect("debug")["debuggable"])
         with self.assertRaisesRegex(ValueError, "debuggable"):
             self.inspect()
+
+    def test_disabled_application_or_launcher_cannot_produce_a_package_receipt(self):
+        for variant in ("debug", "capacitorPreview"):
+            for disabled in ("application", "activity", "both"):
+                with self.subTest(variant=variant, disabled=disabled):
+                    root = ET.fromstring(MANIFEST)
+                    app = root.find("application")
+                    app.set(PACKAGE.ANDROID + "debuggable", str(variant == "debug").lower())
+                    if disabled in ("application", "both"):
+                        app.set(PACKAGE.ANDROID + "enabled", "false")
+                    if disabled in ("activity", "both"):
+                        app.find("activity").set(PACKAGE.ANDROID + "enabled", "false")
+                    self.manifest = ET.tostring(root, encoding="unicode")
+                    with self.assertRaisesRegex(ValueError, "enabled"):
+                        self.inspect(variant)
 
     def test_missing_extra_tampered_and_native_library_entries_fail(self):
         cases = [({"assets/public/index.html": b"tampered"}, (), "asset"),

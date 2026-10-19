@@ -1,5 +1,21 @@
 # Live development state
 
+## 2026-10-19: native package review follow-ups (#485)
+
+The actual-APK verifier now refuses a disabled application or launcher, including false,
+malformed and unresolved enabled flags; omitted and explicit true remain accepted. The two
+native handoff documents now mark the canonical metadata repair APPLIED and retain the
+recorded e543308 build evidence separately from current-head acceptance.
+
+Verified: the full focused Python package/SDK-manifest suite passed 19 groups twice during
+implementation and once in independent integration review; the new mutation cases failed
+against the prior verifier. Python syntax and patch applicability passed. No package policy
+allowance, manifest fixture, trust metadata, source asset or runtime dependency changed.
+Not yet verified at this follow-up head: full repository and native CI, both actual APK
+package/signature/alignment checks, and installed offline instrumentation. The preview's two
+unmatched baseline-profile assets remain refused. PR #485 remains draft; physical-device,
+TalkBack, recovery/document-transfer, signing and publisher gates remain in HUMAN_TODO.md.
+
 ## Session-2 swarm wave (unreleased): 29 September 2026
 
 Continued the background swarm (`auto-alibi` waves 007-015, plan in

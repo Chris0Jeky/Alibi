@@ -1,5 +1,6 @@
 """Signature-only permission decoding must accept enum 2, never broader flags."""
 import unittest
+import xml.etree.ElementTree as ET
 from test_android_package import PACKAGE, APP_ID, MANIFEST
 
 
@@ -44,6 +45,57 @@ class LaunchModeValueTests(unittest.TestCase):
             with self.subTest(variant=variant):
                 result = PACKAGE.manifest_policy((fixtures / filename).read_text(), '0.15.0', variant)
                 self.assertEqual(result['debuggable'], variant == 'debug')
+
+
+class EnabledValueTests(unittest.TestCase):
+    def manifests(self):
+        from pathlib import Path
+        fixtures = Path(__file__).parent / 'fixtures/native-apk-manifests'
+        for filename, variant in [('debug.xml', 'debug'), ('preview.xml', 'capacitorPreview')]:
+            yield ET.fromstring((fixtures / filename).read_text()), variant
+
+    def launcher(self, app):
+        activities = [node for node in app.findall('activity')
+                      if node.get(PACKAGE.ANDROID + 'name') in (APP_ID + '.MainActivity', '.MainActivity')]
+        self.assertEqual(len(activities), 1)
+        return activities[0]
+
+    def test_sdk_manifests_accept_default_and_explicit_enabled_at_both_levels(self):
+        for root, variant in self.manifests():
+            app = root.find('application')
+            activity = self.launcher(app)
+            for application_enabled in (None, 'true'):
+                for activity_enabled in (None, 'true'):
+                    with self.subTest(variant=variant, application=application_enabled,
+                                      activity=activity_enabled):
+                        for node, value in [(app, application_enabled), (activity, activity_enabled)]:
+                            node.attrib.pop(PACKAGE.ANDROID + 'enabled', None)
+                            if value is not None:
+                                node.set(PACKAGE.ANDROID + 'enabled', value)
+                        result = PACKAGE.manifest_policy(ET.tostring(root, encoding='unicode'),
+                                                         '0.15.0', variant)
+                        self.assertEqual(result['debuggable'], variant == 'debug')
+
+    def test_sdk_manifests_reject_disabled_application_and_launcher(self):
+        for root, variant in self.manifests():
+            app = root.find('application')
+            for node in (app, self.launcher(app)):
+                with self.subTest(variant=variant, component=node.tag):
+                    node.set(PACKAGE.ANDROID + 'enabled', 'false')
+                    with self.assertRaisesRegex(ValueError, 'enabled'):
+                        PACKAGE.manifest_policy(ET.tostring(root, encoding='unicode'), '0.15.0', variant)
+                    node.attrib.pop(PACKAGE.ANDROID + 'enabled')
+
+    def test_sdk_manifests_reject_unresolved_or_malformed_enabled_flags(self):
+        for root, variant in self.manifests():
+            app = root.find('application')
+            for node in (app, self.launcher(app)):
+                for value in ('', 'TRUE', '1', '@bool/launcher_enabled', ' true', 'true '):
+                    with self.subTest(variant=variant, component=node.tag, value=value):
+                        node.set(PACKAGE.ANDROID + 'enabled', value)
+                        with self.assertRaisesRegex(ValueError, 'enabled'):
+                            PACKAGE.manifest_policy(ET.tostring(root, encoding='unicode'), '0.15.0', variant)
+                    node.attrib.pop(PACKAGE.ANDROID + 'enabled')
 
 
 if __name__ == '__main__':

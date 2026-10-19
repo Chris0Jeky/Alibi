@@ -77,6 +77,7 @@ def manifest_policy(text: str, version: str, variant: str) -> dict:
     apps = root.findall("application")
     require(len(apps) == 1, "Expected one application")
     app = apps[0]
+    require(app.get(ANDROID + "enabled", "true") == "true", "Application must remain enabled")
     require(app.get(ANDROID + "allowBackup") == "false", "Automatic backup must remain disabled")
     require(app.get(ANDROID + "fullBackupContent") is not None
             and app.get(ANDROID + "dataExtractionRules") is not None,
@@ -125,6 +126,7 @@ def manifest_policy(text: str, version: str, variant: str) -> dict:
             exported.append(name)
     require(len(main) == 1 and main[0].get(ANDROID + "exported") == "true"
             and main[0].get(ANDROID + "launchMode") in ("singleTask", "2", "0x2", "0x00000002"), "Unexpected launcher contract")
+    require(main[0].get(ANDROID + "enabled", "true") == "true", "Launcher activity must remain enabled")
     filters = main[0].findall("intent-filter")
     require(len(filters) == 1 and not filters[0].findall("data")
             and [n.get(ANDROID + "name") for n in filters[0].findall("action")] == ["android.intent.action.MAIN"]

@@ -6,8 +6,11 @@ Read the [29 September native-readiness audit](NATIVE-READINESS-2026-09-29.md) a
 [implementation plan](NATIVE-FOUNDATION-PLAN.md) before resuming work. They distinguish the
 current host, missing native integrations and historical evidence without restarting this program.
 The [retry handoff](NATIVE-CONTINUATION-2026-09-29.md) records the generated-input and installed-APK
-review repairs. The [reviewed metadata patch](METADATA-REPAIR.md) is apply-checked but is not yet
-in the canonical trust file; native compilation remains gated until that repair and CI succeed.
+review repairs. The [reviewed metadata repair](METADATA-REPAIR.md) is **APPLIED** to the canonical
+trust file; do not apply the historical patch again. At recorded head `e543308`, strict native
+compilation, lint and assembly passed, as did the debug APK static audit. The preview APK's
+unmatched baseline-profile assets, both package/signature/alignment checks and installed offline
+instrumentation remain gates; new source changes still require exact-head CI.
 
 Program: [#120](https://github.com/Chris0Jeky/Alibi/issues/120). Implementation: **14 linked work packages, #123–#136**. Audited main: `f931d85162146e03fd85351e78dc16f48e305575`. The current PWA remains the baseline, not a disposable prototype.
 
