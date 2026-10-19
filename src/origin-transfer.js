@@ -399,7 +399,7 @@
   }
   async function retainRecovery(snapshot) {
     await withDb('alibi-origin-recovery', 1, ensureStore('copies'), (db) =>
-      txDone(db, 'copies', 'readwrite', (store) => store.put(snapshot, 'pending')),
+      txDone(db, 'copies', 'readwrite', (store) => store.add(snapshot, 'pending')),
     );
   }
   async function releaseRecovery() {

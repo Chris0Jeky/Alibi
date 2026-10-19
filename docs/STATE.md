@@ -1,5 +1,27 @@
 # Live development state
 
+## 2026-10-19: protect existing origin-transfer recovery during admission (#579)
+
+After #593 merged into the transfer feature branch as ceb14c870b240900070ad7f8c33a16bf685a4a72,
+retention now adds the pending recovery record atomically instead of replacing an existing key.
+A failed retention is awaited before any domain write, rollback or release. Existing null,
+empty-string, false, zero and unknown recovery values remain protected. Source/runtime scope
+is one method-name change, with no schema or allowance adjustment.
+
+Verified: independent review and all 33 actual-source transfer tests, including eight new
+admission groups. The earlier two-tab Chromium 140 fixture preserved existing copies, admitted
+one concurrent contender and exercised release/abort behavior. Review tightened its final
+abort check to require zero pending keys; that amended assertion has only syntax validation
+locally because the browser executable became unavailable. The exact-head safety workflow
+now runs both browser fixtures and full verification, with fresh hosted results required.
+
+Source and minified lengths are unchanged; isolated module gzip grows by two bytes, which
+still requires a complete budget pass. Any retained pending record now blocks another import,
+including after successful rollback, until separately resolved. Startup recovery UI, attempted-
+domain concurrent ownership, semantic/namespace validation, post-commit cleanup and export/
+fallback consistency remain parent blockers. This follow-up targets #579's draft feature
+branch and does not qualify that feature for main or close owner/device gates.
+
 ## 2026-10-19: origin-transfer repair retains the existing net-shell ceiling (#593)
 
 At f4208df the 24 transfer contracts and hosted Chromium 151 two-tab abandoned-open fixture

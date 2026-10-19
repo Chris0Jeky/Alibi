@@ -5,6 +5,7 @@ on:
       - 'src/origin-transfer.js'
       - 'tests/origin-transfer*.test.cjs'
       - 'tests/browser_origin_transfer_open.py'
+      - 'tests/browser_origin_transfer_recovery.py'
       - 'requirements-dev.txt'
       - '.github/workflows/origin-transfer-safety.yml'
   workflow_dispatch:
@@ -37,7 +38,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           mkdir -p test-results/origin-transfer-safety
           printf '{"sourceSha":"%s","treeSha":"%s"}\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" > test-results/origin-transfer-safety/source-head.json
-          sha256sum src/origin-transfer.js tests/origin-transfer*.test.cjs tests/browser_origin_transfer_open.py requirements-dev.txt .github/workflows/origin-transfer-safety.yml | tee test-results/origin-transfer-safety/inputs.sha256
+          sha256sum src/origin-transfer.js tests/origin-transfer*.test.cjs tests/browser_origin_transfer_open.py tests/browser_origin_transfer_recovery.py requirements-dev.txt .github/workflows/origin-transfer-safety.yml | tee test-results/origin-transfer-safety/inputs.sha256
       - name: Exercise all transfer coordinator contracts
         run: |
           set -o pipefail
@@ -62,11 +63,12 @@ jobs:
             | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
           python -m pip install -r requirements-dev.txt
           python -m playwright install --with-deps chromium
-      - name: Exercise abandoned IndexedDB opens in two tabs
+      - name: Exercise origin-transfer IndexedDB ports in two tabs
         if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         run: |
           set -o pipefail
           python tests/browser_origin_transfer_open.py 2>&1 | tee test-results/origin-transfer-safety/browser-open.log
+          python tests/browser_origin_transfer_recovery.py 2>&1 | tee test-results/origin-transfer-safety/browser-recovery.log
       - name: Verify source was not rewritten during qualification
         if: ${{ !cancelled() }}
         run: |
