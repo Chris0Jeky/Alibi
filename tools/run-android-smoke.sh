@@ -57,5 +57,5 @@ adb shell input keyevent 82
 # nativeHostBootsAndNavigatesOffline checks installed sourceDir before and after controls.
 (cd android && ./gradlew --no-daemon --dependency-verification=strict \
   "-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=$EXPECTED_APK_SHA256" \
-  connectedDebugAndroidTest)
+  :app:connectedDebugAndroidTest)
 python tools/android-smoke-evidence.py record --expected-sha "$EXPECTED_APK_SHA256"

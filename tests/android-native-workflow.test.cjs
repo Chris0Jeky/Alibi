@@ -50,7 +50,8 @@ test('native CI validates the committed Gradle wrapper before invoking it', () =
 
 test('native smoke uses actual instrumentation and fails instead of falling back to browser simulation', () => {
   const smoke = read('tools/run-android-smoke.sh');
-  assert.match(smoke, /connectedDebugAndroidTest/);
+  assert.match(smoke, /:app:connectedDebugAndroidTest/);
+  assert.doesNotMatch(smoke, /(?:^|\s)connectedDebugAndroidTest(?:\s|$)/);
   assert.match(smoke, /airplane_mode_on/);
   assert.match(smoke, /svc wifi disable/);
   assert.match(smoke, /dumpsys webviewupdate/);

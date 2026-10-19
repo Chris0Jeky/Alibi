@@ -1,5 +1,27 @@
 # Live development state
 
+## 2026-10-19: target the installed app instrumentation task (#485)
+
+At d681236 the emulator discovered its AVD, booted and ran the app's named offline test.
+The retained app JUnit report records one test, zero failures/errors/skips, and
+nativeHostBootsAndNavigatesOffline passing in 16.834 seconds. The overall Gradle command
+then failed the generated Cordova library's separate Android-test duplicate-class check:
+Kotlin stdlib 1.8.22 overlaps its jdk7/jdk8 1.6.21 test dependencies. The final smoke receipt
+was not recorded because the command correctly returned failure.
+
+The runner now invokes :app:connectedDebugAndroidTest explicitly. That is the app test
+whose installed APK is bound to the audited digest and whose report the existing recorder
+requires. App dependencies still compile through the app build. No dependency pins, generated
+scripts, APK policies, assertions, deadlines or failure handling changed. The Python runner
+probe requires this exact task, retains the failure-status/no-receipt check, and the Node
+workflow guard pins the same scope.
+
+Verified: four actual-runner stub cases, seven workflow guards and shell syntax. The prior
+runner fails the new task-selection controls. The earlier 1/1 installed result is retained
+as source-specific evidence, not a green workflow or final receipt. Fresh exact-head native
+and full repository qualification remain required before merge. Owner and broader CAP
+acceptance remain open; see the source-linked NATIVE-APP-TEST-SCOPE-2026-10-19.md record.
+
 ## 2026-10-19: bind native AVD creation and lookup, retain current main (#485, #719)
 
 Main aea3dda contains #719 after all five current-head workflows passed, including 1,899

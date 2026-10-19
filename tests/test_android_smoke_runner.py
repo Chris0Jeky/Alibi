@@ -65,7 +65,8 @@ elif name == 'adb':
 elif name == 'gradlew':
     assert '-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=' + 'a' * 64 in args
     assert '--dependency-verification=strict' in args
-    assert 'connectedDebugAndroidTest' in args
+    android_test_tasks = [arg for arg in args if 'connectedDebugAndroidTest' in arg]
+    assert android_test_tasks == [':app:connectedDebugAndroidTest']
     sys.exit(int(os.environ.get('STUB_GRADLE_EXIT', '0')))
 else: raise AssertionError(name)
 '''
