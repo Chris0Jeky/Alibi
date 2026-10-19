@@ -1,5 +1,34 @@
 # Live development state
 
+## 2026-10-19: native foundation qualified and acceptance handoff refreshed (#485)
+
+Native #485 merged as 27c2d76162689cccc1a0fb450ef342ca770043c2 after all nine workflows
+for reviewed head 08680d45549b2c00673e0c6314edb7437f8505cd passed. Full run 39306446580
+reports 1,959/1,959 Node tests, the complete browser/storage/offline and 18-test mobile suite,
+release-update preservation and local Cloudflare acceptance. Its synthetic merge and the exact
+head have the same tree. Native run 39306446758 checked the exact head and passed strict
+compilation/lint/assembly, both APK audits, signatures/alignment, installed offline instrumentation
+and unchanged source/locks.
+
+Root and independent review verified the retained artifact archive, source and package-receipt
+hashes, and exactly one successful named API 36 debug-host test with no failures/errors/skips.
+Installed APK bytes were bound before and after navigation. The preview APK was built/audited
+and independently rehashed; this run did not install that variant. No physical or production
+acceptance is implied. Existing application and startup budgets remained unchanged and passed.
+
+The native README now replaces its stale e543308 gate summary with the dated qualification
+record, including exact source/run/artifact evidence and a remaining CAP acceptance checklist.
+Broader host/gameplay, minimum WebView, lifecycle, recovery/document transfer, security/privacy,
+physical Android/TalkBack and publisher/signing/release work remain in the existing CAP issues
+and HUMAN_TODO.md. Historical audit records remain historical.
+
+The issue review closed #347, #389, #420, #476, #537, #554, #577, #580, #620, #636, #661,
+#696, #715 and #716 after new fixes or verification of already-merged work. #712 retains the
+newly merged diagnostics while its intermittent cause remains unresolved; #219 and #404 have
+updated progress notes and keep their remaining scope. Save-transfer corrections remain on
+the separate draft #579 feature branch. This documentation follow-up has source/claim/link
+review; its own current-head hosted qualification remains required before merge.
+
 ## 2026-10-19: target the installed app instrumentation task (#485)
 
 At d681236 the emulator discovered its AVD, booted and ran the app's named offline test.

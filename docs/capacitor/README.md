@@ -7,10 +7,14 @@ Read the [29 September native-readiness audit](NATIVE-READINESS-2026-09-29.md) a
 current host, missing native integrations and historical evidence without restarting this program.
 The [retry handoff](NATIVE-CONTINUATION-2026-09-29.md) records the generated-input and installed-APK
 review repairs. The [reviewed metadata repair](METADATA-REPAIR.md) is **APPLIED** to the canonical
-trust file; do not apply the historical patch again. At recorded head `e543308`, strict native
-compilation, lint and assembly passed, as did the debug APK static audit. The preview APK's
-unmatched baseline-profile assets, both package/signature/alignment checks and installed offline
-instrumentation remain gates; new source changes still require exact-head CI.
+trust file; do not apply the historical patch again. At reviewed source
+`08680d45549b2c00673e0c6314edb7437f8505cd`, reconciled with main
+`aea3dda641edcee9c0e52126abe0aa0288344406`, native workflow run
+[39306446758](https://github.com/Chris0Jeky/Alibi/actions/runs/39306446758) passed both actual APK
+audits, signature/alignment checks, and the installed offline debug-host smoke. The exact receipt,
+APK identity and limits are in [the 19 October native qualification](NATIVE-QUALIFICATION-2026-10-19.md).
+This supersedes the earlier `e543308` gate summary here. The record also links the separate
+full-repository result for the tested tree; broader CAP and owner acceptance gates remain open.
 
 Program: [#120](https://github.com/Chris0Jeky/Alibi/issues/120). Implementation: **14 linked work packages, #123–#136**. Audited main: `f931d85162146e03fd85351e78dc16f48e305575`. The current PWA remains the baseline, not a disposable prototype.
 
