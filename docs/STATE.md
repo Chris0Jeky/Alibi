@@ -1,5 +1,51 @@
 # Live development state
 
+## 2026-10-19: target the installed app instrumentation task (#485)
+
+At d681236 the emulator discovered its AVD, booted and ran the app's named offline test.
+The retained app JUnit report records one test, zero failures/errors/skips, and
+nativeHostBootsAndNavigatesOffline passing in 16.834 seconds. The overall Gradle command
+then failed the generated Cordova library's separate Android-test duplicate-class check:
+Kotlin stdlib 1.8.22 overlaps its jdk7/jdk8 1.6.21 test dependencies. The final smoke receipt
+was not recorded because the command correctly returned failure.
+
+The runner now invokes :app:connectedDebugAndroidTest explicitly. That is the app test
+whose installed APK is bound to the audited digest and whose report the existing recorder
+requires. App dependencies still compile through the app build. No dependency pins, generated
+scripts, APK policies, assertions, deadlines or failure handling changed. The Python runner
+probe requires this exact task, retains the failure-status/no-receipt check, and the Node
+workflow guard pins the same scope.
+
+Verified: four actual-runner stub cases, seven workflow guards and shell syntax. The prior
+runner fails the new task-selection controls. The earlier 1/1 installed result is retained
+as source-specific evidence, not a green workflow or final receipt. Fresh exact-head native
+and full repository qualification remain required before merge. Owner and broader CAP
+acceptance remain open; see the source-linked NATIVE-APP-TEST-SCOPE-2026-10-19.md record.
+
+## 2026-10-19: bind native AVD creation and lookup, retain current main (#485, #719)
+
+Main aea3dda contains #719 after all five current-head workflows passed, including 1,899
+Node tests and the complete browser/offline sequence. The two diagnostic fixtures join this
+native branch unchanged; both STATE additions and the shared history are retained once.
+
+At native head 05bc1af, all eight other workflows passed. The native workflow passed strict
+sync, compilation, lint, both exact APK audits, signatures and alignment, then failed its
+device wait with status 124. Bounded logcat cleanup returned instead of consuming the job cap.
+The earlier retained 33dd3d2 artifact establishes that the emulator could not discover
+alibi_native.ini; it does not establish which directory the creator used.
+
+The smoke runner now exports one fresh task-owned ANDROID_AVD_HOME to both tools, passes
+the explicit data path, and requires both the locator and the emulator's exact AVD listing
+before launch. Images remain outside diagnostic artifacts. Four actual-script command-stub
+regressions fail on the previous runner and pass on this correction: mismatched inherited
+homes, missing locator, undiscoverable device, and normal/failing instrumentation handoff.
+The original deadlines, bounded cleanup, audited APK digest and offline controls are unchanged.
+
+Verified: shell syntax, focused source/behavioral tests and independent review. No local real
+SDK or emulator result is claimed. This reconciled head requires fresh full and installed-native
+CI before merge; physical Android, TalkBack, recovery, publisher and signing gates remain open
+in HUMAN_TODO.md. No application budget, save schema or published content identity changed.
+
 ## 2026-10-19: bounded browser failure diagnostics (#537, #712)
 
 Challenge browser failures now retain the original exception while recording page/store state,
@@ -17,6 +63,28 @@ its context. The production viewport label follows the current width. No applica
 retry, test timeout or acceptance gate changes. These diagnostics address #537; #712 remains
 open because its intermittent tap failure has not been causally reproduced or fixed. Exact-head
 hosted qualification is pending for this test-only follow-up.
+
+## 2026-10-19: reconcile native readiness with merged issue fixes (#485, #718)
+
+Main ef0c6fa now contains #718's six issue fixes after all 20 hosted workflows passed,
+including 1,899 Node tests, the complete real-origin/offline sequence and Android payload
+qualification. This native continuation preserves all 22 non-STATE files from that change
+and all 46 native non-STATE paths byte for byte, including the executable Gradle wrapper.
+The only overlap was STATE: both new histories are retained above one unchanged shared past.
+
+Verified: independent complete tree/mode census and conflict reconciliation. At the preceding
+native head 33dd3d2, full repository CI passed all 1,943 Node tests and its browser sequence;
+strict sync, compilation, lint, both APK audits, signatures and alignment also passed. The
+installed-offline emulator step has not produced a completed acceptance receipt.
+
+Failure cleanup now bounds diagnostic logcat collection to 15 seconds plus a 5-second kill
+grace, then terminates its own emulator PID while preserving the original exit status. A
+controlled hung-adb reproduction failed before the change and returned within 20 seconds
+after it; normal logs and both failure/success statuses were preserved. Independent review
+and shell syntax checks pass. This fixes diagnostic cleanup, not an established boot cause.
+
+This merged head requires fresh full repository, payload and installed-native CI. No source
+allowance, budget, published content identity or owner/device acceptance gate is changed.
 
 ## 2026-10-19: storage, restart, native inset and release follow-ups
 
@@ -58,6 +126,45 @@ catalogue metadata for the changed app source. The catalogue generator now refre
 position also required a one-CSS-pixel fixture tolerance: the exact 113px margin remains checked
 and both reveal targets must clear the dock by at least 15px. Catalogue/budget checks and
 independent review pass after these corrections; full verification must rerun at the new head.
+
+## 2026-10-19: reviewed preview baseline-profile boundary (#485)
+
+The preview APK audit now requires exactly the two generated baseline-profile files reviewed
+from the retained e838e23 build. Literal byte lengths and SHA-256 digests bind the allowance;
+debug APKs and synced inputs cannot supply profiles, and missing, changed, extra, duplicate or
+symlink entries fail. The receipt records the accepted profiles alongside the existing whole-APK,
+source, bridge and manifest identities. PREVIEW-BASELINE-PROFILES.md retains the source/run/artifact
+provenance and explains the limits on dependency attribution and DEX reproducibility.
+
+At 97e6a6f both actual APK audits, signatures and alignment passed with the pinned profiles.
+The emulator then could not start because the hosted runner lacked libpulse.so.0. Its preparation
+step now installs Ubuntu's libpulse0 client library before checking the emulator version. Fresh
+CI must still establish the installed offline test and unchanged-source receipt.
+
+Verified: 18 package test groups passed during implementation and independent review, including
+negative cases for every profile boundary. The retained artifact and nested APK digests and
+actual profile bytes were independently rechecked. At e838e23, hosted strict sync, compilation,
+lint and assembly passed, the debug package audit passed with 310 assets, and Android payload CI
+passed; the preview audit stopped at the now-addressed profile set. This dependency-only continuation
+needs fresh full repository and installed offline instrumentation; its exact-head workflow also
+reruns both APK/signature/alignment gates. The PR
+remains draft; physical-device, TalkBack, recovery, signing and publication remain owner gates.
+
+## 2026-10-19: native package review follow-ups at b1b169d (#485)
+
+The actual-APK verifier now refuses a disabled application or launcher, including false,
+malformed and unresolved enabled flags; omitted and explicit true remain accepted. The two
+native handoff documents now mark the canonical metadata repair APPLIED and retain the
+recorded e543308 build evidence separately from current-head acceptance.
+
+Verified: the full focused Python package/SDK-manifest suite passed 19 groups twice during
+implementation and once in independent integration review; the new mutation cases failed
+against the prior verifier. Python syntax and patch applicability passed. No package policy
+allowance, manifest fixture, trust metadata, source asset or runtime dependency changed.
+Not yet verified at this follow-up head: full repository and native CI, both actual APK
+package/signature/alignment checks, and installed offline instrumentation. The preview's two
+unmatched baseline-profile assets remain refused. PR #485 remains draft; physical-device,
+TalkBack, recovery/document-transfer, signing and publisher gates remain in HUMAN_TODO.md.
 
 ## 2026-10-17: Club and Quiet Wing fallback saves resist cross-tab lost updates (#596, #714)
 
