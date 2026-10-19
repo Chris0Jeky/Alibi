@@ -93,8 +93,8 @@ public class NativeOfflineSmokeTest {
         CountDownLatch complete = new CountDownLatch(1);
         UiHeartbeat heartbeat = new UiHeartbeat();
         trace(label + " submit-ms=" + submitted);
-        heartbeat.start();
         try {
+            heartbeat.start();
             scenario.onActivity(activity -> {
                 dispatched.set(SystemClock.elapsedRealtime());
                 trace(label + " ui-dispatch-ms=" + dispatched.get());
