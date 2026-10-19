@@ -1,5 +1,5 @@
 /* Device-local origin transfer. Checksum, version and shape are pure.
-   Apply keeps a recovery copy and rolls every included store back together.
+   Apply retains recovery and rolls back only domains whose writes were attempted.
    Separate IndexedDB databases are not one transaction. No network. */
 (function (G) {
   'use strict';
@@ -143,18 +143,23 @@
   }
   async function applyOriginTransfer(validated, ports, options = {}) {
     if (options?.confirmed !== true) fail('Import needs explicit confirmation.');
-    const before = {};
-    let retained = false;
+    const before = {},
+      attempted = [];
     try {
       for (const name of SECTIONS) before[name] = await ports.read(name);
       await ports.retain(before);
-      retained = true;
-      for (const name of SECTIONS) await ports.write(name, validated.payload[name]);
+      for (const name of SECTIONS) {
+        // A rejected write may already have changed its domain. Record it first,
+        // but never roll an untouched later domain back to an older snapshot.
+        attempted.push(name);
+        await ports.write(name, validated.payload[name]);
+      }
     } catch (error) {
-      if (!retained) fail(String(error?.message || 'Import could not read the current saves.'));
+      if (!attempted.length)
+        fail(String(error?.message || 'Import could not read the current saves.'));
       try {
-        for (const name of SECTIONS) await ports.write(name, before[name]);
-        for (const name of SECTIONS)
+        for (const name of attempted) await ports.write(name, before[name]);
+        for (const name of attempted)
           if (!sameAfterRollback(name, await ports.read(name), before[name]))
             throw Error('Rollback did not match the recovery copy.');
       } catch (rollbackError) {
@@ -168,28 +173,30 @@
   }
   function openDb(name, version, upgrade) {
     return new Promise((resolve, reject) => {
-      let request;
-      try {
-        request = version == null ? indexedDB.open(name) : indexedDB.open(name, version);
-      } catch (error) {
-        reject(error);
-        return;
-      }
-      request.onupgradeneeded = () => upgrade?.(request.result);
-      request.onsuccess = () => resolve(request.result);
+      let request = indexedDB.open(name, version),
+        abandoned = false;
+      request.onupgradeneeded = () => {
+        if (abandoned) {
+          request.transaction.abort();
+          return;
+        }
+        upgrade?.(request.result);
+      };
+      request.onsuccess = () => {
+        if (abandoned) request.result.close();
+        else resolve(request.result);
+      };
       request.onerror = () => reject(request.error || Error('Storage could not open.'));
-      request.onblocked = () => reject(Error('Another tab is blocking storage.'));
+      request.onblocked = () => {
+        abandoned = true;
+        reject(Error('Another tab is blocking storage.'));
+      };
     });
   }
   function txDone(db, storeName, mode, work) {
     return new Promise((resolve, reject) => {
-      let tx, result;
-      try {
-        tx = db.transaction(storeName, mode);
-      } catch (error) {
-        reject(error);
-        return;
-      }
+      let tx = db.transaction(storeName, mode),
+        result;
       tx.oncomplete = () => resolve(result);
       tx.onerror = () => reject(tx.error || Error('Storage failed.'));
       tx.onabort = () => reject(tx.error || Error('Storage was aborted.'));
