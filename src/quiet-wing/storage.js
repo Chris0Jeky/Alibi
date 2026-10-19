@@ -16,7 +16,13 @@
   function fallbackLock(work) {
     if (!G.navigator?.locks?.request) return work();
     return G.navigator.locks.request(FALLBACK, { ifAvailable: true }, (lock) => {
-      if (!lock) throw Error('Another tab is using this save. Export, then reload.');
+      if (!lock)
+        throw Object.assign(
+          Error('Another tab is using this save. Try saving again after it closes.'),
+          {
+            name: 'LockUnavailableError',
+          },
+        );
       return work();
     });
   }
@@ -137,19 +143,23 @@
     }
     let saved = null;
     try {
-      let raw = null;
+      let raw = null,
+        hasRecord = false;
       if (mode === 'indexeddb') {
         raw = await transact('readonly', (s, set) => {
           s.get(KEY).onsuccess = (e) => set(e.target.result);
         });
+        hasRecord = raw !== undefined;
       } else if (mode === 'local') {
-        const read = () => {
+        const read = (repairUnreadable = true) => {
           const existing = localStorage.getItem(FALLBACK);
           fallbackBytes = existing;
           if (existing !== null) {
             try {
               raw = JSON.parse(existing);
+              hasRecord = true;
             } catch (parseError) {
+              if (!repairUnreadable) throw parseError;
               try {
                 if (
                   localStorage.getItem(FALLBACK + ':recovery') !== null ||
@@ -164,15 +174,29 @@
               localStorage.removeItem(FALLBACK);
               fallbackBytes = null;
               revision = 0;
+              hasRecord = false;
               return;
             }
           } else {
             raw = null;
+            hasRecord = false;
           }
         };
-        await fallbackLock(read);
+        try {
+          await fallbackLock(read);
+        } catch (e) {
+          if (e.name !== 'LockUnavailableError') throw e;
+          // localStorage reads are atomic. Snapshot bytes without running the
+          // malformed-save recovery mutation; future writes still take the lock
+          // and compare the exact bytes and revision before committing.
+          read(false);
+          onstatus(
+            'Another tab is using this save. A snapshot was loaded; changes are checked before writing.',
+            'warning',
+          );
+        }
       }
-      if (raw) {
+      if (hasRecord) {
         saved = validate(raw);
         revision = saved.revision;
       }
@@ -320,7 +344,7 @@
         revision = data.revision;
         state.revision = revision;
         onstatus(
-          mode === 'indexeddb' ? 'Saved on this device' : 'Saved · single-tab fallback',
+          mode === 'indexeddb' ? 'Saved on this device' : 'Saved · local storage fallback',
           'ok',
         );
         return revision;

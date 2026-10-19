@@ -15,7 +15,7 @@ function local() {
   return {
     m,
     locks: fakeLocks(),
-    getItem: (k) => m.get(k) || null,
+    getItem: (k) => m.get(k) ?? null,
     setItem: (k, v) => m.set(k, String(v)),
     removeItem: (k) => m.delete(k),
   };
@@ -174,6 +174,10 @@ function fakeIDB() {
     guardedTab = env(guarded);
   await guardedTab.s.open();
   await guardedTab.s.write(E.newState(Date.now()));
+  ok(
+    guardedTab.statuses.at(-1)?.text === 'Saved · local storage fallback',
+    'Successful fallback status names local storage without claiming single-tab use',
+  );
   const committed = guarded.getItem(key);
   let release;
   const held = guarded.locks.request(
@@ -189,6 +193,177 @@ function fakeIDB() {
   ok(guarded.getItem(key) === committed, 'Held lock refuses a concurrent fallback write');
   release();
   await held;
+
+  const openingStore = local(),
+    openingState = E.newState(Date.now());
+  openingStore.setItem(key, JSON.stringify(openingState));
+  let releaseOpen;
+  const heldOpen = openingStore.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        releaseOpen = resolve;
+      }),
+  );
+  await Promise.resolve();
+  const openingTab = env(openingStore),
+    openedWhileBusy = await openingTab.s.open();
+  ok(
+    openedWhileBusy.mode === 'local' &&
+      !openedWhileBusy.blocked &&
+      openedWhileBusy.saved?.scene.name === openingState.scene.name,
+    'A lock miss during open still reads the atomic localStorage snapshot',
+  );
+  ok(
+    openingStore.getItem(key) === JSON.stringify(openingState),
+    'Reading after a lock miss leaves the fallback bytes unchanged',
+  );
+  ok(
+    openingTab.statuses.some((s) => s.status === 'warning' && /another tab/i.test(s.text)),
+    'The open lock miss is identified as temporary contention',
+  );
+  const editedWhileBusy = structuredClone(openedWhileBusy.saved);
+  editedWhileBusy.scene.name = 'Opened while another tab held the lock';
+  await assert.rejects(openingTab.s.write(editedWhileBusy), /another tab|export/i);
+  ok(
+    openingStore.getItem(key) === JSON.stringify(openingState),
+    'A write still cannot bypass a currently held lock',
+  );
+  releaseOpen();
+  await heldOpen;
+  await openingTab.s.write(editedWhileBusy);
+  ok(
+    JSON.parse(openingStore.getItem(key)).scene.name === editedWhileBusy.scene.name,
+    'The read snapshot saves after contention clears when its bytes are still current',
+  );
+  let releaseSecondOpen;
+  const heldSecondOpen = openingStore.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        releaseSecondOpen = resolve;
+      }),
+  );
+  await Promise.resolve();
+  const staleTab = env(openingStore),
+    staleOpen = await staleTab.s.open(),
+    winnerTab = env(openingStore),
+    winnerOpen = await winnerTab.s.open();
+  ok(
+    !staleOpen.blocked && !winnerOpen.blocked,
+    'Two lock-miss reads remain available while preserving their observed revision',
+  );
+  releaseSecondOpen();
+  await heldSecondOpen;
+  const winnerEdit = structuredClone(winnerOpen.saved);
+  winnerEdit.scene.name = 'Concurrent writer wins';
+  await winnerTab.s.write(winnerEdit);
+  const winnerBytes = openingStore.getItem(key);
+  const staleEdit = structuredClone(staleOpen.saved);
+  staleEdit.scene.name = 'Stale lock-miss edit';
+  await assert.rejects(staleTab.s.write(staleEdit), /another tab|changed|export/i);
+  ok(
+    openingStore.getItem(key) === winnerBytes &&
+      JSON.parse(winnerBytes).scene.name === winnerEdit.scene.name,
+    'A lock-miss snapshot cannot overwrite a newer save after its lock is released',
+  );
+
+  const absentStore = local();
+  let releaseAbsent;
+  const heldAbsent = absentStore.locks.request(
+    key,
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        releaseAbsent = resolve;
+      }),
+  );
+  await Promise.resolve();
+  const absentTab = env(absentStore),
+    absentOpen = await absentTab.s.open();
+  ok(
+    !absentOpen.blocked && absentOpen.saved === null,
+    'A truly absent save remains a writable empty snapshot after a lock miss',
+  );
+  releaseAbsent();
+  await heldAbsent;
+  const firstSave = E.newState(Date.now());
+  await absentTab.s.write(firstSave);
+  ok(
+    JSON.parse(absentStore.getItem(key)).revision === 1,
+    'An absent lock-miss snapshot can create its first save after contention clears',
+  );
+
+  const futureSave = E.newState(Date.now());
+  futureSave.schema = 999;
+  const invalidLockMissRecords = [
+    ['empty stored bytes', ''],
+    ['malformed JSON', '{broken'],
+    ['false scalar', 'false'],
+    ['zero scalar', '0'],
+    ['null scalar', 'null'],
+    ['empty-string scalar', '""'],
+    ['unknown future save', JSON.stringify(futureSave)],
+  ];
+  for (const [label, bytes] of invalidLockMissRecords) {
+    const invalidStore = local(),
+      recoveryBytes = `recovery for ${label}`;
+    invalidStore.setItem(key, bytes);
+    invalidStore.setItem(key + ':recovery', recoveryBytes);
+    let releaseInvalid;
+    const heldInvalid = invalidStore.locks.request(
+      key,
+      { ifAvailable: true },
+      () =>
+        new Promise((resolve) => {
+          releaseInvalid = resolve;
+        }),
+    );
+    await Promise.resolve();
+    const invalidTab = env(invalidStore),
+      invalidOpen = await invalidTab.s.open();
+    releaseInvalid();
+    await heldInvalid;
+    ok(invalidOpen.blocked && invalidOpen.saved === null, `Lock-miss ${label} remains protected`);
+    ok(
+      invalidStore.getItem(key) === bytes &&
+        invalidStore.getItem(key + ':recovery') === recoveryBytes,
+      `Lock-miss ${label} preserves primary and existing recovery bytes`,
+    );
+    await assert.rejects(
+      invalidTab.s.write(E.newState(Date.now())),
+      /read-only|unreadable|protected/i,
+      `Lock-miss ${label} rejects later writes`,
+    );
+    ok(
+      invalidStore.getItem(key) === bytes &&
+        invalidStore.getItem(key + ':recovery') === recoveryBytes,
+      `A later write cannot overwrite lock-miss ${label}`,
+    );
+  }
+
+  const normalCorruptStore = local(),
+    normalCorruptTab = env(normalCorruptStore);
+  normalCorruptStore.setItem(key, '{broken');
+  const normalCorruptOpen = await normalCorruptTab.s.open();
+  ok(
+    !normalCorruptOpen.blocked && normalCorruptOpen.saved === null,
+    'An admitted open can still quarantine malformed JSON and start empty',
+  );
+  ok(
+    normalCorruptStore.getItem(key) === null &&
+      normalCorruptStore.getItem(key + ':recovery') === '{broken',
+    'Malformed JSON is removed only after its bytes reach the recovery slot',
+  );
+  await normalCorruptTab.s.write(E.newState(Date.now()));
+  ok(
+    JSON.parse(normalCorruptStore.getItem(key)).revision === 1 &&
+      normalCorruptStore.getItem(key + ':recovery') === '{broken',
+    'A successfully quarantined malformed save does not block a later first write',
+  );
+
   const restarted = env(guarded),
     loaded = await restarted.s.open();
   await restarted.s.write(loaded.saved);

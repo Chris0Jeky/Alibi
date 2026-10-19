@@ -46,7 +46,7 @@ Cascade boundary is deliberately preserved separately after this table.
 | Domain | Source adapter | IndexedDB identity / principal records | Export and fallback boundary |
 | --- | --- | --- | --- |
 | Cabinet | `src/storage.js` | `alibi-device` v1; `runs`, `packs`, `meta` | Combined backup; `alibi.v1.runs.<key>`, `alibi.v1.packs.<key>`, `alibi.v1.meta.<key>` local fallback |
-| Club / Games Room | `src/club.js` | `alibi-afterhours-v1` v1; `club` store, `state` and `recovery` | Combined backup; one localStorage envelope `alibi-afterhours-v1`; local fallback is single-tab |
+| Club / Games Room | `src/club.js` | `alibi-afterhours-v1` v1; `club` store, `state` and `recovery` | Combined backup; one localStorage envelope `alibi-afterhours-v1`; admitted Web Locks protect writes when available and writes compare exact bytes/revision; if a request cannot be admitted, the guarded compare is not atomic across tabs |
 | Quiet Wing | `src/quiet-wing/storage.js` | `alibi-quiet-wing-v1` v1; `saves`, `state` and `recovery` | Combined backup; `alibi-quiet-wing-v1:fallback` and optional `:fallback:recovery`; fallback restore remains restricted |
 | Challenges | `src/challenge-storage.js` | `alibi-challenges-v1` v1; per-challenge entries in `runs` | Separate challenge exports today, not automatically included in the four-section combined backup |
 | Castle | `src/castle/storage.mjs`, `backup.mjs` | `alibi-castle-v1`; `chapter-one`, `pre-restore-chapter-one` records | Included in current combined backup; versioned envelopes and protected recovery |

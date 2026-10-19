@@ -410,3 +410,271 @@ test('regular and combined callers download standard envelopes and offer diverge
     }
   }
 });
+
+// Exercise the real dialog, action and route hooks together. The DOM stand-in queues
+// native close events, as a browser does, so a previous close can arrive after reopen.
+function cabinetDialogFixture(onDownload) {
+  const listeners = new Map(),
+    pendingClose = [],
+    downloads = [];
+  const focus = () => {};
+  const modal = {
+    open: false,
+    innerHTML: '',
+    contains: () => false,
+    querySelectorAll: () => [],
+    addEventListener: (name, listener) => listeners.set(name, listener),
+    showModal() {
+      this.open = true;
+    },
+    close() {
+      this.open = false;
+      pendingClose.push(() => listeners.get('close')());
+    },
+  };
+  const ctx = {
+    C: { clone },
+    $: (selector) => (selector === '#dialog' ? modal : { focus }),
+    document: {
+      activeElement: null,
+      documentElement: { dataset: {} },
+      getElementById: () => null,
+    },
+    icon: () => '',
+    esc: (value) => value,
+    B: (label, action) => `<button data-action="${action}">${label}</button>`,
+    download: (name, payload) => {
+      if (onDownload) onDownload(name, payload);
+      else downloads.push({ name, payload: clone(payload) });
+    },
+    updateRequested: false,
+    draftEpoch: 0,
+    routeSerial: 0,
+    location: { hash: '#/settings' },
+    endPaint() {},
+    clearTimeout() {},
+    noteTimer: null,
+    enqueueSave: () => new Promise(() => {}),
+  };
+  const closeStart = source.indexOf("  $('#dialog').addEventListener('close',");
+  const closeEnd = source.indexOf('  async function loadRoute(', closeStart);
+  const routeEnd = source.indexOf("  window.addEventListener('hashchange',", closeEnd);
+  assert.ok(closeStart > 0 && routeEnd > closeEnd, 'native dialog and route hooks exist');
+  vm.runInNewContext(
+    `let stagedCabinet = null, lesson = null, dialogOpener = null, bridgeAnchor = null;
+    ${sliceFn('  function closeDialog() {')}
+    ${sliceFn('  function dialog(')}
+    ${offerSrc}
+    ${sliceFn('  async function handleAction(')}
+    ${source.slice(closeEnd, routeEnd)}
+    ${source.slice(closeStart, closeEnd)}
+    globalThis.api = {
+      offer: offerCabinetCopies, dialog, close: closeDialog, route: loadRoute,
+      click: (action) => handleAction({ dataset: { action } }, {}),
+      get staged() { return stagedCabinet; }
+    };`,
+    ctx,
+  );
+  return {
+    offer: ctx.api.offer,
+    api: ctx.api,
+    modal,
+    downloads,
+    flushClose: () => pendingClose.splice(0).forEach((emit) => emit()),
+    cancel() {
+      let prevented = false;
+      listeners.get('cancel')({ preventDefault: () => (prevented = true) });
+      if (!prevented) modal.close();
+    },
+  };
+}
+
+function recoveryCopies() {
+  const device = { format: 'alibi-backup', runs: [{ key: 'a', moves: 9 }] };
+  return { device, session: { ...clone(device), runs: [{ key: 'a', moves: 1 }] } };
+}
+
+for (const dismiss of ['close button', 'native Escape', 'native close', 'route invalidation']) {
+  test(`Cabinet recovery releases both snapshots on ${dismiss}`, async () => {
+    const f = cabinetDialogFixture(),
+      { device, session } = recoveryCopies();
+    f.offer(device, session, 'device.json');
+    assert.ok(f.api.staged);
+    assert.match(f.modal.innerHTML, /data-action="download-device-copy"/);
+    assert.match(f.modal.innerHTML, /data-action="download-session-copy"/);
+    if (dismiss === 'close button') await f.api.click('close-dialog');
+    else if (dismiss === 'native Escape') f.cancel();
+    else if (dismiss === 'native close') f.modal.close();
+    else void f.api.route(); // Its old-save await remains pending after invalidation.
+    if (dismiss === 'close button' || dismiss === 'route invalidation')
+      assert.equal(f.api.staged, null, 'programmatic dismissal releases before close dispatch');
+    f.flushClose();
+    assert.equal(f.api.staged, null);
+    await f.api.click('download-device-copy');
+    await f.api.click('download-session-copy');
+    assert.equal(
+      f.downloads.length,
+      0,
+      'dismissed snapshots cannot be downloaded by stale actions',
+    );
+  });
+}
+
+test('both active recovery downloads remain immutable and reusable until another dialog replaces them', async () => {
+  const f = cabinetDialogFixture(),
+    { device, session } = recoveryCopies();
+  f.offer(device, session, 'device.json');
+  const staged = f.api.staged;
+  device.runs[0].moves = 100;
+  session.runs[0].moves = 100;
+  for (let n = 0; n < 2; n++) {
+    await f.api.click('download-device-copy');
+    await f.api.click('download-session-copy');
+    assert.equal(f.api.staged, staged, 'a download must not consume either recovery choice');
+    assert.equal(f.modal.open, true);
+  }
+  assert.deepEqual(
+    f.downloads.map((d) => [d.name, d.payload.runs[0].moves]),
+    [
+      ['device.json', 9],
+      ['alibi-cabinet-session.json', 1],
+      ['device.json', 9],
+      ['alibi-cabinet-session.json', 1],
+    ],
+  );
+  f.api.dialog('Another dialog', '<p>Other controls</p>');
+  assert.equal(f.api.staged, null);
+  await f.api.click('download-device-copy');
+  assert.equal(f.downloads.length, 4);
+});
+
+test('a delayed native close from the previous dialog preserves newly staged recovery choices', async () => {
+  const f = cabinetDialogFixture(),
+    { device, session } = recoveryCopies();
+  f.offer(device, session, 'old.json');
+  f.api.close();
+  f.offer(device, session, 'new.json');
+  const staged = f.api.staged;
+  f.flushClose();
+  assert.equal(f.api.staged, staged);
+  await f.api.click('download-device-copy');
+  await f.api.click('download-session-copy');
+  assert.deepEqual(
+    f.downloads.map((d) => d.name),
+    ['new.json', 'alibi-cabinet-session.json'],
+  );
+});
+
+test('ordinary exports release a previous recovery and never retain repeated export payloads', async () => {
+  const f = cabinetDialogFixture(),
+    { device, session } = recoveryCopies();
+  f.offer(device, session, 'old.json');
+  for (let n = 0; n < 3; n++) {
+    const payload = { ...clone(device), sequence: n };
+    f.offer(payload, null, `ordinary-${n}.json`);
+    assert.equal(f.api.staged, null, 'ordinary download must release a prior recovery clone');
+    assert.deepEqual(f.downloads[n], { name: `ordinary-${n}.json`, payload });
+  }
+  await f.api.click('download-device-copy');
+  await f.api.click('download-session-copy');
+  assert.equal(f.downloads.length, 3);
+});
+
+test('large valid histories serialize both choices and release the staged reference', async (t) => {
+  require('../src/core.js');
+  require('../src/engines.js');
+  const C = require('../src/bridges.js');
+  require('../src/backup-validation.js');
+  const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/catalog.json')));
+  const device = {
+    format: 'alibi-backup',
+    schemaVersion: 1,
+    settings: {},
+    preferences: {},
+    packs: [],
+    runs: catalog.puzzles.map((puzzle) => {
+      const state = C.registry[puzzle.type].initial(puzzle);
+      return {
+        schemaVersion: 1,
+        key: `${puzzle.id}@${puzzle.revision}`,
+        rev: 1,
+        puzzle: clone(puzzle),
+        state: clone(state),
+        moves: 200,
+        hints: 0,
+        elapsed: 600,
+        note: 'x'.repeat(5000),
+        undo: Array.from({ length: 100 }, () => clone(state)),
+        redo: Array.from({ length: 100 }, () => clone(state)),
+        updatedAt: '2026-10-19T00:00:00.000Z',
+      };
+    }),
+  };
+  const session = clone(device);
+  session.runs[0].note = 'session edit';
+  const validator = globalThis.AlibiBackupValidation(C, catalog);
+  assert.equal(validator.validateBackup(device).runs.length, catalog.puzzles.length);
+  assert.equal(validator.validateBackup(session).runs.length, catalog.puzzles.length);
+
+  // Run the actual download serializer without retaining payloads or object URLs.
+  // Heap samples are diagnostic, not a machine-dependent performance assertion.
+  const samples = [],
+    output = [],
+    millis = [];
+  const sample = () => samples.push(process.memoryUsage().heapUsed);
+  const downloadContext = {
+    Blob: class extends Blob {
+      constructor(parts, options) {
+        super(parts, options);
+        sample();
+      }
+    },
+    URL: {
+      createObjectURL(blob) {
+        output.push(blob.size);
+        return 'blob:synthetic-export';
+      },
+      revokeObjectURL() {},
+    },
+    document: {
+      body: { appendChild() {} },
+      createElement: () => ({ click() {}, remove() {} }),
+    },
+    setTimeout: (callback) => callback(),
+  };
+  vm.runInNewContext(sliceFn('  function download('), downloadContext);
+  const f = cabinetDialogFixture((name, payload) => {
+    const start = performance.now();
+    downloadContext.download(name, payload);
+    millis.push(performance.now() - start);
+    sample();
+  });
+  globalThis.gc?.();
+  const baseline = process.memoryUsage().heapUsed;
+  f.offer(device, session, 'large-device.json');
+  sample();
+  globalThis.gc?.();
+  const staged = process.memoryUsage().heapUsed;
+  await f.api.click('download-device-copy');
+  await f.api.click('download-session-copy');
+  assert.deepEqual(
+    output,
+    [device, session].map((data) => new Blob([JSON.stringify(data, null, 2)]).size),
+  );
+  f.api.close();
+  f.flushClose();
+  assert.equal(f.api.staged, null);
+  globalThis.gc?.();
+  t.diagnostic(
+    JSON.stringify({
+      runs: device.runs.length,
+      historyStatesPerCopy: device.runs.length * 200,
+      serializedBytes: output,
+      serializationMs: millis.map((ms) => Math.round(ms)),
+      forcedGC: !!globalThis.gc,
+      stagedHeapDelta: staged - baseline,
+      observedPeakHeapDelta: Math.max(...samples) - baseline,
+      closedHeapDelta: process.memoryUsage().heapUsed - baseline,
+    }),
+  );
+});

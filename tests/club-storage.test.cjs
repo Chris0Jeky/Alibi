@@ -16,6 +16,10 @@ const groupNames = [
   'Fallback without Web Locks saves in a single tab',
   'Fallback without Web Locks preserves concurrent changes and exports',
   'Fallback lock contention and same-revision drift',
+  'Fallback lock miss retries after contention clears',
+  'Synchronous Web Locks request failure uses a guarded fallback write',
+  'Rejected Web Locks request uses a guarded fallback write',
+  'Web Lock fallback preserves stale bytes',
   'Block Cabinet source guards',
   'Local fallback save and initial visit',
   'Visit rotation, pinning and unpinning',
@@ -289,6 +293,85 @@ group('Fallback lock contention and same-revision drift', async () => {
   );
 });
 
+group('Fallback lock miss retries after contention clears', async () => {
+  const shared = store();
+  const writer = await tab(shared);
+  const before = shared.getItem('alibi-afterhours-v1');
+  let release;
+  const held = shared.locks.request(
+    'alibi-afterhours-v1',
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+
+  await writer.AlibiClub.save();
+  check(shared.getItem('alibi-afterhours-v1') === before, 'A lock miss preserves stored bytes');
+  check(/export/i.test(writer.AlibiClub.diagnostics().saveError), 'A lock miss offers export');
+
+  release();
+  await held;
+  await writer.AlibiClub.save();
+  check(
+    JSON.parse(shared.getItem('alibi-afterhours-v1')).rev === JSON.parse(before).rev + 1,
+    'The same tab commits its pending progress after lock contention clears',
+  );
+  check(!writer.AlibiClub.diagnostics().saveError, 'A successful retry clears the warning');
+});
+
+group('Synchronous Web Locks request failure uses a guarded fallback write', async () => {
+  const shared = store();
+  shared.locks = {
+    request() {
+      throw Error('SecurityError');
+    },
+  };
+  const context = await tab(shared);
+  check(
+    JSON.parse(shared.getItem('alibi-afterhours-v1'))?.rev === 1,
+    'A guarded write succeeds after a synchronous request throw',
+  );
+  check(
+    !context.AlibiClub.diagnostics().saveError,
+    'A synchronous request throw is not reported as a conflict',
+  );
+});
+
+group('Rejected Web Locks request uses a guarded fallback write', async () => {
+  const shared = store();
+  shared.locks = { request: () => Promise.reject(Error('SecurityError')) };
+  const context = await tab(shared);
+  check(
+    JSON.parse(shared.getItem('alibi-afterhours-v1'))?.rev === 1,
+    'A guarded write succeeds after a rejected request promise',
+  );
+  check(
+    !context.AlibiClub.diagnostics().saveError,
+    'A rejected request promise is not reported as a conflict',
+  );
+});
+
+group('Web Lock fallback preserves stale bytes', async () => {
+  const shared = store();
+  const writer = await tab(shared);
+  const current = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  const changed = JSON.stringify({ rev: current.rev + 1, data: current.data });
+  shared.setItem('alibi-afterhours-v1', changed);
+  shared.locks.request = () => Promise.reject(Error('SecurityError'));
+  await writer.AlibiClub.save();
+  check(
+    shared.getItem('alibi-afterhours-v1') === changed,
+    'The guarded fallback preserves bytes changed by another tab',
+  );
+  check(
+    /changed in another tab/i.test(writer.AlibiClub.diagnostics().saveError),
+    'A stale revision remains a real conflict when locks are unavailable',
+  );
+});
+
 group('Block Cabinet source guards', async () => {
   const blockIntegration = fs.readFileSync(
     path.join(root, 'src/block-cabinet/integration.mjs'),
@@ -379,6 +462,15 @@ group('Malformed JSON preservation', async () => {
     check(
       corrupt.AlibiClub.diagnostics().storageMode === 'session',
       'Unreadable save switches new work to temporary session',
+    );
+    check(
+      /left untouched/i.test(corrupt.AlibiClub.diagnostics().saveError),
+      'Even an empty-string save is treated as corrupt bytes, not an empty slot',
+    );
+    await corrupt.AlibiClub.save();
+    check(
+      s.getItem('alibi-afterhours-v1') === bytes,
+      'A later session save still cannot replace malformed fallback bytes',
     );
   }
 });

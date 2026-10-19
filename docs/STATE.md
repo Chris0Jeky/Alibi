@@ -1,5 +1,68 @@
 # Live development state
 
+## 2026-10-19: reconcile native readiness with merged issue fixes (#485, #718)
+
+Main ef0c6fa now contains #718's six issue fixes after all 20 hosted workflows passed,
+including 1,899 Node tests, the complete real-origin/offline sequence and Android payload
+qualification. This native continuation preserves all 22 non-STATE files from that change
+and all 46 native non-STATE paths byte for byte, including the executable Gradle wrapper.
+The only overlap was STATE: both new histories are retained above one unchanged shared past.
+
+Verified: independent complete tree/mode census and conflict reconciliation. At the preceding
+native head 33dd3d2, full repository CI passed all 1,943 Node tests and its browser sequence;
+strict sync, compilation, lint, both APK audits, signatures and alignment also passed. The
+installed-offline emulator step has not produced a completed acceptance receipt.
+
+Failure cleanup now bounds diagnostic logcat collection to 15 seconds plus a 5-second kill
+grace, then terminates its own emulator PID while preserving the original exit status. A
+controlled hung-adb reproduction failed before the change and returned within 20 seconds
+after it; normal logs and both failure/success statuses were preserved. Independent review
+and shell syntax checks pass. This fixes diagnostic cleanup, not an established boot cause.
+
+This merged head requires fresh full repository, payload and installed-native CI. No source
+allowance, budget, published content identity or owner/device acceptance gate is changed.
+
+## 2026-10-19: storage, restart, native inset and release follow-ups
+
+Club retries a transient fallback Web Lock miss on its next persist and uses the existing
+byte/revision-guarded write when lock admission itself is unavailable; callback write errors
+remain terminal. Quiet Wing can read a valid snapshot during contention, but validates every
+present value, preserves invalid primary/recovery bytes and still requires lock admission and
+an unchanged snapshot before saving. Existing empty-string Club bytes remain protected as
+malformed data. Fallback status and deployment/source-audit wording now describe those limits
+(#715, following #714).
+
+Cabinet export snapshots are released on dismissal, route invalidation, replacement and ordinary
+export; both immutable recovery choices remain available while their dialog is active (#636).
+Block Cabinet retains the selected piece when opening or canceling Start again, then clears it
+on accepted reset. Cascade and the prototype report accepted resets explicitly, including a
+same-seed reset. Tests also retain completed Block journal rows across fresh restart/reload and
+prove Cancel/Escape consume no new seed randomness (#347).
+
+Android Borough reveal targets now include the custom bottom inset in their scroll margin;
+the fixture also pins 48px three-button content reservation and PWA isolation (#716). Packaging
+derives the current origin scenario list from its actual Python producer and still refuses
+partial, stale, reordered, failed or wrong-build receipts (#661). Real-origin checks now cover
+offline styled 404s, their home link and all privacy/about .html and /index.html aliases (#420).
+
+Verified before publication: focused Node/storage tests, 91 Quiet Wing contract assertions,
+independent source reviews, and causal red/green cases for the storage/restart fixes. A valid
+116-run export with 23,200 history states per copy exercised both actual serializers and reference
+release; heap/timing samples are diagnostics, not phone performance acceptance. Supplementary
+Chromium 140 emitted-browser checks passed 906 native-style, 90 Block/Cascade and 46 focused
+offline-navigation assertions. Those component builds precede the integrated head; the broad
+local motion suite stopped on its 1280px drag wait. Full clean integrated verification and
+exact-head hosted browser/native-payload gates remain to be recorded in the PR. No save schema,
+published puzzle identity, dependency or byte ceiling changes. Physical Android/TalkBack and
+other owner acceptance remain in HUMAN_TODO.md.
+
+The first clean integrated head passed 1,898 of 1,899 Node tests; its only failure was stale
+catalogue metadata for the changed app source. The catalogue generator now refreshes those
+13 byte/hash records, with all other metadata unchanged. Hosted Chromium's fractional scroll
+position also required a one-CSS-pixel fixture tolerance: the exact 113px margin remains checked
+and both reveal targets must clear the dock by at least 15px. Catalogue/budget checks and
+independent review pass after these corrections; full verification must rerun at the new head.
+
 ## 2026-10-19: reviewed preview baseline-profile boundary (#485)
 
 The preview APK audit now requires exactly the two generated baseline-profile files reviewed

@@ -26,6 +26,7 @@
     fallbackBytes = null,
     storageMode = 'session',
     saveError = '',
+    retryableSaveError = false,
     protectedSave = false,
     saveQueue = Promise.resolve(),
     restoring = false,
@@ -331,7 +332,11 @@
     const snapshot = clone(replacement || state);
     saveQueue = saveQueue
       .then(async () => {
-        if (saveError && storageMode !== 'session') return;
+        if (saveError && storageMode !== 'session' && !retryableSaveError) return;
+        if (retryableSaveError) {
+          saveError = '';
+          retryableSaveError = false;
+        }
         if (
           storageMode !== 'session' &&
           (!Number.isSafeInteger(rev) || rev < 0 || rev >= Number.MAX_SAFE_INTEGER)
@@ -377,20 +382,34 @@
             fallbackBytes = next;
             rev++;
           };
-          if (root.navigator?.locks?.request)
-            await root.navigator.locks.request(
-              'alibi-afterhours-v1',
-              { ifAvailable: true },
-              (lock) => {
-                if (!lock) throw Error('Another tab is saving Club progress. Export and reload.');
-                write();
-              },
-            );
-          else write();
+          if (root.navigator?.locks?.request) {
+            let enteredCallback = false;
+            try {
+              await root.navigator.locks.request(
+                'alibi-afterhours-v1',
+                { ifAvailable: true },
+                (lock) => {
+                  enteredCallback = true;
+                  if (!lock) {
+                    const error = Error('Another tab is saving Club progress. Export and reload.');
+                    error.name = 'LockUnavailableError';
+                    throw error;
+                  }
+                  write();
+                },
+              );
+            } catch (e) {
+              // A failed request before callback admission means Web Locks cannot be used here.
+              // The same byte/revision guard still protects a plain fallback write.
+              if (enteredCallback) throw e;
+              write();
+            }
+          } else write();
         }
       })
       .catch((e) => {
         saveError = e.message;
+        retryableSaveError = e.name === 'LockUnavailableError';
         notify(saveError, true);
         render();
       });

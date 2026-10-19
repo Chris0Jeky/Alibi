@@ -12,7 +12,7 @@ test('confirmed Block restart changes seed even with a frozen clock and random s
   for (let i = 0; i < 12; i++) {
     const before = tab.state();
     await tab.action('restart', { id: 'blockcabinet' });
-    assert.deepEqual(tab.state(), before, 'opening/cancelling confirmation changes nothing');
+    assert.deepEqual(tab.state(), before, 'opening the confirmation changes nothing');
     await tab.action('reset-confirm');
     const run = tab.state().runs.blockcabinet;
     assert.match(run.seed, /^[A-Z0-9_-]{1,32}$/);
@@ -23,6 +23,50 @@ test('confirmed Block restart changes seed even with a frozen clock and random s
     assert.equal(tab.context.__clubReset, undefined);
   }
 });
+
+for (const dismissal of ['Cancel', 'Escape']) {
+  test(`fresh-seed restart ${dismissal} preserves progress and does not consume seed randomness`, async () => {
+    const data = fresh();
+    const firstMove = { slot: 0, cell: 35 };
+    data.runs.blockcabinet = {
+      seed: 'BLOCK-CANCEL',
+      log: [firstMove],
+      redo: [],
+    };
+    const tab = await session(data);
+    const before = tab.state();
+    const randomBefore = tab.randomCalls();
+
+    await tab.action('restart', { id: 'blockcabinet' });
+    assert.equal(tab.dialogs.length, 1);
+    assert.deepEqual(
+      Array.from(tab.dialogs[0][2], (button) => button.action),
+      ['club-reset-confirm', 'close-dialog'],
+      'the real restart dialog exposes its confirmation and Cancel actions',
+    );
+    assert.deepEqual(tab.state(), before, 'opening the prompt leaves the run unchanged');
+    assert.equal(tab.randomCalls(), randomBefore, 'opening the prompt does not request a seed');
+
+    if (dismissal === 'Cancel') await tab.dialogAction('close-dialog');
+    else {
+      const event = tab.pressEscape();
+      assert.equal(event.defaultPrevented, false, 'Escape keeps its native dialog dismissal');
+    }
+
+    assert.deepEqual(tab.state(), before, `${dismissal} leaves the run unchanged`);
+    assert.equal(tab.randomCalls(), randomBefore, `${dismissal} does not consume seed randomness`);
+
+    await tab.action('restart', { id: 'blockcabinet' });
+    await tab.dialogAction('club-reset-confirm');
+    assert.notEqual(tab.state().runs.blockcabinet.seed, before.runs.blockcabinet.seed);
+    assert.equal(
+      tab.randomCalls(),
+      randomBefore + 1,
+      'the accepted fresh restart consumes exactly one random value for its new seed',
+    );
+  });
+}
+
 test('explicit Block seed replay is unchanged and reload retains the new seed', async () => {
   const tab = await session();
   await tab.club.onRoute({ page: 'salon', id: 'blockcabinet' });

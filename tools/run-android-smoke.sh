@@ -21,8 +21,10 @@ emulator -avd alibi_native -port 5554 -no-window -no-audio -no-boot-anim \
   -no-snapshot -gpu swiftshader -memory 2048 > "$OUT/emulator.log" 2>&1 &
 EMU_PID=$!
 cleanup() {
-  adb logcat -d > "$OUT/logcat.txt" 2>&1 || true
+  local exit_status=$?
+  timeout --signal=TERM --kill-after=5s 15s adb logcat -d > "$OUT/logcat.txt" 2>&1 || true
   kill "$EMU_PID" 2>/dev/null || true
+  return "$exit_status"
 }
 trap cleanup EXIT
 timeout 180 adb wait-for-device
