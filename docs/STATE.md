@@ -1437,3 +1437,8 @@ pass their two file-level cases. Independent review found no HIGH/CRITICAL issue
 Formatting and diff checks pass. Exact-head hosted CI remains required. This is
 partial test-reporting work for #519; physical listening and device acceptance
 remain in [HUMAN_TODO.md](../HUMAN_TODO.md).
+
+
+## 19 October 2026: current eight-painting runtime qualification (#696)
+
+Five existing paintings now use the bounded optional loader and native SVG fallbacks. Runtime1800aa2d measures203109/225280 startup gzip, with unchanged core/deferred content and all570 published definitions. Full unchanged Node-file and official origin-scenario coverage completed through head-bound resumable receipts after transport interrupted monolithic attempts; focused phone/desktop/failure/offline and independent review pass. Eight painting hashes occupy only four shared cache slots. See [qualification evidence and remaining final-head/CI gates](qa/EIGHT-PAINTING-RUNTIME-2026-10-19.md). Source preview is separate from art/device acceptance. HUMAN_TODO.md remains open; no generation, merge, deployment or accepted-art change.
