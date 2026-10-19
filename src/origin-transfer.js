@@ -173,17 +173,24 @@
   }
   function openDb(name, version, upgrade) {
     return new Promise((resolve, reject) => {
-      let request;
-      try {
-        request = version == null ? indexedDB.open(name) : indexedDB.open(name, version);
-      } catch (error) {
-        reject(error);
-        return;
-      }
-      request.onupgradeneeded = () => upgrade?.(request.result);
-      request.onsuccess = () => resolve(request.result);
+      let request = version == null ? indexedDB.open(name) : indexedDB.open(name, version),
+        abandoned = false;
+      request.onupgradeneeded = () => {
+        if (abandoned) {
+          request.transaction.abort();
+          return;
+        }
+        upgrade?.(request.result);
+      };
+      request.onsuccess = () => {
+        if (abandoned) request.result.close();
+        else resolve(request.result);
+      };
       request.onerror = () => reject(request.error || Error('Storage could not open.'));
-      request.onblocked = () => reject(Error('Another tab is blocking storage.'));
+      request.onblocked = () => {
+        abandoned = true;
+        reject(Error('Another tab is blocking storage.'));
+      };
     });
   }
   function txDone(db, storeName, mode, work) {

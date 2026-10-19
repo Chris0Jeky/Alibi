@@ -1,5 +1,22 @@
 # Live development state
 
+## 2026-10-19: abandoned transfer database opens (#593)
+
+The transfer helper now closes a database handle that succeeds after its blocked open was
+already rejected, and aborts a later upgrade before invoking the schema callback. The Promise
+executor preserves synchronous open failures without a redundant catch. Attempted-prefix
+rollback remains unchanged; this child targets the unmerged #579 feature branch.
+
+Verified: all 24 transfer Node tests passed in implementation and independent review. The
+standalone two-tab browser regression passed on Chromium 140 with a documented requested-version
+1 to actual-version 2 fixture seam; it preserves the old schema and permits later deletion after
+the abandoned upgrade. Original source failed both callback and browser regressions. The CI lane
+now runs this fixture and retains its diagnostics alongside unchanged full verification/source
+gates. Standalone source gzip grows by 22 bytes; actual application delivery must still pass CI.
+No new budget increase, save schema or production import qualification is implied. Parent owner/CAS,
+semantic validation, pending/startup recovery and export/cleanup findings remain open, as do
+HUMAN_TODO.md physical-device and release gates.
+
 ## 2026-10-07: device-local origin transfer
 
 Settings can download one `alibi-origin-transfer` version 1 file and import it on
