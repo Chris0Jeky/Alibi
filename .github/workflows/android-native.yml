@@ -100,6 +100,11 @@ jobs:
           done > test-results/native/signatures-alignment.txt
       - name: Prepare emulator after package validation
         run: |
+          # The headless emulator still links libpulse.so.0 on Ubuntu 24.04.
+          # Use the same Ubuntu-only package sources as the full verification lane.
+          test -s /etc/apt/sources.list.d/ubuntu.sources
+          sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update
+          sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install --yes --no-install-recommends libpulse0
           # Record and use the hosted image's emulator when available. Updating it is
           # not a prerequisite for compiling or auditing an APK.
           if test ! -x "$ANDROID_HOME/emulator/emulator"; then

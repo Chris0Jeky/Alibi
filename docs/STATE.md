@@ -9,12 +9,18 @@ symlink entries fail. The receipt records the accepted profiles alongside the ex
 source, bridge and manifest identities. PREVIEW-BASELINE-PROFILES.md retains the source/run/artifact
 provenance and explains the limits on dependency attribution and DEX reproducibility.
 
+At 97e6a6f both actual APK audits, signatures and alignment passed with the pinned profiles.
+The emulator then could not start because the hosted runner lacked libpulse.so.0. Its preparation
+step now installs Ubuntu's libpulse0 client library before checking the emulator version. Fresh
+CI must still establish the installed offline test and unchanged-source receipt.
+
 Verified: 18 package test groups passed during implementation and independent review, including
 negative cases for every profile boundary. The retained artifact and nested APK digests and
 actual profile bytes were independently rechecked. At e838e23, hosted strict sync, compilation,
 lint and assembly passed, the debug package audit passed with 310 assets, and Android payload CI
-passed; the preview audit stopped at the now-addressed profile set. Current-head full repository,
-both APK/signature/alignment and installed offline instrumentation gates must still pass. The PR
+passed; the preview audit stopped at the now-addressed profile set. This dependency-only continuation
+needs fresh full repository and installed offline instrumentation; its exact-head workflow also
+reruns both APK/signature/alignment gates. The PR
 remains draft; physical-device, TalkBack, recovery, signing and publication remain owner gates.
 
 ## 2026-10-19: native package review follow-ups at b1b169d (#485)
