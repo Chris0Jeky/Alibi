@@ -1,6 +1,23 @@
 # Live development state
 
-## 2026-10-19: native package review follow-ups (#485)
+## 2026-10-19: reviewed preview baseline-profile boundary (#485)
+
+The preview APK audit now requires exactly the two generated baseline-profile files reviewed
+from the retained e838e23 build. Literal byte lengths and SHA-256 digests bind the allowance;
+debug APKs and synced inputs cannot supply profiles, and missing, changed, extra, duplicate or
+symlink entries fail. The receipt records the accepted profiles alongside the existing whole-APK,
+source, bridge and manifest identities. PREVIEW-BASELINE-PROFILES.md retains the source/run/artifact
+provenance and explains the limits on dependency attribution and DEX reproducibility.
+
+Verified: 18 package test groups passed during implementation and independent review, including
+negative cases for every profile boundary. The retained artifact and nested APK digests and
+actual profile bytes were independently rechecked. At e838e23, hosted strict sync, compilation,
+lint and assembly passed, the debug package audit passed with 310 assets, and Android payload CI
+passed; the preview audit stopped at the now-addressed profile set. Current-head full repository,
+both APK/signature/alignment and installed offline instrumentation gates must still pass. The PR
+remains draft; physical-device, TalkBack, recovery, signing and publication remain owner gates.
+
+## 2026-10-19: native package review follow-ups at b1b169d (#485)
 
 The actual-APK verifier now refuses a disabled application or launcher, including false,
 malformed and unresolved enabled flags; omitted and explicit true remain accepted. The two

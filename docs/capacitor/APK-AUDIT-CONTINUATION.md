@@ -1,5 +1,15 @@
 # Actual APK audit continuation
 
+## 19 October continuation
+
+The reconciled e838e23 head passed strict sync, compilation, lint, assembly and the debug APK
+audit, then stopped at the preview's two generated baseline-profile assets. The bounded policy
+and retained build evidence for those exact bytes are now recorded in
+[PREVIEW-BASELINE-PROFILES.md](PREVIEW-BASELINE-PROFILES.md). Fresh current-head CI must establish
+both complete APK audits, signature/alignment checks and installed offline instrumentation.
+
+## 30 September decoding follow-up
+
 PR #485, 30 September 2026. The canonical metadata repair at `c3b396b` unblocked strict
 Gradle compilation, lint and both `assembleDebug` and `assembleCapacitorPreview` in run
 [36651012385](https://github.com/Chris0Jeky/Alibi/actions/runs/36651012385).

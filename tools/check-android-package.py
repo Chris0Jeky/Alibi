@@ -16,6 +16,13 @@ import zipfile
 APP_ID = "example.unapproved.alibi.preview"
 ANDROID = "{http://schemas.android.com/apk/res/android}"
 VARIANTS = {"debug": True, "capacitorPreview": False}
+# Reviewed AGP output, not an allowance for arbitrary dexopt assets. The verifier
+# never obtains expected profile trust from the APK or its synced asset input.
+# Provenance and fixture bytes: docs/capacitor/PREVIEW-BASELINE-PROFILES.md.
+PREVIEW_PROFILES = {
+    "assets/dexopt/baseline.prof": (2499, "424a8e2a0781c9716324b36469668e9609c7f9a7875b8bccffb7620e6243fa12"),
+    "assets/dexopt/baseline.profm": (233, "eeb2ed7dc9a760c75e98ccd87f369e683cc3fb8e160cf51c8ccebcd64fccfd60"),
+}
 
 
 def sha256(data: bytes) -> str:
@@ -145,6 +152,9 @@ def inspect_package(apk: Path, assets: Path, bridge: Path, version: str, source_
     before = file_hash(apk)
     expected = asset_inventory(assets)
     expected["assets/native-bridge.js"] = regular_file(bridge)
+    require(not any(name.startswith("assets/dexopt/") for name in expected),
+            "Generated profiles must not come from synced assets")
+    profiles = PREVIEW_PROFILES if variant == "capacitorPreview" else {}
     identity = json.loads(expected["assets/public/android-build-identity.json"])
     require(isinstance(identity, dict) and identity.get("sourceSha") == source_sha
             and identity.get("sourceDirty") is False and identity.get("flavor") == "capacitor-preview",
@@ -167,9 +177,13 @@ def inspect_package(apk: Path, assets: Path, bridge: Path, version: str, source_
         libraries = sorted(name for name in names if name.lower().endswith(".so"))
         require(not libraries, f"Unreviewed native libraries: {libraries}")
         actual_assets = {e.filename for e in entries if not e.is_dir() and e.filename.startswith("assets/")}
-        require(actual_assets == set(expected), "APK asset set differs from checked sync plus pinned native bridge")
+        require(actual_assets == set(expected) | set(profiles),
+                "APK asset set differs from checked sync, pinned bridge and variant profile policy")
         for name, contents in expected.items():
             require(archive.read(name) == contents, f"APK asset differs: {name}")
+        for name, (size, digest) in profiles.items():
+            require(archive.getinfo(name).file_size == size and sha256(archive.read(name)) == digest,
+                    f"Unreviewed preview baseline profile: {name}")
     manifest = decode(apk)
     policy = manifest_policy(manifest, version, variant)
     require(file_hash(apk) == before, "APK changed during inspection")
@@ -178,7 +192,9 @@ def inspect_package(apk: Path, assets: Path, bridge: Path, version: str, source_
             "apkSha256": before, "apkBytes": apk.stat().st_size,
             "manifestSha256": sha256(manifest.encode("utf-8")),
             "bridgeSha256": sha256(expected["assets/native-bridge.js"]),
-            "assets": len(expected), "nativeLibraries": libraries, **policy}
+            "assets": len(expected) + len(profiles), "nativeLibraries": libraries,
+            "baselineProfiles": [{"path": name, "bytes": size, "sha256": digest}
+                                 for name, (size, digest) in profiles.items()], **policy}
 
 
 def main() -> int:
