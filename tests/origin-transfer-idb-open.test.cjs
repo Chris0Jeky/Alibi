@@ -29,6 +29,7 @@ function fixture(openError, transactionError) {
         const tx = {
           objectStore: () => ({
             put: (value, key) => calls.writes.push({ value, key }),
+            add: (value, key) => calls.writes.push({ value, key }),
           }),
         };
         queueMicrotask(() => tx.oncomplete());
