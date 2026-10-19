@@ -117,7 +117,9 @@ def verify_borough_scroll_margins(page, native_css, shared_css):
             navTop: nav.getBoundingClientRect().top};
         }""")
         close(native["margin"], 113, f"Borough native 32px scroll margin ({label})")
-        assert native["targetBottom"] <= native["navTop"] - 15.9, (label, native)
+        # scrollIntoView may round the final visual position by 1 CSS px; the
+        # computed 113px margin stays exact and the target must still clear the dock by 15px.
+        assert native["targetBottom"] <= native["navTop"] - 15, (label, native)
         checks.append(f"borough-scroll-clearance:android:32:{label}")
 
         page.evaluate("delete document.documentElement.dataset.alibiTarget")

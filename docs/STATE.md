@@ -34,6 +34,13 @@ exact-head hosted browser/native-payload gates remain to be recorded in the PR. 
 published puzzle identity, dependency or byte ceiling changes. Physical Android/TalkBack and
 other owner acceptance remain in HUMAN_TODO.md.
 
+The first clean integrated head passed 1,898 of 1,899 Node tests; its only failure was stale
+catalogue metadata for the changed app source. The catalogue generator now refreshes those
+13 byte/hash records, with all other metadata unchanged. Hosted Chromium's fractional scroll
+position also required a one-CSS-pixel fixture tolerance: the exact 113px margin remains checked
+and both reveal targets must clear the dock by at least 15px. Catalogue/budget checks and
+independent review pass after these corrections; full verification must rerun at the new head.
+
 ## 2026-10-17: Club and Quiet Wing fallback saves resist cross-tab lost updates (#596, #714)
 
 Fallback (non-IndexedDB) saves now write under an exclusive Web Lock when the API exists, and always only if the stored bytes are unchanged since this tab last read or wrote; without Web Locks they still save under that compare, so single-tab players keep saving. A detected concurrent change preserves the stored data and surfaces export. Verified: 37 storage/club/quiet-wing node tests and hosted CI. Not verified: real multi-tab browsers and devices. Residual risk: without Web Locks the compare-and-write is not atomic across tabs; follow-ups in #715. Existing owner actions remain in `HUMAN_TODO.md`.
