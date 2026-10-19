@@ -5,13 +5,15 @@
   'use strict';
   const FORMAT = 'alibi-origin-transfer',
     VERSION = 1,
-    RECOVERY_PREFIX = 'recovery:',
     SECTIONS = ['cabinet', 'club', 'quiet', 'castle', 'challenges'],
     UNCHANGED = 'Existing saves were not changed.';
   const fail = (reason) => {
     throw Error(`${reason} ${UNCHANGED}`);
   };
   const isObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+  function isRecovery(id) {
+    return id.startsWith('recovery:');
+  }
   async function sha256Hex(text) {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
     return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
@@ -59,7 +61,7 @@
         !isObject(row) ||
         typeof row.id !== 'string' ||
         !row.id ||
-        row.id.startsWith(RECOVERY_PREFIX) ||
+        isRecovery(row.id) ||
         row.schema !== 1 ||
         !Number.isSafeInteger(row.revision) ||
         row.revision < 1 ||
@@ -369,7 +371,7 @@
           const rows = [];
           keys.result.forEach((key, index) => {
             const value = values.result[index];
-            if (typeof key === 'string' && !key.startsWith(RECOVERY_PREFIX) && value)
+            if (typeof key === 'string' && !isRecovery(key) && value)
               rows.push({
                 id: key,
                 schema: value.schema,
@@ -392,7 +394,7 @@
         const keys = store.getAllKeys();
         keys.onsuccess = () => {
           for (const key of keys.result)
-            if (typeof key === 'string' && !key.startsWith(RECOVERY_PREFIX)) store.delete(key);
+            if (typeof key === 'string' && !isRecovery(key)) store.delete(key);
           for (const row of section.runs)
             store.put({ schema: row.schema, revision: row.revision, run: row.run }, row.id);
         };

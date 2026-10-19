@@ -1,6 +1,6 @@
 # Live development state
 
-## 2026-10-19: protect Challenge recovery IDs in transfer preflight (#579)
+## 2026-10-19: protect Challenge recovery IDs and keep the transfer budget (#579)
 
 Recovery admission follow-up #720 merged into this feature branch as
 c92bc4268369e5c6a60d2121ec59fb07e4c4aec2 after all eight current-head workflows passed.
@@ -9,28 +9,36 @@ exact-head Safety passed 33 transfer contracts and both real Chromium two-tab fi
 including the strengthened zero-pending-key assertion after an aborted retention. The runtime
 still uses atomic add for any existing pending recovery key; its recovery UI/startup gap remains.
 
-The shared transfer shape validator now refuses Challenge IDs beginning with exact
-case-sensitive recovery: before preview/confirmation, recovery retention or any domain write.
-The same prefix constant is used by the existing device-read and replacement-delete exclusions.
-Export also refuses reserved rows; legitimate and near-prefix IDs keep their existing bytes
-and treatment. No schema, storage representation, default origin or byte ceiling changes.
+The shared transfer shape validator refuses Challenge IDs beginning with exact case-sensitive
+recovery: before preview/confirmation, recovery retention or any domain write. Export uses the
+same validation. One local isRecovery helper uses the exact startsWith operation at validation,
+device-read and replacement-delete sites; string/type/empty guards keep their existing order.
+Legitimate and near-prefix IDs keep their bytes and treatment. No error wording, schema,
+storage representation, default origin or byte ceiling changes.
 
 Root and independent review pass all 37 transfer contracts. Four new groups prove preflight
 refusal before every port call, exporter refusal, legitimate-ID preservation through confirmed
-apply, and unchanged device-port exclusion semantics including retained object/null/empty
-recovery bytes. The preceding source fails the two refusal groups. The device-port test is a
-callback model, not actual browser durability; existing hosted browser fixtures remain required.
+apply, and unchanged device-port exclusions with retained object/null/empty recovery bytes.
+The preceding source fails the two refusal groups. The device-port test is a callback model,
+not actual browser durability or destructive player-import acceptance.
 
-Pinned isolated minification adds 14 bytes and gzip adds 8 bytes. Against #720's measured
-net shell of 1,423,127 and unchanged ceiling 1,423,144.32, the component delta predicts only
-3.32 bytes of remaining room. That is not a full-build pass: this child requires fresh exact-head
-formatting/build/budget and browser qualification before merge. See the source-linked
-ORIGIN-TRANSFER-RESERVED-IDS-2026-10-19.md record.
+The initial child head 4faaa3867de1dd50751546138b6cb2092ad3ee1a passed the 37 contracts and
+both existing hosted Chromium fixtures, but its complete application gzip was 138,466 bytes,
+over the unchanged strict 138,464 limit. Raw net shell was 1,423,083 and passed. Five workflows
+failed on that same application budget; Android payload and both study-control runs passed.
+The earlier isolated-module prediction did not establish the whole-application gzip result.
 
-The parent remains draft and unsafe for main pending broader semantic validation, ownership of concurrent writes in domains already
-attempted, startup/crash recovery and inspect/export/restore flow,
-truthful post-commit cleanup, export/fallback consistency, main reconciliation and the prior
-unapproved budget changes. Direct API calls bypassing preflight are not redesigned here.
+The adjacent helper repair replaces the prefix constant and repeated method calls without
+changing their semantics. Pinned esbuild reconstruction reproduces the previous hosted app
+byte for byte (406,608 raw / 138,466 gzip); with its unchanged configuration prefix, the repaired
+app is 406,610 raw / 138,457 gzip. No new release identity or full release build was generated
+locally. Fresh current-head hosted build/budget and browser qualification remain required before
+merge. Detailed source and artifact provenance are in ORIGIN-TRANSFER-RESERVED-IDS-2026-10-19.md.
+
+The parent remains draft and unsafe for main pending broader semantic validation, shared
+ownership of concurrent writes in attempted domains, startup/crash recovery and recovery UI,
+truthful post-commit cleanup, export/fallback consistency, main reconciliation and budget fit.
+Direct API calls bypassing preflight are not redesigned by this bounded guard.
 
 ## 2026-10-19: protect existing origin-transfer recovery during admission (#579)
 

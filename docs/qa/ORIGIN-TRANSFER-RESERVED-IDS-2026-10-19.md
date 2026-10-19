@@ -12,7 +12,7 @@ starting with the exact case-sensitive `recovery:` prefix. The transfer shape
 validator previously accepted those IDs, allowing imported rows to overwrite a
 protected recovery record. The existing validator now refuses that prefix before
 preview/confirmation, recovery retention or any save write. Export uses the same
-validator and also refuses such rows. A shared local prefix constant keeps all
+validator and also refuses such rows. A shared local namespace helper keeps all
 three checks consistent; the existing read/delete exclusions are unchanged.
 
 The exported schemas, legitimate ID bytes and storage representation are
@@ -40,7 +40,8 @@ Pinned Prettier 3.9.6 and `git diff --check` pass.
 
 ## Budget evidence and qualification limit
 
-Pinned esbuild 0.28.2, `minify: true`, `target: 'es2022'`: source 16,268 → 16,357
+The initial candidate's pinned esbuild 0.28.2, `minify: true`, `target: 'es2022'`:
+source 16,268 → 16,357
 bytes; isolated emitted module 8,905 → 8,919 bytes; isolated emitted gzip
 3,106 → 3,114 bytes. No ceiling changes.
 
@@ -53,6 +54,35 @@ room. This is not a complete build or budget pass. Fresh exact-head hosted
 formatting, build, budgets and the existing real-origin fixtures remain required.
 The existing safety workflow already triggers, executes and hashes the new test
 through its `tests/origin-transfer*.test.cjs` wildcard.
+
+### Whole-application gzip repair after the initial hosted failure
+
+PR #722 head `4faaa3867de1dd50751546138b6cb2092ad3ee1a` failed the unchanged
+application gzip ceiling: 138,466 bytes versus the strict 138,464-byte limit.
+Hosted raw net shell was 1,423,083 bytes and passed. The isolated module prediction
+above did not establish whole-application gzip qualification.
+
+The adjacent repair replaces the shared prefix constant and three repeated
+`startsWith` calls with one local `isRecovery(id)` function using the same exact
+`id.startsWith('recovery:')` operation. All three callers retain their existing
+string/type/empty-value guards and short-circuit order. No error wording, schema,
+storage representation or ceiling changes. All 37 transfer contracts still pass.
+
+The local measurement reconstructs the application's 25 exact-head source inputs
+with the unchanged `composePackDesk` helper and pinned esbuild 0.28.2 builder
+options. Its baseline is byte-for-byte identical to the emitted application in
+primary artifact `12215204628`, archive SHA256
+`dcbf0fa45f9d543668becf3dbfabecab639dfec8d8ee3809934863d41a16961b`:
+406,608 bytes, gzip 138,466. That primary build names synthetic merge
+`c30a3d36698a3264db0ce8b37cb90a1e33988743` for the PR head above.
+
+With the unchanged hosted configuration prefix, the repaired application measures
+406,610 bytes and gzip 138,457: nine gzip bytes smaller and seven below the same
+ceiling. The repaired module alone measures source 16,345 bytes, emitted 8,919
+bytes and gzip 3,115. A new release fingerprint and complete build were not
+generated locally; current-head hosted qualification must establish the final
+application, startup and raw-shell budget results before merge. No new browser
+result is claimed by this measurement.
 
 Parent #579 remains blocked on its other semantic validation, attempted-domain
 concurrent-write ownership, startup/crash recovery and inspect/export/restore
