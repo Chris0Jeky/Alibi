@@ -8,8 +8,9 @@ The trusted registry (`content/official-packs.json`) holds 570 puzzles across 32
 The root is the working source. The deluxe, After Hours and Quiet Wing bundle directories are ignored input.
 Quiet Wing is an optional lazy activity; its source and recovery map is `docs/QUIET-WING.md`.
 
-Start with `docs/STATE.md` and `docs/PROJECT-MAP.md`. The global agreements apply. Authority
-is `.agent-harness/tier.json`; owner decisions are in `HUMAN_TODO.md`.
+Start with `docs/STATE.md`, `docs/state/README.md` and `docs/PROJECT-MAP.md`. The global
+agreements apply. Authority is `.agent-harness/tier.json`; owner decisions are in
+`HUMAN_TODO.md`.
 
 ## Run and prove
 
@@ -57,5 +58,7 @@ uses real IndexedDB and service workers in disposable profiles. Neither proves a
 
 For a new worktree, first verify its resolved root and Git identity and read these instructions.
 Use the global detach-from-origin/main protocol; every worktree's files stay within its own root.
-Before closeout, update `docs/STATE.md`, surface `HUMAN_TODO.md`, and report changed / verified /
-NOT verified / residual risk. Keep hosted, simulated and physical-device evidence distinct.
+Before closeout, write the PR-specific handoff and evidence in one uniquely named file under
+`docs/state/`, surface `HUMAN_TODO.md`, and report changed / verified / NOT verified / residual
+risk. Keep `docs/STATE.md` for project-wide baseline, release and ownership context; do not add
+routine per-PR sections there. Keep hosted, simulated and physical-device evidence distinct.

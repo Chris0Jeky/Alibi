@@ -1,5 +1,9 @@
 # Live development state
 
+Routine pull-request handoffs now live in uniquely named files under
+[docs/state/](state/README.md). This overview retains project baselines and existing history;
+new per-change notes follow the fragment guide without editing a shared index (#693).
+
 ## 2026-10-19: retain native WebView callback failure context (#133)
 
 The merged native foundation and its documentation have source-specific passing receipts,
