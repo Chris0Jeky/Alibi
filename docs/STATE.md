@@ -1,5 +1,33 @@
 # Live development state
 
+## 2026-10-19: retain native WebView callback failure context (#133)
+
+The merged native foundation and its documentation have source-specific passing receipts,
+but the subsequent main push c89622b718a68590501e6f80d36e6d6c9df7542e failed native
+run 39315351283 / job 118275271411. Strict build/lint, both APK audits and emulator setup
+passed; the named installed test reports one failure at NativeOfflineSmokeTest.java:82,
+waiting for the callback from service-worker request setup after the preceding Settings
+checks passed. No successful smoke receipt or final installed-digest check was reached.
+
+Root and independent review verified artifact 12217906913 (34,640,876 bytes; SHA-256
+1a489e7ae64e724a67cd08f2f256638e801ef116d7a47ec7af4da0c26784ce8b), its source/build
+identity, XML and pre-cleanup sequence. Severe render-frame delays are present; the renderer
+code -1 message follows Activity teardown and does not establish the initiating cause.
+This recurs after #721's failed callback and one source-identical passing retry. The new
+failed run remains failed; it is not classified as a host-only flake or erased by that pass.
+
+The bounded follow-up adds instrumentation-only evaluation phase/timing and main-thread
+liveness context before cleanup. Existing callback/condition deadlines, assertions, save
+formats, production code, APK receipt rules and all budgets remain unchanged. No retry or
+timeout increase is used to convert the failure into a pass. Source review and fresh hosted
+compilation/lint, installed-native and full verification are required for this new source.
+The underlying intermittent cause, wider CAP matrix and HUMAN_TODO acceptance remain open.
+
+#593, #720 and #722 have now merged into the separate draft #579 feature branch, whose
+reviewed tree has passed its own safety/full workflows. The parent retains source-based
+recovery, writer-ownership, export/validation, completion and main-budget blockers; it is
+not merged into main. The fourteen verified issue closures below remain closed.
+
 ## 2026-10-19: native foundation qualified and acceptance handoff refreshed (#485)
 
 Native #485 merged as 27c2d76162689cccc1a0fb450ef342ca770043c2 after all nine workflows
