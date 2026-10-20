@@ -59,6 +59,46 @@ test('reversible cycles and redundant actions are safe, not infinite exploration
   assert.equal(r.edges, 4);
   assert.equal(r.softlockCount, 0);
 });
+test('diagnostics distinguish visible ineffective actions from actions never presented', () => {
+  const d = fixture();
+  d.actions.push(
+    {
+      ...structuredClone(d.actions[0]),
+      id: 'wrong-setup',
+      label: 'Try the wrong mechanism setup',
+      check: { key: 'lost' },
+      set: { key: 'lost' },
+    },
+    {
+      ...structuredClone(d.actions[0]),
+      id: 'hidden-action',
+      label: 'Try the action hidden until the key is lost',
+      when: { key: 'lost' },
+      check: {},
+      set: { key: 'held' },
+    },
+    {
+      ...structuredClone(d.actions[0]),
+      id: 'unchanged-action',
+      label: 'Check the already-held key',
+      check: {},
+      set: { key: 'held' },
+    },
+  );
+  const initial = S.initial(d),
+    offered = S.project(d, initial, true).objects.flatMap((o) => o.actions.map((a) => a.id));
+  assert.ok(offered.includes('wrong-setup'));
+  assert.ok(!offered.includes('hidden-action'));
+  assert.equal(S.transition(d, initial, 'wrong-setup', null).code, 'mechanism');
+  assert.equal(S.transition(d, initial, 'unchanged-action', null).code, 'unchanged');
+  const r = A.analyze(d);
+  assert.equal(r.status, 'verified');
+  assert.deepEqual(r.solution, ['leave']);
+  assert.deepEqual(r.neverPresentedActions, ['hidden-action']);
+  assert.deepEqual(r.neverEffectiveActions, ['wrong-setup', 'hidden-action']);
+  assert.deepEqual(r.unreachableActions, r.neverEffectiveActions);
+  assert.notEqual(r.unreachableActions, r.neverEffectiveActions);
+});
 test('hidden objects cannot provide an imaginary route to the goal', () => {
   const d = fixture();
   d.objects[0].when = { door: 'open' };
@@ -67,6 +107,8 @@ test('hidden objects cannot provide an imaginary route to the goal', () => {
   assert.equal(r.solution, null);
   assert.equal(r.softlockCount, 1);
   assert.deepEqual(r.softlockTrace, []);
+  assert.deepEqual(r.neverPresentedActions, ['leave']);
+  assert.deepEqual(r.neverEffectiveActions, ['leave']);
   assert.deepEqual(r.unreachableActions, ['leave']);
 });
 test('state and edge caps return inconclusive, never a clean softlock count', () => {
@@ -77,6 +119,8 @@ test('state and edge caps return inconclusive, never a clean softlock count', ()
     assert.equal(r.status, 'inconclusive');
     assert.equal(r.softlockCount, null);
     assert.equal(r.solution, null);
+    assert.equal(r.neverPresentedActions, null);
+    assert.equal(r.neverEffectiveActions, null);
     assert.equal(r.unreachableActions, null);
   }
 });
@@ -102,6 +146,8 @@ test('exact UTF-8 source receipt changes with whitespace', () => {
     r = A.parse(source);
   assert.equal(r.receipt.sourceSha256, crypto.createHash('sha256').update(source).digest('hex'));
   assert.equal(r.receipt.sourceBytes, Buffer.byteLength(source));
+  assert.equal(Object.hasOwn(r.receipt, 'neverPresentedActions'), false);
+  assert.equal(Object.hasOwn(r.receipt, 'neverEffectiveActions'), false);
   assert.notEqual(r.receipt.sourceSha256, A.parse(source + '\n').receipt.sourceSha256);
 });
 test('source limit is bytes, checked before parsing including multibyte source', () => {
@@ -121,7 +167,11 @@ test('file reader and CLI validate source and publish a real analysis receipt', 
     const run = () => spawnSync(process.execPath, [file, source], { encoding: 'utf8' });
     const result = run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(JSON.parse(result.stdout).model.status, 'verified');
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.model.status, 'verified');
+    assert.deepEqual(report.model.neverPresentedActions, []);
+    assert.deepEqual(report.model.neverEffectiveActions, []);
+    assert.deepEqual(report.model.unreachableActions, report.model.neverEffectiveActions);
     const d = fixture();
     extra(d, 'discard', {}, { key: 'lost' });
     fs.writeFileSync(source, JSON.stringify(d));

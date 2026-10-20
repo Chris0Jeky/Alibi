@@ -8,7 +8,7 @@ A room declares paired story text, up to eight finite variables, sixteen objects
 
 `escape-state.cjs` supplies strict validation, initial state, immutable transitions and a player projection that does not read accepted answers, success predicates, effects or worked solutions. Consumers validate definitions at their boundary. The raw offline source is inspectable and is not an anti-cheat mechanism.
 
-`escape-authoring.cjs` explores successful actions then reverse-searches from all goals. It reports a shortest solution, a shortest softlock witness and unreachable actions. Exploration caps yield inconclusive, never a clean truncated result. This proves only recovery in the declared finite model, not clue sufficiency, natural-language fairness, accessibility or enjoyment.
+`escape-authoring.cjs` explores successful actions then reverse-searches from all goals. It reports a shortest solution, a shortest softlock witness, `neverPresentedActions` and `neverEffectiveActions`. An action is never presented when no reachable nonterminal state makes its object and action available. An action is never effective when it produces no `applied` or `unchanged` transition from any reachable nonterminal state. The legacy `unreachableActions` field remains an alias of `neverEffectiveActions` for existing report consumers; it does not mean that a control should be hidden. Exploration caps yield inconclusive, never a clean truncated result. This proves only recovery in the declared finite model, not clue sufficiency, natural-language fairness, accessibility or enjoyment.
 
 ## Evidence and continuation
 
