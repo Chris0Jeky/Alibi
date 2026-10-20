@@ -55,7 +55,7 @@ def run():
             assert page.locator('#status').get_attribute('role') == 'status'
             assert page.locator('#verdict-bounded-window').get_attribute('aria-invalid') == 'true'
             verdict_error = page.locator('#verdict-bounded-window').get_attribute('aria-describedby')
-            assert verdict_error and 'Choose a verdict' in page.locator('#' + verdict_error).inner_text()
+            assert verdict_error and 'Choose the verdict supported by the records' in page.locator('#' + verdict_error).inner_text()
             citation_group = page.locator('#citations-bounded-window')
             assert citation_group.get_attribute('aria-invalid') == 'true'
             citation_error = citation_group.get_attribute('aria-describedby')
