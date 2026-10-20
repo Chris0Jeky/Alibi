@@ -106,10 +106,10 @@ for (const [index, failedSection] of sections.entries()) {
 }
 test('successful import writes all domains once and releases recovery', async () => {
   const f = await fixture();
-  assert.equal(
-    await api.applyOriginTransfer(f.validated, f.ports, { confirmed: true }),
-    f.validated,
-  );
+  assert.deepEqual(copy(await api.applyOriginTransfer(f.validated, f.ports, { confirmed: true })), {
+    committed: true,
+    recoveryPending: false,
+  });
   assert.deepEqual(f.state, f.incoming);
   assert.deepEqual(f.writes, sections);
   assert.equal(f.recovery.releases, 1);

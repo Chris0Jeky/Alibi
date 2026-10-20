@@ -3037,10 +3037,18 @@
         if (!pending || pending.serial !== routeSerial) break;
         closeDialog();
         try {
-          await AlibiOriginTransfer.applyOriginTransfer(pending.validated, originPorts(), {
-            confirmed: true,
-          });
-          toast('Saves imported. Reloading this device.');
+          const outcome = await AlibiOriginTransfer.applyOriginTransfer(
+            pending.validated,
+            originPorts(),
+            {
+              confirmed: true,
+            },
+          );
+          toast(
+            outcome.recoveryPending
+              ? 'Saves imported. Recovery cleanup is pending. Reloading this device.'
+              : 'Saves imported. Reloading this device.',
+          );
           location.reload();
         } catch (error) {
           toast(error.message, true);

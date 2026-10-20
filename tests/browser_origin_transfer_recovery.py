@@ -134,11 +134,51 @@ def main():
             }""")
             assert aborted
             assert left.evaluate(COUNT) == 0
+
+            # Keep real recovery retention/release and abort only its deletion.
+            # The five domain ports remain synthetic; this is not a player import.
+            cleanup = left.evaluate("""async () => {
+                const sections = Array.from(AlibiOriginTransfer.SECTIONS);
+                const before = Object.fromEntries(sections.map(name => [name, {note: `old ${name}`} ]));
+                const incoming = Object.fromEntries(sections.map(name => [name, {note: `new ${name}`} ]));
+                const current = structuredClone(before), writes = [];
+                const guarded = AlibiOriginTransfer.createDevicePorts({});
+                guarded.read = async name => structuredClone(current[name]);
+                guarded.write = async (name, value) => {
+                    writes.push(name); current[name] = structuredClone(value);
+                };
+                let deleteAttempts = 0;
+                const remove = IDBObjectStore.prototype.delete;
+                IDBObjectStore.prototype.delete = function(key) {
+                    const request = remove.call(this, key);
+                    if (this.name === 'copies' && key === 'pending') {
+                        deleteAttempts++;
+                        this.transaction.abort();
+                    }
+                    return request;
+                };
+                try {
+                    const outcome = await AlibiOriginTransfer.applyOriginTransfer(
+                        {payload: incoming}, guarded, {confirmed: true});
+                    return {outcome, sections, before, incoming, current, writes, deleteAttempts};
+                } finally { IDBObjectStore.prototype.delete = remove; }
+            }""")
+            assert cleanup['outcome'] == {'committed': True, 'recoveryPending': True}, cleanup
+            assert len(cleanup['sections']) == 5
+            assert cleanup['writes'] == cleanup['sections'], cleanup
+            assert cleanup['current'] == cleanup['incoming'], cleanup
+            assert cleanup['deleteAttempts'] == 1, cleanup
+            assert right.evaluate(READ) == cleanup['before']
+            assert right.evaluate(COUNT) == 1
+            right.evaluate('() => ports.release()')
+            assert left.evaluate(COUNT) == 0
+
             print(json.dumps({'evidence': 'standalone-two-tab-recovery-port-fixture',
                               'browser': browser.version, 'firstRetention': True,
                               'pendingRefusedBeforeDomainWrites': True, 'originalSnapshotPreserved': True,
                               'presentFalsyAndUnknownControls': 5, 'concurrentAdmissions': 1,
                               'releasePermitsNextAdmission': True, 'abortedRetentionAdmitted': False,
+                              'abortedCleanupRemainsCommitted': True, 'abortedCleanupRecoveryRetained': True,
                               'domainPorts': 'synthetic counters', 'playerImportAccepted': False}))
             context.close()
             browser.close()

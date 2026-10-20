@@ -172,8 +172,14 @@
       if (String(error.message).includes(UNCHANGED)) throw error;
       fail(error.message || 'Import stopped before it finished.');
     }
-    await ports.release();
-    return validated;
+    // All domains are committed; cleanup must not leave stale in-memory writers active.
+    let recoveryPending = false;
+    try {
+      await ports.release();
+    } catch {
+      recoveryPending = true;
+    }
+    return { committed: true, recoveryPending };
   }
   function openDb(name, version, upgrade) {
     return new Promise((resolve, reject) => {
@@ -283,18 +289,20 @@
     }
     return { kind: 'alibi-quiet-wing-backup', schema: 1, state: state || null };
   }
+  async function deleteRecord(name, storeName, key) {
+    const db = await openExisting(name);
+    if (!db) return;
+    try {
+      if (db.objectStoreNames.contains(storeName))
+        await txDone(db, storeName, 'readwrite', (store) => store.delete(key));
+    } finally {
+      db.close();
+    }
+  }
   async function writeQuiet(section) {
     const state = section.state;
     if (!state) {
-      const db = await openExisting('alibi-quiet-wing-v1');
-      if (db) {
-        try {
-          if (db.objectStoreNames.contains('saves'))
-            await txDone(db, 'saves', 'readwrite', (store) => store.delete('state'));
-        } finally {
-          db.close();
-        }
-      }
+      await deleteRecord('alibi-quiet-wing-v1', 'saves', 'state');
       mirrorQuietFallback(null);
       return;
     }
@@ -340,15 +348,7 @@
         ? { schema: 1, revision: section.state.revision || 1, state: section.state }
         : null);
     if (!record) {
-      const db = await openExisting('alibi-castle-v1');
-      if (db) {
-        try {
-          if (db.objectStoreNames.contains('records'))
-            await txDone(db, 'records', 'readwrite', (store) => store.delete('chapter-one'));
-        } finally {
-          db.close();
-        }
-      }
+      await deleteRecord('alibi-castle-v1', 'records', 'chapter-one');
       return;
     }
     await withDb('alibi-castle-v1', 1, ensureStore('records'), (db) =>
@@ -407,16 +407,7 @@
     );
   }
   async function releaseRecovery() {
-    const db = await openExisting('alibi-origin-recovery');
-    if (!db || !db.objectStoreNames.contains('copies')) {
-      db?.close();
-      return;
-    }
-    try {
-      await txDone(db, 'copies', 'readwrite', (store) => store.delete('pending'));
-    } finally {
-      db.close();
-    }
+    await deleteRecord('alibi-origin-recovery', 'copies', 'pending');
   }
   function createDevicePorts(io) {
     return {

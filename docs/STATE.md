@@ -1,5 +1,30 @@
 # Live development state
 
+## 2026-10-20: preserve committed imports when recovery cleanup fails (#579)
+
+The transfer coordinator now distinguishes committed domain writes from failure to
+delete their recovery copy. It returns a committed outcome with a pending-cleanup
+flag after a synchronous or asynchronous release failure. The real confirmation
+handler reports the committed import and reloads in either successful-write case,
+so stale in-memory writers do not continue after replacement. Pre-commit failures
+retain the existing rollback/error path and do not reload. The warning is transient;
+durable boot recovery and inspect/export/restore controls remain parent work.
+
+Verified locally: all 44 transfer groups, including the real confirmation handler
+and modeled aborted recovery deletion with unchanged original bytes and closed
+handles. Independent review is clear. Three equivalent delete-only paths share one
+private helper without creating databases, changing fallback order, or relaxing
+transaction errors. A focused real-IndexedDB browser case now aborts only recovery
+deletion and checks the retained copy from a second tab; its Python/JavaScript
+syntax checks pass, with hosted execution still required. Full exact-head build,
+budgets and safety/browser checks remain merge gates. Details and acceptance limits
+are in `docs/qa/ORIGIN-TRANSFER-CLEANUP-2026-10-20.md`.
+
+This child targets the draft transfer branch. The parent remains unsafe for main
+until crash recovery/UI, shared writer ownership, domain semantics, fresh exports,
+Quiet fallback consistency, current-main reconciliation and full player-import
+acceptance are addressed. HUMAN_TODO.md physical and production gates remain open.
+
 ## 2026-10-19: protect Challenge recovery IDs and keep the transfer budget (#579)
 
 Recovery admission follow-up #720 merged into this feature branch as

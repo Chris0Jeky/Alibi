@@ -15,6 +15,7 @@ function database(options = {}) {
     Object.hasOwn(options, 'pending') ? [['pending', clone(options.pending)]] : [],
   );
   let queue = Promise.resolve();
+  let closes = 0;
   const indexedDB = {
     async databases() {
       return [{ name: 'alibi-origin-recovery' }];
@@ -31,7 +32,9 @@ function database(options = {}) {
         }
         request.result = {
           objectStoreNames: { contains: () => true },
-          close() {},
+          close() {
+            closes++;
+          },
           transaction(storeName, mode) {
             assert.equal(storeName, 'copies');
             assert.equal(mode, 'readwrite');
@@ -56,7 +59,11 @@ function database(options = {}) {
                   if (operation === 'delete') next.delete(key);
                   else next.set(key, value);
                 }
-                if (options.abort) throw new DOMException('Transaction aborted.', 'AbortError');
+                if (
+                  options.abort ||
+                  (options.abortDelete && operations.some(([operation]) => operation === 'delete'))
+                )
+                  throw new DOMException('Transaction aborted.', 'AbortError');
                 records = next;
                 tx.oncomplete();
               } catch (error) {
@@ -72,7 +79,7 @@ function database(options = {}) {
       return request;
     },
   };
-  return { indexedDB, pending: () => clone(records.get('pending')) };
+  return { indexedDB, pending: () => clone(records.get('pending')), closes: () => closes };
 }
 
 function api(db) {
@@ -168,4 +175,28 @@ test('an aborted retention transaction admits no snapshot', async () => {
     name: 'AbortError',
   });
   assert.equal(db.pending(), undefined);
+});
+
+test('aborted recovery deletion preserves the original copy after committed domain writes', async () => {
+  const db = database({ abortDelete: true });
+  const transfer = api(db);
+  const sections = Array.from(transfer.SECTIONS);
+  const before = Object.fromEntries(sections.map((name) => [name, { note: `old ${name}` }]));
+  const incoming = Object.fromEntries(sections.map((name) => [name, { note: `new ${name}` }]));
+  const current = clone(before);
+  const writes = [];
+  const ports = transfer.createDevicePorts({});
+  ports.read = async (name) => clone(current[name]);
+  ports.write = async (name, value) => {
+    writes.push(name);
+    current[name] = clone(value);
+  };
+  const result = await transfer.applyOriginTransfer({ payload: incoming }, ports, {
+    confirmed: true,
+  });
+  assert.deepEqual(clone(result), { committed: true, recoveryPending: true });
+  assert.deepEqual(current, incoming);
+  assert.deepEqual(writes, sections, 'an aborted cleanup never starts a domain rollback');
+  assert.deepEqual(db.pending(), before, 'the failed delete leaves the retained bytes intact');
+  assert.equal(db.closes(), 2, 'both retention and aborted release close their handles');
 });
