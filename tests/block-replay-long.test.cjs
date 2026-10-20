@@ -70,3 +70,63 @@ test('late historical corruption still fails and does not poison the valid long 
     E.move = original;
   }
 });
+
+test('Club restores a long terminal replay and preserves undo and redo across reload', async () => {
+  const { session, fresh } = require('./helpers/club-session.cjs');
+  const data = fresh();
+  data.runs.blockcabinet = { seed: fixture.seed, log: structuredClone(log), redo: [] };
+  let engine;
+  let moveCalls = 0;
+  const observe = (context) => {
+    engine = context.AlibiClubEngines.blockCabinet;
+    const move = engine.move;
+    engine.move = function (...args) {
+      moveCalls++;
+      return move.apply(this, args);
+    };
+  };
+
+  const first = await session(data, null, { beforeInit: observe });
+  assert.equal(moveCalls, log.length, 'cold Club validation replays every move once');
+  await first.club.onRoute({ page: 'salon', id: 'blockcabinet' });
+  let page = first.club.roomPage('blockcabinet');
+  assert.match(page, /TURN <strong>268<\/strong>/);
+  assert.match(page, /<strong>Cabinet closed\.<\/strong>/);
+  assert.equal(moveCalls, log.length, 'the room reuses validation’s warm replay');
+
+  await first.action('undo', { id: 'blockcabinet' });
+  assert.deepEqual(first.state().runs.blockcabinet.log, log.slice(0, -1));
+  assert.deepEqual(first.state().runs.blockcabinet.redo, [log.at(-1)]);
+  page = first.club.roomPage('blockcabinet');
+  assert.match(page, /TURN <strong>267<\/strong>/);
+  assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
+  assert.equal(
+    moveCalls,
+    log.length + log.length - 1,
+    'shrinking history rebuilds its valid prefix',
+  );
+  const afterUndo = first.storage.get('alibi-afterhours-v1');
+  assert.deepEqual(JSON.parse(afterUndo).data.runs.blockcabinet.log, log.slice(0, -1));
+  assert.deepEqual(JSON.parse(afterUndo).data.runs.blockcabinet.redo, [log.at(-1)]);
+
+  moveCalls = 0;
+  const restored = await session(null, afterUndo, { beforeInit: observe });
+  assert.equal(moveCalls, log.length, 'cold reload validates the full log plus redo continuation');
+  await restored.club.onRoute({ page: 'salon', id: 'blockcabinet' });
+  page = restored.club.roomPage('blockcabinet');
+  assert.match(page, /TURN <strong>267<\/strong>/);
+  assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
+  assert.equal(moveCalls, log.length + log.length - 1, 'the shorter active log is rebuilt once');
+
+  await restored.action('redo', { id: 'blockcabinet' });
+  assert.deepEqual(restored.state().runs.blockcabinet.log, log);
+  assert.deepEqual(restored.state().runs.blockcabinet.redo, []);
+  page = restored.club.roomPage('blockcabinet');
+  assert.match(page, /TURN <strong>268<\/strong>/);
+  assert.match(page, /<strong>Cabinet closed\.<\/strong>/);
+  assert.equal(
+    moveCalls,
+    log.length + log.length,
+    'redo extends the warmed 267-move cache by exactly the saved final move',
+  );
+});
