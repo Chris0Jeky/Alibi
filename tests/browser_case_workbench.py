@@ -64,6 +64,8 @@ def run():
             assert claim_fieldset.get_attribute('aria-invalid') == 'true'
             assert set(claim_fieldset.get_attribute('aria-describedby').split()) == {verdict_error, citation_error}
             assert page.locator('#verdict-bounded-window').evaluate('(el) => el === document.activeElement')
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            claim_fieldset.screenshot(path=str(OUT / f'verdict-errors-{width}.png'))
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
             page.keyboard.press('Shift+Tab')
@@ -116,6 +118,8 @@ def run():
             assert claim_fieldset.get_attribute('aria-invalid') == 'true'
             assert claim_fieldset.get_attribute('aria-describedby') == citation_error
             assert citation_group.evaluate('(el) => el === document.activeElement')
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            claim_fieldset.screenshot(path=str(OUT / f'citation-error-{width}.png'))
             page.keyboard.press('Tab')
             assert page.locator('#cite-' + first_claim['id'] + '-checks').evaluate('(el) => el === document.activeElement')
             page.keyboard.press('Tab')
