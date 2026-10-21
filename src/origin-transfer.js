@@ -312,13 +312,9 @@
     mirrorQuietFallback(state);
   }
   function mirrorQuietFallback(state) {
-    try {
-      if (G.localStorage?.getItem('alibi-quiet-wing-v1:fallback') == null) return;
-      if (state) G.localStorage.setItem('alibi-quiet-wing-v1:fallback', JSON.stringify(state));
-      else G.localStorage.removeItem('alibi-quiet-wing-v1:fallback');
-    } catch {
-      /* A missing fallback is left missing. IndexedDB already holds the save. */
-    }
+    if (G.localStorage?.getItem('alibi-quiet-wing-v1:fallback') == null) return;
+    if (state) G.localStorage.setItem('alibi-quiet-wing-v1:fallback', JSON.stringify(state));
+    else G.localStorage.removeItem('alibi-quiet-wing-v1:fallback');
   }
   async function readCastle() {
     await G.AlibiCastle?.flush?.().catch(() => {});
