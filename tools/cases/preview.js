@@ -11,6 +11,8 @@
     hints = new Map(),
     reveals = new Set();
   let message = '';
+  let validationErrors = [],
+    validationActive = false;
   function el(tag, text, attrs = {}) {
     const node = document.createElement(tag);
     if (text !== undefined) node.textContent = text;
@@ -31,6 +33,38 @@
       row.append(link);
     }
     return row;
+  }
+  function errorSummary(errors) {
+    const claimCount = new Set(errors.map((error) => error.claimId).filter(Boolean)).size;
+    if (!claimCount)
+      return `${errors.length} submission ${errors.length === 1 ? 'error' : 'errors'}. Your draft is retained.`;
+    return `${errors.length} validation ${errors.length === 1 ? 'error' : 'errors'} across ${claimCount} ${claimCount === 1 ? 'claim' : 'claims'}. Your draft is retained.`;
+  }
+  function firstErrorTarget(errors) {
+    const first = errors.find(
+      (error) => error.claimId && ['verdict', 'citations'].includes(error.code),
+    );
+    if (!first) return 'status';
+    return first.code === 'citations' ? `citations-${first.claimId}` : `verdict-${first.claimId}`;
+  }
+  function errorText(code) {
+    return code === 'citations'
+      ? 'Choose the smallest sufficient source set for this claim. Your draft is retained.'
+      : 'Choose the verdict supported by the records. Your draft is retained.';
+  }
+  function refreshValidation(focusId, answers, claims) {
+    if (!validationActive) return;
+    const result = S.submit(
+      d,
+      completed,
+      current,
+      claims.map((claim) => answers.get(claim.id)),
+    );
+    validationErrors = result.ok ? [] : result.errors;
+    message = result.ok
+      ? 'All validation issues are corrected. Check reasoning to recheck this stage.'
+      : errorSummary(validationErrors);
+    render(focusId);
   }
   function render(focusId) {
     const view = S.project(d, completed, current, story);
@@ -73,6 +107,8 @@
         drafts.clear();
         hints.clear();
         reveals.clear();
+        validationErrors = [];
+        validationActive = false;
         message = 'Preview restarted.';
         render('step-title');
       }),
@@ -88,6 +124,8 @@
         : `Question ${index + 1} (locked)`;
       const control = button(text, `stage-${step.id}`, () => {
         current = step.id;
+        validationErrors = [];
+        validationActive = false;
         message = '';
         render('step-title');
       });
@@ -139,12 +177,26 @@
       if (!answers.has(claim.id))
         answers.set(claim.id, { id: claim.id, verdict: '', citations: [] });
       const answer = answers.get(claim.id);
-      const field = el('fieldset');
+      const claimErrors = validationErrors.filter((error) => error.claimId === claim.id);
+      const verdictError = claimErrors.find((error) => error.code === 'verdict');
+      const citationsError = claimErrors.find((error) => error.code === 'citations');
+      const field = el('fieldset', undefined, { id: `claim-${claim.id}` });
+      if (claimErrors.length) {
+        field.setAttribute('aria-invalid', 'true');
+        field.setAttribute(
+          'aria-describedby',
+          claimErrors.map((error) => `error-${claim.id}-${error.code}`).join(' '),
+        );
+      }
       field.append(el('legend', claim.text, { id: `label-${claim.id}` }));
       const select = el('select', undefined, {
         id: `verdict-${claim.id}`,
         'aria-labelledby': `label-${claim.id}`,
       });
+      if (verdictError) {
+        select.setAttribute('aria-invalid', 'true');
+        select.setAttribute('aria-describedby', `error-${claim.id}-verdict`);
+      }
       for (const [value, text] of [
         ['', 'Choose a verdict'],
         ['supported', 'Supported'],
@@ -157,23 +209,59 @@
       }
       select.addEventListener('change', () => {
         answer.verdict = select.value;
+        refreshValidation(select.id, answers, view.claims);
       });
-      field.append(select, el('p', 'Cite the smallest sufficient source set:'));
+      field.append(select);
+      if (verdictError)
+        field.append(
+          el('p', errorText('verdict'), {
+            id: `error-${claim.id}-verdict`,
+            class: 'form-error',
+          }),
+        );
+      const citationGroup = el('fieldset', undefined, {
+        id: `citations-${claim.id}`,
+        class: 'citation-group',
+        'aria-labelledby': `label-${claim.id} citation-label-${claim.id}`,
+        tabindex: '-1',
+      });
+      if (citationsError) {
+        citationGroup.setAttribute('aria-invalid', 'true');
+        citationGroup.setAttribute('aria-describedby', `error-${claim.id}-citations`);
+      }
+      citationGroup.append(
+        el('legend', 'Cite the smallest sufficient source set:', {
+          id: `citation-label-${claim.id}`,
+        }),
+      );
+      if (citationsError)
+        citationGroup.append(
+          el('p', errorText('citations'), {
+            id: `error-${claim.id}-citations`,
+            class: 'form-error',
+          }),
+        );
       for (const record of view.records) {
         const label = el('label', undefined, { class: 'citation' });
         const check = el('input', undefined, {
           type: 'checkbox',
           id: `cite-${claim.id}-${record.id}`,
         });
+        if (citationsError) {
+          check.setAttribute('aria-invalid', 'true');
+          check.setAttribute('aria-describedby', `error-${claim.id}-citations`);
+        }
         check.checked = answer.citations.includes(record.id);
         check.addEventListener('change', () => {
           answer.citations = check.checked
             ? [...answer.citations, record.id]
             : answer.citations.filter((id) => id !== record.id);
+          refreshValidation(check.id, answers, view.claims);
         });
         label.append(check, el('span', record.title));
-        field.append(label);
+        citationGroup.append(label);
       }
+      field.append(citationGroup);
       form.append(field);
     }
     const submit = el('button', 'Check reasoning', { type: 'submit', id: 'check' });
@@ -187,14 +275,18 @@
         view.claims.map((c) => answers.get(c.id)),
       );
       completed = result.completed;
-      if (result.ok)
+      let focusTarget = 'status';
+      if (result.ok) {
+        validationErrors = [];
+        validationActive = false;
         message = 'Reasoning accepted. The cited sources support these classifications.';
-      else {
-        const first = result.errors[0],
-          claim = view.claims.find((c) => c.id === first.claimId);
-        message = `${claim ? `Review “${claim.text}”. ` : ''}${first.code === 'citations' ? 'Check the smallest sufficient source set; unrelated or missing records do not establish the claim.' : 'Compare your verdict with the records. A possible example is not necessarily an established fact.'} Your draft is retained.`;
+      } else {
+        validationActive = true;
+        validationErrors = result.errors;
+        message = errorSummary(validationErrors);
+        focusTarget = firstErrorTarget(validationErrors);
       }
-      render('status');
+      render(focusTarget);
     });
     investigation.append(form);
     const hintSection = el('section', undefined, { 'aria-labelledby': 'help-title' });
@@ -243,6 +335,8 @@
         investigation.append(
           button('Continue investigation', 'continue', () => {
             current = next.id;
+            validationErrors = [];
+            validationActive = false;
             message = '';
             render('step-title');
           }),

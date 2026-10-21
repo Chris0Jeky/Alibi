@@ -45,19 +45,43 @@ def run():
             assert page.locator('#worked').count() == 0
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
             page.locator('#verdict-bounded-window').focus()
-            page.keyboard.press('ArrowDown')
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
+            page.keyboard.press('Shift+Tab')
+            assert page.locator('#verdict-bounded-window').evaluate('(el) => el === document.activeElement')
+            page.locator('#check').focus()
+            page.keyboard.press('Enter')
+            assert '6 validation errors across 3 claims' in page.locator('#status').inner_text()
+            assert page.locator('#status').get_attribute('role') == 'status'
+            assert page.locator('#verdict-bounded-window').get_attribute('aria-invalid') == 'true'
+            verdict_error = page.locator('#verdict-bounded-window').get_attribute('aria-describedby')
+            assert verdict_error and 'Choose the verdict supported by the records' in page.locator('#' + verdict_error).inner_text()
+            citation_group = page.locator('#citations-bounded-window')
+            assert citation_group.get_attribute('aria-invalid') == 'true'
+            citation_error = citation_group.get_attribute('aria-describedby')
+            assert citation_error and 'smallest sufficient source set' in page.locator('#' + citation_error).inner_text()
+            claim_fieldset = page.locator('#claim-bounded-window')
+            assert claim_fieldset.get_attribute('aria-invalid') == 'true'
+            assert set(claim_fieldset.get_attribute('aria-describedby').split()) == {verdict_error, citation_error}
+            assert page.locator('#verdict-bounded-window').evaluate('(el) => el === document.activeElement')
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            claim_fieldset.screenshot(path=str(OUT / f'verdict-errors-{width}.png'))
+            page.keyboard.press('Tab')
+            assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
+            page.keyboard.press('Shift+Tab')
             page.locator('#verdict-bounded-window').select_option('supported')
-            page.locator('#cite-bounded-window-checks').check()
+            assert page.locator('#verdict-bounded-window').get_attribute('aria-invalid') is None
+            assert page.locator('#citations-bounded-window').get_attribute('aria-invalid') == 'true'
+            assert claim_fieldset.get_attribute('aria-invalid') == 'true'
+            assert claim_fieldset.get_attribute('aria-describedby') == citation_error
+            assert '5 validation errors across 3 claims' in page.locator('#status').inner_text()
             page.locator('#story').click()
-            assert page.locator('#verdict-bounded-window').input_value() == 'supported'
-            assert page.locator('#cite-bounded-window-checks').is_checked()
             assert page.locator('#story').evaluate('(el) => el === document.activeElement')
-            if story:
+            page.locator('#story').click()
+            if not story:
                 page.locator('#story').click()
-            page.locator('#check').click()
-            assert 'draft is retained' in page.locator('#status').inner_text()
+            assert page.locator('#verdict-bounded-window').input_value() == 'supported'
+            assert 'Your draft is retained' in page.locator('#status').inner_text()
             assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             for _ in range(3):
                 page.locator('#hint').click()
@@ -68,6 +92,48 @@ def run():
             assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             page.locator('#reveal').click()
             assert page.locator('#worked').count() == 0
+            # Correct verdicts with one deliberately incomplete citation bundle.
+            first_claim = definition['steps'][0]['claims'][0]
+            for claim in definition['steps'][0]['claims']:
+                page.locator('#verdict-' + claim['id']).select_option(claim['answer'])
+                expected = claim['evidence'][0]
+                for record in definition['records']:
+                    if record['id'] not in ['checks', 'model']:
+                        continue
+                    checkbox = page.locator('#cite-' + claim['id'] + '-' + record['id'])
+                    should_cite = record['id'] in expected and not (
+                        claim['id'] == first_claim['id'] and record['id'] == expected[-1]
+                    )
+                    if should_cite and not checkbox.is_checked():
+                        checkbox.check()
+                    elif not should_cite and checkbox.is_checked():
+                        checkbox.uncheck()
+            page.locator('#check').click()
+            assert '1 validation error across 1 claim' in page.locator('#status').inner_text()
+            citation_group = page.locator('#citations-' + first_claim['id'])
+            assert citation_group.get_attribute('aria-invalid') == 'true'
+            citation_error = citation_group.get_attribute('aria-describedby')
+            assert citation_error and 'smallest sufficient source set' in page.locator('#' + citation_error).inner_text()
+            claim_fieldset = page.locator('#claim-' + first_claim['id'])
+            assert claim_fieldset.get_attribute('aria-invalid') == 'true'
+            assert claim_fieldset.get_attribute('aria-describedby') == citation_error
+            assert citation_group.evaluate('(el) => el === document.activeElement')
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            claim_fieldset.screenshot(path=str(OUT / f'citation-error-{width}.png'))
+            page.keyboard.press('Tab')
+            assert page.locator('#cite-' + first_claim['id'] + '-checks').evaluate('(el) => el === document.activeElement')
+            page.keyboard.press('Tab')
+            assert page.locator('#cite-' + first_claim['id'] + '-model').evaluate('(el) => el === document.activeElement')
+            page.keyboard.press('Space')
+            assert page.locator('#citations-' + first_claim['id']).get_attribute('aria-invalid') is None
+            assert page.locator('#citations-' + first_claim['id']).get_attribute('aria-describedby') is None
+            assert claim_fieldset.get_attribute('aria-invalid') is None
+            assert claim_fieldset.get_attribute('aria-describedby') is None
+            assert 'All validation issues are corrected' in page.locator('#status').inner_text()
+            assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
+            page.locator('#check').click()
+            assert 'Reasoning accepted' in page.locator('#status').inner_text()
+            assert page.locator('#progress').text_content() == '1 of 3 stages reviewed'
             # Real controls use the authored answer fixture, not direct state injection.
             for index, step in enumerate(definition['steps']):
                 for claim in step['claims']:
