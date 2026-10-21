@@ -18,6 +18,11 @@ test('builder emits deterministic bounded anthology with exact source receipts',
     b = api.build(rooms);
   assert.equal(a.html, b.html);
   assert.equal(a.receipts.length, 2);
+  for (const receipt of a.receipts) {
+    assert.deepEqual(receipt.model.neverPresentedActions, []);
+    assert.deepEqual(receipt.model.neverEffectiveActions, []);
+    assert.deepEqual(receipt.model.unreachableActions, receipt.model.neverEffectiveActions);
+  }
   rooms.forEach((p, i) =>
     assert.equal(
       a.receipts[i].sourceSha256,

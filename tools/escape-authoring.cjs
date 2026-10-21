@@ -70,13 +70,17 @@ function analyze(d, options = {}) {
   }
   const key = (state) => JSON.stringify(d.variables.map((v) => state[v.id]));
   const isGoal = (state) => Object.keys(d.goal).every((k) => state[k] === d.goal[k]);
+  const matches = (condition, state) =>
+    Object.entries(condition).every(([id, value]) => state[id] === value);
+  const objects = new Map(d.objects.map((object) => [object.id, object]));
   const start = S.initial(d),
     states = [start],
     index = new Map([[key(start), 0]]);
   const parents = [null],
     incoming = [[]],
     goals = [],
-    used = new Set();
+    presented = new Set(),
+    effective = new Set();
   let edges = 0;
   const incomplete = () => ({
     status: 'inconclusive',
@@ -86,6 +90,8 @@ function analyze(d, options = {}) {
     softlockCount: null,
     solution: null,
     softlockTrace: null,
+    neverPresentedActions: null,
+    neverEffectiveActions: null,
     unreachableActions: null,
   });
   for (let cursor = 0; cursor < states.length; cursor++) {
@@ -95,11 +101,13 @@ function analyze(d, options = {}) {
       continue;
     }
     for (const action of d.actions) {
+      if (matches(objects.get(action.object).when, state) && matches(action.when, state))
+        presented.add(action.id);
       const next = S.transition(d, state, action.id, action.answer);
       if (!next.ok && next.code !== 'unchanged') continue;
       if (edges >= maxEdges) return incomplete();
       edges++;
-      used.add(action.id);
+      effective.add(action.id);
       const identity = key(next.state);
       let target = index.get(identity);
       if (target === undefined) {
@@ -133,6 +141,12 @@ function analyze(d, options = {}) {
     return actions.reverse();
   }
   const firstTrap = states.findIndex((_, i) => !winning.has(i));
+  const neverPresentedActions = d.actions
+    .filter((action) => !presented.has(action.id))
+    .map((action) => action.id);
+  const neverEffectiveActions = d.actions
+    .filter((action) => !effective.has(action.id))
+    .map((action) => action.id);
   return {
     status: firstTrap === -1 ? 'verified' : 'unsafe',
     scope: 'finite-model-only',
@@ -141,7 +155,10 @@ function analyze(d, options = {}) {
     softlockCount: states.length - winning.size,
     solution: trace(goals[0]),
     softlockTrace: firstTrap < 0 ? null : trace(firstTrap),
-    unreachableActions: d.actions.filter((a) => !used.has(a.id)).map((a) => a.id),
+    neverPresentedActions,
+    neverEffectiveActions,
+    // Preserve the original authoring-report field with its original semantics.
+    unreachableActions: [...neverEffectiveActions],
   };
 }
 module.exports = { parse, read, analyze };

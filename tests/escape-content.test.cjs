@@ -32,6 +32,8 @@ for (const name of names)
     assert.equal(d.id, name);
     assert.equal(report.status, 'verified');
     assert.equal(report.softlockCount, 0);
+    assert.deepEqual(report.neverPresentedActions, []);
+    assert.deepEqual(report.neverEffectiveActions, []);
     assert.deepEqual(report.unreachableActions, []);
     assert.ok(report.solution.length >= 3);
     let state = S.initial(d);
