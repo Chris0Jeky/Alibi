@@ -111,6 +111,7 @@ async function session(data = fresh(), raw = null, options = {}) {
   vm.createContext(context);
   for (const name of ['core', 'backup-validation', 'club-engines', 'club'])
     vm.runInContext(fs.readFileSync(path.join(root, 'src', name + '.js'), 'utf8'), context);
+  options.beforeInit?.(context);
   const club = context.AlibiClub;
   await club.init({
     render() {},
