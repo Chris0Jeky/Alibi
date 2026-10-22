@@ -280,12 +280,14 @@
         packs = await this.getAll('packs'),
         metaDamaged = [];
       let settings = {},
-        preferences = {};
-      for (const key of ['settings', 'preferences'])
+        preferences = {},
+        workshopDraft;
+      for (const key of ['settings', 'preferences', 'workshop-draft'])
         try {
           const value = await this.get('meta', key);
           if (key === 'settings') settings = value || {};
-          else preferences = value || {};
+          else if (key === 'preferences') preferences = value || {};
+          else workshopDraft = value;
         } catch (e) {
           if (!/damaged/.test(e?.message || '')) throw e;
           metaDamaged.push(key);
@@ -299,6 +301,7 @@
         packs: [...packs],
         settings,
         preferences,
+        ...(workshopDraft !== undefined ? { workshopDraft } : {}),
         damaged: {
           runs: [...(this.damaged.runs || [])],
           packs: [...(this.damaged.packs || [])],
@@ -321,24 +324,27 @@
         const rr = runs.getAll(),
           pr = packs.getAll(),
           sr = meta.get('settings'),
-          fr = meta.get('preferences');
+          fr = meta.get('preferences'),
+          dr = meta.get('workshop-draft');
         let n = 0;
         const go = () => {
-          if (++n < 4) return;
+          if (++n < 5) return;
           try {
             const cR = rr.result.map((x) => x.value),
               cP = pr.result.map((x) => x.value),
               cS = sr.result?.value || {},
-              cF = fr.result?.value || {};
+              cF = fr.result?.value || {},
+              cD = dr.result?.value;
             if (
               expected &&
               !root.AlibiCore.equal(
-                [cR, cP, cS, cF],
+                [cR, cP, cS, cF, cD],
                 [
                   expected.runs,
                   expected.packs,
                   expected.settings || {},
                   expected.preferences || {},
+                  expected.workshopDraft,
                 ],
               )
             )
@@ -350,6 +356,14 @@
               !backup.packs?.every?.((p) => typeof p?.id === 'string')
             )
               throw Error('Unsupported backup format. Nothing was changed.');
+            if (
+              backup.workshopDraft !== undefined &&
+              cD !== undefined &&
+              !root.AlibiCore.equal(cD, backup.workshopDraft)
+            )
+              throw Error(
+                'The workshop draft in this backup differs from this device. Export and resolve the drafts before restoring. Nothing was changed.',
+              );
             meta.put({
               key: 'pre-restore-backup',
               value: {
@@ -360,6 +374,7 @@
                 packs: cP,
                 settings: cS,
                 preferences: cF,
+                ...(cD !== undefined ? { workshopDraft: cD } : {}),
               },
             });
             runs.clear();
@@ -368,12 +383,14 @@
             for (const p of backup.packs) packs.put({ key: p.id, value: p });
             meta.put({ key: 'settings', value: backup.settings || {} });
             meta.put({ key: 'preferences', value: backup.preferences || {} });
+            if (backup.workshopDraft !== undefined && cD === undefined)
+              meta.put({ key: 'workshop-draft', value: backup.workshopDraft });
           } catch (e) {
             bad = e;
             tx.abort();
           }
         };
-        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = go;
+        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = dr.onsuccess = go;
         tx.oncomplete = () => resolve();
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));

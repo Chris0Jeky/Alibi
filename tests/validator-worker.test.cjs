@@ -192,6 +192,35 @@ test('compiled worker preserves every official ID in source order', () => {
 });
 
 for (const type of ['cabinet-backup', 'combined-backup']) {
+  test(`${type} validates unfinished workshop drafts inside the bounded worker`, () => {
+    const { context, results } = loadWorker();
+    const puzzle = structuredClone(
+      require('../content/catalog.json').puzzles.find((p) => p.type === 'scene'),
+    );
+    puzzle.title = '';
+    puzzle.clues = [];
+    puzzle.objects = [];
+    puzzle.rooms.fill(0);
+    const sendDraft = (workshopDraft) => {
+      const cabinet = cabinetBackup({ workshopDraft });
+      return send(context, results, {
+        type,
+        text: JSON.stringify(type === 'cabinet-backup' ? cabinet : combinedBackup({ cabinet })),
+      });
+    };
+    const valid = sendDraft({ puzzle });
+    assert.equal(valid.ok, true, valid.error);
+    const cabinet = type === 'cabinet-backup' ? valid.value : valid.value.sections.cabinet;
+    assert.deepEqual(norm(cabinet.workshopDraft), { puzzle });
+    for (const draft of [null, {}, { puzzle: { ...puzzle, people: null } }]) {
+      const invalid = sendDraft(draft);
+      assert.equal(invalid.ok, false);
+      assert.equal(invalid.error, 'The saved workshop draft needs attention.');
+    }
+    const legacy = sendDraft(undefined);
+    assert.equal(legacy.ok, true, legacy.error);
+  });
+
   test(`${type} rejects old, initial and deferred official-ID collisions`, () => {
     const { context, results } = loadWorker();
     const { source } = officialWorkerFixture();
