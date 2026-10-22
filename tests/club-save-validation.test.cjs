@@ -43,6 +43,17 @@ test('Club save rejects the empty runs array that loses subsequent Archive progr
   assert.throws(() => validateSave(save), /not a supported Club save/);
 });
 
+test('Club save rejects structured-clone objects as runs', () => {
+  for (const runs of [new Date(0), new Map(), new Set(), /x/]) {
+    assert.throws(
+      () => validateSave(validSave({ runs })),
+      /not a supported Club save/,
+      `runs=${Object.prototype.toString.call(runs)} must be rejected`,
+    );
+  }
+  assert.doesNotThrow(() => validateSave(validSave({ runs: Object.create(null) })));
+});
+
 test('Club save rejects scalar or missing runs before replacement', () => {
   for (const runs of [true, 1, false, 0, '', 'archive', null, undefined]) {
     assert.throws(
