@@ -287,7 +287,13 @@
           const value = await this.get('meta', key);
           if (key === 'settings') settings = value || {};
           else if (key === 'preferences') preferences = value || {};
-          else workshopDraft = value;
+          else if (value !== undefined)
+            try {
+              root.AlibiCore.validateSceneDraft(value?.puzzle);
+              workshopDraft = value;
+            } catch {
+              metaDamaged.push(key);
+            }
         } catch (e) {
           if (!/damaged/.test(e?.message || '')) throw e;
           metaDamaged.push(key);
@@ -320,7 +326,8 @@
           packs = tx.objectStore('packs'),
           meta = tx.objectStore('meta');
         this.watch(tx, reject);
-        let bad = null;
+        let bad = null,
+          note = '';
         const rr = runs.getAll(),
           pr = packs.getAll(),
           sr = meta.get('settings'),
@@ -356,14 +363,13 @@
               !backup.packs?.every?.((p) => typeof p?.id === 'string')
             )
               throw Error('Unsupported backup format. Nothing was changed.');
-            if (
+            const draftConflict =
               backup.workshopDraft !== undefined &&
               cD !== undefined &&
-              !root.AlibiCore.equal(cD, backup.workshopDraft)
-            )
-              throw Error(
-                'The workshop draft in this backup differs from this device. Export and resolve the drafts before restoring. Nothing was changed.',
-              );
+              !root.AlibiCore.equal(cD, backup.workshopDraft);
+            if (draftConflict)
+              note =
+                'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy.';
             meta.put({
               key: 'pre-restore-backup',
               value: {
@@ -375,6 +381,7 @@
                 settings: cS,
                 preferences: cF,
                 ...(cD !== undefined ? { workshopDraft: cD } : {}),
+                ...(draftConflict ? { unappliedWorkshopDraft: backup.workshopDraft } : {}),
               },
             });
             runs.clear();
@@ -391,7 +398,7 @@
           }
         };
         rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = dr.onsuccess = go;
-        tx.oncomplete = () => resolve();
+        tx.oncomplete = () => resolve({ note });
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));
         tx.onerror = () => reject(tx.error);

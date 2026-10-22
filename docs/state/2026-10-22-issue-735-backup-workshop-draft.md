@@ -1,6 +1,10 @@
 # Preserve unfinished workshop drafts in Cabinet backups (#735)
 
 Branch: `fix/735-backup-workshop-draft`.
+Original committed implementation: `add17886d2d6c83699c8613784aa2046cb1b868a`,
+`fix: preserve workshop drafts in Cabinet backups (#735)`.
+The review fixes below are uncommitted changes atop that revision. No additional
+commit was created: this task forbids Git writes, GitHub and network services.
 
 ## Changed
 
@@ -21,42 +25,76 @@ Existing byte/time limits are unchanged.
 
 Restore reads the local draft in its existing read/write transaction. A missing
 local draft receives the incoming draft; an identical local draft is untouched.
-A different local draft refuses the entire restore before any writes, in both
-Add missing and Replace paths, with an export/resolve message. An old backup
-leaves the current draft untouched. The pre-restore recovery copy includes any
-existing draft, and the merge snapshot conflict check now includes the draft.
+A different local draft no longer refuses the entire restore (F1, HIGH). Both
+Add missing and Replace preserve it and restore other data according to their
+existing rules. An old backup leaves the local draft untouched. The atomic
+pre-restore recovery backup retains the previous device data and local
+`workshopDraft`, plus the incoming draft as `unappliedWorkshopDraft` when different.
+The existing Recovery copy action downloads this JSON with both drafts available;
+the extra field is retained recovery data, not an instruction to replace a draft.
+
+Restore returns a note when it skips the incoming draft. The app presents it in
+a completion dialog with Download recovery copy and Reload Alibi actions. Closing
+or escaping also reloads, preventing the old in-memory Cabinet from remaining
+active after dismissal. The merge snapshot conflict check still includes the
+stored draft and refuses genuine changes after that snapshot.
+
+Export now validates the stored draft (F2, MEDIUM). An invalid draft is omitted
+and listed as `workshop-draft` in `damaged.meta`, leaving stored bytes untouched
+and the backup importable. Add missing captures the raw draft separately for its
+conflict snapshot when export has omitted it, avoiding a false concurrent-edit
+refusal without putting damaged data back in the imported backup.
+
+F3 (LOW, optional) is unchanged. `saveDraft()` has no pending-save handle to await
+in `cabinetBackup()`; adding and coordinating one exceeds the trivial fix requested.
 
 ## Verified
 
-- `npm ci --no-audit --no-fund`: exit 0; 136 packages added (run once).
-- Failing-first: `node --test tests/storage-restore.test.cjs tests/backup-validation.test.cjs`:
-  exit 1; 24 tests, 18 passed, 6 failed before production changes. Failures cover
-  the missing round-trip draft, missing recovery field, absent conflict/snapshot
-  guards, and validation passing through the unvalidated draft.
+- Original implementation evidence at `add17886`: `npm ci --no-audit --no-fund`
+  exited 0 (136 packages); the initial 24-test selection had 6 failing-first
+  regressions, and its final 35-test storage/validation/worker selection passed.
+  Its recorded build was `0a3c754acb2c`. Those are historical results, not proof
+  of the uncommitted review fixes.
+- Failing-first F1/F2: `node --test tests/storage-restore.test.cjs tests/backup-route-race.test.cjs`:
+  exit 1; 27 tests, 23 passed, 4 failed against the original implementation.
+  Failures reproduce both different-draft restore paths, omitted completion
+  feedback, and an invalid draft poisoning export.
+- Three additional failing-first checks each exited 1 with one failing test: notice
+  dismissal must reload; a damaged draft omitted by export must remain in the
+  merge conflict snapshot; replacing the open restore dialog must not queue a
+  close event that reloads before the notice can be read. Each passed after its
+  corresponding correction.
+- Focused storage/UI selection: the same two-file command exited 0;
+  28 tests passed, 0 failed, cancelled, skipped or todo.
+- After the final dialog-order correction, `node --test tests/backup-route-race.test.cjs`:
+  exit 0; 18 tests passed, 0 failed, cancelled, skipped or todo.
 - `npm run format:check`: exit 0; all matched files use Prettier code style.
-- `npm run build`: exit 0; version 0.15.2, build `0a3c754acb2c`, 570 puzzles,
-  307 files. Generated output was produced only by the build, never hand-edited.
-- `node --test tests/storage-restore.test.cjs tests/backup-validation.test.cjs tests/validator-worker.test.cjs`:
-  exit 0; 35 tests, 35 passed, 0 failed, cancelled, skipped or todo. Includes both
-  compiled-worker import routes, legacy backups, round-trip preservation,
-  malformed-input rejection, recovery, same-profile retention, different-draft
-  refusal, and a concurrent draft change after the merge snapshot.
+- `npm run build`: exit 0; version 0.15.2, build `d210d7adaa29`, 570 puzzles,
+  307 files. The emitted identity correctly reports source SHA
+  `add17886d2d6c83699c8613784aa2046cb1b868a` with `sourceDirty: true`;
+  this is a build of the uncommitted review fixes, not the committed tree alone.
+  Generated output was produced only by the build, never hand-edited.
+- `node --test tests/backup-validation.test.cjs tests/storage-restore.test.cjs tests/validator-worker.test.cjs tests/storage.test.cjs`:
+  exit 0; 41 tests passed, 0 failed, cancelled, skipped or todo; includes
+  `PASS 58 storage contract assertions`. Worker tests read the final emitted build.
 - `git diff --check`: exit 0.
 
 ## NOT verified
 
-Full `npm run verify`, real-origin IndexedDB rollback/concurrency, browser controls,
+Full `npm run verify`, real-origin IndexedDB atomicity/rollback/concurrency, browser controls/visuals,
 physical-device acceptance, hosted deployment, and GitHub/CI were not run in this
 bounded task. Storage tests use the existing fake-IDB fixture; compiled-worker
-tests exercise the emitted worker in a Node VM. The driver owns committing and
-the full verification run.
+tests exercise the emitted worker in a Node VM. UI tests execute the actual restore
+function in a Node VM. No new commit or publication is claimed.
 
 ## Residual risk
 
-Different drafts intentionally block restoration until resolved; there is no
-silent overwrite. Older apps ignore the optional draft even in a new backup.
+The optional F3 export/save timing concern remains. Recovery is a single latest-
+restore slot, replaced on the next successful restore; download it first to retain
+an independent copy. There is no silent draft overwrite. Older apps ignore the
+optional draft even in a new backup.
 No source IDs, puzzle revisions, database version, or app version change.
 [HUMAN_TODO.md](../../HUMAN_TODO.md) remains unchanged; existing physical-device
 and owner acceptance items remain open.
 
-Intended commit: `Preserve workshop drafts in Cabinet backups`.
+Intended additional commit: `fix: keep backup restores usable with workshop drafts`.

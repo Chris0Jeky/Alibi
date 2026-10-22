@@ -232,20 +232,57 @@ test('an old backup without a draft imports and preserves any existing local dra
   }
 });
 
-test('a different incoming draft refuses the whole restore without changing device data', async () => {
+test('a different incoming draft keeps the local draft and restores other data with a recovery note', async () => {
   const draft = unfinishedDraft();
   const { store, disk } = await seededStore({
     ...seedData(),
     meta: { ...seedData().meta, 'workshop-draft': draft },
   });
-  const before = snap(disk);
+  const expected = await store.export();
   const incoming = unfinishedDraft();
   incoming.puzzle.title = 'Different unfinished work';
-  await assert.rejects(
-    store.restore({ ...validBackup(), workshopDraft: incoming }),
-    /workshop draft.*differs/i,
-  );
-  assert.equal(snap(disk), before);
+  const result = await store.restore({ ...validBackup(), workshopDraft: incoming }, expected);
+  assert.deepEqual(disk.meta.get('workshop-draft'), draft);
+  assert.deepEqual([...disk.runs.values()], validBackup().runs);
+  assert.deepEqual([...disk.packs.values()], validBackup().packs);
+  assert.deepEqual(disk.meta.get('settings'), validBackup().settings);
+  assert.deepEqual(disk.meta.get('preferences'), validBackup().preferences);
+  const recovery = disk.meta.get('pre-restore-backup');
+  assert.deepEqual(recovery.workshopDraft, draft);
+  assert.deepEqual(recovery.unappliedWorkshopDraft, incoming);
+  assert.deepEqual(recovery.runs, Object.values(seedData().runs));
+  assert.deepEqual(recovery.packs, Object.values(seedData().packs));
+  assert.deepEqual(recovery.settings, seedData().meta.settings);
+  assert.deepEqual(recovery.preferences, seedData().meta.preferences);
+  assert.match(result.note, /workshop draft.*not applied.*recovery copy/i);
+});
+
+test('replace also restores other data when workshop drafts differ', async () => {
+  const local = unfinishedDraft();
+  const incoming = unfinishedDraft();
+  incoming.puzzle.title = 'Backup draft';
+  const { store, disk } = await seededStore({ meta: { 'workshop-draft': local } });
+  const result = await store.restore({ ...validBackup(), workshopDraft: incoming });
+  assert.deepEqual(disk.meta.get('workshop-draft'), local);
+  assert.deepEqual([...disk.runs.values()], validBackup().runs);
+  assert.deepEqual(disk.meta.get('pre-restore-backup').unappliedWorkshopDraft, incoming);
+  assert.match(result.note, /recovery copy/i);
+});
+
+test('export omits invalid stored drafts, records damage and remains importable', async () => {
+  for (const damaged of [null, {}, [], { puzzle: { type: 'scene' } }]) {
+    const { store, disk } = await seededStore({ meta: { 'workshop-draft': damaged } });
+    const exported = plain(await store.export());
+    assert.equal(Object.hasOwn(exported, 'workshopDraft'), false);
+    assert.deepEqual(exported.damaged.meta, ['workshop-draft']);
+    assert.deepEqual(plain(store.damaged.meta), ['workshop-draft']);
+    const validated = setup().validateBackup(exported);
+    assert.equal(Object.hasOwn(validated, 'workshopDraft'), false);
+    const target = await seededStore({});
+    await target.store.restore(validated);
+    assert.equal(target.disk.meta.has('workshop-draft'), false);
+    assert.deepEqual(disk.meta.get('workshop-draft'), damaged, 'export preserves damaged bytes');
+  }
 });
 
 test('an identical local draft is retained and included in pre-restore recovery', async () => {
