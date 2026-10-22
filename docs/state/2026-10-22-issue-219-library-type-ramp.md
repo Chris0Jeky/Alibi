@@ -1,8 +1,8 @@
 # Issue #219: Library type ramp
 
-Branch: `design/219-type-ramp-library`. Current committed head: `9daa7a80`.
-This is an uncommitted follow-up to that Library adoption commit.
-Intended additional commit: `style: consolidate Library type rules within budget`.
+Branch: `design/219-type-ramp-library`, based on `faea64e6`. Two commits:
+`9daa7a80` (Library adoption, which exceeded the precache budget) and `feed8bed`
+(consolidation within budget, described below). PR #737.
 
 ## Changed
 
