@@ -1,91 +1,100 @@
 # Issue #219: Library type ramp
 
-Branch: `design/219-type-ramp-library`. Base: `faea64e68c4a90a6eb76856b5f362fdac764a323`.
-Intended commit: `Adopt the type ramp in the Library`.
+Branch: `design/219-type-ramp-library`. Current committed head: `9daa7a80`.
+This is an uncommitted follow-up to that Library adoption commit.
+Intended additional commit: `style: consolidate Library type rules within budget`.
 
 ## Changed
 
-Traced `libraryPage()` in `src/app.js`: the landing view renders the page head,
-family cards, setting section and collection cards; filtered/family views render
-the page head, optional family introduction/art, collection picker/gallery,
-filters, puzzle cards, empty results, counts and cover note. `familyCard()`,
-`puzzleCard()` and `AlibiCuration.collectionCards()` supply the cards. `bookCard()`
-belongs to the separate Casebooks route, so its typography is outside this slice.
+Removed both Library-only font-size override sections from `src/app.css` and
+`src/cabinet.css`. Replaced numeric sizes in existing component rules, including
+responsive rules, with ramp tokens; merged inherited-size mappings into existing
+rules in `src/curation.css`. Split shared selector groups where their roles differ.
+No budget, JavaScript, content, save, engine, radius or colour changes.
 
-Forty-one selectors now use the ramp through Library-only overrides in
-`src/app.css` and `src/cabinet.css`. The existing `#library-browse-all` and
-`#library-search` IDs identify the two views via `.main:has(...)`; their specificity
-beats later shared card/curation rules, including font shorthands. Shared fallback
-rules remain available to other rooms. No JS, content, saves, engine, radius or
-colour changes. The existing 58px brand wordmark is explicitly documented as a
-deliberate display exception; it is outside the Library content hierarchy.
+The authorized narrower scope retains **13 of the original 41 mappings**. These
+components are rendered only by Library in the current source. Retained mappings
+keep the previous adoption's visual sizes: body 16px and metadata 13px at both
+widths. Shared components return to their pre-adoption rules in Library; their
+rules and appearance in other rooms are preserved. No whole-room visual parity
+with `9daa7a80` is claimed after this explicitly permitted scope reduction.
 
-| Role | Library examples | Desktop | Phone, at most 600px |
-| --- | --- | --- | --- |
-| h1 | Page title | 36px | 32px |
-| h2 | Setting section, empty results | 28px | 25px |
-| h3 | Family, puzzle and collection card titles | 22px | 20px |
-| body | Descriptions and collection disclosure headings | 16px | 16px |
-| meta | Chips, controls, counts, difficulty, progress badges and captions | 13px | 13px |
-| eyebrow | Uppercase page/card labels | 11px | 11px |
+| Role | Retained selectors |
+| --- | --- |
+| body | `.family-intro p`, `.collection-intro`, `.curation-collections summary`, `.curation-gallery > summary` |
+| meta | `.family-intro .btn`, `.search-field input`, `.filter-top select`, `.filter-meta`, `.family-count`, `.collection-scope`, `.disclosure-hint`, `.curation-gallery figcaption`, `.cover-note` |
 
-The published display step remains 44px desktop / 40px phone. This room has no
-new display consumer. The contract pins all seven ramp values and ordering at
-both breakpoints and all 41 selector mappings, without asserting browser layout.
+The family count also has the existing `.family-card .family-count` rules;
+curation has `.curation-collections > summary`, `.filters .filter-meta` and
+`.filter-top input` rules. Their sizes use the same role tokens. No separate
+font-size override section or new route marker is needed.
 
-### Before/after census
+Dropped mappings (28), to avoid changing shared components in other rooms or
+adding dedicated override rules for their Library instances:
 
-Before this change, top-level `src/*.css` had exactly 12 `var(--text-*)`
-references: h1 1, h2 4, h3 7; display/body/meta/eyebrow 0. Confirmed desktop
-44/36/28/22/16/13/11 and phone 40/32/25/20/16/13/11. The reported 44 distinct
-numeric sizes does not match this checkout under the following explicit census:
-64 distinct numeric `font-size` expressions, or 48 distinct scalar sizes after
-normalizing `!important` (including non-px units and unitless zero). Shorthand
-`font` sizes are excluded from that census.
+- Headings: `.page-head h1`, `.news-heading h2`, `.empty h2`, `.family-card h3`,
+  `.card-body h3`, `.collection-card-copy strong`.
+- Body: `.page-head p`, `.family-card p`, `.collection-atmosphere p`,
+  `.news-heading p`, `.empty p`, `.collection-card-copy > span`.
+- Controls: `.page-head .btn`, `.filters .btn`, `.show-more .btn`, `.empty .btn`,
+  `.curation-collections .btn`, `.chip`.
+- Metadata: `.card-meta`, `.difficulty`, `.card-art .badge`, `.collection-stamp`,
+  `.collection-caption`, `.collection-card-copy b`, `.collection-atmosphere small`,
+  `.museum-atmosphere figcaption`.
+- Uppercase labels: `.eyebrow`, `.card-family`.
 
-For the pre-existing exact selectors now mapped, the two edited CSS files retain
-**52 -> 52 numeric declarations, 15 -> 15 distinct values**. These are retained
-shared defaults, not a claim that source literals were removed. Count method:
-strip comments, split original rule selector lists, match any of the contract's
-unscoped selectors, then count numeric `font-size` declaration values. Generic
-ancestor defaults and styles in other files are excluded.
-
-The new Library rules provide **41 explicit token mappings, zero numeric
-font-size declarations**, grouped into seven declarations (h1/h2/h3/body in
-app.css; body/meta/eyebrow in cabinet.css). They override the numeric defaults in
-Library at both widths; browser-computed sizes remain for the driver's visual
-checks. The source-wide distinct numeric-size count is unchanged.
+`tests/type-scale.test.cjs` now checks the reduced adoption in the existing
+selectors across all three CSS files, including every font-size declaration at
+every breakpoint and no resetting font shorthand. Layout-only responsive rules
+may inherit the token. It also rejects the removed duplicate override section.
+The seven published ramp values, ordering and deliberate 58px wordmark exception
+remain unchanged and tested. The test selector list is narrowed with the CSS;
+it no longer asserts the dropped 28 mappings.
 
 ## Verified
 
-- `npm ci --no-audit --no-fund`: exit 0, 136 packages added; run once.
-- Red proof, before CSS changes: `node --test tests/type-scale.test.cjs` exited 1,
-  5 tests, 2 passed / 3 failed. Both Library mapping cases and the missing explicit
-  wordmark exception failed; both published ramp/order controls passed.
-- Final `node --test tests/type-scale.test.cjs`: exit 0, 5 passed, 0 failed,
-  0 skipped.
-- Final `node --test tests/radius-scale.test.cjs`: exit 0, 4 passed, 0 failed,
-  0 skipped.
+Step 0 ran `npm run build` before any edits: exit 0, build `e5200cdc717e`.
+The budget test calls `tools/content-budget-accounting.cjs`, which computes
+`shellBytes = coreOfflineBytes - officialContentBytes`; deferred official content
+is already included in officialContentBytes and is not subtracted again.
+
+| Receipt | Before (`9daa7a80`) | After (working tree) |
+| --- | ---: | ---: |
+| Core offline bytes | 1,931,866 | 1,929,528 |
+| Official content bytes | 517,619 | 517,619 |
+| Shell bytes | 1,414,247 | 1,411,909 |
+| Unchanged strict ceiling: `1.32 * 1024 * 1024 + 28672` | 1,412,792.32 | 1,412,792.32 |
+| Excess / headroom | 1,454.68 excess | 883.32 headroom |
+
+Shell reduction: **2,338 bytes**. Since the comparison is strict, the largest
+passing integer shell size is 1,412,792 bytes (883 whole bytes above this result).
+
+Exact final proving commands (Windows uses `npm.cmd`):
+
 - `npm run format:check`: exit 0, all matched files use Prettier code style.
-- Final `npm run build`: exit 0, build `ed216c6a5f09`, 570 puzzles, 13 families,
-  5 casebooks, 307 files, 203,173 initial code/content gzip bytes.
+- `npm run build`: exit 0, build `0449b167a92e`, 570 puzzles, 13 families,
+  5 casebooks, 307 files; initial code/content gzip 203,171 bytes.
+- `node --test tests/type-scale.test.cjs tests/radius-scale.test.cjs tests/budget.test.cjs`:
+  exit 0, **25 passed, 0 failed, 0 skipped**. Type scale: 6; radius scale: 4;
+  budget parent plus subtests: 15. The precache shell subtest passes.
 - `git diff --check`: exit 0.
 
 ## NOT verified
 
-The driver owns full `npm run verify`, UI/browser suites, phone/desktop visual
-inspection and any review/publication after committing. No computed-style,
-physical-device, hosted or deployment result is claimed here. No Git-writing
-commands, GitHub calls, commits or pushes were performed. Build outputs are
-generated by the required build, never hand-edited.
+Full `npm run verify`, UI/browser suites, browser-computed styles, phone/desktop
+visual inspection, physical-device acceptance, hosted responses and deployment
+were not run in this bounded follow-up. No Git-writing commands, GitHub calls,
+network services, commits or pushes were used. All file access stayed within the
+worktree apart from toolchain/dependency reads. Generated build outputs were not
+hand-edited. No environment variables or credentials were printed.
 
 ## Residual risk
 
-Larger card headings and 13px metadata may wrap differently in narrow cards;
-the driver's visual checks must inspect landing, filtered/family, collection,
-empty-result and long-label states. Route scoping depends on the existing two
-Library IDs and browser support for CSS `:has()`. Unrelated shared defaults and
-other rooms retain their numeric sizes; this is partial progress on #219.
+Shared typography remains outside this reduced adoption, including Library titles
+and puzzle/family/collection card headings. This is partial progress on #219.
+The retained sizes are source-checked rather than browser-measured; wrapping and
+physical accessibility still need the driver's existing visual/acceptance work.
+The shell has 883.32 bytes of headroom; the budget itself remains untouched.
 
 [HUMAN_TODO.md](../../HUMAN_TODO.md) remains authoritative, including physical
 Android/TalkBack and publisher decisions. No owner item was inferred complete.
