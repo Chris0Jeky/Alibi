@@ -280,6 +280,21 @@ test('repeated restores cannot revive an earlier writer revision', async () => {
   assert.deepEqual(plain(disk.meta.get('pre-restore-backup')).runs, [plain(stale)]);
 });
 
+for (const damaged of ['x', null, -1, 1.5]) {
+  test(`replace restore repairs a damaged current revision (${damaged})`, async () => {
+    const { tabA, disk, original } = writerFixture();
+    disk.runs.set(original.key, { ...disk.runs.get(original.key), rev: damaged });
+    const backup = {
+      ...validBackup(),
+      runs: [{ ...original, rev: 7, note: 'restored content' }],
+    };
+    await tabA.restore(backup);
+    const restored = await tabA.get('runs', original.key);
+    assert.equal(restored.note, 'restored content');
+    assert.equal(restored.rev, 8);
+  });
+}
+
 for (const [currentRev, importedRev] of [
   [Number.MAX_SAFE_INTEGER, 7],
   [7, Number.MAX_SAFE_INTEGER],

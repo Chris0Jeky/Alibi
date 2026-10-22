@@ -353,7 +353,10 @@
             const revisions = new Map(rr.result.map(({ key, value }) => [key, value?.rev])),
               restoredRuns = backup.runs.map((r) => {
                 // Restore is a new local write, even when the backup reuses a revision.
-                const current = revisions.has(r.key) ? revisions.get(r.key) : 0,
+                // A damaged current revision counts as 0: saveRun already refuses
+                // such rows, so no writer can hold it, and restore can repair them.
+                const held = revisions.get(r.key),
+                  current = Number.isSafeInteger(held) && held >= 0 ? held : 0,
                   rev = Math.max(r.rev, current) + 1;
                 if (!Number.isSafeInteger(rev) || rev < 1) throw Error('Revision limit.');
                 return { ...r, rev };
