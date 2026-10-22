@@ -130,6 +130,29 @@ test('castle backup validates known exports and refuses future, unknown and unbo
   }
 });
 
+test('restore preparation and merging keep caller-owned nested state detached', () => {
+  const current = note('Local note.'),
+    incoming = complete(note('Imported note.'), 'gate', [1, 3, 5], true).state;
+  current.drafts.gate = [2, 3, 4];
+  incoming.drafts.hanoi = [[0, 2]];
+  const originalCurrent = clone(current),
+    originalIncoming = clone(incoming),
+    file = backup(incoming);
+  for (const result of [
+    mergeStates(current, incoming),
+    castleValidation.prepareRestore(file, current, false),
+    castleValidation.prepareRestore(file, current, true),
+  ]) {
+    result.completed.gate.answer[0] = 99;
+    result.drafts.hanoi[0][0] = 99;
+    result.preferences.sound = !result.preferences.sound;
+    result.notes = 'Changed result.';
+    assert.deepEqual(current, originalCurrent);
+    assert.deepEqual(incoming, originalIncoming);
+    assert.deepEqual(file.state, originalIncoming);
+  }
+});
+
 test('merge adds distinct discoveries, keeps local settings and drafts, and never truncates notes', () => {
   const incoming = complete(note('Imported note.'), 'gate', [1, 3, 5], true).state;
   const firstImported = mergeStates(note(''), incoming);

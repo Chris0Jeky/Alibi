@@ -47,20 +47,9 @@ export function backup(state, mode = 'local', preservedRecord = null) {
 // Run the complete import/merge replay checks together inside the bounded worker.
 export function prepareRestore(data, current, replace) {
   const incoming = validateBackup(data).state;
-  const next = replace ? clone(incoming) : mergeStates(current, incoming);
+  const next = replace ? incoming : mergeStates(current, incoming);
   next.revision = Math.max(current.revision, incoming.revision) + 1;
   return validate(next);
-}
-
-const IMPORTED_NOTEBOOK_START = '--- Imported notebook ---';
-const IMPORTED_NOTEBOOK_END = '--- End imported notebook ---';
-
-function importedNotebookSection(notes) {
-  return `${IMPORTED_NOTEBOOK_START}\n${notes}\n${IMPORTED_NOTEBOOK_END}`;
-}
-
-function legacyImportedNotebookSuffix(notes) {
-  return `${IMPORTED_NOTEBOOK_START}\n${notes}`;
 }
 
 // Merge discoveries without replacing a device's answers, unfinished boards or preferences.
@@ -68,20 +57,21 @@ function legacyImportedNotebookSuffix(notes) {
 export function mergeStates(local, incoming) {
   const current = validate(local),
     added = validate(incoming);
-  const next = clone(current);
+  // validate() already returns detached state, including every nested board and record.
+  const next = current;
   for (const [id, value] of Object.entries(added.completed))
-    if (!Object.hasOwn(next.completed, id)) next.completed[id] = clone(value);
+    if (!Object.hasOwn(next.completed, id)) next.completed[id] = value;
   for (const [id, value] of Object.entries(added.drafts))
     if (!Object.hasOwn(next.completed, id) && !Object.hasOwn(next.drafts, id))
-      next.drafts[id] = clone(value);
+      next.drafts[id] = value;
   for (const id of Object.keys(next.completed)) delete next.drafts[id];
   next.visited = [...new Set([...current.visited, ...added.visited])];
   next.revealed = [...new Set([...current.revealed, ...added.revealed])];
   next.theories = mergeTheories(current.theories, added.theories);
   next.labels = { ...added.labels, ...current.labels };
   if (added.notes && added.notes !== current.notes) {
-    const section = importedNotebookSection(added.notes);
-    const legacySuffix = legacyImportedNotebookSuffix(added.notes);
+    const legacySuffix = `--- Imported notebook ---\n${added.notes}`;
+    const section = `${legacySuffix}\n--- End imported notebook ---`;
     if (!current.notes.includes(section) && !current.notes.endsWith(legacySuffix))
       next.notes = current.notes ? `${current.notes}\n\n${section}` : section;
   }
