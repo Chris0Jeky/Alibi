@@ -106,13 +106,52 @@ jobs:
           test -s /etc/apt/sources.list.d/ubuntu.sources
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install --yes --no-install-recommends libpulse0
+          sdkmanager --version > test-results/native/sdkmanager-version.txt 2>&1 || true
+
+          record_sdk_state() {
+            local label="$1"
+            {
+              printf 'Disk availability\n'
+              df -hP "$ANDROID_HOME" "$RUNNER_TEMP" "$GITHUB_WORKSPACE"
+              printf '\nInstalled SDK package identities\n'
+              sdkmanager --list_installed
+            } > "test-results/native/sdk-state-${label}.txt" 2>&1 || true
+          }
+
+          install_sdk_package() {
+            local label="$1"
+            shift
+            local -a pipeline_status
+            set +e
+            sdkmanager "$@" 2>&1 | tee "test-results/native/sdkmanager-${label}.log"
+            pipeline_status=("${PIPESTATUS[@]}")
+            set -e
+            printf 'sdkmanager_exit=%s\ntee_exit=%s\n' \
+              "${pipeline_status[0]}" "${pipeline_status[1]}" \
+              > "test-results/native/sdkmanager-${label}.status" 2>/dev/null || true
+            return "${pipeline_status[0]}"
+          }
+
+          record_sdk_state before-emulator
           # Record and use the hosted image's emulator when available. Updating it is
           # not a prerequisite for compiling or auditing an APK.
           if test ! -x "$ANDROID_HOME/emulator/emulator"; then
-            sdkmanager 'emulator'
+            if install_sdk_package emulator 'emulator'; then
+              record_sdk_state after-emulator
+            else
+              install_status=$?
+              record_sdk_state after-emulator-failure
+              exit "$install_status"
+            fi
           fi
           "$ANDROID_HOME/emulator/emulator" -version > test-results/native/emulator-version.txt
-          sdkmanager 'system-images;android-36;google_apis;x86_64'
+          if install_sdk_package system-image 'system-images;android-36;google_apis;x86_64'; then
+            record_sdk_state after-system-image
+          else
+            install_status=$?
+            record_sdk_state after-system-image-failure
+            exit "$install_status"
+          fi
           sdkmanager --list_installed > test-results/native/sdk-packages.txt
       - name: Boot the installed debug host offline and exercise native WebView navigation
         run: bash tools/run-android-smoke.sh
