@@ -2,6 +2,18 @@ import { validate, clone } from './engine.mjs';
 import { mergeTheories } from './investigation.mjs';
 
 export const IMPORT_LIMIT = 512 * 1024;
+export function validateRecord(value) {
+  if (
+    !value ||
+    value.schema !== 1 ||
+    !Number.isSafeInteger(value.revision) ||
+    value.revision < 1 ||
+    Object.keys(value).some((k) => !['schema', 'revision', 'state'].includes(k))
+  )
+    throw Error('This castle record needs a newer or repaired reader. It has been left untouched.');
+  return { schema: 1, revision: value.revision, state: validate(value.state) };
+}
+
 export function validateBackup(data) {
   if (
     !data ||
@@ -30,6 +42,14 @@ export function backup(state, mode = 'local', preservedRecord = null) {
     mode,
     ...(preservedRecord !== null ? { preservedRecord: clone(preservedRecord) } : {}),
   };
+}
+
+// Run the complete import/merge replay checks together inside the bounded worker.
+export function prepareRestore(data, current, replace) {
+  const incoming = validateBackup(data).state;
+  const next = replace ? clone(incoming) : mergeStates(current, incoming);
+  next.revision = Math.max(current.revision, incoming.revision) + 1;
+  return validate(next);
 }
 
 const IMPORTED_NOTEBOOK_START = '--- Imported notebook ---';
