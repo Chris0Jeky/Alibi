@@ -10,7 +10,6 @@
   --sidebar: #163837;
   --line: #d7e1db;
   --accent: #c29350;
-  --radius: 16px;
 }
 body {
   font-size: 16px;
@@ -384,7 +383,7 @@ body {
   min-height: 36px;
 }
 dialog {
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 }
 .dialog-body p {
   font-size: 16px;

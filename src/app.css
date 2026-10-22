@@ -12,12 +12,12 @@
   --red-bg: #f9e4df;
   --sidebar: #233c30;
   --shadow: 0 6px 26px #213f3209;
-  --radius: 18px;
-  /* Radius scale (#220). Exact-match literals map onto these; near values stay literal until a later slice. */
+  /* Radius scale (#220): controls, cards, panels and pills. Board/detail geometry stays local. */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+  --radius: var(--radius-lg);
   /* Type ramp (#219): desktop steps; phones step headings down. */
   --text-display: 44px;
   --text-h1: 36px;
@@ -787,7 +787,7 @@ input[type='checkbox'] {
   padding: 8px 13px;
   min-height: 36px;
   border: 1px solid var(--line);
-  border-radius: 30px;
+  border-radius: var(--radius-pill);
   background: transparent;
   display: inline-flex;
   align-items: center;
@@ -984,7 +984,7 @@ input[type='checkbox'] {
   line-height: 1.8;
 }
 .case-header .case-illustration {
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   transform: rotate(2deg);
   box-shadow: 0 10px 35px #31473715;
@@ -2477,7 +2477,7 @@ input[type='checkbox'] {
   min-width: 36px;
   height: 21px;
   border: 0;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   background: #c4ccbc;
   padding: 3px;
   position: relative;
@@ -2729,7 +2729,7 @@ input[type='checkbox'] {
 dialog {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 19px;
+  border-radius: var(--radius-lg);
   padding: 30px;
   color: var(--ink);
   width: min(520px, calc(100vw - 26px));
@@ -4488,6 +4488,7 @@ html[data-reduced='true'] *:after {
     width: 100%;
     max-width: none;
     max-height: 80dvh;
+    /* Bottom-sheet geometry: rounded top edge, square docked edge (#220). */
     border-radius: 22px 22px 0 0;
     padding: 27px 22px calc(23px + env(safe-area-inset-bottom));
   }

@@ -55,7 +55,7 @@
 .theatre-stage-copy button {
   min-height: 44px;
   border: 1px solid #d5bb874d;
-  border-radius: 24px;
+  border-radius: var(--radius-pill);
   padding: 9px 14px;
   background: #ffffff08;
   color: inherit;
@@ -78,7 +78,7 @@
   margin: 42px 0;
   padding: 28px;
   border: 1px solid #d6c6a9;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(125deg, #eee4d1, #faf6eb);
 }
 .theatre-heading {
@@ -164,7 +164,7 @@
 }
 .theatre-stage-copy button {
   margin-top: 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: #f1dcad;
   color: #173a41;
   border-color: #e3c489;
@@ -268,7 +268,7 @@
   background: linear-gradient(145deg, #25464b, #122d36);
   color: #f3e6c9;
   border: 1px solid #8d794f;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .theatre-screenings button span {
