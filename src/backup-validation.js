@@ -99,6 +99,8 @@
         v.schema !== 1 ||
         !v.settings ||
         !v.runs ||
+        typeof v.runs !== 'object' ||
+        Array.isArray(v.runs) ||
         !Array.isArray(v.records) ||
         v.records.length > 120 ||
         JSON.stringify(v).length > 400000
