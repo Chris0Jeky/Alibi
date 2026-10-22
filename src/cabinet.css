@@ -28,6 +28,7 @@ body {
 .brand {
   padding-bottom: 26px;
 }
+/* The wordmark is a deliberate display exception, independent of room headings. */
 .brand .wordmark {
   font-size: 58px;
 }
@@ -77,6 +78,42 @@ body {
   font-size: 11px;
   letter-spacing: 0.15em;
 }
+/* Library controls, counts and labels use the same ramp at both breakpoints.
+   ID scope also beats later shared curation/card rules and their font shorthands. */
+.main:has(#library-browse-all, #library-search) .curation-collections summary,
+.main:has(#library-browse-all, #library-search) .curation-gallery > summary {
+  font-size: var(--text-body);
+}
+.main:has(#library-browse-all, #library-search) .page-head .btn,
+.main:has(#library-browse-all, #library-search) .family-intro .btn,
+.main:has(#library-browse-all, #library-search) .filters .btn,
+.main:has(#library-browse-all, #library-search) .show-more .btn,
+.main:has(#library-browse-all, #library-search) .empty .btn,
+.main:has(#library-browse-all, #library-search) .curation-collections .btn,
+.main:has(#library-browse-all, #library-search) .chip,
+.main:has(#library-browse-all, #library-search) .search-field input,
+.main:has(#library-browse-all, #library-search) .filter-top select,
+.main:has(#library-browse-all, #library-search) .filter-meta,
+.main:has(#library-browse-all, #library-search) .family-count,
+.main:has(#library-browse-all, #library-search) .card-meta,
+.main:has(#library-browse-all, #library-search) .difficulty,
+.main:has(#library-browse-all, #library-search) .card-art .badge,
+.main:has(#library-browse-all, #library-search) .collection-stamp,
+.main:has(#library-browse-all, #library-search) .collection-scope,
+.main:has(#library-browse-all, #library-search) .collection-caption,
+.main:has(#library-browse-all, #library-search) .collection-card-copy b,
+.main:has(#library-browse-all, #library-search) .disclosure-hint,
+.main:has(#library-browse-all, #library-search) .curation-gallery figcaption,
+.main:has(#library-browse-all, #library-search) .collection-atmosphere small,
+.main:has(#library-browse-all, #library-search) .museum-atmosphere figcaption,
+.main:has(#library-browse-all, #library-search) .cover-note {
+  font-size: var(--text-meta);
+}
+.main:has(#library-browse-all, #library-search) .eyebrow,
+.main:has(#library-browse-all, #library-search) .card-family {
+  font-size: var(--text-eyebrow);
+}
+
 .welcome {
   align-items: flex-end;
   margin-bottom: 24px;

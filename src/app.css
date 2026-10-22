@@ -966,6 +966,31 @@ input[type='checkbox'] {
   margin-left: auto;
   flex-shrink: 0;
 }
+/* Library type ramp (#219). These existing IDs cover landing and filtered views.
+   Scope shared components so the other rooms retain their own typography. */
+.main:has(#library-browse-all, #library-search) .page-head h1 {
+  font-size: var(--text-h1);
+}
+.main:has(#library-browse-all, #library-search) .news-heading h2,
+.main:has(#library-browse-all, #library-search) .empty h2 {
+  font-size: var(--text-h2);
+}
+.main:has(#library-browse-all, #library-search) .family-card h3,
+.main:has(#library-browse-all, #library-search) .card-body h3,
+.main:has(#library-browse-all, #library-search) .collection-card-copy strong {
+  font-size: var(--text-h3);
+}
+.main:has(#library-browse-all, #library-search) .page-head p,
+.main:has(#library-browse-all, #library-search) .family-card p,
+.main:has(#library-browse-all, #library-search) .family-intro p,
+.main:has(#library-browse-all, #library-search) .collection-atmosphere p,
+.main:has(#library-browse-all, #library-search) .news-heading p,
+.main:has(#library-browse-all, #library-search) .empty p,
+.main:has(#library-browse-all, #library-search) .collection-intro,
+.main:has(#library-browse-all, #library-search) .collection-card-copy > span {
+  font-size: var(--text-body);
+}
+
 /* Casebook detail and journal */
 .case-header {
   display: grid;
