@@ -312,7 +312,7 @@ named('rejected restore leaves prior bytes and a well-formed restore replaces th
     settings: {},
     preferences: {},
   });
-  ok(valid.disk.runs.get('scene-01@1').rev === 2, 'well-formed restore still replaces runs');
+  ok(valid.disk.runs.get('scene-01@1').rev === 3, 'restore advances beyond both saved revisions');
   ok(valid.disk.packs.has('example-pack'), 'well-formed restore still replaces packs');
 });
 named('newer IndexedDB is fatal and does not use local saves', async () => {
