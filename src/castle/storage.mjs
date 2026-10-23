@@ -1,21 +1,9 @@
 import { initial, validate, clone } from './engine.mjs';
-import { backup, validateBackup, mergeStates } from './backup.mjs';
+import { backup, validateRecord as envelope } from './backup.mjs';
 
 export const DATABASE = 'alibi-castle-v1';
 const KEY = 'chapter-one';
 const RECOVERY = 'pre-restore-chapter-one';
-const envelope = (value) => {
-  if (
-    !value ||
-    value.schema !== 1 ||
-    !Number.isSafeInteger(value.revision) ||
-    value.revision < 1 ||
-    Object.keys(value).some((k) => !['schema', 'revision', 'state'].includes(k))
-  ) {
-    throw Error('This castle record needs a newer or repaired reader. It has been left untouched.');
-  }
-  return { schema: 1, revision: value.revision, state: validate(value.state) };
-};
 
 /** One retained instance per page. Every write compares the committed revision in its transaction. */
 export class CastleStore {
@@ -228,8 +216,8 @@ export class CastleStore {
     });
   }
   async restore(data, { replace = false, expectedRevision = this.state.revision } = {}) {
-    const incoming = validateBackup(data).state;
     if (this.restoring) throw Error('A notebook restore is already in progress.');
+    const text = JSON.stringify(data);
     this.restoring = true;
     const task = this.pending.then(async () => {
       if (this.mode !== 'local' || this.dirty)
@@ -241,19 +229,31 @@ export class CastleStore {
           'The notebook changed while this restore was being reviewed. Review the file again.',
         );
       const expected = this.diskRevision;
-      const next = replace ? clone(incoming) : mergeStates(this.state, incoming);
-      next.revision = Math.max(this.state.revision, incoming.revision) + 1;
-      validate(next);
       if (expected >= Number.MAX_SAFE_INTEGER)
         throw Error('Castle revision limit reached. Export this save.');
-      const saved = { schema: 1, revision: expected + 1, state: next };
+      if (!globalThis.AlibiValidateImport) throw Error('Background validation is unavailable.');
       const previous = backup(this.state);
+      const original = await this.transaction('readonly', (records, result) => {
+        const request = records.get(KEY);
+        request.onsuccess = () => result(request.result);
+      });
+      const originalText = JSON.stringify(original);
+      const next = await globalThis.AlibiValidateImport({
+        type: 'castle-restore',
+        text,
+        current: previous.state,
+        replace,
+        record: original,
+      });
+      if (this.mode !== 'local' || this.dirty)
+        throw Error('Restoration requires committed IndexedDB storage. Nothing was replaced.');
+      const saved = { schema: 1, revision: expected + 1, state: next };
       await this.transaction('readwrite', (records, _, abort) => {
         const request = records.get(KEY);
         request.onsuccess = () => {
           try {
-            const revision = request.result === undefined ? 0 : envelope(request.result).revision;
-            if (revision !== expected)
+            const revision = request.result === undefined ? 0 : request.result.revision;
+            if (JSON.stringify(request.result) !== originalText || revision !== expected)
               throw Error(
                 'Another tab changed this castle save. Reload and review the file again.',
               );
