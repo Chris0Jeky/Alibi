@@ -9,17 +9,30 @@ self.onmessage = (e) => {
         throw Error('That file is not valid JSON. The file and all device saves are unchanged.');
       }
     };
-    if (m.type === 'castle-backup') {
+    if (m.type === 'castle-backup' || m.type === 'castle-restore') {
       if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 512 * 1024)
         throw Error('Castle backup exceeds the 512 KiB import limit.');
-      value = AlibiCastleValidation.validateBackup(parse(m.text));
-    } else if (m.type === 'challenge-run') {
+      if (m.type === 'castle-restore') {
+        if (m.record !== undefined) AlibiCastleValidation.validateRecord(m.record);
+        value = AlibiCastleValidation.prepareRestore(parse(m.text), m.current, m.replace);
+      } else value = AlibiCastleValidation.validateBackup(parse(m.text));
+    } else if (m.type === 'challenge-run' || m.type === 'challenge-restore') {
       if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 3 * 1024 * 1024)
         throw Error('Challenge save exceeds the 3 MiB import limit.');
-      value = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
+      const registry = AlibiChallenges.create(ALIBI_CHALLENGE_DATA, {
         quiet: QWEngine,
         club: AlibiClubEngines,
-      }).validateRun(parse(m.text));
+      });
+      value = registry.validateRun(parse(m.text));
+      if (m.type === 'challenge-restore') {
+        let existingValid = false;
+        try {
+          const record = m.record;
+          if (record.schema === 1 && Number.isSafeInteger(record.revision) && record.revision > 0)
+            existingValid = registry.validateRun(record.run).challengeId === value.challengeId;
+        } catch {}
+        value = { run: value, existingValid };
+      }
     } else if (m.type === 'combined-backup') {
       if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 20 * 1024 * 1024)
         throw Error('Combined backup exceeds the 20 MB import limit.');
