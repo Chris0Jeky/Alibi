@@ -1911,7 +1911,11 @@ def scenario_cabinet_export_race(pw: Any, root: Path) -> None:
                         route(restored_page, "settings")
                         input_backup(restored_page, backup)
                         click_reload_action(restored_page, '[data-action="restore-merge"]')
-                        check(read_idb(restored_page, "runs", key) == next(r for r in backup["runs"] if r["key"] == key), "download restores its exact selected progress into an isolated profile")
+                        restored_run = read_idb(restored_page, "runs", key)
+                        backup_run = next(r for r in backup["runs"] if r["key"] == key)
+                        # Restore is a new local write: progress is exact, the save revision advances.
+                        check({**restored_run, "rev": None} == {**backup_run, "rev": None}, "download restores its exact selected progress into an isolated profile")
+                        check(restored_run["rev"] > backup_run["rev"], "restore advances the save revision past the imported one")
                     finally:
                         restored_context.close()
             finally:
