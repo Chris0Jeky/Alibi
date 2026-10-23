@@ -350,6 +350,17 @@
               !backup.packs?.every?.((p) => typeof p?.id === 'string')
             )
               throw Error('Unsupported backup format. Nothing was changed.');
+            const revisions = new Map(rr.result.map(({ key, value }) => [key, value?.rev])),
+              restoredRuns = backup.runs.map((r) => {
+                // Restore is a new local write, even when the backup reuses a revision.
+                // A damaged current revision counts as 0: saveRun already refuses
+                // such rows, so no writer can hold it, and restore can repair them.
+                const held = revisions.get(r.key),
+                  current = Number.isSafeInteger(held) && held >= 0 ? held : 0,
+                  rev = Math.max(r.rev, current) + 1;
+                if (!Number.isSafeInteger(rev) || rev < 1) throw Error('Revision limit.');
+                return { ...r, rev };
+              });
             meta.put({
               key: 'pre-restore-backup',
               value: {
@@ -364,7 +375,7 @@
             });
             runs.clear();
             packs.clear();
-            for (const r of backup.runs) runs.put({ key: r.key, value: r });
+            for (const r of restoredRuns) runs.put({ key: r.key, value: r });
             for (const p of backup.packs) packs.put({ key: p.id, value: p });
             meta.put({ key: 'settings', value: backup.settings || {} });
             meta.put({ key: 'preferences', value: backup.preferences || {} });
