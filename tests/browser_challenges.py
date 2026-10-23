@@ -214,6 +214,19 @@ try:
         page.add_style_tag(path=str(ROOT / 'src/quiet-wing/style.css'))
         for source in ('src/quiet-wing/engine.js', 'src/club-engines.js', 'src/challenges.js', 'src/challenge-storage.js', 'src/challenge-launcher.js'):
             page.add_script_tag(path=str(ROOT / source))
+        # The isolated launcher document has no app shell to supply the bounded
+        # import helper. Use the actual built worker for storage restore checks.
+        page.evaluate('''source => {
+          window.AlibiValidateImport = message => new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(new Blob([source], {type: 'text/javascript'}));
+            const worker = new Worker(url);
+            const stop = () => {clearTimeout(timer); worker.terminate(); URL.revokeObjectURL(url)};
+            const timer = setTimeout(() => {stop(); reject(Error('Validation timed out'))}, 25000);
+            worker.onmessage = ({data}) => {stop(); data.ok ? resolve(data.value) : reject(Error(data.error))};
+            worker.onerror = error => {stop(); reject(Error(error.message))};
+            worker.postMessage(message);
+          });
+        }''', next((ROOT / 'dist/assets').glob('validator.*.js')).read_text(encoding='utf-8'))
         page.evaluate('(data) => { window.registry = AlibiChallenges.create(data, {quiet: QWEngine, club: AlibiClubEngines}); window.persisted = null; AlibiChallengeLauncher.mount(document.querySelector("#host"), registry, "curated-classic-hanoi-01", null, run => window.persisted = run); }', DATA)
         page.locator('[data-action="peg"][data-value="1"]').click()
         # A selected peg is visibly filled, not only announced.
