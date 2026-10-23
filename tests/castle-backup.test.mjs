@@ -1,8 +1,38 @@
-import test from 'node:test';
+import test, { beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
 import { CastleStore } from '../src/castle/storage.mjs';
 import { initial, clone, complete } from '../src/castle/engine.mjs';
 import { backup, validateBackup, mergeStates } from '../src/castle/backup.mjs';
+import * as castleValidation from '../src/castle/backup.mjs';
+
+function validateImport(message) {
+  return Promise.resolve().then(() => {
+    let result;
+    const context = vm.createContext({
+      JSON,
+      TextEncoder,
+      AlibiCastleValidation: castleValidation,
+    });
+    context.self = context;
+    context.postMessage = (value) => (result = value);
+    vm.runInContext(fs.readFileSync('src/validator-worker.js', 'utf8'), context);
+    context.onmessage({ data: structuredClone(message) });
+    if (!result.ok) throw Error(result.error);
+    return structuredClone(result.value);
+  });
+}
+
+let previousValidator;
+beforeEach(() => {
+  previousValidator = globalThis.AlibiValidateImport;
+  globalThis.AlibiValidateImport = validateImport;
+});
+afterEach(() => {
+  if (previousValidator === undefined) delete globalThis.AlibiValidateImport;
+  else globalThis.AlibiValidateImport = previousValidator;
+});
 
 function note(text) {
   const s = initial();
@@ -97,6 +127,29 @@ test('castle backup validates known exports and refuses future, unknown and unbo
     const invalid = clone(file);
     change(invalid);
     assert.throws(() => validateBackup(invalid));
+  }
+});
+
+test('restore preparation and merging keep caller-owned nested state detached', () => {
+  const current = note('Local note.'),
+    incoming = complete(note('Imported note.'), 'gate', [1, 3, 5], true).state;
+  current.drafts.gate = [2, 3, 4];
+  incoming.drafts.hanoi = [[0, 2]];
+  const originalCurrent = clone(current),
+    originalIncoming = clone(incoming),
+    file = backup(incoming);
+  for (const result of [
+    mergeStates(current, incoming),
+    castleValidation.prepareRestore(file, current, false),
+    castleValidation.prepareRestore(file, current, true),
+  ]) {
+    result.completed.gate.answer[0] = 99;
+    result.drafts.hanoi[0][0] = 99;
+    result.preferences.sound = !result.preferences.sound;
+    result.notes = 'Changed result.';
+    assert.deepEqual(current, originalCurrent);
+    assert.deepEqual(incoming, originalIncoming);
+    assert.deepEqual(file.state, originalIncoming);
   }
 });
 
@@ -268,4 +321,67 @@ test('restore review rejects a changed notebook and serializes concurrent operat
   await restoring;
   assert.equal(store.state.notes, 'Restored.');
   assert.equal(store.restoring, false);
+});
+
+test('castle restore delegates replay and merge validation and snapshots the input', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const incoming = backup(initial());
+  incoming.state.drafts.hanoi = [
+    [0, 1],
+    [1, 0],
+  ];
+  let mainReplays = 0,
+    workerCalls = 0;
+  const log = incoming.state.drafts.hanoi;
+  log[Symbol.iterator] = function* () {
+    mainReplays++;
+    yield* Array.prototype.values.call(this);
+  };
+  globalThis.AlibiValidateImport = async (message) => {
+    workerCalls++;
+    assert.equal(message.type, 'castle-restore');
+    assert.equal(d.records.size, 0, 'no write before the worker accepts the plan');
+    return validateImport(message);
+  };
+  const restoring = store.restore(incoming);
+  assert.equal(mainReplays, 0, 'restore does not synchronously replay the input');
+  incoming.state.drafts.hanoi[0] = [0, 0];
+  const result = await restoring;
+  assert.equal(mainReplays, 0);
+  assert.equal(workerCalls, 1);
+  assert.deepEqual(result.drafts.hanoi, [
+    [0, 1],
+    [1, 0],
+  ]);
+});
+
+test('castle restore refuses invalid input and worker failure without writing', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const invalid = backup(initial());
+  invalid.state.drafts.hanoi = [[0, 0]];
+  await assert.rejects(store.restore(invalid), /Invalid unfinished board/);
+  assert.equal(d.records.size, 0);
+  globalThis.AlibiValidateImport = () => Promise.reject(Error('worker deadline'));
+  await assert.rejects(store.restore(backup(initial())), /worker deadline/);
+  assert.equal(d.records.size, 0);
+  assert.equal(store.restoring, false);
+});
+
+test('castle restore refuses disk changes during worker validation', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const raced = { schema: 1, revision: 1, state: note('Another tab.') };
+  globalThis.AlibiValidateImport = async (message) => {
+    const next = await validateImport(message);
+    d.records.set('chapter-one', raced);
+    return next;
+  };
+  await assert.rejects(store.restore(backup(initial())), /Another tab/);
+  assert.deepEqual(d.records.get('chapter-one'), raced);
+  assert.equal(d.records.has('pre-restore-chapter-one'), false);
 });

@@ -18,7 +18,26 @@ const registry = require('../src/challenges.js').create(catalogue.runtime(catalo
 });
 const ID = 'curated-classic-hanoi-01';
 
-function loadStore(indexedDB) {
+function validateImport(message) {
+  return Promise.resolve().then(() => {
+    let result;
+    const context = vm.createContext({
+      TextEncoder,
+      AlibiChallenges: { create: () => registry },
+      ALIBI_CHALLENGE_DATA: {},
+      QWEngine: quiet,
+      AlibiClubEngines: club,
+    });
+    context.self = context;
+    context.postMessage = (value) => (result = value);
+    vm.runInContext(fs.readFileSync('src/validator-worker.js', 'utf8'), context);
+    context.onmessage({ data: structuredClone(message) });
+    if (!result.ok) throw Error(result.error);
+    return structuredClone(result.value);
+  });
+}
+
+function loadStore(indexedDB, worker = validateImport) {
   const context = {
     clearTimeout,
     console,
@@ -29,6 +48,7 @@ function loadStore(indexedDB) {
     module: { exports: {} },
     setTimeout,
     structuredClone,
+    AlibiValidateImport: worker,
   };
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(require.resolve('../src/challenge-storage.js'), 'utf8'), context);
@@ -110,6 +130,65 @@ test('corrupt-read then explicit restore succeeds and reads back the run', async
   const run = registry.begin(ID);
   await store.restore(run);
   assert.deepEqual(await store.read(ID), run);
+});
+
+test('restore keeps both 5,000-action replays in the worker and snapshots its input', async () => {
+  const run = registry.begin(ID);
+  run.log = Array.from({ length: 5000 }, (_, i) =>
+    i % 2 ? { from: 2, to: 1 } : { from: 1, to: 2 },
+  );
+  const original = { schema: 1, revision: 1, run: structuredClone(run) };
+  const { indexedDB, disk } = database({ [ID]: original });
+  let mainReplays = 0,
+    workerCalls = 0;
+  const store = loadStore(indexedDB, (message) => {
+    workerCalls++;
+    return validateImport(message);
+  }).create({
+    validateRun(value) {
+      mainReplays++;
+      return registry.validateRun(value);
+    },
+  });
+  await store.open();
+  await store.read(ID);
+  mainReplays = 0;
+  const restoring = store.restore(run);
+  assert.equal(mainReplays, 0, 'restore must return without replaying the import');
+  run.log[0] = { from: 0, to: 0 };
+  await restoring;
+  assert.equal(mainReplays, 0, 'the queued restore must not replay the disk record either');
+  assert.equal(workerCalls, 1);
+  assert.deepEqual(disk.get(ID).run, original.run);
+  assert.deepEqual(disk.get(`recovery:${ID}`).record, original);
+});
+
+test('restore refuses illegal imports and worker failures without touching recovery', async () => {
+  const { store, disk } = await openStore({ [ID]: validRecord() });
+  const invalid = registry.begin(ID);
+  invalid.log = [{ from: 0, to: 0 }];
+  await assert.rejects(async () => store.restore(invalid), /Choose two different pegs/);
+  assert.deepEqual(disk.get(ID), validRecord());
+  assert.equal(disk.has(`recovery:${ID}`), false);
+  const failed = loadStore(database().indexedDB, () =>
+    Promise.reject(Error('worker deadline')),
+  ).create(registry);
+  await failed.open();
+  await assert.rejects(failed.restore(registry.begin(ID)), /worker deadline/);
+});
+
+test('restore refuses a disk change made while the worker checks the snapshot', async () => {
+  const { indexedDB, disk } = database({ [ID]: corruptRecord() });
+  const raced = validRecord();
+  const store = loadStore(indexedDB, async (message) => {
+    const result = await validateImport(message);
+    disk.set(ID, raced);
+    return result;
+  }).create(registry);
+  await store.open();
+  await assert.rejects(store.restore(registry.begin(ID)), /Another tab changed/);
+  assert.deepEqual(disk.get(ID), raced);
+  assert.equal(disk.has(`recovery:${ID}`), false);
 });
 
 test('restore retains the replaced bytes under the raw recovery:+id key', async () => {
