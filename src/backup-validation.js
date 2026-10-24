@@ -82,6 +82,11 @@
       ];
       if (new Set(ids).size !== ids.length)
         throw Error('A custom pack collides with the starter catalogue.');
+      let workshopDraft;
+      if (data.workshopDraft !== undefined) {
+        if (!data.workshopDraft?.puzzle) throw Error('The saved workshop draft needs attention.');
+        workshopDraft = { puzzle: C.validateSceneDraft(data.workshopDraft.puzzle) };
+      }
       const preferences = { seen: [], favorites: [] };
       if (data.preferences) {
         if (Array.isArray(data.preferences.seen))
@@ -91,7 +96,14 @@
             .filter((x) => typeof x === 'string' && x.length < 90)
             .slice(0, 3000);
       }
-      return { ...data, runs, packs: custom, settings: validSettings(data.settings), preferences };
+      return {
+        ...data,
+        runs,
+        packs: custom,
+        settings: validSettings(data.settings),
+        preferences,
+        ...(workshopDraft !== undefined ? { workshopDraft } : {}),
+      };
     }
     function validateSave(v) {
       if (
@@ -99,6 +111,9 @@
         v.schema !== 1 ||
         !v.settings ||
         !v.runs ||
+        // A plain record only: arrays and structured-clone objects (Date, Map…)
+        // pass typeof but lose keyed entries on JSON persistence.
+        Object.prototype.toString.call(v.runs) !== '[object Object]' ||
         !Array.isArray(v.records) ||
         v.records.length > 120 ||
         JSON.stringify(v).length > 400000

@@ -85,6 +85,24 @@ function assertRejectedUnchanged(backup, expectedMessage) {
   assert.fail(`expected rejection with ${expectedMessage}`);
 }
 
+test('backup draft validation preserves unfinished edits and rejects malformed drafts', () => {
+  const puzzle = C.clone(catalog.puzzles.find((p) => p.type === 'scene'));
+  puzzle.title = '';
+  puzzle.clues = [];
+  puzzle.objects = [];
+  puzzle.rooms.fill(0);
+  const backup = { ...backupWith(), workshopDraft: { puzzle } };
+  const accepted = validator.validateBackup(backup);
+  assert.deepEqual(accepted.workshopDraft, backup.workshopDraft);
+  assert.notEqual(accepted.workshopDraft.puzzle, puzzle, 'validation clones the draft');
+  for (const workshopDraft of [null, [], {}, { puzzle: null }, { puzzle: { type: 'scene' } }]) {
+    assertRejectedUnchanged(
+      { ...backupWith(), workshopDraft },
+      'The saved workshop draft needs attention.',
+    );
+  }
+});
+
 test('duplicate run keys are rejected and the source backup is unchanged', () => {
   const valid = backupWith({ runs: [makeRun('sudoku-01'), makeRun('sudoku-02')] });
   const accepted = validator.validateBackup(valid);

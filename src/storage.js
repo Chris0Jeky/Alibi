@@ -7,6 +7,13 @@
     VERSION = 1,
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
     aborted = () => Error('Storage transaction aborted.'),
+    badDraft = (v) => {
+      try {
+        root.AlibiCore.validateSceneDraft(v?.puzzle);
+      } catch {
+        return true;
+      }
+    },
     readOnly = () =>
       Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
   class ConflictError extends Error {
@@ -280,12 +287,16 @@
         packs = await this.getAll('packs'),
         metaDamaged = [];
       let settings = {},
-        preferences = {};
-      for (const key of ['settings', 'preferences'])
+        preferences = {},
+        workshopDraft;
+      for (const key of ['settings', 'preferences', 'workshop-draft'])
         try {
           const value = await this.get('meta', key);
           if (key === 'settings') settings = value || {};
-          else preferences = value || {};
+          else if (key === 'preferences') preferences = value || {};
+          else if (value !== undefined)
+            if (badDraft(value)) metaDamaged.push(key);
+            else workshopDraft = value;
         } catch (e) {
           if (!/damaged/.test(e?.message || '')) throw e;
           metaDamaged.push(key);
@@ -299,6 +310,7 @@
         packs: [...packs],
         settings,
         preferences,
+        ...(workshopDraft !== undefined ? { workshopDraft } : {}),
         damaged: {
           runs: [...(this.damaged.runs || [])],
           packs: [...(this.damaged.packs || [])],
@@ -317,28 +329,32 @@
           packs = tx.objectStore('packs'),
           meta = tx.objectStore('meta');
         this.watch(tx, reject);
-        let bad = null;
+        let bad = null,
+          note = '';
         const rr = runs.getAll(),
           pr = packs.getAll(),
           sr = meta.get('settings'),
-          fr = meta.get('preferences');
+          fr = meta.get('preferences'),
+          dr = meta.get('workshop-draft');
         let n = 0;
         const go = () => {
-          if (++n < 4) return;
+          if (++n < 5) return;
           try {
             const cR = rr.result.map((x) => x.value),
               cP = pr.result.map((x) => x.value),
               cS = sr.result?.value || {},
-              cF = fr.result?.value || {};
+              cF = fr.result?.value || {},
+              cD = dr.result?.value;
             if (
               expected &&
               !root.AlibiCore.equal(
-                [cR, cP, cS, cF],
+                [cR, cP, cS, cF, cD],
                 [
                   expected.runs,
                   expected.packs,
                   expected.settings || {},
                   expected.preferences || {},
+                  expected.workshopDraft,
                 ],
               )
             )
@@ -350,6 +366,28 @@
               !backup.packs?.every?.((p) => typeof p?.id === 'string')
             )
               throw Error('Unsupported backup format. Nothing was changed.');
+            const cDbad = cD !== undefined && badDraft(cD);
+            const draftConflict =
+              backup.workshopDraft !== undefined &&
+              cD !== undefined &&
+              !cDbad &&
+              !root.AlibiCore.equal(cD, backup.workshopDraft);
+            if (draftConflict)
+              note =
+                'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy.';
+            else if (cDbad && backup.workshopDraft !== undefined)
+              note = 'Your damaged workshop draft was replaced; the original is in Recovery copy.';
+            const revisions = new Map(rr.result.map(({ key, value }) => [key, value?.rev])),
+              restoredRuns = backup.runs.map((r) => {
+                // Restore is a new local write, even when the backup reuses a revision.
+                // A damaged current revision counts as 0: saveRun already refuses
+                // such rows, so no writer can hold it, and restore can repair them.
+                const held = revisions.get(r.key),
+                  current = Number.isSafeInteger(held) && held >= 0 ? held : 0,
+                  rev = Math.max(r.rev, current) + 1;
+                if (!Number.isSafeInteger(rev) || rev < 1) throw Error('Revision limit.');
+                return { ...r, rev };
+              });
             meta.put({
               key: 'pre-restore-backup',
               value: {
@@ -360,21 +398,32 @@
                 packs: cP,
                 settings: cS,
                 preferences: cF,
+                ...(cD !== undefined && !cDbad ? { workshopDraft: cD } : {}),
+                // Damaged bytes live under a field the validator ignores, so this copy re-imports.
+                ...(cDbad
+                  ? {
+                      damagedWorkshopDraft: cD,
+                      damaged: { meta: ['workshop-draft'] },
+                    }
+                  : {}),
+                ...(draftConflict ? { unappliedWorkshopDraft: backup.workshopDraft } : {}),
               },
             });
             runs.clear();
             packs.clear();
-            for (const r of backup.runs) runs.put({ key: r.key, value: r });
+            for (const r of restoredRuns) runs.put({ key: r.key, value: r });
             for (const p of backup.packs) packs.put({ key: p.id, value: p });
             meta.put({ key: 'settings', value: backup.settings || {} });
             meta.put({ key: 'preferences', value: backup.preferences || {} });
+            if (backup.workshopDraft !== undefined && (cD === undefined || cDbad))
+              meta.put({ key: 'workshop-draft', value: backup.workshopDraft });
           } catch (e) {
             bad = e;
             tx.abort();
           }
         };
-        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = go;
-        tx.oncomplete = () => resolve();
+        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = dr.onsuccess = go;
+        tx.oncomplete = () => resolve({ note });
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));
         tx.onerror = () => reject(tx.error);

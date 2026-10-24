@@ -239,8 +239,18 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #580 Lantern Duel short-landscape layout (two scoped, minified media queries) measure
       // 1,411,538 -> 1,412,758 (+1,220); the rules cannot shrink below their selectors, so excess is 1,134 bytes.
       // Ceiling +1,168 leaves 34 bytes; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 28672,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 28,672 bytes',
+      // Worker restore revalidation (2026-10-22, #734, unreleased): measures +2,106 bytes
+      // (1,411,404 -> 1,413,510) after trimming 95 worker bytes; ceiling +3,072. Not feature room.
+      // Workshop drafts in Cabinet backups (#735/#743): main 1,414,769 -> 1,416,210 (+1,441)
+      // after collapsing the draft shape guard to one optional-chain test (also brings the JS
+      // gzip back under its unchanged ceiling). Export validation, the restore conflict/recovery
+      // fields and the completion notice are required. Excess 346 bytes; ceiling +384 leaves 38.
+      // Damaged-draft restore recovery (2026-10-24, #744, unreleased): main 1,416,210 -> 1,416,423
+      // (+213) after sharing one draft-validity helper with export and shortening the note. The
+      // damaged-bytes recovery field and the replace-if-damaged branch are required. Excess 175
+      // bytes; ceiling +192 leaves 17; no feature room. JS gzip ceiling unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 32320,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 32,320 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
