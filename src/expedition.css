@@ -22,7 +22,9 @@
   letter-spacing: -0.035em;
 }
 .book-card {
-  border-radius: 5px 14px 14px 5px;
+  /* Case-file metaphor: a tight spine and rounded fore-edge (#220). */
+  --radius-case-file: 5px 14px 14px 5px;
+  border-radius: var(--radius-case-file);
 }
 .book-cover {
   border-left: 7px solid #153740;
