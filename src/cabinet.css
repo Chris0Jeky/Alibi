@@ -28,6 +28,7 @@ body {
 .brand {
   padding-bottom: 26px;
 }
+/* The wordmark is a deliberate display exception, independent of room headings. */
 .brand .wordmark {
   font-size: 58px;
 }
@@ -269,9 +270,11 @@ body {
 .family-card h3 {
   font-size: 17px;
 }
-.family-card p,
-.family-count {
+.family-card p {
   font-size: 12px;
+}
+.family-count {
+  font-size: var(--text-meta);
 }
 .family-icon {
   width: 42px;
@@ -309,10 +312,12 @@ body {
   min-height: 44px;
 }
 .card-family,
-.card-meta,
+.card-meta {
+  font-size: 12px;
+}
 .filter-meta,
 .cover-note {
-  font-size: 12px;
+  font-size: var(--text-meta);
 }
 .card-body h3 {
   font-size: 18px;
@@ -667,7 +672,7 @@ html[data-theme='night'] .book-number {
     line-height: 1.45;
   }
   .family-count {
-    font-size: 10px;
+    font-size: var(--text-meta);
   }
   .page-head h1 {
     font-size: 32px;
