@@ -2011,7 +2011,7 @@ body.club-experiment {
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 30px;
+  border-radius: var(--radius-pill);
   padding: 11px 17px;
   min-height: 43px;
   font-size: 12px;

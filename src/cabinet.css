@@ -10,7 +10,6 @@
   --sidebar: #163837;
   --line: #d7e1db;
   --accent: #c29350;
-  --radius: 16px;
 }
 body {
   font-size: 16px;
@@ -28,6 +27,7 @@ body {
 .brand {
   padding-bottom: 26px;
 }
+/* The wordmark is a deliberate display exception, independent of room headings. */
 .brand .wordmark {
   font-size: 58px;
 }
@@ -269,9 +269,11 @@ body {
 .family-card h3 {
   font-size: 17px;
 }
-.family-card p,
-.family-count {
+.family-card p {
   font-size: 12px;
+}
+.family-count {
+  font-size: var(--text-meta);
 }
 .family-icon {
   width: 42px;
@@ -309,10 +311,12 @@ body {
   min-height: 44px;
 }
 .card-family,
-.card-meta,
+.card-meta {
+  font-size: 12px;
+}
 .filter-meta,
 .cover-note {
-  font-size: 12px;
+  font-size: var(--text-meta);
 }
 .card-body h3 {
   font-size: 18px;
@@ -384,7 +388,7 @@ body {
   min-height: 36px;
 }
 dialog {
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 }
 .dialog-body p {
   font-size: 16px;
@@ -667,7 +671,7 @@ html[data-theme='night'] .book-number {
     line-height: 1.45;
   }
   .family-count {
-    font-size: 10px;
+    font-size: var(--text-meta);
   }
   .page-head h1 {
     font-size: 32px;
