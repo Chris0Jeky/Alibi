@@ -1,3 +1,30 @@
+## 2026-10-21: propagate Quiet fallback synchronization failures (#579)
+
+The origin-transfer Quiet writer now lets native localStorage access, read, set, and remove failures propagate.
+When storage is accessible and the fallback key is absent, it remains a no-op and
+is not created. This lets the coordinator's
+attempted-prefix rollback run instead of treating an IDB-only update as a complete
+Quiet save and releasing the recovery copy. This is a bounded writer repair, not
+qualification of the full feature for main.
+
+The focused writer regression failed before the change for both existing-key
+write and deletion failures, while the absent-key control passed. Afterward,
+all five Node cases pass with the production `createDevicePorts` writer and an
+asynchronous transaction test double. A two-tab Chromium test now exercises the
+actual production writer over real Quiet and recovery IndexedDB plus localStorage,
+with synthetic non-Quiet domains and `playerImportAccepted:false`. Python syntax
+passes; local Playwright is unavailable, so hosted Safety execution is still
+required. Full Verify and unchanged budget evidence are still required; the
+previous receipt had one application-gzip byte of margin. Details:
+`docs/qa/ORIGIN-TRANSFER-QUIET-FALLBACK-2026-10-21.md`.
+
+This does not fix the separate detached Quiet reader at
+`PRRT_kwDOURuAf86qkkn2`, startup recovery/inspect/export/restore, normal-writer
+coordination, domain semantic validation, stale Castle/Challenge export paths,
+main reconciliation, or destructive import acceptance. HUMAN_TODO.md q-2 and
+q-4 remain open; no physical device, TalkBack, or player-import acceptance is
+claimed.
+
 # Live development state
 
 ## 2026-10-20: preserve committed imports when recovery cleanup fails (#579)
@@ -140,6 +167,7 @@ and the selectable tray. Classic and wider layouts retain their current rules.
 The publication gate exercises all five controls, Rotate, keyboard Cancel, lab
 close/focus and tray separation at 320x640, 390x844 and 1280x900. Full final-head
 CI and independent review remain gates; physical Android/TalkBack is unverified.
+
 ## 2026-10-03: challenge restore admission review correction (#560)
 
 Independent review found that an initial read could expose the old board while
@@ -163,6 +191,7 @@ Twelve actual-host source regressions reproduced ten failures before the fix;
 all twelve and the sixty-test challenge suite pass after it. Full exact-head
 CI, browser route races and independent review remain required before merge.
 No physical Android/TalkBack claim; HUMAN_TODO.md remains authoritative.
+
 ## 0.15.1 published closeout: 3 October 2026
 
 Reviewed [#559](https://github.com/Chris0Jeky/Alibi/pull/559) merged at
@@ -215,6 +244,7 @@ the unchanged emitted budget test pass in branch publication. Final-head full
 CI, actual browser focus/persistence and independent review remain required.
 Local browser navigation is blocked by managed browser policy; do not mistake
 source control tests for browser acceptance. HUMAN_TODO.md remains open.
+
 ## Final completion/count integration for 0.15.1: 3 October 2026
 
 PR #553 landed at 43f573bf5e6ed5290d53b6d2c58b4da1c73d6f9a after its
@@ -1525,12 +1555,12 @@ full CI, twenty real-origin cases and re-review are still merge gates.
 
 ### Afterlight fixed pack identity
 
-The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through
-10. Two new regressions fail the prior compiler and prove that a syntactically
+The compiler now pins alibi-afterlight-workshop as well as study IDs 01 through 10. Two new regressions fail the prior compiler and prove that a syntactically
 valid replacement identity cannot overwrite the existing JSON through --write.
 The authored pack bytes remain unchanged. This branch integrates landed #560;
 current-head full CI, all twenty browser cases and independent re-review remain
 required. No deployment or physical-device acceptance is claimed.
+
 ### Cascade current-main integration
 
 The narrow-Cascade CSS and actual-control fixture remain byte-identical to
