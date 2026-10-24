@@ -3,8 +3,9 @@
 Branch: `fix/735-backup-workshop-draft`.
 Original committed implementation: `add17886d2d6c83699c8613784aa2046cb1b868a`,
 `fix: preserve workshop drafts in Cabinet backups (#735)`.
-The review fixes below are uncommitted changes atop that revision. No additional
-commit was created: this task forbids Git writes, GitHub and network services.
+The review fixes below were later committed as `73fd7e0b` (`fix: keep backup restores
+usable with workshop drafts (#735 review)`). The evidence under Verified was recorded
+against the working tree before that commit; hosted `verify` covers the committed head.
 
 ## Changed
 
@@ -96,5 +97,3 @@ optional draft even in a new backup.
 No source IDs, puzzle revisions, database version, or app version change.
 [HUMAN_TODO.md](../../HUMAN_TODO.md) remains unchanged; existing physical-device
 and owner acceptance items remain open.
-
-Intended additional commit: `fix: keep backup restores usable with workshop drafts`.
