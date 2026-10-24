@@ -38,6 +38,8 @@ runs in memory only and is not covered here; `activities.js` `flush()` already r
 
 ## Budgets (2026-10-24)
 
-Clean committed build: 138,620 application gzip (+51 over 138,569), 207,960 initial code plus data gzip (+49) and
-1,423,210 shell bytes (+83). Ceilings raised +32, +32 and +96 respectively (about 3, 5 and 30 left). Not feature
-room.
+After the review's wording fix (the refusal now says to export the replay only while it is still
+open, otherwise reload and lose its newest moves), a clean committed build measures 138,640
+application gzip, 207,983 initial code plus data gzip and 1,423,242 shell bytes. Ceilings raised
++64, +64 and +128 over the #749 values (16, 17 and 30.32 left). Not feature room. Session-only
+Challenge mode remains a silent-omission path, tracked in #752.
