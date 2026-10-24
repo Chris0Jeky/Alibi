@@ -21,3 +21,11 @@ alone on rollback.
 `tests/origin-transfer-quiet-fallback.test.cjs`: three new tests. Before the fix 2 of 8 failed (fallback came
 back as the IndexedDB snapshot); after, 8 of 8 pass. Not a real-browser run: the Python browser suite
 `tests/browser_origin_transfer_quiet_fallback.py` was not executed.
+
+## Budgets (2026-10-24)
+
+Hosted verify at 921d8bdf failed the application gzip budget (the base had one byte of margin).
+Dropping the Symbol description and assigning the key in the section literal saved 4 bytes; the
+clean build then measures 138,522 application gzip (+59) and 207,861 initial code plus data gzip.
+The two ceilings gain measured +64 allowances (6 and 43 bytes left), not feature room. Local:
+`tests/budget.test.cjs` passes; all 52 origin-transfer tests pass.

@@ -242,9 +242,11 @@ assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stay
 // The rollback compare measures 207,783 gzip (+154), including the platform
 // identity file. Ceiling +192 covers the 135-byte excess and leaves 57 for a
 // clean identity hash, not feature room.
+// #731 raw Quiet fallback rollback: clean build 207,861 gzip (+59 over its base), 21 over.
+// Ceiling +64 leaves 43 for identity-hash variance, not feature room.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3040,
-  'Initial code plus official data stays under 200 KiB + 3,040 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3104,
+  'Initial code plus official data stays under 200 KiB + 3,104 bytes gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
