@@ -14,6 +14,8 @@
       queue = Promise.resolve();
     const revisions = new Map();
     const protectedIds = new Set();
+    // Replays whose latest write has not committed; only a committed write clears one.
+    const unsaved = new Set();
     function revisionLimit(id) {
       protectedIds.add(id);
       return Error(
@@ -144,6 +146,7 @@
       queue = queue
         .catch(() => {})
         .then(async () => {
+          if (!restoring) unsaved.add(checked.challengeId);
           if (protectedMode)
             throw Error('Challenge storage is protected. Export or reload before writing.');
           const id = checked.challengeId,
@@ -162,6 +165,7 @@
           }
           revision = record.revision;
           revisions.set(id, record.revision);
+          unsaved.delete(id);
           return copy(checked);
         });
       return queue;
@@ -255,6 +259,7 @@
       restore: (run) => write(run, true),
       recovery,
       flush: () => queue,
+      unsaved: () => unsaved.size,
       info,
     };
   }
