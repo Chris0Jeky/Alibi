@@ -241,8 +241,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Ceiling +1,168 leaves 34 bytes; no feature room.
       // Worker restore revalidation (2026-10-22, #734, unreleased): measures +2,106 bytes
       // (1,411,404 -> 1,413,510) after trimming 95 worker bytes; ceiling +3,072. Not feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 31744,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 31,744 bytes',
+      // Workshop drafts in Cabinet backups (#735/#743): main 1,414,769 -> 1,416,210 (+1,441)
+      // after collapsing the draft shape guard to one optional-chain test (also brings the JS
+      // gzip back under its unchanged ceiling). Export validation, the restore conflict/recovery
+      // fields and the completion notice are required. Excess 346 bytes; ceiling +384 leaves 38.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 32128,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 32,128 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

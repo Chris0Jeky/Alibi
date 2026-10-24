@@ -97,3 +97,14 @@ optional draft even in a new backup.
 No source IDs, puzzle revisions, database version, or app version change.
 [HUMAN_TODO.md](../../HUMAN_TODO.md) remains unchanged; existing physical-device
 and owner acceptance items remain open.
+
+## Budget reconciliation (2026-10-24)
+
+After merging main at `1574a7a5`, hosted `verify` failed both startup budgets: application
+JavaScript measured 134,954 gzip bytes against 134,944 and the precache shell 1,416,338 against
+1,415,864 (main measures 134,709 / 1,414,769). Collapsing the backup draft shape guard to
+`!data.workshopDraft?.puzzle` (equivalent for every JSON value) brings JavaScript to 134,932,
+under its unchanged ceiling, and the shell to 1,416,210. The remaining 346-byte shell excess is
+the required export validation, restore conflict/recovery fields and completion notice; the shell
+ceiling gains a measured +384 bytes (38 left, not feature room). Local after the change:
+`tests/budget.test.cjs` 15/15, backup-validation and validator-worker 27/27.
