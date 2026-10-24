@@ -11,6 +11,7 @@
   padding: 10px 0;
   font-weight: 700;
   color: var(--ink);
+  font-size: var(--text-body);
 }
 .collection-scope {
   display: flex;
@@ -19,6 +20,7 @@
   justify-content: space-between;
   gap: 12px;
   margin: 16px 0;
+  font-size: var(--text-meta);
 }
 details:where(:not(.club-rules)) > summary {
   cursor: pointer;
@@ -58,6 +60,7 @@ details > summary:focus-visible {
 }
 .curation-gallery figcaption {
   padding: 12px 0;
+  font-size: var(--text-meta);
 }
 .number-key.digit-placed {
   background: var(--paper);
@@ -116,14 +119,17 @@ details > summary:focus-visible {
   .mobile-nav button span {
     font-size: 11px;
   }
-  .control-note,
-  .filters .filter-meta {
+  .control-note {
     font-size: 13px;
+    line-height: 1.6;
+  }
+  .filters .filter-meta {
+    font-size: var(--text-meta);
     line-height: 1.6;
   }
   .filter-top select,
   .filter-top input {
-    font-size: 14px;
+    font-size: var(--text-meta);
     min-height: 44px;
   }
 }
@@ -145,11 +151,16 @@ details > summary:focus-visible {
   line-height: 1.2;
   margin: 8px 0;
 }
-.news-heading p,
+.news-heading p {
+  max-width: 65ch;
+  color: var(--muted);
+  margin: 10px 0 18px;
+}
 .collection-intro {
   max-width: 65ch;
   color: var(--muted);
   margin: 10px 0 18px;
+  font-size: var(--text-body);
 }
 .collection-cards {
   display: grid;
@@ -261,10 +272,10 @@ details > summary:focus-visible {
 .curation-collections > summary {
   padding: 12px;
   border: 0;
-  font-size: 17px;
+  font-size: var(--text-body);
 }
 .disclosure-hint {
-  font-size: 14px;
+  font-size: var(--text-meta);
   font-weight: 400;
   color: var(--muted);
   margin-left: 12px;
@@ -273,6 +284,7 @@ details > summary:focus-visible {
   border: 0;
   border-top: 1px solid var(--line);
   border-radius: 0;
+  font-size: var(--text-body);
 }
 .curation-gallery[open] > summary {
   margin-bottom: 16px;
