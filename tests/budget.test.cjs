@@ -152,9 +152,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // Rollback compare ignores a fresh cabinet export time and one open-puzzle elapsed
 // value. Measured 138,442 gzip (+156). Ceiling +160 covers the 138-byte excess
 // and leaves 22, not feature room.
+// #731 rollback restores the Quiet fallback's raw bytes: 138,463 -> 138,522 gzip (+59) after
+// dropping the Symbol description and assigning the key in the section literal. Ceiling +64
+// covers the 58-byte excess and leaves 6, not feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 8416,
-  'Application bundle stays under 127 KiB + 8,416 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 8480,
+  'Application bundle stays under 127 KiB + 8,480 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,

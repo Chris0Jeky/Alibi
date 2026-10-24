@@ -278,7 +278,7 @@
   }
   // Symbol keys never reach JSON or structured clones, so the raw fallback bytes stay out of
   // export files and recovery copies; a rollback write receives the same section object back.
-  const FALLBACK_RAW = Symbol('quiet fallback bytes');
+  const FALLBACK_RAW = Symbol();
   async function readQuiet() {
     await G.QWStore?.flush?.().catch(() => {});
     let state = G.QWApp?.state || null,
@@ -290,9 +290,13 @@
     } catch {
       if (!state) throw Error('Quiet Wing fallback could not be read.');
     }
-    const section = { kind: 'alibi-quiet-wing-backup', schema: 1, state: state || null };
-    section[FALLBACK_RAW] = raw; // undefined: unreadable, so a rollback must not touch it
-    return section;
+    // raw undefined: unreadable, so a rollback must not touch it.
+    return {
+      kind: 'alibi-quiet-wing-backup',
+      schema: 1,
+      state: state || null,
+      [FALLBACK_RAW]: raw,
+    };
   }
   async function deleteRecord(name, storeName, key) {
     const db = await openExisting(name);
