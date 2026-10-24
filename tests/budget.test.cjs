@@ -245,8 +245,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // after collapsing the draft shape guard to one optional-chain test (also brings the JS
       // gzip back under its unchanged ceiling). Export validation, the restore conflict/recovery
       // fields and the completion notice are required. Excess 346 bytes; ceiling +384 leaves 38.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 32128,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 32,128 bytes',
+      // Damaged-draft restore recovery (2026-10-24, #744, unreleased): main 1,416,210 -> 1,416,423
+      // (+213) after sharing one draft-validity helper with export and shortening the note. The
+      // damaged-bytes recovery field and the replace-if-damaged branch are required. Excess 175
+      // bytes; ceiling +192 leaves 17; no feature room. JS gzip ceiling unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 32320,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 32,320 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
