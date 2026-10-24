@@ -19,7 +19,7 @@ function fixture({ fallback = originalState, fail = null } = {}) {
     close() {},
     transaction(storeName, mode) {
       assert.equal(storeName, 'saves');
-      assert.equal(mode, 'readwrite');
+      assert.ok(mode === 'readwrite' || mode === 'readonly');
       const tx = {
         oncomplete: null,
         onerror: null,
@@ -27,6 +27,15 @@ function fixture({ fallback = originalState, fail = null } = {}) {
         objectStore(name) {
           assert.equal(name, 'saves');
           return {
+            get(key) {
+              const request = {};
+              queueMicrotask(() => {
+                request.result = structuredClone(records.get(key));
+                request.onsuccess?.();
+                queueMicrotask(() => tx.oncomplete?.());
+              });
+              return request;
+            },
             put(value, key) {
               records.set(key, structuredClone(value));
               queueMicrotask(() => tx.oncomplete?.());
@@ -168,6 +177,81 @@ test('Quiet writer does not create an absent localStorage fallback', async () =>
     await f.device.write('quiet', { state: imported });
     assert.deepEqual(f.records.get('state'), imported);
     assert.equal(f.storage.getItem(fallbackKey), null);
+  } finally {
+    f.restore();
+  }
+});
+
+// The fallback can legitimately differ from the IndexedDB record (Quiet Wing once ran in
+// localStorage mode). Rollback must restore its original bytes, not the IndexedDB snapshot.
+const RAW_FALLBACK = JSON.stringify({ schema: 1, revision: 9, scene: { room: 'newer' } }, null, 1);
+
+function applyWithFailingCastle(f, imported) {
+  const stub = { stub: true };
+  const ports = {
+    read: (name) => (name === 'quiet' ? f.device.read(name) : stub),
+    write: (name, value) => {
+      if (name === 'castle') throw Error('castle write failed');
+      return name === 'quiet' ? f.device.write(name, value) : undefined;
+    },
+    retain: async () => {},
+    release: async () => {},
+  };
+  return api.applyOriginTransfer(
+    {
+      payload: {
+        cabinet: stub,
+        club: stub,
+        quiet: { state: imported },
+        castle: stub,
+        challenges: stub,
+      },
+    },
+    ports,
+    { confirmed: true },
+  );
+}
+
+test('Rollback restores a divergent Quiet fallback byte-for-byte', async () => {
+  const f = fixture({ fallback: null });
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  const imported = { schema: 1, revision: 2, scene: { room: 'imported' } };
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, imported),
+      /Existing saves were not changed|recovery/,
+    );
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+    assert.deepEqual(f.records.get('state'), originalState);
+  } finally {
+    f.restore();
+  }
+});
+
+test('Rollback after a failed fallback removal leaves the divergent fallback untouched', async () => {
+  const f = fixture({ fallback: null, fail: 'removeItem' });
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  try {
+    const before = await f.device.read('quiet');
+    await assert.rejects(f.device.write('quiet', { state: null }), {
+      name: 'QuotaExceededError',
+    });
+    await f.device.write('quiet', before);
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+    assert.deepEqual(f.records.get('state'), originalState);
+  } finally {
+    f.restore();
+  }
+});
+
+test('Quiet section read keeps raw fallback bytes out of serialised copies', async () => {
+  const f = fixture({ fallback: null });
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  try {
+    const section = await f.device.read('quiet');
+    assert.deepEqual(Object.keys(section), ['kind', 'schema', 'state']);
+    assert.equal(JSON.stringify(section).includes('newer'), false);
+    assert.equal(JSON.stringify(structuredClone(section)), JSON.stringify(section));
   } finally {
     f.restore();
   }

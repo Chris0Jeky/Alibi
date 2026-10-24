@@ -3,7 +3,8 @@
    Separate IndexedDB databases are not one transaction. No network. */
 (function (G) {
   'use strict';
-  const FORMAT = 'alibi-origin-transfer',
+  const QUIET_FALLBACK = 'alibi-quiet-wing-v1:fallback',
+    FORMAT = 'alibi-origin-transfer',
     VERSION = 1,
     SECTIONS = ['cabinet', 'club', 'quiet', 'castle', 'challenges'],
     UNCHANGED = 'Existing saves were not changed.';
@@ -275,19 +276,23 @@
       db.close();
     }
   }
+  // Symbol keys never reach JSON or structured clones, so the raw fallback bytes stay out of
+  // export files and recovery copies; a rollback write receives the same section object back.
+  const FALLBACK_RAW = Symbol('quiet fallback bytes');
   async function readQuiet() {
     await G.QWStore?.flush?.().catch(() => {});
-    let state = G.QWApp?.state || null;
+    let state = G.QWApp?.state || null,
+      raw;
     if (!state) state = (await readRecord('alibi-quiet-wing-v1', 'saves', 'state')) || null;
-    if (!state) {
-      try {
-        const raw = G.localStorage?.getItem('alibi-quiet-wing-v1:fallback');
-        if (raw) state = JSON.parse(raw);
-      } catch {
-        throw Error('Quiet Wing fallback could not be read.');
-      }
+    try {
+      raw = G.localStorage?.getItem(QUIET_FALLBACK) ?? null;
+      if (!state && raw) state = JSON.parse(raw);
+    } catch {
+      if (!state) throw Error('Quiet Wing fallback could not be read.');
     }
-    return { kind: 'alibi-quiet-wing-backup', schema: 1, state: state || null };
+    const section = { kind: 'alibi-quiet-wing-backup', schema: 1, state: state || null };
+    section[FALLBACK_RAW] = raw; // undefined: unreadable, so a rollback must not touch it
+    return section;
   }
   async function deleteRecord(name, storeName, key) {
     const db = await openExisting(name);
@@ -303,18 +308,26 @@
     const state = section.state;
     if (!state) {
       await deleteRecord('alibi-quiet-wing-v1', 'saves', 'state');
-      mirrorQuietFallback(null);
+      mirrorQuietFallback(section, null);
       return;
     }
     await withDb('alibi-quiet-wing-v1', 1, ensureStore('saves'), (db) =>
       txDone(db, 'saves', 'readwrite', (store) => store.put(state, 'state')),
     );
-    mirrorQuietFallback(state);
+    mirrorQuietFallback(section, state);
   }
-  function mirrorQuietFallback(state) {
-    if (G.localStorage?.getItem('alibi-quiet-wing-v1:fallback') == null) return;
-    if (state) G.localStorage.setItem('alibi-quiet-wing-v1:fallback', JSON.stringify(state));
-    else G.localStorage.removeItem('alibi-quiet-wing-v1:fallback');
+  function mirrorQuietFallback(section, state) {
+    const ls = G.localStorage;
+    if (FALLBACK_RAW in section) {
+      // Rollback: restore the bytes read before the import; never derive them from IndexedDB.
+      const raw = section[FALLBACK_RAW];
+      if (typeof raw === 'string' && ls.getItem(QUIET_FALLBACK) !== raw)
+        ls.setItem(QUIET_FALLBACK, raw);
+      return;
+    }
+    if (ls?.getItem(QUIET_FALLBACK) == null) return;
+    if (state) ls.setItem(QUIET_FALLBACK, JSON.stringify(state));
+    else ls.removeItem(QUIET_FALLBACK);
   }
   async function readCastle() {
     await G.AlibiCastle?.flush?.().catch(() => {});
