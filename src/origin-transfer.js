@@ -59,12 +59,8 @@
       fail('This transfer file has the wrong shape.');
     // An older durable record beside a newer notebook state means the latest edit never reached
     // IndexedDB; writeCastle would silently import the older one.
-    if (
-      castle.record &&
-      (!castle.state !== !castle.record.state ||
-        castle.state?.revision !== castle.record.state?.revision)
-    )
-      fail('Castle has edits that are not saved on this device. Export the notebook first.');
+    if (castle.record && castle.state?.revision !== castle.record.state?.revision)
+      fail('Castle has unsaved edits.');
     for (const row of challenges.runs)
       if (
         !isObject(row) ||

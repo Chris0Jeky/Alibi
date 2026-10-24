@@ -461,7 +461,7 @@ test('a Castle notebook ahead of its durable record is never exported or importe
   assert.equal(castle.state.revision, 5);
   assert.equal(castle.record.state.revision, 4);
   const saves = { ...sample(), castle };
-  await assert.rejects(transfer.exportOriginTransfer(saves), /Castle.*not saved.*not changed/);
+  await assert.rejects(transfer.exportOriginTransfer(saves), /Castle.*unsaved.*not changed/);
   // A hand-built file carrying the divergent pair (valid checksum) is refused as well.
   const payload = JSON.stringify({ ...sample(), castle });
   const checksum = require('node:crypto').createHash('sha256').update(payload).digest('hex');
@@ -469,6 +469,6 @@ test('a Castle notebook ahead of its durable record is never exported or importe
     transfer.validateOriginTransfer(
       JSON.stringify({ format: 'alibi-origin-transfer', version: 1, checksum, payload }),
     ),
-    /Castle.*not saved.*not changed/,
+    /Castle.*unsaved.*not changed/,
   );
 });
