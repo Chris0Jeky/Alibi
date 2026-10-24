@@ -57,6 +57,10 @@
       !Array.isArray(challenges.runs)
     )
       fail('This transfer file has the wrong shape.');
+    // An older durable record beside a newer notebook state means the latest edit never reached
+    // IndexedDB; writeCastle would silently import the older one.
+    if (castle.record && castle.state?.revision !== castle.record.state?.revision)
+      fail('Castle has unsaved edits.');
     for (const row of challenges.runs)
       if (
         !isObject(row) ||
@@ -281,7 +285,10 @@
   const FALLBACK_RAW = Symbol();
   async function readQuiet() {
     await G.QWStore?.flush?.().catch(() => {});
-    let state = G.QWApp?.state || null,
+    // G.QWApp outlives dispose(); a detached app's state is stale. Dispose keeps only unsaved
+    // state in QWRetainedState, so otherwise the committed record is the truth.
+    const app = G.QWApp;
+    let state = (app && !app.disposed ? app.state : G.QWRetainedState) || null,
       raw;
     if (!state) state = (await readRecord('alibi-quiet-wing-v1', 'saves', 'state')) || null;
     try {

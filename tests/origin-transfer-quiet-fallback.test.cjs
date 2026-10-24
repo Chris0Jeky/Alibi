@@ -256,3 +256,37 @@ test('Quiet section read keeps raw fallback bytes out of serialised copies', asy
     f.restore();
   }
 });
+
+// Leaving Quiet Wing disposes the mount but leaves G.QWApp pointing at the detached app.
+// A second tab's newer commit must still be what a transfer export reads.
+test('Quiet read prefers the committed record once the mount is disposed', async () => {
+  const f = fixture({ fallback: null });
+  const newer = { schema: 1, revision: 2, scene: { room: 'second tab' } };
+  const detached = { state: structuredClone(originalState), disposed: true };
+  globalThis.QWApp = detached;
+  try {
+    f.records.set('state', structuredClone(newer));
+    assert.deepEqual((await f.device.read('quiet')).state, newer);
+    // Unsaved state kept by dispose (dirty, session-only or blocked) still wins over the record.
+    const unsaved = { schema: 1, revision: 3, scene: { room: 'unsaved' } };
+    globalThis.QWRetainedState = unsaved;
+    assert.deepEqual((await f.device.read('quiet')).state, unsaved);
+    delete globalThis.QWRetainedState;
+    // A mounted activity is still the live source.
+    delete detached.disposed;
+    assert.deepEqual((await f.device.read('quiet')).state, originalState);
+  } finally {
+    delete globalThis.QWApp;
+    delete globalThis.QWRetainedState;
+    f.restore();
+  }
+});
+
+test('Quiet Wing dispose marks the published app as detached', () => {
+  const source = require('node:fs').readFileSync(
+    require.resolve('../src/quiet-wing/app.js'),
+    'utf8',
+  );
+  const dispose = source.slice(source.indexOf('dispose() {'), source.indexOf('listeners.abort();'));
+  assert.match(dispose, /A\.disposed = true;/);
+});
