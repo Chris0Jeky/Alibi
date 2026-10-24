@@ -382,7 +382,7 @@
     await store?.flush().catch(() => {});
     if (store?.unsaved())
       throw Error(
-        'A challenge replay did not save. Open it, use Export challenge, then try again.',
+        'A challenge replay did not save. If it is still open, export it; otherwise reload (its newest moves are lost).',
       );
     const db = await openExisting('alibi-challenges-v1');
     if (!db || !db.objectStoreNames.contains('runs')) {

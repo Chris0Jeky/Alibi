@@ -15,7 +15,7 @@ Fix: `AlibiChallengeStore` now remembers which replays have not committed. `writ
 starts and deletes it once the record commits, so any rejection (including protected mode) leaves it set; an
 explicit `restore` is not tracked, because a refused restore keeps the committed run mounted. `readChallenges`
 flushes the store reachable through `G.QWApp.challengeStore` (the same route `activities.js` uses; `G.QWApp`
-outlives dispose) and throws "A challenge replay did not save. Open it, use Export challenge, then try again."
+outlives dispose) and throws "A challenge replay did not save. If it is still open, export it; otherwise reload (its newest moves are lost)."
 while any id is unsaved. Import goes through the same reader to take its recovery snapshot, so it also refuses
 rather than overwrite an unsaved replay.
 
