@@ -2444,6 +2444,9 @@
           runs = new Map(raw.runs.map((r) => [r.key, r])),
           combinedPacks = new Map(raw.packs.map((p) => [p.id, p]));
         expected = raw;
+        // Export omits damaged drafts, but the transaction must still compare their stored bytes.
+        if (raw.damaged?.meta?.includes('workshop-draft'))
+          expected = { ...raw, workshopDraft: await store.get('meta', 'workshop-draft') };
         for (const r of b.runs) if (!runs.has(r.key)) runs.set(r.key, r);
         for (const p of b.packs) {
           if (combinedPacks.has(p.id)) {
@@ -2464,11 +2467,19 @@
           },
         });
       }
-      await store.restore(b, expected);
+      const result = await store.restore(b, expected);
       pendingBackup = null;
       channel?.postMessage({ type: 'restored' });
-      closeDialog();
-      location.reload();
+      if (result?.note) {
+        dialog('Progress restored.', `<p>${esc(result.note)}</p><p>Reload Alibi to continue.</p>`, [
+          { label: 'Download recovery copy', action: 'recovery' },
+          { label: 'Reload Alibi', action: 'reload' },
+        ]);
+        $('#dialog').addEventListener('close', () => location.reload(), { once: true });
+      } else {
+        closeDialog();
+        location.reload();
+      }
     } finally {
       restoreBusy = false;
     }
