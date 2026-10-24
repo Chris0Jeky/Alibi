@@ -2414,7 +2414,10 @@
             `<p>${isRealm ? 'Replace the current realm with' : 'Restore the entire Quiet Wing from'} <strong>${esc(isRealm ? next.name : next.scene.name)}</strong>?</p><p class="micro">An internal recovery copy is kept before a wing restore. A downloadable backup is still the safer copy. Existing Alibi puzzle and Club databases are untouched.</p><div class="row"><button id="before-import">Export current backup</button><button id="confirm-import" class="primary">${isRealm ? 'Replace realm' : 'Restore wing'}</button></div>`,
           );
           $('#before-import').onclick = exportBackup;
-          $('#confirm-import').onclick = async () => {
+          const confirm = $('#confirm-import');
+          confirm.onclick = async () => {
+            if (confirm.disabled) return;
+            confirm.disabled = true;
             try {
               await flush();
               if (S.info().mode !== 'indexeddb')
@@ -2435,6 +2438,7 @@
               go();
               toast('Import complete.');
             } catch (err) {
+              confirm.disabled = false;
               toast(err.message);
             }
           };

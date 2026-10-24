@@ -16,7 +16,7 @@ OUT = Path(os.environ.get('ALIBI_EVIDENCE', str(ROOT / 'test-results/challenge-o
 OUT.mkdir(parents=True, exist_ok=True)
 A, B = 'curated-classic-hanoi-01', 'curated-classic-sliding-01'
 PROBE = r'''(() => {
-  const p = globalThis.ownershipProbe = {reads:[],validations:[],restores:[],admissions:[],mounts:[],writes:0};
+  const p = globalThis.ownershipProbe = {reads:[],validations:[],validatedTypes:[],restores:[],admissions:[],mounts:[],writes:0};
   const hold = (list,value) => new Promise(resolve=>list.push(()=>resolve(value)));
   const watch = (key,wrap) => {
     let current;
@@ -34,7 +34,10 @@ PROBE = r'''(() => {
     return api;
   });
   watch('AlibiValidateImport',validate=>async(...args)=>{
-    const value=await validate(...args);return p.holdValidation?hold(p.validations,value):value;
+    const value=await validate(...args);
+    p.validatedTypes.push(args[0]?.type);
+    // Delay import replies only; restore revalidation must be allowed to finish.
+    return p.holdValidation && args[0]?.type==='challenge-run'?hold(p.validations,value):value;
   });
   watch('AlibiChallengeLauncher',api=>{
     const mount=api.mount;
@@ -105,7 +108,7 @@ try:
             results.append({'width':width,'case':'same-id-return-rejects-old-loads'})
             print(json.dumps(results[-1]),flush=True)
 
-            # Validate real files in the real worker, delaying only successful replies.
+            # Delay successful import replies, passing real restore revalidation through.
             page.evaluate('ownershipProbe.holdReads=false;ownershipProbe.holdValidation=true')
             run_a = page.evaluate('JSON.stringify(ownershipProbe.current.save())')
             page.locator('#challenge-file').set_input_files({'name':'A.json','mimeType':'application/json','buffer':run_a.encode()})
@@ -119,9 +122,12 @@ try:
             page.evaluate('async()=>{for(let i=0;i<20;i++)await Promise.resolve();}')
             assert page.evaluate('ownershipProbe.writes') == 0
             assert page.locator('#challenge-file').evaluate('input=>input.files[0]?.name') == 'B.json'
+            assert page.evaluate('ownershipProbe.validatedTypes') == ['challenge-run', 'challenge-run']
             page.evaluate('ownershipProbe.validations[1]()')
             page.get_by_text('Challenge save restored. The previous save remains available for export.',exact=True).wait_for()
             assert page.evaluate('ownershipProbe.writes') == 1
+            assert page.evaluate('ownershipProbe.validations.length') == 2
+            assert page.evaluate('ownershipProbe.validatedTypes') == ['challenge-run', 'challenge-run', 'challenge-restore']
             results.append({'width':width,'case':'stale-validation-never-writes-or-clears-new-input'})
             print(json.dumps(results[-1]),flush=True)
 

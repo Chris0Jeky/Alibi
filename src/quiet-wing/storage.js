@@ -7,6 +7,7 @@
     revision = 0,
     fallbackBytes = null,
     queue = Promise.resolve(),
+    restoring = false,
     blocked = false,
     onstatus = () => {};
   const NAME = 'alibi-quiet-wing-v1',
@@ -361,7 +362,13 @@
     replace: async (s) => {
       if (mode !== 'indexeddb')
         return Promise.reject(Error('Restore requires IndexedDB. Export this session first.'));
-      return enqueue(await G.AlibiValidateImport({ type: 'quiet-state', value: s }), true);
+      if (restoring) throw Error('A restore is already in progress.');
+      restoring = true;
+      try {
+        return await enqueue(await G.AlibiValidateImport({ type: 'quiet-state', value: s }), true);
+      } finally {
+        restoring = false;
+      }
     },
     validate,
     raw,

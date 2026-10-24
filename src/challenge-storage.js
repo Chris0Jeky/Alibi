@@ -139,11 +139,41 @@
       revisions.set(id, record.revision);
       return run;
     }
-    function write(run, restoring = false) {
+    function write(run) {
       const checked = registry.validateRun(run);
+      return enqueue(() => ({ checked }));
+    }
+    function restore(run) {
+      // Capture the caller's bytes before yielding; later edits cannot bypass validation.
+      const text = JSON.stringify(run),
+        id = JSON.parse(text)?.challengeId;
+      return enqueue(async () => {
+        if (!G.AlibiValidateImport) throw Error('Background validation is unavailable.');
+        const original =
+          typeof id === 'string'
+            ? await request('readonly', (s, done) => {
+                s.get(id).onsuccess = (e) => done(e.target.result);
+              })
+            : undefined;
+        const originalText = JSON.stringify(original);
+        const result = await G.AlibiValidateImport({
+          type: 'challenge-restore',
+          text,
+          record: original,
+        });
+        return { checked: result.run, originalText, existingValid: result.existingValid };
+      }, true);
+    }
+    function enqueue(prepare, restoring = false) {
       queue = queue
         .catch(() => {})
         .then(async () => {
+          if (protectedMode)
+            throw Error('Challenge storage is protected. Export or reload before writing.');
+          if (restoring && mode !== 'indexeddb')
+            throw Error('Restore requires transactional challenge storage.');
+          const prepared = await prepare(),
+            checked = prepared.checked;
           if (protectedMode)
             throw Error('Challenge storage is protected. Export or reload before writing.');
           const id = checked.challengeId,
@@ -152,9 +182,8 @@
             throw Error('This challenge save is protected and was preserved.');
           if (expected >= Number.MAX_SAFE_INTEGER) throw revisionLimit(id);
           const record = { schema: 1, revision: expected + 1, run: checked };
-          if (mode === 'indexeddb') await cas(id, record, expected, restoring);
+          if (mode === 'indexeddb') await cas(id, record, expected, restoring, prepared);
           else {
-            if (restoring) throw Error('Restore requires transactional challenge storage.');
             const current = session.get(id);
             if ((current?.revision || 0) !== expected)
               throw Error('Another tab changed this challenge save.');
@@ -167,7 +196,7 @@
         });
       return queue;
     }
-    function cas(id, record, expected, restoring) {
+    function cas(id, record, expected, restoring, prepared) {
       return new Promise((resolve, reject) => {
         let conflict = false,
           protectedError = null,
@@ -200,9 +229,26 @@
           const read = tx.objectStore(STORE).get(id);
           let existingCorrupt = false;
           read.onsuccess = () => {
+            // The worker checked this exact disk snapshot. A changed snapshot must
+            // be reviewed again; never await a worker inside an IDB transaction.
+            if (restoring) {
+              try {
+                if (JSON.stringify(read.result) !== prepared.originalText) {
+                  conflict = true;
+                  tx.abort();
+                  return;
+                }
+              } catch (error) {
+                protectedError = error;
+                tx.abort();
+                return;
+              }
+            }
             if (read.result !== undefined) {
               try {
-                validateRecord(read.result, id);
+                if (restoring) {
+                  if (!prepared.existingValid) throw Error('Unsupported record');
+                } else validateRecord(read.result, id);
               } catch (error) {
                 // Explicit restore replaces an unusable save; its bytes are
                 // still retained at recovery:+id below.
@@ -258,7 +304,7 @@
       open,
       read,
       write,
-      restore: (run) => write(run, true),
+      restore,
       recovery,
       flush: () => queue,
       info,

@@ -199,12 +199,31 @@ for (const subject of cases) {
 }
 
 function restoreHarness(store) {
-  let reloads = 0;
+  let reloads = 0,
+    closedDialogs = 0;
+  const dialogs = [];
+  let onClose;
   const context = {
     queue: Promise.resolve(),
+    C: { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    inWorker: async (message) => message.value,
     store,
     channel: null,
-    closeDialog() {},
+    closeDialog() {
+      closedDialogs++;
+    },
+    esc: (value) => value,
+    dialog: (...args) => dialogs.push(args),
+    $: (selector) => {
+      assert.equal(selector, '#dialog');
+      return {
+        addEventListener(event, callback, options) {
+          assert.equal(event, 'close');
+          assert.equal(options.once, true);
+          onClose = callback;
+        },
+      };
+    },
     location: {
       reload() {
         reloads += 1;
@@ -223,8 +242,52 @@ function restoreHarness(store) {
   return {
     run: context.api.run,
     reloads: () => reloads,
+    closedDialogs: () => closedDialogs,
+    dialogs,
+    dismiss: () => onClose?.(),
   };
 }
+
+test('restoreBackup presents the skipped-draft note and recovery action before reload', async () => {
+  const note = 'The backup workshop draft was not applied and is kept in Recovery copy.';
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    restore: async () => ({ note }),
+  });
+  await harness.run(true);
+  assert.equal(harness.closedDialogs(), 0, 'replace the open dialog without queuing a close event');
+  assert.equal(harness.reloads(), 0, 'the result stays visible until acknowledged');
+  assert.equal(harness.dialogs.length, 1);
+  const [title, body, buttons] = harness.dialogs[0];
+  assert.equal(title, 'Progress restored.');
+  assert.ok(body.includes(note));
+  assert.ok(buttons.some((button) => button.action === 'recovery'));
+  assert.ok(buttons.some((button) => button.action === 'reload'));
+  harness.dismiss();
+  assert.equal(harness.reloads(), 1, 'closing or escaping the notice also reloads restored state');
+});
+
+test('merge keeps the raw damaged draft in its conflict snapshot after export omits it', async () => {
+  const damaged = { puzzle: { type: 'scene' } };
+  let restored = false;
+  const harness = restoreHarness({
+    mode: 'indexeddb',
+    export: async () => ({ runs: [], packs: [], damaged: { meta: ['workshop-draft'] } }),
+    get: async (table, key) => {
+      assert.equal(table, 'meta');
+      assert.equal(key, 'workshop-draft');
+      return damaged;
+    },
+    restore: async (backup, expected) => {
+      assert.deepEqual(expected.workshopDraft, damaged);
+      assert.equal(Object.hasOwn(backup, 'workshopDraft'), false);
+      restored = true;
+    },
+  });
+  await harness.run();
+  assert.equal(restored, true);
+  assert.equal(harness.reloads(), 1);
+});
 
 test('restoreBackup starts one restore when a second call arrives during the first', async () => {
   const started = deferred();

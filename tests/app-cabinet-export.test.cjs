@@ -456,7 +456,8 @@ function cabinetDialogFixture(onDownload) {
     noteTimer: null,
     enqueueSave: () => new Promise(() => {}),
   };
-  const closeStart = source.indexOf("  $('#dialog').addEventListener('close',");
+  // Anchor at a line start: nested handlers register their own close listeners.
+  const closeStart = source.indexOf("\n  $('#dialog').addEventListener('close',") + 1;
   const closeEnd = source.indexOf('  async function loadRoute(', closeStart);
   const routeEnd = source.indexOf("  window.addEventListener('hashchange',", closeEnd);
   assert.ok(closeStart > 0 && routeEnd > closeEnd, 'native dialog and route hooks exist');
