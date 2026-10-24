@@ -2423,10 +2423,11 @@
               if (S.info().mode !== 'indexeddb')
                 throw Error('Restore requires IndexedDB. Export this session first.');
               if (isRealm) {
-                A.history.push({ whole: true, before: E.clone(A.state.scene), after: next });
-                A.future = [];
-                const restored = { ...A.state, scene: next };
+                const entry = { whole: true, before: E.clone(A.state.scene), after: next },
+                  restored = { ...A.state, scene: next };
                 await S.replace(restored);
+                A.history.push(entry);
+                A.future = [];
                 A.state = restored;
               } else {
                 await S.replace(next);
