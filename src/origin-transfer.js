@@ -289,7 +289,10 @@
   const FALLBACK_RAW = Symbol();
   async function readQuiet() {
     await G.QWStore?.flush?.().catch(() => {});
-    let state = G.QWApp?.state || null,
+    // G.QWApp outlives dispose(); a detached app's state is stale. Dispose keeps only unsaved
+    // state in QWRetainedState, so otherwise the committed record is the truth.
+    const app = G.QWApp;
+    let state = (app && !app.disposed ? app.state : G.QWRetainedState) || null,
       raw;
     if (!state) state = (await readRecord('alibi-quiet-wing-v1', 'saves', 'state')) || null;
     try {

@@ -2493,7 +2493,7 @@
         },
         state: () => A.state,
         dispose() {
-          disposed = true;
+          disposed = A.disposed = true;
           soundscape.dispose();
           G.QWRetainedState =
             A.dirty || S.info().mode === 'session' || S.info().blocked ? A.state : null;
