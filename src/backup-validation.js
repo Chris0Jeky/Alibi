@@ -99,6 +99,9 @@
         v.schema !== 1 ||
         !v.settings ||
         !v.runs ||
+        // A plain record only: arrays and structured-clone objects (Date, Map…)
+        // pass typeof but lose keyed entries on JSON persistence.
+        Object.prototype.toString.call(v.runs) !== '[object Object]' ||
         !Array.isArray(v.records) ||
         v.records.length > 120 ||
         JSON.stringify(v).length > 400000

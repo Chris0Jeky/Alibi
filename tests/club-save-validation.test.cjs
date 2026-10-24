@@ -36,6 +36,44 @@ test('minimal club save validates', () => {
   assert.doesNotThrow(() => validateSave(validSave()));
 });
 
+test('Club save rejects the empty runs array that loses subsequent Archive progress', () => {
+  const save = JSON.parse(
+    '{"schema":1,"settings":{"assist":"off","zen":false,"pinned":null},"visit":0,"lastHero":-1,"runs":[],"records":[],"stamps":[]}',
+  );
+  assert.throws(() => validateSave(save), /not a supported Club save/);
+});
+
+test('Club save rejects structured-clone objects as runs', () => {
+  for (const runs of [new Date(0), new Map(), new Set(), /x/]) {
+    assert.throws(
+      () => validateSave(validSave({ runs })),
+      /not a supported Club save/,
+      `runs=${Object.prototype.toString.call(runs)} must be rejected`,
+    );
+  }
+  assert.doesNotThrow(() => validateSave(validSave({ runs: Object.create(null) })));
+});
+
+test('Club save rejects scalar or missing runs before replacement', () => {
+  for (const runs of [true, 1, false, 0, '', 'archive', null, undefined]) {
+    assert.throws(
+      () => validateSave(validSave({ runs })),
+      /not a supported Club save/,
+      `runs=${JSON.stringify(runs)} must be rejected`,
+    );
+  }
+});
+
+test('object runs retain a subsequent Archive move across JSON persistence and validation', () => {
+  const save = validateSave(validSave());
+  save.runs.archive = { level: 0, log: [], redo: [] };
+  const before = E.warehouse.initial(0);
+  assert.notStrictEqual(E.warehouse.move(before, 'left'), before, 'Archive move succeeds');
+  save.runs.archive.log.push('left');
+  const reloaded = validateSave(JSON.parse(JSON.stringify(save)));
+  assert.deepEqual(reloaded.runs.archive, { level: 0, log: ['left'], redo: [] });
+});
+
 test('archive no-op replay is rejected', () => {
   const level = findUpUpNoOpLevel();
   assert.notEqual(level, -1, 'expected a room where a second up stalls');
