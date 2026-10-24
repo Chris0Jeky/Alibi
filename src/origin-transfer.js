@@ -376,6 +376,14 @@
     );
   }
   async function readChallenges() {
+    // A rejected write leaves the newest replay only in memory (the flush failure is swallowed on
+    // leave), so the committed record below would silently be an older run.
+    const store = G.QWApp?.challengeStore;
+    await store?.flush().catch(() => {});
+    if (store?.unsaved())
+      throw Error(
+        'A challenge replay did not save. If it is still open, export it; otherwise reload (its newest moves are lost).',
+      );
     const db = await openExisting('alibi-challenges-v1');
     if (!db || !db.objectStoreNames.contains('runs')) {
       db?.close();
