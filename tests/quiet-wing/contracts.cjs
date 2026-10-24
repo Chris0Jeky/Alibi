@@ -253,6 +253,41 @@ function fakeIDB() {
     assert.deepEqual(messages, ['Import complete.']);
     checks += 6;
   }
+  {
+    // A failed realm replace leaves undo history untouched and the button usable again.
+    const before = E.newState(1700000000000),
+      realm = E.newState(1700000002000).scene,
+      button = { disabled: false },
+      messages = [],
+      A = { state: before, history: [], future: ['redo'] };
+    realm.name = 'R';
+    const review = vm.runInNewContext(app.slice(reviewStart, reviewEnd) + '; reviewImport;', {
+      G: { AlibiValidateImport: async () => ({ isRealm: true, next: realm }) },
+      S: {
+        info: () => ({ mode: 'indexeddb' }),
+        replace: async () => {
+          throw Error('Replace failed.');
+        },
+      },
+      A,
+      E,
+      $: () => button,
+      modal: () => ({ close() {} }),
+      esc: String,
+      exportBackup() {},
+      go() {},
+      toast: (text) => messages.push(text),
+      flush: async () => {},
+    });
+    await review({ size: 2, text: async () => '{}' });
+    await button.onclick();
+    assert.deepEqual(A.history, [], 'Failed realm replace adds no undo entry');
+    assert.deepEqual(A.future, ['redo'], 'Failed realm replace keeps redo history');
+    assert.equal(A.state, before);
+    assert.equal(button.disabled, false, 'Failed restore re-enables the button');
+    assert.deepEqual(messages, ['Replace failed.']);
+    checks += 5;
+  }
   const key = 'alibi-quiet-wing-v1:fallback',
     unguarded = local(),
     original = JSON.stringify(E.newState(Date.now()));
