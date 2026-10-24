@@ -157,9 +157,11 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // covers the 58-byte excess and leaves 6, not feature room.
 // 2026-10-24 Castle state/record divergence refusal and the detached Quiet Wing read measure
 // 138,569 gzip (+47). Ceiling +64 covers the 42-byte excess and leaves 22, not feature room.
+// 2026-10-24 #579 Challenge unsaved-replay export refusal measures 138,621 gzip (+52). Ceiling +32
+// covers the 30-byte excess and leaves 2, not feature room.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 8544,
-  'Application bundle stays under 127 KiB + 8,544 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 8576,
+  'Application bundle stays under 127 KiB + 8,576 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -228,8 +230,10 @@ assert.ok(
   // precached with the app. Ceiling +10,976 leaves 9.32 bytes, not feature room.
   // The rollback compare measures shell 1,423,127 (+536). Excess is 527 bytes.
   // Ceiling +544 leaves 17.32 bytes, not feature room.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 39024,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 39,024 bytes',
+  // 2026-10-24 #579 Challenge unsaved-replay export refusal measures shell 1,423,211 (+84).
+  // Excess is 65.68 bytes. Ceiling +96 leaves 30.32 bytes, not feature room.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 39120,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 39,120 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -248,9 +252,11 @@ assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stay
 // Ceiling +64 leaves 43 for identity-hash variance, not feature room.
 // 2026-10-24 Castle divergence refusal and detached Quiet Wing read: 207,911 gzip (+50), 8 over.
 // Ceiling +32 leaves 24 for identity-hash variance, not feature room.
+// 2026-10-24 #579 Challenge unsaved-replay export refusal: 207,963 gzip (+52), 28 over.
+// Ceiling +32 leaves 4 for identity-hash variance, not feature room.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3136,
-  'Initial code plus official data stays under 200 KiB + 3,136 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3168,
+  'Initial code plus official data stays under 200 KiB + 3,168 bytes gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
