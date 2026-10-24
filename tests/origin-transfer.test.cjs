@@ -401,3 +401,74 @@ test('settings has one transfer entry point on the 44px button with an accessibl
     'wrangler',
   ]);
 });
+
+// Castle: a failed IndexedDB write leaves the older durable record beside the newer notebook state.
+function withCastleStore(record, backupState, run) {
+  const db = {
+    objectStoreNames: { contains: (name) => name === 'records' },
+    close() {},
+    transaction() {
+      const tx = {
+        objectStore: () => ({
+          get() {
+            const request = {};
+            queueMicrotask(() => {
+              request.result = structuredClone(record);
+              request.onsuccess?.();
+              queueMicrotask(() => tx.oncomplete?.());
+            });
+            return request;
+          },
+        }),
+      };
+      return tx;
+    },
+  };
+  const idb = {
+    databases: async () => [{ name: 'alibi-castle-v1' }],
+    open() {
+      const request = {};
+      queueMicrotask(() => {
+        request.result = db;
+        request.onsuccess?.();
+      });
+      return request;
+    },
+  };
+  const old = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB');
+  Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: idb });
+  globalThis.AlibiCastle = {
+    flush: async () => {},
+    exportBackup: async () => ({
+      scope: 'Wrenmere Chapter I only',
+      mode: 'protected',
+      state: backupState,
+    }),
+  };
+  return run().finally(() => {
+    delete globalThis.AlibiCastle;
+    if (old) Object.defineProperty(globalThis, 'indexedDB', old);
+    else delete globalThis.indexedDB;
+  });
+}
+
+test('a Castle notebook ahead of its durable record is never exported or imported as the older save', async () => {
+  const older = { revision: 4, notes: 'committed' },
+    newer = { revision: 5, notes: 'edited after the failed write' };
+  const castle = await withCastleStore({ schema: 1, revision: 2, state: older }, newer, () =>
+    transfer.createDevicePorts({}).read('castle'),
+  );
+  assert.equal(castle.state.revision, 5);
+  assert.equal(castle.record.state.revision, 4);
+  const saves = { ...sample(), castle };
+  await assert.rejects(transfer.exportOriginTransfer(saves), /Castle.*not saved.*not changed/);
+  // A hand-built file carrying the divergent pair (valid checksum) is refused as well.
+  const payload = JSON.stringify({ ...sample(), castle });
+  const checksum = require('node:crypto').createHash('sha256').update(payload).digest('hex');
+  await assert.rejects(
+    transfer.validateOriginTransfer(
+      JSON.stringify({ format: 'alibi-origin-transfer', version: 1, checksum, payload }),
+    ),
+    /Castle.*not saved.*not changed/,
+  );
+});
