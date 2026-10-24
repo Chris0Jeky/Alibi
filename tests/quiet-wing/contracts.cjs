@@ -20,7 +20,7 @@ function local() {
     removeItem: (k) => m.delete(k),
   };
 }
-function env(storage, indexedDB) {
+function env(storage, indexedDB, validateImport) {
   let statuses = [];
   const c = {
     console,
@@ -41,7 +41,7 @@ function env(storage, indexedDB) {
   vm.createContext(c);
   vm.runInContext(code, c);
   // This storage-only fixture supplies the browser worker's validated result.
-  c.AlibiValidateImport = async (m) => c.QWStore.validate(m.value);
+  c.AlibiValidateImport = validateImport || (async (m) => c.QWStore.validate(m.value));
   c.QWStore.status((text, status) => statuses.push({ text, status }));
   return { s: c.QWStore, statuses };
 }
@@ -126,6 +126,133 @@ function fakeIDB() {
   };
 }
 (async () => {
+  const overlaps = [];
+  for (const phase of ['validation', 'transaction']) {
+    const idb = fakeIDB(),
+      original = E.newState(1700000000000),
+      imported = E.newState(1700000001000),
+      validation = Promise.withResolvers(),
+      saving = Promise.withResolvers();
+    original.scene.name = 'A';
+    imported.scene.name = 'B';
+    idb.data.set('state', structuredClone(original));
+    let validations = 0;
+    const { s } = env(local(), idb.api, async (m) => {
+      validations++;
+      await validation.promise;
+      return s.validate(m.value);
+    });
+    await s.open();
+    s.status((text, status) => {
+      if (status === 'saving') saving.resolve();
+    });
+    const first = s.replace(imported);
+    if (phase === 'transaction') {
+      validation.resolve();
+      await saving.promise;
+    }
+    // Two confirmations of the same reviewed B before the first restore finishes.
+    const results = Promise.allSettled([first, s.replace(imported)]);
+    validation.resolve();
+    const settled = await results;
+    overlaps.push({
+      phase,
+      current: idb.data.get('state').scene.name,
+      recovery: idb.data.get('recovery').state.scene.name,
+      revision: idb.data.get('state').revision,
+      validations,
+      outcomes: settled.map((result) => result.status),
+    });
+    assert.deepEqual(idb.data.get('recovery').state, original);
+    const committed = structuredClone(idb.data.get('state')),
+      invalid = E.clone(imported);
+    invalid.garden.pots[0] = { seed: 'constructor', plantedAt: 1700000000000 };
+    await assert.rejects(s.replace(invalid), /Invalid seed/);
+    const transaction = idb.db.transaction;
+    idb.db.transaction = () => {
+      throw Error('Restore transaction failed');
+    };
+    await assert.rejects(s.replace(imported), /Restore transaction failed/);
+    idb.db.transaction = transaction;
+    assert.deepEqual(idb.data.get('state'), committed);
+    assert.deepEqual(idb.data.get('recovery').state, original);
+    // Failures release the guard, and a later reviewed restore can commit normally.
+    const later = E.clone(imported);
+    later.scene.name = 'C';
+    await s.replace(later);
+    assert.equal(idb.data.get('state').scene.name, 'C');
+    assert.deepEqual(idb.data.get('recovery').state, committed);
+    checks += 7;
+  }
+  assert.deepEqual(
+    overlaps,
+    ['validation', 'transaction'].map((phase) => ({
+      phase,
+      current: 'B',
+      recovery: 'A',
+      revision: 1,
+      validations: 1,
+      outcomes: ['fulfilled', 'rejected'],
+    })),
+    'Overlapping confirmations commit B once and retain recovery A',
+  );
+  checks++;
+  const app = fs.readFileSync(require.resolve('../../src/quiet-wing/app.js'), 'utf8'),
+    reviewStart = app.indexOf('async function reviewImport(f) {'),
+    reviewEnd = app.indexOf("$('#file').onchange", reviewStart);
+  assert.ok(reviewStart >= 0 && reviewEnd > reviewStart);
+  for (const phase of ['transaction', 'flush']) {
+    const idb = fakeIDB(),
+      { s } = env(local(), idb.api),
+      original = E.newState(1700000000000),
+      imported = E.newState(1700000001000),
+      flushing = Promise.withResolvers(),
+      saving = Promise.withResolvers(),
+      button = { disabled: false },
+      messages = [];
+    original.scene.name = 'A';
+    imported.scene.name = 'B';
+    idb.data.set('state', structuredClone(original));
+    await s.open();
+    s.status((text, status) => {
+      if (status === 'saving') saving.resolve();
+    });
+    let flushes = 0;
+    const review = vm.runInNewContext(app.slice(reviewStart, reviewEnd) + '; reviewImport;', {
+      G: { AlibiValidateImport: async () => ({ isRealm: false, next: imported }) },
+      S: s,
+      A: { state: original, history: [], future: [] },
+      $: () => button,
+      modal: () => ({ close() {} }),
+      esc: String,
+      exportBackup() {},
+      go() {},
+      toast: (text) => messages.push(text),
+      flush: async () => {
+        flushes++;
+        await flushing.promise;
+        await s.flush();
+      },
+    });
+    await review({ size: 2, text: async () => '{}' });
+    const first = button.onclick();
+    if (phase === 'transaction') {
+      flushing.resolve();
+      await saving.promise;
+    }
+    // Invoke the real handler twice, even if the synthetic button is disabled.
+    const results = Promise.all([first, button.onclick()]);
+    flushing.resolve();
+    await results;
+    await button.onclick();
+    assert.deepEqual(idb.data.get('recovery').state, original, phase + ' keeps recovery A');
+    assert.equal(idb.data.get('state').scene.name, 'B');
+    assert.equal(idb.data.get('state').revision, 1);
+    assert.equal(flushes, 1, phase + ' ignores re-entry before flushing');
+    assert.equal(button.disabled, true, 'A successful confirmation stays consumed');
+    assert.deepEqual(messages, ['Import complete.']);
+    checks += 6;
+  }
   const key = 'alibi-quiet-wing-v1:fallback',
     unguarded = local(),
     original = JSON.stringify(E.newState(Date.now()));
@@ -634,7 +761,7 @@ function fakeIDB() {
     passed: true,
     assertions: checks,
     scope:
-      'Adapter exercised with exact local fallback and recovery keys plus transactional IndexedDB fixtures, including conflicts, corrupt persist message, protected fields, raw fallback recovery, restore and timeout/abort. Not actual browser persistence or service-worker lifecycle.',
+      'Adapter exercised with exact local fallback and recovery keys plus transactional IndexedDB fixtures, including conflicts, corrupt persist message, protected fields, raw fallback recovery, restore and timeout/abort; actual import confirmation handler exercised in a simulated UI. Not actual browser persistence or service-worker lifecycle.',
   };
   fs.writeFileSync(
     require('node:path').join(__dirname, 'contract-results.json'),
