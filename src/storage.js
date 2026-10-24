@@ -7,6 +7,13 @@
     VERSION = 1,
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
     aborted = () => Error('Storage transaction aborted.'),
+    badDraft = (v) => {
+      try {
+        root.AlibiCore.validateSceneDraft(v?.puzzle);
+      } catch {
+        return true;
+      }
+    },
     readOnly = () =>
       Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
   class ConflictError extends Error {
@@ -288,12 +295,8 @@
           if (key === 'settings') settings = value || {};
           else if (key === 'preferences') preferences = value || {};
           else if (value !== undefined)
-            try {
-              root.AlibiCore.validateSceneDraft(value?.puzzle);
-              workshopDraft = value;
-            } catch {
-              metaDamaged.push(key);
-            }
+            if (badDraft(value)) metaDamaged.push(key);
+            else workshopDraft = value;
         } catch (e) {
           if (!/damaged/.test(e?.message || '')) throw e;
           metaDamaged.push(key);
@@ -363,13 +366,17 @@
               !backup.packs?.every?.((p) => typeof p?.id === 'string')
             )
               throw Error('Unsupported backup format. Nothing was changed.');
+            const cDbad = cD !== undefined && badDraft(cD);
             const draftConflict =
               backup.workshopDraft !== undefined &&
               cD !== undefined &&
+              !cDbad &&
               !root.AlibiCore.equal(cD, backup.workshopDraft);
             if (draftConflict)
               note =
                 'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy.';
+            else if (cDbad && backup.workshopDraft !== undefined)
+              note = 'Your damaged workshop draft was replaced; the original is in Recovery copy.';
             const revisions = new Map(rr.result.map(({ key, value }) => [key, value?.rev])),
               restoredRuns = backup.runs.map((r) => {
                 // Restore is a new local write, even when the backup reuses a revision.
@@ -391,7 +398,14 @@
                 packs: cP,
                 settings: cS,
                 preferences: cF,
-                ...(cD !== undefined ? { workshopDraft: cD } : {}),
+                ...(cD !== undefined && !cDbad ? { workshopDraft: cD } : {}),
+                // Damaged bytes live under a field the validator ignores, so this copy re-imports.
+                ...(cDbad
+                  ? {
+                      damagedWorkshopDraft: cD,
+                      damaged: { meta: ['workshop-draft'] },
+                    }
+                  : {}),
                 ...(draftConflict ? { unappliedWorkshopDraft: backup.workshopDraft } : {}),
               },
             });
@@ -401,7 +415,7 @@
             for (const p of backup.packs) packs.put({ key: p.id, value: p });
             meta.put({ key: 'settings', value: backup.settings || {} });
             meta.put({ key: 'preferences', value: backup.preferences || {} });
-            if (backup.workshopDraft !== undefined && cD === undefined)
+            if (backup.workshopDraft !== undefined && (cD === undefined || cDbad))
               meta.put({ key: 'workshop-draft', value: backup.workshopDraft });
           } catch (e) {
             bad = e;

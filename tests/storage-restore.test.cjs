@@ -291,6 +291,36 @@ test('export omits invalid stored drafts, records damage and remains importable'
   }
 });
 
+test('a damaged local draft yields to a valid backup draft and stays importable in recovery', async () => {
+  const damaged = { puzzle: { type: 'scene' } };
+  const incoming = unfinishedDraft();
+  const { store, disk } = await seededStore({ meta: { 'workshop-draft': damaged } });
+  const expected = await store.export();
+  const result = await store.restore(
+    { ...validBackup(), runs: [], packs: [], workshopDraft: incoming },
+    { ...expected, workshopDraft: damaged },
+  );
+  assert.deepEqual(disk.meta.get('workshop-draft'), incoming);
+  const recovery = plain(disk.meta.get('pre-restore-backup'));
+  assert.equal(Object.hasOwn(recovery, 'workshopDraft'), false);
+  assert.deepEqual(recovery.damagedWorkshopDraft, damaged);
+  assert.deepEqual(recovery.damaged.meta, ['workshop-draft']);
+  assert.equal(Object.hasOwn(setup().validateBackup(recovery), 'workshopDraft'), false);
+  assert.match(result.note, /damaged.*workshop draft.*recovery copy/i);
+});
+
+test('a damaged local draft with no backup draft is untouched and recovery stays importable', async () => {
+  const damaged = { puzzle: { type: 'scene' } };
+  const { store, disk } = await seededStore({ meta: { 'workshop-draft': damaged } });
+  const result = await store.restore({ ...validBackup(), runs: [], packs: [] });
+  assert.deepEqual(disk.meta.get('workshop-draft'), damaged);
+  const recovery = plain(disk.meta.get('pre-restore-backup'));
+  assert.deepEqual(recovery.damagedWorkshopDraft, damaged);
+  assert.deepEqual(recovery.damaged.meta, ['workshop-draft']);
+  setup().validateBackup(recovery);
+  assert.equal(result.note, '');
+});
+
 test('an identical local draft is retained and included in pre-restore recovery', async () => {
   const draft = unfinishedDraft();
   const { store, disk } = await seededStore({ meta: { 'workshop-draft': draft } });
