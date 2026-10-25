@@ -8,6 +8,10 @@ The versioned contract and implementation sequence are in [the spec](../superpow
 
 Every source has story-on/off prose, three ordered hints, a separately labelled worked answer and original provenance. The receipt is explicitly `structure-only`: it does not prove semantic entailment, uniqueness, fairness, rights or human enjoyment. Unknown fields and future versions are refused, not silently coerced.
 
+## Share projection (#452)
+
+`share(definition, completed)` in `tools/case-session.cjs` returns a frozen `postern-case-share-1` object built from an allowlist: `caseId`, `revision` and a fixed invitation `text` naming the case title. It reads no step, record, hint, worked answer, note or save field, and validates but never discloses progress, so the output is identical at every progress boundary (no counts, times or completion claims). Unknown case formats are refused. The workbench preview shows the text before an explicit copy; cancelling touches neither the clipboard nor the network, and nothing is posted. Method labels, landing links and any production share surface wait for #440/#442.
+
 ## Verification and remaining work
 
 Local source tests: 47 passed after recorded failing contract tests, including a sparse-array regression. Existing castle suite: 70 passed. These are not a full build or browser result. Local `npm ci --offline` failed because youch-core 0.3.3 was not cached; no dependency versions were changed. The PR's exact-head CI and independent review remain gates.
