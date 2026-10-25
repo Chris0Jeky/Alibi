@@ -143,6 +143,9 @@ fieldset,
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.share {
+  margin-top: 16px;
+}
 .record:focus {
   outline: 3px solid var(--accent);
 }

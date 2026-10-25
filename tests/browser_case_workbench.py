@@ -44,6 +44,25 @@ def run():
             assert page.locator('#record-maintenance').count() == 0
             assert page.locator('#worked').count() == 0
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            # Share: text preview first; cancel has no clipboard side effect. The stub records writes.
+            page.evaluate("""() => { globalThis.copies = [];
+                Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                    value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+            page.locator('#share').click()
+            assert page.locator('#share').get_attribute('aria-expanded') == 'true'
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            share_text = page.locator('#share-text').inner_text()
+            assert definition['title'] in share_text and f"revision {definition['revision']}" in share_text
+            for step in definition['steps']:
+                assert step['title'] not in share_text
+            for record in definition['records']:
+                assert record['title'] not in share_text
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            page.locator('header').screenshot(path=str(OUT / f'share-{width}.png'))
+            page.locator('#share-cancel').click()
+            assert page.locator('#share-text').count() == 0
+            assert 'Nothing was copied' in page.locator('#status').inner_text()
+            assert page.evaluate('globalThis.copies.length') == 0
             page.locator('#verdict-bounded-window').focus()
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
@@ -151,6 +170,15 @@ def run():
                     page.locator('#continue').click()
                     assert page.locator('#step-title').evaluate('(el) => el === document.activeElement')
             assert page.locator('#ending').is_visible()
+            # Full completion discloses nothing new: identical text, copied only on request.
+            page.locator('#share').click()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-copy').click()
+            page.wait_for_function('globalThis.copies.length === 1')
+            assert page.evaluate('globalThis.copies[0]') == share_text
+            assert 'Nothing was posted' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').count() == 0
             page.once('dialog', lambda dialog: dialog.dismiss())
             page.locator('#restart').click()
             assert page.locator('#ending').is_visible()

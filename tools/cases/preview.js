@@ -10,7 +10,8 @@
   const drafts = new Map(),
     hints = new Map(),
     reveals = new Set();
-  let message = '';
+  let message = '',
+    sharing = false;
   let validationErrors = [],
     validationActive = false;
   function el(tag, text, attrs = {}) {
@@ -109,11 +110,55 @@
         reveals.clear();
         validationErrors = [];
         validationActive = false;
+        sharing = false;
         message = 'Preview restarted.';
         render('step-title');
       }),
     );
+    const shareButton = button('Share invitation', 'share', () => {
+      sharing = !sharing;
+      render(sharing ? 'share-text' : 'share');
+    });
+    shareButton.setAttribute('aria-expanded', String(sharing));
+    toolbar.append(shareButton);
     header.append(toolbar);
+    if (sharing) {
+      // Text preview first; only an explicit copy touches the clipboard. Nothing is posted.
+      const invitation = S.share(d, completed);
+      const panel = el('section', undefined, {
+        class: 'hint share',
+        'aria-labelledby': 'share-title',
+      });
+      const actions = el('div', undefined, { class: 'toolbar' });
+      actions.append(
+        button('Copy invitation', 'share-copy', async () => {
+          try {
+            await navigator.clipboard.writeText(invitation.text);
+            sharing = false;
+            message = 'Invitation copied. Nothing was posted.';
+            render('share');
+          } catch {
+            message = 'The browser blocked copying. Select the text above to copy it yourself.';
+            render('share-text');
+          }
+        }),
+        button('Cancel', 'share-cancel', () => {
+          sharing = false;
+          message = 'Sharing cancelled. Nothing was copied.';
+          render('share');
+        }),
+      );
+      panel.append(
+        el('h2', 'Share an invitation', { id: 'share-title' }),
+        el(
+          'p',
+          'Only the case title, ID and revision. No progress, answers, hints or notes. Review it before copying.',
+        ),
+        el('p', invitation.text, { id: 'share-text', class: 'notice', tabindex: '-1' }),
+        actions,
+      );
+      header.append(panel);
+    }
     root.append(header);
     const nav = el('nav', undefined, { 'aria-label': 'Investigation stages' });
     const available = S.available(d, completed);
