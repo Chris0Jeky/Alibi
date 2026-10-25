@@ -214,6 +214,36 @@ def viewport(browser, base, width, name):
         check(card.get_by_role('button', name='Curated challenges →').count() == 1, f'{name}: the final card offers a next step')
         shot('every-vault-cleared')
 
+        # #407: the journal keeps 100 records; 100 later games must not fade the solved markers.
+        page.goto(base + '#/salon/tictactoe')
+        page.wait_for_selector('.tictactoe-cell')
+        dismiss()
+        page.locator('[data-action="club-tictactoe-mode"][data-value="local"]').click()
+        if page.locator('dialog[open] [data-action="club-reset-confirm"]').count():
+            page.locator('dialog[open] [data-action="club-reset-confirm"]').click()
+        # 100 distinct X wins along the top row: every X order with an ordered O pair from row 2-3.
+        games = [(x, o) for x in ('012', '021', '102', '120', '201', '210') for o in
+                 [(a, b) for a in '345678' for b in '345678' if a != b]][:100]
+        for x, o in games:
+            for cell in (x[0], o[0], x[1], o[1], x[2]):
+                page.locator(f'.tictactoe-cell[data-cell="{cell}"]').click()
+            page.locator('[data-action="club-restart"]').click()
+            if page.locator('dialog[open] [data-action="club-reset-confirm"]').count():
+                page.locator('dialog[open] [data-action="club-reset-confirm"]').click()
+        records = diag()['state']['records']
+        check(
+            len(records) == 100 and not any(r['type'] == 'archive' for r in records),
+            f'{name}: 100 later games push every archive record out of the journal',
+        )
+        settle()
+        open_archive()
+        check(
+            'Rooms 01–09 · 1/9 solved' in groups.nth(0).locator('summary').inner_text()
+            and '24/24 solved' in groups.nth(1).locator('summary').inner_text(),
+            f'{name}: solved counts survive the journal cap',
+        )
+        check(pad(9).text_content() == '10 ✓', f'{name}: vault 10 keeps its solved marker past the journal cap')
+
     page.goto(base + '#/salon')
     page.wait_for_selector('.club-challenge-entry')
     dismiss()
