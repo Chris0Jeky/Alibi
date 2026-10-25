@@ -1,7 +1,6 @@
 'use strict';
 
-// #219: Library-only components use the ramp in their existing rules.
-// Shared room typography stays outside this slice.
+// #219: Library components and shared headings consume the published ramp.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -103,4 +102,51 @@ for (const [label, blocks, expected] of [
 test('the shared wordmark retains its deliberate display exception', () => {
   assert.match(read('cabinet.css'), /\/\*[^*]*wordmark[^*]*display exception[^*]*\*\//i);
   assert.match(sources['cabinet.css'], /\.brand \.wordmark\s*\{[^}]*font-size:\s*58px;/);
+});
+
+const headingContract = {
+  'app.css': {
+    h1: ['h1', '.page-head h1'],
+    h2: ['h2'],
+    h3: ['h3', '.family-card h3', '.card-body h3'],
+  },
+  'cabinet.css': {
+    h1: ['.page-head h1'],
+    h3: ['.family-card h3', '.card-body h3'],
+  },
+  'curation.css': {
+    h2: ['.news-heading h2'],
+    h3: ['.collection-card-copy strong'],
+  },
+};
+for (const [file, roles] of Object.entries(headingContract)) {
+  test(`${file}: shared headings keep their role at every breakpoint`, () => {
+    const rules = [...sources[file].matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+    for (const [role, selectors] of Object.entries(roles)) {
+      for (const selector of selectors) {
+        const bodies = rules
+          .filter(([, head]) => head.trim().split(/,\s*/).includes(selector))
+          .map(([, , body]) => body);
+        // Cabinet may inherit a mapping from app.css; it must never replace it.
+        if (file !== 'cabinet.css' && selector !== '.page-head h1') {
+          assert.ok(
+            bodies.some((body) => body.includes(`var(--text-${role})`)),
+            selector,
+          );
+        }
+        for (const body of bodies) {
+          for (const [, value] of body.matchAll(/\bfont(?:-size)?:\s*([^;]+);/g)) {
+            assert.ok(value.includes(`var(--text-${role})`), `${selector}: ${value}`);
+          }
+        }
+      }
+    }
+  });
+}
+
+test('serif display and sans UI faces have explicit tokens and consumers', () => {
+  assert.match(desktop, /--font-display:\s*Georgia, 'Times New Roman', serif;/);
+  assert.match(desktop, /--font-ui:\s*-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;/);
+  assert.match(css, /body\s*\{[^}]*font:[^;]*var\(--font-ui\)/);
+  assert.match(css, /h1,\s*h2,\s*\.serif\s*\{[^}]*font-family: var\(--font-display\)/);
 });

@@ -18,6 +18,8 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
   --radius: var(--radius-lg);
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   /* Type ramp (#219): desktop steps; phones step headings down. */
   --text-display: 44px;
   --text-h1: 36px;
@@ -60,11 +62,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font:
-    15px/1.55 -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font: 15px/1.55 var(--font-ui);
   -webkit-font-smoothing: antialiased;
 }
 button,
@@ -118,20 +116,20 @@ p {
 h1,
 h2,
 .serif {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: -0.045em;
 }
 h1 {
-  font-size: 43px;
+  font-size: var(--text-h1);
   line-height: 1.1;
 }
 h2 {
-  font-size: 29px;
+  font-size: var(--text-h2);
   line-height: 1.2;
 }
 h3 {
-  font-size: 16px;
+  font-size: var(--text-h3);
   line-height: 1.35;
   letter-spacing: -0.025em;
 }
@@ -689,7 +687,7 @@ small,
   color: #957333;
 }
 .family-card h3 {
-  font-size: 12px;
+  font-size: var(--text-h3);
 }
 .family-card p {
   font-size: 10px;
@@ -873,7 +871,7 @@ input[type='checkbox'] {
   margin-bottom: 6px;
 }
 .card-body h3 {
-  font-size: 12px;
+  font-size: var(--text-h3);
   min-height: 32px;
   line-height: 1.4;
 }
@@ -3369,9 +3367,6 @@ html[data-reduced='true'] *:after {
   .family-card {
     padding: 15px;
   }
-  .family-card h3 {
-    font-size: 11px;
-  }
   .family-card p {
     font-size: 10px;
   }
@@ -3382,9 +3377,6 @@ html[data-reduced='true'] *:after {
   .puzzle-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 13px;
-  }
-  .page-head h1 {
-    font-size: 38px;
   }
   .page-head .btn {
     font-size: 11px;
@@ -3761,9 +3753,6 @@ html[data-reduced='true'] *:after {
   .card-body {
     padding: 13px;
   }
-  .card-body h3 {
-    font-size: 12px;
-  }
   .family-intro {
     padding: 17px;
     gap: 14px;
@@ -3784,9 +3773,6 @@ html[data-reduced='true'] *:after {
   .page-head {
     align-items: flex-start;
     gap: 13px;
-  }
-  .page-head h1 {
-    font-size: 37px;
   }
   .page-head p {
     font-size: 12px;
@@ -3952,9 +3938,6 @@ html[data-reduced='true'] *:after {
   .family-card {
     padding: 16px;
   }
-  .family-card h3 {
-    font-size: 12px;
-  }
   .family-card p {
     font-size: 10px;
   }
@@ -3987,9 +3970,6 @@ html[data-reduced='true'] *:after {
   .footer-links {
     justify-content: center;
     margin-top: 10px;
-  }
-  .page-head h1 {
-    font-size: 33px;
   }
   .page-head > .btn {
     padding: 9px;
@@ -4038,9 +4018,6 @@ html[data-reduced='true'] *:after {
   }
   .card-body {
     padding: 12px;
-  }
-  .card-body h3 {
-    font-size: 11px;
   }
   .card-art .badge {
     font-size: 8px;
