@@ -55,8 +55,52 @@ Residual risk: incomplete/reasoning classifications remain a shape heuristic; ea
 help is excluded from `assisted`. [HUMAN_TODO.md](../../HUMAN_TODO.md) remains authoritative
 for owner acceptance; no human item or issue #455 is closed by these checks.
 
-Resume: Git writes and network access were prohibited for this repair. The README is
+Resume at that checkpoint: Git writes and network access were prohibited for this repair. The README is
 resolved on disk but remains unmerged in the index. The coordinator must stage the
 resolution and edits, finish the merge commit, then rerun `npm.cmd run verify` from a
 clean tree and qualify that exact published head before merge. No staging, commit,
 push, or merge was performed here.
+
+## PR #759: reconcile incoming story-mode parity tests (2026-10-25)
+
+Changed: removed the conflict markers in `tests/browser_case_workbench.py`, retaining
+both the receipt helpers and main's `non_prose_controls` / `compare_modes` helpers and
+their call sites. An AST comparison confirms both parity helpers match main exactly.
+The incoming application and authoring changes were preserved. Adversarial review of
+the PR's collector, preview hooks, clipboard flow, bounds and CSP found no additional
+blocking defect; the existing late-consent repair remains covered.
+
+Tested working tree: branch HEAD `b8eeda6bc921ac1416654caa1c066d55a07c8581`, incoming
+`origin/main` / `MERGE_HEAD` `7a7640ddaf23d4f49f253cda5d9a47a2a2914b7a`.
+Commands ran from this `alibi-455` worktree with Node 24.13.1 and Python 3.14.3.
+
+Verified:
+
+- `node --test tests/case*.test.cjs`: 141 passed, zero failed, one Unix named-pipe
+  test skipped on Windows. Log: `test-results/case-workbench/pr759-case-tests.log`.
+- `PYTHONUTF8=1 py -3 tests/browser_case_workbench.py`: passed in Chromium
+  151.0.7922.34. Both mode-parity and receipt contexts ran; zero external requests
+  or script errors. Log: `test-results/case-workbench/pr759-browser.log`.
+- Case-workbench workflow's Prettier check over `tools/case-*.cjs`, `tools/cases/*.js`,
+  `tools/cases/*.css` and `tests/case-*.test.cjs`: passed with the installed CLI.
+  Log: `test-results/case-workbench/pr759-case-format.log`.
+- Regenerated receipt screenshots in both themes at 320 px and 1280 px; inspected
+  phone lamplight and desktop daylight. The browser asserts no horizontal overflow
+  in all four combinations. Evidence remains ignored under `test-results/`.
+- `npm.cmd run verify`: repository formatting and web build passed; Android packaging
+  refused the dirty merge tree with `Android builds require a clean source tree.`
+  Exit 1; the full Node suite did not run. Log: `test-results/case-workbench/pr759-verify.log`.
+- `git diff --check`: passed. Conflict markers are removed from the working files.
+
+NOT verified: clean committed-tree full gate, hosted CI/review state, physical device,
+screen reader, real clipboard permission handling, or a human playtest. Network access
+and Git writes were prohibited. The full gate is **not green**.
+
+Residual risk: incomplete/reasoning rejections remain a shape heuristic, and assistance
+before consent is excluded. [HUMAN_TODO.md](../../HUMAN_TODO.md) is unchanged; no owner
+acceptance or human observation is inferred.
+
+Resume: `tests/browser_case_workbench.py` remains unmerged in the index because staging
+is prohibited. The coordinator must stage the resolved file and this handoff, finish
+the pending merge commit, then rerun `npm.cmd run verify` from the clean committed tree
+and qualify the resulting published head. No staging, commit, push or merge was performed.
