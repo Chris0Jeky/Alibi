@@ -36,7 +36,7 @@ test('hostile authored text cannot terminate the embedded data block', () => {
     const source = path.join(dir, 'source.json');
     fs.writeFileSync(source, JSON.stringify(d));
     const { html } = P.buildPreview(source);
-    assert.equal((html.match(/<script(?: |\>)/g) || []).length, 3);
+    assert.equal((html.match(/<script(?: |\>)/g) || []).length, 4);
     const embedded = html.match(
       /<script id="case-data" type="application\/json">([\s\S]*?)<\/script>/,
     )[1];
