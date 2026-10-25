@@ -629,6 +629,41 @@ class MobileQA(unittest.TestCase):
                 expect(page.locator('.club-hero')).not_to_have_attribute('data-theatre-story', edition)
         (OUT / 'typography-metrics.json').write_text(json.dumps(measurements, indent=2))
 
+    def test_shared_library_headings_follow_type_ramp(self):
+        measurements = []
+        for width in [320, 390, 600, 601, 768, 1280, 1440]:
+            page = self.open_page(width, 1000, 'library')
+            h1, h2, h3 = (32, 25, 20) if width <= 600 else (36, 28, 22)
+
+            def check_headings(selector, size):
+                expect(page.locator(selector).first).to_be_visible()
+                rows = page.locator(selector).evaluate_all('''els => els.map(el => {
+                    const box = el.getBoundingClientRect(), parent = el.parentElement.getBoundingClientRect();
+                    return {text:el.textContent, size:parseFloat(getComputedStyle(el).fontSize),
+                        left:box.left, right:box.right, parentLeft:parent.left, parentRight:parent.right,
+                        scroll:el.scrollWidth, client:el.clientWidth};
+                })''')
+                for row in rows:
+                    with self.subTest(width=width, selector=selector, text=row['text']):
+                        self.assertEqual(row['size'], size, row)
+                        self.assertGreaterEqual(row['left'], row['parentLeft'] - 1, row)
+                        self.assertLessEqual(row['right'], row['parentRight'] + 1, row)
+                        self.assertLessEqual(row['scroll'], row['client'] + 1, row)
+                measurements.append({'width': width, 'selector': selector, 'headings': rows})
+
+            check_headings('.page-head h1', h1)
+            check_headings('.news-heading h2', h2)
+            check_headings('.family-card h3', h3)
+            check_headings('.collection-card-copy strong', h3)
+            self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width + 1)
+            page.screenshot(path=str(OUT / f'type-library-{width}.png'), full_page=True)
+            page.locator('#library-browse-all').click()
+            check_headings('.card-body h3', h3)
+            self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width + 1)
+            page.screenshot(path=str(OUT / f'type-puzzles-{width}.png'), full_page=True)
+        (OUT / 'shared-type-ramp.json').write_text(json.dumps(measurements, indent=2))
+
+
     def test_phone_play_metadata_has_readable_floor(self):
         for width, height in [(320, 568), (390, 844), (844, 390)]:
             with self.subTest(viewport=(width, height)):
