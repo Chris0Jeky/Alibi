@@ -125,7 +125,24 @@
     const { step } = context(definition, completed, stepId);
     return { text: step.workedAnswer.text[key], records: [...step.workedAnswer.records] };
   }
-  const api = { available, project, submit, hint, worked };
+  // Allowlist: reads only format, id, revision and title (all visible before any progress), so
+  // no step, record, hint, worked answer, note or save field can reach the output. Progress is
+  // validated but deliberately not disclosed: no counts, times or completion claims.
+  function share(definition, completed) {
+    const { format, id, revision, title } = definition;
+    if (format !== 'postern-case-1') throw new TypeError('Unsupported case format');
+    if (typeof id !== 'string' || typeof title !== 'string')
+      throw new TypeError('Invalid case identity');
+    if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Invalid revision');
+    context(definition, completed);
+    return Object.freeze({
+      format: 'postern-case-share-1',
+      caseId: id,
+      revision,
+      text: `I'm investigating "${title}" (Postern case ${id}, revision ${revision}). Weigh the sources and decide what they establish, and what they leave open.`,
+    });
+  }
+  const api = { available, project, submit, hint, worked, share };
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PosternCaseSession = Object.freeze(api);
 })(globalThis);
