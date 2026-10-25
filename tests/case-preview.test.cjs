@@ -18,6 +18,18 @@ test('preview builder exists and binds the original source receipt', () => {
     crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),
   );
 });
+
+test('exported preview identifies the case revision and actual prose locale', () => {
+  const { html, receipt } = P.buildPreview(file);
+  const exported = JSON.parse(
+    html.match(/<script id="case-data" type="application\/json">([\s\S]*?)<\/script>/)[1],
+  );
+  assert.equal(receipt.locale, 'en');
+  assert.equal(exported.receipt.locale, 'en');
+  assert.equal(exported.receipt.revision, exported.definition.revision);
+  assert.equal(exported.receipt.caseId, exported.definition.id);
+  assert.match(html, /<html lang="en">/);
+});
 test('all executable scripts and styles match hash-only CSP, with no external assets', () => {
   const { html } = P.buildPreview(file);
   for (const match of html.matchAll(/<(script|style)(?: [^>]*)?>([\s\S]*?)<\/\1>/g)) {
