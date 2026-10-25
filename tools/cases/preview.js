@@ -96,7 +96,7 @@
       );
       actions.append(
         button('Start playtest receipt', 'playtest-start', () => {
-          playtest.start(story, current);
+          playtest.start(story, current, completed.includes(current));
           message = 'Playtest receipt started. Counts stay in this page until you copy them.';
           render('playtest-review');
         }),
@@ -221,7 +221,7 @@
         : `Question ${index + 1} (locked)`;
       const control = button(text, `stage-${step.id}`, () => {
         current = step.id;
-        playtest.open(current);
+        playtest.open(current, completed.includes(current));
         validationErrors = [];
         validationActive = false;
         message = '';

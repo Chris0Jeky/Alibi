@@ -81,6 +81,47 @@ def playtest_receipt(browser, preview, definition):
     page.once('dialog', lambda dialog: dialog.accept())
     page.locator('#restart').click()
     assert page.locator('#playtest-start').is_visible() and page.locator('#playtest-review').count() == 0
+    # Consent can begin after progress, including after discarding an earlier receipt.
+    solve(page, first)
+    page.locator('#check').click()
+    page.locator('#playtest-start').click()
+    page.locator('#playtest-review').click()
+    stage = json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]
+    assert (stage['outcome'], stage['submissions'], stage['afterCompletion']) == ('completed', 0, 0)
+    page.locator('#playtest-close').click()
+    page.locator('#verdict-' + first['claims'][0]['id']).select_option('')
+    page.locator('#check').click()
+    page.locator('#playtest-review').click()
+    stage = json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]
+    assert (stage['outcome'], stage['submissions'], stage['afterCompletion']) == ('completed', 0, 1)
+    assert stage['rejectedIncomplete'] == 0
+    page.locator('#playtest-cancel').click()
+    page.locator('#continue').click()
+    page.locator('#playtest-start').click()
+    page.locator('#stage-' + first['id']).click()
+    page.locator('#playtest-review').click()
+    assert json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]['outcome'] == 'completed'
+    # A denied clipboard leaves the exact JSON available for manual copying.
+    page.evaluate("() => { navigator.clipboard.writeText = async () => { throw new Error('SYNTHETIC FIXTURE: denied'); }; }")
+    before = page.locator('#playtest-preview').inner_text()
+    page.locator('#playtest-copy').click()
+    assert 'browser blocked copying' in page.locator('#status').inner_text()
+    assert page.locator('#playtest-preview').inner_text() == before
+    assert page.locator('#playtest-preview').evaluate('(el) => el === document.activeElement')
+    for width in (320, 1280):
+        page.set_viewport_size({'width': width, 'height': 740})
+        for theme in ('daylight', 'lamplight'):
+            if page.locator('html').get_attribute('data-theme') != theme:
+                page.locator('#theme').click()
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            page.locator('.playtest').screenshot(path=str(OUT / f'playtest-review-{width}-{theme}.png'))
+    page.reload()
+    assert page.locator('#playtest-start').is_visible() and page.locator('#playtest-preview').count() == 0
+    page.locator('#playtest-start').click()
+    page.locator('#playtest-review').click()
+    fresh = json.loads(page.locator('#playtest-preview').inner_text())
+    assert fresh['observation'] == '' and fresh['stages'][0]['outcome'] == 'not-completed'
+    assert fresh['stages'][0]['submissions'] == 0
     assert not external and not errors, (external, errors)
     context.close()
     return {'viewport': [320, 740], 'playtestReceipt': 'passed', 'observation': 'synthetic fixture', 'externalRequests': 0}

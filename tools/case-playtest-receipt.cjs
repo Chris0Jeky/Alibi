@@ -7,6 +7,7 @@
   const MAX_OBSERVATION = 500;
   const LIMITATIONS = Object.freeze([
     'Counts only: it cannot tell whether a hint was read, understood or needed.',
+    'Counts begin at consent; earlier help is excluded. Outcomes include stages already completed when visited.',
     'No timings are recorded, so it says nothing about difficulty from speed.',
     'Incomplete submissions (an empty verdict or no cited source) are counted as interface, not reasoning.',
     'One local session of one tester; it is not a sample and not human acceptance by itself.',
@@ -56,17 +57,19 @@
       get enabled() {
         return on;
       },
-      start(storyOn, stageId) {
+      start(storyOn, stageId, completed = false) {
         if (on) return;
         on = true;
         mode(storyOn);
-        stage(stageId);
+        const s = stage(stageId);
+        if (s) s.completed = completed === true;
       },
       // Discards everything and turns collection off. Nothing is written or sent.
       cancel: clear,
       mode,
-      open(stageId) {
-        stage(stageId);
+      open(stageId, completed = false) {
+        const s = stage(stageId);
+        if (s && completed === true) s.completed = true;
       },
       hint(stageId) {
         const s = stage(stageId);

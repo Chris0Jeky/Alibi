@@ -115,6 +115,23 @@ test('unassisted run is distinguished from an assisted one', () => {
   assert.equal(r.draft().stages[0].assisted, false);
 });
 
+test('consent on an already completed stage preserves its outcome and repeat checks', () => {
+  const r = fresh();
+  r.start(true, 'window', true);
+  assert.equal(r.draft().stages[0].outcome, 'completed');
+  const empty = d.steps[0].claims.map((c) => ({ id: c.id, verdict: '', citations: [] }));
+  r.submission('window', S.submit(d, ['window'], 'window', empty), empty);
+  const stage = r.draft().stages[0];
+  assert.equal(stage.submissions, 0);
+  assert.equal(stage.afterCompletion, 1);
+  assert.equal(stage.rejectedIncomplete, 0);
+  assert.equal(stage.outcome, 'completed');
+  r.cancel();
+  r.start(false, 'alarm');
+  r.open('window', true);
+  assert.equal(r.draft().stages[0].outcome, 'completed');
+});
+
 test('allowlist: answers, citations, unknown fields and timestamps never reach the report', () => {
   const r = fresh();
   r.start(true, 'window');
