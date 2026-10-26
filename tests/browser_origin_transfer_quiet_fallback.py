@@ -14,6 +14,13 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src" / "origin-transfer.js"
 KEY = "alibi-quiet-wing-v1:fallback"
+FALLBACK_ONLY_SENTINEL = "ALIBI-ISSUE-746-FALLBACK-ONLY"
+FALLBACK_RAW = '''{
+  "schema": 1,
+  "revision": 1,
+  "scene": { "room": "original" },
+  "fallbackOnly": "ALIBI-ISSUE-746-FALLBACK-ONLY"
+}'''
 
 
 class FixturePage(BaseHTTPRequestHandler):
@@ -144,7 +151,12 @@ OBSERVE = """() => new Promise((resolve, reject) => {
         let fallback = null;
         const raw = localStorage.getItem('alibi-quiet-wing-v1:fallback');
         if (raw) fallback = JSON.parse(raw);
-        resolve({quiet: quiet ?? null, recovery: recovery ?? null, fallback});
+        resolve({
+            quiet: quiet ?? null,
+            recovery: recovery ?? null,
+            fallback,
+            fallbackRaw: raw
+        });
     }, reject);
 })"""
 
@@ -160,9 +172,8 @@ def run_case(browser, server_port, kind):
         importer.evaluate(SEED_QUIET, initial)
         if kind != "no-fallback":
             importer.evaluate(
-                "(value) => localStorage.setItem("
-                "'alibi-quiet-wing-v1:fallback', JSON.stringify(value))",
-                initial,
+                "(raw) => localStorage.setItem('alibi-quiet-wing-v1:fallback', raw)",
+                FALLBACK_RAW,
             )
         importer.add_script_tag(content=SOURCE.read_text(encoding="utf-8"))
         target = "empty" if kind == "remove-failure" else "new"
@@ -199,10 +210,24 @@ def main():
                     "schema": 1, "revision": 1, "scene": {"room": "original"}
                 }, set_failure
                 assert set_failure["observed"]["fallback"] == {
-                    "schema": 1, "revision": 1, "scene": {"room": "original"}
+                    "schema": 1,
+                    "revision": 1,
+                    "scene": {"room": "original"},
+                    "fallbackOnly": FALLBACK_ONLY_SENTINEL,
                 }, set_failure
+                assert set_failure["observed"]["fallbackRaw"] == FALLBACK_RAW, set_failure
+                assert FALLBACK_ONLY_SENTINEL in set_failure["observed"]["fallbackRaw"]
+                assert FALLBACK_ONLY_SENTINEL not in json.dumps(
+                    set_failure["observed"]["quiet"]
+                ), set_failure
                 assert (
                     set_failure["observed"]["recovery"]["quiet"]["state"]["revision"] == 1
+                ), set_failure
+                assert set(set_failure["observed"]["recovery"]["quiet"]) == {
+                    "kind", "schema", "state"
+                }, set_failure
+                assert FALLBACK_ONLY_SENTINEL not in json.dumps(
+                    set_failure["observed"]["recovery"]
                 ), set_failure
 
                 remove_failure = run_case(browser, server.server_port, "remove-failure")
@@ -217,10 +242,24 @@ def main():
                     "schema": 1, "revision": 1, "scene": {"room": "original"}
                 }, remove_failure
                 assert remove_failure["observed"]["fallback"] == {
-                    "schema": 1, "revision": 1, "scene": {"room": "original"}
+                    "schema": 1,
+                    "revision": 1,
+                    "scene": {"room": "original"},
+                    "fallbackOnly": FALLBACK_ONLY_SENTINEL,
                 }, remove_failure
+                assert remove_failure["observed"]["fallbackRaw"] == FALLBACK_RAW, remove_failure
+                assert FALLBACK_ONLY_SENTINEL in remove_failure["observed"]["fallbackRaw"]
+                assert FALLBACK_ONLY_SENTINEL not in json.dumps(
+                    remove_failure["observed"]["quiet"]
+                ), remove_failure
                 assert (
                     remove_failure["observed"]["recovery"]["quiet"]["state"]["revision"] == 1
+                ), remove_failure
+                assert set(remove_failure["observed"]["recovery"]["quiet"]) == {
+                    "kind", "schema", "state"
+                }, remove_failure
+                assert FALLBACK_ONLY_SENTINEL not in json.dumps(
+                    remove_failure["observed"]["recovery"]
                 ), remove_failure
 
                 no_fallback = run_case(browser, server.server_port, "no-fallback")
@@ -229,6 +268,7 @@ def main():
                 assert no_fallback["apply"]["outcome"]["committed"] is True, no_fallback
                 assert no_fallback["observed"]["quiet"]["revision"] == 2, no_fallback
                 assert no_fallback["observed"]["fallback"] is None, no_fallback
+                assert no_fallback["observed"]["fallbackRaw"] is None, no_fallback
                 assert no_fallback["observed"]["recovery"] is None, no_fallback
 
                 print(
