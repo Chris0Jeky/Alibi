@@ -381,6 +381,62 @@ class MobileQA(unittest.TestCase):
                 expect(host).to_have_count(0)
                 self.assertEqual(page.evaluate('location.hash'), '#/salon')
 
+    def test_block_landscape_menu_responds_while_undo_save_is_pending(self):
+        if os.environ.get('ALIBI_QA_HTML'):
+            self.skipTest('Pending Club saves require the real built HTTP origin.')
+        for width, height in [(667, 375), (844, 390)]:
+            with self.subTest(viewport=(width, height)):
+                page = self.open_page(width, height, 'salon/blockcabinet')
+                errors = []
+                page.on('pageerror', lambda error: errors.append(str(error)))
+                host = page.locator('.bc-host')
+                host.locator('.bc-cell').first.wait_for()
+                host.locator('.bc-piece').first.click()
+                host.locator('.bc-cell.legal').first.click()
+                page.wait_for_function('() => !AlibiBlockMotion.diagnostics().pending')
+                saved = page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet')
+                self.assertEqual(len(saved['log']), 1)
+                menu = host.locator('.bc-menu-toggle')
+                menu.click()
+                expect(host.locator('.bc-aside')).to_be_visible()
+                # Hold only the adapter's save-completion boundary, after the real
+                # save queue settles. The actual undo and menu controls still run.
+                page.evaluate('''() => {
+                    const flush = AlibiClub.flush;
+                    const hold = window.__blockMenuSave = {entered: false};
+                    const gate = new Promise(resolve => hold.release = resolve);
+                    AlibiClub.flush = async () => {
+                        await flush();
+                        hold.entered = true;
+                        await gate;
+                    };
+                    hold.restore = () => { AlibiClub.flush = flush; hold.release(); };
+                }''')
+                try:
+                    host.locator('[data-command="undo"]').click()
+                    page.wait_for_function('() => __blockMenuSave.entered && AlibiBlockMotion.diagnostics().pending')
+                    undone = page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet')
+                    self.assertEqual(undone['log'], [])
+                    for _ in range(3):
+                        menu.click()
+                        expect(menu).to_have_attribute('aria-expanded', 'false')
+                        expect(host.locator('.bc-aside')).not_to_be_visible()
+                        menu.click()
+                        expect(menu).to_have_attribute('aria-expanded', 'true')
+                        expect(host.locator('.bc-aside')).to_be_visible()
+                        self.assertTrue(page.evaluate('AlibiBlockMotion.diagnostics().pending'))
+                        expect(host.locator('[data-command="redo"]')).to_be_disabled()
+                        expect(host.locator('.bc-cell').first).to_be_disabled()
+                        self.assertEqual(page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet'), undone)
+                    page.screenshot(path=str(OUT / f'block-menu-pending-{width}.png'))
+                finally:
+                    page.evaluate('() => __blockMenuSave.restore()')
+                page.wait_for_function('() => !AlibiBlockMotion.diagnostics().pending')
+                host.locator('[data-command="redo"]').click()
+                page.wait_for_function('() => !AlibiBlockMotion.diagnostics().pending')
+                self.assertEqual(page.evaluate('AlibiClub.diagnostics().state.runs.blockcabinet.log'), saved['log'])
+                self.assertFalse(errors, errors)
+
     def test_bridges_landscape_full_board_and_controls(self):
         metrics = []
         for width, height in [(667, 375), (844, 390)]:
