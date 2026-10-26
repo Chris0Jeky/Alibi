@@ -2,6 +2,7 @@
 from pathlib import Path
 import json,os,time
 from playwright.sync_api import sync_playwright
+from browser_fixture_capabilities import model_indexeddb_absent
 r=Path(__file__).resolve().parents[1];checks=[];errors=[];shots=r/'test-results'/'afterhours-club';shots.mkdir(parents=True,exist_ok=True)
 def check(v,label):
  assert v,label
@@ -11,7 +12,8 @@ with sync_playwright() as p:
  if os.environ.get('CHROMIUM_PATH'):launch['executable_path']=os.environ['CHROMIUM_PATH']
  elif Path('/usr/bin/chromium').exists():launch['executable_path']='/usr/bin/chromium'
  browser=p.chromium.launch(**launch);ctx=browser.new_context(viewport={'width':1440,'height':1000},accept_downloads=True,reduced_motion='no-preference');page=ctx.new_page();page.set_default_timeout(7000)
- page.on('pageerror',lambda e:errors.append(str(e)));page.set_content((r/'alibi-deluxe-play.html').read_text(encoding='utf-8'),wait_until='load');page.wait_for_function('globalThis.AlibiDiagnostics')
+ page.on('pageerror',lambda e:errors.append(str(e)));page.set_content(model_indexeddb_absent((r/'alibi-deluxe-play.html').read_text(encoding='utf-8')),wait_until='load');page.wait_for_function('globalThis.AlibiDiagnostics')
+ check(page.evaluate("location.origin==='null' && typeof indexedDB==='undefined'"),'Isolated document explicitly models unavailable IndexedDB');check(page.locator('#origin-recovery-title').count()==0,'Unavailable IndexedDB follows ordinary session startup without a recovery hold');check(page.evaluate("AlibiDiagnostics.getStatus().mode==='session'"),'No-origin fixture uses the existing session-storage fallback')
  def action(a,extra=''):page.locator('[data-action="'+a+'"]'+extra+':visible').first.click()
  def dismiss():
   if page.locator('dialog[open]').count():
@@ -71,4 +73,4 @@ with sync_playwright() as p:
  page.locator('#club-import').set_input_files({'name':'good.json','mimeType':'application/json','buffer':json.dumps(exported).encode()});page.wait_for_timeout(150);check(page.locator('dialog[open]').count()==1,'Valid restore requires confirmation');action('close-dialog')
  action('club-online-settings');check('optional room server' in page.locator('dialog').inner_text(),'Online UI explains separate backend requirement');action('club-room-create');check('Deploy the optional room server' in page.locator('body').inner_text(),'Unconfigured online action gives an actionable error');dismiss()
  check(not errors,'No unhandled browser page errors')
- (r/'tests/browser-club-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'scope':'Real Chromium DOM, Blob workers and controls in an isolated document. No browser-origin storage, Android installation or Cloudflare runtime claims.','checks':checks,'errors':errors},indent=2));browser.close()
+ (r/'tests/browser-club-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'scope':'Real Chromium DOM, Blob workers and controls in set_content with IndexedDB explicitly absent before app scripts. No browser-origin storage, Android installation or Cloudflare runtime claims.','checks':checks,'errors':errors},indent=2));browser.close()

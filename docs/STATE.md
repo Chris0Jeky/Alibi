@@ -27,6 +27,47 @@ claimed.
 
 # Live development state
 
+## 2026-10-26: model missing IndexedDB in isolated full-app fixtures (#776)
+
+The main `browser_ui.py` suite and the main-workflow `browser_club.py` fixture load the complete
+application with Playwright `set_content`. That keeps them useful for real DOM and control
+acceptance, but leaves the document at opaque `about:blank` origin `null`. Chromium reports an
+`indexedDB` object there while denying `indexedDB.open()` with `SecurityError`. The new startup
+recovery guard correctly treats that present-but-unreadable API as unsafe and renders “Save
+transfer needs attention” before `AlibiDiagnostics` exists; this is not the application's
+“IndexedDB entirely absent” fallback case.
+
+On clean build source `93be3773af43a07e8c7993117a230e7d8c9e7720` (build `562e5fdb7314`), the
+unchanged isolated suite reproduced the five-second wait failure at `tests/browser_ui.py:28`.
+Captured state was `about:blank`, origin `null`, insecure context, IndexedDB type `object`, a
+synchronous `SecurityError` from open, the recovery heading above, no diagnostics object, and no
+uncaught page errors. A Playwright `add_init_script` control did not affect `set_content`; the
+fixture needs to establish capability state within its HTML before application scripts execute.
+
+The test-only `browser_fixture_capabilities.py` helper adds a small script at the start of the
+synthetic document head that makes `indexedDB` undefined before the app bundle. `browser_ui.py`
+and `browser_club.py` assert the document stays origin `null`, the API is absent, startup uses the
+ordinary session-storage mode, and no recovery hold appears. Their existing game/control checks
+remain unchanged. No production source, IndexedDB denial handling, pending-recovery behavior,
+watchdog, budgets, or persistence was changed. The real-origin `browser_origin_transfer_startup.py`
+and `browser_boot.py` fixtures remain untouched; they retain real IndexedDB setup, denied and
+pending recovery checks, reload/offline export, and ordinary cold-boot coverage.
+
+Verified locally: one clean build; default `browser_ui.py`, curated `browser_ui.py` at 390 and
+1280 widths, and `browser_club.py` all pass with Chromium 141.0.7390.37 and no uncaught page
+errors. Each `browser_ui.py` run passes 187 checks; the session fallback and no-recovery checks
+are explicit. The unchanged real-origin `browser_origin_transfer_startup.py` also passes on the
+same build: interruption phases 0–4, all five protected domains, retained and unknown values,
+fresh startup, denied/unreadable storage, offline recovery export, and unavailable-IDB fallback;
+its receipt reports zero browser errors. The reproduced pre-fix failure is specific to the
+opaque-origin fixture. It is not evidence that `protectStartup` should treat denied storage as
+absent.
+
+The full hosted run that exposed the wait failure remains a failed run; these local fixture checks
+do not replace fresh exact-head full and Safety workflows. Passing synthetic `set_content` checks
+do not establish hosted-origin persistence or device acceptance. Existing `HUMAN_TODO.md` and
+physical Android, TalkBack, recovery, release and product gates remain open.
+
 ## 2026-10-20: preserve committed imports when recovery cleanup fails (#579)
 
 The transfer coordinator now distinguishes committed domain writes from failure to
