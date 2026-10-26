@@ -91,8 +91,6 @@ def run():
                     page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
                     counts = page.evaluate('AlibiDiagnostics.getCounts()')
                     assert counts['puzzles'] == base['puzzles'] + len(afterlight['puzzles'])
-                    runs = page.evaluate(RUNS)
-                    assert any(first['id'] in row for row in runs)
                     checks.append({'width': width, 'case': 'afterlight-added-played-saved'})
 
                     # Tampered bytes, then an offline download: both refused, nothing changed.
@@ -106,6 +104,10 @@ def run():
 
                     context.route('**/assets/workshop/lattice.*.json', tamper)
                     _, dialog = open_adder(page)
+                    # Leaving the board flushes its elapsed time; snapshot only the settled saves.
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    runs = page.evaluate(RUNS)
+                    assert any(first['id'] in row for row in runs)
                     add(page, dialog, lattice['title'])
                     expect(dialog.locator('[role="status"]')).to_contain_text('does not match its listed size and fingerprint')
                     assert hits, 'the tampered response was served'
