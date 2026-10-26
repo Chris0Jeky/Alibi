@@ -408,6 +408,45 @@ test('restoring a new revision-zero run invalidates an unsaved tab', async () =>
   assert.deepEqual(plain(disk.meta.get('pre-restore-backup')).runs, []);
 });
 
+test('Add missing preserves unchanged run revisions and bumps only the added row', async () => {
+  const { tabA, tabB, disk, original } = writerFixture();
+  disk.meta.set('run-revision-floor', 20);
+  const stale = await tabB.get('runs', original.key),
+    expected = await tabA.export(),
+    { C, validateRun } = setup(),
+    puzzle = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../content/catalog.json'), 'utf8'),
+    ).puzzles.find((p) => p.id === 'sudoku-02'),
+    added = {
+      ...original,
+      key: puzzle.id + '@' + puzzle.revision,
+      puzzle,
+      rev: 0,
+      state: C.registry.sudoku.initial(puzzle),
+      note: 'backup-only puzzle',
+    };
+  validateRun(added);
+  const backup = { ...expected, runs: [...expected.runs, added] };
+
+  await tabA.restore(backup, expected);
+
+  const unchanged = await tabA.get('runs', original.key);
+  assert.equal((await tabA.get('runs', added.key)).rev, 21);
+  assert.equal(disk.meta.get('run-revision-floor'), 21);
+  stale.note = 'same-tab-era edit';
+  const outcome = await tabB.saveRun(stale, original.rev).then(
+    (saved) => ({ saved }),
+    (error) => ({ error }),
+  );
+  assert.ok(
+    !outcome.error && unchanged.rev === original.rev,
+    `unchanged revision ${unchanged.rev}; stale save ${outcome.error?.name || 'accepted'}`,
+  );
+  assert.equal(outcome.saved.note, 'same-tab-era edit');
+  assert.equal(outcome.saved.rev, original.rev + 1);
+  assert.equal(disk.meta.get('run-revision-floor'), 21);
+});
+
 test('repeated restores cannot revive an earlier writer revision', async () => {
   const { tabA, tabB, disk, original } = writerFixture();
   const backup = { ...validBackup(), runs: [{ ...original, note: 'restored content' }] };

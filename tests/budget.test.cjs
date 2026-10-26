@@ -174,9 +174,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #761 separate Borough bests: reviewed final copy measures 135,121 -> 135,618 (+497).
     // One shared bounded table builder preserves legacy metadata across load, record and import.
     // Ceiling +512 covers the 450-byte excess and leaves 62 bytes for identity/hash noise.
+    // #738 protected-load recovery, required Duel engine loading and unchanged Add-missing rows:
+    // clean composed source measures 135,616 -> 135,755 (+139). Ceiling +128 covers the
+    // 75-byte excess and leaves 53 bytes for identity/hash noise; validation remains strict.
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5632,
-      'Application bundle stays under 127 KiB + 5,632 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 5760,
+      'Application bundle stays under 127 KiB + 5,760 bytes gzip',
     );
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
@@ -266,8 +269,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #761 separate Borough bests and optional backup validation ship in the application and
       // validator worker: 1,417,177 -> 1,418,911 (+1,734). Ceiling +1,792 covers the
       // 1,670.68-byte excess and leaves 121.32 bytes; startup/content ceilings remain unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 34912,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 34,912 bytes',
+      // #738 load-only recovery and atomic Add-missing revision preservation measure
+      // 1,418,911 -> 1,419,648 (+737). Ceiling +704 covers the 615.68-byte excess and leaves
+      // 88.32 bytes for identity/hash noise; initial payload and content limits stay unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 35616,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 35,616 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
