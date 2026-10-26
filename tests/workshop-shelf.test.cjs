@@ -8,12 +8,12 @@ const { buildShelf, renderShelf } = require('../tools/build-workshop-shelf.cjs')
 const { loadCatalogue } = require('../tools/workshop-catalogue.cjs');
 const root = path.resolve(__dirname, '..');
 
-test('shelf produces five deterministic files with byte-exact pack downloads', () => {
+test('shelf produces six deterministic files with byte-exact pack downloads', () => {
   const catalogue = loadCatalogue(root),
     first = buildShelf(root),
     second = buildShelf(root);
   assert.deepEqual(first, second);
-  assert.equal(first.files.length, 5);
+  assert.equal(first.files.length, 6);
   assert.equal(
     first.bytes,
     first.files.reduce((sum, file) => sum + file.data.length, 0),
@@ -101,14 +101,28 @@ test('entry composition changes only pack-desk copy and fails on unknown source 
   const source = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
   const start = source.indexOf('  function packDesk() {');
   const end = source.indexOf('  function authorGuide()', start);
-  const compiled = composePackDesk(source);
+  const adder = './assets/workshop/add.0123456789ab.js';
+  const compiled = composePackDesk(source, adder);
   assert.equal(compiled.slice(0, start), source.slice(0, start));
-  assert.ok(compiled.endsWith(source.slice(end)));
-  assert.equal((compiled.match(/Browse optional collections/g) || []).length, 1);
+  // Outside the desk, the only addition is the one adder action before the existing importer.
+  const action = `      case 'collections':\n        (await import("${adder}")).open();\n        break;\n`;
+  assert.equal(compiled.split(action).length, 2);
+  assert.ok(compiled.replace(action, '').endsWith(source.slice(end)));
+  assert.equal((compiled.match(/'collections'/g) || []).length, 2);
   assert.throws(
-    () => composePackDesk(source.replace('  function packDesk() {', '  function changed() {')),
+    () =>
+      composePackDesk(source.replace('  function packDesk() {', '  function changed() {'), adder),
     /boundary/,
   );
-  assert.throws(() => composePackDesk(source.replace('Maximum 3 MB', 'Maximum 9 MB')), /copy/);
-  assert.throws(() => composePackDesk(compiled), /copy/);
+  assert.throws(
+    () => composePackDesk(source.replace("      case 'import-pack':\n", ''), adder),
+    /action boundary/,
+  );
+  for (const unsafe of [undefined, '//evil.test/add.0123456789ab.js', './assets/workshop/x.js'])
+    assert.throws(() => composePackDesk(source, unsafe), /adder URL/);
+  assert.throws(
+    () => composePackDesk(source.replace('Maximum 3 MB', 'Maximum 9 MB'), adder),
+    /copy/,
+  );
+  assert.throws(() => composePackDesk(compiled, adder), /copy/);
 });

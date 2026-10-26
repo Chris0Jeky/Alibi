@@ -73,9 +73,10 @@ test('optional data and stylesheet bytes belong to the complete runtime payload 
     fs.rmSync(temp, { recursive: true, force: true });
   }
 });
-test('pack desk links only supported browser targets and retains the same importer', () => {
+test('pack desk offers adding only on supported browser targets and retains the same importer', () => {
   const app = require('../tools/workshop-entry.cjs').composePackDesk(
     fs.readFileSync(path.join(root, 'src/app.js'), 'utf8'),
+    expected.loaderURL,
   );
   const source = app.slice(
     app.indexOf('  function packDesk()'),
@@ -93,10 +94,8 @@ test('pack desk links only supported browser targets and retains the same import
     });
     vm.runInContext(source + '\nthis.html=packDesk();', context);
     assert.match(context.html, /data-action="import-pack"/);
-    if (target === undefined) {
-      assert.match(context.html, /href="\.\/collections\/index\.html"/);
-      assert.match(context.html, /target="_blank" rel="noopener"/);
-    } else assert.doesNotMatch(context.html, /collections\/index\.html/);
+    if (target === undefined) assert.match(context.html, /data-action="collections"/);
+    else assert.doesNotMatch(context.html, /collections/);
   }
 });
 

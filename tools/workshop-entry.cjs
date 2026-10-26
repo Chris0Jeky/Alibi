@@ -1,6 +1,9 @@
 'use strict';
 // Build-only composition into the existing pack desk. No runtime observer or new route owner.
-function composePackDesk(source) {
+// #433: one action imports the optional adder module, which hands verified bytes to #pack-input.
+function composePackDesk(source, adder) {
+  if (typeof adder !== 'string' || !/^\.\/assets\/workshop\/add\.[a-f0-9]{12}\.js$/.test(adder))
+    throw Error('Invalid collection adder URL');
   const start = source.indexOf('  function packDesk() {');
   const end = source.indexOf('  function authorGuide()', start);
   if (start < 0 || end < start) throw Error('Workshop pack desk boundary changed');
@@ -24,8 +27,20 @@ function composePackDesk(source) {
   );
   replace(
     '<h2>Bring another collection.</h2>',
-    '<h2>Bring another collection.</h2>${globalThis.ALIBI_BUILD_TARGET ? \'\' : \'<a class="btn secondary" href="./collections/index.html" target="_blank" rel="noopener">Browse optional collections (new tab)</a>\'}',
+    "<h2>Bring another collection.</h2>${globalThis.ALIBI_BUILD_TARGET ? '' : B('Add a curated collection', 'collections', 'download', 'secondary')}",
   );
-  return source.slice(0, start) + desk + source.slice(end);
+  const rest = source.slice(end),
+    anchor = "      case 'import-pack':\n";
+  if (rest.split(anchor).length !== 2) throw Error('Workshop import action boundary changed');
+  return (
+    source.slice(0, start) +
+    desk +
+    rest.replace(
+      anchor,
+      () =>
+        `      case 'collections':\n        (await import(${JSON.stringify(adder)})).open();\n        break;\n` +
+        anchor,
+    )
+  );
 }
 module.exports = { composePackDesk };

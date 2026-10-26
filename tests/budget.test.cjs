@@ -83,6 +83,22 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       'Deferred official definitions stay under 32 KiB gzip',
     );
   });
+  await t.test('collection adder is optional, outside startup and the core shell', () => {
+    // #433: one on-demand module beside the optional packs, counted in workshopCollectionBytes.
+    // Measured 4,185 bytes / 2,158 gzip; application and shell ceilings above are unchanged.
+    const matches = fs
+      .readdirSync(path.join(root, 'dist/assets/workshop'))
+      .filter((name) => /^add\.[a-f0-9]{12}\.js$/.test(name));
+    assert.equal(matches.length, 1, 'One hashed collection adder is emitted');
+    const url = `./assets/workshop/${matches[0]}`;
+    const bytes = fs.readFileSync(path.join(root, 'dist', url));
+    assert.ok(!serviceWorker.includes(url), 'The adder is not precached');
+    assert.ok(
+      !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+      'The adder is not a startup script',
+    );
+    assert.ok(zlib.gzipSync(bytes).length < 3 * 1024, 'The adder stays under 3 KiB gzip');
+  });
   // tools/build.cjs already leaves the deferred Pulseboard SDK and discovery storage assets out of
   // coreOfflineBytes; subtracting them again here hid ~56 KiB of real shell growth (#393).
   const coreOfflineBytes = info.coreOfflineBytes;
