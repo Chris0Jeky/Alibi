@@ -35,6 +35,7 @@ test('collection is off until chosen: recorders before start leave nothing', () 
       id: 'window',
       outcome: 'not-completed',
       assisted: false,
+      priorAssistance: false,
       hints: 0,
       reveals: 0,
       submissions: 0,
@@ -87,6 +88,7 @@ test('counts completed, abandoned and repeated stages through the real session e
     id: 'window',
     outcome: 'completed',
     assisted: true,
+    priorAssistance: false,
     hints: 1,
     reveals: 0,
     submissions: 3,
@@ -98,6 +100,7 @@ test('counts completed, abandoned and repeated stages through the real session e
     id: 'alarm',
     outcome: 'not-completed',
     assisted: true,
+    priorAssistance: false,
     hints: 0,
     reveals: 1,
     submissions: 1,
@@ -185,4 +188,45 @@ test('cancel discards everything and returns to off; a later start is fresh', ()
     draft.stages.map((s) => [s.id, s.hints]),
     [['alarm', 0]],
   );
+});
+
+test('prior assistance is explicit without importing pre-consent counts', () => {
+  const r = fresh();
+  r.start(true, 'window', false, true);
+  let draft = r.draft();
+  assert.equal(draft.assisted, true);
+  assert.equal(draft.stages[0].priorAssistance, true);
+  assert.equal(draft.stages[0].hints + draft.stages[0].reveals, 0);
+  r.cancel();
+  r.start(true, 'alarm');
+  r.open('window', true, true);
+  draft = r.draft();
+  assert.equal(draft.stages[0].priorAssistance, true);
+  assert.equal(draft.stages[0].outcome, 'completed');
+});
+
+test('stage allowlist is independent of caller mutation and returned drafts', () => {
+  const stageIds = ['window', 'alarm'];
+  const r = R.create({
+    caseId: d.id,
+    revision: d.revision,
+    sourceSha256: 'f'.repeat(64),
+    stageIds,
+  });
+  r.start(true, 'window');
+  stageIds.splice(0, stageIds.length, 'PRIVATE-UNKNOWN');
+  r.open('alarm');
+  r.open('PRIVATE-UNKNOWN');
+  let draft = r.draft();
+  assert.deepEqual(
+    draft.stages.map((s) => s.id),
+    ['window', 'alarm'],
+  );
+  draft.stages[0].hints = 999;
+  draft.modes.push('PRIVATE-UNKNOWN');
+  draft.limitations.length = 0;
+  draft = r.draft();
+  assert.equal(draft.stages[0].hints, 0);
+  assert.deepEqual(draft.modes, ['storyOn']);
+  assert.ok(draft.limitations.length > 0);
 });

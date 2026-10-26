@@ -36,7 +36,9 @@ def playtest_receipt(browser, preview, definition):
         Object.defineProperty(navigator, 'clipboard', { configurable: true,
             value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
     assert page.locator('#playtest-review').count() == 0
-    page.locator('#hint').click()  # Before consent: must not be counted.
+    page.locator('#hint').click()  # Before consent: baseline only, no event count.
+    page.locator('#reveal').click()
+    page.locator('#reveal').click()  # Hiding must not erase earlier exposure.
     page.locator('#playtest-start').click()
     assert page.locator('#playtest-review').evaluate('(el) => el === document.activeElement')
     page.locator('#check').click()  # Empty form: an interface rejection.
@@ -56,6 +58,7 @@ def playtest_receipt(browser, preview, definition):
     assert draft['observation'] == observation
     assert draft['modes'] == ['storyOn', 'storyOff'] and draft['assisted'] is True
     window, alarm = draft['stages']
+    assert window['priorAssistance'] is True and alarm['priorAssistance'] is False
     assert (window['id'], window['outcome'], window['hints'], window['submissions']) == (first['id'], 'completed', 1, 2)
     assert (window['rejectedIncomplete'], window['rejectedReasoning'], window['afterCompletion']) == (1, 0, 1)
     assert (alarm['id'], alarm['outcome'], alarm['reveals'], alarm['submissions']) == (second['id'], 'not-completed', 1, 0)
@@ -65,7 +68,7 @@ def playtest_receipt(browser, preview, definition):
     assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
     page.locator('.playtest').screenshot(path=str(OUT / 'playtest-review-320.png'))
     page.locator('#playtest-cancel').click()
-    assert 'Nothing was copied or sent' in page.locator('#status').inner_text()
+    assert 'Clipboard copies are not removed' in page.locator('#status').inner_text()
     assert page.locator('#playtest-preview').count() == 0 and page.locator('#playtest-start').is_visible()
     assert page.evaluate('globalThis.copies.length') == 0
     # A fresh consent starts empty; copy happens only on the explicit control.
@@ -77,6 +80,8 @@ def playtest_receipt(browser, preview, definition):
     page.wait_for_function('globalThis.copies.length === 1')
     copied = json.loads(page.evaluate('globalThis.copies[0]'))
     assert copied['observation'] == '' and [s['id'] for s in copied['stages']] == [second['id']]
+    assert copied['stages'][0]['priorAssistance'] is True
+    assert copied['stages'][0]['reveals'] == 0 and copied['assisted'] is True
     assert 'Nothing was sent' in page.locator('#status').inner_text()
     page.once('dialog', lambda dialog: dialog.accept())
     page.locator('#restart').click()
@@ -88,6 +93,7 @@ def playtest_receipt(browser, preview, definition):
     page.locator('#playtest-review').click()
     stage = json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]
     assert (stage['outcome'], stage['submissions'], stage['afterCompletion']) == ('completed', 0, 0)
+    assert stage['priorAssistance'] is True  # Restart cannot make help unseen.
     page.locator('#playtest-close').click()
     page.locator('#verdict-' + first['claims'][0]['id']).select_option('')
     page.locator('#check').click()
@@ -115,6 +121,24 @@ def playtest_receipt(browser, preview, definition):
                 page.locator('#theme').click()
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
             page.locator('.playtest').screenshot(path=str(OUT / f'playtest-review-{width}-{theme}.png'))
+    # Delayed clipboard completion cannot resurrect a discarded/restarted receipt.
+    for reset in ('discard', 'restart'):
+        page.evaluate("""() => { navigator.clipboard.writeText = text => new Promise(resolve => {
+            globalThis.finishCopy = () => { globalThis.copies.push(text); resolve(); };
+        }); }""")
+        page.locator('#playtest-copy').click()
+        if reset == 'discard':
+            page.locator('#playtest-cancel').click()
+            assert 'Clipboard copies are not removed' in page.locator('#status').inner_text()
+        else:
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#restart').click()
+        status = page.locator('#status').inner_text()
+        page.evaluate('globalThis.finishCopy()')
+        assert page.locator('#status').inner_text() == status
+        assert page.locator('#playtest-start').is_visible()
+        page.locator('#playtest-start').click()
+        page.locator('#playtest-review').click()
     page.reload()
     assert page.locator('#playtest-start').is_visible() and page.locator('#playtest-preview').count() == 0
     page.locator('#playtest-start').click()
@@ -214,6 +238,68 @@ def run():
             assert exported['receipt']['revision'] == definition['revision']
             assert exported['receipt']['sourceSha256'] == parity['sourceSha256']
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            # Share: text preview first; cancel has no clipboard side effect. The stub records writes.
+            page.evaluate("""() => { globalThis.copies = [];
+                Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                    value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+            page.locator('#share').click()
+            assert page.locator('#share').get_attribute('aria-expanded') == 'true'
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            share_text = page.locator('#share-text').inner_text()
+            assert definition['title'] in share_text and f"revision {definition['revision']}" in share_text
+            for step in definition['steps']:
+                assert step['title'] not in share_text
+            for record in definition['records']:
+                assert record['title'] not in share_text
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            page.locator('header').screenshot(path=str(OUT / f'share-{width}.png'))
+            page.locator('#share-cancel').click()
+            assert page.locator('#share-text').count() == 0
+            assert 'Nothing was copied' in page.locator('#status').inner_text()
+            assert page.evaluate('globalThis.copies.length') == 0
+            # A started clipboard operation cannot be cancelled. Refusal permits retry;
+            # restarting invalidates its completion callback without claiming to undo the write.
+            page.evaluate("""() => {
+                navigator.clipboard.writeText = (text) => new Promise((resolve, reject) => {
+                    globalThis.finishCopy = () => { globalThis.copies.push(text); resolve(); };
+                    globalThis.rejectCopy = () => reject(new Error('blocked'));
+                });
+            }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert page.locator('#share-copy').is_disabled()
+            assert page.locator('#share-cancel').is_disabled()
+            assert page.locator('#share').is_disabled()
+            page.evaluate('globalThis.rejectCopy()')
+            assert 'blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-copy').is_enabled()
+            assert page.locator('#share-cancel').is_enabled()
+            page.locator('#share-copy').click()
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#restart').click()
+            page.evaluate('globalThis.finishCopy()')
+            assert page.locator('#status').inner_text() == 'Preview restarted.'
+            assert page.locator('#share-text').count() == 0
+            assert page.locator('#share').is_enabled()
+            assert page.evaluate('globalThis.copies.length') == 1
+            page.evaluate("""() => { globalThis.copies = [];
+                navigator.clipboard.writeText = async (text) => { globalThis.copies.push(text); };
+            }""")
+            # A refused clipboard write keeps the invitation available for manual copying.
+            page.evaluate("""() => { navigator.clipboard.writeText = async () => {
+                throw new DOMException('Denied', 'NotAllowedError');
+            }; }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert 'browser blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-cancel').click()
+            page.evaluate("""() => { navigator.clipboard.writeText = async (text) => {
+                globalThis.copies.push(text);
+            }; }""")
             page.locator('#verdict-bounded-window').focus()
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
@@ -328,6 +414,15 @@ def run():
                     page.locator('#continue').click()
                     assert page.locator('#step-title').evaluate('(el) => el === document.activeElement')
             assert page.locator('#ending').is_visible()
+            # Full completion discloses nothing new: identical text, copied only on request.
+            page.locator('#share').click()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-copy').click()
+            page.wait_for_function('globalThis.copies.length === 1')
+            assert page.evaluate('globalThis.copies[0]') == share_text
+            assert 'Nothing was posted' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').count() == 0
             page.once('dialog', lambda dialog: dialog.dismiss())
             page.locator('#restart').click()
             assert page.locator('#ending').is_visible()
@@ -348,7 +443,7 @@ def run():
             context.close()
         results.append(playtest_receipt(browser, normal, definition))
         hostile = json.loads(SOURCE.read_text(encoding='utf-8'))
-        hostile['title'] = '</script><script>globalThis.compromised=true</script>'
+        hostile['title'] = '</script><script>globalThis.compromised=true</script>  A\nB'
         hostile['records'][0]['text']['storyOn'] = '<img src="https://invalid.example/x" onerror="globalThis.compromised=true">'
         hostile_source, hostile_page = temp / 'hostile.json', temp / 'hostile.html'
         hostile_source.write_text(json.dumps(hostile), encoding='utf-8')
@@ -359,7 +454,16 @@ def run():
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('request', lambda request: external.append(request.url) if not request.url.startswith('file:') else None)
         page.goto(hostile_page.as_uri())
-        assert page.locator('h1').inner_text() == hostile['title']
+        assert page.locator('h1').text_content() == hostile['title']
+        page.evaluate("""() => { globalThis.copies = [];
+            Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+        page.locator('#share').click()
+        invitation = page.locator('#share-text').inner_text()
+        assert hostile['title'] in invitation
+        page.locator('#share-copy').click()
+        page.wait_for_function('globalThis.copies.length === 1')
+        assert page.evaluate('globalThis.copies[0]') == invitation
         assert page.locator('img').count() == 0
         assert page.evaluate('typeof globalThis.compromised') == 'undefined'
         assert not external and not errors, (external, errors)

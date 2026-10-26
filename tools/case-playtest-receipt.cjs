@@ -7,12 +7,13 @@
   const MAX_OBSERVATION = 500;
   const LIMITATIONS = Object.freeze([
     'Counts only: it cannot tell whether a hint was read, understood or needed.',
-    'Counts begin at consent; earlier help is excluded. Outcomes include stages already completed when visited.',
+    'Counts begin at consent. Prior assistance is a baseline flag for help used earlier in this page, including before restart; outcomes include stages already completed when visited.',
     'No timings are recorded, so it says nothing about difficulty from speed.',
     'Incomplete submissions (an empty verdict or no cited source) are counted as interface, not reasoning.',
     'One local session of one tester; it is not a sample and not human acceptance by itself.',
   ]);
   function create({ caseId, revision, sourceSha256, stageIds }) {
+    stageIds = [...stageIds];
     const known = new Set(stageIds);
     let on = false,
       modes,
@@ -45,6 +46,7 @@
           reasoning: 0,
           afterCompletion: 0,
           completed: false,
+          priorAssistance: false,
         });
       return stages.get(id);
     }
@@ -57,19 +59,23 @@
       get enabled() {
         return on;
       },
-      start(storyOn, stageId, completed = false) {
+      start(storyOn, stageId, completed = false, priorAssistance = false) {
         if (on) return;
         on = true;
         mode(storyOn);
         const s = stage(stageId);
-        if (s) s.completed = completed === true;
+        if (s) {
+          s.completed = completed === true;
+          s.priorAssistance = priorAssistance === true;
+        }
       },
       // Discards everything and turns collection off. Nothing is written or sent.
       cancel: clear,
       mode,
-      open(stageId, completed = false) {
+      open(stageId, completed = false, priorAssistance = false) {
         const s = stage(stageId);
         if (s && completed === true) s.completed = true;
+        if (s && priorAssistance === true) s.priorAssistance = true;
       },
       hint(stageId) {
         const s = stage(stageId);
@@ -111,7 +117,8 @@
             return {
               id,
               outcome: s.completed ? 'completed' : 'not-completed',
-              assisted: s.hints > 0 || s.reveals > 0,
+              assisted: s.priorAssistance || s.hints > 0 || s.reveals > 0,
+              priorAssistance: s.priorAssistance,
               hints: s.hints,
               reveals: s.reveals,
               submissions: s.submissions,

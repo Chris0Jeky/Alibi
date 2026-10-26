@@ -104,3 +104,59 @@ Resume: `tests/browser_case_workbench.py` remains unmerged in the index because 
 is prohibited. The coordinator must stage the resolved file and this handoff, finish
 the pending merge commit, then rerun `npm.cmd run verify` from the clean committed tree
 and qualify the resulting published head. No staging, commit, push or merge was performed.
+
+
+## PR #759 independent source review and follow-up (2026-10-26)
+
+Reviewed GitHub head `83ba9963b6b54ca0c74ad63f5d84c9705684f5c3` against main
+`7a7640ddaf23d4f49f253cda5d9a47a2a2914b7a`, including all nine changed files and
+unresolved thread `PRRT_kwDOURuAf86wFk08`. The earlier repair correctly preserves
+completion and repeat-check classification, but leaves prior assistance represented only
+by a disclaimer: showing help before consent still yields `assisted: false`.
+
+Changed:
+
+- Snapshot a per-stage `priorAssistance` flag at consent from the preview's help exposure
+  state. This contributes to `assisted` without importing pre-consent event counts. Hiding
+  an answer, discarding a receipt or restarting gameplay does not make prior help unseen.
+  Reload begins a new page with no retained exposure. Collector recorders remain no-ops
+  while off; the ordinary preview tracks only stage help exposure, never a timeline.
+- Snapshot the collector's stage ID array so caller mutation cannot erase visited rows;
+  returned report arrays and rows are already independent snapshots.
+- Invalidate pending clipboard callbacks on discard/restart/new consent. Discard now says
+  clipboard copies remain and an already requested copy may finish, rather than promising
+  that nothing was copied. No automatic clipboard write was added.
+- Extend collector and actual-control browser regressions, plus a minimal DOM/event fixture
+  executing the real preview source for deterministic delayed clipboard promises.
+
+Verified locally (Linux, Node 24.22.1):
+
+- Before fixes: two collector regressions failed (prior assistance `false`, mutated stage
+  list lost both visited rows); seven existing collector tests passed.
+- Before clipboard fix: DOM regressions failed on the false discard assurance and late copy
+  success replacing `Preview restarted.` After the fix all three DOM/event tests pass.
+- Final `node --test tests/case*.test.cjs` with subprocess access: **147 passed**, zero
+  failures or skips, including all three DOM/event regressions. The case-workbench
+  Prettier check, `git diff --check` and Python compilation also passed.
+- The standard Node runner needs subprocess access in this environment. An initial sandbox
+  case run gave 140/144 with four CLI probe failures caused by `spawnSync` EPERM; the same
+  standard `node --test tests/case*.test.cjs` with subprocess access passed all 144 before
+  adding the three DOM tests. No test assertions or gates were relaxed.
+
+Reviewed boundaries: source identity comes from the validated case's existing source hash;
+CSP still hash-pins every executable script with `connect-src 'none'`. Reports retain only
+allowlisted counts/state, modes, identity, bounded observation and fixed limitations. The
+500-event cap reports truncation; subsequent outcomes/counts may be incomplete. The
+incomplete/reasoning split remains a shape heuristic. Existing save domains, dependencies,
+application budgets and published content are unchanged.
+
+NOT verified locally: actual browser/layout/accessibility/real clipboard permissions or a
+human playtest. Available Playwright Chromium downloads returned invalid empty archives;
+new actual-control tests are authored but need exact-head hosted execution. The DOM fixture
+proves event/promise behavior only. This reviewer authored the follow-up fixes; they require
+another independent review and current-head CI before merge. Full integration verification
+and publication belong to the coordinator. No GitHub mutation was performed here.
+
+[HUMAN_TODO.md](../../HUMAN_TODO.md) remains authoritative for physical Android, TalkBack,
+owner acceptance and other external gates. No human observation or issue #455 closure is
+claimed by these synthetic tests.

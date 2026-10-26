@@ -10,6 +10,10 @@
     stageIds: d.steps.map((s) => s.id),
   });
   let reviewing = false;
+  let receiptGeneration = 0;
+  // Ordinary preview help exposure survives hiding/restart; snapshot only at consent.
+  const helpSeen = new Set();
+  let priorHelp = new Set();
   const root = document.getElementById('workbench');
   let completed = [],
     current = S.available(d, [])[0],
@@ -18,7 +22,10 @@
   const drafts = new Map(),
     hints = new Map(),
     reveals = new Set();
-  let message = '';
+  let message = '',
+    sharing = false,
+    copying = false,
+    shareAttempt = 0;
   let validationErrors = [],
     validationActive = false;
   function el(tag, text, attrs = {}) {
@@ -83,20 +90,25 @@
     const actions = el('div', undefined, { class: 'toolbar' });
     const discard = button('Discard receipt', 'playtest-cancel', () => {
       playtest.cancel();
+      receiptGeneration++;
+      priorHelp.clear();
       reviewing = false;
-      message = 'Playtest receipt discarded. Nothing was copied or sent.';
+      message =
+        'Playtest receipt discarded from this page. Clipboard copies are not removed; a requested copy may still finish. Nothing was sent.';
       render('playtest-start');
     });
     if (!playtest.enabled) {
       section.append(
         el(
           'p',
-          'Optional, for consenting testers, and off until you start it. It counts stage visits, story mode, hint and reveal requests and checks in this page only: no answers, citations, notes, saves, timings or device details. Nothing is sent; you review, edit and copy it yourself. Restarting or reloading discards it.',
+          'Optional, for consenting testers, and off until you start it. It counts stage visits, story mode, hint and reveal requests and checks in this page only: no answers, citations, notes, saves, timings or device details. Earlier help used in this page is marked as prior assistance when you start, even after hiding it or restarting. Nothing is sent; you review, edit and copy it yourself. Restarting or reloading discards it.',
         ),
       );
       actions.append(
         button('Start playtest receipt', 'playtest-start', () => {
-          playtest.start(story, current, completed.includes(current));
+          receiptGeneration++;
+          priorHelp = new Set(helpSeen);
+          playtest.start(story, current, completed.includes(current), priorHelp.has(current));
           message = 'Playtest receipt started. Counts stay in this page until you copy them.';
           render('playtest-review');
         }),
@@ -133,12 +145,15 @@
       });
       actions.append(
         button('Copy receipt', 'playtest-copy', async () => {
+          const generation = receiptGeneration;
           try {
             await navigator.clipboard.writeText(JSON.stringify(playtest.draft(), null, 2));
+            if (generation !== receiptGeneration) return;
             reviewing = false;
             message = 'Receipt copied. Nothing was sent.';
             render('playtest-review');
           } catch {
+            if (generation !== receiptGeneration) return;
             message = 'The browser blocked copying. Select the receipt text to copy it yourself.';
             render('playtest-preview');
           }
@@ -203,14 +218,79 @@
         hints.clear();
         reveals.clear();
         playtest.cancel();
+        receiptGeneration++;
+        priorHelp.clear();
         reviewing = false;
         validationErrors = [];
         validationActive = false;
+        sharing = false;
+        copying = false;
+        shareAttempt++;
         message = 'Preview restarted.';
         render('step-title');
       }),
     );
+    const shareButton = button('Share invitation', 'share', () => {
+      if (copying) return;
+      sharing = !sharing;
+      render(sharing ? 'share-text' : 'share');
+    });
+    shareButton.setAttribute('aria-expanded', String(sharing));
+    shareButton.disabled = copying;
+    toolbar.append(shareButton);
     header.append(toolbar);
+    if (sharing) {
+      // Text preview first; only an explicit copy touches the clipboard. Nothing is posted.
+      const invitation = S.share(d, completed);
+      const panel = el('section', undefined, {
+        class: 'hint share',
+        'aria-labelledby': 'share-title',
+      });
+      const actions = el('div', undefined, { class: 'toolbar' });
+      const copyButton = button(
+        copying ? 'Copying invitation…' : 'Copy invitation',
+        'share-copy',
+        async () => {
+          if (copying) return;
+          copying = true;
+          const attempt = ++shareAttempt;
+          message = 'Copying invitation. Wait for the browser clipboard result.';
+          render('status');
+          try {
+            await navigator.clipboard.writeText(invitation.text);
+            if (attempt !== shareAttempt) return;
+            copying = false;
+            sharing = false;
+            message = 'Invitation copied. Nothing was posted.';
+            render('share');
+          } catch {
+            if (attempt !== shareAttempt) return;
+            copying = false;
+            message = 'The browser blocked copying. Select the text above to copy it yourself.';
+            render('share-text');
+          }
+        },
+      );
+      copyButton.disabled = copying;
+      const cancelButton = button('Cancel', 'share-cancel', () => {
+        if (copying) return;
+        sharing = false;
+        message = 'Sharing cancelled. Nothing was copied.';
+        render('share');
+      });
+      cancelButton.disabled = copying;
+      actions.append(copyButton, cancelButton);
+      panel.append(
+        el('h2', 'Share an invitation', { id: 'share-title' }),
+        el(
+          'p',
+          'Only the case title, ID and revision. No progress, answers, hints or notes. Review it before copying.',
+        ),
+        el('p', invitation.text, { id: 'share-text', class: 'notice', tabindex: '-1' }),
+        actions,
+      );
+      header.append(panel);
+    }
     root.append(header);
     const nav = el('nav', undefined, { 'aria-label': 'Investigation stages' });
     const available = S.available(d, completed);
@@ -221,7 +301,7 @@
         : `Question ${index + 1} (locked)`;
       const control = button(text, `stage-${step.id}`, () => {
         current = step.id;
-        playtest.open(current, completed.includes(current));
+        playtest.open(current, completed.includes(current), priorHelp.has(current));
         validationErrors = [];
         validationActive = false;
         message = '';
@@ -392,6 +472,7 @@
       'hint',
       () => {
         hints.set(current, Math.min(3, count + 1));
+        helpSeen.add(current);
         playtest.hint(current);
         render('hint-list');
       },
@@ -411,6 +492,7 @@
         if (reveals.has(current)) reveals.delete(current);
         else {
           reveals.add(current);
+          helpSeen.add(current);
           playtest.reveal(current);
         }
         render(reveals.has(current) ? 'worked' : 'reveal');
@@ -434,7 +516,7 @@
         investigation.append(
           button('Continue investigation', 'continue', () => {
             current = next.id;
-            playtest.open(current);
+            playtest.open(current, completed.includes(current), priorHelp.has(current));
             validationErrors = [];
             validationActive = false;
             message = '';
