@@ -52,7 +52,12 @@ function fakeDb({ runs = [], packs = [], meta = {} } = {}) {
   return {
     close() {},
     transaction() {
-      const tx = { addEventListener() {} };
+      const listeners = {};
+      const tx = { addEventListener: (name, callback) => (listeners[name] = callback) };
+      setTimeout(() => {
+        listeners.complete?.();
+        tx.oncomplete?.();
+      }, 0);
       tx.objectStore = (name) => ({
         getAll() {
           const req = {};
