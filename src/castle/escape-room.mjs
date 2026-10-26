@@ -20,7 +20,9 @@ const MESSAGES = {
 export function createEscapeAdapter(source) {
   const session = Session.createRoomSession(source);
   const room = source.id;
-  const scope = `${room}@${source.revision}`;
+  const revision = source.revision;
+  const title = source.title;
+  const scope = `${room}@${revision}`;
   // A portable item is a location variable that can be held; one variable is one physical item.
   const items = source.variables.filter((v) => v.values.includes(HELD)).map((v) => v.id);
   function view(storyOn = true) {
@@ -28,8 +30,8 @@ export function createEscapeAdapter(source) {
     const state = session.state();
     return {
       room,
-      revision: source.revision,
-      title: source.title,
+      revision,
+      title,
       won: v.won,
       undoDepth: session.undoDepth(),
       inventory: items.filter((id) => state[id] === HELD),
@@ -74,18 +76,31 @@ export function createEscapeHost(sources) {
       current = rooms.get(id) || null;
       return ++token;
     },
-    view: (storyOn) => current?.view(storyOn) || null,
+    view(storyOn) {
+      const view = current?.view(storyOn);
+      return view ? { ...view, routeToken: token } : null;
+    },
     act(issued, handle, input) {
-      if (issued !== token || !current)
+      // DOMStringMap values are strings; accept the exact current token in either representation.
+      if (
+        (issued !== token && !(typeof issued === 'string' && issued === String(token))) ||
+        !current
+      )
         return { ok: false, code: 'stale', message: MESSAGES.stale };
       return current.act(handle, input);
     },
   };
 }
 
-function actionMarkup(a) {
-  if (!a.input) return `<li>${button(escape(a.label), 'escape-act', a.handle)}</li>`;
-  return `<li><label>${escape(a.label)} <input data-escape-answer="${escape(a.handle)}" maxlength="64" autocomplete="off" spellcheck="false"></label>${button('Try answer', 'escape-act', a.handle, `aria-label="Try answer: ${escape(a.label)}"`)}</li>`;
+function routeAttribute(view) {
+  return view.routeToken == null ? '' : `data-escape-route="${escape(view.routeToken)}"`;
+}
+
+function actionMarkup(a, route) {
+  if (!a.input) return `<li>${button(escape(a.label), 'escape-act', a.handle, route)}</li>`;
+  const attrs = [route, `aria-label="Try answer: ${escape(a.label)}"`].filter(Boolean).join(' ');
+  const inputRoute = route ? ` ${route}` : '';
+  return `<li><label>${escape(a.label)} <input data-escape-answer="${escape(a.handle)}"${inputRoute} maxlength="64" autocomplete="off" spellcheck="false"></label>${button('Try answer', 'escape-act', a.handle, attrs)}</li>`;
 }
 
 const inventoryMarkup = (view) =>
@@ -95,10 +110,11 @@ const inventoryMarkup = (view) =>
 // inspector. The opener's data-do/data-value pair is stable, which Castle's close() uses to return
 // focus while the object stays visible.
 export function roomMarkup(view) {
+  const route = routeAttribute(view);
   return `<section class="castle-objects escape-room" aria-label="${escape(view.title)}">${inventoryMarkup(view)}${view.objects
     .map(
       (o) =>
-        `<article><h3>${button(escape(o.n), 'escape-object', o.id)}</h3><ul aria-label="Actions for ${escape(o.n)}">${o.actions.map(actionMarkup).join('')}</ul></article>`,
+        `<article><h3>${button(escape(o.n), 'escape-object', o.id, route)}</h3><ul aria-label="Actions for ${escape(o.n)}">${o.actions.map((a) => actionMarkup(a, route)).join('')}</ul></article>`,
     )
     .join('')}</section>`;
 }
@@ -107,5 +123,6 @@ export function roomMarkup(view) {
 export function inspectorMarkup(view, id) {
   const o = view.objects.find((entry) => entry.id === id);
   if (!o) return '';
-  return `<p>${escape(o.t)}</p>${o.observations.map((text) => `<p>${escape(text)}</p>`).join('')}${inventoryMarkup(view)}<ul aria-label="Actions">${o.actions.map(actionMarkup).join('')}</ul>${button('Keep a note', 'keep-observation', o.id)}`;
+  const route = routeAttribute(view);
+  return `<p>${escape(o.t)}</p>${o.observations.map((text) => `<p>${escape(text)}</p>`).join('')}${inventoryMarkup(view)}<ul aria-label="Actions">${o.actions.map((a) => actionMarkup(a, route)).join('')}</ul>${button('Keep a note', 'keep-observation', o.id, route)}`;
 }
