@@ -30,6 +30,9 @@
       undoDepth() {
         return history.length;
       },
+      state() {
+        return { ...state };
+      },
       restart() {
         state = S.initial(definition);
         history.length = 0;
