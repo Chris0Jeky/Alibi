@@ -16,6 +16,140 @@ def build(source, output):
     subprocess.run(['node', 'tools/case-preview.cjs', str(source), str(output)], cwd=ROOT, check=True, capture_output=True)
 
 
+def solve(page, step):
+    for claim in step['claims']:
+        page.locator('#verdict-' + claim['id']).select_option(claim['answer'])
+        for record in claim['evidence'][0]:
+            page.locator('#cite-' + claim['id'] + '-' + record).check()
+
+
+def playtest_receipt(browser, preview, definition):
+    """#455 consent through actual controls. The observation text is a labelled synthetic fixture."""
+    context = browser.new_context(viewport={'width': 320, 'height': 740})
+    context.set_offline(True)
+    page = context.new_page()
+    errors, external = [], []
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.on('request', lambda request: external.append(request.url) if not request.url.startswith('file:') else None)
+    page.goto(preview.as_uri())
+    page.evaluate("""() => { globalThis.copies = [];
+        Object.defineProperty(navigator, 'clipboard', { configurable: true,
+            value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+    assert page.locator('#playtest-review').count() == 0
+    page.locator('#hint').click()  # Before consent: baseline only, no event count.
+    page.locator('#reveal').click()
+    page.locator('#reveal').click()  # Hiding must not erase earlier exposure.
+    page.locator('#playtest-start').click()
+    assert page.locator('#playtest-review').evaluate('(el) => el === document.activeElement')
+    page.locator('#check').click()  # Empty form: an interface rejection.
+    page.locator('#hint').click()
+    first, second = definition['steps'][0], definition['steps'][1]
+    solve(page, first)
+    page.locator('#check').click()
+    assert 'Reasoning accepted' in page.locator('#status').inner_text()
+    page.locator('#check').click()  # Repeat on a completed stage.
+    page.locator('#story').click()
+    page.locator('#continue').click()
+    page.locator('#reveal').click()  # Abandoned, assisted stage.
+    page.locator('#playtest-review').click()
+    observation = 'SYNTHETIC FIXTURE: browser test, not a tester'
+    page.locator('#playtest-observation').fill(observation)
+    draft = json.loads(page.locator('#playtest-preview').inner_text())
+    assert draft['observation'] == observation
+    assert draft['modes'] == ['storyOn', 'storyOff'] and draft['assisted'] is True
+    window, alarm = draft['stages']
+    assert window['priorAssistance'] is True and alarm['priorAssistance'] is False
+    assert (window['id'], window['outcome'], window['hints'], window['submissions']) == (first['id'], 'completed', 1, 2)
+    assert (window['rejectedIncomplete'], window['rejectedReasoning'], window['afterCompletion']) == (1, 0, 1)
+    assert (alarm['id'], alarm['outcome'], alarm['reveals'], alarm['submissions']) == (second['id'], 'not-completed', 1, 0)
+    shown = json.dumps({k: v for k, v in draft.items() if k != 'limitations'})
+    for record in definition['records']:
+        assert record['id'] not in shown and record['title'] not in shown
+    assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+    page.locator('.playtest').screenshot(path=str(OUT / 'playtest-review-320.png'))
+    page.locator('#playtest-cancel').click()
+    assert 'Clipboard copies are not removed' in page.locator('#status').inner_text()
+    assert page.locator('#playtest-preview').count() == 0 and page.locator('#playtest-start').is_visible()
+    assert page.evaluate('globalThis.copies.length') == 0
+    # A fresh consent starts empty; copy happens only on the explicit control.
+    page.locator('#playtest-start').click()
+    page.locator('#playtest-review').click()
+    assert page.locator('#playtest-observation').input_value() == ''
+    assert page.evaluate('globalThis.copies.length') == 0
+    page.locator('#playtest-copy').click()
+    page.wait_for_function('globalThis.copies.length === 1')
+    copied = json.loads(page.evaluate('globalThis.copies[0]'))
+    assert copied['observation'] == '' and [s['id'] for s in copied['stages']] == [second['id']]
+    assert copied['stages'][0]['priorAssistance'] is True
+    assert copied['stages'][0]['reveals'] == 0 and copied['assisted'] is True
+    assert 'Nothing was sent' in page.locator('#status').inner_text()
+    page.once('dialog', lambda dialog: dialog.accept())
+    page.locator('#restart').click()
+    assert page.locator('#playtest-start').is_visible() and page.locator('#playtest-review').count() == 0
+    # Consent can begin after progress, including after discarding an earlier receipt.
+    solve(page, first)
+    page.locator('#check').click()
+    page.locator('#playtest-start').click()
+    page.locator('#playtest-review').click()
+    stage = json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]
+    assert (stage['outcome'], stage['submissions'], stage['afterCompletion']) == ('completed', 0, 0)
+    assert stage['priorAssistance'] is True  # Restart cannot make help unseen.
+    page.locator('#playtest-close').click()
+    page.locator('#verdict-' + first['claims'][0]['id']).select_option('')
+    page.locator('#check').click()
+    page.locator('#playtest-review').click()
+    stage = json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]
+    assert (stage['outcome'], stage['submissions'], stage['afterCompletion']) == ('completed', 0, 1)
+    assert stage['rejectedIncomplete'] == 0
+    page.locator('#playtest-cancel').click()
+    page.locator('#continue').click()
+    page.locator('#playtest-start').click()
+    page.locator('#stage-' + first['id']).click()
+    page.locator('#playtest-review').click()
+    assert json.loads(page.locator('#playtest-preview').inner_text())['stages'][0]['outcome'] == 'completed'
+    # A denied clipboard leaves the exact JSON available for manual copying.
+    page.evaluate("() => { navigator.clipboard.writeText = async () => { throw new Error('SYNTHETIC FIXTURE: denied'); }; }")
+    before = page.locator('#playtest-preview').inner_text()
+    page.locator('#playtest-copy').click()
+    assert 'browser blocked copying' in page.locator('#status').inner_text()
+    assert page.locator('#playtest-preview').inner_text() == before
+    assert page.locator('#playtest-preview').evaluate('(el) => el === document.activeElement')
+    for width in (320, 1280):
+        page.set_viewport_size({'width': width, 'height': 740})
+        for theme in ('daylight', 'lamplight'):
+            if page.locator('html').get_attribute('data-theme') != theme:
+                page.locator('#theme').click()
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            page.locator('.playtest').screenshot(path=str(OUT / f'playtest-review-{width}-{theme}.png'))
+    # Delayed clipboard completion cannot resurrect a discarded/restarted receipt.
+    for reset in ('discard', 'restart'):
+        page.evaluate("""() => { navigator.clipboard.writeText = text => new Promise(resolve => {
+            globalThis.finishCopy = () => { globalThis.copies.push(text); resolve(); };
+        }); }""")
+        page.locator('#playtest-copy').click()
+        if reset == 'discard':
+            page.locator('#playtest-cancel').click()
+            assert 'Clipboard copies are not removed' in page.locator('#status').inner_text()
+        else:
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#restart').click()
+        status = page.locator('#status').inner_text()
+        page.evaluate('globalThis.finishCopy()')
+        assert page.locator('#status').inner_text() == status
+        assert page.locator('#playtest-start').is_visible()
+        page.locator('#playtest-start').click()
+        page.locator('#playtest-review').click()
+    page.reload()
+    assert page.locator('#playtest-start').is_visible() and page.locator('#playtest-preview').count() == 0
+    page.locator('#playtest-start').click()
+    page.locator('#playtest-review').click()
+    fresh = json.loads(page.locator('#playtest-preview').inner_text())
+    assert fresh['observation'] == '' and fresh['stages'][0]['outcome'] == 'not-completed'
+    assert fresh['stages'][0]['submissions'] == 0
+    assert not external and not errors, (external, errors)
+    context.close()
+    return {'viewport': [320, 740], 'playtestReceipt': 'passed', 'observation': 'synthetic fixture', 'externalRequests': 0}
+
 def non_prose_controls(page):
     return page.evaluate('''() => ({
         records: [...document.querySelectorAll('article.record')].map(el => el.id),
@@ -307,6 +441,7 @@ def run():
             assert not errors, errors
             results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'modeParity': 'drafts, focus, progress, sources, hints and worked-answer access retained at every stage', 'externalRequests': len(external), 'scriptErrors': len(errors)})
             context.close()
+        results.append(playtest_receipt(browser, normal, definition))
         hostile = json.loads(SOURCE.read_text(encoding='utf-8'))
         hostile['title'] = '</script><script>globalThis.compromised=true</script>  A\nB'
         hostile['records'][0]['text']['storyOn'] = '<img src="https://invalid.example/x" onerror="globalThis.compromised=true">'

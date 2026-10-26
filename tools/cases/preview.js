@@ -2,6 +2,18 @@
 (() => {
   const { definition: d, receipt } = JSON.parse(document.getElementById('case-data').textContent);
   const S = globalThis.PosternCaseSession;
+  // Off until the tester starts it; memory-only, discarded on restart, cancel or reload.
+  const playtest = globalThis.PosternPlaytestReceipt.create({
+    caseId: d.id,
+    revision: d.revision,
+    sourceSha256: receipt.sourceSha256,
+    stageIds: d.steps.map((s) => s.id),
+  });
+  let reviewing = false;
+  let receiptGeneration = 0;
+  // Ordinary preview help exposure survives hiding/restart; snapshot only at consent.
+  const helpSeen = new Set();
+  let priorHelp = new Set();
   const root = document.getElementById('workbench');
   let completed = [],
     current = S.available(d, [])[0],
@@ -69,6 +81,100 @@
       : errorSummary(validationErrors);
     render(focusId);
   }
+  function playtestSection() {
+    const section = el('section', undefined, {
+      class: 'playtest',
+      'aria-labelledby': 'playtest-title',
+    });
+    section.append(el('h2', 'Local playtest receipt', { id: 'playtest-title' }));
+    const actions = el('div', undefined, { class: 'toolbar' });
+    const discard = button('Discard receipt', 'playtest-cancel', () => {
+      playtest.cancel();
+      receiptGeneration++;
+      priorHelp.clear();
+      reviewing = false;
+      message =
+        'Playtest receipt discarded from this page. Clipboard copies are not removed; a requested copy may still finish. Nothing was sent.';
+      render('playtest-start');
+    });
+    if (!playtest.enabled) {
+      section.append(
+        el(
+          'p',
+          'Optional, for consenting testers, and off until you start it. It counts stage visits, story mode, hint and reveal requests and checks in this page only: no answers, citations, notes, saves, timings or device details. Earlier help used in this page is marked as prior assistance when you start, even after hiding it or restarting. Nothing is sent; you review, edit and copy it yourself. Restarting or reloading discards it.',
+        ),
+      );
+      actions.append(
+        button('Start playtest receipt', 'playtest-start', () => {
+          receiptGeneration++;
+          priorHelp = new Set(helpSeen);
+          playtest.start(story, current, completed.includes(current), priorHelp.has(current));
+          message = 'Playtest receipt started. Counts stay in this page until you copy them.';
+          render('playtest-review');
+        }),
+      );
+    } else if (!reviewing) {
+      section.append(el('p', 'Recording counts in this page only.', { id: 'playtest-state' }));
+      actions.append(
+        button('Review receipt', 'playtest-review', () => {
+          reviewing = true;
+          render('playtest-observation');
+        }),
+        discard,
+      );
+    } else {
+      const draft = playtest.draft();
+      const limits = el('ul');
+      for (const line of draft.limitations) limits.append(el('li', line));
+      const label = el('label', 'Your observation (optional, up to 500 characters)', {
+        for: 'playtest-observation',
+      });
+      const note = el('textarea', undefined, {
+        id: 'playtest-observation',
+        maxlength: '500',
+        rows: '3',
+      });
+      note.value = draft.observation;
+      const preview = el('pre', JSON.stringify(draft, null, 2), {
+        id: 'playtest-preview',
+        tabindex: '-1',
+      });
+      note.addEventListener('input', () => {
+        playtest.observe(note.value);
+        preview.textContent = JSON.stringify(playtest.draft(), null, 2);
+      });
+      actions.append(
+        button('Copy receipt', 'playtest-copy', async () => {
+          const generation = receiptGeneration;
+          try {
+            await navigator.clipboard.writeText(JSON.stringify(playtest.draft(), null, 2));
+            if (generation !== receiptGeneration) return;
+            reviewing = false;
+            message = 'Receipt copied. Nothing was sent.';
+            render('playtest-review');
+          } catch {
+            if (generation !== receiptGeneration) return;
+            message = 'The browser blocked copying. Select the receipt text to copy it yourself.';
+            render('playtest-preview');
+          }
+        }),
+        button('Close review', 'playtest-close', () => {
+          reviewing = false;
+          render('playtest-review');
+        }),
+        discard,
+      );
+      section.append(
+        el('p', 'Review exactly what would be copied. Limitations:'),
+        limits,
+        label,
+        note,
+        preview,
+      );
+    }
+    section.append(actions);
+    return section;
+  }
   function render(focusId) {
     const view = S.project(d, completed, current, story);
     const mode = story ? 'storyOn' : 'storyOff';
@@ -91,6 +197,7 @@
     const toolbar = el('div', undefined, { class: 'toolbar' });
     const storyButton = button(`Story: ${story ? 'on' : 'off'}`, 'story', () => {
       story = !story;
+      playtest.mode(story);
       render('story');
     });
     storyButton.setAttribute('aria-pressed', String(story));
@@ -110,6 +217,10 @@
         drafts.clear();
         hints.clear();
         reveals.clear();
+        playtest.cancel();
+        receiptGeneration++;
+        priorHelp.clear();
+        reviewing = false;
         validationErrors = [];
         validationActive = false;
         sharing = false;
@@ -190,6 +301,7 @@
         : `Question ${index + 1} (locked)`;
       const control = button(text, `stage-${step.id}`, () => {
         current = step.id;
+        playtest.open(current, completed.includes(current), priorHelp.has(current));
         validationErrors = [];
         validationActive = false;
         message = '';
@@ -334,12 +446,9 @@
     form.append(submit);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      const result = S.submit(
-        d,
-        completed,
-        current,
-        view.claims.map((c) => answers.get(c.id)),
-      );
+      const submitted = view.claims.map((c) => answers.get(c.id));
+      const result = S.submit(d, completed, current, submitted);
+      playtest.submission(current, result, submitted);
       completed = result.completed;
       let focusTarget = 'status';
       if (result.ok) {
@@ -363,6 +472,8 @@
       'hint',
       () => {
         hints.set(current, Math.min(3, count + 1));
+        helpSeen.add(current);
+        playtest.hint(current);
         render('hint-list');
       },
     );
@@ -379,7 +490,11 @@
     hintSection.append(
       button(reveals.has(current) ? 'Hide worked answer' : 'Reveal worked answer', 'reveal', () => {
         if (reveals.has(current)) reveals.delete(current);
-        else reveals.add(current);
+        else {
+          reveals.add(current);
+          helpSeen.add(current);
+          playtest.reveal(current);
+        }
         render(reveals.has(current) ? 'worked' : 'reveal');
       }),
     );
@@ -401,6 +516,7 @@
         investigation.append(
           button('Continue investigation', 'continue', () => {
             current = next.id;
+            playtest.open(current, completed.includes(current), priorHelp.has(current));
             validationErrors = [];
             validationActive = false;
             message = '';
@@ -416,6 +532,7 @@
       main.append(ending);
     }
     root.append(main);
+    root.append(playtestSection());
     const footer = el('footer');
     footer.append(
       el('p', d.provenance),
