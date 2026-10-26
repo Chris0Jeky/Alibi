@@ -412,7 +412,6 @@
   }
   // One bounded, ephemeral replay entry; never stored in a run or returned by reference.
   let blockReplay = null;
-  const blockReplayCheckpointStride = 64;
   const blockCabinet = {
     size: 8,
     // Keep the existing cap until long-run reload and physical-phone qualification; see #404.
@@ -438,23 +437,18 @@
     cellsAt(s, slot, origin) {
       if (!integer(slot, 0, 2) || !integer(origin, 0, 63))
         throw Error('Choose a block piece and square.');
-      const shape = this.shape(s.tray[slot]),
-        row = Math.floor(origin / 8),
-        column = origin % 8;
-      return shape.cells.map(([x, y]) => (row + y) * 8 + column + x);
+      return this.shape(s.tray[slot]).cells.map(([x, y]) => origin + y * 8 + x);
     },
     legal(s, slot, origin) {
       if (!s || s.done || !Array.isArray(s.board) || s.board.length !== 64) return false;
       if (!integer(slot, 0, 2) || !integer(origin, 0, 63) || !blockShapeById.has(s.tray?.[slot]))
         return false;
-      const shape = blockShapeById.get(s.tray[slot]),
-        row = Math.floor(origin / 8),
-        column = origin % 8;
-      return shape.cells.every(([x, y]) => {
-        const targetRow = row + y,
-          targetColumn = column + x;
-        return targetRow < 8 && targetColumn < 8 && s.board[targetRow * 8 + targetColumn] === 0;
-      });
+      return blockShapeById
+        .get(s.tray[slot])
+        .cells.every(
+          ([x, y]) =>
+            (origin & 7) + x < 8 && (origin >> 3) + y < 8 && s.board[origin + y * 8 + x] === 0,
+        );
     },
     placements(s, slot) {
       if (!integer(slot, 0, 2) || !blockShapeById.has(s?.tray?.[slot])) return [];
@@ -470,20 +464,13 @@
       if (!this.legal(s, slot, origin)) throw Error('That piece does not fit there.');
       const shape = this.shape(s.tray[slot]),
         board = s.board.slice(),
-        cells = this.cellsAt(s, slot, origin);
+        cells = this.cellsAt(s, slot, origin),
+        line = [0, 1, 2, 3, 4, 5, 6, 7];
       cells.forEach((cell) => (board[cell] = 1));
-      const rows = Array.from({ length: 8 }, (_, row) => row).filter((row) =>
-          Array.from({ length: 8 }, (_, column) => board[row * 8 + column]).every(Boolean),
-        ),
-        columns = Array.from({ length: 8 }, (_, column) => column).filter((column) =>
-          Array.from({ length: 8 }, (_, row) => board[row * 8 + column]).every(Boolean),
-        );
-      rows.forEach((row) =>
-        Array.from({ length: 8 }, (_, column) => (board[row * 8 + column] = 0)),
-      );
-      columns.forEach((column) =>
-        Array.from({ length: 8 }, (_, row) => (board[row * 8 + column] = 0)),
-      );
+      const rows = line.filter((row) => line.every((column) => board[row * 8 + column])),
+        columns = line.filter((column) => line.every((row) => board[row * 8 + column]));
+      rows.forEach((row) => line.forEach((column) => (board[row * 8 + column] = 0)));
+      columns.forEach((column) => line.forEach((row) => (board[row * 8 + column] = 0)));
       const q = {
         seed: s.seed,
         board,
@@ -516,42 +503,31 @@
         return action.slot * 64 + action.cell;
       });
       // Compare every move, not only length or the last action: restored/edited logs can diverge.
-      const prior = blockReplay;
+      const prior = blockReplay?.seed === seed ? blockReplay : null;
       let common = 0;
-      if (prior?.seed === seed)
+      if (prior)
         while (
           common < prior.moves.length &&
           common < moves.length &&
           prior.moves[common] === moves[common]
         )
           common++;
-      if (prior?.seed === seed && common === prior.moves.length && common === moves.length)
+      if (prior && common === prior.moves.length && common === moves.length)
         return copy(prior.state);
 
-      let checkpoints = [],
-        start = 0,
-        s;
-      if (prior?.seed === seed) {
-        checkpoints = prior.checkpoints.filter((checkpoint) => checkpoint.index <= common);
-        // Append-only play can continue from the prior tip. A shortened or changed log
-        // resumes from the latest stride checkpoint that still matches every action.
-        if (common === prior.moves.length && prior.moves.length < moves.length) {
-          start = prior.moves.length;
-          s = prior.state;
-        } else if (checkpoints.length) {
-          const checkpoint = checkpoints.at(-1);
-          start = checkpoint.index;
-          s = checkpoint.state;
-        }
-      }
-      if (!s) {
-        s = this.initial(seed);
-        checkpoints = [{ index: 0, state: s }];
+      // Checkpoint position is its array index times 64; no per-entry index is needed.
+      const checkpoints = prior
+        ? prior.checkpoints.slice(0, (common >> 6) + 1)
+        : [this.initial(seed)];
+      let start = common & ~63,
+        s = checkpoints.at(-1);
+      if (prior && common === prior.moves.length) {
+        start = common;
+        s = prior.state;
       }
       for (let i = start; i < moves.length; i++) {
-        s = this.move(s, Math.floor(moves[i] / 64), moves[i] % 64);
-        if ((i + 1) % blockReplayCheckpointStride === 0)
-          checkpoints.push({ index: i + 1, state: s });
+        s = this.move(s, moves[i] >> 6, moves[i] % 64);
+        if ((i + 1) % 64 === 0) checkpoints.push(s);
       }
       blockReplay = { seed, moves, checkpoints, state: s };
       return copy(s);

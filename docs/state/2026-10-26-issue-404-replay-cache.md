@@ -47,6 +47,23 @@ raising the cap toward the 3,000-entry save-validation limit.
 - Prettier check and `git diff --check` are part of final local verification. Full `npm run
   verify`, independent review and hosted CI are left to the coordinator's gate.
 
+## CI shell-budget correction
+
+The first published head failed the unchanged raw precache-shell ceiling: CI measured
+`coreOfflineBytes` 1,937,979 minus `officialContentBytes` 517,619 = 1,420,360 bytes,
+624 bytes above the 1,419,736.32-byte ceiling. The checkpoint states now live in an array whose
+position implies its 64-move index. The same Block engine also shares one eight-index line array
+for line clearing and uses equivalent 8×8 coordinate arithmetic. Every input action is still
+validated, every cached prefix is compared, and an unsuccessful replay still leaves the valid
+entry untouched.
+
+After clearing ignored generated output, `node tools/build.cjs` measured 1,937,207 core offline
+bytes and the same 517,619 official bytes: **1,419,588 shell bytes**, 148.32 bytes below the
+unchanged ceiling. `node tests/budget.test.cjs` passed all 15 tests. Direct-node focused runs
+passed the replay-cache (14), exact-cap (2), long-replay (5), Block Cabinet (7), and phone-action
+(2) tests. The changed engine passed pinned Prettier. The local web build used dirty source
+identity; the coordinator must verify the committed exact head in CI before merge.
+
 ## Remaining qualification
 
 Keep #404 open and `blockCabinet.maxMoves` at 500 until constrained-device replay timing and
