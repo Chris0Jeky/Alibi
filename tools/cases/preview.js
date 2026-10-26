@@ -11,7 +11,9 @@
     hints = new Map(),
     reveals = new Set();
   let message = '',
-    sharing = false;
+    sharing = false,
+    copying = false,
+    shareAttempt = 0;
   let validationErrors = [],
     validationActive = false;
   function el(tag, text, attrs = {}) {
@@ -111,15 +113,19 @@
         validationErrors = [];
         validationActive = false;
         sharing = false;
+        copying = false;
+        shareAttempt++;
         message = 'Preview restarted.';
         render('step-title');
       }),
     );
     const shareButton = button('Share invitation', 'share', () => {
+      if (copying) return;
       sharing = !sharing;
       render(sharing ? 'share-text' : 'share');
     });
     shareButton.setAttribute('aria-expanded', String(sharing));
+    shareButton.disabled = copying;
     toolbar.append(shareButton);
     header.append(toolbar);
     if (sharing) {
@@ -130,24 +136,39 @@
         'aria-labelledby': 'share-title',
       });
       const actions = el('div', undefined, { class: 'toolbar' });
-      actions.append(
-        button('Copy invitation', 'share-copy', async () => {
+      const copyButton = button(
+        copying ? 'Copying invitation…' : 'Copy invitation',
+        'share-copy',
+        async () => {
+          if (copying) return;
+          copying = true;
+          const attempt = ++shareAttempt;
+          message = 'Copying invitation. Wait for the browser clipboard result.';
+          render('status');
           try {
             await navigator.clipboard.writeText(invitation.text);
+            if (attempt !== shareAttempt) return;
+            copying = false;
             sharing = false;
             message = 'Invitation copied. Nothing was posted.';
             render('share');
           } catch {
+            if (attempt !== shareAttempt) return;
+            copying = false;
             message = 'The browser blocked copying. Select the text above to copy it yourself.';
             render('share-text');
           }
-        }),
-        button('Cancel', 'share-cancel', () => {
-          sharing = false;
-          message = 'Sharing cancelled. Nothing was copied.';
-          render('share');
-        }),
+        },
       );
+      copyButton.disabled = copying;
+      const cancelButton = button('Cancel', 'share-cancel', () => {
+        if (copying) return;
+        sharing = false;
+        message = 'Sharing cancelled. Nothing was copied.';
+        render('share');
+      });
+      cancelButton.disabled = copying;
+      actions.append(copyButton, cancelButton);
       panel.append(
         el('h2', 'Share an invitation', { id: 'share-title' }),
         el(

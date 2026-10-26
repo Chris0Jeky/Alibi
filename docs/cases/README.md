@@ -10,7 +10,15 @@ Every source has story-on/off prose, three ordered hints, a separately labelled 
 
 ## Share projection (#452)
 
-`share(definition, completed)` in `tools/case-session.cjs` returns a frozen `postern-case-share-1` object built from an allowlist: `caseId`, `revision` and a fixed invitation `text` naming the case title. It uses step IDs and prerequisites to validate progress but reads no step prose, record, hint, worked answer, note or save field. It never discloses progress, so the output is identical at every progress boundary (no counts, times or completion claims). Unknown case formats and malformed case identities are refused. The workbench preview shows the exact text before an explicit copy; cancelling touches neither the clipboard nor the network, and nothing is posted. Method labels, landing links and any production share surface wait for #440/#442.
+`share(definition, completed)` in `tools/case-session.cjs` returns a frozen
+`postern-case-share-1` object from an allowlist: `caseId`, `revision` and a fixed invitation
+`text` naming the case title. It validates progress using step IDs and prerequisites, but never
+discloses progress, authored answers, hints, notes or saves. The output is identical at every
+progress boundary. Unknown case formats and malformed identities are refused. The preview shows
+the exact text before an explicit copy. Cancel before copying has no clipboard side effect;
+Copy and Cancel are disabled while the browser handles a request. Restart dismisses its UI
+result, but cannot undo a clipboard request already sent. Nothing is posted. Method labels,
+landing links and any production share surface wait for #440/#442.
 
 ## Story-mode parity (#447)
 

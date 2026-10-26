@@ -123,6 +123,35 @@ def run():
             assert page.locator('#share-text').count() == 0
             assert 'Nothing was copied' in page.locator('#status').inner_text()
             assert page.evaluate('globalThis.copies.length') == 0
+            # A started clipboard operation cannot be cancelled. Refusal permits retry;
+            # restarting invalidates its completion callback without claiming to undo the write.
+            page.evaluate("""() => {
+                navigator.clipboard.writeText = (text) => new Promise((resolve, reject) => {
+                    globalThis.finishCopy = () => { globalThis.copies.push(text); resolve(); };
+                    globalThis.rejectCopy = () => reject(new Error('blocked'));
+                });
+            }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert page.locator('#share-copy').is_disabled()
+            assert page.locator('#share-cancel').is_disabled()
+            assert page.locator('#share').is_disabled()
+            page.evaluate('globalThis.rejectCopy()')
+            assert 'blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-copy').is_enabled()
+            assert page.locator('#share-cancel').is_enabled()
+            page.locator('#share-copy').click()
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#restart').click()
+            page.evaluate('globalThis.finishCopy()')
+            assert page.locator('#status').inner_text() == 'Preview restarted.'
+            assert page.locator('#share-text').count() == 0
+            assert page.locator('#share').is_enabled()
+            assert page.evaluate('globalThis.copies.length') == 1
+            page.evaluate("""() => { globalThis.copies = [];
+                navigator.clipboard.writeText = async (text) => { globalThis.copies.push(text); };
+            }""")
             # A refused clipboard write keeps the invitation available for manual copying.
             page.evaluate("""() => { navigator.clipboard.writeText = async () => {
                 throw new DOMException('Denied', 'NotAllowedError');
