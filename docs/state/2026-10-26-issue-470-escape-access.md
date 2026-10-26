@@ -33,6 +33,8 @@ route changed. The Castle object/inventory adapter (#467) is untouched.
   observation group role, the "Now:" description and the hint announcement.
 - `node --test tests/escape-*.test.cjs`: 93 passed, 1 skipped (named pipe on Windows).
 - Prettier check on the escape workflow's file set: clean.
+- `npm run verify` at 4853be8 (Windows, Node 24): format clean, Android payload built, 2107 passed,
+  0 failed, 18 skipped.
 
 ## Not verified / remaining
 
