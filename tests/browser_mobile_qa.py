@@ -685,6 +685,41 @@ class MobileQA(unittest.TestCase):
                 expect(page.locator('.club-hero')).not_to_have_attribute('data-theatre-story', edition)
         (OUT / 'typography-metrics.json').write_text(json.dumps(measurements, indent=2))
 
+    def test_desk_news_feature_cards_follow_type_ramp(self):
+        measurements = []
+        for width in [390, 1280]:
+            page = self.open_page(width, 900)
+            news = page.locator('.club-news')
+            expect(news).to_be_visible()
+            sizes = page.evaluate('''() => {
+                const token = role => parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue(`--text-${role}`));
+                const size = selector => parseFloat(getComputedStyle(document.querySelector(selector)).fontSize);
+                const cards = [...document.querySelectorAll('.news-features > button')];
+                return {
+                    width: innerWidth,
+                    title: size('.news-features strong'), titleToken: token('h3'),
+                    body: size('.news-features span span'), bodyToken: token('body'),
+                    action: size('.news-features b'), actionToken: token('meta'),
+                    eyebrow: size('.news-features .eyebrow'), eyebrowToken: token('eyebrow'),
+                    cardHeights: cards.map(card => card.getBoundingClientRect().height),
+                    documentWidth: document.documentElement.scrollWidth
+                };
+            }''')
+            measurements.append(sizes)
+            news.screenshot(path=str(OUT / f'desk-news-ramp-{width}.png'))
+            expected = (20 if width <= 600 else 22, 16, 13, 11)
+            actual = (sizes['title'], sizes['body'], sizes['action'], sizes['eyebrow'])
+            self.assertEqual(actual, expected, sizes)
+            self.assertEqual(
+                actual,
+                (sizes['titleToken'], sizes['bodyToken'], sizes['actionToken'], sizes['eyebrowToken']),
+                sizes,
+            )
+            self.assertTrue(all(height >= 44 for height in sizes['cardHeights']), sizes)
+            self.assertLessEqual(sizes['documentWidth'], width + 1, sizes)
+        (OUT / 'desk-news-ramp-metrics.json').write_text(json.dumps(measurements, indent=2))
+
     def test_shared_library_headings_follow_type_ramp(self):
         measurements = []
         for width in [320, 390, 600, 601, 768, 1280, 1440]:
