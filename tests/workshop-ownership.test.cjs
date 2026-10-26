@@ -63,6 +63,7 @@ function fixture() {
   };
   const api = vm.runInNewContext(
     `(() => {
+    let draftSave;
     let draft = {rooms:[0]}, draftVerified = false, draftBusy = false,
       draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
       makerFields = {title:'Case'};

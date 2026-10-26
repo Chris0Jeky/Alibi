@@ -2435,7 +2435,7 @@
                 A.history = [];
                 A.future = [];
               }
-              d.close();
+              if ($('#confirm-import') === confirm) d.close();
               go();
               toast('Import complete.');
             } catch (err) {

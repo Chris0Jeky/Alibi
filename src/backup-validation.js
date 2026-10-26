@@ -233,13 +233,15 @@
         (typeof v.settings.api !== 'string' || v.settings.api.length > 2048)
       )
         throw Error('Invalid API setting.');
-      // Optional solved-room prefixes (#407): at most 100 per game; older builds keep the field.
+      // Optional durable prefixes: retain the original 200-entry bound for older saves.
       if (
         v.cleared !== undefined &&
         (!Array.isArray(v.cleared) ||
-          v.cleared.length > 200 ||
+          v.cleared.length > 202 ||
           v.cleared.some(
-            (x) => typeof x != 'string' || !/^(archive|regiongardens):(0|[1-9]\d?):$/.test(x),
+            (x) =>
+              typeof x != 'string' ||
+              !/^((archive|regiongardens):(0|[1-9]\d?):|(duel|borough):)$/.test(x),
           ))
       )
         throw Error('Invalid solved rooms.');

@@ -168,9 +168,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #407 durable solved rooms: main 134,935 -> 135,053 gzip (+118) after replacing the per-room
     // record scans with one prefix helper. The record-time copy and its save validation are
     // required. Excess 109 bytes; ceiling +128 leaves 19; no feature room.
+    // #738/#744/#761 save-integrity maintenance: measured 135,052 -> 135,121 gzip (+69).
+    // Shared revision/prefix helpers and the existing save promise keep the guards bounded.
+    // Ceiling +96 covers the 49-byte excess with 47 bytes for identity/hash noise.
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5024,
-      'Application bundle stays under 127 KiB + 5,024 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 5120,
+      'Application bundle stays under 127 KiB + 5,120 bytes gzip',
     );
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
@@ -254,8 +257,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // bytes; ceiling +192 leaves 17; no feature room. JS gzip ceiling unchanged.
       // #407 durable solved rooms: main 1,416,422 -> 1,416,951 (+529); the validator ships in both
       // the bundle and the validator worker. Excess 511 bytes; ceiling +544 leaves 33; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 32864,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 32,864 bytes',
+      // #738/#744/#761 revision fence, draft-save/export refusal, readable restore note and
+      // durable game stamps measure 1,416,648 -> 1,417,177 (+529). Ceiling +256 covers
+      // the 192.68-byte excess and leaves 63.32 bytes for identity/hash noise.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 33120,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 33,120 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

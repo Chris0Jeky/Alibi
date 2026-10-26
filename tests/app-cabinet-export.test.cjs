@@ -97,6 +97,7 @@ async function cabinetFixture({
       context.enqueueCalls++;
     },
     queue: Promise.resolve(),
+    draftSave: undefined,
     persistedInit: clone(persisted),
     localsInit: clone(locals),
     ackedInit: clone(ackedEntries),

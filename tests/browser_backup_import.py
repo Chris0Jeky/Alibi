@@ -148,6 +148,51 @@ def export_backup(page) -> dict[str, object]:
     return json.loads(Path(download.value.path()).read_text(encoding="utf-8"))
 
 
+def revision_reuse(page, context, saved_run) -> None:
+    """Exercise real Store transactions in two pages, without a broadcast-based rejection."""
+    stale_page = context.new_page()
+    stale_page.add_init_script("globalThis.BroadcastChannel = undefined;")
+    stale_page.on("pageerror", lambda error: errors.append(f"stale writer: {error}"))
+    try:
+        route(stale_page, "#/settings")
+        page.evaluate("""async (record) => {
+            globalThis.revisionStore = await new AlibiStorage.Store().init();
+            globalThis.revisionSeed = { ...record, rev: 7, note: 'SYNTHETIC revision fixture' };
+            await revisionStore.put('runs', record.key, revisionSeed);
+            globalThis.emptyRestore = { format: 'alibi-backup', schemaVersion: 1,
+                runs: [], packs: [], settings: {}, preferences: {} };
+        }""", saved_run)
+        stale_page.evaluate("""async (key) => {
+            globalThis.staleWriter = await new AlibiStorage.Store().init();
+            globalThis.staleRecord = await staleWriter.get('runs', key);
+        }""", saved_run["key"])
+        page.evaluate("""async () => {
+            await revisionStore.restore(emptyRestore);
+            await revisionStore.restore(emptyRestore);
+            await revisionStore.restore({ ...emptyRestore,
+                runs: [{ ...revisionSeed, rev: 6, note: 'restored after removal' }] });
+        }""")
+        refusal = stale_page.evaluate("""async () => {
+            try {
+                await staleWriter.saveRun({ ...staleRecord, note: 'stale overwrite' }, 7);
+                return 'saved';
+            } catch (error) { return error.name; }
+        }""")
+        check(refusal == "ConflictError", "two-tab IndexedDB refuses a stale revision after removal and reimport")
+        restored = {record["key"]: record for record in read_runs(page)}[saved_run["key"]]
+        check(restored["note"] == "restored after removal" and restored["rev"] > 7,
+              "reimport keeps its restored content and advances beyond the removed revision")
+        restarted = page.evaluate("""async () => {
+            await revisionStore.restore(emptyRestore);
+            return await revisionStore.saveRun({ ...revisionSeed, rev: 0, note: 'new attempt' }, 0);
+        }""")
+        check(restarted["rev"] > restored["rev"], "restarting a removed puzzle cannot reuse its earlier revision")
+        check(stale_page.evaluate("() => typeof BroadcastChannel") == "undefined",
+              "stale-writer protection is enforced by stored revisions without BroadcastChannel")
+    finally:
+        stale_page.close()
+
+
 def run() -> dict[str, object]:
     global identity
     with sync_playwright() as playwright:
@@ -288,6 +333,7 @@ def run() -> dict[str, object]:
                 page.evaluate("() => __cabinetPicker.hiddenClicks === 0 && __cabinetPicker.saveCalls === 0"),
                 "advertised picker outcomes avoid hidden fallback and save APIs",
             )
+            revision_reuse(page, test_context, incoming_records[incoming_key])
             check(not errors, "browser restore proof has no uncaught page errors")
         finally:
             if test_context is not None:
