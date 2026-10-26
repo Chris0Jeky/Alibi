@@ -716,7 +716,7 @@
     return `${heading('Lantern Gardens.', 'THE GAMES ROOM', 'A place for each light. Room between neighbours.')}${status()}<div class="club-playlayout"><section class="club-boardpanel"><h2>${esc(p.title)}</h2><div class="region-board" data-scroll-key="region-garden-${r.level}" style="--garden-size:${p.size}" role="group" aria-label="Lantern Gardens board">${s.marks.map((v, i) => `<button id="garden-cell-${i}" class="region-cell ${bad.has(i) ? 'conflict' : ''}" style="--garden-color:var(--garden-${p.regions[i]})" data-action="club-garden-cell" data-cell="${i}" aria-pressed="${v === 1}" aria-label="Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}, garden ${String.fromCharCode(65 + p.regions[i])}: ${v === 1 ? 'lantern' : v === 2 ? 'excluded' : 'empty'}${bad.has(i) ? ', conflicts with another lantern' : ''}" ${s.done ? 'disabled' : ''}><small>${String.fromCharCode(65 + p.regions[i])}</small><span aria-hidden="true">${v === 1 ? '●' : v === 2 ? '×' : ''}</span></button>`).join('')}</div><p id="garden-status" tabindex="-1" role="status">${s.done ? 'All lanterns have a place. Garden complete.' : `${s.marks.filter((v) => v === 1).length} / ${p.size} lanterns placed. ${bad.size ? 'Outlined lanterns share a row, column or garden, or touch.' : 'Tap a square: lantern → exclusion → empty.'}`}</p>${toolbar('regiongardens', r, s.done && r.level < E().regionGardens.layouts.length - 1 ? B('Next garden →', 'garden-level', `data-value="${r.level + 1}"`) : '')}</section><aside class="club-gameaside">${ruleDetails('<p>Place exactly one lantern in every row, column and lettered colour region. Lanterns must not touch, even at a corner. All squares belong to a region; most squares stay empty.</p><p>Tap a square to cycle lantern, exclusion cross and empty. Mistakes remain editable. Every garden has exactly one solution. Undo reopens a completed board.</p>', true)}<section class="panel"><h2>Choose a garden</h2>${E()
       .regionGardens.layouts.map((g, i) =>
         B(
-          `${esc(g.title)} · ${g.size}×${g.size}${state.records.some((x) => x.type === 'regiongardens' && x.label === g.title) ? ' · Solved' : ''}`,
+          `${esc(g.title)} · ${g.size}×${g.size}${cleared(`regiongardens:${i}:`) ? ' · Solved' : ''}`,
           'garden-level',
           `data-value="${i}" aria-pressed="${r.level === i}"`,
           'secondary small',
@@ -818,6 +818,13 @@
       false,
     )}<section class="seed-control"><label for="club-seed">Visit another town</label><input id="club-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'use-seed', '', 'secondary small')}${B('Today’s town', 'daily', '', 'ghost small')}</div></section><p class="club-local-note">Your records are local. Seed links share a challenge, not a live game or a verified global score.</p></aside></div>`;
   }
+  // Solved rooms and gardens outlive the 100-record journal (#407): record() keeps each
+  // archive:<room>: and regiongardens:<garden>: id prefix in state.cleared before pruning.
+  function cleared(prefix) {
+    return [...(state.cleared || []), ...state.records.map((x) => x.id)].some((x) =>
+      x.startsWith(prefix),
+    );
+  }
   function archivePage() {
     ensureRun('archive');
     const r = state.runs.archive,
@@ -825,11 +832,7 @@
       maps = E().warehouse.maps,
       level = maps[r.level],
       corners = E().warehouse.corners(s),
-      // Solved markers read the existing journal record ids: archive:<room index>:<replay hash>.
-      solved = maps.map(
-        (_, i) =>
-          (i === r.level && s.done) || state.records.some((x) => x.id.startsWith(`archive:${i}:`)),
-      ),
+      solved = maps.map((_, i) => (i === r.level && s.done) || cleared(`archive:${i}:`)),
       open = solved.slice(9).filter((x) => !x).length,
       next = r.level < maps.length - 1 ? r.level + 1 : solved.indexOf(false, 9),
       pad = (i) => String(i + 1).padStart(2, '0'),
@@ -938,6 +941,14 @@
       score: points,
       date: new Date().toISOString(),
     });
+    state.cleared = [
+      ...new Set([
+        ...(state.cleared || []),
+        ...state.records
+          .map((x) => /^(archive|regiongardens):(0|[1-9]\d?):/.exec(x.id)?.[0])
+          .filter(Boolean),
+      ]),
+    ];
     state.records = state.records.slice(0, 100);
     save();
   }
@@ -962,12 +973,7 @@
         state.records.some((r) => r.type === 'duel'),
         'duel',
       ],
-      [
-        'In good order',
-        'Finish an archive room.',
-        state.records.some((r) => r.type === 'archive'),
-        'archive',
-      ],
+      ['In good order', 'Finish an archive room.', cleared('archive:'), 'archive'],
       ['A quiet practice', 'Enter Zen mode.', state.stamps.includes('zen'), 'garden'],
     ];
     const gameRecordOutcome = (r) => {

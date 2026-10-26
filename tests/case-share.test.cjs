@@ -56,6 +56,7 @@ test('construction never reads private fields, even through getters', () => {
   d.deviceId = 'device-123';
   d.notes = 'my private notebook';
   d.save = { completed: ['window'], hintsShown: 3, reveals: ['window'] };
+  for (const key of ['deviceId', 'notes', 'save']) trap(d, key);
   trap(d, 'solution');
   const out = S.share(d, ['window']);
   assert.equal(out.caseId, 'reading-room-blackout');
@@ -72,6 +73,12 @@ test('future revisions keep the same public shape; future formats are refused', 
     { revision: 1.5 },
     { revision: '1' },
     { id: 7 },
+    { id: '' },
+    { id: 'invalid id' },
+    { id: 'a'.repeat(49) },
+    { title: '' },
+    { title: '   ' },
+    { title: 'a'.repeat(121) },
     { title: { toString: () => 'x' } },
   ]) {
     const hostile = { ...fixture(), ...bad };

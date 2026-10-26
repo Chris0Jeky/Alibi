@@ -209,6 +209,8 @@ function parseCase(source) {
     definition,
     receipt: {
       ...report,
+      // Only the English specimen exists; never label fallback prose as a translated locale.
+      locale: 'en',
       sourceBytes,
       sourceSha256: crypto.createHash('sha256').update(source, 'utf8').digest('hex'),
     },

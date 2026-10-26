@@ -16,6 +16,49 @@ def build(source, output):
     subprocess.run(['node', 'tools/case-preview.cjs', str(source), str(output)], cwd=ROOT, check=True, capture_output=True)
 
 
+def non_prose_controls(page):
+    return page.evaluate('''() => ({
+        records: [...document.querySelectorAll('article.record')].map(el => el.id),
+        claims: [...document.querySelectorAll('[id^="claim-"]')].map(el => el.id),
+        drafts: [...document.querySelectorAll('select, input')].map(el =>
+            [el.id, el.value, el.checked, el.disabled, el.getAttribute('aria-invalid')]),
+        stages: [...document.querySelectorAll('nav button')].map(el =>
+            [el.id, el.disabled, el.getAttribute('aria-current')]),
+        progress: document.querySelector('#progress').textContent,
+        hints: [...document.querySelectorAll('#hint-list .hint')].map(el => ({
+            level: el.querySelector('h4').textContent,
+            sources: [...el.querySelectorAll('a')].map(a => a.getAttribute('href'))
+        })),
+        hintDisabled: document.querySelector('#hint').disabled,
+        worked: document.querySelector('#worked') ?
+            [...document.querySelectorAll('#worked a')].map(a => a.getAttribute('href')) : null,
+        reveal: document.querySelector('#reveal').textContent,
+        validation: document.querySelector('#status').textContent
+    })''')
+
+
+def compare_modes(page):
+    before = non_prose_controls(page)
+    starting_mode = page.locator('#story').get_attribute('aria-pressed')
+    definition = json.loads(page.locator('#case-data').text_content())['definition']
+    for index in range(2):
+        page.locator('#story').focus()
+        page.keyboard.press('Enter')
+        assert page.locator('#story').evaluate('(el) => el === document.activeElement')
+        mode = page.locator('#story').get_attribute('aria-pressed')
+        assert mode == (starting_mode if index else str(starting_mode != 'true').lower())
+        key = 'storyOn' if mode == 'true' else 'storyOff'
+        assert page.locator('header > p').nth(1).inner_text() == definition['intro'][key]
+        for record in definition['records']:
+            card = page.locator('#record-' + record['id'])
+            if card.count():
+                assert card.locator('p').nth(1).inner_text() == record['text'][key]
+        if page.locator('#ending').count():
+            assert page.locator('#ending p').inner_text() == definition['ending'][key]
+        assert non_prose_controls(page) == before
+    assert page.locator('#story').get_attribute('aria-pressed') == starting_mode
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     definition = json.loads(SOURCE.read_text(encoding='utf-8'))
@@ -24,6 +67,19 @@ def run():
         temp = Path(temp)
         normal = temp / 'preview.html'
         build(SOURCE, normal)
+        parity = json.loads(subprocess.run(
+            ['node', 'tools/case-parity.cjs', str(SOURCE)], cwd=ROOT,
+            check=True, capture_output=True, text=True, encoding='utf-8').stdout)
+        assert parity['mechanical']['status'] == 'pass'
+        assert parity['editorial']['semanticEquivalence'] == 'not-certified'
+        (OUT / 'mechanical-parity.json').write_text(json.dumps({
+            key: value for key, value in parity.items() if key != 'editorial'
+        }, indent=2) + '\n', encoding='utf-8')
+        (OUT / 'editorial-comparison.json').write_text(json.dumps({
+            'caseId': parity['caseId'], 'revision': parity['revision'],
+            'locale': parity['locale'], 'sourceSha256': parity['sourceSha256'],
+            **parity['editorial']
+        }, indent=2) + '\n', encoding='utf-8')
         launch = {'headless': True}
         if os.environ.get('ALIBI_CHROMIUM'):
             launch['executable_path'] = os.environ['ALIBI_CHROMIUM']
@@ -43,6 +99,10 @@ def run():
             assert page.locator('#stage-alarm').is_disabled()
             assert page.locator('#record-maintenance').count() == 0
             assert page.locator('#worked').count() == 0
+            exported = json.loads(page.locator('#case-data').text_content())
+            assert exported['receipt']['locale'] == 'en'
+            assert exported['receipt']['revision'] == definition['revision']
+            assert exported['receipt']['sourceSha256'] == parity['sourceSha256']
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
             # Share: text preview first; cancel has no clipboard side effect. The stub records writes.
             page.evaluate("""() => { globalThis.copies = [];
@@ -63,6 +123,20 @@ def run():
             assert page.locator('#share-text').count() == 0
             assert 'Nothing was copied' in page.locator('#status').inner_text()
             assert page.evaluate('globalThis.copies.length') == 0
+            # A refused clipboard write keeps the invitation available for manual copying.
+            page.evaluate("""() => { navigator.clipboard.writeText = async () => {
+                throw new DOMException('Denied', 'NotAllowedError');
+            }; }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert 'browser blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-cancel').click()
+            page.evaluate("""() => { navigator.clipboard.writeText = async (text) => {
+                globalThis.copies.push(text);
+            }; }""")
             page.locator('#verdict-bounded-window').focus()
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
@@ -94,6 +168,7 @@ def run():
             assert claim_fieldset.get_attribute('aria-invalid') == 'true'
             assert claim_fieldset.get_attribute('aria-describedby') == citation_error
             assert '5 validation errors across 3 claims' in page.locator('#status').inner_text()
+            compare_modes(page)
             page.locator('#story').click()
             assert page.locator('#story').evaluate('(el) => el === document.activeElement')
             page.locator('#story').click()
@@ -108,6 +183,7 @@ def run():
             assert page.locator('#hint-list .hint').count() == 3
             page.locator('#reveal').click()
             assert page.locator('#worked').is_visible()
+            compare_modes(page)
             assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             page.locator('#reveal').click()
             assert page.locator('#worked').count() == 0
@@ -161,9 +237,14 @@ def run():
                         checkbox.uncheck()
                     for record in claim['evidence'][0]:
                         page.locator('#cite-' + claim['id'] + '-' + record).check()
+                if index:
+                    page.locator('#hint').click()
+                    page.locator('#reveal').click()
+                compare_modes(page)
                 page.locator('#check').click()
                 assert 'Reasoning accepted' in page.locator('#status').inner_text()
                 assert page.locator('#progress').text_content() == f'{index + 1} of 3 stages reviewed'
+                compare_modes(page)
                 page.locator('#check').click()
                 assert page.locator('#progress').text_content() == f'{index + 1} of 3 stages reviewed'
                 if index < 2:
@@ -195,10 +276,10 @@ def run():
             assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
             assert not external, external
             assert not errors, errors
-            results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'externalRequests': len(external), 'scriptErrors': len(errors)})
+            results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'modeParity': 'drafts, focus, progress, sources, hints and worked-answer access retained at every stage', 'externalRequests': len(external), 'scriptErrors': len(errors)})
             context.close()
         hostile = json.loads(SOURCE.read_text(encoding='utf-8'))
-        hostile['title'] = '</script><script>globalThis.compromised=true</script>'
+        hostile['title'] = '</script><script>globalThis.compromised=true</script>  A\nB'
         hostile['records'][0]['text']['storyOn'] = '<img src="https://invalid.example/x" onerror="globalThis.compromised=true">'
         hostile_source, hostile_page = temp / 'hostile.json', temp / 'hostile.html'
         hostile_source.write_text(json.dumps(hostile), encoding='utf-8')
@@ -209,13 +290,22 @@ def run():
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('request', lambda request: external.append(request.url) if not request.url.startswith('file:') else None)
         page.goto(hostile_page.as_uri())
-        assert page.locator('h1').inner_text() == hostile['title']
+        assert page.locator('h1').text_content() == hostile['title']
+        page.evaluate("""() => { globalThis.copies = [];
+            Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+        page.locator('#share').click()
+        invitation = page.locator('#share-text').inner_text()
+        assert hostile['title'] in invitation
+        page.locator('#share-copy').click()
+        page.wait_for_function('globalThis.copies.length === 1')
+        assert page.evaluate('globalThis.copies[0]') == invitation
         assert page.locator('img').count() == 0
         assert page.evaluate('typeof globalThis.compromised') == 'undefined'
         assert not external and not errors, (external, errors)
         context.close()
         browser.close()
-    receipt = {'sourceSha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(), 'caseRevision': definition['revision'], 'browser': version, 'transport': 'file', 'results': results, 'hostileText': 'passed', 'scope': 'simulated-browser controls; not physical or human acceptance'}
+    receipt = {'sourceSha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(), 'caseRevision': definition['revision'], 'locale': 'en', 'browser': version, 'transport': 'file', 'results': results, 'hostileText': 'passed', 'scope': 'simulated-browser controls; not physical or human acceptance'}
     (OUT / 'browser.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(receipt, indent=2))
 

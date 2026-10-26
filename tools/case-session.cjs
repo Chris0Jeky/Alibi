@@ -125,13 +125,19 @@
     const { step } = context(definition, completed, stepId);
     return { text: step.workedAnswer.text[key], records: [...step.workedAnswer.records] };
   }
-  // Allowlist: reads only format, id, revision and title (all visible before any progress), so
+  // Allowlist: exports only format, id, revision and title (all visible before any progress), so
   // no step, record, hint, worked answer, note or save field can reach the output. Progress is
   // validated but deliberately not disclosed: no counts, times or completion claims.
   function share(definition, completed) {
     const { format, id, revision, title } = definition;
     if (format !== 'postern-case-1') throw new TypeError('Unsupported case format');
-    if (typeof id !== 'string' || typeof title !== 'string')
+    if (
+      typeof id !== 'string' ||
+      !/^[a-z][a-z0-9-]{0,47}$/.test(id) ||
+      typeof title !== 'string' ||
+      !title.trim() ||
+      title.length > 120
+    )
       throw new TypeError('Invalid case identity');
     if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Invalid revision');
     context(definition, completed);

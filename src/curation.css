@@ -147,7 +147,7 @@ details > summary:focus-visible {
 }
 .news-heading h2 {
   font-family: Georgia, serif;
-  font-size: clamp(25px, 3vw, 36px);
+  font-size: var(--text-h2);
   line-height: 1.2;
   margin: 8px 0;
 }
@@ -194,7 +194,7 @@ details > summary:focus-visible {
 }
 .collection-card-copy strong {
   font:
-    600 clamp(20px, 2vw, 25px)/1.2 Georgia,
+    600 var(--text-h3)/1.2 Georgia,
     serif;
 }
 .collection-card-copy > span {
@@ -374,9 +374,6 @@ details > summary:focus-visible {
   .collection-card-copy {
     padding: 16px;
     gap: 8px;
-  }
-  .collection-card-copy strong {
-    font-size: 21px;
   }
   .collection-card-copy > span {
     font-size: 14px;

@@ -146,6 +146,9 @@ fieldset,
 .share {
   margin-top: 16px;
 }
+#share-text {
+  white-space: pre-wrap;
+}
 .record:focus {
   outline: 3px solid var(--accent);
 }
