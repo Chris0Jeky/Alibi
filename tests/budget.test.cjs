@@ -171,9 +171,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #738/#744/#761 save-integrity maintenance: measured 135,052 -> 135,121 gzip (+69).
     // Shared revision/prefix helpers and the existing save promise keep the guards bounded.
     // Ceiling +96 covers the 49-byte excess with 47 bytes for identity/hash noise.
+    // #761 separate Borough bests: reviewed final copy measures 135,121 -> 135,618 (+497).
+    // One shared bounded table builder preserves legacy metadata across load, record and import.
+    // Ceiling +512 covers the 450-byte excess and leaves 62 bytes for identity/hash noise.
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5120,
-      'Application bundle stays under 127 KiB + 5,120 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 5632,
+      'Application bundle stays under 127 KiB + 5,632 bytes gzip',
     );
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
@@ -260,8 +263,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #738/#744/#761 revision fence, draft-save/export refusal, readable restore note and
       // durable game stamps measure 1,416,648 -> 1,417,177 (+529). Ceiling +256 covers
       // the 192.68-byte excess and leaves 63.32 bytes for identity/hash noise.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 33120,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 33,120 bytes',
+      // #761 separate Borough bests and optional backup validation ship in the application and
+      // validator worker: 1,417,177 -> 1,418,911 (+1,734). Ceiling +1,792 covers the
+      // 1,670.68-byte excess and leaves 121.32 bytes; startup/content ceilings remain unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 34912,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 34,912 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

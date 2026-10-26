@@ -39,6 +39,7 @@
     lastHero: -1,
     runs: {},
     records: [],
+    boroughBests: [],
     stamps: [],
   };
   let route = { page: 'home' },
@@ -256,6 +257,7 @@
             : 'Club progress is kept only in this tab. Export before closing it.';
         }
     }
+    state.boroughBests = boroughBestTable(state.records, state.boroughBests);
     state.visit = Math.min(Number.MAX_SAFE_INTEGER, state.visit + 1);
     hero = state.settings.pinned ?? (state.lastHero + 1) % stories.length;
     state.lastHero = hero;
@@ -275,6 +277,7 @@
           type: 'club-backup',
           text: await input.files[0].text(),
         });
+        next.boroughBests = boroughBestTable(next.records, next.boroughBests);
         bridge.dialog(
           'Replace the Club save?',
           `<p>This replaces games-room progress and records, not your original puzzle cabinet saves. Export a copy first if needed.</p>`,
@@ -294,6 +297,7 @@
   async function reviewBackup(value) {
     await engine();
     const next = await root.AlibiValidateImport({ type: 'club-backup', value });
+    next.boroughBests = boroughBestTable(next.records, next.boroughBests);
     bridge.dialog(
       'Replace the Club save?',
       '<p>This replaces only Club progress. The previous committed Club save becomes its recovery copy.</p>',
@@ -818,6 +822,38 @@
       false,
     )}<section class="seed-control"><label for="club-seed">Visit another town</label><input id="club-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'use-seed', '', 'secondary small')}${B('Today’s town', 'daily', '', 'ghost small')}</div></section><p class="club-local-note">Your records are local. Seed links share a challenge, not a live game or a verified global score.</p></aside></div>`;
   }
+  // Keep only evidenced Borough results. Legacy journal rows seed this table before pruning.
+  function boroughBestTable(records = [], bests = []) {
+    const byLabel = new Map(),
+      consider = (label, score, date) => {
+        if (
+          typeof label !== 'string' ||
+          label.length > 100 ||
+          !Number.isFinite(score) ||
+          typeof date !== 'string' ||
+          date.length > 40
+        )
+          return;
+        const old = byLabel.get(label);
+        if (!old || score > old.score || (score === old.score && date < old.date))
+          byLabel.set(label, { label, score, date });
+      };
+    for (const x of bests) consider(x?.label, x?.score, x?.date);
+    for (const x of records) if (x?.type === 'borough') consider(x.label, x.score, x.date);
+    return [...byLabel.values()]
+      .sort((a, b) =>
+        a.score === b.score
+          ? a.label < b.label
+            ? -1
+            : a.label > b.label
+              ? 1
+              : 0
+          : a.score > b.score
+            ? -1
+            : 1,
+      )
+      .slice(0, 100);
+  }
   // Solved rooms, gardens and game stamps outlive the 100-record journal: record() keeps their
   // archive:<room>:, regiongardens:<garden>:, duel: and borough: prefixes when pruning entries.
   function cleared(prefix, type) {
@@ -942,6 +978,7 @@
       score: points,
       date: new Date().toISOString(),
     });
+    state.boroughBests = boroughBestTable(state.records, state.boroughBests);
     const cleared = new Set(state.cleared || []);
     for (const x of state.records.splice(100)) {
       const prefix =
@@ -957,17 +994,18 @@
     const runs = bridge.records(),
       solved = runs.filter((r) => r.firstCompletedAt || r.completedAt),
       families = new Set(solved.map((r) => r.puzzle.type)),
-      towns = state.records
-        .filter((r) => r.type === 'borough')
-        .slice()
-        .sort((a, b) => b.score - a.score),
-      gameRecords = state.records.filter((r) => r.type !== 'borough'),
-      unique = new Map();
-    for (const r of towns) if (!unique.has(r.label)) unique.set(r.label, r);
+      towns = state.records.filter((r) => r.type === 'borough'),
+      bests = state.boroughBests || [],
+      gameRecords = state.records.filter((r) => r.type !== 'borough');
     const achievements = [
       ['First light', 'Solve your first puzzle.', solved.length > 0, 'lightup'],
       ['A curious mind', 'Solve three puzzle families.', families.size >= 3, 'dossier'],
-      ['Town planner', 'Complete a Pocket Borough.', cleared('borough:', 'borough'), 'borough'],
+      [
+        'Town planner',
+        'Complete a Pocket Borough.',
+        bests.length > 0 || cleared('borough:', 'borough'),
+        'borough',
+      ],
       ['A seat at the table', 'Finish a Lantern Duel.', cleared('duel:', 'duel'), 'duel'],
       ['In good order', 'Finish an archive room.', cleared('archive:'), 'archive'],
       ['A quiet practice', 'Enter Zen mode.', state.stamps.includes('zen'), 'garden'],
@@ -999,7 +1037,7 @@
         regiongardens: 'Lantern Gardens · ',
         archive: 'Archive Heist · ',
       })[r.type] || '';
-    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list. <a href="#/journal">Your journal →</a>')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>towns completed</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon], index) => `<div class="club-stamp ${earned ? 'earned' : ''}">${root.AlibiAssets.badge(['club-first-light', 'club-curious', 'club-town', 'club-duel', 'club-archive', 'club-zen'][index], earned)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>One personal best per seed. Different seeds are not directly comparable. No other players or global rankings are implied.</p>${unique.size ? `<div class="record-table club-town-records">${[...unique.values()].map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${plural(r.score, 'point')}</span><small>${esc(String(r.date).slice(0, 10))}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="panel club-game-records"><div class="club-section-head"><div><span class="eyebrow">GAMES ROOM / COMPLETED RECORDS</span><h2>Completed games.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>Completed games stay here with their local outcome.</p>${gameRecords.length ? `<div class="record-table">${gameRecords.map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(gameName(r) + r.label)}</strong><span>${esc(gameRecordOutcome(r))}</span><small>${esc(String(r.date).slice(0, 10))}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first completed game will go here.</div>'}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}${go('Quiet Wing journal', 'quiet', 'journal', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
+    return `${heading('Your club journal.', 'NO AUDIENCE REQUIRED', 'A record of curiosity, not a to-do list. <a href="#/journal">Your journal →</a>')}${status()}<div class="club-stats"><div><strong>${solved.length}</strong><span>puzzles solved</span></div><div><strong>${families.size}</strong><span>families explored</span></div><div><strong>${towns.length}</strong><span>town records in journal</span></div><div><strong>${achievements.filter((a) => a[2]).length}</strong><span>stamps collected</span></div></div><section class="club-section"><div class="club-section-head"><h2>A little stamp book.</h2><span class="eyebrow">NO STREAK TO LOSE</span></div><div class="stamp-grid">${achievements.map(([title, desc, earned, icon], index) => `<div class="club-stamp ${earned ? 'earned' : ''}">${root.AlibiAssets.badge(['club-first-light', 'club-curious', 'club-town', 'club-duel', 'club-archive', 'club-zen'][index], earned)}<strong>${title}</strong><span>${desc}</span><small>${earned ? 'COLLECTED' : 'NOT YET'}</small></div>`).join('')}</div></section><section class="panel"><div class="club-section-head"><div><span class="eyebrow">POCKET BOROUGH / PERSONAL BESTS</span><h2>The local leaderboard.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>Keep up to 100 personal bests, one per seed label, highest scores first. They stay here when older games leave the journal. Different seeds are not directly comparable. These are local save records; no global ranking is implied.</p>${bests.length ? `<div class="record-table club-town-records">${bests.map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(r.label)}</strong><span>${plural(r.score, 'point')}</span><small>${esc(String(r.date).slice(0, 10))}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first town will go here. There is no sample score to beat.</div>'}${go('Build a town →', 'salon', 'borough')}</section><section class="panel club-game-records"><div class="club-section-head"><div><span class="eyebrow">GAMES ROOM / COMPLETED RECORDS</span><h2>Completed games.</h2></div><span class="local-label">THIS BROWSER ONLY</span></div><p>Completed games stay here with their local outcome.</p>${gameRecords.length ? `<div class="record-table">${gameRecords.map((r, i) => `<div><span>${String(i + 1).padStart(2, '0')}</span><strong>${esc(gameName(r) + r.label)}</strong><span>${esc(gameRecordOutcome(r))}</span><small>${esc(String(r.date).slice(0, 10))}</small></div>`).join('')}</div>` : '<div class="empty-records">Your first completed game will go here.</div>'}</section><section class="club-two-panels"><div class="panel"><h2>Club progress travels as a file.</h2><p>The games-room save is separate from the original cabinet save. Export both before changing devices or website addresses.</p>${B('Export Club save', 'export')}${B('Restore Club save', 'import', '', 'secondary')}${go('Cabinet saves', 'settings', '', 'ghost')}${go('Quiet Wing journal', 'quiet', 'journal', 'ghost')}</div><div class="panel"><h2>What online would add.</h2><p>Private two-device Lantern Duel is available with the optional room server. Ranked matches, public accounts, moderation and cloud saves are not enabled in this static preview.</p>${B('Private room settings', 'online-settings', '', 'secondary')}</div></section>`;
   }
   function exportSave(value = state, label = 'club') {
     const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' }),
@@ -1237,6 +1275,7 @@
           botWorker = null;
           botPending = false;
           try {
+            next.boroughBests = boroughBestTable(next.records, next.boroughBests);
             await persist(next);
             if (saveError) throw Error(saveError);
             state = next;

@@ -224,6 +224,7 @@ with sync_playwright() as playwright:
                 return state.records.length === 100 &&
                     state.records.slice(0, 98).every(row => row.type === 'tictactoe') &&
                     state.records[98].type === 'duel' && state.records[99].type === 'borough' &&
+                    state.boroughBests?.some(row => row.label === 'SYNTHETIC-OLD-TOWN' && row.score === 600) &&
                     !Object.hasOwn(state, 'cleared') &&
                     state.runs.tictactoe.mode === 'local' && state.runs.tictactoe.log.length === 0;
             }"""
@@ -254,6 +255,13 @@ with sync_playwright() as playwright:
             "First local win prunes only the oldest synthetic Borough row",
         )
         check(
+            any(
+                row["label"] == "SYNTHETIC-OLD-TOWN" and row["score"] == 600
+                for row in after_first["boroughBests"]
+            ),
+            "The separate Borough personal-best table keeps the synthetic score after journal pruning",
+        )
+        check(
             "borough:" in after_first["cleared"] and "duel:" not in after_first["cleared"],
             "First local win durably promotes the pruned Borough marker",
         )
@@ -267,7 +275,8 @@ with sync_playwright() as playwright:
         page.wait_for_function(
             """() => {
                 const state = AlibiClub.diagnostics().state;
-                return state.cleared?.includes('duel:') && state.cleared.includes('borough:');
+                return state.cleared?.includes('duel:') && state.cleared.includes('borough:') &&
+                    state.boroughBests?.some(row => row.label === 'SYNTHETIC-OLD-TOWN' && row.score === 600);
             }"""
         )
         after_second = page.evaluate("() => AlibiClub.diagnostics().state")
@@ -307,7 +316,8 @@ with sync_playwright() as playwright:
                 const status = AlibiClub.diagnostics();
                 return status.storageMode === 'indexeddb' &&
                     status.state.cleared?.includes('duel:') &&
-                    status.state.cleared.includes('borough:');
+                    status.state.cleared.includes('borough:') &&
+                    status.state.boroughBests?.some(row => row.label === 'SYNTHETIC-OLD-TOWN' && row.score === 600);
             }"""
         )
         check(

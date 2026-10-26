@@ -7,6 +7,13 @@ test('Club renderers escape journal labels and Lantern Gardens titles', async ()
   const hostile = `<img src=x onerror=alert(1)>&"'`;
   const escaped = '&lt;img src=x onerror=alert(1)&gt;&amp;&quot;&#39;';
   const data = fresh();
+  data.boroughBests = [
+    {
+      label: hostile,
+      score: 1,
+      date: '2026-10-24T00:00:00.000Z',
+    },
+  ];
   data.records = ['borough', 'tictactoe'].map((type) => ({
     id: type + ':escaping',
     type,
@@ -21,7 +28,7 @@ test('Club renderers escape journal labels and Lantern Gardens titles', async ()
 
   await club.onRoute({ page: 'club' });
   const journal = club.profile();
-  assert.ok(journal.includes(`<strong>${escaped}</strong>`), 'local leaderboard label');
+  assert.ok(journal.includes(`<strong>${escaped}</strong>`), 'local personal-best label');
   assert.ok(journal.includes(`<strong>Tic-Tac-Toe · ${escaped}</strong>`), 'completed game label');
   assert.doesNotMatch(journal, /<img\b/i);
 
