@@ -57,6 +57,7 @@ ORIGIN_SCENARIOS = (
     "legacy_browser_recovery",
     "broadcast_readback",
     "cabinet_export_race",
+    "cabinet_export_snapshot",
     "inactive_broadcast",
     "newer_database",
     "club_read_abort",
@@ -1920,6 +1921,96 @@ def scenario_cabinet_export_race(pw: Any, root: Path) -> None:
                         restored_context.close()
             finally:
                 context.close()
+def scenario_cabinet_export_snapshot(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "cabinet-export-snapshot")
+    try:
+        page = new_page(context, "cabinet-export-snapshot")
+        boot(page)
+        catalogue = json.loads((ROOT / "content/catalog.json").read_text(encoding="utf-8"))
+        scene = next(p for p in catalogue["puzzles"] if p["type"] == "scene")
+        result = page.evaluate("""async scene => {
+          const reader = await new AlibiStorage.Store().init();
+          const writer = await new AlibiStorage.Store().init();
+          const stores = ['runs', 'packs', 'meta'];
+          function replace(label) {
+            return new Promise((resolve, reject) => {
+              const tx = writer.db.transaction(stores, 'readwrite');
+              tx.oncomplete = resolve;
+              tx.onabort = tx.onerror = () => reject(tx.error || Error('seed aborted'));
+              for (const name of stores) tx.objectStore(name).clear();
+              const puzzle = {...scene, id: 'snapshot-' + label, title: label};
+              const key = puzzle.id + '@' + puzzle.revision;
+              tx.objectStore('runs').put({key, value: {
+                schemaVersion: 1, key, rev: 1, puzzle,
+                state: AlibiCore.registry.scene.initial(puzzle), moves: 0, hints: 0,
+                elapsed: 0, note: label, undo: [], redo: [], updatedAt: new Date().toISOString()
+              }});
+              tx.objectStore('packs').put({key: label, value: {
+                schemaVersion: 1, id: label, version: 1, title: label, puzzles: [puzzle]
+              }});
+              tx.objectStore('meta').put({key: 'settings', value: {sound: label === 'before'}});
+              tx.objectStore('meta').put({key: 'preferences', value: {seen: ['scene'], favorites: [puzzle.id]}});
+              tx.objectStore('meta').put({key: 'workshop-draft', value: {puzzle}});
+            });
+          }
+          try {
+            await replace('before');
+            const transaction = reader.db.transaction.bind(reader.db);
+            let intervening, armed = true;
+            reader.db.transaction = (names, mode, ...rest) => {
+              const tx = transaction(names, mode, ...rest);
+              if (armed && mode === 'readonly' && [names].flat().includes('runs')) {
+                armed = false;
+                // Queue another connection's atomic replacement immediately after
+                // export starts reading runs, before any subsequent transaction.
+                intervening = replace('after');
+              }
+              return tx;
+            };
+            const snapshot = await reader.export();
+            await intervening;
+            const after = await reader.export();
+            const summarize = b => ({
+              run: b.runs[0].note, pack: b.packs[0].id,
+              sound: b.settings.sound, favorite: b.preferences.favorites[0],
+              draft: b.workshopDraft.puzzle.title
+            });
+            const getAll = IDBObjectStore.prototype.getAll;
+            let aborted = false, rejected = false;
+            IDBObjectStore.prototype.getAll = function (...args) {
+              const request = getAll.apply(this, args);
+              if (this.transaction.db === reader.db && this.name === 'runs') {
+                request.addEventListener('success', () => {
+                  aborted = true;
+                  this.transaction.abort();
+                }, {once: true});
+              }
+              return request;
+            };
+            try {
+              await reader.export();
+            } catch {
+              rejected = true;
+            } finally {
+              IDBObjectStore.prototype.getAll = getAll;
+            }
+            return {snapshot: summarize(snapshot), after: summarize(after), raced: !armed, aborted, rejected};
+          } finally {
+            reader.db.close();
+            writer.db.close();
+          }
+        }""", scene)
+        check(result["raced"], "another connection queues a replacement during export")
+        for label, actual in (("before", result["snapshot"]), ("after", result["after"])):
+            check(actual == {
+                "run": label, "pack": label, "sound": label == "before",
+                "favorite": "snapshot-" + label, "draft": label,
+            }, f"Cabinet export keeps runs, packs, settings, preferences and draft from {label} replacement: {actual}")
+        check(result["aborted"] and result["rejected"], "an aborted export transaction cannot produce a successful backup")
+    finally:
+        context.close()
+
+
 def scenario_inactive_broadcast(pw: Any, root: Path) -> None:
     for width in (390, 1280):
         context = launch_profile(pw, root / f"inactive-broadcast-{width}")
@@ -2187,6 +2278,7 @@ def run() -> int:
                 scenario_legacy_browser_recovery,
                 scenario_broadcast_readback,
                 scenario_cabinet_export_race,
+                scenario_cabinet_export_snapshot,
                 scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,

@@ -54,15 +54,27 @@ function restoreFixture(seed) {
     packs: new Map(Object.entries(seed.packs || {})),
     meta: new Map(Object.entries(seed.meta || {})),
   };
-  // One transaction object per transaction() call, unlike the shared one in
-  // tests/storage.test.cjs: export() runs several transactions first, and their
-  // late completion timers must not complete the restore transaction.
+  // Export and restore each own a transaction; complete only after its reads.
   const transaction = () => {
-    let aborted = false;
+    let aborted = false,
+      completed = false,
+      pendingReads = 0;
+    const complete = () => {
+      if (aborted || completed || pendingReads) return;
+      completed = true;
+      for (const f of tx.listeners.complete)
+        try {
+          f();
+        } catch {}
+      if (tx.oncomplete) tx.oncomplete();
+    };
     const request = (result) => {
+      pendingReads++;
       const pending = { result, onsuccess: null, onerror: null };
       setTimeout(() => {
         if (!aborted && pending.onsuccess) pending.onsuccess();
+        pendingReads--;
+        complete();
       }, 0);
       return pending;
     };
@@ -109,14 +121,7 @@ function restoreFixture(seed) {
         };
       },
     };
-    setTimeout(() => {
-      if (aborted) return;
-      for (const f of tx.listeners.complete)
-        try {
-          f();
-        } catch {}
-      if (tx.oncomplete) tx.oncomplete();
-    }, 20);
+    setTimeout(complete, 0);
     return tx;
   };
   return { disk, db: { transaction } };
