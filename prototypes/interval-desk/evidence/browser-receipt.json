@@ -1,0 +1,43 @@
+{
+  "format": "postern-interval-desk-browser-1",
+  "sourceSha256": {
+    "prototypes/interval-desk/index.html": "d418fbb4d8cffc4da79ab06bf50c1ab65b81182c8558cb12d81b89a28e6c6ad9",
+    "prototypes/interval-desk/desk.css": "a65285d03117d061eb5fbbb6778cff17a5f542240b59c07cf2a8d192fd360dbb",
+    "prototypes/interval-desk/desk.mjs": "327216ebd6c039594ff6e97b794732dc1f0f8088e96f2193c6f2312313bc4aee",
+    "prototypes/interval-desk/model.mjs": "6f755808140223a069ef591ad54165c47ef25d8a176dcd171a600ad205ed4c51",
+    "tests/browser_interval_desk.py": "ba2bcf12362d01fdc670ff79394704dd3c85e612e6caad6d07c017bb3ab5de6a"
+  },
+  "viewports": [
+    {
+      "width": 320,
+      "height": 740,
+      "eventRows": 5,
+      "workingControls": 10,
+      "model": "Ambiguous: 447 schedules fit these hypothetical windows and the fixed clues. Each verdict is relative to this set, not an unconditional fact.",
+      "actualControls": "passed"
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "eventRows": 5,
+      "workingControls": 10,
+      "model": "Ambiguous: 447 schedules fit these hypothetical windows and the fixed clues. Each verdict is relative to this set, not an unconditional fact.",
+      "actualControls": "passed"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "prototypes/interval-desk/evidence/interval-desk-320.png",
+      "bytes": 376279,
+      "sha256": "868144376705a28f28599b7eaa14b60e0282d0400bf3b4462f1129259a6b6bad"
+    },
+    {
+      "path": "prototypes/interval-desk/evidence/interval-desk-1280.png",
+      "bytes": 424640,
+      "sha256": "78ebc4ea05fef22a405e5759c5b6be5e90b8cce2cd35b76ac190fd10362008b7"
+    }
+  ],
+  "externalRequests": [],
+  "pageErrors": [],
+  "chromium": "141.0.7390.37"
+}

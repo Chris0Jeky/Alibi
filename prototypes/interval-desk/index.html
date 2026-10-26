@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A quiet, standalone experiment in reasoning with uncertain witness clocks."
+    />
+    <title>The night ledger at Fenmere — Interval desk</title>
+    <link rel="stylesheet" href="./desk.css" />
+    <script type="module" src="./desk.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#working-intervals">Skip to the interval desk</a>
+    <main class="page-shell">
+      <header class="masthead">
+        <p class="eyebrow">A bounded reasoning experiment</p>
+        <h1>The night ledger at Fenmere</h1>
+        <p id="story-copy" class="story-copy">
+          At the signal house, an oil case was found on the quay after a foggy night. Five witnesses
+          used clocks that drifted, and none could give an exact minute. You have enough to compare
+          possible schedules, but perhaps not enough to tell a single story.
+        </p>
+        <p class="quiet-note">No timer or sound. Your working ranges stay in this tab.</p>
+      </header>
+
+      <nav class="desk-actions" aria-label="Desk controls">
+        <button id="story-toggle" type="button" aria-pressed="true">Turn story off</button>
+        <button id="undo" type="button" disabled>Undo interval change</button>
+        <button id="restart" type="button">Restart</button>
+        <button id="timeline-toggle" type="button" aria-expanded="false" aria-controls="timeline">
+          Show optional timeline
+        </button>
+      </nav>
+
+      <section class="panel evidence-panel" aria-labelledby="evidence-title">
+        <div class="section-heading">
+          <p class="eyebrow">Fixed evidence</p>
+          <h2 id="evidence-title">What the clocks and witnesses establish</h2>
+        </div>
+        <p>
+          Every time is an inclusive whole-minute window after 20:00. Each witness clock may be off
+          by a minute; these are the full corrected windows, treated independently because no
+          calibration log survives. Only the four explicit “before” clues require strict separation.
+          Other events may share a minute.
+        </p>
+        <ol id="clues" class="clue-list"></ol>
+      </section>
+
+      <section id="working-intervals" class="panel" aria-labelledby="working-title">
+        <div class="section-heading">
+          <p class="eyebrow">Your working model</p>
+          <h2 id="working-title">Adjust an interval, compare the schedules</h2>
+        </div>
+        <p class="caution">
+          The clock windows below are fixed evidence. Controls change only your hypothetical working
+          intervals. Verdicts are relative to those selected windows and the four clues above.
+        </p>
+        <div class="table-scroll">
+          <table class="event-table">
+            <caption>
+              Events, fixed witness-clock windows and your hypothetical working windows
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Event</th>
+                <th scope="col">Fixed clock window</th>
+                <th scope="col">Working interval</th>
+              </tr>
+            </thead>
+            <tbody id="event-rows"></tbody>
+          </table>
+        </div>
+        <div class="controls-heading">
+          <h3>Interval controls</h3>
+          <p id="window-guidance">
+            Use the buttons or move either native range control with arrow keys.
+          </p>
+        </div>
+        <div id="interval-controls" class="interval-controls"></div>
+      </section>
+
+      <section id="timeline" class="panel timeline-panel" aria-labelledby="timeline-title" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">Same events and working windows</p>
+          <h2 id="timeline-title">Optional timeline</h2>
+        </div>
+        <p>
+          Each band marks the same inclusive interval shown in the table. The timeline adds no new
+          rule and is read-only; all changes remain available through the table controls.
+        </p>
+        <div class="timeline-axis" aria-hidden="true"></div>
+        <ol
+          id="timeline-rows"
+          class="timeline-rows"
+          aria-label="Working intervals on a time axis"
+        ></ol>
+      </section>
+
+      <section class="panel conclusion-panel" aria-labelledby="conclusion-title">
+        <div class="section-heading">
+          <p class="eyebrow">Check a conclusion</p>
+          <h2 id="conclusion-title">Does every schedule support it?</h2>
+        </div>
+        <label class="claim-label" for="claim-select">Choose a timing claim</label>
+        <select id="claim-select"></select>
+        <p id="model-status" class="model-status" role="status" aria-live="polite"></p>
+        <div id="classification" class="classification" aria-live="polite"></div>
+        <div id="witnesses" class="witnesses"></div>
+      </section>
+
+      <footer class="footer-note">
+        <strong>Prototype boundary:</strong> these fictional records test a finite interval
+        mechanic. They are not evidence about any published Wrenmere chapter, and automated schedule
+        checks do not show that a person understands or enjoys the puzzle.
+      </footer>
+    </main>
+  </body>
+</html>

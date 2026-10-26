@@ -1,0 +1,101 @@
+name: Interval desk prototype
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/interval-desk.yml'
+      - 'tools/ci-setup-phase.cjs'
+      - 'requirements-dev.txt'
+      - 'prototypes/interval-desk/**'
+      - 'tests/interval-desk-model.test.mjs'
+      - 'tests/browser_interval_desk.py'
+      - 'docs/state/2026-10-26-issue-448-interval-desk.md'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/interval-desk.yml'
+      - 'tools/ci-setup-phase.cjs'
+      - 'requirements-dev.txt'
+      - 'prototypes/interval-desk/**'
+      - 'tests/interval-desk-model.test.mjs'
+      - 'tests/browser_interval_desk.py'
+      - 'docs/state/2026-10-26-issue-448-interval-desk.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: interval-desk-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  interval-desk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONUTF8: '1'
+      ALIBI_INTERVAL_DESK_EVIDENCE_DIR: test-results/interval-desk
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Check the independent interval oracle
+        run: node tests/interval-desk-model.test.mjs
+      - name: Install pinned browser tooling
+        run: python -m pip install -r requirements-dev.txt
+      - name: Use Ubuntu repositories for Chromium system dependencies
+        run: |
+          test -s /etc/apt/sources.list.d/ubuntu.sources
+          printf '%s\n' \
+            'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' \
+            'Dir::Etc::sourceparts "-";' \
+            | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+      - name: Install Chromium and its system dependencies
+        run: node tools/ci-setup-phase.cjs --phase interval-desk-chromium --timeout-seconds 480 --grace-seconds 20 -- python -m playwright install --with-deps chromium
+      - name: Capture browser-test source inputs before execution
+        id: source-inputs
+        run: |
+          mkdir -p test-results/interval-desk
+          sha256sum \
+            .github/workflows/interval-desk.yml \
+            tools/ci-setup-phase.cjs \
+            requirements-dev.txt \
+            prototypes/interval-desk/index.html \
+            prototypes/interval-desk/desk.css \
+            prototypes/interval-desk/desk.mjs \
+            prototypes/interval-desk/model.mjs \
+            tests/interval-desk-model.test.mjs \
+            tests/browser_interval_desk.py \
+            > test-results/interval-desk/source-inputs.before
+      - name: Exercise actual interval desk controls
+        run: python tests/browser_interval_desk.py
+      - name: Verify browser run left all source inputs unchanged
+        if: always() && steps.source-inputs.outcome == 'success'
+        run: |
+          sha256sum \
+            .github/workflows/interval-desk.yml \
+            tools/ci-setup-phase.cjs \
+            requirements-dev.txt \
+            prototypes/interval-desk/index.html \
+            prototypes/interval-desk/desk.css \
+            prototypes/interval-desk/desk.mjs \
+            prototypes/interval-desk/model.mjs \
+            tests/interval-desk-model.test.mjs \
+            tests/browser_interval_desk.py \
+            > test-results/interval-desk/source-inputs.after
+          diff -u \
+            test-results/interval-desk/source-inputs.before \
+            test-results/interval-desk/source-inputs.after
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: interval-desk-browser-evidence
+          path: test-results/interval-desk/
+          if-no-files-found: warn
+          retention-days: 14
