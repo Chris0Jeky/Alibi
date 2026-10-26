@@ -79,8 +79,8 @@ supported; this does not introduce full Castle/Challenge semantic validation.
   envelope counter with state revision.
 - Review the #746 fixture: Castle succeeds during rollback; the verified failure message must
   not accept the retained-recovery or mismatch paths; divergent fallback bytes are exact.
-- Require fresh exact child-head CI, browser storage fixtures, full verification and unchanged
-  inherited numerical ceilings before merging this child into the draft parent.
+- Require fresh exact child-head CI, browser storage fixtures, full verification and the
+  explicitly measured draft-parent budget qualification below before merging this child.
 
 ## Not verified and parent boundaries
 
@@ -135,12 +135,17 @@ ignored `node_modules` directory (including Sharp 0.35.4 and esbuild 0.28.2). On
 | Initial code/content gzip | 207,982 | 208,177 | +195 | 208,000 | 177 | +224 | 208,224 |
 | Shell excluding official content | 1,423,242 | 1,423,700 | +458 | 1,423,272.32 | 427.68 | +512 | 1,423,784.32 |
 
-The coordinator explicitly authorized these measured allowances, following the existing
-branch convention. The budget follow-up changes only these three limits, adjacent measured
+These measured allowances follow the existing branch convention. The budget follow-up changes
+only these three limits, adjacent measured
 comments, and this handoff; it makes no runtime edits. The margins at the measured child
 identity are 46 gzip, 47 gzip and 84.32 shell bytes. Boot, Quiet Wing and official-content
 measurements were unchanged; the platform identity contributed a one-byte gzip difference.
-Final clean follow-up build/budget results are retained in the coordinator's qualification.
+The clean follow-up at synthetic commit `ce2f0c9b380dba7028c7b7ed8a2c59584df8dc31`
+passed the web/Android browser-preview payload build (`f42399550732`, `sourceDirty: false`),
+budget suite, 70 focused tests, pinned formatting and diff checks. It measured application gzip
+138,835, initial code/content gzip 208,176 and raw net shell 1,423,700 bytes. The one-byte
+differences from the previous table reflect build identity/hash variation. This documentation
+clarification does not change runtime source or thresholds; hosted CI must qualify its final head.
 
 This remains qualification of the **older draft transfer parent and its child**. It is not
 current-main integration or permission to carry these limits into main. Fresh exact-head
