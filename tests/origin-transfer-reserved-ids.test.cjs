@@ -146,12 +146,15 @@ test('Castle comparison preserves reordered JSON content and supported empty or 
   }
 });
 
-test('Castle export refuses sparse arrays whose length differs from the notebook state', async () => {
+test('JSON preflight refuses sparse Castle arrays before comparing notebook content', async () => {
   const payload = sample([]);
   payload.castle.state = { revision: 4, clues: [] };
   payload.castle.record = { schema: 1, revision: 2, state: { revision: 4, clues: Array(1) } };
   const before = JSON.stringify(payload);
-  await assert.rejects(api().exportOriginTransfer(payload), /Castle.*not changed/);
+  await assert.rejects(
+    api().exportOriginTransfer(payload),
+    /JSON transfer cannot preserve.*not changed/,
+  );
   assert.equal(JSON.stringify(payload), before);
   assert.equal(payload.castle.record.state.clues.length, 1);
   assert.equal(Object.hasOwn(payload.castle.record.state.clues, 0), false);

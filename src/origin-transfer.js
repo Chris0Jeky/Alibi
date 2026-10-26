@@ -12,6 +12,62 @@
     throw Error(`${reason} ${UNCHANGED}`);
   };
   const isObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+  // Validate data before a JSON boundary without reading accessors or normalizing preimages.
+  // The one private Quiet wrapper field is needed by live rollback, never by JSON recovery.
+  function checkJson(value, privateQuiet = false) {
+    const active = new Set();
+    const reject = () => {
+      throw Error('Save data cannot be preserved as JSON.');
+    };
+    function check(item, rawQuiet = false) {
+      if (item === null || ['string', 'boolean'].includes(typeof item)) return;
+      if (typeof item === 'number' && Number.isFinite(item) && !Object.is(item, -0)) return;
+      if (!item || typeof item !== 'object' || active.has(item)) reject();
+      active.add(item);
+      const array = Array.isArray(item),
+        keys = Reflect.ownKeys(item);
+      let prototype = Object.getPrototypeOf(item),
+        type = array ? Array : Object;
+      if (array && prototype === null) reject();
+      while (prototype !== null) {
+        const constructor = Object.getOwnPropertyDescriptor(prototype, 'constructor')?.value;
+        if (
+          typeof constructor !== 'function' ||
+          constructor.prototype !== prototype ||
+          Function.prototype.toString.call(constructor) !==
+            Function.prototype.toString.call(type) ||
+          Object.getOwnPropertyDescriptor(prototype, 'toJSON')
+        )
+          reject();
+        prototype = Object.getPrototypeOf(prototype);
+        if (type === Object && prototype !== null) reject();
+        type = Object;
+      }
+      if (
+        array &&
+        (keys.length !== item.length + 1 ||
+          keys.some((key, i) => key !== (i === item.length ? 'length' : String(i))))
+      )
+        reject();
+      for (const key of keys) {
+        if (array && key === 'length') continue;
+        const descriptor = Object.getOwnPropertyDescriptor(item, key);
+        if (!descriptor || !('value' in descriptor) || !descriptor.enumerable) reject();
+        if (typeof key === 'symbol') {
+          if (
+            rawQuiet &&
+            key === FALLBACK_RAW &&
+            (descriptor.value == null || typeof descriptor.value === 'string')
+          )
+            continue;
+          reject();
+        }
+        check(descriptor.value, privateQuiet && item === value && key === 'quiet');
+      }
+      active.delete(item);
+    }
+    check(value);
+  }
   // JSON object member order is immaterial; array order and every state value must match.
   function sameJson(left, right) {
     if (left === right) return true;
@@ -99,15 +155,27 @@
     return payload;
   }
   async function exportOriginTransfer(saves) {
+    try {
+      checkJson(saves, true);
+    } catch {
+      fail('These saves contain values a JSON transfer cannot preserve.');
+    }
     assertShape(saves);
     const payload = JSON.stringify({
+      __proto__: null,
       cabinet: saves.cabinet,
       club: saves.club,
       quiet: saves.quiet,
       castle: saves.castle,
       challenges: saves.challenges,
     });
-    return { format: FORMAT, version: VERSION, checksum: await sha256Hex(payload), payload };
+    return {
+      __proto__: null,
+      format: FORMAT,
+      version: VERSION,
+      checksum: await sha256Hex(payload),
+      payload,
+    };
   }
   async function validateOriginTransfer(text) {
     if (typeof text !== 'string' || !text.trim() || text.length > 20 * 1024 * 1024)
@@ -178,6 +246,11 @@
       attempted = [];
     try {
       for (const name of SECTIONS) before[name] = await ports.read(name);
+      try {
+        checkJson(before, true);
+      } catch {
+        throw Error('Current saves contain values a JSON recovery copy cannot preserve.');
+      }
       await ports.retain(before);
       for (const name of SECTIONS) {
         // A rejected write may already have changed its domain. Record it first,
@@ -521,28 +594,13 @@
     });
   }
   function recoveryJson(value) {
-    const seen = new Set();
-    function check(item) {
-      if (item === null || ['string', 'boolean'].includes(typeof item)) return;
-      if (typeof item === 'number' && Number.isFinite(item) && !Object.is(item, -0)) return;
-      if (!item || typeof item !== 'object' || seen.has(item))
-        throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
-      seen.add(item);
-      const array = Array.isArray(item),
-        prototype = Object.getPrototypeOf(item),
-        keys = Object.keys(item);
-      if (
-        (!array && prototype !== null && prototype !== Object.prototype) ||
-        Object.getOwnPropertySymbols(item).length ||
-        (array && (keys.length !== item.length || keys.some((key, i) => key !== String(i))))
-      )
-        throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
-      for (const key of keys) check(item[key]);
-      seen.delete(item);
+    try {
+      checkJson(value);
+    } catch {
+      throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
     }
-    check(value);
     return JSON.stringify(
-      { format: 'alibi-origin-recovery-export', version: 1, pending: value },
+      { __proto__: null, format: 'alibi-origin-recovery-export', version: 1, pending: value },
       null,
       2,
     );
