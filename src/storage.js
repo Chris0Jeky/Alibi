@@ -5,6 +5,8 @@
   const PREFIX = 'alibi.v1.',
     DB = 'alibi-device',
     VERSION = 1,
+    STORES = ['runs', 'packs', 'meta'],
+    META_KEYS = ['settings', 'preferences', 'workshop-draft'],
     REVISION_FLOOR = 'run-revision-floor',
     nextRevision = (current, floor = 0) => {
       const next = Math.max(current, floor) + 1;
@@ -29,6 +31,26 @@
     },
     readOnly = () =>
       Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
+  function backupEnvelope(runs, packs, settings, preferences, workshopDraft) {
+    return {
+      format: 'alibi-backup',
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      runs,
+      packs,
+      settings,
+      preferences,
+      ...(workshopDraft !== undefined ? { workshopDraft } : {}),
+    };
+  }
+  function snapshotRequests(tx) {
+    return ['runs', 'packs', ...META_KEYS].map((key, i) =>
+      i < 2 ? tx.objectStore(key).getAll() : tx.objectStore('meta').get(key),
+    );
+  }
+  function snapshotValues(requests) {
+    return requests.map((r, i) => (i < 2 ? r.result.map((x) => x.value) : r.result?.value));
+  }
   class ConflictError extends Error {
     constructor() {
       super('This puzzle changed in another tab. Reload its latest save or export this session.');
@@ -96,7 +118,7 @@
               request.transaction.abort();
               return;
             }
-            for (const n of ['runs', 'packs', 'meta'])
+            for (const n of STORES)
               if (!request.result.objectStoreNames.contains(n))
                 request.result.createObjectStore(n, { keyPath: 'key' });
           };
@@ -301,15 +323,24 @@
       return this.put('runs', key, next);
     }
     async export() {
-      const runs = await this.getAll('runs'),
-        packs = await this.getAll('packs'),
+      // A concurrent restore must not mix old runs with new packs or metadata.
+      const snapshot = this.db
+        ? await new Promise((resolve, reject) => {
+            const tx = this.db.transaction(STORES, 'readonly'),
+              requests = snapshotRequests(tx);
+            this.watch(tx, reject);
+            tx.oncomplete = () => resolve(snapshotValues(requests));
+          })
+        : null;
+      const runs = snapshot ? snapshot[0] : await this.getAll('runs'),
+        packs = snapshot ? snapshot[1] : await this.getAll('packs'),
         metaDamaged = [];
       let settings = {},
         preferences = {},
         workshopDraft;
-      for (const key of ['settings', 'preferences', 'workshop-draft'])
+      for (const [index, key] of META_KEYS.entries())
         try {
-          const value = await this.get('meta', key);
+          const value = snapshot ? snapshot[index + 2] : await this.get('meta', key);
           if (key === 'settings') settings = value || {};
           else if (key === 'preferences') preferences = value || {};
           else if (value !== undefined)
@@ -321,14 +352,7 @@
         }
       this.damaged.meta = metaDamaged;
       return {
-        format: 'alibi-backup',
-        schemaVersion: 1,
-        exportedAt: new Date().toISOString(),
-        runs: [...runs],
-        packs: [...packs],
-        settings,
-        preferences,
-        ...(workshopDraft !== undefined ? { workshopDraft } : {}),
+        ...backupEnvelope(runs, packs, settings, preferences, workshopDraft),
         damaged: {
           runs: [...(this.damaged.runs || [])],
           packs: [...(this.damaged.packs || [])],
@@ -342,28 +366,23 @@
           'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
         );
       return new Promise((resolve, reject) => {
-        const tx = this.db.transaction(['runs', 'packs', 'meta'], 'readwrite'),
+        const tx = this.db.transaction(STORES, 'readwrite'),
           runs = tx.objectStore('runs'),
           packs = tx.objectStore('packs'),
           meta = tx.objectStore('meta');
         this.watch(tx, reject);
         let bad = null,
           note = '';
-        const rr = runs.getAll(),
-          pr = packs.getAll(),
-          sr = meta.get('settings'),
-          fr = meta.get('preferences'),
-          dr = meta.get('workshop-draft'),
+        const requests = snapshotRequests(tx),
+          rr = requests[0],
           hr = meta.get(REVISION_FLOOR);
         let n = 0;
         const go = () => {
           if (++n < 6) return;
           try {
-            const cR = rr.result.map((x) => x.value),
-              cP = pr.result.map((x) => x.value),
-              cS = sr.result?.value || {},
-              cF = fr.result?.value || {},
-              cD = dr.result?.value;
+            const [cR, cP, settings, preferences, cD] = snapshotValues(requests),
+              cS = settings || {},
+              cF = preferences || {};
             if (
               expected &&
               !root.AlibiCore.equal(
@@ -423,14 +442,7 @@
             meta.put({
               key: 'pre-restore-backup',
               value: {
-                format: 'alibi-backup',
-                schemaVersion: 1,
-                exportedAt: new Date().toISOString(),
-                runs: cR,
-                packs: cP,
-                settings: cS,
-                preferences: cF,
-                ...(cD !== undefined && !cDbad ? { workshopDraft: cD } : {}),
+                ...backupEnvelope(cR, cP, cS, cF, cDbad ? undefined : cD),
                 // Damaged bytes live under a field the validator ignores, so this copy re-imports.
                 ...(cDbad
                   ? {
@@ -458,13 +470,7 @@
             tx.abort();
           }
         };
-        rr.onsuccess =
-          pr.onsuccess =
-          sr.onsuccess =
-          fr.onsuccess =
-          dr.onsuccess =
-          hr.onsuccess =
-            go;
+        for (const request of [...requests, hr]) request.onsuccess = go;
         tx.oncomplete = () => resolve({ note });
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));
