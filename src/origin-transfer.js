@@ -461,6 +461,144 @@
   async function releaseRecovery() {
     await deleteRecord('alibi-origin-recovery', 'copies', 'pending');
   }
+  // A startup inspection is read-only and never creates a persistent database.
+  // It is not a lock against a transfer started later in another tab.
+  function inspectPendingRecovery() {
+    if (!G.indexedDB) return Promise.resolve({ present: false });
+    return new Promise((resolve, reject) => {
+      let request,
+        db,
+        tx,
+        created = false,
+        settled = false;
+      const timer = setTimeout(() => finish(Error('Recovery inspection timed out.')), 2200);
+      function finish(error, result) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (error)
+          try {
+            tx?.abort();
+          } catch {}
+        db?.close();
+        error ? reject(error) : resolve(result);
+      }
+      try {
+        request = G.indexedDB.open('alibi-origin-recovery');
+        request.onupgradeneeded = () => {
+          created = true;
+          request.transaction.abort();
+        };
+        request.onblocked = () => finish(Error('Another tab is blocking recovery inspection.'));
+        request.onerror = () =>
+          created
+            ? finish(null, { present: false })
+            : finish(request.error || Error('Recovery storage could not be read.'));
+        request.onsuccess = () => {
+          db = request.result;
+          if (settled) {
+            db.close();
+            return;
+          }
+          try {
+            if (db.version !== 1 || !db.objectStoreNames.contains('copies'))
+              throw Error('Recovery storage has an unrecognized format.');
+            db.onversionchange = () => finish(Error('Recovery storage changed in another tab.'));
+            tx = db.transaction('copies', 'readonly');
+            const copies = tx.objectStore('copies'),
+              count = copies.count('pending'),
+              value = copies.get('pending');
+            tx.oncomplete = () => finish(null, { present: count.result > 0, value: value.result });
+            tx.onabort = tx.onerror = () =>
+              finish(tx.error || Error('Recovery inspection was interrupted.'));
+          } catch (error) {
+            finish(error);
+          }
+        };
+      } catch (error) {
+        finish(error);
+      }
+    });
+  }
+  function recoveryJson(value) {
+    const seen = new Set();
+    function check(item) {
+      if (item === null || ['string', 'boolean'].includes(typeof item)) return;
+      if (typeof item === 'number' && Number.isFinite(item) && !Object.is(item, -0)) return;
+      if (!item || typeof item !== 'object' || seen.has(item))
+        throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
+      seen.add(item);
+      const array = Array.isArray(item),
+        prototype = Object.getPrototypeOf(item),
+        keys = Object.keys(item);
+      if (
+        (!array && prototype !== null && prototype !== Object.prototype) ||
+        Object.getOwnPropertySymbols(item).length ||
+        (array && (keys.length !== item.length || keys.some((key, i) => key !== String(i))))
+      )
+        throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
+      for (const key of keys) check(item[key]);
+    }
+    check(value);
+    return JSON.stringify(
+      { format: 'alibi-origin-recovery-export', version: 1, pending: value },
+      null,
+      2,
+    );
+  }
+  async function protectStartup(download) {
+    let pending,
+      unreadable = false;
+    try {
+      pending = await inspectPendingRecovery();
+      if (!pending.present) return false;
+    } catch {
+      unreadable = true;
+    }
+    const app = document.getElementById('app');
+    app.innerHTML =
+      '<main id="main" class="main" tabindex="-1"><section class="panel" aria-labelledby="origin-recovery-title"><h1 id="origin-recovery-title">Save transfer needs attention</h1><p id="origin-recovery-summary"></p><ul id="origin-recovery-sections"></ul><p id="origin-recovery-help"></p><div class="row actions"><button class="btn" id="origin-recovery-export">Download recovery copy</button><button class="btn secondary" id="origin-recovery-retry">Retry opening</button></div><p id="origin-recovery-status" role="status"></p></section></main>';
+    const get = (id) => document.getElementById('origin-recovery-' + id),
+      button = get('export');
+    get('summary').textContent = unreadable
+      ? 'Recovery storage could not be checked. Play is paused to protect any unfinished save transfer.'
+      : 'An unfinished save transfer left a recovery copy on this device. Some saves may already have changed. Play is paused while recovery needs attention.';
+    get('help').textContent = unreadable
+      ? 'Close other Alibi windows and retry. No recovery copy has been removed.'
+      : 'Download the retained copy and keep it somewhere safe before seeking help. It contains private progress. This recovery file is not a normal backup; automatic restoration is not available yet.';
+    if (unreadable) button.remove();
+    if (!unreadable) {
+      try {
+        assertShape(pending.value);
+        for (const line of previewOriginTransfer({ payload: pending.value })) {
+          const item = document.createElement('li');
+          item.textContent = line;
+          get('sections').appendChild(item);
+        }
+      } catch {
+        get('sections').textContent =
+          'The retained copy has an unrecognized format and is preserved.';
+      }
+      button.onclick = async () => {
+        button.disabled = true;
+        try {
+          await download('alibi-origin-recovery.json', recoveryJson(pending.value));
+          get('status').textContent =
+            'Recovery download prepared. The copy on this device is still retained.';
+        } catch {
+          get('status').textContent =
+            'Download could not be prepared. The recovery copy remains on this device.';
+        } finally {
+          button.disabled = false;
+        }
+      };
+    }
+    get('retry').onclick = () => location.reload();
+    document.title = 'Save recovery · Alibi';
+    G.AlibiBootProtected?.();
+    document.getElementById('main').focus();
+    return true;
+  }
   function createDevicePorts(io) {
     return {
       async read(name) {
@@ -491,6 +629,9 @@
     validateOriginTransfer,
     previewOriginTransfer,
     applyOriginTransfer,
+    inspectPendingRecovery,
+    recoveryJson,
+    protectStartup,
     createDevicePorts,
   };
 })(globalThis);

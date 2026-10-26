@@ -96,9 +96,12 @@
         }
       };
     }, 12000);
-  globalThis.AlibiBootReady = () => {
+  globalThis.AlibiBootProtected = () => {
     clearTimeout(timer);
     $('boot-recovery')?.remove();
+  };
+  globalThis.AlibiBootReady = () => {
+    globalThis.AlibiBootProtected();
     new MutationObserver(show).observe($('app'), { childList: true });
     show();
   };

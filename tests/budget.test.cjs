@@ -162,9 +162,12 @@ const coreOfflineBytes = info.coreOfflineBytes;
 // #752 exact child-tree preflight/ambiguity guards: clean parent 138,640 -> child 138,834
 // gzip (+194). Old ceiling 138,656 is exceeded by 178. Measured +224 leaves 46
 // bytes at the local synthetic identity; this draft-parent allowance is not main qualification.
+// #579 startup recovery discovery/export adds a bounded, read-only startup guard and
+// offline recovery screen. Measured draft-parent growth is approximately 1,250 gzip
+// bytes; +1,280 is explicit feature-only safety work, not current-main qualification.
 assert.ok(
-  info.javascriptGzipBytes < 127 * 1024 + 8832,
-  'Application bundle stays under 127 KiB + 8,832 bytes gzip',
+  info.javascriptGzipBytes < 127 * 1024 + 10112,
+  'Application bundle stays under 127 KiB + 10,112 bytes gzip',
 );
 {
   // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -237,8 +240,10 @@ assert.ok(
   // Excess is 97.68 bytes. Ceiling +128 leaves 30.32 bytes, not feature room.
   // #752 clean parent 1,423,242 -> child 1,423,700 (+458). Old ceiling is exceeded
   // by 427.68 bytes. Measured +512 leaves 84.32 bytes, not room for another feature.
-  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 39664,
-  'Precached code and shell excluding official content stay under 1.32 MiB + 39,664 bytes',
+  // #579 startup guard and offline recovery controls add approximately 3,930 raw
+  // shell bytes. +3,968 is a measured draft-parent allowance; main remains a separate gate.
+  coreOfflineBytes - info.officialContentBytes < 1.32 * 1024 * 1024 + 43632,
+  'Precached code and shell excluding official content stay under 1.32 MiB + 43,632 bytes',
 );
 assert.ok(
   info.officialContentBytes < 1024 * 1024,
@@ -262,9 +267,11 @@ assert.ok(coreOfflineBytes < 2.3 * 1024 * 1024, 'Total core offline release stay
 // #752 clean parent 207,982 -> child 208,177 (+195), including a one-byte identity
 // hash difference. Old ceiling 208,000 is exceeded by 177. Measured +224 leaves 47
 // bytes; current-main reconciliation and its separate budgets remain open.
+// Startup recovery discovery and its offline screen add a matching +1,280-byte
+// draft-parent allowance, including the protected boot completion hook.
 assert.ok(
-  info.initialCodeAndContentGzipBytes < 200 * 1024 + 3424,
-  'Initial code plus official data stays under 200 KiB + 3,424 bytes gzip',
+  info.initialCodeAndContentGzipBytes < 200 * 1024 + 4704,
+  'Initial code plus official data stays under 200 KiB + 4,704 bytes gzip',
 );
 for (const [prefix, limit] of [
   // Archive Heist rooms 10-33 (the 24 vault maps and titles) measured 7,661 -> 8,475: +832.
