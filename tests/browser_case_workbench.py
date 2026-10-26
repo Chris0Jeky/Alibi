@@ -104,6 +104,68 @@ def run():
             assert exported['receipt']['revision'] == definition['revision']
             assert exported['receipt']['sourceSha256'] == parity['sourceSha256']
             assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            # Share: text preview first; cancel has no clipboard side effect. The stub records writes.
+            page.evaluate("""() => { globalThis.copies = [];
+                Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                    value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+            page.locator('#share').click()
+            assert page.locator('#share').get_attribute('aria-expanded') == 'true'
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            share_text = page.locator('#share-text').inner_text()
+            assert definition['title'] in share_text and f"revision {definition['revision']}" in share_text
+            for step in definition['steps']:
+                assert step['title'] not in share_text
+            for record in definition['records']:
+                assert record['title'] not in share_text
+            assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
+            page.locator('header').screenshot(path=str(OUT / f'share-{width}.png'))
+            page.locator('#share-cancel').click()
+            assert page.locator('#share-text').count() == 0
+            assert 'Nothing was copied' in page.locator('#status').inner_text()
+            assert page.evaluate('globalThis.copies.length') == 0
+            # A started clipboard operation cannot be cancelled. Refusal permits retry;
+            # restarting invalidates its completion callback without claiming to undo the write.
+            page.evaluate("""() => {
+                navigator.clipboard.writeText = (text) => new Promise((resolve, reject) => {
+                    globalThis.finishCopy = () => { globalThis.copies.push(text); resolve(); };
+                    globalThis.rejectCopy = () => reject(new Error('blocked'));
+                });
+            }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert page.locator('#share-copy').is_disabled()
+            assert page.locator('#share-cancel').is_disabled()
+            assert page.locator('#share').is_disabled()
+            page.evaluate('globalThis.rejectCopy()')
+            assert 'blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-copy').is_enabled()
+            assert page.locator('#share-cancel').is_enabled()
+            page.locator('#share-copy').click()
+            page.once('dialog', lambda dialog: dialog.accept())
+            page.locator('#restart').click()
+            page.evaluate('globalThis.finishCopy()')
+            assert page.locator('#status').inner_text() == 'Preview restarted.'
+            assert page.locator('#share-text').count() == 0
+            assert page.locator('#share').is_enabled()
+            assert page.evaluate('globalThis.copies.length') == 1
+            page.evaluate("""() => { globalThis.copies = [];
+                navigator.clipboard.writeText = async (text) => { globalThis.copies.push(text); };
+            }""")
+            # A refused clipboard write keeps the invitation available for manual copying.
+            page.evaluate("""() => { navigator.clipboard.writeText = async () => {
+                throw new DOMException('Denied', 'NotAllowedError');
+            }; }""")
+            page.locator('#share').click()
+            page.locator('#share-copy').click()
+            assert 'browser blocked copying' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.locator('#share-text').evaluate('(el) => el === document.activeElement')
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-cancel').click()
+            page.evaluate("""() => { navigator.clipboard.writeText = async (text) => {
+                globalThis.copies.push(text);
+            }; }""")
             page.locator('#verdict-bounded-window').focus()
             page.keyboard.press('Tab')
             assert page.locator('#cite-bounded-window-checks').evaluate('(el) => el === document.activeElement')
@@ -218,6 +280,15 @@ def run():
                     page.locator('#continue').click()
                     assert page.locator('#step-title').evaluate('(el) => el === document.activeElement')
             assert page.locator('#ending').is_visible()
+            # Full completion discloses nothing new: identical text, copied only on request.
+            page.locator('#share').click()
+            assert page.locator('#share-text').inner_text() == share_text
+            assert page.evaluate('globalThis.copies.length') == 0
+            page.locator('#share-copy').click()
+            page.wait_for_function('globalThis.copies.length === 1')
+            assert page.evaluate('globalThis.copies[0]') == share_text
+            assert 'Nothing was posted' in page.locator('#status').inner_text()
+            assert page.locator('#share-text').count() == 0
             page.once('dialog', lambda dialog: dialog.dismiss())
             page.locator('#restart').click()
             assert page.locator('#ending').is_visible()
@@ -237,7 +308,7 @@ def run():
             results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'modeParity': 'drafts, focus, progress, sources, hints and worked-answer access retained at every stage', 'externalRequests': len(external), 'scriptErrors': len(errors)})
             context.close()
         hostile = json.loads(SOURCE.read_text(encoding='utf-8'))
-        hostile['title'] = '</script><script>globalThis.compromised=true</script>'
+        hostile['title'] = '</script><script>globalThis.compromised=true</script>  A\nB'
         hostile['records'][0]['text']['storyOn'] = '<img src="https://invalid.example/x" onerror="globalThis.compromised=true">'
         hostile_source, hostile_page = temp / 'hostile.json', temp / 'hostile.html'
         hostile_source.write_text(json.dumps(hostile), encoding='utf-8')
@@ -248,7 +319,16 @@ def run():
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('request', lambda request: external.append(request.url) if not request.url.startswith('file:') else None)
         page.goto(hostile_page.as_uri())
-        assert page.locator('h1').inner_text() == hostile['title']
+        assert page.locator('h1').text_content() == hostile['title']
+        page.evaluate("""() => { globalThis.copies = [];
+            Object.defineProperty(navigator, 'clipboard', { configurable: true,
+                value: { writeText: async (text) => { globalThis.copies.push(text); } } }); }""")
+        page.locator('#share').click()
+        invitation = page.locator('#share-text').inner_text()
+        assert hostile['title'] in invitation
+        page.locator('#share-copy').click()
+        page.wait_for_function('globalThis.copies.length === 1')
+        assert page.evaluate('globalThis.copies[0]') == invitation
         assert page.locator('img').count() == 0
         assert page.evaluate('typeof globalThis.compromised') == 'undefined'
         assert not external and not errors, (external, errors)

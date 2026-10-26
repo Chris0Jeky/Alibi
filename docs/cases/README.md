@@ -8,6 +8,18 @@ The versioned contract and implementation sequence are in [the spec](../superpow
 
 Every source has story-on/off prose, three ordered hints, a separately labelled worked answer and original provenance. The receipt is explicitly `structure-only`: it does not prove semantic entailment, uniqueness, fairness, rights or human enjoyment. Unknown fields and future versions are refused, not silently coerced.
 
+## Share projection (#452)
+
+`share(definition, completed)` in `tools/case-session.cjs` returns a frozen
+`postern-case-share-1` object from an allowlist: `caseId`, `revision` and a fixed invitation
+`text` naming the case title. It validates progress using step IDs and prerequisites, but never
+discloses progress, authored answers, hints, notes or saves. The output is identical at every
+progress boundary. Unknown case formats and malformed identities are refused. The preview shows
+the exact text before an explicit copy. Cancel before copying has no clipboard side effect;
+Copy and Cancel are disabled while the browser handles a request. Restart dismisses its UI
+result, but cannot undo a clipboard request already sent. Nothing is posted. Method labels,
+landing links and any production share surface wait for #440/#442.
+
 ## Story-mode parity (#447)
 
 Run `node tools/case-parity.cjs content/cases/reading-room-blackout.json`. The bounded reader
