@@ -96,3 +96,54 @@ still bypass normal owner/CAS admission. Broader replay/state semantic validatio
 this slice only removes duplicate-ID and Castle state/envelope ambiguity. #746's other
 fallback race, durable retention/no-leak coverage and fallback-only rollback behavior are not
 resolved by this slice. A session replay disposed before separate export is not recovered here.
+
+## Exact-tree local qualification and measured draft-parent allowances (2026-10-26)
+
+The earlier partial-snapshot limitation is superseded for the source/build checks below.
+The connected GitHub recursive trees were reconstructed locally without a shell GitHub
+fetch: parent `9e99df4d51bb29de59233348e576273f82c8ae5f`, tree
+`9899c9f4faac957be901ecf6f2e736aae648edf6` (1,665 tracked files), and child
+`a7a7b77ec07b0015f6f84efc7913382fd3596218`, tree
+`e79779dad5bbbae1599a88ce2977ef9be028e98f` (1,666 tracked files). Every tracked blob and
+mode matched, both recursive trees were untruncated, and Git's assembled tree hashes matched
+exactly. The five local follow-up files also matched the child's blobs before application.
+The parent reconstruction removed the 427 uploaded-main files absent from that older branch;
+this is the draft transfer parent's source, not a partial current-main overlay.
+
+Local commits are synthetic: parent `149468d1c72bd91b717c62d87d03e2c2a0ab8a70`, child
+`a067c39b0fe767ad877905ee3706ffbafd8361b7`. Their trees match the remote commits, but
+build receipts necessarily name the synthetic source SHAs. This can move identity/hash gzip
+measurements slightly; it does not establish the original remote commit's hosted receipt.
+
+Pinned `npm ci --no-audit --no-fund` installed the parent/child lockfile exactly into a real,
+ignored `node_modules` directory (including Sharp 0.35.4 and esbuild 0.28.2). On Node 24.22.1:
+
+- Clean parent and child `node tools/build-android.cjs` each passed, producing the web build
+  and Android **browser-preview payload**, with `sourceDirty: false`. This is no installed
+  native APK or physical-device claim. One child attempt refused an existing generated
+  identity; after verified removal of generated web/Android outputs the controlled build passed.
+- Parent focused transfer/storage suite: 62 passed. Exact child suite:
+  `node --test tests/origin-transfer*.test.cjs tests/challenge-storage*.test.cjs`:
+  **70 passed**, zero failures/skips. Changed source/test Prettier and diff checks passed.
+- Parent's inherited budget suite passed. Child's unchanged budget suite failed at the
+  application-gzip assertion; evaluation of the other unchanged formulas also established
+  the initial-payload and shell excesses below. These were new costs relative to the parent.
+
+| Metric | Parent | Child before allowance | Delta | Previous strict ceiling | Excess | Explicit allowance | New strict ceiling |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Application gzip | 138,640 | 138,834 | +194 | 138,656 | 178 | +224 | 138,880 |
+| Initial code/content gzip | 207,982 | 208,177 | +195 | 208,000 | 177 | +224 | 208,224 |
+| Shell excluding official content | 1,423,242 | 1,423,700 | +458 | 1,423,272.32 | 427.68 | +512 | 1,423,784.32 |
+
+The coordinator explicitly authorized these measured allowances, following the existing
+branch convention. The budget follow-up changes only these three limits, adjacent measured
+comments, and this handoff; it makes no runtime edits. The margins at the measured child
+identity are 46 gzip, 47 gzip and 84.32 shell bytes. Boot, Quiet Wing and official-content
+measurements were unchanged; the platform identity contributed a one-byte gzip difference.
+Final clean follow-up build/budget results are retained in the coordinator's qualification.
+
+This remains qualification of the **older draft transfer parent and its child**. It is not
+current-main integration or permission to carry these limits into main. Fresh exact-head
+hosted CI, full Node/browser acceptance, independent review, and the parent boundaries above
+remain required. No real IndexedDB/browser destructive transfer, installed native test,
+physical Android, TalkBack or human acceptance is claimed. `HUMAN_TODO.md` remains authoritative.
