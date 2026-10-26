@@ -818,11 +818,12 @@
       false,
     )}<section class="seed-control"><label for="club-seed">Visit another town</label><input id="club-seed" value="${esc(s.seed)}" maxlength="32" autocomplete="off" spellcheck="false"><div class="row">${B('Use this seed', 'use-seed', '', 'secondary small')}${B('Today’s town', 'daily', '', 'ghost small')}</div></section><p class="club-local-note">Your records are local. Seed links share a challenge, not a live game or a verified global score.</p></aside></div>`;
   }
-  // Solved rooms and gardens outlive the 100-record journal (#407): record() keeps each
-  // archive:<room>: and regiongardens:<garden>: id prefix in state.cleared before pruning.
-  function cleared(prefix) {
-    return [...(state.cleared || []), ...state.records.map((x) => x.id)].some((x) =>
-      x.startsWith(prefix),
+  // Solved rooms, gardens and game stamps outlive the 100-record journal: record() keeps their
+  // archive:<room>:, regiongardens:<garden>:, duel: and borough: prefixes when pruning entries.
+  function cleared(prefix, type) {
+    return (
+      (state.cleared || []).some((x) => x.startsWith(prefix)) ||
+      state.records.some((x) => (type ? x.type === type : x.id.startsWith(prefix)))
     );
   }
   function archivePage() {
@@ -941,15 +942,15 @@
       score: points,
       date: new Date().toISOString(),
     });
-    state.cleared = [
-      ...new Set([
-        ...(state.cleared || []),
-        ...state.records
-          .map((x) => /^(archive|regiongardens):(0|[1-9]\d?):/.exec(x.id)?.[0])
-          .filter(Boolean),
-      ]),
-    ];
-    state.records = state.records.slice(0, 100);
+    const cleared = new Set(state.cleared || []);
+    for (const x of state.records.splice(100)) {
+      const prefix =
+        x.type === 'duel' || x.type === 'borough'
+          ? x.type + ':'
+          : /^(archive|regiongardens):(0|[1-9]\d?):/.exec(x.id)?.[0];
+      if (prefix) cleared.add(prefix);
+    }
+    state.cleared = [...cleared];
     save();
   }
   function profile() {
@@ -966,13 +967,8 @@
     const achievements = [
       ['First light', 'Solve your first puzzle.', solved.length > 0, 'lightup'],
       ['A curious mind', 'Solve three puzzle families.', families.size >= 3, 'dossier'],
-      ['Town planner', 'Complete a Pocket Borough.', towns.length > 0, 'borough'],
-      [
-        'A seat at the table',
-        'Finish a Lantern Duel.',
-        state.records.some((r) => r.type === 'duel'),
-        'duel',
-      ],
+      ['Town planner', 'Complete a Pocket Borough.', cleared('borough:', 'borough'), 'borough'],
+      ['A seat at the table', 'Finish a Lantern Duel.', cleared('duel:', 'duel'), 'duel'],
       ['In good order', 'Finish an archive room.', cleared('archive:'), 'archive'],
       ['A quiet practice', 'Enter Zen mode.', state.stamps.includes('zen'), 'garden'],
     ];

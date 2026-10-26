@@ -5,6 +5,19 @@
   const PREFIX = 'alibi.v1.',
     DB = 'alibi-device',
     VERSION = 1,
+    REVISION_FLOOR = 'run-revision-floor',
+    nextRevision = (current, floor = 0) => {
+      const next = Math.max(current, floor) + 1;
+      if (
+        !Number.isSafeInteger(current) ||
+        !Number.isSafeInteger(floor) ||
+        current < 0 ||
+        floor < 0 ||
+        !Number.isSafeInteger(next)
+      )
+        throw Error('Revision limit or damaged revision history.');
+      return next;
+    },
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
     aborted = () => Error('Storage transaction aborted.'),
     badDraft = (v) => {
@@ -219,25 +232,23 @@
     }
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.
-      if (
-        !Number.isInteger(expectedRevision) ||
-        !Number.isSafeInteger(expectedRevision + 1) ||
-        expectedRevision < 0
-      )
-        throw Error('Revision limit.');
+      const revision = nextRevision(expectedRevision);
       if (!this.db && this.mode === 'local') throw readOnly();
       const key = record.key;
       const next = AlibiCore.clone(record);
-      next.rev = expectedRevision + 1;
+      next.rev = revision;
       next.updatedAt = new Date().toISOString();
       if (this.db)
         return new Promise((resolve, reject) => {
-          let conflict = false;
-          const tx = this.db.transaction('runs', 'readwrite'),
+          let bad = null,
+            ready = 0;
+          const tx = this.db.transaction(['runs', 'meta'], 'readwrite'),
             os = tx.objectStore('runs'),
-            r = os.get(key);
+            r = os.get(key),
+            floor = tx.objectStore('meta').get(REVISION_FLOOR);
           this.watch(tx, reject);
-          r.onsuccess = () => {
+          r.onsuccess = floor.onsuccess = () => {
+            if (++ready < 2) return;
             const old = r.result?.value;
             let invalid = false;
             try {
@@ -256,14 +267,21 @@
                   old.rev < 0)) ||
               (old?.rev ?? 0) !== expectedRevision
             ) {
-              conflict = true;
+              bad = new ConflictError();
               tx.abort();
-            } else os.put({ key, value: next });
+            } else
+              try {
+                if (old === undefined)
+                  next.rev = nextRevision(expectedRevision, floor.result ? floor.result.value : 0);
+                os.put({ key, value: next });
+              } catch (e) {
+                bad = e;
+                tx.abort();
+              }
           };
           tx.oncomplete = () => resolve(next);
           tx.onerror = () => reject(tx.error);
-          tx.onabort = () =>
-            reject(conflict ? new ConflictError() : tx.error || Error('Save aborted.'));
+          tx.onabort = () => reject(bad || tx.error || Error('Save aborted.'));
         });
       // Session memory belongs to this Store. Compare and write without yielding.
       const old = this.memory.runs[key];
@@ -335,10 +353,11 @@
           pr = packs.getAll(),
           sr = meta.get('settings'),
           fr = meta.get('preferences'),
-          dr = meta.get('workshop-draft');
+          dr = meta.get('workshop-draft'),
+          hr = meta.get(REVISION_FLOOR);
         let n = 0;
         const go = () => {
-          if (++n < 5) return;
+          if (++n < 6) return;
           try {
             const cR = rr.result.map((x) => x.value),
               cP = pr.result.map((x) => x.value),
@@ -374,20 +393,23 @@
               !root.AlibiCore.equal(cD, backup.workshopDraft);
             if (draftConflict)
               note =
-                'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy.';
+                'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy. Keep the original backup file; the next restore replaces Recovery copy.';
             else if (cDbad && backup.workshopDraft !== undefined)
               note = 'Your damaged workshop draft was replaced; the original is in Recovery copy.';
-            const revisions = new Map(rr.result.map(({ key, value }) => [key, value?.rev])),
+            // Keep the largest removed revision across empty restores and later re-creations.
+            // This device-local fence is never replaced by an imported backup.
+            const floor = rr.result.reduce(
+                (high, { value }) =>
+                  Number.isSafeInteger(value?.rev) && value.rev >= 0
+                    ? Math.max(high, value.rev)
+                    : high,
+                hr.result ? hr.result.value : 0,
+              ),
               restoredRuns = backup.runs.map((r) => {
-                // Restore is a new local write, even when the backup reuses a revision.
-                // A damaged current revision counts as 0: saveRun already refuses
-                // such rows, so no writer can hold it, and restore can repair them.
-                const held = revisions.get(r.key),
-                  current = Number.isSafeInteger(held) && held >= 0 ? held : 0,
-                  rev = Math.max(r.rev, current) + 1;
-                if (!Number.isSafeInteger(rev) || rev < 1) throw Error('Revision limit.');
-                return { ...r, rev };
+                return { ...r, rev: nextRevision(r.rev, floor) };
               });
+            // Validate the stored floor even when the backup contains no runs.
+            nextRevision(hr.result ? hr.result.value : 0, floor);
             meta.put({
               key: 'pre-restore-backup',
               value: {
@@ -409,6 +431,10 @@
                 ...(draftConflict ? { unappliedWorkshopDraft: backup.workshopDraft } : {}),
               },
             });
+            meta.put({
+              key: REVISION_FLOOR,
+              value: restoredRuns.reduce((high, r) => Math.max(high, r.rev), floor),
+            });
             runs.clear();
             packs.clear();
             for (const r of restoredRuns) runs.put({ key: r.key, value: r });
@@ -422,7 +448,13 @@
             tx.abort();
           }
         };
-        rr.onsuccess = pr.onsuccess = sr.onsuccess = fr.onsuccess = dr.onsuccess = go;
+        rr.onsuccess =
+          pr.onsuccess =
+          sr.onsuccess =
+          fr.onsuccess =
+          dr.onsuccess =
+          hr.onsuccess =
+            go;
         tx.oncomplete = () => resolve({ note });
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));

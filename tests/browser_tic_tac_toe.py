@@ -174,6 +174,155 @@ with sync_playwright() as playwright:
         page.reload()
         page.wait_for_selector('.tic-status')
         check('X wins' in page.locator('.tic-status').inner_text(), 'Finished match persists through real-origin offline reload')
+        context.set_offline(False)
+
+        synthetic = page.evaluate(
+            """() => {
+                const value = AlibiClub.diagnostics().state;
+                value.records = [
+                    ...Array.from({ length: 98 }, (_, index) => ({
+                        id: `synthetic-tictactoe-${index + 1}`,
+                        type: 'tictactoe',
+                        label: `Synthetic later Tic-Tac-Toe ${index + 1}`,
+                        score: index % 2,
+                        date: '2026-10-25',
+                    })),
+                    {
+                        id: 'synthetic-old-duel-completion',
+                        type: 'duel',
+                        label: 'Synthetic older Duel completion',
+                        score: 1,
+                        date: '2026-10-01',
+                    },
+                    {
+                        id: 'synthetic-old-borough-completion',
+                        type: 'borough',
+                        label: 'SYNTHETIC-OLD-TOWN',
+                        score: 600,
+                        date: '2026-10-01',
+                    },
+                ];
+                delete value.cleared;
+                value.runs.tictactoe = {
+                    ...value.runs.tictactoe,
+                    mode: 'local',
+                    log: [],
+                    redo: [],
+                };
+                return value;
+            }"""
+        )
+        page.evaluate("value => AlibiClub.reviewBackup(value)", synthetic)
+        check(
+            page.locator("dialog[open]").count() == 1,
+            "Synthetic 100-record progress is loaded through Club's explicit restore confirmation",
+        )
+        action("club-restore-confirm")
+        page.wait_for_function(
+            """() => {
+                const state = AlibiClub.diagnostics().state;
+                return state.records.length === 100 &&
+                    state.records.slice(0, 98).every(row => row.type === 'tictactoe') &&
+                    state.records[98].type === 'duel' && state.records[99].type === 'borough' &&
+                    !Object.hasOwn(state, 'cleared') &&
+                    state.runs.tictactoe.mode === 'local' && state.runs.tictactoe.log.length === 0;
+            }"""
+        )
+        route("/club")
+        check(
+            page.locator(".club-stamp").filter(has_text="A seat at the table").locator("small").inner_text()
+            == "COLLECTED",
+            "Synthetic older Duel completion initially earns its stamp",
+        )
+        check(
+            page.locator(".club-stamp").filter(has_text="Town planner").locator("small").inner_text()
+            == "COLLECTED",
+            "Synthetic older Borough completion initially earns its stamp",
+        )
+
+        route("/salon/tictactoe")
+        for cell in [0, 3, 1, 4, 2]:
+            page.locator('.tictactoe-cell[data-cell="' + str(cell) + '"]').click()
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.cleared?.includes('borough:')"
+        )
+        after_first = page.evaluate("() => AlibiClub.diagnostics().state")
+        check(
+            len(after_first["records"]) == 100
+            and not any(row["type"] == "borough" for row in after_first["records"])
+            and any(row["type"] == "duel" for row in after_first["records"]),
+            "First local win prunes only the oldest synthetic Borough row",
+        )
+        check(
+            "borough:" in after_first["cleared"] and "duel:" not in after_first["cleared"],
+            "First local win durably promotes the pruned Borough marker",
+        )
+
+        action("club-restart", '[data-id="tictactoe"]')
+        page.wait_for_function(
+            "() => AlibiClub.diagnostics().state.runs.tictactoe.log.length === 0"
+        )
+        for cell in [2, 5, 1, 4, 0]:
+            page.locator('.tictactoe-cell[data-cell="' + str(cell) + '"]').click()
+        page.wait_for_function(
+            """() => {
+                const state = AlibiClub.diagnostics().state;
+                return state.cleared?.includes('duel:') && state.cleared.includes('borough:');
+            }"""
+        )
+        after_second = page.evaluate("() => AlibiClub.diagnostics().state")
+        played_ids = [
+            row["id"]
+            for row in after_second["records"]
+            if row["type"] == "tictactoe" and row["id"].startswith("tictactoe:")
+        ]
+        check(
+            len(after_second["records"]) == 100
+            and not any(row["type"] in ("duel", "borough") for row in after_second["records"]),
+            "Second distinct local win prunes the older synthetic Duel row within the journal cap",
+        )
+        check(
+            len(played_ids) == 2 and len(set(played_ids)) == 2,
+            "Different winning move logs create two distinct local journal records",
+        )
+        check(
+            set(after_second["cleared"]) == {"duel:", "borough:"},
+            "Both pruned progress markers remain in the Club save",
+        )
+        route("/club")
+        for stamp in ("A seat at the table", "Town planner"):
+            check(
+                page.locator(".club-stamp").filter(has_text=stamp).locator("small").inner_text()
+                == "COLLECTED",
+                f"{stamp} remains collected after both older completions leave the journal",
+            )
+
+        route("/salon/tictactoe")
+        page.evaluate("() => AlibiClub.flush()")
+        context.set_offline(True)
+        page.reload()
+        page.wait_for_selector('.tic-status')
+        page.wait_for_function(
+            """() => {
+                const status = AlibiClub.diagnostics();
+                return status.storageMode === 'indexeddb' &&
+                    status.state.cleared?.includes('duel:') &&
+                    status.state.cleared.includes('borough:');
+            }"""
+        )
+        check(
+            "X wins" in page.locator('.tic-status').inner_text(),
+            "Second distinct local win reloads from real-origin storage while offline",
+        )
+        route("/club")
+        for stamp in ("A seat at the table", "Town planner"):
+            check(
+                page.locator(".club-stamp").filter(has_text=stamp).locator("small").inner_text()
+                == "COLLECTED",
+                f"{stamp} stays collected after the offline reload",
+            )
+        route("/salon/tictactoe")
+        page.wait_for_selector('.tic-status')
     for width in (390, 1440):
         page.set_viewport_size({'width': width, 'height': 900})
         check(page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'Tic-Tac-Toe fits {width}px')

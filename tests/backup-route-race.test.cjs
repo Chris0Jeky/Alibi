@@ -202,7 +202,11 @@ function restoreHarness(store) {
   let reloads = 0,
     closedDialogs = 0;
   const dialogs = [];
-  let onClose;
+  const listeners = [];
+  const modal = {
+    open: true,
+    addEventListener: (event, callback, options) => listeners.push({ callback, options }),
+  };
   const context = {
     queue: Promise.resolve(),
     C: { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
@@ -213,17 +217,12 @@ function restoreHarness(store) {
       closedDialogs++;
     },
     esc: (value) => value,
-    dialog: (...args) => dialogs.push(args),
-    $: (selector) => {
-      assert.equal(selector, '#dialog');
-      return {
-        addEventListener(event, callback, options) {
-          assert.equal(event, 'close');
-          assert.equal(options.once, true);
-          onClose = callback;
-        },
-      };
+    dialog: (...args) => {
+      modal.open = true;
+      dialogs.push(args);
     },
+    $: (selector) => (selector === '#dialog' ? modal : { focus() {} }),
+    document: { getElementById: () => null },
     location: {
       reload() {
         reloads += 1;
@@ -232,7 +231,9 @@ function restoreHarness(store) {
   };
   vm.runInNewContext(
     `
-    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false;
+    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false,
+      stagedCabinet = null, dialogOpener = null;
+    ${source.slice(source.indexOf("  $('#dialog').addEventListener('close', () => {"), source.indexOf("  $('#dialog').addEventListener('cancel',"))}
     ${appFunction('restoreBackup')}
     globalThis.api = { run: restoreBackup };
   `,
@@ -244,7 +245,14 @@ function restoreHarness(store) {
     reloads: () => reloads,
     closedDialogs: () => closedDialogs,
     dialogs,
-    dismiss: () => onClose?.(),
+    dismiss: (stale = false) => {
+      modal.open = stale;
+      for (const listener of [...listeners]) {
+        if (listener.options?.once) listeners.splice(listeners.indexOf(listener), 1);
+        listener.callback();
+      }
+      modal.onclose?.();
+    },
   };
 }
 
@@ -327,4 +335,79 @@ test('restoreBackup can run again after the first restore fails', async () => {
   await harness.run(true);
   assert.equal(restores, 2);
   assert.equal(harness.reloads(), 1);
+});
+
+test('a queued old dialog close cannot dismiss the reopened restore note', async () => {
+  const saving = deferred();
+  const harness = restoreHarness({ mode: 'indexeddb', restore: () => saving.promise });
+  const restoring = harness.run(true);
+  await Promise.resolve();
+  saving.resolve({ note: 'Keep original backup.' });
+  await restoring;
+  harness.dismiss(true); // close event queued before the new notice's showModal
+  assert.equal(harness.reloads(), 0, 'stale close must leave the reopened note readable');
+  harness.dismiss();
+  assert.equal(harness.reloads(), 1, 'the real notice close still reloads');
+});
+
+function draftBackupHarness(put) {
+  let exported = 0;
+  const context = {
+    store: {
+      put,
+      async export() {
+        exported++;
+        return { runs: [], packs: [], workshopDraft: { puzzle: { id: 'other-tab-draft' } } };
+      },
+    },
+    enqueueSave: async () => {},
+    queue: Promise.resolve(),
+    C: { clone: structuredClone },
+    records: new Map(),
+    acked: new Map(),
+    packs: [],
+    settings: {},
+    prefs: {},
+    cfg: { version: 'test' },
+    toast() {},
+  };
+  vm.runInNewContext(
+    `
+    let draft = { id: 'local-draft' }, draftEpoch = 0, routeSerial = 0,
+      draftSave, draftVerified = false;
+    ${appFunction('saveDraft')}
+    ${appFunction('cabinetBackup')}
+    globalThis.api = { save: saveDraft, backup: cabinetBackup };
+  `,
+    context,
+  );
+  return { ...context.api, exported: () => exported };
+}
+
+test('cabinet export refuses an unsaved draft instead of silently exporting the previous one', async () => {
+  const h = draftBackupHarness(async () => {
+    throw Error('quota exceeded');
+  });
+  await h.save(); // normal editing already reports failure through its existing toast
+  await assert.rejects(h.backup(), /quota exceeded/);
+  assert.equal(h.exported(), 0);
+});
+
+test('cabinet export awaits a pending draft failure and successful edit permits retry without resaving', async () => {
+  const pending = deferred();
+  let puts = 0;
+  const h = draftBackupHarness(() => (++puts === 1 ? pending.promise : Promise.resolve()));
+  const save = h.save();
+  const backup = h.backup();
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(h.exported(), 0, 'do not construct a backup before the pending save settles');
+  pending.reject(Error('transaction aborted'));
+  await save;
+  await assert.rejects(backup, /transaction aborted/);
+  await h.save();
+  const result = await h.backup();
+  assert.equal(result.data.workshopDraft.puzzle.id, 'other-tab-draft');
+  assert.equal(puts, 2, 'export never retries the local draft write over another tab');
 });

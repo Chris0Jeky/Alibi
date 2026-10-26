@@ -80,6 +80,7 @@
     draftObject = 'plant',
     draftBusy = false,
     draftEpoch = 0,
+    draftSave,
     pendingBackup = null,
     restoreBusy = false,
     backupPickerBusy = false,
@@ -2164,6 +2165,7 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
+    await draftSave;
     const data = await store.export();
     const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
     const divergentByKey = new Map();
@@ -2475,7 +2477,9 @@
           { label: 'Download recovery copy', action: 'recovery' },
           { label: 'Reload Alibi', action: 'reload' },
         ]);
-        $('#dialog').addEventListener('close', () => location.reload(), { once: true });
+        $('#dialog').onclose = () => {
+          if (!$('#dialog').open) location.reload();
+        };
       } else {
         closeDialog();
         location.reload();
@@ -2588,7 +2592,8 @@
     const puzzle = draft,
       epoch = draftEpoch,
       serial = routeSerial;
-    await store.put('meta', 'workshop-draft', { puzzle }).catch((e) => {
+    draftSave = store.put('meta', 'workshop-draft', { puzzle });
+    await draftSave.catch((e) => {
       if (puzzle === draft && epoch === draftEpoch && serial === routeSerial)
         toast(e.message, true);
     });

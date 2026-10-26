@@ -260,6 +260,7 @@ test('a different incoming draft keeps the local draft and restores other data w
   assert.deepEqual(recovery.settings, seedData().meta.settings);
   assert.deepEqual(recovery.preferences, seedData().meta.preferences);
   assert.match(result.note, /workshop draft.*not applied.*recovery copy/i);
+  assert.match(result.note, /keep the original backup file.*next restore replaces recovery copy/i);
 });
 
 test('replace also restores other data when workshop drafts differ', async () => {
@@ -419,6 +420,52 @@ test('repeated restores cannot revive an earlier writer revision', async () => {
   assert.equal((await tabA.get('runs', original.key)).rev, 9);
   assert.deepEqual(plain(disk.meta.get('pre-restore-backup')).runs, [plain(stale)]);
 });
+
+test('restore remembers removed revisions before a later backup reintroduces a run', async () => {
+  const { tabA, tabB, disk, original } = writerFixture();
+  const stale = await tabB.get('runs', original.key);
+  await tabA.restore({ ...validBackup(), runs: [], packs: [] });
+  await tabA.restore({ ...validBackup(), runs: [], packs: [] });
+  assert.equal(disk.runs.has(original.key), false);
+  await tabA.restore({
+    ...validBackup(),
+    runs: [{ ...original, rev: 6, note: 'restored after removal' }],
+  });
+  await assert.rejects(tabB.saveRun({ ...stale, note: 'stale overwrite' }, stale.rev), {
+    name: 'ConflictError',
+  });
+  const restored = await tabA.get('runs', original.key);
+  assert.equal(restored.note, 'restored after removal');
+  assert.ok(restored.rev > stale.rev);
+  assert.deepEqual(plain(disk.meta.get('pre-restore-backup')).runs, []);
+});
+
+test('starting a removed puzzle cannot reuse a revision held by an earlier tab', async () => {
+  const { tabA, tabB, original } = writerFixture();
+  const stale = await tabB.get('runs', original.key);
+  await tabA.restore({ ...validBackup(), runs: [], packs: [] });
+  const restarted = await tabA.saveRun({ ...original, rev: 0, note: 'new attempt' }, 0);
+  assert.ok(restarted.rev > stale.rev);
+  await assert.rejects(tabB.saveRun({ ...stale, note: 'stale overwrite' }, stale.rev), {
+    name: 'ConflictError',
+  });
+  assert.equal((await tabA.get('runs', original.key)).note, 'new attempt');
+  assert.equal((await tabA.saveRun(restarted, restarted.rev)).rev, restarted.rev + 1);
+});
+
+for (const floor of [null, -1, 1.5, '7', Number.MAX_SAFE_INTEGER]) {
+  test(`damaged or exhausted revision history (${floor}) refuses restore and new saves`, async () => {
+    const { tabA, disk, original } = writerFixture();
+    disk.meta.set('run-revision-floor', floor);
+    const before = snap(disk);
+    await assert.rejects(tabA.restore(validBackup()), /revision/i);
+    assert.equal(snap(disk), before, 'refusal retains all original and recovery bytes');
+    disk.runs.delete(original.key);
+    const empty = snap(disk);
+    await assert.rejects(tabA.saveRun({ ...original, rev: 0 }, 0), /revision/i);
+    assert.equal(snap(disk), empty, 'refusal must not recreate the removed run');
+  });
+}
 
 for (const damaged of ['x', null, -1, 1.5]) {
   test(`replace restore repairs a damaged current revision (${damaged})`, async () => {

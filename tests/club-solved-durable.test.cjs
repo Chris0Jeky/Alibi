@@ -1,9 +1,10 @@
 'use strict';
-// #407: Archive Heist and Lantern Gardens solved markers must survive the 100-record journal cap.
+// Durable Club progress must survive the 100-record journal cap.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const { session } = require('./helpers/club-session.cjs');
 require('../src/core.js');
 const C = require('../src/engines.js');
 require('../src/backup-validation.js');
@@ -43,6 +44,23 @@ function fillJournal(f, count) {
   }
 }
 
+function finishedDuel() {
+  let s = E.reversi.initial();
+  while (!s.done) s = E.reversi.move(s, E.reversi.legal(s)[0]);
+  return s;
+}
+
+function finishedBorough(seed) {
+  let s = E.borough.initial(seed);
+  while (!s.done)
+    s = E.borough.move(
+      s,
+      0,
+      s.board.findIndex((x) => !x),
+    );
+  return s;
+}
+
 test('solved vault and garden markers outlive 100 later journal records', () => {
   const f = fixture();
   solve(f, 'archive', 9, { pushes: 12 });
@@ -64,16 +82,58 @@ test('solved vault and garden markers outlive 100 later journal records', () => 
   ]);
 });
 
+test('Duel and Borough stamps outlive 100 later journal records', async () => {
+  const f = fixture();
+  const duel = finishedDuel();
+  f.state.runs.duel = { mode: 'local', difficulty: 'keeper', log: duel.log, redo: [] };
+  f.record('duel', duel);
+
+  const borough = finishedBorough('STAMP-01');
+  f.state.runs.borough = { seed: borough.seed, log: borough.log, redo: [] };
+  f.record('borough', borough);
+
+  fillJournal(f, 100);
+  assert.equal(f.state.records.length, 100);
+  assert.ok(!f.state.records.some((x) => x.type === 'duel' || x.type === 'borough'));
+  assert.equal(f.cleared('duel:'), true, 'a completed match remains collected');
+  assert.equal(f.cleared('borough:'), true, 'a completed town remains collected');
+  assert.deepEqual(JSON.parse(JSON.stringify(validateSave({ ...f.state, runs: {} }))).cleared, [
+    'duel:',
+    'borough:',
+  ]);
+
+  const legacy = { ...f.state, runs: {} };
+  delete legacy.cleared;
+  assert.doesNotThrow(() => validateSave(legacy), 'pre-progress saves still load');
+
+  const profileState = { ...f.state, runs: {} };
+  const tab = await session(profileState, null, { context: { AlibiAssets: { badge: () => '' } } });
+  await tab.club.onRoute({ page: 'club' });
+  const html = tab.club.profile();
+  assert.match(html, /<div class="club-stamp earned"><strong>Town planner<\/strong>/);
+  assert.match(html, /<div class="club-stamp earned"><strong>A seat at the table<\/strong>/);
+});
+
 test('imported record ids the validator would refuse never reach the solved set', () => {
   const f = fixture();
-  for (const id of ['archive:01:a', 'archive:100:a', 'duel:7:a', 'regiongardens:7:a'])
+  for (const id of [
+    'archive:01:a',
+    'archive:00:a',
+    'archive:100:a',
+    'duel:7:a',
+    'duel:local:a',
+    'borough:PLANNING-1:a',
+    'regiongardens:7:a',
+  ])
     f.state.records.push({ id, type: 'archive', label: 'x', score: 1, date: '2026-01-01' });
-  fillJournal(f, 1);
+  fillJournal(f, 100);
   assert.deepEqual([...f.state.cleared], ['regiongardens:7:']);
   assert.doesNotThrow(
     () => validateSave({ ...f.state, runs: {} }),
     'the save still loads after the next record',
   );
+  assert.equal(f.cleared('duel:'), false, 'unrelated record ids cannot grant the Duel stamp');
+  assert.equal(f.cleared('borough:'), false, 'unrelated record ids cannot grant the Borough stamp');
 });
 
 test('Club saves validate the optional solved set', () => {
@@ -86,17 +146,24 @@ test('Club saves validate the optional solved set', () => {
     () => validateSave({ ...base, cleared: every }),
     'every prefix record() can produce fits the bound',
   );
+  assert.doesNotThrow(
+    () => validateSave({ ...base, cleared: [...every, 'duel:', 'borough:'] }),
+    'durable game stamps are valid progress markers',
+  );
   for (const cleared of [
     'archive:1:',
     {},
     ['archive:1'],
     ['archive:01:'],
+    ['archive:00:'],
     ['archive:100:'],
     ['archive:-1:'],
     ['duel:0:'],
+    ['duel:local:'],
+    ['borough:SEED-1:'],
     [5],
     [['archive:1:']],
-    [...every, 'archive:0:'],
+    [...every, 'duel:', 'borough:', 'duel:'],
   ])
     assert.throws(() => validateSave({ ...base, cleared }), /Invalid solved rooms/);
 });
