@@ -412,6 +412,7 @@
   }
   // One bounded, ephemeral replay entry; never stored in a run or returned by reference.
   let blockReplay = null;
+  const blockReplayCheckpointStride = 64;
   const blockCabinet = {
     size: 8,
     // Keep the existing cap until long-run reload and physical-phone qualification; see #404.
@@ -515,16 +516,44 @@
         return action.slot * 64 + action.cell;
       });
       // Compare every move, not only length or the last action: restored/edited logs can diverge.
-      const prior = blockReplay,
-        reuse =
-          prior &&
-          prior.seed === seed &&
-          prior.moves.length <= moves.length &&
-          prior.moves.every((move, index) => move === moves[index]);
-      let s = reuse ? prior.state : this.initial(seed);
-      for (let i = reuse ? prior.moves.length : 0; i < moves.length; i++)
+      const prior = blockReplay;
+      let common = 0;
+      if (prior?.seed === seed)
+        while (
+          common < prior.moves.length &&
+          common < moves.length &&
+          prior.moves[common] === moves[common]
+        )
+          common++;
+      if (prior?.seed === seed && common === prior.moves.length && common === moves.length)
+        return copy(prior.state);
+
+      let checkpoints = [],
+        start = 0,
+        s;
+      if (prior?.seed === seed) {
+        checkpoints = prior.checkpoints.filter((checkpoint) => checkpoint.index <= common);
+        // Append-only play can continue from the prior tip. A shortened or changed log
+        // resumes from the latest stride checkpoint that still matches every action.
+        if (common === prior.moves.length && prior.moves.length < moves.length) {
+          start = prior.moves.length;
+          s = prior.state;
+        } else if (checkpoints.length) {
+          const checkpoint = checkpoints.at(-1);
+          start = checkpoint.index;
+          s = checkpoint.state;
+        }
+      }
+      if (!s) {
+        s = this.initial(seed);
+        checkpoints = [{ index: 0, state: s }];
+      }
+      for (let i = start; i < moves.length; i++) {
         s = this.move(s, Math.floor(moves[i] / 64), moves[i] % 64);
-      blockReplay = { seed, moves, state: s };
+        if ((i + 1) % blockReplayCheckpointStride === 0)
+          checkpoints.push({ index: i + 1, state: s });
+      }
+      blockReplay = { seed, moves, checkpoints, state: s };
       return copy(s);
     },
   };
