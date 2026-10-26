@@ -247,6 +247,7 @@ def run() -> dict[str, object]:
             )
             route(page, "#/settings")
             before_failures = stable_runs(page)
+            before_runs = {record["key"]: record for record in json.loads(before_failures)}
 
             for mode, label, toast in [
                 ("cancel", "picker cancellation", "No backup was selected. Nothing was changed."),
@@ -302,6 +303,11 @@ def run() -> dict[str, object]:
             )
             check(merged[incoming_key]["state"] == incoming_records[incoming_key]["state"], "Add missing retains incoming Sudoku state")
             check(merged[existing_key]["state"] == existing["state"], "Add missing retains existing Sudoku state")
+            check(merged[existing_key] == before_runs[existing_key], "Add missing preserves the complete unchanged run and its revision")
+            check(
+                merged[incoming_key]["rev"] > max(record["rev"] for record in before_runs.values()),
+                "Add missing assigns the new run a revision above the current device rows",
+            )
             route(page, "#/settings")
             with page.expect_download() as download:
                 page.locator('[data-action="recovery"]').click()
@@ -321,6 +327,7 @@ def run() -> dict[str, object]:
             replaced = {record["key"]: record for record in read_runs(page)}
             check(set(replaced) == {incoming_key}, "Replace restores the imported save set")
             check(replaced[incoming_key]["state"] == incoming_records[incoming_key]["state"], "Replace retains imported Sudoku state")
+            check(replaced[incoming_key]["rev"] > merged[incoming_key]["rev"], "Replace still invalidates the prior run revision")
             route(page, "#/settings")
             with page.expect_download() as download:
                 page.locator('[data-action="recovery"]').click()

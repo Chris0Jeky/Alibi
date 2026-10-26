@@ -405,7 +405,17 @@
                     : high,
                 hr.result ? hr.result.value : 0,
               ),
+              currentRuns = new Map(rr.result.map(({ key, value }) => [key, value])),
               restoredRuns = backup.runs.map((r) => {
+                const current = currentRuns.get(r.key);
+                // Only Add missing supplies an expected snapshot. Preserve a row's CAS token
+                // there only when both complete, validated rows still match exactly.
+                if (expected && this.validateRun && current?.key === r.key)
+                  try {
+                    this.validateRun(current);
+                    this.validateRun(r);
+                    if (root.AlibiCore.equal(current, r)) return r;
+                  } catch {}
                 return { ...r, rev: nextRevision(r.rev, floor) };
               });
             // Validate the stored floor even when the backup contains no runs.

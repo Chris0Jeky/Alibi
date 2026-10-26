@@ -169,9 +169,23 @@
   function validateSave(value) {
     return root.AlibiBackupValidation(root.AlibiCore, null, E, stories.length).validateSave(value);
   }
+  // Load-only compatibility recovery: imports continue through strict validateSave unchanged.
+  function storedSaveHasEmptyRunList(value) {
+    return (
+      Array.isArray(value?.runs) && value.runs.length === 0 && Object.keys(value.runs).length === 0
+    );
+  }
+  function storedSave(value) {
+    const emptyRunList = storedSaveHasEmptyRunList(value);
+    return {
+      state: validateSave(emptyRunList ? { ...value, runs: {} } : value),
+      emptyRunList,
+    };
+  }
   async function init(api) {
     bridge = api;
-    let foundSave = false;
+    let foundSave = false,
+      recoveredEmptyRunList = false;
     try {
       db = await new Promise((resolve, reject) => {
         const r = indexedDB.open('alibi-afterhours-v1', 1);
@@ -215,8 +229,18 @@
         foundSave = true;
         if (!Number.isSafeInteger(v.rev) || v.rev < 1)
           throw Error('Unsupported Club save revision.');
-        if (Object.keys(v.data?.runs || {}).length) await engine();
-        state = validateSave(v.data);
+        if (
+          Object.keys(v.data?.runs || {}).length ||
+          storedSaveHasEmptyRunList(v.data) ||
+          (Array.isArray(v.data?.records) &&
+            v.data.records.some(
+              (record) => record?.type === 'duel' && record.difficulty !== undefined,
+            ))
+        )
+          await engine();
+        const loaded = storedSave(v.data);
+        state = loaded.state;
+        recoveredEmptyRunList = loaded.emptyRunList;
         rev = v.rev;
       }
       storageMode = 'indexeddb';
@@ -244,7 +268,9 @@
             if (Object.keys(v).some((key) => !['rev', 'data'].includes(key)))
               throw Error('Unsupported Club save fields.');
             await engine();
-            state = validateSave(v.data);
+            const loaded = storedSave(v.data);
+            state = loaded.state;
+            recoveredEmptyRunList = loaded.emptyRunList;
             rev = v.rev;
           }
           localStorage.setItem('alibi-club-probe', '1');
@@ -256,6 +282,14 @@
             ? 'An existing Club save was left untouched because it could not be read. Export this temporary session before closing.'
             : 'Club progress is kept only in this tab. Export before closing it.';
         }
+    }
+    if (recoveredEmptyRunList) {
+      storageMode = 'session';
+      protectedSave = true;
+      saveError =
+        'Your Club save is protected. These records are read-only here. Export a copy to restore in another browser.';
+      db?.close();
+      db = null;
     }
     state.boroughBests = boroughBestTable(state.records, state.boroughBests);
     state.visit = Math.min(Number.MAX_SAFE_INTEGER, state.visit + 1);

@@ -1,6 +1,9 @@
 'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const { session } = require('./helpers/club-session.cjs');
 require('../src/core.js');
 const C = require('../src/engines.js');
 require('../src/backup-validation.js');
@@ -18,6 +21,68 @@ function validSave(overrides = {}) {
     records: [],
     stamps: [],
     ...overrides,
+  };
+}
+
+function storedClubDatabase(data) {
+  const state = { rev: 5, data: structuredClone(data) };
+  let closed = false,
+    writes = 0;
+  const db = {
+    close() {
+      closed = true;
+    },
+    transaction() {
+      const txListeners = new Map();
+      const tx = {
+        addEventListener(type, listener) {
+          const handlers = txListeners.get(type) || [];
+          handlers.push(listener);
+          txListeners.set(type, handlers);
+        },
+        objectStore() {
+          return {
+            get(key) {
+              const request = { result: undefined, onsuccess: null };
+              setTimeout(() => {
+                request.result = key === 'state' ? structuredClone(state) : undefined;
+                request.onsuccess?.();
+                setTimeout(() => {
+                  for (const listener of txListeners.get('complete') || []) listener();
+                  tx.oncomplete?.();
+                }, 0);
+              }, 0);
+              return request;
+            },
+            put() {
+              writes++;
+            },
+            clear() {
+              writes++;
+            },
+          };
+        },
+      };
+      return tx;
+    },
+  };
+  return {
+    api: {
+      open() {
+        const request = { result: db, onsuccess: null };
+        setTimeout(() => request.onsuccess?.(), 0);
+        return request;
+      },
+    },
+    get closed() {
+      return closed;
+    },
+    get writes() {
+      return writes;
+    },
+    read() {
+      return structuredClone(state);
+    },
   };
 }
 
@@ -41,6 +106,151 @@ test('Club save rejects the empty runs array that loses subsequent Archive progr
     '{"schema":1,"settings":{"assist":"off","zen":false,"pinned":null},"visit":0,"lastHero":-1,"runs":[],"records":[],"stamps":[]}',
   );
   assert.throws(() => validateSave(save), /not a supported Club save/);
+});
+
+test('a stored empty runs array shows its otherwise valid journal in a protected session', async () => {
+  const record = {
+      id: 'borough:retained-town',
+      type: 'borough',
+      label: 'A retained town',
+      score: 12,
+      date: '2026-10-26T00:00:00.000Z',
+    },
+    bests = [{ label: 'A retained town', score: 13, date: 'legacy-date' }],
+    raw = JSON.stringify({
+      rev: 5,
+      data: validSave({ runs: [], records: [record], boroughBests: bests }),
+    }),
+    tab = await session(null, raw, { context: { AlibiAssets: { badge: () => '' } } });
+
+  assert.equal(tab.club.diagnostics().storageMode, 'session');
+  assert.match(tab.club.diagnostics().saveError, /read.only/i);
+  await tab.club.flush();
+  assert.equal(tab.storage.get('alibi-afterhours-v1'), raw);
+  assert.deepEqual(tab.state().records, [record]);
+  assert.deepEqual(tab.state().boroughBests, bests);
+  assert.doesNotThrow(
+    () => validateSave(tab.state()),
+    'the recovered state can be exported validly',
+  );
+  await tab.club.onRoute({ page: 'club' });
+  assert.match(tab.club.profile(), /A retained town/);
+});
+
+test('an IDB empty runs array salvages valid records in a protected session without writing', async () => {
+  const record = {
+      id: 'borough:retained-town',
+      type: 'borough',
+      label: 'A retained town',
+      score: 12,
+      date: '2026-10-26T00:00:00.000Z',
+    },
+    bests = [{ label: 'A retained town', score: 13, date: 'legacy-date' }],
+    data = validSave({ runs: [], records: [record], boroughBests: bests }),
+    idb = storedClubDatabase(data),
+    tab = await session(data, null, {
+      context: { indexedDB: idb.api, AlibiAssets: { badge: () => '' } },
+    });
+
+  assert.equal(tab.club.diagnostics().storageMode, 'session');
+  assert.match(tab.club.diagnostics().saveError, /read.only/i);
+  assert.deepEqual(tab.state().records, [record]);
+  assert.deepEqual(tab.state().boroughBests, bests);
+  assert.doesNotThrow(
+    () => validateSave(tab.state()),
+    'the recovered state can be exported validly',
+  );
+  assert.deepEqual(idb.read().data, data);
+  assert.equal(idb.closed, true);
+  assert.equal(idb.writes, 0);
+});
+
+test('a valid IDB save with only a Duel journal record loads its required engine before validation', async () => {
+  const record = {
+      id: 'duel:retained-result',
+      type: 'duel',
+      label: 'Lantern Duel',
+      score: 1,
+      date: '2026-10-26T00:00:00.000Z',
+      difficulty: 'keeper',
+    },
+    data = validSave({ records: [record] }),
+    idb = storedClubDatabase(data);
+  let engineLoads = 0;
+  const tab = await session(data, null, {
+    context: { indexedDB: idb.api },
+    beforeInit(context) {
+      vm.runInContext('delete globalThis.AlibiClubEngines', context);
+      assert.equal(vm.runInContext('typeof globalThis.AlibiClubEngines', context), 'undefined');
+      context.ALIBI_CLUB_CONFIG = {
+        engineSource: fs.readFileSync(require.resolve('../src/club-engines.js'), 'utf8'),
+      };
+      context.document.createElement = () => ({ remove() {} });
+      context.document.head = {
+        append(script) {
+          engineLoads++;
+          vm.runInContext(script.textContent, context);
+        },
+      };
+    },
+  });
+  assert.equal(engineLoads, 1);
+  assert.equal(tab.club.diagnostics().storageMode, 'indexeddb');
+  assert.equal(tab.club.diagnostics().saveError, '');
+  assert.deepEqual(tab.state().records, [record]);
+  assert.equal(idb.closed, false);
+  assert.equal(idb.writes, 1, 'the healthy session can request its normal startup save');
+});
+
+test('a named-property empty runs array is not salvaged or changed', async () => {
+  const runs = [];
+  runs.metadata = 'must be retained';
+  const data = validSave({
+    runs,
+    records: [
+      {
+        id: 'borough:retained-town',
+        type: 'borough',
+        label: 'A retained town',
+        score: 12,
+        date: '2026-10-26T00:00:00.000Z',
+      },
+    ],
+  });
+  const idb = storedClubDatabase(data),
+    tab = await session(data, null, {
+      context: { indexedDB: idb.api, AlibiAssets: { badge: () => '' } },
+    });
+
+  assert.equal(tab.club.diagnostics().storageMode, 'session');
+  assert.deepEqual(tab.state().records, []);
+  assert.equal(idb.read().data.runs.metadata, 'must be retained');
+  assert.equal(idb.writes, 0);
+});
+
+test('an empty runs array with any other malformed save field is not salvaged', async () => {
+  const data = validSave({
+      runs: [],
+      settings: { assist: 'unknown', zen: false, pinned: null },
+      records: [
+        {
+          id: 'borough:retained-town',
+          type: 'borough',
+          label: 'A retained town',
+          score: 12,
+          date: '2026-10-26T00:00:00.000Z',
+        },
+      ],
+    }),
+    idb = storedClubDatabase(data),
+    tab = await session(data, null, {
+      context: { indexedDB: idb.api, AlibiAssets: { badge: () => '' } },
+    });
+
+  assert.equal(tab.club.diagnostics().storageMode, 'session');
+  assert.deepEqual(tab.state().records, []);
+  assert.deepEqual(idb.read().data, data);
+  assert.equal(idb.writes, 0);
 });
 
 test('Club save rejects structured-clone objects as runs', () => {
