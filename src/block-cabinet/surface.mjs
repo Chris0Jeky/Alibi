@@ -556,7 +556,8 @@ export function mountSurface(root, adapter, options = {}) {
     },
   });
   async function command(name) {
-    if (pending) return;
+    // Menu visibility does not mutate the replay or interrupt a pending save/effect.
+    if (pending && name !== 'menu') return;
     const restoreCommand =
       ['undo', 'redo'].includes(name) && document.activeElement?.dataset.command === name
         ? name
