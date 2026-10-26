@@ -75,6 +75,32 @@ function removeFixture(fixture) {
 }
 
 test(
+  'zero or sub-millisecond bounds cannot disable GNU timeout',
+  { skip: process.platform !== 'linux' },
+  () => {
+    for (const bounds of [
+      { timeoutSeconds: 0 },
+      { timeoutSeconds: 0.0001 },
+      { graceSeconds: 0 },
+      { graceSeconds: 0.0001 },
+    ]) {
+      const { fixture, result, output } = runPhase({
+        ...bounds,
+        childSource: "throw Error('must not run');",
+      });
+      try {
+        assert.equal(result.error, undefined);
+        assert.equal(result.status, 2, output);
+        assert.match(output, /Usage:/);
+        assert.doesNotMatch(output, /must not run|APT source hosts/);
+      } finally {
+        removeFixture(fixture);
+      }
+    }
+  },
+);
+
+test(
   'a stalled dependency installer is stopped at its phase cap and reports elapsed time',
   { skip: process.platform !== 'linux' },
   () => {

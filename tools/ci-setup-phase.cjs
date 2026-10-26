@@ -64,11 +64,11 @@ function parseArgs(argv) {
   if (!options.phase || !/^[A-Za-z0-9._-]{1,80}$/.test(options.phase)) {
     throw new Error('a short phase name is required');
   }
-  if (!Number.isFinite(timeoutSeconds) || timeoutSeconds <= 0 || timeoutSeconds > 3600) {
-    throw new Error('timeout must be between 0 and 3600 seconds');
+  if (!Number.isFinite(timeoutSeconds) || timeoutSeconds < 0.01 || timeoutSeconds > 3600) {
+    throw new Error('timeout must be between 0.01 and 3600 seconds');
   }
-  if (!Number.isFinite(graceSeconds) || graceSeconds < 0 || graceSeconds > 120) {
-    throw new Error('grace must be between 0 and 120 seconds');
+  if (!Number.isFinite(graceSeconds) || graceSeconds < 0.01 || graceSeconds > 120) {
+    throw new Error('grace must be between 0.01 and 120 seconds');
   }
   if (!options.command?.length || !options.command[0])
     throw new Error('a command after -- is required');
@@ -76,7 +76,7 @@ function parseArgs(argv) {
 }
 
 function formatSeconds(seconds) {
-  return Number.isInteger(seconds) ? String(seconds) : String(Number(seconds.toFixed(2)));
+  return Number.isInteger(seconds) ? String(seconds) : String(Number(seconds.toFixed(3)));
 }
 
 function readAptDiagnostics({ sourcesFile, aptConfigCommand, aptConfigArgs }) {
@@ -150,7 +150,7 @@ function readAptDiagnostics({ sourcesFile, aptConfigCommand, aptConfigArgs }) {
   return [
     `APT source hosts: ${sourceSummary}`,
     `APT numeric settings (allowlisted): ${settingsSummary}`,
-    `APT proxies (presence only): HTTP=${httpProxy ? 'present' : 'absent'}; HTTPS=${httpsProxy ? 'present' : 'absent'}`,
+    `APT proxies (presence only): HTTP=${!configAvailable ? 'unavailable' : httpProxy ? 'present' : 'absent'}; HTTPS=${!configAvailable ? 'unavailable' : httpsProxy ? 'present' : 'absent'}`,
     `Proxy environment (presence only): ${proxyEnv.join('; ')}`,
   ];
 }
@@ -257,7 +257,8 @@ function runCommand({
     const timeoutArgs = [
       '--signal=TERM',
       `--kill-after=${formatSeconds(graceSeconds)}s`,
-      `${formatSeconds(remainingSeconds)}s`,
+      // GNU timeout treats zero as disabled; rounding must never remove the bound.
+      `${formatSeconds(Math.max(0.001, remainingSeconds))}s`,
       ...command,
     ];
     const child = spawn('timeout', timeoutArgs, {
@@ -272,7 +273,9 @@ function runCommand({
     });
     child.on('close', (code, signal) => {
       const elapsed = elapsedSeconds();
-      const timedOut = [124, 137].includes(code) && elapsed >= timeoutSeconds * 0.8;
+      // KILL of timeout's process group is a signal in Node, not necessarily exit 137.
+      const timedOut =
+        ([124, 137].includes(code) || signal === 'SIGKILL') && elapsed >= timeoutSeconds;
       const detail = launchError
         ? `could not start timeout utility (${launchError})`
         : timedOut

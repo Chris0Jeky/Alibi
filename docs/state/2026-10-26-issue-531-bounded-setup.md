@@ -12,7 +12,7 @@ with its timeout status; it does not skip or retry any later check.
 diagnostics report only hostnames from the currently selected Ubuntu source
 file, numeric values for the allowlisted download-limit/timeout/retry keys,
 and proxy presence flags. Installer output is streamed with proxy environment
-values and URL user-info redacted. Lines over 64 KiB are suppressed so long
+values and URL user-info redacted. Lines over 65,536 characters are suppressed so long
 output cannot grow the redaction buffer without bound. The existing Ubuntu-only
 source selection, APT signature verification, package commands, browser
 command, browser waits, assertions and complete release checks remain in place.
@@ -61,3 +61,20 @@ budget alone does not isolate slow provisioning from the full acceptance run.
 [HUMAN_TODO.md](../../HUMAN_TODO.md) is unchanged and remains authoritative
 for physical-device, publisher and owner acceptance. This CI-only change does
 not close those gates.
+
+## Hosted first-attempt correction
+
+PR #775 head `1c0dbc06691964400e4667b5dd27082433c2abdc`, full run
+[40356212115/job 121689264161](https://github.com/Chris0Jeky/Alibi/actions/runs/40356212115/job/121689264161),
+ran the dedicated stub step before APT. Success and redaction cases passed. The
+TERM-resistant installer was stopped after 1.1 seconds, but Node reported the
+process-group kill as `code=null, signal=SIGKILL`; the wrapper returned 1 instead
+of the intended timeout status 124. The follow-up handles that observed signal
+when the phase deadline has elapsed. Every signal path remains nonzero.
+
+The same review rejects zero or tiny user-supplied limits and ensures rounding
+a positive remaining duration cannot produce GNU timeout’s zero-disables-limit
+value. Unknown APT configuration reports proxy availability as unavailable.
+The production eight-minute limits and twenty-second grace are unchanged.
+Independent Sol review accepted these bounded corrections; their hosted stub
+and full verification results are still required.
