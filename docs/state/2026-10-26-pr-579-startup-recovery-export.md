@@ -65,10 +65,12 @@ on the origin is made.
   visible controls and clipping. The browser test exposed a real `.btn` style
   overriding `hidden`; the unreadable-storage screen now removes the unavailable
   export control. The corrected fixture passes.
-- Local browser receipt: dirty development build `30cb300126f7`, payload
-  `f811b5f997f327ec12081b2862ad00dcfcf0689a262cdfcca07ef57d1867c0b3`.
+- Local browser receipt: clean implementation commit `b3ac630`, build
+  `82731a56e828`, payload
+  `275fba36fa1f952a2769c422b7774840b8c0d514db1e3e3430ca4a307cd03cd6`.
   `test-results/origin-transfer-safety/startup-receipt.json` records source identity
-  and evidence limits. Published-head hosted Chromium qualification is still required.
+  and evidence limits, including `aliasedCastleRecoveryExport: true`. Published-head
+  hosted Chromium qualification is still required.
 - Independent Sol review found no remaining source blocker in this bounded slice,
   conditional on the final browser run and hosted CI. Source formatting, Python
   compilation and whitespace checks pass. The dedicated safety workflow now pins
@@ -89,8 +91,9 @@ browser and clean hosted receipts remain evidence for their own source identitie
 the corrected published head requires fresh hosted qualification.
 
 The prior clean synthetic feature receipt in the #752 handoff measured application
-gzip 138,835, initial gzip 208,176 and net raw shell 1,423,700 bytes. The corrected dirty development
-build measures 140,072 / 209,427 / 1,427,610: +1,237 / +1,251 / +3,910 bytes.
+gzip 138,835, initial gzip 208,176 and net raw shell 1,423,700 bytes. The corrected clean local
+build at `b3ac630` measures 140,079 / 209,431 / 1,427,623:
++1,244 / +1,255 / +3,923 bytes.
 The screen stays in the offline release so it can work after an interrupted
 transfer without a connection. The implementation reuses the normal button/panel
 styles and download helper; it has no new dependency or second styling system.
