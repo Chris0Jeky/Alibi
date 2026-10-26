@@ -13,7 +13,7 @@ const { validateSave } = AlibiBackupValidation(C, null, () => E, 4);
 const text = fs.readFileSync(require.resolve('../src/club.js'), 'utf8');
 const between = (from, to) => text.slice(text.indexOf(from), text.indexOf(to));
 const source =
-  between('function cleared(', 'function archivePage(') +
+  between('function boroughBestTable(', 'function archivePage(') +
   between('function record(', 'function profile(');
 
 function fixture() {

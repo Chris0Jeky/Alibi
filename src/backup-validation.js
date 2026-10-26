@@ -228,6 +228,26 @@
         )
           throw Error('Invalid record.');
       }
+      if (v.boroughBests !== undefined) {
+        if (!Array.isArray(v.boroughBests) || v.boroughBests.length > 100)
+          throw Error('Invalid Borough personal bests.');
+        const seeds = new Set();
+        for (const r of v.boroughBests) {
+          if (
+            !r ||
+            Object.prototype.toString.call(r) !== '[object Object]' ||
+            Object.keys(r).sort().join(',') !== 'date,label,score' ||
+            typeof r.label !== 'string' ||
+            r.label.length > 100 ||
+            !Number.isFinite(r.score) ||
+            typeof r.date !== 'string' ||
+            r.date.length > 40 ||
+            seeds.has(r.label)
+          )
+            throw Error('Invalid Borough personal bests.');
+          seeds.add(r.label);
+        }
+      }
       if (
         v.settings.api !== undefined &&
         (typeof v.settings.api !== 'string' || v.settings.api.length > 2048)
