@@ -186,12 +186,16 @@ test('Quiet writer does not create an absent localStorage fallback', async () =>
 // localStorage mode). Rollback must restore its original bytes, not the IndexedDB snapshot.
 const RAW_FALLBACK = JSON.stringify({ schema: 1, revision: 9, scene: { room: 'newer' } }, null, 1);
 
-function applyWithFailingCastle(f, imported) {
-  const stub = { stub: true };
+function applyWithFailingCastle(f, imported, failOnce = false) {
+  const stub = { stub: true, runs: [] };
+  let failed = false;
   const ports = {
     read: (name) => (name === 'quiet' ? f.device.read(name) : stub),
     write: (name, value) => {
-      if (name === 'castle') throw Error('castle write failed');
+      if (name === 'castle' && (!failOnce || !failed)) {
+        failed = true;
+        throw Error('castle write failed');
+      }
       return name === 'quiet' ? f.device.write(name, value) : undefined;
     },
     retain: async () => {},
@@ -220,6 +224,22 @@ test('Rollback restores a divergent Quiet fallback byte-for-byte', async () => {
     await assert.rejects(
       applyWithFailingCastle(f, imported),
       /Existing saves were not changed|recovery/,
+    );
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+    assert.deepEqual(f.records.get('state'), originalState);
+  } finally {
+    f.restore();
+  }
+});
+
+test('Clean rollback verifies the restored Quiet record and divergent fallback', async () => {
+  const f = fixture({ fallback: null });
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  const imported = { schema: 1, revision: 2, scene: { room: 'imported' } };
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, imported, true),
+      /castle write failed.*Existing saves were not changed\./,
     );
     assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
     assert.deepEqual(f.records.get('state'), originalState);

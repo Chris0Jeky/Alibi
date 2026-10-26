@@ -12,6 +12,24 @@
     throw Error(`${reason} ${UNCHANGED}`);
   };
   const isObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+  // JSON object member order is immaterial; array order and every state value must match.
+  function sameJson(left, right) {
+    if (left === right) return true;
+    if (
+      !left ||
+      !right ||
+      typeof left !== 'object' ||
+      typeof right !== 'object' ||
+      Array.isArray(left) !== Array.isArray(right) ||
+      (Array.isArray(left) && left.length !== right.length)
+    )
+      return false;
+    const keys = Object.keys(left);
+    return (
+      keys.length === Object.keys(right).length &&
+      keys.every((key) => Object.hasOwn(right, key) && sameJson(left[key], right[key]))
+    );
+  }
   function isRecovery(id) {
     return id.startsWith('recovery:');
   }
@@ -57,15 +75,17 @@
       !Array.isArray(challenges.runs)
     )
       fail('This transfer file has the wrong shape.');
-    // An older durable record beside a newer notebook state means the latest edit never reached
-    // IndexedDB; writeCastle would silently import the older one.
-    if (castle.record && castle.state?.revision !== castle.record.state?.revision)
-      fail('Castle has unsaved edits.');
-    for (const row of challenges.runs)
+    // writeCastle prefers the envelope; even equal revisions cannot justify discarding a
+    // different notebook state. The envelope's own CAS revision is a separate counter.
+    if (castle.record && !sameJson(castle.state, castle.record.state))
+      fail('Castle has unsaved or conflicting edits.');
+    const ids = new Set();
+    for (const row of challenges.runs) {
       if (
         !isObject(row) ||
         typeof row.id !== 'string' ||
         !row.id ||
+        ids.has(row.id) ||
         isRecovery(row.id) ||
         row.schema !== 1 ||
         !Number.isSafeInteger(row.revision) ||
@@ -74,6 +94,8 @@
         row.run.format !== 'alibi-challenge-run'
       )
         fail('This transfer file has the wrong shape.');
+      ids.add(row.id);
+    }
     return payload;
   }
   async function exportOriginTransfer(saves) {
@@ -380,6 +402,8 @@
     // leave), so the committed record below would silently be an older run.
     const store = G.QWApp?.challengeStore;
     await store?.flush().catch(() => {});
+    if (store && (store.info().mode === 'session' || store.info().protected))
+      throw Error('Challenge storage is session-only or protected. Export its replays separately.');
     if (store?.unsaved())
       throw Error(
         'A challenge replay did not save. If it is still open, export it; otherwise reload (its newest moves are lost).',

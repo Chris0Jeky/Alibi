@@ -44,6 +44,9 @@ function fakeIndexedDb(records, faults) {
     },
   };
   return {
+    versionChange() {
+      db.onversionchange();
+    },
     async databases() {
       return [{ name: 'alibi-challenges-v1' }];
     },
@@ -99,6 +102,92 @@ test('a failed Challenge write refuses the origin export until a write succeeds'
     const { runs } = await ports.read('challenges');
     assert.equal(runs[0].run.log.join(), 'a,b');
     assert.equal(runs[0].revision, 2);
+  } finally {
+    delete globalThis.QWApp;
+    delete globalThis.indexedDB;
+  }
+});
+
+test('session-only Challenge saves refuse transfer even after a successful session write', async () => {
+  globalThis.indexedDB = {
+    databases: async () => [],
+    open() {
+      const request = {};
+      queueMicrotask(() => {
+        request.error = new DOMException('storage unavailable', 'SecurityError');
+        request.onerror();
+      });
+      return request;
+    },
+  };
+  require('../src/origin-transfer.js');
+  const Store = require('../src/challenge-storage.js'),
+    store = Store.create(registry),
+    ports = globalThis.AlibiOriginTransfer.createDevicePorts({});
+  try {
+    await store.open();
+    globalThis.QWApp = { challengeStore: store, disposed: true };
+    assert.equal(store.info().mode, 'session');
+    await store.write(run('session move'));
+    assert.equal(store.unsaved(), 0);
+    await assert.rejects(ports.read('challenges'), /session|protected/i);
+    assert.deepEqual(await store.read('c1'), run('session move'));
+    let mutations = 0;
+    await assert.rejects(
+      globalThis.AlibiOriginTransfer.applyOriginTransfer(
+        { payload: {} },
+        {
+          read: (name) => (name === 'challenges' ? ports.read(name) : {}),
+          retain: () => mutations++,
+          write: () => mutations++,
+        },
+        { confirmed: true },
+      ),
+      /session.*Existing saves were not changed/i,
+    );
+    assert.equal(mutations, 0);
+  } finally {
+    delete globalThis.QWApp;
+    delete globalThis.indexedDB;
+  }
+});
+
+test('protected Challenge storage refuses transfer rather than exporting stale committed runs', async () => {
+  const records = new Map([['c1', { schema: 1, revision: 1, run: run('committed') }]]);
+  globalThis.indexedDB = fakeIndexedDb(records, { failWrites: false });
+  require('../src/origin-transfer.js');
+  const Store = require('../src/challenge-storage.js'),
+    store = Store.create(registry),
+    ports = globalThis.AlibiOriginTransfer.createDevicePorts({});
+  try {
+    await store.open();
+    globalThis.QWApp = { challengeStore: store };
+    globalThis.indexedDB.versionChange();
+    assert.equal(store.info().mode, 'indexeddb');
+    assert.equal(store.info().protected, true);
+    assert.equal(store.unsaved(), 0);
+    await assert.rejects(ports.read('challenges'), /session|protected/i);
+    assert.deepEqual(records.get('c1').run, run('committed'));
+  } finally {
+    delete globalThis.QWApp;
+    delete globalThis.indexedDB;
+  }
+});
+
+test('empty committed Challenge storage and an unused absent store remain exportable', async () => {
+  globalThis.indexedDB = fakeIndexedDb(new Map(), { failWrites: false });
+  require('../src/origin-transfer.js');
+  const Store = require('../src/challenge-storage.js'),
+    store = Store.create(registry),
+    ports = globalThis.AlibiOriginTransfer.createDevicePorts({}),
+    empty = { format: 'alibi-challenges', schema: 1, runs: [] };
+  try {
+    await store.open();
+    globalThis.QWApp = { challengeStore: store };
+    assert.deepEqual(await ports.read('challenges'), empty);
+    delete globalThis.QWApp;
+    globalThis.indexedDB = { databases: async () => [] };
+    assert.deepEqual(await ports.read('challenges'), empty);
   } finally {
     delete globalThis.QWApp;
     delete globalThis.indexedDB;
