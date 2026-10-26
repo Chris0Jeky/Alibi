@@ -538,6 +538,7 @@
       )
         throw Error('This recovery copy cannot be preserved as JSON. It remains on this device.');
       for (const key of keys) check(item[key]);
+      seen.delete(item);
     }
     check(value);
     return JSON.stringify(

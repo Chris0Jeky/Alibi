@@ -26,10 +26,12 @@ The downloaded file is explicitly `alibi-origin-recovery-export`, version 1,
 with the retained value under `pending`. It is not a normal transfer/backup file
 and has no automatic import path. Unknown JSON fields are preserved. Nonfinite
 numbers, negative zero, undefined values, sparse arrays, extra array properties,
-cycles/shared object references, nonplain objects and other values that JSON would
+cycles, nonplain objects and other values that JSON would
 lose are refused rather than converted silently. The existing IndexedDB value
 remains untouched whether download preparation succeeds or fails. This is JSON
-data preservation, not a claim to reproduce arbitrary IndexedDB bytes/prototypes.
+data preservation, not a claim to reproduce arbitrary IndexedDB bytes/prototypes
+or reference identity. Acyclic shared references are duplicated as equal JSON
+values, including Castle's legitimate `state`/`record.state` alias.
 
 The five-domain writer hold is a startup observation, not shared ownership with
 another tab. A transfer can start elsewhere after this page observes no pending
@@ -39,10 +41,10 @@ on the origin is made.
 
 ## Verification
 
-- Eleven focused Node tests pass for absent/empty storage, present falsy/unknown
+- Twelve focused Node tests pass for absent/empty storage, present falsy/unknown
   values, definitely unavailable IndexedDB, denied/blocked/failed/future storage,
   timeout/late callbacks, aborted reads, JSON preservation/refusal, and the actual
-  application startup ordering. All nine transfer Node suites pass (75 tests).
+  application startup ordering. All nine transfer Node suites pass (76 tests).
   They execute the shipped functions and extracted
   application entry, rather than a second implementation.
 - The full-app browser fixture passes with Playwright 1.62.0 and cached local
@@ -73,6 +75,18 @@ on the origin is made.
   the app/boot/probe and new fixture and runs the full-app recovery acceptance.
 
 ## Explicit feature-branch byte cost
+
+### Castle alias follow-up
+
+Independent follow-up review identified that `readCastle()` can return the same
+state object in both public state positions. IndexedDB retains that alias. The
+initial recovery export's global visited set refused it even though JSON can
+preserve both values. The new regression fails that initial implementation; an
+active recursion stack now rejects cycles while accepting repeated acyclic data.
+The browser fixture reads Castle through its actual device port, retains the
+aliased snapshot and downloads it after an offline protected startup. The earlier
+browser and clean hosted receipts remain evidence for their own source identities;
+the corrected published head requires fresh hosted qualification.
 
 The prior clean synthetic feature receipt in the #752 handoff measured application
 gzip 138,835, initial gzip 208,176 and net raw shell 1,423,700 bytes. The corrected dirty development

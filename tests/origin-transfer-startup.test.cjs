@@ -201,6 +201,18 @@ test('recovery export preserves unknown JSON fields and names its limited format
   });
 });
 
+test('recovery export duplicates acyclic Castle aliases without changing the retained objects', () => {
+  const f = fixture();
+  const value = vm.runInContext(
+    '(() => { const state = { revision: 1, note: "keep both views" }; return { castle: { state, record: { schema: 1, revision: 1, state } } }; })()',
+    f.context,
+  );
+  const output = JSON.parse(f.api.recoveryJson(value));
+  assert.deepEqual(output.pending.castle.state, { revision: 1, note: 'keep both views' });
+  assert.deepEqual(output.pending.castle.record.state, output.pending.castle.state);
+  assert.equal(value.castle.state, value.castle.record.state, 'the retained alias is not modified');
+});
+
 test('recovery export refuses values JSON would lose or transform without mutating them', () => {
   const f = fixture();
   for (const expression of [

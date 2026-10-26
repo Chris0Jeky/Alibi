@@ -188,16 +188,37 @@ def main():
             page.goto(base + 'manifest.webmanifest')
             # Retain a copy without mutating the real, normally initialized domains.
             page.add_script_tag(content=(ROOT / 'src/origin-transfer.js').read_text())
-            page.evaluate('value => AlibiOriginTransfer.createDevicePorts({}).retain(value)', pending)
+            # readCastle legitimately aliases state and record.state when its loader is absent.
+            # Exercise the actual read/retain path, then export its structured-clone alias offline.
+            retained = page.evaluate('''async value => {
+                const state = {revision: 1, note: 'retain both Castle views'};
+                await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('alibi-castle-v1', 1);
+                    request.onupgradeneeded = () => request.result.createObjectStore('records');
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        const db = request.result, tx = db.transaction('records', 'readwrite');
+                        tx.objectStore('records').put({schema: 1, revision: 1, state}, 'chapter-one');
+                        tx.oncomplete = () => { db.close(); resolve(); };
+                        tx.onabort = () => { db.close(); reject(tx.error); };
+                    };
+                });
+                const ports = AlibiOriginTransfer.createDevicePorts({});
+                value.castle = await ports.read('castle');
+                if (value.castle.state !== value.castle.record.state) throw Error('Castle alias missing');
+                await ports.retain(value);
+                return value;
+            }''', pending)
             before = page.evaluate(READ_DOMAINS)
             context.add_init_script('(' + INSTRUMENT + ')()')
             context.set_offline(True)
             page.goto(base)
             held(page)
             assert page.evaluate(READ_DOMAINS) == before
+            assert page.evaluate('AlibiOriginTransfer.inspectPendingRecovery().then(r => r.value.castle.state === r.value.castle.record.state)')
             with page.expect_download() as event:
                 page.get_by_role('button', name='Download recovery copy').click()
-            assert json.loads(Path(event.value.path()).read_text())['pending'] == pending
+            assert json.loads(Path(event.value.path()).read_text())['pending'] == retained
             context.close()
 
             context = browser.new_context()
@@ -230,6 +251,7 @@ def main():
                 'normalDomainWritersHeld': True, 'recoveryExportRoundTrip': True,
                 'retainedUnknownValues': True, 'freshOriginStarts': True,
                 'offlineRecoveryExport': True, 'unreadableRecoveryHeld': True,
+                'aliasedCastleRecoveryExport': True,
                 'unavailableIDBFallbackStarts': True,
                 'automaticRestoreAccepted': False,
                 'fiveDomainDestructiveImportAccepted': False, 'errors': errors,
