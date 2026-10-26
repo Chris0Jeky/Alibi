@@ -37,8 +37,9 @@ function composePackDesk(source, adder) {
     desk +
     rest.replace(
       anchor,
+      // import() in the classic application script resolves against its ./assets/ URL.
       () =>
-        `      case 'collections':\n        (await import(${JSON.stringify(adder)})).open();\n        break;\n` +
+        `      case 'collections':\n        (await import(${JSON.stringify('.' + adder.slice(8))})).open();\n        break;\n` +
         anchor,
     )
   );

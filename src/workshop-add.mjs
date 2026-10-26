@@ -71,7 +71,7 @@ export function open(doc = document, list = COLLECTIONS) {
     )
     .join(
       '',
-    )}<p class="fine" role="status" aria-live="polite"></p><div class="dialog-actions"><a class="btn secondary" href="./collections/index.html" target="_blank" rel="noopener">Browse downloads (new tab)</a></div>`;
+    )}<p class="fine" role="status" aria-live="polite"></p><div class="dialog-actions"><a class="btn secondary" href="${new URL('../../collections/index.html', import.meta.url)}" target="_blank" rel="noopener">Browse downloads (new tab)</a></div>`;
   const status = d.querySelector('[role="status"]');
   d.addEventListener('close', () => {
     d.remove();
