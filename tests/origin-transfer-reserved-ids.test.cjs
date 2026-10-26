@@ -69,6 +69,94 @@ test('export refuses reserved Challenge IDs rather than creating an unsafe trans
   );
 });
 
+test('duplicate Challenge IDs are refused on export and preflight before any port operation', async () => {
+  const transfer = api();
+  for (const differentRun of [false, true]) {
+    const payload = sample(['hanoi-01', 'another-id', 'hanoi-01']);
+    if (differentRun) payload.challenges.runs[2].run.log.push('newer move');
+    const before = JSON.stringify(payload),
+      incoming = fileFor(payload),
+      calls = [];
+    const ports = Object.fromEntries(
+      ['read', 'retain', 'write', 'release'].map((name) => [name, () => calls.push(name)]),
+    );
+    await assert.rejects(transfer.exportOriginTransfer(payload), /wrong shape/);
+    await assert.rejects(async () => {
+      const validated = await transfer.validateOriginTransfer(incoming);
+      await transfer.applyOriginTransfer(validated, ports, { confirmed: true });
+    }, /wrong shape.*Existing saves were not changed/);
+    assert.equal(JSON.stringify(payload), before);
+    assert.equal(fileFor(payload), incoming);
+    assert.deepEqual(calls, []);
+  }
+});
+
+test('equal-revision Castle content divergence is refused before mutation', async () => {
+  const transfer = api();
+  const states = [
+    { revision: 4, notes: 'older note', clues: ['a', 'b'] },
+    { revision: 4, notes: 'current note', clues: ['b', 'a'] },
+    { revision: 4, notes: 'current note', clues: { 0: 'a', 1: 'b' } },
+    { revision: 4, notes: 'current note' },
+  ];
+  for (const stored of states) {
+    const payload = sample([]);
+    payload.castle.state = { revision: 4, notes: 'current note', clues: ['a', 'b'] };
+    payload.castle.record = { schema: 1, revision: 2, state: stored };
+    const before = JSON.stringify(payload),
+      incoming = fileFor(payload),
+      calls = [];
+    const ports = Object.fromEntries(
+      ['read', 'retain', 'write', 'release'].map((name) => [name, () => calls.push(name)]),
+    );
+    await assert.rejects(transfer.exportOriginTransfer(payload), /Castle.*not changed/);
+    await assert.rejects(async () => {
+      const validated = await transfer.validateOriginTransfer(incoming);
+      await transfer.applyOriginTransfer(validated, ports, { confirmed: true });
+    }, /Castle.*not changed/);
+    assert.deepEqual(calls, []);
+    assert.equal(JSON.stringify(payload), before);
+    assert.equal(fileFor(payload), incoming);
+  }
+});
+
+test('Castle comparison preserves reordered JSON content and supported empty or state-only sections', async () => {
+  const transfer = api();
+  const state = { revision: 4, notes: { text: 'kept', flag: null }, clues: ['a', 'b'] };
+  const sections = [
+    { state: null, record: null },
+    { state: null },
+    { state, record: null },
+    { state },
+    {
+      state,
+      record: {
+        schema: 1,
+        revision: 2,
+        state: { clues: ['a', 'b'], notes: { flag: null, text: 'kept' }, revision: 4 },
+      },
+    },
+  ];
+  for (const section of sections) {
+    const payload = sample(['hanoi-01']);
+    Object.assign(payload.castle, section);
+    const exported = await transfer.exportOriginTransfer(payload);
+    const validated = await transfer.validateOriginTransfer(JSON.stringify(exported));
+    assert.equal(JSON.stringify(validated.payload), JSON.stringify(payload));
+  }
+});
+
+test('Castle export refuses sparse arrays whose length differs from the notebook state', async () => {
+  const payload = sample([]);
+  payload.castle.state = { revision: 4, clues: [] };
+  payload.castle.record = { schema: 1, revision: 2, state: { revision: 4, clues: Array(1) } };
+  const before = JSON.stringify(payload);
+  await assert.rejects(api().exportOriginTransfer(payload), /Castle.*not changed/);
+  assert.equal(JSON.stringify(payload), before);
+  assert.equal(payload.castle.record.state.clues.length, 1);
+  assert.equal(Object.hasOwn(payload.castle.record.state.clues, 0), false);
+});
+
 test('legitimate IDs preserve their bytes through export, preflight and confirmed apply', async () => {
   const transfer = api();
   const payload = sample([
