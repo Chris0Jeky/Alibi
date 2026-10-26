@@ -16,12 +16,26 @@ with sync_playwright() as pw:
     browser = pw.chromium.launch()
     for width in [390, 1440]:
         context = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion='reduce', has_touch=True)
+        tracing_started = False
+        try:
+            context.tracing.start(screenshots=True, snapshots=True, sources=True)
+            tracing_started = True
+        except Exception as trace_error:
+            print(f'tap_mark trace start failed: {trace_error}', file=sys.stderr)
         page = context.new_page()
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.add_init_script("""(() => {
             const trace = [];
+            const nodeIds = new WeakMap();
+            let nextNodeId = 1;
+            const nodeId = node => {
+                if (!node) return null;
+                if (!nodeIds.has(node)) nodeIds.set(node, nextNodeId++);
+                return nodeIds.get(node);
+            };
             window.__sceneInputTrace = trace;
+            window.__sceneInputNodeId = nodeId;
             for (const type of ['pointerdown', 'pointerup', 'pointercancel', 'click']) {
                 document.addEventListener(type, (event) => {
                     const target = event.target instanceof Element ? event.target : null;
@@ -34,12 +48,18 @@ with sync_playwright() as pw:
                         event: type,
                         at: Math.round(performance.now()),
                         pointerType: event.pointerType || null,
+                        pointerId: Number.isFinite(event.pointerId) ? event.pointerId : null,
+                        cancelable: event.cancelable,
+                        eventPhaseAtCapture: event.eventPhase,
+                        defaultPreventedAtCapture: event.defaultPrevented,
                         trusted: event.isTrusted,
                         detail: event.detail || 0,
                         x: Math.round(event.clientX || 0),
                         y: Math.round(event.clientY || 0),
                         target: `${target.tagName.toLowerCase()}${target.id ? '#' + target.id : ''}`,
+                        targetNodeId: nodeId(target),
                         cell: cell?.id || null,
+                        cellNodeId: nodeId(cell),
                         person: person?.dataset.id || null,
                         mode: mode?.dataset.value || null,
                         selectedPerson: document.querySelector('.people-palette [data-action="person"][aria-pressed="true"]')?.dataset.id || null,
@@ -53,6 +73,12 @@ with sync_playwright() as pw:
                         entry.selectedPersonAfter = document.querySelector('.people-palette [data-action="person"][aria-pressed="true"]')?.dataset.id || null;
                         entry.selectedModeAfter = document.querySelector('.toolrow [data-action="scene-mode"][aria-pressed="true"]')?.dataset.value || null;
                     });
+                    // A capture-listener microtask need not run after later event listeners.
+                    // Sample cancellation in a later task, with its actual phase recorded.
+                    setTimeout(() => {
+                        entry.defaultPreventedAfterDispatch = event.defaultPrevented;
+                        entry.eventPhaseAfterDispatch = event.eventPhase;
+                    }, 0);
                 }, true);
             }
         })();""")
@@ -156,9 +182,11 @@ with sync_playwright() as pw:
                                 selectedMode: document.querySelector('.toolrow [data-action="scene-mode"][aria-pressed="true"]')?.dataset.value || null,
                                 target: target ? {
                                     id: target.id,
+                                    nodeId: window.__sceneInputNodeId?.(target) ?? null,
                                     disabled: target.disabled,
                                     visible: !!(target.getBoundingClientRect().width && target.getBoundingClientRect().height),
                                     pointerEvents: getComputedStyle(target).pointerEvents,
+                                    touchAction: getComputedStyle(target).touchAction,
                                     centerHit: hit,
                                 } : null,
                                 recentInputEvents: window.__sceneInputTrace?.slice(-16) || [],
@@ -187,6 +215,13 @@ with sync_playwright() as pw:
                         f'tap_mark failed during {phase}; diagnostic collection failed: {diagnostic_error}',
                         file=sys.stderr,
                     )
+                if tracing_started:
+                    try:
+                        context.tracing.stop(
+                            path=OUT / f'scene-tap-failure-{width}-{cell_id or "unknown"}.zip',
+                        )
+                    except Exception as trace_error:
+                        print(f'tap_mark diagnostic trace save failed: {trace_error}', file=sys.stderr)
                 raise
         person(other)
         mode('candidate')
@@ -290,5 +325,10 @@ with sync_playwright() as pw:
         page.locator('dialog[open] [data-action="close-dialog"]').click()
         assert not errors, errors
         print(f'PASS scene cycle/notes/holds/undo/offline at {width}px', flush=True)
+        if tracing_started:
+            try:
+                context.tracing.stop()  # No path: discard successful trace data.
+            except Exception as trace_error:
+                print(f'tap_mark trace discard failed: {trace_error}', file=sys.stderr)
         context.close()
     browser.close()
