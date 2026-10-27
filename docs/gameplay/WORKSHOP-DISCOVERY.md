@@ -126,13 +126,14 @@ Why this shape: the application bundle had 58 gzip bytes and the precached shell
 raw bytes of headroom, so neither a listing nor a downloader fits in startup code. The
 composition stage replaces the old shelf link with one button and inserts one action
 (`import()` of the module, resolved against the application script's `./assets/` URL).
-Measured on main 1c4272fd vs this branch (same machine, `npm run build:android`):
+Measured on main 1c4272fd vs this branch head (same machine, `npm run build:android`; gzip
+figures move by a byte or two between commits because the bundle embeds build identities):
 
 | Measure (budget) | Before | After |
 | --- | ---: | ---: |
-| Application JS gzip (< 135,808) | 135,750 | 135,749 |
+| Application JS gzip (< 135,808) | 135,750 | 135,750 |
 | Precached shell bytes (< 1,419,736.32) | 1,419,705 | 1,419,720 |
-| Initial code + content gzip (< 225,280) | 204,973 | 204,973 |
+| Initial code + content gzip (< 225,280) | 204,973 | 204,974 |
 | Deferred official gzip (< 32,768) | 21,266 | 21,266 |
 | Core offline bytes (< 2.3 MiB) | 1,937,324 | 1,937,339 |
 | Optional collection bytes (reported, not precached) | 38,389 | 42,611 |
