@@ -5,7 +5,7 @@ Use CHROMIUM_PATH to override the Chromium executable when needed.
 import json, os, time
 from pathlib import Path
 from official_fixture import OFFICIAL_COUNT
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 PUZZLES=json.loads((ROOT/'content/catalog.json').read_text())['puzzles']
 CURATED=os.environ.get('ALIBI_CURATION_UI')=='1'
@@ -180,8 +180,19 @@ with sync_playwright() as pw:
     with page.expect_download() as dl:action('export')
     backup=json.loads(Path(dl.value.path()).read_text());check(backup['format']=='alibi-backup' and len(backup['runs'])>=12,'Backup exports actual played states')
     check(len(backup['packs'])==1,'Backup includes custom pack')
+    # Exercise a real worker response that outlasts the former 150 ms sleep.
+    page.evaluate("""() => {
+        const NativeWorker = window.Worker;
+        window.Worker = class extends NativeWorker {
+            constructor(...args) { super(...args); window.Worker = NativeWorker; }
+            set onmessage(handler) {
+                super.onmessage = event => setTimeout(() => handler(event), 500);
+            }
+        };
+    }""")
     page.locator('#backup-input').set_input_files({'name':'roundtrip.json','mimeType':'application/json','buffer':json.dumps(backup).encode()})
-    page.wait_for_timeout(150);check(page.locator('[data-action="restore-merge"]').count()==1,'Exported backup validates on import')
+    expect(page.locator('[data-action="restore-merge"]')).to_have_count(1)
+    check(page.locator('[data-action="restore-merge"]').count()==1,'Exported backup validates on import')
     dismiss()
     # Existing runs retain their definition when the live catalogue revision changes.
     route('play/sudoku-02@1');dismiss();old_state=state()['state'];old_title=state()['puzzle']['title']
