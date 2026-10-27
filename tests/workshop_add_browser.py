@@ -1,6 +1,7 @@
 """In-app collection adding (#433): keyboard entry, verified download, refusal and play.
 
 Real built origin, service worker and IndexedDB. Not physical Android or TalkBack acceptance.
+CI runs it from tests/browser_workshop_discovery.py (Workshop collection discovery workflow).
 """
 import importlib.util
 import json

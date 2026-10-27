@@ -154,7 +154,7 @@ def run():
 if __name__ == '__main__':
     run()
     # The in-app adder (#433) shares this workflow's built origin and trigger paths.
-    adder = importlib.util.spec_from_file_location('workshop_add', ROOT / 'tests/browser_workshop_add.py')
+    adder = importlib.util.spec_from_file_location('workshop_add', ROOT / 'tests/workshop_add_browser.py')
     module = importlib.util.module_from_spec(adder)
     adder.loader.exec_module(module)
     module.run()

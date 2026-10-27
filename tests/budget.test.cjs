@@ -85,7 +85,7 @@ test('shell and content stay inside the existing ceilings', async (t) => {
   });
   await t.test('collection adder is optional, outside startup and the core shell', () => {
     // #433: one on-demand module beside the optional packs, counted in workshopCollectionBytes.
-    // Measured 4,185 bytes / 2,158 gzip; application and shell ceilings above are unchanged.
+    // Measured 4,222 bytes / 2,168 gzip; application and shell ceilings above are unchanged.
     const matches = fs
       .readdirSync(path.join(root, 'dist/assets/workshop'))
       .filter((name) => /^add\.[a-f0-9]{12}\.js$/.test(name));
