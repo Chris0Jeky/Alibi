@@ -312,7 +312,10 @@ function build() {
     read(path.join(SRC, 'house-loader.js')),
     read(path.join(SRC, 'castle-practice.js')),
     read(path.join(SRC, 'activities.js')),
-    require('./workshop-entry.cjs').composePackDesk(read(path.join(SRC, 'app.js'))),
+    require('./workshop-entry.cjs').composePackDesk(
+      read(path.join(SRC, 'app.js')),
+      workshopShelf.loaderURL,
+    ),
     read(path.join(SRC, 'pulseboard-host.js')),
     read(path.join(SRC, 'voices.js')),
   ].join('\n');

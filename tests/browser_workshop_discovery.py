@@ -39,12 +39,16 @@ def run():
                     page.goto(URL + '/#/workshop')
                     page.wait_for_function('()=>navigator.serviceWorker.controller && globalThis.AlibiDiagnostics?.getStatus().offlineReady', timeout=45000)
                     page.get_by_role('button', name='Puzzle packs', exact=True).click()
-                    link = page.get_by_role('link', name='Browse optional collections (new tab)', exact=True)
-                    expect(link).to_be_visible()
+                    adder = page.get_by_role('button', name='Add a curated collection', exact=True)
+                    expect(adder).to_be_visible()
                     assert not any('/assets/workshop/' in url or '/collections/' in url for url in requests), 'no automatic shelf/data fetch'
                     before = page.evaluate('AlibiDiagnostics.getCounts()')
+                    adder.press('Enter')
+                    link = page.get_by_role('link', name='Browse downloads (new tab)', exact=True)
                     with context.expect_page() as opened:
                         link.press('Enter')
+                    page.keyboard.press('Escape')
+                    expect(page.locator('dialog.collections-add')).to_have_count(0)
                     shelf = opened.value
                     shelf.wait_for_load_state('domcontentloaded')
                     assert shelf.evaluate('opener === null')
@@ -149,3 +153,8 @@ def run():
 
 if __name__ == '__main__':
     run()
+    # The in-app adder (#433) shares this workflow's built origin and trigger paths.
+    adder = importlib.util.spec_from_file_location('workshop_add', ROOT / 'tests/workshop_add_browser.py')
+    module = importlib.util.module_from_spec(adder)
+    adder.loader.exec_module(module)
+    module.run()

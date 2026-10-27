@@ -106,3 +106,48 @@ receipts are retained; composed behavior is tested explicitly and through the
 actual built application. This replaces the plan's direct monolith edit, avoiding
 a second runtime integration hook. The coupling to exact copy is deliberate and
 must be reviewed when that copy changes. Native/standalone targets hide the link.
+
+## 2026-10-26: in-app adding (first slice of option b)
+
+Decision: players add a curated collection from Workshop > Puzzle packs > **Add a
+curated collection** without handling a file. The build emits one optional module,
+`assets/workshop/add.<hash>.js`, beside the packs. It carries the same hashed listing
+the shelf publishes (id, title, counts, download name, byte count, SHA-256), so there
+is no separately fetched trust list. On request it downloads one pack from its own
+directory (`redirect: 'error'`, same-origin credentials), stops reading as soon as the
+stream exceeds the listed size, requires the exact size and SHA-256, and only then
+hands the bytes to the existing `#pack-input` change path. Installation therefore
+keeps every existing control: bounded worker validation, the 3 MB / 150-puzzle limit,
+duplicate pack and puzzle-ID refusal, the 3,000-puzzle cap, route ownership and the
+one IndexedDB save owner. A matching digest proves reviewed bytes, not official
+status: added packs remain locally imported packs with their published IDs.
+
+Why this shape: the application bundle had 58 gzip bytes and the precached shell 31
+raw bytes of headroom, so neither a listing nor a downloader fits in startup code. The
+composition stage replaces the old shelf link with one button and inserts one action
+(`import()` of the module, resolved against the application script's `./assets/` URL).
+Measured on main 1c4272fd vs this branch head (same machine, `npm run build:android`; gzip
+figures move by a byte or two between commits because the bundle embeds build identities):
+
+| Measure (budget) | Before | After |
+| --- | ---: | ---: |
+| Application JS gzip (< 135,808) | 135,750 | 135,750 |
+| Precached shell bytes (< 1,419,736.32) | 1,419,705 | 1,419,720 |
+| Initial code + content gzip (< 225,280) | 204,973 | 204,974 |
+| Deferred official gzip (< 32,768) | 21,266 | 21,266 |
+| Core offline bytes (< 2.3 MiB) | 1,937,324 | 1,937,339 |
+| Optional collection bytes (reported, not precached) | 38,389 | 42,611 |
+
+The adder is 4,222 bytes (2,168 gzip), counted in `workshopCollectionBytes`,
+excluded from core precache and startup, and held under a new 3 KiB gzip check. No
+existing ceiling changed. Offline, the adder states that adding needs a connection;
+if the module itself was never fetched, the browser's import error is toasted instead.
+Nothing is written until the existing importer accepts the pack.
+
+Still open under #433: a durable installed/available index (the adder cannot see
+installed packs and relies on the importer's duplicate refusal), cancellation of an
+in-flight download, cross-tab install coordination (manual import has the same gap),
+old/future definition handling, device-memory measurements, and #389's pending-load
+and content-identity gaps. Escape rooms (#467) can reuse the same pattern with their
+own listing and owner: a hashed module carrying room digests, the same bounded
+`fetchPack`, and the Castle validator instead of `#pack-input`.
