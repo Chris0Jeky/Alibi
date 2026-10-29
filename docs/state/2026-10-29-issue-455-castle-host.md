@@ -46,6 +46,14 @@ checks that collection is off after returning and obtains fresh consent before
 continuing its help/count assertions. Production behavior is unchanged; final-head
 browser qualification is still required.
 
+On the next hosted Wrenmere run (40814232498, head `c1aa398`), the 320px route-return
+and fresh-consent checks passed. The fixture then failed at `finish_playtest_receipt()` because it
+expected one reasoning rejection while only filling the first of the case's three claims. The host
+correctly classified that incomplete form as an incomplete rejection. The browser fixture now fills
+all three verdict/citation pairs with valid sources and leaves the first verdict wrong, so it tests
+the intended reasoning-rejection count. This is another fixture correction; no production behavior
+changed. Final-head hosted browser qualification remains required.
+
 ## Acceptance still outstanding
 
 No real participant observation has been collected, and this change does not establish editorial,

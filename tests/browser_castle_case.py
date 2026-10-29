@@ -299,8 +299,14 @@ def run():
                 page.locator('#case-verdict-0').select_option('contradicted')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
                 expect(page.locator('#case-verdict-0')).to_be_focused()
-                page.locator('[data-case-cite="0"][value="checks"]').check()
-                expect(page.locator('#case-verdict-0')).to_be_enabled()
+                # Keep the rejection in the reasoning bucket: all fields are complete, but claim 0 is wrong.
+                for index, verdict in enumerate(['contradicted', 'not-established', 'contradicted']):
+                    if index:
+                        page.locator(f'[data-case-verdict="{index}"]').select_option(verdict)
+                        expect(page.locator('#case-verdict-0')).to_be_enabled()
+                    for source_id in ['checks', 'model']:
+                        page.locator(f'[data-case-cite="{index}"][value="{source_id}"]').check()
+                        expect(page.locator('#case-verdict-0')).to_be_enabled()
                 wrong = read(page)['state']['caseStudy']
                 case_click(page, 'check')
                 expect(page.locator('[data-case-status]')).to_contain_text('draft is kept')
@@ -322,7 +328,7 @@ def run():
                 assert read(page)['state']['preferences']['story'] is False
                 case_click(page, 'story')
                 assert read(page)['state']['caseStudy'] == retained
-                record(width, 'wrong/incomplete drafts, hint/reveal history and source choices survive story switches')
+                record(width, 'complete wrong drafts, hint/reveal history and source choices survive story switches')
                 finish_playtest_receipt(page, requests)
                 record(width, 'receipt separates hint/reveal and reasoning counts, copies the exact edited preview, and leaves saves/network untouched')
 
