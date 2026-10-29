@@ -17,11 +17,14 @@ export async function fetchPack(
   progress = () => {},
   signal,
 ) {
+  const moduleAsset = entry?.kind === 'module';
   if (
     !entry ||
     !/^[a-z][a-z0-9-]{0,59}$/.test(entry.id) ||
     !/^[a-f0-9]{64}$/.test(entry.sha256) ||
-    entry.download !== `${entry.id}.${entry.sha256}.json` ||
+    (moduleAsset
+      ? entry.id !== 'receipt' || entry.download !== `receipt.${entry.sha256.slice(0, 12)}.js`
+      : entry.download !== `${entry.id}.${entry.sha256}.json`) ||
     !Number.isSafeInteger(entry.bytes) ||
     entry.bytes < 1 ||
     entry.bytes > LIMIT

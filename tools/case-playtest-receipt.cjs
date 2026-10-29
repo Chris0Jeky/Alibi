@@ -7,7 +7,7 @@
   const MAX_OBSERVATION = 500;
   const LIMITATIONS = Object.freeze([
     'Counts only: it cannot tell whether a hint was read, understood or needed.',
-    'Counts begin at consent. Prior assistance is a baseline flag for help used earlier in this page, including before restart; outcomes include stages already completed when visited.',
+    'Counts begin at consent. Help recorded before start is marked as prior assistance only; earlier counts and timing are not reconstructed. Outcomes include stages already completed when visited.',
     'No timings are recorded, so it says nothing about difficulty from speed.',
     'Incomplete submissions (an empty verdict or no cited source) are counted as interface, not reasoning.',
     'One local session of one tester; it is not a sample and not human acceptance by itself.',

@@ -38,6 +38,10 @@ def case_click(page, action, value=None):
         expect(page.locator('[data-case-action]').first).to_be_enabled()
 
 
+def is_receipt_asset(url):
+    return '/assets/cases/receipt.' in url and url.endswith('.js')
+
+
 def import_data(page, data):
     page.locator('#castle-import').set_input_files({
         'name': 'fictional-case.json', 'mimeType': 'application/json',
@@ -96,6 +100,107 @@ def share_invitation(page):
     return preview
 
 
+def start_playtest_receipt(page, requests, width):
+    before = read(page)
+    request_count = len(requests)
+    assert not any(is_receipt_asset(url) for url in requests), 'receipt asset is lazy until explicit consent'
+    page.evaluate('''() => {
+      window.caseReceiptCopies = [];
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText(text) { window.caseReceiptCopies.push(text); return Promise.resolve(); }
+      }});
+    }''')
+    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+    assert page.locator('#case-receipt-preview').count() == 0
+    if width == 320:
+        bad_start = len(requests)
+        page.evaluate('''() => {
+          window.__receiptFetch = window.fetch;
+          window.fetch = (input, options) => String(input).includes('/assets/cases/receipt.') && String(input).endsWith('.js')
+            ? Promise.resolve(new Response(
+                'globalThis.__tamperedReceiptImported = true; export function createCaseReceipt() {}',
+                {headers: {'Content-Type': 'text/javascript'}}))
+            : window.__receiptFetch(input, options);
+        }''')
+        case_click(page, 'receipt-start')
+        expect(page.locator('[data-case-status]')).to_contain_text('No collection started')
+        assert page.evaluate('() => globalThis.__tamperedReceiptImported === true') is False
+        assert not any(is_receipt_asset(url) for url in requests[bad_start:]), 'hash failure must stop before import()'
+        assert page.locator('#case-receipt-preview').count() == 0
+        expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+        page.evaluate('() => { window.fetch = window.__receiptFetch; delete window.__receiptFetch; }')
+        page.context.set_offline(True)
+        case_click(page, 'receipt-start')
+        expect(page.locator('[data-case-status]')).to_contain_text('reconnect and retry')
+        assert page.locator('#case-receipt-preview').count() == 0
+        expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+        page.context.set_offline(False)
+    case_click(page, 'receipt-start')
+    case_click(page, 'receipt-review')
+    module_requests = requests[request_count:]
+    assert module_requests and all(is_receipt_asset(url) for url in module_requests)
+    initial = json.loads(page.locator('#case-receipt-preview').inner_text())
+    assert initial['format'] == 'postern-case-playtest-1'
+    assert initial['stages'] == [{
+        'id': SOURCE['steps'][0]['id'],
+        'outcome': 'not-completed',
+        'assisted': False,
+        'priorAssistance': False,
+        'hints': 0,
+        'reveals': 0,
+        'submissions': 0,
+        'rejectedIncomplete': 0,
+        'rejectedReasoning': 0,
+        'afterCompletion': 0,
+    }]
+    page.locator('#case-receipt-observation').fill('Synthetic observation from browser fixture.')
+    editable = page.locator('#case-receipt-preview').inner_text()
+    assert json.loads(editable)['observation'] == 'Synthetic observation from browser fixture.'
+    case_click(page, 'receipt-close')
+    case_click(page, 'receipt-cancel')
+    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+    assert page.evaluate('() => window.caseReceiptCopies') == []
+    assert read(page) == before
+    assert len(requests) == request_count + len(module_requests)
+    case_click(page, 'receipt-start')
+
+
+def finish_playtest_receipt(page, requests):
+    before = read(page)
+    request_count = len(requests)
+    case_click(page, 'receipt-review')
+    report = json.loads(page.locator('#case-receipt-preview').inner_text())
+    assert report['format'] == 'postern-case-playtest-1'
+    assert set(report['modes']) == {'storyOn', 'storyOff'}
+    assert report['stages'] == [{
+        'id': SOURCE['steps'][0]['id'],
+        'outcome': 'not-completed',
+        'assisted': True,
+        'priorAssistance': False,
+        'hints': 1,
+        'reveals': 1,
+        'submissions': 1,
+        'rejectedIncomplete': 0,
+        'rejectedReasoning': 1,
+        'afterCompletion': 0,
+    }]
+    serialized = page.locator('#case-receipt-preview').inner_text()
+    for forbidden in ['Fictional pre-case field note.', 'answers', 'citations', 'drafts', 'deviceId', 'timestamp']:
+        assert forbidden not in serialized
+    page.locator('#case-receipt-observation').fill('Synthetic observation from browser fixture.')
+    exact_preview = page.locator('#case-receipt-preview').inner_text()
+    case_click(page, 'receipt-copy')
+    expect(page.locator('[data-case-status]')).to_contain_text('Receipt copied')
+    assert page.evaluate('() => window.caseReceiptCopies') == [exact_preview]
+    assert read(page) == before
+    assert len(requests) == request_count
+    case_click(page, 'receipt-cancel')
+    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+    assert page.evaluate('() => window.caseReceiptCopies') == [exact_preview]
+    assert read(page) == before
+    assert len(requests) == request_count
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     report = {'passed': False, 'base': BASE, 'checks': [], 'errors': []}
@@ -110,7 +215,9 @@ def run():
                 page = context.new_page()
                 page.on('pageerror', lambda error: report['errors'].append(str(error)))
                 requests = []
+                responses = []
                 page.on('request', lambda request: requests.append(request.url))
+                page.on('response', lambda response: responses.append((response.url, response.from_service_worker)))
                 page.goto(BASE + '#/quiet/castle/journal')
                 expect(page.locator('#notes')).to_be_visible()
                 page.locator('#notes').fill('Fictional pre-case field note.')
@@ -164,6 +271,8 @@ def run():
                 assert read(page)['state']['notes'] == original['state']['notes']
                 initial_share = share_invitation(page)
                 record(width, 'share preview excludes notebook and hidden evidence; cancel writes nothing and explicit copy matches preview')
+                start_playtest_receipt(page, requests, width)
+                record(width, 'receipt starts off, requires consent, edits only its local preview, and cancel writes nothing')
                 if width == 320:
                     before = read(page)
                     case_click(page, 'share-open')
@@ -193,6 +302,13 @@ def run():
                 assert read(page)['state']['caseStudy'] == wrong
                 case_click(page, 'hint')
                 case_click(page, 'reveal')
+                case_click(page, 'stage', SOURCE['steps'][0]['id'])
+                case_click(page, 'receipt-review')
+                revisited_receipt = json.loads(page.locator('#case-receipt-preview').inner_text())
+                assert revisited_receipt['stages'][0]['priorAssistance'] is False
+                assert revisited_receipt['stages'][0]['hints'] == 1
+                assert revisited_receipt['stages'][0]['reveals'] == 1
+                case_click(page, 'receipt-close')
                 retained = read(page)['state']['caseStudy']
                 page.locator('#case-verdict-0').focus()
                 case_click(page, 'story')
@@ -202,6 +318,8 @@ def run():
                 case_click(page, 'story')
                 assert read(page)['state']['caseStudy'] == retained
                 record(width, 'wrong/incomplete drafts, hint/reveal history and source choices survive story switches')
+                finish_playtest_receipt(page, requests)
+                record(width, 'receipt separates hint/reveal and reasoning counts, copies the exact edited preview, and leaves saves/network untouched')
 
                 # The header preference must refresh the mounted case without remounting it.
                 for story in [False, True]:
@@ -224,19 +342,42 @@ def run():
                     expect(page.locator('[data-case-action="story"]')).to_have_text(
                         'Turn story off' if story else 'Turn story on')
                     assert read(page)['state']['caseStudy'] == retained
+                    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+                    assert page.locator('#case-receipt-preview').count() == 0
                 record(width, 'header story preference refreshes immediately, keeps dialog focus and drafts, and survives reload')
 
                 # Captured controls from the old visit have no listeners after returning.
                 stale_control = page.locator('[data-case-action="story"]').element_handle()
+                case_click(page, 'receipt-start')
+                case_click(page, 'receipt-review')
                 navigate(page, '#/quiet/castle/directory')
                 expect(page.get_by_role('heading', name='Room directory')).to_be_visible()
                 navigate(page, ROUTE)
                 expect(page.locator('#case-verdict-0')).to_be_visible()
+                expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+                assert page.locator('#case-receipt-preview').count() == 0
                 before = read(page)
                 stale_control.evaluate('(el) => el.click()')
                 assert read(page) == before
                 assert read(page)['state']['caseStudy'] == retained
                 record(width, 'navigation retains drafts and refuses captured controls from the old A visit')
+                if width == 320:
+                    case_click(page, 'receipt-start')
+                    case_click(page, 'receipt-review')
+                    page.evaluate('''() => { navigator.clipboard.writeText = () => new Promise(resolve => {
+                      window.caseReceiptResolve = resolve;
+                    }); }''')
+                    page.locator('[data-case-action="receipt-copy"]').click()
+                    expect(page.locator('[data-case-action="receipt-copy"]')).to_be_disabled()
+                    navigate(page, '#/quiet/castle/directory')
+                    expect(page.get_by_role('heading', name='Room directory')).to_be_visible()
+                    navigate(page, ROUTE)
+                    expect(page.locator('#case-verdict-0')).to_be_visible()
+                    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+                    page.evaluate('() => window.caseReceiptResolve()')
+                    assert 'Receipt copied.' not in page.locator('[data-case-status]').inner_text()
+                    assert page.locator('#case-receipt-preview').count() == 0
+                    record(width, 'a pending receipt copy cannot alter a later visit, and route disposal returns collection to off')
 
                 for i, step in enumerate(SOURCE['steps']):
                     case_click(page, 'stage', step['id'])
@@ -340,6 +481,19 @@ def run():
                 page.reload()
                 expect(page.get_by_role('heading', name='Case complete')).to_be_visible()
                 assert read(page)['state']['caseStudy'] == exported['state']['caseStudy']
+                offline_receipt_requests = len(requests)
+                offline_receipt_responses = len(responses)
+                case_click(page, 'receipt-start')
+                case_click(page, 'receipt-review')
+                expect(page.locator('#case-receipt-preview')).to_contain_text('postern-case-playtest-1')
+                assert len(requests) == offline_receipt_requests + 1
+                offline_receipt_urls = [url for url in requests[offline_receipt_requests:] if is_receipt_asset(url)]
+                assert len(offline_receipt_urls) == 1
+                receipt_url = offline_receipt_urls[0]
+                assert requests[-1] == receipt_url
+                assert any(url == receipt_url and via_worker for url, via_worker in responses[offline_receipt_responses:])
+                case_click(page, 'receipt-cancel')
+                record(width, 'receipt bundle loads from the controlled case-pack cache while offline')
                 navigate(page, '#/quiet/castle/journal')
                 expect(page.locator('#notes')).to_be_visible()
                 import_data(page, exported)
