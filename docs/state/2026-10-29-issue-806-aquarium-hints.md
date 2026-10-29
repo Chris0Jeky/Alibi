@@ -1,5 +1,8 @@
 # Aquarium waterline hints — issue #806
 
+This source checkpoint records verification through runtime commit `1433c035` on 29 October.
+The final browser, CI and merge receipts are maintained on [PR #808](https://github.com/Chris0Jeky/Alibi/pull/808).
+
 ## Changed
 
 Aquarium Hint now derives tank levels from public geometry and row/column totals. Bounded
@@ -32,10 +35,25 @@ the helper's name no longer misidentifies it as a separate unwired browser suite
 - App syntax and both browser-test modules compile. The UI design detector reports no findings.
 - One fresh-context independent adversarial review found no actionable defects in the deduction,
   explanation bounds, solution isolation, caller behavior or test coverage.
+- A second scoped independent review found no defects in the deferred loader, offline/build
+  packaging or delayed Hint, Club and completed-record callers. The worker test fixture now
+  includes the new asset; its 35 source checks pass.
+- Hosted `npm run verify` at `1433c035` passes all 2,264 Node tests with no skips or failures,
+  plus both Quiet Wing programs. Application JavaScript is 132,981 bytes gzip against the
+  unchanged strict 135,808-byte ceiling; the reasoning chunk is 4,143 bytes gzip. Initial
+  code/content is 202,638 bytes gzip against 225,280. Android artifact and offline navigation
+  checks pass.
+- The main hosted gate passed the general UI, keyboard/focus and 390/1280px curation UI checks.
+  Actual 390px standard/Expert Aquarium Hint journeys passed offline loading, answer traps,
+  highlights, keyboard/focus, conflict handling, unchanged progress, confirmed Reveal and
+  ambiguity fallback. Their screenshots were inspected for readable text and visible outlines.
 
 ## NOT verified
 
-Full repository verification and actual browser execution await the shared verification slot.
+At this checkpoint the added completed-record browser test selected the background board button
+behind an open dialog. The selector is now scoped to the dialog; its rerun, desktop Aquarium
+journeys and completion of the full browser matrix remain pending on PR #808. This is a test
+selection failure; the reviewed production/runtime code is unchanged.
 No deployment, physical Android/TalkBack test or subjective difficulty/enjoyment acceptance is
 claimed. [HUMAN_TODO.md](../../HUMAN_TODO.md) retains those owner acceptance items.
 
@@ -43,4 +61,4 @@ claimed. [HUMAN_TODO.md](../../HUMAN_TODO.md) retains those owner acceptance ite
 
 The method intentionally falls back when line propagation cannot certify a complete assignment,
 even if a stronger reasoning method could explain a partial deduction. It does not claim to solve
-every Aquarium. Browser, bundle/performance and hosted gates must pass before merge.
+every Aquarium. The remaining browser and exact-head hosted gates must pass before merge.
