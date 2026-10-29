@@ -1,0 +1,39 @@
+# Aquarium waterline hints — issue #806
+
+## Changed
+
+Aquarium Hint now derives tank levels from public geometry and row/column totals. Bounded
+per-line support propagation retains the clues and contribution bounds used in each explanation.
+It requires a complete public-clue witness before returning guidance, so incomplete reasoning,
+ambiguous clues and inconsistent clues retain the honest fallback. Player waterlines remain
+tentative; existing overfull-line conflicts take priority and satisfied advice is skipped.
+
+The Hint dialog marks the tank and supporting edge clues. The outlines persist on dismissal and
+clear with the next board render. No water is applied, no progress is changed, and the separate
+confirmed answer-based Reveal remains intact. Guidance has no Club-applicable `value` field.
+Published puzzle identities, saves, solver capabilities and dependencies are unchanged.
+
+## Verified
+
+- Baseline regression failed because the forced irregular-tank deduction returned `null`; the
+  existing conflict regression already passed.
+- The focused 25-test set passes. An independent exhaustive model covers three tiny tank layouts,
+  1,548 inconsistent clue sets and eight ambiguous clue sets. All 819 returned deductions agree
+  with every satisfying assignment, including 41 dry-tank and 593 full-tank recommendations.
+- Throwing answer getters, altered/absent solutions, tentative states, deterministic selection,
+  input immutability, a single-cell Club boundary, standard/Expert fixtures and a 7x7 case pass.
+- App syntax and both browser-test modules compile. The UI design detector reports no findings.
+- One fresh-context independent adversarial review found no actionable defects in the deduction,
+  explanation bounds, solution isolation, caller behavior or test coverage.
+
+## NOT verified
+
+Full repository verification and actual browser execution await the shared verification slot.
+No deployment, physical Android/TalkBack test or subjective difficulty/enjoyment acceptance is
+claimed. [HUMAN_TODO.md](../../HUMAN_TODO.md) retains those owner acceptance items.
+
+## Residual risk
+
+The method intentionally falls back when line propagation cannot certify a complete assignment,
+even if a stronger reasoning method could explain a partial deduction. It does not claim to solve
+every Aquarium. Browser, bundle/performance and hosted gates must pass before merge.

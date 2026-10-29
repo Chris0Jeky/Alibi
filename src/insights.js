@@ -103,10 +103,10 @@
       explanation = reasons[tank].map(({ line, others, water, dependencies }) =>
         `${label(line)} needs ${targets[line]} water square${targets[line] === 1 ? '' : 's'}. ` +
         (dependencies.length ? `Using ${dependencies.sort((a, b) => a - b).map((clue) => `${label(clue)} (${targets[clue]})`).join(', ')}, ` : '') +
-        `the other tanks are limited to ${amounts(others)} there, leaving ${amounts(water)} for this tank.`,
+        `${dependencies.length ? 'the' : 'The'} other tanks are limited to ${amounts(others)} there, leaving ${amounts(water)} for this tank.`,
       ).join(' '),
       level = levels[tank],
-      action = level === 0 ? 'Keep this tank dry.' :
+      action = level === 0 ? 'Drain this tank; it must stay dry.' :
         `Fill its bottom ${level === 1 ? 'row' : level + ' rows'}, through Row ${rows[tank][level - 1] + 1}.`;
     return {
       rule: 'A forced waterline',

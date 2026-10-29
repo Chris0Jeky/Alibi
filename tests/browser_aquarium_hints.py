@@ -41,6 +41,20 @@ def tank_cell(puzzle, tank, level):
     return next(i for i, t in enumerate(puzzle['tanks']) if t == tank and i // puzzle['size'] == rows[level - 1])
 
 
+def trap_answer(page):
+    # Run the shipped deduction behind a getter trap, without replacing its result.
+    page.evaluate('''() => {
+      const deduction = AlibiCore.insights.deduction;
+      AlibiCore.insights.deduction = (p, s) => {
+        const publicPuzzle = new Proxy(p, {get(target, key) {
+          if (key === 'solution') throw Error('Hint read the hidden answer');
+          return target[key];
+        }});
+        return window.aquariumHint = deduction(publicPuzzle, s);
+      };
+    }''')
+
+
 def seed_ambiguous(page, template):
     puzzle = {**template, 'id': 'hint-ambiguous-fixture', 'revision': 1,
               'title': 'Two possible waterlines', 'size': 3,
@@ -75,17 +89,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
     try:
         page.goto(base)
         page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
-        # Run the shipped deduction behind a getter trap, without replacing its result.
-        page.evaluate('''() => {
-          const deduction = AlibiCore.insights.deduction;
-          AlibiCore.insights.deduction = (p, s) => {
-            const publicPuzzle = new Proxy(p, {get(target, key) {
-              if (key === 'solution') throw Error('Hint read the hidden answer');
-              return target[key];
-            }});
-            return window.aquariumHint = deduction(publicPuzzle, s);
-          };
-        }''')
+        trap_answer(page)
         for puzzle, tank, level in [(standard, 0, 1), (expert, 1, 1)]:
             key = f"{puzzle['id']}@{puzzle['revision']}"
             open_run(page, key)
@@ -161,6 +165,10 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
             check(True, f'{width}: {puzzle["id"]} clue-only Hint, highlights, keyboard, conflict, undo and confirmed Reveal')
 
         key = seed_ambiguous(page, standard)
+        # Saved definitions enter the application's records map on startup.
+        page.reload()
+        page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        trap_answer(page)
         open_run(page, key)
         before = current(page)
         dialog, button = hint(page)

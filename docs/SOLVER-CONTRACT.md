@@ -31,9 +31,24 @@ five families until versioned constraint representations and complete search sem
 
 `AlibiCore.solve(puzzle, state?, limit?, maxNodes?)` remains available for the existing engine
 implementation and compatibility tests. New catalogue/authoring code should call
-`solveDefinition`; new hint or correctness code should call `solveState` after checking
+`solveDefinition`; new hint or correctness code that searches player-constrained solutions should call `solveState` after checking
 capabilities. This keeps a future engine extension from accidentally depending on a family that
 ignores state.
+
+## Aquarium reasoning hints
+
+`AlibiCore.insights.deduction(puzzle, state)` explains Aquarium waterlines using public tank
+geometry and row/column totals, without calling a search API or reading `solution`. It checks
+overfilled player lines first, then narrows possible levels using exact per-line support sums.
+Player levels, including zero, never constrain that reasoning; they only identify conflicts and
+advice already satisfied.
+
+Line support alone does not establish global consistency. The bounded hint currently requires
+propagation to leave one level per tank and checks that complete assignment against all public
+totals before offering one useful waterline. Otherwise it returns the general-strategy fallback;
+it makes no completeness claim. Guidance includes the tank's `cells` and supporting `clues`,
+with `tank` and `level` for explanation. It deliberately omits `value`, which Club interprets as
+an applicable cell move. Reading Hint leaves progress unchanged; confirmed Reveal remains separate.
 
 ## Required tests for a new state-capable family
 
