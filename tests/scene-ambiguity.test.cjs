@@ -79,6 +79,18 @@ test('a resolving clue produces one witness; a contradiction remains unsatisfiab
   assert.equal(impossible.value, undefined);
 });
 
+test('an unfinished draft without clues can still compare valid arrangements', () => {
+  const h = worker(),
+    p = scene();
+  p.clues = [];
+  const result = h.send(p);
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.value.solutions.length, 2);
+  for (const solution of result.value.solutions)
+    assert.equal(h.C.sceneComplete(p, { placements: solution }), true);
+  assert.deepEqual(p.clues, []);
+});
+
 test('budget exhaustion stays a refusal and never publishes partial witnesses', () => {
   const h = worker(),
     solve = h.C.solveDefinition;
