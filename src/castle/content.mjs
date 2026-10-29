@@ -1,49 +1,50 @@
 import rooms from './rooms.mjs';
 import puzzles from './puzzles.mjs';
+export const evidenceRecords = [
+  {
+    id: 'maintenance',
+    title: 'The maintenance slip',
+    from: 'The Long Library',
+    requires: 'shelves',
+    text: 'Station clock: seventeen minutes fast. Observatory clock: checked against the noon signal. Adjustment deferred. Signed R. Finch.',
+    kind: 'Record',
+    question: 'What does a timestamp measure when the instrument is wrong?',
+  },
+  {
+    id: 'ticket',
+    title: 'The corrected ticket',
+    from: 'The Observatory',
+    requires: 'clock',
+    text: 'The station ticket is stamped 21:17. Subtracting the documented 17-minute error gives 21:00. This dates Finch’s departure from the station, not his arrival at the tower.',
+    kind: 'Derived fact',
+    question: 'What does this establish, and what does it leave open?',
+  },
+  {
+    id: 'path',
+    title: 'The green footpath',
+    from: 'The Map Room',
+    requires: 'route',
+    text: 'The surveyed footpath takes 7 minutes: station to bridge, 2; bridge to orchard, 3; orchard to tower, 2. These are the case’s stipulated travel times. The tower bell rang at 21:10 by its calibrated clock.',
+    kind: 'Route model',
+    question: 'Is a feasible route evidence that someone actually took it?',
+  },
+  {
+    id: 'margin',
+    title: 'The margin under the stairs',
+    from: 'The Unrecorded Stair',
+    requires: 'inference',
+    text: '“I saw Mara take the courtyard stair towards the river.” The note is unsigned. It does not establish why she went or whether the writer saw her arrive.',
+    kind: 'Unverified testimony',
+    question: 'Who wrote this, and which part did they see?',
+  },
+];
 export default {
   rooms,
   puzzles,
   version: 1,
   title: 'Wrenmere Castle',
   subtitle: 'The Seventeenth Minute',
-  evidence: [
-    {
-      id: 'maintenance',
-      title: 'The maintenance slip',
-      from: 'The Long Library',
-      requires: 'shelves',
-      text: 'Station clock: seventeen minutes fast. Observatory clock: checked against the noon signal. Adjustment deferred. Signed R. Finch.',
-      kind: 'Record',
-      question: 'What does a timestamp measure when the instrument is wrong?',
-    },
-    {
-      id: 'ticket',
-      title: 'The corrected ticket',
-      from: 'The Observatory',
-      requires: 'clock',
-      text: 'The station ticket is stamped 21:17. Subtracting the documented 17-minute error gives 21:00. This dates Finch’s departure from the station, not his arrival at the tower.',
-      kind: 'Derived fact',
-      question: 'What does this establish, and what does it leave open?',
-    },
-    {
-      id: 'path',
-      title: 'The green footpath',
-      from: 'The Map Room',
-      requires: 'route',
-      text: 'The surveyed footpath takes 7 minutes: station to bridge, 2; bridge to orchard, 3; orchard to tower, 2. These are the case’s stipulated travel times. The tower bell rang at 21:10 by its calibrated clock.',
-      kind: 'Route model',
-      question: 'Is a feasible route evidence that someone actually took it?',
-    },
-    {
-      id: 'margin',
-      title: 'The margin under the stairs',
-      from: 'The Unrecorded Stair',
-      requires: 'inference',
-      text: '“I saw Mara take the courtyard stair towards the river.” The note is unsigned. It does not establish why she went or whether the writer saw her arrive.',
-      kind: 'Unverified testimony',
-      question: 'Who wrote this, and which part did they see?',
-    },
-  ],
+  evidence: evidenceRecords,
   exhibits: [
     {
       id: 'bridges',
