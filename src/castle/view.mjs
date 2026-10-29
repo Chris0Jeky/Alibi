@@ -65,6 +65,8 @@ export async function mount({ root, preferences = null, practice = null }) {
     filmTimer = null,
     filmIndex = 0,
     filmPlaying = false;
+  let caseVisit,
+    caseEpoch = 0;
   let effective = preferences,
     objectURLs = new Set(),
     timers = new Set(),
@@ -88,7 +90,7 @@ export async function mount({ root, preferences = null, practice = null }) {
           : 'Castle progress saved on this device'
         : 'Castle progress needs attention';
     $('footer').innerHTML =
-      `${escape(label)}. Castle exports cover this chapter only; Cabinet, Club and Quiet Wing exports are separate. ${link('Open castle notebook', 'journal')}<br><span class="castle-offline">${globalThis.ALIBI_CONFIG?.standalone ? 'Castle rooms are included in this file.' : offlineState === 'ready' ? 'Castle rooms ready offline.' : offlineState === 'loading' ? 'Preparing castle rooms for offline visits…' : 'Castle rooms are not ready offline. Reopen online to retry.'}</span>`;
+      `${escape(label)}. Exports include Chapter I and your experimental case. ${link('Open castle notebook', 'journal')}<br><span class="castle-offline">${globalThis.ALIBI_CONFIG?.standalone ? 'Castle rooms are included in this file.' : offlineState === 'ready' ? 'Castle rooms ready offline.' : offlineState === 'loading' ? 'Preparing castle rooms for offline visits…' : 'Castle rooms are not ready offline. Reopen online to retry.'}</span>`;
   }
   function prefs() {
     root.host.dataset.reduced = String(
@@ -101,9 +103,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     root.host.dataset.sound = String(state.preferences.sound && effective?.sound !== false);
   }
   function save(next) {
-    store.save(next);
+    const pending = store.save(next);
     state = next;
     prefs();
+    return pending;
   }
   function mutate(fn) {
     const next = E.clone(state);
@@ -124,7 +127,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   }
   function header() {
     $('header').innerHTML =
-      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
+      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${link('Experimental case', 'case')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }
@@ -144,6 +147,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (disposed) return;
     prefs();
     header();
+    if (view === 'case') return;
     $('#castle-main').innerHTML =
       view === 'room'
         ? pages().roomPage()
@@ -248,7 +252,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     pendingRestore = { data, revision: store.state.revision };
     show(
       'Review castle restore',
-      `<p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes in a labelled section. Repeating the same reviewed file keeps that exact labelled section once; ordinary local note text is never treated as an import. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
+      `<p>Experimental case: ${data.state.caseStudy ? data.state.caseStudy.answers.length + '/3 stages' : 'not included; replacement removes current case progress'}.</p><p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes in a labelled section. Repeating the same reviewed file keeps that exact labelled section once; ordinary local note text is never treated as an import. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
     );
   }
   async function restoreNotebook(replace) {
@@ -848,12 +852,15 @@ export async function mount({ root, preferences = null, practice = null }) {
   );
   function route() {
     if (disposed) return;
+    const epoch = ++caseEpoch;
+    caseVisit?.();
+    caseVisit = null;
     releaseFilm();
     active = null;
     if (dialog.open) dialog.close();
     dialog.replaceChildren();
     const next = rootRoute();
-    view = ['map', 'museum', 'journal', 'directory', 'room'].includes(next.view)
+    view = ['map', 'museum', 'journal', 'directory', 'room', 'case'].includes(next.view)
       ? next.view
       : 'map';
     if (view === 'room') {
@@ -864,6 +871,20 @@ export async function mount({ root, preferences = null, practice = null }) {
     // The grounds preselect the thread's next room.
     if (view === 'map') selected = thread(state)[1][0] || selected;
     render();
+    if (view === 'case') {
+      const main = $('#castle-main');
+      main.textContent = 'Opening experimental case…';
+      const url = globalThis.ALIBI_QUIET_CONFIG?.castle?.caseStudy;
+      if (!url) main.textContent = 'Open the hosted app to install the experimental case.';
+      else
+        import(new URL(url, location.href))
+          .then((m) => {
+            if (!disposed && epoch === caseEpoch) caseVisit = m.mount({ root: main, store, save });
+          })
+          .catch((error) => {
+            if (!disposed && epoch === caseEpoch) main.textContent = error.message;
+          });
+    }
     restoredPracticeFocus = focusPracticeStarter();
     if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
     // Until a first question is solved, arriving at the grounds opens the keeper's letter once
@@ -915,6 +936,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     },
     dispose() {
       disposed = true;
+      caseVisit?.();
       if (showStagedImport === reviewStaged) showStagedImport = null;
       releaseFilm();
       abort.abort();

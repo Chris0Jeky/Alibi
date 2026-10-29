@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CastleStore } from '../src/castle/storage.mjs';
 import { initial, clone } from '../src/castle/engine.mjs';
+import { freshCase } from '../src/castle/case-state.mjs';
 
 function edit(store, text) {
   const next = clone(store.state);
@@ -137,4 +138,23 @@ test('Queued writes use committed revisions and retain the latest edit', async (
   assert.equal(disk.read().state.notes, 'Second line.');
   assert.equal(store.dirty, false);
   assert.throws(() => store.save(initial()), /advance/);
+});
+
+test('case and Chapter I share CAS; a stale case draft stays exportable and blocks updates', async () => {
+  const disk = memoryTransactions(),
+    first = new CastleStore(null),
+    stale = new CastleStore(null);
+  disk.attach(first);
+  disk.attach(stale);
+  await first.save(edit(first, 'Other tab owns this notebook.'));
+  const next = edit(stale, 'Retain this session.');
+  next.caseStudy = freshCase();
+  next.caseStudy.drafts[0][0] = ['contradicted', ['checks']];
+  assert.equal(await stale.save(next), false);
+  assert.equal(disk.read().state.caseStudy, undefined);
+  assert.deepEqual(JSON.parse(stale.export()).state.caseStudy, next.caseStudy);
+  await assert.rejects(stale.flush());
+  stale.acknowledgeExport();
+  await stale.flush();
+  assert.equal(stale.mode, 'protected');
 });

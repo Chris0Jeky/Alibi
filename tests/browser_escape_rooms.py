@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 from playwright.sync_api import sync_playwright
@@ -29,6 +30,102 @@ def inspect(page, object_id, width):
         page.locator('#object-select').select_option(object_id)
     else:
         page.locator('#inspect-' + object_id).click()
+
+
+def tab_to(page, selector, limit=400):
+    """Move focus with Tab only; proves the control is in the keyboard order."""
+    for _ in range(limit):
+        if page.evaluate('(s) => !!document.activeElement?.matches(s)', selector):
+            return
+        page.keyboard.press('Tab')
+    raise AssertionError('Tab never reached ' + selector)
+
+
+def arrow_select(page, selector, value):
+    """Choose an option with arrow keys; focus must stay on the select (WCAG 3.2.2)."""
+    tab_to(page, selector)
+    values = page.locator(selector + ' option').evaluate_all('(os) => os.map((o) => o.value)')
+    step = values.index(value) - values.index(page.locator(selector).input_value())
+    for _ in range(abs(step)):
+        page.keyboard.press('ArrowDown' if step > 0 else 'ArrowUp')
+        assert page.evaluate('(s) => document.activeElement?.matches(s)', selector), 'focus left ' + selector
+    assert page.locator(selector).input_value() == value
+
+
+def announced(page):
+    """The persistent live region must repeat exactly the visible feedback, no more."""
+    page.wait_for_function("() => document.getElementById('escape-announcer')?.textContent === (document.getElementById('feedback')?.textContent || '')")
+    text = page.locator('#escape-announcer').text_content()
+    assert text, 'nothing announced'
+    return text
+
+
+def check_names(page):
+    """Every control and named region exposes an accessible name; no aria-label on generic divs."""
+    tree = page.locator('#escape-root').aria_snapshot()
+    unnamed = [line for line in tree.splitlines() if re.match(r'\s*- (button|textbox|combobox)\b(?! ")', line)]
+    assert not unnamed, unnamed
+    assert page.evaluate("() => [...document.querySelectorAll('div[aria-label]:not([role])')].length") == 0
+    if page.locator('.observations').count():
+        assert page.get_by_role('group', name='Current observations', exact=True).count() == 1
+    assert page.locator('#escape-announcer').evaluate('(el) => !document.getElementById("escape-root").contains(el)')
+
+
+def keyboard_pass(browser, html, definitions, receipt):
+    """Play every room by keyboard alone; each change is announced without hidden content."""
+    results = []
+    for width, height in [(1280, 900), (320, 780)]:
+        context = browser.new_context(viewport={'width': width, 'height': height}, reduced_motion='reduce', offline=True)
+        page = context.new_page()
+        errors = []
+        page.on('pageerror', lambda error: errors.append(str(error)))
+        open_document(page, html)
+        page.locator('#room-title').wait_for()
+        assert page.locator('#escape-announcer').text_content() == ''
+        for index, d in enumerate(definitions):
+            arrow_select(page, '#room-select', d['id'])
+            assert page.locator('#room-title').text_content() == d['title']
+            actions = {a['id']: a for a in d['actions']}
+            trace = receipt['rooms'][index]['model']['solution']
+            for step, action_id in enumerate(trace):
+                action = actions[action_id]
+                if width <= 760:
+                    arrow_select(page, '#object-select', action['object'])
+                else:
+                    tab_to(page, '#inspect-' + action['object'])
+                    page.keyboard.press('Enter')
+                    assert page.locator('#inspect-' + action['object']).get_attribute('aria-current') == 'true'
+                check_names(page)
+                before = set(page.locator('.observations p').all_text_contents())
+                if step == 0:
+                    tab_to(page, '#help-' + action_id)
+                    page.keyboard.press('Space')
+                    hint = page.locator('#hints-' + action_id + ' p').first.text_content()
+                    assert page.evaluate('(id) => document.activeElement?.id === id', 'hints-' + action_id)
+                    assert page.get_by_role('group', name='Hints for ' + action['label'], exact=True).count() == 1
+                    page.wait_for_function('(t) => document.getElementById("escape-announcer").textContent === t', arg=hint)
+                if action['input']:
+                    tab_to(page, '#answer-' + action_id)
+                    page.keyboard.type(action['answer'])
+                    page.keyboard.press('Enter')
+                else:
+                    tab_to(page, '#act-' + action_id)
+                    page.keyboard.press('Space' if step % 2 else 'Enter')
+                text = announced(page)
+                assert 'unchanged' not in text, (d['id'], action_id, text)
+                for line in set(page.locator('.observations p').all_text_contents()) - before:
+                    assert line in text, (d['id'], action_id, line)
+                assert d['solution']['storyOn'] not in text
+            assert 'Room complete' in announced(page)
+            assert page.locator('#ending').is_visible()
+            tab_to(page, '#undo')
+            page.keyboard.press('Enter')
+            assert announced(page).startswith('One room action undone.')
+            assert page.locator('#ending').count() == 0
+            results.append({'room': d['id'], 'viewport': [width, height], 'keyboard': 'passed'})
+        assert not errors, errors
+        context.close()
+    return results
 
 
 def run():
@@ -139,6 +236,7 @@ def run():
             assert not errors, errors
             assert not external, external
             context.close()
+        results += keyboard_pass(browser, html, definitions, receipt)
         # Authored markup remains inert visible text, including script delimiters.
         hostile = definitions[0]
         hostile['title'] = '</script><script>globalThis.intrusion=true</script>'

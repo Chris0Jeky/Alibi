@@ -59,6 +59,34 @@ function validateAuthoring(root) {
 
 module.exports = function buildCastle(root, dist) {
   validateAuthoring(root);
+  const caseDir = path.join(dist, 'assets/cases');
+  fs.mkdirSync(caseDir, { recursive: true });
+  const caseBytes = fs.readFileSync(path.join(root, 'content/cases/reading-room-blackout.json'));
+  const { definition } = require('./case-authoring.cjs').parseCase(caseBytes.toString('utf8'));
+  const sha256 = crypto.createHash('sha256').update(caseBytes).digest('hex');
+  if (sha256 !== '6b86c2495fdf4b8c720203b00b4765772aeac0505614b31be4b1aa378cfb6a2c')
+    throw Error('The Castle case changed. Review its pinned save contract before delivery.');
+  const download = `${definition.id}.${sha256}.json`;
+  const casePlayer = require('esbuild').buildSync({
+    entryPoints: [path.join(root, 'src/castle/case-player.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    write: false,
+    define: {
+      CASE_DELIVERY: JSON.stringify({
+        id: definition.id,
+        download,
+        sha256,
+        bytes: caseBytes.length,
+      }),
+    },
+  }).outputFiles[0].contents;
+  const caseScript = `player.${hash(casePlayer)}.js`;
+  fs.writeFileSync(path.join(caseDir, caseScript), casePlayer);
+  fs.writeFileSync(path.join(caseDir, download), caseBytes);
+  const caseStudy = `./assets/cases/${caseScript}`;
   const source = require('esbuild').buildSync({
     entryPoints: [path.join(root, 'src/castle/entry.mjs')],
     bundle: true,
@@ -116,9 +144,11 @@ module.exports = function buildCastle(root, dist) {
   const totalBytes =
     bytes +
     [...roomBytes.values()].reduce((total, value) => total + value.delivered.length, 0) +
-    optionalBytes;
+    optionalBytes +
+    casePlayer.length +
+    caseBytes.length;
   return {
-    config: { script, files, build: hash(scriptBytes), media, film },
+    config: { script, files, build: hash(scriptBytes), media, film, caseStudy },
     // The self-contained preview has no network origin, so embed only the
     // bounded scene set. The film remains explicitly on-demand there too.
     standalone: {

@@ -16,10 +16,8 @@ function temporarySource(run) {
   try {
     fs.cpSync(path.join(root, 'content'), path.join(temp, 'content'), { recursive: true });
     fs.mkdirSync(path.join(temp, 'src'));
-    fs.copyFileSync(
-      path.join(root, 'src/workshop-collections.css'),
-      path.join(temp, 'src/workshop-collections.css'),
-    );
+    for (const file of ['src/workshop-collections.css', 'src/workshop-add.mjs'])
+      fs.copyFileSync(path.join(root, file), path.join(temp, file));
     return run(temp);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
@@ -34,7 +32,7 @@ test('immutable catalogue URL binds all emitted metadata bytes, not a stable ali
   assert.equal(file.path, `assets/workshop/catalogue.${digest}.json`);
   assert.ok(!shelf.files.some((entry) => entry.path === 'assets/workshop/catalogue.json'));
   assert.deepEqual(metadata(buildShelf(root)), file, 'unchanged bytes keep the exact URL');
-  assert.equal(shelf.files.length, 5, 'no stale alias or extra download is emitted');
+  assert.equal(shelf.files.length, 6, 'no stale alias or extra download is emitted');
   assert.equal(
     shelf.bytes,
     shelf.files.reduce((sum, entry) => sum + entry.data.length, 0),
