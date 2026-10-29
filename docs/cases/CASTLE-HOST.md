@@ -35,7 +35,22 @@ requires an explicit button, complete verified assets and a successful save; int
 cannot claim readiness. The existing service worker serves the owned optional cache on
 offline return. Saved source identities are never advanced automatically.
 
-Bundle measurement and proof will be recorded here after the first admitted baseline and
-candidate builds. All existing byte ceilings remain binding; a byte or recovery failure
-prevents qualification. Native/physical acceptance, wording/fairness and promotion stay in
-`HUMAN_TODO.md`. This mission includes source integration, not deployment.
+The clean implementation head `40c6e21b` produces web build `908b3d8cea7f`:
+
+| Measurement | Baseline | Candidate | Existing ceiling |
+| --- | ---: | ---: | ---: |
+| Castle activity JavaScript | 99,515 | 101,052 | 101,120 |
+| Core shell, excluding official content | 1,419,719 | 1,410,174 | 1,419,736.32 |
+| Application JavaScript gzip | 135,749 | 135,777 | 135,808 |
+
+The optional player is 12,380 bytes and its frozen JSON is 15,469 bytes; both are counted
+in Castle delivery, outside core precache. Named evidence imports keep unused exhibition
+prose out of the backup worker. No ceiling changed. Full `npm run verify` passes 2,131
+tests with 22 platform skips; source-specific browser evidence is recorded in the PR handoff.
+
+After a future release changes the hashed player URL, an installed case needs one online
+visit to retain that new player before it can open offline. The saved case is preserved.
+There is no automatic migration or promise that an uncached reader is available offline.
+
+Native/physical acceptance, wording/fairness and promotion stay in `HUMAN_TODO.md`.
+This mission includes source integration, not deployment.

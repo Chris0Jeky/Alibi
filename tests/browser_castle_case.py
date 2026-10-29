@@ -80,13 +80,17 @@ def run():
                 record(width, 'route is explicit; opening it does not install or mutate Chapter I')
 
                 if width == 320:
-                    page.route('**/cases/*.json', lambda route: route.fulfill(body='{}', content_type='application/json'))
+                    # Intercept at fetch so service-worker activation cannot bypass the fault.
+                    page.evaluate('''() => {
+                      window.caseFetch = window.fetch;
+                      window.fetch = (url, options) => String(url).includes('/cases/') && String(url).endsWith('.json')
+                        ? Promise.resolve(new Response('{}', {headers: {'Content-Type': 'application/json'}}))
+                        : window.caseFetch(url, options);
+                    }''')
                     case_click(page, 'install')
                     expect(page.locator('[data-case-status]')).to_contain_text('does not match')
                     assert read(page) == original
-                    page.unroute('**/cases/*.json')
                     page.evaluate('''() => {
-                      window.caseFetch = window.fetch;
                       window.fetch = (url, options) => String(url).includes('/cases/') && String(url).endsWith('.json')
                         ? Promise.reject(new TypeError('Synthetic interrupted download')) : window.caseFetch(url, options);
                     }''')
@@ -115,6 +119,7 @@ def run():
                 expect(page.locator('[data-case-content]')).to_contain_text('Case ready offline.')
                 page.screenshot(path=str(OUT / f'case-install-{width}.png'))
                 assert read(page)['state']['notes'] == original['state']['notes']
+                page.locator('#case-verdict-0').focus()
                 page.locator('#case-verdict-0').select_option('contradicted')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
                 expect(page.locator('#case-verdict-0')).to_be_focused()
