@@ -1,7 +1,7 @@
 """Actual Chromium controls for Draw Dominoes at phone and desktop widths."""
 from pathlib import Path
 import os
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 checks = []
@@ -12,6 +12,13 @@ def check(value, label):
     assert value, label
     checks.append(label)
     print("PASS", label, flush=True)
+
+
+def check_focus(locator, label):
+    # Club move handlers await their commit before focusing the freshly-rendered status node.
+    # Playwright's key dispatch can return before that async continuation has run.
+    expect(locator).to_be_focused()
+    check(True, label)
 
 
 with sync_playwright() as playwright:
@@ -78,8 +85,8 @@ with sync_playwright() as playwright:
             page.locator(".domino-chain-piece").count() >= 1,
             f"The board reflects the played chain at {width}px",
         )
-        check(page.locator('.domino-status').evaluate('e => e === document.activeElement'),
-              f'Keyboard play returns focus to the updated round status at {width}px')
+        check_focus(page.locator('.domino-status'),
+                    f'Keyboard play returns focus to the updated round status at {width}px')
         page.keyboard.press('Tab')
         check(page.locator('.domino-hand-tile').first.evaluate('e => e === document.activeElement'),
               f'Tab from the round status reaches the remaining hand at {width}px')
@@ -166,8 +173,8 @@ with sync_playwright() as playwright:
                 else:
                     page.locator(f'[data-action="club-domino-{move["kind"]}"]').focus()
                 page.keyboard.press('Enter')
-                check(page.locator('.domino-status').evaluate('e => e === document.activeElement'),
-                      f'{seed} turn {turn}: keyboard action retains round context at {width}px')
+                check_focus(page.locator('.domino-status'),
+                            f'{seed} turn {turn}: keyboard action retains round context at {width}px')
             else:
                 raise AssertionError(f'{seed} did not finish within 100 legal actions')
             outcome = page.locator('.domino-status').inner_text()
