@@ -97,7 +97,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
     page.on('pageerror', lambda error: errors.append(str(error)))
     try:
         page.goto(base)
-        page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        page.wait_for_function('() => navigator.serviceWorker.controller && globalThis.AlibiDiagnostics?.getStatus().offlineReady')
         assert page.evaluate('!AlibiCore.insights')
         trap_answer(page)
         # The first request must work from the precached shell, with no network.
@@ -180,7 +180,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
         key = seed_ambiguous(page, standard)
         # Saved definitions enter the application's records map on startup.
         page.reload()
-        page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        page.wait_for_function('() => navigator.serviceWorker.controller && globalThis.AlibiDiagnostics?.getStatus().offlineReady')
         trap_answer(page)
         open_run(page, key)
         before = current(page)
