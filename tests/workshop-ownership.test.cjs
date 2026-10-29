@@ -58,8 +58,7 @@ function fixture() {
     render: () => {},
     document: {
       addEventListener: (name, callback) => {
-        assert.equal(name, 'input');
-        onInput = callback;
+        if (name === 'input') onInput = callback;
       },
       querySelector: () => ({ scrollIntoView: () => scrolls.push('editor') }),
     },
@@ -69,6 +68,7 @@ function fixture() {
     `(() => {
     let draftSave;
     let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null,
+      draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
       makerFields = {title:'Case'};
     ${helpers}

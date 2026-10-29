@@ -75,6 +75,9 @@
     draft = null,
     draftVerified = false,
     draftComparison = null,
+    draftUndo = [],
+    draftRedo = [],
+    draftNameEdit = null,
     draftShowSolution = false,
     draftMode = 'room',
     draftPaint = 0,
@@ -1264,7 +1267,7 @@
   }
   function draftEditor() {
     const p = draft;
-    return `<section class="panel draft-editor"><div class="row between wrap" style="margin-bottom:16px"><div><div class="eyebrow">Visual scene editor</div><h2>${esc(p.title)}</h2></div><span class="badge ${draftVerified ? '' : 'amber'}">${draftVerified ? 'One unique solution verified' : 'Edited draft · recheck required'}</span></div><div class="draft-editor-grid"><div><div class="chips">${[
+    return `<section class="panel draft-editor"><div class="row between wrap" style="margin-bottom:16px"><div><div class="eyebrow">Visual scene editor</div><h2>${esc(p.title)}</h2></div><span class="badge ${draftVerified ? '' : 'amber'}">${draftVerified ? 'One unique solution verified' : 'Edited draft · recheck required'}</span></div><div class="row wrap" role="group" aria-label="Draft history">${B('Undo', 'undo-draft', 'undo', 'secondary small', `id="undo-draft" data-focus-fallback="redo-draft" ${draftUndo.length ? '' : 'disabled'}`)}${B('Redo', 'redo-draft', 'redo', 'secondary small', `id="redo-draft" data-focus-fallback="undo-draft" ${draftRedo.length ? '' : 'disabled'}`)}</div><p class="fine">Keep up to 50 edits with Undo and Redo until you generate a new draft or reload.</p><div class="draft-editor-grid"><div><div class="chips">${[
       ['room', 'Paint rooms'],
       ['furniture', 'Place furniture'],
     ]
@@ -2658,11 +2661,36 @@
         toast(e.message, true);
     });
   }
+  function recordDraft(before, name = null) {
+    if (C.equal(before, draft)) return false;
+    if (name === null || draftNameEdit !== name) {
+      draftUndo.push(before);
+      if (draftUndo.length > 50) draftUndo.shift();
+    }
+    draftNameEdit = name;
+    if (name !== null && C.equal(draftUndo.at(-1), draft)) {
+      draftUndo.pop();
+      draftNameEdit = null;
+    }
+    draftRedo = [];
+    dirtyDraft();
+    return true;
+  }
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
     draftComparison = null;
     saveDraft();
+  }
+  function undoDraft(redo = false) {
+    const from = redo ? draftRedo : draftUndo,
+      to = redo ? draftUndo : draftRedo;
+    if (!draft || !from.length) return;
+    to.push(C.clone(draft));
+    draft = from.pop();
+    draftNameEdit = null;
+    dirtyDraft();
+    render();
   }
   async function generateDraft(form) {
     if (draftBusy) return;
@@ -2692,6 +2720,9 @@
       if (startedEpoch !== draftEpoch) return;
       draft = C.validateDefinition(result);
       draft.authorSeed = seed;
+      draftUndo = [];
+      draftRedo = [];
+      draftNameEdit = null;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
@@ -2784,8 +2815,9 @@
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
     C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
+    const before = C.clone(draft);
     draft.clues.push(cl);
-    dirtyDraft();
+    recordDraft(before);
     render();
   }
   async function install() {
@@ -3341,10 +3373,12 @@
         break;
       case 'draft-cell':
         if (draft) {
-          const i = Number(el.dataset.cell);
+          const i = Number(el.dataset.cell),
+            before = C.clone(draft);
           if (draftMode === 'room') draft.rooms[i] = draftPaint;
           else {
             const old = draft.objects.find((o) => o.cell === i);
+            if (old ? old.kind === draftObject : draftObject === 'none') break;
             if (old && draft.clues.some((c) => c.kind === 'near' && c.value === i)) {
               toast(
                 'A “next to” clue refers to that furniture. Remove the clue before moving it.',
@@ -3352,10 +3386,10 @@
               );
               break;
             }
+            if (!old && draftObject !== 'none' && draft.objects.length >= 12)
+              throw Error('At most 12 furniture squares are supported.');
             draft.objects = draft.objects.filter((o) => o.cell !== i);
             if (draftObject !== 'none') {
-              if (draft.objects.length >= 12)
-                throw Error('At most 12 furniture squares are supported.');
               draft.objects.push({
                 cell: i,
                 kind: draftObject,
@@ -3363,7 +3397,7 @@
               });
             }
           }
-          dirtyDraft();
+          recordDraft(before);
           render();
         }
         break;
@@ -3372,11 +3406,16 @@
         render();
         break;
       case 'remove-draft-clue':
-        if (draft) {
+        if (draft?.clues[Number(el.dataset.index)]) {
+          const before = C.clone(draft);
           draft.clues.splice(Number(el.dataset.index), 1);
-          dirtyDraft();
+          recordDraft(before);
           render();
         }
+        break;
+      case 'undo-draft':
+      case 'redo-draft':
+        undoDraft(a === 'redo-draft');
         break;
       case 'verify-draft':
         await verifyDraft();
@@ -3513,9 +3552,12 @@
     } else if (el.dataset.roomName !== undefined && draft) {
       const value = el.value.trim();
       if (value) {
+        const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
-        dirtyDraft();
+        if (!recordDraft(before, el)) return;
         document.querySelector('#draft-comparison')?.remove();
+        $('[data-action="undo-draft"]').disabled = !draftUndo.length;
+        $('[data-action="redo-draft"]').disabled = !draftRedo.length;
         $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
         for (const button of document.querySelectorAll(
           '[data-action="add-draft"], [data-action="export-draft"]',
@@ -3523,6 +3565,9 @@
           button.disabled = true;
       }
     }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.dataset.roomName !== undefined) draftNameEdit = null;
   });
   document.addEventListener('change', async (e) => {
     if (updateRequested) return;

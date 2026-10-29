@@ -82,6 +82,7 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
   vm.runInContext(
     `
     let draft = initial, draftVerified = false, draftComparison = null,
+      draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftBusy = false, draftEpoch = 0, draftShowSolution = true, routeSerial = 0,
       dialogOpener = null, bridgeAnchor = null, noteTimer = null;
     ${workshop}
