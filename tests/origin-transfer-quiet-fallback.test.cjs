@@ -11,6 +11,8 @@ const originalState = { schema: 1, revision: 1, scene: { room: 'original' } };
 
 function fixture({ fallback = originalState, fail = null } = {}) {
   const records = new Map([['state', structuredClone(originalState)]]);
+  const recovery = new Map();
+  const opened = [];
   const values = new Map();
   if (fallback !== null) values.set(fallbackKey, JSON.stringify(fallback));
 
@@ -24,15 +26,40 @@ function fixture({ fallback = originalState, fail = null } = {}) {
         oncomplete: null,
         onerror: null,
         onabort: null,
+        aborted: false,
+        abort() {
+          tx.aborted = true;
+          queueMicrotask(() => tx.onabort?.());
+        },
         objectStore(name) {
           assert.equal(name, 'saves');
           return {
+            transaction: tx,
             get(key) {
               const request = {};
               queueMicrotask(() => {
                 request.result = structuredClone(records.get(key));
                 request.onsuccess?.();
+                queueMicrotask(() => {
+                  if (!tx.aborted) tx.oncomplete?.();
+                });
+              });
+              return request;
+            },
+            count(key) {
+              const request = {};
+              queueMicrotask(() => {
+                request.result = records.has(key) ? 1 : 0;
+                request.onsuccess?.();
                 queueMicrotask(() => tx.oncomplete?.());
+              });
+              return request;
+            },
+            getKey(key) {
+              const request = {};
+              queueMicrotask(() => {
+                request.result = records.has(key) ? key : undefined;
+                request.onsuccess?.();
               });
               return request;
             },
@@ -75,6 +102,31 @@ function fixture({ fallback = originalState, fail = null } = {}) {
       return [{ name: databaseName }];
     },
     open(name) {
+      opened.push(name);
+      if (name === 'alibi-origin-recovery') {
+        const request = {};
+        queueMicrotask(() => {
+          request.result = {
+            objectStoreNames: { contains: (store) => store === 'copies' },
+            close() {},
+            transaction(storeName, mode) {
+              assert.equal(storeName, 'copies');
+              assert.equal(mode, 'readwrite');
+              const tx = {
+                objectStore: () => ({
+                  add(value, key) {
+                    recovery.set(key, structuredClone(value));
+                    queueMicrotask(() => tx.oncomplete?.());
+                  },
+                }),
+              };
+              return tx;
+            },
+          };
+          request.onsuccess?.();
+        });
+        return request;
+      }
       assert.equal(name, databaseName);
       const request = {};
       queueMicrotask(() => {
@@ -100,6 +152,8 @@ function fixture({ fallback = originalState, fail = null } = {}) {
   return {
     device: api.createDevicePorts({}),
     records,
+    recovery,
+    opened,
     storage,
     readStored: (key) => (values.has(key) ? values.get(key) : null),
     restore() {
@@ -110,6 +164,78 @@ function fixture({ fallback = originalState, fail = null } = {}) {
     },
   };
 }
+
+for (const kind of ['retained', 'active']) {
+  test(`${kind} Quiet state remains exportable but blocks transfer retention and replacement`, async () => {
+    const f = fixture({ fallback: null });
+    f.records.delete('state');
+    f.storage.setItem(fallbackKey, RAW_FALLBACK);
+    const state = JSON.parse(RAW_FALLBACK);
+    globalThis.QWApp = kind === 'active' ? { state, disposed: false } : { disposed: true };
+    if (kind === 'retained') globalThis.QWRetainedState = state;
+    const writes = [];
+    const stub = { stub: true };
+    const ports = {
+      read: (name) => (name === 'quiet' ? f.device.read(name) : stub),
+      write: (name) => writes.push(name),
+      retain: (snapshot) => f.device.retain(snapshot),
+      release: () => assert.fail('refused import cannot release recovery'),
+    };
+    try {
+      const quiet = await f.device.read('quiet');
+      assert.deepEqual(quiet.state, state, 'export reads the state');
+      const exported = await api.exportOriginTransfer({
+        cabinet: { format: 'alibi-backup', schemaVersion: 1, runs: [], packs: [] },
+        club: { schema: 1, settings: {}, runs: {}, records: [] },
+        quiet,
+        castle: { format: 'alibi-castle', version: 1, scope: 'Castle', state: null, record: null },
+        challenges: { format: 'alibi-challenges', schema: 1, runs: [] },
+      });
+      assert.deepEqual(JSON.parse(exported.payload).quiet.state, state, 'transfer export succeeds');
+      await assert.rejects(
+        api.applyOriginTransfer(
+          {
+            payload: {
+              cabinet: stub,
+              club: stub,
+              quiet: { state: null },
+              castle: stub,
+              challenges: stub,
+            },
+          },
+          ports,
+          { confirmed: true },
+        ),
+        /Quiet Wing.*(?:export|close|resolve)/i,
+      );
+      assert.deepEqual(writes, []);
+      assert.equal(f.opened.includes('alibi-origin-recovery'), false);
+      assert.equal(f.recovery.size, 0);
+      assert.equal(f.records.has('state'), false);
+      assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+    } finally {
+      delete globalThis.QWApp;
+      delete globalThis.QWRetainedState;
+      f.restore();
+    }
+  });
+}
+
+test('healthy fallback-only snapshot can still be admitted for transfer', async () => {
+  const f = fixture({ fallback: null });
+  f.records.delete('state');
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  try {
+    const quiet = await f.device.read('quiet');
+    await f.device.retain({ quiet });
+    assert.equal(f.recovery.has('pending'), true);
+    assert.deepEqual(f.recovery.get('pending').quiet.state, JSON.parse(RAW_FALLBACK));
+    assert.equal(f.records.has('state'), false);
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+  } finally {
+    f.restore();
+  }
+});
 
 test('Quiet setItem failure propagates after IDB commit', async () => {
   const f = fixture({ fail: 'setItem' });
@@ -186,17 +312,18 @@ test('Quiet writer does not create an absent localStorage fallback', async () =>
 // localStorage mode). Rollback must restore its original bytes, not the IndexedDB snapshot.
 const RAW_FALLBACK = JSON.stringify({ schema: 1, revision: 9, scene: { room: 'newer' } }, null, 1);
 
-function applyWithFailingCastle(f, imported, failOnce = false) {
+function applyWithFailingCastle(f, imported, failOnce = false, onFailure = () => {}) {
   const stub = { stub: true, runs: [] };
   let failed = false;
   const ports = {
     read: (name) => (name === 'quiet' ? f.device.read(name) : stub),
-    write: (name, value) => {
+    write: (name, value, attempted) => {
       if (name === 'castle' && (!failOnce || !failed)) {
         failed = true;
+        onFailure();
         throw Error('castle write failed');
       }
-      return name === 'quiet' ? f.device.write(name, value) : undefined;
+      return name === 'quiet' ? f.device.write(name, value, attempted) : undefined;
     },
     retain: async () => {},
     release: async () => {},
@@ -215,6 +342,40 @@ function applyWithFailingCastle(f, imported, failOnce = false) {
     { confirmed: true },
   );
 }
+
+test('fallback-only clean rollback restores exact bytes and leaves the Quiet key absent', async () => {
+  const f = fixture({ fallback: null });
+  f.records.delete('state');
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, { schema: 1, revision: 2, scene: { room: 'imported' } }, true),
+      /castle write failed.*Existing saves were not changed\./,
+    );
+    assert.equal(f.records.has('state'), false);
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+  } finally {
+    f.restore();
+  }
+});
+
+test('fallback-only rollback keeps a different concurrent Quiet record and reports incomplete rollback', async () => {
+  const f = fixture({ fallback: null });
+  f.records.delete('state');
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  const newer = { schema: 1, revision: 7, scene: { room: 'concurrent' } };
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, { schema: 1, revision: 2, scene: { room: 'imported' } }, true, () =>
+        f.records.set('state', newer),
+      ),
+      /recovery copy was kept/i,
+    );
+    assert.deepEqual(f.records.get('state'), newer);
+  } finally {
+    f.restore();
+  }
+});
 
 test('Rollback restores a divergent Quiet fallback byte-for-byte', async () => {
   const f = fixture({ fallback: null });

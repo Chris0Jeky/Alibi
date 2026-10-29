@@ -262,7 +262,8 @@
       if (!attempted.length)
         fail(String(error?.message || 'Import could not read the current saves.'));
       try {
-        for (const name of attempted) await ports.write(name, before[name]);
+        for (const name of attempted)
+          await ports.write(name, before[name], validated.payload[name]);
         for (const name of attempted)
           if (!sameAfterRollback(name, await ports.read(name), before[name]))
             throw Error('Rollback did not match the recovery copy.');
@@ -377,28 +378,56 @@
   }
   // Symbol keys never reach JSON or structured clones, so the raw fallback bytes stay out of
   // export files and recovery copies; a rollback write receives the same section object back.
-  const FALLBACK_RAW = Symbol();
+  const FALLBACK_RAW = Symbol(),
+    fallbackOnly = new WeakSet();
+  async function quietRecord() {
+    const db = await openExisting('alibi-quiet-wing-v1');
+    if (!db || !db.objectStoreNames.contains('saves')) {
+      db?.close();
+      return { present: false };
+    }
+    try {
+      return await txDone(db, 'saves', 'readonly', (store, set) => {
+        const key = store.getKey('state'),
+          value = store.get('state');
+        value.onsuccess = () => set({ present: key.result !== undefined, value: value.result });
+      });
+    } finally {
+      db.close();
+    }
+  }
   async function readQuiet() {
     await G.QWStore?.flush?.().catch(() => {});
     // G.QWApp outlives dispose(); a detached app's state is stale. Dispose keeps only unsaved
     // state in QWRetainedState, so otherwise the committed record is the truth.
     const app = G.QWApp;
     let state = (app && !app.disposed ? app.state : G.QWRetainedState) || null,
-      raw;
-    if (!state) state = (await readRecord('alibi-quiet-wing-v1', 'saves', 'state')) || null;
+      raw,
+      missing = false;
+    if (!state) {
+      const record = await quietRecord();
+      missing = !record.present;
+      state = record.value || null;
+    }
+    let fromFallback = false;
     try {
       raw = G.localStorage?.getItem(QUIET_FALLBACK) ?? null;
-      if (!state && raw) state = JSON.parse(raw);
+      if (!state && raw) {
+        state = JSON.parse(raw);
+        fromFallback = !!state;
+      }
     } catch {
       if (!state) throw Error('Quiet Wing fallback could not be read.');
     }
     // raw undefined: unreadable, so a rollback must not touch it.
-    return {
+    const section = {
       kind: 'alibi-quiet-wing-backup',
       schema: 1,
       state: state || null,
       [FALLBACK_RAW]: raw,
     };
+    if (missing && fromFallback) fallbackOnly.add(section);
+    return section;
   }
   async function deleteRecord(name, storeName, key) {
     const db = await openExisting(name);
@@ -410,8 +439,39 @@
       db.close();
     }
   }
-  async function writeQuiet(section) {
+  async function removeImportedQuiet(attempted) {
+    if (!attempted || !Object.hasOwn(attempted, 'state'))
+      throw Error('Quiet rollback cannot verify the imported record.');
+    const db = await openExisting('alibi-quiet-wing-v1');
+    if (!db) return;
+    try {
+      if (!db.objectStoreNames.contains('saves')) return;
+      await txDone(db, 'saves', 'readwrite', (store) => {
+        const key = store.getKey('state'),
+          value = store.get('state');
+        value.onsuccess = () => {
+          if (key.result === undefined) return;
+          try {
+            checkJson(value.result);
+            if (attempted.state && sameJson(value.result, attempted.state)) {
+              store.delete('state');
+              return;
+            }
+          } catch {}
+          store.transaction.abort();
+        };
+      });
+    } finally {
+      db.close();
+    }
+  }
+  async function writeQuiet(section, attempted) {
     const state = section.state;
+    if (fallbackOnly.has(section)) {
+      await removeImportedQuiet(attempted);
+      mirrorQuietFallback(section, state);
+      return;
+    }
     if (!state) {
       await deleteRecord('alibi-quiet-wing-v1', 'saves', 'state');
       mirrorQuietFallback(section, null);
@@ -668,15 +728,21 @@
         if (name === 'challenges') return readChallenges();
         throw Error('Unknown save section.');
       },
-      async write(name, value) {
+      async write(name, value, attempted) {
         if (name === 'cabinet') return io.writeCabinet(value);
         if (name === 'club') return io.writeClub(value);
-        if (name === 'quiet') return writeQuiet(value);
+        if (name === 'quiet') return writeQuiet(value, attempted);
         if (name === 'castle') return writeCastle(value);
         if (name === 'challenges') return writeChallenges(value);
         throw Error('Unknown save section.');
       },
-      retain: retainRecovery,
+      retain(snapshot) {
+        if (G.QWRetainedState || (G.QWApp && !G.QWApp.disposed))
+          throw Error(
+            'Close Quiet Wing or export and resolve its retained progress before importing.',
+          );
+        return retainRecovery(snapshot);
+      },
       release: releaseRecovery,
     };
   }
