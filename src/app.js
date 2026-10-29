@@ -3741,12 +3741,16 @@
   $('#dialog').addEventListener('close', () => {
     if ($('#dialog').open) return;
     stagedCabinet = null;
-    const target = dialogOpener?.isConnected
-        ? dialogOpener
-        : document.getElementById(dialogOpener?.id),
+    const active = document.activeElement,
+      needsFocus =
+        !active ||
+        active === document.body ||
+        active === document.documentElement ||
+        $('#dialog').contains(active),
+      target = dialogOpener?.isConnected ? dialogOpener : document.getElementById(dialogOpener?.id),
       fallback = target?.getClientRects().length && !target.disabled ? target : $('#main');
     dialogOpener = null;
-    fallback?.focus({ preventScroll: true });
+    if (needsFocus) fallback?.focus({ preventScroll: true });
   });
   $('#dialog').addEventListener('cancel', (e) => {
     if (lesson) {
