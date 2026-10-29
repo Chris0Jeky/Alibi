@@ -157,14 +157,18 @@ for (const value of [
   });
 }
 
-test('a malformed generated draft cannot enable publication', async () => {
-  const h = fixture(),
-    pending = h.context.generate();
-  h.worker.resolve({ rooms: [] });
-  await assert.rejects(pending);
-  assert.equal(h.context.state().draftVerified, false);
-  assert.equal(h.calls.saves.length, 0);
-});
+for (const failure of ['malformed', 'refused']) {
+  test(`${failure} regeneration revokes even a previously verified draft`, async () => {
+    const h = fixture();
+    h.context.markCurrentVerified();
+    const pending = h.context.generate();
+    if (failure === 'malformed') h.worker.resolve({ rooms: [] });
+    else h.worker.reject(new Error('Worker refused generation'));
+    await assert.rejects(pending);
+    assert.equal(h.context.state().draftVerified, false);
+    assert.equal(h.calls.saves.length, 0);
+  });
+}
 
 for (const operation of ['generate', 'verify']) {
   test(`${operation}: a current worker result is persisted and confirmed`, async () => {
@@ -240,7 +244,7 @@ for (const operation of ['generate', 'verify']) {
     const error = new Error('current worker error');
     h.worker.reject(error);
     await assert.rejects(pending, (caught) => caught === error);
-    assert.equal(h.context.state().draftVerified, operation === 'generate');
+    assert.equal(h.context.state().draftVerified, false);
     assert.equal(h.context.state().draftBusy, false);
     assert.equal(h.calls.saves.length, 0);
   });

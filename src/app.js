@@ -2684,6 +2684,7 @@
     };
     const startedEpoch = draftEpoch;
     draftBusy = true;
+    draftVerified = false;
     draftComparison = null;
     render();
     try {
