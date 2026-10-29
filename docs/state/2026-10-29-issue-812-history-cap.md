@@ -40,6 +40,26 @@ results belong on the PR; the historical #811 receipt is not overwritten.
 No physical Android, TalkBack, creative/editorial acceptance, deployed release or
 live provider is claimed. The fix remains draft/unmerged until qualification.
 
+## Review hardening after initial hosted qualification
+
+The initial head `57bdec1075f3bd019a008e91bc145b32bb3e1827` completed all 16 PR
+workflows successfully, including full verification run `40948013894` and native
+run `40948013575`. The PR records the exact logs and source-tree identity. Its full
+verification log reports 2,296 Node tests passed with zero skips. This supersedes
+the initial hosted-pending state above for that head only; the failed local verify
+attempt remains recorded.
+
+Independent static review of the bounded repair reported no blocker and recommended
+extra session-boundary tests. Three additional source regressions cover cancelling
+then retyping without blur, another edit interrupting a capped name session, and
+Undo interrupting it before a later name edit. They verify exact snapshots, the
+50-step bound, retained eviction order, Redo and persistence. Expanded local checks
+now pass 89 tests with zero failures/skips. Three separate in-memory-source negative
+controls remove only the relevant session reset; each new targeted regression then
+fails with an assertion and exit 1. The production app and catalogue are unchanged
+by this test/documentation follow-up. A new head still requires fresh hosted checks;
+the initial head's green workflows are not substituted for them.
+
 ## Human actions and preservation
 
 [HUMAN_TODO.md](../../HUMAN_TODO.md) stays unchanged: q-2 physical Android acceptance;

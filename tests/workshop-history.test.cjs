@@ -258,6 +258,59 @@ test('cancelling a room-name session at the cap preserves all fifty exact Undo a
   }
 });
 
+test('cancelling then retyping without blur commits a new capped step', async () => {
+  const h = fixture();
+  for (let i = 1; i <= 50; i++) {
+    h.name('Room ' + i);
+    h.blur();
+  }
+  h.name('Temporary');
+  h.name('Room 50');
+  assert.equal(h.state().undo, 50);
+  h.name('Retyped');
+  h.blur();
+  assert.equal(h.state().undo, 50);
+  await h.action('undo-draft');
+  assert.equal(h.state().draft.roomNames[0], 'Room 50');
+  for (let i = 49; i >= 1; i--) {
+    await h.action('undo-draft');
+    assert.equal(h.state().draft.roomNames[0], 'Room ' + i);
+  }
+  assert.equal(h.state().undo, 0);
+  for (let i = 0; i < 50; i++) await h.action('redo-draft');
+  assert.equal(h.state().draft.roomNames[0], 'Retyped');
+  assert.deepEqual(h.saves.at(-1), { puzzle: h.state().draft });
+});
+
+for (const interrupt of ['another edit', 'Undo']) {
+  test(`a capped name session interrupted by ${interrupt} cannot coalesce a later name`, async () => {
+    const h = fixture();
+    for (let i = 1; i <= 50; i++) {
+      h.name('Room ' + i);
+      h.blur();
+    }
+    h.name('Before interruption');
+    if (interrupt === 'Undo') await h.action('undo-draft');
+    else await h.action('remove-draft-clue', { index: '0' });
+    const interrupted = h.state().draft;
+    h.name('After interruption');
+    h.blur();
+    const final = h.state().draft;
+    assert.equal(h.state().undo, 50);
+    await h.action('undo-draft');
+    assert.deepEqual(h.state().draft, interrupted);
+    for (let i = 0; i < 49; i++) await h.action('undo-draft');
+    assert.equal(h.state().undo, 0);
+    assert.equal(
+      h.state().draft.roomNames[0],
+      interrupt === 'Undo' ? 'Room 1' : 'Room 3',
+    );
+    for (let i = 0; i < 50; i++) await h.action('redo-draft');
+    assert.deepEqual(h.state().draft, final);
+    assert.deepEqual(h.saves.at(-1), { puzzle: final });
+  });
+}
+
 test('one room-name editing session is one step, including a return to its original value', async () => {
   const h = fixture();
   h.name('G');
