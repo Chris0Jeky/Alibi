@@ -206,5 +206,5 @@ export function mount({ root, store, save }) {
   );
   draw();
   if (record()) run(() => load(false));
-  return () => controller.abort();
+  return { dispose: () => controller.abort(), refresh: draw };
 }

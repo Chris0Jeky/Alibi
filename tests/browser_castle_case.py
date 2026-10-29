@@ -141,6 +141,29 @@ def run():
                 assert read(page)['state']['caseStudy'] == retained
                 record(width, 'wrong/incomplete drafts, hint/reveal history and source choices survive story switches')
 
+                # The header preference must refresh the mounted case without remounting it.
+                for story in [False, True]:
+                    page.get_by_role('button', name='Preferences', exact=True).click()
+                    toggle = page.locator('[data-pref="story"]')
+                    toggle.set_checked(story)
+                    expect(toggle).to_be_focused()
+                    expect(page.locator('[data-case-action="story"]')).to_have_text(
+                        'Turn story off' if story else 'Turn story on')
+                    expect(page.locator('[data-case-content]')).to_contain_text(
+                        SOURCE['intro']['storyOn' if story else 'storyOff'])
+                    assert flush(page) == 'ok'
+                    assert read(page)['state']['caseStudy'] == retained
+                    page.get_by_role('button', name='Close window', exact=True).click()
+                    expect(page.get_by_role('button', name='Preferences', exact=True)).to_be_focused()
+                    expect(page.locator('#case-verdict-0')).to_have_value('contradicted')
+                    expect(page.locator('[data-case-cite="0"][value="checks"]')).to_be_checked()
+                    expect(page.locator('#case-stage')).to_have_text(SOURCE['steps'][0]['title'])
+                    page.reload()
+                    expect(page.locator('[data-case-action="story"]')).to_have_text(
+                        'Turn story off' if story else 'Turn story on')
+                    assert read(page)['state']['caseStudy'] == retained
+                record(width, 'header story preference refreshes immediately, keeps dialog focus and drafts, and survives reload')
+
                 # Captured controls from the old visit have no listeners after returning.
                 stale_control = page.locator('[data-case-action="story"]').element_handle()
                 navigate(page, '#/quiet/castle/directory')
@@ -170,6 +193,19 @@ def run():
                     case_click(page, 'check')
                     assert read(page) == committed
                 expect(page.get_by_role('heading', name='Case complete')).to_be_visible()
+                case_click(page, 'stage', SOURCE['steps'][1]['id'])
+                accepted = read(page)['state']['caseStudy']
+                for story in [False, True]:
+                    page.get_by_role('button', name='Preferences', exact=True).click()
+                    page.locator('[data-pref="story"]').set_checked(story)
+                    expect(page.locator('[data-case-action="story"]')).to_have_text(
+                        'Turn story off' if story else 'Turn story on')
+                    expect(page.locator('#case-stage')).to_have_text(SOURCE['steps'][1]['title'])
+                    assert flush(page) == 'ok'
+                    assert read(page)['state']['caseStudy'] == accepted
+                    page.get_by_role('button', name='Close window', exact=True).click()
+                case_click(page, 'stage', SOURCE['steps'][2]['id'])
+                record(width, 'header preference changes retain the selected completed stage and every accepted answer')
                 assert read(page)['state']['completed'] == original['state']['completed']
                 assert page.locator('.case-player').evaluate('(el) => el.scrollWidth <= el.clientWidth + 1')
                 page.screenshot(path=str(OUT / f'case-complete-{width}.png'), full_page=True)
