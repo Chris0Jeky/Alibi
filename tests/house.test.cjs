@@ -351,3 +351,13 @@ test('illustration failure cannot remove the envelope action', () => {
   assert.match(html, /data-house-action="letter"/);
   assert.ok(!html.includes('src="undefined"'));
 });
+
+test('puzzle query draft renders without applying an unsubmitted filter', () => {
+  const html = V.render(data({ queryDraft: 'zzzz-no-match' }));
+  assert.match(html, /id="hx-query"[^>]*value="zzzz-no-match"/);
+  assert.match(html, /3 puzzles/);
+  assert.doesNotMatch(html, /class="hx-empty"/);
+  const filters = V.filters(data({ queryDraft: 'zzzz-no-match' }));
+  assert.match(filters, /name="q" value=""/);
+  assert.doesNotMatch(filters, /zzzz-no-match/);
+});

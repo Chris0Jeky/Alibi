@@ -76,11 +76,32 @@ def main():
             check(page.evaluate("AlibiDiagnostics.getCurrent().undo") == saved["undo"], f"{width}: undo history preserved")
             page.locator("#hx-return a").click()
             # Filter URL, null results, recovery, pagination focus and return anchor.
-            nav(page, "puzzles")
-            page.locator("#hx-query").fill("zzzz-no-match")
-            page.locator("#hx-search-form").get_by_role("button", name="Find puzzles").click()
-            expect(page.locator(".hx-empty")).to_be_visible()
-            check("q=zzzz-no-match" in page.evaluate("location.hash"), f"{width}: query encoded in URL")
+            try:
+                nav(page, "puzzles")
+                page.locator("#hx-query").fill("zzzz-no-match")
+                # A same-route host redraw must not discard an unsubmitted search draft.
+                check(page.evaluate("AlibiHouseModel.locationState(location.hash).q") == "", f"{width}: search draft does not change URL")
+                page.evaluate("AlibiHouseLoader.bridge.render()")
+                expect(page.locator("#hx-query")).to_have_value("zzzz-no-match")
+                page.locator("#hx-search-form").get_by_role("button", name="Find puzzles").click()
+                expect(page.locator(".hx-empty")).to_be_visible()
+                check("q=zzzz-no-match" in page.evaluate("location.hash"), f"{width}: query encoded in URL")
+            except Exception:
+                # This fixture uses a synthetic query. Bound diagnostics and preserve
+                # the original assertion even if reading the page also fails.
+                try:
+                    detail = page.evaluate("""() => {
+                        const q = document.querySelector('#hx-query');
+                        const h = globalThis.AlibiHouseLoader?.diagnostics?.();
+                        return {hash: location.hash.slice(0, 512),
+                            query: q ? {value: q.value.slice(0, 120), connected: q.isConnected} : null,
+                            house: h ? {ready: h.ready, pending: h.pending, error: h.error, offline: h.offline} : null};
+                    }""")
+                    detail['pageErrors'] = [str(e)[:200] for e in errors[-5:]]
+                    print('HOUSE SEARCH FAILURE', json.dumps(detail), flush=True)
+                except Exception:
+                    print('HOUSE SEARCH FAILURE: diagnostic unavailable', flush=True)
+                raise
             page.locator(".hx-empty a").click()
             expect(page.locator(".hx-puzzle")).to_have_count(12)
             page.locator("#hx-more").focus()
