@@ -105,7 +105,7 @@ test('entry composition changes only pack-desk copy and fails on unknown source 
   const compiled = composePackDesk(source, adder);
   assert.equal(compiled.slice(0, start), source.slice(0, start));
   // Outside the desk, the only addition is the one adder action before the existing importer.
-  const action = `      case 'collections':\n        (await import("./workshop/add.0123456789ab.js")).open();\n        break;\n`;
+  const action = `      case 'collections':\n        (await import("./workshop/add.0123456789ab.js")).open(document, undefined, store);\n        break;\n`;
   assert.equal(compiled.split(action).length, 2);
   assert.ok(compiled.replace(action, '').endsWith(source.slice(end)));
   assert.equal((compiled.match(/'collections'/g) || []).length, 2);
