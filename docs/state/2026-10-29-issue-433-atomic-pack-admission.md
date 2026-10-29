@@ -64,6 +64,13 @@ preservation of a future-schema record at 320/1280 pixels. Existing download,
 cancellation, retry, play, undo/redo and offline assertions remain. The fixture
 compiles locally; browser execution is assigned to exact-head CI.
 
+The first hosted two-tab run reached duplicate refusal at both widths, then failed
+an overbroad test assertion comparing all diagnostic counts to the initial page.
+The existing saved-run BroadcastChannel legitimately refreshes record counts in
+the other tab. The fixture now proves that its puzzle/pack catalogue remains
+stale before and after refusal, while keeping the full stored-row preservation
+assertions. This changes the test's observation, not application behavior.
+
 ## Remaining work
 
 #433 remains open for a truthful installed-status UI, broader old/future-definition

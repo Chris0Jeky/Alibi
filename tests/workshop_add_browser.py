@@ -17,6 +17,7 @@ POLICY = {entry['id']: entry for entry in json.loads((ROOT / 'content/workshop/c
 RUNS = """async()=>{const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const rows=await new Promise((ok,no)=>{const q=db.transaction('runs').objectStore('runs').getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});db.close();
 return rows.map(r=>JSON.stringify(r)).sort()}"""
+CATALOGUE = """()=>{const {puzzles,customPacks}=AlibiDiagnostics.getCounts();return {puzzles,customPacks}}"""
 ROWS = """async()=>{const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 try{return await new Promise((ok,no)=>{const tx=db.transaction(['runs','packs','meta']);
 const entries=['runs','packs','meta'].map(name=>[name,tx.objectStore(name).getAll()]);
@@ -224,12 +225,16 @@ def run():
                     page.goto(URL + '/#/workshop')
                     page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
                     before = page.evaluate(ROWS)
+                    # Saved-run broadcasts legitimately update the other tab's
+                    # record count. Only its pack catalogue must remain stale.
+                    stale_catalogue = stale.evaluate(CATALOGUE)
+                    assert stale_catalogue == {'puzzles': base['puzzles'], 'customPacks': base['customPacks']}, stale_catalogue
                     duplicate = json.loads(json.dumps(afterlight))
                     duplicate['title'] = 'Stale replacement must never be written'
                     choose_pack(stale, duplicate)
                     expect(stale.locator('#toasts')).to_contain_text('already installed', timeout=45000)
                     expect(stale.locator('#dialog[open]')).to_have_count(0)
-                    assert stale.evaluate('AlibiDiagnostics.getCounts()') == base
+                    assert stale.evaluate(CATALOGUE) == stale_catalogue
                     assert page.evaluate(ROWS) == before, 'stale pack ID preserves complete stored rows'
                     checks.append({'width': width, 'case': 'two-tabs-stale-pack-id-refused'})
 
