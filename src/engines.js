@@ -2,11 +2,12 @@
 (function (root) {
   'use strict';
   const C = root.AlibiCore,
-    { clone, range, equal, DIFFICULTIES, MAX_PACK_PUZZLES } = C,
+    { clone, range, equal, DIFFICULTIES } = C,
     legacy = {
       solve: C.solve,
       validateDefinition: C.validateDefinition,
       validateState: C.validateState,
+      validatePack: C.validatePack,
       hint: C.hint,
     };
   const extra = ['dossier', 'witness', 'lightup', 'tents', 'aquarium', 'network', 'trail'];
@@ -1027,40 +1028,8 @@
   C.solve = solve;
   C.validateDefinition = definition;
   C.validateState = state;
-  C.validatePack = (input, checkUnique = true) => {
-    if (
-      !input ||
-      input.schemaVersion !== 1 ||
-      typeof input.id !== 'string' ||
-      !/^[a-z][a-z0-9-]{1,63}$/.test(input.id) ||
-      ['constructor', 'prototype'].includes(input.id) ||
-      !Number.isInteger(input.version) ||
-      input.version < 1 ||
-      input.version > 999999 ||
-      typeof input.title !== 'string' ||
-      !input.title.trim() ||
-      input.title.length > 120 ||
-      !Array.isArray(input.puzzles) ||
-      input.puzzles.length < 1 ||
-      input.puzzles.length > MAX_PACK_PUZZLES
-    )
-      throw new Error(`A valid pack needs an ID, title and 1–${MAX_PACK_PUZZLES} puzzles.`);
-    const puzzles = input.puzzles.map((p) => C.validateDefinition(p));
-    if (new Set(puzzles.map((p) => p.id)).size !== puzzles.length)
-      throw new Error('Duplicate puzzle IDs.');
-    if (checkUnique)
-      for (const p of puzzles)
-        if (C.solveDefinition(p).solutions.length !== 1)
-          throw new Error(`${p.title}: the rules do not identify exactly one solution.`);
-    return {
-      schemaVersion: 1,
-      id: input.id,
-      version: input.version,
-      title: input.title,
-      author: typeof input.author === 'string' ? input.author.slice(0, 100) : 'Local author',
-      puzzles,
-    };
-  };
+  C.validatePack = (input, checkUnique = true) =>
+    legacy.validatePack.extended(input, checkUnique, C);
   C.hint = (p, s) => {
     if (!extra.includes(p.type)) return legacy.hint(p, s);
     let action = null,

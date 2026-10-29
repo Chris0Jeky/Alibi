@@ -789,6 +789,15 @@
     return p;
   }
   function validatePack(input, checkUnique = true) {
+    return validatePackWith(input, checkUnique, null);
+  }
+  // The additional-engine layer supplies its own definition resolver and diagnostics.
+  validatePack.extended = (input, checkUnique = true, core) =>
+    validatePackWith(input, checkUnique, core);
+  function validatePackWith(input, checkUnique, extended) {
+    const headerError = extended
+      ? `A valid pack needs an ID, title and 1–${MAX_PACK_PUZZLES} puzzles.`
+      : 'Invalid pack header.';
     if (
       !input ||
       input.schemaVersion !== 1 ||
@@ -802,22 +811,29 @@
       !input.title.trim() ||
       input.title.length > 120
     )
-      throw new Error('Invalid pack header.');
+      throw new Error(headerError);
     if (
       !Array.isArray(input.puzzles) ||
       input.puzzles.length < 1 ||
       input.puzzles.length > MAX_PACK_PUZZLES
     )
-      throw new Error(`A pack must contain 1–${MAX_PACK_PUZZLES} puzzles.`);
-    const puzzles = input.puzzles.map(validateDefinition),
+      throw new Error(
+        extended ? headerError : `A pack must contain 1–${MAX_PACK_PUZZLES} puzzles.`,
+      );
+    const puzzles = input.puzzles.map(
+        extended ? (p) => extended.validateDefinition(p) : validateDefinition,
+      ),
       ids = puzzles.map((x) => x.id);
-    if (new Set(ids).size !== ids.length) throw new Error('Duplicate puzzle IDs in the pack.');
+    if (new Set(ids).size !== ids.length)
+      throw new Error(extended ? 'Duplicate puzzle IDs.' : 'Duplicate puzzle IDs in the pack.');
     if (checkUnique)
       for (const p of puzzles) {
-        const result = solveDefinition(p);
+        const result = extended ? extended.solveDefinition(p) : solveDefinition(p);
         if (result.solutions.length !== 1)
           throw new Error(
-            `${p.title}: expected one solution, found ${result.solutions.length === 2 ? 'at least 2' : 0}.`,
+            extended
+              ? `${p.title}: the rules do not identify exactly one solution.`
+              : `${p.title}: expected one solution, found ${result.solutions.length === 2 ? 'at least 2' : 0}.`,
           );
       }
     return {
