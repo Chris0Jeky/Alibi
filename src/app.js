@@ -1840,15 +1840,19 @@
     const hint = C.insights.deduction(current.puzzle, current.state);
     if (current.puzzle.type === 'aquarium') {
       document.querySelectorAll('.hint-focus').forEach((el) => el.classList.remove('hint-focus'));
-      for (const i of hint?.cells || []) document.getElementById(`cell-${i}`)?.classList.add('hint-focus');
+      for (const i of hint?.cells || [])
+        document.getElementById(`cell-${i}`)?.classList.add('hint-focus');
       for (const { axis, line } of hint?.clues || [])
-        document.querySelector(`[data-clue-axis="${axis}"][data-clue-line="${line}"]`)?.classList.add('hint-focus');
+        document
+          .querySelector(`[data-clue-axis="${axis}"][data-clue-line="${line}"]`)
+          ?.classList.add('hint-focus');
     }
-    const explanation = hint?.tank !== undefined
-      ? 'This follows only the public clues; your waterlines remain choices. The outlined tank and clues stay marked when you close this hint.'
-      : hint
-        ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.'
-        : 'This is a general strategy, not a check against the hidden answer.';
+    const explanation =
+      hint?.tank !== undefined
+        ? 'This follows only the public clues; your waterlines remain choices. The outlined tank and clues stay marked when you close this hint.'
+        : hint
+          ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.'
+          : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
       `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
