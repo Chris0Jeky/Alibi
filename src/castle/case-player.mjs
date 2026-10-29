@@ -2,11 +2,14 @@ import Session from '../../tools/case-session.cjs';
 import { freshCase, verdicts, CASE_HASH } from './case-state.mjs';
 import { fetchPack } from '../workshop-add.mjs';
 import { escape } from './html.mjs';
+import { createShare } from './case-share.mjs';
 
 // The activity owns the record; this optional surface owns only its controls and fetch lifetime.
 export function mount({ root, store, save }) {
   const controller = new AbortController();
   const { signal } = controller;
+  const share = createShare();
+  signal.addEventListener('abort', () => share.dispose(), { once: true });
   const config = CASE_DELIVERY;
   const base = new URL(import.meta.url);
   const sourceURL = new URL(config.download, base);
@@ -42,7 +45,7 @@ export function mount({ root, store, save }) {
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
           .join(' ');
-      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p><p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
+      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy only if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
         .filter((s) => Session.available(definition, completed()).includes(s.id))
         .map((s) => button(s.title, 'stage', s.id))
         .join(
@@ -107,7 +110,7 @@ export function mount({ root, store, save }) {
     stage = Math.min(record()?.answers.length || 0, 2);
     message = install ? 'Case installed and saved on this device.' : '';
   }
-  async function run(operation) {
+  async function run(operation, focusAfter) {
     if (busy || !current()) return;
     const focused = root.getRootNode().activeElement?.id;
     busy = true;
@@ -119,7 +122,7 @@ export function mount({ root, store, save }) {
       if (current()) message = error.message;
     } finally {
       busy = false;
-      draw(focused);
+      draw(focusAfter?.() || focused);
     }
   }
   root.addEventListener('submit', (e) => e.preventDefault(), { signal });
@@ -153,54 +156,71 @@ export function mount({ root, store, save }) {
         root.querySelector('#case-source-' + value)?.focus();
         return;
       }
-      run(async () => {
-        if (action === 'install') return load(true);
-        if (action === 'stage') {
-          const index = definition.steps.findIndex((s) => s.id === value);
-          if (index < 0 || index > record().answers.length) return;
-          stage = index;
-          message = '';
-        } else if (action === 'story') {
-          await change((n) => {
-            n.preferences.story = !n.preferences.story;
-          });
-          message = 'Story mode changed. Drafts and progress retained.';
-        } else if (action === 'check') {
-          const step = definition.steps[stage],
-            answers = record().drafts[stage];
-          const result = Session.submit(
-            definition,
-            completed(),
-            step.id,
-            step.claims.map((c, i) => ({
-              id: c.id,
-              verdict: answers[i][0],
-              citations: answers[i][1],
-            })),
-          );
-          if (!result.ok)
-            message =
-              'Check your verdicts and smallest sufficient source sets. Your draft is kept.';
-          else if (stage < record().answers.length)
-            message = 'This stage was already accepted. Progress unchanged.';
-          else {
+      run(
+        async () => {
+          if (action === 'install') return load(true);
+          if (action === 'share-open') {
+            share.open(definition, completed());
+            message = '';
+          } else if (action === 'share-cancel') {
+            share.cancel();
+            message = 'Invitation closed.';
+          } else if (action === 'share-copy') {
+            const result = await share.copy((text) => navigator.clipboard.writeText(text));
+            if (result === 'copied') message = 'Invitation copied.';
+            else if (result === 'blocked')
+              message =
+                'The browser blocked copying. Select the invitation text to copy it yourself.';
+          } else if (action === 'stage') {
+            const index = definition.steps.findIndex((s) => s.id === value);
+            if (index < 0 || index > record().answers.length) return;
+            stage = index;
+            message = '';
+          } else if (action === 'story') {
             await change((n) => {
-              n.caseStudy.answers.push(structuredClone(answers));
+              n.preferences.story = !n.preferences.story;
             });
-            message = 'Stage accepted and saved. Choose the next stage above.';
+            message = 'Story mode changed. Drafts and progress retained.';
+          } else if (action === 'check') {
+            const step = definition.steps[stage],
+              answers = record().drafts[stage];
+            const result = Session.submit(
+              definition,
+              completed(),
+              step.id,
+              step.claims.map((c, i) => ({
+                id: c.id,
+                verdict: answers[i][0],
+                citations: answers[i][1],
+              })),
+            );
+            if (!result.ok)
+              message =
+                'Check your verdicts and smallest sufficient source sets. Your draft is kept.';
+            else if (stage < record().answers.length)
+              message = 'This stage was already accepted. Progress unchanged.';
+            else {
+              await change((n) => {
+                n.caseStudy.answers.push(structuredClone(answers));
+              });
+              message = 'Stage accepted and saved. Choose the next stage above.';
+            }
+          } else if (action === 'hint') {
+            await change((n) => {
+              n.caseStudy.hints[stage] = Math.min(3, n.caseStudy.hints[stage] + 1);
+            });
+            message = 'Hint shown. This does not complete the stage.';
+          } else if (action === 'reveal') {
+            await change((n) => {
+              n.caseStudy.revealed[stage] = true;
+            });
+            message = 'Worked answer shown. This does not complete the stage.';
           }
-        } else if (action === 'hint') {
-          await change((n) => {
-            n.caseStudy.hints[stage] = Math.min(3, n.caseStudy.hints[stage] + 1);
-          });
-          message = 'Hint shown. This does not complete the stage.';
-        } else if (action === 'reveal') {
-          await change((n) => {
-            n.caseStudy.revealed[stage] = true;
-          });
-          message = 'Worked answer shown. This does not complete the stage.';
-        }
-      });
+        },
+        action.startsWith('share-')
+          ? () => (share.text === null ? 'case-share-open-' : 'case-share-text')
+          : undefined,
+      );
     },
     { signal },
   );
