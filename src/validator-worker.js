@@ -146,10 +146,15 @@ self.onmessage = (e) => {
       const result = AlibiCore.solveDefinition(p, 2, 250000);
       if (result.solutions.length === 0)
         throw Error('No solution fits this draft. Revisit the room layout, furniture or clues.');
-      if (result.solutions.length > 1)
-        throw Error('More than one solution fits. Add another clue or restrict the layout.');
-      p.solution = result.solutions[0];
-      value = AlibiCore.validateDefinition(p);
+      value = {
+        solutions: result.solutions.map((solution) => {
+          const checked = AlibiCore.validateSceneDraft({ ...p, solution });
+          if (!AlibiCore.sceneComplete(checked, { placements: checked.solution }))
+            throw Error('The draft check returned an invalid arrangement.');
+          if (result.solutions.length === 1) AlibiCore.validateDefinition(checked);
+          return checked.solution;
+        }),
+      };
     } else throw Error('Unsupported validation request.');
     self.postMessage({ ok: true, value });
   } catch (error) {

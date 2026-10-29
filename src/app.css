@@ -2625,6 +2625,33 @@ input[type='checkbox'] {
   height: 28px;
   font-size: 15px;
 }
+.draft-comparison {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--board-border);
+}
+.draft-comparison > p {
+  max-width: 70ch;
+  margin: 10px 0 20px;
+}
+.draft-comparison figure {
+  margin: 0;
+}
+.draft-comparison figcaption {
+  font-weight: 700;
+  text-align: center;
+}
+.draft-comparison .draft-difference {
+  outline: 4px double var(--board-border);
+  outline-offset: -5px;
+}
+.draft-comparison-text {
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+}
+.draft-comparison-text li + li {
+  margin-top: 10px;
+}
 .draft-clues {
   max-height: 330px;
   overflow: auto;
