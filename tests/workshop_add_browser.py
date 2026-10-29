@@ -17,6 +17,12 @@ POLICY = {entry['id']: entry for entry in json.loads((ROOT / 'content/workshop/c
 RUNS = """async()=>{const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const rows=await new Promise((ok,no)=>{const q=db.transaction('runs').objectStore('runs').getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});db.close();
 return rows.map(r=>JSON.stringify(r)).sort()}"""
+CATALOGUE = """()=>{const {puzzles,customPacks}=AlibiDiagnostics.getCounts();return {puzzles,customPacks}}"""
+ROWS = """async()=>{const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+try{return await new Promise((ok,no)=>{const tx=db.transaction(['runs','packs','meta']);
+const entries=['runs','packs','meta'].map(name=>[name,tx.objectStore(name).getAll()]);
+tx.oncomplete=()=>ok(Object.fromEntries(entries.map(([name,q])=>[name,q.result.map(row=>JSON.stringify(row)).sort()])));
+tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error||Error('snapshot aborted'))})}finally{db.close()}}"""
 
 
 def pack(entry_id):
@@ -36,6 +42,13 @@ def open_adder(page):
 
 def add(page, dialog, title):
     dialog.get_by_role('button', name=f'Add {title}', exact=True).click()
+
+
+def choose_pack(page, data):
+    page.locator('#pack-input').set_input_files({
+        'name': data['id'] + '.json', 'mimeType': 'application/json',
+        'buffer': json.dumps(data).encode(),
+    })
 
 
 def run():
@@ -65,6 +78,15 @@ def run():
                     expect(page.get_by_role('button', name='Add a curated collection', exact=True)).to_be_visible()
                     assert not any('/assets/workshop/' in url for url in requests), 'nothing is fetched before the player asks'
                     base = page.evaluate('AlibiDiagnostics.getCounts()')
+                    # Load a second actual app before either collection is installed.
+                    # Its in-memory catalogue deliberately remains stale throughout play.
+                    stale = context.new_page()
+                    stale.set_default_timeout(20000)
+                    stale.on('pageerror', lambda error: errors.append(str(error)))
+                    stale.goto(URL + '/#/workshop')
+                    stale.wait_for_function('()=>globalThis.AlibiDiagnostics?.getStatus().mode==="indexeddb"')
+                    stale.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    assert stale.evaluate('AlibiDiagnostics.getCounts()') == base
 
                     # Keyboard entry, focus, phone layout and Escape return.
                     button, dialog = open_adder(page)
@@ -197,6 +219,71 @@ def run():
                     assert restored['state'] == saved['state'] and restored['moves'] == saved['moves']
                     context.set_offline(False)
                     checks.append({'width': width, 'case': 'lattice-played-undo-redo-offline-resume'})
+
+                    # Duplicate checks must use the current database in the write
+                    # transaction, not the stale tab's original empty catalogue.
+                    page.goto(URL + '/#/workshop')
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    before = page.evaluate(ROWS)
+                    # Saved-run broadcasts legitimately update the other tab's
+                    # record count. Only its pack catalogue must remain stale.
+                    stale_catalogue = stale.evaluate(CATALOGUE)
+                    assert stale_catalogue == {'puzzles': base['puzzles'], 'customPacks': base['customPacks']}, stale_catalogue
+                    duplicate = json.loads(json.dumps(afterlight))
+                    duplicate['title'] = 'Stale replacement must never be written'
+                    choose_pack(stale, duplicate)
+                    expect(stale.locator('#toasts')).to_contain_text('already installed', timeout=45000)
+                    expect(stale.locator('#dialog[open]')).to_have_count(0)
+                    assert stale.evaluate(CATALOGUE) == stale_catalogue
+                    assert page.evaluate(ROWS) == before, 'stale pack ID preserves complete stored rows'
+                    checks.append({'width': width, 'case': 'two-tabs-stale-pack-id-refused'})
+
+                    duplicate['id'] = 'stale-overlapping-pack'
+                    choose_pack(stale, duplicate)
+                    expect(stale.locator('#toasts')).to_contain_text('puzzle ID', timeout=45000)
+                    expect(stale.locator('#dialog[open]')).to_have_count(0)
+                    assert page.evaluate(ROWS) == before, 'overlapping puzzle IDs preserve complete stored rows'
+                    checks.append({'width': width, 'case': 'two-tabs-stale-puzzle-id-refused'})
+
+                    # An unrelated valid pack remains admissible from that same stale
+                    # tab. Reload reads all committed packs, with prior runs unchanged.
+                    distinct = json.loads(json.dumps(afterlight))
+                    distinct['id'] = 'independent-tab-pack'
+                    distinct['title'] = 'Independent tab study'
+                    distinct['puzzles'] = [distinct['puzzles'][0]]
+                    distinct['puzzles'][0]['id'] = 'independent-tab-picture'
+                    choose_pack(stale, distinct)
+                    expect(stale.locator('#dialog[open]')).to_contain_text('1 verified puzzle', timeout=45000)
+                    stale.get_by_role('button', name='Keep browsing', exact=True).click()
+                    after = page.evaluate(ROWS)
+                    assert after['runs'] == before['runs'] and after['meta'] == before['meta']
+                    assert all(row in after['packs'] for row in before['packs'])
+                    assert len(after['packs']) == len(before['packs']) + 1
+                    context.set_offline(True)
+                    stale.reload()
+                    stale.wait_for_function('()=>globalThis.AlibiDiagnostics?.getStatus().mode==="indexeddb"')
+                    assert stale.evaluate('AlibiDiagnostics.getCounts().customPacks') == 3
+                    assert stale.evaluate('AlibiDiagnostics.getCounts().puzzles') == base['puzzles'] + 35
+                    context.set_offline(False)
+                    stale.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    checks.append({'width': width, 'case': 'stale-tab-distinct-install-all-packs-offline-reload'})
+
+                    # An unsupported record injected after the app loaded cannot be
+                    # ignored to admit content into an unverified identity namespace.
+                    stale.evaluate("""async()=>{
+                        const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+                        try{await new Promise((ok,no)=>{const tx=db.transaction('packs','readwrite');
+                            tx.objectStore('packs').add({key:'future-pack',value:{schemaVersion:99,opaque:'preserve exactly'}});
+                            tx.oncomplete=ok;tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error)})}finally{db.close()}
+                    }""")
+                    before = stale.evaluate(ROWS)
+                    distinct['id'] = 'blocked-by-future-pack'
+                    distinct['puzzles'][0]['id'] = 'blocked-by-future-picture'
+                    choose_pack(stale, distinct)
+                    expect(stale.locator('#toasts')).to_contain_text('stored pack', timeout=45000)
+                    expect(stale.locator('#dialog[open]')).to_have_count(0)
+                    assert stale.evaluate(ROWS) == before, 'unsupported stored pack and saves remain byte-identical'
+                    checks.append({'width': width, 'case': 'unsupported-pack-preserved-admission-refused'})
                     assert not errors, errors
                 except Exception as error:
                     failures.append({'width': width, 'error': str(error), 'traceback': traceback.format_exc()})
@@ -205,8 +292,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 16:
-        failures.append({'coverage': len(checks), 'expected': 16})
+    if len(checks) != 24:
+        failures.append({'coverage': len(checks), 'expected': 24})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}

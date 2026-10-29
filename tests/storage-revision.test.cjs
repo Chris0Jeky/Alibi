@@ -177,3 +177,57 @@ test('an accepted revision-zero backup run can still advance through IndexedDB C
   assert.equal(fixture.persisted().value.rev, 1);
   await assert.rejects(fixture.store.saveRun(record, 0), { name: 'ConflictError' });
 });
+
+// A request error bubbles while the transaction is still active: tx.error is
+// populated only when the default error action aborts it. Exercise the real
+// public write methods and assert that they report that terminal abort error.
+for (const [name, invoke] of [
+  ['put', (store) => store.put('meta', 'key', 'value')],
+  ['saveRun', (store) => store.saveRun(savedRun(0), 0)],
+  [
+    'restore',
+    (store) => store.restore({ format: 'alibi-backup', schemaVersion: 1, runs: [], packs: [] }),
+  ],
+]) {
+  test(`${name} reports the terminal abort error after a bubbling request error`, async () => {
+    const store = new (loadStorage())();
+    const error = Error('simulated quota failure');
+    let scheduled = false;
+    const order = [];
+    store.db = {
+      transaction() {
+        const listeners = {};
+        const tx = {
+          error: null,
+          addEventListener(name, fn) {
+            (listeners[name] ||= []).push(fn);
+          },
+          objectStore() {
+            const request = () => {
+              const result = {};
+              if (!scheduled) {
+                scheduled = true;
+                queueMicrotask(() => {
+                  result.error = error;
+                  order.push('request-error');
+                  result.onerror?.({ target: result });
+                  for (const listener of listeners.error || []) listener({ target: result });
+                  tx.onerror?.({ target: result });
+                  order.push('abort');
+                  tx.error = error;
+                  for (const listener of listeners.abort || []) listener();
+                  tx.onabort?.();
+                });
+              }
+              return result;
+            };
+            return { get: request, getAll: request, put: request };
+          },
+        };
+        return tx;
+      },
+    };
+    await assert.rejects(invoke(store), (actual) => actual === error);
+    assert.deepEqual(order, ['request-error', 'abort']);
+  });
+}
