@@ -6,6 +6,7 @@ import { CastleStore } from '../src/castle/storage.mjs';
 import { initial, clone, complete } from '../src/castle/engine.mjs';
 import { backup, validateBackup, mergeStates } from '../src/castle/backup.mjs';
 import * as castleValidation from '../src/castle/backup.mjs';
+import { freshCase } from '../src/castle/case-state.mjs';
 
 function validateImport(message) {
   return Promise.resolve().then(() => {
@@ -39,6 +40,32 @@ function note(text) {
   s.notes = text;
   return s;
 }
+
+test('case restore uses the bounded worker and existing atomic recovery record', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const n = note('Existing Chapter I notes.');
+  n.revision = 1;
+  n.caseStudy = freshCase();
+  n.caseStudy.drafts[0][1] = ['supported', ['checks']];
+  assert.equal(await store.save(n), true);
+  const previous = clone(d.records.get('chapter-one'));
+  const incoming = backup(initial());
+  assert.equal(
+    (await validateImport({ type: 'castle-backup', text: store.export() })).state.caseStudy.id,
+    n.caseStudy.id,
+  );
+  const future = JSON.parse(store.export());
+  future.state.caseStudy.revision++;
+  await assert.rejects(validateImport({ type: 'castle-backup', text: JSON.stringify(future) }));
+  assert.deepEqual(d.records.get('chapter-one'), previous);
+  await store.restore(incoming, { replace: true });
+  assert.equal(store.state.caseStudy, undefined);
+  assert.deepEqual(d.records.get('pre-restore-chapter-one').state, n);
+  await store.restore(d.records.get('pre-restore-chapter-one'), { replace: true });
+  assert.deepEqual(store.state.caseStudy, n.caseStudy);
+});
 function disk() {
   const records = new Map();
   let tail = Promise.resolve(),

@@ -1,5 +1,7 @@
-import W from './content.mjs';
+import { evidenceRecords } from './content.mjs';
+import rooms from './rooms.mjs';
 import { validateTheories, validateLabels } from './investigation.mjs';
+import { validateCaseStudy } from './case-state.mjs';
 const ids = [
   'gate',
   'shelves',
@@ -108,9 +110,7 @@ function check(id, a) {
     switch (id) {
       case 'gate':
         return (
-          Array.isArray(a) &&
-          a.length === 3 &&
-          a.every((n) => Number.isInteger(n) && n >= 0 && n <= 6) &&
+          validDraft(id, a) &&
           a[0] < a[1] &&
           a[1] < a[2] &&
           a.reduce((x, y) => x + y, 0) === 9 &&
@@ -118,10 +118,7 @@ function check(id, a) {
         );
       case 'shelves':
         return (
-          Array.isArray(a) &&
-          a.length === 5 &&
-          new Set(a).size === 5 &&
-          ['atlas', 'tides', 'stars', 'moss', 'letters'].every((n) => a.includes(n)) &&
+          validDraft(id, a) &&
           a[0] === 'atlas' &&
           a[4] === 'letters' &&
           a.indexOf('tides') === a.indexOf('atlas') + 1 &&
@@ -132,12 +129,7 @@ function check(id, a) {
       case 'route':
         return Array.isArray(a) && a.at(-1) === 'T' && routeTime(a) !== null && routeTime(a) < 10;
       case 'lamps':
-        return (
-          Array.isArray(a) &&
-          a.length === 9 &&
-          a.every((n) => n === 0 || n === 1) &&
-          lights(a).every((n) => n === 1)
-        );
+        return validDraft(id, a) && lights(a).every((n) => n === 1);
       case 'hanoi': {
         const p = hanoi(a);
         return !!p && p[2].length === 3;
@@ -153,10 +145,7 @@ function check(id, a) {
         );
       case 'magic':
         return (
-          Array.isArray(a) &&
-          a.length === 9 &&
-          new Set(a).size === 9 &&
-          a.every((n) => Number.isInteger(n) && n >= 1 && n <= 9) &&
+          validDraft(id, a) &&
           [
             [0, 1, 2],
             [3, 4, 5],
@@ -263,7 +252,7 @@ function progress(s) {
 }
 const solved = (s, room) => has(s, room.puzzle === 'reveal' ? 'inference' : room.puzzle);
 function evidence(s) {
-  return W.evidence.filter((x) => has(s, x.requires));
+  return evidenceRecords.filter((x) => has(s, x.requires));
 }
 function validDraft(id, a) {
   try {
@@ -337,6 +326,7 @@ function validate(s) {
     'preferences',
     'theories',
     'labels',
+    'caseStudy',
   ]);
   shape(s.completed, ids);
   shape(s.drafts, ids);
@@ -356,9 +346,9 @@ function validate(s) {
     throw Error('Invalid notebook.');
   if (
     !Array.isArray(s.visited) ||
-    s.visited.length > W.rooms.length ||
+    s.visited.length > rooms.length ||
     new Set(s.visited).size !== s.visited.length ||
-    !s.visited.every((id) => W.rooms.some((r) => r.id === id))
+    !s.visited.every((id) => rooms.some((r) => r.id === id))
   )
     throw Error('Invalid visits.');
   if (
@@ -389,6 +379,7 @@ function validate(s) {
   )
     throw Error('Invalid reveal history.');
   const clean = initial();
+  if (Object.hasOwn(s, 'caseStudy')) clean.caseStudy = clone(validateCaseStudy(s.caseStudy));
   clean.revealed = [...(s.revealed ?? [])];
   clean.revision = s.revision;
   clean.completed = clone(s.completed);

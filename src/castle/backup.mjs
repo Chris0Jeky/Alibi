@@ -37,7 +37,7 @@ export function backup(state, mode = 'local', preservedRecord = null) {
   return {
     format: 'alibi-castle',
     version: 1,
-    scope: 'Wrenmere Chapter I only',
+    scope: state.caseStudy ? 'Wrenmere Chapter I and experimental case' : 'Wrenmere Chapter I only',
     state: clone(state),
     mode,
     ...(preservedRecord !== null ? { preservedRecord: clone(preservedRecord) } : {}),
@@ -59,6 +59,11 @@ export function mergeStates(local, incoming) {
     added = validate(incoming);
   // validate() already returns detached state, including every nested board and record.
   const next = current;
+  if (added.caseStudy) {
+    if (current.caseStudy && JSON.stringify(current.caseStudy) !== JSON.stringify(added.caseStudy))
+      throw Error('Case saves differ. Keep both exports, then review an explicit replacement.');
+    next.caseStudy = added.caseStudy;
+  }
   for (const [id, value] of Object.entries(added.completed))
     if (!Object.hasOwn(next.completed, id)) next.completed[id] = value;
   for (const [id, value] of Object.entries(added.drafts))
