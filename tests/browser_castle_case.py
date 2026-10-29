@@ -290,6 +290,11 @@ def run():
                     assert 'Invitation copied.' not in page.locator('[data-case-status]').inner_text()
                     assert read(page) == before
                     record(width, 'leaving during clipboard request cannot update the next case visit')
+                    expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
+                    assert page.locator('#case-receipt-preview').count() == 0
+                    # Collection belongs to one mounted visit; leaving disposed the prior receipt.
+                    case_click(page, 'receipt-start')
+                    expect(page.locator('[data-case-action="receipt-review"]')).to_be_visible()
                 page.locator('#case-verdict-0').focus()
                 page.locator('#case-verdict-0').select_option('contradicted')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()

@@ -39,6 +39,13 @@ prior-assistance baseline, late clipboard completion after navigation, and contr
 return. Chromium was unavailable in the local environment, so that browser fixture must run in
 hosted CI before treating it as verified.
 
+The first hosted run passed the initial 320px consent/edit/cancel checks, then
+exposed a fixture lifecycle mistake: a share-copy test left and re-entered the
+case, correctly disposing the visit-local receipt. The fixture now explicitly
+checks that collection is off after returning and obtains fresh consent before
+continuing its help/count assertions. Production behavior is unchanged; final-head
+browser qualification is still required.
+
 ## Acceptance still outstanding
 
 No real participant observation has been collected, and this change does not establish editorial,
