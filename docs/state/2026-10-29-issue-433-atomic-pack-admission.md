@@ -49,10 +49,13 @@ storage regressions exercise the same error ordering for put, save and restore.
 The queue fixture explicitly models ordering and abort; it is not a real IndexedDB
 acceptance claim.
 
-Existing source storage/Workshop ownership contracts pass. The first broader
-test selection also included storage-bootstrap.test.cjs before a build existed;
-that test failed for missing dist/assets, not a storage assertion. The clean
-build/full verification and exact-head hosted gates are required before merge.
+Existing source storage/Workshop ownership contracts pass. A clean combined
+verification exposed a real stale asset catalogue: 13 lesson entries recorded
+the previous src/app.js byte count and SHA-256. Those source references have been
+updated to the current file; the catalogue regression verifies every recorded
+file. The initial broader test selection also included storage-bootstrap.test.cjs
+before a build existed and failed for missing dist/assets. Clean full verification
+and exact-head hosted gates are required before merge.
 
 The existing actual-control fixture now keeps a second tab open before installs,
 checks duplicate pack and puzzle refusal with complete stored-row equality, admits
