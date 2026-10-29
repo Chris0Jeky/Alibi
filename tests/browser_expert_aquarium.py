@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
+from aquarium_hint_journey import run_hint_journeys
 from revision_route import (
     UNAVAILABLE_HEADING,
     UNAVAILABLE_NOTICE,
@@ -128,6 +129,7 @@ with sync_playwright() as pw:
         launch['executable_path'] = os.environ['CHROMIUM_PATH']
     browser = pw.chromium.launch(**launch)
     for width in [390, 1440]:
+        run_hint_journeys(browser, BASE, width, DISTINCT, V2, check)
         context = browser.new_context(viewport={'width': width, 'height': 950})
         page = context.new_page()
         errors = []
@@ -193,6 +195,11 @@ with sync_playwright() as pw:
             f'{width}: Expert Aquarium completes through waterline controls',
         )
         check(page.locator('dialog[open]').count() == 1, f'{width}: completion is shown after the solved board')
+        # This context has never requested Hint; review loads reasoning from its completion dialog.
+        check(page.evaluate('!AlibiCore.insights'), f'{width}: reasoning has not loaded during ordinary play')
+        page.locator('dialog[open] [data-action="review-record"]').click()
+        page.get_by_role('heading', name='The completed record.', exact=True).wait_for()
+        check(page.locator('.debrief-list li').count() > 0, f'{width}: completed record loads its reasoning')
         dismiss(page)
 
         page.evaluate("location.hash='/journal'")

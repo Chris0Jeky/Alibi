@@ -284,6 +284,7 @@ def honest_hint_no_autoapply(page: Page) -> None:
     before = state(page)["cells"][:]
     page.locator('[data-action="hint"]').first.click()
     dialog = page.locator("dialog[open]")
+    dialog.wait_for(state="visible")
     check(dialog.count() == 1, "Bridges hint opens its own dialog")
     text = dialog.inner_text().lower()
     check(

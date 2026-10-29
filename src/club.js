@@ -1248,7 +1248,9 @@
       } else if (a === 'forced') {
         const run = bridge.current();
         if (!run) return;
-        const d = root.AlibiCore.insights.deduction(run.puzzle, run.state);
+        const reasoning = await bridge.insights();
+        if (!reasoning) return;
+        const d = reasoning.deduction(run.puzzle, run.state);
         if (!d || d.value === undefined || d.cells?.length !== 1) {
           notify(
             d?.message || 'No supported forced step found. Your board may need another technique.',
