@@ -100,10 +100,10 @@ test('Club restores a long terminal replay and preserves undo and redo across re
   page = first.club.roomPage('blockcabinet');
   assert.match(page, /TURN <strong>267<\/strong>/);
   assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
-  assert.equal(
-    moveCalls,
-    log.length + log.length - 1,
-    'shrinking history rebuilds its valid prefix',
+  const undoReplayWork = moveCalls - log.length;
+  assert.ok(
+    undoReplayWork > 0 && undoReplayWork <= 64,
+    `undo replays only the suffix after a nearby checkpoint (${undoReplayWork} moves)`,
   );
   const afterUndo = first.storage.get('alibi-afterhours-v1');
   assert.deepEqual(JSON.parse(afterUndo).data.runs.blockcabinet.log, log.slice(0, -1));
@@ -116,7 +116,11 @@ test('Club restores a long terminal replay and preserves undo and redo across re
   page = restored.club.roomPage('blockcabinet');
   assert.match(page, /TURN <strong>267<\/strong>/);
   assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
-  assert.equal(moveCalls, log.length + log.length - 1, 'the shorter active log is rebuilt once');
+  const restoredUndoReplayWork = moveCalls - log.length;
+  assert.ok(
+    restoredUndoReplayWork > 0 && restoredUndoReplayWork <= 64,
+    `the restored shorter active log replays only its checkpoint suffix (${restoredUndoReplayWork} moves)`,
+  );
 
   await restored.action('redo', { id: 'blockcabinet' });
   assert.deepEqual(restored.state().runs.blockcabinet.log, log);
@@ -126,7 +130,7 @@ test('Club restores a long terminal replay and preserves undo and redo across re
   assert.match(page, /<strong>Cabinet closed\.<\/strong>/);
   assert.equal(
     moveCalls,
-    log.length + log.length,
+    log.length + restoredUndoReplayWork + 1,
     'redo extends the warmed 267-move cache by exactly the saved final move',
   );
 });
