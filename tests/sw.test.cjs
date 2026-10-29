@@ -126,6 +126,7 @@ named('release install caches the emitted shell', async () => {
           .filter(
             (n) =>
               n !== 'workshop' &&
+              n !== 'cases' &&
               !n.startsWith('folio-') &&
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
@@ -154,12 +155,32 @@ named('optional collection is not precached', async () => {
   }
 });
 
+named(
+  'case assets require explicit installation and their owned cache supports offline return',
+  async () => {
+    const optional = setup();
+    await optional.lifecycle('install');
+    const files = fs.readdirSync(path.join(ROOT, 'dist/assets/cases'));
+    assert.equal(files.length, 2);
+    const cache = new Map();
+    optional.data.set('alibi-case-pack-fictional', cache);
+    for (const file of files) {
+      const url = 'https://test.invalid/assets/cases/' + file;
+      assert.equal((await optional.request(url)).network, true);
+      const response = { fictionalCachedCase: file };
+      cache.set(url, response);
+      assert.equal(await optional.request(url), response);
+    }
+  },
+);
+
 named('offline release includes core assets', () => {
   for (const asset of fs
     .readdirSync(path.join(__dirname, '../dist/assets'))
     .filter(
       (n) =>
         n !== 'workshop' &&
+        n !== 'cases' &&
         !n.startsWith('folio-') &&
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&
