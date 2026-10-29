@@ -736,7 +736,13 @@
         if (name === 'challenges') return writeChallenges(value);
         throw Error('Unknown save section.');
       },
-      retain: retainRecovery,
+      retain(snapshot) {
+        if (G.QWRetainedState || (G.QWApp && !G.QWApp.disposed))
+          throw Error(
+            'Close Quiet Wing or export and resolve its retained progress before importing.',
+          );
+        return retainRecovery(snapshot);
+      },
       release: releaseRecovery,
     };
   }

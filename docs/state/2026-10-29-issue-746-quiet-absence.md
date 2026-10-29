@@ -29,7 +29,7 @@ for physical-device and owner acceptance.
 
 ## Blocking size evidence
 
-The full feature snapshot was subsequently reconstructed and its Git tree matched
+Before the admission guard described below, the full feature snapshot was reconstructed and its Git tree matched
 `9957b480ae0087546afdb7f1df40b6ba3f13962e`. A clean candidate build measured application
 gzip **140,683 bytes** against the existing strict 140,416-byte ceiling, initial code
 and content **210,035** against 209,760, and the net precached shell **1,429,342** against
@@ -38,6 +38,27 @@ until sufficient bytes are reclaimed while preserving these checks; it must not 
 merely because functional tests pass.
 
 All ten transfer test files (109 cases, including 13 Quiet cases) passed on the exact
-feature-based candidate. The build reused installed dependencies with matching pinned
+feature-based candidate before the admission guard. The build reused installed dependencies with matching pinned
 esbuild 0.28.2; a full locked npm install was unavailable locally. Hosted exact-head
 build/budget and actual IndexedDB fixtures remain the authoritative qualification.
+
+## Active and retained Quiet admission
+
+The earlier rollback fix covered the direct fallback-read path only. A later regression
+demonstrated that a disposed Quiet app can retain unsaved state while the IndexedDB key
+is absent; its live snapshot bypassed the absence marker and rollback recreated the key.
+The recovery-retain port now refuses a transfer when Quiet has retained state or an active
+mount. The player can still export the state; the transfer must wait until active work is
+closed and retained progress is exported and resolved. The guard does not clear that state.
+
+The check precedes creation of the transfer recovery journal and all transfer replacement
+writes. Existing reads may first attempt a normal pending Quiet flush; this is not a promise
+that no ordinary writer ran. The guard is not a lock and does not cover a writer starting
+after the check. Item 1, crash recovery and general owner/CAS remain unresolved.
+
+Retained and active fixtures initially reproduced admission instead of refusal; after the
+guard they refuse before the journal or transfer writes, leave the absent key and original
+fallback bytes untouched, and still permit export reads. A healthy fallback-only snapshot
+still reaches the recovery-retain port. The real-IndexedDB browser fixture includes these
+scenarios but has not yet been run. The size figures above predate the admission guard;
+the new candidate has not been remeasured and remains budget-blocked.
