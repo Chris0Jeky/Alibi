@@ -243,7 +243,6 @@
           this.watch(tx, reject);
           tx.objectStore(store).put({ key, value });
           tx.oncomplete = () => resolve(value);
-          tx.onerror = () => reject(tx.error);
           tx.onabort = () => reject(tx.error || aborted());
         });
       if (this.mode === 'local') {
@@ -251,6 +250,62 @@
         localStorage.setItem(PREFIX + store + '.' + key, JSON.stringify(value));
       } else this.memory[store][key] = value;
       return value;
+    }
+    async addPack(input, official) {
+      if (this.fatal) throw Error(this.problem || 'Saved data is unavailable.');
+      if (!this.db && this.mode === 'local')
+        throw Error('Adding packs requires IndexedDB. Existing local data is unchanged.');
+      const C = root.AlibiCore,
+        pack = C.validatePack(input, false),
+        incoming = new Set(pack.puzzles.map((p) => p.id));
+      let count = 0;
+      const reserve = (existing) => {
+        if (existing.id === pack.id) throw Error('A pack with that ID is already installed.');
+        if (existing.puzzles.some((p) => incoming.has(p.id)))
+          throw Error('A puzzle ID in this pack is already in your collection. Use a distinct ID.');
+        count += existing.puzzles.length;
+        if (count + pack.puzzles.length > 3000)
+          throw Error('This prototype is limited to 3,000 local puzzles.');
+      };
+      const check = (row) => {
+        let existing;
+        try {
+          existing = C.validatePack(row.value, false);
+          if (row.key !== existing.id) throw Error('Pack identity mismatch');
+        } catch {
+          throw Error(
+            'A stored pack is damaged or unsupported. Export your data; nothing was added.',
+          );
+        }
+        reserve(existing);
+      };
+      reserve(official);
+      if (!this.db) {
+        // This Store owns session memory. Check and insert without yielding.
+        for (const [key, value] of Object.entries(this.memory.packs)) check({ key, value });
+        return this.put('packs', pack.id, pack);
+      }
+      return new Promise((resolve, reject) => {
+        let failure = null;
+        const tx = this.db.transaction('packs', 'readwrite'),
+          os = tx.objectStore('packs'),
+          request = os.openCursor();
+        this.watch(tx, reject);
+        request.onsuccess = () => {
+          try {
+            const cursor = request.result;
+            if (cursor) {
+              check(cursor.value);
+              cursor.continue();
+            } else os.add({ key: pack.id, value: pack });
+          } catch (error) {
+            failure = error;
+            tx.abort();
+          }
+        };
+        tx.oncomplete = () => resolve(pack);
+        tx.onabort = () => reject(failure || tx.error || aborted());
+      });
     }
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.
@@ -302,7 +357,6 @@
               }
           };
           tx.oncomplete = () => resolve(next);
-          tx.onerror = () => reject(tx.error);
           tx.onabort = () => reject(bad || tx.error || Error('Save aborted.'));
         });
       // Session memory belongs to this Store. Compare and write without yielding.
@@ -474,7 +528,6 @@
         tx.oncomplete = () => resolve({ note });
         tx.onabort = () =>
           reject(bad || tx.error || Error('Restore cancelled. Previous data is unchanged.'));
-        tx.onerror = () => reject(tx.error);
       });
     }
   }

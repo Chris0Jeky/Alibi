@@ -2529,14 +2529,7 @@
     });
   }
   async function installPack(p) {
-    p = C.validatePack(p, false);
-    if (packs.some((x) => x.id === p.id)) throw Error('A pack with that ID is already installed.');
-    const existing = new Set(all().map((x) => x.id));
-    if (p.puzzles.some((x) => existing.has(x.id)))
-      throw Error('A puzzle ID in this pack is already in your collection. Use a distinct ID.');
-    if (all().length + p.puzzles.length > 3000)
-      throw Error('This prototype is limited to 3,000 local puzzles.');
-    await store.put('packs', p.id, p);
+    p = await store.addPack(p, starter);
     packs.push(p);
     render();
     toast(
