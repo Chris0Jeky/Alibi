@@ -159,13 +159,54 @@ with sync_playwright() as pw:
     page.set_viewport_size({'width':1440,'height':1000});route('workshop')
     page.locator('#draft-title').fill('The tester’s missing key')
     page.locator('#draft-names').fill('Ada, Ben, Cora, Dax, Eve')
-    page.locator('#draft-seed').fill('405')
+    page.locator('#draft-seed').fill('7')
     page.locator('#scene-form button[type=submit]').click()
     page.locator('[data-action="add-draft"]:enabled').wait_for(timeout=30000)
     check('unique solution' in page.locator('.draft-editor').inner_text(),'Workshop generates independently verified scene')
     check(page.locator('#draft-title').input_value()=='The tester’s missing key','Workshop form values survive rerender')
     with page.expect_download() as dl:action('export-draft')
     draft=json.loads(Path(dl.value.path()).read_text());check(draft['puzzles'][0]['people'][0]['name']=='Ada','Workshop retains custom names')
+    removed=draft['puzzles'][0]['clues'][-1]
+    for width in (390,1440):
+        page.set_viewport_size({'width':width,'height':1000})
+        page.locator('[data-action="remove-draft-clue"]').last.click()
+        page.locator('[data-action="verify-draft"]').focus();page.keyboard.press('Enter')
+        comparison=page.locator('#draft-comparison');comparison.wait_for()
+        check(comparison.locator('figure').count()==2,f'{width}px: two arrangements have separate captions')
+        check(comparison.locator('figcaption').all_text_contents()==['Arrangement A','Arrangement B'],f'{width}px: arrangement labels')
+        check(comparison.locator('.draft-difference').count()==4,f'{width}px: both moved people have non-colour borders')
+        check(comparison.locator('li').count()==5 and 'Cora — changed' in comparison.inner_text() and 'Eve — changed' in comparison.inner_text(),f'{width}px: every person has readable positions and differences')
+        check('row 3, column B' in comparison.inner_text() and 'row 5, column B' in comparison.inner_text(),f'{width}px: text describes both Cora positions')
+        check(page.evaluate('document.activeElement.id')=='draft-comparison',f'{width}px: keyboard verification focuses the comparison')
+        check(page.locator('[data-action="add-draft"]').is_disabled() and page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: ambiguous drafts cannot play or export')
+        check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'{width}px: comparison has no horizontal overflow')
+        comparison.screenshot(path=str(shots/f'comparison-{width}.png'))
+        (shots/f'comparison-{width}.aria.txt').write_text(comparison.aria_snapshot(),encoding='utf-8')
+        # Delay a genuine worker result, edit through the clue controls, then deliver it late.
+        page.evaluate("""() => {
+          const Native = Worker;
+          window.heldDraft = null;
+          window.Worker = class extends Native {
+            set onmessage(callback) {
+              super.onmessage = event => { window.heldDraft = () => callback(event); };
+            }
+          };
+          window.restoreWorker = () => { window.Worker = Native; };
+        }""")
+        action('verify-draft');page.wait_for_function('!!window.heldDraft')
+        page.locator('#clue-who').select_option(removed['who'])
+        page.locator('#clue-kind').select_option(removed['kind'])
+        page.locator('#clue-value').select_option(str(removed['value']))
+        page.locator('#clue-form button[type=submit]').click()
+        page.evaluate('() => { restoreWorker(); heldDraft(); }')
+        page.locator('[data-action="verify-draft"]:enabled').wait_for()
+        check(comparison.count()==0 and page.locator('[data-action="add-draft"]').is_disabled(),f'{width}px: editing prevents late comparison from returning')
+        check(page.locator('.draft-clue').count()==len(draft['puzzles'][0]['clues']),f'{width}px: editing preserves all other clues')
+        action('verify-draft');page.locator('[data-action="export-draft"]:enabled').wait_for()
+        with page.expect_download() as dl:action('export-draft')
+        revised=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
+        check(revised['clues']==draft['puzzles'][0]['clues'] and revised['solution']==draft['puzzles'][0]['solution'],f'{width}px: repaired unique draft exports its original rules and solution')
+    page.set_viewport_size({'width':1440,'height':1000})
     page.locator('#room-name-0').fill('Garden room');page.locator('#room-name-0').blur()
     check(page.locator('[data-action="add-draft"]').is_disabled(),'Editing invalidates verification')
     action('verify-draft');page.locator('[data-action="add-draft"]:enabled').wait_for(timeout=30000)

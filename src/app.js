@@ -74,6 +74,7 @@
     workTab = 'scene',
     draft = null,
     draftVerified = false,
+    draftComparison = null,
     draftShowSolution = false,
     draftMode = 'room',
     draftPaint = 0,
@@ -1315,7 +1316,33 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div></section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}</section>`;
+  }
+  function draftComparisonView() {
+    if (!draftComparison) return '';
+    const [a, b] = draftComparison,
+      changed = (person) => a[person.id] !== b[person.id],
+      position = (cell) =>
+        `row ${Math.floor(cell / 5) + 1}, column ${String.fromCharCode(65 + (cell % 5))} (${esc(draft.roomNames[draft.rooms[cell]])})`;
+    return `<section id="draft-comparison" class="draft-comparison" tabindex="-1" aria-labelledby="draft-comparison-title"><h3 id="draft-comparison-title">At least two arrangements fit</h3><p>Both satisfy the current clues. These are two examples, not a complete list. Double borders mark people whose positions differ. Revise a clue above, then verify again.</p><div class="draft-editor-grid">${draftComparison
+      .map(
+        (solution, index) =>
+          `<figure><figcaption>Arrangement ${index ? 'B' : 'A'}</figcaption><div class="draft-board" aria-hidden="true">${range(
+            25,
+          )
+            .map((cell) => {
+              const who = draft.people.find((p) => solution[p.id] === cell),
+                object = draft.objects.find((o) => o.cell === cell);
+              return `<span class="draft-cell ${who && changed(who) ? 'draft-difference' : ''}" style="background:var(--room-${draft.rooms[cell]})"><span class="draft-room">${String.fromCharCode(65 + draft.rooms[cell])}</span>${who ? token(who, draft) : object ? icon(object.kind) : ''}</span>`;
+            })
+            .join('')}</div></figure>`,
+      )
+      .join('')}</div><ul class="draft-comparison-text">${draft.people
+      .map(
+        (person) =>
+          `<li><strong>${esc(person.name)}${changed(person) ? ' — changed' : ' — same in both'}:</strong> ${changed(person) ? `Arrangement A: ${position(a[person.id])}; Arrangement B: ${position(b[person.id])}.` : `${position(a[person.id])}.`}</li>`,
+      )
+      .join('')}</ul></section>`;
   }
   function packDesk() {
     return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div>${
@@ -2634,6 +2661,7 @@
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
+    draftComparison = null;
     saveDraft();
   }
   async function generateDraft(form) {
@@ -2656,11 +2684,13 @@
     };
     const startedEpoch = draftEpoch;
     draftBusy = true;
+    draftVerified = false;
+    draftComparison = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
       if (startedEpoch !== draftEpoch) return;
-      draft = result;
+      draft = C.validateDefinition(result);
       draft.authorSeed = seed;
       draftVerified = true;
       draftShowSolution = false;
@@ -2682,11 +2712,29 @@
     if (!draft || draftBusy) return;
     const startedEpoch = draftEpoch;
     draftBusy = true;
+    draftVerified = false;
+    draftComparison = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
       if (startedEpoch !== draftEpoch) return;
-      draft = result;
+      if (!Array.isArray(result?.solutions) || ![1, 2].includes(result.solutions.length))
+        throw Error('The draft check returned an invalid result. Verify again.');
+      const checked = result.solutions.map((solution) => {
+        const p = C.validateSceneDraft({ ...draft, solution });
+        if (!C.sceneComplete(p, { placements: p.solution }))
+          throw Error('The draft check returned an invalid arrangement. Verify again.');
+        return p;
+      });
+      if (checked.length === 2) {
+        if (draft.people.every(({ id }) => checked[0].solution[id] === checked[1].solution[id]))
+          throw Error('The draft check returned duplicate arrangements. Verify again.');
+        draftComparison = checked.map((p) => p.solution);
+        draftShowSolution = false;
+        toast('At least two arrangements fit. Compare them below, then revise a clue.');
+        return;
+      }
+      draft = C.validateDefinition(checked[0]);
       draftVerified = true;
       await saveDraft();
       if (startedEpoch !== draftEpoch) return;
@@ -2698,6 +2746,7 @@
     } finally {
       draftBusy = false;
       render();
+      if (draftComparison) document.querySelector('#draft-comparison')?.focus();
     }
   }
   function clueValues() {
@@ -3466,7 +3515,12 @@
       if (value) {
         draft.roomNames[Number(el.dataset.roomName)] = value;
         dirtyDraft();
-        draftVerified = false;
+        document.querySelector('#draft-comparison')?.remove();
+        $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
+        for (const button of document.querySelectorAll(
+          '[data-action="add-draft"], [data-action="export-draft"]',
+        ))
+          button.disabled = true;
       }
     }
   });
