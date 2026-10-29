@@ -7,6 +7,116 @@
   const lineName = (axis, line) =>
     axis ? 'Column ' + String.fromCharCode(65 + line) : 'Row ' + (line + 1);
   const conflict = (message, cells) => ({ rule: 'Revisit a conflict', message, cells });
+  function aquariumDeduction(p, s) {
+    const n = p.size,
+      integers = (a, length, max) =>
+        Array.isArray(a) &&
+        a.length === length &&
+        Array.from(a).every((v) => Number.isInteger(v) && v >= 0 && v <= max);
+    // Validate just the public geometry, within the published definition limits.
+    // validateDefinition also checks the stored answer, so it cannot be used here.
+    if (
+      !Number.isInteger(n) || n < 3 || n > 7 ||
+      !integers(p.tanks, n * n, 9) ||
+      !integers(p.rowTargets, n, n) || !integers(p.colTargets, n, n)
+    ) return null;
+    const count = Math.max(...p.tanks) + 1;
+    if (new Set(p.tanks).size !== count) return null;
+    const rows = X.tankRows(p),
+      cells = rows.map((_, t) => C.range(n * n).filter((i) => p.tanks[i] === t));
+    for (const group of cells) {
+      const seen = new Set([group[0]]), queue = [group[0]];
+      while (queue.length)
+        for (const j of X.adj(queue.pop(), n))
+          if (group.includes(j) && !seen.has(j)) {
+            seen.add(j);
+            queue.push(j);
+          }
+      if (seen.size !== group.length) return null;
+    }
+    if (!integers(s?.levels, count, n) || s.levels.some((v, t) => v > rows[t].length))
+      return null;
+    const issues = C.registry.aquarium.validate(p, s);
+    if (issues.length) return conflict(issues[0].message, issues[0].cells);
+    if (p.rowTargets.reduce((a, b) => a + b, 0) !== p.colTargets.reduce((a, b) => a + b, 0))
+      return null;
+
+    // Player levels, including zero, are tentative: only clues narrow these domains.
+    const domains = rows.map((r) => C.range(r.length + 1)),
+      targets = [...p.rowTargets, ...p.colTargets],
+      contributions = domains.map((levels, t) => levels.map((level) => {
+        const counts = X.lineCounts(p, X.aquariumCells(p, {
+          levels: rows.map((_, k) => k === t ? level : 0),
+        }));
+        return [...counts.rows, ...counts.cols];
+      })),
+      reasons = rows.map(() => []),
+      used = rows.map(() => new Set());
+    let changed = true;
+    // Every changed pass removes at least one level; at most 10 * 8 levels exist.
+    while (changed) {
+      changed = false;
+      for (let line = 0; line < targets.length; line++) {
+        const target = targets[line], prefix = [new Set([0])], suffix = [];
+        const sums = (from, t) => new Set([...from].flatMap((sum) =>
+          domains[t].map((v) => sum + contributions[t][v][line]),
+        ).filter((sum) => sum <= target));
+        for (let t = 0; t < count; t++) prefix[t + 1] = sums(prefix[t], t);
+        if (!prefix[count].has(target)) return null;
+        suffix[count] = new Set([0]);
+        for (let t = count - 1; t >= 0; t--) suffix[t] = sums(suffix[t + 1], t);
+        const previous = used.map((clues) => new Set(clues));
+        for (let t = 0; t < count; t++) {
+          const others = new Set([...prefix[t]].flatMap((a) =>
+              [...suffix[t + 1]].map((b) => a + b),
+            ).filter((sum) => sum <= target)),
+            next = domains[t].filter((v) => others.has(target - contributions[t][v][line]));
+          if (next.length === domains[t].length) continue;
+          if (!next.length) return null;
+          const dependencies = new Set();
+          for (let k = 0; k < count; k++)
+            if (k !== t && contributions[k].some((v) => v[line]))
+              for (const clue of previous[k]) dependencies.add(clue);
+          for (const clue of dependencies) used[t].add(clue);
+          used[t].add(line);
+          reasons[t].push({ line, others: [...others],
+            water: next.map((v) => contributions[t][v][line]),
+            dependencies: [...dependencies].filter((clue) => clue !== line),
+          });
+          domains[t] = next;
+          changed = true;
+        }
+      }
+    }
+    // Line support alone cannot certify global consistency. Offer guidance only
+    // when propagation itself supplies a complete public-clue witness; no search.
+    if (domains.some((d) => d.length !== 1)) return null;
+    const levels = domains.map((d) => d[0]);
+    if (!C.registry.aquarium.complete(p, { levels })) return null;
+    const tank = levels.findIndex((level, t) => level !== s.levels[t]);
+    if (tank < 0) return null;
+    const label = (line) => lineName(line >= n ? 1 : 0, line % n),
+      amounts = (values) => {
+        const sorted = [...new Set(values)].sort((a, b) => a - b);
+        return sorted.join(' or ') + (sorted.length === 1 && sorted[0] === 1 ? ' square' : ' squares');
+      },
+      explanation = reasons[tank].map(({ line, others, water, dependencies }) =>
+        `${label(line)} needs ${targets[line]} water square${targets[line] === 1 ? '' : 's'}. ` +
+        (dependencies.length ? `Using ${dependencies.sort((a, b) => a - b).map((clue) => `${label(clue)} (${targets[clue]})`).join(', ')}, ` : '') +
+        `the other tanks are limited to ${amounts(others)} there, leaving ${amounts(water)} for this tank.`,
+      ).join(' '),
+      level = levels[tank],
+      action = level === 0 ? 'Keep this tank dry.' :
+        `Fill its bottom ${level === 1 ? 'row' : level + ' rows'}, through Row ${rows[tank][level - 1] + 1}.`;
+    return {
+      rule: 'A forced waterline',
+      message: `Focus on tank ${String.fromCharCode(65 + tank)} at ${at(cells[tank][0], n)}. ${explanation} ${action}`,
+      cells: cells[tank],
+      clues: [...used[tank]].sort((a, b) => a - b).map((line) => ({ axis: line >= n ? 1 : 0, line: line % n })),
+      tank, level,
+      // Deliberately no value: Club interprets that field as an applicable cell move.
+    };
+  }
   function tentConflicts(p, s) {
     const issues = C.registry.tents.validate(p, s),
       tents = s.cells.flatMap((v, i) => (v === 1 ? [i] : []));
@@ -28,6 +138,7 @@
         : { rule, message, cells: [cell], value };
     };
     if (p.type === 'bridges') return C.bridges.deduction(p, s);
+    if (p.type === 'aquarium') return aquariumDeduction(p, s);
     const networkHint = root.AlibiCuratedNetworkHints?.hint;
     if (p.type === 'network' && networkHint) {
       const guidance = networkHint(p, s);

@@ -997,7 +997,7 @@
           p.type === 'nonogram'
             ? `<div class="nono-clue col ${C.equal(C.runs(range(n).map((r) => s.cells[r * n + c])), p.colClues[c]) ? 'met' : ''}" aria-label="Column ${String.fromCharCode(65 + c)} clues ${p.colClues[c].join(', ')}">${p.colClues[c].map((v) => `<span>${v}</span>`).join('')}</div>`
             : counts
-              ? `<div class="axis target ${counts.cols[c] === p.colTargets[c] ? 'met' : counts.cols[c] > p.colTargets[c] ? 'over' : ''}" aria-label="Column ${String.fromCharCode(65 + c)}: ${counts.cols[c]} of ${p.colTargets[c]}">${p.colTargets[c]}</div>`
+              ? `<div class="axis target ${counts.cols[c] === p.colTargets[c] ? 'met' : counts.cols[c] > p.colTargets[c] ? 'over' : ''}" data-clue-axis="1" data-clue-line="${c}" aria-label="Column ${String.fromCharCode(65 + c)}: ${counts.cols[c]} of ${p.colTargets[c]}">${p.colTargets[c]}</div>`
               : `<div class="axis">${String.fromCharCode(65 + c)}</div>`,
         )
         .join('');
@@ -1006,7 +1006,7 @@
         p.type === 'nonogram'
           ? `<div class="nono-clue ${C.equal(C.runs(s.cells.slice(r * n, (r + 1) * n)), p.rowClues[r]) ? 'met' : ''}" aria-label="Row ${r + 1} clues ${p.rowClues[r].join(', ')}">${p.rowClues[r].map((v) => `<span>${v}</span>`).join('')}</div>`
           : counts
-            ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
+            ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" data-clue-axis="0" data-clue-line="${r}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
             : `<div class="axis">${r + 1}</div>`;
       for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
     }
@@ -1838,9 +1838,20 @@
     // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
     if (current.completedAt && blocked()) return;
     const hint = C.insights.deduction(current.puzzle, current.state);
+    if (current.puzzle.type === 'aquarium') {
+      document.querySelectorAll('.hint-focus').forEach((el) => el.classList.remove('hint-focus'));
+      for (const i of hint?.cells || []) document.getElementById(`cell-${i}`)?.classList.add('hint-focus');
+      for (const { axis, line } of hint?.clues || [])
+        document.querySelector(`[data-clue-axis="${axis}"][data-clue-line="${line}"]`)?.classList.add('hint-focus');
+    }
+    const explanation = hint?.tank !== undefined
+      ? 'This follows only the public clues; your waterlines remain choices. The outlined tank and clues stay marked when you close this hint.'
+      : hint
+        ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.'
+        : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
-      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${hint ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.' : 'This is a general strategy, not a check against the hidden answer.'}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
