@@ -62,9 +62,22 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
     assert.ok(bytesAt(dist, config.film.src) <= 1024 * 1024);
     assert.match(config.caseStudy, /^\.\/assets\/cases\/player\.[a-f0-9]{12}\.js$/);
     assertContentHash(dist, config.caseStudy);
+    assert.match(result.receipt.download, /^receipt\.[a-f0-9]{12}\.js$/);
+    const receiptURL = `./assets/cases/${result.receipt.download}`;
+    assertContentHash(dist, receiptURL);
+    const receiptBytes = fs.readFileSync(path.join(dist, receiptURL));
+    assert.equal(result.receipt.bytes, receiptBytes.length);
+    assert.equal(
+      result.receipt.sha256,
+      crypto.createHash('sha256').update(receiptBytes).digest('hex'),
+    );
+    assert.ok(
+      !config.files.includes(receiptURL),
+      'the receipt module is never precached in the core shell',
+    );
     const caseFiles = fs.readdirSync(path.join(dist, 'assets/cases'));
     const sourceName = caseFiles.find((name) => name.endsWith('.json'));
-    assert.equal(caseFiles.length, 2);
+    assert.equal(caseFiles.length, 3);
     const source = fs.readFileSync(path.join(root, 'content/cases/reading-room-blackout.json'));
     const sourceHash = crypto.createHash('sha256').update(source).digest('hex');
     assert.equal(sourceName, `reading-room-blackout.${sourceHash}.json`);
@@ -74,6 +87,7 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
     assert.ok(Buffer.byteLength(player) < 16 * 1024);
     assert.ok(!player.includes('CASE_DELIVERY'), 'the optional player owns its resolved metadata');
     assert.ok(player.includes(sourceHash));
+    assert.ok(player.includes(result.receipt.sha256));
     assert.equal(
       result.bytes,
       [...config.files, ...Object.values(config.film)].reduce(
@@ -81,6 +95,7 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
         0,
       ) +
         bytesAt(dist, config.caseStudy) +
+        receiptBytes.length +
         source.length,
     );
 

@@ -1,0 +1,71 @@
+# Issue #455: Castle playtest receipt host
+
+This handoff records the local source implementation for the Reading Room Castle host. It is
+source and test evidence, not evidence of a public deployment or a human playtest.
+
+## Implemented
+
+- The Castle case reuses `tools/case-playtest-receipt.cjs`; no second collector, save authority,
+  telemetry store or transmission service was added.
+- Collection remains off until the tester selects **Start local playtest receipt**. The review,
+  editable observation, exact JSON preview, explicit copy and cancel controls live in the
+  consent-loaded receipt module. Clipboard copy is the only output.
+- Player integration passes only booleans and citation counts from draft shape checks. It does not
+  pass verdict values, source IDs, answer text, citations, notebook text, save contents, device data
+  or timings. Counts start at consent. A one-bit-per-stage snapshot of the current saved
+  hint/reveal indicators establishes `priorAssistance`; later hints/reveals remain event counts and
+  are not relabeled as prior help. It is not an exhaustive cross-tab or historical record.
+- The receipt module is a content-hashed ESM asset in `assets/cases`, excluded from the core
+  precache and included in Castle's full delivery-byte accounting. The player verifies the listed
+  size and SHA-256 before dynamic import and stores verified bytes in the existing
+  `alibi-case-pack-<case SHA>` cache. A cache miss while offline leaves collection off and asks the
+  tester to reconnect. The first opt-in may request the same-origin module code; it sends no
+  receipt or player data.
+- The browser's `import()` can issue its own request when the page has no controlling service
+  worker. The first fetched and checked response alone therefore does not prove which exact bytes
+  the engine executes. The implementation keeps the existing same-origin content-hashed module
+  boundary and does not introduce blob imports, a second cache or a new service-worker policy.
+- The optional player plus its bundled Castle session logic remains below the existing 16 KiB
+  build limit. The receipt module is counted separately in full; no limit was raised.
+
+## Local verification
+
+The source-level receipt/controller tests cover consent-off behavior, allowlisted shape data,
+review rendering, editing, copy denial/success, cancel, and disposal. The asset test checks both
+content hashes, exact byte accounting, the player size ceiling, and that neither receipt code nor
+the optional player enters the core precache. The browser fixture exercises actual Castle controls
+at 320 and 1280 pixels, including lazy load, corrupt bytes rejected before import, offline miss,
+prior-assistance baseline, late clipboard completion after navigation, and controlled-cache offline
+return. Chromium was unavailable in the local environment, so that browser fixture must run in
+hosted CI before treating it as verified.
+
+The first hosted run passed the initial 320px consent/edit/cancel checks, then
+exposed a fixture lifecycle mistake: a share-copy test left and re-entered the
+case, correctly disposing the visit-local receipt. The fixture now explicitly
+checks that collection is off after returning and obtains fresh consent before
+continuing its help/count assertions. Production behavior is unchanged; final-head
+browser qualification is still required.
+
+On the next hosted Wrenmere run (40814232498, head `c1aa398`), the 320px route-return
+and fresh-consent checks passed. The fixture then failed at `finish_playtest_receipt()` because it
+expected one reasoning rejection while only filling the first of the case's three claims. The host
+correctly classified that incomplete form as an incomplete rejection. The browser fixture now fills
+all three verdict/citation pairs with valid sources and leaves the first verdict wrong, so it tests
+the intended reasoning-rejection count. This is another fixture correction; no production behavior
+changed. Final-head hosted browser qualification remains required.
+
+The following hosted run (40814738494, head `4986282`) passed the complete-answer
+reasoning-count assertion, then exposed a clipboard-stub leak in the 320px fixture path. The
+delayed invitation-copy test replaced `navigator.clipboard.writeText`, resolved its pending
+promise, and left that temporary function installed; the later receipt-copy test therefore hung
+and left controls disabled. Both delayed-copy tests now restore their prior write function before
+resolving and remove their temporary resolver. Fetch overrides and offline toggles are restored at
+their existing teardown points. This is a fixture-only correction; final-head hosted browser
+qualification remains required.
+
+## Acceptance still outstanding
+
+No real participant observation has been collected, and this change does not establish editorial,
+physical-device or production deployment acceptance. Keep issue #455 open until its remaining
+human/owner acceptance is recorded separately. Do not treat the synthetic fixture observation as
+human feedback.

@@ -29,6 +29,9 @@ EMU_PID=$!
 cleanup() {
   local exit_status=$?
   timeout --signal=TERM --kill-after=5s 15s adb logcat -d > "$OUT/logcat.txt" 2>&1 || true
+  if test "$exit_status" -ne 0; then
+    python3 "$ROOT/tools/android-native-diagnostic-excerpt.py" < "$OUT/logcat.txt" || true
+  fi
   kill "$EMU_PID" 2>/dev/null || true
   return "$exit_status"
 }

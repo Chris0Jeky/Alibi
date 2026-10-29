@@ -62,6 +62,28 @@ test('a listed pack loads from the same directory only after its size and digest
   assert.equal(JSON.parse(Buffer.from(loaded)).puzzles.length, 24);
 });
 
+test('the shared receipt helper keeps its bounded module contract alongside pack status', async () => {
+  const bytes = new TextEncoder().encode('globalThis.__receiptPortExecuted = true;');
+  const sha256 = Buffer.from(await crypto.subtle.digest('SHA-256', bytes)).toString('hex');
+  const entry = {
+    id: 'receipt',
+    kind: 'module',
+    bytes: bytes.length,
+    sha256,
+    download: `receipt.${sha256.slice(0, 12)}.js`,
+  };
+  const { calls, get } = recorder(() => new Response(chunked(bytes)));
+  assert.deepEqual(await fetchPack(entry, BASE, get), bytes);
+  assert.equal(calls.length, 1);
+  assert.equal(globalThis.__receiptPortExecuted, undefined, 'fetching bytes does not execute them');
+  for (const invalid of [
+    { ...entry, id: 'another-module' },
+    { ...entry, download: '../' + entry.download },
+  ])
+    await assert.rejects(fetchPack(invalid, BASE, get), /listing is not valid/);
+  assert.equal(calls.length, 1, 'invalid module identities make no request');
+});
+
 test('a tampered, truncated or oversized pack is refused', async () => {
   const entry = listed('afterlight'),
     bytes = source('afterlight');
@@ -247,15 +269,17 @@ test('the built adder embeds exactly the shipped listing and verifies the shippe
     }
     const built = await import(pathToFileURL(path.join(temp, adder.path)).href);
     assert.deepEqual(
-      built.COLLECTIONS.map(({ id, download, bytes, sha256, count }) => ({
+      built.COLLECTIONS.map(({ id, packId, download, bytes, sha256, count }) => ({
         id,
+        packId,
         download,
         bytes,
         sha256,
         count,
       })),
-      manifest.collections.map(({ id, download, bytes, sha256, count }) => ({
+      manifest.collections.map(({ id, packId, download, bytes, sha256, count }) => ({
         id,
+        packId,
         download,
         bytes,
         sha256,

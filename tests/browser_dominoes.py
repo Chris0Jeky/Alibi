@@ -146,7 +146,21 @@ with sync_playwright() as playwright:
         ]:
             page.locator('#domino-seed').fill(seed)
             page.locator('[data-action="club-domino-use-seed"]').click()
+            held_close = width == 1440 and seed == 'OUTCOME-6'
+            if held_close:
+                # Hold the browser's queued close event before the app listener runs.
+                # Deliver it only after the first keyboard move focuses the new status.
+                page.evaluate("""() => {
+                    const d = document.getElementById('dialog');
+                    window.__dominoCloseHeld = false;
+                    d.addEventListener('close', e => {
+                        e.stopImmediatePropagation();
+                        window.__dominoCloseHeld = true;
+                    }, {capture:true, once:true});
+                }""")
             page.locator('[data-action="club-reset-confirm"]').click()
+            if held_close:
+                page.wait_for_function('() => window.__dominoCloseHeld === true')
             for turn in range(100):
                 move = page.evaluate('''() => {
                     const E = AlibiClubEngines.dominoes, r = AlibiClub.diagnostics().state.runs.dominoes;
@@ -175,6 +189,13 @@ with sync_playwright() as playwright:
                 page.keyboard.press('Enter')
                 check_focus(page.locator('.domino-status'),
                             f'{seed} turn {turn}: keyboard action retains round context at {width}px')
+                if held_close and turn == 0:
+                    page.evaluate("""() => {
+                        delete window.__dominoCloseHeld;
+                        document.getElementById('dialog').dispatchEvent(new Event('close'));
+                    }""")
+                    check_focus(page.locator('.domino-status'),
+                                f'{seed}: delayed dialog close preserves newer round focus at {width}px')
             else:
                 raise AssertionError(f'{seed} did not finish within 100 legal actions')
             outcome = page.locator('.domino-status').inner_text()

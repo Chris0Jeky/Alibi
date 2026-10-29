@@ -40,6 +40,13 @@ def open_adder(page):
     return button, dialog
 
 
+def open_current_adder(page):
+    page.get_by_role('button', name='Add a curated collection', exact=True).click()
+    dialog = page.locator('dialog.collections-add[open]')
+    expect(dialog).to_be_visible()
+    return dialog
+
+
 def add(page, dialog, title):
     dialog.get_by_role('button', name=f'Add {title}', exact=True).click()
 
@@ -91,6 +98,8 @@ def run():
                     # Keyboard entry, focus, phone layout and Escape return.
                     button, dialog = open_adder(page)
                     expect(page.locator('#collections-title')).to_be_focused()
+                    expect(dialog.locator('[data-pack-status="lattice"]')).to_have_text('No matching pack ID found.')
+                    expect(dialog.locator('[data-pack-status="afterlight"]')).to_have_text('No matching pack ID found.')
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                     for title in (lattice['title'], afterlight['title']):
                         box = dialog.get_by_role('button', name=f'Add {title}', exact=True).bounding_box()
@@ -192,6 +201,8 @@ def run():
                     assert installed['puzzles'] == counts['puzzles'] + len(lattice['puzzles'])
                     assert page.evaluate(RUNS) == runs, 'adding leaves saved runs byte-identical'
                     _, dialog = open_adder(page)
+                    expect(dialog.locator('[data-pack-status="lattice"]')).to_contain_text('Pack ID present')
+                    expect(dialog.locator('[data-pack-status="afterlight"]')).to_contain_text('contents unverified')
                     add(page, dialog, lattice['title'])
                     expect(page.locator('#toasts')).to_contain_text('already installed', timeout=45000)
                     assert page.evaluate('AlibiDiagnostics.getCounts()') == installed
@@ -227,6 +238,14 @@ def run():
                     before = page.evaluate(ROWS)
                     # Saved-run broadcasts legitimately update the other tab's
                     # record count. Only its pack catalogue must remain stale.
+                    status_dialog = open_current_adder(stale)
+                    expect(status_dialog.locator('[data-pack-status="lattice"]')).to_contain_text('Pack ID present')
+                    status_dialog.get_by_role('button', name='Close', exact=True).click()
+                    context.set_offline(True)
+                    status_dialog = open_current_adder(stale)
+                    expect(status_dialog.locator('[data-pack-status="afterlight"]')).to_contain_text('Pack ID present')
+                    status_dialog.get_by_role('button', name='Close', exact=True).click()
+                    context.set_offline(False)
                     stale_catalogue = stale.evaluate(CATALOGUE)
                     assert stale_catalogue == {'puzzles': base['puzzles'], 'customPacks': base['customPacks']}, stale_catalogue
                     duplicate = json.loads(json.dumps(afterlight))
@@ -277,6 +296,10 @@ def run():
                             tx.oncomplete=ok;tx.onerror=()=>no(tx.error);tx.onabort=()=>no(tx.error)})}finally{db.close()}
                     }""")
                     before = stale.evaluate(ROWS)
+                    status_dialog = open_current_adder(stale)
+                    expect(status_dialog.locator('[data-pack-status="lattice"]')).to_have_text('Status unavailable.')
+                    expect(status_dialog.get_by_role('button', name=f"Add {lattice['title']}", exact=True)).to_be_enabled()
+                    status_dialog.get_by_role('button', name='Close', exact=True).click()
                     distinct['id'] = 'blocked-by-future-pack'
                     distinct['puzzles'][0]['id'] = 'blocked-by-future-picture'
                     choose_pack(stale, distinct)

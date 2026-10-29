@@ -197,6 +197,11 @@ test('prior assistance is explicit without importing pre-consent counts', () => 
   assert.equal(draft.assisted, true);
   assert.equal(draft.stages[0].priorAssistance, true);
   assert.equal(draft.stages[0].hints + draft.stages[0].reveals, 0);
+  assert.ok(
+    draft.limitations.some((line) =>
+      line.includes('earlier counts and timing are not reconstructed'),
+    ),
+  );
   r.cancel();
   r.start(true, 'alarm');
   r.open('window', true, true);
