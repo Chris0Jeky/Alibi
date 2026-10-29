@@ -53,6 +53,49 @@ def download(page, action, file):
     return json.loads(file.read_text())
 
 
+def share_invitation(page):
+    # Synthetic clipboard; exercise the actual controls and inspect exact visible bytes.
+    page.evaluate('''() => {
+      window.caseCopies = [];
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText(text) { window.caseCopies.push(text); return Promise.resolve(); }
+      }});
+    }''')
+    before = read(page)
+    case_click(page, 'share-open')
+    preview = page.locator('#case-share-text').inner_text()
+    assert 'The Reading Room Blackout' in preview
+    assert 'Fictional pre-case field note.' not in preview
+    for item in SOURCE['steps']:
+        assert item['title'] not in preview
+    for item in SOURCE['records']:
+        assert item['title'] not in preview
+    case_click(page, 'share-cancel')
+    assert page.evaluate('() => window.caseCopies') == []
+    assert read(page) == before
+    case_click(page, 'share-open')
+    assert page.locator('#case-share-text').inner_text() == preview
+    expect(page.locator('#case-share-text')).to_be_focused()
+    page.evaluate('''() => { navigator.clipboard.writeText = text => new Promise((resolve, reject) => {
+      window.caseReject = reject;
+    }); }''')
+    page.locator('[data-case-action="share-copy"]').click()
+    expect(page.locator('[data-case-action="share-copy"]')).to_be_disabled()
+    expect(page.locator('[data-case-action="share-cancel"]')).to_be_disabled()
+    page.evaluate("() => window.caseReject(new Error('synthetic denial'))")
+    expect(page.locator('[data-case-status]')).to_contain_text('blocked copying')
+    assert page.locator('#case-share-text').inner_text() == preview
+    expect(page.locator('#case-share-text')).to_be_focused()
+    page.evaluate('''() => { navigator.clipboard.writeText = text => {
+      window.caseCopies.push(text); return Promise.resolve();
+    }; }''')
+    case_click(page, 'share-copy')
+    expect(page.locator('[data-case-status]')).to_contain_text('copied')
+    assert page.evaluate('() => window.caseCopies') == [preview]
+    assert read(page) == before
+    return preview
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     report = {'passed': False, 'base': BASE, 'checks': [], 'errors': []}
@@ -119,6 +162,25 @@ def run():
                 expect(page.locator('[data-case-content]')).to_contain_text('Case ready offline.')
                 page.screenshot(path=str(OUT / f'case-install-{width}.png'))
                 assert read(page)['state']['notes'] == original['state']['notes']
+                initial_share = share_invitation(page)
+                record(width, 'share preview excludes notebook and hidden evidence; cancel writes nothing and explicit copy matches preview')
+                if width == 320:
+                    before = read(page)
+                    case_click(page, 'share-open')
+                    page.evaluate('''() => { navigator.clipboard.writeText = () => new Promise(resolve => {
+                      window.caseResolve = resolve;
+                    }); }''')
+                    page.locator('[data-case-action="share-copy"]').click()
+                    expect(page.locator('[data-case-action="share-cancel"]')).to_be_disabled()
+                    navigate(page, '#/quiet/castle/directory')
+                    expect(page.get_by_role('heading', name='Room directory')).to_be_visible()
+                    page.evaluate('() => window.caseResolve()')
+                    navigate(page, ROUTE)
+                    expect(page.locator('#case-verdict-0')).to_be_visible()
+                    assert page.locator('#case-share-text').count() == 0
+                    assert 'Invitation copied.' not in page.locator('[data-case-status]').inner_text()
+                    assert read(page) == before
+                    record(width, 'leaving during clipboard request cannot update the next case visit')
                 page.locator('#case-verdict-0').focus()
                 page.locator('#case-verdict-0').select_option('contradicted')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
@@ -206,6 +268,8 @@ def run():
                     page.get_by_role('button', name='Close window', exact=True).click()
                 case_click(page, 'stage', SOURCE['steps'][2]['id'])
                 record(width, 'header preference changes retain the selected completed stage and every accepted answer')
+                assert share_invitation(page) == initial_share
+                record(width, 'share invitation remains identical after case completion')
                 assert read(page)['state']['completed'] == original['state']['completed']
                 assert page.locator('.case-player').evaluate('(el) => el.scrollWidth <= el.clientWidth + 1')
                 page.screenshot(path=str(OUT / f'case-complete-{width}.png'), full_page=True)

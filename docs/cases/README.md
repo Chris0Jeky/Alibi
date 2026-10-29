@@ -1,6 +1,8 @@
 # Experimental evidence-case authoring
 
-Refs #436, #437 and #440. This is authoring tooling, not a new production import format or a shipped case.
+Refs #436, #437 and #440. This describes the authoring tools, not a production import
+format. The experimental Reading Room case is also integrated into Castle in source;
+its [host decision](CASTLE-HOST.md) records delivery, save ownership and remaining gates.
 
 Run `node tools/case-authoring.cjs path/to/case.json` with Node 22. Success prints a source-byte SHA-256 receipt and counts. A malformed source exits 1 with a field-path diagnostic. The file reader refuses non-regular files, invalid UTF-8 and sources larger than 262144 bytes. `validateCase` accepts already parsed plain JSON-shaped objects; `parseCase` additionally enforces serialized byte limits.
 
@@ -18,7 +20,8 @@ progress boundary. Unknown case formats and malformed identities are refused. Th
 the exact text before an explicit copy. Cancel before copying has no clipboard side effect;
 Copy and Cancel are disabled while the browser handles a request. Restart dismisses its UI
 result, but cannot undo a clipboard request already sent. Nothing is posted. Method labels,
-landing links and any production share surface wait for #440/#442.
+landing links are not implemented. The workbench preview and experimental Castle player both
+show the invitation before an explicit Copy; neither posts it or includes the Castle notebook.
 
 ## Story-mode parity (#447)
 
@@ -71,12 +74,22 @@ These are acceptance rules for future locale work, not a claim that locale loadi
 
 ## Verification and remaining work
 
-Local source tests: 47 passed after recorded failing contract tests, including a sparse-array regression. Existing castle suite: 70 passed. These are not a full build or browser result. Local `npm ci --offline` failed because youch-core 0.3.3 was not cached; no dependency versions were changed. The PR's exact-head CI and independent review remain gates.
+The initial authoring slice recorded 47 local source tests and 70 Castle tests; that historical
+evidence is not a current full-build or browser result. See the relevant change handoffs for
+exact-head qualification and outstanding gates.
 
-#441 supplies the original playable specimen and semantic model. #443 adds the author-test-only `tools/case-model.cjs`; its [receipt convention and proof limits](READING-ROOM-BLACKOUT.md#reusable-model-receipts) use that specimen. #442 owns any future adapter to an existing save domain and optional content delivery. The production catalogue, routes, storage, hints, application budgets and all published puzzle definitions remain unchanged.
+#441 supplies the original playable specimen and semantic model. #443 adds the author-test-only
+`tools/case-model.cjs`; its [receipt convention and proof limits](READING-ROOM-BLACKOUT.md#reusable-model-receipts)
+use that specimen. #442's [Castle adapter](CASTLE-HOST.md) uses the existing Castle notebook
+and optional delivery for this experimental case; it does not create a new save authority or
+change Chapter I. Source integration is not evidence of public deployment, physical-device
+acceptance or editorial approval.
 
 ## Playtest receipt (#455)
 
 `tools/case-playtest-receipt.cjs` is a memory-only collector embedded in the workbench preview. It is off until a tester presses **Start playtest receipt**; until then every recorder is a no-op. It builds a `postern-case-playtest-1` object from an allowlist: case ID, revision and source SHA-256, the story modes used, and per visited stage its ID, outcome (`completed` or `not-completed`), hint and reveal request counts, an `assisted` flag and explicit `priorAssistance` baseline, check submissions split into incomplete (interface) and reasoning rejections, repeat checks after completion, plus one tester observation of at most 500 characters. Events are capped at 500 (`truncated` reports the cap). Answers, citations, notes, saves, device details and timestamps are never read into it.
+
+The Castle player does not currently expose this receipt; the workbench implementation does
+not collect observations from Castle sessions automatically.
 
 Privacy/utility trade-off: with no timeline, the receipt cannot measure time on task or order of actions, and by design it does not support a difficulty score from speed. Counts begin at consent; `priorAssistance` marks help already used in this page at consent without importing earlier hint/reveal counts. That baseline contributes to `assisted` and survives hiding help, discarding a receipt, and restarting the preview. Reload starts a new page and cannot remember earlier exposure. Outcomes retain already-completed stages when visited. Counts say what help was requested, not whether it was read or needed; the incomplete/reasoning split is a shape heuristic (an empty verdict or no cited source), not intent. No identifying details or reasoning are collected automatically; the tester controls the optional observation and reads the exact JSON before copying it. Copying is the only output; **Discard receipt**, restart and reload drop it from page memory; they cannot erase an earlier clipboard copy or cancel one already requested. Nothing is sent (`connect-src 'none'`). Any later transmission should reuse the owner's existing feedback/Pulseboard direction rather than a new service or SDK. Tests use observation text labelled as a synthetic fixture; no human observation has been collected yet.
