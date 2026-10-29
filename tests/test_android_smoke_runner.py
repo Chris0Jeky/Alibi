@@ -59,7 +59,20 @@ elif name == 'adb':
             if (root / 'emulator.pid').exists(): break
             time.sleep(0.01)
         else: sys.exit(54)
-    elif args == ['shell', 'getprop', 'sys.boot_completed']: print('1\r')
+    elif args == ['shell', 'getprop', 'sys.boot_completed']:
+        countfile = root / 'boot-check-count'
+        count = int(countfile.read_text()) + 1 if countfile.exists() else 1
+        countfile.write_text(str(count))
+        print(('1' if count > int(os.environ.get('STUB_BOOT_DELAY', '0')) else '0') + '\r')
+    elif args == ['shell', 'service', 'check', 'phone']:
+        if os.environ.get('STUB_PHONE_CHECK_FAIL'): sys.exit(37)
+        countfile = root / 'phone-check-count'
+        count = int(countfile.read_text()) + 1 if countfile.exists() else 1
+        countfile.write_text(str(count))
+        ready = count > int(os.environ.get('STUB_PHONE_DELAY', '0'))
+        print('Service phone: ' + ('found' if ready else 'not found') + '\r')
+    elif args == ['shell', 'svc', 'wifi', 'disable'] and os.environ.get('STUB_WIFI_FAIL'):
+        sys.exit(31)
     elif args == ['shell', 'settings', 'get', 'global', 'airplane_mode_on']: print('1')
     elif args == ['logcat', '-d']: print('stub logcat retained')
 elif name == 'gradlew':
@@ -96,7 +109,11 @@ class SmokeRunnerTests(unittest.TestCase):
         preload = root / 'preload.sh'
         # The only unavailable host facility is KVM. Keep all other shell tests real.
         preload.write_text('test() { if [[ "$#" == 2 && "$1" == -e && "$2" == /dev/kvm ]]; '
-                           'then return 0; fi; builtin test "$@"; }\n')
+                           'then return 0; fi; builtin test "$@"; }\n'
+                           'seq() { if [[ -n "${STUB_SHORT_BOOT:-}" && "$*" == "1 90" ]]; '
+                           'then printf "1\\n2\\n3\\n"; else command seq "$@"; fi; }\n'
+                           'sleep() { if [[ -n "${STUB_SHORT_BOOT:-}" ]]; then :; '
+                           'else command sleep "$@"; fi; }\n')
         runner_temp = root / 'runner-temp'
         runner_temp.mkdir()
         inherited = [root / name for name in ('user-prefs', 'emulator-prefs', 'legacy-prefs')]
@@ -170,6 +187,51 @@ class SmokeRunnerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 23, result.stderr)
         self.assertFalse((root / 'recorded').exists())
         self.assertEqual((project / 'test-results/native/logcat.txt').read_text(), 'stub logcat retained\n')
+        self.assert_stopped(root)
+
+    def test_phone_appears_after_boot_before_any_network_command(self):
+        root, _, _, _, result, _, calls = self.run_smoke(STUB_SHORT_BOOT='1', STUB_PHONE_DELAY='2')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checks = [i for i, c in enumerate(calls) if c['args'] == ['shell', 'service', 'check', 'phone']]
+        self.assertEqual(len(checks), 3)
+        disable = next(i for i, c in enumerate(calls) if c['args'] == ['shell', 'svc', 'data', 'disable'])
+        airplane = next(i for i, c in enumerate(calls) if c['args'] == ['shell', 'cmd', 'connectivity', 'airplane-mode', 'enable'])
+        self.assertLess(checks[-1], airplane)
+        self.assertLess(airplane, disable)
+        self.assertTrue((root / 'recorded').exists())
+        self.assert_stopped(root)
+
+    def test_phone_never_ready_fails_before_network_or_instrumentation(self):
+        root, _, _, _, result, _, calls = self.run_smoke(STUB_SHORT_BOOT='1', STUB_PHONE_DELAY='99')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('phone', result.stderr.lower())
+        self.assertEqual(sum(c['args'] == ['shell', 'service', 'check', 'phone'] for c in calls), 3)
+        self.assertFalse(any(c['name'] == 'gradlew' or c['args'][:3] == ['shell', 'svc', 'data'] or
+                             c['args'][:3] == ['shell', 'cmd', 'connectivity'] for c in calls))
+        self.assertFalse((root / 'recorded').exists())
+        self.assert_stopped(root)
+
+    def test_unrelated_wifi_failure_propagates_before_instrumentation(self):
+        root, _, _, _, result, _, calls = self.run_smoke(STUB_SHORT_BOOT='1', STUB_WIFI_FAIL='1')
+        self.assertEqual(result.returncode, 31)
+        self.assertFalse(any(c['name'] == 'gradlew' or c['args'] == ['shell', 'svc', 'data', 'disable'] for c in calls))
+        self.assertFalse((root / 'recorded').exists())
+        self.assert_stopped(root)
+
+    def test_phone_wait_uses_remaining_boot_poll_budget(self):
+        root, _, _, _, result, _, calls = self.run_smoke(
+            STUB_SHORT_BOOT='1', STUB_BOOT_DELAY='2', STUB_PHONE_DELAY='1')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('phone-service', result.stderr)
+        self.assertEqual(sum(c['args'] == ['shell', 'getprop', 'sys.boot_completed'] for c in calls), 3)
+        self.assertEqual(sum(c['args'] == ['shell', 'service', 'check', 'phone'] for c in calls), 1)
+        self.assertFalse(any(c['name'] == 'gradlew' for c in calls))
+        self.assert_stopped(root)
+
+    def test_phone_query_failure_preserves_status(self):
+        root, _, _, _, result, _, calls = self.run_smoke(STUB_SHORT_BOOT='1', STUB_PHONE_CHECK_FAIL='1')
+        self.assertEqual(result.returncode, 37)
+        self.assertFalse(any(c['name'] == 'gradlew' or c['args'] == ['shell', 'svc', 'data', 'disable'] for c in calls))
         self.assert_stopped(root)
 
 

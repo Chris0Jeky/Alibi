@@ -117,7 +117,7 @@ public class NativeOfflineSmokeTest {
                         + " heartbeat-age-ms=" + (beat < 0 ? -1 : now - beat));
                 traceMainThread(label);
             }
-            assertTrue("WebView evaluation timed out", completed);
+            assertTrue("WebView evaluation timed out: " + label, completed);
             return value.get();
         } finally {
             heartbeat.stop();
