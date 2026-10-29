@@ -54,6 +54,15 @@ all three verdict/citation pairs with valid sources and leaves the first verdict
 the intended reasoning-rejection count. This is another fixture correction; no production behavior
 changed. Final-head hosted browser qualification remains required.
 
+The following hosted run (40814738494, head `4986282`) passed the complete-answer
+reasoning-count assertion, then exposed a clipboard-stub leak in the 320px fixture path. The
+delayed invitation-copy test replaced `navigator.clipboard.writeText`, resolved its pending
+promise, and left that temporary function installed; the later receipt-copy test therefore hung
+and left controls disabled. Both delayed-copy tests now restore their prior write function before
+resolving and remove their temporary resolver. Fetch overrides and offline toggles are restored at
+their existing teardown points. This is a fixture-only correction; final-head hosted browser
+qualification remains required.
+
 ## Acceptance still outstanding
 
 No real participant observation has been collected, and this change does not establish editorial,

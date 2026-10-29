@@ -276,14 +276,23 @@ def run():
                 if width == 320:
                     before = read(page)
                     case_click(page, 'share-open')
-                    page.evaluate('''() => { navigator.clipboard.writeText = () => new Promise(resolve => {
-                      window.caseResolve = resolve;
-                    }); }''')
+                    page.evaluate('''() => {
+                      window.caseReceiptWriteText = navigator.clipboard.writeText;
+                      navigator.clipboard.writeText = () => new Promise(resolve => {
+                        window.caseResolve = resolve;
+                      });
+                    }''')
                     page.locator('[data-case-action="share-copy"]').click()
                     expect(page.locator('[data-case-action="share-cancel"]')).to_be_disabled()
                     navigate(page, '#/quiet/castle/directory')
                     expect(page.get_by_role('heading', name='Room directory')).to_be_visible()
-                    page.evaluate('() => window.caseResolve()')
+                    page.evaluate('''() => {
+                      const resolve = window.caseResolve;
+                      navigator.clipboard.writeText = window.caseReceiptWriteText;
+                      delete window.caseReceiptWriteText;
+                      delete window.caseResolve;
+                      resolve();
+                    }''')
                     navigate(page, ROUTE)
                     expect(page.locator('#case-verdict-0')).to_be_visible()
                     assert page.locator('#case-share-text').count() == 0
@@ -375,9 +384,12 @@ def run():
                 if width == 320:
                     case_click(page, 'receipt-start')
                     case_click(page, 'receipt-review')
-                    page.evaluate('''() => { navigator.clipboard.writeText = () => new Promise(resolve => {
-                      window.caseReceiptResolve = resolve;
-                    }); }''')
+                    page.evaluate('''() => {
+                      window.caseReceiptWriteText = navigator.clipboard.writeText;
+                      navigator.clipboard.writeText = () => new Promise(resolve => {
+                        window.caseReceiptResolve = resolve;
+                      });
+                    }''')
                     page.locator('[data-case-action="receipt-copy"]').click()
                     expect(page.locator('[data-case-action="receipt-copy"]')).to_be_disabled()
                     navigate(page, '#/quiet/castle/directory')
@@ -385,7 +397,13 @@ def run():
                     navigate(page, ROUTE)
                     expect(page.locator('#case-verdict-0')).to_be_visible()
                     expect(page.get_by_role('button', name='Start local playtest receipt')).to_be_visible()
-                    page.evaluate('() => window.caseReceiptResolve()')
+                    page.evaluate('''() => {
+                      const resolve = window.caseReceiptResolve;
+                      navigator.clipboard.writeText = window.caseReceiptWriteText;
+                      delete window.caseReceiptWriteText;
+                      delete window.caseReceiptResolve;
+                      resolve();
+                    }''')
                     assert 'Receipt copied.' not in page.locator('[data-case-status]').inner_text()
                     assert page.locator('#case-receipt-preview').count() == 0
                     record(width, 'a pending receipt copy cannot alter a later visit, and route disposal returns collection to off')
