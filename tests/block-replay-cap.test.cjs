@@ -60,7 +60,11 @@ test('Club restores an exact-cap replay and preserves undo and redo across reloa
   page = first.club.roomPage('blockcabinet');
   assert.match(page, /TURN <strong>499<\/strong>/);
   assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
-  assert.equal(moveCalls, 999, 'undo rebuilds the 499-move active prefix after the full replay');
+  const undoReplayWork = moveCalls - 500;
+  assert.ok(
+    undoReplayWork > 0 && undoReplayWork <= 64,
+    `undo replays only the suffix after a nearby checkpoint (${undoReplayWork} moves)`,
+  );
   const afterUndo = first.storage.get('alibi-afterhours-v1');
   assert.deepEqual(JSON.parse(afterUndo).data.runs.blockcabinet.log, log.slice(0, -1));
   assert.deepEqual(JSON.parse(afterUndo).data.runs.blockcabinet.redo, [log.at(-1)]);
@@ -72,7 +76,11 @@ test('Club restores an exact-cap replay and preserves undo and redo across reloa
   page = restored.club.roomPage('blockcabinet');
   assert.match(page, /TURN <strong>499<\/strong>/);
   assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
-  assert.equal(moveCalls, 999, 'the active 499-move prefix is rebuilt once after validation');
+  const restoredUndoReplayWork = moveCalls - 500;
+  assert.ok(
+    restoredUndoReplayWork > 0 && restoredUndoReplayWork <= 64,
+    `the restored 499-move prefix replays only its checkpoint suffix (${restoredUndoReplayWork} moves)`,
+  );
 
   await restored.action('redo', { id: 'blockcabinet' });
   assert.deepEqual(restored.state().runs.blockcabinet.log, log);
@@ -80,7 +88,11 @@ test('Club restores an exact-cap replay and preserves undo and redo across reloa
   page = restored.club.roomPage('blockcabinet');
   assert.match(page, /TURN <strong>500<\/strong>/);
   assert.doesNotMatch(page, /<strong>Cabinet closed\.<\/strong>/);
-  assert.equal(moveCalls, 1000, 'redo extends the warmed prefix by one transition');
+  assert.equal(
+    moveCalls,
+    500 + restoredUndoReplayWork + 1,
+    'redo extends the warmed prefix by exactly one transition',
+  );
 
   const afterRedo = restored.storage.get('alibi-afterhours-v1');
   const savedAtCap = JSON.parse(afterRedo).data.runs.blockcabinet;
