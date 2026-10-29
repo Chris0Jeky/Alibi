@@ -59,6 +59,57 @@ test('a valid appended move replays only the new suffix', () => {
     assert.equal(count(), log.length);
   });
 });
+test('nearby undo prefixes resume from checkpoints and failed edits keep the valid path warm', () => {
+  const fixture = require('./fixtures/block-replay-cap.json');
+  const log = fixture.moves.map(([slot, cell]) => ({ slot, cell }));
+  const lengths = [499, 450, 300, 255];
+  const expected = new Map(
+    lengths.map((length) => [
+      length,
+      log
+        .slice(0, length)
+        .reduce(
+          (state, action) => E.move(state, action.slot, action.cell),
+          E.initial(fixture.seed),
+        ),
+    ]),
+  );
+  E.replay(fixture.seed, log);
+
+  const move = E.move;
+  let calls = 0;
+  E.move = function (...args) {
+    calls++;
+    return move.apply(this, args);
+  };
+  try {
+    for (const length of lengths) {
+      const before = calls;
+      assert.deepEqual(E.replay(fixture.seed, log.slice(0, length)), expected.get(length));
+      const replayed = calls - before;
+      assert.ok(replayed <= 64, `${length}-move prefix replayed ${replayed} moves after undo`);
+    }
+
+    const edited = log.slice(0, 255);
+    edited[200] = { ...edited[199] };
+    const beforeFailure = calls;
+    assert.throws(() => E.replay(fixture.seed, edited), /does not fit|cabinet is closed/);
+    assert.ok(
+      calls > beforeFailure,
+      'the changed middle is replayed and rejected after its checkpoint',
+    );
+
+    const beforeRecovery = calls;
+    assert.deepEqual(E.replay(fixture.seed, log.slice(0, 255)), expected.get(255));
+    assert.equal(
+      calls,
+      beforeRecovery,
+      'failed edited history leaves the prior valid checkpoints intact',
+    );
+  } finally {
+    E.move = move;
+  }
+});
 test('undo, redo and a different valid branch match uncached production replay', () => {
   const seed = 'CACHE-UNDO',
     { log } = history(seed, 8);
