@@ -19,7 +19,7 @@ export function mount({ root, store, save }) {
   const record = () => store.state.caseStudy;
   const completed = () => definition.steps.slice(0, record().answers.length).map((s) => s.id);
   const button = (text, action, value = '') =>
-    `<button type="button" data-case-action="${action}" data-value="${escape(value)}">${escape(text)}</button>`;
+    `<button id="case-${action}-${escape(value)}" type="button" data-case-action="${action}" data-value="${escape(value)}">${escape(text)}</button>`;
   const current = () => !signal.aborted && root.isConnected;
   function status() {
     if (!current()) return;
@@ -27,9 +27,8 @@ export function mount({ root, store, save }) {
     for (const el of root.querySelectorAll('button,select,input'))
       el.disabled = busy || store.mode !== 'local';
   }
-  function draw() {
+  function draw(focused = root.getRootNode().activeElement?.id) {
     if (!current()) return;
-    const focused = root.getRootNode().activeElement?.id;
     const story = store.state.preferences.story;
     root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>This fictional study is separate from Wrenmere Chapter I. Wording and fairness still await editorial review. It adds no points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
@@ -110,6 +109,7 @@ export function mount({ root, store, save }) {
   }
   async function run(operation) {
     if (busy || !current()) return;
+    const focused = root.getRootNode().activeElement?.id;
     busy = true;
     message = 'Saving or preparing the case…';
     status();
@@ -119,7 +119,7 @@ export function mount({ root, store, save }) {
       if (current()) message = error.message;
     } finally {
       busy = false;
-      draw();
+      draw(focused);
     }
   }
   root.addEventListener('submit', (e) => e.preventDefault(), { signal });

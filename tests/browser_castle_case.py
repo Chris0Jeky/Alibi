@@ -117,6 +117,7 @@ def run():
                 assert read(page)['state']['notes'] == original['state']['notes']
                 page.locator('#case-verdict-0').select_option('contradicted')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
+                expect(page.locator('#case-verdict-0')).to_be_focused()
                 page.locator('[data-case-cite="0"][value="checks"]').check()
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
                 wrong = read(page)['state']['caseStudy']
@@ -128,6 +129,7 @@ def run():
                 retained = read(page)['state']['caseStudy']
                 page.locator('#case-verdict-0').focus()
                 case_click(page, 'story')
+                expect(page.locator('[data-case-action="story"]')).to_be_focused()
                 assert read(page)['state']['caseStudy'] == retained
                 assert read(page)['state']['preferences']['story'] is False
                 case_click(page, 'story')
@@ -156,6 +158,7 @@ def run():
                             checkbox.set_checked(checked)
                             expect(page.locator(f'#case-verdict-{j}')).to_be_enabled()
                     case_click(page, 'check')
+                    expect(page.locator('[data-case-action="check"]')).to_be_focused()
                     expect(page.locator('[data-case-status]')).to_contain_text('accepted and saved')
                     assert len(read(page)['state']['caseStudy']['answers']) == i + 1
                     committed = read(page)
