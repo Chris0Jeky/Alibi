@@ -27,6 +27,7 @@
     `<button class="round" data-action="${action}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs}>${icon(ic)}</button>`;
   const tool = (label, action, ic = '', active = false, attrs = '') =>
     `<button class="tool ${active ? 'active' : ''}" data-action="${action}" ${active ? 'aria-pressed="true"' : ''} ${attrs}>${ic ? icon(ic) : ''}${label}</button>`;
+  if (await AlibiOriginTransfer.protectStartup(download)) return;
   const store = await new AlibiStorage.Store().init();
   let settings = {
     theme: 'light',

@@ -1,9 +1,10 @@
-"""Real Chromium DOM/control checks in an isolated page. Not a hosted PWA/device test.
+"""Real Chromium DOM/control checks in an isolated no-origin page, not a hosted PWA/device test.
 Optional test dependency: python -m pip install playwright; playwright install chromium.
 Use CHROMIUM_PATH to override the Chromium executable when needed.
 """
 import json, os, time
 from pathlib import Path
+from fixture_capabilities import model_indexeddb_absent
 from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
@@ -24,8 +25,11 @@ with sync_playwright() as pw:
     context=browser.new_context(viewport={'width':int(os.environ.get('ALIBI_UI_WIDTH','1440')),'height':1000},accept_downloads=True,reduced_motion='reduce')
     page=context.new_page();page.set_default_timeout(5000)
     page.on('pageerror',lambda e: errors.append(str(e)))
-    page.set_content((ROOT/'alibi-deluxe-play.html').read_text(),wait_until='load')
+    page.set_content(model_indexeddb_absent((ROOT/'alibi-deluxe-play.html').read_text()),wait_until='load')
     page.wait_for_function('window.AlibiDiagnostics')
+    check(page.evaluate("location.origin==='null' && typeof indexedDB==='undefined'"), 'Isolated document explicitly models unavailable IndexedDB')
+    check(page.locator('#origin-recovery-title').count()==0, 'Unavailable IndexedDB follows ordinary session startup without a recovery hold')
+    check(page.evaluate("AlibiDiagnostics.getStatus().mode==='session'"), 'No-origin fixture uses the existing session-storage fallback')
     def action(a,extra=''):
         page.locator(f'[data-action="{a}"]'+extra).first.click()
     def dismiss():
@@ -183,6 +187,6 @@ with sync_playwright() as pw:
     page.evaluate('(title)=>{const p=ALIBI_CATALOG.puzzles.find(p=>p.id==="sudoku-02");p.revision=1;p.title=title;}',old_title)
     check(page.evaluate('failedVibrationAttempts') > 0,'Actual game controls complete and export saved moves despite failed vibration')
     check(not errors,'No uncaught browser exceptions')
-    (ROOT/'tests/browser-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'checks':checks,'errors':errors,'browser':browser.version,'build':page.evaluate('ALIBI_CONFIG.build'),'scope':'Chromium isolated page via set_content; real DOM, controls, Blob workers and downloads; not hosted navigation, IndexedDB persistence, real service worker or Android.'},indent=2))
+    (ROOT/'tests/browser-results.json').write_text(json.dumps({'passed':True,'assertions':len(checks),'checks':checks,'errors':errors,'browser':browser.version,'build':page.evaluate('ALIBI_CONFIG.build'),'scope':'Chromium set_content fixture with IndexedDB explicitly absent before app scripts; real DOM, controls, Blob workers and downloads; not hosted navigation, IndexedDB persistence, real service worker or Android.'},indent=2))
     browser.close()
 print('PASS',len(checks),'browser checks')

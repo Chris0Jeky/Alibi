@@ -3,10 +3,13 @@ on:
   pull_request:
     paths:
       - 'src/origin-transfer.js'
+      - 'src/app.js'
+      - 'src/boot.js'
       - 'tests/origin-transfer*.test.cjs'
       - 'tests/browser_origin_transfer_open.py'
       - 'tests/browser_origin_transfer_recovery.py'
       - 'tests/browser_origin_transfer_quiet_fallback.py'
+      - 'tests/browser_origin_transfer_startup.py'
       - 'requirements-dev.txt'
       - '.github/workflows/origin-transfer-safety.yml'
   workflow_dispatch:
@@ -39,7 +42,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           mkdir -p test-results/origin-transfer-safety
           printf '{"sourceSha":"%s","treeSha":"%s"}\n' "$(git rev-parse HEAD)" "$(git rev-parse HEAD^{tree})" > test-results/origin-transfer-safety/source-head.json
-          sha256sum src/origin-transfer.js tests/origin-transfer*.test.cjs tests/browser_origin_transfer_open.py tests/browser_origin_transfer_recovery.py tests/browser_origin_transfer_quiet_fallback.py requirements-dev.txt .github/workflows/origin-transfer-safety.yml | tee test-results/origin-transfer-safety/inputs.sha256
+          sha256sum src/origin-transfer.js src/app.js src/boot.js tests/origin-transfer*.test.cjs tests/browser_origin_transfer_open.py tests/browser_origin_transfer_recovery.py tests/browser_origin_transfer_quiet_fallback.py tests/browser_origin_transfer_startup.py requirements-dev.txt .github/workflows/origin-transfer-safety.yml | tee test-results/origin-transfer-safety/inputs.sha256
       - name: Exercise all transfer coordinator contracts
         run: |
           set -o pipefail
@@ -71,6 +74,7 @@ jobs:
           python tests/browser_origin_transfer_open.py 2>&1 | tee test-results/origin-transfer-safety/browser-open.log
           python tests/browser_origin_transfer_recovery.py 2>&1 | tee test-results/origin-transfer-safety/browser-recovery.log
           python tests/browser_origin_transfer_quiet_fallback.py 2>&1 | tee test-results/origin-transfer-safety/browser-quiet-fallback.log
+          python tests/browser_origin_transfer_startup.py 2>&1 | tee test-results/origin-transfer-safety/browser-startup.log
       - name: Verify source was not rewritten during qualification
         if: ${{ !cancelled() }}
         run: |
