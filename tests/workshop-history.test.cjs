@@ -301,10 +301,7 @@ for (const interrupt of ['another edit', 'Undo']) {
     assert.deepEqual(h.state().draft, interrupted);
     for (let i = 0; i < 49; i++) await h.action('undo-draft');
     assert.equal(h.state().undo, 0);
-    assert.equal(
-      h.state().draft.roomNames[0],
-      interrupt === 'Undo' ? 'Room 1' : 'Room 3',
-    );
+    assert.equal(h.state().draft.roomNames[0], interrupt === 'Undo' ? 'Room 1' : 'Room 3');
     for (let i = 0; i < 50; i++) await h.action('redo-draft');
     assert.deepEqual(h.state().draft, final);
     assert.deepEqual(h.saves.at(-1), { puzzle: final });

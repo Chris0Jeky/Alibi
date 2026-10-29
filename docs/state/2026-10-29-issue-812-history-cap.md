@@ -60,6 +60,15 @@ fails with an assertion and exit 1. The production app and catalogue are unchang
 by this test/documentation follow-up. A new head still requires fresh hosted checks;
 the initial head's green workflows are not substituted for them.
 
+The first hardening head `bddb6a275ede8f33bd8518852a141d8783e5fc3c` failed hosted
+formatting in `tests/workshop-history.test.cjs` (full run `40953163807`); build/tests
+were not reached by that job. The repository-pinned Prettier 3.9.6, installed only
+in an isolated task tool directory with lifecycle scripts disabled, corrected one
+assertion's wrapping. Its complete repository formatting inventory passes locally,
+and the final 89-test suite and all three negative controls pass their intended
+outcomes again. This does not replace that failed attempt or claim a new full local
+build/Node/browser result; the formatted new head requires its own hosted checks.
+
 ## Human actions and preservation
 
 [HUMAN_TODO.md](../../HUMAN_TODO.md) stays unchanged: q-2 physical Android acceptance;
