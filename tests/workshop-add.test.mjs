@@ -100,6 +100,79 @@ test('an endless response is cut off at the listed size instead of being buffere
   assert.ok(cancelled, 'the download is cancelled');
 });
 
+test('cancelling before a download starts makes no request', async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const { calls, get } = recorder(() => new Response(source('lattice')));
+  await assert.rejects(
+    fetchPack(listed('lattice'), BASE, get, undefined, controller.signal),
+    /cancelled.*Nothing was installed/,
+  );
+  assert.equal(calls.length, 0);
+});
+
+test('cancelling a pending response discards and cancels even a late body', async () => {
+  const controller = new AbortController();
+  let resolve,
+    cancelled = false;
+  const { calls, get } = recorder(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const pending = fetchPack(listed('lattice'), BASE, get, undefined, controller.signal);
+  controller.abort();
+  resolve(
+    new Response(
+      new ReadableStream({
+        start(stream) {
+          stream.enqueue(source('lattice'));
+          stream.close();
+        },
+        cancel() {
+          cancelled = true;
+        },
+      }),
+    ),
+  );
+  await assert.rejects(pending, /cancelled.*Nothing was installed/);
+  assert.equal(calls[0].options.signal, controller.signal);
+  assert.equal(cancelled, true, 'an ignored abort cannot leave an unneeded response streaming');
+});
+
+test('cancelling while reading stops the stream and never returns bytes for installation', async () => {
+  const controller = new AbortController();
+  let stream,
+    cancelled = false;
+  const body = new ReadableStream({
+    start(value) {
+      stream = value;
+      value.enqueue(source('lattice'));
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+  const pending = fetchPack(
+    listed('lattice'),
+    BASE,
+    async () => new Response(body),
+    () => controller.abort(),
+    controller.signal,
+  );
+  // Let the old implementation finish, so a missing cancellation fails rather than hanging.
+  const timer = setTimeout(() => {
+    if (!cancelled) stream.close();
+  }, 30);
+  try {
+    await assert.rejects(pending, /cancelled.*Nothing was installed/);
+    assert.equal(cancelled, true);
+  } finally {
+    clearTimeout(timer);
+  }
+});
+
 test('unavailable, offline or invalid listings fail closed before anything is handed on', async () => {
   const entry = listed('lattice');
   await assert.rejects(

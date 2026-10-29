@@ -94,6 +94,46 @@ def run():
                     assert counts['puzzles'] == base['puzzles'] + len(afterlight['puzzles'])
                     checks.append({'width': width, 'case': 'afterlight-added-played-saved'})
 
+                    # Closing or navigating away cancels even a fetch implementation that
+                    # ignores abort and supplies its response later. No importer may run.
+                    for cancel in ('escape', 'close', 'navigation'):
+                        button, dialog = open_adder(page)
+                        page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                        before_cancel = page.evaluate(RUNS)
+                        page.evaluate("""()=>{
+                            const original = window.fetch;
+                            window.__lateCollection = {original};
+                            window.fetch = (url, options) => String(url).includes('/assets/workshop/lattice.')
+                                ? new Promise(resolve => Object.assign(window.__lateCollection, {resolve, options}))
+                                : original(url, options);
+                        }""")
+                        add(page, dialog, lattice['title'])
+                        page.wait_for_function('()=>!!window.__lateCollection.resolve')
+                        expect(dialog.locator('[role="status"]')).to_contain_text('Close to cancel')
+                        if cancel == 'escape':
+                            page.keyboard.press('Escape')
+                        elif cancel == 'close':
+                            dialog.get_by_role('button', name='Close', exact=True).click()
+                        else:
+                            page.evaluate("location.hash = '#/'")
+                        expect(page.locator('dialog.collections-add')).to_have_count(0)
+                        if cancel != 'navigation':
+                            expect(button).to_be_focused()
+                        assert page.evaluate('window.__lateCollection.options.signal?.aborted === true'), cancel
+                        page.evaluate("""bytes=>{
+                            const pending = window.__lateCollection;
+                            window.fetch = pending.original;
+                            pending.resolve(new Response(new ReadableStream({
+                                start(stream) { stream.enqueue(new Uint8Array(bytes)); stream.close(); },
+                                cancel() { pending.bodyCancelled = true; }
+                            })));
+                        }""", list((ROOT / 'content/workshop' / POLICY['lattice']['source']).read_bytes()))
+                        page.wait_for_function('()=>window.__lateCollection.bodyCancelled === true')
+                        expect(page.locator('#dialog[open]')).to_have_count(0)
+                        assert page.evaluate('AlibiDiagnostics.getCounts()') == counts
+                        assert page.evaluate(RUNS) == before_cancel, 'cancelled download preserves saved runs'
+                        checks.append({'width': width, 'case': f'pending-{cancel}-late-response-discarded'})
+
                     # Tampered bytes, then an offline download: both refused, nothing changed.
                     hits = []
 
@@ -165,8 +205,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 10:
-        failures.append({'coverage': len(checks), 'expected': 10})
+    if len(checks) != 16:
+        failures.append({'coverage': len(checks), 'expected': 16})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}
