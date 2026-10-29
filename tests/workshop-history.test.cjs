@@ -231,6 +231,33 @@ test('only the newest fifty edits remain undoable and empty history does nothing
   assert.equal(h.state().draft.roomNames[0], 'Room 53');
 });
 
+test('cancelling a room-name session at the cap preserves all fifty exact Undo and Redo steps', async () => {
+  const h = fixture(),
+    snapshots = [h.state().draft];
+  for (let i = 1; i <= 50; i++) {
+    h.name('Room ' + i);
+    h.blur();
+    snapshots.push(h.state().draft);
+  }
+  for (let i = 0; i < 2; i++) {
+    h.name('Temporary name');
+    h.name('Room 50');
+    h.blur();
+    assert.equal(h.state().undo, 50);
+    assert.deepEqual(h.saves.at(-1), { puzzle: snapshots[50] });
+  }
+  for (let i = 49; i >= 0; i--) {
+    await h.action('undo-draft');
+    assert.deepEqual(h.state().draft, snapshots[i]);
+  }
+  assert.equal(h.state().undo, 0);
+  assert.equal(h.state().redo, 50);
+  for (const snapshot of snapshots.slice(1)) {
+    await h.action('redo-draft');
+    assert.deepEqual(h.state().draft, snapshot);
+  }
+});
+
 test('one room-name editing session is one step, including a return to its original value', async () => {
   const h = fixture();
   h.name('G');
