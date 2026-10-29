@@ -161,7 +161,7 @@ named(
     const optional = setup();
     await optional.lifecycle('install');
     const files = fs.readdirSync(path.join(ROOT, 'dist/assets/cases'));
-    assert.equal(files.length, 2);
+    assert.equal(files.length, 3);
     const cache = new Map();
     optional.data.set('alibi-case-pack-fictional', cache);
     for (const file of files) {

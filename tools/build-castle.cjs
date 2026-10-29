@@ -67,6 +67,21 @@ module.exports = function buildCastle(root, dist) {
   if (sha256 !== '6b86c2495fdf4b8c720203b00b4765772aeac0505614b31be4b1aa378cfb6a2c')
     throw Error('The Castle case changed. Review its pinned save contract before delivery.');
   const download = `${definition.id}.${sha256}.json`;
+  const receiptBytes = require('esbuild').buildSync({
+    entryPoints: [path.join(root, 'src/castle/case-receipt.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    write: false,
+  }).outputFiles[0].contents;
+  const receiptSha256 = crypto.createHash('sha256').update(receiptBytes).digest('hex');
+  const receipt = {
+    download: `receipt.${hash(receiptBytes)}.js`,
+    sha256: receiptSha256,
+    bytes: receiptBytes.length,
+  };
+  fs.writeFileSync(path.join(caseDir, receipt.download), receiptBytes);
   const casePlayer = require('esbuild').buildSync({
     entryPoints: [path.join(root, 'src/castle/case-player.mjs')],
     bundle: true,
@@ -80,6 +95,7 @@ module.exports = function buildCastle(root, dist) {
         download,
         sha256,
         bytes: caseBytes.length,
+        receipt,
       }),
     },
   }).outputFiles[0].contents;
@@ -146,9 +162,11 @@ module.exports = function buildCastle(root, dist) {
     [...roomBytes.values()].reduce((total, value) => total + value.delivered.length, 0) +
     optionalBytes +
     casePlayer.length +
+    receiptBytes.length +
     caseBytes.length;
   return {
     config: { script, files, build: hash(scriptBytes), media, film, caseStudy },
+    receipt,
     // The self-contained preview has no network origin, so embed only the
     // bounded scene set. The film remains explicitly on-demand there too.
     standalone: {

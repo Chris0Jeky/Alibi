@@ -14,6 +14,8 @@
     let focusFrame = 0;
     let postRouteFocus = '';
     let visibilityFrame = 0;
+    let queryHash = '',
+      queryDraft = null;
     const lifetime = new AbortController();
     const options = { signal: lifetime.signal };
     const active = () => M.locationState(location.hash).active;
@@ -37,6 +39,7 @@
         storage: G.AlibiDiagnostics?.getStatus()?.mode || 'unknown',
         resume: M.nextActivity(records, games),
         route,
+        queryDraft: queryHash === location.hash && queryDraft !== null ? queryDraft : route.q,
         puzzles,
         records,
         study,
@@ -127,6 +130,36 @@
       options,
     );
     document.addEventListener(
+      'input',
+      (event) => {
+        const input = event.target;
+        if (
+          input.id === 'hx-query' &&
+          input.isConnected &&
+          input === document.getElementById('hx-query') &&
+          lastHash === location.hash &&
+          active() &&
+          M.locationState(location.hash).view === 'puzzles'
+        ) {
+          queryHash = location.hash;
+          queryDraft = input.value;
+        }
+      },
+      options,
+    );
+    G.addEventListener?.(
+      'hashchange',
+      (event) => {
+        const oldHash = new URL(event.oldURL).hash,
+          newHash = new URL(event.newURL).hash;
+        if (queryHash !== location.hash || (queryHash === oldHash && oldHash !== newHash)) {
+          queryHash = '';
+          queryDraft = null;
+        }
+      },
+      options,
+    );
+    document.addEventListener(
       'submit',
       (event) => {
         if (!active()) return;
@@ -134,6 +167,8 @@
         if (['hx-search-form', 'hx-filter-form'].includes(form.id)) {
           event.preventDefault();
           const data = new FormData(form);
+          queryHash = '';
+          queryDraft = null;
           if (form.id === 'hx-filter-form') {
             modalOrigin = null;
             document.getElementById('dialog').close();
@@ -230,6 +265,10 @@
         return V.render(snapshot());
       },
       afterRender(route) {
+        if (queryHash !== location.hash) {
+          queryHash = '';
+          queryDraft = null;
+        }
         keyboardInset();
         if (!active() && modalOrigin) {
           modalOrigin = null;
@@ -284,6 +323,8 @@
       },
       diagnostics: () => ({ study: { ...study, visited: [...study.visited] }, limit }),
       dispose() {
+        queryHash = '';
+        queryDraft = null;
         lifetime.abort();
         cancelAnimationFrame(visibilityFrame);
         document.body.dataset.houseKeyboard = 'false';
