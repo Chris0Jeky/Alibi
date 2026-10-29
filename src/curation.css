@@ -247,17 +247,16 @@ details > summary:focus-visible {
 }
 .news-features strong {
   font:
-    600 23px/1.25 Georgia,
+    600 var(--text-h3)/1.25 Georgia,
     serif;
 }
 .news-features span span {
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: 1.6;
 }
 .news-features b {
-  font-size: 14px;
-  margin-top: 5px;
+  font-size: var(--text-meta);
   color: var(--green);
 }
 .news-symbol {

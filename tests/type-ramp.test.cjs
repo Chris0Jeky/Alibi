@@ -12,6 +12,7 @@ const appCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'app.css'), 'ut
 const css = fs.readFileSync(path.join(__dirname, '..', 'src', 'club.css'), 'utf8');
 const cabinetCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'cabinet.css'), 'utf8');
 const afterHours = fs.readFileSync(path.join(__dirname, '..', 'src', 'after-hours.css'), 'utf8');
+const curationCss = fs.readFileSync(path.join(__dirname, '..', 'src', 'curation.css'), 'utf8');
 
 function tokenSteps(name) {
   const values = [...appCss.matchAll(new RegExp(`--text-${name}:\\s*(\\d+)px`, 'g'))].map((match) =>
@@ -98,4 +99,23 @@ test('Desk and shared headings consume their role tokens', () => {
     /\.hero-copy h2 \{[^}]*font-size:/s,
     'club.css must not carry a dead hero font-size overridden by after-hours.css',
   );
+});
+
+test('Desk news cards map titles, copy and actions to the shared ramp', () => {
+  assert.match(
+    curationCss,
+    /\.news-features strong\s*\{[^}]*var\(--text-h3\)/s,
+    'feature titles use the display h3 step',
+  );
+  assert.match(
+    curationCss,
+    /\.news-features span span\s*\{[^}]*font-size:\s*var\(--text-body\)/s,
+    'feature descriptions use the UI body step',
+  );
+  assert.match(
+    curationCss,
+    /\.news-features b\s*\{[^}]*font-size:\s*var\(--text-meta\)/s,
+    'feature actions use the metadata step',
+  );
+  assert.match(curationCss, /\.news-features strong\s*\{[^}]*Georgia/s);
 });
