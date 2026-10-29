@@ -810,6 +810,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         mutate((n) => {
           n.preferences[key] = el.checked;
         });
+        caseVisit?.refresh();
       } else if (el.id === 'show-inspectables') {
         inspectablesVisible = el.checked;
       } else if (el.id === 'map-zoom') {
@@ -853,7 +854,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   function route() {
     if (disposed) return;
     const epoch = ++caseEpoch;
-    caseVisit?.();
+    caseVisit?.dispose();
     caseVisit = null;
     releaseFilm();
     active = null;
@@ -936,7 +937,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     },
     dispose() {
       disposed = true;
-      caseVisit?.();
+      caseVisit?.dispose();
       if (showStagedImport === reviewStaged) showStagedImport = null;
       releaseFilm();
       abort.abort();
