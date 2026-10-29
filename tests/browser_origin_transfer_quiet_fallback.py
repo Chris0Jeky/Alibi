@@ -43,7 +43,8 @@ SEED_QUIET = """state => new Promise((resolve, reject) => {
     request.onsuccess = () => {
         const db = request.result;
         const tx = db.transaction('saves', 'readwrite');
-        tx.objectStore('saves').put(state, 'state');
+        if (state === null) tx.objectStore('saves').delete('state');
+        else tx.objectStore('saves').put(state, 'state');
         tx.oncomplete = () => { db.close(); resolve(); };
         tx.onabort = () => { db.close(); reject(tx.error); };
     };
@@ -82,8 +83,8 @@ APPLY = """async ({kind, target, fallbackKey}) => {
         async read(name) {
             return name === 'quiet' ? device.read(name) : structuredClone(memory[name]);
         },
-        async write(name, value) {
-            if (name === 'quiet') return device.write(name, value);
+        async write(name, value, attempted) {
+            if (name === 'quiet') return device.write(name, value, attempted);
             memory[name] = structuredClone(value);
         },
         retain: (value) => device.retain(value),
@@ -98,7 +99,7 @@ APPLY = """async ({kind, target, fallbackKey}) => {
             const shouldFail = key === fallbackKey && (
                 kind === 'remove-failure'
                     ? true
-                    : kind === 'set-failure'
+                    : kind === 'set-failure' || kind === 'fallback-only'
                         ? JSON.parse(value).revision === 2
                         : true
             );
@@ -139,8 +140,8 @@ OBSERVE = """() => new Promise((resolve, reject) => {
                 return;
             }
             const tx = db.transaction(store, 'readonly');
-            const get = tx.objectStore(store).get(key);
-            tx.oncomplete = () => { db.close(); done(get.result); };
+            const get = tx.objectStore(store).get(key), count = tx.objectStore(store).count(key);
+            tx.oncomplete = () => { db.close(); done({value: get.result, present: count.result > 0}); };
             tx.onabort = () => { db.close(); fail(tx.error); };
         };
     });
@@ -152,8 +153,9 @@ OBSERVE = """() => new Promise((resolve, reject) => {
         const raw = localStorage.getItem('alibi-quiet-wing-v1:fallback');
         if (raw) fallback = JSON.parse(raw);
         resolve({
-            quiet: quiet ?? null,
-            recovery: recovery ?? null,
+            quiet: quiet?.value ?? null,
+            quietPresent: !!quiet?.present,
+            recovery: recovery?.value ?? null,
             fallback,
             fallbackRaw: raw
         });
@@ -169,7 +171,7 @@ def run_case(browser, server_port, kind):
         importer.goto(url)
         observer.goto(url)
         initial = {"schema": 1, "revision": 1, "scene": {"room": "original"}}
-        importer.evaluate(SEED_QUIET, initial)
+        importer.evaluate(SEED_QUIET, None if kind == "fallback-only" else initial)
         if kind != "no-fallback":
             importer.evaluate(
                 "(raw) => localStorage.setItem('alibi-quiet-wing-v1:fallback', raw)",
@@ -262,6 +264,13 @@ def main():
                     remove_failure["observed"]["recovery"]
                 ), remove_failure
 
+                fallback_only = run_case(browser, server.server_port, "fallback-only")
+                assert fallback_only["apply"]["injected"], fallback_only
+                assert "Existing saves were not changed" in fallback_only["apply"]["error"]["message"], fallback_only
+                assert fallback_only["observed"]["quietPresent"] is False, fallback_only
+                assert fallback_only["observed"]["fallbackRaw"] == FALLBACK_RAW, fallback_only
+                assert fallback_only["observed"]["recovery"] is not None, fallback_only
+
                 no_fallback = run_case(browser, server.server_port, "no-fallback")
                 assert no_fallback["apply"]["injected"] is False, no_fallback
                 assert no_fallback["apply"]["error"] is None, no_fallback
@@ -279,6 +288,7 @@ def main():
                             "setItemFailureRejectedAndOriginalRetained": True,
                             "removeItemFailureRejectedAndOriginalRetained": True,
                             "missingFallbackRemainsAbsentAndImportSucceeds": True,
+                            "fallbackOnlyRollbackLeavesQuietKeyAbsent": True,
                             "quietWriter": (
                                 "production createDevicePorts over real IndexedDB "
                                 "and localStorage"

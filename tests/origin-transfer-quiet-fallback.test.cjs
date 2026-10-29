@@ -24,15 +24,40 @@ function fixture({ fallback = originalState, fail = null } = {}) {
         oncomplete: null,
         onerror: null,
         onabort: null,
+        aborted: false,
+        abort() {
+          tx.aborted = true;
+          queueMicrotask(() => tx.onabort?.());
+        },
         objectStore(name) {
           assert.equal(name, 'saves');
           return {
+            transaction: tx,
             get(key) {
               const request = {};
               queueMicrotask(() => {
                 request.result = structuredClone(records.get(key));
                 request.onsuccess?.();
+                queueMicrotask(() => {
+                  if (!tx.aborted) tx.oncomplete?.();
+                });
+              });
+              return request;
+            },
+            count(key) {
+              const request = {};
+              queueMicrotask(() => {
+                request.result = records.has(key) ? 1 : 0;
+                request.onsuccess?.();
                 queueMicrotask(() => tx.oncomplete?.());
+              });
+              return request;
+            },
+            getKey(key) {
+              const request = {};
+              queueMicrotask(() => {
+                request.result = records.has(key) ? key : undefined;
+                request.onsuccess?.();
               });
               return request;
             },
@@ -186,17 +211,18 @@ test('Quiet writer does not create an absent localStorage fallback', async () =>
 // localStorage mode). Rollback must restore its original bytes, not the IndexedDB snapshot.
 const RAW_FALLBACK = JSON.stringify({ schema: 1, revision: 9, scene: { room: 'newer' } }, null, 1);
 
-function applyWithFailingCastle(f, imported, failOnce = false) {
+function applyWithFailingCastle(f, imported, failOnce = false, onFailure = () => {}) {
   const stub = { stub: true, runs: [] };
   let failed = false;
   const ports = {
     read: (name) => (name === 'quiet' ? f.device.read(name) : stub),
-    write: (name, value) => {
+    write: (name, value, attempted) => {
       if (name === 'castle' && (!failOnce || !failed)) {
         failed = true;
+        onFailure();
         throw Error('castle write failed');
       }
-      return name === 'quiet' ? f.device.write(name, value) : undefined;
+      return name === 'quiet' ? f.device.write(name, value, attempted) : undefined;
     },
     retain: async () => {},
     release: async () => {},
@@ -215,6 +241,40 @@ function applyWithFailingCastle(f, imported, failOnce = false) {
     { confirmed: true },
   );
 }
+
+test('fallback-only clean rollback restores exact bytes and leaves the Quiet key absent', async () => {
+  const f = fixture({ fallback: null });
+  f.records.delete('state');
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, { schema: 1, revision: 2, scene: { room: 'imported' } }, true),
+      /castle write failed.*Existing saves were not changed\./,
+    );
+    assert.equal(f.records.has('state'), false);
+    assert.equal(f.readStored(fallbackKey), RAW_FALLBACK);
+  } finally {
+    f.restore();
+  }
+});
+
+test('fallback-only rollback keeps a different concurrent Quiet record and reports incomplete rollback', async () => {
+  const f = fixture({ fallback: null });
+  f.records.delete('state');
+  f.storage.setItem(fallbackKey, RAW_FALLBACK);
+  const newer = { schema: 1, revision: 7, scene: { room: 'concurrent' } };
+  try {
+    await assert.rejects(
+      applyWithFailingCastle(f, { schema: 1, revision: 2, scene: { room: 'imported' } }, true, () =>
+        f.records.set('state', newer),
+      ),
+      /recovery copy was kept/i,
+    );
+    assert.deepEqual(f.records.get('state'), newer);
+  } finally {
+    f.restore();
+  }
+});
 
 test('Rollback restores a divergent Quiet fallback byte-for-byte', async () => {
   const f = fixture({ fallback: null });
