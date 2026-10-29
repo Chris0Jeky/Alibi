@@ -182,7 +182,7 @@ with sync_playwright() as pw:
         check(not page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'{width}px: comparison has no horizontal overflow')
         comparison.screenshot(path=str(shots/f'comparison-{width}.png'))
         (shots/f'comparison-{width}.aria.txt').write_text(comparison.aria_snapshot(),encoding='utf-8')
-        # Delay a genuine worker result, edit through the clue controls, then deliver it late.
+        # Delay a genuine worker result, undo through the keyboard, then deliver it late.
         page.evaluate("""() => {
           const Native = Worker;
           window.heldDraft = null;
@@ -194,18 +194,54 @@ with sync_playwright() as pw:
           window.restoreWorker = () => { window.Worker = Native; };
         }""")
         action('verify-draft');page.wait_for_function('!!window.heldDraft')
+        page.locator('[data-action="undo-draft"]').focus();page.keyboard.press('Enter')
+        check(page.locator('[data-action="add-draft"]').is_disabled() and page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: Undo requires fresh verification')
+        page.evaluate('() => { restoreWorker(); heldDraft(); }')
+        page.locator('[data-action="verify-draft"]:enabled').wait_for()
+        check(comparison.count()==0 and page.locator('[data-action="add-draft"]').is_disabled(),f'{width}px: Undo prevents late comparison from returning')
+        check(page.locator('.draft-clue').count()==len(draft['puzzles'][0]['clues']),f'{width}px: Undo restores all original clues')
+        page.locator('[aria-label="Draft history"]').screenshot(path=str(shots/f'history-{width}.png'))
+        (shots/f'history-{width}.aria.txt').write_text(page.locator('.draft-editor').aria_snapshot(),encoding='utf-8')
+        action('verify-draft');page.locator('[data-action="export-draft"]:enabled').wait_for()
+        with page.expect_download() as dl:action('export-draft')
+        revised=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
+        check(revised==draft['puzzles'][0],f'{width}px: reverified Undo exports the exact original draft')
+        page.locator('[data-action="redo-draft"]').focus();page.keyboard.press('Enter')
+        check(page.locator('.draft-clue').count()==len(revised['clues'])-1 and page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: keyboard Redo restores the edit and revokes publication')
         page.locator('#clue-who').select_option(removed['who'])
         page.locator('#clue-kind').select_option(removed['kind'])
         page.locator('#clue-value').select_option(str(removed['value']))
         page.locator('#clue-form button[type=submit]').click()
-        page.evaluate('() => { restoreWorker(); heldDraft(); }')
-        page.locator('[data-action="verify-draft"]:enabled').wait_for()
-        check(comparison.count()==0 and page.locator('[data-action="add-draft"]').is_disabled(),f'{width}px: editing prevents late comparison from returning')
-        check(page.locator('.draft-clue').count()==len(draft['puzzles'][0]['clues']),f'{width}px: editing preserves all other clues')
-        action('verify-draft');page.locator('[data-action="export-draft"]:enabled').wait_for()
-        with page.expect_download() as dl:action('export-draft')
-        revised=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
-        check(revised['clues']==draft['puzzles'][0]['clues'] and revised['solution']==draft['puzzles'][0]['solution'],f'{width}px: repaired unique draft exports its original rules and solution')
+        check(page.locator('[data-action="redo-draft"]').is_disabled(),f'{width}px: new clue edit discards Redo')
+    # A routed standalone document gives disposable real IndexedDB without a server or real saves.
+    for width in (390,1440):
+        history_context=browser.new_context(viewport={'width':width,'height':1000},accept_downloads=True,reduced_motion='reduce')
+        history_context.route('https://scene-history.invalid/**',lambda request: request.fulfill(content_type='text/html',body=(ROOT/'alibi-deluxe-play.html').read_text()))
+        history_page=history_context.new_page();history_page.on('pageerror',lambda e: errors.append(str(e)))
+        history_page.goto('https://scene-history.invalid/#/workshop');history_page.wait_for_function('window.AlibiDiagnostics')
+        history_page.locator('#draft-seed').fill('7');history_page.locator('#scene-form button[type=submit]').click()
+        history_page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
+        with history_page.expect_download() as dl:history_page.locator('[data-action="export-draft"]').click()
+        original=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
+        history_page.locator('#room-name-0').fill('Restored room');history_page.locator('#room-name-0').blur()
+        history_page.locator('#room-name-0').fill('Temporary experiment');history_page.locator('#room-name-0').blur()
+        history_page.locator('[data-action="undo-draft"]').focus();history_page.keyboard.press('Enter')
+        expected={**original,'roomNames':['Restored room',*original['roomNames'][1:]]}
+        saved=history_page.evaluate("""() => new Promise((resolve,reject) => {
+          const request=indexedDB.open('alibi-device',1);
+          request.onerror=()=>reject(request.error);
+          request.onsuccess=()=>{ const db=request.result, read=db.transaction('meta').objectStore('meta').get('workshop-draft');
+            read.onsuccess=()=>{resolve(read.result.value);db.close();}; read.onerror=()=>{reject(read.error);db.close();}; };
+        })""")
+        check(saved=={'puzzle':expected},f'{width}px: Undo persists exact current content with no history fields')
+        history_page.reload();history_page.locator('.draft-editor').wait_for()
+        check(history_page.locator('#room-name-0').input_value()=='Restored room',f'{width}px: reload retains restored room content')
+        check(history_page.locator('[data-action="undo-draft"]').is_disabled() and history_page.locator('[data-action="redo-draft"]').is_disabled(),f'{width}px: reload starts with empty memory history')
+        check(history_page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: reload requires verification')
+        history_page.locator('[data-action="verify-draft"]').click();history_page.locator('[data-action="export-draft"]:enabled').wait_for()
+        with history_page.expect_download() as dl:history_page.locator('[data-action="export-draft"]').click()
+        check(json.loads(Path(dl.value.path()).read_text())['puzzles'][0]==expected,f'{width}px: reload and reverify export exact restored draft')
+        history_context.close()
     page.set_viewport_size({'width':1440,'height':1000})
     page.locator('#room-name-0').fill('Garden room');page.locator('#room-name-0').blur()
     check(page.locator('[data-action="add-draft"]').is_disabled(),'Editing invalidates verification')
