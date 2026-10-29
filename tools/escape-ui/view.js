@@ -25,6 +25,37 @@
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
     return node;
   }
+  // One persistent live region outside the re-rendered tree; a freshly inserted status node is
+  // often not announced. It repeats only text that is also visible on screen.
+  const announcer = el('p', '', {
+    id: 'escape-announcer',
+    role: 'status',
+    class: 'visually-hidden',
+  });
+  root.after(announcer);
+  let announcement = 0;
+  function announce(text) {
+    const turn = ++announcement;
+    announcer.textContent = '';
+    setTimeout(() => {
+      if (turn === announcement) announcer.textContent = text;
+    }, 50);
+  }
+  // Describes what a state change made visible in the current view, never hidden objects.
+  function changes(before, after, objectId) {
+    let text = '';
+    const discovered = after.objects.filter((o) => !before.objects.some((old) => old.id === o.id));
+    if (discovered.length)
+      text +=
+        ' Newly visible: ' +
+        discovered.map((o) => o.title).join(', ') +
+        '. Choose it in Look around.';
+    const was = before.objects.find((o) => o.id === objectId);
+    const now = after.objects.find((o) => o.id === objectId);
+    const fresh = now && was ? now.observations.filter((t) => !was.observations.includes(t)) : [];
+    if (fresh.length) text += ' Now: ' + fresh.join(' ');
+    return text;
+  }
   function render(focusId) {
     const epoch = ++generation;
     const room = contexts[current],
@@ -63,7 +94,8 @@
     });
     bind(select, 'change', () => {
       current = contexts.findIndex((c) => c.definition.id === select.value);
-      render('room-title');
+      // Keep focus on the select so arrow keys can keep choosing (WCAG 3.2.2 On Input).
+      render('room-select');
     });
     roomLabel.append(select);
     toolbar.append(
@@ -104,8 +136,10 @@
     );
     const undo = button('undo', 'Undo action', () => {
       room.session.undo();
-      room.message = 'One room action undone.';
+      room.message =
+        'One room action undone.' + changes(view, room.session.view(story), room.selected);
       render('object-title');
+      announce(room.message);
     });
     undo.disabled = room.session.undoDepth() === 0;
     actions.append(
@@ -122,6 +156,7 @@
         room.revealed = false;
         room.message = 'This room restarted. Other rooms are unchanged.';
         render('room-title');
+        announce(room.message);
       }),
     );
     intro.append(
@@ -157,7 +192,7 @@
     }
     bind(objectSelect, 'change', () => {
       room.selected = objectSelect.value;
-      render('object-title');
+      render('object-select');
     });
     objectLabel.append(objectSelect);
     aside.append(objectLabel);
@@ -194,7 +229,6 @@
     );
     const feedback = el('p', room.message, {
       id: 'feedback',
-      role: 'status',
       tabindex: '-1',
       class: 'feedback',
     });
@@ -203,6 +237,7 @@
       panel.append(el('p', object.text));
       if (object.observations.length) {
         const observations = el('div', undefined, {
+          role: 'group',
           class: 'observations',
           'aria-label': 'Current observations',
         });
@@ -239,17 +274,9 @@
           );
           if (result.ok) {
             const after = room.session.view(story);
-            const discovered = after.objects.filter(
-              (o) => !view.objects.some((old) => old.id === o.id),
-            );
-            room.message = after.won
-              ? 'The way is open. Room complete.'
-              : 'Applied: ' + action.label + '.';
-            if (discovered.length)
-              room.message +=
-                ' Newly visible: ' +
-                discovered.map((o) => o.title).join(', ') +
-                '. Choose it in Look around.';
+            room.message =
+              (after.won ? 'The way is open. Room complete.' : 'Applied: ' + action.label + '.') +
+              changes(view, after, object.id);
           } else {
             room.message =
               result.code === 'incorrect'
@@ -261,6 +288,8 @@
                     : 'The mechanism did not engage. Room unchanged; inspect the current setup.';
           }
           render(result.ok ? 'object-title' : 'feedback');
+          // A refusal focuses the visible feedback, which is read once; success moves focus away.
+          if (result.ok) announce(room.message);
         });
         const count = room.hints.get(action.id) || 0;
         const help = button(
@@ -269,6 +298,9 @@
           () => {
             room.hints.set(action.id, Math.min(3, count + 1));
             render('hints-' + action.id);
+            announce(
+              document.getElementById('hints-' + action.id)?.lastElementChild?.textContent || '',
+            );
           },
           {
             class: 'help',
@@ -281,6 +313,8 @@
         form.append(row);
         const hints = el('div', undefined, {
           id: 'hints-' + action.id,
+          role: 'group',
+          'aria-label': 'Hints for ' + action.label,
           tabindex: '-1',
           class: 'hints',
         });

@@ -46,8 +46,31 @@ function buildShelf(root = path.resolve(__dirname, '..')) {
   const stylesheet = `collections.${createHash('sha256').update(css).digest('hex').slice(0, 12)}.css`;
   const metadata = Buffer.from(JSON.stringify(catalogue.manifest, null, 2) + '\n');
   const metadataHash = createHash('sha256').update(metadata).digest('hex');
+  // #433: the in-app adder is an optional same-directory module carrying the listing it verifies.
+  const listing = catalogue.manifest.collections.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    description: entry.description,
+    count: entry.count,
+    families: entry.families.map(({ type, count }) => ({ type: familyName(type), count })),
+    download: entry.download,
+    bytes: entry.bytes,
+    sha256: entry.sha256,
+  }));
+  const adderSource = fs.readFileSync(path.join(root, 'src/workshop-add.mjs'), 'utf8');
+  if (adderSource.split('export const COLLECTIONS = [];').length !== 2)
+    throw Error('Collection adder listing boundary changed');
+  const adder = require('esbuild').transformSync(
+    adderSource.replace(
+      'export const COLLECTIONS = [];',
+      () => `export const COLLECTIONS = ${JSON.stringify(listing)};`,
+    ),
+    { format: 'esm', minify: true, target: 'es2022', charset: 'utf8' },
+  ).code;
+  const loader = `assets/workshop/add.${createHash('sha256').update(adder).digest('hex').slice(0, 12)}.js`;
   const files = [
     ...catalogue.files.map((file) => ({ path: 'assets/workshop/' + file.path, data: file.data })),
+    { path: loader, data: Buffer.from(adder) },
     {
       path: `assets/workshop/catalogue.${metadataHash}.json`,
       data: metadata,
@@ -58,6 +81,10 @@ function buildShelf(root = path.resolve(__dirname, '..')) {
       data: Buffer.from(renderShelf(catalogue.manifest, stylesheet)),
     },
   ];
-  return { files, bytes: files.reduce((total, file) => total + file.data.length, 0) };
+  return {
+    files,
+    bytes: files.reduce((total, file) => total + file.data.length, 0),
+    loaderURL: './' + loader,
+  };
 }
 module.exports = { renderShelf, buildShelf };

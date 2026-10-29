@@ -21,6 +21,24 @@ const handle = (d, a) => `${d.id}@${d.revision}/${a.object}/${a.id}`;
 const input = (a) => (a.input ? a.answer : null);
 const handles = (markup) =>
   [...markup.matchAll(/data-do="escape-act" data-value="([^"]*)"/g)].map((m) => m[1]);
+const attr = (tag, name) => new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(tag)?.[1];
+function renderedButton(markup, action, value) {
+  const tag = [...markup.matchAll(/<button\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find(
+      (candidate) =>
+        attr(candidate, 'data-do') === action && attr(candidate, 'data-value') === value,
+    );
+  assert.ok(tag, `rendered ${action} control for ${value}`);
+  return { route: attr(tag, 'data-escape-route'), value: attr(tag, 'data-value') };
+}
+function renderedAnswer(markup, handle) {
+  const tag = [...markup.matchAll(/<input\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find((candidate) => attr(candidate, 'data-escape-answer') === handle);
+  assert.ok(tag, `rendered answer input for ${handle}`);
+  return { route: attr(tag, 'data-escape-route'), value: attr(tag, 'data-escape-answer') };
+}
 
 // Breadth-first over the declared model; each reachable state with the shortest action path to it.
 function reachable(d) {
@@ -124,10 +142,40 @@ test('A source revision change refuses handles rendered for the old revision', (
   assert.equal(next.act(42).code, 'stale');
 });
 
+test('Adapter metadata and handles stay bound to captured source primitives', () => {
+  const source = { ...rooms['tidekeeper-workshop'] };
+  const room = createEscapeAdapter(source);
+  const before = room.view();
+  const open = before.objects.find((o) => o.id === 'locker').actions[0];
+
+  source.title = 'Changed after adapter creation';
+  source.revision = 2;
+
+  const after = room.view();
+  assert.equal(after.title, before.title);
+  assert.equal(after.revision, before.revision);
+  assert.deepEqual(
+    after.objects.flatMap((o) => o.actions.map((a) => a.handle)),
+    before.objects.flatMap((o) => o.actions.map((a) => a.handle)),
+  );
+  assert.equal(room.act(open.handle, '9472').ok, true);
+  assert.equal(room.act(open.handle.replace('@1/', '@2/'), '9472').code, 'stale');
+});
+
 test('A/B/A navigation keeps each room and refuses controls from an earlier visit', () => {
   const host = createEscapeHost([rooms['tidekeeper-workshop'], rooms['counterweight-loft']]);
   const a1 = host.enter('tidekeeper-workshop');
   const open = 'tidekeeper-workshop@1/locker/open-cabinet';
+  const a1View = host.view();
+  const a1Markup = roomMarkup(a1View);
+  const a1Inspector = inspectorMarkup(a1View, 'locker');
+  const a1Action = renderedButton(a1Markup, 'escape-act', open);
+  assert.equal(a1Action.route, String(a1));
+  assert.equal(renderedButton(a1Markup, 'escape-object', 'locker').route, String(a1));
+  assert.equal(renderedAnswer(a1Inspector, open).route, String(a1));
+  assert.equal(renderedButton(a1Inspector, 'escape-act', open).route, String(a1));
+  assert.equal(renderedButton(a1Inspector, 'keep-observation', 'locker').route, String(a1));
+
   const b = host.enter('counterweight-loft');
   assert.equal(host.act(a1, open, '9472').code, 'stale');
   assert.equal(host.act(b, open, '9472').code, 'stale');
@@ -136,7 +184,12 @@ test('A/B/A navigation keeps each room and refuses controls from an earlier visi
   assert.equal(host.act(b, open, '9472').code, 'stale');
   assert.equal(host.act(a1, open, '9472').code, 'stale');
   assert.equal(host.view().undoDepth, 0);
-  assert.equal(host.act(a2, open, '9472').ok, true);
+  const a2Markup = roomMarkup(host.view());
+  const a2Action = renderedButton(a2Markup, 'escape-act', open);
+  assert.equal(a2Action.route, String(a2));
+  // Dispatch the exact token read from each rendered control, as a browser's dataset would.
+  assert.equal(host.act(a1Action.route, a1Action.value, '9472').code, 'stale');
+  assert.equal(host.act(a2Action.route, a2Action.value, '9472').ok, true);
   const b2 = host.enter('counterweight-loft');
   assert.equal(host.view().undoDepth, 1);
   assert.equal(host.enter('unknown') > b2, true);
@@ -149,6 +202,8 @@ test('Adapter objects fit the Castle inspector, notebook and focus-return conven
   const ledger = view.objects.find((o) => o.id === 'ledger');
   assert.equal(appendObservation('', ledger).added, true);
   const markup = roomMarkup(view);
+  assert.doesNotMatch(markup, /data-escape-route=/);
+  assert.doesNotMatch(inspectorMarkup(view, 'locker'), /data-escape-route=/);
   for (const o of view.objects)
     assert.match(markup, new RegExp(`data-do="escape-object" data-value="${o.id}"`));
   assert.match(
