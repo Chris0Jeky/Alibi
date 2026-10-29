@@ -6,7 +6,7 @@
   color: var(--bc-ink);
   background: radial-gradient(ellipse at 20% 0%, #31584c80, transparent 60%), #132d29;
   border: 1px solid #788e6a66;
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   padding: 28px;
   box-shadow: 0 24px 70px #06161238;
   font:
@@ -513,7 +513,7 @@
   max-height: calc(100% - 24px);
   padding: 0;
   border: 1px solid #84987966;
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   background: #102c24;
   color: #e7e5d7;
 }
@@ -563,7 +563,7 @@
 @media (max-width: 760px) {
   .bc-studio {
     padding: 20px 16px;
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
   }
   .bc-layout {
     grid-template-columns: 1fr;

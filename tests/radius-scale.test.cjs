@@ -24,6 +24,9 @@ const sources = BUNDLE.map((f) => [
   f,
   fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''),
 ]);
+const blockCabinetCss = fs
+  .readFileSync(path.join(__dirname, '..', 'src', 'block-cabinet', 'style.css'), 'utf8')
+  .replace(/\/\*[\s\S]*?\*\//g, '');
 
 test('radius scale tokens hold their exact values', () => {
   const root = sources.find(([f]) => f === 'app.css')[1];
@@ -68,11 +71,51 @@ test('no standalone scale or retired scalar radius returns outside named excepti
   );
 });
 
-test('legacy --radius has one definition aliasing the panel token', () => {
-  const definitions = sources.flatMap(([file, css]) =>
-    Array.from(css.matchAll(/--radius\s*:\s*([^;]+);/g), (m) => [file, m[1].trim()]),
+test('the shared legacy --radius alias and its last use are retired', () => {
+  const definitions = sources.flatMap(([, css]) =>
+    Array.from(css.matchAll(/--radius\s*:\s*([^;]+);/g), (m) => m[1].trim()),
   );
-  assert.deepEqual(definitions, [['app.css', 'var(--radius-lg)']]);
+  assert.deepEqual(definitions, [], 'core CSS has no ambiguous --radius definition');
+  assert.doesNotMatch(sources.map(([, css]) => css).join('\n'), /var\(--radius\)/);
+  assert.match(
+    sources.find(([file]) => file === 'app.css')[1],
+    /\.empty\s*\{[^}]*border-radius:\s*var\(--radius-lg\);/s,
+    'the empty result surface keeps its existing panel radius directly',
+  );
+});
+
+test('Block Cabinet applies the shared panel radius without rounding fullscreen or board geometry', () => {
+  for (const [selector, value] of [
+    ['.bc-studio', 'var(--radius-lg)'],
+    ['.bc-modal', 'var(--radius-lg)'],
+  ]) {
+    assert.match(
+      blockCabinetCss,
+      new RegExp(`${selector}\\s*\\{[^}]*border-radius:\\s*${value.replace(/[()]/g, '\\$&')};`),
+      `${selector} uses the shared large surface radius`,
+    );
+  }
+  assert.match(
+    blockCabinetCss,
+    /@media\s*\(max-width:\s*760px\)\s*\{\s*\.bc-studio\s*\{[^}]*border-radius:\s*var\(--radius-lg\);/s,
+    'the compact surface fallback also uses the shared panel token',
+  );
+  assert.equal(
+    [
+      ...blockCabinetCss.matchAll(
+        /body\.block-motion-active \.bc-studio\s*\{[^}]*border-radius:\s*0;/gs,
+      ),
+    ].length,
+    2,
+    'portrait and landscape edge-to-edge presentations stay square to the viewport',
+  );
+  assert.match(blockCabinetCss, /\.bc-board\s*\{[^}]*border-radius:\s*14px;/s);
+  assert.match(blockCabinetCss, /\.bc-studio \.bc-cell\s*\{[^}]*border-radius:\s*6px;/s);
+  assert.match(
+    blockCabinetCss,
+    /\.bc-studio button:focus-visible,\s*\.bc-studio summary:focus-visible\s*\{[^}]*outline:\s*3px solid #ffe0a0;/s,
+    'the visible keyboard focus ring is unchanged',
+  );
 });
 
 test('migrated controls and pills keep their intended scale step', () => {

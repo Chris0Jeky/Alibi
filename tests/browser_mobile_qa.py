@@ -364,6 +364,63 @@ class MobileQA(unittest.TestCase):
                 ))
         (OUT / 'block-landscape.json').write_text(json.dumps(metrics, indent=2))
 
+    def test_shared_large_radius_on_block_cabinet_surfaces(self):
+        measurements = []
+        for width, height in [(390, 844), (1280, 900), (667, 375)]:
+            page = self.open_page(width, height, 'salon/blockcabinet')
+            host = page.locator('.bc-host')
+            host.locator('.bc-cell').first.wait_for()
+            studio = page.evaluate('''() => {
+                const radius = selector => getComputedStyle(document.querySelector(selector)).borderRadius;
+                const box = selector => {
+                    const {width, height} = document.querySelector(selector).getBoundingClientRect();
+                    return {width, height};
+                };
+                return {
+                    viewport: {width:innerWidth, height:innerHeight},
+                    token: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--radius-lg')),
+                    studio: radius('.bc-studio'), board: radius('.bc-board'), cell: radius('.bc-cell'),
+                    boardBox: box('.bc-board'), cellBox: box('.bc-cell'),
+                    returnBox: box('.bc-return'), documentWidth: document.documentElement.scrollWidth
+                };
+            }''')
+            measurements.append({'studio': studio})
+            page.screenshot(path=str(OUT / f'radius-block-studio-{width}x{height}.png'), full_page=True)
+            expected_studio = '0px' if width <= 760 else '16px'
+            self.assertEqual(studio['token'], 16, studio)
+            self.assertEqual(studio['studio'], expected_studio, studio)
+            self.assertEqual(studio['board'], '14px', studio)
+            self.assertEqual(studio['cell'], '6px', studio)
+            self.assertGreaterEqual(studio['returnBox']['width'], 44, studio)
+            self.assertGreaterEqual(studio['returnBox']['height'], 44, studio)
+            self.assertLessEqual(studio['documentWidth'], width + 1, studio)
+
+            menu = host.locator('[data-command="menu"]')
+            if menu.is_visible() and menu.get_attribute('aria-expanded') != 'true':
+                menu.click()
+            host.locator('[data-command="switch"]').click()
+            modal = page.locator('.bc-modal[open]')
+            modal.locator('.bc-cell').first.wait_for()
+            modal_style = modal.evaluate('''el => ({
+                token: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--radius-lg')),
+                radius: getComputedStyle(el).borderRadius,
+                bounds: {width:el.getBoundingClientRect().width, height:el.getBoundingClientRect().height}
+            })''')
+            measurements[-1]['modal'] = modal_style
+            page.screenshot(path=str(OUT / f'radius-block-modal-{width}x{height}.png'), full_page=True)
+            self.assertEqual(modal_style['token'], 16, modal_style)
+            self.assertEqual(modal_style['radius'], '16px', modal_style)
+            self.assertGreater(modal_style['bounds']['width'], 0, modal_style)
+            self.assertGreater(modal_style['bounds']['height'], 0, modal_style)
+
+            page.evaluate("location.hash = '#/library/sudoku'")
+            page.locator('#difficulty-filter').select_option('Expert')
+            page.locator('#status-filter').select_option('solved')
+            empty_radius = page.locator('.empty').evaluate('el => getComputedStyle(el).borderRadius')
+            self.assertEqual(empty_radius, '16px', {'width': width, 'empty': empty_radius})
+            measurements[-1]['empty'] = empty_radius
+        (OUT / 'radius-scale-metrics.json').write_text(json.dumps(measurements, indent=2))
+
     def test_block_return_target_preserves_portrait_and_desktop_layout(self):
         for width, height in [(390, 844), (1280, 900)]:
             with self.subTest(viewport=(width, height)):
