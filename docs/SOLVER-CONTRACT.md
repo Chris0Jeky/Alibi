@@ -37,6 +37,11 @@ ignores state.
 
 ## Aquarium reasoning hints
 
+Browser callers await `AlibiCore.loadInsights()` before using the reasoning API. Its small hashed
+script is precached for offline use and loads only when requested; the standalone file keeps it
+inline. Hint, Club guidance and completed-record review discard a delayed result if the current
+run, board state, pause state or dialog changed while loading. A failed load can be retried.
+
 `AlibiCore.insights.deduction(puzzle, state)` explains Aquarium waterlines using public tank
 geometry and row/column totals, without calling a search API or reading `solution`. It checks
 overfilled player lines first, then narrows possible levels using exact per-line support sums.

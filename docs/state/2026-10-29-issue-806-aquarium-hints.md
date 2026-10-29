@@ -13,11 +13,18 @@ clear with the next board render. No water is applied, no progress is changed, a
 confirmed answer-based Reveal remains intact. Guidance has no Club-applicable `value` field.
 Published puzzle identities, saves, solver capabilities and dependencies are unchanged.
 
+The initial CI run exceeded the unchanged application JavaScript ceiling. Reasoning now ships as
+one hashed, precached script requested by Hint, Club guidance or completed-record review, while
+standalone reasoning stays inline. Those callers reject stale requests after a board, navigation,
+pause or dialog change. The existing Expert Aquarium browser gate imports its Hint journey helper;
+the helper's name no longer misidentifies it as a separate unwired browser suite.
+
 ## Verified
 
 - Baseline regression failed because the forced irregular-tank deduction returned `null`; the
   existing conflict regression already passed.
-- The focused 25-test set passes. An independent exhaustive model covers three tiny tank layouts,
+- The focused 55-test set passes, including loader retry/single-flight/standalone behavior and all
+  three callers' asynchronous ownership and error handling. An independent exhaustive model covers three tiny tank layouts,
   1,548 inconsistent clue sets and eight ambiguous clue sets. All 819 returned deductions agree
   with every satisfying assignment, including 41 dry-tank and 593 full-tank recommendations.
 - Throwing answer getters, altered/absent solutions, tentative states, deterministic selection,

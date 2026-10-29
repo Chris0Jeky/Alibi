@@ -3,7 +3,7 @@ from pathlib import Path
 
 from playwright.sync_api import expect
 
-OUT = Path(__file__).resolve().parents[1] / 'test-results' / 'aquarium-hints'
+OUT = Path(__file__).resolve().parents[1] / 'test-results'
 
 
 def current(page):
@@ -44,13 +44,22 @@ def tank_cell(puzzle, tank, level):
 def trap_answer(page):
     # Run the shipped deduction behind a getter trap, without replacing its result.
     page.evaluate('''() => {
-      const deduction = AlibiCore.insights.deduction;
-      AlibiCore.insights.deduction = (p, s) => {
-        const publicPuzzle = new Proxy(p, {get(target, key) {
-          if (key === 'solution') throw Error('Hint read the hidden answer');
-          return target[key];
-        }});
-        return window.aquariumHint = deduction(publicPuzzle, s);
+      const load = AlibiCore.loadInsights;
+      let wrapped = false;
+      AlibiCore.loadInsights = async () => {
+        const insights = await load();
+        if (!wrapped) {
+          const deduction = insights.deduction;
+          insights.deduction = (p, s) => {
+            const publicPuzzle = new Proxy(p, {get(target, key) {
+              if (key === 'solution') throw Error('Hint read the hidden answer');
+              return target[key];
+            }});
+            return window.aquariumHint = deduction(publicPuzzle, s);
+          };
+          wrapped = true;
+        }
+        return insights;
       };
     }''')
 
@@ -89,13 +98,17 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
     try:
         page.goto(base)
         page.wait_for_function('() => navigator.serviceWorker.controller && AlibiDiagnostics.getStatus().offlineReady')
+        assert page.evaluate('!AlibiCore.insights')
         trap_answer(page)
+        # The first request must work from the precached shell, with no network.
+        context.set_offline(True)
         for puzzle, tank, level in [(standard, 0, 1), (expert, 1, 1)]:
             key = f"{puzzle['id']}@{puzzle['revision']}"
             open_run(page, key)
             before = current(page)
             labels = page.locator('.water-cell').evaluate_all('(cells) => cells.map(c => c.ariaLabel)')
             dialog, button = hint(page)
+            assert page.locator('script[src*="/insights."]').count() == 1
             expect(dialog.locator('.deduction-title')).to_have_text('A forced waterline')
             expect(dialog.locator('.hint-box')).to_contain_text('other tanks')
             expect(dialog.locator('.hint-box')).to_contain_text('Fill its bottom row')
@@ -114,7 +127,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
             box = dialog.bounding_box()
             assert box['x'] >= 0 and box['x'] + box['width'] <= width + 1
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-            page.screenshot(path=str(OUT / f'{width}-{puzzle["id"]}-hint.png'), full_page=True)
+            page.screenshot(path=str(OUT / f'aquarium-hint-{width}-{puzzle["id"]}-hint.png'), full_page=True)
             dialog.get_by_role('button', name='Keep thinking', exact=True).focus()
             page.keyboard.press('Enter')
             expect(button).to_be_focused()
@@ -122,7 +135,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
             assert page.locator('.water-cell.hint-focus').count() == len(expected_cells)
             assert page.locator('.water-cell.hint-focus').first.evaluate(
                 'el => getComputedStyle(el).outlineStyle') == 'dashed'
-            page.screenshot(path=str(OUT / f'{width}-{puzzle["id"]}-board.png'), full_page=True)
+            page.screenshot(path=str(OUT / f'aquarium-hint-{width}-{puzzle["id"]}-board.png'), full_page=True)
 
             # Reading the explanation never moves water; the player uses the real control.
             target = page.locator(f'#cell-{tank_cell(puzzle, tank, level)}')
@@ -142,7 +155,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
             expect(dialog.locator('.deduction-title')).to_have_text('Revisit a conflict')
             expect(dialog.locator('.hint-box')).to_contain_text('too much water')
             unchanged(page, mistaken)
-            page.screenshot(path=str(OUT / f'{width}-{puzzle["id"]}-conflict.png'))
+            page.screenshot(path=str(OUT / f'aquarium-hint-{width}-{puzzle["id"]}-conflict.png'))
             page.keyboard.press('Escape')
             expect(button).to_be_focused()
             action(page, 'undo')
@@ -177,7 +190,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
         expect(dialog).to_contain_text('general strategy')
         assert page.locator('.hint-focus').count() == 0
         unchanged(page, before)
-        page.screenshot(path=str(OUT / f'{width}-ambiguous.png'))
+        page.screenshot(path=str(OUT / f'aquarium-hint-{width}-ambiguous.png'))
         page.keyboard.press('Escape')
         expect(button).to_be_focused()
         unchanged(page, before)

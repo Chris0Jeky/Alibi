@@ -1832,12 +1832,35 @@
         'No current rule conflicts found. This does not guarantee every entry is correct; the puzzle is not complete yet.';
     render();
   }
-  function showHint() {
+  async function loadReasoning() {
+    if (!current || paused) return null;
+    const run = current,
+      state = run.state,
+      modal = $('#dialog'),
+      contents = modal.firstChild,
+      open = modal.open;
+    const same = () =>
+      current === run &&
+      run.state === state &&
+      !paused &&
+      modal.firstChild === contents &&
+      modal.open === open;
+    try {
+      const insights = await C.loadInsights();
+      return same() ? insights : null;
+    } catch (error) {
+      if (same()) toast(error.message);
+      return null;
+    }
+  }
+  async function showHint() {
     if (!current || paused) return;
     globalThis.AlibiJourney?.(current, 'hint.requested');
     // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
     if (current.completedAt && blocked()) return;
-    const hint = C.insights.deduction(current.puzzle, current.state);
+    const reasoning = await loadReasoning();
+    if (!reasoning) return;
+    const hint = reasoning.deduction(current.puzzle, current.state);
     if (current.puzzle.type === 'aquarium') {
       document.querySelectorAll('.hint-focus').forEach((el) => el.classList.remove('hint-focus'));
       for (const i of hint?.cells || [])
@@ -1875,9 +1898,11 @@
       ],
     );
   }
-  function reviewRecord() {
+  async function reviewRecord() {
     if (!current?.completedAt) return;
-    const rows = C.insights.recap(current.puzzle, current.state);
+    const reasoning = await loadReasoning();
+    if (!reasoning) return;
+    const rows = reasoning.recap(current.puzzle, current.state);
     dialog(
       'The completed record.',
       `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
@@ -3952,6 +3977,7 @@
     activeRun,
     settings: () => settings,
     current: () => current,
+    insights: loadReasoning,
     apply: act,
     toast,
     dialog,
