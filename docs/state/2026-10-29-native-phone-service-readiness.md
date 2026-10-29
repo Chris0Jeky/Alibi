@@ -28,6 +28,31 @@ WebView is ready. The original network-disable commands and offline instrumentat
 the acceptance checks. This change targets infrastructure readiness; it is not a guarantee
 that this or future emulators will pass.
 
+## Separate WebView failure on the first diagnostic head
+
+On [job 123213862242](https://github.com/Chris0Jeky/Alibi/actions/runs/40802567805/job/123213862242),
+source `a634f7d2b020a4fde37b1d66c939a79a8577cbeb`, both boot and phone readiness passed and
+the installed test ran. Artifact `12867107433` (34,608,143 bytes, SHA-256
+`1ba71dc128796dfc93669d82c06801d8ed0cf25f0be186e18f7b91f85dfd6c03`) records the failure.
+Its XML and logcat show `eval=9 stage=settings.click`; boot, host identity and offline-ready
+had passed. Evaluation dispatched at elapsed 124686 ms and returned from the UI invocation
+at 124687 ms, but the callback was absent at 134687 ms. At timeout the main heartbeat was
+10,001 ms old and the main-thread stack was in `HardwareRenderer.nSyncAndDrawFrame` during
+view traversal. The callback arrived at 135026 ms, 339 ms after the test's deadline. The
+renderer-termination log followed teardown; it does not establish the initiating cause.
+
+The earlier [#784 failure](https://github.com/Chris0Jeky/Alibi/actions/runs/40446443152/job/121998759678),
+artifact `12708757170`, reached `settings.ready/poll=1`, after the click had returned; its
+heartbeat stopped for 10,001 ms with the same native draw stack and the callback arrived
+605 ms after its deadline. These observations identify a recurring main-thread/draw stall;
+they do not establish whether the trigger lies in the emulator environment, the app's rendering,
+or their interaction. Console-start warnings also occur on a successful attempt.
+
+The test now appends the existing sequence and stage label to the same JUnit timeout assertion
+so job logs identify a future failure without requiring artifact download. The named test,
+conditions, 10-second callback deadline, 60-second condition deadline and offline checks are
+unchanged. This is a diagnostic follow-up, not a fix for #785 or evidence of a passing run.
+
 ## Verification
 
 - Before implementation, delayed and never-ready phone regressions failed against the real
