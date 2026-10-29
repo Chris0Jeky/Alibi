@@ -48,7 +48,9 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
       - name: Verify bounded setup and diagnostic redaction before provisioning
         if: steps.scope.outputs.mode == 'full'
-        run: node --test tests/ci-setup-phase.test.cjs
+        run: |
+          node --test tests/ci-setup-phase.test.cjs
+          python tests/test_ci_audio_dependencies.py
       - name: Use Ubuntu repositories for CI system dependencies
         if: steps.scope.outputs.mode == 'full'
         run: |
@@ -60,16 +62,42 @@ jobs:
             'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' \
             'Dir::Etc::sourceparts "-";' \
             | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+      - name: Prepare audio archive cache key
+        if: steps.scope.outputs.mode == 'full'
+        id: audio-cache-key
+        run: |
+          . /etc/os-release
+          echo "prefix=alibi-apt-${ID}-${VERSION_ID}-${RUNNER_ARCH}-ffmpeg-v1-" >> "$GITHUB_OUTPUT"
+          echo "week=$(date -u +%G-W%V)" >> "$GITHUB_OUTPUT"
+          mkdir -p /tmp/alibi-audio-apt-archives
+      - name: Restore audio package archives
+        if: steps.scope.outputs.mode == 'full'
+        id: audio-cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: /tmp/alibi-audio-apt-archives
+          key: ${{ steps.audio-cache-key.outputs.prefix }}${{ steps.audio-cache-key.outputs.week }}
+          restore-keys: ${{ steps.audio-cache-key.outputs.prefix }}
       - name: Ensure audio asset validation tools are available
         if: steps.scope.outputs.mode == 'full'
         run: |
-          node tools/ci-setup-phase.cjs --phase audio-dependencies --timeout-seconds 480 --grace-seconds 20 -- bash -euc '
-            if ! command -v ffprobe >/dev/null; then
-              sudo apt-get update
-              sudo apt-get install --yes --no-install-recommends ffmpeg
-            fi
-            ffprobe -version
-          '
+          node tools/ci-setup-phase.cjs --phase audio-dependencies --timeout-seconds 480 --grace-seconds 20 -- bash tools/ci-audio-dependencies.sh /tmp/alibi-audio-apt-archives
+      - name: Prepare audio archives for saving
+        if: steps.scope.outputs.mode == 'full' && steps.audio-cache.outputs.cache-hit != 'true'
+        id: audio-cache-save
+        run: |
+          # Partial downloads and lock files are not cached; only completed .debs.
+          sudo rm -rf /tmp/alibi-audio-apt-archives/partial
+          sudo rm -f /tmp/alibi-audio-apt-archives/lock
+          if compgen -G '/tmp/alibi-audio-apt-archives/*.deb' > /dev/null; then
+            echo 'populated=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Save audio package archives
+        if: steps.scope.outputs.mode == 'full' && steps.audio-cache.outputs.cache-hit != 'true' && steps.audio-cache-save.outputs.populated == 'true'
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: /tmp/alibi-audio-apt-archives
+          key: ${{ steps.audio-cache-key.outputs.prefix }}${{ steps.audio-cache-key.outputs.week }}
       - run: npm run verify
         if: steps.scope.outputs.mode == 'full'
       - run: node observatory/check.mjs
