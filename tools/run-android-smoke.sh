@@ -35,15 +35,30 @@ cleanup() {
 trap cleanup EXIT
 timeout 180 adb wait-for-device
 booted=0
+phone_ready=0
+printf '%s\n' 'native readiness phase=boot-and-phone budget=90-polls interval=2s'
 for attempt in $(seq 1 90); do
   if test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1; then
     booted=1
-    break
+    # svc data disable invokes cmd phone; the binder can register after boot_completed.
+    phone_status="$(adb shell service check phone | tr -d '\r')"
+    if test "$phone_status" = 'Service phone: found'; then
+      phone_ready=1
+      break
+    fi
   fi
   kill -0 "$EMU_PID"
   sleep 2
 done
-test "$booted" = 1
+if test "$booted" != 1; then
+  printf '%s\n' 'native readiness phase=boot-completed failed within shared poll budget' >&2
+  exit 1
+fi
+if test "$phone_ready" != 1; then
+  printf '%s\n' 'native readiness phase=phone-service failed within shared poll budget' >&2
+  exit 1
+fi
+printf '%s\n' 'native readiness phase=boot-and-phone ready'
 adb shell cmd connectivity airplane-mode enable
 adb shell svc wifi disable
 adb shell svc data disable
