@@ -60,12 +60,28 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
     assert.ok(result.sceneBytes <= 180 * 1024);
     assert.ok(result.originalSceneBytes <= 180 * 1024);
     assert.ok(bytesAt(dist, config.film.src) <= 1024 * 1024);
+    assert.match(config.caseStudy, /^\.\/assets\/cases\/player\.[a-f0-9]{12}\.js$/);
+    assertContentHash(dist, config.caseStudy);
+    const caseFiles = fs.readdirSync(path.join(dist, 'assets/cases'));
+    const sourceName = caseFiles.find((name) => name.endsWith('.json'));
+    assert.equal(caseFiles.length, 2);
+    const source = fs.readFileSync(path.join(root, 'content/cases/reading-room-blackout.json'));
+    const sourceHash = crypto.createHash('sha256').update(source).digest('hex');
+    assert.equal(sourceName, `reading-room-blackout.${sourceHash}.json`);
+    assert.deepEqual(fs.readFileSync(path.join(dist, 'assets/cases', sourceName)), source);
+    assert.ok(!config.files.includes(config.caseStudy), 'no automatic case installation');
+    const player = fs.readFileSync(path.join(dist, config.caseStudy), 'utf8');
+    assert.ok(Buffer.byteLength(player) < 16 * 1024);
+    assert.ok(!player.includes('CASE_DELIVERY'), 'the optional player owns its resolved metadata');
+    assert.ok(player.includes(sourceHash));
     assert.equal(
       result.bytes,
       [...config.files, ...Object.values(config.film)].reduce(
         (sum, url) => sum + bytesAt(dist, url),
         0,
-      ),
+      ) +
+        bytesAt(dist, config.caseStudy) +
+        source.length,
     );
 
     const delivered1911 = fs.readFileSync(path.join(dist, config.media['estate-1911']), 'utf8');
