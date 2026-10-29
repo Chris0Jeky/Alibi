@@ -1,0 +1,1312 @@
+{
+  "format": "wrenmere-ledger",
+  "version": 1,
+  "description": "Author-facing source ledger. Entry revisions are ledger revisions, not published per-record content revisions. Proposed source descriptions are not authored evidence.",
+  "entities": [
+    {
+      "id": "mara",
+      "type": "person",
+      "name": "Mara Vale",
+      "aliases": [
+        "Mara"
+      ],
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "Mara Vale"
+      }
+    },
+    {
+      "id": "rowan",
+      "type": "person",
+      "name": "Rowan Finch",
+      "aliases": [
+        "Rowan"
+      ],
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "Rowan Finch"
+      }
+    },
+    {
+      "id": "iona",
+      "type": "person",
+      "name": "Iona Bell",
+      "aliases": [
+        "Iona"
+      ],
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "Iona Bell"
+      }
+    },
+    {
+      "id": "edmund",
+      "type": "person",
+      "name": "Edmund Wren",
+      "aliases": [
+        "Edmund"
+      ],
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "Edmund Wren"
+      }
+    },
+    {
+      "id": "ada",
+      "type": "person",
+      "name": "Ada Vale",
+      "aliases": [
+        "Ada"
+      ],
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "Ada Vale"
+      }
+    },
+    {
+      "id": "archive",
+      "type": "place",
+      "name": "The Flooded Archive",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Flooded Archive"
+      }
+    },
+    {
+      "id": "cartography",
+      "type": "place",
+      "name": "The Map Room",
+      "aliases": [
+        "Map Room"
+      ],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Map Room"
+      }
+    },
+    {
+      "id": "west-stair",
+      "type": "place",
+      "name": "The Unrecorded Stair",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Unrecorded Stair"
+      }
+    },
+    {
+      "id": "dining",
+      "type": "place",
+      "name": "The Long Dining Room",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Long Dining Room"
+      }
+    },
+    {
+      "id": "court",
+      "type": "place",
+      "name": "The Court of Testimony",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Court of Testimony"
+      }
+    },
+    {
+      "id": "rookery",
+      "type": "place",
+      "name": "The Rookery",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Rookery"
+      }
+    },
+    {
+      "id": "post",
+      "type": "place",
+      "name": "The Dead Letter Office",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Dead Letter Office"
+      }
+    },
+    {
+      "id": "reservoir",
+      "type": "place",
+      "name": "The Cistern Vaults",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Cistern Vaults"
+      }
+    },
+    {
+      "id": "study",
+      "type": "place",
+      "name": "The Keeper’s Study",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Keeper’s Study"
+      }
+    },
+    {
+      "id": "observatory",
+      "type": "place",
+      "name": "The Observatory",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Observatory"
+      }
+    },
+    {
+      "id": "boathouse",
+      "type": "place",
+      "name": "The Boathouse",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Boathouse"
+      }
+    },
+    {
+      "id": "bridge",
+      "type": "place",
+      "name": "The Seven-Arch Bridge",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Seven-Arch Bridge"
+      }
+    },
+    {
+      "id": "orchard",
+      "type": "place",
+      "name": "The Old Orchard",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Old Orchard"
+      }
+    },
+    {
+      "id": "museum",
+      "type": "place",
+      "name": "The Museum of Questions",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Museum of Questions"
+      }
+    },
+    {
+      "id": "conservatory",
+      "type": "place",
+      "name": "The Winter Conservatory",
+      "aliases": [],
+      "source": {
+        "file": "src/castle/rooms.mjs",
+        "excerpt": "The Winter Conservatory"
+      }
+    }
+  ],
+  "records": [
+    {
+      "id": "wrenmere.ch1.maintenance",
+      "revision": 1,
+      "status": "published",
+      "kind": "record",
+      "source": {
+        "file": "src/castle/content.mjs",
+        "excerpt": "Station clock: seventeen minutes fast. Observatory clock: checked against the noon signal. Adjustment deferred. Signed R. Finch."
+      },
+      "people": [
+        "rowan"
+      ],
+      "places": [
+        "observatory"
+      ],
+      "uncertainty": [
+        "Published record wording; inference remains bounded by the current engine."
+      ]
+    },
+    {
+      "id": "wrenmere.ch1.ticket",
+      "revision": 1,
+      "status": "published",
+      "kind": "derived-fact",
+      "source": {
+        "file": "src/castle/content.mjs",
+        "excerpt": "The station ticket is stamped 21:17. Subtracting the documented 17-minute error gives 21:00. This dates Finch’s departure from the station, not his arrival at the tower."
+      },
+      "people": [
+        "rowan"
+      ],
+      "places": [
+        "observatory"
+      ],
+      "uncertainty": [
+        "Published record wording; inference remains bounded by the current engine."
+      ]
+    },
+    {
+      "id": "wrenmere.ch1.path",
+      "revision": 1,
+      "status": "published",
+      "kind": "model",
+      "source": {
+        "file": "src/castle/content.mjs",
+        "excerpt": "The surveyed footpath takes 7 minutes: station to bridge, 2; bridge to orchard, 3; orchard to tower, 2. These are the case’s stipulated travel times. The tower bell rang at 21:10 by its calibrated clock."
+      },
+      "people": [],
+      "places": [
+        "cartography"
+      ],
+      "uncertainty": [
+        "Published record wording; inference remains bounded by the current engine."
+      ]
+    },
+    {
+      "id": "wrenmere.ch1.margin",
+      "revision": 1,
+      "status": "published",
+      "kind": "testimony",
+      "source": {
+        "file": "src/castle/content.mjs",
+        "excerpt": "“I saw Mara take the courtyard stair towards the river.” The note is unsigned. It does not establish why she went or whether the writer saw her arrive."
+      },
+      "people": [
+        "mara"
+      ],
+      "places": [
+        "west-stair"
+      ],
+      "uncertainty": [
+        "Published record wording; inference remains bounded by the current engine."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.survey-1911",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.survey-1911` | “Household survey, 1911. The cupboard stair opens onto the covered walk. The walk joins the river gate beside the laundry yard.” Show the same fixed courtyard corners and scale marks as the later survey. | A physical connection, conditional on the survey being accurate; no person's journey. |"
+      },
+      "people": [],
+      "places": [
+        "archive"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.survey-later",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.survey-later` | The same courtyard corners and scale marks survive. The cupboard stair is absent; the covered walk ends at an unlabelled wall. An accession slip dates this copy after the flood. | An omission between dated editions. It does not establish the editor, instruction or motive. |"
+      },
+      "people": [],
+      "places": [
+        "cartography"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.service-list",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.service-list` | record / `dining` | read guest and service lists separately | supports `service-route`; list does not prove who carried an item |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.doorway-names",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.doorway-names` | observation / `court` | mark two descriptions on the room index | supports `terminology-reconciled`; witness memory remains partial |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.draught-mark",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.draught-mark` | optional record / `workshop` | inspect a discarded drafting mark | character/alternative hint only; not a required truth |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.margin-author",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.margin-author` | inference / `west-stair` | reconcile hand, vocabulary, and access | permits “Iona is the strongest attribution”; signature remains absent |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.route-direction",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.route-direction` | inference / `cartography` | submit the aligned route | permits “Mara went riverward by the service route” |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.altered-account",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.altered-account` | uncertainty / `study` | answer the remaining-question prompt | alteration is established; motive and exact editor are not |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.iona-reference",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "signed-comparison",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.iona-reference` | A signed household inventory: “Iona Bell. Spare lamp, courtyard stair cupboard.” Compare a repeated abbreviation, a distinctive correction and household vocabulary with the unsigned margin. | Corroborating attribution to Iona, not certain identification from handwriting alone. This record must be added to the graph before offering an attribution answer. |"
+      },
+      "people": [
+        "iona"
+      ],
+      "places": [
+        "west-stair"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch2.garden-log",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "testimony",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch2.garden-log` | “I saw Miss Vale come out at the river gate. She asked which bridge path remained passable.” Label this as a separate gardener's recollection with its own accession/source note. | Independent support for the direction of travel. It does not supply an exact time, destination reached or final intention. |"
+      },
+      "people": [
+        "mara"
+      ],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.warning-intended",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.warning-intended` | `rookery` message chart | the designed path had a house and village branch | plan is not proof of installation |"
+      },
+      "people": [],
+      "places": [
+        "rookery"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.relief-work-order",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.relief-work-order` | `archive` invoice/work order | relief-gate maintenance was deferred | reason and decision-maker remain partial |"
+      },
+      "people": [],
+      "places": [
+        "archive"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.warning-installed",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.warning-installed` | `reservoir` valve labels | temporary selector differed from the intended plan | installation date is approximate |"
+      },
+      "people": [],
+      "places": [
+        "reservoir"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.warning-observed",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.warning-observed` | `post` returned letters | at least one message route did not reach its addressee | silence is not proof of no attempt |"
+      },
+      "people": [],
+      "places": [
+        "post"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.village-branch",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.village-branch` | `rookery` network board | village branch was disconnected in the relevant arrangement | exact physical water level is unknown |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.separate-failures",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.separate-failures` | `study` synthesis | gate reliability and village warning were distinct failures | responsibility is distributed |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch3.remaining-question",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch3.remaining-question` | `conservatory` optional note | “what should a warning protect?” is the next question | no counterfactual certainty |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.boat-manifest",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.boat-manifest` | `boathouse` rescue list | capacity and named departures constrain schedules | additions have uncertain ordering |"
+      },
+      "people": [],
+      "places": [
+        "boathouse"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.tower-observation",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.tower-observation` | `bridge` model / tower note | Finch was present before the calibrated bell interval | observation's exact vantage remains unknown |"
+      },
+      "people": [
+        "rowan"
+      ],
+      "places": [
+        "bridge"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.mara-warning",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.mara-warning` | `orchard` route + `court` witness | Mara moved riverward toward warning work | return route is not fully witnessed |"
+      },
+      "people": [
+        "mara"
+      ],
+      "places": [
+        "orchard",
+        "court"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.bridge-witness",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.bridge-witness` | `court` two accounts | crossing failure interval is bounded | witness terminology is approximate |"
+      },
+      "people": [],
+      "places": [
+        "court"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.chronology-model",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.chronology-model` | `study` synthesis | shared interval supports a cautious sequence | exact timestamps are not canonical in UI |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch4.counterfactual-limit",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch4.counterfactual-limit` | `conservatory` reflection | a different outcome is not established by the records | responsibility and grief remain plural |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.report-draft",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.report-draft` | `study` working papers | the draft included route and warning qualifications | authorial motive is not explicit |"
+      },
+      "people": [],
+      "places": [
+        "study"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.report-published",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.report-published` | `museum` exhibit drawer | the public account omitted material limits | omission's internal discussion is unknown |"
+      },
+      "people": [],
+      "places": [
+        "museum"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.ada-letter",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.ada-letter` | `post` correspondence | Ada asked for a correct public account | grief does not settle every fact |"
+      },
+      "people": [
+        "ada"
+      ],
+      "places": [
+        "post"
+      ],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.object-register",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.object-register` | `museum` catalogue | objects can teach method and context together | provenance may remain incomplete |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.public-account",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.public-account` | `study` synthesis | the account can be corrected with supported claims | no perfect account is promised |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.ch5.questions-we-share",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "proposal",
+      "source": {
+        "file": "docs/castle/CONTINUATION.md",
+        "excerpt": "| `wrenmere.ch5.questions-we-share` | `museum`/`conservatory` | the estate preserves questions as well as answers | future questions remain open |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed authoring description; not a published record or proof."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.1",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 20:40 | River gauge reaches the house's recorded warning mark | Gauge sheet cross-checked against a physical mark |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.2",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 20:48 | A warning is sent on the house circuit; village branch is not connected in the temporary arrangement | Mechanism state, work order and service note, not a magical perfect event log |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.3",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 21:00 actual / 21:17 displayed | Finch departs the station | Ticket and maintenance slip; playable Chapter I |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.4",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| By 21:08 | Finch reaches the tower | Later independent testimony and a dated maintenance entry; not inferred from a feasible path alone |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.5",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 21:10 | Calibrated observatory bell sounds | Chapter I reference clock; later corroboration |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.6",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 21:12 | Mara takes the service stair towards the river | Independent sighting and route constraints |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.7",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 21:14 | Finch reaches the relief mechanism | Gate-side evidence and second witness; timing model must be checked when authored |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.8",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| 21:21 | Village warning is heard and evacuation begins | Boat manifest and household note from separate keepers |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    },
+    {
+      "id": "wrenmere.timeline.9",
+      "revision": 1,
+      "status": "proposed",
+      "kind": "author-timeline",
+      "source": {
+        "file": "docs/castle/design/STORY-BIBLE-SPOILERS.md",
+        "excerpt": "| Approximately 21:24 | Old river crossing fails; Mara dies | Corroborated sequence; avoid invented minute-level certainty where the sources only establish an interval |"
+      },
+      "people": [],
+      "places": [],
+      "uncertainty": [
+        "Proposed author timeline, not an authored independent witness or published finding."
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": "finch-departure",
+      "status": "published",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1260,
+      "latest": 1260,
+      "source": "wrenmere.ch1.ticket@1",
+      "premises": [
+        "wrenmere.ch1.maintenance@1"
+      ]
+    },
+    {
+      "id": "calibrated-bell",
+      "status": "published",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1270,
+      "latest": 1270,
+      "source": "wrenmere.ch1.path@1"
+    },
+    {
+      "id": "river-gauge",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1240,
+      "latest": 1240,
+      "source": "wrenmere.timeline.1@1"
+    },
+    {
+      "id": "house-warning",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1248,
+      "latest": 1248,
+      "source": "wrenmere.timeline.2@1"
+    },
+    {
+      "id": "tower-arrival",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": null,
+      "latest": 1268,
+      "source": "wrenmere.timeline.4@1"
+    },
+    {
+      "id": "mara-stair",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1272,
+      "latest": 1272,
+      "source": "wrenmere.timeline.6@1"
+    },
+    {
+      "id": "relief-mechanism",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1274,
+      "latest": 1274,
+      "source": "wrenmere.timeline.7@1"
+    },
+    {
+      "id": "village-warning",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": 1281,
+      "latest": 1281,
+      "source": "wrenmere.timeline.8@1"
+    },
+    {
+      "id": "crossing-failure",
+      "status": "proposed",
+      "year": 1911,
+      "period": "flood-night",
+      "earliest": null,
+      "latest": null,
+      "source": "wrenmere.timeline.9@1"
+    }
+  ],
+  "ordering": [
+    {
+      "before": "river-gauge",
+      "after": "house-warning"
+    },
+    {
+      "before": "finch-departure",
+      "after": "calibrated-bell"
+    },
+    {
+      "before": "tower-arrival",
+      "after": "calibrated-bell"
+    },
+    {
+      "before": "mara-stair",
+      "after": "village-warning"
+    }
+  ],
+  "conclusions": [
+    {
+      "id": "ch1-corrected-departure",
+      "status": "published",
+      "interpretation": "The 21:17 station clock reading corrects to 21:00 under the stated assumptions.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch1.maintenance@1",
+          "role": "calibration"
+        },
+        {
+          "ref": "wrenmere.ch1.ticket@1",
+          "role": "ticket"
+        }
+      ],
+      "requires": [
+        "calibration",
+        "ticket"
+      ],
+      "roleKinds": {
+        "calibration": [
+          "record"
+        ],
+        "ticket": [
+          "derived-fact"
+        ]
+      },
+      "counterexamples": [
+        "The station clock reading could be applied to the wrong event."
+      ],
+      "questions": [
+        "Does the ticket establish arrival as well as departure?"
+      ]
+    },
+    {
+      "id": "ch1-route-feasible",
+      "status": "published",
+      "interpretation": "A seven-minute route can reach the tower before the 21:10 bell; feasibility does not establish that it was taken.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch1.maintenance@1",
+          "role": "calibration"
+        },
+        {
+          "ref": "wrenmere.ch1.ticket@1",
+          "role": "ticket"
+        },
+        {
+          "ref": "wrenmere.ch1.path@1",
+          "role": "route"
+        }
+      ],
+      "requires": [
+        "calibration",
+        "ticket",
+        "route"
+      ],
+      "roleKinds": {
+        "calibration": [
+          "record"
+        ],
+        "ticket": [
+          "derived-fact"
+        ],
+        "route": [
+          "model"
+        ]
+      },
+      "counterexamples": [
+        "A feasible route may never have been taken."
+      ],
+      "questions": [
+        "What independent record establishes actual tower presence?"
+      ]
+    },
+    {
+      "id": "ch2-margin-author",
+      "status": "unresolved",
+      "interpretation": "Iona is a proposed strongest attribution for the unsigned margin; authorship remains unproved.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch1.margin@1",
+          "role": "unsigned"
+        },
+        {
+          "ref": "wrenmere.ch2.iona-reference@1",
+          "role": "draft-comparison"
+        }
+      ],
+      "requires": [
+        "unsigned",
+        "signed-comparison"
+      ],
+      "roleKinds": {
+        "unsigned": [
+          "testimony"
+        ],
+        "signed-comparison": [
+          "signed-comparison"
+        ],
+        "draft-comparison": [
+          "signed-comparison"
+        ]
+      },
+      "counterexamples": [
+        "Another writer could share vocabulary or access."
+      ],
+      "questions": [
+        "Where is an authored signed comparison, and how is it independently sourced?"
+      ]
+    },
+    {
+      "id": "ch2-mara-route",
+      "status": "unresolved",
+      "interpretation": "Map alignment can support a connection, but does not establish Mara took it.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch1.margin@1",
+          "role": "unsigned"
+        },
+        {
+          "ref": "wrenmere.ch2.survey-1911@1",
+          "role": "plan"
+        },
+        {
+          "ref": "wrenmere.ch2.garden-log@1",
+          "role": "draft-sighting"
+        }
+      ],
+      "requires": [
+        "unsigned",
+        "plan",
+        "independent-sighting"
+      ],
+      "roleKinds": {
+        "unsigned": [
+          "testimony"
+        ],
+        "plan": [
+          "proposal"
+        ],
+        "independent-sighting": [
+          "testimony"
+        ],
+        "draft-sighting": [
+          "testimony"
+        ]
+      },
+      "counterexamples": [
+        "The route could exist without Mara travelling it."
+      ],
+      "questions": [
+        "Who made the proposed garden recollection, when, and what supports its provenance?"
+      ]
+    },
+    {
+      "id": "ch2-plan-omission",
+      "status": "unresolved",
+      "interpretation": "The proposed surveys may support an omission between editions, not the editor or motive.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch2.survey-1911@1",
+          "role": "earlier"
+        },
+        {
+          "ref": "wrenmere.ch2.survey-later@1",
+          "role": "later"
+        }
+      ],
+      "requires": [
+        "earlier",
+        "later"
+      ],
+      "roleKinds": {
+        "earlier": [
+          "proposal"
+        ],
+        "later": [
+          "proposal"
+        ]
+      },
+      "counterexamples": [
+        "A missing feature may reflect incomplete surveying."
+      ],
+      "questions": [
+        "Have both records and their dates been authored and independently reviewed?"
+      ]
+    },
+    {
+      "id": "ch3-separate-failures",
+      "status": "unresolved",
+      "interpretation": "The proposed warning and relief-gate records distinguish separate failures.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch3.warning-installed@1",
+          "role": "installed"
+        },
+        {
+          "ref": "wrenmere.ch3.relief-work-order@1",
+          "role": "work-order"
+        },
+        {
+          "ref": "wrenmere.ch3.warning-observed@1",
+          "role": "observation"
+        }
+      ],
+      "requires": [
+        "installed",
+        "work-order",
+        "observation"
+      ],
+      "roleKinds": {
+        "installed": [
+          "proposal"
+        ],
+        "work-order": [
+          "proposal"
+        ],
+        "observation": [
+          "proposal"
+        ]
+      },
+      "counterexamples": [
+        "An intended diagram alone cannot establish an installed or observed result."
+      ],
+      "questions": [
+        "What independent dated records establish each proposed layer?"
+      ]
+    },
+    {
+      "id": "ch4-chronology",
+      "status": "unresolved",
+      "interpretation": "Proposed independent records and an interval model may support a cautious sequence.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch4.boat-manifest@1",
+          "role": "manifest"
+        },
+        {
+          "ref": "wrenmere.ch4.tower-observation@1",
+          "role": "witness"
+        },
+        {
+          "ref": "wrenmere.ch4.bridge-witness@1",
+          "role": "bridge"
+        }
+      ],
+      "requires": [
+        "manifest",
+        "witness",
+        "bridge"
+      ],
+      "roleKinds": {
+        "manifest": [
+          "proposal"
+        ],
+        "witness": [
+          "proposal"
+        ],
+        "bridge": [
+          "proposal"
+        ]
+      },
+      "counterexamples": [
+        "A schedule can be feasible without proving actual presence."
+      ],
+      "questions": [
+        "What witness vantage, date and intervals are supported?"
+      ]
+    },
+    {
+      "id": "ch5-account",
+      "status": "unresolved",
+      "interpretation": "The proposed draft and published account can be compared without assuming the editor’s motive.",
+      "premises": [
+        {
+          "ref": "wrenmere.ch5.report-draft@1",
+          "role": "draft"
+        },
+        {
+          "ref": "wrenmere.ch5.report-published@1",
+          "role": "account"
+        }
+      ],
+      "requires": [
+        "draft",
+        "account"
+      ],
+      "roleKinds": {
+        "draft": [
+          "proposal"
+        ],
+        "account": [
+          "proposal"
+        ]
+      },
+      "counterexamples": [
+        "A difference between documents does not by itself establish motive."
+      ],
+      "questions": [
+        "Which authored versions and provenance support the comparison?"
+      ]
+    }
+  ]
+}
