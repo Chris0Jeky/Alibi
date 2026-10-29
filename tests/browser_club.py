@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,os,time
 from playwright.sync_api import sync_playwright
-from browser_fixture_capabilities import model_indexeddb_absent
+from fixture_capabilities import model_indexeddb_absent
 r=Path(__file__).resolve().parents[1];checks=[];errors=[];shots=r/'test-results'/'afterhours-club';shots.mkdir(parents=True,exist_ok=True)
 def check(v,label):
  assert v,label

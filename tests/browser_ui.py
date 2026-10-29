@@ -4,7 +4,7 @@ Use CHROMIUM_PATH to override the Chromium executable when needed.
 """
 import json, os, time
 from pathlib import Path
-from browser_fixture_capabilities import model_indexeddb_absent
+from fixture_capabilities import model_indexeddb_absent
 from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
