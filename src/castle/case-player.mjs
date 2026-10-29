@@ -9,30 +9,40 @@ export function mount({ root, store, save }) {
   const controller = new AbortController();
   const { signal } = controller;
   const share = createShare();
+  let receiptModule, receipt;
   signal.addEventListener('abort', () => share.dispose(), { once: true });
+  signal.addEventListener('abort', () => receipt?.dispose(), { once: true });
   const config = CASE_DELIVERY;
   const base = new URL(import.meta.url);
   const sourceURL = new URL(config.download, base);
   const cacheName = 'alibi-case-pack-' + CASE_HASH;
   let definition,
+    priorHelp = new Set(),
     stage = 0,
     busy = false,
     message = '',
-    offline = false;
+    offline = false,
+    previousStory;
   const record = () => store.state.caseStudy;
   const completed = () => definition.steps.slice(0, record().answers.length).map((s) => s.id);
   const button = (text, action, value = '') =>
     `<button id="case-${action}-${escape(value)}" type="button" data-case-action="${action}" data-value="${escape(value)}">${escape(text)}</button>`;
   const current = () => !signal.aborted && root.isConnected;
+  function receiptMarkup() {
+    if (receipt) return receipt.markup();
+    return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. It counts stages, modes, hints, reveals and checks; earlier help is marked prior. No answers, citations, notes, saves, devices or timings. It stays in memory; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
+  }
   function status() {
     if (!current()) return;
     root.querySelector('[data-case-status]').textContent = message;
-    for (const el of root.querySelectorAll('button,select,input'))
+    for (const el of root.querySelectorAll('button,select,input,textarea'))
       el.disabled = busy || store.mode !== 'local';
   }
   function draw(focused = root.getRootNode().activeElement?.id) {
     if (!current()) return;
     const story = store.state.preferences.story;
+    if (previousStory !== undefined && previousStory !== story) receipt?.mode(story);
+    previousStory = story;
     root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>This fictional study is separate from Wrenmere Chapter I. Wording and fairness still await editorial review. It adds no points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
     if (!definition || !record()) {
@@ -45,7 +55,7 @@ export function mount({ root, store, save }) {
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
           .join(' ');
-      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy only if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
+      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy only if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}${receiptMarkup()}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
         .filter((s) => Session.available(definition, completed()).includes(s.id))
         .map((s) => button(s.title, 'stage', s.id))
         .join(
@@ -110,6 +120,48 @@ export function mount({ root, store, save }) {
     stage = Math.min(record()?.answers.length || 0, 2);
     message = install ? 'Case installed and saved on this device.' : '';
   }
+  async function loadReceiptModule() {
+    const spec = config.receipt;
+    const entry = { ...spec, id: 'receipt', kind: 'module' };
+    const url = new URL(spec.download, base);
+    const cache = await caches.open(cacheName);
+    let verified;
+    const cached = await cache.match(url);
+    if (cached) {
+      try {
+        verified = await fetchPack(
+          entry,
+          base,
+          () => cached,
+          () => {},
+          signal,
+        );
+      } catch {
+        await cache.delete(url);
+      }
+    }
+    if (!verified) {
+      if (!current()) return null;
+      const downloadSignal = AbortSignal.any([signal, AbortSignal.timeout(15000)]);
+      try {
+        verified = await fetchPack(entry, base, fetch, () => {}, downloadSignal);
+      } catch {
+        throw Error('Receipt unavailable. No collection started; reconnect and retry.');
+      }
+      if (!current()) return null;
+      await cache.put(
+        url,
+        new Response(verified, { headers: { 'Content-Type': 'text/javascript' } }),
+      );
+      if (!current()) return null;
+    }
+    if (!current()) return null;
+    // The existing case-pack service-worker cache serves this same-origin hashed URL offline.
+    // Without a controller, import() may issue its own request; a verified Cache Storage read
+    // alone does not promise which response the browser executes.
+    const module = await import(url.href);
+    return current() ? module : null;
+  }
   async function run(operation, focusAfter) {
     if (busy || !current()) return;
     const focused = root.getRootNode().activeElement?.id;
@@ -171,15 +223,46 @@ export function mount({ root, store, save }) {
             else if (result === 'blocked')
               message =
                 'The browser blocked copying. Select the invitation text to copy it yourself.';
+          } else if (action === 'receipt-start') {
+            const stageId = definition.steps[stage].id;
+            const saved = record();
+            priorHelp = new Set(
+              definition.steps
+                .filter((_, i) => saved.hints[i] > 0 || saved.revealed[i] === true)
+                .map((step) => step.id),
+            );
+            const startReceipt = {
+              storyOn: store.state.preferences.story,
+              stageId,
+              completed: completed().includes(stageId),
+              priorAssistance: priorHelp.has(stageId),
+            };
+            if (!receipt) {
+              receiptModule ??= await loadReceiptModule();
+              if (!receiptModule || !current()) return;
+              receipt = receiptModule.createCaseReceipt({ definition, sourceSha256: CASE_HASH });
+              receipt.attach({
+                root,
+                signal,
+                run,
+                setMessage: (text) => (message = text),
+                canAct: () => !busy && store.mode === 'local',
+              });
+            }
+            receipt.start(startReceipt);
+            message = 'Receipt on for this page.';
           } else if (action === 'stage') {
             const index = definition.steps.findIndex((s) => s.id === value);
             if (index < 0 || index > record().answers.length) return;
             stage = index;
+            const stageId = definition.steps[index].id;
+            receipt?.open(stageId, completed().includes(stageId), priorHelp.has(stageId));
             message = '';
           } else if (action === 'story') {
             await change((n) => {
               n.preferences.story = !n.preferences.story;
             });
+            receipt?.mode(store.state.preferences.story);
             message = 'Story mode changed. Drafts and progress retained.';
           } else if (action === 'check') {
             const step = definition.steps[stage],
@@ -194,26 +277,36 @@ export function mount({ root, store, save }) {
                 citations: answers[i][1],
               })),
             );
-            if (!result.ok)
+            const receiptShape = () =>
+              answers.map(([verdict, citations]) => ({
+                hasVerdict: Boolean(verdict),
+                citations: Array.isArray(citations) ? citations.map(() => true) : citations,
+              }));
+            if (!result.ok) {
+              if (receipt?.enabled) receipt.submission(step.id, false, receiptShape());
               message =
                 'Check your verdicts and smallest sufficient source sets. Your draft is kept.';
-            else if (stage < record().answers.length)
+            } else if (stage < record().answers.length) {
+              if (receipt?.enabled) receipt.submission(step.id, true, receiptShape());
               message = 'This stage was already accepted. Progress unchanged.';
-            else {
+            } else {
               await change((n) => {
                 n.caseStudy.answers.push(structuredClone(answers));
               });
+              if (receipt?.enabled) receipt.submission(step.id, true, receiptShape());
               message = 'Stage accepted and saved. Choose the next stage above.';
             }
           } else if (action === 'hint') {
             await change((n) => {
               n.caseStudy.hints[stage] = Math.min(3, n.caseStudy.hints[stage] + 1);
             });
+            receipt?.hint(definition.steps[stage].id);
             message = 'Hint shown. This does not complete the stage.';
           } else if (action === 'reveal') {
             await change((n) => {
               n.caseStudy.revealed[stage] = true;
             });
+            receipt?.reveal(definition.steps[stage].id);
             message = 'Worked answer shown. This does not complete the stage.';
           }
         },

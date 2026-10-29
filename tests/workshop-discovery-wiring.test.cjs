@@ -28,6 +28,7 @@ test('adder-only changes trigger the collection discovery pull-request workflow'
   for (const file of [
     'src/workshop-add.mjs',
     'tests/workshop-add.test.mjs',
+    'tests/workshop-status.test.mjs',
     'tests/workshop_add_browser.py',
   ])
     assert.ok(
@@ -36,12 +37,11 @@ test('adder-only changes trigger the collection discovery pull-request workflow'
     );
 });
 
-test('collection discovery runs the adder Node tests', () => {
+test('collection discovery runs the adder and status Node tests', () => {
   const commands = [...workflow.matchAll(/^\s*node --test\s+([^\n]+)/gm)];
-  assert.ok(
-    commands.some((match) =>
-      match[1].split(/\s+/).some((pattern) => matches(pattern, 'tests/workshop-add.test.mjs')),
-    ),
-    'the collection workflow must select the adder Node suite',
-  );
+  for (const file of ['tests/workshop-add.test.mjs', 'tests/workshop-status.test.mjs'])
+    assert.ok(
+      commands.some((match) => match[1].split(/\s+/).some((pattern) => matches(pattern, file))),
+      `${file} must run in the collection workflow`,
+    );
 });

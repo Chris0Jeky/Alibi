@@ -49,6 +49,7 @@ function buildShelf(root = path.resolve(__dirname, '..')) {
   // #433: the in-app adder is an optional same-directory module carrying the listing it verifies.
   const listing = catalogue.manifest.collections.map((entry) => ({
     id: entry.id,
+    packId: entry.packId,
     title: entry.title,
     description: entry.description,
     count: entry.count,

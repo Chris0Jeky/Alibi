@@ -14,6 +14,7 @@ on:
       - 'tools/build-workshop-shelf.cjs'
       - 'tests/workshop-*.test.cjs'
       - 'tests/workshop-add.test.mjs'
+      - 'tests/workshop-status.test.mjs'
       - 'tests/workshop_add_browser.py'
       - 'tests/browser_workshop_discovery.py'
       - '.github/workflows/workshop-discovery.yml'
@@ -47,7 +48,7 @@ jobs:
           git rev-parse HEAD > test-results/workshop-discovery/source-head.txt
           npm run format:check
           npm run build:android
-          node --test tests/workshop-*.test.cjs tests/workshop-add.test.mjs tests/budget.test.cjs 2>&1 | tee test-results/workshop-discovery/source-tests.log
+          node --test tests/workshop-*.test.cjs tests/workshop-add.test.mjs tests/workshop-status.test.mjs tests/budget.test.cjs 2>&1 | tee test-results/workshop-discovery/source-tests.log
           cp build-info.json test-results/workshop-discovery/build-info.json
           cp dist-android/android-assets.json test-results/workshop-discovery/android-assets.json
           git diff --exit-code

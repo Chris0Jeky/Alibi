@@ -17,11 +17,14 @@ export async function fetchPack(
   progress = () => {},
   signal,
 ) {
+  const moduleAsset = entry?.kind === 'module';
   if (
     !entry ||
     !/^[a-z][a-z0-9-]{0,59}$/.test(entry.id) ||
     !/^[a-f0-9]{64}$/.test(entry.sha256) ||
-    entry.download !== `${entry.id}.${entry.sha256}.json` ||
+    (moduleAsset
+      ? entry.id !== 'receipt' || entry.download !== `receipt.${entry.sha256.slice(0, 12)}.js`
+      : entry.download !== `${entry.id}.${entry.sha256}.json`) ||
     !Number.isSafeInteger(entry.bytes) ||
     entry.bytes < 1 ||
     entry.bytes > LIMIT
@@ -89,7 +92,85 @@ export function handOff(bytes, entry, input) {
   input.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-export function open(doc = document, list = COLLECTIONS) {
+// A fresh, read-only snapshot is advisory; admission remains the atomic authority.
+export async function readPackStatuses(
+  store,
+  list,
+  validate = globalThis.AlibiCore?.validatePack,
+  signal,
+) {
+  const unknown = () => list.map(() => 'unknown');
+  if (
+    signal?.aborted ||
+    !store?.db ||
+    store.mode !== 'indexeddb' ||
+    store.fatal ||
+    typeof validate !== 'function'
+  )
+    return unknown();
+  try {
+    const ids = await new Promise((resolve, reject) => {
+      const tx = store.db.transaction('packs', 'readonly');
+      const found = new Set();
+      let count = 0,
+        total = 0,
+        timer;
+      const finish = () => {
+        clearTimeout(timer);
+        signal?.removeEventListener('abort', cancel);
+      };
+      const cancel = () => {
+        finish();
+        try {
+          tx.abort();
+        } catch {}
+        reject();
+      };
+      signal?.addEventListener('abort', cancel, { once: true });
+      if (signal?.aborted) {
+        cancel();
+        return;
+      }
+      timer = setTimeout(cancel, 8000);
+      tx.onabort = tx.onerror = () => {
+        finish();
+        reject();
+      };
+      tx.oncomplete = () => {
+        finish();
+        resolve(found);
+      };
+      let request;
+      try {
+        request = tx.objectStore('packs').openCursor();
+      } catch {
+        cancel();
+        return;
+      }
+      request.onerror = cancel;
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) return;
+        try {
+          if (++count > 3000) throw 0;
+          const row = cursor.value;
+          const pack = validate(row?.value, false);
+          total += pack.puzzles.length;
+          if (total > 3000 || cursor.primaryKey !== row?.key || row.key !== pack.id) throw 0;
+          found.add(pack.id);
+          cursor.continue();
+        } catch {
+          cancel();
+        }
+      };
+    });
+    return list.map((entry) => (ids.has(entry.packId) ? 'matching-id' : 'absent'));
+  } catch {
+    return unknown();
+  }
+}
+
+export function open(doc = document, list = COLLECTIONS, store) {
   if (doc.querySelector('dialog.collections-add')) return;
   const opener = doc.activeElement,
     input = doc.getElementById('pack-input'),
@@ -103,10 +184,10 @@ export function open(doc = document, list = COLLECTIONS) {
   };
   d.className = 'collections-add';
   d.setAttribute('aria-labelledby', 'collections-title');
-  d.innerHTML = `<form method="dialog"><button class="dialog-close" aria-label="Close">&times;</button></form><h2 id="collections-title" tabindex="-1">Add a curated collection.</h2><p>Adding downloads a data-only pack from this site, checks its listed size and SHA-256 fingerprint, then validates it in the Workshop like any imported pack. It needs a connection; once added, its puzzles play offline. A collection you already have is refused, never overwritten. Difficulty labels are provisional.</p>${list
+  d.innerHTML = `<form method="dialog"><button class="dialog-close" aria-label="Close">&times;</button></form><h2 id="collections-title" tabindex="-1">Add a curated collection.</h2><p>Download a data-only pack. Added puzzles play offline. Existing IDs cannot be overwritten. Difficulty is provisional.</p>${list
     .map(
       (c) =>
-        `<section class="panel" aria-labelledby="add-${esc(c.id)}"><h3 id="add-${esc(c.id)}">${esc(c.title)}</h3><p>${c.count} puzzles · ${c.families.map((f) => `${f.count} ${esc(f.type)}`).join(' · ')} · ${c.bytes.toLocaleString('en-GB')} bytes</p><p>${esc(c.description)}</p><button class="btn" type="button" data-add="${esc(c.id)}">Add ${esc(c.title)}</button></section>`,
+        `<section class="panel" aria-labelledby="add-${esc(c.id)}"><h3 id="add-${esc(c.id)}">${esc(c.title)}</h3><p>${c.count} puzzles · ${c.families.map((f) => `${f.count} ${esc(f.type)}`).join(' · ')} · ${c.bytes.toLocaleString('en-GB')} bytes</p><p>${esc(c.description)}</p><p class="fine" data-pack-status="${esc(c.id)}">Checking saved packs…</p><button class="btn" type="button" data-add="${esc(c.id)}">Add ${esc(c.title)}</button></section>`,
     )
     .join(
       '',
@@ -165,4 +246,15 @@ export function open(doc = document, list = COLLECTIONS) {
   doc.body.append(d);
   d.showModal();
   d.querySelector('#collections-title').focus();
+  readPackStatuses(store, list, undefined, lifetime.signal).then((states) => {
+    if (!active || !d.open) return;
+    const labels = {
+      'matching-id': 'Pack ID present; contents unverified.',
+      absent: 'No matching pack ID found.',
+      unknown: 'Status unavailable.',
+    };
+    d.querySelectorAll('[data-pack-status]').forEach((el, i) => {
+      el.textContent = labels[states[i]] || labels.unknown;
+    });
+  });
 }
