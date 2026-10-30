@@ -210,8 +210,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Third composition: #862's completed-record technique names and #858's print-only revision
       // line in the startup bundle measure 133,773 (+68 over 133,705). Excess 45; ceiling +64
       // leaves 19, still 2,016 below the pre-#845 ceiling; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3744,
-      'Application bundle stays under 127 KiB + 3,744 bytes gzip',
+      // #866 print clues on the Notes and Rules tabs: one shared clueList() helper plus the
+      // print-only heading, intro and list copy measure 133,773 -> 133,852 (+79). Excess 60;
+      // ceiling +96 leaves 36; the copy is required for a solvable sheet; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3840,
+      'Application bundle stays under 127 KiB + 3,840 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -392,8 +395,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // scene hint chain (#860) and Quiet Wing radius roles (#861) measure 1,435,972 bytes
       // (1.32 MiB + 51,851.68) on the composed tree. Ceiling 1.32 MiB + 51,968 (812 x 64) leaves
       // 116.32 bytes for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 51968,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 51,968 bytes',
+      // #866 print clues on the Notes and Rules tabs (clueList() helper, print-only copy and
+      // three print rules): 1,435,972 -> 1,436,444 (+472; shell 1.32 MiB + 52,323.68). Excess
+      // 355.68; ceiling 1.32 MiB + 52,416 (819 x 64) leaves 92.32; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 52416,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 52,416 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
