@@ -71,7 +71,7 @@ function fixture(puzzle = initial) {
     let draft = initial, draftVerified = true, draftComparison = null, draftConflict = null, draftShowSolution = false,
       draftBusy = false, draftEpoch = 0, draftSave, routeSerial = 0,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
-      draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false;
+      draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false, restoreBusy = false;
     ${helpers}
     ${addClue}
     ${input}

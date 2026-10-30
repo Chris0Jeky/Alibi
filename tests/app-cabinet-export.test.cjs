@@ -449,6 +449,7 @@ function cabinetDialogFixture(onDownload) {
       else downloads.push({ name, payload: clone(payload) });
     },
     updateRequested: false,
+    restoreBusy: false,
     draftEpoch: 0,
     routeSerial: 0,
     location: { hash: '#/settings' },

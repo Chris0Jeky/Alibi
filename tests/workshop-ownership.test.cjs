@@ -69,7 +69,7 @@ function fixture() {
     let draftSave;
     let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null, draftConflict = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
-      draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
+      draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false, restoreBusy = false,
       makerFields = {title:'Case'};
     ${helpers}
     ${input}

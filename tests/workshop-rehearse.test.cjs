@@ -106,7 +106,7 @@ function fixture({ verified = true, busy = false } = {}) {
     `(() => {
       let draft = ${JSON.stringify(draft)}, draftVerified = ${verified}, draftBusy = ${busy},
         rehearsal = null, current = null, paused = false, reviewing = false, checking = false,
-        feedback = '', updateRequested = false, storageFatal = '', saveError = '', pendingSaves = 0,
+        feedback = '', updateRequested = false, restoreBusy = false, storageFatal = '', saveError = '', pendingSaves = 0,
         queue = Promise.resolve(), revs = new Map(), acked = new Map(), records = new Map(),
         channel = { postMessage: () => globalThis.__posts++, addEventListener: (_, fn) => (listener = fn) },
         listener = null, sessionSeconds = 3, hintAction = null, draftSave = Promise.resolve(),
