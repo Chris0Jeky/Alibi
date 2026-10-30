@@ -39,15 +39,26 @@ paid external service is needed. Never create another project just to publish an
    existing owner and retain the registration/source/readiness receipts.
 1. Run `npm ci`, `npm run verify`, and all browser acceptance suites in CI. Inspect mobile and desktop.
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
-3. Build the merged source. Record its full Git SHA and `build-info.json`.
-4. Run `npm run cloudflare:check`, then `npm run cloudflare:deploy` for the primary site.
-   Record the returned Worker version and verify actual HTTPS files, headers, saves and offline play.
+3. From a clean checkout of the merged `main` (fetch first), run `npm run cloudflare:release`. It
+   refuses a dirty tree or detached HEAD, builds, checks that `dist/` carries this exact commit, runs
+   the `wrangler deploy --dry-run` and writes `release-receipt.json` (git-ignored, repository root):
+   full SHA, branch, `build-info.json`, a sha256 for every `dist/` file and the timestamp. Nothing is
+   published yet.
+4. Run `npm run cloudflare:release -- --deploy` to publish exactly that `dist/`. It records the Worker
+   version id in the receipt, then probes the primary origin (`tools/probe-origin.cjs`) and exits
+   non-zero unless the served `index.html`, `sw.js`, platform identity (source SHA, version, payload
+   digest) and every referenced hashed asset match the local build. Keep the receipt with the release
+   record. `npm run cloudflare:probe` re-runs the probe any time against the last build in `dist/`.
+   `dist/` ships no `build-info.json`; the platform identity script and `sw.js` are the served identity.
 5. Routine releases no longer deploy to the retired Sites fallback. Only the single retirement
    deployment below does.
 6. (Retired step; kept for the retirement deployment.) Package `dist/` using the Sites helper, save
    that exact version and deploy to the authorized audience. Poll until deployment actually succeeds.
 7. Verify HTML, hashed assets, manifest, icons, security headers, IndexedDB and offline play on
-   the primary HTTPS origin using disposable test profiles. Keep rollback artifacts.
+   the primary HTTPS origin using disposable test profiles. The probe covers byte identity only, not
+   headers, saves or offline play. Rollback is the receipt's Worker version id with
+   `npx wrangler rollback <version id> --config wrangler.jsonc`; it does not reverse IndexedDB (see
+   Saves and updates).
 
 For another static host, `npm run build` produces `alibi-deluxe-cloudflare.zip` with index.html at
 its root, all hashed assets, manifest, worker and `_headers`. `wrangler.jsonc` selects the existing
@@ -131,8 +142,9 @@ Claude sessions). Deploy the published release that first contains the notice:
 
 ## Cloudflare primary site
 
-Use `npm run cloudflare:check` for an assets-only dry run and `npm run cloudflare:deploy` for the
-selected primary static site. There is no application backend binding in this configuration.
+Use `npm run cloudflare:check` for an assets-only dry run and `npm run cloudflare:release` (release
+procedure steps 3-4) to publish the selected primary static site; `npm run cloudflare:deploy` is the
+bare wrangler call without the receipt or probe. There is no application backend binding in this configuration.
 Cloudflare Workers Static Assets applies the emitted `_headers` and correct image MIME types.
 Verify those responses and the real-origin/offline suites after publishing; do not infer success
 from the bundle's screenshots. Publication receipts record the actual URL and deployed build.
