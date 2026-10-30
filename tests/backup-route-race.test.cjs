@@ -233,7 +233,7 @@ function restoreHarness(store) {
   };
   vm.runInNewContext(
     `
-    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false,
+    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false, saveError = '',
       stagedCabinet = null, dialogOpener = null, noteTimer = null;
     ${source.slice(source.indexOf("  $('#dialog').addEventListener('close', () => {"), source.indexOf("  $('#dialog').addEventListener('cancel',"))}
     ${appFunction('restoreBackup')}
