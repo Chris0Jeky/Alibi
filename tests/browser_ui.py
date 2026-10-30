@@ -194,7 +194,8 @@ with sync_playwright() as pw:
     check(page.locator('.draft-clue').count()==total,'390px: Redo brings the imported draft back')
     action('verify-draft');page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
     with page.expect_download() as dl:action('export-draft')
-    check(json.loads(Path(dl.value.path()).read_text())['puzzles'][0]==draft['puzzles'][0],'390px: the imported draft verifies to the original puzzle')
+    seedless=lambda q:{k:v for k,v in q.items() if k!='authorSeed'}  # draft files strip the generator seed
+    check(seedless(json.loads(Path(dl.value.path()).read_text())['puzzles'][0])==seedless(draft['puzzles'][0]),'390px: the imported draft verifies to the original puzzle')
     removed=draft['puzzles'][0]['clues'][-1]
     for width in (390,1440):
         page.set_viewport_size({'width':width,'height':1000})
@@ -234,7 +235,7 @@ with sync_playwright() as pw:
         action('verify-draft');page.locator('[data-action="export-draft"]:enabled').wait_for()
         with page.expect_download() as dl:action('export-draft')
         revised=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
-        check(revised==draft['puzzles'][0],f'{width}px: reverified Undo exports the exact original draft')
+        check(seedless(revised)==seedless(draft['puzzles'][0]),f'{width}px: reverified Undo exports the exact original draft')
         page.locator('[data-action="redo-draft"]').focus();page.keyboard.press('Enter')
         check(page.locator('.draft-clue').count()==len(revised['clues'])-1 and page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: keyboard Redo restores the edit and revokes publication')
         page.locator('#clue-who').select_option(removed['who'])
