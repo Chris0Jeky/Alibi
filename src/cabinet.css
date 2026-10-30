@@ -403,6 +403,13 @@ dialog {
   font-weight: 700;
   margin-bottom: 8px;
 }
+/* The technique name is the nudge; the exact step waits behind one tap (#823). */
+.hint-step summary {
+  cursor: pointer;
+  color: var(--green);
+  font-weight: 600;
+  padding: 10px 0;
+}
 .hint-box p {
   color: var(--ink);
   margin-bottom: 8px;

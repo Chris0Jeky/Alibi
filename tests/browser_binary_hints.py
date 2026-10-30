@@ -55,6 +55,12 @@ def run():
                             expect(dialog.locator('.deduction-title')).to_have_text(rule)
                             coordinate = chr(65 + index % 6) + str(index // 6 + 1)
                             expect(dialog.locator('.hint-box')).to_contain_text(coordinate)
+                            if step == 0:
+                                # #823: the technique shows first; the square waits behind one tap.
+                                box = dialog.locator('.hint-box')
+                                expect(box).not_to_contain_text(coordinate, use_inner_text=True)
+                                dialog.get_by_text('Show the step', exact=True).click()
+                                expect(box).to_contain_text(coordinate, use_inner_text=True)
                             expect(dialog).to_contain_text('does not look at the stored answer')
                             unchanged_hint(page, before)
                             if step == len(STEPS) - 1:

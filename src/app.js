@@ -1908,7 +1908,7 @@
           : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
-      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${/^Revisit/.test(hint.rule) ? esc(hint.message) : `<details class="hint-step"><summary>Show the step</summary>${esc(hint.message)}</details>`}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
