@@ -583,6 +583,7 @@
       p.type,
       p,
       [...p.id].reduce((n, c) => n + c.charCodeAt(0), 0),
+      inProgress ? r.state : null,
     )}<span class="card-family-symbol">${icon(M[p.type].icon)}</span>${inProgress ? '<span class="badge">In progress</span>' : solved(r) ? `<span class="badge">${icon('check')} Solved</span>` : ''}</div><div class="card-body"><div class="card-family">${esc(M[p.type].title)}</div><h3>${esc(p.title)}</h3><div class="card-meta">${difficulty(p.difficulty, p)}<span>${puzzleMeta(p)}</span></div>${collection ? `<span class="collection-stamp">${collectionCover ? `<img src="${esc(collectionCover)}" width="28" height="28" alt="" loading="lazy">` : ''}<span>${esc(collection.title)}</span></span>` : ''}</div></button></article>`;
   }
   function bookCard(b, i) {
@@ -686,7 +687,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Puzzle previews are decorative, not solutions.</p>`;
+    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Previews show saved marks or decorative art, never solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
