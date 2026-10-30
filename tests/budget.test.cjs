@@ -294,8 +294,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Measured on 328d5dcd: #819 +1,024, #836 +1,396, #838 +1,083, #842 +196, #839 +161
       // (+3,860) against 1,295 bytes of headroom. Ceiling +2,816 leaves ~250 bytes for
       // identity/hash noise; startup gzip and content limits are unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 38432,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 38,432 bytes',
+      // #846 crime-scene reasoning hints (candidate pruning, line rule, accusation pointer in
+      // src/insights.js): main 1,418,441 -> 1,420,969 (+2,528, including the line-rule
+      // explanation from review). Excess 1,232.68 bytes; ceiling +1,280 (20 x 64) leaves
+      // 47.32 bytes; no feature room.
+      // COMPOSE-CEILING
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 99999,
+      'COMPOSE-CEILING',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

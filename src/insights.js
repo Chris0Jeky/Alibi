@@ -228,6 +228,117 @@
       issues.push({ message: 'Each tent needs a different adjacent tree.', cells: tents });
     return issues;
   }
+  // Crime scenes: candidates come from AlibiAssist.reason (furniture, taken rows/columns and
+  // clues about one person), then pair clues prune them to a fixpoint. Never reads the solution.
+  function sceneDeduction(p, s) {
+    const assist = root.AlibiAssist;
+    if (!assist) return null;
+    const n = p.size,
+      placed = s.placements || {},
+      isPlaced = (id) => Number.isInteger(placed[id]),
+      name = (id) => p.people.find((x) => x.id === id)?.name || id,
+      inLine = (axis, line) => (c) => (axis ? c % n === line : Math.floor(c / n) === line),
+      unplaced = p.people.filter((x) => !isPlaced(x.id));
+    if (!unplaced.length)
+      return s.accused == null
+        ? {
+            rule: 'Time to accuse',
+            message:
+              'Everyone is placed and no clue is broken. Exactly one suspect shares the victim’s room: choose them in the final deduction and make your accusation.',
+            cells: [],
+          }
+        : null;
+    const cand = new Map(),
+      pairClues = new Map(unplaced.map((x) => [x.id, new Set()]));
+    for (const x of unplaced)
+      cand.set(
+        x.id,
+        C.range(n * n).filter((c) => !assist.reason(p, s, c, null, x.id)),
+      );
+    const spots = (id) => (isPlaced(id) ? [placed[id]] : cand.get(id));
+    for (let changed = true, pass = 0; changed && pass < unplaced.length * n * n; pass++) {
+      changed = false;
+      for (const cl of p.clues) {
+        if (!cl.other) continue;
+        for (const [me, them, mine] of [
+          [cl.who, cl.other, true],
+          [cl.other, cl.who, false],
+        ]) {
+          if (!cand.has(me)) continue;
+          const keep = cand
+            .get(me)
+            .filter((c) =>
+              spots(them).some(
+                (d) =>
+                  d !== c &&
+                  Math.floor(d / n) !== Math.floor(c / n) &&
+                  d % n !== c % n &&
+                  (mine ? C.scenePair(p, cl, c, d) : C.scenePair(p, cl, d, c)),
+              ),
+            );
+          if (keep.length < cand.get(me).length) {
+            cand.set(me, keep);
+            pairClues.get(me).add(cl);
+            changed = true;
+          }
+        }
+      }
+    }
+    const empty = unplaced.find((x) => !cand.get(x.id).length);
+    if (empty)
+      return conflict(
+        `With your placements, ${empty.name} has no square left that fits the rows, columns, furniture and clues. Revisit an earlier placement.`,
+        [],
+      );
+    const only = (id, cell) => {
+      // Explain what removed the other squares, naming the clues that did it.
+      const furniture = new Set(p.objects.map((o) => o.cell)),
+        taken = Object.values(placed),
+        blocked = [],
+        texts = new Set([...pairClues.get(id)].map((cl) => C.clueText(p, cl)));
+      for (const c of C.range(n * n)) {
+        if (furniture.has(c)) blocked[0] = 'furniture';
+        else if (taken.some((j) => Math.floor(j / n) === Math.floor(c / n) || j % n === c % n))
+          blocked[1] = 'rows and columns already taken';
+        else if (assist.reason(p, s, c, null, id)) texts.add(assist.reason(p, s, c, null, id));
+      }
+      return {
+        rule: 'Only one square left',
+        message: `${name(id)} can only stand at ${at(cell, n)}. The rest are blocked by ${blocked.filter(Boolean).join(' and ') || 'the clues'}.${texts.size ? ` Clues: ${[...texts].slice(0, 3).join(' ')}` : ''}`,
+        cells: [cell],
+        person: id,
+        // Deliberately no value: a scene move is a placement, not a single-cell value.
+      };
+    };
+    for (const x of unplaced) if (cand.get(x.id).length === 1) return only(x.id, cand.get(x.id)[0]);
+    for (const axis of [0, 1])
+      for (let line = 0; line < n; line++) {
+        const here = inLine(axis, line);
+        if (Object.values(placed).some(here)) continue;
+        const can = unplaced.filter((x) => cand.get(x.id).some(here));
+        if (!can.length)
+          return conflict(
+            `${lineName(axis, line)} has no square left for anyone. Revisit an earlier placement.`,
+            [],
+          );
+        if (can.length > 1) continue;
+        const cells = cand.get(can[0].id).filter(here);
+        // The line rule forces the square; the person's other squares are not blocked.
+        if (cells.length === 1)
+          return {
+            rule: 'Only one square left',
+            message: `${lineName(axis, line)} must hold ${can[0].name}: nobody else has a square left in it, and ${at(cells[0], n)} is ${can[0].name}'s only open square there.`,
+            cells,
+            person: can[0].id,
+          };
+        return {
+          rule: axis ? 'Only one person fits a column' : 'Only one person fits a row',
+          message: `${lineName(axis, line)} must hold ${can[0].name}: nobody else has a square left in it.`,
+          cells,
+        };
+      }
+    return null;
+  }
   function deduction(p, s) {
     const result = (rule, message, cell, value, forced = [cell]) => {
       // Lantern claims can force several neighbours; validate them together on a copy.
@@ -251,6 +362,7 @@
       issues = p.type === 'tents' ? tentConflicts(p, s) : C.registry[p.type].validate(p, s);
     if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
     if (p.type === 'trail') return trailDeduction(p, s);
+    if (p.type === 'scene') return sceneDeduction(p, s);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
       const groups = C.groups(p),
         // Futoshiki chains: a cell below k others cannot hold the top k values (and vice versa).
