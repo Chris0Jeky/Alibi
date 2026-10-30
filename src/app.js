@@ -2362,9 +2362,11 @@
       else divergentByKey.set(key, local);
     }
     data.runs = [...deviceByKey.values()];
-    data.packs = [
-      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
-    ];
+    // IndexedDB is the record of installed packs; a tab that has not seen another tab's removal must
+    // not write the removed pack back into the backup. Memory adds packs only in session mode.
+    const stored = new Set(data.packs.map((p) => p.id)),
+      local = packs.slice(1).filter((p) => store.mode !== 'indexeddb' || stored.has(p.id));
+    data.packs = [...new Map([...data.packs, ...local].map((p) => [p.id, C.clone(p)])).values()];
     data.settings = C.clone(settings);
     data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
@@ -3610,6 +3612,7 @@
         }
         break;
       case 'remove-pack-confirm':
+        if (!packs.slice(1).some((p) => p.id === id)) break;
         await store.removePack(id);
         packs = packs.filter((p) => p.id !== id);
         closeDialog();

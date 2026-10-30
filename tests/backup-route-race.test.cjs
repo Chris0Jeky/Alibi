@@ -456,3 +456,37 @@ test('cabinet export awaits a pending draft failure and successful edit permits 
   assert.equal(result.data.workshopDraft.puzzle.id, 'other-tab-draft');
   assert.equal(puts, 2, 'export never retries the local draft write over another tab');
 });
+
+test('a backup lists only stored packs in IndexedDB mode, so a stale tab cannot revive a removed pack', async () => {
+  const run = async (mode) => {
+    const context = {
+      store: {
+        mode,
+        async export() {
+          return { runs: [], packs: [{ id: 'kept' }] };
+        },
+      },
+      enqueueSave: async () => {},
+      queue: Promise.resolve(),
+      C: { clone: structuredClone },
+      records: new Map(),
+      acked: new Map(),
+      packs: [{ id: 'starter' }, { id: 'removed-elsewhere' }, { id: 'kept' }],
+      settings: {},
+      prefs: {},
+      cfg: { version: 'test' },
+    };
+    vm.runInNewContext(
+      `
+      let draftSave, draftStale = null;
+      ${appFunction('cabinetBackup')}
+      globalThis.api = { backup: cabinetBackup };
+    `,
+      context,
+    );
+    const { data } = await context.api.backup();
+    return Array.from(data.packs, (p) => p.id).sort();
+  };
+  assert.deepEqual(await run('indexeddb'), ['kept']);
+  assert.deepEqual(await run('session'), ['kept', 'removed-elsewhere']);
+});
