@@ -4,6 +4,7 @@ dist/
 dist-android/
 release/
 build-info.json
+release-receipt.json
 alibi-deluxe-play.html
 *.zip
 *.tar.gz
