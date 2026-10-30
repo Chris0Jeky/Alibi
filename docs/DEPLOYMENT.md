@@ -58,7 +58,8 @@ paid external service is needed. Never create another project just to publish an
    the primary HTTPS origin using disposable test profiles. The probe covers byte identity only, not
    headers, saves or offline play. A new receipt records the version just deployed, so roll back to
    the previous known-good version: the release script keeps the prior release's receipt as
-   `release-receipt.previous.json` (copied aside before each deploy), or read it from
+   `release-receipt.previous.json` (copied aside when it records a successful deploy of another
+   commit), or read it from
    `npx wrangler deployments list --config wrangler.jsonc`, then run
    `npx wrangler rollback <that version id> --config wrangler.jsonc`. Rollback does not reverse
    IndexedDB (see Saves and updates).

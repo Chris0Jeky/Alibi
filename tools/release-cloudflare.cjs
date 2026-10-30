@@ -109,12 +109,14 @@ async function release(root, { deploy = false } = {}) {
     deploy ? 'release-receipt.json' : 'release-receipt.dry-run.json',
   );
   const write = () => fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-  // Keep only a receipt whose deploy succeeded, so a failed redeploy cannot replace the rollback target.
+  // Keep only a receipt whose deploy succeeded (a pre-status receipt with a version id was a real
+  // deploy) and that is another commit, so neither a failed redeploy nor a rerun replaces the target.
   let prior = null;
   try {
     if (deploy) prior = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
   } catch {}
-  if (deploy && prior?.status === 'deployed' && prior.workerVersionId)
+  const succeeded = prior?.status === 'deployed' || (prior && !('status' in prior));
+  if (deploy && succeeded && prior.workerVersionId && prior.sourceSha !== sha)
     fs.copyFileSync(receiptPath, path.join(root, 'release-receipt.previous.json'));
   write();
   if (!deploy) {
