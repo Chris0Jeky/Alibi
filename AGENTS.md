@@ -23,7 +23,7 @@ npm start
 node tools/validate-pack.cjs examples/twelve-families.json
 ```
 
-The local server prints `http://127.0.0.1:8787` and serves the last build; rebuild after edits.
+The local server prints `http://127.0.0.1:8797` and serves the last build; rebuild after edits.
 Browser checks use Python + `requirements-dev.txt` in `.venv`. Set `PYTHONUTF8=1` on Windows.
 `tests/browser_ui.py` completes all thirteen games in an isolated document. `tests/browser_origin.py`
 uses real IndexedDB and service workers in disposable profiles. Neither proves a physical phone.

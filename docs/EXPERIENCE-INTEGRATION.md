@@ -38,7 +38,7 @@ Independent review found absent optional media references in the single-file pre
 are now gated to the full browser edition, with a passing browser regression. Its unused generation
 counter observation is non-blocking; it does not change disposal or request cancellation.
 
-Rebuild with `npm run build`; run `npm start` and open `http://127.0.0.1:8787/#/quiet/folio`.
+Rebuild with `npm run build`; run `npm start` and open `http://127.0.0.1:8797/#/quiet/folio`.
 The source gallery remains on port 8790 with `npm run assets:gallery`. No push or deployment was
 performed. The separate curation task's `alibi-curation/` and `.curation-worktrees/` are preserved.
 

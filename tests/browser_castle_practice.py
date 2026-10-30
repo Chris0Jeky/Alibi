@@ -8,7 +8,7 @@ from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import expect, sync_playwright
 
 
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/").split("#")[0]
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797/").split("#")[0]
 OUTPUT = Path(os.environ.get("ALIBI_RESULTS", "test-results")) / "castle-practice"
 
 

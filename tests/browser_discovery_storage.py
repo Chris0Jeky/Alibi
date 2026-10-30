@@ -13,7 +13,7 @@ OUT = Path(
         "ALIBI_RESULTS", str(ROOT / "test-results" / "discovery-storage")
     )
 )
-URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787").rstrip("/")
+URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 KEY = "test:discovery-entitlements-cas"
 FUTURE_KEY = "test:discovery-entitlements-future"
 MALFORMED_KEY = "test:discovery-entitlements-malformed"

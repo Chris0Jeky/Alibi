@@ -47,11 +47,11 @@ jobs:
           server=$!
           trap 'kill "$server"' EXIT
           for attempt in $(seq 1 30); do
-            curl --fail --silent http://127.0.0.1:8787/ >/dev/null && break
+            curl --fail --silent http://127.0.0.1:8797/ >/dev/null && break
             sleep 1
           done
-          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_castle_practice_deferred.py
+          curl --fail --silent http://127.0.0.1:8797/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_castle_practice_deferred.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

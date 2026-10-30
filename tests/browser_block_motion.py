@@ -5,7 +5,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 from block_touch_cases import assert_touch_drag
 
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 OUT = Path('test-results/block-motion')
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []

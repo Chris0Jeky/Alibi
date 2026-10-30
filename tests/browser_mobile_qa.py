@@ -14,7 +14,7 @@ from duel_landscape_cases import check_duel_landscape
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'mobile-qa'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797')
 
 
 class MobileQA(unittest.TestCase):

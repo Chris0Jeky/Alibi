@@ -6,7 +6,7 @@ touch versus keyboard copy (m8), the desk news count (m1), the issue report copy
 witness plurals (p1). Each check is recorded; the run fails at the end with every miss, so
 a baseline build lists all regressions at once. Simulated viewports, not a physical device.
 
-    npm start                      # serves dist/ on http://127.0.0.1:8787
+    npm start                      # serves dist/ on http://127.0.0.1:8797
     PYTHONUTF8=1 py -3 tests/browser_core_cabinet.py
 """
 import json
@@ -18,7 +18,7 @@ from official_fixture import official_puzzles, official_venue_count
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787").rstrip("/")
+URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 OUT = Path(os.environ.get("ALIBI_RESULTS", str(ROOT / "test-results" / "core-cabinet")))
 OUT.mkdir(parents=True, exist_ok=True)
 PUZZLES = {p["id"]: p for p in official_puzzles()}

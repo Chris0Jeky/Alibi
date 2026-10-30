@@ -4,7 +4,7 @@ Candidate dated 2026-09-12, based on main `495f28d6ff6a7058d9e4f09c159652c4e99ba
 
 ## Try it
 
-After `npm ci && npm run build && npm start`, open `http://localhost:8787/#/home?ux=house`. Classic offers an explicit invitation; the new edition is not forced on existing players. `Classic desk` returns immediately.
+After `npm ci && npm run build && npm start`, open `http://localhost:8797/#/home?ux=house`. Classic offers an explicit invitation; the new edition is not forced on existing players. `Classic desk` returns immediately.
 
 For a dependency-free portable source preview: `node tools/preview-house.cjs house-preview.html`. Open the HTML in a browser. Cabinet engines are real; optional castle/media packs, import workers and origin-based persistence require the production build. The source preview labels that boundary, including session-only storage. The desk study is session-only in **both** builds.
 

@@ -13,7 +13,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results/deferred-loading'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 PUZZLES = [json.loads((ROOT / 'content/extra' / file).read_text())['puzzles'][0]
            for file in ('vault-binary.json', 'crime-scene-variations.json')]
 PATTERN = re.compile(r'.*/assets/official-deferred\.[a-f0-9]{12}\.js$')

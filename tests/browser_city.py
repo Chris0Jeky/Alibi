@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True)
     ctx=browser.new_context(viewport={'width':1440,'height':1000},accept_downloads=True)
     page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
-    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
+    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/')
     page.goto(base+'#/quiet/realm');page.wait_for_function('()=>window.QWApp?.renderer')
     page.locator('#realm').focus()
     page.evaluate('()=>QWApp.selection=0')

@@ -32,7 +32,7 @@ from playwright.sync_api import (
 )
 
 ROOT = Path(os.environ.get("ALIBI_ROOT", Path(__file__).resolve().parents[1])).resolve()
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/")
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797/")
 BASE = BASE if BASE.endswith("/") else BASE + "/"
 RESULTS = Path(os.environ.get("ALIBI_RESULTS", ROOT / "test-results" / "browser-origin"))
 RESULTS.mkdir(parents=True, exist_ok=True)
