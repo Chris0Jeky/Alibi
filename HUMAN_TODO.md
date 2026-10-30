@@ -12,6 +12,23 @@ does not close physical-device or other owner decisions below.
 
 No owner input is needed to continue the authorized browser-game launch.
 
+## Owner inbox (agent-hq)
+
+Answer in the estate cockpit or in chat; rendered with `py -3 scripts/decisions.py render --repo alibi` in agent-hq.
+
+- [ ] **alibi-sharing-features-20261030: May Alibi add player-initiated sharing (a spoiler-free 'Share' link after a solve, and later Workshop puzzles shared by link) before the Postern name and publisher are confirmed?**
+  - (a) Yes: build the share card now (#827); Workshop links later (recommended): An agent builds #827 behind the existing primary-origin checks; #834 stays a tracked bet.
+    + Cheapest route to more players and more ratings for calibration; + Player-initiated only; no new telemetry; - Spreads the working name and the workers.dev address before q-3 closes
+  - (b) Yes to both #827 and #834: An agent builds #827 now and schedules #834 (link-shared Workshop puzzles) after it.
+    + Creator-to-player loop without accounts (Tatham-style game IDs); - #834 is person-to-person distribution of user-made content; larger trust surface; - Risk note: Medium for #834 (import path is bounded and validated, but content is user-authored).
+  - (c) Not until q-3 (name and publisher) is settled: #827 and #834 stay parked with this decision linked; agents build nothing that spreads the name.
+    + No promotion under a name that may change; - Player growth and calibration data stay at today's level
+  - (d) Never: Alibi stays share-free: #827 and #834 close as declined.
+    + Keeps the calm, private character absolute; - No word-of-mouth path at all
+  - Why: A player-pressed share link is the smallest, most reversible step toward the player data calibration needs, and it sends nothing automatically. Workshop links are worth deciding separately once the share card shows whether anyone shares at all.
+  - Why an agent may not decide: Product direction with a public effect: it spreads the product's working name and address, which q-3 reserves to the owner before promotion.
+  - Source: `decisions/alibi-sharing-features-20261030.json`
+
 2026-09-09 playtest update: the owner reports that two real players have played Alibi and loved
 it. This is a successful early qualitative playtest. Their concrete interaction/content feedback
 is tracked in [PLAYER-QA.md](docs/PLAYER-QA.md). The report does not explicitly confirm the
