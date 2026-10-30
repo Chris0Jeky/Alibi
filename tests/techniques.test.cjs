@@ -12,11 +12,24 @@ const official = require('../tools/official-catalogue.cjs').load(
   false,
 ).puzzles;
 const byId = (id) => official.find((p) => p.id === id);
+// techniques() swallows a throw from its walk, so every attempt to reach the answer is also recorded.
+const reads = [];
 const hidden = (p) =>
   new Proxy(p, {
     get(target, key) {
-      if (key === 'solution') throw Error('Solution consulted');
+      if (key === 'solution') {
+        reads.push(`${target.id} get`);
+        throw Error('Solution consulted');
+      }
       return target[key];
+    },
+    has(target, key) {
+      if (key === 'solution') reads.push(`${target.id} has`);
+      return key in target;
+    },
+    getOwnPropertyDescriptor(target, key) {
+      if (key === 'solution') reads.push(`${target.id} descriptor`);
+      return Reflect.getOwnPropertyDescriptor(target, key);
     },
   });
 
@@ -39,7 +52,30 @@ test('placements, marks and values all count; corrections never do', () => {
 });
 
 test('every official puzzle can be summarised without reading the answer', () => {
-  for (const p of official) I.techniques(hidden(p));
+  const walked = new Set();
+  for (const p of official) if (I.techniques(hidden(p)).length) walked.add(p.type);
+  assert.deepEqual(reads, [], 'techniques() must not touch the stored solution');
+  // A walk that failed silently also returns [], so families with hints must still produce lines.
+  for (const type of [
+    'sudoku',
+    'nonogram',
+    'binary',
+    'futoshiki',
+    'lightup',
+    'tents',
+    'trail',
+    'dossier',
+    'scene',
+  ])
+    assert.ok(walked.has(type), `${type} yields a techniques line`);
+});
+
+test('a puzzle edited under the same id and revision gets its own techniques line', () => {
+  const sudoku = byId('sudoku-04'),
+    twin = { ...sudoku, givens: sudoku.givens.map(() => 0) },
+    first = I.techniques(sudoku);
+  assert.equal(I.techniques(sudoku), first, 'the same puzzle object is memoised');
+  assert.notDeepEqual(I.techniques(twin), first);
 });
 
 test('a puzzle the hint walk cannot handle yields no line instead of an error', () => {
