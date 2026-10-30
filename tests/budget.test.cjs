@@ -288,8 +288,14 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #738 load-only recovery and atomic Add-missing revision preservation measure
       // 1,418,911 -> 1,419,648 (+737). Ceiling +704 covers the 615.68-byte excess and leaves
       // 88.32 bytes for identity/hash noise; initial payload and content limits stay unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 35616,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 35,616 bytes',
+      // Initiative wave 2026-10-30 (#818/#821/#822/#823/#824): reasoning hints for Sudoku,
+      // Futoshiki and Number trails ship in the precached reasoning chunk; level-aware
+      // continuation, the staged hint dialog and the first-puzzle letter in the application.
+      // Measured on 328d5dcd: #819 +1,024, #836 +1,396, #838 +1,083, #842 +196, #839 +161
+      // (+3,860) against 1,295 bytes of headroom. Ceiling +2,816 leaves ~250 bytes for
+      // identity/hash noise; startup gzip and content limits are unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 38432,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 38,432 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

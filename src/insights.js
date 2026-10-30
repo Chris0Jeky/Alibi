@@ -150,6 +150,76 @@
       // Deliberately no value: Club interprets that field as an applicable cell move.
     };
   }
+  // Number trails: a missing number lies on the path between its nearest placed neighbours,
+  // so it sits within reach of both through open squares. Distances never use the answer.
+  function trailDeduction(p, s) {
+    const n = p.size,
+      last = n * n,
+      where = new Map(),
+      reach = new Map();
+    s.cells.forEach((v, i) => v > 0 && where.set(v, i));
+    if (!where.size) return null;
+    const placed = [...where.keys()].sort((a, b) => a - b),
+      steps = (v) => {
+        if (!reach.has(v)) {
+          const d = Array(last).fill(Infinity),
+            queue = [where.get(v)];
+          d[queue[0]] = 0;
+          for (const i of queue)
+            for (const j of X.adj(i, n))
+              if (!s.cells[j] && d[j] === Infinity) {
+                d[j] = d[i] + 1;
+                queue.push(j);
+              }
+          reach.set(v, d);
+        }
+        return reach.get(v);
+      },
+      open = C.range(last).filter((i) => !s.cells[i]),
+      spots = new Map();
+    for (let m = 1; m <= last; m++) {
+      if (where.has(m)) continue;
+      const below = placed.filter((v) => v < m).at(-1),
+        above = placed.find((v) => v > m),
+        cells = open.filter(
+          (i) =>
+            (below === undefined || steps(below)[i] <= m - below) &&
+            (above === undefined || steps(above)[i] <= above - m),
+        ),
+        between = [below, above]
+          .filter((v) => v !== undefined)
+          .map(
+            (v) =>
+              `within ${Math.abs(m - v)} step${Math.abs(m - v) === 1 ? '' : 's'} of ${v} at ${at(where.get(v), n)}`,
+          )
+          .join(' and ');
+      if (!cells.length)
+        return conflict(
+          `No open square is ${between}, where ${m} must go.`,
+          [below, above].filter((v) => v !== undefined).map((v) => where.get(v)),
+        );
+      if (cells.length === 1)
+        return {
+          rule: 'Only one square in reach',
+          message: `${m} must be ${between}. Only ${at(cells[0], n)} is in reach of ${below !== undefined && above !== undefined ? 'both' : 'it'}.`,
+          cells,
+          value: m,
+        };
+      spots.set(m, cells);
+    }
+    for (const i of open) {
+      const fits = [...spots].filter(([, cells]) => cells.includes(i)).map(([m]) => m);
+      if (!fits.length) return conflict(`No missing number can reach ${at(i, n)}.`, [i]);
+      if (fits.length === 1)
+        return {
+          rule: 'Only one number reaches',
+          message: `Every square holds a number, and ${fits[0]} is the only missing number that can reach ${at(i, n)} from its neighbours in the trail.`,
+          cells: [i],
+          value: fits[0],
+        };
+    }
+    return null;
+  }
   function tentConflicts(p, s) {
     const issues = C.registry.tents.validate(p, s),
       tents = s.cells.flatMap((v, i) => (v === 1 ? [i] : []));
@@ -180,6 +250,7 @@
     const n = p.size,
       issues = p.type === 'tents' ? tentConflicts(p, s) : C.registry[p.type].validate(p, s);
     if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
+    if (p.type === 'trail') return trailDeduction(p, s);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
       const groups = C.groups(p),
         // Futoshiki chains: a cell below k others cannot hold the top k values (and vice versa).
