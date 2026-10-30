@@ -207,8 +207,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
       // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
       // leaves 23; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3680,
-      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
+      // Third composition: #862's completed-record technique names and #858's print-only revision
+      // line in the startup bundle measure 133,773 (+68 over 133,705). Excess 45; ceiling +64
+      // leaves 19, still 2,016 below the pre-#845 ceiling; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3744,
+      'Application bundle stays under 127 KiB + 3,744 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -383,9 +386,14 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 1.32 MiB + 45,022.68). The selectors that hide the interface cannot shrink below their
       // names. Excess 2,078.68 bytes; ceiling +2,176 (34 x 64) leaves 97.32 for identity/hash
       // noise; no feature room. Startup gzip (202,521 of 225,280) and content limits unchanged.
-      // COMPOSE3-SHELL
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 99999,
-      'COMPOSE3-SHELL',
+      // Third 2026-10-30 composition (one measurement replaces the per-PR raises from #856, #858
+      // and #862 above, each made against its own base): Alibi-file and witness hints (#856),
+      // the print sheet with its review fixes (#858), the named techniques record (#862), the
+      // scene hint chain (#860) and Quiet Wing radius roles (#861) measure 1,435,972 bytes
+      // (1.32 MiB + 51,851.68) on the composed tree. Ceiling 1.32 MiB + 51,968 (812 x 64) leaves
+      // 116.32 bytes for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 51968,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 51,968 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
