@@ -200,8 +200,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // first composition measures 132,844; this tree 133,538 (+694). #845 freed 2,368 bytes and
       // lowered the ceiling to match; these three Workshop/accessibility features use part of it.
       // Excess 98; ceiling +128 leaves 30, still 2,240 below the pre-#845 ceiling. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3520,
-      'Application bundle stays under 127 KiB + 3,520 bytes gzip',
+      // Scene follow-ups (#844 per-clue remove names and the singular conflict heading, #854
+      // rehearsal save-lock guards and review copy; the honest budget refusal shares one helper
+      // with the audit): 133,538 -> 133,579 (+41) after one shared locked() helper replaced six
+      // saveError/storageFatal tests. Excess 11; ceiling +32 leaves 21; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3552,
+      'Application bundle stays under 127 KiB + 3,552 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -359,8 +363,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #832 Picture logic Read clues (the C shortcut, the button and its toast text) on the
       // composed tree with #833 and #828: 1,429,765 bytes (+423 over #828's 1,429,342). Excess
       // 396.68; ceiling +448 (7 x 64) leaves 51.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45696,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 45,696 bytes',
+      // Scene follow-ups #844/#854 (the honest diagnosis-budget refusal and its shared bounded()
+      // helper, the per-clue remove names, the singular conflict heading, the rehearsal lock
+      // guards and the review-record exit label): 1,429,765 -> 1,430,091 (+326). The refusal
+      // text is the issue's required copy and the helper replaces the audit's own catch. Excess
+      // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 46016,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 46,016 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

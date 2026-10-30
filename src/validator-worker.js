@@ -28,6 +28,14 @@ const sceneShape = (puzzle) => {
   }
   return p;
 };
+// Runs one solve and swaps the solver's generic budget refusal for the caller's honest message.
+const bounded = (run, message) => {
+  try {
+    return run();
+  } catch (error) {
+    throw /budget/.test(error.message) ? Error(message) : error;
+  }
+};
 self.onmessage = (e) => {
   try {
     let value;
@@ -160,15 +168,16 @@ self.onmessage = (e) => {
         // budget refusal, so no partial conflict or suggestion is ever reported.
         let left = 250000 - result.nodes,
           core = p.clues.map((_, i) => i);
-        const fits = (keep) => {
-          const r = AlibiCore.solveDefinition(
-            { ...p, clues: keep.map((j) => p.clues[j]) },
-            1,
-            left,
-          );
-          left -= r.nodes;
-          return r.solutions.length > 0;
-        };
+        const fits = (keep) =>
+          bounded(() => {
+            const r = AlibiCore.solveDefinition(
+              { ...p, clues: keep.map((j) => p.clues[j]) },
+              1,
+              left,
+            );
+            left -= r.nodes;
+            return r.solutions.length > 0;
+          }, 'No arrangement fits, and the conflicting clues could not be identified within the search limit.');
         const layoutFits = fits([]);
         if (layoutFits)
           for (const i of core.slice()) {
@@ -181,19 +190,12 @@ self.onmessage = (e) => {
       // One 250,000-node ceiling covers the uniqueness proof and every clue-removal solve.
       const p = sceneShape(m.puzzle);
       let left = 250000;
-      const count = (clues) => {
-        try {
+      const count = (clues) =>
+        bounded(() => {
           const r = AlibiCore.solveDefinition({ ...p, clues }, 2, left);
           left -= r.nodes;
           return r.solutions.length;
-        } catch (error) {
-          throw /budget/.test(error.message)
-            ? Error(
-                'The audit reached its search limit before checking every clue. No clue was marked.',
-              )
-            : error;
-        }
-      };
+        }, 'The audit reached its search limit before checking every clue. No clue was marked.');
       if (count(p.clues) !== 1)
         throw Error('Verify the draft first; the audit needs exactly one solution.');
       value = {

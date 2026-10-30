@@ -111,7 +111,11 @@ test('verification and diagnosis share one 250,000-node ceiling and refuse when 
   const result = h.send(p);
   assert.deepEqual(limits, [250000, 50000, 49990, 19990]);
   assert.equal(result.ok, false);
-  assert.match(result.error, /Solver budget exceeded/);
+  assert.match(
+    result.error,
+    /^No arrangement fits, and the conflicting clues could not be identified/,
+  );
+  assert.doesNotMatch(result.error, /add clues|Simplify|Solver budget/i, 'no wrong advice');
   assert.equal(result.value, undefined);
 });
 
@@ -125,8 +129,38 @@ test('exhausting the budget during the layout proof also refuses without a guess
   };
   const result = h.send(p);
   assert.equal(result.ok, false);
-  assert.match(result.error, /Solver budget exceeded/);
+  assert.match(
+    result.error,
+    /^No arrangement fits, and the conflicting clues could not be identified/,
+  );
+  assert.doesNotMatch(result.error, /add clues|Simplify/i);
   assert.equal(result.value, undefined);
+});
+
+test('verification exhausting its own budget keeps the solver refusal, since nothing is proved yet', () => {
+  const h = worker(),
+    p = scene([{ kind: 'row', who: 'june', value: 0 }]);
+  let calls = 0;
+  h.C.solve = () => {
+    calls++;
+    throw Error('Solver budget exceeded. Simplify this puzzle or add clues.');
+  };
+  const result = h.send(p);
+  assert.equal(calls, 1, 'diagnosis never starts');
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Solver budget exceeded/);
+  assert.doesNotMatch(result.error, /No arrangement fits/);
+});
+
+test('a non-budget failure during diagnosis is passed through unchanged', () => {
+  const h = worker(),
+    p = scene([{ kind: 'row', who: 'june', value: 0 }]);
+  let calls = 0;
+  h.C.solve = () => {
+    if (++calls === 1) return { solutions: [], nodes: 1 };
+    throw Error('boom');
+  };
+  assert.equal(h.send(p).error, 'boom');
 });
 
 test('satisfiable drafts carry no diagnosis', () => {
