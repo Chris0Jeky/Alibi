@@ -207,7 +207,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
       // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
       // leaves 23; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3680,
+      // #835 techniques line in the completed record (one app.js template line; the walk lives
+      // in the deferred reasoning chunk): 133,704 -> 133,761 (+57). Excess 33; ceiling +64
+      // leaves 31; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3744,
       'Application bundle stays under 127 KiB + 3,680 bytes gzip',
     );
   });
