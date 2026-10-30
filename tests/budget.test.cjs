@@ -247,8 +247,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack (Store.removePack, the Remove control and confirmation, stored-pack
       // backups, the confirmed-pack compare, the offline Add message) on main after #888: 135,029 ->
       // 135,376 (+347). Excess 328; ceiling 127 KiB + 5,376 (84 x 64) leaves 48. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 5376,
-      'Application bundle stays under 127 KiB + 5,376 bytes gzip',
+      // #896 Practise walks the family in yielding slices (the walkTechniques loop, its stale-walk
+      // guard and the "Finding puzzles" status) instead of one long task, on main after #894:
+      // 135,378 -> 135,556 (+178; 127 KiB + 5,508). Excess 132; ceiling 127 KiB + 5,568
+      // (87 x 64) leaves 60 for identity/hash noise. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5568,
+      'Application bundle stays under 127 KiB + 5,568 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -458,8 +462,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack, on main after #888: 1,441,109 -> 1,442,994 (+1,885; 1.32 MiB +
       // 58,873.68). Excess 1,849.68; 920 x 64 would leave 6.32, so 1.32 MiB + 58,944 (921 x 64)
       // leaves 70.32. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 58944,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 58,944 bytes',
+      // #896 Practise in yielding slices (walkTechniques, the stale-walk guard, the "Finding
+      // puzzles" status), on main after #897: 1,443,050 -> 1,443,524 (+474; 1.32 MiB +
+      // 59,403.68). Excess 139.68; ceiling 1.32 MiB + 59,456 (929 x 64) leaves 52.32 for
+      // identity/hash noise. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59456,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 59,456 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
