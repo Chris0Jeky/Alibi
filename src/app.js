@@ -408,6 +408,7 @@
       return;
     }
     if (e.data?.type === 'saved') {
+      if (e.data.key === current?.key && current.rehearsal) return;
       if (e.data.key === current?.key && e.data.rev > (revs.get(current.key) || 0)) {
         saveError =
           'This puzzle changed in another tab. Export this session or reload its latest save.';
@@ -1586,9 +1587,13 @@
       o.stop(a.currentTime + 0.075);
     } catch {}
   }
+  // A rehearsal never writes, so a save problem cannot stop it.
+  function locked() {
+    return !current?.rehearsal && (storageFatal || saveError);
+  }
   function blocked() {
     if (!current || paused || updateRequested) return true;
-    if (storageFatal || saveError) {
+    if (locked()) {
       toast('Export this session or reload before making more changes.', true);
       return true;
     }
@@ -1994,7 +1999,11 @@
       `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
       [
         {
-          label: route.book ? 'Read the next page' : 'Another puzzle',
+          label: current.rehearsal
+            ? 'Back to the editor'
+            : route.book
+              ? 'Read the next page'
+              : 'Another puzzle',
           action: 'next',
           icon: 'arrow',
         },
@@ -2020,7 +2029,7 @@
     render();
   }
   function undo(redo = false) {
-    if (!current || paused || saveError || storageFatal || updateRequested) return;
+    if (!current || paused || locked() || updateRequested) return;
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
@@ -2301,7 +2310,7 @@
     const divergentByKey = new Map();
     for (const [key, record] of records) {
       const local = C.clone(record);
-      if (key === current?.key) local.elapsed = sessionSeconds;
+      if (key === current?.key && !current.rehearsal) local.elapsed = sessionSeconds;
       const persisted = deviceByKey.get(key);
       const baseline = acked.get(key);
       if (persisted && baseline && JSON.stringify(local) === baseline) continue;
@@ -3232,7 +3241,7 @@
       case 'restart-confirm':
         if (current) {
           closeDialog();
-          if (saveError || storageFatal) break;
+          if (locked()) break;
           current.firstCompletedAt = current.firstCompletedAt || current.completedAt;
           globalThis.AlibiTheatre.moment('complete');
           current.state = E[current.puzzle.type].initial(current.puzzle);
@@ -3659,7 +3668,7 @@
       library.limit = 24;
       render();
     } else if ((el.id === 'play-notes' || el.id === 'quick-notes') && current) {
-      if (saveError || storageFatal) {
+      if (locked()) {
         el.value = current.note;
         toast('Export this session or reload before making more changes.', true);
         return;
@@ -3734,7 +3743,7 @@
   });
   // A drag stroke is one undo step. The same brush is used throughout the stroke.
   function paintTo(i) {
-    if (saveError || storageFatal) return;
+    if (locked()) return;
     if (!drag || !current || drag.key !== current.key || drag.visited.has(i)) return;
     drag.visited.add(i);
     if (AlibiClub.assistance() !== 'off' && drag.value === 1) {
@@ -3763,7 +3772,7 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key) return;
-    if (saveError || storageFatal) {
+    if (locked()) {
       if (!C.equal(current.state, d.before)) {
         current.state = d.before;
         render();
