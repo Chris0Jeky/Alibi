@@ -1113,6 +1113,13 @@
   function witnessBoard(p, s) {
     return `<div class="witness-rule"><strong>Exactly ${p.trueCount} ${p.trueCount === 1 ? 'statement is' : 'statements are'} true.</strong><span>The other ${p.statements.length - p.trueCount} ${p.statements.length - p.trueCount === 1 ? 'is' : 'are'} false. One person ${esc(X.witnessAction(p))}.</span></div><div class="statement-list">${p.statements.map((cl, i) => `<div class="statement"><div><div class="speaker">Account ${i + 1} · ${esc(cl.speaker)}</div><p>“${esc(X.witnessText(p, cl))}”</p></div><button id="mark-${i}" class="truth-mark ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : ''}" data-action="mark" data-cell="${i}" aria-label="Mark account ${i + 1}, currently ${s.marks[i] === 1 ? 'true' : s.marks[i] === 0 ? 'false' : 'unknown'}" title="Cycle true, false, unknown">${s.marks[i] === 1 ? 'T' : s.marks[i] === 0 ? 'F' : '?'}</button></div>`).join('')}</div><p class="control-note">Tap ? → T → F to keep notes. Your marks are hypotheses, not verdicts.<span class="kb"> The left and right arrows move between accounts.</span></p>`;
   }
+  function readClues(p) {
+    const r = Math.floor(selectedCell / p.size),
+      c = selectedCell % p.size;
+    toast(
+      `Row ${r + 1} clue: ${p.rowClues[r].join(' ')}. Column ${String.fromCharCode(65 + c)} clue: ${p.colClues[c].join(' ')}.`,
+    );
+  }
   function controls(p, s) {
     const t = p.type;
     let content = '';
@@ -1153,7 +1160,7 @@
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
       const fill = t === 'tents' ? 'Tent' : t === 'lightup' ? 'Lantern' : 'Fill',
         mark = t === 'tents' ? 'Grass' : 'Cross';
-      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap an identical mark to clear it. Scroll outside the board.${t === 'nonogram' ? '<span class="kb"> Right-click adds a cross.</span>' : ''}</p>`;
+      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap an identical mark to clear it. Scroll outside the board.${t === 'nonogram' ? '<span class="kb"> Right-click adds a cross. C reads clues.</span>' : ''}</p>`;
     } else if (t === 'aquarium')
       content = `<div class="toolrow">${tool('Set waterline', 'brush', 'aquarium', brush === 1, 'data-value="1"')}${tool('Drain tank', 'brush', 'erase', brush === 0, 'data-value="0"')}</div><p class="control-note">Tap at a height to fill that tank downwards. Tap its current top water row to lower it.</p>`;
     else if (t === 'network')
@@ -1171,7 +1178,7 @@
         )}</div><div class="toolrow">${tool(brush === -1 ? 'Erasing' : 'Next: ' + trailValue, 'trail-mode', brush === -1 ? 'erase' : 'trail', brush !== -1)}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Choose a number, then a square. The next unused number is selected automatically.</p>`;
     if (t === 'nonogram') {
       const tidy = AlibiClub.assistance() === 'tidy';
-      content += `<div class="toolrow">${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Uses the Desk assistant’s tidy setting. Crosses appear when your filled runs match a row or column clue. Change the filled squares and automatic crosses disappear; your manual crosses stay.</p>`;
+      content += `<div class="toolrow">${tool('Read clues', 'read-clues', '', false, 'aria-keyshortcuts="C"')}${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Uses the Desk assistant’s tidy setting. Crosses appear when your filled runs match a row or column clue. Change the filled squares and automatic crosses disappear; your manual crosses stay.</p>`;
     }
     return `<div class="controls">${content}</div>`;
   }
@@ -3032,6 +3039,9 @@
       case 'erase':
         erase();
         break;
+      case 'read-clues':
+        if (current?.puzzle.type === 'nonogram' && !paused) readClues(current.puzzle);
+        break;
       case 'symbol':
       case 'brush':
         brush = v === 'cycle' ? 'cycle' : Number(v);
@@ -3832,6 +3842,12 @@
       return;
     }
     if (paused) return;
+    if (p.type === 'nonogram' && e.key.toLowerCase() === 'c') {
+      if (e.repeat) return;
+      e.preventDefault();
+      readClues(p);
+      return;
+    }
     const d = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -p.size, ArrowDown: p.size }[e.key];
     if (d && !['dossier', 'witness'].includes(p.type)) {
       e.preventDefault();
