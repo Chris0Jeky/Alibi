@@ -196,8 +196,19 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #825: the Privacy & credits copy moves to the deferred chunk below: 134,166 -> 131,760 (-2,406).
     // Ceiling -2,368 (38 bytes of noise room on top of the headroom main already had).
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 3392,
-      'Application bundle stays under 127 KiB + 3,392 bytes gzip',
+      // Second 2026-10-30 composition (#833 clue audit, #828 Rehearse, #832 read clues): the
+      // first composition measures 132,844; this tree 133,538 (+694). #845 freed 2,368 bytes and
+      // lowered the ceiling to match; these three Workshop/accessibility features use part of it.
+      // Excess 98; ceiling +128 leaves 30, still 2,240 below the pre-#845 ceiling. No feature room.
+      // Scene follow-ups (#844 per-clue remove names and the singular conflict heading, #854
+      // rehearsal save-lock guards and review copy; the honest budget refusal shares one helper
+      // with the audit): 133,538 -> 133,579 (+41) after one shared locked() helper replaced six
+      // saveError/storageFatal tests. Excess 11; ceiling +32 leaves 21; no feature room.
+      // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
+      // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
+      // leaves 23; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3680,
+      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -338,11 +349,35 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // chunk wrapper add raw precached bytes while startup gzip falls) measure 1,426,795 bytes
       // (1.32 MiB + 42,674.68) on the composed tree. Ceiling 1.32 MiB + 42,944 (64-byte step)
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
-      // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
-      // 1,426,791 -> 1,429,189 (+2,398), 2,124.68 bytes over the composed ceiling. Ceiling
-      // +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45120,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 45,120 bytes',
+      // #833 Scene Maker clue audit (the 'audit' worker request in the validator worker and the
+      // Audit clues control, result region and strict reply check in the application): the base
+      // measures 1,426,794 bytes; the change measures 1,428,315 (+1,521) after sharing the clue-index
+      // check with the conflict diagnosis and its list renderer with the audit result. The honest
+      // refusal, the two result sentences and the reply refusal are required text. Excess 1,250.68
+      // bytes; ceiling +1,280 (20 x 64) leaves 29.32 for identity/hash noise; no feature room.
+      // JavaScript gzip (133,133 against 135,808) and startup/content limits are unchanged.
+      // #828 Scene Maker Rehearse (the in-memory rehearsal run, its route branch, the save and
+      // preference guards, the unsaved banner and labels, the Back to the editor exits and the
+      // Pulseboard journey guard): the base measures 1,428,315 bytes; the change measures
+      // 1,429,342 (+1,027). The run builder is shared with getRun, and one guard each covers every
+      // save, preference and journey caller rather than one per call site. Excess 997.68 bytes;
+      // ceiling +1,024 (16 x 64) leaves 26.32 for identity/hash noise; no feature room.
+      // JavaScript gzip (133,387 against 135,808) and startup/content limits are unchanged.
+      // #832 Picture logic Read clues (the C shortcut, the button and its toast text) on the
+      // composed tree with #833 and #828: 1,429,765 bytes (+423 over #828's 1,429,342). Excess
+      // 396.68; ceiling +448 (7 x 64) leaves 51.32 for identity/hash noise; no feature room.
+      // Scene follow-ups #844/#854 (the honest diagnosis-budget refusal and its shared bounded()
+      // helper, the per-clue remove names, the singular conflict heading, the rehearsal lock
+      // guards and the review-record exit label): 1,429,765 -> 1,430,091 (+326). The refusal
+      // text is the issue's required copy and the helper replaces the audit's own catch. Excess
+      // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
+      // #831 resume previews on the composed tree: 1,430,091 -> 1,430,393 (+302). Excess 256.68;
+      // ceiling +320 (5 x 64) leaves 63.32 for identity/hash noise; no feature room.
+      // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk, on the
+      // tree after #855: 1,430,393 -> 1,432,790 (+2,397). Excess 2,333.68; ceiling +2,432
+      // (38 x 64) leaves 98.32 bytes; startup gzip unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 48768,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 48,768 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

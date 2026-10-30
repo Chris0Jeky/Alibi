@@ -223,6 +223,26 @@ with sync_playwright() as pw:
         history_page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
         with history_page.expect_download() as dl:history_page.locator('[data-action="export-draft"]').click()
         original=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
+        # Audit by keyboard. Seed 7 needs every clue; adding the true clue "Miles in row 2" frees clues 3 and 6 and itself (computed by tests/scene-audit.test.cjs).
+        count=len(original['clues']);audit=history_page.locator('#draft-audit');audit_button=history_page.locator('[data-action="audit-draft"]')
+        check(audit_button.is_enabled(),f'{width}px: a verified draft can be audited')
+        audit_button.focus();history_page.keyboard.press('Enter');audit.wait_for()
+        check(history_page.evaluate('document.activeElement.id')=='draft-audit',f'{width}px: keyboard audit focuses the result')
+        check('Every clue is needed' in audit.inner_text() and audit.locator('[data-action="focus-draft-clue"]').count()==0,f'{width}px: seed 7 audit finds every clue needed')
+        history_page.locator('#clue-who').select_option('person-2');history_page.locator('#clue-kind').select_option('row');history_page.locator('#clue-value').select_option('1')
+        history_page.locator('#clue-form button[type=submit]').click()
+        check(audit.count()==0 and audit_button.is_disabled(),f'{width}px: an edit clears the audit and disables the button')
+        history_page.locator('[data-action="verify-draft"]').click();history_page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
+        audit_button.focus();history_page.keyboard.press('Enter');audit.wait_for()
+        expected_redundant=[2,5,count]
+        check(audit.locator('[data-action="focus-draft-clue"]').all_text_contents()==[f'Clue {i+1}' for i in expected_redundant],f'{width}px: audit names exactly the removable clues')
+        check(not history_page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'{width}px: audit has no horizontal overflow')
+        for position,index in enumerate(expected_redundant):
+            audit.locator('[data-action="focus-draft-clue"]').nth(position).focus();history_page.keyboard.press('Enter')
+            check(history_page.evaluate('[document.activeElement.dataset.action,document.activeElement.dataset.index].join(":")')==f'remove-draft-clue:{index}',f'{width}px: audit link focuses clue {index+1} control')
+        check(history_page.locator('.draft-clue').count()==count+1,f'{width}px: the audit never removes a clue')
+        history_page.locator('[data-action="undo-draft"]').focus();history_page.keyboard.press('Enter')
+        check(audit.count()==0 and history_page.locator('.draft-clue').count()==count,f'{width}px: Undo clears the audit')
         # Contradict June's row clue, read the numbered diagnosis, follow it by keyboard, Undo, reverify, export, Redo.
         total=len(original['clues']);june=next(i for i,c in enumerate(original['clues']) if c['who']=='person-1' and c['kind']=='row')
         history_page.locator('#clue-who').select_option('person-1');history_page.locator('#clue-kind').select_option('row');history_page.locator('#clue-value').select_option('1')
@@ -270,6 +290,26 @@ with sync_playwright() as pw:
     check(page.locator('[data-action="add-draft"]').is_disabled(),'Editing invalidates verification')
     action('verify-draft');page.locator('[data-action="add-draft"]:enabled').wait_for(timeout=30000)
     check('Verified:' in page.locator('#draft-verification').inner_text(),'Edited scene can be reverified')
+    # Rehearse (#828): the verified draft plays in memory. No IndexedDB write, no pack, no run, draft intact.
+    clue_buttons='.draft-editor [data-action="remove-draft-clue"]'
+    title_before=page.locator('#draft-title').input_value();clues_before=page.locator(clue_buttons).count()
+    counts_before=page.evaluate('AlibiDiagnostics.getCounts()')
+    page.evaluate("""()=>{window.__idbWrites=0;for(const [c,names] of [[IDBObjectStore,['put','add','delete','clear']],[IDBCursor,['update','delete']]])for(const n of names){const f=c.prototype[n];c.prototype[n]=function(...a){window.__idbWrites++;return f.apply(this,a)}}}""")
+    page.locator('[data-action="rehearse-draft"]:enabled').focus();page.keyboard.press('Enter')
+    page.wait_for_function('AlibiDiagnostics.getCurrent()?.rehearsal===true')
+    banner=page.locator('.practice-return');banner.wait_for()
+    check('Rehearsal · nothing is saved' in banner.inner_text(),'Rehearsal shows its unsaved banner')
+    rehearsed=state()['puzzle'];person=rehearsed['people'][0]['id']
+    action('person',f'[data-id="{person}"]');cell(rehearsed['solution'][person])
+    check(len(state()['state']['placements'])==1,'A rehearsal accepts moves')
+    page.wait_for_timeout(400)
+    page.locator('.practice-return [data-action="back-to-collection"]').click()
+    page.locator('.draft-editor').wait_for()
+    check(page.evaluate('window.__idbWrites')==0,'Rehearsal made zero IndexedDB writes')
+    check(page.evaluate('AlibiDiagnostics.getCounts()')==counts_before,'Rehearsal added no pack, run or puzzle')
+    check(page.evaluate('AlibiDiagnostics.getCurrent()') is None,'Returning drops the rehearsal board')
+    check(page.locator('#draft-title').input_value()==title_before and page.locator(clue_buttons).count()==clues_before,'The draft returns unchanged')
+    page.locator('[data-action="add-draft"]:enabled').wait_for(timeout=30000)
     page.screenshot(path=str(shots/'desktop-workshop.png'),full_page=True)
     action('add-draft');page.wait_for_function('AlibiDiagnostics.getCounts().customPacks===1')
     check(page.evaluate('AlibiDiagnostics.getCounts().puzzles')==OFFICIAL_COUNT+1,'Verified custom scene installs locally')

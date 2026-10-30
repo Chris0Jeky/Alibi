@@ -18,7 +18,8 @@ const source =
   between('  function temporaryProgress()', '  function progressStorageLabel()') +
   between('  function enqueueSave()', '  function savePreferences()') +
   between('  function completion()', '  function act(action,') +
-  between('  function endPaint()', "  document.addEventListener(\n    'pointerdown',");
+  between('  function endPaint()', "  document.addEventListener(\n    'pointerdown',") +
+  between('  function locked()', '  function blocked()');
 
 async function complete({
   journeyThrows,
