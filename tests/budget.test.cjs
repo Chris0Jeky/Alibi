@@ -427,8 +427,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Fourth composition (#870, #865, #871) on main after #869: 1,438,435 -> 1,438,968 (+533;
       // 1.32 MiB + 54,847.68). Excess 511.68; 857 x 64 would leave 0.32, so 1.32 MiB + 54,912
       // (858 x 64) leaves 64.32 for identity/hash noise. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54912,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 54,912 bytes',
+      // #882 run-save integrity (restore quiesces this tab's saves, a damaged stored run reports damage
+      // instead of a cross-tab conflict, paint strokes stop at a pause): on main after #878,
+      // 1,438,968 -> 1,439,129 (+161; startup gzip 134,462 -> 134,485 stays under its ceiling).
+      // Excess 96.68; ceiling 1.32 MiB + 55,040 (860 x 64) leaves 31.32; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 55040,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 55,040 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
