@@ -81,18 +81,19 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
   });
   vm.runInContext(
     `
-    let draft = initial, draftVerified = false, draftComparison = null, draftConflict = null,
+    let draft = initial, draftVerified = false, draftComparison = null, draftConflict = null, draftAudit = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftBusy = false, draftEpoch = 0, draftShowSolution = true, routeSerial = 0,
       dialogOpener = null, bridgeAnchor = null, noteTimer = null;
     ${workshop}
     ${routeEntry}
-    globalThis.state = () => ({ draft, draftVerified, draftBusy, draftEpoch, draftShowSolution, draftComparison, draftConflict });
+    globalThis.state = () => ({ draft, draftVerified, draftBusy, draftEpoch, draftShowSolution, draftComparison, draftConflict, draftAudit });
     globalThis.edit = () => { draft.rooms[0] = 1; dirtyDraft(); };
     globalThis.replace = () => { draft = C.clone(initial); dirtyDraft(); };
     globalThis.markCurrentVerified = () => { draftVerified = true; };
     globalThis.generate = () => generateDraft({ names: 'A,B,C,D,E', seed: '42', title: 'Case', setting: 'House', story: 'Story' });
     globalThis.verify = verifyDraft;
+    globalThis.audit = auditDraft;
     globalThis.navigate = loadRoute;
   `,
     context,
@@ -237,6 +238,111 @@ for (const bad of [
     assert.equal(h.calls.saves.length, 0);
   });
 }
+
+function verifiedAudit() {
+  const h = fixture();
+  h.context.markCurrentVerified();
+  return { h, pending: h.context.audit() };
+}
+
+test('an audit asks the worker about the verified draft and keeps the answer as guidance only', async () => {
+  for (const redundant of [[], [0, 2, count - 1]]) {
+    const { h, pending } = verifiedAudit();
+    assert.equal(h.context.state().draftBusy, true);
+    assert.deepEqual(h.calls.workers, [{ type: 'audit', puzzle: initial }]);
+    h.worker.resolve({ redundant });
+    await pending;
+    const state = h.context.state();
+    assert.deepEqual(JSON.parse(JSON.stringify(state.draftAudit)), redundant);
+    assert.equal(state.draftBusy, false);
+    assert.equal(state.draftVerified, true, 'the audit does not revoke verification');
+    assert.equal(h.calls.saves.length, 0);
+    assert.equal(h.calls.toasts.length, 0);
+    assert.deepEqual(state.draft, initial, 'no clue is ever removed for the author');
+  }
+});
+
+for (const bad of [
+  undefined,
+  null,
+  {},
+  { redundant: null },
+  { redundant: 0 },
+  { redundant: '0' },
+  { redundant: [1, 1] },
+  { redundant: [2, 1] },
+  { redundant: [-1] },
+  { redundant: [0.5] },
+  { redundant: ['0'] },
+  { redundant: [null] },
+  { redundant: [count] },
+  { redundant: [0, count + 5] },
+  { solutions: [] },
+]) {
+  test(`a malformed audit reply is refused: ${JSON.stringify(bad)}`, async () => {
+    const { h, pending } = verifiedAudit();
+    h.worker.resolve(bad);
+    await assert.rejects(pending, /clue audit returned an invalid result\. Run it again\./);
+    assert.equal(h.context.state().draftAudit, null);
+    assert.equal(h.context.state().draftBusy, false);
+    assert.equal(h.calls.saves.length, 0);
+  });
+}
+
+test('a worker refusal shows nothing and leaves no list', async () => {
+  const { h, pending } = verifiedAudit();
+  h.worker.reject(new Error('The audit reached its search limit.'));
+  await assert.rejects(pending, /search limit/);
+  assert.equal(h.context.state().draftAudit, null);
+  assert.equal(h.context.state().draftVerified, true);
+});
+
+test('the audit runs only for a verified draft and never while busy', async () => {
+  const h = fixture();
+  h.context.audit();
+  assert.equal(h.calls.workers.length, 0, 'an unverified draft is not audited');
+  h.context.markCurrentVerified();
+  const first = h.context.audit();
+  h.context.audit();
+  assert.equal(h.calls.workers.length, 1, 'a second request while busy is ignored');
+  h.worker.resolve({ redundant: [] });
+  await first;
+  assert.match(
+    source,
+    /Audit clues', 'audit-draft', '', 'secondary small', !draftVerified \|\| draftBusy \? 'disabled'/,
+  );
+});
+
+for (const interrupt of ['edit', 'replace', 'navigate']) {
+  test(`a late audit cannot return after ${interrupt}`, async () => {
+    const { h, pending } = verifiedAudit();
+    await h.context[interrupt]();
+    h.worker.resolve({ redundant: [0] });
+    await pending;
+    assert.equal(h.context.state().draftAudit, null);
+    if (interrupt !== 'navigate') assert.equal(h.context.state().draftVerified, false);
+  });
+}
+
+for (const interrupt of ['edit', 'replace', 'navigate', 'verify', 'generate']) {
+  test(`a shown audit is cleared by ${interrupt}`, async () => {
+    const { h, pending } = verifiedAudit();
+    h.worker.resolve({ redundant: [0] });
+    await pending;
+    assert.ok(h.context.state().draftAudit);
+    const next = h.context[interrupt]();
+    assert.equal(h.context.state().draftAudit, null);
+    if (interrupt === 'verify' || interrupt === 'generate') {
+      h.worker.reject(new Error('stop'));
+      await assert.rejects(next);
+    } else await next;
+  });
+}
+
+test('the room-name edit path hides the audit and disables its button', () => {
+  assert.match(source, /'#draft-comparison, #draft-conflict, #draft-audit'/);
+  assert.match(source, /\[data-action="export-draft"\], \[data-action="audit-draft"\]/);
+});
 
 for (const failure of ['malformed', 'refused']) {
   test(`${failure} regeneration revokes even a previously verified draft`, async () => {

@@ -50,6 +50,7 @@
     storageFatal = '',
     quarantined = 0,
     current = null,
+    rehearsal = null,
     route = { page: 'home', id: '', book: '' },
     privacyLoad = '',
     routeFocusSerial = 0,
@@ -77,6 +78,7 @@
     draftVerified = false,
     draftComparison = null,
     draftConflict = null,
+    draftAudit = null,
     draftUndo = [],
     draftRedo = [],
     draftNameEdit = null,
@@ -320,9 +322,15 @@
     const key = keyFor(p);
     if (records.has(key)) return records.get(key);
     if (deferred?.has(p)) throw Error('Puzzle definition is not loaded.');
-    const r = {
+    const r = newRun(p);
+    records.set(key, r);
+    revs.set(key, 0);
+    return r;
+  }
+  function newRun(p) {
+    return {
       schemaVersion: 1,
-      key,
+      key: keyFor(p),
       rev: 0,
       puzzle: C.clone(p),
       state: E[p.type].initial(p),
@@ -336,9 +344,6 @@
       updatedAt: new Date().toISOString(),
       note: '',
     };
-    records.set(key, r);
-    revs.set(key, 0);
-    return r;
   }
   function temporaryProgress() {
     return store.mode !== 'indexeddb';
@@ -358,7 +363,7 @@
     if (el) el.outerHTML = saveLabel();
   }
   function enqueueSave() {
-    if (!current || storageFatal || saveError) return queue;
+    if (!current || current.rehearsal || storageFatal || saveError) return queue;
     current.elapsed = sessionSeconds;
     const snapshot = C.clone(current);
     pendingSaves++;
@@ -388,6 +393,7 @@
     return queue;
   }
   function savePreferences() {
+    if (current?.rehearsal) return Promise.resolve();
     return store
       .put('meta', 'preferences', C.clone(prefs))
       .catch((e) => toast('Preferences could not be saved: ' + e.message, true));
@@ -517,7 +523,7 @@
   }
   function mobileNav() {
     if (route.page === 'play' && current)
-      return `<nav class="mobile-nav play-nav" aria-label="Puzzle tools"><button data-action="back-to-collection">${icon('back')}<span>${route.book ? 'Casebook' : 'Collection'}</span></button><button data-action="quick-panel" data-value="clues">${icon('dossier')}<span>${['scene', 'dossier'].includes(current.puzzle.type) ? 'Evidence' : 'Guide'}</span></button><button data-action="quick-panel" data-value="notes">${icon('pencil')}<span>My notes</span></button><button data-action="undo" ${current.undo.length ? '' : 'disabled'}>${icon('undo')}<span>Undo</span></button><button data-action="hint">${icon('lightup')}<span>Hint</span></button></nav>`;
+      return `<nav class="mobile-nav play-nav" aria-label="Puzzle tools"><button data-action="back-to-collection">${icon('back')}<span>${current.rehearsal ? 'Editor' : route.book ? 'Casebook' : 'Collection'}</span></button><button data-action="quick-panel" data-value="clues">${icon('dossier')}<span>${['scene', 'dossier'].includes(current.puzzle.type) ? 'Evidence' : 'Guide'}</span></button><button data-action="quick-panel" data-value="notes">${icon('pencil')}<span>My notes</span></button><button data-action="undo" ${current.undo.length ? '' : 'disabled'}>${icon('undo')}<span>Undo</span></button><button data-action="hint">${icon('lightup')}<span>Hint</span></button></nav>`;
     return `<nav class="mobile-nav" aria-label="Mobile navigation">${[
       ['home', 'home', 'Your desk'],
       ['library', 'library', 'Puzzles'],
@@ -719,6 +725,8 @@
     return '';
   }
   function practiceReturnBanner(p) {
+    if (current?.rehearsal)
+      return `<div class="info-note practice-return" role="status"><span>Rehearsal · nothing is saved</span>${B('Back to the editor', 'back-to-collection', 'back', 'secondary small')}</div>`;
     if (!caseReturn || !p || caseReturn.puzzleKey !== keyFor(p)) return '';
     return `<div class="info-note practice-return" role="status"><span>Practice shelf · ${esc(caseReturn.label)}</span>${B('Return to Wrenmere', 'return-to-castle', 'back', 'secondary small')}</div>`;
   }
@@ -1270,7 +1278,7 @@
               ? 'Tap an editable number to erase it.'
               : `Place <strong>${trailValue}</strong> in a square. The next unused number follows automatically.`
             : esc(m.gesture);
-    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card">${paused ? '<div inert>' : ''}<div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `</div><div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${temporaryProgress() ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : temporaryProgress() ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${store.mode === 'local' ? 'Existing saves are read-only. Export any edit before reloading.' : store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
+    return `${practiceReturnBanner(p)}<div class="play-head"><button id="play-back" class="round back-btn" data-action="back-to-collection" aria-label="${current.rehearsal ? 'Back to the editor' : route.book ? 'Back to casebook' : 'Back to collection'}">${icon('back')}</button><div class="play-title"><div class="eyebrow">${esc(m.title)} ${route.book ? '· Casebook chapter' : ''}</div><h1>${esc(p.title)}</h1><div class="row">${difficulty(p.difficulty)}<span>${p.type === 'witness' ? p.statements.length + ' accounts' : p.size + ' × ' + p.size}</span>${settings.timer ? `<span id="timer">${time(sessionSeconds)}</span>` : ''}${current.rehearsal ? '<span class="save-state">Rehearsal · not saved</span>' : saveLabel()}</div></div>${round('lesson', 'book', 'How to play', `id="play-help" data-type="${p.type}"`)}</div><div class="player-grid"><div class="board-column"><section class="board-card">${paused ? '<div inert>' : ''}<div class="board-heading"><div class="eyebrow">${current.completedAt ? 'Nicely solved' : p.type === 'scene' ? 'Reconstruct the scene' : p.type === 'dossier' ? 'Connect the evidence' : p.type === 'witness' ? 'Compare the accounts' : 'Your puzzle board'}</div><div class="row" style="gap:5px">${!['dossier', 'witness'].includes(p.type) ? round('zoom', 'zoom', zoomed ? 'Use normal board size' : 'Enlarge board', `id="play-zoom" aria-pressed="${zoomed}"`) : ''}${round('pause', 'pause', 'Pause and hide the board', 'id="play-pause"')}</div></div>${current.completedAt ? `<div class="board-instruction">${icon('check')}<span><strong>${p.type === 'scene' || p.type === 'dossier' || p.type === 'witness' ? 'Case closed.' : 'Puzzle solved.'}</strong> Revisit your work, or move on to another puzzle.</span></div>` : `<div class="board-instruction">${icon(m.icon)}<span>${placement}</span></div>`}${p.type === 'scene' ? peoplePalette(p, s) : ''}<div class="board-wrap">${board(p, s)}</div>${current.completedAt ? '' : controls(p, s)}<div class="main-tools">${tool('Undo', 'undo', 'undo', false, current.undo.length ? '' : 'disabled')}${tool('Redo', 'redo', 'redo', false, current.redo.length ? '' : 'disabled')}${tool('Hint', 'hint', 'lightup')}${tool('Check', 'check', 'check')}</div>${feedback ? `<div class="feedback ${bad ? 'error' : ''}" role="status">${esc(feedback)}</div>` : ''}${paused ? `</div><div class="paused-cover">${icon('pause')}<h2>Take your time.</h2><p>${temporaryProgress() ? 'Your place is kept in this tab.' : 'Your place is saved on this device.'} There is no rush.</p>${B('Return to the puzzle', 'pause', 'play')}</div>` : ''}</section><div class="play-secondary">${B('Restart puzzle', 'restart', 'refresh', 'ghost small')}${globalThis.AlibiCuration.get(p) ? B('Curator notes', 'curation-notes', 'book', 'ghost small') : ''}${B('How to play', 'lesson', 'book', 'ghost small', `data-type="${p.type}"`)}</div>${accusation(p, s)}${current.completedAt ? `<div class="play-end"><h2>${route.book ? 'Another piece of the story.' : 'That satisfying “aha”.'}</h2><p>${current.rehearsal ? 'Rehearsal complete. Nothing was saved.' : current.hints ? `${current.hints} reveal${current.hints === 1 ? '' : 's'} used. Curiosity counts more than perfection.` : temporaryProgress() ? 'Solved without a reveal. Export a backup to keep this session.' : 'Solved without a reveal. Your progress is saved on this device.'}</p>${B(current.rehearsal ? 'Back to the editor' : route.book ? 'Continue the casebook' : `Another ${m.title.toLowerCase().replace(/^([^&]*)s$/, '$1')} puzzle`, 'next', 'arrow')}${B('Review the record', 'review-record', 'book', 'secondary')}${B('Back to collection', 'back-to-collection', '', 'ghost')}</div>` : ''}</div><aside class="evidence-column"><details class="play-context" data-disclosure-key="play-context"><summary id="play-context-summary">Story, room &amp; assistance</summary>${chapterAtmosphere(p)}${AlibiClub.assistBar()}${globalThis.AlibiTheatre.bar()}</details>${evidence(p, s)}<div class="info-note">${icon('device')}<span>${current.rehearsal ? 'A rehearsal keeps nothing; your draft stays in the editor.' : store.mode === 'local' ? 'Existing saves are read-only. Export any edit before reloading.' : store.mode === 'session' ? 'This browser is keeping progress only in this tab. Export a backup before closing it.' : 'Progress saves as you play. No lives, no penalties, and no need to finish in one sitting.'}</span></div></aside></div>`;
   }
   function workshopPage() {
     return `<div class="page-head"><div><div class="eyebrow">Made to make room for more</div><h1>The workshop.</h1><p>Build a scene, reshape its floor plan, or import a whole new collection. Custom content stays on this device until you export it.</p></div></div><div class="chips workshop-tabs">${[
@@ -1343,11 +1351,18 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
+  }
+  function clueLinks(list) {
+    return `<ul class="draft-comparison-text">${list.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`;
   }
   function draftConflictView() {
     if (!draftConflict) return '';
-    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${draftConflict.length ? 'These clues cannot all hold with this floor plan' : 'No arrangement fits this floor plan, even without clues'}</h3><ul class="draft-comparison-text">${draftConflict.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul></section>`;
+    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${draftConflict.length ? 'These clues cannot all hold with this floor plan' : 'No arrangement fits this floor plan, even without clues'}</h3>${clueLinks(draftConflict)}</section>`;
+  }
+  function draftAuditView() {
+    if (!draftAudit) return '';
+    return `<section id="draft-audit" class="draft-comparison" tabindex="-1" aria-labelledby="draft-audit-title"><h3 id="draft-audit-title">${draftAudit.length ? 'Each of these clues can be removed on its own and one arrangement still fits. Removing several at once may not keep it unique.' : 'Every clue is needed: removing any one of them allows another arrangement.'}</h3>${draftAudit.length ? clueLinks(draftAudit) : ''}</section>`;
   }
   function draftComparisonView() {
     if (!draftComparison) return '';
@@ -1626,10 +1641,16 @@
           : mystery
             ? 'Case closed.'
             : 'That satisfying “aha”.',
-        `<div class="success-icon">${icon('check')}</div><p>${esc(explanation)}</p>${chapterReveal(p)}<div class="success-facts"><div><strong>${current.moves}</strong><small>Moves made</small></div><div><strong>${current.hints}</strong><small>Reveals used</small></div><div><strong>${solved(current) ? '✓' : ''}</strong><small><a href="#/journal">${temporaryProgress() ? 'In this session’s journal' : 'Saved in your journal'}</a></small></div></div>`,
+        `<div class="success-icon">${icon('check')}</div><p>${esc(explanation)}</p>${chapterReveal(p)}<div class="success-facts"><div><strong>${current.moves}</strong><small>Moves made</small></div><div><strong>${current.hints}</strong><small>Reveals used</small></div><div><strong>${solved(current) ? '✓' : ''}</strong><small>${current.rehearsal ? 'Not saved' : `<a href="#/journal">${temporaryProgress() ? 'In this session’s journal' : 'Saved in your journal'}</a>`}</small></div></div>`,
         [
           {
-            label: b ? (left ? `Next ${unit.toLowerCase()}` : 'Read the ending') : 'Another puzzle',
+            label: current.rehearsal
+              ? 'Back to the editor'
+              : b
+                ? left
+                  ? `Next ${unit.toLowerCase()}`
+                  : 'Read the ending'
+                : 'Another puzzle',
             action: 'next',
             icon: 'arrow',
           },
@@ -2022,6 +2043,7 @@
   }
   function nextPuzzle() {
     closeDialog();
+    if (current?.rehearsal) return navigate('workshop');
     if (current && route.book) {
       // Straight to the next chapter's page; a finished book opens its ending (M5).
       const b = books.find((x) => x.id === route.book),
@@ -2711,7 +2733,7 @@
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     saveDraft();
   }
   function undoDraft(redo = false) {
@@ -2745,7 +2767,7 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
@@ -2771,12 +2793,16 @@
       block: 'start',
     });
   }
+  // Sorted, unique, in-range clue indices.
+  const badClues = (c) =>
+    !Array.isArray(c) ||
+    c.some((x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= c[i - 1]);
   async function verifyDraft() {
     if (!draft || draftBusy) return;
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
@@ -2787,13 +2813,7 @@
         if (
           !Array.isArray(result.solutions) ||
           result.solutions.length ||
-          (why?.kind !== 'layout' &&
-            (why?.kind !== 'clues' ||
-              !Array.isArray(c) ||
-              !c.length ||
-              c.some(
-                (x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= c[i - 1],
-              )))
+          (why?.kind !== 'layout' && (why?.kind !== 'clues' || !c?.length || badClues(c)))
         )
           throw Error('The draft check returned an invalid result. Verify again.');
         draftConflict = why.kind === 'clues' ? c : [];
@@ -2828,6 +2848,27 @@
       draftBusy = false;
       render();
       document.querySelector('#draft-comparison, #draft-conflict')?.focus();
+    }
+  }
+  async function auditDraft() {
+    if (!draft || draftBusy || !draftVerified) return;
+    const startedEpoch = draftEpoch;
+    draftBusy = true;
+    draftAudit = null;
+    render();
+    try {
+      const result = await inWorker({ type: 'audit', puzzle: draft }),
+        r = result?.redundant;
+      if (startedEpoch !== draftEpoch) return;
+      if (badClues(r)) throw Error('The clue audit returned an invalid result. Run it again.');
+      draftAudit = r;
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      throw e;
+    } finally {
+      draftBusy = false;
+      render();
+      document.querySelector('#draft-audit')?.focus();
     }
   }
   function clueValues() {
@@ -2954,7 +2995,8 @@
       }
       case 'back-to-collection':
         caseReturn = null;
-        if (route.book) navigate('casebooks', route.book);
+        if (current?.rehearsal) navigate('workshop');
+        else if (route.book) navigate('casebooks', route.book);
         else navigate('library', current?.puzzle.type || '');
         break;
       case 'favorite':
@@ -3477,11 +3519,20 @@
       case 'verify-draft':
         await verifyDraft();
         break;
+      case 'audit-draft':
+        await auditDraft();
+        break;
       case 'add-draft':
         if (draft && draftVerified) {
           const p = draftPack();
           await installPack(p);
           navigate('play', keyFor(draft));
+        }
+        break;
+      case 'rehearse-draft':
+        if (draft && draftVerified && !draftBusy) {
+          rehearsal = { ...newRun(draft), rehearsal: true };
+          navigate('play', rehearsal.key);
         }
         break;
       case 'export-draft':
@@ -3612,12 +3663,12 @@
         const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
         if (!recordDraft(before, el)) return;
-        document.querySelector('#draft-comparison, #draft-conflict')?.remove();
+        document.querySelector('#draft-comparison, #draft-conflict, #draft-audit')?.remove();
         $('[data-action="undo-draft"]').disabled = !draftUndo.length;
         $('[data-action="redo-draft"]').disabled = !draftRedo.length;
         $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
         for (const button of document.querySelectorAll(
-          '[data-action="add-draft"], [data-action="export-draft"]',
+          '[data-action="add-draft"], [data-action="rehearse-draft"], [data-action="export-draft"], [data-action="audit-draft"]',
         ))
           button.disabled = true;
       }
@@ -3959,7 +4010,7 @@
   });
   async function loadRoute(focusSerial = 0) {
     draftEpoch++;
-    draftConflict = null;
+    draftConflict = draftAudit = null;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.
@@ -3995,6 +4046,9 @@
     )
       route.page = 'home';
     if (route.page !== 'play') caseReturn = null;
+    // Any route but the rehearsal's own drops it; it was never stored.
+    const rehearsed = rehearsal && (route.page !== 'play' || rehearsal.key !== id);
+    if (rehearsed) rehearsal = null;
     if (route.page === 'library' && route.id && !M[route.id]) route.id = '';
     current = null;
     if (route.page !== 'quiet') await AlibiActivities.leave();
@@ -4011,15 +4065,17 @@
         if (serial !== routeSerial) return;
         late = deferred.has(catalog);
       }
-      const p =
-        pinned ||
-        (catalog && !late && (!revision || catalog.revision === Number(revision))
-          ? catalog
-          : null) ||
-        (!revision ? [...records.values()].find((r) => r.puzzle.id === pid)?.puzzle : null);
+      const re = rehearsal?.key === id,
+        p = re
+          ? rehearsal.puzzle
+          : pinned ||
+            (catalog && !late && (!revision || catalog.revision === Number(revision))
+              ? catalog
+              : null) ||
+            (!revision ? [...records.values()].find((r) => r.puzzle.id === pid)?.puzzle : null);
       if (p) {
         if (caseReturn && caseReturn.puzzleKey !== keyFor(p)) caseReturn = null;
-        current = getRun(p);
+        current = re ? rehearsal : getRun(p);
         sessionSeconds = current.elapsed;
         selectedCell = range(p.size ** 2).find((i) => enabledCell(p, i)) ?? 0;
         selectedPerson = p.people?.[0]?.id || null;
@@ -4067,8 +4123,15 @@
     }
     if (serial !== routeSerial) return;
     window.scrollTo({ top: 0, behavior: 'instant' });
+    if (rehearsed && route.page === 'workshop') $('.draft-editor')?.scrollIntoView();
     document.title = current ? `${current.puzzle.title} · Alibi` : 'Alibi · A little room to think';
-    if (current && !prefs.seen.includes(current.puzzle.type) && !storageFatal && !saveError)
+    if (
+      current &&
+      !current.rehearsal &&
+      !prefs.seen.includes(current.puzzle.type) &&
+      !storageFatal &&
+      !saveError
+    )
       startLesson(current.puzzle.type, true);
     else revealPlayBoard();
     if ((closedDialog || (focusSerial && focusSerial === routeFocusSerial)) && !$('#dialog').open) {

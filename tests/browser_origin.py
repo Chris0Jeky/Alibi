@@ -61,6 +61,7 @@ ORIGIN_SCENARIOS = (
     "inactive_broadcast",
     "newer_database",
     "club_read_abort",
+    "rehearsal",
 )
 
 checks: list[str] = []
@@ -2251,6 +2252,64 @@ def scenario_club_read_abort(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_rehearsal(pw: Any, root: Path) -> None:
+    """Issue #828: Rehearse plays a verified draft in memory with zero IndexedDB writes."""
+    context = launch_profile(pw, root / "rehearsal")
+    try:
+        page = new_page(context, "rehearsal")
+        boot(page)
+        route(page, "workshop")
+        page.locator("#draft-seed").fill("7")
+        page.locator("#scene-form button[type=submit]").click()
+        page.locator('[data-action="rehearse-draft"]:enabled').wait_for(timeout=30000)
+        for _ in range(50):
+            if read_idb(page, "meta", "workshop-draft"):
+                break
+            page.wait_for_timeout(100)
+
+        def stored() -> dict[str, Any]:
+            return {
+                "runs": read_idb(page, "runs"),
+                "packs": read_idb(page, "packs"),
+                "draft": read_idb(page, "meta", "workshop-draft"),
+            }
+
+        before = stored()
+        check(before["draft"] and not before["runs"] and not before["packs"], "a verified draft is saved with no pack or run")
+        page.evaluate(
+            """() => {
+              window.__idbWrites = 0;
+              for (const [proto, names] of [[IDBObjectStore.prototype, ['put', 'add', 'delete', 'clear']], [IDBCursor.prototype, ['update', 'delete']]])
+                for (const name of names) {
+                  const original = proto[name];
+                  proto[name] = function (...args) { window.__idbWrites++; return original.apply(this, args); };
+                }
+            }"""
+        )
+        page.locator('[data-action="rehearse-draft"]:enabled').focus()
+        page.keyboard.press("Enter")
+        wait_page(page, "() => AlibiDiagnostics.getCurrent()?.rehearsal === true", what="rehearsal route")
+        puzzle = current(page)["puzzle"]
+        person = puzzle["people"][0]["id"]
+        page.locator(f'[data-action="person"][data-id="{person}"]').first.click()
+        page.locator(f'[data-action="cell"][data-cell="{puzzle["solution"][person]}"]').first.click()
+        check(len(current(page)["state"]["placements"]) == 1, "a rehearsal accepts a move")
+        page.wait_for_timeout(600)
+        check(page.evaluate("window.__idbWrites") == 0, "playing a rehearsal makes zero IndexedDB writes")
+        page.locator('.practice-return [data-action="back-to-collection"]').click()
+        page.locator(".draft-editor").wait_for()
+        page.wait_for_timeout(300)
+        check(page.evaluate("window.__idbWrites") == 0, "returning to the editor makes zero IndexedDB writes")
+        check(stored() == before, "no pack, run or draft record changed")
+        check(page.evaluate("AlibiDiagnostics.getCurrent()") is None, "the rehearsal board is gone after returning")
+        page.locator('[data-action="add-draft"]:enabled').wait_for()
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def run() -> int:
     result: dict[str, Any] = {
         "startedAt": datetime.now(timezone.utc).isoformat(),
@@ -2290,6 +2349,7 @@ def run() -> int:
                 scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,
+                scenario_rehearsal,
             ]
             only = os.environ.get("ALIBI_ONLY")
             if only and only not in ORIGIN_SCENARIOS:
