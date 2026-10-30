@@ -103,7 +103,7 @@ function fixture(saved = false) {
     selectedCell=0, selectedPerson=null, sceneMarkMode='', pencil=false, brush=1, paused=false,
     checking=false, reviewing=false, feedback='', evidenceTab='', dossierTab=0, zoomed=false,
     accuseChoice=null, trailValue=0, settings={}, practice={}, storageFatal=false, saveError=false,
-    routeFocusSerial=0;
+    routeFocusSerial=0, practising=false;
     ${routeSource}\n${pageSource}
     this.open=loadRoute; this.pendingPage=()=>{const prior=current;current=null;try{return playPageInner();}finally{current=prior;}};`,
     context,
