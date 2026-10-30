@@ -3,7 +3,7 @@ import json, os, tempfile
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
-BASE=os.environ.get("ALIBI_URL","http://127.0.0.1:8787/").rstrip("/")+"/"
+BASE=os.environ.get("ALIBI_URL","http://127.0.0.1:8797/").rstrip("/")+"/"
 checks=[]
 def check(ok,label):
     assert ok,label

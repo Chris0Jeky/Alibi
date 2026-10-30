@@ -11,7 +11,7 @@ from playwright.sync_api import expect, sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 PACK = ROOT / 'content/workshop/afterlight-pictures.json'
 OUT = ROOT / 'test-results/afterlight-controls'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 WIDTHS = (390, 1440)
 
 

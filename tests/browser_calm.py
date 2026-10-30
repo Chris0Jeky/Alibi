@@ -11,7 +11,7 @@ with sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True)
     ctx=browser.new_context(viewport={'width':1280,'height':950})
     page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
-    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
+    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/')
     page.goto(base+'#/quiet/classics');page.wait_for_function('()=>window.QWApp?.route==="classics"')
     original=page.evaluate('JSON.stringify(QWApp.state.pets)')
     for game in ['tideglass-morning','tideglass-dusk','pairs-meadow','pairs-shore']:

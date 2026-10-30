@@ -19,7 +19,7 @@ function readSecurityPolicy(root, fsLib = fs) {
 }
 let warnedMissingPolicy = false;
 const root = path.resolve(__dirname, '../dist'),
-  port = Number(process.env.PORT || 8787),
+  port = Number(process.env.PORT || 8797),
   types = {
     '.html': 'text/html; charset=utf-8',
     '.js': 'text/javascript; charset=utf-8',

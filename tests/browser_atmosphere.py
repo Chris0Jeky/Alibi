@@ -12,7 +12,7 @@ with sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True)
     ctx=browser.new_context(viewport={'width':1440,'height':1000})
     page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.on('request',lambda r:requests.append(r.url))
-    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')
+    base=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/')
     page.goto(base+'#/home');page.wait_for_selector('.quiet-invitation')
     page.wait_for_function('()=>navigator.serviceWorker.controller && window.AlibiDiagnostics?.getStatus().offlineReady')
     check(page.locator('.quiet-destinations a').count()==4,'Club invites players to all four Quiet Wing areas')

@@ -5,7 +5,7 @@ from official_fixture import OFFICIAL_COUNT
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'test-results/curation-ui';OUT.mkdir(parents=True,exist_ok=True)
-URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').rstrip('/')+'/'
+URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/').rstrip('/')+'/'
 checks=[]
 def check(value,text):
     assert value,text

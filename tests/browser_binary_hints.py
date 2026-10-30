@@ -8,7 +8,7 @@ from browser_tents_hints import unchanged_hint, undo_to
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'lightup-hints' / 'binary'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 # A prefix derived using public clues and the pure hint helper, not the stored answer.
 STEPS = [(0, 0), (5, 0), (8, 0), (9, 0), (11, 0), (15, 0),
          (16, 0), (18, 0), (21, 1), (34, 0), (35, 1), (20, 0)]

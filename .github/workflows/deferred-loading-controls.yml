@@ -41,15 +41,15 @@ jobs:
           mkdir -p test-results/deferred-loading
           git rev-parse HEAD > test-results/deferred-loading/source-head.txt
           cp build-info.json test-results/deferred-loading/build-info.json
-          python -m http.server 8787 --directory dist > test-results/deferred-loading/server.log 2>&1 &
+          python -m http.server 8797 --directory dist > test-results/deferred-loading/server.log 2>&1 &
           server=$!
           trap 'kill "$server"' EXIT
           for attempt in $(seq 1 30); do
-            curl --fail --silent http://127.0.0.1:8787/ >/dev/null && break
+            curl --fail --silent http://127.0.0.1:8797/ >/dev/null && break
             sleep 1
           done
-          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_deferred_loading.py
+          curl --fail --silent http://127.0.0.1:8797/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_deferred_loading.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

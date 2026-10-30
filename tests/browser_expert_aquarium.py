@@ -13,7 +13,7 @@ from revision_route import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 V1 = json.loads((ROOT / 'tests/fixtures/expert-aquarium-01-v1.json').read_text())
 V2 = next(
     puzzle

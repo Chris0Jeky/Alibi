@@ -14,7 +14,7 @@ with sync_playwright() as pw:
  b=pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or shutil.which('chromium'),headless=True,args=['--no-sandbox'])
  ctx=b.new_context(viewport={'width':1440,'height':1000},accept_downloads=True)
  page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
- page.goto(os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')+'#/quiet/realm');page.wait_for_function('()=>window.AlibiActivities?.diagnostics().active');page.wait_for_timeout(100)
+ page.goto(os.environ.get('ALIBI_URL','http://127.0.0.1:8797/')+'#/quiet/realm');page.wait_for_function('()=>window.AlibiActivities?.diagnostics().active');page.wait_for_timeout(100)
  check(page.evaluate('QWStore.info().mode')=='indexeddb','Real origin uses IndexedDB')
  check(page.evaluate('QWApp.state.scene.tiles.length')==196,'Realm has 196 plots')
  shot(page,'realm-desktop')
@@ -102,7 +102,7 @@ with sync_playwright() as pw:
  go(page,'realm');page.locator('[data-act="zen"]').first.click();check(page.locator('.rail').is_hidden(),'Zen removes navigation');check(page.locator('#realm').is_visible(),'Zen preserves canvas');shot(page,'realm-zen');page.locator('#realm').focus();page.keyboard.press('Escape');check(not page.evaluate('QWApp.state.settings.zen'),'Escape leaves Zen')
  # Touch context uses actual pointer-capable Chromium, not a physical Android device.
  touch=ctx.browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True,device_scale_factor=1)
- phone=touch.new_page();phone.on('pageerror',lambda e:errors.append(str(e)));phone.goto(os.environ.get('ALIBI_URL','http://127.0.0.1:8787/')+'#/quiet/realm');phone.wait_for_function('()=>window.AlibiActivities?.diagnostics().active');
+ phone=touch.new_page();phone.on('pageerror',lambda e:errors.append(str(e)));phone.goto(os.environ.get('ALIBI_URL','http://127.0.0.1:8797/')+'#/quiet/realm');phone.wait_for_function('()=>window.AlibiActivities?.diagnostics().active');
  phone.locator('[data-ract="palette"]').click();phone.locator('#newempty').click();phone.locator('#new-confirm').click();pos=cellpos(phone)
  phone.touchscreen.tap(pos['x'],pos['y']);check(phone.evaluate('QWApp.state.stats.built')==0,'Touch tap selects without accidental placement');phone.locator('#place').click();check(phone.evaluate('QWApp.state.stats.built')==1,'Touch confirmation places once')
  page.evaluate('()=>QWApp.flush()');check(not errors,'No uncaught page errors')

@@ -152,7 +152,7 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
         run: |
           npm start > /tmp/alibi-server.log 2>&1 &
-          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break; sleep 1; done
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8797/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
           python tests/browser_workshop_ownership.py
           python tests/browser_backup_ownership.py
@@ -161,32 +161,32 @@ jobs:
           python tests/browser_voices.py
           python tests/browser_curation.py
           python tests/browser_discovery.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_discovery_storage.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_narrow_layout.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_library_focus.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_focus.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_quiet_motion.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_player_qa.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_core_cabinet.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_mobile_qa.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_september_feedback.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_tic_tac_toe.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_large_nonogram.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_sudoku.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_cabinet.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_block_motion.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_region_gardens.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_invitation.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_dominoes.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_families.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_aquarium.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_nonogram.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_expert_controls.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_mahjong.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_feedback_discovery.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_discovery_storage.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_narrow_layout.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_library_focus.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_quiet_focus.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_quiet_motion.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_player_qa.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_core_cabinet.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_mobile_qa.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_september_feedback.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_tic_tac_toe.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_large_nonogram.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_expert_sudoku.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_block_cabinet.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_block_motion.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_region_gardens.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_invitation.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_dominoes.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_expert_families.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_expert_aquarium.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_expert_nonogram.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_expert_controls.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_mahjong.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_feedback_discovery.py
           python tests/browser_delivery.py
           python tests/browser_theatre.py
-          ALIBI_URL8795=http://127.0.0.1:8787/ python tests/browser_challenges.py
+          ALIBI_URL8795=http://127.0.0.1:8797/ python tests/browser_challenges.py
           python tests/browser_challenge_recovery.py
           python tests/browser_challenge_library.py
           python tests/browser_challenge_lifecycle.py
@@ -201,7 +201,7 @@ jobs:
           python tests/browser_atmosphere.py
           python tests/browser_quiet_origin.py
           python tests/browser_backup_worker.py
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_backup_import.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_backup_import.py
           node tools/serve-assets.cjs > /tmp/alibi-assets.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8790/ > /dev/null && break; sleep 1; done
           python tests/browser_assets.py

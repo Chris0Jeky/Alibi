@@ -67,15 +67,15 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Play every registered study at phone and desktop sizes
         run: |
-          python -m http.server 8787 --directory dist > test-results/interlock-source/server.log 2>&1 &
+          python -m http.server 8797 --directory dist > test-results/interlock-source/server.log 2>&1 &
           server=$!
           trap 'kill "$server"' EXIT
           for attempt in $(seq 1 40); do
-            if curl --fail --silent http://127.0.0.1:8787/ >/dev/null; then break; fi
+            if curl --fail --silent http://127.0.0.1:8797/ >/dev/null; then break; fi
             sleep 1
           done
-          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_interlock_studies.py
+          curl --fail --silent http://127.0.0.1:8797/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_interlock_studies.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

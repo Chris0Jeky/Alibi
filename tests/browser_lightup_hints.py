@@ -8,7 +8,7 @@ from browser_master_grandmaster_controls import action, cell, current, dismiss_l
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'lightup-hints'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 # These are deductions from the public clues, not stored answers or solver calls.
 CASES = {
     'lightup-01': [

@@ -8,7 +8,7 @@ from revision_route import wait_for_unavailable_revision
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'expert-nonogram'
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 V1 = json.loads((ROOT / 'tests/fixtures/expert-nonogram-01-v1.json').read_text())
 V2 = next(
     puzzle

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
-BASE=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').split('#')[0]
+BASE=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/').split('#')[0]
 OUT=Path('test-results/castle-investigation')
 fixture={'format':'alibi-castle','version':1,'scope':'Wrenmere Chapter I only','mode':'local','state':{
     'version':1,'revision':6,'completed':{id:{'answer':answer,'guided':True} for id,answer in [
