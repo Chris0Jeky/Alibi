@@ -20,8 +20,10 @@ handler is not a defect.
   uses the same damage error.
 - Paint strokes stop when play is frozen (`paintTo`, `endPaint`). A pause stops further cells; the
   cells painted before the pause are committed and saved as before. While an update is pending or a
-  restore is running the stroke is rolled back to its start and nothing is saved (the existing
-  `locked()` behavior). `apply-update` calls `endPaint()` before `pauseForUpdate(true)`, so an update
+  restore is running the stroke is rolled back to its start and not committed to undo (the existing
+  `locked()` behavior); restore starts from Settings, where no stroke is live, so this branch is
+  defensive. Review fold-in: restore now refuses, like `apply-update`, when the pre-restore flush
+  leaves `saveError` set ("Export it before restoring"). `apply-update` calls `endPaint()` before `pauseForUpdate(true)`, so an update
   still saves the stroke in progress.
 - Tests: `tests/run-saves-882.test.cjs` (5 tests). `tests/storage-revision.test.cjs` expects
   `DamagedRecordError` for the nine damaged-row cases that used to expect `ConflictError`. Seven
@@ -31,9 +33,9 @@ handler is not a defect.
   (860 x 64), leaves 31.32. Startup gzip 134,462 -> 134,484/134,485 (+22/23) stays under its
   127 KiB + 4,480 ceiling (134,528), 43 bytes left, so that ceiling is unchanged. The catalogue is
   regenerated.
-- Re-measured after merging main (#879): startup gzip 134,754 -> 134,773, ceiling 127 KiB + 4,800
-  (75 x 64; 74 x 64 would leave 11), 75 left; shell 1,440,158 -> 1,440,319, ceiling 1.32 MiB +
-  56,256 (879 x 64), 57.32 left. These replace the entries above.
+- Re-measured after merging main (#879): startup gzip 134,754 -> 134,777, ceiling 127 KiB + 4,800
+  (75 x 64; 74 x 64 would leave 7), 71 left; shell 1,440,158 -> 1,440,408, ceiling 1.32 MiB +
+  56,320 (880 x 64), 32.32 left (includes the review fold-in). These replace the entries above.
 
 ## Verified
 

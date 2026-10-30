@@ -2623,6 +2623,8 @@
       clearTimeout(noteTimer);
       await enqueueSave();
       await queue;
+      if (saveError)
+        throw Error('The latest progress has not been saved. Export it before restoring.');
       let b = pendingBackup,
         expected;
       if (!replace) {

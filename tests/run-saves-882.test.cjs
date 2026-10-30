@@ -176,3 +176,52 @@ for (const [name, why] of [
     assert.deepEqual(saves, []);
   });
 }
+
+test('restore refuses when the pre-restore flush could not save this tab', async () => {
+  const log = [];
+  const context = {
+    setTimeout,
+    clearTimeout,
+    toast(message) {
+      log.push(`toast:${message}`);
+    },
+    closeDialog() {},
+    dialog() {},
+    esc: String,
+    $: () => null,
+    channel: null,
+    location: { reload() {} },
+    inWorker: async (message) => message.value,
+    store: {
+      mode: 'indexeddb',
+      async export() {
+        log.push('export');
+        return { runs: [], packs: [], settings: {}, preferences: {}, damaged: {} };
+      },
+      async restore() {
+        log.push('restore');
+        return {};
+      },
+    },
+  };
+  vm.runInNewContext(
+    `
+    let restoreBusy = false, paused = false, updateRequested = false, storageFatal = '', saveError = '',
+      current = null, pendingBackup = { runs: [], packs: [] }, queue = Promise.resolve(), noteTimer = null;
+    function locked() { return storageFatal || saveError; }
+    function enqueueSave() { saveError = 'This puzzle changed in another tab.'; return queue; }
+    ${fn('blocked')}
+    ${fn('restoreBackup')}
+    globalThis.api = { restore: restoreBackup, busy: () => restoreBusy };
+  `,
+    context,
+  );
+  await context.api.restore(true).catch((e) => log.push(`error:${e.message}`));
+  await wait(10);
+  assert.ok(!log.includes('restore'), 'nothing is restored over unsaved progress');
+  assert.ok(
+    log.some((line) => /Export it before restoring/.test(line)),
+    'the player is told to export first',
+  );
+  assert.equal(context.api.busy(), false);
+});
