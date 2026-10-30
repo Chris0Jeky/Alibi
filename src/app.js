@@ -3637,8 +3637,9 @@
         }
         break;
       case 'remove-pack-confirm':
-        if (!packs.slice(1).some((p) => p.id === id)) break;
-        await store.removePack(id);
+        const confirmed = packs.slice(1).find((p) => p.id === id);
+        if (!confirmed) break;
+        await store.removePack(id, confirmed);
         packs = packs.filter((p) => p.id !== id);
         closeDialog();
         render();

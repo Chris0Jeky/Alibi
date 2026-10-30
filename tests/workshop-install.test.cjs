@@ -72,6 +72,7 @@ function disk(seed = []) {
           return {
             put: (row) => write(row, false),
             add: (row) => write(row, true),
+            get: (key) => enqueue(() => (working.has(key) ? clone(working.get(key)) : undefined)),
             delete: (key) =>
               enqueue(() => {
                 if (state.failWrite) throw Error('simulated quota failure');
@@ -352,6 +353,21 @@ test('removing a pack deletes only that record and allows the same pack to be ad
       .sort(),
     [gone.id, keep.id],
   );
+});
+
+test('removal refuses a pack another tab replaced under the same ID since it was confirmed', async () => {
+  const db = disk(),
+    current = tab(db),
+    original = pack('shared-pack', 'first-picture'),
+    replacement = pack('shared-pack', 'second-picture');
+  await current.install(original);
+  await current.store.removePack(original.id, original);
+  await current.install(replacement);
+  const stored = db.rows();
+  await assert.rejects(current.store.removePack(original.id, original), /changed in another tab/);
+  assert.deepEqual(db.rows(), stored, 'the replacement is kept');
+  await current.store.removePack(replacement.id, replacement);
+  assert.equal(db.rows().length, 0, 'the confirmed current version is removed');
 });
 
 test('failed removal leaves the stored pack in place', async () => {
