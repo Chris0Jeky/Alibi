@@ -355,7 +355,7 @@
     rose: ['#eee1dc', '#e3ccc4', '#805d55', '#d4a960'],
     amber: ['#f2e8d0', '#e4d4af', '#80693c', '#d99756'],
   };
-  function art(type, p = null, variant = 0) {
+  function art(type, p = null, variant = 0, state = null) {
     const d = data[type] || data.scene,
       col = palettes[d.color],
       fg = col[2];
@@ -364,7 +364,10 @@
         `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`,
       txt = (x, y, t, c = fg, size = 14) =>
         `<text x="${x}" y="${y}" font-size="${size}" font-family="system-ui,sans-serif" font-weight="500" text-anchor="middle" fill="${c}">${t}</text>`;
-    if (type === 'sudoku') {
+    if (type === 'nonogram' && state) {
+      const n = p.size;
+      parts += `<g transform="translate(95 24) scale(${130 / n})"><rect width="${n}" height="${n}" fill="#f4f0e8"/><path fill="${fg}" d="${state.cells.map((v, i) => (v === 1 ? `M${i % n} ${Math.floor(i / n)}h1v1h-1z` : '')).join('')}"/></g>`;
+    } else if (type === 'sudoku') {
       parts += '<g transform="translate(88,18)">';
       for (let r = 0; r < 9; r++)
         for (let c = 0; c < 9; c++) {
