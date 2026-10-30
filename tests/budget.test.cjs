@@ -207,8 +207,14 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
       // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
       // leaves 23; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3680,
-      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
+      // #864 Scene Maker draft file (Import draft and Export draft controls, the confirm-then-
+      // replace step that goes through Undo, the stale-reply guard and the placeholder-answer
+      // check): 133,705 -> 134,098 (+393) after merging the worker's two refusals into one and
+      // trimming the dialog and toast copy. The answer is deliberately never in the file, so the
+      // import must supply a placeholder and the editor must not show it as an author solution.
+      // Excess 371; ceiling +416 (to 131 KiB) leaves 45 for identity/hash noise; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4096,
+      'Application bundle stays under 127 KiB + 4,096 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -373,8 +379,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
       // #831 resume previews on the composed tree: 1,430,091 -> 1,430,393 (+302). Excess 256.68;
       // ceiling +320 (5 x 64) leaves 63.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 46336,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 46,336 bytes',
+      // #864 Scene Maker draft file (the 'scene-draft-import' worker request, the two controls, the
+      // replace step, the hidden file input in the shell): 1,430,393 -> 1,432,234 (+1,841). The
+      // placeholder answer, the byte-accurate cap and the refusal copy are required. Excess
+      // 1,777.68; ceiling +1,824 (57 x 32) leaves 46.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 48160,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 48,160 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
