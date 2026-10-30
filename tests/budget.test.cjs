@@ -193,10 +193,44 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #738 protected-load recovery, required Duel engine loading and unchanged Add-missing rows:
     // clean composed source measures 135,616 -> 135,755 (+139). Ceiling +128 covers the
     // 75-byte excess and leaves 53 bytes for identity/hash noise; validation remains strict.
+    // #825: the Privacy & credits copy moves to the deferred chunk below: 134,166 -> 131,760 (-2,406).
+    // Ceiling -2,368 (38 bytes of noise room on top of the headroom main already had).
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5760,
-      'Application bundle stays under 127 KiB + 5,760 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 3392,
+      'Application bundle stays under 127 KiB + 3,392 bytes gzip',
     );
+  });
+  await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
+    // #825: cold page copy, loaded on entry to #/privacy; precached so the page works offline.
+    const matches = assetNames.filter((name) => /^privacy\.[a-f0-9]{12}\.js$/.test(name));
+    assert.equal(matches.length, 1, 'One hashed Privacy chunk is emitted');
+    const chunk = fs.readFileSync(path.join(root, 'dist/assets', matches[0]), 'utf8');
+    assert.equal(
+      Buffer.byteLength(chunk),
+      info.privacyChunkBytes,
+      'Privacy chunk bytes are reported',
+    );
+    assert.equal(zlib.gzipSync(chunk).length, info.privacyChunkGzipBytes);
+    assert.ok(serviceWorker.includes(`"./assets/${matches[0]}"`), 'The Privacy chunk is precached');
+    assert.ok(
+      !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+      'The Privacy chunk is not a startup script',
+    );
+    const app = fs.readFileSync(
+      path.join(
+        root,
+        'dist/assets',
+        assetNames.find((n) => /^alibi\.[a-f0-9]{12}\.js$/.test(n)),
+      ),
+      'utf8',
+    );
+    assert.ok(app.includes(`"privacy":"./assets/${matches[0]}"`), 'The app config names the chunk');
+    assert.match(chunk, /Your device is the save file\./);
+    assert.doesNotMatch(app, /Your device is the save file\./);
+    const standalone = fs.readFileSync(path.join(root, 'alibi-deluxe-play.html'), 'utf8');
+    assert.match(standalone, /Your device is the save file\./);
+    // Measured 6,940 bytes, 3,198 gzip.
+    assert.ok(info.privacyChunkGzipBytes < 4 * 1024, 'The Privacy chunk stays under 4 KiB gzip');
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
     // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,

@@ -35,7 +35,10 @@ test('reasoning ships once as a bounded hashed chunk in the offline shell, outsi
 
 test('standalone reasoning remains inline without a chunk URL', () => {
   const html = read('alibi-deluxe-play.html');
-  assert.match(html, /globalThis\.ALIBI_CONFIG=\{[^\n]*"standalone":true,"insights":null\}/);
+  assert.match(
+    html,
+    /globalThis\.ALIBI_CONFIG=\{[^\n]*"standalone":true,"insights":null,"privacy":null\}/,
+  );
   assert.match(html, /A forced waterline/);
   assert.match(html, /C\.loadInsights =/);
 });

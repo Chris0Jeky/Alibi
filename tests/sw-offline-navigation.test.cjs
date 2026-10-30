@@ -33,6 +33,7 @@ ${section('  const sw = `', "  write(\n    path.join(DIST, 'sw.js')")}
     deferredURL: './assets/deferred.fixture.js',
     voicesURL: './assets/voices.fixture.js',
     insightsURL: './assets/insights.fixture.js',
+    privacyURL: './assets/privacy.fixture.js',
     curation: { media: {} },
     media: {},
   },
