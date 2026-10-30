@@ -144,30 +144,6 @@ self.onmessage = (e) => {
           );
       }
       const result = AlibiCore.solveDefinition(p, 2, 250000);
-      let diagnosis;
-      if (!result.solutions.length) {
-        // One aggregate ceiling covers verification and diagnosis; exhaustion refuses any explanation.
-        let left = 250000 - result.nodes;
-        const fits = (clues) => {
-          try {
-            const r = AlibiCore.solveDefinition({ ...p, clues }, 1, left);
-            left -= r.nodes;
-            return r.solutions.length > 0;
-          } catch {
-            throw Error(
-              'The checker reached its search limit before it could identify which clues conflict. Simplify the clues and verify again.',
-            );
-          }
-        };
-        if (!fits([])) diagnosis = { kind: 'layout' };
-        else {
-          let core = p.clues.map((_, i) => i);
-          for (const i of core.slice())
-            if (!fits(core.filter((j) => j !== i).map((j) => p.clues[j])))
-              core = core.filter((j) => j !== i);
-          diagnosis = { kind: 'clues', clues: core };
-        }
-      }
       value = {
         solutions: result.solutions.map((solution) => {
           const checked = AlibiCore.validateSceneDraft({ ...p, solution });
@@ -177,7 +153,28 @@ self.onmessage = (e) => {
           return checked.solution;
         }),
       };
-      if (diagnosis) value.diagnosis = diagnosis;
+      if (!result.solutions.length) {
+        // One aggregate ceiling covers verification and diagnosis. Exhaustion throws the solver's
+        // budget refusal, so no partial conflict or suggestion is ever reported.
+        let left = 250000 - result.nodes,
+          core = p.clues.map((_, i) => i);
+        const fits = (keep) => {
+          const r = AlibiCore.solveDefinition(
+            { ...p, clues: keep.map((j) => p.clues[j]) },
+            1,
+            left,
+          );
+          left -= r.nodes;
+          return r.solutions.length > 0;
+        };
+        const layoutFits = fits([]);
+        if (layoutFits)
+          for (const i of core.slice()) {
+            const rest = core.filter((j) => j !== i);
+            if (!fits(rest)) core = rest;
+          }
+        value.diagnosis = layoutFits ? { kind: 'clues', clues: core } : { kind: 'layout' };
+      }
     } else throw Error('Unsupported validation request.');
     self.postMessage({ ok: true, value });
   } catch (error) {

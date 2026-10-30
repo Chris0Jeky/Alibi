@@ -60,7 +60,7 @@ function fixture() {
       addEventListener: (name, callback) => {
         if (name === 'input') onInput = callback;
       },
-      querySelector: () => ({ scrollIntoView: () => scrolls.push('editor') }),
+      querySelector: () => ({ scrollIntoView: () => scrolls.push('editor'), focus() {} }),
     },
     settings: { reducedMotion: true },
   };

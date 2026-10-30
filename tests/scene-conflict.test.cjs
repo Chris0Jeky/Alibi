@@ -111,7 +111,7 @@ test('verification and diagnosis share one 250,000-node ceiling and refuse when 
   const result = h.send(p);
   assert.deepEqual(limits, [250000, 50000, 49990, 19990]);
   assert.equal(result.ok, false);
-  assert.match(result.error, /search limit before it could identify which clues conflict/);
+  assert.match(result.error, /Solver budget exceeded/);
   assert.equal(result.value, undefined);
 });
 
@@ -125,7 +125,7 @@ test('exhausting the budget during the layout proof also refuses without a guess
   };
   const result = h.send(p);
   assert.equal(result.ok, false);
-  assert.match(result.error, /search limit/);
+  assert.match(result.error, /Solver budget exceeded/);
   assert.equal(result.value, undefined);
 });
 

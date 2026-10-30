@@ -169,10 +169,8 @@ test('a conflict diagnosis is kept as guidance, never verified, saved or marked 
     h.worker.resolve({ solutions: [], diagnosis });
     await pending;
     const state = h.context.state();
-    assert.deepEqual(JSON.parse(JSON.stringify(state.draftConflict)), {
-      kind: diagnosis.kind,
-      clues: diagnosis.clues || [],
-    });
+    // An empty list is a layout-only impossibility; otherwise the numbered clue indices.
+    assert.deepEqual(JSON.parse(JSON.stringify(state.draftConflict)), diagnosis.clues || []);
     assert.equal(state.draft, original);
     assert.equal(state.draftVerified, false);
     assert.equal(state.draftComparison, null);
