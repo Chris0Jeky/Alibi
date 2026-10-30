@@ -758,6 +758,33 @@
     };
     return [summaries[p.type] || 'Every rule is satisfied.'];
   }
-  C.insights = { deduction, recap };
+  // The named steps a hint walk takes from the fresh board (#835). Only applicable steps count:
+  // cell values, Alibi-file marks and scene placements; corrections and nudges end the walk.
+  // Memoised per revision (a 15x15 walk is tens of ms); a failure only hides the line.
+  const walked = new Map();
+  function techniques(p) {
+    const key = p.id + '@' + p.revision;
+    if (walked.has(key)) return walked.get(key);
+    const used = new Map();
+    try {
+      const s = C.registry[p.type].initial(p);
+      for (let step = 0; step < 4 * p.size ** 2; step++) {
+        const h = deduction(p, s);
+        if (!h || /^Revisit/.test(h.rule)) break;
+        if (h.value !== undefined && h.cells?.length === 1 && Array.isArray(s.cells))
+          s.cells[h.cells[0]] = h.value;
+        else if (h.mark) s.marks[h.mark.cell] = h.mark.value;
+        else if (h.person) s.placements[h.person] = h.cells[0];
+        else break;
+        used.set(h.rule, (used.get(h.rule) || 0) + 1);
+      }
+    } catch {
+      used.clear();
+    }
+    const result = [...used].sort((x, y) => y[1] - x[1]);
+    walked.set(key, result);
+    return result;
+  }
+  C.insights = { deduction, recap, techniques };
   if (typeof module !== 'undefined' && module.exports) module.exports = C.insights;
 })(globalThis);

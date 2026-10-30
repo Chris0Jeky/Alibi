@@ -1994,10 +1994,11 @@
     if (!current?.completedAt) return;
     const reasoning = await loadReasoning();
     if (!reasoning) return;
-    const rows = reasoning.recap(current.puzzle, current.state);
+    const rows = reasoning.recap(current.puzzle, current.state),
+      used = reasoning.techniques?.(current.puzzle) || [];
     dialog(
       'The completed record.',
-      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
+      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>${used.length ? `<p class="fine">Techniques the hints use here: ${esc(used.map(([rule, n]) => `${rule} (${n})`).join(', '))}.</p>` : ''}`,
       [
         {
           label: current.rehearsal
