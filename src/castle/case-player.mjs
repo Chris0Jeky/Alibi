@@ -298,7 +298,7 @@ export function mount({ root, store, save }) {
             }
           } else if (action === 'hint') {
             if (record().hints[stage] >= 3) {
-              message = 'All hints for this stage are shown.';
+              message = 'All hints are shown.';
               return;
             }
             await change((n) => {
@@ -316,9 +316,7 @@ export function mount({ root, store, save }) {
         },
         action.startsWith('share-')
           ? () => (share.text === null ? 'case-share-open-' : 'case-share-text')
-          : action === 'receipt-start'
-            ? () => receipt?.focus(action)
-            : undefined,
+          : () => receipt?.focus(action),
       );
     },
     { signal },

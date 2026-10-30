@@ -84,7 +84,9 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
     assert.deepEqual(fs.readFileSync(path.join(dist, 'assets/cases', sourceName)), source);
     assert.ok(!config.files.includes(config.caseStudy), 'no automatic case installation');
     const player = fs.readFileSync(path.join(dist, config.caseStudy), 'utf8');
-    assert.ok(Buffer.byteLength(player) < 16 * 1024);
+    // #893: the last-hint guard and the receipt focus return took the player from 16,374 to 16,397
+    // bytes. Excess 14; ceiling +64 (to 16,448) leaves 51 bytes; no feature room.
+    assert.ok(Buffer.byteLength(player) < 16 * 1024 + 64);
     assert.ok(!player.includes('CASE_DELIVERY'), 'the optional player owns its resolved metadata');
     assert.ok(player.includes(sourceHash));
     assert.ok(player.includes(result.receipt.sha256));
