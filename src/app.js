@@ -2901,7 +2901,7 @@
     if (!draft) return applyDraftImport();
     dialog(
       'Replace your draft?',
-      `<p>Importing <strong>${esc(next.title)}</strong> replaces <strong>${esc(draft.title)}</strong> in the editor. The imported draft is unverified. Undo restores the draft you have now.</p>`,
+      `<p>Replace <strong>${esc(draft.title)}</strong> with <strong>${esc(next.title)}</strong>? The new draft is unverified. Undo brings the old one back.</p>`,
       [
         { label: 'Replace draft', action: 'replace-draft', danger: true },
         { label: 'Keep my draft', action: 'close-dialog', secondary: true },
@@ -2918,7 +2918,7 @@
     draftShowSolution = false;
     before ? recordDraft(before) : dirtyDraft();
     render();
-    toast('Draft imported. Verify its logic to see or share its solution.');
+    toast('Draft imported. Verify its logic next.');
   }
   function clueValues() {
     if (!draft) return;

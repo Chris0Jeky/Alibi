@@ -153,18 +153,17 @@ self.onmessage = (e) => {
       if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 256 * 1024)
         throw Error('Draft file exceeds the 256 KiB import limit.');
       const data = parse(m.text);
-      if (data?.format !== 'alibi-scene-draft' || data.schema !== 1)
-        throw Error('This is not an Alibi Scene Maker draft. Your current draft is unchanged.');
       // Shape only: an unsolvable draft is fine. A file never supplies the answer, so the author
       // solution is a placeholder (person i on square i) until the draft is verified.
       try {
-        const people = Array.isArray(data.draft?.people) ? data.draft.people : [];
+        if (data.format !== 'alibi-scene-draft' || data.schema !== 1) throw 0;
+        const d = data.draft;
         value = AlibiCore.validateSceneDraft({
-          ...data.draft,
-          solution: Object.fromEntries(people.map((x, i) => [x?.id, i])),
+          ...d,
+          solution: Object.fromEntries(d.people.map((x, i) => [x.id, i])),
         });
       } catch {
-        throw Error('This Scene Maker draft file is damaged. Your current draft is unchanged.');
+        throw Error('This is not an Alibi Scene Maker draft. Your current draft is unchanged.');
       }
     } else if (m.type === 'pack') value = AlibiCore.validatePack(m.pack, true);
     else if (m.type === 'generate') value = AlibiCore.createSceneDraft(m.options);
