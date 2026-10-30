@@ -223,6 +223,26 @@ with sync_playwright() as pw:
         history_page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
         with history_page.expect_download() as dl:history_page.locator('[data-action="export-draft"]').click()
         original=json.loads(Path(dl.value.path()).read_text())['puzzles'][0]
+        # Audit by keyboard. Seed 7 needs every clue; adding the true clue "Miles in row 2" frees clues 3 and 6 and itself (computed by tests/scene-audit.test.cjs).
+        count=len(original['clues']);audit=history_page.locator('#draft-audit');audit_button=history_page.locator('[data-action="audit-draft"]')
+        check(audit_button.is_enabled(),f'{width}px: a verified draft can be audited')
+        audit_button.focus();history_page.keyboard.press('Enter');audit.wait_for()
+        check(history_page.evaluate('document.activeElement.id')=='draft-audit',f'{width}px: keyboard audit focuses the result')
+        check('Every clue is needed' in audit.inner_text() and audit.locator('[data-action="focus-draft-clue"]').count()==0,f'{width}px: seed 7 audit finds every clue needed')
+        history_page.locator('#clue-who').select_option('person-2');history_page.locator('#clue-kind').select_option('row');history_page.locator('#clue-value').select_option('1')
+        history_page.locator('#clue-form button[type=submit]').click()
+        check(audit.count()==0 and audit_button.is_disabled(),f'{width}px: an edit clears the audit and disables the button')
+        history_page.locator('[data-action="verify-draft"]').click();history_page.locator('[data-action="export-draft"]:enabled').wait_for(timeout=30000)
+        audit_button.focus();history_page.keyboard.press('Enter');audit.wait_for()
+        expected_redundant=[2,5,count]
+        check(audit.locator('[data-action="focus-draft-clue"]').all_text_contents()==[f'Clue {i+1}' for i in expected_redundant],f'{width}px: audit names exactly the removable clues')
+        check(not history_page.evaluate('document.documentElement.scrollWidth>innerWidth+1'),f'{width}px: audit has no horizontal overflow')
+        for position,index in enumerate(expected_redundant):
+            audit.locator('[data-action="focus-draft-clue"]').nth(position).focus();history_page.keyboard.press('Enter')
+            check(history_page.evaluate('[document.activeElement.dataset.action,document.activeElement.dataset.index].join(":")')==f'remove-draft-clue:{index}',f'{width}px: audit link focuses clue {index+1} control')
+        check(history_page.locator('.draft-clue').count()==count+1,f'{width}px: the audit never removes a clue')
+        history_page.locator('[data-action="undo-draft"]').focus();history_page.keyboard.press('Enter')
+        check(audit.count()==0 and history_page.locator('.draft-clue').count()==count,f'{width}px: Undo clears the audit')
         # Contradict June's row clue, read the numbered diagnosis, follow it by keyboard, Undo, reverify, export, Redo.
         total=len(original['clues']);june=next(i for i,c in enumerate(original['clues']) if c['who']=='person-1' and c['kind']=='row')
         history_page.locator('#clue-who').select_option('person-1');history_page.locator('#clue-kind').select_option('row');history_page.locator('#clue-value').select_option('1')

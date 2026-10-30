@@ -77,6 +77,7 @@
     draftVerified = false,
     draftComparison = null,
     draftConflict = null,
+    draftAudit = null,
     draftUndo = [],
     draftRedo = [],
     draftNameEdit = null,
@@ -1343,11 +1344,18 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
+  }
+  function clueLinks(list) {
+    return `<ul class="draft-comparison-text">${list.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`;
   }
   function draftConflictView() {
     if (!draftConflict) return '';
-    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${draftConflict.length ? 'These clues cannot all hold with this floor plan' : 'No arrangement fits this floor plan, even without clues'}</h3><ul class="draft-comparison-text">${draftConflict.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul></section>`;
+    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${draftConflict.length ? 'These clues cannot all hold with this floor plan' : 'No arrangement fits this floor plan, even without clues'}</h3>${clueLinks(draftConflict)}</section>`;
+  }
+  function draftAuditView() {
+    if (!draftAudit) return '';
+    return `<section id="draft-audit" class="draft-comparison" tabindex="-1" aria-labelledby="draft-audit-title"><h3 id="draft-audit-title">${draftAudit.length ? 'Each of these clues can be removed on its own and one arrangement still fits. Removing several at once may not keep it unique.' : 'Every clue is needed: removing any one of them allows another arrangement.'}</h3>${draftAudit.length ? clueLinks(draftAudit) : ''}</section>`;
   }
   function draftComparisonView() {
     if (!draftComparison) return '';
@@ -2711,7 +2719,7 @@
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     saveDraft();
   }
   function undoDraft(redo = false) {
@@ -2745,7 +2753,7 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
@@ -2776,7 +2784,7 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = draftConflict = null;
+    draftComparison = draftConflict = draftAudit = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
@@ -2828,6 +2836,31 @@
       draftBusy = false;
       render();
       document.querySelector('#draft-comparison, #draft-conflict')?.focus();
+    }
+  }
+  async function auditDraft() {
+    if (!draft || draftBusy || !draftVerified) return;
+    const startedEpoch = draftEpoch;
+    draftBusy = true;
+    draftAudit = null;
+    render();
+    try {
+      const result = await inWorker({ type: 'audit', puzzle: draft }),
+        r = result?.redundant;
+      if (startedEpoch !== draftEpoch) return;
+      if (
+        !Array.isArray(r) ||
+        r.some((x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= r[i - 1])
+      )
+        throw Error('The clue audit returned an invalid result. Run it again.');
+      draftAudit = r;
+    } catch (e) {
+      if (startedEpoch !== draftEpoch) return;
+      throw e;
+    } finally {
+      draftBusy = false;
+      render();
+      document.querySelector('#draft-audit')?.focus();
     }
   }
   function clueValues() {
@@ -3477,6 +3510,9 @@
       case 'verify-draft':
         await verifyDraft();
         break;
+      case 'audit-draft':
+        await auditDraft();
+        break;
       case 'add-draft':
         if (draft && draftVerified) {
           const p = draftPack();
@@ -3612,12 +3648,12 @@
         const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
         if (!recordDraft(before, el)) return;
-        document.querySelector('#draft-comparison, #draft-conflict')?.remove();
+        document.querySelector('#draft-comparison, #draft-conflict, #draft-audit')?.remove();
         $('[data-action="undo-draft"]').disabled = !draftUndo.length;
         $('[data-action="redo-draft"]').disabled = !draftRedo.length;
         $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
         for (const button of document.querySelectorAll(
-          '[data-action="add-draft"], [data-action="export-draft"]',
+          '[data-action="add-draft"], [data-action="export-draft"], [data-action="audit-draft"]',
         ))
           button.disabled = true;
       }
@@ -3959,7 +3995,7 @@
   });
   async function loadRoute(focusSerial = 0) {
     draftEpoch++;
-    draftConflict = null;
+    draftConflict = draftAudit = null;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.
