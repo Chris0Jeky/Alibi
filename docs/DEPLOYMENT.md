@@ -57,8 +57,9 @@ paid external service is needed. Never create another project just to publish an
 7. Verify HTML, hashed assets, manifest, icons, security headers, IndexedDB and offline play on
    the primary HTTPS origin using disposable test profiles. The probe covers byte identity only, not
    headers, saves or offline play. A new receipt records the version just deployed, so roll back to
-   the previous known-good version: keep the prior release's receipt (copy it aside before deploying)
-   or read it from `npx wrangler deployments list --config wrangler.jsonc`, then run
+   the previous known-good version: the release script keeps the prior release's receipt as
+   `release-receipt.previous.json` (copied aside before each deploy), or read it from
+   `npx wrangler deployments list --config wrangler.jsonc`, then run
    `npx wrangler rollback <that version id> --config wrangler.jsonc`. Rollback does not reverse
    IndexedDB (see Saves and updates).
 
