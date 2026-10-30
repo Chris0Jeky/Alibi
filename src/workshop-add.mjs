@@ -4,6 +4,7 @@
 // Workshop importer (#pack-input -> bounded worker -> duplicate refusal -> one save owner).
 export const COLLECTIONS = [];
 const LIMIT = 3 * 1024 * 1024;
+const IDLE_MS = 10000; // #881: a body that sends nothing this long is a stall, as validator-loader's 10 s
 const esc = (text) => String(text).replace(/[&<>"']/g, (c) => '&#' + c.charCodeAt(0) + ';');
 const hex = (buffer) =>
   [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -58,7 +59,16 @@ export async function fetchPack(
   try {
     for (;;) {
       checkCancelled();
-      const { done, value } = await reader.read();
+      let timer;
+      const { done, value } = await Promise.race([
+        reader.read(),
+        new Promise((_, no) => {
+          timer = setTimeout(
+            () => no(refused('That download stalled, so it was stopped.')),
+            IDLE_MS,
+          );
+        }),
+      ]).finally(() => clearTimeout(timer));
       checkCancelled();
       if (done) break;
       if (size + value.length > entry.bytes) {

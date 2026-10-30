@@ -80,7 +80,7 @@ function fixture(puzzle = initial) {
       draftBusy = false, draftEpoch = 0, draftSave, routeSerial = 0,
       makerEpoch = 0, draftRev = 0, draftStale = null, channel = null, staleDraft = 'Draft changed in another tab.',
       draftUndo = [], draftRedo = [], draftNameEdit = null,
-      draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false;
+      draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false, restoreBusy = false;
     ${helpers}
     ${addClue}
     ${input}

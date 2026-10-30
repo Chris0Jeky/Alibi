@@ -31,6 +31,7 @@ function play(platform) {
     current: { state: { cell: 0 }, undo: [], redo: [], moves: 0, hints: 0 },
     C: { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b), clone: structuredClone },
     updateRequested: false,
+    restoreBusy: false,
     checking: false,
     feedback: '',
     completion: () => calls.push('complete'),

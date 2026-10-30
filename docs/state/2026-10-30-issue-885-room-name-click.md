@@ -48,6 +48,8 @@ Branch `claude/room-name-click-885`, based on main `0b256064`. Not pushed; no PR
   "Great Hall" and pressing Tab were inspected: chip, badge, verification notice and focus (next
   field highlighted) are correct, no overflow.
 
+Re-measured after merging main (#886), with the review fold-in (`button.draft-cell`, `setAttribute`): startup gzip 134,777 -> 135,029, ceiling 127 KiB + 5,056 (79 x 64; 78 x 64 would leave 11), 75 left; shell 1,440,408 -> 1,441,109, ceiling 1.32 MiB + 57,024 (891 x 64), 35.32 left. These replace the entries above.
+
 ## NOT verified
 
 - A physical phone or real touch keyboard; only Playwright touch emulation.

@@ -97,7 +97,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
       'The adder is not a startup script',
     );
-    assert.ok(zlib.gzipSync(bytes).length < 3 * 1024, 'The adder stays under 3 KiB gzip');
+    // #881: the body inactivity deadline takes the adder from 3,050 to 3,102 gzip bytes (3 KiB = 3,072).
+    // Excess 30; ceiling +64 (to 3,136) leaves 34; no feature room.
+    assert.ok(
+      zlib.gzipSync(bytes).length < 3 * 1024 + 64,
+      'The adder stays under 3 KiB + 64 bytes gzip',
+    );
   });
   // tools/build.cjs already leaves the deferred Pulseboard SDK and discovery storage assets out of
   // coreOfflineBytes; subtracting them again here hid ~56 KiB of real shell growth (#393).
@@ -232,12 +237,15 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // and the review fold-in that lets a backup pass a stale draft; Generate onto Undo; a separate
       // generator-form epoch) on main after #876: 134,462 -> 134,754 (+292). Excess 226; ceiling
       // 127 KiB + 4,736 (74 x 64) leaves 30 for identity/hash noise. No feature room.
-      // #885 Workshop room names patched in place (showRoomNames(): badge, paint chips, plan labels,
-      // clue text and clue menu) instead of a full render on blur, which swallowed the next click and
-      // Tab: main 134,752 -> 134,988 (+236). Excess 204; ceiling 127 KiB + 4,992 (78 x 64) leaves 52
-      // for identity/hash noise. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4992,
-      'Application bundle stays under 127 KiB + 4,992 bytes gzip',
+      // #882 run saves (restore quiesces this tab, paint strokes stop when frozen, a damaged row
+      // reports damage, restore refuses over unsaved progress) on main after #879: 134,754 -> 134,777
+      // (+23). 74 x 64 would leave 7 bytes, so 127 KiB + 4,800 (75 x 64) leaves 71. No feature room.
+      // #885 Workshop room names patched in place (showRoomNames: chips, plan labels, clue text,
+      // clue menu) so the next click and Tab are not swallowed, on main after #886: 134,777 ->
+      // 135,029 (+252). 78 x 64 would leave 11 bytes, so 127 KiB + 5,056 (79 x 64) leaves 75.
+      // No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5056,
+      'Application bundle stays under 127 KiB + 5,056 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -439,11 +447,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // broadcast, the backup fold-in, Generate onto Undo, the generator-form epoch) on main after
       // #876: 1,438,967 -> 1,440,158 (+1,191; 1.32 MiB + 56,037.68). Excess 1,125.68; ceiling
       // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
-      // #885 Workshop room names patched in place (see the JavaScript note above): main 1,440,159 ->
-      // 1,440,820 (+661; 1.32 MiB + 56,699.68). Excess 635.68; 887 x 64 = 56,768 leaves 68.32 for
-      // identity/hash noise (886 x 64 would leave 5.32). No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56768,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 56,768 bytes',
+      // #882 run saves on main after #879: 1,440,158 -> 1,440,408 (+250; 1.32 MiB + 56,287.68).
+      // Excess 223.68; ceiling 1.32 MiB + 56,320 (880 x 64) leaves 32.32. No feature room.
+      // #885 room names patched in place, on main after #886: 1,440,408 -> 1,441,109 (+701;
+      // 1.32 MiB + 56,988.68). Excess 668.68; ceiling 1.32 MiB + 57,024 (891 x 64) leaves 35.32.
+      // No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 57024,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 57,024 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

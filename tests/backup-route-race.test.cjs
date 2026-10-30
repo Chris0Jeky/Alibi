@@ -209,6 +209,8 @@ function restoreHarness(store) {
   };
   const context = {
     queue: Promise.resolve(),
+    clearTimeout,
+    enqueueSave: () => Promise.resolve(),
     C: { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
     inWorker: async (message) => message.value,
     store,
@@ -231,8 +233,8 @@ function restoreHarness(store) {
   };
   vm.runInNewContext(
     `
-    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false,
-      stagedCabinet = null, dialogOpener = null;
+    let pendingBackup = { runs: [], packs: [] }, restoreBusy = false, saveError = '',
+      stagedCabinet = null, dialogOpener = null, noteTimer = null;
     ${source.slice(source.indexOf("  $('#dialog').addEventListener('close', () => {"), source.indexOf("  $('#dialog').addEventListener('cancel',"))}
     ${appFunction('restoreBackup')}
     globalThis.api = { run: restoreBackup };
