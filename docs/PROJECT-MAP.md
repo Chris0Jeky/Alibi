@@ -37,6 +37,7 @@ flowchart TD
 | `src/storage.js` | Revision-conditional saves, labeled fallbacks and atomic restore |
 | `src/app.js` | Routes, player, lessons, workshop, journal, backup and PWA lifecycle |
 | `src/voices.js`, `src/voices-queue.js`, `src/voices-sheet.js` | Player feedback, the taste survey and puzzle ratings sent to Pulseboard on request, with an offline queue ([FEEDBACK-AND-SURVEYS.md](FEEDBACK-AND-SURVEYS.md)) |
+| `src/cold-pages.js` | Privacy & credits, About and the sign-in note: a deferred, precached chunk loaded when their routes open (#825) |
 | `content/theatre.json`, `src/theatre.js`, `src/theatre.css` | Eight local rooms, optional sound/films, scene controls and presentation lifecycle |
 | `src/asset-delivery.js`, `tools/build-delivery.cjs` | Verified optional image delivery, exact mirrors and bounded cache slots |
 | `src/presentation.js` | Family rules, lessons, icons and decorative board previews |
