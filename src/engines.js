@@ -936,11 +936,12 @@
       if (!arr(p.tanks, N, 0, N - 1) || !arr(p.rowTargets, n, 0, n) || !arr(p.colTargets, n, 0, n))
         fail('Invalid aquarium.');
       const count = Math.max(...p.tanks) + 1;
+      let rows;
       if (
         count > 10 ||
         new Set(p.tanks).size !== count ||
         !arr(p.solution, count, 0, n) ||
-        p.solution.some((v, i) => v > tankRows(p)[i].length)
+        ((rows = tankRows(p)), p.solution.some((v, i) => v > rows[i].length))
       )
         fail('Invalid water levels.');
       for (let t = 0; t < count; t++) {
@@ -1017,10 +1018,10 @@
         (p.type === 'lightup'
           ? s.cells.every((v, i) => p.walls[i] === -2 || v === -1)
           : p.trees.every((i) => s.cells[i] === -1));
-    if (p.type === 'aquarium')
-      good =
-        ints(s.levels, tankRows(p).length, 0, n) &&
-        s.levels.every((v, i) => v <= tankRows(p)[i].length);
+    if (p.type === 'aquarium') {
+      const rows = tankRows(p); // once per call: it is puzzle-only work
+      good = ints(s.levels, rows.length, 0, n) && s.levels.every((v, i) => v <= rows[i].length);
+    }
     if (p.type === 'network')
       good = ints(s.rotations, N, 0, 3) && p.locked.every((i) => s.rotations[i] === 0);
     if (p.type === 'trail')
