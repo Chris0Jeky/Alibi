@@ -663,7 +663,11 @@
     // chunk is loaded. ponytail: walks the family once (memoised); Picture logic takes ~0.7 s
     // on a desktop, so yield between puzzles if phones stall.
     if (library.technique && C.insights)
-      ps = ps.filter((p) => C.insights.techniques(p).some(([rule]) => rule === library.technique));
+      ps = ps.filter(
+        (p) =>
+          !deferred?.has(p) &&
+          C.insights.techniques(p).some(([rule]) => rule === library.technique),
+      );
     return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
@@ -3324,7 +3328,10 @@
       case 'practise': {
         const type = current.puzzle.type;
         closeDialog();
+        // The walk caches per revision, so let deferred definitions arrive before it runs.
+        await deferred?.ensure().catch(() => 0);
         clearFilters(type);
+        library.venue = '';
         library.technique = v;
         practising = true;
         navigate('library', type);

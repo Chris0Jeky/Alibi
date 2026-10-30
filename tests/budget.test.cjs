@@ -223,7 +223,8 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // intro and list copy) on main after #867: 134,213 -> 134,296 (+83). Excess 56; ceiling
       // +96 leaves 40; the copy is required for a solvable printed sheet. No feature room.
       // #835 practise a technique (record technique buttons, the family filter, the focus on its
-      // count): 134,296 -> 134,421 (+125). Excess 85; ceiling +128 leaves 43. No feature room.
+      // count, the deferred-definition wait): 134,296 -> 134,438 (+142). Excess 102; ceiling
+      // +128 leaves 26. No feature room.
       info.javascriptGzipBytes < 127 * 1024 + 4416,
       'Application bundle stays under 127 KiB + 4,416 bytes gzip',
     );
@@ -417,10 +418,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #866 on main after #867 (clueList() helper, print-only copy, three print rules):
       // 1,437,882 -> 1,438,353 (+471; 1.32 MiB + 54,232.68). Excess 408.68; ceiling 1.32 MiB
       // + 54,272 (848 x 64) leaves 39.32; no feature room.
-      // #835 practise a technique (app.js only): 1,438,353 -> 1,438,834 (+481). Excess 441.68;
-      // ceiling 1.32 MiB + 54,784 (856 x 64) leaves 70.32; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54784,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 54,784 bytes',
+      // #835 practise a technique (app.js only): 1,438,353 -> 1,438,888 (+535). Excess 495.68;
+      // ceiling 1.32 MiB + 54,848 (857 x 64) leaves 80.32; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54848,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 54,848 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
