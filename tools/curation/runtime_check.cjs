@@ -17,6 +17,8 @@ else {
 globalThis.AlibiCore = C;
 if (fs.existsSync(path.join(repo, 'src/network-hints.js')))
   require(path.join(repo, 'src/network-hints.js'));
+// Scene hints reuse the Candidates exclusions, as in the app (#851).
+if (fs.existsSync(path.join(repo, 'src/assist.js'))) require(path.join(repo, 'src/assist.js'));
 require(process.env.ALIBI_INSIGHTS || path.join(repo, 'src/insights.js'));
 const files = process.argv.slice(3),
   results = [];
