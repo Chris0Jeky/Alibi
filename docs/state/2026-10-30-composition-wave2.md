@@ -39,4 +39,5 @@ browser check of Rehearse on the built app (zero IndexedDB/localStorage writes).
 
 Browser suites locally (`browser_ui.py` Rehearse/audit journeys, `browser_origin.py` rehearsal
 scenario, `browser_keyboard_help.py` Read clues) - hosted CI runs them. Physical device and real
-screen readers (HUMAN_TODO q-2). Follow-ups: #844, #854.
+screen readers (HUMAN_TODO q-2). #844 and #854 are resolved here; #831 phone-width legibility is
+not inspected.
