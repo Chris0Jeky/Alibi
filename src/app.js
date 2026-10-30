@@ -2073,7 +2073,7 @@
       current.puzzle.id,
       (p) => solved(rec(p)),
       (p) => activeRun(rec(p)),
-      globalThis.AlibiVoices?.feel?.(current.puzzle.id),
+      globalThis.AlibiFeel?.(current.puzzle.id),
     );
     if (p) navigate('play', keyFor(p));
     else navigate('library', current.puzzle.type);
