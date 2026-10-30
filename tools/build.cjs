@@ -291,6 +291,13 @@ function build() {
     }) + officialContent.deferredRuntime(deferredURL, officialSplit.keys);
   const contentURL = `./assets/official-content.${hash(contentSource)}.js`;
   write(path.join(DIST, contentURL), contentSource);
+  const insightsSource = read(path.join(SRC, 'insights.js')),
+    insightsChunk = require('esbuild').transformSync(insightsSource, {
+      minify: true,
+      target: 'es2022',
+    }).code,
+    insightsURL = `./assets/insights.${hash(insightsChunk)}.js`;
+  write(path.join(DIST, insightsURL), insightsChunk);
   const base = [
     read(path.join(SRC, 'updates.js')),
     core,
@@ -303,7 +310,8 @@ function build() {
     read(path.join(SRC, 'validator-loader.js')),
     read(path.join(SRC, 'curation.js')),
     read(path.join(SRC, 'network-hints.js')),
-    read(path.join(SRC, 'insights.js')),
+    read(path.join(SRC, 'insights-loader.js')),
+    insightsSource,
     read(path.join(SRC, 'assist.js')),
     read(path.join(SRC, 'atlas.js')),
     read(path.join(SRC, 'atmosphere.js')),
@@ -322,7 +330,7 @@ function build() {
   const targetGuard = '!globalThis.ALIBI_BUILD_TARGET &&';
   if (base.split(targetGuard).length !== 2)
     throw new Error('Expected exactly one Android target guard in the application source.');
-  const webBase = base.replace(targetGuard, '!cfg.standalone &&');
+  const webBase = base.replace(insightsSource, '').replace(targetGuard, '!cfg.standalone &&');
   const blockMotion = require('./build-block-motion.cjs')(ROOT, DIST);
   const blockLoader = require('esbuild').transformSync(
     `globalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.config)};\n` +
@@ -341,6 +349,7 @@ function build() {
         deferredSource +
         blockLoader +
         webBase +
+        insightsChunk +
         boot +
         worker +
         clubEngineBundle +
@@ -361,7 +370,7 @@ function build() {
         JSON.stringify(house.config) +
         workshopShelf.files.map((file) => hash(file.data)).join(''),
     ),
-    cfg = { version: VERSION, build: release, standalone: false };
+    cfg = { version: VERSION, build: release, standalone: false, insights: insightsURL };
   const js =
       `globalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.config)};\nglobalThis.ALIBI_DELIVERY=globalThis.ALIBI_CURATION.delivery;\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.media)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify(cfg)};\nglobalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.config)};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(media)};\nglobalThis.ALIBI_WORKER_URL=${JSON.stringify(workerURL)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engine: engineURL, apiBase: '' })};\n${voicesConfig(voicesURL)}` +
       require('esbuild').transformSync(webBase, { minify: true, target: 'es2022' }).code,
@@ -444,6 +453,7 @@ function build() {
     contentURL,
     deferredURL,
     voicesURL,
+    insightsURL,
     ...Object.values(curation.media),
     ...Object.values(media),
   ];
@@ -494,7 +504,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alibi · No clue here</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f1eee7;color:#213c43;font:17px/1.6 system-ui,sans-serif}main{box-sizing:border-box;max-width:440px;margin:24px;padding:32px;background:#fffcf5;border:1px solid #d9ddd6;border-radius:18px}small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#55666a}h1{font:500 32px/1.2 Georgia,serif;margin:8px 0 12px}a{display:inline-block;margin-top:8px;padding:12px 22px;border-radius:999px;background:#235861;color:#fff;font-weight:600;text-decoration:none}a:focus-visible{outline:3px solid #c29350;outline-offset:3px}</style><body><main><small>alibi: · page not found</small><h1>This clue leads nowhere.</h1><p>This address is not part of Alibi. Nothing here changes your saved progress.</p><a href="/">Return to Alibi</a></main></body></html>',
   );
   writePathRouteAliases(DIST);
-  const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${voicesConfig(null)}${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}\n${voicesSources.join('\n')}`;
+  const standalone = `globalThis.ALIBI_BUILD_TARGET='standalone';\nglobalThis.ALIBI_HOUSE_CONFIG=${JSON.stringify(house.standalone)};\nglobalThis.ALIBI_BLOCK_MOTION=${JSON.stringify(blockMotion.standalone)};\nglobalThis.ALIBI_THEATRE=${JSON.stringify({ ...theatre, audio: [], films: [] })};\nglobalThis.ALIBI_CURATION_MEDIA=${JSON.stringify(curation.inlineMedia)};\n globalThis.ALIBI_QUIET_CONFIG=${JSON.stringify(quiet.standalone)};\nglobalThis.ALIBI_CONFIG=${JSON.stringify({ ...cfg, standalone: true, insights: null })};\nglobalThis.ALIBI_MEDIA=${JSON.stringify(inlineMedia)};\nglobalThis.ALIBI_WORKER_SOURCE=${JSON.stringify(worker)};\nglobalThis.ALIBI_CLUB_CONFIG=${JSON.stringify({ engineSource: clubEngine, apiBase: '' })};\n${voicesConfig(null)}${base}\n${read(path.join(SRC, 'block-motion-loader.js'))}\n${voicesSources.join('\n')}`;
   write(
     path.join(ROOT, 'alibi-deluxe-play.html'),
     template
@@ -557,6 +567,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     discoveryStorageGzipBytes: zlib.gzipSync(discoveryStorage).length,
     voicesChunkBytes: Buffer.byteLength(voicesChunk),
     voicesChunkGzipBytes: zlib.gzipSync(voicesChunk).length,
+    insightsChunkBytes: Buffer.byteLength(insightsChunk),
+    insightsChunkGzipBytes: zlib.gzipSync(insightsChunk).length,
     officialContentBytes:
       Buffer.byteLength(contentSource) + Buffer.byteLength(deferredSource) + curation.bytes,
     curationMediaBytes: curation.bytes,

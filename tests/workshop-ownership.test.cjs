@@ -3,6 +3,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const C = require('../src/core.js');
+const initial = C.createSceneDraft({ seed: 7 });
 const app = fs.readFileSync(require.resolve('../src/app.js'), 'utf8');
 const helpers = app.slice(
   app.indexOf('  async function saveDraft()'),
@@ -32,6 +34,8 @@ function fixture() {
   let holdSave = false,
     onInput;
   const context = {
+    C,
+    initial: structuredClone(initial),
     FormData: class {
       get(key) {
         return { names: 'A,B,C,D,E', seed: '7', title: 'Case', setting: 'House', story: 'Story' }[
@@ -54,8 +58,7 @@ function fixture() {
     render: () => {},
     document: {
       addEventListener: (name, callback) => {
-        assert.equal(name, 'input');
-        onInput = callback;
+        if (name === 'input') onInput = callback;
       },
       querySelector: () => ({ scrollIntoView: () => scrolls.push('editor') }),
     },
@@ -64,7 +67,8 @@ function fixture() {
   const api = vm.runInNewContext(
     `(() => {
     let draftSave;
-    let draft = {rooms:[0]}, draftVerified = false, draftBusy = false,
+    let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null,
+      draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
       makerFields = {title:'Case'};
     ${helpers}
@@ -124,18 +128,20 @@ for (const operation of ['generate', 'verify']) {
   test(`draft save failure is discarded after ${operation} replaces and saves the draft`, async () => {
     const f = fixture(),
       original = f.state().draft,
-      replacement = { rooms: [2] };
+      replacement = structuredClone(initial);
     f.holdSave();
     f.edit();
     assert.equal(f.saves.length, 1);
-    assert.deepEqual(f.saves[0].puzzle.rooms, [1]);
+    assert.deepEqual(f.saves[0].puzzle.rooms, [1, ...initial.rooms.slice(1)]);
     const pending = f[operation]();
-    f.worker.resolve(replacement);
+    f.worker.resolve(
+      operation === 'generate' ? replacement : { solutions: [replacement.solution] },
+    );
     await pending;
-    assert.equal(f.state().draft, replacement);
+    assert.notEqual(f.state().draft, original);
     assert.equal(f.state().draftVerified, true);
     assert.equal(f.saves.length, 2);
-    assert.deepEqual(f.persisted, [{ puzzle: replacement }]);
+    assert.deepEqual(f.persisted, [{ puzzle: f.state().draft }]);
 
     f.saveResult.reject(Error('obsolete draft save failure'));
     await new Promise(setImmediate);
@@ -144,10 +150,13 @@ for (const operation of ['generate', 'verify']) {
       operation === 'verify' ? ['Verified. Exactly one arrangement satisfies these clues.'] : [],
     );
     assert.notEqual(f.state().draft, original);
-    assert.equal(f.state().draft, replacement);
+    assert.deepEqual(
+      f.state().draft.rooms,
+      operation === 'generate' ? initial.rooms : [1, ...initial.rooms.slice(1)],
+    );
     assert.equal(f.state().draftVerified, true);
     assert.equal(f.state().draftBusy, false);
-    assert.deepEqual(f.persisted, [{ puzzle: replacement }]);
+    assert.deepEqual(f.persisted, [{ puzzle: f.state().draft }]);
   });
 }
 

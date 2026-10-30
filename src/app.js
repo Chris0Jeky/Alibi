@@ -74,6 +74,10 @@
     workTab = 'scene',
     draft = null,
     draftVerified = false,
+    draftComparison = null,
+    draftUndo = [],
+    draftRedo = [],
+    draftNameEdit = null,
     draftShowSolution = false,
     draftMode = 'room',
     draftPaint = 0,
@@ -997,7 +1001,7 @@
           p.type === 'nonogram'
             ? `<div class="nono-clue col ${C.equal(C.runs(range(n).map((r) => s.cells[r * n + c])), p.colClues[c]) ? 'met' : ''}" aria-label="Column ${String.fromCharCode(65 + c)} clues ${p.colClues[c].join(', ')}">${p.colClues[c].map((v) => `<span>${v}</span>`).join('')}</div>`
             : counts
-              ? `<div class="axis target ${counts.cols[c] === p.colTargets[c] ? 'met' : counts.cols[c] > p.colTargets[c] ? 'over' : ''}" aria-label="Column ${String.fromCharCode(65 + c)}: ${counts.cols[c]} of ${p.colTargets[c]}">${p.colTargets[c]}</div>`
+              ? `<div class="axis target ${counts.cols[c] === p.colTargets[c] ? 'met' : counts.cols[c] > p.colTargets[c] ? 'over' : ''}" data-clue-axis="1" data-clue-line="${c}" aria-label="Column ${String.fromCharCode(65 + c)}: ${counts.cols[c]} of ${p.colTargets[c]}">${p.colTargets[c]}</div>`
               : `<div class="axis">${String.fromCharCode(65 + c)}</div>`,
         )
         .join('');
@@ -1006,7 +1010,7 @@
         p.type === 'nonogram'
           ? `<div class="nono-clue ${C.equal(C.runs(s.cells.slice(r * n, (r + 1) * n)), p.rowClues[r]) ? 'met' : ''}" aria-label="Row ${r + 1} clues ${p.rowClues[r].join(', ')}">${p.rowClues[r].map((v) => `<span>${v}</span>`).join('')}</div>`
           : counts
-            ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
+            ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" data-clue-axis="0" data-clue-line="${r}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
             : `<div class="axis">${r + 1}</div>`;
       for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
     }
@@ -1263,7 +1267,7 @@
   }
   function draftEditor() {
     const p = draft;
-    return `<section class="panel draft-editor"><div class="row between wrap" style="margin-bottom:16px"><div><div class="eyebrow">Visual scene editor</div><h2>${esc(p.title)}</h2></div><span class="badge ${draftVerified ? '' : 'amber'}">${draftVerified ? 'One unique solution verified' : 'Edited draft · recheck required'}</span></div><div class="draft-editor-grid"><div><div class="chips">${[
+    return `<section class="panel draft-editor"><div class="row between wrap" style="margin-bottom:16px"><div><div class="eyebrow">Visual scene editor</div><h2>${esc(p.title)}</h2></div><span class="badge ${draftVerified ? '' : 'amber'}">${draftVerified ? 'One unique solution verified' : 'Edited draft · recheck required'}</span></div><div class="row wrap" role="group" aria-label="Draft history">${B('Undo', 'undo-draft', 'undo', 'secondary small', `id="undo-draft" data-focus-fallback="redo-draft" ${draftUndo.length ? '' : 'disabled'}`)}${B('Redo', 'redo-draft', 'redo', 'secondary small', `id="redo-draft" data-focus-fallback="undo-draft" ${draftRedo.length ? '' : 'disabled'}`)}</div><p class="fine">Keep up to 50 edits with Undo and Redo until you generate a new draft or reload.</p><div class="draft-editor-grid"><div><div class="chips">${[
       ['room', 'Paint rooms'],
       ['furniture', 'Place furniture'],
     ]
@@ -1315,7 +1319,33 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div></section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}</section>`;
+  }
+  function draftComparisonView() {
+    if (!draftComparison) return '';
+    const [a, b] = draftComparison,
+      changed = (person) => a[person.id] !== b[person.id],
+      position = (cell) =>
+        `row ${Math.floor(cell / 5) + 1}, column ${String.fromCharCode(65 + (cell % 5))} (${esc(draft.roomNames[draft.rooms[cell]])})`;
+    return `<section id="draft-comparison" class="draft-comparison" tabindex="-1" aria-labelledby="draft-comparison-title"><h3 id="draft-comparison-title">At least two arrangements fit</h3><p>Both satisfy the current clues. These are two examples, not a complete list. Double borders mark people whose positions differ. Revise a clue above, then verify again.</p><div class="draft-editor-grid">${draftComparison
+      .map(
+        (solution, index) =>
+          `<figure><figcaption>Arrangement ${index ? 'B' : 'A'}</figcaption><div class="draft-board" aria-hidden="true">${range(
+            25,
+          )
+            .map((cell) => {
+              const who = draft.people.find((p) => solution[p.id] === cell),
+                object = draft.objects.find((o) => o.cell === cell);
+              return `<span class="draft-cell ${who && changed(who) ? 'draft-difference' : ''}" style="background:var(--room-${draft.rooms[cell]})"><span class="draft-room">${String.fromCharCode(65 + draft.rooms[cell])}</span>${who ? token(who, draft) : object ? icon(object.kind) : ''}</span>`;
+            })
+            .join('')}</div></figure>`,
+      )
+      .join('')}</div><ul class="draft-comparison-text">${draft.people
+      .map(
+        (person) =>
+          `<li><strong>${esc(person.name)}${changed(person) ? ' — changed' : ' — same in both'}:</strong> ${changed(person) ? `Arrangement A: ${position(a[person.id])}; Arrangement B: ${position(b[person.id])}.` : `${position(a[person.id])}.`}</li>`,
+      )
+      .join('')}</ul></section>`;
   }
   function packDesk() {
     return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div>${
@@ -1832,15 +1862,53 @@
         'No current rule conflicts found. This does not guarantee every entry is correct; the puzzle is not complete yet.';
     render();
   }
-  function showHint() {
+  async function loadReasoning() {
+    if (!current || paused) return null;
+    const run = current,
+      state = run.state,
+      modal = $('#dialog'),
+      contents = modal.firstChild,
+      open = modal.open;
+    const same = () =>
+      current === run &&
+      run.state === state &&
+      !paused &&
+      modal.firstChild === contents &&
+      modal.open === open;
+    try {
+      const insights = await C.loadInsights();
+      return same() ? insights : null;
+    } catch (error) {
+      if (same()) toast(error.message);
+      return null;
+    }
+  }
+  async function showHint() {
     if (!current || paused) return;
     globalThis.AlibiJourney?.(current, 'hint.requested');
     // A solved board has nothing to reveal; say so instead of offering a reveal (m9).
     if (current.completedAt && blocked()) return;
-    const hint = C.insights.deduction(current.puzzle, current.state);
+    const reasoning = await loadReasoning();
+    if (!reasoning) return;
+    const hint = reasoning.deduction(current.puzzle, current.state);
+    if (current.puzzle.type === 'aquarium') {
+      document.querySelectorAll('.hint-focus').forEach((el) => el.classList.remove('hint-focus'));
+      for (const i of hint?.cells || [])
+        document.getElementById(`cell-${i}`)?.classList.add('hint-focus');
+      for (const { axis, line } of hint?.clues || [])
+        document
+          .querySelector(`[data-clue-axis="${axis}"][data-clue-line="${line}"]`)
+          ?.classList.add('hint-focus');
+    }
+    const explanation =
+      hint?.tank !== undefined
+        ? 'This follows only the public clues; your waterlines remain choices. The outlined tank and clues stay marked when you close this hint.'
+        : hint
+          ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.'
+          : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
-      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${hint ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.' : 'This is a general strategy, not a check against the hidden answer.'}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
@@ -1860,9 +1928,11 @@
       ],
     );
   }
-  function reviewRecord() {
+  async function reviewRecord() {
     if (!current?.completedAt) return;
-    const rows = C.insights.recap(current.puzzle, current.state);
+    const reasoning = await loadReasoning();
+    if (!reasoning) return;
+    const rows = reasoning.recap(current.puzzle, current.state);
     dialog(
       'The completed record.',
       `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>`,
@@ -2591,10 +2661,36 @@
         toast(e.message, true);
     });
   }
+  function recordDraft(before, name = null) {
+    if (C.equal(before, draft)) return false;
+    if (name === null || draftNameEdit !== name) {
+      draftUndo.push(before);
+      if (draftUndo.length > 50) draftUndo.shift();
+    }
+    draftNameEdit = name;
+    if (name !== null && C.equal(draftUndo.at(-1), draft)) {
+      draftUndo.pop();
+      draftNameEdit = null;
+    }
+    draftRedo = [];
+    dirtyDraft();
+    return true;
+  }
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
+    draftComparison = null;
     saveDraft();
+  }
+  function undoDraft(redo = false) {
+    const from = redo ? draftRedo : draftUndo,
+      to = redo ? draftUndo : draftRedo;
+    if (!draft || !from.length) return;
+    to.push(C.clone(draft));
+    draft = from.pop();
+    draftNameEdit = null;
+    dirtyDraft();
+    render();
   }
   async function generateDraft(form) {
     if (draftBusy) return;
@@ -2616,12 +2712,17 @@
     };
     const startedEpoch = draftEpoch;
     draftBusy = true;
+    draftVerified = false;
+    draftComparison = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
       if (startedEpoch !== draftEpoch) return;
-      draft = result;
+      draft = C.validateDefinition(result);
       draft.authorSeed = seed;
+      draftUndo = [];
+      draftRedo = [];
+      draftNameEdit = null;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
@@ -2642,11 +2743,29 @@
     if (!draft || draftBusy) return;
     const startedEpoch = draftEpoch;
     draftBusy = true;
+    draftVerified = false;
+    draftComparison = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
       if (startedEpoch !== draftEpoch) return;
-      draft = result;
+      if (!Array.isArray(result?.solutions) || ![1, 2].includes(result.solutions.length))
+        throw Error('The draft check returned an invalid result. Verify again.');
+      const checked = result.solutions.map((solution) => {
+        const p = C.validateSceneDraft({ ...draft, solution });
+        if (!C.sceneComplete(p, { placements: p.solution }))
+          throw Error('The draft check returned an invalid arrangement. Verify again.');
+        return p;
+      });
+      if (checked.length === 2) {
+        if (draft.people.every(({ id }) => checked[0].solution[id] === checked[1].solution[id]))
+          throw Error('The draft check returned duplicate arrangements. Verify again.');
+        draftComparison = checked.map((p) => p.solution);
+        draftShowSolution = false;
+        toast('At least two arrangements fit. Compare them below, then revise a clue.');
+        return;
+      }
+      draft = C.validateDefinition(checked[0]);
       draftVerified = true;
       await saveDraft();
       if (startedEpoch !== draftEpoch) return;
@@ -2658,6 +2777,7 @@
     } finally {
       draftBusy = false;
       render();
+      if (draftComparison) document.querySelector('#draft-comparison')?.focus();
     }
   }
   function clueValues() {
@@ -2695,8 +2815,9 @@
     if (draft.clues.length >= 40) throw Error('A scene supports at most 40 clues.');
     C.validateSceneClue(cl, draft);
     if (draft.clues.some((c) => C.equal(c, cl))) throw Error('That clue is already present.');
+    const before = C.clone(draft);
     draft.clues.push(cl);
-    dirtyDraft();
+    recordDraft(before);
     render();
   }
   async function install() {
@@ -3252,10 +3373,12 @@
         break;
       case 'draft-cell':
         if (draft) {
-          const i = Number(el.dataset.cell);
+          const i = Number(el.dataset.cell),
+            before = C.clone(draft);
           if (draftMode === 'room') draft.rooms[i] = draftPaint;
           else {
             const old = draft.objects.find((o) => o.cell === i);
+            if (old ? old.kind === draftObject : draftObject === 'none') break;
             if (old && draft.clues.some((c) => c.kind === 'near' && c.value === i)) {
               toast(
                 'A “next to” clue refers to that furniture. Remove the clue before moving it.',
@@ -3263,10 +3386,10 @@
               );
               break;
             }
+            if (!old && draftObject !== 'none' && draft.objects.length >= 12)
+              throw Error('At most 12 furniture squares are supported.');
             draft.objects = draft.objects.filter((o) => o.cell !== i);
             if (draftObject !== 'none') {
-              if (draft.objects.length >= 12)
-                throw Error('At most 12 furniture squares are supported.');
               draft.objects.push({
                 cell: i,
                 kind: draftObject,
@@ -3274,7 +3397,7 @@
               });
             }
           }
-          dirtyDraft();
+          recordDraft(before);
           render();
         }
         break;
@@ -3283,11 +3406,16 @@
         render();
         break;
       case 'remove-draft-clue':
-        if (draft) {
+        if (draft?.clues[Number(el.dataset.index)]) {
+          const before = C.clone(draft);
           draft.clues.splice(Number(el.dataset.index), 1);
-          dirtyDraft();
+          recordDraft(before);
           render();
         }
+        break;
+      case 'undo-draft':
+      case 'redo-draft':
+        undoDraft(a === 'redo-draft');
         break;
       case 'verify-draft':
         await verifyDraft();
@@ -3424,11 +3552,22 @@
     } else if (el.dataset.roomName !== undefined && draft) {
       const value = el.value.trim();
       if (value) {
+        const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
-        dirtyDraft();
-        draftVerified = false;
+        if (!recordDraft(before, el)) return;
+        document.querySelector('#draft-comparison')?.remove();
+        $('[data-action="undo-draft"]').disabled = !draftUndo.length;
+        $('[data-action="redo-draft"]').disabled = !draftRedo.length;
+        $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
+        for (const button of document.querySelectorAll(
+          '[data-action="add-draft"], [data-action="export-draft"]',
+        ))
+          button.disabled = true;
       }
     }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.dataset.roomName !== undefined) draftNameEdit = null;
   });
   document.addEventListener('change', async (e) => {
     if (updateRequested) return;
@@ -3937,6 +4076,7 @@
     activeRun,
     settings: () => settings,
     current: () => current,
+    insights: loadReasoning,
     apply: act,
     toast,
     dialog,

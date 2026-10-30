@@ -1335,6 +1335,11 @@ input[type='checkbox'] {
   background: var(--red-bg) !important;
   box-shadow: inset 0 0 0 2px var(--red) !important;
 }
+.cell.hint-focus:not(:focus-visible),
+.axis.hint-focus {
+  outline: 2px dashed var(--ink);
+  outline-offset: -4px;
+}
 .cell.peer:not(.given):not(.selected) {
   background: color-mix(in srgb, var(--green-soft) 45%, var(--cell));
 }
@@ -2619,6 +2624,33 @@ input[type='checkbox'] {
   width: 28px;
   height: 28px;
   font-size: 15px;
+}
+.draft-comparison {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--board-border);
+}
+.draft-comparison > p {
+  max-width: 70ch;
+  margin: 10px 0 20px;
+}
+.draft-comparison figure {
+  margin: 0;
+}
+.draft-comparison figcaption {
+  font-weight: 700;
+  text-align: center;
+}
+.draft-comparison .draft-difference {
+  outline: 4px double var(--board-border);
+  outline-offset: -5px;
+}
+.draft-comparison-text {
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+}
+.draft-comparison-text li + li {
+  margin-top: 10px;
 }
 .draft-clues {
   max-height: 330px;
