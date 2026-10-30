@@ -225,8 +225,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #835 practise a technique (record technique buttons, the family filter, the focus on its
       // count, the deferred-definition wait and its route check): 134,296 -> 134,450 (+154).
       // Excess 114; ceiling +128 leaves 14. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4416,
-      'Application bundle stays under 127 KiB + 4,416 bytes gzip',
+      // Fourth composition (#870 practise a technique, #865 hint follow-ups, #871 print-sheet test)
+      // on main after #869: 134,463 on the composed tree. 127 KiB + 4,416 (69 x 64) would leave 1
+      // byte for hash noise, so 70 x 64 = 4,480 leaves 65. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4480,
+      'Application bundle stays under 127 KiB + 4,480 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -421,8 +424,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #848 Reload Alibi beside Retry on a failed Privacy chunk, on main after #868: 1,438,353 ->
       // 1,438,435 (+82; 1.32 MiB + 54,314.68). Excess 42.68; ceiling 1.32 MiB + 54,336 (849 x 64)
       // leaves 21.32; recovery from a purged chunk needs the control. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54336,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 54,336 bytes',
+      // Fourth composition (#870, #865, #871) on main after #869: 1,438,435 -> 1,438,968 (+533;
+      // 1.32 MiB + 54,847.68). Excess 511.68; 857 x 64 would leave 0.32, so 1.32 MiB + 54,912
+      // (858 x 64) leaves 64.32 for identity/hash noise. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54912,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 54,912 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
