@@ -288,8 +288,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #738 load-only recovery and atomic Add-missing revision preservation measure
       // 1,418,911 -> 1,419,648 (+737). Ceiling +704 covers the 615.68-byte excess and leaves
       // 88.32 bytes for identity/hash noise; initial payload and content limits stay unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 35616,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 35,616 bytes',
+      // #846 crime-scene reasoning hints (candidate pruning, line rule, accusation pointer in
+      // src/insights.js): main 1,418,441 -> 1,420,811 (+2,370). Excess 1,074.68 bytes; ceiling
+      // +1,088 (17 x 64) leaves 13.32 bytes; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 36704,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 36,704 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
