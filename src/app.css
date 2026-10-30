@@ -4515,3 +4515,84 @@ html[data-reduced='true'] *:after {
     font-size: 13px;
   }
 }
+/* Print sheet (#830): the play route prints title, revision, board and clues only. */
+.print-only {
+  display: none;
+}
+@page {
+  margin: 12mm;
+}
+@media print {
+  .print-only {
+    display: inline;
+  }
+  body {
+    background: #fff;
+  }
+  .shell.playing {
+    display: block;
+    min-height: 0;
+    background: #fff;
+    color: #000;
+    --bg: #fff;
+    --paper: #fff;
+    --cell: #fff;
+    --ink: #000;
+    --muted: #000;
+    --num: #000;
+    --green: #000;
+    --line: #000;
+    --board-border: #000;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .shell.playing > :not(.main-wrap),
+  .playing .main-wrap > :not(.main),
+  .playing .main > :not(.play-head, .player-grid),
+  .playing .play-head > :not(.play-title),
+  .playing .play-title :is(.save-state, #timer),
+  .playing .player-grid > :not(.board-column),
+  .playing .board-column > :not(.board-card),
+  .playing .board-card > :not(.board-wrap, [inert]),
+  .playing [inert] > :not(.board-wrap),
+  .playing .board-wrap :is(.toolrow, .control-note),
+  dialog,
+  .toast-container,
+  .skip-link {
+    display: none !important;
+  }
+  .playing .main,
+  .playing .player-grid {
+    display: block;
+    min-height: 0;
+    padding: 0;
+  }
+  .playing .board-card {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    break-inside: avoid;
+  }
+  .playing .board-wrap {
+    max-width: 170mm;
+    break-inside: avoid;
+  }
+  .playing .board-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  .playing .grid-shell {
+    min-width: 0 !important;
+  }
+  .playing .cell {
+    box-shadow: inset -1px -1px 0 #555;
+  }
+  .playing .nono-cell.filled {
+    background: #000;
+  }
+  .playing :is(.axis, .nono-clue) {
+    background: none !important;
+    color: #000 !important;
+    opacity: 1 !important;
+  }
+}

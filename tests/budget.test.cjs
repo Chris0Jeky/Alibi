@@ -338,8 +338,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // chunk wrapper add raw precached bytes while startup gzip falls) measure 1,426,795 bytes
       // (1.32 MiB + 42,674.68) on the composed tree. Ceiling 1.32 MiB + 42,944 (64-byte step)
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 42944,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 42,944 bytes',
+      // #830 print sheet (one scoped @media print block in src/app.css plus the print-only
+      // id/revision span): measures 1,426,795 -> 1,428,193 (+1,398; shell 1.32 MiB + 44,072.68).
+      // The selectors that hide the interface cannot shrink below their names. Excess 1,128.68
+      // bytes; ceiling +1,216 (19 x 64) leaves 87.32 for identity/hash noise; no feature room.
+      // Startup gzip (202,519 of 225,280) and content limits unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 44160,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 44,160 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
